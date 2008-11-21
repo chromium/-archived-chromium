@@ -38,42 +38,45 @@ env.Replace(
 )
 
 
-sconscript_files = [
+sconscript_files = env.ChromiumLoadComponentSConscripts(
     'SConscript',
 
-    'browser/browser.scons',
-    'browser/debugger/debugger.scons',
-    'common/common.scons',
-    'common/ipc_tests.scons',
-    'installer/mini_installer/installer_unittests.scons',
-    'installer/mini_installer/mini_installer.scons',
-    'installer/setup/setup.scons',
-    'installer/util/util.scons',
-    'plugin/plugin.scons',
-    'renderer/renderer.scons',
-    'test/activex_test_control/activex_test_control.scons',
-    'test/automated_ui_tests/automated_ui_tests.scons',
-    'test/automation/automation.scons',
-    'test/chrome_plugin/test_chrome_plugin.scons',
-    'test/interactive_ui/interactive_ui_tests.scons',
-    'test/memory_test/memory_test.scons',
-    'test/mini_installer_test/mini_installer_test.scons',
-    'test/page_cycler/page_cycler_tests.scons',
-    'test/perf/perftests.scons',
-    'test/plugin/plugin_tests.scons',
-    'test/reliability/reliability_tests.scons',
-    'test/security_tests/security_tests.scons',
-    'test/selenium/selenium_tests.scons',
-    'test/startup/startup_tests.scons',
-    'test/tab_switching/tab_switching_test.scons',
-    'test/ui/ui_tests.scons',
-    'test/unit/unit_tests.scons',
-    'tools/convert_dict/convert_dict.scons',
-    'tools/crash_service/crash_service.scons',
-    'tools/perf/flush_cache/flush_cache.scons',
-    'tools/profiles/generate_profile.scons',
-    'tools/test/image_diff/image_diff.scons',
-]
+    LOAD_NAMES = ['chrome'],
+
+    browser             = 'browser/browser.scons',
+    debugger            = 'browser/debugger/debugger.scons',
+    common              = 'common/common.scons',
+    ipc_tests           = 'common/ipc_tests.scons',
+    installer_unittests = 'installer/mini_installer/installer_unittests.scons',
+    mini_installer      = 'installer/mini_installer/mini_installer.scons',
+    setup               = 'installer/setup/setup.scons',
+    util                = 'installer/util/util.scons',
+    plugin              = 'plugin/plugin.scons',
+    renderer            = 'renderer/renderer.scons',
+    activex_test_controls = 
+			'test/activex_test_control/activex_test_control.scons',
+    automated_ui_tests  = 'test/automated_ui_tests/automated_ui_tests.scons',
+    automtion           = 'test/automation/automation.scons',
+    test_chrome_plugin  = 'test/chrome_plugin/test_chrome_plugin.scons',
+    interactive_ui_tests = 'test/interactive_ui/interactive_ui_tests.scons',
+    memory_test         = 'test/memory_test/memory_test.scons',
+    mini_installer_test = 'test/mini_installer_test/mini_installer_test.scons',
+    page_cycler_tests   = 'test/page_cycler/page_cycler_tests.scons',
+    perf_tests          = 'test/perf/perftests.scons',
+    plugin_tests        = 'test/plugin/plugin_tests.scons',
+    reliability_tests   = 'test/reliability/reliability_tests.scons',
+    security_tests      = 'test/security_tests/security_tests.scons',
+    selenium_tests      = 'test/selenium/selenium_tests.scons',
+    startup_tests       = 'test/startup/startup_tests.scons',
+    tab_switching_test  = 'test/tab_switching/tab_switching_test.scons',
+    ui_tests            = 'test/ui/ui_tests.scons',
+    unit_tests          = 'test/unit/unit_tests.scons',
+    convert_dict        = 'tools/convert_dict/convert_dict.scons',
+    crash_service       = 'tools/crash_service/crash_service.scons',
+    flush_cache         = 'tools/perf/flush_cache/flush_cache.scons',
+    generate_profile    = 'tools/profiles/generate_profile.scons',
+    image_diff          = 'tools/test/image_diff/image_diff.scons',
+)
 
 # TODO(port)
 if env['PLATFORM'] != 'win32':
@@ -103,7 +106,6 @@ if env['PLATFORM'] != 'win32':
       'tools/perf/flush_cache/flush_cache.scons',
       'tools/profiles/generate_profile.scons',
   ]
-  for remove in remove_files:
-    sconscript_files.remove(remove)
+  sconscript_files = list(set(sconscript_files) - set(remove_files))
 
 SConscript(sconscript_files, exports=['env'])

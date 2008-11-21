@@ -8,7 +8,15 @@ Configuration for building zlib.lib / libzlib.a.
 
 Import('env')
 
+if env.WantSystemLib('zlib'):
+  env.Append(ZLIB_LIB = ['z'])
+  Return()
+
 env = env.Clone()
+
+env.Append(
+    ZLIB_LIB = ['zlib'],
+)
 
 if env['PLATFORM'] == 'win32':
   env.Append(

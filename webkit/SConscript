@@ -211,28 +211,31 @@ env.Append(
 )
 
 # This list is the SConscripts that work on Windows and Linux.
-sconscript_dirs = [
-  'SConscript.port',
-  'SConscript.javascriptcore_pcre',
-  'build/JSConfig/SConscript',
-  'build/JavaScriptCore/SConscript',
-  'build/localized_strings/SConscript',
-  'build/port/SConscript',
-  'build/V8Bindings/SConscript',
-  'build/WebCore/SConscript',
-  'default_plugin/SConscript',
-  'glue/SConscript',
-  'glue/plugins/test/SConscript',
-  'tools/npapi_layout_test_plugin/SConscript',
-  'tools/test_shell/SConscript',
-]
+sconscript_dirs = env.ChromiumLoadComponentSConscripts(
+  LOAD_NAMES = ['webkit'],
+  port = 'SConscript.port',
+  JavaScriptCore_pcre = 'SConscript.javascriptcore_pcre',
+  WebCore_config_h = 'build/JSConfig/SConscript',
+  JavaScriptCore = 'build/JavaScriptCore/SConscript',
+  webkit_strings = 'build/localized_strings/SConscript',
+  bindings = 'build/port/SConscript',
+  V8Bindings = 'build/V8Bindings/SConscript',
+  WebCore = 'build/WebCore/SConscript',
+  default_plugin = 'default_plugin/SConscript',
+  glue = 'glue/SConscript',
+  npapi_test_plugin = 'glue/plugins/test/SConscript',
+  npapi_layout_test_plugin = 'tools/npapi_layout_test_plugin/SConscript',
+  test_shell = 'tools/test_shell/SConscript',
+)
+
 if env['PLATFORM'] == 'win32':
   # These extra dirs aren't win32-specific, they're just the dirs that
   # haven't yet been made portable.
-  sconscript_dirs.extend([
-    'activex_shim/SConscript',
-    'activex_shim_dll/SConscript',
-  ])
+  sconscript_dirs.extend(env.ChromiumLoadComponentSConscripts(
+    LOAD_NAMES = ['webkit'],
+    activex_shim = 'activex_shim/SConscript',
+    npaxshim = 'activex_shim_dll/SConscript',
+  ))
 
   env.Append(
     CPPDEFINES = [
@@ -272,4 +275,3 @@ version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
                        '$CHROME_SRC_DIR/webkit/build/webkit_version.py'],
                       "$PYTHON ${SOURCES[1]} ${SOURCES[0]} ${TARGET.dir}")
 env.AlwaysBuild(version)
-

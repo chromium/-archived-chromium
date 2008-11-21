@@ -32,6 +32,9 @@ Import('env')
 
 env = env.Clone()
 
+if env.WantSystemLib('libjpeg'):
+  Return()
+
 env.Prepend(
     CPPPATH = [
         '$CHROME_SRC_DIR',

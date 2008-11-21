@@ -6,6 +6,9 @@ import os
 
 Import('env')
 
+if not env.Dir('$CHROME_SRC_DIR/v8').exists():
+  Return()
+
 # Grab the -j flag from the outer environment, if available.
 try:
   cpus = env.GetOption('num_jobs')

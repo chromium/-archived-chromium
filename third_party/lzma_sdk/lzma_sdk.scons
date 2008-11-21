@@ -6,6 +6,9 @@ Import('env')
 
 env = env.Clone()
 
+if env.WantSystemLib('lzma_sdk'):
+  Return()
+
 env.Prepend(
     CPPPATH = [
         '.',

@@ -9,11 +9,14 @@ Configuration for building libpng.lib / libpng.a.
 
 Import('env')
 
+if env.WantSystemLib('libpng'):
+  Return()
+
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$ZLIB_DIR/using_zlib.scons',
-], {'env':env})
+])
 
 env.Prepend(
     CPPPATH = [

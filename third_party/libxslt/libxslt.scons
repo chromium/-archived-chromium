@@ -31,6 +31,9 @@ Import('env')
 
 env = env.Clone()
 
+if env.WantSystemLib('libxslt'):
+  Return()
+
 env.Prepend(
     CPPPATH = [
         '$LIBXML_DIR/DerivedSources/include',

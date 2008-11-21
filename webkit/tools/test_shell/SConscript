@@ -8,6 +8,8 @@ env = env.Clone()
 env_res = env_res.Clone()
 
 env.SConscript([
+    '$BZIP2_DIR/using_bzip2.scons',
+    '$LIBXML_DIR/using_libxml.scons',
     '$CHROME_SRC_DIR/build/using_v8.scons',
 ], {'env':env})
 
@@ -41,14 +43,12 @@ env.Append(
         'sdch',
         'skia',
         'gtest',
-        env['BZIP2_LIB'],
         'V8Bindings',
         'WebCore',
         'WTF',
         env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
-        env['XML_LIB'],
         'libxslt',
         'modp_b64',
         'zlib',

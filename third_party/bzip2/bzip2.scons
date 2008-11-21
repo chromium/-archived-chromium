@@ -8,7 +8,16 @@ Configuration for building bzip2.lib / libbzip2.a.
 
 Import('env')
 
+if env.WantSystemLib('bzip2'):
+  Return()
+
 env = env.Clone()
+
+env.Append(
+    CPPDEFINES = [
+        'BZ_NO_STDIO',
+    ],
+)
 
 if env['PLATFORM'] == 'win32':
   env.Append(
@@ -18,12 +27,6 @@ if env['PLATFORM'] == 'win32':
           '/wd4800',
       ],
   )
-
-env.Append(
-    CPPDEFINES = [
-        'BZ_NO_STDIO',
-    ],
-)
 
 input_files = [
     'blocksort.c',

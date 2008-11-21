@@ -29,6 +29,9 @@
 
 Import('env')
 
+if env.WantSystemLib('libxml'):
+  Return()
+
 env = env.Clone()
 
 env.Prepend(
@@ -40,9 +43,6 @@ env.Prepend(
         'DerivedSources/include',
         'include',
     ],
-)
-
-env.Append(
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
         'LIBXML_STATIC',

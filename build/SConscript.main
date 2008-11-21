@@ -19,15 +19,10 @@ default_warnings = ['no-no-parallel-support']
 SetOption('warn', default_warnings + GetOption('warn'))
 
 
-load = ARGUMENTS.get('LOAD')
-if load:
-    load = load.split(',')
-else:
-    load = []
-
-
 root_env = Environment(
-    tools = ['component_setup'],
+    tools = ['component_setup',
+             'chromium_builders',
+             'chromium_load_component'],
 
     # Requested list of system (shared) libraries, from the comma separated
     # SYSTEM_LIBS command-line argument
@@ -115,28 +110,6 @@ def WantSystemLib(env, lib):
   return (lib in env['req_system_libs'])
 root_env.AddMethod(WantSystemLib, "WantSystemLib")
 
-def ChromeProgram(env, *args, **kw):
-  return env.ComponentProgram(*args, **kw)
-root_env.AddMethod(ChromeProgram)
-
-def ChromeTestProgram(env, *args, **kw):
-  return env.ComponentTestProgram(*args, **kw)
-root_env.AddMethod(ChromeTestProgram)
-
-def ChromeStaticLibrary(env, *args, **kw):
-  kw['COMPONENT_STATIC'] = True
-  return env.ComponentLibrary(*args, **kw)
-root_env.AddMethod(ChromeStaticLibrary)
-
-def ChromeSharedLibrary(env, *args, **kw):
-  kw['COMPONENT_STATIC'] = False
-  return [env.ComponentLibrary(*args, **kw)[0]]
-root_env.AddMethod(ChromeSharedLibrary, "ChromeSharedLibrary")
-
-def ChromeObject(env, *args, **kw):
-  return env.ComponentObject(*args, **kw)
-root_env.AddMethod(ChromeObject)
-
 
 # TODO(bradnelson): pull this functionality into hammer.
 # Auto select the number of processors
@@ -169,106 +142,42 @@ root_env.ApplySConscript(['$CHROME_SRC_DIR/build/common.scons'])
 
 # The list of all leaf (fully described) environments.
 environment_list = []
+components = []
 
-
-# --------------------------------------------------------------------------
-# Decide which things to load.
-# Don't put anything platform depended here, this is just to gate things
-# in or out for speed.
-
-included = [c for c in load if not c.startswith('-')]
-excluded = [c[1:] for c in load if c.startswith('-')]
-if not included:
-  included = ['all']
-
-components = ['all']
-
-def LoadComponent(c):
-  components.append(c)
-  return (not GetOption('help') and
-          c in included or
-          ('all' in included and not c in excluded))
-
-sconscripts = []
-
-if LoadComponent('base'):
-  sconscripts.append('$BASE_DIR/base.scons')
-
-if LoadComponent('breakpad'):
-  sconscripts.append('$BREAKPAD_DIR/SConscript')
-
-if LoadComponent('chrome'):
-  sconscripts.append('$CHROME_DIR/chrome.scons')
-
-if LoadComponent('gears'):
-  sconscripts.append('$GEARS_DIR/SConscript')
-
-if LoadComponent('google_update'):
-  sconscripts.append('$GOOGLE_UPDATE_DIR/SConscript')
-
-if LoadComponent('googleurl'):
-  # googleurl comes from a different repository so we provide the SConscript
-  # file.
-  sconscripts.append('$GOOGLEURL_DIR/googleurl.scons')
-
-if LoadComponent('media'):
-  sconscripts.append('$MEDIA_DIR/media.scons')
-
-if LoadComponent('net'):
-  sconscripts.append('$NET_DIR/net.scons')
-
-if LoadComponent('rlz'):
-  sconscripts.append('$RLZ_DIR/SConscript')
-
-if LoadComponent('sandbox'):
-  sconscripts.append('$SANDBOX_DIR/sandbox.scons')
-
-if LoadComponent('sdch'):
-  sconscripts.append('$SDCH_DIR/SConscript')
-
-if LoadComponent('skia'):
-  sconscripts.append('$SKIA_DIR/SConscript')
-
-if LoadComponent('testing'):
-  sconscripts.append('$TESTING_DIR/SConscript.gtest')
-
-if LoadComponent('third_party'):
-  if not root_env.WantSystemLib('bzip2'):
-    sconscripts.append('$BZIP2_DIR/bzip2.scons')
-    root_env.Append(BZIP2_LIB = ['bzip2'])
-  else:
-    root_env.Append(BZIP2_LIB = ['bz2'])
-  if not root_env.WantSystemLib('libpng'):
-    sconscripts.append('$LIBPNG_DIR/libpng.scons')
-  if not root_env.WantSystemLib('libjpeg'):
-    sconscripts.append('$LIBJPEG_DIR/SConscript')
-  if not root_env.WantSystemLib('libxml'):
-    sconscripts.append('$LIBXML_DIR/SConscript')
-    root_env.Append(XML_LIB = ['libxml'])
-  else:
-    root_env.Append(XML_LIB = ['xml2'])
-  if not root_env.WantSystemLib('libxslt'):
-    sconscripts.append('$LIBXSLT_DIR/SConscript')
-  if not root_env.WantSystemLib('lzma_sdk'):
-    sconscripts.append('$LZMA_SDK_DIR/lzma_sdk.scons')
-  if not root_env.WantSystemLib('zlib'):
-    sconscripts.append('$ZLIB_DIR/zlib.scons')
-    root_env.Append(ZLIB_LIB = ['zlib'])
-  else:
-    root_env.Append(ZLIB_LIB = ['z'])
-  sconscripts.extend([
-      '$BSDIFF_DIR/bsdiff.scons',
-      '$BSPATCH_DIR/bspatch.scons',
-      '$ICU38_DIR/icu38.scons',
-      '$MODP_B64_DIR/modp_b64.scons',
-  ])
-
-if LoadComponent('v8') and root_env.Dir('$CHROME_SRC_DIR/v8').exists():
-  sconscripts.append('$OBJ_ROOT/build/SConscript.v8')
-
-if LoadComponent('webkit'):
-  sconscripts.append('$WEBKIT_DIR/webkit.scons')
-
+# Figure out what SConscript files to load based on the user's request.
+# Default is to load all SConscript files for a full-tree build.
+# The keyword arguments in the call below (base, breakpad, etc.) can be
+# specified in the LOAD= argument to cut down on the build.
+sconscripts = root_env.ChromiumLoadComponentSConscripts(
+    base = '$BASE_DIR/base.scons',
+    breakpad = '$BREAKPAD_DIR/SConscript',
+    chrome = '$CHROME_DIR/chrome.scons',
+    gears = '$GEARS_DIR/SConscript',
+    google_update = '$GOOGLE_UPDATE_DIR/SConscript',
+    googleurl = '$GOOGLEURL_DIR/googleurl.scons',
+    media = '$MEDIA_DIR/media.scons',
+    net = '$NET_DIR/net.scons',
+    rlz = '$RLZ_DIR/SConscript',
+    sandbox = '$SANDBOX_DIR/sandbox.scons',
+    sdch = '$SDCH_DIR/SConscript',
+    skia = '$SKIA_DIR/SConscript',
+    testing = '$TESTING_DIR/SConscript.gtest',
+    third_party = [
+        '$BSDIFF_DIR/bsdiff.scons',
+        '$BSPATCH_DIR/bspatch.scons',
+        '$BZIP2_DIR/bzip2.scons',
+        '$ICU38_DIR/icu38.scons',
+        '$LIBJPEG_DIR/libjpeg.scons',
+        '$LIBPNG_DIR/libpng.scons',
+        '$LIBXML_DIR/libxml.scons',
+        '$LIBXSLT_DIR/libxslt.scons',
+        '$LZMA_SDK_DIR/lzma_sdk.scons',
+        '$MODP_B64_DIR/modp_b64.scons',
+        '$ZLIB_DIR/zlib.scons',
+    ],
+    v8 = '$OBJ_ROOT/build/SConscript.v8',
+    webkit = '$WEBKIT_DIR/webkit.scons',
+)
 
 # Add the final list into the root environment to be build in BuildComponents.
 root_env.Append(BUILD_SCONSCRIPTS = sconscripts)
