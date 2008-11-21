@@ -31,6 +31,7 @@
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
 #include FT_SIZES_H
+#include FT_TRUETYPE_TABLES_H
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls to generateMetrics/generateImage
 //#define DUMP_STRIKE_CREATION
@@ -723,6 +724,51 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path)
     path->close();
 }
 
+// -----------------------------------------------------------------------------
+// This is an extern from SkFontHost_TrueType_VDMX. See comments there in for
+// details of the arguments.
+// -----------------------------------------------------------------------------
+extern bool VDMX_Parse(int* ymax, int* ymin, const uint8_t* vdmx,
+                       const size_t vdmx_length, const unsigned target_pelsize);
+
+// -----------------------------------------------------------------------------
+// Attempt to load and parse a VDMX table from the given face, extracting a
+// ascender and descender values for the given pelsize.
+//   ymax: (output) the ascender value from the table
+//   ymin: (output) the descender value from the table (negative!)
+//   face: A FreeType TrueType or OpenType font
+//   target_pelsize: the pixel size of the font (e.g. 16)
+//
+// Returns true iff a suitable match are found. Otherwise, *ymax and *ymin are
+// untouched.
+// -----------------------------------------------------------------------------
+static bool
+SkFontHost_VDMX_Parse(int* ymax, int* ymin,
+                      FT_Face face, unsigned target_pelsize) {
+    FT_Error error;
+
+    // Request the length of the VDMX table (if any)
+    FT_ULong vdmx_length = 0;
+    error = FT_Load_Sfnt_Table(face, FT_MAKE_TAG('V', 'D', 'M', 'X'),
+                               0, NULL, &vdmx_length);
+
+    if (error || vdmx_length > 1024 * 1024)
+        return false;
+
+    uint8_t* vdmx = (uint8_t *) malloc(vdmx_length);
+    error = FT_Load_Sfnt_Table(face, FT_MAKE_TAG('V', 'D', 'M', 'X'),
+                               0, vdmx, NULL);
+    if (error) {
+        free(vdmx);
+        return false;
+    }
+
+    bool result = VDMX_Parse(ymax, ymin, vdmx, vdmx_length, target_pelsize);
+    free(vdmx);
+
+    return result;
+}
+
 void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my)
 {
     if (NULL == mx && NULL == my)
@@ -775,6 +821,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         mx->fBottom = pts[3].fX;
         mx->fLeading = pts[4].fX;
         mx->fHeight = pts[5].fX;
+
+        // The VDMX metrics only make sense in the horizontal direction
+        // I believe
+        my->fVDMXMetricsValid = false;
     }
     if (my)
     {
@@ -784,6 +834,16 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fBottom = pts[3].fY;
         my->fLeading = pts[4].fY;
         my->fHeight = pts[5].fY;
+        my->fVDMXMetricsValid = false;
+
+        // Attempt to parse the VDMX table to get exact metrics
+        unsigned pelsize = fScaleY >> 16;
+        int ymax, ymin;
+        if (SkFontHost_VDMX_Parse(&ymax, &ymin, face, pelsize)) {
+          my->fVDMXMetricsValid = true;
+          my->fVDMXAscent = ymax;
+          my->fVDMXDescent = -ymin;
+        }
     }
 }
 
