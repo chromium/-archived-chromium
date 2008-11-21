@@ -38,6 +38,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
 		4D1637CD0EBFA49E008F024E /* SQLiteDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */; };
@@ -1429,6 +1430,7 @@
 
 /* Begin PBXFileReference section */
 		046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapImageSingleFrameSkia.h; sourceTree = "<group>"; };
+		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
 		4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteAuthorizer.cpp; sourceTree = "<group>"; };
 		4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteDatabase.cpp; sourceTree = "<group>"; };
 		4D1637C50EBFA49E008F024E /* SQLiteDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteDatabase.h; sourceTree = "<group>"; };
@@ -5412,6 +5414,7 @@
 				7B5E8DAB0D7F3C01001ECF42 /* FormState.h */,
 				7B5E8DAC0D7F3C01001ECF42 /* FrameLoader.cpp */,
 				7B5E8DAD0D7F3C01001ECF42 /* FrameLoader.h */,
+				416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */,
 				7B5E8DAF0D7F3C01001ECF42 /* FrameLoaderClient.h */,
 				7B5E8DB00D7F3C01001ECF42 /* FrameLoaderTypes.h */,
 				7B5E8DB10D7F3C01001ECF42 /* FTPDirectoryDocument.cpp */,
@@ -8655,6 +8658,7 @@
 				E45624860E268E87005E4685 /* FormState.cpp in Sources */,
 				E45624A40E268E87005E4685 /* Frame.cpp in Sources */,
 				E45624870E268E87005E4685 /* FrameLoader.cpp in Sources */,
+				416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */,
 				E45624A50E268E87005E4685 /* FrameTree.cpp in Sources */,
 				E45624A60E268E87005E4685 /* FrameView.cpp in Sources */,
 				E45624880E268E87005E4685 /* FTPDirectoryDocument.cpp in Sources */,

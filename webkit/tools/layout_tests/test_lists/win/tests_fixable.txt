@@ -1114,3 +1114,9 @@ LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 LayoutTests/transitions/transition-drt-api.html = TIMEOUT
 // Missing expected results
 SKIP : LayoutTests/animations/animation-drt-api.html = PASS
+
+// MERGE 38550:38575: New tests. Need ENABLE_WORKERS turned on.
+LayoutTests/fast/workers/worker-constructor.html = FAIL
+LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
+LayoutTests/fast/workers/worker-gc.html = TIMEOUT
+LayoutTests/fast/workers/worker-location.html = TIMEOUT

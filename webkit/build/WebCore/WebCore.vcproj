@@ -638,6 +638,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\FrameLoaderClient.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\FrameLoaderClient.h"
 				>
 			</File>

@@ -327,6 +327,7 @@ input_files = [
     '$WEBCORE_DIR/loader/DocumentLoader.cpp',
     '$WEBCORE_DIR/loader/FormState.cpp',
     '$WEBCORE_DIR/loader/FrameLoader.cpp',
+    '$WEBCORE_DIR/loader/FrameLoaderClient.cpp',
     '$WEBCORE_DIR/loader/FTPDirectoryDocument.cpp',
     '$WEBCORE_DIR/loader/FTPDirectoryParser.cpp',
     '$WEBCORE_DIR/loader/ImageDocument.cpp',
