@@ -17,6 +17,15 @@ env.ApplySConscript([
     '$NET_DIR/using_net.scons',
 ])
 
+if env['PLATFORM'] in ('darwin', 'posix'):
+  env.ApplySConscript(['$THIRD_PARTY_DIR/libevent/using_libevent.scons'])
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+)
+
 if env['PLATFORM'] == 'win32':
   env.Prepend(
       CCFLAGS = [
@@ -29,5 +38,5 @@ input_files = [
     'disk_cache/stress_cache.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env['PLATFORM'] in ('posix', 'win32'):
   env.ChromeTestProgram('stress_cache', input_files)
