@@ -585,6 +585,7 @@ function renderRecentlyClosedTabs(entries) {
 
       link.onclick = function(sessionId) {
         return function() {
+          chrome.send("metrics", ["NTP_TabRestored" + i]);
           /* This is a hack because chrome.send is hardcoded to only
              accept arrays of strings. */
           chrome.send('reopenTab', [sessionId.toString()]);

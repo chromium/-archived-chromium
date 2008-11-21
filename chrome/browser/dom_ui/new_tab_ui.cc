@@ -649,10 +649,6 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
         for (TabRestoreService::Tabs::const_iterator it = tabs.begin();
              it != tabs.end(); ++it) {
           if (it->id == session_to_restore) {
-            UserMetrics::RecordComputedAction(
-                StringPrintf(L"NTP_TabRestored%d", session_to_restore),
-                dom_ui_host_->profile());
-
             TabRestoreService* tab_restore_service = tab_restore_service_;
             browser->ReplaceRestoredTab(
                  it->navigations, it->current_navigation_index);
