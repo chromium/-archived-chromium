@@ -25,7 +25,7 @@
 
 #include <Assertions.h>
 #include <wtf/ASCIICType.h>
-#include <runtime/ExecState.h>
+#include <interpreter/CallFrame.h>
 
 #include "v8_proxy.h"
 #include "v8_events.h"

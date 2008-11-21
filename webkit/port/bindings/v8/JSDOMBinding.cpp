@@ -30,7 +30,7 @@
 #include "config.h"
 #include "JSDOMBinding.h"
 
-#include <runtime/ExecState.h>
+#include <interpreter/CallFrame.h>
 #include "Document.h"
 #include "Node.h"
 

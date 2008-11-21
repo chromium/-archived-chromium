@@ -33,7 +33,7 @@
 #include "v8_proxy.h"
 #include "NodeFilter.h"
 #include "Node.h"
-#include <runtime/ExecState.h>
+#include <interpreter/CallFrame.h>
 
 namespace WebCore {
 
