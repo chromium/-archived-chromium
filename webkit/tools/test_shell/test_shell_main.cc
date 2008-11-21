@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
   SimpleResourceLoaderBridge::Init(
-      new TestShellRequestContext(cache_path, cache_mode));
+      new TestShellRequestContext(cache_path, cache_mode, layout_test_mode));
 
   // Load ICU data tables
   icu_util::Initialize();

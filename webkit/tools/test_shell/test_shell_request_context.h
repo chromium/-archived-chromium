@@ -17,12 +17,14 @@ class TestShellRequestContext : public URLRequestContext {
   // Use an on-disk cache at the specified location.  Optionally, use the cache
   // in playback or record mode.
   TestShellRequestContext(const std::wstring& cache_path,
-                          net::HttpCache::Mode cache_mode);
+                          net::HttpCache::Mode cache_mode,
+                          bool no_proxy);
 
   ~TestShellRequestContext();
 
  private:
-  void Init(const std::wstring& cache_path, net::HttpCache::Mode cache_mode);
+  void Init(const std::wstring& cache_path, net::HttpCache::Mode cache_mode,
+            bool no_proxy);
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_REQUEST_CONTEXT_H__
