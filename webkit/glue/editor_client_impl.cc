@@ -535,11 +535,9 @@ const char* EditorClientImpl::interpretKeyEvent(
 bool EditorClientImpl::handleEditingKeyboardEvent(
   WebCore::KeyboardEvent* evt) {
   const WebCore::PlatformKeyboardEvent* keyEvent = evt->keyEvent();
-#if defined(OS_WIN)
   // do not treat this as text input if it's a system key event
   if (!keyEvent || keyEvent->isSystemKey())
       return false;
-#endif
 
   WebCore::Frame* frame = evt->target()->toNode()->document()->frame();
   if (!frame)
