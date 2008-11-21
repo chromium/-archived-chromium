@@ -129,6 +129,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
   void OnGetWindowRect(HWND window, gfx::Rect *rect);
   void OnGetRootWindowRect(HWND window, gfx::Rect *rect);
+  void OnGetRootWindowResizerRect(HWND window, gfx::Rect *rect);
   void OnGetMimeTypeFromExtension(const std::wstring& ext,
                                   std::string* mime_type);
   void OnGetMimeTypeFromFile(const std::wstring& file_path,

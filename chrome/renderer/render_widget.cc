@@ -657,6 +657,11 @@ void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
   Send(new ViewHostMsg_GetRootWindowRect(routing_id_, host_window_, rect));
 }
 
+void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget, 
+                                            gfx::Rect* rect) {
+  Send(new ViewHostMsg_GetRootWindowResizerRect(routing_id_, host_window_, rect));
+}
+
 void RenderWidget::OnImeSetInputMode(bool is_active) {
   // To prevent this renderer process from sending unnecessary IPC messages to
   // a browser process, we permit the renderer process to send IPC messages

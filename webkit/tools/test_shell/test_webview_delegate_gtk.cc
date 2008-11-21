@@ -140,6 +140,12 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
   }
 }
 
+void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget, 
+                                                   gfx::Rect* out_rect) {
+  // Not necessary on Linux.
+  *out_rect = gfx::Rect();
+}
+
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
   NOTIMPLEMENTED();
 }

@@ -63,9 +63,14 @@ class WebWidgetDelegate {
   // synchronously?
   virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect) = 0;
 
-  // Returns the rectangle of the window in which this WebWidget is embeded in.
+  // Returns the rectangle of the window in which this WebWidget is embeded.
   virtual void GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
 
+  // Returns the resizer rectangle of the window this WebWidget is in. This
+  // is used on Mac to determine if a scrollbar is over the in-window resize
+  // area at the bottom right corner.
+  virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
+  
   // Keeps track of the necessary window move for a plugin window that resulted
   // from a scroll operation.  That way, all plugin windows can be moved at the
   // same time as each other and the page.

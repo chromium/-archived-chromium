@@ -1069,8 +1069,14 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UnloadListenerChanged,
                       bool /* has_listener */)
 
-  // Returns the window location of the window this widget is embeded in.
+  // Returns the window location of the window this widget is embeded.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowRect,
+                             HWND /* window */,
+                             gfx::Rect /* Out: Window location */)
+
+  // Returns the resizer box location in the window this widget is embeded.
+  // Important for Mac OS X, but not Win or Linux.
+  IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowResizerRect,
                              HWND /* window */,
                              gfx::Rect /* Out: Window location */)
 

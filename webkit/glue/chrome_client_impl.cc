@@ -353,8 +353,15 @@ bool ChromeClientImpl::tabsToLinks() const {
 }
 
 WebCore::IntRect ChromeClientImpl::windowResizerRect() const {
-  // TODO(mbelshe): implement me
   WebCore::IntRect rv;
+  if (webview_->delegate()) {
+    gfx::Rect resizer_rect;
+    webview_->delegate()->GetRootWindowResizerRect(webview_, &resizer_rect);
+    rv = WebCore::IntRect(resizer_rect.x(), 
+                          resizer_rect.y(),
+                          resizer_rect.width(),
+                          resizer_rect.height());
+  }
   return rv;
 }
 
