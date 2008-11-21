@@ -546,7 +546,9 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
   if (bIsSVGTest) {
     SizeToSVG();
   } else {
-    SizeToDefault();
+    // only resize back to the default when running tests
+    if (!interactive())
+      SizeToDefault();
   }
 
   std::wstring urlString(url);

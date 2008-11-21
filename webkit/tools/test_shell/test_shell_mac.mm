@@ -523,7 +523,9 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
   if (bIsSVGTest) {
     SizeTo(kSVGTestWindowWidth, kSVGTestWindowHeight);
   } else {
-    SizeToDefault();
+    // only resize back to the default when running tests
+    if (!interactive())
+      SizeToDefault();
   }
 
   std::string urlString(url8);
