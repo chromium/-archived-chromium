@@ -142,7 +142,7 @@ bool LaunchApp(const std::wstring& cmdline,
   return true;
 }
 
-bool LaunchApp(CommandLine& cl,
+bool LaunchApp(const CommandLine& cl,
                bool wait, bool start_hidden, ProcessHandle* process_handle) {
   return LaunchApp(cl.command_line_string(), wait,
                    start_hidden, process_handle);
