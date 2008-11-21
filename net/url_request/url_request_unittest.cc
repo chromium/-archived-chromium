@@ -76,6 +76,7 @@ class URLRequestTest : public PlatformTest {
 
 TEST_F(URLRequestTest, GetTest_NoCache) {
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage(""), &d);
@@ -96,6 +97,7 @@ TEST_F(URLRequestTest, GetTest_NoCache) {
 
 TEST_F(URLRequestTest, GetTest) {
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage(""), &d);
@@ -139,6 +141,7 @@ TEST_F(URLRequestTest, CancelTest) {
 
 TEST_F(URLRequestTest, CancelTest2) {
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage(""), &d);
@@ -162,6 +165,7 @@ TEST_F(URLRequestTest, CancelTest2) {
 
 TEST_F(URLRequestTest, CancelTest3) {
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage(""), &d);
@@ -188,6 +192,7 @@ TEST_F(URLRequestTest, CancelTest3) {
 
 TEST_F(URLRequestTest, CancelTest4) {
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage(""), &d);
@@ -212,6 +217,7 @@ TEST_F(URLRequestTest, CancelTest4) {
 
 TEST_F(URLRequestTest, CancelTest5) {
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
 
   // populate cache
@@ -246,6 +252,7 @@ TEST_F(URLRequestTest, CancelTest5) {
 
 TEST_F(URLRequestTest, PostTest) {
   TestServer server(L"net/data");
+  ASSERT_TRUE(server.init_successful());
 
   const int kMsgSize = 20000;  // multiple of 10
   const int kIterations = 50;
@@ -297,6 +304,7 @@ TEST_F(URLRequestTest, PostTest) {
 
 TEST_F(URLRequestTest, PostEmptyTest) {
   TestServer server(L"net/data");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage("echo"), &d);
@@ -320,6 +328,7 @@ TEST_F(URLRequestTest, PostEmptyTest) {
 
 TEST_F(URLRequestTest, PostFileTest) {
   TestServer server(L"net/data");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage("echo"), &d);
@@ -432,9 +441,9 @@ TEST_F(URLRequestTest, InvalidUrlTest) {
 #endif
 }
 
-/* This test is disabled because it fails on some computers due to proxies
-   returning a page in response to this request rather than reporting failure.
-TEST_F(URLRequestTest, DnsFailureTest) {
+// This test is disabled because it fails on some computers due to proxies
+// returning a page in response to this request rather than reporting failure.
+TEST_F(URLRequestTest, DISABLED_DnsFailureTest) {
   TestDelegate d;
   {
     URLRequest r(GURL("http://thisisnotavalidurl0123456789foo.com/"), &d);
@@ -449,10 +458,10 @@ TEST_F(URLRequestTest, DnsFailureTest) {
   DCHECK_EQ(url_request_metrics.object_count,0);
 #endif
 }
-*/
 
 TEST_F(URLRequestTest, ResponseHeadersTest) {
   TestServer server(L"net/data/url_request_unittest");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   TestURLRequest req(server.TestServerPage("files/with-headers.html"), &d);
   req.Start();
@@ -476,6 +485,7 @@ TEST_F(URLRequestTest, ResponseHeadersTest) {
 
 TEST_F(URLRequestTest, BZip2ContentTest) {
   TestServer server(L"net/data/filter_unittests");
+  ASSERT_TRUE(server.init_successful());
 
   // for localhost domain, we also should support bzip2 encoding
   // first, get the original file
@@ -500,6 +510,7 @@ TEST_F(URLRequestTest, BZip2ContentTest) {
 
 TEST_F(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
   TestServer server(L"net/data/filter_unittests");
+  ASSERT_TRUE(server.init_successful());
 
   // for localhost domain, we also should support bzip2 encoding
   // first, get the original file
@@ -598,6 +609,7 @@ TEST_F(URLRequestTest, ResolveShortcutTest) {
 
 TEST_F(URLRequestTest, ContentTypeNormalizationTest) {
   TestServer server(L"net/data/url_request_unittest");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   TestURLRequest req(server.TestServerPage(
       "files/content-type-normalization.html"), &d);
@@ -644,6 +656,7 @@ TEST_F(URLRequestTest, FileDirCancelTest) {
 
 TEST_F(URLRequestTest, RestrictRedirects) {
   TestServer server(L"net/data/url_request_unittest");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   TestURLRequest req(server.TestServerPage(
       "files/redirect-to-file.html"), &d);
@@ -656,6 +669,7 @@ TEST_F(URLRequestTest, RestrictRedirects) {
 
 TEST_F(URLRequestTest, NoUserPassInReferrer) {
   TestServer server(L"net/data/url_request_unittest");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   TestURLRequest req(server.TestServerPage(
       "echoheader?Referer"), &d);
@@ -668,6 +682,7 @@ TEST_F(URLRequestTest, NoUserPassInReferrer) {
 
 TEST_F(URLRequestTest, CancelRedirect) {
   TestServer server(L"net/data/url_request_unittest");
+  ASSERT_TRUE(server.init_successful());
   TestDelegate d;
   {
     d.set_cancel_in_received_redirect(true);
@@ -685,6 +700,7 @@ TEST_F(URLRequestTest, CancelRedirect) {
 
 TEST_F(URLRequestTest, VaryHeader) {
   TestServer server(L"net/data/url_request_unittest");
+  ASSERT_TRUE(server.init_successful());
 
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
 
@@ -734,6 +750,7 @@ TEST_F(URLRequestTest, VaryHeader) {
 TEST_F(URLRequestTest, BasicAuth) {
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
   TestServer server(L"");
+  ASSERT_TRUE(server.init_successful());
 
   Time response_time;
 

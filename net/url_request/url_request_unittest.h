@@ -237,6 +237,8 @@ class TestServer : public base::ProcessFilter {
     return d.did_succeed();
   }
 
+  bool init_successful() const { return init_successful_; }
+
  protected:
   struct ManualInit {};
 
@@ -245,6 +247,7 @@ class TestServer : public base::ProcessFilter {
   // its constructor).
   TestServer(ManualInit)
       : process_handle_(NULL),
+        init_successful_(false),
         is_shutdown_(true) {
   }
 
@@ -323,6 +326,7 @@ class TestServer : public base::ProcessFilter {
     }
     ASSERT_TRUE(success) << "Webserver not starting properly.  (On Linux, you need to install third_party/tlslite.)";
 
+    init_successful_ = true;
     is_shutdown_ = false;
   }
 
@@ -393,6 +397,7 @@ class TestServer : public base::ProcessFilter {
   std::string base_address_;
   std::wstring python_runtime_;
   base::ProcessHandle process_handle_;
+  bool init_successful_;
   bool is_shutdown_;
 };
 
