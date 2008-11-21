@@ -14,7 +14,7 @@ typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
 
 }  // namespace gfx
 #elif defined(__APPLE__)
-#include "BitmapPlatformDeviceMac.h"
+#include "skia/ext/bitmap_platform_device_mac.h"
 namespace gfx {
 
 typedef BitmapPlatformDeviceMac BitmapPlatformDevice;

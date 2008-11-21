@@ -2,12 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
+#include "skia/ext/platform_canvas_mac.h"
 
-#include "PlatformCanvasMac.h"
-
-#include "base/gfx/bitmap_platform_device_mac.h"
 #include "base/logging.h"
+#include "skia/ext/bitmap_platform_device_mac.h"
 
 namespace gfx {
 

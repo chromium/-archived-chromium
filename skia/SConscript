@@ -167,6 +167,11 @@ if env['PLATFORM'] == 'posix':
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.append('ports/SkThread_pthread.cpp')
 
+if env['PLATFORM'] == 'darwin':
+  input_files.append('ext/bitmap_platform_device_mac.cc')
+  input_files.append('ext/platform_canvas_mac.cc')
+  input_files.append('ext/platform_device_mac.cc')
+
 if env['PLATFORM'] == 'win32':
   input_files.append('ports/SkThread_win.cpp')
 

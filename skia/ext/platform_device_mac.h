@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PlatformDeviceMac_h
-#define PlatformDeviceMac_h
+#ifndef SKIA_EXT_PLATFORM_DEVICE_MAC_H_
+#define SKIA_EXT_PLATFORM_DEVICE_MAC_H_
 
 #import <ApplicationServices/ApplicationServices.h>
 #include "SkDevice.h"
@@ -82,5 +82,5 @@ class PlatformDeviceMac : public SkDevice {
 
 }  // namespace gfx
 
-#endif  // PlatformDeviceMac_h
+#endif  // SKIA_EXT_PLATFORM_DEVICE_MAC_H_
 

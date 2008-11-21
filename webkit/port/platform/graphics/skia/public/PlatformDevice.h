@@ -9,7 +9,7 @@
 #if defined(WIN32)
 #include "PlatformDeviceWin.h"
 #elif defined(__APPLE__)
-#include "PlatformDeviceMac.h"
+#include "skia/ext/platform_device_mac.h"
 #elif defined(__linux__)
 #include "PlatformDeviceLinux.h"
 #endif

@@ -147,9 +147,6 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
-
-    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasMac.cpp',
-    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceMac.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)

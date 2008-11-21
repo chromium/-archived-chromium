@@ -7,7 +7,7 @@
 
 // TODO(brettw) this file should be removed and the includes changed to this
 // new location.
-#include "webkit/port/platform/graphics/skia/public/PlatformDeviceMac.h"
+#include "skia/ext/platform_device_mac.h"
 
 #endif  // BASE_GFX_PLATFORM_DEVICE_MAC_H__
 

@@ -14,7 +14,7 @@ typedef PlatformCanvasWin PlatformCanvas;
 
 }  // namespace gfx
 #elif defined(__APPLE__)
-#include "PlatformCanvasMac.h"
+#include "skia/ext/platform_canvas_mac.h"
 namespace gfx {
 
 typedef PlatformCanvasMac PlatformCanvas;

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PlatformCanvasMac_h
-#define PlatformCanvasMac_h
+#ifndef SKIA_EXT_PLATFORM_CANVAS_MAC_H_
+#define SKIA_EXT_PLATFORM_CANVAS_MAC_H_
 
-#include "PlatformDeviceMac.h"
+#include "skia/ext/platform_device_mac.h"
 
 #include "SkCanvas.h"
 
@@ -84,5 +84,5 @@ class PlatformCanvasMac : public SkCanvas {
 
 }  // namespace gfx
 
-#endif  // PlatformCanvasMac_h
+#endif  // SKIA_EXT_PLATFORM_CANVAS_MAC_H_
 

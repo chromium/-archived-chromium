@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BitmapPlatformDeviceMac_h
-#define BitmapPlatformDeviceMac_h
+#ifndef SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
+#define SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
 
-#include "base/gfx/platform_device_mac.h"
 #include "base/ref_counted.h"
+#include "skia/ext/platform_device_mac.h"
 
 namespace gfx {
 
@@ -62,7 +62,7 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
                              const CGRect* src_rect);
   virtual bool IsVectorial() { return false; }
   virtual void fixupAlphaBeforeCompositing() { };
-  
+
   // Returns the color value at the specified location. This does not
   // consider any transforms that may be set on the device.
   SkColor getColorAt(int x, int y);
@@ -91,5 +91,5 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
 
 }  // namespace gfx
 
-#endif  // BitmapPlatformDeviceMac_h
+#endif  // SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
 

@@ -74,9 +74,6 @@
 		4D2A644A0EBBC16700B55603 /* V8HTMLMediaElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A64450EBBC16700B55603 /* V8HTMLMediaElement.cpp */; };
 		4D2A644B0EBBC16700B55603 /* V8HTMLSourceElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A64470EBBC16700B55603 /* V8HTMLSourceElement.cpp */; };
 		4D329F8C0EB908A40041FB7E /* V8MessageChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D329F8A0EB908A40041FB7E /* V8MessageChannel.cpp */; };
-		4D35546E0ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3554660ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp */; };
-		4D35546F0ED499E000FB28B1 /* PlatformCanvasMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3554690ED499E000FB28B1 /* PlatformCanvasMac.cpp */; };
-		4D3554700ED499E000FB28B1 /* PlatformDeviceMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35546C0ED499E000FB28B1 /* PlatformDeviceMac.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
@@ -1547,14 +1544,8 @@
 		4D329F8A0EB908A40041FB7E /* V8MessageChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8MessageChannel.cpp; sourceTree = "<group>"; };
 		4D329F8B0EB908A40041FB7E /* V8MessageChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8MessageChannel.h; sourceTree = "<group>"; };
 		4D3554650ED499E000FB28B1 /* BitmapPlatformDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapPlatformDevice.h; sourceTree = "<group>"; };
-		4D3554660ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitmapPlatformDeviceMac.cpp; sourceTree = "<group>"; };
-		4D3554670ED499E000FB28B1 /* BitmapPlatformDeviceMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapPlatformDeviceMac.h; sourceTree = "<group>"; };
 		4D3554680ED499E000FB28B1 /* PlatformCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformCanvas.h; sourceTree = "<group>"; };
-		4D3554690ED499E000FB28B1 /* PlatformCanvasMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformCanvasMac.cpp; sourceTree = "<group>"; };
-		4D35546A0ED499E000FB28B1 /* PlatformCanvasMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformCanvasMac.h; sourceTree = "<group>"; };
 		4D35546B0ED499E000FB28B1 /* PlatformDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformDevice.h; sourceTree = "<group>"; };
-		4D35546C0ED499E000FB28B1 /* PlatformDeviceMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformDeviceMac.cpp; sourceTree = "<group>"; };
-		4D35546D0ED499E000FB28B1 /* PlatformDeviceMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformDeviceMac.h; sourceTree = "<group>"; };
 		4D3554710ED499EF00FB28B1 /* VectorCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorCanvas.cpp; sourceTree = "<group>"; };
 		4D3554720ED499EF00FB28B1 /* VectorCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorCanvas.h; sourceTree = "<group>"; };
 		4D3554730ED499EF00FB28B1 /* VectorDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorDevice.cpp; sourceTree = "<group>"; };
@@ -4413,14 +4404,8 @@
 			isa = PBXGroup;
 			children = (
 				4D3554650ED499E000FB28B1 /* BitmapPlatformDevice.h */,
-				4D3554660ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp */,
-				4D3554670ED499E000FB28B1 /* BitmapPlatformDeviceMac.h */,
 				4D3554680ED499E000FB28B1 /* PlatformCanvas.h */,
-				4D3554690ED499E000FB28B1 /* PlatformCanvasMac.cpp */,
-				4D35546A0ED499E000FB28B1 /* PlatformCanvasMac.h */,
 				4D35546B0ED499E000FB28B1 /* PlatformDevice.h */,
-				4D35546C0ED499E000FB28B1 /* PlatformDeviceMac.cpp */,
-				4D35546D0ED499E000FB28B1 /* PlatformDeviceMac.h */,
 				4D3554710ED499EF00FB28B1 /* VectorCanvas.cpp */,
 				4D3554720ED499EF00FB28B1 /* VectorCanvas.h */,
 				4D3554730ED499EF00FB28B1 /* VectorDevice.cpp */,
@@ -9357,7 +9342,6 @@
 				93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */,
 				E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */,
 				E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */,
-				4D35546E0ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
 				E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */,
@@ -9397,9 +9381,7 @@
 				E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */,
 				93BF8E9C0EA6B0F30030F05C /* NetworkStateNotifierChromium.cpp in Sources */,
 				532E351C0ECA0F290097577C /* PasteboardChromium.cpp in Sources */,
-				4D35546F0ED499E000FB28B1 /* PlatformCanvasMac.cpp in Sources */,
 				E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */,
-				4D3554700ED499E000FB28B1 /* PlatformDeviceMac.cpp in Sources */,
 				E473F6530EAE002F006C2098 /* PlatformKeyboardEventChromium.cpp in Sources */,
 				E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */,
 				B507F51C0E9BE98B00D16D77 /* PluginStubsMac.cpp in Sources */,

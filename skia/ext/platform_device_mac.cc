@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
-
-#include "PlatformDeviceMac.h"
+#include "skia/ext/bitmap_platform_device_mac.h"
 
 #include "base/logging.h"
 #include "base/gfx/skia_utils_mac.h"
