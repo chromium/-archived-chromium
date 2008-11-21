@@ -1,0 +1,255 @@
+WebCore::ChromiumBridge::getPlugins(bool,Vector<PluginInfo::WebCore *,0>::WTF *) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
+   base/tuple.h  ?DispatchToMethod@VResourceHandleInternal@WebCore@@P812@AEXXZ@@YAXPAVResourceHandleInternal@WebCore@@P801@AEXXZABUTuple0@@@Z
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/fastmalloc.cpp  WTF::fastMalloc(UINT)
+   third_party/webkit/webcore/platform/text/stringbuffer.h  WebCore::StringBuffer::StringBuffer(UINT)
+   third_party/webkit/webcore/platform/text/string.cpp  WebCore::String::append(String::WebCore const&)
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
+   base/tuple.h  ?DispatchToMethod@VResourceHandleInternal@WebCore@@P812@AEXXZ@@YAXPAVResourceHandleInternal@WebCore@@P801@AEXXZABUTuple0@@@Z
+   ^^^  
+
+WebCore::StringImpl::adopt(StringBuffer::WebCore&) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/platform/text/stringimpl.cpp  WebCore::StringImpl::adopt(StringBuffer::WebCore&)
+   third_party/webkit/webcore/platform/text/string.cpp  WebCore::String::append(String::WebCore const&)
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
+   base/tuple.h  ?DispatchToMethod@VResourceHandleInternal@WebCore@@P812@AEXXZ@@YAXPAVResourceHandleInternal@WebCore@@P801@AEXXZABUTuple0@@@Z
+   ^^^  
+
+WebCore::StringImpl::create(wchar_t const *,unsigned int) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/platform/text/stringimpl.cpp  WebCore::StringImpl::create(wchar_t const *,unsigned int)
+   third_party/webkit/webcore/platform/text/string.cpp  WebCore::String::String(wchar_t const *,unsigned int)
+   webkit/glue/glue_util.cc  webkit_glue::StdWStringToString(class std::basic_string const &)
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
+   base/tuple.h  ?DispatchToMethod@VResourceHandleInternal@WebCore@@P812@AEXXZ@@YAXPAVResourceHandleInternal@WebCore@@P801@AEXXZABUTuple0@@@Z
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/fastmalloc.cpp  WTF::fastMalloc(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::VectorBufferBase::allocateBuffer(unsigned int)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::reserveCapacity(unsigned int)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::expandCapacity(unsigned int)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::expandCapacity(unsigned int,wchar_t const *)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::_W::append(wchar_t const *,unsigned int)
+   third_party/webkit/webcore/platform/text/textcodecicu.cpp  WebCore::TextCodecICU::decode(char const*,UINT,bool,bool,bool&)
+   third_party/webkit/webcore/platform/text/textdecoder.cpp  WebCore::TextDecoder::checkForBOM(char const*,UINT,bool,bool,bool&)
+   third_party/webkit/webcore/platform/text/textdecoder.h  WebCore::TextDecoder::decode(char const*,UINT,bool,bool,bool&)
+   third_party/webkit/webcore/platform/text/textencoding.cpp  WebCore::TextEncoding::decode(char const*,UINT,bool,bool&)const
+   third_party/webkit/webcore/platform/text/textencoding.h  WebCore::TextEncoding::decode(char const*,UINT)const
+   third_party/webkit/webcore/platform/text/string.cpp  WebCore::String::fromUTF8(char const*,UINT)
+   webkit/glue/glue_util.cc  webkit_glue::StdStringToString(basic_string::std const&)
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+
+WebCore::StringImpl::adopt(class WTF::Vector<wchar_t,0> &) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/platform/text/stringimpl.cpp  WebCore::StringImpl::adopt(class WTF::Vector &)
+   third_party/webkit/webcore/platform/text/platformstring.h  WebCore::String::adopt(class WTF::Vector &)
+   third_party/webkit/webcore/platform/text/textcodecicu.cpp  WebCore::TextCodecICU::decode(char const*,UINT,bool,bool,bool&)
+   third_party/webkit/webcore/platform/text/textdecoder.cpp  WebCore::TextDecoder::checkForBOM(char const*,UINT,bool,bool,bool&)
+   third_party/webkit/webcore/platform/text/textdecoder.h  WebCore::TextDecoder::decode(char const*,UINT,bool,bool,bool&)
+   third_party/webkit/webcore/platform/text/textencoding.cpp  WebCore::TextEncoding::decode(char const*,UINT,bool,bool&)const
+   third_party/webkit/webcore/platform/text/textencoding.h  WebCore::TextEncoding::decode(char const*,UINT)const
+   third_party/webkit/webcore/platform/text/string.cpp  WebCore::String::fromUTF8(char const*,UINT)
+   webkit/glue/glue_util.cc  webkit_glue::StdStringToString(basic_string::std const&)
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/fastmalloc.cpp  WTF::fastMalloc(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::VectorBufferBase::allocateBuffer(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::reserveCapacity(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::expandCapacity(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::expandCapacity(UINT,MimeClassInfo::WebCore * const const*)
+   third_party/webkit/javascriptcore/wtf/vector.h  ?append@PAUMimeClassInfo@WebCore@@@?$Vector@PAUMimeClassInfo@WebCore@@$0A@@WTF@@QAEXABQAUMimeClassInfo@WebCore@@@Z
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/fastmalloc.cpp  WTF::fastMalloc(UINT)
+   third_party/webkit/webcore/platform/text/stringimpl.cpp  WebCore::newUCharVector
+   third_party/webkit/webcore/platform/text/stringimpl.cpp  WebCore::StringImpl::StringImpl(wchar_t const *,unsigned int)
+   third_party/webkit/webcore/platform/text/stringimpl.cpp  WebCore::StringImpl::create(wchar_t const *,unsigned int)
+   third_party/webkit/webcore/platform/text/string.cpp  WebCore::String::String(wchar_t const *,unsigned int)
+   webkit/glue/glue_util.cc  webkit_glue::StdWStringToString(class std::basic_string const &)
+   webkit/glue/chromium_bridge_impl.cc  WebCore::ChromiumBridge::getPlugins(bool,Vector::WTF *)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::LoadPlugins(bool)
+   webkit/port/bridge/chromium/pluginschromium.cpp  WebCore::PluginInfoStore::pluginCount(void)const
+   webkit/port/plugins/chromium/plugindatachromium.cpp  WebCore::PluginData::initPlugins(void)
+   third_party/webkit/webcore/plugins/plugindata.cpp  WebCore::PluginData::PluginData(Page::WebCore const*)
+   third_party/webkit/webcore/plugins/plugindata.h  WebCore::PluginData::create(Page::WebCore const*)
+   third_party/webkit/webcore/page/page.cpp  WebCore::Page::pluginData(void)const
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedFirstData(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::setEncoding(String::WebCore const&,bool)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
