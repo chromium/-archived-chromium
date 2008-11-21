@@ -107,8 +107,6 @@ input_files = [
 ]
 
 if env['PLATFORM'] in ('posix', 'darwin'):
-  #env.ChromeTestProgram('debug_message', ['debug_message.cc'])
-
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [

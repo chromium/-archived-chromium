@@ -1,0 +1,37 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+#    '$BASE_DIR/gfx/using_base_gfx.scons',
+#    '$BREAKPAD_DIR/using_breakpad.scons',
+    '$ICU38_DIR/using_icu38.scons',
+#    '$SKIA_DIR/using_skia.scons',
+#    '$ZLIB_DIR/using_zlib.scons',
+])
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LIBS = [
+          #'breakpad_handler',
+          #'breakpad_sender',
+          #'common',
+      ],
+  )
+
+input_files = [
+    'aff_reader.cc',
+    'convert_dict.cc',
+    'dic_reader.cc',
+    'hunspell_reader.cc',
+    '$CHROME_DIR/third_party/hunspell/google/bdict_reader$OBJSUFFIX',
+    '$CHROME_DIR/third_party/hunspell/google/bdict_writer.cc',
+]
+
+env.ChromeProgram('convert_dict', input_files)
+

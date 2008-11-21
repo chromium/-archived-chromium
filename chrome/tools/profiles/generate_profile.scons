@@ -1,0 +1,68 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/gfx/using_base_gfx.scons',
+    '$BASE_DIR/using_base.scons',
+    '$BZIP2_DIR/using_bzip2.scons',
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$CHROME_SRC_DIR/build/using_v8.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBJPEG_DIR/using_libjpeg.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$LIBXSLT_DIR/using_libxslt.scons',
+    '$MODP_B64_DIR/using_modp_b64.scons',
+    '$NET_DIR/using_net.scons',
+    '$SDCH_DIR/using_sdch.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+])
+
+env.Prepend(
+    CPPDEFINES = [
+        'PERF_TEST',
+    ],
+    LIBS = [
+        'activex_shim',
+        'browser',
+        'browser_views',
+        'common',
+        'debugger',
+        'default_plugin',
+        'glue',
+        'hunspell',
+        'JavaScriptCore_pcre',
+        'plugin',
+        'port',
+        'renderer',
+        'sqlite',
+        'util',
+        'v8_snapshot',
+        'V8Bindings',
+        'views',
+        'WebCore',
+        'WTF',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LIBS = [
+          'rpcrt4',
+          'shlwapi',
+          'winmm',
+      ],
+  )
+
+input_files = [
+    'generate_profile.cc',
+]
+
+env.ChromeTestProgram('generate_profile', input_files)
