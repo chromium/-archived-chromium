@@ -136,6 +136,9 @@ class WebContentsViewWin : public WebContentsView,
   // Whether the info bar view is visible.
   bool info_bar_visible_;
 
+  // Whether to ignore the next CHAR keyboard event.
+  bool ignore_next_char_event_;
+
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewWin);
 };
 

@@ -42,7 +42,8 @@ BOOL CALLBACK DetachPluginWindowsCallback(HWND window, LPARAM param) {
 WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
     : web_contents_(web_contents),
       error_info_bar_message_(NULL),
-      info_bar_visible_(false) {
+      info_bar_visible_(false),
+      ignore_next_char_event_(false) {
 }
 
 WebContentsViewWin::~WebContentsViewWin() {
@@ -293,6 +294,15 @@ void WebContentsViewWin::TakeFocus(bool reverse) {
 }
 
 void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+  // Previous calls to TranslateMessage can generate CHAR events as well as
+  // KEY_DOWN events, even if the latter triggered an accelerator.  In these
+  // cases, we discard the CHAR events.
+  if (event.type == WebInputEvent::CHAR && ignore_next_char_event_) {
+    ignore_next_char_event_ = false;
+    return;
+  }
+  ignore_next_char_event_ = false;
+
   // The renderer returned a keyboard event it did not process. This may be
   // a keyboard shortcut that we have to process.
   if (event.type == WebInputEvent::KEY_DOWN) {
@@ -308,8 +318,10 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
               WebInputEvent::CTRL_KEY,
           (event.modifiers & WebInputEvent::ALT_KEY) ==
               WebInputEvent::ALT_KEY);
-      if (focus_manager->ProcessAccelerator(accelerator, false))
+      if (focus_manager->ProcessAccelerator(accelerator, false)) {
+        ignore_next_char_event_ = true;
         return;
+      }
     }
   }
 
