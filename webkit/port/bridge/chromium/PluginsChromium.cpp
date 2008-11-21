@@ -37,7 +37,14 @@
 
 #include "ChromiumBridge.h"
 #include "PluginData.h"
+#if COMPILER(MSVC)
+__pragma(warning(push, 0))
+#endif
 #include "PluginInfoStore.h"
+#if COMPILER(MSVC)
+__pragma(warning(pop))
+#endif
+#undef LOG
 
 namespace WebCore {
 

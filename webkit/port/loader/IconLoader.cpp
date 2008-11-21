@@ -25,7 +25,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#if COMPILER(MSVC)
+__pragma(warning(push, 0))
+#endif
 #include "IconLoader.h"
 
 #include "Document.h"
@@ -38,7 +40,9 @@
 #include "ResourceResponse.h"
 #include "ResourceRequest.h"
 #include "SubresourceLoader.h"
-#pragma warning(pop)
+#if COMPILER(MSVC)
+__pragma(warning(pop))
+#endif
 
 using namespace std;
 

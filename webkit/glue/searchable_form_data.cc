@@ -23,7 +23,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceRequest.h"
 #include "TextEncoding.h"
 #include <wtf/Vector.h>
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 

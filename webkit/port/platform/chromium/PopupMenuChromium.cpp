@@ -29,7 +29,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#if COMPILER(MSVC)
+__pragma(warning(push, 0))
+#endif
 #include "PopupMenu.h"
 
 #include "CharacterNames.h"
@@ -55,7 +57,9 @@
 #include "ScrollbarTheme.h"
 #include "SystemTime.h"
 #include "Widget.h"
-#pragma warning(pop)
+#if COMPILER(MSVC)
+__pragma(warning(pop))
+#endif
 
 #include "webkit/port/platform/chromium/PopupMenuChromium.h"
 

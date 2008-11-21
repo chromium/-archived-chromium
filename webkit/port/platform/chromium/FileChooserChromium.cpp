@@ -25,7 +25,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#if COMPILER(MSVC)
+__pragma(warning(push, 0))
+#endif
 #include "ChromeClientChromium.h"
 #include "Document.h"
 #include "Frame.h"
@@ -35,7 +37,9 @@
 #include "NotImplemented.h"
 #include "Page.h"
 #include "StringTruncator.h"
-#pragma warning(pop)
+#if COMPILER(MSVC)
+__pragma(warning(pop))
+#endif
 
 namespace WebCore {
 

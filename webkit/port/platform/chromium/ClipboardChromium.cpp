@@ -25,7 +25,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#if COMPILER(MSVC)
+__pragma(warning(push, 0))
+#endif
 #include "CachedImage.h"
 #include "ChromiumBridge.h"
 #include "ChromiumDataObject.h"
@@ -53,7 +55,9 @@
 #include "StringBuilder.h"
 #include "StringHash.h"
 #include <wtf/RefPtr.h>
-#pragma warning(pop)
+#if COMPILER(MSVC)
+__pragma(warning(pop))
+#endif
 
 namespace WebCore {
 

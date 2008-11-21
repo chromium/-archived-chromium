@@ -14,6 +14,7 @@
 #include "chrome/common/logging_chrome.h"
 
 #include "base/command_line.h"
+#include "base/compiler_specific.h"
 #include "base/debug_util.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -34,11 +35,11 @@ static bool chrome_logging_initialized_ = false;
 // Assertion handler for logging errors that occur when dialogs are
 // silenced.  To record a new error, pass the log string associated
 // with that error in the str parameter.
-#pragma optimize("", off)
+MSVC_DISABLE_OPTIMIZE();
 static void SilentRuntimeAssertHandler(const std::string& str) {
   DebugUtil::BreakDebugger();
 }
-#pragma optimize("", on)
+MSVC_ENABLE_OPTIMIZE();
 
 // Suppresses error/assertion dialogs and enables the logging of
 // those errors into silenced_errors_.

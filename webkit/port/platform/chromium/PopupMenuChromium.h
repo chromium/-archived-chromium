@@ -5,12 +5,18 @@
 #ifndef PopupMenuChromium_h
 #define PopupMenuChromium_h
 
-#pragma warning(push, 0)
+#include "config.h"
+
+#if COMPILER(MSVC)
+__pragma(warning(push, 0))
+#endif
 #include "PopupMenuClient.h"
 
 #include "FramelessScrollView.h"
 #include "IntRect.h"
-#pragma warning(pop)
+#if COMPILER(MSVC)
+__pragma(warning(pop))
+#endif
 
 
 namespace WebCore {

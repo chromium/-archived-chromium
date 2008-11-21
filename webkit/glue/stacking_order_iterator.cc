@@ -3,11 +3,12 @@
 // found in the LICENSE file.
 
 #include "config.h"
+#include "base/compiler_specific.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "RenderLayer.h"
 #include "RenderObject.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "webkit/glue/stacking_order_iterator.h"
