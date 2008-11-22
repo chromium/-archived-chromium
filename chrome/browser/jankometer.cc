@@ -51,7 +51,7 @@ const bool kPlaySounds = false;
 class JankWatchdog : public Watchdog {
  public:
   JankWatchdog(const TimeDelta& duration,
-               const std::wstring& thread_watched_name,
+               const std::string& thread_watched_name,
                bool enabled)
       : Watchdog(duration, thread_watched_name, enabled),
         thread_name_watched_(thread_watched_name),
@@ -68,7 +68,7 @@ class JankWatchdog : public Watchdog {
   }
 
  private:
-  std::wstring thread_name_watched_;
+  std::string thread_name_watched_;
   int alarm_count_;
 
   DISALLOW_EVIL_CONSTRUCTORS(JankWatchdog);
@@ -78,17 +78,17 @@ class JankWatchdog : public Watchdog {
 class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
                      public MessageLoopForUI::Observer {
  public:
-  JankObserver(const wchar_t* thread_name,
+  JankObserver(const char* thread_name,
                const TimeDelta& excessive_duration,
                bool watchdog_enable)
       : MaxMessageDelay_(excessive_duration),
-        slow_processing_counter_(std::wstring(L"Chrome.SlowMsg") + thread_name),
-        queueing_delay_counter_(std::wstring(L"Chrome.DelayMsg") + thread_name),
+        slow_processing_counter_(std::string("Chrome.SlowMsg") + thread_name),
+        queueing_delay_counter_(std::string("Chrome.DelayMsg") + thread_name),
         process_times_((std::wstring(L"Chrome.ProcMsgL ")
-                        + thread_name).c_str(), 1, 3600000, 50),
+                        + ASCIIToWide(thread_name)).c_str(), 1, 3600000, 50),
         total_times_((std::wstring(L"Chrome.TotalMsgL ")
-                      + thread_name).c_str(), 1, 3600000, 50),
-        total_time_watchdog_(excessive_duration, std::wstring(thread_name),
+                      + ASCIIToWide(thread_name)).c_str(), 1, 3600000, 50),
+        total_time_watchdog_(excessive_duration, ASCIIToWide(thread_name),
                              watchdog_enable) {
     process_times_.SetFlags(kUmaTargetedHistogramFlag);
     total_times_.SetFlags(kUmaTargetedHistogramFlag);
@@ -192,7 +192,7 @@ void InstallJankometer(const CommandLine &parsed_command_line) {
 
   // Install on the UI thread.
   ui_observer = new JankObserver(
-      L"UI",
+      "UI",
       TimeDelta::FromMilliseconds(kMaxUIMessageDelayMs),
       ui_watchdog_enabled);
   ui_observer->AddRef();
@@ -202,7 +202,7 @@ void InstallJankometer(const CommandLine &parsed_command_line) {
   // interaction with web pages. We must proxy to that thread before we can
   // add our observer.
   io_observer = new JankObserver(
-      L"IO",
+      "IO",
       TimeDelta::FromMilliseconds(kMaxIOMessageDelayMs),
       io_watchdog_enabled);
   io_observer->AddRef();

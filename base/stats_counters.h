@@ -74,10 +74,10 @@
 class StatsCounter {
  public:
   // Create a StatsCounter object.
-  explicit StatsCounter(const std::wstring& name)
+  explicit StatsCounter(const std::string& name)
        : counter_id_(-1) {
     // We prepend the name with 'c:' to indicate that it is a counter.
-    name_ = L"c:";
+    name_ = "c:";
     name_.append(name);
   };
 
@@ -146,7 +146,7 @@ class StatsCounter {
     if (counter_id_ == -1) {
       counter_id_ = table->FindCounter(name_);
       if (table->GetSlot() == 0) {
-        if (!table->RegisterThread(L"")) {
+        if (!table->RegisterThread("")) {
           // There is no room for this thread.  This thread
           // cannot use counters.
           counter_id_ = 0;
@@ -163,7 +163,7 @@ class StatsCounter {
     return NULL;
   }
 
-  std::wstring name_;
+  std::string name_;
   // The counter id in the table.  We initialize to -1 (an invalid value)
   // and then cache it once it has been looked up.  The counter_id is
   // valid across all threads and processes.
@@ -177,9 +177,9 @@ class StatsCounter {
 class StatsCounterTimer : protected StatsCounter {
  public:
   // Constructs and starts the timer.
-  explicit StatsCounterTimer(const std::wstring& name) {
+  explicit StatsCounterTimer(const std::string& name) {
     // we prepend the name with 't:' to indicate that it is a timer.
-    name_ = L"t:";
+    name_ = "t:";
     name_.append(name);
   }
 
@@ -230,10 +230,10 @@ class StatsCounterTimer : protected StatsCounter {
 class StatsRate : public StatsCounterTimer {
  public:
   // Constructs and starts the timer.
-  explicit StatsRate(const wchar_t* name)
+  explicit StatsRate(const char* name)
       : StatsCounterTimer(name),
       counter_(name),
-      largest_add_(std::wstring(L" ").append(name).append(L"MAX").c_str()) {
+      largest_add_(std::string(" ").append(name).append("MAX").c_str()) {
   }
 
   virtual void Add(int value) {

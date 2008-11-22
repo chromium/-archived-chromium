@@ -378,7 +378,7 @@ sub GenerateDomainSafeFunctionGetter
 
   push(@implContentDecls, <<END);
   static v8::Handle<v8::Value> ${funcName}AttrGetter(v8::Local<v8::String> name, const v8::AccessorInfo& info) {
-    INC_STATS(L\"DOM.$implClassName.$funcName._get\");
+    INC_STATS(\"DOM.$implClassName.$funcName._get\");
     static v8::Persistent<v8::FunctionTemplate> private_template =
         v8::Persistent<v8::FunctionTemplate>::New($newTemplateString);
     v8::Handle<v8::Object> holder = V8Proxy::LookupDOMWrapper(V8ClassIndex::$classIndex, info.This());
@@ -412,7 +412,7 @@ sub GenerateConstructorGetter
       
   push(@implContentDecls, <<END);
   static v8::Handle<v8::Value> ${implClassName}ConstructorGetter(v8::Local<v8::String> name, const v8::AccessorInfo& info) {
-    INC_STATS(L\"DOM.$implClassName.constructors._get\");
+    INC_STATS(\"DOM.$implClassName.constructors._get\");
     v8::Handle<v8::Value> data = info.Data();
     ASSERT(data->IsNumber());
 
@@ -473,7 +473,7 @@ sub GenerateNormalAttrGetter
   # Getter
   push(@implContentDecls, <<END);
   static v8::Handle<v8::Value> ${attrName}AttrGetter(v8::Local<v8::String> name, const v8::AccessorInfo& info) {
-    INC_STATS(L\"DOM.$implClassName.$attrName._get\");
+    INC_STATS(\"DOM.$implClassName.$attrName._get\");
 END
 
   if ($isPodType) {
@@ -621,7 +621,7 @@ sub GenerateReplaceableAttrSetter
        "  static void ${attrName}AttrSetter(v8::Local<v8::String> name," . 
        " v8::Local<v8::Value> value, const v8::AccessorInfo& info)\n{\n");
 
-  push(@implContentDecls, "    INC_STATS(L\"DOM.$implClassName.$attrName._set\");\n");
+  push(@implContentDecls, "    INC_STATS(\"DOM.$implClassName.$attrName._set\");\n");
 
   push(@implContentDecls, "    v8::Local<v8::String> ${attrName}_string = v8::String::New(\"${attrName}\");\n");
   push(@implContentDecls, "    info.Holder()->Delete(${attrName}_string);\n");
@@ -645,7 +645,7 @@ sub GenerateNormalAttrSetter
        "  static void ${attrName}AttrSetter(v8::Local<v8::String> name," . 
        " v8::Local<v8::Value> value, const v8::AccessorInfo& info)\n{\n");
 
-  push(@implContentDecls, "    INC_STATS(L\"DOM.$implClassName.$attrName._set\");\n");
+  push(@implContentDecls, "    INC_STATS(\"DOM.$implClassName.$attrName._set\");\n");
 
   my $isPodType = $codeGenerator->IsPodType($implClassName);
 
@@ -758,7 +758,7 @@ sub GenerateFunctionCallback
 
   push(@implContentDecls,
 "  static v8::Handle<v8::Value> ${name}Callback(const v8::Arguments& args)\n{\n" .
-"    INC_STATS(L\"DOM.$implClassName.$name\");\n");
+"    INC_STATS(\"DOM.$implClassName.$name\");\n");
 
   my $numParameters = @{$function->parameters};
 

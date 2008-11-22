@@ -201,7 +201,7 @@ int TaskManagerTableModel::GetStatsValue(TaskManager::Resource* resource,
                                          int col_id) {
   StatsTable* table = StatsTable::current();
   if (table != NULL) {
-    const wchar_t* counter = table->GetRowName(col_id);
+    const char* counter = table->GetRowName(col_id);
     if (counter != NULL && counter[0] != '\0') {
       return table->GetCounterValue(counter,
           base::GetProcId(resource->GetProcess()));
@@ -783,14 +783,15 @@ void TaskManagerContents::UpdateStatsCounters() {
     int max = stats->GetMaxCounters();
     // skip the first row (it's header data)
     for (int i = 1; i < max; i++) {
-      const wchar_t* row = stats->GetRowName(i);
-      if (row != NULL && row[0] != L'\0' && !tab_table_->HasColumn(i)) {
+      const char* row = stats->GetRowName(i);
+      if (row != NULL && row[0] != '\0' && !tab_table_->HasColumn(i)) {
         // TODO(erikkay): Use l10n to get display names for stats.  Right
         // now we're just displaying the internal counter name.  Perhaps
         // stat names not in the string table would be filtered out.
         // TODO(erikkay): Width is hard-coded right now, so many column
         // names are clipped.
-        views::TableColumn col(i, row, views::TableColumn::RIGHT, 90, 0);
+        views::TableColumn col(i, ASCIIToWide(row), views::TableColumn::RIGHT,
+                               90, 0);
         col.sortable = true;
         columns_.push_back(col);
         tab_table_->AddColumn(col);

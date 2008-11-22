@@ -38,7 +38,7 @@ DnsQueue::PushResult DnsQueue::Push(const char* source,
   if (0 < size_ && readable_ + length < buffer_sentinel_ &&
     0 == strncmp(source, &buffer_[readable_], unsigned_length) &&
     '\0' == buffer_[readable_ + unsigned_length]) {
-    SIMPLE_STATS_COUNTER(L"DNS.PrefetchDnsRedundantPush");
+    SIMPLE_STATS_COUNTER("DNS.PrefetchDnsRedundantPush");
 
     // We already wrote this name to the queue, so we'll skip this repeat.
     return REDUNDANT_PUSH;
@@ -56,7 +56,7 @@ DnsQueue::PushResult DnsQueue::Push(const char* source,
   }
 
   if (length + 1 >= available_space) {
-    SIMPLE_STATS_COUNTER(L"DNS.PrefetchDnsQueueFull");
+    SIMPLE_STATS_COUNTER("DNS.PrefetchDnsQueueFull");
     return OVERFLOW_PUSH;  // Not enough space to push.
   }
 

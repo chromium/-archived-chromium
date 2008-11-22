@@ -22,7 +22,7 @@
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
 
-static StatsCounter windowless_queue(L"Plugin.ThrottleQueue");
+static StatsCounter windowless_queue("Plugin.ThrottleQueue");
 
 static const wchar_t kNativeWindowClassName[] = L"NativeWindowClass";
 static const wchar_t kWebPluginDelegateProperty[] =
@@ -885,7 +885,7 @@ void WebPluginDelegateImpl::WindowlessPaint(HDC hdc,
   // NOTE: NPAPI is not 64bit safe.  It puts pointers into 32bit values.
   paint_event.wParam = PtrToUlong(hdc);
   paint_event.lParam = PtrToUlong(&damage_rect_win);
-  static StatsRate plugin_paint(L"Plugin.Paint");
+  static StatsRate plugin_paint("Plugin.Paint");
   StatsScope<StatsRate> scope(plugin_paint);
   instance()->NPP_HandleEvent(&paint_event);
 }

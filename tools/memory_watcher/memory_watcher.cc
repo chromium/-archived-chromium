@@ -15,10 +15,10 @@
 #include "tools/memory_watcher/call_stack.h"
 #include "tools/memory_watcher/preamble_patcher.h"
 
-static StatsCounter mem_in_use(L"MemoryInUse.Bytes");
-static StatsCounter mem_in_use_blocks(L"MemoryInUse.Blocks");
-static StatsCounter mem_in_use_allocs(L"MemoryInUse.Allocs");
-static StatsCounter mem_in_use_frees(L"MemoryInUse.Frees");
+static StatsCounter mem_in_use("MemoryInUse.Bytes");
+static StatsCounter mem_in_use_blocks("MemoryInUse.Blocks");
+static StatsCounter mem_in_use_allocs("MemoryInUse.Allocs");
+static StatsCounter mem_in_use_frees("MemoryInUse.Frees");
 
 // ---------------------------------------------------------------------
 

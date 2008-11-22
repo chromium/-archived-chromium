@@ -17,7 +17,7 @@ extern const wchar_t kCrashReportLog[];
 extern const wchar_t kTestingInterfaceDLL[];
 extern const wchar_t kNotSignedInProfile[];
 extern const wchar_t kNotSignedInID[];
-extern const wchar_t kStatsFilename[];
+extern const char    kStatsFilename[];
 extern const wchar_t kBrowserResourcesDll[];
 
 // filenames

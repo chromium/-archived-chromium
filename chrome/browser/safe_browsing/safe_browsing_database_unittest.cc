@@ -1011,14 +1011,9 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   TearDownTestDatabase(database);
 }
 
-void PrintStat(const wchar_t* name) {
-#if defined(OS_WIN)
+void PrintStat(const char* name) {
   int value = StatsTable::current()->GetCounterValue(name);
-  LOG(INFO) << StringPrintf(L"%ls %d", name, value);
-#else
-  // TODO(port): Enable when StatsTable is ported.
-  NOTIMPLEMENTED();
-#endif
+  LOG(INFO) << StringPrintf("%s %d", name, value);
 }
 
 std::wstring GetFullSBDataPath(const std::wstring& path) {
@@ -1096,15 +1091,15 @@ void PeformUpdate(const std::wstring& initial_db,
       (Time::Now() - before_time).InMilliseconds());
 #endif
 
-  PrintStat(L"c:SB.HostSelect");
-  PrintStat(L"c:SB.HostSelectForBloomFilter");
-  PrintStat(L"c:SB.HostReplace");
-  PrintStat(L"c:SB.HostInsert");
-  PrintStat(L"c:SB.HostDelete");
-  PrintStat(L"c:SB.ChunkSelect");
-  PrintStat(L"c:SB.ChunkInsert");
-  PrintStat(L"c:SB.ChunkDelete");
-  PrintStat(L"c:SB.TransactionCommit");
+  PrintStat("c:SB.HostSelect");
+  PrintStat("c:SB.HostSelectForBloomFilter");
+  PrintStat("c:SB.HostReplace");
+  PrintStat("c:SB.HostInsert");
+  PrintStat("c:SB.HostDelete");
+  PrintStat("c:SB.ChunkSelect");
+  PrintStat("c:SB.ChunkInsert");
+  PrintStat("c:SB.ChunkDelete");
+  PrintStat("c:SB.TransactionCommit");
 
   delete database;
 }

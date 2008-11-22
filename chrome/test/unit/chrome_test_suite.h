@@ -46,7 +46,7 @@ protected:
     ResourceBundle::GetSharedInstance().LoadThemeResources();
 
     // initialize the global StatsTable for unit_tests
-    stats_table_ = new StatsTable(L"unit_tests", 20, 200);
+    stats_table_ = new StatsTable("unit_tests", 20, 200);
     StatsTable::set_current(stats_table_);
   }
 

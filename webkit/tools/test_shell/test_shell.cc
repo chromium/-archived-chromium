@@ -138,10 +138,10 @@ TestShell::~TestShell() {
       if (table != NULL) {
           int counter_max = table->GetMaxCounters();
           for (int index=0; index < counter_max; index++) {
-              std::wstring name(table->GetRowName(index));
+              std::string name(table->GetRowName(index));
               if (name.length() > 0) {
                   int value = table->GetRowValue(index);
-                  printf("%s:\t%d\n", WideToUTF8(name).c_str(), value);
+                  printf("%s:\t%d\n", name.c_str(), value);
               }
           }
       }
