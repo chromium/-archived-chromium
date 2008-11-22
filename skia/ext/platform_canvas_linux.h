@@ -5,7 +5,7 @@
 #ifndef SKIA_EXT_PLATFORM_CANVAS_LINUX_H_
 #define SKIA_EXT_PLATFORM_CANVAS_LINUX_H_
 
-#include "PlatformDeviceLinux.h"
+#include "skia/ext/platform_device_linux.h"
 
 namespace gfx {
 
