@@ -89,8 +89,7 @@ class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
                         + ASCIIToWide(thread_name)).c_str(), 1, 3600000, 50),
         total_times_((std::wstring(L"Chrome.TotalMsgL ")
                       + ASCIIToWide(thread_name)).c_str(), 1, 3600000, 50),
-        total_time_watchdog_(excessive_duration, ASCIIToWide(thread_name),
-                             watchdog_enable) {
+        total_time_watchdog_(excessive_duration, thread_name, watchdog_enable) {
     process_times_.SetFlags(kUmaTargetedHistogramFlag);
     total_times_.SetFlags(kUmaTargetedHistogramFlag);
   }
