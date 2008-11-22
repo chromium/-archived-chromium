@@ -155,6 +155,10 @@ input_files = [
 ]
 
 if env['PLATFORM'] == 'posix':
+  input_files.append('ext/bitmap_platform_device_linux.cc')
+  input_files.append('ext/platform_canvas_linux.cc')
+  input_files.append('ext/platform_device_linux.cc')
+
   # On Linux we use Skia to render fonts with FreeType and fontconfig
   input_files.remove('sgl/SkTypeface_fake.cpp')
   input_files.remove('ports/SkFontHost_none.cpp')

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PlatformDeviceLinux_h
-#define PlatformDeviceLinux_h
+#ifndef SKIA_EXT_PLATFORM_DEVICE_LINUX_H_
+#define SKIA_EXT_PLATFORM_DEVICE_LINUX_H_
 
 #include "SkDevice.h"
 
@@ -22,4 +22,4 @@ class PlatformDeviceLinux : public SkDevice {
 
 }  // namespace gfx
 
-#endif  // PlatformDeviceLinux_h
+#endif  // SKIA_EXT_PLATFORM_DEVICE_LINUX_H_

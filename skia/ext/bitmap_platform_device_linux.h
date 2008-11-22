@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BitmapPlatformDeviceLinux_h
-#define BitmapPlatformDeviceLinux_h
+#ifndef SKIA_EXT_BITMAP_PLATFORM_DEVICE_LINUX_H_
+#define SKIA_EXT_BITMAP_PLATFORM_DEVICE_LINUX_H_
 
-#include "PlatformDeviceLinux.h"
 #include "base/ref_counted.h"
+#include "skia/ext/platform_device_linux.h"
 
 typedef struct _cairo_surface cairo_surface_t;
 
@@ -88,4 +88,4 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
 
 }  // namespace gfx
 
-#endif  // BitmapPlatformDeviceLinux_h
+#endif  // SKIA_EXT_BITMAP_PLATFORM_DEVICE_LINUX_H_

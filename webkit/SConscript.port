@@ -129,10 +129,6 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
-
-    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasLinux.cpp',
-    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceLinux.cpp',
-    '$PORT_DIR/platform/graphics/skia/public/BitmapPlatformDeviceLinux.cpp',
   ])
 
 if env['PLATFORM'] == 'darwin':

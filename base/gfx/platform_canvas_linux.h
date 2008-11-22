@@ -7,6 +7,6 @@
 
 // TODO(brettw) this file should be removed and the includes changed to this
 // new location.
-#include "webkit/port/platform/graphics/skia/public/PlatformCanvasLinux.h"
+#include "skia/ext/platform_canvas_linux.h"
 
-#endif  // BASE_GFX_PLATFORM_CANVAS_MAC_H_
+#endif  // BASE_GFX_PLATFORM_CANVAS_LINUX_H_

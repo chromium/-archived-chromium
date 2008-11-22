@@ -7,6 +7,6 @@
 
 // TODO(brettw) this file should be removed and the includes changed to this
 // new location.
-#include "webkit/port/platform/graphics/skia/public/PlatformDeviceLinux.h"
+#include "skia/ext/platform_device_linux.h"
 
 #endif  // BASE_GFX_PLATFORM_DEVICE_LINUX_H_

@@ -4,4 +4,4 @@
 
 // TODO(brettw) this file should be removed and the includes changed to this
 // new location.
-#include "webkit/port/platform/graphics/skia/public/PlatformDevice.h"
+#include "skia/ext/platform_device.h"

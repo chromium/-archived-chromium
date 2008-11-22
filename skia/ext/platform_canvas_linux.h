@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PlatformCanvasLinux_h
-#define PlatformCanvasLinux_h
+#ifndef SKIA_EXT_PLATFORM_CANVAS_LINUX_H_
+#define SKIA_EXT_PLATFORM_CANVAS_LINUX_H_
 
 #include "PlatformDeviceLinux.h"
 
@@ -49,4 +49,4 @@ class PlatformCanvasLinux : public SkCanvas {
 
 }  // namespace gfx
 
-#endif  // PlatformCanvasLinux_h
+#endif  // SKIA_EXT_PLATFORM_CANVAS_LINUX_H_

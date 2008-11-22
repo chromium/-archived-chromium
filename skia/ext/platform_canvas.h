@@ -2,29 +2,29 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Declare a platform-neutral name for this platform's bitmap device class
+// Declare a platform-neutral name for this platform's canvas class
 // that can be used by upper-level classes that just need to pass a reference
 // around.
 
 #if defined(WIN32)
-#include "skia/ext/bitmap_platform_device_win.h"
+#include "skia/ext/platform_canvas_win.h"
 namespace gfx {
 
-typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
+typedef PlatformCanvasWin PlatformCanvas;
 
 }  // namespace gfx
 #elif defined(__APPLE__)
-#include "skia/ext/bitmap_platform_device_mac.h"
+#include "skia/ext/platform_canvas_mac.h"
 namespace gfx {
 
-typedef BitmapPlatformDeviceMac BitmapPlatformDevice;
+typedef PlatformCanvasMac PlatformCanvas;
 
 }  // namespace gfx
 #elif defined(__linux__)
-#include "BitmapPlatformDeviceLinux.h"
+#include "skia/ext/platform_canvas_linux.h"
 namespace gfx {
 
-typedef BitmapPlatformDeviceLinux BitmapPlatformDevice;
+typedef PlatformCanvasLinux PlatformCanvas;
 
 }  // namespace gfx
 #endif
