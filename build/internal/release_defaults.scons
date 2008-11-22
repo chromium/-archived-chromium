@@ -21,15 +21,21 @@ env.Append(
 )
 
 if env.Bit('windows'):
+  env.Replace(
+      CHROMIUM_CC_OPT_FLAGS = [
+          '/O2',                # VCCLCompilerTool.Optimization="2"
+      ],
+      CHROMIUM_LINK_OPT_FLAGS = [
+          '/OPT:REF',           # VCLinkerTool.OptimizeReferences="2"
+          '/OPT:NOICF',         # VCLinkerTool.EnableCOMDATFolding="2"
+          '/OPT:NOWIN98',       # VCLinkerTool.OptimizeForWindows98="1"
+      ],
+  ),
   env.Append(
       CCFLAGS = [
-          '/O2',                # VCCLCompilerTool.Optimization="2"
           '/GF',                # VCCLCompilerTool.StringPooling="true"
       ],
       LINKFLAGS = [
           '/INCREMENTAL:NO',    # VCLinkerTool.LinkIncremental="1"
-          '/OPT:REF',           # VCLinkerTool.OptimizeReferences="2"
-          '/OPT:ICF',           # VCLinkerTool.EnableCOMDATFolding="2"
-          '/OPT:NOWIN98',       # VCLinkerTool.OptimizeForWindows98="1"
       ],
   )

@@ -19,6 +19,15 @@ default_warnings = ['no-no-parallel-support']
 SetOption('warn', default_warnings + GetOption('warn'))
 
 
+chrome_build_type = ARGUMENTS.get('CHROME_BUILD_TYPE')
+if chrome_build_type is None:
+  chrome_build_type = os.environ.get('CHROME_BUILD_TYPE', ''),
+
+chromium_build = ARGUMENTS.get('CHROMIUM_BUILD')
+if chromium_build is None:
+  chromium_build = os.environ.get('CHROMIUM_BUILD', ''),
+
+
 root_env = Environment(
     tools = ['component_setup',
              'chromium_builders',
@@ -30,8 +39,8 @@ root_env = Environment(
     # All supported system libraries, for the help message
     all_system_libs = [],
 
-    CHROME_BUILD_TYPE = os.environ.get('CHROME_BUILD_TYPE', ''),
-    CHROMIUM_BUILD = os.environ.get('CHROMIUM_BUILD', ''),
+    CHROME_BUILD_TYPE = chrome_build_type,
+    CHROMIUM_BUILD = chromium_build,
 
     CHROME_SRC_DIR = '$MAIN_DIR/..',
     DESTINATION_ROOT = '$MAIN_DIR/Hammer',

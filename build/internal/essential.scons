@@ -12,6 +12,12 @@ env.Append(
     CPPPATH = [
         '$CHROME_SRC_DIR',
     ],
+    CCFLAGS = [
+        '$CHROMIUM_CC_OPT_FLAGS',
+    ],
+    LINKFLAGS = [
+        '$CHROMIUM_LINK_OPT_FLAGS',
+    ],
 )
 
 if env['PLATFORM'] == 'win32':

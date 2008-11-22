@@ -153,6 +153,7 @@ if env['PLATFORM'] == 'win32':
       'system_monitor_win.cc',
       'thread_local_storage_win.cc',
       'thread_local_win.cc',
+      'third_party/purify/pure_api.c',
       'time_win.cc',
       'waitable_event_win.cc',
       'win_util.cc',

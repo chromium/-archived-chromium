@@ -17,13 +17,17 @@ env.Append(
 )
 
 if env.Bit('windows'):
+  env.Replace(
+      CHROMIUM_CC_OPT_FLAGS = [
+          '/Od',            # VCCLCompilerTool.Optimization="0"
+      ],
+      CHROMIUM_LINK_OPT_FLAGS = [
+          '/OPT:NOICF',     # VCLinkerTool.EnableCOMDATFolding="2"
+      ],
+  ),
   env.Append(
       CCFLAGS = [
-          '/Od',            # VCCLCompilerTool.Optimization="0"
           '/MT',            # VCCLCompilerTool.RuntimeLibrary="0"
           '/GS-',           # VCCLCompilerTool.BufferSecurityCheck="false"
-      ]
-      LINKFLAGS = [
-          '/OPT:ICF',       # VCLinkerTool.EnableCOMDATFolding="1"
       ],
   )

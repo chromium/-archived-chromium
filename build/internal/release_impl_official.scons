@@ -11,12 +11,16 @@ Import("env")
 env.ApplySConscript(['release_defaults.scons'])
 
 if env.Bit('windows'):
+  env.Replace(
+      CHROMIUM_CC_OPT_FLAGS = [
+          '/Ox',    # VCCLCompilerTool.Optimization="3"
+      ],
+  ),
   env.Append(
       ARFLAGS = [
           '/ltcg',
       ],
       CCFLAGS = [
-          '/Ox',    # VCCLCompilerTool.Optimization="3"
           '/Ob2',   # VCCLCompilerTool.InlineFunctionExpansion="2"
           '/Oi',    # VCCLCompilerTool.EnableIntrinsicFunctions="true"
           '/Os',    # VCCLCompilerTool.FavorSizeOrSpeed="2"
