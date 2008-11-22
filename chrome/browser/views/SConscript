@@ -95,6 +95,8 @@ input_files = [
     'info_bar_message_view.cc',
     'info_bar_view.cc',
     'info_bubble.cc',
+    'infobars/infobar_container.cc',
+    'infobars/infobars.cc',
     'input_window.cc',
     'keyword_editor_view.cc',
     'location_bar_view.cc',

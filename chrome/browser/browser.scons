@@ -199,6 +199,7 @@ if env['PLATFORM'] == 'win32':
       'importer/importer.cc',
       'importer/mork_reader.cc',
       'importer/toolbar_importer.cc',
+      'infobar_delegate.cc',
       'interstitial_page.cc',
       'ipc_status_view.cc',
       'jankometer.cc',
