@@ -47,7 +47,6 @@ input_files = [
     'chrome_menu.cc',
     'client_view.cc',
     'combo_box.cc',
-    'container_win.cc',
     'custom_frame_window.cc',
     'dialog_delegate.cc',
     'dialog_client_view.cc',
@@ -89,6 +88,7 @@ input_files = [
     'view.cc',
     'view_constants.cc',
     'view_storage.cc',
+    'widget_win.cc',
     'window.cc',
     'window_delegate.cc',
 ]
