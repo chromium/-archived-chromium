@@ -7,11 +7,11 @@
 // around.
 
 #if defined(WIN32)
-#include "PlatformDeviceWin.h"
+#include "skia/ext/platform_device_win.h"
 #elif defined(__APPLE__)
-#include "PlatformDeviceMac.h"
+#include "skia/ext/platform_device_mac.h"
 #elif defined(__linux__)
-#include "PlatformDeviceLinux.h"
+#include "skia/ext/platform_device_linux.h"
 #endif
 
 namespace gfx {
