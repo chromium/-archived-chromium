@@ -465,21 +465,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     return installer_util::OS_ERROR;
   }
 
-  // Check to avoid simultaneous per-user and per-machine installs.
-  scoped_ptr<installer::Version>
-      chrome_version(InstallUtil::GetChromeVersion(!system_install));
-  if (chrome_version.get()) {
-    LOG(ERROR) << "Already installed version " << chrome_version->GetString()
-               << " conflicts with the current install mode.";
-    installer_util::InstallStatus status = system_install ?
-        installer_util::USER_LEVEL_INSTALL_EXISTS :
-        installer_util::SYSTEM_LEVEL_INSTALL_EXISTS;
-    int str_id = system_install ? IDS_INSTALL_USER_LEVEL_EXISTS_BASE :
-                                  IDS_INSTALL_SYSTEM_LEVEL_EXISTS_BASE;
-    InstallUtil::WriteInstallerResult(system_install, status, str_id, NULL);
-    return status;
-  }
-
   // If --register-chrome-browser option is specified, register all
   // Chrome protocol/file associations as well as register it as a valid
   // browser for StarMenu->Internet shortcut. This option should only
@@ -522,6 +507,21 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                                      system_install);
   // If --uninstall option is not specified, we assume it is install case.
   } else {
+    // Check to avoid simultaneous per-user and per-machine installs.
+    scoped_ptr<installer::Version>
+        chrome_version(InstallUtil::GetChromeVersion(!system_install));
+    if (chrome_version.get()) {
+      LOG(ERROR) << "Already installed version " << chrome_version->GetString()
+                 << " conflicts with the current install mode.";
+      installer_util::InstallStatus status = system_install ?
+          installer_util::USER_LEVEL_INSTALL_EXISTS :
+          installer_util::SYSTEM_LEVEL_INSTALL_EXISTS;
+      int str_id = system_install ? IDS_INSTALL_USER_LEVEL_EXISTS_BASE :
+                                    IDS_INSTALL_SYSTEM_LEVEL_EXISTS_BASE;
+      InstallUtil::WriteInstallerResult(system_install, status, str_id, NULL);
+      return status;
+    }
+
     install_status = InstallChrome(parsed_command_line,
                                    installed_version.get(),
                                    options);
