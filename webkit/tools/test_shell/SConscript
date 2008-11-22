@@ -189,10 +189,6 @@ if env['PLATFORM'] == 'win32':
       #'$WEBKIT_DIR/glue/stringimpl_unittest.cc',
       '$WEBKIT_DIR/glue/webplugin_impl_unittest.cc',
       '$WEBKIT_DIR/port/platform/graphics/UniscribeHelper_unittest.cpp',
-      '$WEBKIT_DIR/port/platform/graphics/skia/public/VectorCanvas_unittest.cpp',
-
-      # TODO(brettw) this should also be compiled on Linux.
-      '$WEBKIT_DIR/port/platform/graphics/skia/public/PlatformCanvas_unittest.cpp',
   ])
 
 test_shell_tests = env.ChromeTestProgram('test_shell_tests',
