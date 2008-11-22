@@ -9,7 +9,6 @@
 
 #include "base/command_line.h"
 #include "base/file_util.h"
-#include "base/gfx/vector_canvas.h"
 #include "base/histogram.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"

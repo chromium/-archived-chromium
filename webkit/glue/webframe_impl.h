@@ -30,9 +30,9 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "base/gfx/platform_canvas.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/glue/password_autocomplete_listener.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webframe.h"

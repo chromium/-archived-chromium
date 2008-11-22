@@ -4,11 +4,11 @@
 
 #include "webkit/tools/test_shell/webwidget_host.h"
 
-#include "base/gfx/platform_canvas.h"
-#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/win_util.h"
+#include "skia/ext/platform_canvas.h"
+#include "skia/ext/platform_canvas_win.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"
 

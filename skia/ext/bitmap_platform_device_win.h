@@ -5,8 +5,8 @@
 #ifndef SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 #define SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 
-#include "base/gfx/platform_device_win.h"
 #include "base/ref_counted.h"
+#include "skia/ext/platform_device_win.h"
 
 namespace gfx {
 

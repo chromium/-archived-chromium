@@ -7,8 +7,9 @@
 
 #include <windows.h>
 #include <string>
+
 #include "base/basictypes.h"
-#include "base/gfx/platform_canvas_win.h"
+#include "skia/ext/platform_canvas_win.h"
 
 class ChromeFont;
 namespace gfx {

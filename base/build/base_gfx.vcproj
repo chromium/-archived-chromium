@@ -122,10 +122,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\gfx\bitmap_platform_device_win.h"
-			>
-		</File>
-		<File
 			RelativePath="..\gfx\convolver.cc"
 			>
 		</File>
@@ -155,14 +151,6 @@
 		</File>
 		<File
 			RelativePath="..\gfx\native_theme.h"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\platform_canvas_win.h"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\platform_device_win.h"
 			>
 		</File>
 		<File

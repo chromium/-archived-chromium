@@ -6,7 +6,6 @@
 
 #include <set>
 
-#include "base/gfx/platform_device_win.h"
 #include "base/message_loop.h"
 #include "base/time.h"
 #include "chrome/browser/printing/page_number.h"
@@ -20,6 +19,7 @@
 #include "chrome/common/time_format.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
+#include "skia/ext/platform_device.h"
 
 using base::Time;
 

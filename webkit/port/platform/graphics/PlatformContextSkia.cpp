@@ -34,9 +34,9 @@
 #include "SkiaUtils.h"
 #include "wtf/MathExtras.h"
 
-#include "base/gfx/image_operations.h"
-#include "base/gfx/platform_canvas.h"
-#include "base/gfx/skia_utils.h"
+#include "base/gfx/image_operations.h"  // TODO(brettw) remove this depencency.
+#include "base/gfx/skia_utils.h"  // TODO(brettw) remove this depencency.
+#include "skia/ext/platform_canvas.h"
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"

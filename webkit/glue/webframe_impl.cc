@@ -116,8 +116,6 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/basictypes.h"
-#include "base/gfx/bitmap_platform_device.h"
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -125,6 +123,8 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "base/time.h"
 #include "net/base/net_errors.h"
+#include "skia/ext/bitmap_platform_device.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/glue_serialize.h"

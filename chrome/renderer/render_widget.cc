@@ -10,9 +10,9 @@
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/gfx/platform_canvas_win.h"
 #include "base/scoped_ptr.h"
 #include "chrome/renderer/render_process.h"
+#include "skia/ext/platform_canvas_win.h"
 
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"

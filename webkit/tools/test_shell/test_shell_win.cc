@@ -12,7 +12,6 @@
 #include "webkit/tools/test_shell/test_shell.h"
 
 #include "base/command_line.h"
-#include "base/gfx/bitmap_platform_device.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -24,6 +23,7 @@
 #include "breakpad/src/client/windows/handler/exception_handler.h"
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request_file_job.h"
+#include "skia/ext/bitmap_platform_device.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"

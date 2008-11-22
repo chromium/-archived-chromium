@@ -32,12 +32,11 @@
 #include "GlyphBuffer.h"
 #include "PlatformContextSkia.h"
 #include "SimpleFontData.h"
+#include "SkiaUtils.h"
 #include "UniscribeHelperTextRun.h"
 
-#include "base/gfx/platform_canvas_win.h"
-#include "base/gfx/skia_utils.h"
-#include "graphics/SkiaUtils.h"
-
+#include "base/gfx/skia_utils.h"  // TODO(brettw) remove this dependency.
+#include "skia/ext/platform_canvas_win.h"
 
 namespace WebCore {
 

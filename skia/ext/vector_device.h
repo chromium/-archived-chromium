@@ -6,7 +6,7 @@
 #define VectorDevice_h
 
 #include "base/basictypes.h"
-#include "base/gfx/platform_device_win.h"
+#include "skia/ext/platform_device_win.h"
 #include "SkMatrix.h"
 #include "SkRegion.h"
 

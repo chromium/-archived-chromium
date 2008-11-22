@@ -29,11 +29,11 @@
 #ifndef PlatformContextSkia_h
 #define PlatformContextSkia_h
 
-#include "base/gfx/platform_canvas.h"
 
 #include "SkDashPathEffect.h"
 #include "SkDrawLooper.h"
 #include "SkDeque.h"
+#include "skia/ext/platform_canvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 

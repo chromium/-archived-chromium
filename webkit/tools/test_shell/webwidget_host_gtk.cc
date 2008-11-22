@@ -8,9 +8,9 @@
 #include <gtk/gtk.h>
 
 #include "base/logging.h"
-#include "base/gfx/platform_canvas_linux.h"
-#include "base/gfx/platform_device_linux.h"
-#include "base/gfx/bitmap_platform_device_linux.h"
+#include "skia/ext/bitmap_platform_device_linux.h"
+#include "skia/ext/platform_canvas_linux.h"
+#include "skia/ext/platform_device_linux.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"
 

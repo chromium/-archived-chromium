@@ -6,7 +6,6 @@
 
 #include "base/command_line.h"
 #include "base/time.h"
-#include "base/gfx/platform_device_win.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/plugin_messages.h"
@@ -17,6 +16,7 @@
 #include "chrome/plugin/webplugin_proxy.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
+#include "skia/ext/platform_device.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
 

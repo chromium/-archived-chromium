@@ -9,9 +9,9 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "base/gfx/bitmap_platform_device.h"
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/size.h"
+#include "skia/ext/bitmap_platform_device.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/find_in_page_request.h"
 

@@ -7,9 +7,9 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
+#include "skia/ext/platform_canvas.h"
 
 class WebWidget;
 class WebWidgetDelegate;

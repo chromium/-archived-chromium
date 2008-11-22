@@ -9,9 +9,9 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webpreferences.h"

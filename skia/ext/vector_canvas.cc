@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/vector_canvas.h"
+#include "skia/ext/vector_canvas.h"
 
-#include "base/gfx/vector_device.h"
 #include "base/logging.h"
+#include "skia/ext/vector_device.h"
 
 namespace gfx {
 

@@ -576,11 +576,6 @@
 		825403D40D92D31D0006B936 /* rect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rect.cc; sourceTree = "<group>"; };
 		825403D50D92D31D0006B936 /* rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rect.h; sourceTree = "<group>"; };
 		825403D70D92D31D0006B936 /* size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = size.h; sourceTree = "<group>"; };
-		825403DD0D92D31D0006B936 /* vector_canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_canvas.h; sourceTree = "<group>"; };
-		825403DF0D92D31D0006B936 /* vector_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_device.h; sourceTree = "<group>"; };
-		829E2F950DBFD74B00819EBF /* bitmap_platform_device_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitmap_platform_device_mac.h; sourceTree = "<group>"; };
-		829E2F980DBFD76300819EBF /* platform_canvas_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_canvas_mac.h; sourceTree = "<group>"; };
-		829E2F9C0DBFD76F00819EBF /* platform_device_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_device_mac.h; sourceTree = "<group>"; };
 		829E30D60DBFD8ED00819EBF /* skia.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia.xcodeproj; path = skia/skia.xcodeproj; sourceTree = "<group>"; };
 		829E36720DC0FBAD00819EBF /* thread_local_storage_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_storage_posix.cc; sourceTree = "<group>"; };
 		82D094530E5B892600FEC05C /* time_format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = time_format.h; sourceTree = "<group>"; };
@@ -610,9 +605,6 @@
 		A5CB82960E5C74E300FD6825 /* platform_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_test.h; sourceTree = "<group>"; };
 		A5CB82970E5C74E300FD6825 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
 		AB14B6060EBFA74C00FB3807 /* time_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_posix.cc; sourceTree = "<group>"; };
-		AB6BC1ED0E54E836006436D5 /* bitmap_platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitmap_platform_device.h; sourceTree = "<group>"; };
-		AB6BC1F10E54E900006436D5 /* platform_canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_canvas.h; sourceTree = "<group>"; };
-		AB6BC1F50E54E97B006436D5 /* platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_device.h; sourceTree = "<group>"; };
 		ABE1BA290E7574D1009041DA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<group>"; };
 		ABE1BA600E75757C009041DA /* skia_utils_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skia_utils_mac.cc; sourceTree = "<group>"; };
 		ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_paths_mac.mm; sourceTree = "<group>"; };
@@ -1081,8 +1073,6 @@
 		825403B40D92D2EC0006B936 /* gfx */ = {
 			isa = PBXGroup;
 			children = (
-				AB6BC1ED0E54E836006436D5 /* bitmap_platform_device.h */,
-				829E2F950DBFD74B00819EBF /* bitmap_platform_device_mac.h */,
 				E48A06680E3F70B500172919 /* convolver.cc */,
 				E48A06690E3F70B500172919 /* convolver.h */,
 				E48A06790E3F714300172919 /* convolver_unittest.cc */,
@@ -1094,10 +1084,6 @@
 				825403C90D92D31D0006B936 /* native_theme.h */,
 				7B8505A20E5B3FBE00730B43 /* native_theme_unittest.cc */,
 				7B1435DF0E78419700901940 /* native_widget_types.h */,
-				AB6BC1F10E54E900006436D5 /* platform_canvas.h */,
-				829E2F980DBFD76300819EBF /* platform_canvas_mac.h */,
-				AB6BC1F50E54E97B006436D5 /* platform_device.h */,
-				829E2F9C0DBFD76F00819EBF /* platform_device_mac.h */,
 				E4562A200E27C8C1005E4685 /* png_codec_unittest.cc */,
 				825403CD0D92D31D0006B936 /* png_decoder.cc */,
 				825403CE0D92D31D0006B936 /* png_decoder.h */,
@@ -1114,8 +1100,6 @@
 				7B8505A60E5B3FBE00730B43 /* skia_utils.h */,
 				ABE1BA600E75757C009041DA /* skia_utils_mac.cc */,
 				7B1435DE0E78416400901940 /* skia_utils_mac.h */,
-				825403DD0D92D31D0006B936 /* vector_canvas.h */,
-				825403DF0D92D31D0006B936 /* vector_device.h */,
 			);
 			path = gfx;
 			sourceTree = "<group>";

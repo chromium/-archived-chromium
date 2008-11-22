@@ -12,8 +12,8 @@
 #include <unistd.h>
 #endif
 
-#include "base/gfx/platform_canvas.h"
-#include "base/gfx/platform_device.h"
+#include "skia/ext/platform_canvas.h"
+#include "skia/ext/platform_device.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #include "SkColor.h"

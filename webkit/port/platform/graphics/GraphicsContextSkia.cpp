@@ -14,9 +14,9 @@
 ** limitations under the License.
 */
 
+#include "config.h"
 #include <math.h>
 
-#include "config.h"
 #include "GraphicsContext.h"
 #include "GraphicsContextPlatformPrivate.h"
 #include "GraphicsContextPrivate.h"
@@ -33,11 +33,10 @@
 #include "SkBitmap.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCornerPathEffect.h"
+#include "skia/ext/platform_canvas.h"
 #include "SkiaUtils.h"
 #include "SkShader.h"
 #include "wtf/MathExtras.h"
-
-#include "base/gfx/platform_canvas.h"
 
 using namespace std;
 

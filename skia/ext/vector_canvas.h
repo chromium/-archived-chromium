@@ -5,8 +5,8 @@
 #ifndef BASE_GFX_VECTOR_CANVAS_H_
 #define BASE_GFX_VECTOR_CANVAS_H_
 
-#include "base/gfx/platform_canvas_win.h"
-#include "base/gfx/vector_device.h"
+#include "skia/ext/platform_canvas_win.h"
+#include "skia/ext/vector_device.h"
 
 namespace gfx {
 

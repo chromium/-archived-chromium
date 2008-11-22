@@ -7,10 +7,10 @@
 #include <winspool.h>
 
 #include "base/file_util.h"
-#include "base/gfx/platform_device_win.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
+#include "skia/ext/platform_device_win.h"
 
 using base::Time;
 

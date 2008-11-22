@@ -5,7 +5,6 @@
 #include "chrome/plugin/webplugin_proxy.h"
 
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/platform_device_win.h"
 #include "base/scoped_handle.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
@@ -16,6 +15,7 @@
 #include "chrome/plugin/webplugin_delegate_stub.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_util.h"
+#include "skia/ext/platform_device.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 
 typedef std::map<CPBrowsingContext, WebPluginProxy*> ContextMap;

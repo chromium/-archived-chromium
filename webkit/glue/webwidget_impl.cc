@@ -19,9 +19,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webinputevent.h"
