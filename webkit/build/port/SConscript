@@ -68,7 +68,6 @@ env = env.Clone(
 
     BINDINGS_INCLUDE_PATH = [
         '$PENDING',
-        '$PORTROOT/dom',
         '$PORTROOT/html',
         '$PORTROOT/page',
         '$WEBCORE/css',
