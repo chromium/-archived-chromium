@@ -132,8 +132,6 @@ def main(options, args):
       options.dry_run, options.diff3_cmd)
   merger.MergeDirectory("JavaScriptCore")
   merger.MergeDirectory("WebCore")
-  merger.MergeDirectory("WebKit")
-  merger.MergeDirectory("WebKitLibraries")
   
   UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
       new_revision, options.dry_run)
