@@ -153,7 +153,8 @@ HttpCache::ActiveEntry::ActiveEntry(disk_cache::Entry* e)
 }
 
 HttpCache::ActiveEntry::~ActiveEntry() {
-  disk_entry->Close();
+  if (disk_entry)
+    disk_entry->Close();
 }
 
 //-----------------------------------------------------------------------------
@@ -953,6 +954,9 @@ HttpCache::~HttpCache() {
   while (!active_entries_.empty()) {
     ActiveEntry* entry = active_entries_.begin()->second;
     entry->will_process_pending_queue = false;
+    entry->pending_queue.clear();
+    entry->readers.clear();
+    entry->writer = NULL;
     DeactivateEntry(entry);
   }
 
@@ -1182,21 +1186,35 @@ HttpCache::ActiveEntry* HttpCache::ActivateEntry(
   return entry;
 }
 
+#if defined(OS_WIN)
+#pragma optimize("", off)
+#endif
+// Avoid optimizing local_entry out of the code.
 void HttpCache::DeactivateEntry(ActiveEntry* entry) {
-  DCHECK(!entry->will_process_pending_queue);
-  DCHECK(!entry->doomed);
-  DCHECK(!entry->writer);
-  DCHECK(entry->readers.empty());
-  DCHECK(entry->pending_queue.empty());
+  // TODO(rvargas): remove this code and go back to DCHECKS once we find out
+  // why are we crashing. I'm just trying to gather more info for bug 3931.
+  ActiveEntry local_entry = *entry;
+  size_t readers_size = local_entry.readers.size();
+  size_t pending_size = local_entry.pending_queue.size();
 
   ActiveEntriesMap::iterator it =
       active_entries_.find(entry->disk_entry->GetKey());
-  DCHECK(it != active_entries_.end());
-  DCHECK(it->second == entry);
+  CHECK(it != active_entries_.end() && it->second == entry);
+
+  if (local_entry.will_process_pending_queue || local_entry.doomed ||
+      local_entry.writer || readers_size || pending_size) {
+    CHECK(false);
+  }
 
   active_entries_.erase(it);
   delete entry;
+
+  // Avoid closing the disk_entry again on the destructor.
+  local_entry.disk_entry = NULL;
 }
+#if defined(OS_WIN)
+#pragma optimize("", on)
+#endif
 
 int HttpCache::AddTransactionToEntry(ActiveEntry* entry, Transaction* trans) {
   DCHECK(entry);
