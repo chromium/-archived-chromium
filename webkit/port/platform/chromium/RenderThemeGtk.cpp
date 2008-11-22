@@ -159,33 +159,35 @@ static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderOb
             break;
     }
 
+    AffineTransform ctm = i.context->getCTM();
+
+    IntPoint pos = ctm.mapPoint(rect.location());
+    GdkRectangle gdkRect;
+    gdkRect.x = pos.x();
+    gdkRect.y = pos.y();
+    gdkRect.width = rect.width();
+    gdkRect.height = rect.height();
+    GtkTextDirection direction = gtkTextDirection(o->style()->direction());
+
     PlatformContextSkia* pcs = i.context->platformContext();
     SkCanvas* canvas = pcs->canvas();
     if (!canvas)
         return false;
 
-    GdkRectangle gdkRect;
-    gdkRect.x = rect.x();
-    gdkRect.y = rect.y();
-    gdkRect.width = rect.width();
-    gdkRect.height = rect.height();
-
-    // getTotalClip returns the currently set clip region in device coordinates,
-    // so we have to apply the current transform (actually we only support translations)
-    // to get the page coordinates that our gtk widget rendering expects.
-    // We invert it because we want to map from device coordinates to page coordinates.
     const SkIRect clip_region = canvas->getTotalClip().getBounds();
-    AffineTransform ctm = i.context->getCTM().inverse();
-    IntPoint pos = ctm.mapPoint(IntPoint(SkScalarRound(clip_region.fLeft), SkScalarRound(clip_region.fTop)));
+
     GdkRectangle gdkClipRect;
-    gdkClipRect.x = pos.x();
-    gdkClipRect.y = pos.y();
-    gdkClipRect.width = SkScalarRound(clip_region.width());
-    gdkClipRect.height = SkScalarRound(clip_region.height());
+    gdkClipRect.x = clip_region.fLeft;
+    gdkClipRect.y = clip_region.fTop;
+    gdkClipRect.width = clip_region.width();
+    gdkClipRect.height = clip_region.height();
 
-    GtkTextDirection direction = gtkTextDirection(o->style()->direction());
+    gdk_rectangle_intersect(&gdkRect, &gdkClipRect, &gdkClipRect);
 
-    return moz_gtk_widget_paint(type, pcs->gdk_skia(), &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
+    const gint r =
+      moz_gtk_widget_paint(type, pcs->gdk_skia(), &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
+
+    return r;
 }
 
 static void setButtonPadding(RenderStyle* style)

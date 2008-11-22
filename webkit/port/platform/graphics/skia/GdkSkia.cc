@@ -465,11 +465,6 @@ gdk_skia_ref_cairo_surface(GdkDrawable *drawable) {
        CAIRO_FORMAT_ARGB32, dev->width(), dev->height(), bm->rowBytes());
   }
 
-  SkMatrix matrix = skia->canvas->getTotalMatrix();
-  int x_shift = SkScalarRound(matrix.getTranslateX());
-  int y_shift = SkScalarRound(matrix.getTranslateY());
-
-  cairo_surface_set_device_offset(skia->surface, x_shift, y_shift);
   return cairo_surface_reference(skia->surface);
 }
 
