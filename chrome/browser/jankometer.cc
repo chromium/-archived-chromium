@@ -12,6 +12,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/stats_counters.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/watchdog.h"
@@ -53,7 +54,7 @@ class JankWatchdog : public Watchdog {
   JankWatchdog(const TimeDelta& duration,
                const std::string& thread_watched_name,
                bool enabled)
-      : Watchdog(duration, thread_watched_name, enabled),
+      : Watchdog(duration, ASCIIToWide(thread_watched_name), enabled),
         thread_name_watched_(thread_watched_name),
         alarm_count_(0) {
   }
