@@ -16,6 +16,19 @@
 
 namespace {
 
+// In response to an invalidation, we call into WebKit to do layout. On
+// Windows, WM_PAINT is a virtual message so any extra invalidates that come up
+// while it's doing layout are implicitly swallowed as soon as we actually do
+// drawing via BeginPaint.
+//
+// Though GTK does know how to collapse multiple paint requests, it won't erase
+// paint requests from the future when we start drawing.  To avoid an infinite
+// cycle of repaints, we track whether we're currently handling a redraw, and
+// during that if we get told by WebKit that a region has become invalid, we
+// still add that region to the local dirty rect but *don't* enqueue yet
+// another "do a paint" message.
+bool handling_expose = false;
+
 // -----------------------------------------------------------------------------
 // Callback functions to proxy to host...
 
@@ -27,9 +40,12 @@ gboolean ConfigureEvent(GtkWidget* widget, GdkEventConfigure* config,
 
 gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
                      WebWidgetHost* host) {
+  // See comments above about what handling_expose is for.
+  handling_expose = true;
   gfx::Rect rect(expose->area);
   host->UpdatePaintRect(rect);
   host->Paint();
+  handling_expose = false;
   return FALSE;
 }
 
@@ -155,8 +171,10 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
 
   UpdatePaintRect(damaged_rect);
 
-  gtk_widget_queue_draw_area(GTK_WIDGET(view_), damaged_rect.x(),
-      damaged_rect.y(), damaged_rect.width(), damaged_rect.height());
+  if (!handling_expose) {
+    gtk_widget_queue_draw_area(GTK_WIDGET(view_), damaged_rect.x(),
+        damaged_rect.y(), damaged_rect.width(), damaged_rect.height());
+  }
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
