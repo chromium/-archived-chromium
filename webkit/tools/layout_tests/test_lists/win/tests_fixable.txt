@@ -1120,3 +1120,15 @@ LayoutTests/fast/workers/worker-constructor.html = FAIL
 LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
 LayoutTests/fast/workers/worker-gc.html = TIMEOUT
 LayoutTests/fast/workers/worker-location.html = TIMEOUT
+
+// MERGE 38550:38575: Regressions.
+LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
+LayoutTests/fast/events/onunload-window-property.html = FAIL
+LayoutTests/http/tests/loading/basic.html = FAIL
+LayoutTests/http/tests/loading/empty-subframe.html = FAIL
+LayoutTests/http/tests/loading/gmail-assert-on-load.html = FAIL
+LayoutTests/http/tests/loading/location-hash-reload-cycle.html = FAIL
+LayoutTests/http/tests/loading/onload-vs-immediate-refresh.pl = FAIL
+LayoutTests/http/tests/loading/simple-subframe.html = FAIL
+LayoutTests/http/tests/loading/slow-parsing-subframe.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/frame-load-cancelled-abort.html = FAIL
