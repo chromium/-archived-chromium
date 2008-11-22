@@ -426,12 +426,6 @@ double RenderThemeGtk::caretBlinkFrequency() const
     return time / 2000.;
 }
 
-void RenderThemeGtk::systemFont(int, FontDescription&) const
-{
-    // If you remove this notImplemented(), replace it with an comment that explains why.
-    notImplemented();
-}
-
 void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDescription) const
 {
     switch (propId) {

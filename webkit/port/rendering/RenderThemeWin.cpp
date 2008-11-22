@@ -391,7 +391,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
     fontDescription = *cachedDesc;
 }
 
-bool RenderThemeWin::supportsFocus(ControlPart appearance)
+static bool supportsFocus(ControlPart appearance)
 {
     switch (appearance) {
         case PushButtonPart:

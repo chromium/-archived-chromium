@@ -49,8 +49,10 @@ public:
     // A method asking if the theme's controls actually care about redrawing when hovered.
     virtual bool supportsHover(const RenderStyle*) const { return true; }
 
+    // A method asking if the theme is able to draw the focus ring.
     virtual bool supportsFocusRing(const RenderStyle*) const;
 
+    // The platform selection color.
     virtual Color platformActiveSelectionBackgroundColor() const;
     virtual Color platformInactiveSelectionBackgroundColor() const;
     virtual Color platformActiveSelectionForegroundColor() const;
@@ -121,7 +123,6 @@ private:
 
     unsigned determineState(RenderObject*);
     unsigned determineClassicState(RenderObject*);
-    bool supportsFocus(ControlPart);
 
     ThemeData getThemeData(RenderObject*);
 

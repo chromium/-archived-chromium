@@ -39,7 +39,7 @@ public:
     RenderThemeGtk();
 
     // A method asking if the theme's controls actually care about redrawing when hovered.
-    virtual bool supportsHover(const RenderStyle* style) const { return true; }
+    virtual bool supportsHover(const RenderStyle*) const { return true; }
 
     // A method asking if the theme is able to draw the focus ring.
     virtual bool supportsFocusRing(const RenderStyle*) const;
@@ -70,10 +70,8 @@ public:
     virtual double caretBlinkFrequency() const;
 
     // System fonts.
-    virtual void systemFont(int propId, FontDescription&) const;
-    virtual void systemFont(int, Document*, FontDescription&) const;
+    virtual void systemFont(int propId, Document*, FontDescription&) const;
 
-protected:
     virtual bool paintCheckbox(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r);
     virtual void setCheckboxSize(RenderStyle* style) const;
 
@@ -89,7 +87,7 @@ protected:
     virtual void adjustTextAreaStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual bool paintTextArea(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
-    virtual void adjustMenuListStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
+    virtual void adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const;
     virtual bool paintMenuList(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
     virtual void adjustSearchFieldResultsDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
