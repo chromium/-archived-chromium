@@ -1747,16 +1747,7 @@ void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
       info->login_handler->OnRequestCancelled();
       info->login_handler = NULL;
     }
-    if (!i->second->is_pending()) {
-      // No io is pending, canceling the request won't notify us of anything,
-      // so we explicitly remove it.
-      // TODO: removing the request in this manner means we're not notifying
-      // anyone. We need make sure the event handlers and others are notified
-      // so that everything is cleaned up properly.
-      RemovePendingRequest(info->render_process_host_id, info->request_id);
-    } else {
-      i->second->Cancel();
-    }
+    i->second->Cancel();
   }
 
   // Do not remove from the pending requests, as the request will still
