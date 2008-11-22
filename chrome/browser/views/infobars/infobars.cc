@@ -11,8 +11,10 @@
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/background.h"
 #include "chrome/views/button.h"
+#include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
+#include "chrome/views/widget.h"
 
 #include "generated_resources.h"
 
@@ -102,6 +104,8 @@ void InfoBar::AnimateClose() {
 
 void InfoBar::Close() {
   GetParent()->RemoveChildView(this);
+  if (focus_tracker_.get())
+    focus_tracker_->FocusLastFocusedExternalView();
   if (delegate())
     delegate()->InfoBarClosed();
   delete this;
@@ -120,6 +124,25 @@ void InfoBar::Layout() {
                            OffsetY(this, button_ps), button_ps.width(),
                            button_ps.height());
 
+}
+
+void InfoBar::ViewHierarchyChanged(bool is_add, views::View* parent,
+                                   views::View* child) {
+  if (child == this) {
+    views::Widget* widget = GetWidget();
+    if (is_add && widget) {
+      // When we're added to a view hierarchy within a widget, we create an
+      // external focus tracker to track what was focused in case we obtain
+      // focus so that we can restore focus when we're removed.
+      focus_tracker_.reset(
+          new views::ExternalFocusTracker(this,
+              views::FocusManager::GetFocusManager(widget->GetHWND())));
+    } else if (focus_tracker_.get()) {
+      // When we're removed from a view hierarchy, our focus manager is no
+      // longer valid.
+      focus_tracker_->SetFocusManager(NULL);
+    }
+  }
 }
 
 // InfoBar, protected: ---------------------------------------------------------
@@ -232,6 +255,7 @@ void ConfirmInfoBar::Layout() {
 void ConfirmInfoBar::ViewHierarchyChanged(bool is_add,
                                           views::View* parent,
                                           views::View* child) {
+  InfoBar::ViewHierarchyChanged(is_add, parent, child);
   if (is_add && child == this && !initialized_) {
     Init();
     initialized_ = true;
