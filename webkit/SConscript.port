@@ -115,45 +115,14 @@ input_files = [
     '$PORT_DIR/plugins/chromium/PluginDataChromium.cpp',
 ]
 
-if env['PLATFORM'] == 'posix':
-  # Remove from the list files that haven't yet been made portable to Linux.
-  remove_files = [
-    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
-  ]
-  for remove in remove_files:
-    input_files.remove(remove)
-
-  # Linux specific implementations
-  input_files.extend([
-    '$PORT_DIR/platform/chromium/IconLinux.cpp',
-    '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
-    '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
-  ])
-
-if env['PLATFORM'] == 'darwin':
-  # Remove from the list files that haven't yet been made portable to Mac.
-  remove_files = [
-    '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
-    '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
-    '$PORT_DIR/platform/chromium/CursorChromium.cpp',
-    '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
-    '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
-    '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
-    '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
-    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
-    '$PORT_DIR/platform/graphics/ImageSkia.cpp',
-  ]
-  for remove in remove_files:
-    input_files.remove(remove)
-
 if env['PLATFORM'] == 'win32':
-  # These are win32 specific and will never be ported.
+  # Windows specific implementations.
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemChromiumWin.cpp',
     '$PORT_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
     '$PORT_DIR/platform/win/BString.cpp',
     '$PORT_DIR/platform/win/SoundWin.cpp',
+
     '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
     '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',
     '$PORT_DIR/platform/graphics/FontUtilsWin.cpp',
@@ -169,19 +138,33 @@ if env['PLATFORM'] == 'win32':
   ])
 
 if env['PLATFORM'] == 'posix':
+  # Linux specific implementations.
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemPosix.cpp',
-    '$PORT_DIR/platform/chromium/SoundPosix.cpp',
-    '$PORT_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
     '$PORT_DIR/platform/chromium/gtk2drawing.c',
-    '$PORT_DIR/platform/chromium/RenderThemeGtk.cpp'
+    '$PORT_DIR/platform/chromium/IconLinux.cpp',
+    '$PORT_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
+    '$PORT_DIR/platform/chromium/RenderThemeGtk.cpp',
+    '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
+    '$PORT_DIR/platform/chromium/SoundPosix.cpp',
+
+    '$PORT_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
+
+    '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
   ])
 
+  # Remove from the list files that haven't yet been made portable to Linux.
+  to_be_ported_files = [
+    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
+  ]
+  input_files = list(set(input_files) - set(to_be_ported_files))
+
 if env['PLATFORM'] == 'darwin':
+  # Mac specific implementations.
   input_files.extend([
     '$PORT_DIR/bridge/mac/FrameMac.mm',
     '$PORT_DIR/page/EventHandlerMac.mm',
@@ -190,10 +173,23 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/PluginStubsMac.cpp',
     '$PORT_DIR/platform/mac/DragDataMac.mm',
     '$PORT_DIR/platform/mac/IntRectMac.mm',
-    '$PORT_DIR/platform/mac/ScrollViewMac.mm',
     '$PORT_DIR/platform/graphics/mac/FontCacheMacPending.cpp',
     '$PORT_DIR/rendering/RenderThemeMac.mm',
   ])
+
+  # Remove from the list files that haven't yet been made portable to Mac.
+  to_be_ported_files = [
+    '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
+    '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
+    '$PORT_DIR/platform/chromium/CursorChromium.cpp',
+    '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
+    '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
+    '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
+    '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
+    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
+    '$PORT_DIR/platform/graphics/ImageSkia.cpp',
+  ]
+  input_files = list(set(input_files) - set(to_be_ported_files))
 
 if env.get('KJS'):
   input_files.extend([
