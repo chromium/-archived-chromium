@@ -109,6 +109,13 @@ static const int kUmaTargetedHistogramFlag = 0x1;
     counter.AddTime(sample); \
   } while (0)
 
+#define UMA_HISTOGRAM_MEDIUM_TIMES(name, sample) do { \
+    static Histogram counter((name), base::TimeDelta::FromMilliseconds(10), \
+                             base::TimeDelta::FromMinutes(3), 50); \
+    counter.SetFlags(kUmaTargetedHistogramFlag); \
+    counter.AddTime(sample); \
+  } while (0)
+
 // Use this macro when times can routinely be much longer than 10 seconds.
 #define UMA_HISTOGRAM_LONG_TIMES(name, sample) do { \
     static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
@@ -199,7 +206,7 @@ class Histogram : public StatsRate {
   // input the stats counter sees.
   virtual void Add(int value);
 
-  // The following methods provide a graphical histogram displays.
+  // The following methods provide graphical histogram displays.
   void WriteHTMLGraph(std::string* output) const;
   void WriteAscii(bool graph_it, const std::string& newline,
                   std::string* output) const;

@@ -92,8 +92,19 @@ void Filter::FixupEncodingTypes(
     return;
   }
 
-  if (!is_sdch_response)
+  if (!is_sdch_response) {
+    if (1 < encoding_types->size()) {
+      // Multiple filters were intended to only be used for SDCH (thus far!)
+      SdchManager::SdchErrorRecovery(
+          SdchManager::MULTIENCODING_FOR_NON_SDCH_REQUEST);
+    }
+    if ((1 == encoding_types->size()) &&
+        (FILTER_TYPE_SDCH == encoding_types->front())) {
+        SdchManager::SdchErrorRecovery(
+            SdchManager::SDCH_CONTENT_ENCODE_FOR_NON_SDCH_REQUEST);
+    }
     return;
+  }
 
   // If content encoding included SDCH, then everything is fine.
   if (!encoding_types->empty() &&
@@ -103,8 +114,11 @@ void Filter::FixupEncodingTypes(
     // payload.   To handle this gracefully, we simulate the "probably" deleted
     // ",gzip" by appending a tentative gzip decode, which will default to a
     // no-op pass through filter if it doesn't get gzip headers where expected.
-    if (1 == encoding_types->size())
+    if (1 == encoding_types->size()) {
       encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
+      SdchManager::SdchErrorRecovery(
+          SdchManager::OPTIONAL_GUNZIP_ENCODING_ADDED);
+    }
     return;
   }
 

@@ -65,7 +65,7 @@ bool SdchManager::BlacklistDomain(const GURL& url) {
   if (!global_ )
     return false;
   std::string domain(url.host());
-  UMA_HISTOGRAM_TIMES(L"Sdch.UptimeBeforeBlacklisting",
+  UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.UptimeBeforeBlacklisting_M",
        Time::Now() - FieldTrialList::application_start_time());
   global_->blacklisted_domains_.insert(url.host());
   return true;

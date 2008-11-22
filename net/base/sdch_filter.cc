@@ -48,11 +48,12 @@ SdchFilter::~SdchFilter() {
     // would DCHECK in histogram as the square of the value is summed.  The
     // relatively precise histogram only properly covers the range 1ms to 10
     // seconds, so the discarded data would not be that readable anyway.
-    if (30 >= duration.InSeconds()) {
+    if (180 >= duration.InSeconds()) {
       if (DECODING_IN_PROGRESS == decoding_status_)
-        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Latency_2", duration);
+        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Transit_Latency_M", duration);
       if (PASS_THROUGH == decoding_status_)
-        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Pass-through_Latency_2", duration);
+        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Transit_Pass-through_Latency_M",
+                                   duration);
     }
   }
 
