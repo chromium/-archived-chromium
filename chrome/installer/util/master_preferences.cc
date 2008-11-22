@@ -51,6 +51,8 @@ const wchar_t kDoNotLaunchChrome[] = L"distribution.do_not_launch_chrome";
 const wchar_t kMakeChromeDefault[] = L"distribution.make_chrome_default";
 // Install Chrome to system wise location.
 const wchar_t kSystemLevel[] = L"distribution.system_level";
+// Run installer in verbose mode.
+const wchar_t kVerboseLogging[] = L"distribution.verbose_logging";
 
 
 int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
@@ -93,6 +95,9 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
 
   if (GetBooleanPref(json_root.get(), kSystemLevel))
     parse_result |= MASTER_PROFILE_SYSTEM_LEVEL;
+
+  if (GetBooleanPref(json_root.get(), kVerboseLogging))
+    parse_result |= MASTER_PROFILE_VERBOSE_LOGGING;
 
   return parse_result;
 }

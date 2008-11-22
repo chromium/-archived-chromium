@@ -52,6 +52,8 @@ enum InstallOption {
   MAKE_CHROME_DEFAULT     = 0x1 << 4,
   // Install Chrome to system wise location.
   SYSTEM_LEVEL            = 0x1 << 5,
+  // Run installer in verbose mode.
+  VERBOSE_LOGGING         = 0x1 << 6,
 };
 
 namespace switches {

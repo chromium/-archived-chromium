@@ -41,6 +41,8 @@ enum MasterPrefResult {
   MASTER_PROFILE_MAKE_CHROME_DEFAULT  = 0x1 << 8,
   // Install Chrome to system wise location.
   MASTER_PROFILE_SYSTEM_LEVEL         = 0x1 << 9,
+  // Run installer in verbose mode.
+  MASTER_PROFILE_VERBOSE_LOGGING      = 0x1 << 10,
 
 };
 
@@ -58,8 +60,9 @@ enum MasterPrefResult {
 //      "import_history": false
 //      "create_all_shortcuts": true,
 //      "do_not_launch_chrome": false,
-//      "make_chrome_default", false,
-//      "system_level", false,
+//      "make_chrome_default": false,
+//      "system_level": false,
+//      "verbose_logging": true
 //   },
 //   "browser": {
 //      "show_home_button": true

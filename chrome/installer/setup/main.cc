@@ -243,6 +243,10 @@ int GetInstallOptions(const CommandLine& cmd_line) {
       cmd_line.HasSwitch(installer_util::switches::kSystemLevel))
     options |= installer_util::SYSTEM_LEVEL;
 
+  if (preferences & installer_util::MASTER_PROFILE_VERBOSE_LOGGING ||
+      cmd_line.HasSwitch(installer_util::switches::kVerboseLogging))
+    options |= installer_util::VERBOSE_LOGGING;
+
   return options;
 }
 
@@ -436,6 +440,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   CommandLine parsed_command_line;
   installer::InitInstallerLogging(parsed_command_line);
   int options = GetInstallOptions(parsed_command_line);
+  if (options & installer_util::VERBOSE_LOGGING)
+    logging::SetMinLogLevel(logging::LOG_INFO);
+
   bool system_install = (options & installer_util::SYSTEM_LEVEL) != 0;
   LOG(INFO) << "system install is " << system_install;
 
