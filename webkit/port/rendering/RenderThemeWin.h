@@ -43,8 +43,8 @@ struct ThemeData {
 
 class RenderThemeWin : public RenderTheme {
 public:
-    RenderThemeWin();
-    ~RenderThemeWin();
+    RenderThemeWin() { }
+    ~RenderThemeWin() { }
 
     // A method asking if the theme's controls actually care about redrawing when hovered.
     virtual bool supportsHover(const RenderStyle*) const { return true; }
@@ -80,14 +80,16 @@ public:
     virtual bool paintTextArea(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
     { return paintTextField(o, i, r); }
 
-    // MenuList refers to an unstyled menulist (meaning a menulist without 
-    // background-color or border set) and MenuListButton refers to a styled 
-    // menulist (a menulist with background-color or border set). They have 
-    // this distinction to support showing aqua style themes whenever they 
+    virtual bool paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+
+    // MenuList refers to an unstyled menulist (meaning a menulist without
+    // background-color or border set) and MenuListButton refers to a styled
+    // menulist (a menulist with background-color or border set). They have
+    // this distinction to support showing aqua style themes whenever they
     // possibly can, which is something we don't want to replicate.
     //
     // In short, we either go down the MenuList code path or the MenuListButton
-    // codepath. We never go down both. And in both cases, they render the 
+    // codepath. We never go down both. And in both cases, they render the
     // entire menulist.
     virtual void adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const;
     virtual bool paintMenuList(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
@@ -104,13 +106,11 @@ public:
 
     virtual void adjustSliderThumbSize(RenderObject*) const;
 
-    virtual void adjustSearchFieldCancelButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual void adjustSearchFieldStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
+    virtual void adjustSearchFieldCancelButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual void adjustSearchFieldDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual void adjustSearchFieldResultsDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual void adjustSearchFieldResultsButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-
-    virtual bool paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
     // Provide a way to pass the default font size from the Settings object to
     // the render theme.  TODO(tc): http://b/1129186 A cleaner way would be to
@@ -119,8 +119,6 @@ public:
     static void setDefaultFontSize(int);
 
 private:
-    void addIntrinsicMargins(RenderStyle*) const;
-
     unsigned determineState(RenderObject*);
     unsigned determineClassicState(RenderObject*);
 
@@ -129,7 +127,7 @@ private:
     bool paintTextFieldInternal(RenderObject*, const RenderObject::PaintInfo&, const IntRect&, bool);
 
     void setButtonPadding(RenderStyle* style) const;
-    
+
     // Gets the minimal x button padding according to the current theme.
     void getMinimalButtonPadding(Length* minXPadding) const;
 
