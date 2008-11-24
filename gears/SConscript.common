@@ -87,6 +87,6 @@ env.Alias('gears', crash_sender)
 
 if env['OS'] == 'osx':
   # SF_INSTALLER_PLUGIN_EXE
-  env.ChromeProgram('stats_pane',
+  env.ChromeSharedLibrary('stats_pane',
       GetInputs('$SF_INSTALLER_PLUGIN_CPPSRCS'),
       FRAMEWORKS = env['FRAMEWORKS'] + Split('Cocoa InstallerPlugins'))

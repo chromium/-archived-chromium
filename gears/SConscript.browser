@@ -502,3 +502,8 @@ if env['OS'] == 'win32' and env['BROWSER'] == 'IE':
       env.SharedObject(GetInputs('$VISTA_BROKER_CPPSRCS')) +
       GetInputs('$VISTA_BROKER_LINKSRCS'))
   env.Alias('gears', vista_broker)
+
+if env['BROWSER'] == 'SF':
+  env.ChromeSharedLibrary('gears_proxy', GetInputs('$SF_PROXY_DLL_CPPSRCS'))
+  env.ChromeProgram('GearsEnabler', GetInputs('$SF_INPUTMANAGER_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] + Split('Foundation AppKit'))

@@ -13,7 +13,12 @@ env = env.Clone(
     FF_XPI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.xpi',
     WIN32_INSTALLER_MSI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.msi',
     WINCE_INSTALLER_CAB = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.cab',
+
     SF_INSTALLER_PLUGIN_BUNDLE = '$INSTALLER_BASEDIR/Safari/StatsPane.bundle',
+    SF_PLUGIN_BUNDLE = '$INSTALLER_BASEDIR/Safari/Gears.bundle',
+    SF_PLUGIN_PROXY_BUNDLE = '$INSTALLER_BASEDIR/Safari/Gears.plugin',
+    SF_INPUTMANAGER_BUNDLE = '$INSTALLER_BASEDIR/Safari/GearsEnabler',
+    SF_INSTALLER_PKG = '$INSTALLER_BASEDIR/Safari/Gears.pkg',
 
     FF2_MODULE = '${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
     MODULE = '${SHLIBPREFIX}gears${SHLIBSUFFIX}',
@@ -115,7 +120,7 @@ def IsDir(path):
 def StripOutdir(paths):
   """Strips the Hammer/gears/$MODE/ part from the paths, if its there."""
   def StripOne(path):
-    path = os.path.normpath(env.subst(path))
+    path = os.path.normpath(env.subst(str(path)))
     is_dir = IsDir(path)
     pattern = env.subst('$BASE_OUTDIR')
     if path.startswith(pattern): path = path[len(pattern)+1:]
@@ -158,13 +163,21 @@ def DirBuilder(env, dirtarget, dirsrcs):
     # be relative to the outdir already.
     srcs += StripOutdir(sources)
 
-    is_dir = target.endswith('/')
-    if is_dir:
+    target_is_dir = target.endswith('/')
+    if target_is_dir:
       actions.append(SafeMkdir('${TARGET.base}/' + target))
     else:
       actions.append(SafeMkdir('${TARGET.base}/' + os.path.dirname(target)))
     for source in sources:
-      if is_dir:
+      source = env.subst(str(source))
+
+      # HACK: Compensate for the workaround below.  We want the .dir file
+      # to be the dependency to the Command() builder, but we want to copy
+      # the actual directory - so strip the extension here.
+      if source.endswith('.dir'):
+        source = source[:-4]
+
+      if target_is_dir:
         actions.append(
             Copy('${TARGET.base}/' + target + os.path.basename(source),
                  source))
@@ -172,15 +185,16 @@ def DirBuilder(env, dirtarget, dirsrcs):
         actions.append(Copy('${TARGET.base}/' + target, source))
 
   # Remove any .svn directories that were copied.
+  # TODO(mpcomplete): maybe use os.walk + shutil.rmtree instead?
   actions += ['rm -rf `find ${TARGET.base} -name .svn`']
 
   # HACK: Workaround for bug in scons where directories aren't checked for
   # dependency changes.  Instead, we make a temp file the target, and ensure
   # that that file changes everytime we execute these actions.
+  # See http://scons.tigris.org/issues/show_bug.cgi?id=2261
   actions += ['date > ${TARGET}']
-  realtarget = env.Command(dirtarget + '.dir', srcs, actions)
-  return [dirtarget, realtarget]
-env.AddMethod(DirBuilder, 'DirBuilder')
+  return env.Command(dirtarget + '.dir', srcs, actions)
+env.AddMethod(DirBuilder)
 
 def FirefoxInstaller(env):
   # This step is a little hackish.
@@ -227,12 +241,12 @@ def FirefoxInstaller(env):
   dir = env.DirBuilder('$INSTALLER_BASEDIR/${INSTALLER_BASENAME}', dirsrcs)
   actions = [
       # Mark files writeable to allow .xpi rebuilds
-      'chmod -R 777 $SOURCE',
-      '(cd $SOURCE && zip -r ../${TARGET.file} .)'
+      'chmod -R 777 ${SOURCE.base}',
+      '(cd ${SOURCE.base} && zip -r ../${TARGET.file} .)'
   ]
 
   return env.Command('$FF_XPI', dir, actions)
-env.AddMethod(FirefoxInstaller, 'FirefoxInstaller')
+env.AddMethod(FirefoxInstaller)
 
 def Win32Installer(env):
   wxiobj = env.Command(
@@ -256,7 +270,7 @@ def Win32Installer(env):
        StripOutdir(['$NPAPI_OUTDIR/$MODULE'])],
       'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCES[0].abspath}')
   return msi
-env.AddMethod(Win32Installer, 'Win32Installer')
+env.AddMethod(Win32Installer)
 
 def WinCEInstaller(env):
   env['ToUnixPath'] = ToUnixPath
@@ -273,11 +287,89 @@ def WinCEInstaller(env):
        ' /err ${SOURCES[0].base}.log',
        Copy('$TARGET', '${SOURCE.base}.CAB')])
   return cab
-env.AddMethod(WinCEInstaller, 'WinCEInstaller')
+env.AddMethod(WinCEInstaller)
+
+def SafariPluginBundle(env):
+  """This is the actual gears plugin bundle for Safari."""
+  dirsrcs = [
+      ('Contents/', ['$SF_OUTDIR/genfiles/Info.plist']),
+      ('Contents/Resources/English.lproj/InfoPlist.strings',
+          ['$OPEN_DIR/tools/osx/English.lproj/InfoPlist.strings']),
+      ('Contents/Resources/', env.Glob('$OPEN_DIR/ui/safari/*.nib')),
+      # TODO(mpcomplete): crash sendor/inspector, launchurl
+      ('Contents/MacOS/', ['$SF_OUTDIR/$MODULE']), 
+  ]
+
+  if env['USING_CCTESTS']:
+    dirsrcs += [
+        ('Contents/Resources/', ['$COMMON_OUTDIR/ipc_test${PROGSUFFIX}']),
+    ]
+
+  return env.DirBuilder('${SF_PLUGIN_BUNDLE}', dirsrcs)
+env.AddMethod(SafariPluginBundle)
+
+def SafariPluginProxyBundle(env):
+  """This is a proxy plugin which simply loads gears into Safari and keeps
+  it in memory. It exists so that gears doesn't unload when Safari wants us
+  to, since that causes crashes."""
+  plugin = env.SafariPluginBundle()
+  dirsrcs = [
+      ('Contents/', ['$SF_OUTDIR/genfiles/Info.plist']),
+      ('Contents/MacOS/${SHLIBPREFIX}gears${SHLIBSUFFIX}',
+          ['$SF_OUTDIR/${SHLIBPREFIX}gears_proxy${SHLIBSUFFIX}']), 
+      ('Contents/Resources/', ['$BASE_OUTDIR/' + str(plugin[0])]),
+      ('Contents/Resources/', ['$OPEN_DIR/tools/osx/uninstall.command']),
+  ]
+
+  return env.DirBuilder('${SF_PLUGIN_PROXY_BUNDLE}', dirsrcs)
+env.AddMethod(SafariPluginProxyBundle)
+
+def SafariInstallerPluginBundle(env):
+  dirsrcs = [
+      ('Contents/Info.plist',
+          ['$OPEN_DIR/base/safari/advanced_stats_sheet.plist']),
+      ('Contents/MacOS/',
+          ['$COMMON_OUTDIR/${SHLIBPREFIX}stats_pane${SHLIBSUFFIX}']), 
+      ('Contents/Resources/AdvancedStatsSheet.nib',
+          ['$OPEN_DIR/base/safari/advanced_stats_sheet.nib']),
+  ]
+
+  return env.DirBuilder('${SF_INSTALLER_PLUGIN_BUNDLE}', dirsrcs)
+env.AddMethod(SafariInstallerPluginBundle)
+
+def SafariInstallerPackage(env):
+  proxy = env.SafariPluginProxyBundle()
+  pkg = env.Iceberg(env.Dir('${SF_INSTALLER_PKG}'),
+      StripOutdir([
+          '$SF_OUTDIR/genfiles/installer.packproj',
+          '$BASE_OUTDIR/' + str(proxy[0]),
+      ]))
+  return pkg
+env.AddMethod(SafariInstallerPackage)
+
+def SafariInputManagerBundle(env):
+  info = env.Command('$SF_OUTDIR/genfiles/Enabler-Info.plist',
+      '$OPEN_DIR/tools/osx/Enabler-Info.plist',
+      'cat $SOURCE |'
+      'sed \'s/$${EXECUTABLE_NAME}/GearsEnabler/\' |'
+      'sed \'s/$${PRODUCT_NAME}/GearsEnabler/\' > $TARGET')
+  dirsrcs = [
+      ('Contents/Info.plist', ['$BASE_OUTDIR/' + str(info[0])]),
+      ('Contents/MacOS/', ['$SF_OUTDIR/GearsEnabler']),
+      ('Contents/Resources/English.lproj/',
+          ['$OPEN_DIR/tools/osx/English.lproj/InfoPlist.strings']),
+  ]
+
+  return env.DirBuilder('${SF_INPUTMANAGER_BUNDLE}', dirsrcs)
+env.AddMethod(SafariInputManagerBundle)
 
 installers = []
 if 'FF3' in env['VALID_BROWSERS']:
   installers += env.FirefoxInstaller()
+if 'SF' in env['VALID_BROWSERS']:
+  installers += env.SafariInstallerPluginBundle()
+  installers += env.SafariInstallerPackage()
+  installers += env.SafariInputManagerBundle()
 if env['OS'] == 'win32':
   installers += env.Win32Installer()
 if env['OS'] == 'wince':

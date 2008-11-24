@@ -102,6 +102,14 @@ env.Append(COMMON_M4SRCS = [
 ])
 
 #-----------------------------------------------------------------------------
+# installer/safari
+
+env.Append(SF_M4SRCS = [
+    '$OPEN_DIR/installer/safari/installer.packproj.m4',
+    '$OPEN_DIR/tools/osx/Info.plist.m4',
+])
+
+#-----------------------------------------------------------------------------
 # mozjs bindings
 
 mozjs_sources = [
@@ -951,6 +959,21 @@ if env_res:
 
 env.Append(SF_INSTALLER_PLUGIN_CPPSRCS = [
     '$OPEN_DIR/base/safari/advanced_stats_sheet.m',
+])
+
+#-----------------------------------------------------------------------------
+# Safari InputManager
+
+env.Append(SF_INPUTMANAGER_CPPSRCS = [
+    '$OPEN_DIR/base/safari/enabler.m',
+    '$OPEN_DIR/base/safari/loader.mm',
+])
+
+#-----------------------------------------------------------------------------
+# Safari Proxy DLL
+
+env.Append(SF_PROXY_DLL_CPPSRCS = [
+    '$OPEN_DIR/base/safari/plugin_proxy.mm',
 ])
 
 #-----------------------------------------------------------------------------

@@ -129,6 +129,7 @@ env.Replace(
 
     INSTALLER_BASEDIR = 'installers',
     INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
+    INSTALLER_OUTDIR = '$BASE_OUTDIR/$INSTALLER_BASEDIR',
 )
 
 # Library flags
@@ -250,6 +251,23 @@ env.Replace(
 #
 #m4_scanner = Scanner(function = m4_scan, skeys = ['.m4', '.html_m4'])
 #env.Append(SCANNERS = m4_scanner)
+
+
+# OS X Iceberg package builder
+
+env.Replace(ICEBERG = '/usr/local/bin/freeze')
+if env.WhereIs('$ICEBERG'):
+  env.Replace(ICEBERGCOM = '"$ICEBERG" -v $SOURCE')
+else:
+  env.Replace(ICEBERGCOM =
+      'echo To create a Safari installer for Gears, you must install Iceberg'
+      ' from http://s.sudre.free.fr/Software/Iceberg.html.  You can install'
+      ' the Safari version manually by running the'
+      ' $OPEN_DIR/tools/osx/install_gears.sh script.')
+
+iceberg_builder = Builder(action = '$ICEBERGCOM',
+    suffix = '.pkg', src_suffix = '.packproj')
+env.Append(BUILDERS = {'Iceberg': iceberg_builder})
 
 
 # C++ build flags.
@@ -686,6 +704,11 @@ elif env['OS'] == 'osx':
           'CoreServices',
           'Cocoa',
           'WebKit',
+      ],
+      M4FLAGS = [
+          '-DGEARS_ENABLER_PATH="$INSTALLER_OUTDIR/Safari/GearsEnabler"',
+          '-DGEARS_PLUGIN_PATH="$INSTALLER_OUTDIR/Safari/Gears.plugin"',
+          '-DGEARS_INSTALLER_OUT_DIR="$INSTALLER_OUTDIR/Safari"',
       ],
   )
   if not env['OFFICIAL_BUILD']:
