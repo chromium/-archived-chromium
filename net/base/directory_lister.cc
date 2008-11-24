@@ -32,14 +32,14 @@ class DirectoryDataEvent : public Task {
   int count, error;
 };
 
-DirectoryLister::DirectoryLister(const std::wstring& dir,
+DirectoryLister::DirectoryLister(const FilePath& dir,
                                  DirectoryListerDelegate* delegate)
     : dir_(dir),
       delegate_(delegate),
       message_loop_(NULL),
       thread_(NULL),
       canceled_(false) {
-  DCHECK(!dir.empty());
+  DCHECK(!dir.value().empty());
 }
 
 DirectoryLister::~DirectoryLister() {
@@ -77,18 +77,17 @@ void DirectoryLister::Cancel() {
 void DirectoryLister::ThreadMain() {
   DirectoryDataEvent* e = new DirectoryDataEvent(this);
 
-  if (!file_util::DirectoryExists(directory())) {
+  if (!file_util::DirectoryExists(dir_)) {
     e->error = net::ERR_FILE_NOT_FOUND;
     message_loop_->PostTask(FROM_HERE, e);
     Release();
     return;
   }
 
-  file_util::FileEnumerator file_enum(directory(), false,
+  file_util::FileEnumerator file_enum(dir_.ToWStringHack(), false,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
 
-  std::wstring filename;
-  while (!was_canceled() && !(filename = file_enum.Next()).empty()) {
+  while (!canceled_ && !(file_enum.Next().empty())) {
     file_enum.GetFindInfo(&e->data[e->count]);
 
     if (++e->count == kFilesPerEvent) {

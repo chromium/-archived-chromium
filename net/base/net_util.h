@@ -17,6 +17,7 @@
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_parse.h"
 
+class FilePath;
 class GURL;
 
 namespace base {
@@ -33,6 +34,8 @@ GURL FilePathToFileURL(const std::wstring& file_path);
 // file URL must be well-formed (GURL::is_valid() must return true); we don't
 // handle degenerate cases here. Returns true on success, false if it isn't a
 // valid file URL. On failure, *file_path will be empty.
+bool FileURLToFilePath(const GURL& url, FilePath* file_path);
+// Deprecated temporary compatibility function.
 bool FileURLToFilePath(const GURL& url, std::wstring* file_path);
 
 // Return the value of the HTTP response header with name 'name'.  'headers'

@@ -943,4 +943,12 @@ int SetNonBlocking(int fd) {
 #endif
 }
 
+// Deprecated.
+bool FileURLToFilePath(const GURL& gurl, std::wstring* file_path) {
+  FilePath path;
+  bool rv = FileURLToFilePath(gurl, &path);
+  *file_path = path.ToWStringHack();
+  return rv;
+}
+
 }  // namespace net

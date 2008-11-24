@@ -35,7 +35,7 @@ TEST(DirectoryListerTest, BigDirTest) {
 
   ListerDelegate delegate;
   scoped_refptr<net::DirectoryLister> lister =
-      new net::DirectoryLister(path.ToWStringHack(), &delegate);
+      new net::DirectoryLister(path, &delegate);
 
   lister->Start();
 
@@ -50,7 +50,7 @@ TEST(DirectoryListerTest, CancelTest) {
 
   ListerDelegate delegate;
   scoped_refptr<net::DirectoryLister> lister =
-      new net::DirectoryLister(path.ToWStringHack(), &delegate);
+      new net::DirectoryLister(path, &delegate);
 
   lister->Start();
   lister->Cancel();
@@ -58,5 +58,4 @@ TEST(DirectoryListerTest, CancelTest) {
   MessageLoop::current()->Run();
 
   EXPECT_EQ(delegate.error(), net::ERR_ABORTED);
-  EXPECT_EQ(lister->was_canceled(), true);
 }

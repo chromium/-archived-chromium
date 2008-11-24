@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "base/ref_counted.h"
@@ -33,7 +34,7 @@ class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister>,
     virtual void OnListDone(int error) = 0;
   };
 
-  DirectoryLister(const std::wstring& dir, DirectoryListerDelegate* delegate);
+  DirectoryLister(const FilePath& dir, DirectoryListerDelegate* delegate);
   ~DirectoryLister();
 
   // Call this method to start the directory enumeration thread.
@@ -41,31 +42,24 @@ class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister>,
 
   // Call this method to asynchronously stop directory enumeration.  The
   // delegate will receive the OnListDone notification with an error code of
-  // ERROR_OPERATION_ABORTED.
+  // net::ERR_ABORTED.
   void Cancel();
 
   // The delegate pointer may be modified at any time.
   DirectoryListerDelegate* delegate() const { return delegate_; }
   void set_delegate(DirectoryListerDelegate* d) { delegate_ = d; }
 
-  // Returns the directory being enumerated.
-  const std::wstring& directory() const { return dir_; }
-
-  // Returns true if the directory enumeration was canceled.
-  bool was_canceled() const { return canceled_; }
-
   // PlatformThread::Delegate implementation
   void ThreadMain();
 
  private:
   friend class DirectoryDataEvent;
-  friend class ThreadDelegate;
 
   void OnReceivedData(const file_util::FileEnumerator::FindInfo* data,
                       int count);
   void OnDone(int error);
 
-  std::wstring dir_;
+  FilePath dir_;
   DirectoryListerDelegate* delegate_;
   MessageLoop* message_loop_;
   PlatformThreadHandle thread_;

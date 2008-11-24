@@ -5,6 +5,7 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_FILE_JOB_H_
 #define NET_URL_REQUEST_URL_REQUEST_FILE_JOB_H_
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
@@ -27,7 +28,7 @@ class URLRequestFileJob : public URLRequestJob {
 
  protected:
   // The OS-specific full path name of the file
-  std::wstring file_path_;
+  FilePath file_path_;
 
  private:
   void DidResolve(bool exists, const file_util::FileInfo& file_info);

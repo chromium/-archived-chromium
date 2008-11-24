@@ -59,7 +59,7 @@ URLRequestJob* URLRequestMockNetErrorJob::Factory(URLRequest* request,
   // Convert the file:/// URL to a path on disk.
   std::wstring file_path;
   net::FileURLToFilePath(GURL(WideToUTF8(file_url)), &file_path);
-  job->file_path_ = file_path;
+  job->file_path_ = FilePath::FromWStringHack(file_path);
   return job;
 }
 

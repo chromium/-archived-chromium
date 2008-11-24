@@ -331,7 +331,8 @@ void URLRequestChromeJob::StartAsync() {
 URLRequestChromeFileJob::URLRequestChromeFileJob(URLRequest* request,
                                                  const std::wstring& path)
     : URLRequestFileJob(request) {
-  this->file_path_ = path;  // set URLRequestFileJob::file_path_
+  // set URLRequestFileJob::file_path_
+  this->file_path_ = FilePath::FromWStringHack(path);
 }
 
 URLRequestChromeFileJob::~URLRequestChromeFileJob() { }

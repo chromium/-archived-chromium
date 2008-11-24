@@ -4,42 +4,43 @@
 
 #include "net/base/net_util.h"
 
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 
 namespace net {
 
-bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
-  file_path->clear();
+bool FileURLToFilePath(const GURL& url, FilePath* path) {
+  *path = FilePath();
+  std::string& file_path_str = const_cast<std::string&>(path->value());
+  file_path_str.clear();
 
   if (!url.is_valid())
     return false;
 
   // Firefox seems to ignore the "host" of a file url if there is one. That is,
   // file://foo/bar.txt maps to /bar.txt.
-  std::string path = url.path();
+  std::string old_path = url.path();
 
-  if (path.empty())
+  if (old_path.empty())
     return false;
 
   // GURL stores strings as percent-encoded 8-bit, this will undo if possible.
-  path = UnescapeURLComponent(path,
+  old_path = UnescapeURLComponent(old_path,
       UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS);
 
   // Collapse multiple path slashes into a single path slash.
   std::string new_path;
   do {
-    new_path = path;
+    new_path = old_path;
     ReplaceSubstringsAfterOffset(&new_path, 0, "//", "/");
-    path.swap(new_path);
-  } while (new_path != path);
+    old_path.swap(new_path);
+  } while (new_path != old_path);
 
-  // TODO(tc): This should actually be 8-bit to wide.  We may lose data if the
-  // string isn't UTF-8.
-  file_path->assign(UTF8ToWide(path));
+  file_path_str.assign(old_path);
 
-  return !file_path->empty();
+  return !file_path_str.empty();
 }
 
 }  // namespace net

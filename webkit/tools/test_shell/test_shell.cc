@@ -84,8 +84,8 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
 
  private:
   URLRequestTestShellFileJob(URLRequest* request, const std::wstring& path)
-      : URLRequestFileJob(request) { 
-    this->file_path_ = path;  // set URLRequestFileJob::file_path_
+      : URLRequestFileJob(request) {
+    this->file_path_ = FilePath::FromWStringHack(path);
   }
 
   DISALLOW_COPY_AND_ASSIGN(URLRequestTestShellFileJob);

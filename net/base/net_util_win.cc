@@ -4,6 +4,7 @@
 
 #include "net/base/net_util.h"
 
+#include "base/file_path.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
@@ -12,8 +13,10 @@
 
 namespace net {
 
-bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
-  file_path->clear();
+bool FileURLToFilePath(const GURL& url, FilePath* file_path) {
+  *file_path = FilePath();
+  std::wstring& file_path_str = const_cast<std::wstring&>(file_path->value());
+  file_path_str.clear();
 
   if (!url.is_valid())
     return false;
@@ -49,14 +52,14 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
     // are giving the conversion function a nonempty string, and it may fail if
     // the given string is not in the current encoding and give us an empty
     // string back. We detect this and report failure.
-    *file_path = base::SysNativeMBToWide(path);
-    return !file_path->empty();
+    file_path_str = base::SysNativeMBToWide(path);
+    return !file_path_str.empty();
   }
-  file_path->assign(UTF8ToWide(path));
+  file_path_str.assign(UTF8ToWide(path));
 
   // Now we have an unescaped filename, but are still not sure about its
   // encoding. For example, each character could be part of a UTF-8 string.
-  if (file_path->empty() || !IsString8Bit(*file_path)) {
+  if (file_path_str.empty() || !IsString8Bit(file_path_str)) {
     // assume our 16-bit encoding is correct if it won't fit into an 8-bit
     // string
     return true;
@@ -64,23 +67,23 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
 
   // Convert our narrow string into the native wide path.
   std::string narrow;
-  if (!WideToLatin1(*file_path, &narrow)) {
+  if (!WideToLatin1(file_path_str, &narrow)) {
     NOTREACHED() << "Should have filtered out non-8-bit strings above.";
     return false;
   }
   if (IsStringUTF8(narrow)) {
     // Our string actually looks like it could be UTF-8, convert to 8-bit
     // UTF-8 and then to the corresponding wide string.
-    *file_path = UTF8ToWide(narrow);
+    file_path_str = UTF8ToWide(narrow);
   } else {
     // Our wide string contains only 8-bit characters and it's not UTF-8, so
     // we assume it's in the native codepage.
-    *file_path = base::SysNativeMBToWide(narrow);
+    file_path_str = base::SysNativeMBToWide(narrow);
   }
 
   // Fail if 8-bit -> wide conversion failed and gave us an empty string back
   // (we already filtered out empty strings above).
-  return !file_path->empty();
+  return !file_path_str.empty();
 }
 
 }  // namespace net

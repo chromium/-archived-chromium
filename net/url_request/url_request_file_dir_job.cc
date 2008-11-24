@@ -17,10 +17,9 @@
 #endif
 
 using std::string;
-using std::wstring;
 
 URLRequestFileDirJob::URLRequestFileDirJob(URLRequest* request,
-                                           const wstring& dir_path)
+                                           const FilePath& dir_path)
     : URLRequestJob(request),
       dir_path_(dir_path),
       canceled_(false),
@@ -104,7 +103,12 @@ void URLRequestFileDirJob::OnListFile(
   // We wait to write out the header until we get the first file, so that we
   // can catch errors from DirectoryLister and show an error page.
   if (!wrote_header_) {
-    data_.append(net::GetDirectoryListingHeader(WideToUTF8(dir_path_)));
+#if defined(OS_WIN)
+    const std::string& title = WideToUTF8(dir_path_.value());
+#elif defined(OS_POSIX)
+    const std::string& title = dir_path_.value();
+#endif
+    data_.append(net::GetDirectoryListingHeader(title));
     wrote_header_ = true;
   }
 
