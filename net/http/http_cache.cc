@@ -319,12 +319,7 @@ class HttpCache::Transaction : public HttpTransaction {
 
 HttpCache::Transaction::~Transaction() {
   if (entry_) {
-    if (mode_ & WRITE) {
-      // Assume that this is not a successful write.
-      cache_->DoneWritingToEntry(entry_, false);
-    } else {
-      cache_->DoneReadingFromEntry(entry_, this);
-    }
+    cache_->DoneWithEntry(entry_, this);
   } else {
     cache_->RemovePendingTransaction(this);
   }
@@ -1199,7 +1194,8 @@ void HttpCache::DeactivateEntry(ActiveEntry* entry) {
 
   ActiveEntriesMap::iterator it =
       active_entries_.find(entry->disk_entry->GetKey());
-  CHECK(it != active_entries_.end() && it->second == entry);
+  CHECK(it != active_entries_.end());
+  CHECK(it->second == entry);
 
   if (local_entry.will_process_pending_queue || local_entry.doomed ||
       local_entry.writer || readers_size || pending_size) {
@@ -1254,6 +1250,22 @@ int HttpCache::AddTransactionToEntry(ActiveEntry* entry, Transaction* trans) {
   return trans->EntryAvailable(entry);
 }
 
+void HttpCache::DoneWithEntry(ActiveEntry* entry, Transaction* trans) {
+  // If we already posted a task to move on to the next transaction, there is
+  // nothing to cancel.
+  if (entry->will_process_pending_queue)
+    return;
+
+  if (entry->writer) {
+    // TODO(rvargas): convert this to a DCHECK.
+    CHECK(trans == entry->writer);
+    // Assume that this is not a successful write.
+    DoneWritingToEntry(entry, false);
+  } else {
+    DoneReadingFromEntry(entry, trans);
+  }
+}
+
 void HttpCache::DoneWritingToEntry(ActiveEntry* entry, bool success) {
   DCHECK(entry->readers.empty());
 
@@ -1262,6 +1274,9 @@ void HttpCache::DoneWritingToEntry(ActiveEntry* entry, bool success) {
   if (success) {
     ProcessPendingQueue(entry);
   } else {
+    // TODO(rvargas): convert this to a DCHECK.
+    CHECK(!entry->will_process_pending_queue);
+
     // We failed to create this entry.
     TransactionList pending_queue;
     pending_queue.swap(entry->pending_queue);

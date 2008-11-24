@@ -129,6 +129,7 @@ class HttpCache : public HttpTransactionFactory {
   ActiveEntry* CreateEntry(const std::string& cache_key);
   void DestroyEntry(ActiveEntry* entry);
   int AddTransactionToEntry(ActiveEntry* entry, Transaction* trans);
+  void DoneWithEntry(ActiveEntry* entry, Transaction* trans);
   void DoneWritingToEntry(ActiveEntry* entry, bool success);
   void DoneReadingFromEntry(ActiveEntry* entry, Transaction* trans);
   void ConvertWriterToReader(ActiveEntry* entry);
