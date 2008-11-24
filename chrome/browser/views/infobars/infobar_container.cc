@@ -103,7 +103,7 @@ void InfoBarContainer::UpdateInfoBars() {
   // Clear out all the old child views.
   RemoveAllChildViews(true);
 
-  for (size_t i = 0; i < tab_contents_->infobar_delegate_count(); ++i) {
+  for (int i = 0; i < tab_contents_->infobar_delegate_count(); ++i) {
     InfoBarDelegate* delegate = tab_contents_->GetInfoBarDelegateAt(i);
     InfoBar* infobar = delegate->CreateInfoBar();
     infobar->set_container(this);
@@ -120,7 +120,7 @@ void InfoBarContainer::AddInfoBar(InfoBarDelegate* delegate) {
 }
 
 void InfoBarContainer::RemoveInfoBar(InfoBarDelegate* delegate) {
-  size_t index = 0;
+  int index = 0;
   for (; index < tab_contents_->infobar_delegate_count(); ++index) {
     if (tab_contents_->GetInfoBarDelegateAt(index) == delegate)
       break;
