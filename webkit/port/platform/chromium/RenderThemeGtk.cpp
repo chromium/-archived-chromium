@@ -42,6 +42,24 @@ static Color makeColor(const GdkColor& c)
   return Color(makeRGB(c.red >> 8, c.green >> 8, c.blue >> 8));
 }
 
+// Converts points to pixels.  One point is 1/72 of an inch.
+static float pointsToPixels(float points)
+{
+    static float pixelsPerInch = 0.0f;
+    if (!pixelsPerInch) {
+        GdkScreen* screen = gdk_screen_get_default();
+        if (screen) {
+            pixelsPerInch = gdk_screen_get_resolution(screen);
+        } else {
+            // Match the default we set on Windows.
+            pixelsPerInch = 96.0f;
+        }
+    }
+
+    static const float POINTS_PER_INCH = 72.0f;
+    return points / POINTS_PER_INCH * pixelsPerInch;
+}
+
 static bool supportsFocus(ControlPart appearance)
 {
     switch (appearance) {
@@ -261,59 +279,40 @@ double RenderThemeGtk::caretBlinkFrequency() const
     return time / 2000.;
 }
 
-void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDescription) const
+void RenderThemeGtk::systemFont(int propId, Document*,
+                                FontDescription& fontDescription) const
 {
+    const char* fontName = 0;
+    float fontSize = 0;
+    // TODO(mmoss) see also webkit/port/rendering/RenderThemeWin.cpp
     switch (propId) {
         case CSSValueMenu:
+            // triggered by LayoutTests/fast/css/css2-system-fonts.html
             notImplemented();
             break;
         case CSSValueStatusBar:
+            // triggered by LayoutTests/fast/css/css2-system-fonts.html
             notImplemented();
             break;
         case CSSValueSmallCaption:
+            // triggered by LayoutTests/fast/css/css2-system-fonts.html
             notImplemented();
             break;
         case CSSValueWebkitSmallControl: {
-            // TODO(mmoss) webkit/port/rendering/RenderThemeWin.cpp has
-            // special handling for ChromiumBridge::layoutTestMode(). Will
-            // Linux need special handling too, or are known styles (fonts,
-            // etc.) already enforced elsewhere when in that mode?
             GtkWidget* widget = gtkEntry();
             PangoFontDescription* pangoFontDesc = widget->style->font_desc;
-            // TODO(mmoss) - Windows descreases the size by 2pts. Should
-            // Linux do the same?
-            gint size = pango_font_description_get_size(pangoFontDesc) /
-                PANGO_SCALE;
-            float pixelscale = 0;
-            if (pango_font_description_get_size_is_absolute(pangoFontDesc)) {
-                // Already in pixels, no need to scale.
-                pixelscale = 1.0;
+            if (ChromiumBridge::layoutTestMode()) {
+                fontSize = 11.0;
             } else {
-                gdouble dpi = -1;
-                GdkScreen* screen = gtk_widget_has_screen(widget) ?
-                    gtk_widget_get_screen(widget) : gdk_screen_get_default();
-                if (screen)
-                    dpi = gdk_screen_get_resolution(screen);
-                if (dpi != -1)
-                    pixelscale = dpi / 72.0;
-            }
-            // Only update if we can determine the right size.
-            if (pixelscale && size) {
-                // NOTE(deanm): Windows hardcodes to Lucida Grande when in
-                // layout test mode, but this is a mac font so really it
-                // falls back on Times New Roman.
-                if (ChromiumBridge::layoutTestMode()) {
-                    fontDescription.firstFamily().setFamily("Times New Roman");
-                    fontDescription.setSpecifiedSize(11);
-                } else {
-                    fontDescription.firstFamily().setFamily(
-                        pango_font_description_get_family(pangoFontDesc));
-                    fontDescription.setSpecifiedSize((float)size * pixelscale);
+                // TODO(mmoss) - Windows descreases the size by 2pts. Should
+                // Linux do the same? Seems to make the control way too small.
+                fontName = pango_font_description_get_family(pangoFontDesc);
+                fontSize = pango_font_description_get_size(pangoFontDesc) /
+                        PANGO_SCALE;
+                if (!pango_font_description_get_size_is_absolute(
+                        pangoFontDesc)) {
+                    fontSize = pointsToPixels(fontSize);
                 }
-                fontDescription.setIsAbsoluteSize(true);
-                fontDescription.setGenericFamily(FontDescription::NoFamily);
-                fontDescription.setWeight(FontWeightNormal);
-                fontDescription.setItalic(false);
             }
             break;
         }
@@ -326,7 +325,8 @@ void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDesc
         // TODO(mmoss) These are in WebKit/WebCore/rendering/RenderThemeWin.cpp
         // but webkit/port/rendering/RenderThemeWin.cpp doesn't specifically
         // handle them, so maybe we don't need to either.
-        /*
+        // Update: triggered by LayoutTests/fast/css/css2-system-fonts.html,
+        // though that doesn't necessarily mean we need explicit handling.
         case CSSValueIcon:
             notImplemented();
             break;
@@ -336,9 +336,23 @@ void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDesc
         case CSSValueCaption:
             notImplemented();
             break;
-        */
         default:
             notImplemented();
+    }
+
+    // Only update if the size makes sense.
+    if (fontSize > 0) {
+        // NOTE(deanm): Windows hardcodes to Lucida Grande when in layout test
+        // mode, but this is a mac font so really it falls back on Times New
+        // Roman.
+        if (ChromiumBridge::layoutTestMode())
+            fontName = "Times New Roman";
+        fontDescription.firstFamily().setFamily(fontName);
+        fontDescription.setSpecifiedSize(fontSize);
+        fontDescription.setIsAbsoluteSize(true);
+        fontDescription.setGenericFamily(FontDescription::NoFamily);
+        fontDescription.setWeight(FontWeightNormal);
+        fontDescription.setItalic(false);
     }
 }
 
