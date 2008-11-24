@@ -9,7 +9,6 @@ Import(['env'])
 env = env.Clone()
 env_res = env.Clone()
 
-
 # We use the SCons addRepository() call (an internal API that will
 # at some point be made public) to "back" the build directory
 # hierarchy with the source directory hierarchies in which we want to
@@ -43,12 +42,9 @@ port_dir.addRepository(env.Dir('$CHROME_SRC_DIR/third_party/WebKit/WebCore'))
 
 if env['PLATFORM'] == 'win32':
   env['WEBKIT_PLATFORM_SUBDIR'] = 'win'
-  env['JAVASCRIPTCORE_PLATFORM_SUBDIR'] = 'os-win32'
 elif env['PLATFORM'] == 'darwin':
   env['WEBKIT_PLATFORM_SUBDIR'] = 'mac'
-  env['JAVASCRIPTCORE_PLATFORM_SUBDIR'] = 'TODO'
 elif env['PLATFORM'] == 'posix':
-  env['JAVASCRIPTCORE_PLATFORM_SUBDIR'] = 'TODO'
   env.Append(
       CCFLAGS = [
           '-Wno-parentheses',
@@ -72,8 +68,6 @@ env.Prepend(
         # introduced any hidden problems.
         #'$WEBKIT_DIR/build/JavaScriptCore',
 
-        '$WEBKIT_DIR/build/WebCore',
-
         '$WEBKIT_DIR/port/platform/image-decoders',
         '$WEBKIT_DIR/port/platform/image-decoders/bmp',
         '$WEBKIT_DIR/port/platform/image-decoders/gif',
@@ -96,23 +90,12 @@ env.Prepend(
         '$V8_DIR/include',
         '$WEBKIT_DIR/V8Bindings/DerivedSources',
         '$WEBKIT_DIR/V8Bindings/SharedSources',
-        '$WEBKIT_DIR/port/bindings/v8',
-        '$WEBKIT_DIR/WebCore',
-        '$WEBKIT_DIR/WebCore/JavaScriptHeaders',
-        '$WEBKIT_DIR/WebCore/JavaScriptHeaders/JavaScriptCore',
+
         '$WEBKIT_DIR/pending',
-        '$WEBKIT_DIR/port/bridge',
+        '$WEBKIT_DIR/port/bindings/v8',
         '$WEBKIT_DIR/port/css',
         '$WEBKIT_DIR/port/dom',
-        '$WEBKIT_DIR/port/editing',
         '$WEBKIT_DIR/port/history',
-        '$WEBKIT_DIR/port/html',
-        '$WEBKIT_DIR/port/loader',
-        '$WEBKIT_DIR/port/loader/appcache',
-        '$WEBKIT_DIR/port/loader/archive',
-        '$WEBKIT_DIR/port/loader/icon',
-        '$WEBKIT_DIR/port/page',
-        '$WEBKIT_DIR/port/page/animation',
         '$WEBKIT_DIR/port/page/chromium',
         '$WEBKIT_DIR/port/platform',
         '$WEBKIT_DIR/port/platform/chromium',
@@ -120,38 +103,43 @@ env.Prepend(
         '$WEBKIT_DIR/port/platform/graphics/chromium',
         '$WEBKIT_DIR/port/platform/graphics/skia',
         '$WEBKIT_DIR/port/platform/$WEBKIT_PLATFORM_SUBDIR',
-        '$WEBKIT_DIR/port/svg/graphics',
-        '$WEBKIT_DIR/port/platform/network',
         '$WEBKIT_DIR/port/platform/network/chromium',
-        '$WEBKIT_DIR/port/platform/network/$WEBKIT_PLATFORM_SUBDIR',
-        '$WEBKIT_DIR/port/platform/sql',
-        '$WEBKIT_DIR/port/platform/text',
-        '$WEBKIT_DIR/port/plugins',
-        '$WEBKIT_DIR/port/plugins/chromium',
         '$WEBKIT_DIR/port/rendering',
-        '$WEBKIT_DIR/port/rendering/style',
-        '$WEBKIT_DIR/port/storage',
-        '$WEBKIT_DIR/port/style',
-        '$WEBKIT_DIR',
-        '$WEBKIT_DIR/build/port',
 
         '$JAVASCRIPTCORE_DIR',
         '$JAVASCRIPTCORE_DIR/wtf',
-        '$JAVASCRIPTCORE_DIR/$JAVASCRIPTCORE_PLATFORM_SUBDIR',
 
-        '$WEBKIT_DIR/build',
-
-        '$WEBKIT_DIR/port/DerivedSources',
-        '$WEBKIT_DIR/port/svg',
-        '$WEBKIT_DIR/port/svg/animation',
-        '$WEBKIT_DIR/port/svg/graphics/filters',
+        # Directories in third_party/WebKit/Webcore that we pull headers
+        # from.  We don't have to list directories that are listed in the
+        # $WEBKIT_DIR/port section above because they automatically fall
+        # back to third_party/WebKit/Webcore.
+        '$WEBCORE_DIR/editing',
+        '$WEBCORE_DIR/html',
+        '$WEBCORE_DIR/inspector',
+        '$WEBCORE_DIR/loader',
+        '$WEBCORE_DIR/loader/appcache',
+        '$WEBCORE_DIR/loader/archive',
+        '$WEBCORE_DIR/loader/icon',
+        '$WEBCORE_DIR/page',
+        '$WEBCORE_DIR/page/animation',
+        '$WEBCORE_DIR/platform/network',
+        '$WEBCORE_DIR/platform/sql',
+        '$WEBCORE_DIR/platform/text',
+        '$WEBCORE_DIR/plugins',
+        '$WEBCORE_DIR/rendering/style',
+        '$WEBCORE_DIR/storage',
+        '$WEBCORE_DIR/style',
+        '$WEBCORE_DIR/svg',
+        '$WEBCORE_DIR/svg/animation',
+        '$WEBCORE_DIR/svg/graphics',
+        '$WEBCORE_DIR/xml',
 
         '$CHROME_SRC_DIR',
     ],
 )
 
 env.Append(
-    WEBCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/WebCore",
+    WEBCORE_DIR = '$CHROME_SRC_DIR/third_party/WebKit/WebCore',
     PENDING_DIR = "$WEBKIT_DIR/pending",
     PORT_DIR = "$WEBKIT_DIR/port",
 
@@ -163,17 +151,6 @@ env.Append(
     V8BINDINGS_DIR = "$WEBKIT_DIR/V8Bindings",
     DERIVED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/DerivedSources"),
     SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
-
-    # This is a stop gap to get linux building in time for the webkit
-    # merge. The true fix is to move the above CPPPATH prepend under this
-    # Append block and remove all the old pending directories (and add the new
-    # upstream ones.)
-    CPPPATH = [
-        '$WEBCORE_DIR/rendering',
-        '$WEBCORE_DIR/rendering/style',
-        '$WEBCORE_DIR/inspector',
-        '$WEBCORE_DIR/xml',
-    ],
 
     CPPDEFINES = [
       'U_STATIC_IMPLEMENTATION',
@@ -247,13 +224,12 @@ if env['PLATFORM'] == 'win32':
 
   env.Prepend(
     CPPPATH = [
-      '$WEBKIT_DIR/port/$JAVASCRIPTCORE_PLATFORM_SUBDIR',
-      '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/$JAVASCRIPTCORE_PLATFORM_SUBDIR',
+      # Windows precompiled headers are here
+      '$WEBKIT_DIR/build',
+
+      '$JAVASCRIPTCORE_DIR/os-win32',
     ])
 else:
-  env.Prepend(
-      CPPPATH = ['$WEBKIT_DIR/build/JSConfig/WebCore/v8'],
-  )
   env.Append(
       CXXFLAGS = ['-Wno-multichar'],
   )
