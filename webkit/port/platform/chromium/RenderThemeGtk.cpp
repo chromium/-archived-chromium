@@ -24,6 +24,7 @@
 #include "RenderThemeGtk.h"
 
 #include "AffineTransform.h"
+#include "ChromiumBridge.h"
 #include "CSSValueKeywords.h"
 #include "GraphicsContext.h"
 #include "NotImplemented.h"
@@ -41,20 +42,6 @@ static Color makeColor(const GdkColor& c)
   return Color(makeRGB(c.red >> 8, c.green >> 8, c.blue >> 8));
 }
 
-RenderTheme* theme()
-{
-    static RenderThemeGtk gtkTheme;
-    return &gtkTheme;
-}
-
-RenderThemeGtk::RenderThemeGtk()
-    : m_gtkWindow(0)
-    , m_gtkContainer(0)
-    , m_gtkEntry(0)
-    , m_gtkTreeView(0)
-{
-}
-
 static bool supportsFocus(ControlPart appearance)
 {
     switch (appearance) {
@@ -70,25 +57,6 @@ static bool supportsFocus(ControlPart appearance)
         default:
             return false;
     }
-}
-
-bool RenderThemeGtk::supportsFocusRing(const RenderStyle* style) const
-{
-    return supportsFocus(style->appearance());
-}
-
-bool RenderThemeGtk::controlSupportsTints(const RenderObject* o) const
-{
-    return isEnabled(o);
-}
-
-int RenderThemeGtk::baselinePosition(const RenderObject* o) const
-{
-    // FIXME: This strategy is possibly incorrect for the GTK+ port.
-    if (o->style()->appearance() == CheckboxPart||
-        o->style()->appearance() == RadioPart)
-        return o->marginTop() + o->height() - 2;
-    return RenderTheme::baselinePosition(o);
 }
 
 static GtkTextDirection gtkTextDirection(TextDirection direction)
@@ -190,16 +158,6 @@ static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderOb
     return r;
 }
 
-static void setButtonPadding(RenderStyle* style)
-{
-    // FIXME: This looks incorrect.
-    const int padding = 8;
-    style->setPaddingLeft(Length(padding, Fixed));
-    style->setPaddingRight(Length(padding, Fixed));
-    style->setPaddingTop(Length(padding / 2, Fixed));
-    style->setPaddingBottom(Length(padding / 2, Fixed));
-}
-
 static void setToggleSize(RenderStyle* style, ControlPart appearance)
 {
     // The width and height are both specified, so we shouldn't change them.
@@ -232,135 +190,31 @@ static void setToggleSize(RenderStyle* style, ControlPart appearance)
         style->setHeight(Length(length, Fixed));
 }
 
-void RenderThemeGtk::setCheckboxSize(RenderStyle* style) const
+static void gtkStyleSetCallback(GtkWidget* widget, GtkStyle* previous, RenderTheme* renderTheme)
 {
-    setToggleSize(style, RadioPart);
+    // FIXME: Make sure this function doesn't get called many times for a single GTK+ style change signal.
+    renderTheme->platformColorsDidChange();
 }
 
-bool RenderThemeGtk::paintCheckbox(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+
+// Implement WebCore::theme() for getting the global RenderTheme.
+RenderTheme* theme()
 {
-    return paintMozWidget(this, MOZ_GTK_CHECKBUTTON, o, i, rect);
+    static RenderThemeGtk gtkTheme;
+    return &gtkTheme;
 }
 
-void RenderThemeGtk::setRadioSize(RenderStyle* style) const
+RenderThemeGtk::RenderThemeGtk()
+    : m_gtkWindow(0)
+    , m_gtkContainer(0)
+    , m_gtkEntry(0)
+    , m_gtkTreeView(0)
 {
-    setToggleSize(style, RadioPart);
 }
 
-bool RenderThemeGtk::paintRadio(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+bool RenderThemeGtk::supportsFocusRing(const RenderStyle* style) const
 {
-    return paintMozWidget(this, MOZ_GTK_RADIOBUTTON, o, i, rect);
-}
-
-void RenderThemeGtk::adjustButtonStyle(CSSStyleSelector* selector, RenderStyle* style, WebCore::Element* e) const
-{
-    // FIXME: Is this condition necessary?
-    if (style->appearance() == PushButtonPart) {
-        style->resetBorder();
-        style->setHeight(Length(Auto));
-        style->setWhiteSpace(PRE);
-        setButtonPadding(style);
-    } else {
-        // FIXME: This should not be hard-coded.
-        style->setMinHeight(Length(14, Fixed));
-        style->resetBorderTop();
-        style->resetBorderBottom();
-    }
-}
-
-bool RenderThemeGtk::paintButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintMozWidget(this, MOZ_GTK_BUTTON, o, i, rect);
-}
-
-void RenderThemeGtk::adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, WebCore::Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-    style->setHeight(Length(Auto));
-    style->setWhiteSpace(PRE);
-    adjustMozStyle(style, MOZ_GTK_DROPDOWN);
-}
-
-bool RenderThemeGtk::paintMenuList(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintMozWidget(this, MOZ_GTK_DROPDOWN, o, i, rect);
-}
-
-void RenderThemeGtk::adjustTextFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-    style->setHeight(Length(Auto));
-    style->setWhiteSpace(PRE);
-    adjustMozStyle(style, MOZ_GTK_ENTRY);
-}
-
-bool RenderThemeGtk::paintTextField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintMozWidget(this, MOZ_GTK_ENTRY, o, i, rect);
-}
-
-void RenderThemeGtk::adjustTextAreaStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    adjustTextFieldStyle(selector, style, e);
-}
-
-bool RenderThemeGtk::paintTextArea(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
-{
-    return paintTextField(o, i, r);
-}
-
-void RenderThemeGtk::adjustSearchFieldResultsButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    adjustSearchFieldCancelButtonStyle(selector, style, e);
-}
-
-bool RenderThemeGtk::paintSearchFieldResultsButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintMozWidget(this, MOZ_GTK_DROPDOWN_ARROW, o, i, rect);
-}
-
-void RenderThemeGtk::adjustSearchFieldResultsDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-
-    // FIXME: This should not be hard-coded.
-    IntSize size = IntSize(14, 14);
-    style->setWidth(Length(size.width(), Fixed));
-    style->setHeight(Length(size.height(), Fixed));
-}
-
-bool RenderThemeGtk::paintSearchFieldResultsDecoration(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintMozWidget(this, MOZ_GTK_CHECKMENUITEM, o, i, rect);
-}
-
-void RenderThemeGtk::adjustSearchFieldCancelButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-
-    // FIXME: This should not be hard-coded.
-    IntSize size = IntSize(14, 14);
-    style->setWidth(Length(size.width(), Fixed));
-    style->setHeight(Length(size.height(), Fixed));
-}
-
-bool RenderThemeGtk::paintSearchFieldCancelButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintMozWidget(this, MOZ_GTK_CHECKMENUITEM, o, i, rect);
-}
-
-void RenderThemeGtk::adjustSearchFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    adjustTextFieldStyle(selector, style, e);
-}
-
-bool RenderThemeGtk::paintSearchField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
-{
-    return paintTextField(o, i, rect);
+    return supportsFocus(style->appearance());
 }
 
 Color RenderThemeGtk::platformActiveSelectionBackgroundColor() const
@@ -387,32 +241,13 @@ Color RenderThemeGtk::platformInactiveSelectionForegroundColor() const
     return makeColor(widget->style->text[GTK_STATE_ACTIVE]);
 }
 
-Color RenderThemeGtk::activeListBoxSelectionBackgroundColor() const
-{
-    GtkWidget* widget = gtkTreeView();
-    return makeColor(widget->style->base[GTK_STATE_SELECTED]);
-}
-
-Color RenderThemeGtk::inactiveListBoxSelectionBackgroundColor() const
-{
-    GtkWidget* widget = gtkTreeView();
-    return makeColor(widget->style->base[GTK_STATE_ACTIVE]);
-}
-
-Color RenderThemeGtk::activeListBoxSelectionForegroundColor() const
-{
-    GtkWidget* widget = gtkTreeView();
-    return makeColor(widget->style->text[GTK_STATE_SELECTED]);
-}
-
-Color RenderThemeGtk::inactiveListBoxSelectionForegroundColor() const
-{
-    GtkWidget* widget = gtkTreeView();
-    return makeColor(widget->style->text[GTK_STATE_ACTIVE]);
-}
-
 double RenderThemeGtk::caretBlinkFrequency() const
 {
+    // Disable the blinking caret in layout test mode, as it introduces
+    // a race condition for the pixel tests. http://b/1198440
+    if (ChromiumBridge::layoutTestMode())
+        return 0;
+
     GtkSettings* settings = gtk_settings_get_default();
 
     gboolean shouldBlink;
@@ -464,10 +299,21 @@ void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDesc
             }
             // Only update if we can determine the right size.
             if (pixelscale && size) {
-                fontDescription.firstFamily().setFamily(
-                    pango_font_description_get_family(pangoFontDesc));
-                fontDescription.setSpecifiedSize((float)size * pixelscale);
+                // NOTE(deanm): Windows hardcodes to Lucida Grande when in
+                // layout test mode, but this is a mac font so really it
+                // falls back on Times New Roman.
+                if (ChromiumBridge::layoutTestMode()) {
+                    fontDescription.firstFamily().setFamily("Times New Roman");
+                    fontDescription.setSpecifiedSize(11);
+                } else {
+                    fontDescription.firstFamily().setFamily(
+                        pango_font_description_get_family(pangoFontDesc));
+                    fontDescription.setSpecifiedSize((float)size * pixelscale);
+                }
                 fontDescription.setIsAbsoluteSize(true);
+                fontDescription.setGenericFamily(FontDescription::NoFamily);
+                fontDescription.setWeight(FontWeightNormal);
+                fontDescription.setItalic(false);
             }
             break;
         }
@@ -496,23 +342,166 @@ void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDesc
     }
 }
 
-static void gtkStyleSetCallback(GtkWidget* widget, GtkStyle* previous, RenderTheme* renderTheme)
+bool RenderThemeGtk::paintCheckbox(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
 {
-    // FIXME: Make sure this function doesn't get called many times for a single GTK+ style change signal.
-    renderTheme->platformColorsDidChange();
+    return paintMozWidget(this, MOZ_GTK_CHECKBUTTON, o, i, rect);
 }
 
-GtkContainer* RenderThemeGtk::gtkContainer() const
+void RenderThemeGtk::setCheckboxSize(RenderStyle* style) const
 {
-    if (m_gtkContainer)
-        return m_gtkContainer;
+    setToggleSize(style, RadioPart);
+}
 
-    m_gtkWindow = gtk_window_new(GTK_WINDOW_POPUP);
-    m_gtkContainer = GTK_CONTAINER(gtk_fixed_new());
-    gtk_container_add(GTK_CONTAINER(m_gtkWindow), GTK_WIDGET(m_gtkContainer));
-    gtk_widget_realize(m_gtkWindow);
+bool RenderThemeGtk::paintRadio(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_RADIOBUTTON, o, i, rect);
+}
 
-    return m_gtkContainer;
+void RenderThemeGtk::setRadioSize(RenderStyle* style) const
+{
+    setToggleSize(style, RadioPart);
+}
+
+bool RenderThemeGtk::paintButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_BUTTON, o, i, rect);
+}
+
+void RenderThemeGtk::adjustTextFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    style->resetBorder();
+    style->resetPadding();
+    style->setHeight(Length(Auto));
+    style->setWhiteSpace(PRE);
+    adjustMozStyle(style, MOZ_GTK_ENTRY);
+}
+
+bool RenderThemeGtk::paintTextField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_ENTRY, o, i, rect);
+}
+
+void RenderThemeGtk::adjustTextAreaStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    adjustTextFieldStyle(selector, style, e);
+}
+
+bool RenderThemeGtk::paintTextArea(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
+{
+    return paintTextField(o, i, r);
+}
+
+bool RenderThemeGtk::paintSearchField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintTextField(o, i, rect);
+}
+
+bool RenderThemeGtk::paintSearchFieldResultsDecoration(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_CHECKMENUITEM, o, i, rect);
+}
+
+bool RenderThemeGtk::paintSearchFieldResultsButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_DROPDOWN_ARROW, o, i, rect);
+}
+
+bool RenderThemeGtk::paintSearchFieldCancelButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_CHECKMENUITEM, o, i, rect);
+}
+
+void RenderThemeGtk::adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, WebCore::Element* e) const
+{
+    style->resetBorder();
+    style->resetPadding();
+    style->setHeight(Length(Auto));
+    style->setWhiteSpace(PRE);
+    adjustMozStyle(style, MOZ_GTK_DROPDOWN);
+}
+
+bool RenderThemeGtk::paintMenuList(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
+{
+    return paintMozWidget(this, MOZ_GTK_DROPDOWN, o, i, rect);
+}
+
+void RenderThemeGtk::adjustButtonInnerStyle(RenderStyle* style) const
+{
+    // This inner padding matches Firefox.
+    style->setPaddingTop(Length(1, Fixed));
+    style->setPaddingRight(Length(3, Fixed));
+    style->setPaddingBottom(Length(1, Fixed));
+    style->setPaddingLeft(Length(3, Fixed));
+}
+
+void RenderThemeGtk::adjustSearchFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    adjustTextFieldStyle(selector, style, e);
+}
+
+void RenderThemeGtk::adjustSearchFieldCancelButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    style->resetBorder();
+    style->resetPadding();
+
+    // FIXME: This should not be hard-coded.
+    IntSize size = IntSize(14, 14);
+    style->setWidth(Length(size.width(), Fixed));
+    style->setHeight(Length(size.height(), Fixed));
+}
+
+void RenderThemeGtk::adjustSearchFieldResultsDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    style->resetBorder();
+    style->resetPadding();
+
+    // FIXME: This should not be hard-coded.
+    IntSize size = IntSize(14, 14);
+    style->setWidth(Length(size.width(), Fixed));
+    style->setHeight(Length(size.height(), Fixed));
+}
+
+void RenderThemeGtk::adjustSearchFieldResultsButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    adjustSearchFieldCancelButtonStyle(selector, style, e);
+}
+
+bool RenderThemeGtk::controlSupportsTints(const RenderObject* o) const
+{
+    return isEnabled(o);
+}
+
+int RenderThemeGtk::baselinePosition(const RenderObject* o) const
+{
+    // FIXME: This strategy is possibly incorrect for the GTK+ port.
+    if (o->style()->appearance() == CheckboxPart||
+        o->style()->appearance() == RadioPart)
+        return o->marginTop() + o->height() - 2;
+    return RenderTheme::baselinePosition(o);
+}
+
+Color RenderThemeGtk::activeListBoxSelectionBackgroundColor() const
+{
+    GtkWidget* widget = gtkTreeView();
+    return makeColor(widget->style->base[GTK_STATE_SELECTED]);
+}
+
+Color RenderThemeGtk::activeListBoxSelectionForegroundColor() const
+{
+    GtkWidget* widget = gtkTreeView();
+    return makeColor(widget->style->text[GTK_STATE_SELECTED]);
+}
+
+Color RenderThemeGtk::inactiveListBoxSelectionBackgroundColor() const
+{
+    GtkWidget* widget = gtkTreeView();
+    return makeColor(widget->style->base[GTK_STATE_ACTIVE]);
+}
+
+Color RenderThemeGtk::inactiveListBoxSelectionForegroundColor() const
+{
+    GtkWidget* widget = gtkTreeView();
+    return makeColor(widget->style->text[GTK_STATE_ACTIVE]);
 }
 
 GtkWidget* RenderThemeGtk::gtkEntry() const
@@ -541,4 +530,17 @@ GtkWidget* RenderThemeGtk::gtkTreeView() const
     return m_gtkTreeView;
 }
 
+GtkContainer* RenderThemeGtk::gtkContainer() const
+{
+    if (m_gtkContainer)
+        return m_gtkContainer;
+
+    m_gtkWindow = gtk_window_new(GTK_WINDOW_POPUP);
+    m_gtkContainer = GTK_CONTAINER(gtk_fixed_new());
+    gtk_container_add(GTK_CONTAINER(m_gtkWindow), GTK_WIDGET(m_gtkContainer));
+    gtk_widget_realize(m_gtkWindow);
+
+    return m_gtkContainer;
 }
+
+}  // namespace WebCore

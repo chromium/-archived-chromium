@@ -78,19 +78,19 @@ void TestShell::InitializeTestShell(bool interactive) {
   static const char *const fonts[] = {
     "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Arial_Bold.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Arial_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Arial_Bold_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Bold.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Bold_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold_Italic.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Arial_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS_Bold.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Courier_New.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Bold.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Bold_Italic.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Impact.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold_Italic.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Italic.ttf",
     NULL
   };
   for (size_t i = 0; fonts[i]; ++i) {

@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
     // 1) currently don't support GTK themes that use the GDK drawing APIs, and
     // 2) need to use a unified theme for layout tests anyway.
     g_object_set(gtk_settings_get_default(),
-                 "gtk-theme-name", "ClearlooksClassic",
+                 "gtk-theme-name", "Mist",
                  NULL);
 #endif
   }

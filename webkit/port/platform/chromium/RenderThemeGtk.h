@@ -37,6 +37,7 @@ namespace WebCore {
 class RenderThemeGtk : public RenderTheme {
 public:
     RenderThemeGtk();
+    ~RenderThemeGtk() { }
 
     // A method asking if the theme's controls actually care about redrawing when hovered.
     virtual bool supportsHover(const RenderStyle*) const { return true; }
@@ -44,28 +45,11 @@ public:
     // A method asking if the theme is able to draw the focus ring.
     virtual bool supportsFocusRing(const RenderStyle*) const;
 
-    // A method asking if the control changes its tint when the window has focus or not.
-    virtual bool controlSupportsTints(const RenderObject*) const;
-
-    // A general method asking if any control tinting is supported at all.
-    virtual bool supportsControlTints() const { return true; }
-
-    // A method to obtain the baseline position for a "leaf" control.  This will only be used if a baseline
-    // position cannot be determined by examining child content. Checkboxes and radio buttons are examples of
-    // controls that need to do this.
-    virtual int baselinePosition(const RenderObject*) const;
-
     // The platform selection color.
     virtual Color platformActiveSelectionBackgroundColor() const;
     virtual Color platformInactiveSelectionBackgroundColor() const;
     virtual Color platformActiveSelectionForegroundColor() const;
     virtual Color platformInactiveSelectionForegroundColor() const;
-
-    // List Box selection color
-    virtual Color activeListBoxSelectionBackgroundColor() const;
-    virtual Color activeListBoxSelectionForegroundColor() const;
-    virtual Color inactiveListBoxSelectionBackgroundColor() const;
-    virtual Color inactiveListBoxSelectionForegroundColor() const;
 
     virtual double caretBlinkFrequency() const;
 
@@ -78,7 +62,6 @@ public:
     virtual bool paintRadio(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r);
     virtual void setRadioSize(RenderStyle* style) const;
 
-    virtual void adjustButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual bool paintButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
     virtual void adjustTextFieldStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
@@ -87,21 +70,47 @@ public:
     virtual void adjustTextAreaStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual bool paintTextArea(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
+    virtual bool paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+
+    virtual bool paintSearchFieldResultsDecoration(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintSearchFieldResultsButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintSearchFieldCancelButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+
+    // MenuList refers to an unstyled menulist (meaning a menulist without
+    // background-color or border set) and MenuListButton refers to a styled
+    // menulist (a menulist with background-color or border set). They have
+    // this distinction to support showing aqua style themes whenever they
+    // possibly can, which is something we don't want to replicate.
+    //
+    // In short, we either go down the MenuList code path or the MenuListButton
+    // codepath. We never go down both. And in both cases, they render the
+    // entire menulist.
     virtual void adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const;
     virtual bool paintMenuList(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
-    virtual void adjustSearchFieldResultsDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintSearchFieldResultsDecoration(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual void adjustButtonInnerStyle(RenderStyle* style) const;
 
     virtual void adjustSearchFieldStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
-
-    virtual void adjustSearchFieldResultsButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintSearchFieldResultsButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
-
     virtual void adjustSearchFieldCancelButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintSearchFieldCancelButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual void adjustSearchFieldResultsDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
+    virtual void adjustSearchFieldResultsButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
 
+    // A method asking if the control changes its tint when the window has focus or not.
+    virtual bool controlSupportsTints(const RenderObject*) const;
+
+    // A general method asking if any control tinting is supported at all.
+    virtual bool supportsControlTints() const { return true; }
+
+    // A method to obtain the baseline position for a "leaf" control.  This will only be used if a baseline
+    // position cannot be determined by examining child content. Checkboxes and radio buttons are examples of
+    // controls that need to do this.
+    virtual int baselinePosition(const RenderObject*) const;
+
+    // List Box selection color
+    virtual Color activeListBoxSelectionBackgroundColor() const;
+    virtual Color activeListBoxSelectionForegroundColor() const;
+    virtual Color inactiveListBoxSelectionBackgroundColor() const;
+    virtual Color inactiveListBoxSelectionForegroundColor() const;
 
 private:
     /*
