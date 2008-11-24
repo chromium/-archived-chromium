@@ -416,6 +416,6 @@ if env['PLATFORM'] == 'win32':
   env.Install('$DESTINATION_ROOT/plugins/gears', gears_plugins)
 
 env.Command('$DESTINATION_ROOT/resources/inspector',
-            '$CHROME_SRC_DIR/webkit/port/page/inspector',
+            '$CHROME_SRC_DIR/third_party/WebKit/WebCore/inspector/front-end',
             Copy('$TARGET', '$SOURCE'),
             source_scanner=DirScanner)
