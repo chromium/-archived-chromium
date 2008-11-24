@@ -126,8 +126,6 @@ class WebFrameImpl : public WebFrame {
   virtual bool Find(const FindInPageRequest& request,
                     bool wrap_within_frame,
                     gfx::Rect* selection_rect);
-  virtual bool FindNext(const FindInPageRequest& request,
-                        bool wrap_within_frame);
   virtual void StopFinding(bool clear_selection);
   virtual void ScopeStringMatches(FindInPageRequest request, bool reset);
   virtual void CancelPendingScopingEffort();
@@ -226,31 +224,17 @@ class WebFrameImpl : public WebFrame {
   WebDataSourceImpl* GetDataSourceImpl() const;
   WebDataSourceImpl* GetProvisionalDataSourceImpl() const;
 
-  // Gets the tickmarks for drawing on the scrollbars of a particular frame.
-  const Vector<RefPtr<WebCore::Range> >& tickmarks() const {
-    return tickmarks_;
-  }
-
-  // Returns whether a range representing a tickmark should be highlighted.
-  // We use this to avoid highlighting ranges that are currently hidden.
-  static bool RangeShouldBeHighlighted(WebCore::Range* range);
-
   const WebCore::Node* inspected_node() const {
     return inspected_node_;
   }
 
   void selectNodeFromInspector(WebCore::Node* node);
 
-  // Returns which frame has an active tickmark. This function should only be
+  // Returns which frame has an active match. This function should only be
   // called on the main frame, as it is the only frame keeping track. Returned
-  // value can be NULL if no frame has an active tickmark.
-  const WebFrameImpl* active_tickmark_frame() const {
-    return active_tickmark_frame_;
-  }
-
-  // Returns the index of the active tickmark for this frame.
-  size_t active_tickmark_index() const {
-    return active_tickmark_;
+  // value can be NULL if no frame has an active match.
+  const WebFrameImpl* active_match_frame() const {
+    return active_match_frame_;
   }
 
   // When a Find operation ends, we want to set the selection to what was active
@@ -345,39 +329,24 @@ class WebFrameImpl : public WebFrame {
   // The node selected in the web inspector. Used for highlighting it on the page.
   WebCore::Node* inspected_node_;
 
-  // This vector maintains a list of Ranges representing locations for search
-  // string matches that were found in the frame during a FindInPage operation.
-  Vector<RefPtr<WebCore::Range> > tickmarks_;
-
   // A way for the main frame to keep track of which frame has an active
-  // tickmark. Should be NULL for all other frames.
-  WebFrameImpl* active_tickmark_frame_;
+  // match. Should be NULL for all other frames.
+  WebFrameImpl* active_match_frame_;
 
-  // The index of the active tickmark for the current frame.
-  size_t active_tickmark_;
+  // The range of the active match for the current frame.
+  RefPtr<WebCore::Range> active_match_;
+
+  // The index of the active match.
+  size_t active_match_index_;
 
   // This flag is used by the scoping effort to determine if we need to figure
-  // out which rectangle is the active tickmark. Once we find the active
+  // out which rectangle is the active match. Once we find the active
   // rectangle we clear this flag.
   bool locating_active_rect_;
 
-  // This rectangle is used during the scoping effort to figure out what rect
-  // got selected during the Find operation. In other words, first the Find
-  // operation iterates to the next match and then scoping will happen for all
-  // matches. When we encounter this rectangle during scoping we mark that
-  // tickmark as active (see active_tickmark_). This avoids having to iterate
-  // through a potentially very large tickmark vector to see which hit is
-  // active. An empty rect means that we don't know the rectangle for the
-  // selection (ie. because the selection controller couldn't tell us what the
-  // bounding box for it is) and the scoping effort should mark the first
-  // match it finds as the active rectangle.
-  WebCore::IntRect active_selection_rect_;
-
-  // This range represents the range that got selected during the Find or
-  // FindNext operation. We will set this range as the selection (unless the
-  // user selects something between Find/FindNext operations) so that we can
-  // continue from where we left off.
-  RefPtr<WebCore::Range> last_active_range_;
+  // The scoping effort can time out and we need to keep track of where we
+  // ended our last search so we can continue from where we left of.
+  RefPtr<WebCore::Range> resume_scoping_from_range_;
 
   // Keeps track of the last string this frame searched for. This is used for
   // short-circuiting searches in the following scenarios: When a frame has
@@ -389,12 +358,12 @@ class WebFrameImpl : public WebFrame {
   // don't loose count between scoping efforts, and is also used (in conjunction
   // with last_search_string_ and scoping_complete_) to figure out if we need to
   // search the frame again.
-  int last_match_count_;
+  size_t last_match_count_;
 
   // This variable keeps a cumulative total of matches found so far for ALL the
   // frames on the page, and is only incremented by calling IncreaseMatchCount
   // (on the main frame only). It should be -1 for all other frames.
-  int total_matchcount_;
+  size_t total_matchcount_;
 
   // This variable keeps a cumulative total of how many frames are currently
   // scoping, and is incremented/decremented on the main frame only.
@@ -407,7 +376,7 @@ class WebFrameImpl : public WebFrame {
 
   // Keeps track of when the scoping effort should next invalidate the scrollbar
   // and the frame area.
-  int next_invalidate_after_;
+  size_t next_invalidate_after_;
 
  private:
   // A bit mask specifying area of the frame to invalidate.
@@ -421,13 +390,13 @@ class WebFrameImpl : public WebFrame {
   // Invalidates a certain area within the frame.
   void InvalidateArea(AreaToInvalidate area);
 
-  // Invalidates the tickmark area represented by the range passed in.
-  void InvalidateTickmark(RefPtr<WebCore::Range> tickmark);
+  // Add a WebKit TextMatch-highlight marker to nodes in a range.
+  void AddMarker(WebCore::Range* range);
 
   // Returns the ordinal of the first match in the frame specified. This
   // function enumerates the frames, starting with the main frame and up to (but
   // not including) the frame passed in as a parameter and counts how many
-  // tickmarks there are.
+  // matches have been found.
   int OrdinalOfFirstMatchForFrame(WebFrameImpl* frame) const;
 
   // Determines whether the scoping effort is required for a particular frame.

@@ -108,6 +108,8 @@ WebCore::FontDescription labelFont;
 
 namespace WebCore {
 
+bool RenderThemeWin::m_findInPageMode = false;
+
 // Internal static helper functions.  We don't put them in an anonymous
 // namespace so they have easier access to the WebCore namespace.
 
@@ -331,7 +333,9 @@ bool RenderThemeWin::supportsFocusRing(const RenderStyle* style) const
 Color RenderThemeWin::platformActiveSelectionBackgroundColor() const
 {
     if (ChromiumBridge::layoutTestMode())
-        return Color("#0000FF");  // Royal blue
+        return Color("#0000FF");  // Royal blue.
+    if (m_findInPageMode)
+        return Color(255, 150, 50, 200);  // Orange.
     COLORREF color = GetSysColor(COLOR_HIGHLIGHT);
     return Color(GetRValue(color), GetGValue(color), GetBValue(color), 255);
 }
@@ -339,7 +343,9 @@ Color RenderThemeWin::platformActiveSelectionBackgroundColor() const
 Color RenderThemeWin::platformInactiveSelectionBackgroundColor() const
 {
     if (ChromiumBridge::layoutTestMode())
-        return Color("#999999");  // Medium grey
+        return Color("#999999");  // Medium gray.
+    if (m_findInPageMode)
+        return Color(255, 150, 50, 200);  // Orange.
     COLORREF color = GetSysColor(COLOR_GRAYTEXT);
     return Color(GetRValue(color), GetGValue(color), GetBValue(color), 255);
 }
@@ -347,7 +353,7 @@ Color RenderThemeWin::platformInactiveSelectionBackgroundColor() const
 Color RenderThemeWin::platformActiveSelectionForegroundColor() const
 {
     if (ChromiumBridge::layoutTestMode())
-        return Color("#FFFFCC");  // Pale yellow
+        return Color("#FFFFCC");  // Pale yellow.
     COLORREF color = GetSysColor(COLOR_HIGHLIGHTTEXT);
     return Color(GetRValue(color), GetGValue(color), GetBValue(color), 255);
 }
@@ -355,6 +361,11 @@ Color RenderThemeWin::platformActiveSelectionForegroundColor() const
 Color RenderThemeWin::platformInactiveSelectionForegroundColor() const
 {
     return Color::white;
+}
+
+Color RenderThemeWin::platformTextSearchHighlightColor() const
+{
+    return Color(255, 255, 150);
 }
 
 double RenderThemeWin::caretBlinkFrequency() const
@@ -870,6 +881,15 @@ int RenderThemeWin::menuListInternalPadding(RenderStyle* style, int paddingType)
         padding += ScrollbarTheme::nativeTheme()->scrollbarThickness();
 
     return padding;
+}
+
+// static
+void RenderThemeWin::setFindInPageMode(bool enable) {
+  if (m_findInPageMode == enable)
+      return;
+
+  m_findInPageMode = enable;
+  theme()->platformColorsDidChange();
 }
 
 }  // namespace WebCore

@@ -197,16 +197,6 @@ class WebFrame : public base::RefCounted<WebFrame> {
                     bool wrap_within_frame,
                     gfx::Rect* selection_rect) = 0;
 
-  // Searches a frame for the next (or previous occurrence of a given string.
-  //
-  // This function works similarly to Find (documented above), except that it
-  // uses an index into the tick-mark vector to figure out what the next
-  // match is, alleviating the need to call findString on the content again.
-  //
-  // Returns true if the search string was found, false otherwise.
-  virtual bool FindNext(const FindInPageRequest& request,
-                        bool wrap_within_frame) = 0;
-
   // Notifies the frame that we are no longer interested in searching. This will
   // abort any asynchronous scoping effort already under way (see the function
   // ScopeStringMatches for details) and erase all tick-marks and highlighting

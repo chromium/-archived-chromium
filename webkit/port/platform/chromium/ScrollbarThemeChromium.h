@@ -65,6 +65,7 @@ protected:
     virtual void paintTrackPiece(GraphicsContext*, Scrollbar*, const IntRect&, ScrollbarPart);
     virtual void paintButton(GraphicsContext*, Scrollbar*, const IntRect&, ScrollbarPart);
     virtual void paintThumb(GraphicsContext*, Scrollbar*, const IntRect&);
+    virtual void paintTickmarks(GraphicsContext*, Scrollbar*, const IntRect&);
 
 private:
     IntSize buttonSize(Scrollbar*);

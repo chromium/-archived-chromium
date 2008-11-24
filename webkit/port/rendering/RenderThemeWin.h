@@ -57,6 +57,7 @@ public:
     virtual Color platformInactiveSelectionBackgroundColor() const;
     virtual Color platformActiveSelectionForegroundColor() const;
     virtual Color platformInactiveSelectionForegroundColor() const;
+    virtual Color platformTextSearchHighlightColor() const;
 
     virtual double caretBlinkFrequency() const;
 
@@ -118,6 +119,9 @@ public:
     // the value to get it directly from the appropriate Settings object.
     static void setDefaultFontSize(int);
 
+    // Enables/Disables FindInPage mode, which (if enabled) overrides the
+    // selection rect color to be orange.
+    static void setFindInPageMode(bool);
 private:
     unsigned determineState(RenderObject*);
     unsigned determineClassicState(RenderObject*);
@@ -130,6 +134,9 @@ private:
     void getMinimalButtonPadding(Length* minXPadding) const;
 
     int menuListInternalPadding(RenderStyle* style, int paddingType) const;
+
+    // A flag specifying whether we are in Find-in-page mode or not.
+    static bool m_findInPageMode;
 };
 
 }

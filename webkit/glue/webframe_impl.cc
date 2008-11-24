@@ -80,6 +80,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Document.h"
 #include "DocumentFragment.h"  // Only needed for ReplaceSelectionCommand.h :(
 #include "DocumentLoader.h"
+#include "DocumentMarker.h"
 #include "DOMWindow.h"
 #include "Editor.h"
 #include "EventHandler.h"
@@ -97,6 +98,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Page.h"
 #include "PlatformContextSkia.h"
 #include "RenderFrame.h"
+#if defined(OS_WIN)
+#include "RenderThemeWin.h"
+#endif
 #include "RenderWidget.h"
 #include "ReplaceSelectionCommand.h"
 #include "ResourceHandle.h"
@@ -177,11 +181,6 @@ using WebCore::SubstituteData;
 using WebCore::TextIterator;
 using WebCore::VisiblePosition;
 using WebCore::XPathResult;
-
-// TODO(darin): This used to be defined on WidgetClientChromium, but that
-// interface no longer exists.  We'll need to come up with something better
-// once we figure out how to make tickmark support work again!
-static const size_t kNoTickmark = size_t(-1);
 
 // Key for a StatsCounter tracking how many WebFrames are active.
 static const char* const kWebFrameActiveCount = "WebFrameActiveCount";
@@ -278,10 +277,10 @@ MSVC_POP_WARNING()
     currently_loading_request_(NULL),
     plugin_delegate_(NULL),
     inspected_node_(NULL),
-    active_tickmark_frame_(NULL),
-    active_tickmark_(kNoTickmark),
+    active_match_frame_(NULL),
+    active_match_index_(-1),
     locating_active_rect_(false),
-    last_active_range_(NULL),
+    resume_scoping_from_range_(NULL),
     last_match_count_(-1),
     total_matchcount_(-1),
     frames_scoping_count_(-1),
@@ -769,18 +768,6 @@ void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
 #endif
 }
 
-void WebFrameImpl::InvalidateTickmark(RefPtr<WebCore::Range> tickmark) {
-  ASSERT(frame() && frame()->view());
-#if defined(OS_WIN)
-  // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
-  FrameView* view = frame()->view();
-
-  IntRect pos = tickmark->boundingBox();
-  pos.move(-view->scrollX(), -view->scrollY());
-  view->invalidateRect(pos);
-#endif
-}
-
 void WebFrameImpl::IncreaseMatchCount(int count, int request_id) {
   total_matchcount_ += count;
 
@@ -817,34 +804,29 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
   WebCore::String webcore_string =
       webkit_glue::StdWStringToString(request.search_string);
 
-  // Starts the search from the current selection.
-  bool start_in_selection = true;  // Policy. Can it be made configurable?
+  WebFrameImpl* const main_frame_impl =
+      static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
 
-  // If the user has selected something since the last Find operation we want
-  // to start from there. Otherwise, we start searching from where the last Find
-  // operation left off (either a Find or a FindNext operation).
-  Selection selection(frame()->selection()->selection());
-  if (selection.isNone() && last_active_range_) {
-    selection = Selection(last_active_range_.get());
-    frame()->selection()->setSelection(selection);
-  }
+  if (!request.find_next)
+    frame()->page()->unmarkAllTextMatches();
+
+  // Starts the search from the current selection.
+  bool start_in_selection = true;
 
   DCHECK(frame() && frame()->view());
   bool found = frame()->findString(webcore_string, request.forward,
                                    request.match_case, wrap_within_frame,
                                    start_in_selection);
-  // If we find something on the page, we'll need to have the scoping effort
-  // locate it so that we can highlight it as active.
-  locating_active_rect_ = found;
-
   if (found) {
-    // Set this frame as the active frame (the one with the active tick-mark).
-    WebFrameImpl* const main_frame_impl =
-        static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
-    main_frame_impl->active_tickmark_frame_ = this;
+#if defined(OS_WIN)
+    WebCore::RenderThemeWin::setFindInPageMode(true);
+#endif
+    // Set this frame as the active frame (the one with the active highlight).
+    main_frame_impl->active_match_frame_ = this;
 
     // We found something, so we can now query the selection for its position.
     Selection new_selection(frame()->selection()->selection());
+    IntRect curr_selection_rect;
 
     // If we thought we found something, but it couldn't be selected (perhaps
     // because it was marked -webkit-user-select: none), we can't set it to
@@ -853,151 +835,62 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
     // are mixed on a page: see https://bugs.webkit.org/show_bug.cgi?id=19127.
     if (new_selection.isNone() ||
         (new_selection.start() == new_selection.end())) {
-      // The selection controller is not giving us a valid selection so we don't
-      // know what the active rect is. The scoping effort should still continue,
-      // in case there are other selectable matches on the page. Setting the
-      // active_selection_rect to a default rect causes the scoping effort to
-      // mark the first match it finds as active and continue scoping.
-      active_selection_rect_ = IntRect();
-      last_active_range_ = new_selection.toRange();
-      *selection_rect = gfx::Rect();
+      active_match_ = NULL;
     } else {
-      last_active_range_ = new_selection.toRange();
-      active_selection_rect_ = new_selection.toRange()->boundingBox();
-      // TODO(finnur): Uncomment this when bug http://crbug.com/3908 is fixed.
-      // ClearSelection();  // We'll draw our own highlight for the active item.
+      active_match_ = new_selection.toRange();
+      curr_selection_rect = active_match_->boundingBox();
+    }
+
+    if (!request.find_next) {
+      // This is a Find operation, so we set the flag to ask the scoping effort
+      // to find the active rect for us so we can update the ordinal (n of m).
+      locating_active_rect_ = true;
+    } else {
+      // This is FindNext so we need to increment (or decrement) the count and
+      // wrap if needed.
+      request.forward ? ++active_match_index_ : --active_match_index_;
+      if (active_match_index_ + 1 > last_match_count_)
+        active_match_index_ = 0;
+      if (active_match_index_ + 1 == 0)
+        active_match_index_ = last_match_count_ - 1;
+    }
 
 #if defined(OS_WIN)
-      // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
-      if (selection_rect) {
-        gfx::Rect rect = webkit_glue::FromIntRect(
-            frame()->view()->convertToContainingWindow(active_selection_rect_));
-        rect.Offset(-frameview()->scrollOffset().width(),
-                    -frameview()->scrollOffset().height());
-        *selection_rect = rect;
-      }
+    // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
+    if (selection_rect) {
+      gfx::Rect rect = webkit_glue::FromIntRect(
+          frame()->view()->convertToContainingWindow(curr_selection_rect));
+      rect.Offset(-frameview()->scrollOffset().width(),
+                  -frameview()->scrollOffset().height());
+      *selection_rect = rect;
+
+      ReportFindInPageSelection(rect,
+                                active_match_index_ + 1,
+                                request.request_id);
+    }
 #endif
-    }
-  }
+  } else {
+    // Nothing was found in this frame.
+    active_match_ = NULL;
 
-  if (!found) {
-    active_selection_rect_ = IntRect();
-    last_active_range_ = NULL;
-
-    if (!tickmarks_.isEmpty()) {
-      // Let the frame know that we found no matches.
-      tickmarks_.clear();
-      // Erase all previous tickmarks and highlighting.
-      InvalidateArea(INVALIDATE_ALL);
-    }
+    // Erase all previous tickmarks and highlighting.
+    InvalidateArea(INVALIDATE_ALL);
   }
 
   return found;
-}
-
-bool WebFrameImpl::FindNext(const FindInPageRequest& request,
-                            bool wrap_within_frame) {
-  if (tickmarks_.isEmpty())
-    return false;
-
-  // Save the old tickmark (if any). We will use this to invalidate the area
-  // of the tickmark that becomes unselected.
-  WebFrameImpl* const main_frame_impl =
-      static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
-  WebFrameImpl* const active_frame = main_frame_impl->active_tickmark_frame_;
-  RefPtr<WebCore::Range> old_tickmark = NULL;
-  if (active_frame &&
-      (active_frame->active_tickmark_ != kNoTickmark)) {
-    // When we get a reference to |old_tickmark| we can be in a state where
-    // the |active_tickmark_| points outside the tickmark vector, possibly
-    // during teardown of the frame. This doesn't reproduce normally, so if you
-    // hit this during debugging, update issue http://b/1277569 with
-    // reproduction steps - or contact the assignee. In release, we can ignore
-    // this and continue on (and let |old_tickmark| be null).
-    if (active_frame->active_tickmark_ >= active_frame->tickmarks_.size())
-      NOTREACHED() << L"Active tickmark points outside the tickmark vector!";
-    else
-      old_tickmark = active_frame->tickmarks_[active_frame->active_tickmark_];
-  }
-
-  // See if we have another match to select, and select it.
-  if (request.forward) {
-    const bool at_end = (active_tickmark_ == (tickmarks_.size() - 1));
-    if ((active_tickmark_ == kNoTickmark) ||
-        (at_end && wrap_within_frame)) {
-      // Wrapping within a frame is only done for single frame pages. So when we
-      // reach the end we go back to the beginning (or back to the end if
-      // searching backwards).
-      active_tickmark_ = 0;
-    } else if (at_end) {
-      return false;
-    } else {
-      ++active_tickmark_;
-      DCHECK(active_tickmark_ < tickmarks_.size());
-    }
-  } else {
-    const bool at_end = (active_tickmark_ == 0);
-    if ((active_tickmark_ == kNoTickmark) ||
-        (at_end && wrap_within_frame)) {
-      // Wrapping within a frame is not done for multi-frame pages, but if no
-      // tickmark is active we still need to set the index to the end so that
-      // we don't skip the frame during FindNext when searching backwards.
-      active_tickmark_ = tickmarks_.size() - 1;
-    } else if (at_end) {
-      return false;
-    } else {
-      --active_tickmark_;
-      DCHECK(active_tickmark_ < tickmarks_.size());
-    }
-  }
-
-  if (active_frame != this) {
-    // If we are jumping between frames, reset the active tickmark in the old
-    // frame and invalidate the area.
-    active_frame->active_tickmark_ = kNoTickmark;
-    active_frame->InvalidateArea(INVALIDATE_CONTENT_AREA);
-    main_frame_impl->active_tickmark_frame_ = this;
-  } else {
-    // Invalidate the old tickmark.
-    if (old_tickmark)
-      active_frame->InvalidateTickmark(old_tickmark);
-  }
-
-  Selection selection(tickmarks_[active_tickmark_].get());
-  frame()->selection()->setSelection(selection);
-  frame()->revealSelection();  // Scroll the selection into view if necessary.
-  // Make sure we save where the selection was after the operation so that
-  // we can set the selection to it for the next Find operation (if needed).
-  last_active_range_ = tickmarks_[active_tickmark_];
-  // TODO(finnur): Uncomment this when bug http://crbug.com/3908 is fixed.
-  // ClearSelection();  // We will draw our own highlighting.
-
-#if defined(OS_WIN)
-  // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
-  // Notify browser of new location for the selected rectangle.
-  IntRect pos = tickmarks_[active_tickmark_]->boundingBox();
-  pos.move(-frameview()->scrollOffset().width(),
-           -frameview()->scrollOffset().height());
-  ReportFindInPageSelection(
-      webkit_glue::FromIntRect(frame()->view()->convertToContainingWindow(pos)),
-      active_tickmark_ + 1,
-      request.request_id);
-#endif
-
-  return true;  // Found a match.
 }
 
 int WebFrameImpl::OrdinalOfFirstMatchForFrame(WebFrameImpl* frame) const {
   int ordinal = 0;
   WebFrameImpl* const main_frame_impl =
     static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
-  // Iterate from the main frame up to (but not including) this frame and
-  // add up the number of tickmarks.
-  for (WebFrameImpl* frame = main_frame_impl;
-       frame != this;
-       frame = static_cast<WebFrameImpl*>(
-           webview_impl_->GetNextFrameAfter(frame, true))) {
-    ordinal += frame->tickmarks().size();
+  // Iterate from the main frame up to (but not including) |frame| and
+  // add up the number of matches found so far.
+  for (WebFrameImpl* it = main_frame_impl;
+       it != frame;
+       it = static_cast<WebFrameImpl*>(
+           webview_impl_->GetNextFrameAfter(it, true))) {
+    ordinal += it->last_match_count_;
   }
 
   return ordinal;
@@ -1042,34 +935,43 @@ void WebFrameImpl::InvalidateIfNecessary() {
     int i = (last_match_count_ / start_slowing_down_after);
     next_invalidate_after_ += i * slowdown;
 
-    // Invalidating content area draws both highlighting and in-page
-    // tickmarks, but not the scrollbar.
-    // TODO(finnur): (http://b/1088165) invalidate content area only if
-    // match found on-screen.
-    InvalidateArea(INVALIDATE_CONTENT_AREA);
     InvalidateArea(INVALIDATE_SCROLLBAR);
   }
 }
 
-// static
-bool WebFrameImpl::RangeShouldBeHighlighted(Range* range) {
-  ExceptionCode exception = 0;
-  Node* common_ancestor_container = range->commonAncestorContainer(exception);
-
-  if (exception)
-    return false;
-
-  RenderObject* renderer = common_ancestor_container->renderer();
-
-  if (!renderer)
-    return false;
-
-  IntRect overflow_clip_rect = renderer->absoluteClippedOverflowRect();
-  return range->boundingBox().intersects(overflow_clip_rect);
-}
-
 void WebFrameImpl::selectNodeFromInspector(WebCore::Node* node) {
   inspected_node_ = node;
+}
+
+void WebFrameImpl::AddMarker(WebCore::Range* range) {
+  // Use a TextIterator to visit the potentially multiple nodes the range
+  // covers.
+  TextIterator markedText(range);
+  for (; !markedText.atEnd(); markedText.advance()) {
+    RefPtr<Range> textPiece = markedText.range();
+    int exception = 0;
+
+    WebCore::DocumentMarker marker = {
+        WebCore::DocumentMarker::TextMatch,
+        textPiece->startOffset(exception),
+        textPiece->endOffset(exception),
+        "" };
+
+    // Find the node to add a marker to and add it.
+    Node* node = textPiece->startContainer(exception);
+    frame()->document()->addMarker(node, marker);
+
+    // Rendered rects for markers in WebKit are not populated until each time
+    // the markers are painted. However, we need it to happen sooner, because
+    // the whole purpose of tickmarks on the scrollbar is to show where matches
+    // off-screen are (that haven't been painted yet).
+    Vector<WebCore::DocumentMarker> markers =
+        frame()->document()->markersForNode(node);
+    frame()->document()->setRenderedRectForMarker(
+        textPiece->startContainer(exception),
+        markers[markers.size() - 1],
+        range->boundingBox());
+  }
 }
 
 void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
@@ -1078,17 +980,20 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
     return;
 
   WebFrameImpl* main_frame_impl =
-    static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
+      static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
 
   if (reset) {
     // This is a brand new search, so we need to reset everything.
     // Scoping is just about to begin.
     scoping_complete_ = false;
-    // First of all, all previous tickmarks need to be erased.
-    tickmarks_.clear();
+    // Clear highlighting for this frame.
+    if (frame()->markedTextMatchesAreHighlighted())
+      frame()->page()->unmarkAllTextMatches();
     // Clear the counters from last operation.
     last_match_count_ = 0;
     next_invalidate_after_ = 0;
+
+    resume_scoping_from_range_ = NULL;
 
     main_frame_impl->frames_scoping_count_++;
 
@@ -1104,15 +1009,15 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   WebCore::String webcore_string =
       webkit_glue::StdWStringToString(request.search_string);
 
-  RefPtr<Range> searchRange(rangeOfContents(frame()->document()));
+  RefPtr<Range> search_range(rangeOfContents(frame()->document()));
 
   ExceptionCode ec = 0, ec2 = 0;
-  if (!reset && !tickmarks_.isEmpty()) {
+  if (!reset && resume_scoping_from_range_.get()) {
     // This is a continuation of a scoping operation that timed out and didn't
     // complete last time around, so we should start from where we left off.
-    RefPtr<Range> start_range = tickmarks_.last();
-    searchRange->setStart(start_range->startContainer(),
-                          start_range->startOffset(ec2) + 1, ec);
+    search_range->setStart(resume_scoping_from_range_->startContainer(),
+                           resume_scoping_from_range_->startOffset(ec2) + 1,
+                           ec);
     if (ec != 0 || ec2 != 0) {
       NOTREACHED();
       return;
@@ -1124,7 +1029,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   // is periodically checked to see if we have exceeded our allocated time.
   static const int kTimeout = 100;  // ms
 
-  int matchCount = 0;
+  int match_count = 0;
   bool timeout = false;
   Time start_time = Time::Now();
   do {
@@ -1133,69 +1038,79 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
     // for longer than the timeout value, and is not interruptible as it is
     // currently written. We may need to rewrite it with interruptibility in
     // mind, or find an alternative.
-    RefPtr<Range> resultRange(findPlainText(searchRange.get(),
+    RefPtr<Range> result_range(findPlainText(search_range.get(),
                                             webcore_string,
                                             true,
                                             request.match_case));
-    if (resultRange->collapsed(ec))
-      break;  // no further matches.
+    if (result_range->collapsed(ec)) {
+      if (!result_range->startContainer()->isInShadowTree())
+        break;
+
+      search_range = rangeOfContents(frame()->document());
+      search_range->setStartAfter(
+          result_range->startContainer()->shadowAncestorNode(), ec);
+      continue;
+    }
 
     // A non-collapsed result range can in some funky whitespace cases still not
     // advance the range's start position (4509328). Break to avoid infinite
-    // loop. (This function is based on the implementation of Frame::FindString,
-    // which is where this safeguard comes from).
-    VisiblePosition newStart =
-        endVisiblePosition(resultRange.get(), WebCore::DOWNSTREAM);
-    if (newStart ==
-        startVisiblePosition(searchRange.get(), WebCore::DOWNSTREAM))
+    // loop. (This function is based on the implementation of
+    // Frame::markAllMatchesForText, which is where this safeguard comes from).
+    VisiblePosition new_start = endVisiblePosition(result_range.get(),
+                                                   WebCore::DOWNSTREAM);
+    if (new_start == startVisiblePosition(search_range.get(),
+                                          WebCore::DOWNSTREAM))
       break;
 
-    ++matchCount;
+    // Only treat the result as a match if it is visible
+    if (frame()->editor()->insideVisibleArea(result_range.get())) {
+      ++match_count;
 
-    // Add the location we just found to the tickmarks collection.
-    tickmarks_.append(resultRange);
+      AddMarker(result_range.get());
 
-    setStart(searchRange.get(), newStart);
+      setStart(search_range.get(), new_start);
+      Node* shadow_tree_root = search_range->shadowTreeRootNode();
+      if (search_range->collapsed(ec) && shadow_tree_root)
+        search_range->setEnd(shadow_tree_root,
+                             shadow_tree_root->childNodeCount(), ec);
 
-    // Catch a special case where Find found something but doesn't know
-    // what the bounding box for it is. In this case we set the first match
-    // we find as the active rect. Note: This does not affect FindNext, it will
-    // still do the right thing. This is only affecting the initial Find, so if
-    // you start searching from the middle of the page AND there is a match
-    // below AND we don't have a bounding box for that match, then we will mark
-    // the first match as active. We probably should look into converting Find
-    // to use the same function as the scoping effort (findPlainText), since it
-    // seems to always get the right bounding box.
-    IntRect result_bounds = resultRange->boundingBox();
-    if (locating_active_rect_ && active_selection_rect_.isEmpty()) {
-      active_selection_rect_ = result_bounds;
+      // Catch a special case where Find found something but doesn't know what
+      // the bounding box for it is. In this case we set the first match we find
+      // as the active rect.
+      IntRect result_bounds = result_range->boundingBox();
+      IntRect active_selection_rect;
+      if (locating_active_rect_) {
+        active_selection_rect = active_match_.get() ?
+            active_match_->boundingBox() : result_bounds;
+      }
+
+      // If the Find function found a match it will have stored where the
+      // match was found in active_selection_rect_ on the current frame. If we
+      // find this rect during scoping it means we have found the active
+      // tickmark.
+      if (locating_active_rect_ && (active_selection_rect == result_bounds)) {
+        // We have found the active tickmark frame.
+        main_frame_impl->active_match_frame_ = this;
+        // We also know which tickmark is active now.
+        active_match_index_ = match_count - 1;
+        // To stop looking for the active tickmark, we set this flag.
+        locating_active_rect_ = false;
+
+  #if defined(OS_WIN)
+        // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
+        // Notify browser of new location for the selected rectangle.
+        result_bounds.move(-frameview()->scrollOffset().width(),
+                           -frameview()->scrollOffset().height());
+        ReportFindInPageSelection(
+            webkit_glue::FromIntRect(
+                frame()->view()->convertToContainingWindow(result_bounds)),
+                OrdinalOfFirstMatchForFrame(this) + active_match_index_ + 1,
+                request.request_id);
+  #endif
+      }
     }
 
-    // If the Find function found a match it will have stored where the
-    // match was found in active_selection_rect_ on the current frame. If we
-    // find this rect during scoping it means we have found the active
-    // tickmark.
-    if (locating_active_rect_ && (active_selection_rect_ == result_bounds)) {
-      // We have found the active tickmark frame.
-      main_frame_impl->active_tickmark_frame_ = this;
-      // We also know which tickmark is active now.
-      active_tickmark_ = tickmarks_.size() - 1;
-      // To stop looking for the active tickmark, we set this flag.
-      locating_active_rect_ = false;
-
-#if defined(OS_WIN)
-      // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
-      // Notify browser of new location for the selected rectangle.
-      IntRect pos = tickmarks_[active_tickmark_]->boundingBox();
-      pos.move(-frameview()->scrollOffset().width(),
-        -frameview()->scrollOffset().height());
-      ReportFindInPageSelection(
-          webkit_glue::FromIntRect(frame()->view()->convertToContainingWindow(pos)),
-          active_tickmark_ + 1,
-          request.request_id);
-#endif
-    }
-
+    resume_scoping_from_range_ = result_range;
     timeout = (Time::Now() - start_time).InMilliseconds() >= kTimeout;
   } while (!timeout);
 
@@ -1203,18 +1118,20 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   // letters are added to the search string (and last outcome was 0).
   last_search_string_ = request.search_string;
 
-  if (matchCount > 0) {
-    last_match_count_ += matchCount;
+  if (match_count > 0) {
+    frame()->setMarkedTextMatchesAreHighlighted(true);
+
+    last_match_count_ += match_count;
 
     // Let the mainframe know how much we found during this pass.
-    main_frame_impl->IncreaseMatchCount(matchCount, request.request_id);
+    main_frame_impl->IncreaseMatchCount(match_count, request.request_id);
   }
 
   if (timeout) {
     // If we found anything during this pass, we should redraw. However, we
     // don't want to spam too much if the page is extremely long, so if we
     // reach a certain point we start throttling the redraw requests.
-    if (matchCount > 0)
+    if (match_count > 0)
       InvalidateIfNecessary();
 
     // Scoping effort ran out of time, lets ask for another time-slice.
@@ -1237,28 +1154,29 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   if (main_frame_impl->frames_scoping_count_ == 0)
     main_frame_impl->IncreaseMatchCount(0, request.request_id);
 
-  // This frame is done, so show any tickmark/highlight we haven't drawn yet.
-  InvalidateArea(INVALIDATE_ALL);
+  // This frame is done, so show any scrollbar tickmarks we haven't drawn yet.
+  InvalidateArea(INVALIDATE_SCROLLBAR);
 
   return;
 }
 
 void WebFrameImpl::CancelPendingScopingEffort() {
   scope_matches_factory_.RevokeAll();
-  active_tickmark_ = kNoTickmark;
+  active_match_index_ = -1;
 }
 
 void WebFrameImpl::SetFindEndstateFocusAndSelection() {
   WebFrameImpl* main_frame_impl =
       static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
 
-  if (this == main_frame_impl->active_tickmark_frame() &&
-      active_tickmark_ != kNoTickmark) {
-    RefPtr<Range> range = tickmarks_[active_tickmark_];
-
-    // Set the selection to what the active match is.
-    frame()->selection()->setSelectedRange(
-        range.get(), WebCore::DOWNSTREAM, false);
+  if (this == main_frame_impl->active_match_frame() &&
+      active_match_.get()) {
+    // If the user has changed the selection since the match was found, we
+    // don't focus anything.
+    Selection selection(frame()->selection()->selection());
+    if (selection.isNone() || (selection.start() == selection.end()) ||
+        active_match_->boundingBox() != selection.toRange()->boundingBox())
+      return;
 
     // We will be setting focus ourselves, so we want the view to forget its
     // stored focus node so that it won't change it after we are done.
@@ -1266,7 +1184,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
 
     // Try to find the first focusable node up the chain, which will, for
     // example, focus links if we have found text within the link.
-    Node* node = range->firstNode();
+    Node* node = active_match_->firstNode();
     while (node && !node->isFocusable() && node != frame()->document())
       node = node->parent();
 
@@ -1277,8 +1195,8 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
       // Iterate over all the nodes in the range until we find a focusable node.
       // This, for example, sets focus to the first link if you search for
       // text and text that is within one or more links.
-      node = range->firstNode();
-      while (node && node != range->pastLastNode()) {
+      node = active_match_->firstNode();
+      while (node && node != active_match_->pastLastNode()) {
         if (node->isFocusable()) {
           frame()->document()->setFocusedNode(node);
           break;
@@ -1294,8 +1212,16 @@ void WebFrameImpl::StopFinding(bool clear_selection) {
     SetFindEndstateFocusAndSelection();
   CancelPendingScopingEffort();
 
+#if defined(OS_WIN)
+  WebCore::RenderThemeWin::setFindInPageMode(false);
+#endif
+
+  // Remove all markers for matches found and turn off the highlighting.
+  if (this == static_cast<WebFrameImpl*>(GetView()->GetMainFrame()))
+    frame()->document()->removeMarkers(WebCore::DocumentMarker::TextMatch);
+  frame()->setMarkedTextMatchesAreHighlighted(false);
+
   // Let the frame know that we don't want tickmarks or highlighting anymore.
-  tickmarks_.clear();
   InvalidateArea(INVALIDATE_ALL);
 }
 
@@ -1607,7 +1533,7 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
 void WebFrameImpl::ExecuteJavaScript(const std::string& js_code,
                                      const std::string& script_url) {
   frame_->loader()->executeScript(webkit_glue::StdStringToString(script_url),
-                                  1, // base line number (for errors)
+                                  1,  // base line number (for errors)
                                   webkit_glue::StdStringToString(js_code));
 }
 
@@ -1705,7 +1631,7 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
       }
     }
   }
-  
+
   child_frame->loader()->loadURL(
       new_url, request.resourceRequest().httpReferrer(), request.frameName(),
       child_load_type, 0, 0);

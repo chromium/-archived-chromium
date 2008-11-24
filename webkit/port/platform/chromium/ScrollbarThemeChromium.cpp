@@ -28,6 +28,8 @@
 
 #include "ChromiumBridge.h"
 #include "PlatformMouseEvent.h"
+#include "Frame.h"
+#include "FrameView.h"
 #include "Scrollbar.h"
 #include "ScrollbarThemeComposite.h"
 
@@ -110,6 +112,49 @@ void ScrollbarThemeChromium::paintTrackBackground(GraphicsContext* context, Scro
     // Just assume a forward track part.  We only paint the track as a single piece when there is no thumb.
     if (!hasThumb(scrollbar))
         paintTrackPiece(context, scrollbar, rect, ForwardTrackPart);
+}
+
+void ScrollbarThemeChromium::paintTickmarks(GraphicsContext* context, Scrollbar* scrollbar, const IntRect& rect)
+{
+    if (scrollbar->orientation() != VerticalScrollbar)
+        return;
+
+    if (rect.height() <= 0 || rect.width() <= 0)
+        return;  // nothing to draw on.
+
+    // Get the frameview.
+    // FIXME: Stop relying on high-level WebCore types such as Frame and FrameView.
+    if (!scrollbar->parent()->isFrameView())
+        return;
+    FrameView* frameView = static_cast<FrameView*>(scrollbar->parent());
+    Document* doc = frameView->frame()->document();
+
+    // Get the text markers for the frameview.
+    Vector<IntRect> markers = doc->renderedRectsForMarkers(DocumentMarker::TextMatch);
+    if (!markers.size())
+        return;
+
+    // Get the image for the tickmarks.
+    static RefPtr<Image> dash = Image::loadPlatformResource("tickmarkDash");
+    if (dash->isNull()) {
+        ASSERT_NOT_REACHED();
+        return;
+    }
+
+    context->save();
+
+    for (Vector<IntRect>::const_iterator i = markers.begin(); i != markers.end(); ++i) {
+        // Calculate how far down (in %) the tick-mark should appear.
+        const float percent = static_cast<float>(i->y()) / scrollbar->totalSize();
+
+        // Calculate how far down (in pixels) the tick-mark should appear.
+        const int yPos = rect.topLeft().y() + (rect.height() * percent);
+
+        IntPoint tick(scrollbar->x(), yPos);
+        context->drawImage(dash.get(), tick);
+    }
+
+    context->restore();
 }
 
 void ScrollbarThemeChromium::paintScrollCorner(ScrollView* view, GraphicsContext* context, const IntRect& cornerRect)

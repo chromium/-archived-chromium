@@ -2057,10 +2057,7 @@ void RenderView::OnFind(const FindInPageRequest& request) {
   bool result = false;
 
   do {
-    if (request.find_next)
-      result = search_frame->FindNext(request, wrap_within_frame);
-    else
-      result = search_frame->Find(request, wrap_within_frame, &selection_rect);
+    result = search_frame->Find(request, wrap_within_frame, &selection_rect);
 
     if (!result) {
       // don't leave text selected as you move to the next frame.
@@ -2075,7 +2072,7 @@ void RenderView::OnFind(const FindInPageRequest& request) {
             webview()->GetPreviousFrameBefore(search_frame, true);
       } while (!search_frame->Visible() && search_frame != focused_frame);
 
-      // make sure selection doesn't affect the search operation in new frame.
+      // Make sure selection doesn't affect the search operation in new frame.
       search_frame->ClearSelection();
 
       // If we have multiple frames and we have wrapped back around to the
@@ -2084,11 +2081,8 @@ void RenderView::OnFind(const FindInPageRequest& request) {
       // reported matches, but no frames after the focused_frame contain a
       // match for the search word(s).
       if (multi_frame && search_frame == focused_frame) {
-        if (request.find_next)
-          result = search_frame->FindNext(request, true);  // Force wrapping.
-        else
-          result = search_frame->Find(request, true,  // Force wrapping.
-                                      &selection_rect);
+        result = search_frame->Find(request, true,  // Force wrapping.
+                                    &selection_rect);
       }
     }
 

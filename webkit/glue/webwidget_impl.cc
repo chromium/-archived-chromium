@@ -266,15 +266,6 @@ const SkBitmap* WebWidgetImpl::getPreloadedResourceBitmap(int resource_id) {
 void WebWidgetImpl::onScrollPositionChanged(Widget* widget) {
 }
 
-const WTF::Vector<RefPtr<WebCore::Range> >* WebWidgetImpl::getTickmarks(
-    WebCore::Frame* frame) {
-  return NULL;
-}
-
-size_t WebWidgetImpl::getActiveTickmarkIndex(WebCore::Frame* frame) {
-  return kNoTickmark;
-}
-
 bool WebWidgetImpl::isHidden() {
   if (!delegate_)
     return true;

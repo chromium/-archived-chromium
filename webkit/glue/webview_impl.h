@@ -206,9 +206,6 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   // WebCore::WidgetClientWin
   virtual const SkBitmap* getPreloadedResourceBitmap(int resource_id);
   virtual void onScrollPositionChanged(WebCore::Widget* widget);
-  virtual const WTF::Vector<RefPtr<WebCore::Range> >* getTickmarks(
-      WebCore::Frame* frame);
-  virtual size_t getActiveTickmarkIndex(WebCore::Frame* frame);
   virtual bool isHidden();
 #endif
 

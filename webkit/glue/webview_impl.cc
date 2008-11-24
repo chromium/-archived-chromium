@@ -1579,29 +1579,6 @@ void WebViewImpl::onScrollPositionChanged(WebCore::Widget* widget) {
     delegate_->OnNavStateChanged(this);
 }
 
-const WTF::Vector<RefPtr<WebCore::Range> >* WebViewImpl::getTickmarks(
-    WebCore::Frame* frame) {
-  DCHECK(frame);
-  WebFrameImpl* webframe_impl = WebFrameImpl::FromFrame(frame);
-  if (!webframe_impl)
-    return NULL;
-
-  return &webframe_impl->tickmarks();
-}
-
-size_t WebViewImpl::getActiveTickmarkIndex(WebCore::Frame* frame) {
-  DCHECK(frame);
-  WebFrameImpl* webframe_impl = WebFrameImpl::FromFrame(frame);
-  if (!webframe_impl)
-    return kNoTickmark;
-
-  // The mainframe can tell us if we are the frame with the active tick-mark.
-  if (webframe_impl != main_frame_->active_tickmark_frame())
-    return kNoTickmark;
-
-  return webframe_impl->active_tickmark_index();
-}
-
 bool WebViewImpl::isHidden() {
   if (!delegate_)
     return true;
