@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_PASSWORD_MANAGER_H__
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/infobar_delegate.h"
+#include "chrome/browser/views/info_bar_confirm_view.h"
 #include "chrome/browser/password_form_manager.h"
 #include "chrome/browser/views/login_view.h"
 #include "chrome/common/pref_member.h"
@@ -21,8 +21,7 @@ class WebContents;
 // receiving password form data from the renderer and managing the password
 // database through the WebDataService. The PasswordManager is a LoginModel
 // for purposes of supporting HTTP authentication dialogs.
-class PasswordManager : public views::LoginModel,
-                        public ConfirmInfoBarDelegate {
+class PasswordManager : public views::LoginModel {
  public:
   static void RegisterUserPrefs(PrefService* prefs);
 
@@ -34,6 +33,9 @@ class PasswordManager : public views::LoginModel,
   void Autofill(const PasswordForm& form_for_autofill,
                 const PasswordFormMap& best_matches,
                 const PasswordForm* const preferred_match) const;
+
+  // Closes any visible password manager UI
+  void CloseBars();
 
   // Notification that the user navigated away from the current page. 
   // Unless this is a password form submission, for our purposes this
@@ -61,15 +63,32 @@ class PasswordManager : public views::LoginModel,
   }
 
  private:
-  // Overridden from ConfirmInfoBarDelegate:
-  virtual void InfoBarClosed();
-  virtual std::wstring GetMessageText() const;
-  virtual SkBitmap* GetIcon() const;
-  virtual int GetButtons() const;
-  virtual std::wstring GetButtonLabel(InfoBarButton button) const;
-  virtual void Accept();
-  virtual void Cancel();
-  
+  // The Info Bar UI that prompts the user to save a password.
+  friend class SavePasswordBar;
+  class SavePasswordBar : public InfoBarConfirmView {
+   public:
+    SavePasswordBar(PasswordFormManager* form_manager,
+                    PasswordManager* password_manager);
+    virtual ~SavePasswordBar();
+
+    // InfoBarConfirmView overrides.
+    virtual void OKButtonPressed();
+    virtual void CancelButtonPressed();
+
+   private:
+    PasswordFormManager* form_manager_;
+    PasswordManager* password_manager_;
+
+    DISALLOW_EVIL_CONSTRUCTORS(SavePasswordBar);
+  };
+
+  // Replace the current InfoBar with a new one. Just adds if there is no
+  // visible InfoBars.
+  void ReplaceInfoBar(InfoBarItemView* view);
+
+  // The currently visible InfoBar (NULL if none)
+  InfoBarItemView* current_bar_;
+
   // When a form is "seen" on a page, a PasswordFormManager is created
   // and stored in this collection until user navigates away from page.
   typedef std::vector<PasswordFormManager*> LoginManagers;
