@@ -393,8 +393,8 @@ class TabContents : public PageNavigator,
   void RemoveInfoBar(InfoBarDelegate* delegate);
   
   // Enumeration and access functions.
-  int infobar_delegate_count() const { return infobar_delegates_.size(); }
-  InfoBarDelegate* GetInfoBarDelegateAt(int index) {
+  size_t infobar_delegate_count() const { return infobar_delegates_.size(); }
+  InfoBarDelegate* GetInfoBarDelegateAt(size_t index) {
     return infobar_delegates_.at(index);
   }
 
