@@ -48,6 +48,7 @@ input_files = [
     'base/filter_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'base/host_resolver_unittest.cc',
+    'base/listen_socket_unittest.cc',
     'base/mime_sniffer_unittest.cc',
     'base/mime_util_unittest.cc',
     'base/net_util_unittest.cc',
@@ -55,9 +56,9 @@ input_files = [
     'base/run_all_unittests.cc',
     'base/ssl_client_socket_unittest.cc',
     'base/tcp_client_socket_unittest.cc',
-    'base/test_completion_callback_unittest.cc',
-    'base/listen_socket_unittest.cc',
     'base/telnet_server_unittest.cc',
+    'base/test_completion_callback_unittest.cc',
+    'base/x509_certificate_unittest.cc',
     'disk_cache/addr_unittest.cc',
     'disk_cache/backend_unittest.cc',
     'disk_cache/block_files_unittest.cc',
@@ -67,37 +68,50 @@ input_files = [
     'disk_cache/mapped_file_unittest.cc',
     'disk_cache/storage_block_unittest.cc',
     'http/http_auth_cache_unittest.cc',
-    'http/http_auth_unittest.cc',
     'http/http_auth_handler_basic_unittest.cc',
     'http/http_auth_handler_digest_unittest.cc',
+    'http/http_auth_unittest.cc',
     'http/http_cache_unittest.cc',
     'http/http_chunked_decoder_unittest.cc',
-    'http/http_network_transaction_unittest.cc',
     'http/http_network_layer_unittest.cc',
+    'http/http_network_transaction_unittest.cc',
     'http/http_response_headers_unittest.cc',
     'http/http_transaction_unittest.cc',
     'http/http_util_unittest.cc',
     'http/http_vary_data_unittest.cc',
+    'proxy/proxy_service_unittest.cc',
+    'url_request/url_request_unittest.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
-      'base/sdch_filter_unittest.cc',
-      'base/ssl_config_service_unittest.cc',
       'base/wininet_util_unittest.cc',
       'http/http_transaction_winhttp_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
-      'url_request/url_request_unittest.cc',
   ])
+
+if env['PLATFORM'] == 'posix':
+  # TODO(port):
+  to_be_ported_files = [
+      'base/x509_certificate_unittest.cc',
+      'base/sdch_filter_unittest.cc',
+      'base/ssl_config_service_unittest.cc',
+      'url_request/url_request_unittest.cc',
+  ]
+  input_files = list(set(input_files) - set(to_be_ported_files))
 
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
       '../base/platform_test_mac$OBJSUFFIX',
   ])
 
-if env['PLATFORM'] == 'posix':
-  input_files.extend([
+  # TODO(port):
+  to_be_ported_files = [
+      'base/x509_certificate_unittest.cc',
+      'base/sdch_filter_unittest.cc',
+      'base/ssl_config_service_unittest.cc',
       'url_request/url_request_unittest.cc',
-  ])
+  ]
+  input_files = list(set(input_files) - set(to_be_ported_files))
 
 env.ChromeTestProgram('net_unittests', input_files)
