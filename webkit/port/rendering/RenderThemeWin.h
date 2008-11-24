@@ -126,8 +126,6 @@ private:
 
     bool paintTextFieldInternal(RenderObject*, const RenderObject::PaintInfo&, const IntRect&, bool);
 
-    void setButtonPadding(RenderStyle* style) const;
-
     // Gets the minimal x button padding according to the current theme.
     void getMinimalButtonPadding(Length* minXPadding) const;
 

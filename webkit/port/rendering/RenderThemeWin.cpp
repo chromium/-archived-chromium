@@ -840,38 +840,6 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
     return false;
 }
 
-void RenderThemeWin::setButtonPadding(RenderStyle* style) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        setFixedPadding(style, kLayoutTestButtonPadding);
-
-    } else if (!style->width().isAuto()) {
-        // We need to set the minimum padding for the buttons, or else they
-        // render too small and clip the button face text. The right way to do
-        // this is to ask window's theme manager to give us the minimum
-        // (TS_MIN) size for the part. As a failsafe we set at least
-        // kDefaultButtonPadding because zero just looks bad.
-        Length minXPadding(kDefaultButtonPadding, Fixed);
-        Length minYPadding(kDefaultButtonPadding, Fixed);
-        // Find minimum padding.
-        getMinimalButtonPadding(&minXPadding);
-
-        // Set the minimum padding.
-        if (style->paddingLeft().value() < minXPadding.value()) {
-            style->setPaddingLeft(minXPadding);
-        }
-        if (style->paddingRight().value() < minXPadding.value()) {
-            style->setPaddingRight(minXPadding);
-        }
-        if (style->paddingBottom().value() < minYPadding.value()) {
-            style->setPaddingBottom(minYPadding);
-        }
-        if (style->paddingTop().value() < minYPadding.value()) {
-            style->setPaddingTop(minYPadding);
-        }
-    }
-}
-
 void RenderThemeWin::getMinimalButtonPadding(Length* minXPadding) const {
     // TODO(maruel): This get messy if 1. the theme change; 2. we are serializing.
     SIZE size;
