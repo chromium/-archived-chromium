@@ -265,6 +265,7 @@ class RequestProxy : public URLRequest::Delegate,
       info.headers = request->response_headers();
       request->GetMimeType(&info.mime_type);
       request->GetCharset(&info.charset);
+      info.content_length = request->GetExpectedContentSize();
       OnReceivedResponse(info, false);
       AsyncReadData();  // start reading
     } else {
