@@ -171,15 +171,21 @@ void CreateNPVariantParam(const NPVariant& variant,
         // Don't release, because our original variant is the same as our proxy.
         release = false;
       } else {
-        // NPObjectStub adds its own reference to the NPObject it owns, so if we
-        // were supposed to release the corresponding variant (release==true),
-        // we should still do that.
-        param->type = NPVARIANT_PARAM_OBJECT_ROUTING_ID;
-        int route_id = channel->GenerateRouteID();
-        NPObjectStub* object_stub = new NPObjectStub(
-            variant.value.objectValue, channel, route_id);
-        param->npobject_routing_id = route_id;
-        param->npobject_pointer = variant.value.objectValue;
+        // The channel could be NULL if there was a channel error. The caller's
+        // Send call will fail anyways.
+        if (channel) {
+          // NPObjectStub adds its own reference to the NPObject it owns, so if
+          // we were supposed to release the corresponding variant
+          // (release==true), we should still do that.
+          param->type = NPVARIANT_PARAM_OBJECT_ROUTING_ID;
+          int route_id = channel->GenerateRouteID();
+          NPObjectStub* object_stub = new NPObjectStub(
+              variant.value.objectValue, channel, route_id);
+          param->npobject_routing_id = route_id;
+          param->npobject_pointer = variant.value.objectValue;
+        } else {
+          param->type = NPVARIANT_PARAM_VOID;
+        }
       }
       break;
     }
