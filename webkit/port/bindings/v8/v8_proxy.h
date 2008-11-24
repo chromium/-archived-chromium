@@ -421,6 +421,8 @@ class V8Proxy {
   void initContextIfNeeded();
   void DisconnectEventListeners();
   void SetSecurityToken();
+  void ClearDocumentWrapper();
+  void UpdateDocumentWrapper(v8::Handle<v8::Value> wrapper);
 
   static bool CanAccessPrivate(DOMWindow* target);
 
@@ -494,6 +496,8 @@ class V8Proxy {
   Frame* m_frame;
   v8::Persistent<v8::Context> m_context;
   v8::Persistent<v8::Object> m_global;
+
+  v8::Persistent<v8::Value> m_document;
 
   int m_handlerLineno;
 

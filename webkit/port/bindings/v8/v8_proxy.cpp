@@ -1650,22 +1650,46 @@ void V8Proxy::DomainChanged(Frame* frame)
 }
 
 
+void V8Proxy::UpdateDocumentWrapper(v8::Handle<v8::Value> wrapper) {
+    ClearDocumentWrapper();
+
+    ASSERT(m_document.IsEmpty());
+    m_document = v8::Persistent<v8::Value>::New(wrapper);
+#ifndef NDEBUG
+    RegisterGlobalHandle(PROXY, this, m_document);
+#endif
+}
+
+
+void V8Proxy::ClearDocumentWrapper()
+{
+    if (!m_document.IsEmpty()) {
+#ifndef NDEBUG
+        UnregisterGlobalHandle(this, m_document);
+#endif
+        m_document.Dispose();
+        m_document.Clear();
+    }
+}
+
+
 void V8Proxy::clearForClose()
 {
-    if (m_context.IsEmpty())
-        return;
+    if (!m_context.IsEmpty()) {
+        v8::HandleScope handle_scope;
 
-    m_context.Dispose();
-    m_context.Clear();
+        ClearDocumentWrapper();
+        m_context.Dispose();
+        m_context.Clear();
+    }
 }
 
 
 void V8Proxy::clearForNavigation()
 {
-    if (m_context.IsEmpty())
-        return;
-
-    {   v8::HandleScope handle;
+    if (!m_context.IsEmpty()) {
+        v8::HandleScope handle;
+        ClearDocumentWrapper();
 
         v8::Context::Scope context_scope(m_context);
 
@@ -2720,6 +2744,11 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
   dom_node_map().set(node, v8::Persistent<v8::Object>::New(result));
 
   if (is_document) {
+    Document* doc = static_cast<Document*>(node);
+    V8Proxy* proxy = V8Proxy::retrieve(doc->frame());
+    if (proxy)
+        proxy->UpdateDocumentWrapper(result);
+
     if (type == V8ClassIndex::HTMLDOCUMENT) {
       // Create marker object and insert it in two internal fields.
       // This is used to implement temporary shadowing of
