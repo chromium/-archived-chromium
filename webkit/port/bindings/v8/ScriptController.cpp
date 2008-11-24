@@ -30,6 +30,7 @@
 #include "config.h"
 #include "ScriptController.h"
 
+#include "ChromiumBridge.h"
 #include "CString.h"
 #include "Document.h"
 #include "DOMWindow.h"
@@ -47,10 +48,6 @@
 #include "v8_proxy.h"
 #include "v8_binding.h"
 #include "v8_npobject.h"
-
-//TODO(eseidel): We should remove this glue dependency
-#undef LOG // glue defines its own LOG macro
-#include "webkit/glue/webplugin_impl.h"
 
 NPRuntimeFunctions npruntime_functions = {
     NPN_GetStringIdentifier,
@@ -408,30 +405,10 @@ JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
     if (widget->isFrameView())
         return JSInstanceHolder::EmptyInstance();
 
-    // Note:  We have to trust that the widget passed to us here
-    // is a WebPluginImpl.  There isn't a way to dynamically verify
-    // it, since the derived class (Widget) has no identifier.
-    WebPluginContainer* container = static_cast<WebPluginContainer*>(widget);
-    if (!container)
-        return JSInstanceHolder::EmptyInstance();
-
-    NPObject* npObject = container->GetPluginScriptableObject();
+    NPObject* npObject = ChromiumBridge::pluginScriptableObject(widget);
     if (!npObject)
         return JSInstanceHolder::EmptyInstance();
 
-#if USE(JSC)
-    // Register 'widget' with the frame so that we can teardown
-    // subobjects when the container goes away.
-    RefPtr<KJS::Bindings::RootObject> root = script()->createRootObject(widget);
-    KJS::Bindings::Instance* instance = 
-        KJS::Bindings::Instance::createBindingForLanguageInstance(
-            KJS::Bindings::Instance::CLanguage, npObject,
-            root.release());
-    // GetPluginScriptableObject returns a retained NPObject.  
-    // The caller is expected to release it.
-    NPN_ReleaseObject(npObject);
-    return instance;
-#elif USE(V8)
     // Frame Memory Management for NPObjects
     // -------------------------------------
     // NPObjects are treated differently than other objects wrapped by JS.
@@ -464,7 +441,6 @@ JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
 
     JSInstance instance = wrapper;
     return instance;
-#endif
 }
 
 void ScriptController::cleanupScriptObjectsForPlugin(void* nativeHandle)

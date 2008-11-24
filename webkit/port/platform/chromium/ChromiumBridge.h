@@ -38,6 +38,8 @@
 
 class NativeImageSkia;
 
+typedef struct NPObject NPObject;
+
 #if PLATFORM(WIN_OS)
 typedef struct HFONT__* HFONT;
 #endif
@@ -50,7 +52,6 @@ namespace WebCore {
     class IntRect;
     class KURL;
     class String;
-    class WebPluginInfo;
     class Widget;
 
     struct PluginInfo;
@@ -101,7 +102,8 @@ namespace WebCore {
         static String preferredExtensionForMIMEType(const String& mime_type);
 
         // Plugin -------------------------------------------------------------
-        static bool getPlugins(bool refresh, Vector<PluginInfo*>* plugins);
+        static bool plugins(bool refresh, Vector<PluginInfo*>* plugins);
+        static NPObject* pluginScriptableObject(Widget* widget);
 
         // Protocol -----------------------------------------------------------
         static String uiResourceProtocol();

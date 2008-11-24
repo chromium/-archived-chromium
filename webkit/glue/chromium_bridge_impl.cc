@@ -42,7 +42,7 @@
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/webkit_resources.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webview_delegate.h"
@@ -285,19 +285,19 @@ String ChromiumBridge::preferredExtensionForMIMEType(const String& mime_type) {
 
 // Plugin ---------------------------------------------------------------------
 
-bool ChromiumBridge::getPlugins(bool refresh, Vector<PluginInfo*>* plugins) {
-  std::vector< ::WebPluginInfo> glue_plugins;
+bool ChromiumBridge::plugins(bool refresh, Vector<PluginInfo*>* results) {
+  std::vector<WebPluginInfo> glue_plugins;
   if (!webkit_glue::GetPlugins(refresh, &glue_plugins))
     return false;
   for (size_t i = 0; i < glue_plugins.size(); ++i) {
-    WebCore::PluginInfo* rv = new WebCore::PluginInfo;
-    const ::WebPluginInfo& plugin = glue_plugins[i];
+    PluginInfo* rv = new PluginInfo;
+    const WebPluginInfo& plugin = glue_plugins[i];
     rv->name = webkit_glue::StdWStringToString(plugin.name);
     rv->desc = webkit_glue::StdWStringToString(plugin.desc);
     rv->file = webkit_glue::StdWStringToString(
         file_util::GetFilenameFromPath(plugin.file));
     for (size_t j = 0; j < plugin.mime_types.size(); ++ j) {
-      WebCore::MimeClassInfo* new_mime = new WebCore::MimeClassInfo();
+      MimeClassInfo* new_mime = new MimeClassInfo();
       const WebPluginMimeType& mime_type = plugin.mime_types[j];
       new_mime->desc = webkit_glue::StdWStringToString(mime_type.description);
 
@@ -313,9 +313,19 @@ bool ChromiumBridge::getPlugins(bool refresh, Vector<PluginInfo*>* plugins) {
       new_mime->plugin = rv;
       rv->mimes.append(new_mime);
     }
-    plugins->append(rv);
+    results->append(rv);
   }
   return true;
+}
+
+NPObject* ChromiumBridge::pluginScriptableObject(Widget* widget) {
+  if (!widget)
+    return NULL;
+
+  // NOTE:  We have to trust that the widget passed to us here is a
+  // WebPluginImpl.  There isn't a way to dynamically verify it, since the
+  // derived class (Widget) has no identifier.
+  return static_cast<WebPluginContainer*>(widget)->GetPluginScriptableObject();
 }
 
 // Protocol -------------------------------------------------------------------

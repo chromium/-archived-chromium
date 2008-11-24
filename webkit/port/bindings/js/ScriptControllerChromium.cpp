@@ -32,9 +32,7 @@
 
 #include "bindings/npruntime.h"
 #include "c_instance.h"
-
-#undef LOG // glue defines its own LOG macro
-#include "webkit/glue/webplugin_impl.h"
+#include "ChromiumBridge.h"
 
 namespace WebCore {
 
@@ -45,21 +43,14 @@ JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
     if (widget->isFrameView())
         return JSInstanceHolder::EmptyInstance();
 
-    // Note:  We have to trust that the widget passed to us here
-    // is a WebPluginImpl.  There isn't a way to dynamically verify
-    // it, since the derived class (Widget) has no identifier.
-    WebPluginContainer* container = static_cast<WebPluginContainer*>(widget);
-    if (!container)
-        return JSInstanceHolder::EmptyInstance();
-
-    NPObject* npObject = container->GetPluginScriptableObject();
+    NPObject* npObject = ChromiumBridge::pluginScriptableObject(widget);
     if (!npObject)
         return JSInstanceHolder::EmptyInstance();
 
     // Register 'widget' with the frame so that we can teardown
     // subobjects when the container goes away.
     RefPtr<JSC::Bindings::RootObject> root = createRootObject(widget);
-     RefPtr<JSC::Bindings::Instance> instance = 
+    RefPtr<JSC::Bindings::Instance> instance = 
         JSC::Bindings::CInstance::create(npObject, root.release());
     // GetPluginScriptableObject returns a retained NPObject.  
     // The caller is expected to release it.
@@ -67,4 +58,4 @@ JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
     return instance.release();
 }
 
-}  // namespace WebCpre
+}  // namespace WebCore

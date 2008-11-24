@@ -67,7 +67,7 @@ void LoadPlugins(bool refresh)
 
     g_loaded_plugins = true;
     // these are leaked at shutdown
-    ChromiumBridge::getPlugins(refresh, &g_plugins);
+    ChromiumBridge::plugins(refresh, &g_plugins);
 }
 
 // Returns a PluginInfo pointer.  Caller is responsible for

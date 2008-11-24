@@ -68,6 +68,7 @@
 #include "FloatRect.h"
 #include "Frame.h"
 #include "FrameLoader.h"
+#include "FrameLoadRequest.h"
 #include "FrameTree.h"
 #include "FrameView.h"
 #include "HTMLBodyElement.h"
@@ -118,10 +119,6 @@
 #endif
 
 #include "Navigator.h"
-
-#undef LOG
-
-#include "webkit/glue/webplugin_impl.h"
 
 // Horizontal and vertical offset, from the parent content area, around newly
 // opened popups that don't specify a location.
