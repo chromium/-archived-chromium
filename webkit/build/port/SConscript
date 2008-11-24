@@ -44,6 +44,8 @@ env = env.Clone(
     PERL_INCLUDE_PATH = ['$BINDINGS_SCRIPTS_DIR', 
                          '$CHROME_SRC_DIR/third_party/WebKit/WebCore/bindings/scripts'],
 
+    WEBKIT_PORT_DIR = '$WEBKIT_DIR/port',
+
     FEATURE_DEFINES = [
         'ENABLE_CROSS_DOCUMENT_MESSAGING',
         'ENABLE_XSLT',
@@ -480,8 +482,8 @@ for name in idl_files:
 
 # copy over some files
 i = env.Install('$SHARED_DIR',
-                ['$PORT_DIR/bindings/js/PausedTimeouts.h',
-                 '$PORT_DIR/bindings/js/PausedTimeouts.cpp'])
+                ['$WEBKIT_PORT_DIR/bindings/js/PausedTimeouts.h',
+                 '$WEBKIT_PORT_DIR/bindings/js/PausedTimeouts.cpp'])
 env.Alias('webkit', i)
 
 # HTML tag and attribute names
@@ -489,9 +491,9 @@ env.Alias('webkit', i)
 # --extraDefines $HTML_FLAGS.
 env.Command(['$DERIVED_DIR/HTMLNames.cpp',
              '$DERIVED_DIR/HTMLNames.h'],
-            ['$PORT_DIR/dom/make_names.pl',
-             '$PORT_DIR/html/HTMLTagNames.in',
-             '$PORT_DIR/html/HTMLAttributeNames.in'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/html/HTMLTagNames.in',
+             '$WEBKIT_PORT_DIR/html/HTMLAttributeNames.in'],
             '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} '
             '--tags ${SOURCES[1].posix} '
             '--attrs ${SOURCES[2].posix} '
@@ -500,8 +502,8 @@ env.Command(['$DERIVED_DIR/HTMLNames.cpp',
 
 env.Command(['$DERIVED_DIR/XMLNames.cpp',
              '$DERIVED_DIR/XMLNames.h'],
-            ['$PORT_DIR/dom/make_names.pl',
-             '$PORT_DIR/xml/xmlattrs.in'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/xml/xmlattrs.in'],
             '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} '
             '--attrs ${SOURCES[1].posix} '
             '--outputDir $DERIVED_DIR')
@@ -510,9 +512,9 @@ env.Command(['$DERIVED_DIR/SVGElementFactory.cpp',
              '$DERIVED_DIR/SVGElementFactory.h',
              '$DERIVED_DIR/SVGNames.cpp',
              '$DERIVED_DIR/SVGNames.h'],
-            ['$PORT_DIR/dom/make_names.pl',
-             '$PORT_DIR/svg/svgtags.in',
-             '$PORT_DIR/svg/svgattrs.in'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/svg/svgtags.in',
+             '$WEBKIT_PORT_DIR/svg/svgattrs.in'],
             '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} '
             '--tags ${SOURCES[1].posix} '
             '--attrs ${SOURCES[2].posix} '
@@ -523,8 +525,8 @@ env.Command(['$DERIVED_DIR/SVGElementFactory.cpp',
 
 env.Command(['$DERIVED_DIR/XLinkNames.cpp',
              '$DERIVED_DIR/XLinkNames.h'],
-            ['$PORT_DIR/dom/make_names.pl',
-             '$PORT_DIR/svg/xlinkattrs.in'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/svg/xlinkattrs.in'],
             '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} '
             '--attrs ${SOURCES[1].posix} '
             '--outputDir $DERIVED_DIR')
@@ -543,20 +545,20 @@ def cat_files(target, source, env):
   fout.close()
 
 env.Command('$DERIVED_DIR/html4.css',
-            ['$PORT_DIR/css/html4.css',
+            ['$WEBKIT_PORT_DIR/css/html4.css',
              '$PORTROOT/css/html4-overrides.css'],
             cat_files)
 
 env.Command('$DERIVED_DIR/quirks.css',
-            ['$PORT_DIR/css/quirks.css',
+            ['$WEBKIT_PORT_DIR/css/quirks.css',
              '$PORTROOT/css/quirks-overrides.css'],
             cat_files)
 
 env.Command(['$DERIVED_DIR/UserAgentStyleSheets.h',
              '$DERIVED_DIR/UserAgentStyleSheetsData.cpp'],
-            ['$PORT_DIR/css/make-css-file-arrays.pl',
-             '$PORT_DIR/css/view-source.css',
-             '$PORT_DIR/css/svg.css',
+            ['$WEBKIT_PORT_DIR/css/make-css-file-arrays.pl',
+             '$WEBKIT_PORT_DIR/css/view-source.css',
+             '$WEBKIT_PORT_DIR/css/svg.css',
              '$DERIVED_DIR/html4.css',
              '$DERIVED_DIR/quirks.css'],
             '$PERL ${SOURCES[0].posix} ${TARGETS.posix} ${SOURCES[1:].posix}')
@@ -578,7 +580,7 @@ def create_h_wrapper(target, source, env):
 def BuildYacc(env, dir, name, file):
   env.Command(['$DERIVED_DIR/%s.cpp' % file,
                '$DERIVED_DIR/%s.h'   % file],
-              ['$PORT_DIR/%s/%s.y' % (dir, file)],
+              ['$WEBKIT_PORT_DIR/%s/%s.y' % (dir, file)],
               ['$YACC -d -p %s ${SOURCES[0].posix} ' % name +
                  '-o ${TARGET.posix}',
                Action(create_h_wrapper),
@@ -589,24 +591,24 @@ BuildYacc(env, 'css', 'cssyy',   'CSSGrammar')
 
 # TODO(bradnelson): need to add in error checking
 
-env.Command('$PORT_DIR/SVGCSSValueKeywords.in',
-            '$PORT_DIR/css/SVGCSSValueKeywords.in',
+env.Command('$WEBKIT_PORT_DIR/SVGCSSValueKeywords.in',
+            '$WEBKIT_PORT_DIR/css/SVGCSSValueKeywords.in',
             '$PERL -ne "print lc" $SOURCES > $TARGET')
 
-env.Command('$PORT_DIR/CSSValueKeywords.in',
-            ['$PORT_DIR/css/CSSValueKeywords.in',
-             '$PORT_DIR/css/SVGCSSValueKeywords.in'],
+env.Command('$WEBKIT_PORT_DIR/CSSValueKeywords.in',
+            ['$WEBKIT_PORT_DIR/css/CSSValueKeywords.in',
+             '$WEBKIT_PORT_DIR/css/SVGCSSValueKeywords.in'],
             '$PERL -ne "print lc" $SOURCES > $TARGET')
 
-env.Command('$PORT_DIR/CSSPropertyNames.in',
-            ['$PORT_DIR/css/CSSPropertyNames.in',
-             '$PORT_DIR/css/SVGCSSPropertyNames.in'],
+env.Command('$WEBKIT_PORT_DIR/CSSPropertyNames.in',
+            ['$WEBKIT_PORT_DIR/css/CSSPropertyNames.in',
+             '$WEBKIT_PORT_DIR/css/SVGCSSPropertyNames.in'],
             '$PERL -ne "print lc" $SOURCES > $TARGET')
 
 env.Command(['$DERIVED_DIR/CSSValueKeywords.c',
              '$DERIVED_DIR/CSSValueKeywords.h'],
-            ['$PORT_DIR/css/makevalues.pl',
-             '$PORT_DIR/CSSValueKeywords.in'],
+            ['$WEBKIT_PORT_DIR/css/makevalues.pl',
+             '$WEBKIT_PORT_DIR/CSSValueKeywords.in'],
             ['cd ${SOURCES[1].dir} && $PERL ${str(SOURCES[0].abspath).replace("\\\\", "/")}',
              Move('${TARGETS[0]}', '${SOURCES[1].dir}/${TARGETS[0].file}'),
              Move('${TARGETS[1]}', '${SOURCES[1].dir}/${TARGETS[1].file}'),
@@ -614,8 +616,8 @@ env.Command(['$DERIVED_DIR/CSSValueKeywords.c',
 
 env.Command(['$DERIVED_DIR/CSSPropertyNames.cpp',
              '$DERIVED_DIR/CSSPropertyNames.h'],
-            ['$PORT_DIR/css/makeprop.pl',
-             '$PORT_DIR/CSSPropertyNames.in'],
+            ['$WEBKIT_PORT_DIR/css/makeprop.pl',
+             '$WEBKIT_PORT_DIR/CSSPropertyNames.in'],
             ['cd ${SOURCES[1].dir} && $PERL ${str(SOURCES[0].abspath).replace("\\\\", "/")}',
              Move('${TARGETS[0]}', '${SOURCES[1].dir}/${TARGETS[0].file}'),
              Move('${TARGETS[1]}', '${SOURCES[1].dir}/${TARGETS[1].file}'),
@@ -624,25 +626,25 @@ env.Command(['$DERIVED_DIR/CSSPropertyNames.cpp',
 
 # DOCTYPE strings
 env.Command('$DERIVED_DIR/DocTypeStrings.cpp',
-            '$PORT_DIR/html/DocTypeStrings.gperf',
+            '$WEBKIT_PORT_DIR/html/DocTypeStrings.gperf',
             'gperf -CEot -L ANSI-C -k "*" -N findDoctypeEntry -F ' + \
             ',PubIDInfo::eAlmostStandards,PubIDInfo::eAlmostStandards ' + \
             '$SOURCE > $TARGET')
 
 # color names
 env.Command('$DERIVED_DIR/ColorData.c',
-            '$PORT_DIR/platform/ColorData.gperf',
+            '$WEBKIT_PORT_DIR/platform/ColorData.gperf',
             'gperf -CDEot -L ANSI-C -k "*" -N findColor -D -s 2 ' + \
             '$SOURCE > $TARGET')
 
 # HTML entity names
 env.Command('$DERIVED_DIR/HTMLEntityNames.c',
-            '$PORT_DIR/html/HTMLEntityNames.gperf',
+            '$WEBKIT_PORT_DIR/html/HTMLEntityNames.gperf',
             'gperf -a -L ANSI-C -C -G -c -o -t -k "*" -N findEntity ' + \
             '-D -s 2 $SOURCE > $TARGET')
 
 # CSS tokenizer
 env.Command('$DERIVED_DIR/tokenizer.cpp',
-            ['$PORT_DIR/css/tokenizer.flex',
-             '$PORT_DIR/css/maketokenizer'],
+            ['$WEBKIT_PORT_DIR/css/tokenizer.flex',
+             '$WEBKIT_PORT_DIR/css/maketokenizer'],
             'flex --nowarn -t $SOURCE | perl ${SOURCES[1]} > $TARGET')
