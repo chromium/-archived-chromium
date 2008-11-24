@@ -6,6 +6,12 @@ Import('env')
 
 env = env.Clone()
 
+env.Append(
+    CPPPATH = [
+        '$WEBKIT_DIR/build/WebCore',
+    ]
+)
+
 if env['PLATFORM'] == 'win32':
   env.Append(
       CCFLAGS = [
