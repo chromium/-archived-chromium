@@ -168,6 +168,7 @@ std::string RegistryControlledDomainService::GetDomainAndRegistryImpl(
     return std::string();  // No registry.
   // The "2" in this next line is 1 for the dot, plus a 1-char minimum preceding
   // subcomponent length.
+  DCHECK(host.length() >= 2);
   if (registry_length > (host.length() - 2)) {
     NOTREACHED() <<
         "Host does not have at least one subcomponent before registry!";
@@ -206,27 +207,25 @@ size_t RegistryControlledDomainService::GetRegistryLengthImpl(
 
   // Walk up the domain tree, most specific to least specific,
   // looking for matches at each level.
-  StringSegment match;
   size_t prev_start = std::string::npos;
   size_t curr_start = host_check_begin;
   size_t next_dot = host.find('.', curr_start);
   if (next_dot >= host_check_len)  // Catches std::string::npos as well.
     return 0;  // This can't have a registry + domain.
   while (1) {
-    match.Set(host.data(), curr_start, host_check_len - curr_start);
-    DomainMap::iterator iter = domain_map_.find(match);
-    if (iter != domain_map_.end()) {
-      DomainEntry entry = iter->second;
+    DomainSet::iterator iter = domain_set_.find(
+      DomainEntry(host.data() + curr_start, host_check_len - curr_start));
+    if (iter != domain_set_.end()) {
       // Exception rules override wildcard rules when the domain is an exact
       // match, but wildcards take precedence when there's a subdomain.
-      if (entry.wildcard && (prev_start != std::string::npos)) {
+      if (iter->attributes.wildcard && (prev_start != std::string::npos)) {
         // If prev_start == host_check_begin, then the host is the registry
         // itself, so return 0.
         return (prev_start == host_check_begin) ?
             0 : (host.length() - prev_start);
       }
 
-      if (entry.exception) {
+      if (iter->attributes.exception) {
         if (next_dot == std::string::npos) {
           // If we get here, we had an exception rule with no dots (e.g.
           // "!foo").  This would only be valid if we had a corresponding
@@ -268,95 +267,66 @@ RegistryControlledDomainService* RegistryControlledDomainService::SetInstance(
   return old_instance;
 }
 
-struct RegistryControlledDomainServiceSingletonTraits :
-    public DefaultSingletonTraits<RegistryControlledDomainService> {
-  static RegistryControlledDomainService* New() {
-    RegistryControlledDomainService* instance =
-        new RegistryControlledDomainService();
-    instance->Init();
-    return instance;
-  }
-};
-
 // static
 RegistryControlledDomainService* RegistryControlledDomainService::GetInstance()
 {
   if (test_instance_)
     return test_instance_;
 
-  return Singleton<RegistryControlledDomainService,
-                   RegistryControlledDomainServiceSingletonTraits>::get();
+  return Singleton<RegistryControlledDomainService>::get();
 }
 
 // static
 void RegistryControlledDomainService::UseDomainData(const std::string& data) {
   RegistryControlledDomainService* instance = GetInstance();
-  instance->domain_data_ = data;
-  instance->ParseDomainData();
+  instance->copied_domain_data_ = data;
+  instance->ParseDomainData(instance->copied_domain_data_);
 }
 
 void RegistryControlledDomainService::Init() {
-  domain_data_ = NetModule::GetResource(IDR_EFFECTIVE_TLD_NAMES).as_string();
-  if (domain_data_.empty()) {
-    // The resource file isn't present for some unit tests, for example.  Fall
-    // back to a tiny, basic list of rules in that case.
-    domain_data_ = kDefaultDomainData;
-  }
-  ParseDomainData();
+  // The resource file isn't present for some unit tests, for example.  Fall
+  // back to a tiny, basic list of rules in that case.
+  StringPiece res_data = NetModule::GetResource(IDR_EFFECTIVE_TLD_NAMES);
+  ParseDomainData(!res_data.empty() ? res_data : kDefaultDomainData);
 }
 
-void RegistryControlledDomainService::ParseDomainData() {
-  domain_map_.clear();
+void RegistryControlledDomainService::ParseDomainData(const StringPiece& data) {
+  domain_set_.clear();
 
-  StringSegment rule;
   size_t line_end = 0;
   size_t line_start = 0;
-  while (line_start < domain_data_.size()) {
-    line_end = domain_data_.find('\n', line_start);
-    if (line_end == std::string::npos)
-      line_end = domain_data_.size();
-    rule.Set(domain_data_.data(), line_start, line_end - line_start);
-    AddRule(&rule);
+  while (line_start < data.size()) {
+    line_end = data.find('\n', line_start);
+    if (line_end == StringPiece::npos)
+      line_end = data.size();
+    AddRule(StringPiece(data.data() + line_start, line_end - line_start));
     line_start = line_end + 1;
   }
 }
 
-void RegistryControlledDomainService::AddRule(StringSegment* rule) {
-  // Determine rule properties.
-  size_t property_offset = 0;
-  bool exception = false;
-  bool wild = false;
+void RegistryControlledDomainService::AddRule(const StringPiece& rule_str) {
+  DomainEntry rule(rule_str.data(), rule_str.size());
 
   // Valid rules may be either wild or exceptions, but not both.
-  if (rule->CharAt(0) == '!') {
-    exception = true;
-    property_offset = 1;
-  } else if (rule->CharAt(0) == '*' && rule->CharAt(1) == '.') {
-    wild = true;
-    property_offset = 2;
+  if (rule.starts_with("!")) {
+    rule.remove_prefix(1);
+    rule.attributes.exception = true;
+  } else if (rule.starts_with("*.")) {
+    rule.remove_prefix(2);
+    rule.attributes.wildcard = true;
   }
 
-  // Find or create an entry for this host.
-  rule->TrimFromStart(property_offset);
-  DomainEntry entry;
-  DomainMap::iterator iter = domain_map_.find(*rule);
-  if (iter != domain_map_.end())
-    entry = iter->second;
-
-  entry.exception |= exception;
-  entry.wildcard  |= wild;
-  domain_map_[*rule] = entry;
-}
-
-bool RegistryControlledDomainService::StringSegment::operator<(
-    const StringSegment &other) const {
-  // If the segments are of equal length, compare their contents; otherwise,
-  // the shorter segment is "less than" the longer one.
-  if (len_ == other.len_) {
-    int comparison = strncmp(data_ + begin_, other.data_ + other.begin_, len_);
-    return (comparison < 0);
+  DomainSet::iterator prev_rule = domain_set_.find(rule);
+  if (prev_rule != domain_set_.end()) {
+    // We found a rule with the same domain, combine the attributes.
+    // This could happen for example when a domain is both a wildcard
+    // and an exception (ex *.google.com and !google.com).  Sets are immutable,
+    // we'll erase the old one, and insert a new one with the new attributes.
+    rule.attributes.Combine(prev_rule->attributes);
+    domain_set_.erase(prev_rule);
   }
-  return (len_ < other.len_);
+
+  domain_set_.insert(rule);
 }
 
 }  // namespace net

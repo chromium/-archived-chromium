@@ -110,12 +110,16 @@
 #ifndef NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H_
 #define NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H_
 
-#include <map>
+#include <set>
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/string_piece.h"
 
 class GURL;
+
+template <typename T>
+struct DefaultSingletonTraits;
 
 namespace net {
 
@@ -197,7 +201,7 @@ class RegistryControlledDomainService {
  protected:
   // The entire protected API is only for unit testing.  I mean it.  Don't make
   // me come over there!
-   RegistryControlledDomainService() { }
+  RegistryControlledDomainService() { Init(); }
 
   // Set the RegistryControledDomainService instance to be used internally.
   // |instance| will supersede the singleton instance normally used.  If
@@ -207,96 +211,87 @@ class RegistryControlledDomainService {
   static RegistryControlledDomainService* SetInstance(
       RegistryControlledDomainService* instance);
 
-  // Sets the domain_data_ of the current instance (creating one, if necessary),
-  // then parses it.
+  // Sets the copied_domain_data_ of the current instance (creating one,
+  // if necessary), then parses it.
   static void UseDomainData(const std::string& data);
 
  private:
   // To allow construction of the internal singleton instance.
-  friend struct RegistryControlledDomainServiceSingletonTraits;
+  friend struct DefaultSingletonTraits<RegistryControlledDomainService>;
 
-  // Using the StringSegment class, we can compare portions of strings without
-  // needing to allocate or copy them.
-  class StringSegment {
+  void Init();
+
+  // A DomainEntry is a combination of the domain name (as a StringPiece, so
+  // that we can reference external memory without copying), and two bits of
+  // information, if it's an exception and/or wildcard entry.  Note: we don't
+  // consider the attributes when doing comparisons, so as far as any data
+  // structures our concerned (ex our set), two DomainEntry's are equal as long
+  // as their StringPiece (the domain) is equal.  This is the behavior we want.
+  class DomainEntry : public StringPiece {
    public:
-    StringSegment() : data_(0), begin_(0), len_(0) { }
-    ~StringSegment() { }
+    struct DomainEntryAttributes {
+      DomainEntryAttributes() : exception(false), wildcard(false) { }
+      ~DomainEntryAttributes() { }
 
-    void Set(const char* data, size_t begin, size_t len) {
-      data_ = data;
-      begin_ = begin;
-      len_ = len;
+      void Combine(const DomainEntryAttributes& other) {
+        if (other.exception) exception = true;
+        if (other.wildcard) wildcard = true;
+      }
+
+      bool exception;
+      bool wildcard;
+    };
+
+    DomainEntry() : StringPiece() { }
+    DomainEntry(const char* ptr, size_type size) : StringPiece(ptr, size) { }
+    ~DomainEntry() { }
+
+    // We override StringPiece's operator < to make it more efficent, since we
+    // don't care that it's sorted lexigraphically and we want to ignore the
+    // attributes when we are doing the comparisons.
+    bool operator<(const DomainEntry& other) const {
+      // If we are the same size, call up to StringPiece's real less than.
+      if (size() == other.size())
+        return *static_cast<const StringPiece*>(this) < other;
+      // Consider ourselves less if we are smaller
+      return size() < other.size();
     }
 
-    // Returns the character at the given offset from the start of the segment,
-    // or '\0' if the offset lies outside the segment.
-    char CharAt(size_t offset) const {
-      return (offset < len_) ? data_[begin_ + offset] : '\0';
-    }
-
-    // Removes a maximum of |trimmed| number of characters, up to the length of
-    // the segment, from the start of the StringSegment.
-    void TrimFromStart(size_t trimmed) {
-      if (trimmed > len_)
-        trimmed = len_;
-      begin_ += trimmed;
-      len_ -= trimmed;
-    }
-
-    const char* data() const { return data_; }
-
-    // This comparator is needed by std::map.  Note that since we don't care
-    // about the exact sorting, we use a somewhat less intuitive, but efficient,
-    // comparison.
-    bool operator<(const StringSegment& other) const;
-
-   private:
-    const char* data_;
-    size_t begin_;
-    size_t len_;
+    DomainEntryAttributes attributes;
   };
 
-  // The full domain rule data, loaded from a resource or set by a unit test.
-  std::string domain_data_;
-
-  // An entry in the map of domain specifications, describing the properties
+  // An entry in the set of domain specifications, describing the properties
   // that apply to that domain rule.
-  struct DomainEntry {
-    DomainEntry() : exception(false), wildcard(false) { }
-    bool exception;
-    bool wildcard;
-  };
-  typedef std::map<StringSegment, DomainEntry> DomainMap;
+  typedef std::set<DomainEntry> DomainSet;
 
-  // A map from a StringSegment holding a domain name (rule) to its DomainEntry.
-  // The StringSegments in the domain_map_ hold pointers to the domain_data_
-  // data; that's cheaper than copying the string data itself.
-  // TODO(pamg): Since all the domain_map_ entries have the same data_, it's
-  // redundant.  Is it worth subclassing StringSegment to avoid that?
-  DomainMap domain_map_;
-
-  // Parses a list of effective-TLD rules, building the domain_map_.  Rules are
-  // assumed to be syntactically valid.
-  void ParseDomainData();
+  // Parses a list of effective-TLD rules, building the domain_set_.  Rules are
+  // assumed to be syntactically valid.  We operate on a StringPiece.  If we
+  // were populated from an embedded resource, we will reference the embedded
+  // resource directly.  If we were populated through UseDomainData, then our
+  // StringPiece will reference our local copy in copied_domain_data_.
+  void ParseDomainData(const StringPiece& data);
 
   // Returns the singleton instance, after attempting to initialize it.
   // NOTE that if the effective-TLD data resource can't be found, the instance
-  // will be initialized and continue operation with an empty domain_map_.
+  // will be initialized and continue operation with simple default TLD data.
   static RegistryControlledDomainService* GetInstance();
 
-  // Loads and parses the effective-TLD data resource.
-  void Init();
-
-  // Adds one rule, assumed to be valid, to the domain_map_.
-  // WARNING: As implied by the non-const status of the incoming rule, this
-  // method may MODIFY that rule (in particular, change its start and length).
-  // This is a performance optimization.
-  void AddRule(StringSegment* rule);
+  // Adds one rule, assumed to be valid, to the domain_set_.
+  void AddRule(const StringPiece& rule_str);
 
   // Internal workings of the static public methods.  See above.
   static std::string GetDomainAndRegistryImpl(const std::string& host);
   size_t GetRegistryLengthImpl(const std::string& host,
                                bool allow_unknown_registries);
+
+  // A set of our DomainEntry's.
+  DomainSet domain_set_;
+
+  // An optional copy of the full domain rule data.  If we're loaded from a
+  // resource, then we just reference the resource directly without copying,
+  // and copied_domain_data_ is not used.  If we are populated through
+  // UseDomainData() then we copy that data here and reference it.
+  std::string copied_domain_data_;
 
   DISALLOW_COPY_AND_ASSIGN(RegistryControlledDomainService);
 };
