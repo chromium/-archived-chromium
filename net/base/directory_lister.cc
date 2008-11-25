@@ -98,14 +98,12 @@ void DirectoryLister::ThreadMain() {
 
   if (e->count > 0) {
     message_loop_->PostTask(FROM_HERE, e);
-    e = NULL;
+    e = new DirectoryDataEvent(this);
   }
 
   // Notify done
-  e = new DirectoryDataEvent(this);
-  message_loop_->PostTask(FROM_HERE, e);
-
   Release();
+  message_loop_->PostTask(FROM_HERE, e);
 }
 
 void DirectoryLister::OnReceivedData(
