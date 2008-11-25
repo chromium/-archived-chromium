@@ -4,6 +4,18 @@
 
 #include "chrome/browser/web_contents_view.h"
 
+#include "chrome/browser/render_widget_host.h"
+
+void WebContentsView::RenderWidgetHostDestroyed(RenderWidgetHost* host) {
+  for (PendingWidgetViews::iterator i = pending_widget_views_.begin();
+       i != pending_widget_views_.end(); ++i) {
+    if (host->view() == i->second) {
+      pending_widget_views_.erase(i);
+      return;
+    }
+  }
+}
+
 void WebContentsView::CreateNewWindow(int route_id, HANDLE modal_dialog_event) {
   // Save the created window associated with the route so we can show it later.
   pending_contents_[route_id] = CreateNewWindowInternal(route_id,

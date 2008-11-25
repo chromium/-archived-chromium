@@ -118,6 +118,10 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // TabContents without the special code.
   virtual void SizeContents(const gfx::Size& size) = 0;
 
+  // Invoked from the platform dependent web contents view when a
+  // RenderWidgetHost is deleted. Removes |host| from internal maps.
+  void RenderWidgetHostDestroyed(RenderWidgetHost* host);
+
   // Find in page --------------------------------------------------------------
 
   // Opens the find in page window if it isn't already open. It will advance to

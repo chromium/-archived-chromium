@@ -269,6 +269,10 @@ enum NotificationType {
   // RenderViewHost is set).
   NOTIFY_RENDER_VIEW_HOST_CHANGED,
 
+  // This is sent when a RenderWidgetHost is being destroyed. The source
+  // is the RenderWidgetHost, the details are not used.
+  NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
+
   // Notification from WebContents that we have received a response from
   // the renderer after using the dom inspector.
   NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE,

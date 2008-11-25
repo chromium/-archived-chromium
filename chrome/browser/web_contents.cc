@@ -213,6 +213,9 @@ WebContents::WebContents(Profile* profile,
   NotificationService::current()->
       AddObserver(this, NOTIFY_BOOKMARK_MODEL_LOADED,
                   NotificationService::AllSources());
+  NotificationService::current()->
+      AddObserver(this, NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
+                  NotificationService::AllSources());
 }
 
 WebContents::~WebContents() {
@@ -220,6 +223,9 @@ WebContents::~WebContents() {
     web_app_->RemoveObserver(this);
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
+  NotificationService::current()->
+      RemoveObserver(this, NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
+                     NotificationService::AllSources());
 }
 
 // static
@@ -1475,6 +1481,9 @@ void WebContents::Observe(NotificationType type,
       }
       break;
     }
+    case NOTIFY_RENDER_WIDGET_HOST_DESTROYED:
+      view_->RenderWidgetHostDestroyed(Source<RenderWidgetHost>(source).ptr());
+      break;
     default: {
       TabContents::Observe(type, source, details);
       break;
