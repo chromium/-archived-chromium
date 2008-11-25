@@ -9,12 +9,13 @@
 #include <vector>
 
 #include "base/file_util.h"
+#include "base/scoped_handle.h"
 
 namespace file_util {
 
 bool EvictFileFromSystemCache(const wchar_t* file) {
   // Request exclusive access to the file and overwrite it with no buffering.
-  win_util::ScopedHandle hfile(
+  ScopedHandle hfile(
       CreateFile(file, GENERIC_READ | GENERIC_WRITE, 0, NULL,
                  OPEN_EXISTING, FILE_FLAG_NO_BUFFERING,
                  NULL));
