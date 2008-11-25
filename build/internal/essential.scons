@@ -36,6 +36,7 @@ if env['PLATFORM'] == 'win32':
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
           '_SECURE_ATL',
+          ('_HAS_TR1', 0),
       ],
       CPPPATH = [
           '$PLATFORMSDK_VISTA/files/Include',
