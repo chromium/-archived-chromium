@@ -127,7 +127,7 @@ LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 LayoutTests/fast/repaint/bugzilla-6473.html = FAIL
 
 // Bug 982608: test had a wrong result for one condition
-LayoutTests/plugins/destroy-stream-twice.html = FAIL
+LayoutTests/plugins/destroy-stream-twice.html = FAIL | TIMEOUT
 
 // Bug 1143337.  Forked to pending/http/tests/security/.
 LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
@@ -247,7 +247,7 @@ LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
 LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
 // Bug 1135948: Fails because we cannot call plugins as functions.
-LayoutTests/plugins/bindings-test.html = FAIL
+LayoutTests/plugins/bindings-test.html = FAIL | CRASH
 
 // Bug 871718: These tests load data: URLs into frames and sets queries on then.
 // This is totally broken. This layout test should be rewitten so that the
@@ -1223,7 +1223,6 @@ LayoutTests/editing/pasteboard/drop-text-without-selection.html = FAIL
 LayoutTests/editing/pasteboard/input-field-1.html = FAIL
 LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
 LayoutTests/editing/pasteboard/nested-blocks-with-text-field.html = FAIL
-LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
 LayoutTests/editing/pasteboard/paste-plaintext-user-select-none.html = FAIL
 LayoutTests/editing/pasteboard/paste-text-011.html = FAIL
 LayoutTests/editing/pasteboard/pasting-tabs.html = FAIL
@@ -1629,12 +1628,10 @@ LayoutTests/fast/text/whitespace/016.html = FAIL
 LayoutTests/fast/text/whitespace/normal-after-nowrap-breaking.html = FAIL
 LayoutTests/fast/text/whitespace/tab-character-basics.html = FAIL
 LayoutTests/fast/text/word-break-run-rounding.html = FAIL
-LayoutTests/fast/workers/worker-constructor.html = FAIL
 LayoutTests/fast/xsl/transform-xhr-doc.xhtml = FAIL
 LayoutTests/fast/xsl/xslt-extra-content-at-end.xml = FAIL
 LayoutTests/http/tests/misc/acid2-pixel.html = FAIL
 LayoutTests/http/tests/misc/acid2.html = FAIL
-LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL
 LayoutTests/http/tests/misc/redirect.php = FAIL
 LayoutTests/http/tests/misc/refresh-headers.php = FAIL
 LayoutTests/http/tests/misc/xhtml.php = FAIL
@@ -1690,7 +1687,6 @@ LayoutTests/plugins/netscape-invoke-default.html = FAIL
 LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL
 LayoutTests/plugins/plugin-javascript-access.html = FAIL
 LayoutTests/plugins/plugin-remove-subframe.html = FAIL
-LayoutTests/security/block-test.html = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
@@ -1851,33 +1847,24 @@ chrome/plugins/refcount-leaks.html = FAIL
 chrome/plugins/return-npobject.html = FAIL
 chrome/plugins/script-object-invoke.html = FAIL
 pending/fast/events/special-key-events-in-input-text.html = FAIL
-pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 pending/plugins/iframe-shims.html = FAIL
 
 // Tests that time out on linux but pass on windows.
-LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 LayoutTests/fast/events/event-view-toString.html = TIMEOUT
 LayoutTests/fast/events/open-window-from-another-frame.html = TIMEOUT
 LayoutTests/fast/forms/search-event-delay.html = TIMEOUT
 LayoutTests/fast/history/history_reload.html = TIMEOUT
-LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
-LayoutTests/fast/workers/worker-gc.html = TIMEOUT
-LayoutTests/fast/workers/worker-location.html = TIMEOUT
-LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
 LayoutTests/http/tests/misc/referrer.html = TIMEOUT
 LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
 LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-navigation.html = TIMEOUT
-LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
 LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
-LayoutTests/transitions/transition-drt-api.html = TIMEOUT
 chrome/plugins/get-file-url.html = TIMEOUT
 pending/plugins/destroy-stream-twice.html = TIMEOUT
 
 // Tests that crash on linux but pass on windows.
 LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH
-LayoutTests/plugins/bindings-test.html = CRASH
 chrome/plugins/call-as-function.html = CRASH
