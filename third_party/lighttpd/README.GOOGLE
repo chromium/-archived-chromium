@@ -15,18 +15,23 @@ PHP is licensed under the PHP license (http://www.php.net/license/)
 ******
 
 --- For Mac ---
+The Mac version of LigHTTPd depends on libpcre; build it and place a copy of
+libpcre.0.dylib in mac/dylib.
+
 The Mac version of LigHTTPd is built on intel from LightTPD 1.4.20 with the 
 following configure options defined:
   --with-openssl
   --prefix=/tmp/lighttpd so a "make install" bundles it
      correctly
-  
+ 
 We then use install_name_tool to fix up the hardcoded library defined that
 wants to look in /usr/local/lib
 
   $ install_name_tool -change /usr/local/lib/liblightcomp.dylib @executable_path/../lib/liblightcomp.dylib /tmp/lighttpd/sbin/lighttpd
-  
+ 
 This also needs to be done for many of the mac/lib/mod_* libraries.
+install_name_tool may also be needed to adjust the path to libpcre.0.dylib to
+be relative to @executable_path (@executable_path/../lib/libpcre.0.dylib).
 
 The Mac version of php-cgi is built from PHP 5.2.6 with the following
 configure options:
