@@ -148,6 +148,7 @@ if env['PLATFORM'] == 'win32':
       'sys_info_win.cc',
       'sys_string_conversions_win.cc',
       'system_monitor_win.cc',
+      'test_file_util_win.cc',
       'thread_local_storage_win.cc',
       'thread_local_win.cc',
       'third_party/purify/pure_api.c',
