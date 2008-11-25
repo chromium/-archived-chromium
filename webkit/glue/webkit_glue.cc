@@ -81,6 +81,10 @@ bool IsLayoutTestMode() {
   return layout_test_mode_;
 }
 
+void InitializeForTesting() {
+  WTF::initializeThreading();
+}
+
 void EnableWebCoreNotImplementedLogging() {
   WebCore::LogNotYetImplemented.state = WTFLogChannelOn;
 }

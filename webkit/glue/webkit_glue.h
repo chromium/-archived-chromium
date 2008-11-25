@@ -67,6 +67,8 @@ void SetShouldExposeGCController(bool enable);
 void SetLayoutTestMode(bool enable);
 bool IsLayoutTestMode();
 
+void InitializeForTesting();
+
 // Turn on the logging for notImplemented() calls from WebCore.
 void EnableWebCoreNotImplementedLogging();
 

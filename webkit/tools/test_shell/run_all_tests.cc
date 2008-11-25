@@ -19,6 +19,7 @@
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
+#include "webkit/glue/webkit_glue.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
@@ -61,6 +62,8 @@ int main(int argc, char* argv[]) {
   // Initialize test shell in non-interactive mode, which will let us load one
   // request than automatically quit.
   TestShell::InitializeTestShell(false);
+
+  webkit_glue::InitializeForTesting();
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.
