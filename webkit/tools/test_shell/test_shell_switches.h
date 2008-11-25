@@ -28,6 +28,7 @@ extern const wchar_t kEnableFileCookies[];
 extern const wchar_t kUseWinHttp[];
 extern const wchar_t kEnableTracing[];
 extern const wchar_t kAllowScriptsToCloseWindows[];
+extern const wchar_t kCheckLayoutTestSystemDeps[];
 
 }  // namespace test_shell
 

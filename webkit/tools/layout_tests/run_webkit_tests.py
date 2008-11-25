@@ -202,6 +202,17 @@ class TestRunner:
     if not self._test_files:
       return 0
     start_time = time.time()
+    test_shell_binary = path_utils.TestShellBinaryPath(self._options.target)
+
+    # Check that the system dependencies (themes, fonts, ...) are correct.
+    if not self._options.nocheck_sys_deps:
+      proc = subprocess.Popen([test_shell_binary,
+                              "--check-layout-test-sys-deps"])
+      if proc.wait() != 0:
+        logging.info("Aborting because system dependencies check failed.\n"
+                     "To override, invoke with --nocheck-sys-deps")
+        sys.exit(1)
+
     logging.info("Starting tests")
 
     # Create the output directory if it doesn't already exist.
@@ -221,7 +232,6 @@ class TestRunner:
 
     # Instantiate TestShellThreads and start them.
     threads = []
-    test_shell_binary = path_utils.TestShellBinaryPath(self._options.target)
     for i in xrange(int(self._options.num_test_shells)):
       shell_args = []
       test_args = test_type_base.TestArguments()
@@ -640,5 +650,8 @@ if '__main__' == __name__:
   option_parser.add_option("", "--test-list", action="append",
                            help="read list of tests to run from file",
                            metavar="FILE")
+  option_parser.add_option("", "--nocheck-sys-deps", action="store_true",
+                           default=False, 
+                           help="Don't check the system dependencies (themes)")
   options, args = option_parser.parse_args()
   main(options, args)

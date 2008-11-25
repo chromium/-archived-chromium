@@ -114,6 +114,11 @@ int main(const int argc, const char *argv[]) {
   CommandLine::SetArgcArgv(argc, argv);
   CommandLine parsed_command_line(argc, argv);
 
+  if (parsed_command_line.HasSwitch(test_shell::kCheckLayoutTestSystemDeps)) {
+    // Always succeed the deps check, currently just used by windows port.
+    exit(0);
+  }
+  
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog)) {
     //TODO: add alert to allow attaching via gdb before things really get going
   }

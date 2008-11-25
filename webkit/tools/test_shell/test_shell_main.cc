@@ -13,6 +13,7 @@
 #include "base/event_recorder.h"
 #include "base/gfx/native_theme.h"
 #include "base/resource_util.h"
+#include "base/win_util.h"
 #include "webkit/tools/test_shell/foreground_helper.h"
 #endif
 
@@ -71,7 +72,66 @@ StringPiece GetRawDataResource(HMODULE module, int resource_id) {
 StringPiece NetResourceProvider(int key) {
   return GetRawDataResource(::GetModuleHandle(NULL), key);
 }
+
+// This test approximates whether you have the Windows XP theme selected by
+// inspecting a couple of metrics. It does not catch all cases, but it does
+// pick up on classic vs xp, and normal vs large fonts. Something it misses
+// is changes to the color scheme (which will infact cause pixel test
+// failures).
+// 
+// ** Expected dependencies **
+// + Theme: Windows XP
+// + Color scheme: Default (blue)
+// + Font size: Normal
+// + Font smoothing: off (minor impact).
+// 
+bool HasLayoutTestThemeDependenciesWin() {
+  // This metric will be 17 when font size is "Normal". The size of drop-down
+  // menus depends on it.
+  if (::GetSystemMetrics(SM_CXVSCROLL) != 17)
+    return false;
+
+  // Check that the system fonts RenderThemeWin relies on are Tahoma 11 pt.
+  NONCLIENTMETRICS metrics;
+  win_util::GetNonClientMetrics(&metrics);
+  LOGFONTW* system_fonts[] =
+      { &metrics.lfStatusFont, &metrics.lfMenuFont, &metrics.lfSmCaptionFont };
+
+  for (size_t i = 0; i < arraysize(system_fonts); ++i) {
+    if (system_fonts[i]->lfHeight != -11 ||
+        0 != wcscmp(L"Tahoma", system_fonts[i]->lfFaceName))
+      return false;
+  }
+  return true;
+}
+
+bool CheckLayoutTestSystemDependenciesWin() {
+  bool has_deps = HasLayoutTestThemeDependenciesWin();
+  if (!has_deps) {
+    fprintf(stderr, 
+        "\n"
+        "###############################################################\n"
+        "## Layout test system dependencies check failed.\n"
+        "## Some layout tests may fail due to unexpected theme.\n"
+        "##\n"
+        "## To fix, go to Display Properties -> Appearance, and select:\n"
+        "##  + Windows and buttons: Windows XP style\n"
+        "##  + Color scheme: Default (blue)\n"
+        "##  + Font size: Normal\n"
+        "###############################################################\n");
+  }
+  return has_deps;
+}
+
 #endif
+
+bool CheckLayoutTestSystemDependencies() {
+#if defined(OS_WIN)
+  return CheckLayoutTestSystemDependenciesWin();
+#else
+  return true;
+#endif
+}
 
 }  // namespace
 
@@ -95,6 +155,10 @@ int main(int argc, char* argv[]) {
   CommandLine parsed_command_line;
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
     TestShell::ShowStartupDebuggingDialog();
+
+  if (parsed_command_line.HasSwitch(test_shell::kCheckLayoutTestSystemDeps)) {
+    exit(CheckLayoutTestSystemDependencies() ? 0 : 1);
+  }
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.

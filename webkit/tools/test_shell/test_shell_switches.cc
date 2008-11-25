@@ -61,5 +61,11 @@ const wchar_t kEnableTracing[] = L"enable-tracing";
 // Allow scripts to close windows in all cases.
 const wchar_t kAllowScriptsToCloseWindows[] = L"allow-scripts-to-close-windows";
 
+// Test the system dependencies (themes, fonts, ...). When this flag is
+// specified, the test shell will exit immediately with either 0 (success) or
+// 1 (failure). Combining with other flags has no effect.
+extern const wchar_t kCheckLayoutTestSystemDeps[] =
+    L"check-layout-test-sys-deps";
+
 }  // namespace test_shell
 
