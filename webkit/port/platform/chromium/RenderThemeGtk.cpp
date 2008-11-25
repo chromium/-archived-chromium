@@ -366,15 +366,6 @@ bool RenderThemeGtk::paintButton(RenderObject* o, const RenderObject::PaintInfo&
     return paintMozWidget(this, MOZ_GTK_BUTTON, o, i, rect);
 }
 
-void RenderThemeGtk::adjustTextFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-    style->setHeight(Length(Auto));
-    style->setWhiteSpace(PRE);
-    adjustMozStyle(style, MOZ_GTK_ENTRY);
-}
-
 bool RenderThemeGtk::paintTextField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
 {
     return paintMozWidget(this, MOZ_GTK_ENTRY, o, i, rect);
