@@ -837,7 +837,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fVDMXMetricsValid = false;
 
         // Attempt to parse the VDMX table to get exact metrics
-        unsigned pelsize = fScaleY >> 16;
+        unsigned pelsize = (fScaleY + 0x8000) >> 16;
         int ymax, ymin;
         if (SkFontHost_VDMX_Parse(&ymax, &ymin, face, pelsize)) {
           my->fVDMXMetricsValid = true;
