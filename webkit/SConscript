@@ -56,6 +56,8 @@ elif env['PLATFORM'] == 'posix':
   )
 
 env.Prepend(
+    WEBKIT_DIR_PORT_INC = "$CHROME_SRC_DIR/webkit/port",
+
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
         '$WEBKIT_DIR/build/JSConfig/WebCore',
@@ -68,13 +70,13 @@ env.Prepend(
         # introduced any hidden problems.
         #'$WEBKIT_DIR/build/JavaScriptCore',
 
-        '$WEBKIT_DIR/port/platform/image-decoders',
-        '$WEBKIT_DIR/port/platform/image-decoders/bmp',
-        '$WEBKIT_DIR/port/platform/image-decoders/gif',
-        '$WEBKIT_DIR/port/platform/image-decoders/ico',
-        '$WEBKIT_DIR/port/platform/image-decoders/jpeg',
-        '$WEBKIT_DIR/port/platform/image-decoders/png',
-        '$WEBKIT_DIR/port/platform/image-decoders/xbm',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders/bmp',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders/gif',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders/ico',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders/jpeg',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders/png',
+        '$WEBKIT_DIR_PORT_INC/platform/image-decoders/xbm',
         '$ZLIB_DIR',
         '$LIBPNG_DIR',
         '$LIBJPEG_DIR',
@@ -92,47 +94,47 @@ env.Prepend(
         '$WEBKIT_DIR/V8Bindings/SharedSources',
 
         '$WEBKIT_DIR/pending',
-        '$WEBKIT_DIR/port/bindings/v8',
-        '$WEBKIT_DIR/port/css',
-        '$WEBKIT_DIR/port/dom',
-        '$WEBKIT_DIR/port/history',
-        '$WEBKIT_DIR/port/page/chromium',
-        '$WEBKIT_DIR/port/platform',
-        '$WEBKIT_DIR/port/platform/chromium',
-        '$WEBKIT_DIR/port/platform/graphics',
-        '$WEBKIT_DIR/port/platform/graphics/chromium',
-        '$WEBKIT_DIR/port/platform/graphics/skia',
-        '$WEBKIT_DIR/port/platform/$WEBKIT_PLATFORM_SUBDIR',
-        '$WEBKIT_DIR/port/platform/network/chromium',
-        '$WEBKIT_DIR/port/rendering',
+        '$WEBKIT_DIR_PORT_INC/bindings/v8',
+        '$WEBKIT_DIR_PORT_INC/css',
+        '$WEBKIT_DIR_PORT_INC/dom',
+        '$WEBKIT_DIR_PORT_INC/history',
+        '$WEBKIT_DIR_PORT_INC/page/chromium',
+        '$WEBKIT_DIR_PORT_INC/platform',
+        '$WEBKIT_DIR_PORT_INC/platform/chromium',
+        '$WEBKIT_DIR_PORT_INC/platform/graphics',
+        '$WEBKIT_DIR_PORT_INC/platform/graphics/chromium',
+        '$WEBKIT_DIR_PORT_INC/platform/graphics/skia',
+        '$WEBKIT_DIR_PORT_INC/platform/$WEBKIT_PLATFORM_SUBDIR',
+        '$WEBKIT_DIR_PORT_INC/platform/network/chromium',
+        '$WEBKIT_DIR_PORT_INC/rendering',
 
         '$JAVASCRIPTCORE_DIR',
         '$JAVASCRIPTCORE_DIR/wtf',
 
         # Directories in third_party/WebKit/Webcore that we pull headers
         # from.  We don't have to list directories that are listed in the
-        # $WEBKIT_DIR/port section above because they automatically fall
+        # $WEBKIT_DIR_PORT_INC section above because they automatically fall
         # back to third_party/WebKit/Webcore.
-        '$WEBCORE_DIR/editing',
-        '$WEBCORE_DIR/html',
-        '$WEBCORE_DIR/inspector',
-        '$WEBCORE_DIR/loader',
-        '$WEBCORE_DIR/loader/appcache',
-        '$WEBCORE_DIR/loader/archive',
-        '$WEBCORE_DIR/loader/icon',
-        '$WEBCORE_DIR/page',
-        '$WEBCORE_DIR/page/animation',
-        '$WEBCORE_DIR/platform/network',
-        '$WEBCORE_DIR/platform/sql',
-        '$WEBCORE_DIR/platform/text',
-        '$WEBCORE_DIR/plugins',
-        '$WEBCORE_DIR/rendering/style',
-        '$WEBCORE_DIR/storage',
-        '$WEBCORE_DIR/style',
-        '$WEBCORE_DIR/svg',
-        '$WEBCORE_DIR/svg/animation',
-        '$WEBCORE_DIR/svg/graphics',
-        '$WEBCORE_DIR/xml',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/editing',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/html',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/inspector',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader/appcache',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader/archive',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader/icon',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/page',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/page/animation',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/network',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/sql',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/text',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/plugins',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/rendering/style',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/storage',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/style',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/svg',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/svg/animation',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/svg/graphics',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/xml',
 
         '$CHROME_SRC_DIR',
     ],
@@ -186,6 +188,12 @@ env.Append(
       ['USE_SYSTEM_MALLOC', '1'],
     ],
 )
+
+# This addRepository call causes our webkit/port include paths to include both
+# webkit/port and third_party/WebKit/WebCore.
+webkit_port_inc = env.Dir("$WEBKIT_DIR_PORT_INC")
+webkit_port_inc.addRepository(
+    env.Dir('$CHROME_SRC_DIR/third_party/WebKit/WebCore'))
 
 # This list is the SConscripts that work on Windows and Linux.
 sconscript_dirs = env.ChromiumLoadComponentSConscripts(
