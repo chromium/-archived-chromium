@@ -273,11 +273,21 @@ class TestRunner:
     end_time = time.time()
     logging.info("%f total testing time" % (end_time - start_time))
     
+    print "-" * 78
+
     # Tests are done running. Compare failures with expected failures.
     regressions = self._CompareFailures(test_failures)
 
+    print "-" * 78
+
     # Write summaries to stdout.
-    self._PrintResults(test_failures)
+    self._PrintResults(test_failures, sys.stdout)
+
+    # Write the same data to a log file.
+    out_filename = os.path.join(self._options.results_directory, "score.txt")
+    output_file = open(out_filename, "w")
+    self._PrintResults(test_failures, output_file)
+    output_file.close()
 
     # Write the summary to disk (results.html) and maybe open the test_shell
     # to this file.
@@ -289,12 +299,15 @@ class TestRunner:
     sys.stderr.flush()
     return len(regressions)
 
-  def _PrintResults(self, test_failures):
+  def _PrintResults(self, test_failures, output):
     """Print a short summary to stdout about how many tests passed.
     
     Args:
       test_failures is a dictionary mapping the test filename to a list of
       TestFailure objects if the test failed
+
+      output is the file descriptor to write the results to. For example,
+      sys.stdout.
     """
 
     failure_counts = {}
@@ -321,9 +334,6 @@ class TestRunner:
           AddFailure(non_ignored_counts, failure.__class__)
           non_ignored_failures.add(test)                
                              
-    # Print summaries.
-    print "-" * 78
-
     # Print breakdown of tests we need to fix and want to pass. 
     # Include skipped fixable tests in the statistics.
     skipped = self._expectations.GetFixableSkipped()
@@ -332,14 +342,14 @@ class TestRunner:
                              self._expectations.GetFixable(),
                              fixable_failures,
                              fixable_counts,
-                             skipped)
+                             skipped, output)
 
     self._PrintResultSummary("=> Tests we want to pass",
                              (self._test_files - 
                               self._expectations.GetIgnored()),
                              non_ignored_failures,
                              non_ignored_counts,
-                             skipped)
+                             skipped, output)
 
     # Print breakdown of all tests including all skipped tests.
     skipped |= self._expectations.GetIgnoredSkipped()
@@ -347,10 +357,11 @@ class TestRunner:
                              self._test_files,
                              test_failures,
                              failure_counts,
-                             skipped)
+                             skipped, output)
     print
 
-  def _PrintResultSummary(self, heading, all, failed, failure_counts, skipped):
+  def _PrintResultSummary(self, heading, all, failed, failure_counts, skipped,
+                          output):
     """Print a summary block of results for a particular category of test.
 
     Args:
@@ -358,26 +369,29 @@ class TestRunner:
       all: list of all tests in this category
       failed: list of failing tests in this category
       failure_counts: dictionary of (TestFailure -> frequency)
+      output: file descriptor to write the results to
     """
     total = len(all | skipped)
-    print "\n%s (%d):" % (heading, total)
+    output.write("\n%s (%d):\n" % (heading, total))
     skip_count = len(skipped)
     pass_count = total - skip_count - len(failed)
-    self._PrintResultLine(pass_count, total, "Passed")
-    self._PrintResultLine(skip_count, total, "Skipped")
+    self._PrintResultLine(pass_count, total, "Passed", output)
+    self._PrintResultLine(skip_count, total, "Skipped", output)
     # Sort the failure counts and print them one by one.
     sorted_keys = sorted(failure_counts.keys(),
                          key=test_failures.FailureSort.SortOrder)
     for failure in sorted_keys:
-      self._PrintResultLine(failure_counts[failure], total, failure.Message())
+      self._PrintResultLine(failure_counts[failure], total, failure.Message(),
+                            output)
 
-  def _PrintResultLine(self, count, total, message):
+  def _PrintResultLine(self, count, total, message, output):
     if count == 0: return
-    print ("%(count)d test case%(plural)s (%(percent).1f%%) %(message)s" % 
-           { 'count'   : count,
-             'plural'  : ('s', '')[count == 1],
-             'percent' : float(count) * 100 / total,
-             'message' : message })
+    output.write(
+        ("%(count)d test case%(plural)s (%(percent).1f%%) %(message)s\n" %
+            { 'count'   : count,
+              'plural'  : ('s', '')[count == 1],
+              'percent' : float(count) * 100 / total,
+              'message' : message }))
 
   def _CompareFailures(self, test_failures):
     """Determine how the test failures from this test run differ from the
@@ -394,7 +408,15 @@ class TestRunner:
                                           test_failures,
                                           self._expectations)
 
-    if not self._options.nocompare_failures: cf.PrintRegressions()
+    if not self._options.nocompare_failures:
+      cf.PrintRegressions(sys.stdout)
+
+      out_filename = os.path.join(self._options.results_directory,
+                                  "regressions.txt")
+      output_file = open(out_filename, "w")
+      cf.PrintRegressions(output_file)
+      output_file.close()
+
     return cf.GetRegressions()    
 
   def _WriteResultsHtmlFile(self, test_failures, regressions):

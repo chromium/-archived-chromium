@@ -8,6 +8,7 @@ for layout tests.
 
 import os
 import re
+import sys
 import path_utils
 import compare_failures
 
@@ -94,7 +95,7 @@ class TestExpectations:
     # Make sure there's no overlap between the tests in the two files.
     overlap = self._fixable.GetTests() & self._ignored.GetTests()
     message = "Files contained in both " + self.FIXABLE + " and " + self.IGNORED
-    compare_failures.PrintFilesFromSet(overlap, message)
+    compare_failures.PrintFilesFromSet(overlap, message, sys.stdout)
     assert(len(overlap) == 0)
     # Make sure there are no ignored tests expected to crash.
     assert(len(self._ignored.GetTestsExpectedTo(CRASH)) == 0)
