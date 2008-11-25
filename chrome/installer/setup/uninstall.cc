@@ -56,15 +56,14 @@ void DeleteChromeShortcut(bool system_uninstall) {
   std::wstring shortcut_path;
   if (system_uninstall) {
     PathService::Get(base::DIR_COMMON_START_MENU, &shortcut_path);
-    // In case of system level uninstall, we want to remove desktop and
-    // Quick Launch shortcuts also. In case of user level uninstall,
-    // chrome.exe deletes these shortcuts.
     ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER |
                                            ShellUtil::SYSTEM_LEVEL);
     ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER |
                                                ShellUtil::SYSTEM_LEVEL);
   } else {
     PathService::Get(base::DIR_START_MENU, &shortcut_path);
+    ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER);
+    ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER);
   }
   if (shortcut_path.empty()) {
     LOG(ERROR) << "Failed to get location for shortcut.";
@@ -204,7 +203,7 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   // Chrome is not in use so lets uninstall Chrome by deleting various files
   // and registry entries. Here we will just make best effort and keep going
   // in case of errors.
-  // First delete shortcut from Start->Programs.
+  // First delete shortcuts from Start->Programs, Desktop & Quick Launch.
   DeleteChromeShortcut(system_uninstall);
 
   // Delete the registry keys (Uninstall key and Version key).
