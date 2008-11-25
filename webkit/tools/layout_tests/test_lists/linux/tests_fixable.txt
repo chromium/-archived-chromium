@@ -502,7 +502,7 @@ LayoutTests/fast/text/zero-width-characters.html = FAIL
 // HTTPS tests fail on the open source buildbot with error "cross-site not access allowed".
 // See bug # 2306
 LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
-pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = TIMEOUT
+pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = TIMEOUT | FAIL
 pending/http/tests/security/cross-frame-access-protocol.html = TIMEOUT
 
 // Some tests playing with dates don't work on the open source buildbot.
@@ -1027,7 +1027,7 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.htm
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
-LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
+LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | FAIL
 LayoutTests/animations/big-rotation.html = FAIL | PASS
 DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
 
@@ -1198,6 +1198,7 @@ LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
 LayoutTests/editing/deleting/5144139-2.html = FAIL
 LayoutTests/editing/deleting/5168598.html = FAIL
 LayoutTests/editing/deleting/5729680.html = FAIL
+LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 LayoutTests/editing/execCommand/5119244.html = FAIL
 LayoutTests/editing/execCommand/findString-2.html = FAIL
 LayoutTests/editing/inserting/4960120-1.html = FAIL
@@ -1302,27 +1303,38 @@ LayoutTests/fast/block/positioning/inline-block-relposition.html = FAIL
 LayoutTests/fast/css-generated-content/013.html = FAIL
 LayoutTests/fast/css-generated-content/014.html = FAIL
 LayoutTests/fast/css-generated-content/015.html = FAIL
+LayoutTests/fast/css-generated-content/hover-style-change.html = FAIL
+LayoutTests/fast/css-generated-content/positioned-background-hit-test-crash.html = FAIL
 LayoutTests/fast/css/002.html = FAIL
 LayoutTests/fast/css/003.html = FAIL
 LayoutTests/fast/css/acid2-pixel.html = FAIL
 LayoutTests/fast/css/acid2.html = FAIL
+LayoutTests/fast/css/affected-by-hover-after-style-change.html = FAIL
 LayoutTests/fast/css/beforeSelectorOnCodeElement.html = FAIL
 LayoutTests/fast/css/continuationCrash.html = FAIL
 LayoutTests/fast/css/css2-system-fonts.html = FAIL
 LayoutTests/fast/css/ex-after-font-variant.html = FAIL
+LayoutTests/fast/css/first-letter-hover.html = FAIL
 LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
 LayoutTests/fast/css/font-face-locally-installed.html = FAIL
+LayoutTests/fast/css/font-size-negative.html = FAIL
 LayoutTests/fast/css/font-weight-1.html = FAIL
 LayoutTests/fast/css/font_property_normal.html = FAIL
+LayoutTests/fast/css/hover-affects-child.html = FAIL
+LayoutTests/fast/css/hover-subselector.html = FAIL
 LayoutTests/fast/css/imageTileOpacity.html = FAIL
 LayoutTests/fast/css/invalid-percentage-property.html = FAIL
+LayoutTests/fast/css/layerZOrderCrash.html = FAIL
 LayoutTests/fast/css/line-height-font-order.html = FAIL
+LayoutTests/fast/css/line-height-negative.html = FAIL
 LayoutTests/fast/css/line-height.html = FAIL
 LayoutTests/fast/css/margin-top-bottom-dynamic.html = FAIL
 LayoutTests/fast/css/marginComputedStyle.html = FAIL
 LayoutTests/fast/css/resize-corner-tracking.html = FAIL
+LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
 LayoutTests/fast/css/rtl-ordering.html = FAIL
 LayoutTests/fast/css/text-security.html = FAIL
+LayoutTests/fast/css/universal-hover-quirk.html = FAIL
 LayoutTests/fast/css/word-space-extra.html = FAIL
 LayoutTests/fast/dom/HTMLInputElement/input-image-alt-text.html = FAIL
 LayoutTests/fast/dom/HTMLTextAreaElement/reset-textarea.html = FAIL
