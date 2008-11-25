@@ -834,7 +834,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\test_file_util.cc"
+			RelativePath="..\test_file_util_win.cc"
 			>
 		</File>
 		<File
