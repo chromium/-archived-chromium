@@ -3,13 +3,13 @@ layer at (0,0) size 800x600
 layer at (0,0) size 800x600
   RenderBlock {HTML} at (0,0) size 800x600
     RenderBody {BODY} at (8,8) size 784x584
-      RenderTextControl {INPUT} at (0,0) size 110x20 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
-        RenderBlock {DIV} at (2,3) size 106x14
-          RenderBlock {DIV} at (0,0) size 8x11
-          RenderBlock {DIV} at (93,0) size 13x11
+      RenderTextControl {INPUT} at (0,0) size 155x22 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+        RenderBlock {DIV} at (2,3) size 151x16
+          RenderBlock {DIV} at (0,13) size 0x0
+          RenderBlock {DIV} at (151,13) size 0x0
       RenderText {#text} at (0,0) size 0x0
       RenderText {#text} at (0,0) size 0x0
-layer at (18,11) size 85x14
-  RenderBlock {DIV} at (8,0) size 85x14 [color=#A9A9A9]
-    RenderText {#text} at (1,0) size 54x14
-      text run at (1,0) width 54: "Test Passed"
+layer at (10,11) size 151x16
+  RenderBlock {DIV} at (0,0) size 151x16 [color=#A9A9A9]
+    RenderText {#text} at (1,0) size 73x16
+      text run at (1,0) width 73: "Test Passed"

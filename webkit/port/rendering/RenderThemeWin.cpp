@@ -43,13 +43,6 @@
 
 namespace {
 
-// These enums correspond to similarly named values defined by SafariTheme.h
-enum ControlSize {
-    RegularControlSize,
-    SmallControlSize,
-    MiniControlSize
-};
-
 enum PaddingType {
     TopPadding,
     RightPadding,
@@ -57,42 +50,6 @@ enum PaddingType {
     LeftPadding
 };
 
-const int kDefaultButtonPadding = 2;
-
-// These magic numbers come from Apple's version of RenderThemeWin.cpp.
-const int kMenuListPadding[4] = { 1, 2, 1, 2 };
-
-// The kLayoutTest* constants are metrics used only in layout test mode,
-// so as to match RenderThemeMac.mm and to remain consistent despite any
-//  theme or font changes.
-const int kLayoutTestControlHeight[3] = { 21, 18, 15 };
-const int kLayoutTestButtonPadding[4] = { 0, 8, 0, 8 };
-const int kLayoutTestStyledMenuListInternalPadding[4] = { 1, 0, 2, 8 };
-const int kLayoutTestMenuListInternalPadding[3][4] =
-{
-    { 2, 26, 3, 8 },
-    { 2, 23, 3, 8 },
-    { 2, 22, 3, 10 }
-};
-const int kLayoutTestMenuListMinimumWidth[3] = { 9, 5, 0 };
-const float kLayoutTestBaseFontSize = 11.0f;
-const float kLayoutTestStatusBarFontSize = 10.0f;
-const float kLayoutTestSystemFontSize = 13.0f;
-
-const int kLayoutTestSliderThumbWidth = 15;
-const int kLayoutTestSliderThumbHeight = 15;
-
-const int kLayoutTestMenuListButtonWidth = 15;
-const int kLayoutTestButtonMinHeight = 15;
-
-const int kLayoutTestSearchFieldHeight[3] = { 22, 19, 17 };
-const int kLayoutTestEmptyResultsOffset = 9;
-const int kLayoutTestResultsArrowWidth = 5;
-
-const short kLayoutTestSearchFieldBorderWidth = 2;
-const int kLayoutTestSearchFieldPadding = 1;
-
-// Constants that are used in non-layout-test mode.
 const int kStyledMenuListInternalPadding[4] = { 1, 4, 1, 4 };
 
 // The default variable-width font size.  We use this as the default font
@@ -135,46 +92,6 @@ static void setFixedPadding(RenderStyle* style, const int padding[4])
     style->setPaddingRight(Length(padding[RightPadding], Fixed));
     style->setPaddingTop(Length(padding[TopPadding], Fixed));
     style->setPaddingBottom(Length(padding[BottomPadding], Fixed));
-}
-
-// This is logic from RenderThemeMac.mm, and is used by layout test mode.
-static ControlSize controlSizeForFont(RenderStyle* style)
-{
-    if (style->fontSize() >= 16) {
-        return RegularControlSize;
-    } else if (style->fontSize() >= 11) {
-        return SmallControlSize;
-    }
-    return MiniControlSize;
-}
-
-static float systemFontSizeForControlSize(ControlSize controlSize)
-{
-    static float sizes[] = { 13.0f, 11.0f, 9.0f };
-
-    return sizes[controlSize];
-}
-
-// This is basically RenderThemeMac::setFontFromControlSize
-static int layoutTestSetFontFromControlSize(CSSStyleSelector* selector, RenderStyle* style)
-{
-    FontDescription fontDescription;
-    fontDescription.setIsAbsoluteSize(true);
-    fontDescription.setGenericFamily(FontDescription::SerifFamily);
-
-    float fontSize = systemFontSizeForControlSize(controlSizeForFont(style));
-    fontDescription.firstFamily().setFamily("Lucida Grande");
-
-    fontDescription.setComputedSize(fontSize);
-    fontDescription.setSpecifiedSize(fontSize);
-
-    // Reset line height
-    style->setLineHeight(RenderStyle::initialLineHeight());
-
-    style->setFontDescription(fontDescription);
-        style->font().update(0);
-
-    return 0;
 }
 
 // Return the height of system font |font| in pixels.  We use this size by
@@ -265,55 +182,6 @@ static void setSizeIfAuto(RenderStyle* style, const IntSize& size)
         style->setHeight(Length(size.height(), Fixed));
 }
 
-static IntSize layoutTestCheckboxSize(RenderStyle* style)
-{
-    static const IntSize sizes[3] = { IntSize(14, 14), IntSize(12, 12), IntSize(10, 10) };
-    return sizes[controlSizeForFont(style)];
-}
-
-static IntSize layoutTestRadioboxSize(RenderStyle* style)
-{
-    static const IntSize sizes[3] = { IntSize(14, 15), IntSize(12, 13), IntSize(10, 10) };
-    return sizes[controlSizeForFont(style)];
-}
-
-// Hacks for using Mac menu list metrics when in layout test mode.
-static int layoutTestMenuListInternalPadding(RenderStyle* style, int paddingType)
-{
-    if (style->appearance() == MenulistPart) {
-        return kLayoutTestMenuListInternalPadding[controlSizeForFont(style)][paddingType];
-    }
-    if (style->appearance() == MenulistButtonPart) {
-        if (paddingType == RightPadding) {
-            const float baseArrowWidth = 5.0f;
-            float fontScale = style->fontSize() / kLayoutTestBaseFontSize;
-            float arrowWidth = ceilf(baseArrowWidth * fontScale);
-
-            int arrowPaddingLeft = 6;
-            int arrowPaddingRight = 6;
-            int paddingBeforeSeparator = 4;
-            // Add 2 for separator space, seems to match RenderThemeMac::paintMenuListButton.
-            return static_cast<int>(arrowWidth + arrowPaddingLeft + arrowPaddingRight +
-                                    paddingBeforeSeparator);
-        } else {
-            return kLayoutTestStyledMenuListInternalPadding[paddingType];
-        }
-    }
-    return 0;
-}
-
-static const IntSize* layoutTestCancelButtonSizes()
-{
-    static const IntSize sizes[3] = { IntSize(16, 13), IntSize(13, 11), IntSize(13, 9) };
-    return sizes;
-}
-
-static const IntSize* layoutTestResultsButtonSizes()
-{
-    static const IntSize sizes[3] = { IntSize(19, 13), IntSize(17, 11), IntSize(17, 9) };
-    return sizes;
-}
-
 // Implement WebCore::theme() for getting the global RenderTheme.
 RenderTheme* theme()
 {
@@ -389,88 +257,56 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
         case CSSValueSmallCaption:
             cachedDesc = &smallSystemFont;
             if (!smallSystemFont.isAbsoluteSize()) {
-                if (ChromiumBridge::layoutTestMode()) {
-                    fontSize = systemFontSizeForControlSize(SmallControlSize);
-                } else {
-                    NONCLIENTMETRICS metrics;
-                    win_util::GetNonClientMetrics(&metrics);
-                    faceName = metrics.lfSmCaptionFont.lfFaceName;
-                    fontSize = systemFontSize(metrics.lfSmCaptionFont);
-                }
+                NONCLIENTMETRICS metrics;
+                win_util::GetNonClientMetrics(&metrics);
+                faceName = metrics.lfSmCaptionFont.lfFaceName;
+                fontSize = systemFontSize(metrics.lfSmCaptionFont);
             }
             break;
         case CSSValueMenu:
             cachedDesc = &menuFont;
             if (!menuFont.isAbsoluteSize()) {
-                if (ChromiumBridge::layoutTestMode()) {
-                    fontSize = systemFontSizeForControlSize(RegularControlSize);
-                } else {
-                    NONCLIENTMETRICS metrics;
-                    win_util::GetNonClientMetrics(&metrics);
-                    faceName = metrics.lfMenuFont.lfFaceName;
-                    fontSize = systemFontSize(metrics.lfMenuFont);
-                }
+                NONCLIENTMETRICS metrics;
+                win_util::GetNonClientMetrics(&metrics);
+                faceName = metrics.lfMenuFont.lfFaceName;
+                fontSize = systemFontSize(metrics.lfMenuFont);
             }
             break;
         case CSSValueStatusBar:
             cachedDesc = &labelFont;
             if (!labelFont.isAbsoluteSize()) {
-                if (ChromiumBridge::layoutTestMode()) {
-                    fontSize = kLayoutTestStatusBarFontSize;
-                } else {
-                    NONCLIENTMETRICS metrics;
-                    win_util::GetNonClientMetrics(&metrics);
-                    faceName = metrics.lfStatusFont.lfFaceName;
-                    fontSize = systemFontSize(metrics.lfStatusFont);
-                }
+                NONCLIENTMETRICS metrics;
+                win_util::GetNonClientMetrics(&metrics);
+                faceName = metrics.lfStatusFont.lfFaceName;
+                fontSize = systemFontSize(metrics.lfStatusFont);
             }
             break;
         case CSSValueWebkitMiniControl:
-            if (ChromiumBridge::layoutTestMode()) {
-                fontSize = systemFontSizeForControlSize(MiniControlSize);
-            } else {
-                faceName = defaultGUIFont(document);
-                // Why 2 points smaller?  Because that's what Gecko does.
-                // Also see 2 places below.
-                fontSize = DefaultFontSize - pointsToPixels(2);
-            }
+            faceName = defaultGUIFont(document);
+            // Why 2 points smaller?  Because that's what Gecko does.
+            // Also see 2 places below.
+            fontSize = DefaultFontSize - pointsToPixels(2);
             break;
         case CSSValueWebkitSmallControl:
-              if (ChromiumBridge::layoutTestMode()) {
-                  fontSize = systemFontSizeForControlSize(SmallControlSize);
-              } else {
-                  faceName = defaultGUIFont(document);
-                  fontSize = DefaultFontSize - pointsToPixels(2);
-              }
+            faceName = defaultGUIFont(document);
+            fontSize = DefaultFontSize - pointsToPixels(2);
             break;
         case CSSValueWebkitControl:
-            if (ChromiumBridge::layoutTestMode()) {
-                fontSize = systemFontSizeForControlSize(RegularControlSize);
-            } else {
-                faceName = defaultGUIFont(document);
-                fontSize = DefaultFontSize - pointsToPixels(2);
-            }
+            faceName = defaultGUIFont(document);
+            fontSize = DefaultFontSize - pointsToPixels(2);
             break;
         default:
-            if (ChromiumBridge::layoutTestMode()) {
-                fontSize = kLayoutTestSystemFontSize;
-            } else {
-                faceName = defaultGUIFont(document);
-                fontSize = DefaultFontSize;
-            }
+            faceName = defaultGUIFont(document);
+            fontSize = DefaultFontSize;
     }
 
     if (!cachedDesc)
         cachedDesc = &fontDescription;
 
     if (fontSize) {
-        if (ChromiumBridge::layoutTestMode()) {
-          cachedDesc->firstFamily().setFamily("Lucida Grande");
-        } else {
-          ASSERT(faceName);
-          cachedDesc->firstFamily().setFamily(AtomicString(faceName,
-                                                           wcslen(faceName)));
-        }
+        ASSERT(faceName);
+        cachedDesc->firstFamily().setFamily(AtomicString(faceName,
+                                                         wcslen(faceName)));
         cachedDesc->setIsAbsoluteSize(true);
         cachedDesc->setGenericFamily(FontDescription::NoFamily);
         cachedDesc->setSpecifiedSize(fontSize);
@@ -482,11 +318,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
 
 int RenderThemeWin::minimumMenuListSize(RenderStyle* style) const
 {
-    if (ChromiumBridge::layoutTestMode()) {
-        return kLayoutTestMenuListMinimumWidth[controlSizeForFont(style)];
-    } else {
-        return 0;
-    }
+    return 0;
 }
 
 void RenderThemeWin::setCheckboxSize(RenderStyle* style) const
@@ -499,19 +331,14 @@ void RenderThemeWin::setCheckboxSize(RenderStyle* style) const
     // At different DPI settings on Windows, querying the theme gives you a larger size that accounts for
     // the higher DPI.  Until our entire engine honors a DPI setting other than 96, we can't rely on the theme's
     // metrics.
-    const IntSize size = ChromiumBridge::layoutTestMode() ?
-        layoutTestCheckboxSize(style) : IntSize(13, 13);
+    const IntSize size(13, 13);
     setSizeIfAuto(style, size);
 }
 
 void RenderThemeWin::setRadioSize(RenderStyle* style) const
 {
-    if (ChromiumBridge::layoutTestMode()) {
-        setSizeIfAuto(style, layoutTestRadioboxSize(style));
-    } else {
-        // Use same sizing for radio box as checkbox.
-        setCheckboxSize(style);
-    }
+    // Use same sizing for radio box as checkbox.
+    setCheckboxSize(style);
 }
 
 bool RenderThemeWin::paintButton(RenderObject* o,
@@ -550,20 +377,6 @@ void RenderThemeWin::adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle
 {
     // Height is locked to auto on all browsers.
     style->setLineHeight(RenderStyle::initialLineHeight());
-
-    if (ChromiumBridge::layoutTestMode()) {
-        style->resetBorder();
-        style->setHeight(Length(Auto));
-        // Select one of the 3 fixed heights for controls
-        style->resetPadding();
-        if (style->height().isAuto()) {
-            // RenderThemeMac locks the size to 3 distinct values (NSControlSize).
-            // We on the other hand, base the height off the font.
-            int fixedHeight = kLayoutTestControlHeight[controlSizeForFont(style)];
-            style->setHeight(Length(fixedHeight, Fixed));
-        }
-        layoutTestSetFontFromControlSize(selector, style);
-    }
 }
 
 // Used to paint unstyled menulists (i.e. with the default border)
@@ -590,8 +403,7 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
     // If the MenuList is smaller than the size of a button, make sure to
     // shrink it appropriately and not put its x position to the left of
     // the menulist.
-    const int buttonWidth = ChromiumBridge::layoutTestMode() ?
-        kLayoutTestMenuListButtonWidth : GetSystemMetrics(SM_CXVSCROLL);
+    const int buttonWidth = GetSystemMetrics(SM_CXVSCROLL);
     int spacingLeft = borderLeft + o->paddingLeft();
     int spacingRight = borderRight + o->paddingRight();
     int spacingTop = borderTop + o->paddingTop();
@@ -662,86 +474,6 @@ void RenderThemeWin::adjustButtonInnerStyle(RenderStyle* style) const
     style->setPaddingRight(Length(3, Fixed));
     style->setPaddingBottom(Length(1, Fixed));
     style->setPaddingLeft(Length(3, Fixed));
-}
-
-void RenderThemeWin::adjustSliderThumbSize(RenderObject* o) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        if (o->style()->appearance() == SliderThumbHorizontalPart ||
-            o->style()->appearance() == SliderThumbVerticalPart) {
-            o->style()->setWidth(Length(kLayoutTestSliderThumbWidth, Fixed));
-            o->style()->setHeight(Length(kLayoutTestSliderThumbHeight, Fixed));
-        }
-    }
-}
-
-void RenderThemeWin::adjustSearchFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        // Override border.
-        style->resetBorder();
-        style->setBorderLeftWidth(kLayoutTestSearchFieldBorderWidth);
-        style->setBorderLeftStyle(INSET);
-        style->setBorderRightWidth(kLayoutTestSearchFieldBorderWidth);
-        style->setBorderRightStyle(INSET);
-        style->setBorderBottomWidth(kLayoutTestSearchFieldBorderWidth);
-        style->setBorderBottomStyle(INSET);
-        style->setBorderTopWidth(kLayoutTestSearchFieldBorderWidth);
-        style->setBorderTopStyle(INSET);
-
-        // Override height.
-        style->setHeight(Length(
-            kLayoutTestSearchFieldHeight[controlSizeForFont(style)],
-            Fixed));
-
-        // Override padding size to match AppKit text positioning.
-        style->setPaddingLeft(Length(kLayoutTestSearchFieldPadding, Fixed));
-        style->setPaddingRight(Length(kLayoutTestSearchFieldPadding, Fixed));
-        style->setPaddingTop(Length(kLayoutTestSearchFieldPadding, Fixed));
-        style->setPaddingBottom(Length(kLayoutTestSearchFieldPadding, Fixed));
-
-        style->setBoxShadow(0);
-    }
-}
-
-void RenderThemeWin::adjustSearchFieldCancelButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        IntSize size = layoutTestCancelButtonSizes()[controlSizeForFont(style)];
-        style->setWidth(Length(size.width(), Fixed));
-        style->setHeight(Length(size.height(), Fixed));
-        style->setBoxShadow(0);
-    }
-}
-
-void RenderThemeWin::adjustSearchFieldDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        IntSize size = layoutTestResultsButtonSizes()[controlSizeForFont(style)];
-        style->setWidth(Length(size.width() - kLayoutTestEmptyResultsOffset, Fixed));
-        style->setHeight(Length(size.height(), Fixed));
-        style->setBoxShadow(0);
-    }
-}
-
-void RenderThemeWin::adjustSearchFieldResultsDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        IntSize size = layoutTestResultsButtonSizes()[controlSizeForFont(style)];
-        style->setWidth(Length(size.width(), Fixed));
-        style->setHeight(Length(size.height(), Fixed));
-        style->setBoxShadow(0);
-    }
-}
-
-void RenderThemeWin::adjustSearchFieldResultsButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    if (ChromiumBridge::layoutTestMode()) {
-        IntSize size = layoutTestResultsButtonSizes()[controlSizeForFont(style)];
-        style->setWidth(Length(size.width() + kLayoutTestResultsArrowWidth, Fixed));
-        style->setHeight(Length(size.height(), Fixed));
-        style->setBoxShadow(0);
-    }
 }
 
 // static
@@ -863,10 +595,6 @@ void RenderThemeWin::getMinimalButtonPadding(Length* minXPadding) const {
 
 int RenderThemeWin::menuListInternalPadding(RenderStyle* style, int paddingType) const
 {
-    if (ChromiumBridge::layoutTestMode()) {
-        return layoutTestMenuListInternalPadding(style, paddingType);
-    }
-
     // This internal padding is in addition to the user-supplied padding.
     // Matches the FF behavior.
     int padding = kStyledMenuListInternalPadding[paddingType];

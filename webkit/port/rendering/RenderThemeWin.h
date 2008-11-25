@@ -105,14 +105,6 @@ public:
 
     virtual void adjustButtonInnerStyle(RenderStyle* style) const;
 
-    virtual void adjustSliderThumbSize(RenderObject*) const;
-
-    virtual void adjustSearchFieldStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual void adjustSearchFieldCancelButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual void adjustSearchFieldDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual void adjustSearchFieldResultsDecorationStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual void adjustSearchFieldResultsButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-
     // Provide a way to pass the default font size from the Settings object to
     // the render theme.  TODO(tc): http://b/1129186 A cleaner way would be to
     // remove the default font size from this object and have callers that need

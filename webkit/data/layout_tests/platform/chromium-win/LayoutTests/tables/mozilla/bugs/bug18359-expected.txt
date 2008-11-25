@@ -7,38 +7,38 @@ layer at (0,0) size 800x600
         RenderText {#text} at (0,0) size 363x26
           text run at (0,0) width 363: "SeaMonkey XPInstall Trigger Page"
       RenderBlock {HR} at (0,46) size 784x2 [border: (1px inset #000000)]
-      RenderBlock {FORM} at (0,56) size 784x50
-        RenderTable {TABLE} at (0,0) size 487x50
-          RenderTableSection {TBODY} at (0,0) size 487x50
-            RenderTableRow {TR} at (0,2) size 487x22
-              RenderTableCell {TD} at (2,2) size 107x22 [r=0 c=0 rs=1 cs=1]
+      RenderBlock {FORM} at (0,56) size 784x54
+        RenderTable {TABLE} at (0,0) size 637x54
+          RenderTableSection {TBODY} at (0,0) size 637x54
+            RenderTableRow {TR} at (0,2) size 637x24
+              RenderTableCell {TD} at (2,3) size 107x22 [r=0 c=0 rs=1 cs=1]
                 RenderInline {B} at (0,0) size 92x19
                   RenderText {#text} at (1,1) size 92x19
                     text run at (1,1) width 92: "Trigger URL:"
-              RenderTableCell {TD} at (111,2) size 292x22 [r=0 c=1 rs=1 cs=1]
-                RenderTextControl {INPUT} at (1,1) size 290x20 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
-              RenderTableCell {TD} at (405,2) size 80x22 [r=0 c=2 rs=1 cs=1]
-                RenderButton {INPUT} at (1,1) size 56x20 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
-                  RenderBlock (anonymous) at (8,2) size 40x16
-                    RenderText at (3,1) size 34x14
-                      text run at (3,1) width 34: "Trigger"
-            RenderTableRow {TR} at (0,26) size 487x22
-              RenderTableCell {TD} at (2,26) size 107x22 [r=1 c=0 rs=1 cs=1]
+              RenderTableCell {TD} at (111,2) size 427x24 [r=0 c=1 rs=1 cs=1]
+                RenderTextControl {INPUT} at (1,1) size 425x22 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+              RenderTableCell {TD} at (540,2) size 95x24 [r=0 c=2 rs=1 cs=1]
+                RenderButton {INPUT} at (1,1) size 61x22 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+                  RenderBlock (anonymous) at (8,2) size 45x18
+                    RenderText at (3,1) size 39x16
+                      text run at (3,1) width 39: "Trigger"
+            RenderTableRow {TR} at (0,28) size 637x24
+              RenderTableCell {TD} at (2,29) size 107x22 [r=1 c=0 rs=1 cs=1]
                 RenderInline {B} at (0,0) size 105x19
                   RenderText {#text} at (1,1) size 105x19
                     text run at (1,1) width 105: "Run Test Case:"
-              RenderTableCell {TD} at (111,27) size 292x20 [r=1 c=1 rs=1 cs=1]
-                RenderMenuList {SELECT} at (1,1) size 227x18 [bgcolor=#FFFFFF]
-                  RenderBlock (anonymous) at (0,0) size 227x19
-                    RenderText at (8,2) size 63x14
-                      text run at (8,2) width 63: "a_abortinstall"
+              RenderTableCell {TD} at (111,29) size 427x22 [r=1 c=1 rs=1 cs=1]
+                RenderMenuList {SELECT} at (1,1) size 270x20 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+                  RenderBlock (anonymous) at (1,1) size 268x18
+                    RenderText at (4,1) size 77x16
+                      text run at (4,1) width 77: "a_abortinstall"
                 RenderText {#text} at (0,0) size 0x0
-              RenderTableCell {TD} at (405,26) size 80x22 [r=1 c=2 rs=1 cs=1]
-                RenderButton {INPUT} at (1,1) size 78x20 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
-                  RenderBlock (anonymous) at (8,2) size 62x16
-                    RenderText at (3,1) size 56x14
-                      text run at (3,1) width 56: "Trigger case"
-layer at (122,70) size 286x14
-  RenderBlock {DIV} at (2,3) size 286x14
-    RenderText {#text} at (1,0) size 82x14
-      text run at (1,0) width 82: "http://jimbob/jars/"
+              RenderTableCell {TD} at (540,28) size 95x24 [r=1 c=2 rs=1 cs=1]
+                RenderButton {INPUT} at (1,1) size 93x22 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+                  RenderBlock (anonymous) at (8,2) size 77x18
+                    RenderText at (3,1) size 71x16
+                      text run at (3,1) width 71: "Trigger case"
+layer at (122,70) size 421x16
+  RenderBlock {DIV} at (2,3) size 421x16
+    RenderText {#text} at (1,0) size 101x16
+      text run at (1,0) width 101: "http://jimbob/jars/"

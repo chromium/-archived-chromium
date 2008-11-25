@@ -17,7 +17,7 @@ layer at (0,0) size 800x600
         RenderText {#text} at (726,0) size 4x19
           text run at (726,0) width 4: "."
       RenderBlock {HR} at (0,54) size 784x2 [border: (1px inset #000000)]
-      RenderBlock (anonymous) at (0,189) size 784x183
+      RenderBlock (anonymous) at (0,189) size 784x187
         RenderText {#text} at (169,108) size 4x19
           text run at (169,108) width 4: " "
         RenderBR {BR} at (0,0) size 0x0
@@ -27,7 +27,7 @@ layer at (8,72) size 173x125 clip at (10,74) size 169x121
   RenderBlock {DIV} at (0,64) size 173x125 [border: (2px solid #0000FF)]
 layer at (8,198) size 169x121 clip at (10,200) size 165x117
   RenderTextControl {TEXTAREA} at (0,1) size 169x121 [bgcolor=#FFFFFF] [border: (2px solid #0000FF)]
-    RenderBlock {DIV} at (4,4) size 146x14
-layer at (8,326) size 178x53 clip at (9,327) size 176x51
-  RenderTextControl {TEXTAREA} at (0,129) size 178x53 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 157x14
+    RenderBlock {DIV} at (4,4) size 146x16
+layer at (8,326) size 198x57 clip at (9,327) size 196x55
+  RenderTextControl {TEXTAREA} at (0,129) size 198x57 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 177x16

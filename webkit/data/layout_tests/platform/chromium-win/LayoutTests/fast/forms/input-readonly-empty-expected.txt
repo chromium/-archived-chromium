@@ -3,9 +3,9 @@ layer at (0,0) size 800x600
 layer at (0,0) size 800x600
   RenderBlock {HTML} at (0,0) size 800x600
     RenderBody {BODY} at (8,8) size 784x584
-      RenderText {#text} at (0,0) size 449x19
-        text run at (0,0) width 449: "This tests that empty readonly text fields have the right height and baseline. "
-      RenderTextControl {INPUT} at (449,1) size 110x20 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+      RenderText {#text} at (0,1) size 449x19
+        text run at (0,1) width 449: "This tests that empty readonly text fields have the right height and baseline. "
+      RenderTextControl {INPUT} at (449,0) size 155x22 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
       RenderText {#text} at (0,0) size 0x0
-layer at (459,12) size 106x14
-  RenderBlock {DIV} at (2,3) size 106x14
+layer at (459,11) size 151x16
+  RenderBlock {DIV} at (2,3) size 151x16
