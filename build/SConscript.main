@@ -338,6 +338,11 @@ linux_env = root_env.Clone()
 linux_env.Tool('target_platform_linux')
 linux_env.Tool('yacc')
 
+# By default scons will depend on the first path element for any command line.
+# For example, it will resolve 'gcc' with $PATH and depend on that for any
+# action which runs gcc. This disables this behaviour:
+linux_env['IMPLICIT_COMMAND_DEPENDENCIES'] = False
+
 # TODO(bradnelson): this is needed for now because target_platform_linux has
 # OS_LINUX defined in a weird way.
 linux_env.FilterOut(CPPDEFINES = ['OS_LINUX=OS_LINUX'])
