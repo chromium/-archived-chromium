@@ -374,11 +374,6 @@ if env_flat['PLATFORM'] == 'win32':
   # determines implicit dependencies from .rc files.
   env_flat.Depends(browser_res, flats_out)
 
-
-# TODO(port)
-  env_test.Object('test/test_file_util.cc',
-                  CPPPATH=['..'] + env['CPPPATH'])
-
 sconscript_files = []
 
 if not env.WantSystemLib('hunspell'):

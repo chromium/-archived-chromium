@@ -10,8 +10,8 @@
 #include "base/perftimer.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
+#include "base/test_file_util.h"
 #include "chrome/browser/visitedlink_master.h"
-#include "chrome/test/test_file_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::TimeDelta;

@@ -13,6 +13,7 @@
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
+#include "base/test_file_util.h"
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/url_fixer_upper.h"
@@ -26,7 +27,6 @@
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
-#include "chrome/test/test_file_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 

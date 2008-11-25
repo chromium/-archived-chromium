@@ -12,11 +12,11 @@
 #include "base/path_service.h"
 #include "base/perftimer.h"
 #include "base/string_util.h"
+#include "base/test_file_util.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
-#include "chrome/test/test_file_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // These tests are slow, especially the ones that create databases.  So disable
