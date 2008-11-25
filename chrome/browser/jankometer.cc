@@ -54,7 +54,7 @@ class JankWatchdog : public Watchdog {
   JankWatchdog(const TimeDelta& duration,
                const std::string& thread_watched_name,
                bool enabled)
-      : Watchdog(duration, ASCIIToWide(thread_watched_name), enabled),
+      : Watchdog(duration, thread_watched_name, enabled),
         thread_name_watched_(thread_watched_name),
         alarm_count_(0) {
   }
@@ -72,7 +72,7 @@ class JankWatchdog : public Watchdog {
   std::string thread_name_watched_;
   int alarm_count_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(JankWatchdog);
+  DISALLOW_COPY_AND_ASSIGN(JankWatchdog);
 };
 
 //------------------------------------------------------------------------------

@@ -22,15 +22,15 @@
 
 #include "base/condition_variable.h"
 #include "base/lock.h"
+#include "base/platform_thread.h"
 #include "base/time.h"
 
 class Watchdog {
  public:
-  // TODO(JAR)change default arg to required arg after all users have migrated.
   // Constructor specifies how long the Watchdog will wait before alarming.
   Watchdog(const base::TimeDelta& duration,
-           const std::wstring& thread_watched_name,
-           bool enabled = true);
+           const std::string& thread_watched_name,
+           bool enabled);
   virtual ~Watchdog();
 
   // Start timing, and alarm when time expires (unless we're disarm()ed.)
@@ -48,22 +48,29 @@ class Watchdog {
   }
 
  private:
+  class ThreadDelegate : public PlatformThread::Delegate {
+   public:
+    explicit ThreadDelegate(Watchdog* watchdog, const base::TimeDelta& duration)
+      : watchdog_(watchdog), duration_(duration) {
+    }
+    virtual void ThreadMain();
+   private:
+    Watchdog* watchdog_;
+    const base::TimeDelta duration_;  // How long after start_time_ do we alarm?
+
+    void SetThreadName() const;
+  };
+
   enum State {ARMED, DISARMED, SHUTDOWN };
 
-  // Windows thread start callback
-  static DWORD WINAPI ThreadStart(void* pThis);
-
-  // Loop and test function for our watchdog thread.
-  unsigned Run();
-  void Watchdog::SetThreadName() const;
+  bool init_successful_;
 
   Lock lock_;  // Mutex for state_.
   ConditionVariable condition_variable_;
   State state_;
-  const base::TimeDelta duration_;  // How long after start_time_ do we alarm?
-  const std::wstring thread_watched_name_;
-  HANDLE handle_;  // Handle for watchdog thread.
-  DWORD thread_id_;  // Also for watchdog thread.
+  const std::string thread_watched_name_;
+  PlatformThreadHandle handle_;
+  ThreadDelegate delegate_;  // Store it, because it must outlive the thread.
 
   base::TimeTicks start_time_;  // Start of epoch, and alarm after duration_.
 
@@ -79,8 +86,7 @@ class Watchdog {
   // How long did we sit on a break in the debugger?
   static base::TimeDelta last_debugged_alarm_delay_;
 
-
-  DISALLOW_EVIL_CONSTRUCTORS(Watchdog);
+  DISALLOW_COPY_AND_ASSIGN(Watchdog);
 };
 
 #endif  // BASE_WATCHDOG_H__

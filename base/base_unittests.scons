@@ -114,7 +114,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
       # yet, so it's commented out for now.  Leave this 'unported'.
       'idletimer_unittest.cc',
 
-      'watchdog_unittest.cc',
       'gfx/native_theme_unittest.cc',
   ]
   for remove in to_be_ported_files:

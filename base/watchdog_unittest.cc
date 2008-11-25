@@ -5,9 +5,10 @@
 // Tests for Watchdog class.
 
 #include "base/logging.h"
-#include "base/watchdog.h"
+#include "base/platform_thread.h"
 #include "base/spin_wait.h"
 #include "base/time.h"
+#include "base/watchdog.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::TimeDelta;
@@ -17,12 +18,11 @@ namespace {
 //------------------------------------------------------------------------------
 // Provide a derived class to facilitate testing.
 
-// TODO(JAR): Remove default argument from constructor, and make mandatory.
 class WatchdogCounter : public Watchdog {
  public:
   WatchdogCounter(const TimeDelta& duration,
-                  const std::wstring& thread_watched_name,
-                  bool enabled = true)
+                  const std::string& thread_watched_name,
+                  bool enabled)
       : Watchdog(duration, thread_watched_name, enabled), alarm_counter_(0) {
   }
 
@@ -38,7 +38,7 @@ class WatchdogCounter : public Watchdog {
  private:
   int alarm_counter_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WatchdogCounter);
+  DISALLOW_COPY_AND_ASSIGN(WatchdogCounter);
 };
 
 class WatchdogTest : public testing::Test {
@@ -50,40 +50,28 @@ class WatchdogTest : public testing::Test {
 
 // Minimal constructor/destructor test.
 TEST(WatchdogTest, StartupShutdownTest) {
-  Watchdog watchdog1(TimeDelta::FromMilliseconds(300), L"Disabled", false);
-  Watchdog watchdog2(TimeDelta::FromMilliseconds(300), L"Enabled", true);
-
-  // The following test is depricated, and should be removed when the
-  // default argument constructor is no longer accepted.
-  Watchdog watchdog3(TimeDelta::FromMilliseconds(300), L"Default");
+  Watchdog watchdog1(TimeDelta::FromMilliseconds(300), "Disabled", false);
+  Watchdog watchdog2(TimeDelta::FromMilliseconds(300), "Enabled", true);
 }
 
 // Test ability to call Arm and Disarm repeatedly.
 TEST(WatchdogTest, ArmDisarmTest) {
-  Watchdog watchdog1(TimeDelta::FromMilliseconds(300), L"Disabled", false);
+  Watchdog watchdog1(TimeDelta::FromMilliseconds(300), "Disabled", false);
   watchdog1.Arm();
   watchdog1.Disarm();
   watchdog1.Arm();
   watchdog1.Disarm();
 
-  Watchdog watchdog2(TimeDelta::FromMilliseconds(300), L"Enabled", true);
+  Watchdog watchdog2(TimeDelta::FromMilliseconds(300), "Enabled", true);
   watchdog2.Arm();
   watchdog2.Disarm();
   watchdog2.Arm();
   watchdog2.Disarm();
-
-  // The following test is depricated, and should be removed when the
-  // default argument constructor is no longer accepted.
-  Watchdog watchdog3(TimeDelta::FromMilliseconds(300), L"Default");
-  watchdog3.Arm();
-  watchdog3.Disarm();
-  watchdog3.Arm();
-  watchdog3.Disarm();
 }
 
 // Make sure a basic alarm fires when the time has expired.
 TEST(WatchdogTest, AlarmTest) {
-  WatchdogCounter watchdog(TimeDelta::FromMilliseconds(10), L"Enabled", true);
+  WatchdogCounter watchdog(TimeDelta::FromMilliseconds(10), "Enabled", true);
   watchdog.Arm();
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromSeconds(1),
                                    watchdog.alarm_counter() > 0);
@@ -100,21 +88,21 @@ TEST(WatchdogTest, AlarmTest) {
 
 // Make sure a disable alarm does nothing, even if we arm it.
 TEST(WatchdogTest, ConstructorDisabledTest) {
-  WatchdogCounter watchdog(TimeDelta::FromMilliseconds(10), L"Disabled", false);
+  WatchdogCounter watchdog(TimeDelta::FromMilliseconds(10), "Disabled", false);
   watchdog.Arm();
   // Alarm should not fire, as it was disabled.
-  Sleep(500);
+  PlatformThread::Sleep(500);
   EXPECT_EQ(0, watchdog.alarm_counter());
 }
 
 // Make sure Disarming will prevent firing, even after Arming.
 TEST(WatchdogTest, DisarmTest) {
-  WatchdogCounter watchdog(TimeDelta::FromSeconds(1), L"Enabled", true);
+  WatchdogCounter watchdog(TimeDelta::FromSeconds(1), "Enabled", true);
   watchdog.Arm();
-  Sleep(100);  // Don't sleep too long
+  PlatformThread::Sleep(100);  // Don't sleep too long
   watchdog.Disarm();
   // Alarm should not fire.
-  Sleep(1500);
+  PlatformThread::Sleep(1500);
   EXPECT_EQ(0, watchdog.alarm_counter());
 
   // ...but even after disarming, we can still use the alarm...

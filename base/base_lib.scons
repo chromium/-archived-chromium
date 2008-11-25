@@ -21,8 +21,8 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-# These base files work on *all* platforms; files that don't work
-# cross-platform live below.
+# Some files from this list are not yet ported. They are removed from
+# the list, see code below.
 input_files = [
     'at_exit.cc',
     'base_paths.cc',
@@ -109,14 +109,11 @@ if env['PLATFORM'] in ('posix', 'darwin'):
     'event_recorder.cc',
     'file_version_info.cc',
 
-    # This group all depends on MessageLoop.
-
     # We have an implementation of idle_timer, but it's unclear if we want it
     # yet, so it's commented out for now.  Leave this 'unported'.
     'idle_timer.cc',
 
     'object_watcher.cc',
-    'watchdog.cc',
 
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
   ]
