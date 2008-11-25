@@ -150,11 +150,15 @@ int InfoBar::GetAvailableWidth() const {
   return close_button_->x() - kIconLabelSpacing;
 }
 
+void InfoBar::RemoveInfoBar() const {
+  container_->RemoveDelegate(delegate());
+}
+
 // InfoBar, views::BaseButton::ButtonListener implementation: ------------------
 
 void InfoBar::ButtonPressed(views::BaseButton* sender) {
   if (sender == close_button_)
-    container_->RemoveDelegate(delegate());
+    RemoveInfoBar();
 }
 
 // InfoBar, AnimationDelegate implementation: ----------------------------------
@@ -320,11 +324,11 @@ void ConfirmInfoBar::ViewHierarchyChanged(bool is_add,
 
 void ConfirmInfoBar::ButtonPressed(views::NativeButton* sender) {
   if (sender == ok_button_) {
-    GetDelegate()->Accept();
-    AnimateClose();
+    if (GetDelegate()->Accept())
+      RemoveInfoBar();
   } else if (sender == cancel_button_) {
-    GetDelegate()->Cancel();
-    AnimateClose();
+    if (GetDelegate()->Cancel())
+      RemoveInfoBar();
   } else {
     NOTREACHED();
   }

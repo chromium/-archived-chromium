@@ -67,8 +67,8 @@ class PasswordManager : public views::LoginModel,
   virtual SkBitmap* GetIcon() const;
   virtual int GetButtons() const;
   virtual std::wstring GetButtonLabel(InfoBarButton button) const;
-  virtual void Accept();
-  virtual void Cancel();
+  virtual bool Accept();
+  virtual bool Cancel();
   
   // When a form is "seen" on a page, a PasswordFormManager is created
   // and stored in this collection until user navigates away from page.

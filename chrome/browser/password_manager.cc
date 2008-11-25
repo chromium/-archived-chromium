@@ -210,13 +210,13 @@ std::wstring PasswordManager::GetButtonLabel(InfoBarButton button) const {
   return std::wstring();
 }
 
-void PasswordManager::Accept() {
+bool PasswordManager::Accept() {
   pending_save_manager_->Save();
-  web_contents_->RemoveInfoBar(this);
+  return true;
 }
 
-void PasswordManager::Cancel() {
+bool PasswordManager::Cancel() {
   pending_save_manager_->PermanentlyBlacklist();
-  web_contents_->RemoveInfoBar(this);
+  return true;
 }
 

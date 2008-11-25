@@ -61,6 +61,7 @@ std::wstring PluginInstaller::GetButtonLabel(InfoBarButton button) const {
   return ConfirmInfoBarDelegate::GetButtonLabel(button);
 }
 
-void PluginInstaller::Accept() {
+bool PluginInstaller::Accept() {
   web_contents_->render_view_host()->InstallMissingPlugin();
+  return true;
 }

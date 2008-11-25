@@ -25,7 +25,7 @@ class PluginInstaller : public ConfirmInfoBarDelegate {
   virtual SkBitmap* GetIcon() const;
   virtual int GetButtons() const;
   virtual std::wstring GetButtonLabel(InfoBarButton button) const;
-  virtual void Accept();
+  virtual bool Accept();
 
   // The containing WebContents
   WebContents* web_contents_;

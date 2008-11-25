@@ -74,10 +74,11 @@ class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
   virtual std::wstring GetButtonLabel(InfoBarButton button) const {
     return l10n_util::GetString(IDS_SESSION_CRASHED_VIEW_RESTORE_BUTTON);
   }
-  virtual void Accept() {
+  virtual bool Accept() {
     // Restore the session.
     SessionRestore::RestoreSession(profile_, NULL, false, true, false,
                                    std::vector<GURL>());
+    return true;
   }
 
  private:

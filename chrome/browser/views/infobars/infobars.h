@@ -64,6 +64,10 @@ class InfoBar : public views::View,
   // excluding the close button.
   virtual int GetAvailableWidth() const;
 
+  // Removes our associated InfoBarDelegate from the associated TabContents.
+  // (Will lead to this InfoBar being closed).
+  void RemoveInfoBar() const;
+
  private:
   // Overridden from views::Button::ButtonListener:
   virtual void ButtonPressed(views::BaseButton* sender);
