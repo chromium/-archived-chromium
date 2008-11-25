@@ -1729,6 +1729,13 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
 void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
                                            int request_id,
                                            bool from_renderer) {
+  CancelRequest(render_process_host_id, request_id, from_renderer, true);
+}
+
+void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
+                                           int request_id,
+                                           bool from_renderer,
+                                           bool allow_delete) {
   PendingRequestList::iterator i = pending_requests_.find(
       GlobalRequestID(render_process_host_id, request_id));
   if (i == pending_requests_.end()) {
@@ -1747,7 +1754,16 @@ void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
       info->login_handler->OnRequestCancelled();
       info->login_handler = NULL;
     }
-    i->second->Cancel();
+    if (!i->second->is_pending() && allow_delete) {
+      // No io is pending, canceling the request won't notify us of anything,
+      // so we explicitly remove it.
+      // TODO: removing the request in this manner means we're not notifying
+      // anyone. We need make sure the event handlers and others are notified
+      // so that everything is cleaned up properly.
+      RemovePendingRequest(info->render_process_host_id, info->request_id);
+    } else {
+      i->second->Cancel();
+    }
   }
 
   // Do not remove from the pending requests, as the request will still
@@ -2234,7 +2250,10 @@ bool ResourceDispatcherHost::CompleteRead(URLRequest* request,
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
 
   if (!info->event_handler->OnReadCompleted(info->request_id, bytes_read)) {
-    CancelRequest(info->render_process_host_id, info->request_id, false);
+    // Pass in false as the last arg to indicate we don't want |request|
+    // deleted. We do this as callers of us assume |request| is valid after we
+    // return.
+    CancelRequest(info->render_process_host_id, info->request_id, false, false);
     return false;
   }
 
