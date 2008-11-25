@@ -50,6 +50,9 @@ bool GetLogonSessionOnlyDACL(SECURITY_DESCRIPTOR** security_descriptor);
 // Useful for subclassing a HWND.  Returns the previous window procedure.
 WNDPROC SetWindowProc(HWND hwnd, WNDPROC wndproc);
 
+// Returns true if the existing window procedure is the same as |subclass_proc|.
+bool IsSubclassed(HWND window, WNDPROC subclass_proc);
+
 // Subclasses a window, replacing its existing window procedure with the
 // specified one. Returns true if the current window procedure was replaced,
 // false if the window has already been subclassed with the specified

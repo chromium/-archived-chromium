@@ -257,6 +257,12 @@ void* GetWindowUserData(HWND hwnd) {
 // installed.
 static const wchar_t* const kHandlerKey = L"__ORIGINAL_MESSAGE_HANDLER__";
 
+bool IsSubclassed(HWND window, WNDPROC subclass_proc) {
+  WNDPROC original_handler =
+      reinterpret_cast<WNDPROC>(GetWindowLongPtr(window, GWLP_WNDPROC));
+  return original_handler == subclass_proc;
+}
+
 bool Subclass(HWND window, WNDPROC subclass_proc) {
   WNDPROC original_handler =
       reinterpret_cast<WNDPROC>(GetWindowLongPtr(window, GWLP_WNDPROC));

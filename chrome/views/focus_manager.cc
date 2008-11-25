@@ -4,6 +4,7 @@
 
 #include <algorithm>
 
+#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "chrome/browser/render_widget_host_view_win.h"
@@ -29,6 +30,16 @@ static const wchar_t* const kFocusManagerKey = L"__VIEW_CONTAINER__";
 //   associated view).
 // - prevent tab key events from being sent to views.
 static const wchar_t* const kViewKey = L"__CHROME_VIEW__";
+
+// A property set to 1 to indicate whether the focus manager has subclassed that
+// window.  We are doing this to ensure we are not subclassing several times.
+// Subclassing twice is not a problem if no one is subclassing the HWND between
+// the 2 subclassings (the 2nd subclassing is ignored since the WinProc is the
+// same as the current one).  However if some other app goes and subclasses the
+// HWND between the 2 subclassings, we will end up subclassing twice.
+// This flag lets us test that whether we have or not subclassed yet.
+static const wchar_t* const kFocusSubclassInstalled =
+    L"__FOCUS_SUBCLASS_INSTALLED__";
 
 namespace views {
 
@@ -209,15 +220,29 @@ FocusManager* FocusManager::CreateFocusManager(HWND window,
 // static
 void FocusManager::InstallFocusSubclass(HWND window, View* view) {
   DCHECK(window);
-  win_util::Subclass(window, &FocusWindowCallback);
+
+  bool already_subclassed =
+      reinterpret_cast<bool>(GetProp(window,
+                                     kFocusSubclassInstalled));
+  if (already_subclassed &&
+      !win_util::IsSubclassed(window, &FocusWindowCallback)) {
+    NOTREACHED() << "window sub-classed by someone other than the FocusManager";
+    // Track in UMA so we know if this case happens.
+    UMA_HISTOGRAM_COUNTS(L"FocusManager.MultipleSubclass", 1);
+  } else {
+    win_util::Subclass(window, &FocusWindowCallback);
+    SetProp(window, kFocusSubclassInstalled, reinterpret_cast<HANDLE>(true));
+  }
   if (view)
     SetProp(window, kViewKey, view);
 }
 
 void FocusManager::UninstallFocusSubclass(HWND window) {
   DCHECK(window);
-  if (win_util::Unsubclass(window, &FocusWindowCallback))
+  if (win_util::Unsubclass(window, &FocusWindowCallback)) {
     RemoveProp(window, kViewKey);
+    RemoveProp(window, kFocusSubclassInstalled);
+  }
 }
 
 // static
