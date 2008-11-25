@@ -69,6 +69,8 @@ class FileStream {
   // progress.  That will cancel the read and allow the buffer to be freed.
   // 
   // This method should not be called if the stream was opened WRITE_ONLY.
+  //
+  // You can pass NULL as the callback for synchronous I/O.
   int Read(char* buf, int buf_len, CompletionCallback* callback);
 
   // Call this method to write data at the current stream position.  Up to
@@ -88,6 +90,8 @@ class FileStream {
   // progress.  That will cancel the write and allow the buffer to be freed.
   // 
   // This method should not be called if the stream was opened READ_ONLY.
+  //
+  // You can pass NULL as the callback for synchronous I/O.
   int Write(const char* buf, int buf_len, CompletionCallback* callback);
 
  private:
