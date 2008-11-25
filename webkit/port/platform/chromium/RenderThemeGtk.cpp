@@ -261,11 +261,8 @@ double RenderThemeGtk::caretBlinkFrequency() const
 {
     // Disable the blinking caret in layout test mode, as it introduces
     // a race condition for the pixel tests. http://b/1198440
-    if (ChromiumBridge::layoutTestMode()) {
-        // TODO(port): We need to disable this under linux, but returning 0
-        // (like Windows does) sends gtk into an infinite expose loop. Do
-        // something about this later.
-    }
+    if (ChromiumBridge::layoutTestMode())
+        return 999999999;
 
     GtkSettings* settings = gtk_settings_get_default();
 
