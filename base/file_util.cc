@@ -26,7 +26,7 @@ void PathComponents(const std::wstring& path,
   std::wstring::size_type end = path.find(kPathSeparator, start);
 
   // Special case the "/" or "\" directory.  On Windows with a drive letter,
-  // this code path won't hit, but the right thing should still happen.  
+  // this code path won't hit, but the right thing should still happen.
   // "E:\foo" will turn into "E:","foo".
   if (end == start) {
     components->push_back(std::wstring(path, 0, 1));
@@ -42,15 +42,26 @@ void PathComponents(const std::wstring& path,
   std::wstring component = std::wstring(path, start);
   components->push_back(component);
 }
-  
-bool EndsWithSeparator(std::wstring* path) {
-  return EndsWithSeparator(*path);
-}
-  
-bool EndsWithSeparator(const std::wstring& path) {
-  bool is_sep = (path.length() > 0 && 
-      (path)[path.length() - 1] == kPathSeparator);
+
+bool EndsWithSeparator(const FilePath& file_path) {
+  std::wstring path = file_path.ToWStringHack();
+  bool is_sep = (path.length() > 0 &&
+      path[path.length() - 1] == kPathSeparator);
   return is_sep;
+}
+
+bool EnsureEndsWithSeparator(FilePath* path) {
+  if (!DirectoryExists(*path))
+    return false;
+
+  if (EndsWithSeparator(*path))
+    return true;
+
+  FilePath::StringType& path_str =
+      const_cast<FilePath::StringType&>(path->value());
+  path_str.append(&FilePath::kSeparators[0], 1);
+
+  return true;
 }
 
 void TrimTrailingSeparator(std::wstring* dir) {
@@ -314,6 +325,12 @@ bool AbsolutePath(std::wstring* path_str) {
 }
 bool Delete(const std::wstring& path, bool recursive) {
   return Delete(FilePath::FromWStringHack(path), recursive);
+}
+bool EndsWithSeparator(std::wstring* path) {
+  return EndsWithSeparator(FilePath::FromWStringHack(*path));
+}
+bool EndsWithSeparator(const std::wstring& path) {
+  return EndsWithSeparator(FilePath::FromWStringHack(path));
 }
 bool Move(const std::wstring& from_path, const std::wstring& to_path) {
   return Move(FilePath::FromWStringHack(from_path),

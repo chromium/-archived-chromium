@@ -72,12 +72,9 @@ class URLRequestFileJob::AsyncResolver :
 URLRequestJob* URLRequestFileJob::Factory(
     URLRequest* request, const std::string& scheme) {
   FilePath file_path;
-  if (net::FileURLToFilePath(request->url(), &file_path)) {
-    if (file_util::DirectoryExists(file_path)) {
-      // Only directories have trailing slashes.
+  if (net::FileURLToFilePath(request->url(), &file_path) &&
+      file_util::EnsureEndsWithSeparator(&file_path))
       return new URLRequestFileDirJob(request, file_path);
-    }
-  }
 
   // Use a regular file request job for all non-directories (including invalid
   // file names).
@@ -167,13 +164,13 @@ void URLRequestFileJob::DidResolve(
   if (!request_)
     return;
 
-  is_directory_ = file_info.is_directory;
+  DCHECK(!file_info.is_directory);
 
   int rv = net::OK;
   if (!exists) {
     rv = net::ERR_FILE_NOT_FOUND;
-  } else if (!is_directory_) {
-    int flags = base::PLATFORM_FILE_OPEN | 
+  } else {
+    int flags = base::PLATFORM_FILE_OPEN |
                 base::PLATFORM_FILE_READ |
                 base::PLATFORM_FILE_ASYNC;
     rv = stream_.Open(file_path_.ToWStringHack(), flags);
@@ -200,19 +197,6 @@ void URLRequestFileJob::DidRead(int result) {
 
 bool URLRequestFileJob::IsRedirectResponse(
     GURL* location, int* http_status_code) {
-  if (is_directory_) {
-    // This happens when we discovered the file is a directory, so needs a
-    // slash at the end of the path.
-    std::string new_path = request_->url().path();
-    new_path.push_back('/');
-    GURL::Replacements replacements;
-    replacements.SetPathStr(new_path);
-
-    *location = request_->url().ReplaceComponents(replacements);
-    *http_status_code = 301;  // simulate a permanent redirect
-    return true;
-  }
-
 #if defined(OS_WIN)
   std::wstring extension =
       file_util::GetFileExtensionFromPath(file_path_.value());

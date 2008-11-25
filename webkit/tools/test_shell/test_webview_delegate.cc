@@ -223,10 +223,11 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
   bool replace = extra_data && extra_data->pending_page_id != -1;
 
   scoped_ptr<WebRequest> request(failed_request.Clone());
-  request->SetURL(GURL("testshell-error:"));
 
   std::string error_text =
-      StringPrintf("Error loading url: %d", error.GetErrorCode());
+      StringPrintf("Error %d when loading url %s", error.GetErrorCode(),
+      request->GetURL().spec().c_str());
+  request->SetURL(GURL("testshell-error:"));
 
   frame->LoadAlternateHTMLString(request.get(), error_text,
                                  error.GetFailedURL(), replace);

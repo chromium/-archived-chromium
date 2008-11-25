@@ -41,12 +41,17 @@ extern const wchar_t kPathSeparator;
 // Returns a vector of all of the components of the provided path.
 void PathComponents(const std::wstring& path,
                     std::vector<std::wstring>* components);
-  
+
 // Returns true if the given path ends with a path separator character.
-// TODO(erikkay): remove this pointer version
+bool EndsWithSeparator(const FilePath& path);
+// These two versions are both deprecated. TODO(estade): remove them.
 bool EndsWithSeparator(std::wstring* path);
 bool EndsWithSeparator(const std::wstring& path);
-  
+
+// Makes sure that |path| ends with a separator IFF path is a directory that
+// exists. Returns true if |path| is an existing directory, false otherwise.
+bool EnsureEndsWithSeparator(FilePath* path);
+
 // Modifies a string by trimming all trailing separators from the end.
 void TrimTrailingSeparator(std::wstring* dir);
 
