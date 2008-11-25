@@ -49,9 +49,18 @@ const wchar_t kSentinelFile[] = L"First Run";
 
 // Gives the full path to the sentinel file. The file might not exist.
 bool GetFirstRunSentinelFilePath(std::wstring* path) {
-  std::wstring first_run_sentinel;
-  if (!PathService::Get(base::DIR_EXE, &first_run_sentinel))
+  std::wstring exe_path;
+  if (!PathService::Get(base::DIR_EXE, &exe_path))
     return false;
+
+  std::wstring first_run_sentinel;
+  if (InstallUtil::IsPerUserInstall(exe_path.c_str())) {
+    first_run_sentinel = exe_path;
+  } else {
+    if (!PathService::Get(chrome::DIR_USER_DATA, &first_run_sentinel))
+      return false;
+  }
+
   file_util::AppendToPath(&first_run_sentinel, kSentinelFile);
   *path = first_run_sentinel;
   return true;
