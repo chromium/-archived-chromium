@@ -182,15 +182,6 @@ static void setSizeIfAuto(RenderStyle* style, const IntSize& size)
         style->setHeight(Length(size.height(), Fixed));
 }
 
-static double querySystemBlinkInterval() {
-    UINT blinkTime = ::GetCaretBlinkTime();
-    if (blinkTime == 0)
-        return RenderTheme::caretBlinkFrequency();
-    if (blinkTime == INFINITE)
-        return 0;
-    return blinkTime / 1000.0;
-}
-
 // Implement WebCore::theme() for getting the global RenderTheme.
 RenderTheme* theme()
 {
@@ -252,9 +243,8 @@ double RenderThemeWin::caretBlinkFrequency() const
     if (ChromiumBridge::layoutTestMode())
         return 0;
 
-    // This involves a system call, so we cache the result.
-    static double blinkInterval = querySystemBlinkInterval();
-    return blinkInterval;
+    // TODO(ericroman): this should be using the platform's blink frequency.
+    return RenderTheme::caretBlinkFrequency();
 }
 
 void RenderThemeWin::systemFont(int propId, Document* document, FontDescription& fontDescription) const
