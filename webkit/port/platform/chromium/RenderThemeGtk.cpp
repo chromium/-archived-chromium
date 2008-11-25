@@ -35,11 +35,35 @@
 
 #include <gdk/gdk.h>
 
+namespace {
+
+// The default variable-width font size.  We use this as the default font
+// size for the "system font", and as a base size (which we then shrink) for
+// form control fonts.
+float DefaultFontSize = 16.0;
+
+}  // namespace
+
 namespace WebCore {
 
 static Color makeColor(const GdkColor& c)
 {
   return Color(makeRGB(c.red >> 8, c.green >> 8, c.blue >> 8));
+}
+
+// We aim to match IE here.
+// -IE uses a font based on the encoding as the default font for form controls.
+// -Gecko uses MS Shell Dlg (actually calls GetStockObject(DEFAULT_GUI_FONT),
+// which returns MS Shell Dlg)
+// -Safari uses Lucida Grande.
+//
+// TODO(ojan): Fix this!
+// The only case where we know we don't match IE is for ANSI encodings. IE uses
+// MS Shell Dlg there, which we render incorrectly at certain pixel sizes
+// (e.g. 15px). So, for now we just use Arial.
+static const char* defaultGUIFont(Document* document)
+{
+    return "Arial";
 }
 
 // Converts points to pixels.  One point is 1/72 of an inch.
@@ -48,7 +72,9 @@ static float pointsToPixels(float points)
     static float pixelsPerInch = 0.0f;
     if (!pixelsPerInch) {
         GdkScreen* screen = gdk_screen_get_default();
-        if (screen) {
+        // TODO(deanm):  I'm getting floating point values of ~75 and ~100,
+        // and it's making my fonts look all wrong.  Figure this out.
+        if (0 && screen) {
             pixelsPerInch = gdk_screen_get_resolution(screen);
         } else {
             // Match the default we set on Windows.
@@ -280,75 +306,33 @@ double RenderThemeGtk::caretBlinkFrequency() const
     return time / 2000.;
 }
 
-void RenderThemeGtk::systemFont(int propId, Document*,
-                                FontDescription& fontDescription) const
+void RenderThemeGtk::systemFont(int propId, Document* document, FontDescription& fontDescription) const
 {
-    const char* fontName = 0;
+    const char* faceName = 0;
     float fontSize = 0;
     // TODO(mmoss) see also webkit/port/rendering/RenderThemeWin.cpp
     switch (propId) {
         case CSSValueMenu:
-            // triggered by LayoutTests/fast/css/css2-system-fonts.html
-            notImplemented();
-            break;
         case CSSValueStatusBar:
-            // triggered by LayoutTests/fast/css/css2-system-fonts.html
-            notImplemented();
-            break;
         case CSSValueSmallCaption:
             // triggered by LayoutTests/fast/css/css2-system-fonts.html
             notImplemented();
             break;
-        case CSSValueWebkitSmallControl: {
-            GtkWidget* widget = gtkEntry();
-            PangoFontDescription* pangoFontDesc = widget->style->font_desc;
-            if (ChromiumBridge::layoutTestMode()) {
-                fontSize = 11.0;
-            } else {
-                // TODO(mmoss) - Windows descreases the size by 2pts. Should
-                // Linux do the same? Seems to make the control way too small.
-                fontName = pango_font_description_get_family(pangoFontDesc);
-                fontSize = pango_font_description_get_size(pangoFontDesc) /
-                        PANGO_SCALE;
-                if (!pango_font_description_get_size_is_absolute(
-                        pangoFontDesc)) {
-                    fontSize = pointsToPixels(fontSize);
-                }
-            }
-            break;
-        }
         case CSSValueWebkitMiniControl:
-            notImplemented();
-            break;
+        case CSSValueWebkitSmallControl:
         case CSSValueWebkitControl:
-            notImplemented();
-            break;
-        // TODO(mmoss) These are in WebKit/WebCore/rendering/RenderThemeWin.cpp
-        // but webkit/port/rendering/RenderThemeWin.cpp doesn't specifically
-        // handle them, so maybe we don't need to either.
-        // Update: triggered by LayoutTests/fast/css/css2-system-fonts.html,
-        // though that doesn't necessarily mean we need explicit handling.
-        case CSSValueIcon:
-            notImplemented();
-            break;
-        case CSSValueMessageBox:
-            notImplemented();
-            break;
-        case CSSValueCaption:
-            notImplemented();
+            faceName = defaultGUIFont(document);
+            // Why 2 points smaller?  Because that's what Gecko does.
+            fontSize = DefaultFontSize - pointsToPixels(2);
             break;
         default:
-            notImplemented();
+            faceName = defaultGUIFont(document);
+            fontSize = DefaultFontSize;
     }
 
     // Only update if the size makes sense.
     if (fontSize > 0) {
-        // NOTE(deanm): Windows hardcodes to Lucida Grande when in layout test
-        // mode, but this is a mac font so really it falls back on Times New
-        // Roman.
-        if (ChromiumBridge::layoutTestMode())
-            fontName = "Times New Roman";
-        fontDescription.firstFamily().setFamily(fontName);
+        fontDescription.firstFamily().setFamily(faceName);
         fontDescription.setSpecifiedSize(fontSize);
         fontDescription.setIsAbsoluteSize(true);
         fontDescription.setGenericFamily(FontDescription::NoFamily);
