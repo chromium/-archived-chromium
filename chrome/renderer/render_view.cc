@@ -853,8 +853,8 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
     request->SetHistoryState(params.state);
 
   if (params.referrer.is_valid()) {
-    request->SetHttpHeaderValue(L"Referer",
-                                UTF8ToWide(params.referrer.spec()));
+    request->SetHttpHeaderValue("Referer",
+                                params.referrer.spec());
   }
 
   main_frame->LoadRequest(request.get());
@@ -1093,8 +1093,8 @@ void RenderView::UpdateURL(WebFrame* frame) {
       params.referrer = GURL(initial_request.GetHttpReferrer());
     }
 
-    std::wstring method = request.GetHttpMethod();
-    if (method == L"POST")
+    std::string method = request.GetHttpMethod();
+    if (method == "POST")
       params.is_post = true;
 
     Send(new ViewHostMsg_FrameNavigate(routing_id_, params));

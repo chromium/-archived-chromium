@@ -71,16 +71,16 @@ class WebRequest {
   virtual void SetCachePolicy(WebRequestCachePolicy policy) = 0;
 
   // Get/set the HTTP request method.
-  virtual std::wstring GetHttpMethod() const = 0;
-  virtual void SetHttpMethod(const std::wstring& method) = 0;
+  virtual std::string GetHttpMethod() const = 0;
+  virtual void SetHttpMethod(const std::string& method) = 0;
 
   // Returns the string corresponding to a header set in the request. If the
   // given header was not set in the request, the empty string is returned.
-  virtual std::wstring GetHttpHeaderValue(const std::wstring& field) const = 0;
+  virtual std::string GetHttpHeaderValue(const std::string& field) const = 0;
 
   // Set a value for a header in the request.
-  virtual void SetHttpHeaderValue(const std::wstring& field,
-      const std::wstring& value) = 0;
+  virtual void SetHttpHeaderValue(const std::string& field,
+      const std::string& value) = 0;
 
   // Fills a map with all header name/value pairs set in the request.
   virtual void GetHttpHeaders(HeaderMap* headers) const = 0;

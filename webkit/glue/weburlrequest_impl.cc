@@ -79,27 +79,27 @@ void WebRequestImpl::SetCachePolicy(WebRequestCachePolicy policy) {
       static_cast<WebCore::ResourceRequestCachePolicy>(policy));
 }
 
-std::wstring WebRequestImpl::GetHttpMethod() const {
-  return webkit_glue::StringToStdWString(
+std::string WebRequestImpl::GetHttpMethod() const {
+  return webkit_glue::StringToStdString(
       request_.resourceRequest().httpMethod());
 }
 
-void WebRequestImpl::SetHttpMethod(const std::wstring& method) {
+void WebRequestImpl::SetHttpMethod(const std::string& method) {
   request_.resourceRequest().setHTTPMethod(
-      webkit_glue::StdWStringToString(method));
+      webkit_glue::StdStringToString(method));
 }
 
-std::wstring WebRequestImpl::GetHttpHeaderValue(const std::wstring& field) const {
-  return webkit_glue::StringToStdWString(
+std::string WebRequestImpl::GetHttpHeaderValue(const std::string& field) const {
+  return webkit_glue::StringToStdString(
       request_.resourceRequest().httpHeaderField(
-          webkit_glue::StdWStringToString(field)));
+          webkit_glue::StdStringToString(field)));
 }
 
-void WebRequestImpl::SetHttpHeaderValue(const std::wstring& field,
-                                        const std::wstring& value) {
+void WebRequestImpl::SetHttpHeaderValue(const std::string& field,
+                                        const std::string& value) {
   request_.resourceRequest().setHTTPHeaderField(
-      webkit_glue::StdWStringToString(field),
-      webkit_glue::StdWStringToString(value));
+      webkit_glue::StdStringToString(field),
+      webkit_glue::StdStringToString(value));
 }
 
 void WebRequestImpl::GetHttpHeaders(HeaderMap* headers) const {
