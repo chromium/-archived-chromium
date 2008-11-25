@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_H_
 #define CHROME_BROWSER_PRINTING_PRINT_JOB_H_
 
+#include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/print_job_worker_owner.h"
 #include "chrome/common/notification_service.h"
@@ -32,7 +33,8 @@ class PrinterQuery;
 // runs in the UI thread.
 class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
                  public NotificationObserver,
-                 public PrintJobWorkerOwner {
+                 public PrintJobWorkerOwner,
+                 public MessageLoop::DestructionObserver {
  public:
   // GetSettings() UI parameter.
   enum GetSettingsAskParam {
@@ -48,6 +50,8 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   PrintJob();
   virtual ~PrintJob();
 
+  // Grabs the ownership of the PrintJobWorker from another job, which is
+  // usually a PrinterQuery.
   void Initialize(PrintJobWorkerOwner* job, PrintedPagesSource* source);
 
   // NotificationObserver
@@ -68,6 +72,9 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   virtual MessageLoop* message_loop() { return ui_message_loop_; }
   virtual const PrintSettings& settings() const { return settings_; }
   virtual int cookie() const;
+
+  // DestructionObserver
+  virtual void WillDestroyCurrentMessageLoop();
 
   // Initializes the printing context. This can be done synchronously or not. It
   // is fine to call this function multiple times to reinitialize the settings.

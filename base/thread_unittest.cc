@@ -97,8 +97,8 @@ TEST_F(ThreadTest, StopSoon) {
   EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
   a.StopSoon();
-  EXPECT_FALSE(a.message_loop());
   a.StopSoon();
+  a.Stop();
   EXPECT_FALSE(a.message_loop());
 }
 
