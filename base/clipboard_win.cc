@@ -131,15 +131,12 @@ Clipboard::Clipboard() {
   wcex.lpszClassName = L"ClipboardOwnerWindowClass";
   ::RegisterClassEx(&wcex);
 
-  clipboard_owner_ = ::CreateWindow(L"ClipboardOwnerWindowClass",
-                                    L"ClipboardOwnerWindow",
-                                    0, 0, 0, 0, 0,
-                                    HWND_MESSAGE,
-                                    0, 0, 0);
+  clipboard_owner_ = NULL;
 }
 
 Clipboard::~Clipboard() {
-  ::DestroyWindow(clipboard_owner_);
+  if (clipboard_owner_)
+    ::DestroyWindow(clipboard_owner_);
   clipboard_owner_ = NULL;
 }
 
@@ -150,7 +147,7 @@ void Clipboard::WriteObjects(const ObjectMap& objects) {
 void Clipboard::WriteObjects(const ObjectMap& objects,
                              base::ProcessHandle process) {
   ScopedClipboard clipboard;
-  if (!clipboard.Acquire(clipboard_owner_))
+  if (!clipboard.Acquire(GetClipboardWindow()))
     return;
 
   ::EmptyClipboard();
@@ -385,7 +382,7 @@ void Clipboard::ReadText(std::wstring* result) const {
 
   // Acquire the clipboard.
   ScopedClipboard clipboard;
-  if (!clipboard.Acquire(clipboard_owner_))
+  if (!clipboard.Acquire(GetClipboardWindow()))
     return;
 
   HANDLE data = ::GetClipboardData(CF_UNICODETEXT);
@@ -406,7 +403,7 @@ void Clipboard::ReadAsciiText(std::string* result) const {
 
   // Acquire the clipboard.
   ScopedClipboard clipboard;
-  if (!clipboard.Acquire(clipboard_owner_))
+  if (!clipboard.Acquire(GetClipboardWindow()))
     return;
 
   HANDLE data = ::GetClipboardData(CF_TEXT);
@@ -426,7 +423,7 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
 
   // Acquire the clipboard.
   ScopedClipboard clipboard;
-  if (!clipboard.Acquire(clipboard_owner_))
+  if (!clipboard.Acquire(GetClipboardWindow()))
     return;
 
   HANDLE data = ::GetClipboardData(GetHtmlFormatType());
@@ -450,7 +447,7 @@ void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
 
   // Acquire the clipboard.
   ScopedClipboard clipboard;
-  if (!clipboard.Acquire(clipboard_owner_))
+  if (!clipboard.Acquire(GetClipboardWindow()))
     return;
 
   HANDLE data = ::GetClipboardData(GetUrlWFormatType());
@@ -489,7 +486,7 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
   files->clear();
 
   ScopedClipboard clipboard;
-  if (!clipboard.Acquire(clipboard_owner_))
+  if (!clipboard.Acquire(GetClipboardWindow()))
     return;
 
   HDROP drop = static_cast<HDROP>(::GetClipboardData(CF_HDROP));
@@ -604,4 +601,15 @@ void Clipboard::FreeData(FormatType format, HANDLE data) {
     ::DeleteObject(static_cast<HBITMAP>(data));
   else
     ::GlobalFree(data);
+}
+
+HWND Clipboard::GetClipboardWindow() const {
+  if (!clipboard_owner_) {
+    clipboard_owner_ = ::CreateWindow(L"ClipboardOwnerWindowClass",
+                                      L"ClipboardOwnerWindow",
+                                      0, 0, 0, 0, 0,
+                                      HWND_MESSAGE,
+                                      0, 0, 0);
+  }
+  return clipboard_owner_;
 }

@@ -175,7 +175,12 @@ class Clipboard {
   // Free a handle depending on its type (as intuited from format)
   static void FreeData(FormatType format, HANDLE data);
 
-  HWND clipboard_owner_;
+  // Return the window that should be the clipboard owner, creating it
+  // if neccessary.  Marked const for lazily initialization by const methods.
+  HWND GetClipboardWindow() const;
+
+  // Mark this as mutable so const methods can still do lazy initialization.
+  mutable HWND clipboard_owner_;
 #elif defined(OS_LINUX)
   // Data is stored in the |clipboard_data_| map until it is saved to the system
   // clipboard. The Store* functions save data to the |clipboard_data_| map. The
