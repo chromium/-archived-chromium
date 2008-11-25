@@ -636,6 +636,7 @@ void BrowserView::TabDetachedAt(TabContents* contents, int index) {
     // We need to reset the current tab contents to NULL before it gets
     // freed. This is because the focus manager performs some operations
     // on the selected TabContents when it is removed.
+    infobar_container_->ChangeTabContents(NULL);
     contents_container_->SetTabContents(NULL);
   }
 }

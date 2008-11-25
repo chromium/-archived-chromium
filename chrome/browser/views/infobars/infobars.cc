@@ -11,8 +11,10 @@
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/background.h"
 #include "chrome/views/button.h"
+#include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
+#include "chrome/views/widget.h"
 
 #include "generated_resources.h"
 
@@ -66,7 +68,11 @@ class InfoBarBackground : public views::Background {
 
 InfoBar::InfoBar(InfoBarDelegate* delegate)
     : delegate_(delegate),
-      close_button_(new views::Button) {
+      close_button_(new views::Button),
+      delete_factory_(this) {
+  // We delete ourselves when we're removed from the view hierarchy.
+  SetParentOwned(false);
+
   set_background(new InfoBarBackground);
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -97,14 +103,19 @@ void InfoBar::Open() {
 }
 
 void InfoBar::AnimateClose() {
+  DestroyFocusTracker(true);
   animation_->Hide();
 }
 
 void InfoBar::Close() {
   GetParent()->RemoveChildView(this);
-  if (delegate())
-    delegate()->InfoBarClosed();
-  delete this;
+  // Note that we only tell the delegate we're closed here, and not when we're
+  // simply destroyed (by virtue of a tab switch or being moved from window to
+  // window), since this action can cause the delegate to destroy itself.
+  if (delegate_) {
+    delegate_->InfoBarClosed();
+    delegate_ = NULL;
+  }
 }
 
 // InfoBar, views::View overrides: ---------------------------------------------
@@ -120,6 +131,17 @@ void InfoBar::Layout() {
                            OffsetY(this, button_ps), button_ps.width(),
                            button_ps.height());
 
+}
+
+void InfoBar::ViewHierarchyChanged(bool is_add, views::View* parent,
+                                   views::View* child) {
+  if (child == this) {
+    if (is_add) {
+      InfoBarAdded();
+    } else {
+      InfoBarRemoved();
+    }
+  }
 }
 
 // InfoBar, protected: ---------------------------------------------------------
@@ -138,14 +160,58 @@ void InfoBar::ButtonPressed(views::BaseButton* sender) {
 // InfoBar, AnimationDelegate implementation: ----------------------------------
 
 void InfoBar::AnimationProgressed(const Animation* animation) {
-  container_->InfoBarAnimated(true);
+  if (container_)
+    container_->InfoBarAnimated(true);
 }
 
 void InfoBar::AnimationEnded(const Animation* animation) {
-  container_->InfoBarAnimated(false);
+  if (container_) {
+    container_->InfoBarAnimated(false);
 
-  if (!animation_->IsShowing())
-    Close();
+    if (!animation_->IsShowing())
+      Close();
+  }
+}
+
+// InfoBar, private: -----------------------------------------------------------
+
+void InfoBar::InfoBarAdded() {
+  // The container_ pointer must be set before adding to the view hierarchy.
+  DCHECK(container_);
+  // When we're added to a view hierarchy within a widget, we create an
+  // external focus tracker to track what was focused in case we obtain
+  // focus so that we can restore focus when we're removed.
+  views::Widget* widget = GetWidget();
+  if (widget) {
+    focus_tracker_.reset(
+        new views::ExternalFocusTracker(this,
+            views::FocusManager::GetFocusManager(widget->GetHWND())));
+  }
+}
+
+void InfoBar::InfoBarRemoved() {
+  DestroyFocusTracker(false);
+  // NULL our container_ pointer so that if Animation::Stop results in
+  // AnimationEnded being called, we do not try and delete ourselves twice.
+  container_ = NULL;
+  animation_->Stop();
+  // Finally, clean ourselves up when we're removed from the view hierarchy
+  // since no-one refers to us now.
+  MessageLoop::current()->PostTask(FROM_HERE,
+      delete_factory_.NewRunnableMethod(&InfoBar::DeleteSelf));
+}
+
+void InfoBar::DestroyFocusTracker(bool restore_focus) {
+  if (focus_tracker_.get()) {
+    if (restore_focus)
+      focus_tracker_->FocusLastFocusedExternalView();
+    focus_tracker_->SetFocusManager(NULL);
+    focus_tracker_.reset(NULL);
+  }  
+}
+
+void InfoBar::DeleteSelf() {
+  delete this;
 }
 
 // AlertInfoBar, public: -------------------------------------------------------
@@ -199,6 +265,12 @@ ConfirmInfoBar::ConfirmInfoBar(ConfirmInfoBarDelegate* delegate)
       cancel_button_(NULL),
       initialized_(false),
       AlertInfoBar(delegate) {
+  ok_button_ = new views::NativeButton(
+      delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_OK));
+  ok_button_->SetListener(this);
+  cancel_button_ = new views::NativeButton(
+      delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_CANCEL));
+  cancel_button_->SetListener(this);
 }
 
 ConfirmInfoBar::~ConfirmInfoBar() {
@@ -214,10 +286,16 @@ void ConfirmInfoBar::Layout() {
   gfx::Size ok_ps = ok_button_->GetPreferredSize();
   gfx::Size cancel_ps = cancel_button_->GetPreferredSize();
 
-  if (GetDelegate()->GetButtons() & ConfirmInfoBarDelegate::BUTTON_OK)
+  if (GetDelegate()->GetButtons() & ConfirmInfoBarDelegate::BUTTON_OK) {
     ok_button_width = ok_ps.width();
-  if (GetDelegate()->GetButtons() & ConfirmInfoBarDelegate::BUTTON_CANCEL)
-   cancel_button_width = cancel_ps.width();
+  } else {
+    ok_button_->SetVisible(false);
+  }
+  if (GetDelegate()->GetButtons() & ConfirmInfoBarDelegate::BUTTON_CANCEL) {
+    cancel_button_width = cancel_ps.width();
+  } else {
+    cancel_button_->SetVisible(false);
+  }
 
   cancel_button_->SetBounds(available_width - cancel_button_width,
                             OffsetY(this, cancel_ps), cancel_ps.width(),
@@ -225,13 +303,13 @@ void ConfirmInfoBar::Layout() {
   int spacing = cancel_button_width > 0 ? kButtonSpacing : 0;
   ok_button_->SetBounds(cancel_button_->x() - spacing - ok_button_width,
                         OffsetY(this, ok_ps), ok_ps.width(), ok_ps.height());
-
   AlertInfoBar::Layout();
 }
 
 void ConfirmInfoBar::ViewHierarchyChanged(bool is_add,
                                           views::View* parent,
                                           views::View* child) {
+  InfoBar::ViewHierarchyChanged(is_add, parent, child);
   if (is_add && child == this && !initialized_) {
     Init();
     initialized_ = true;
@@ -243,8 +321,10 @@ void ConfirmInfoBar::ViewHierarchyChanged(bool is_add,
 void ConfirmInfoBar::ButtonPressed(views::NativeButton* sender) {
   if (sender == ok_button_) {
     GetDelegate()->Accept();
+    AnimateClose();
   } else if (sender == cancel_button_) {
     GetDelegate()->Cancel();
+    AnimateClose();
   } else {
     NOTREACHED();
   }
@@ -267,14 +347,7 @@ ConfirmInfoBarDelegate* ConfirmInfoBar::GetDelegate() {
 }
 
 void ConfirmInfoBar::Init() {
-  ok_button_ = new views::NativeButton(
-      GetDelegate()->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_OK));
-  ok_button_->SetListener(this);
   AddChildView(ok_button_);
-
-  cancel_button_ = new views::NativeButton(
-      GetDelegate()->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_CANCEL));
-  cancel_button_->SetListener(this);
   AddChildView(cancel_button_);
 }
 

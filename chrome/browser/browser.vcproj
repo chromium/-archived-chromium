@@ -562,14 +562,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\session_crashed_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\session_crashed_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\session_restore.cc"
 				>
 			</File>

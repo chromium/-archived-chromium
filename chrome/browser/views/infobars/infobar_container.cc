@@ -19,6 +19,10 @@ InfoBarContainer::InfoBarContainer(BrowserView* browser_view)
 }
 
 InfoBarContainer::~InfoBarContainer() {
+  // We NULL this pointer before resetting the TabContents to prevent view
+  // hierarchy modifications from attempting to adjust the BrowserView, which is
+  // in the process of shutting down.
+  browser_view_ = NULL;
   ChangeTabContents(NULL);
 }
 
@@ -31,6 +35,9 @@ void InfoBarContainer::ChangeTabContents(TabContents* contents) {
         this, NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED,
         Source<TabContents>(tab_contents_));
   }
+  // No need to delete the child views here, their removal from the view
+  // hierarchy does this automatically (see InfoBar::InfoBarRemoved).
+  RemoveAllChildViews(false);
   tab_contents_ = contents;
   if (tab_contents_) {
     UpdateInfoBars();
@@ -44,7 +51,8 @@ void InfoBarContainer::ChangeTabContents(TabContents* contents) {
 }
 
 void InfoBarContainer::InfoBarAnimated(bool completed) {
-  browser_view_->SelectedTabToolbarSizeChanged(!completed);
+  if (browser_view_)
+    browser_view_->SelectedTabToolbarSizeChanged(!completed);
 }
 
 void InfoBarContainer::RemoveDelegate(InfoBarDelegate* delegate) {
@@ -76,7 +84,7 @@ void InfoBarContainer::Layout() {
 void InfoBarContainer::ViewHierarchyChanged(bool is_add,
                                             views::View* parent,
                                             views::View* child) {
-  if (parent == this && child->GetParent() == this) {
+  if (parent == this && child->GetParent() == this && browser_view_) {
     // An InfoBar child was added or removed. Tell the BrowserView it needs to
     // re-layout since our preferred size will have changed.
     browser_view_->SelectedTabToolbarSizeChanged(false);
@@ -100,10 +108,7 @@ void InfoBarContainer::Observe(NotificationType type,
 // InfoBarContainer, private: --------------------------------------------------
 
 void InfoBarContainer::UpdateInfoBars() {
-  // Clear out all the old child views.
-  RemoveAllChildViews(true);
-
-  for (size_t i = 0; i < tab_contents_->infobar_delegate_count(); ++i) {
+  for (int i = 0; i < tab_contents_->infobar_delegate_count(); ++i) {
     InfoBarDelegate* delegate = tab_contents_->GetInfoBarDelegateAt(i);
     InfoBar* infobar = delegate->CreateInfoBar();
     infobar->set_container(this);
@@ -120,7 +125,7 @@ void InfoBarContainer::AddInfoBar(InfoBarDelegate* delegate) {
 }
 
 void InfoBarContainer::RemoveInfoBar(InfoBarDelegate* delegate) {
-  size_t index = 0;
+  int index = 0;
   for (; index < tab_contents_->infobar_delegate_count(); ++index) {
     if (tab_contents_->GetInfoBarDelegateAt(index) == delegate)
       break;

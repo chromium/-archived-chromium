@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "chrome/browser/navigation_controller.h"
 #include "skia/include/SkBitmap.h"
 
 class AlertInfoBarDelegate;
@@ -32,8 +33,10 @@ class InfoBarDelegate {
   }
 
   // Returns true if the InfoBar should be closed automatically after the page
-  // is navigated.
-  virtual bool ShouldCloseOnNavigate() const { return true; }
+  // is navigated. The default behavior is to return true if the page is
+  // navigated somewhere else or reloaded.
+  virtual bool ShouldExpire(
+      const NavigationController::LoadCommittedDetails& details) const;
 
   // Called after the InfoBar is closed. The delegate is free to delete itself
   // at this point.
@@ -52,6 +55,21 @@ class InfoBarDelegate {
   virtual ConfirmInfoBarDelegate* AsConfirmInfoBarDelegate() {
     return NULL;
   }
+
+ protected:
+  // Constructs the InfoBarDelegate for the specified TabContents'
+  // NavigationController.
+  explicit InfoBarDelegate(TabContents* contents);
+  
+ private:
+  // The TabContents this InfoBarDelegate was added to.
+  TabContents* contents_;
+
+  // The unique id of the active NavigationEntry of the TabContents taht we were
+  // opened for. Used to help expire on navigations.
+  int contents_unique_id_;
+
+  DISALLOW_COPY_AND_ASSIGN(InfoBarDelegate);
 };
 
 // An interface derived from InfoBarDelegate implemented by objects wishing to
@@ -69,6 +87,11 @@ class AlertInfoBarDelegate : public InfoBarDelegate {
   virtual bool EqualsDelegate(InfoBarDelegate* delegate) const;
   virtual InfoBar* CreateInfoBar();
   virtual AlertInfoBarDelegate* AsAlertInfoBarDelegate() { return this; }
+
+ protected:
+  explicit AlertInfoBarDelegate(TabContents* contents);
+
+  DISALLOW_COPY_AND_ASSIGN(AlertInfoBarDelegate);
 };
 
 // An interface derived from InfoBarDelegate implemented by objects wishing to
@@ -101,13 +124,20 @@ class ConfirmInfoBarDelegate : public AlertInfoBarDelegate {
   virtual ConfirmInfoBarDelegate* AsConfirmInfoBarDelegate() {
     return this;
   }
+
+ protected:
+  explicit ConfirmInfoBarDelegate(TabContents* contents);
+
+  DISALLOW_COPY_AND_ASSIGN(ConfirmInfoBarDelegate);
 };
 
 // Simple implementations for common use cases ---------------------------------
 
 class SimpleAlertInfoBarDelegate : public AlertInfoBarDelegate {
  public:
-  SimpleAlertInfoBarDelegate(const std::wstring& message, SkBitmap* icon);
+  SimpleAlertInfoBarDelegate(TabContents* contents,
+                             const std::wstring& message,
+                             SkBitmap* icon);
 
   // Overridden from AlertInfoBarDelegate:
   virtual std::wstring GetMessageText() const;

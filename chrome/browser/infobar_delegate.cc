@@ -5,11 +5,30 @@
 #include "chrome/browser/infobar_delegate.h"
 
 #include "base/logging.h"
+#include "chrome/browser/navigation_entry.h"
+#include "chrome/browser/navigation_controller.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 
 #include "generated_resources.h"
 
-// AlertInfoBarDelegate, InfoBarDelegate overrides: ----------------------------
+// InfoBarDelegate: ------------------------------------------------------------
+
+bool InfoBarDelegate::ShouldExpire(
+    const NavigationController::LoadCommittedDetails& details) const {
+  bool is_reload =
+      PageTransition::StripQualifier(details.entry->transition_type()) ==
+          PageTransition::RELOAD;
+  return is_reload || (contents_unique_id_ != details.entry->unique_id());
+}
+
+InfoBarDelegate::InfoBarDelegate(TabContents* contents) {
+  // Initialize the unique id that we use to expire.
+  NavigationEntry* active_entry = contents->controller()->GetActiveEntry();
+  contents_unique_id_ = active_entry ? active_entry->unique_id() : 0;
+}
+
+// AlertInfoBarDelegate: -------------------------------------------------------
 
 bool AlertInfoBarDelegate::EqualsDelegate(InfoBarDelegate* delegate) const {
   AlertInfoBarDelegate* alert_delegate = delegate->AsAlertInfoBarDelegate();
@@ -19,7 +38,11 @@ bool AlertInfoBarDelegate::EqualsDelegate(InfoBarDelegate* delegate) const {
   return alert_delegate->GetMessageText() == GetMessageText();
 }
 
-// ConfirmInfoBarDelegate, public: ---------------------------------------------
+AlertInfoBarDelegate::AlertInfoBarDelegate(TabContents* contents)
+    : InfoBarDelegate(contents) {
+}
+
+// ConfirmInfoBarDelegate: -----------------------------------------------------
 
 std::wstring ConfirmInfoBarDelegate::GetButtonLabel(
     InfoBarButton button) const {
@@ -31,15 +54,20 @@ std::wstring ConfirmInfoBarDelegate::GetButtonLabel(
   return std::wstring();
 }
 
-// SimpleAlertInfoBarDelegate, public: -----------------------------------------
-
-SimpleAlertInfoBarDelegate::SimpleAlertInfoBarDelegate(
-    const std::wstring& message, SkBitmap* icon)
-    : message_(message),
-      icon_(icon) {
+ConfirmInfoBarDelegate::ConfirmInfoBarDelegate(TabContents* contents)
+    : AlertInfoBarDelegate(contents) {
 }
 
-// SimpleAlertInfoBarDelegate, AlertInfoBarDelegate implementation: ------------
+// SimpleAlertInfoBarDelegate: -------------------------------------------------
+
+SimpleAlertInfoBarDelegate::SimpleAlertInfoBarDelegate(
+    TabContents* contents,
+    const std::wstring& message,
+    SkBitmap* icon)
+    : message_(message),
+      icon_(icon),
+      AlertInfoBarDelegate(contents) {
+}
 
 std::wstring SimpleAlertInfoBarDelegate::GetMessageText() const {
   return message_;

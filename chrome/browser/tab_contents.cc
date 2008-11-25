@@ -390,7 +390,7 @@ void TabContents::SetInitialFocus() {
 void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
   // Look through the existing InfoBarDelegates we have for a match. If we've
   // already got one that matches, then we don't add the new one.
-  for (size_t i = 0; i < infobar_delegate_count(); ++i) {
+  for (int i = 0; i < infobar_delegate_count(); ++i) {
     if (GetInfoBarDelegateAt(i)->EqualsDelegate(delegate))
       return;
   }
@@ -415,10 +415,10 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
       find(infobar_delegates_.begin(), infobar_delegates_.end(), delegate);
   if (it != infobar_delegates_.end()) {
     InfoBarDelegate* delegate = *it;
-    infobar_delegates_.erase(it);
     NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED,
                                            Source<TabContents>(this),
                                            Details<InfoBarDelegate>(delegate));
+    infobar_delegates_.erase(it);
   }
 
   // Remove ourselves as an observer if we are tracking no more InfoBars.
@@ -590,11 +590,9 @@ void TabContents::ExpireInfoBars(
   if (!details.is_user_initiated_main_frame_load())
     return;
 
-  for (size_t i = 0; i < infobar_delegate_count(); ++i) {
+  for (int i = infobar_delegate_count() - 1; i >= 0; --i) {
     InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
-    if (!TransitionIsReload(details.entry->transition_type()) &&      
-        delegate->ShouldCloseOnNavigate()) {
+    if (delegate->ShouldExpire(details))
       RemoveInfoBar(delegate);
-    }
   }
 }

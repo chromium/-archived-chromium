@@ -25,15 +25,16 @@ void PasswordManager::RegisterUserPrefs(PrefService* prefs) {
 
 PasswordManager::PasswordManager(WebContents* web_contents)
     : web_contents_(web_contents),
-      current_bar_(NULL),
       observer_(NULL),
-      login_managers_deleter_(&pending_login_managers_) {
+      login_managers_deleter_(&pending_login_managers_),
+      ConfirmInfoBarDelegate(web_contents) {
   password_manager_enabled_.Init(prefs::kPasswordManagerEnabled,
       web_contents->profile()->GetPrefs(), NULL);
 }
 
 PasswordManager::~PasswordManager() {
-  CloseBars();
+  // Remove any InfoBars we may be showing.
+  web_contents_->RemoveInfoBar(this);
 }
 
 void PasswordManager::ProvisionallySavePassword(PasswordForm form) {
@@ -112,8 +113,7 @@ void PasswordManager::DidStopLoading() {
     return;
 
   if (pending_save_manager_->IsNewLogin()) {
-    // Transfer ownership of the pending_save_manager_ to the PasswordBar.
-    ReplaceInfoBar(new SavePasswordBar(pending_save_manager_.release(), this));
+    web_contents_->AddInfoBar(this);
   } else {
     // If the save is not a new username entry, then we just want to save this
     // data (since the user already has related data saved), so don't prompt.
@@ -182,45 +182,41 @@ void PasswordManager::Autofill(const PasswordForm& form_for_autofill,
   }
 }
 
-void PasswordManager::CloseBars() {
-  if (current_bar_)
-    current_bar_->Close();
+// PasswordManager, ConfirmInfoBarDelegate implementation: ---------------------
+
+void PasswordManager::InfoBarClosed() {
+  pending_save_manager_.reset(NULL);
 }
 
-void PasswordManager::ReplaceInfoBar(InfoBarItemView* bar) {
-  // TODO(brettw) The password manager should not have to know about info bars.
-  CloseBars();
-  InfoBarView* view = web_contents_->view()->GetInfoBarView();
-  view->AddChildView(bar);
-  current_bar_ = bar;
+std::wstring PasswordManager::GetMessageText() const {
+  return l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_PASSWORD_PROMPT);
 }
 
-PasswordManager::SavePasswordBar
-               ::SavePasswordBar(PasswordFormManager* form_manager,
-                                 PasswordManager* password_manager)
-    : form_manager_(form_manager),
-      password_manager_(password_manager),
-      InfoBarConfirmView(
-          l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_PASSWORD_PROMPT)) {
-  SetOKButtonLabel(l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_BUTTON));
-  SetCancelButtonLabel(l10n_util::GetString(
-      IDS_PASSWORD_MANAGER_BLACKLIST_BUTTON));
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-  SetIcon(*rb.GetBitmapNamed(IDR_INFOBAR_SAVE_PASSWORD));
+SkBitmap* PasswordManager::GetIcon() const {
+  return ResourceBundle::GetSharedInstance().GetBitmapNamed(
+      IDR_INFOBAR_SAVE_PASSWORD);
 }
 
-PasswordManager::SavePasswordBar::~SavePasswordBar() {
-  password_manager_->current_bar_ = NULL;
-  if (form_manager_)
-    delete form_manager_;
+int PasswordManager::GetButtons() const {
+  return BUTTON_OK | BUTTON_CANCEL;
 }
 
-void PasswordManager::SavePasswordBar::OKButtonPressed() {
-  form_manager_->Save();
-  BeginClose();
+std::wstring PasswordManager::GetButtonLabel(InfoBarButton button) const {
+  if (button == BUTTON_OK)
+    return l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_BUTTON);
+  if (button == BUTTON_CANCEL)
+    return l10n_util::GetString(IDS_PASSWORD_MANAGER_BLACKLIST_BUTTON);
+  NOTREACHED();
+  return std::wstring();
 }
 
-void PasswordManager::SavePasswordBar::CancelButtonPressed() {
-  form_manager_->PermanentlyBlacklist();
-  BeginClose();
+void PasswordManager::Accept() {
+  pending_save_manager_->Save();
+  web_contents_->RemoveInfoBar(this);
 }
+
+void PasswordManager::Cancel() {
+  pending_save_manager_->PermanentlyBlacklist();
+  web_contents_->RemoveInfoBar(this);
+}
+

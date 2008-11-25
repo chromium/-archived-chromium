@@ -17,14 +17,15 @@
 #include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/result_codes.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/first_run.h"
+#include "chrome/browser/infobar_delegate.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/session_crashed_view.h"
 #include "chrome/browser/session_restore.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -38,6 +39,7 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"
@@ -47,6 +49,43 @@
 #include "generated_resources.h"
 
 namespace {
+
+// A delegate for the InfoBar shown when the previous session has crashed. The
+// bar deletes itself automatically after it is closed.
+class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
+ public:
+  explicit SessionCrashedInfoBarDelegate(TabContents* contents)
+      : profile_(contents->profile()),
+        ConfirmInfoBarDelegate(contents) {
+  }
+
+  // Overridden from ConfirmInfoBarDelegate:
+  virtual void InfoBarClosed() {
+    delete this;
+  }
+  virtual std::wstring GetMessageText() const {
+    return l10n_util::GetString(IDS_SESSION_CRASHED_VIEW_MESSAGE);
+  }
+  virtual SkBitmap* GetIcon() const {
+    return ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_INFOBAR_RESTORE_SESSION);
+  }
+  virtual int GetButtons() const { return BUTTON_OK; }
+  virtual std::wstring GetButtonLabel(InfoBarButton button) const {
+    return l10n_util::GetString(IDS_SESSION_CRASHED_VIEW_RESTORE_BUTTON);
+  }
+  virtual void Accept() {
+    // Restore the session.
+    SessionRestore::RestoreSession(profile_, NULL, false, true, false,
+                                   std::vector<GURL>());
+  }
+
+ private:
+  // The Profile that we restore sessions from.
+  Profile* profile_;
+
+  DISALLOW_COPY_AND_ASSIGN(SessionCrashedInfoBarDelegate);
+};
 
 void SetOverrideHomePage(const CommandLine& command_line, PrefService* prefs) {
   // If homepage is specified on the command line, canonify & store it.
@@ -502,15 +541,11 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
 
 void BrowserInit::LaunchWithProfile::AddCrashedInfoBarIfNecessary(
     TabContents* tab) {
-  WebContents* web_contents = tab->AsWebContents();
-  if (!profile_->DidLastSessionExitCleanly() && web_contents) {
+  if (!profile_->DidLastSessionExitCleanly()) {
     // The last session didn't exit cleanly. Show an infobar to the user
-    // so that they can restore if they want.
-    // TODO(brettw) this should be done more cleanly, by adding a message to
-    // the view and not getting the info bar from inside it directly.
-    web_contents->view()->GetInfoBarView()->
-        AddChildView(new SessionCrashedView(profile_));
-    web_contents->view()->SetInfoBarVisible(true);
+    // so that they can restore if they want. The delegate deletes itself when
+    // it is closed.
+    tab->AddInfoBar(new SessionCrashedInfoBarDelegate(tab));
   }
 }
 

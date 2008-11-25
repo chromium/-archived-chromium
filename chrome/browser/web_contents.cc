@@ -855,8 +855,6 @@ void WebContents::RequestMove(const gfx::Rect& new_bounds) {
 }
 
 void WebContents::DidStartLoading(RenderViewHost* rvh, int32 page_id) {
-  if (plugin_installer_ != NULL)
-    plugin_installer_->OnStartLoading();
   SetIsLoading(true, NULL);
 }
 
@@ -1339,12 +1337,13 @@ void WebContents::OnCrashedPlugin(const std::wstring& plugin_path) {
       plugin_name = product_name;
   }
   AddInfoBar(new SimpleAlertInfoBarDelegate(
-      l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name), NULL));
+      this, l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name),
+      NULL));
 }
 
 void WebContents::OnJSOutOfMemory() {
   AddInfoBar(new SimpleAlertInfoBarDelegate(
-      l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT), NULL));
+      this, l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT), NULL));
 }
 
 bool WebContents::CanBlur() const {

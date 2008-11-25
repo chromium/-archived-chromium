@@ -13,6 +13,7 @@ class InfoBarContainer;
 class SlideAnimation;
 namespace views {
 class Button;
+class ExternalFocusTracker;
 class ImageView;
 class Label;
 }
@@ -30,6 +31,8 @@ class InfoBar : public views::View,
 
   InfoBarDelegate* delegate() const { return delegate_; }
 
+  // Set a link to the parent InfoBarContainer. This must be set before the
+  // InfoBar is added to the view hierarchy.
   void set_container(InfoBarContainer* container) { container_ = container; }
 
   // Starts animating the InfoBar open.
@@ -52,6 +55,11 @@ class InfoBar : public views::View,
   virtual void Layout();
 
  protected:
+  // Overridden from views::View:
+  virtual void ViewHierarchyChanged(bool is_add,
+                                    views::View* parent,
+                                    views::View* child);
+
   // Returns the available width of the View for use by child view layout,
   // excluding the close button.
   virtual int GetAvailableWidth() const;
@@ -64,6 +72,20 @@ class InfoBar : public views::View,
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);
 
+  // Called when an InfoBar is added or removed from a view hierarchy to do
+  // setup and shutdown.
+  void InfoBarAdded();
+  void InfoBarRemoved();
+
+  // Destroys the external focus tracker, if present. If |restore_focus| is
+  // true, restores focus to the view tracked by the focus tracker before doing
+  // so.
+  void DestroyFocusTracker(bool restore_focus);
+
+  // Deletes this object (called after a return to the message loop to allow
+  // the stack in ViewHierarchyChanged to unwind).
+  void DeleteSelf();
+
   // The InfoBar's container
   InfoBarContainer* container_;
 
@@ -75,6 +97,13 @@ class InfoBar : public views::View,
 
   // The animation that runs when the InfoBar is opened or closed.
   scoped_ptr<SlideAnimation> animation_;
+
+  // Tracks and stores the last focused view which is not the InfoBar or any of
+  // its children. Used to restore focus once the InfoBar is closed.
+  scoped_ptr<views::ExternalFocusTracker> focus_tracker_;
+
+  // Used to delete this object after a return to the message loop.
+  ScopedRunnableMethodFactory<InfoBar> delete_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(InfoBar);
 };
