@@ -313,8 +313,10 @@ void BookmarkContextMenu::RunMenuAt(int x, int y) {
     return;
   }
   // width/height don't matter here.
-  menu_->RunMenuAt(hwnd_, gfx::Rect(x, y, 0, 0), views::MenuItemView::TOPLEFT,
-                  true);
+  views::MenuItemView::AnchorPosition anchor =
+      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+      views::MenuItemView::TOPRIGHT : views::MenuItemView::TOPLEFT;
+  menu_->RunMenuAt(hwnd_, gfx::Rect(x, y, 0, 0), anchor, true);
 }
 
 void BookmarkContextMenu::ExecuteCommand(int id) {

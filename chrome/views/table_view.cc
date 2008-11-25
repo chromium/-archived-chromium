@@ -1076,6 +1076,21 @@ void TableView::OnDestroy() {
   }
 }
 
+void TableView::OnContextMenu(const CPoint& location) {
+  if (!GetContextMenuController())
+    return;
+
+  if (!UILayoutIsRightToLeft() || (location.x == -1 && location.y == -1)) {
+    NativeControl::OnContextMenu(location);
+    return;
+  }
+  // For some reason context menu gestures when rtl have the wrong coordinates;
+  // get the position of the cursor and use it.
+  CPoint cursor_point;
+  GetCursorPos(&cursor_point);
+  NativeControl::OnContextMenu(cursor_point);
+}
+
 // Returns result, unless ascending is false in which case -result is returned.
 static int SwapCompareResult(int result, bool ascending) {
   return ascending ? result : -result;
