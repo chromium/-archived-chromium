@@ -172,8 +172,8 @@ void BlockedPopupContainerView::Layout() {
   gfx::Size sz = popup_count_label_->GetPreferredSize();
 
   popup_count_label_->SetBounds(kSmallPadding, kSmallPadding,
-                          sz.width(),
-                          sz.height());
+                                sz.width(),
+                                sz.height());
 
   int close_button_padding =
       static_cast<int>(ceil(panel_size.height() / 2.0) -
@@ -398,8 +398,10 @@ void BlockedPopupContainer::ReplaceContents(TabContents* source,
     }
   }
 
-  if (found)
+  if (found) {
+    new_contents->set_delegate(this);
     blocked_popups_.push_back(std::make_pair(new_contents, rect));
+  }
 }
 
 void BlockedPopupContainer::AddNewContents(TabContents* source,
