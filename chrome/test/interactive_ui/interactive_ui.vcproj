@@ -171,10 +171,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\test_file_util.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\testing_profile.cc"
 				>
 			</File>

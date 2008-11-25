@@ -66,7 +66,6 @@ if env['PLATFORM'] == 'win32':
 input_files = [
     'automated_ui_tests.cc',
 
-    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     '$CHROME_DIR/test/perf/mem_usage$OBJSUFFIX',
     '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',
     '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',

@@ -67,7 +67,6 @@ input_files = [
     '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',
     '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
-    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     'plugin_test.cpp',
 ]
 

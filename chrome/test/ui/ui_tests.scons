@@ -120,7 +120,6 @@ ui_test_files = [
     '$CHROME_DIR/test/automation/automation_proxy_uitest.cc',
     '$CHROME_DIR/test/perf/mem_usage.cc',
     '$CHROME_DIR/test/reliability/page_load_test$OBJSUFFIX',
-    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
 ]
 

@@ -168,14 +168,6 @@
 				RelativePath="..\..\..\base\perftimer.cc"
 				>
 			</File>
-			<File
-				RelativePath="..\test_file_util.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\test_file_util.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="TestURLParser"

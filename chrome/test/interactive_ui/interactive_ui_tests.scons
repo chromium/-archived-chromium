@@ -95,7 +95,6 @@ input_files = [
     '$CHROME_DIR/browser/views/constrained_window_impl_interactive_uitest.cc',
     '$CHROME_DIR/browser/views/tabs/tab_dragging_test.cc',
     '$CHROME_DIR/test/interactive_ui/npapi_interactive_test.cc',
-    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     '$CHROME_DIR/test/testing_profile$OBJSUFFIX',
     '$CHROME_DIR/test/ui/npapi_test_helper$OBJSUFFIX',
     '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',

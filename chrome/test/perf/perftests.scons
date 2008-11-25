@@ -69,7 +69,6 @@ input_files = [
     '$CHROME_DIR/browser/visitedlink_master$OBJSUFFIX',
     '$CHROME_DIR/browser/visitedlink_perftest.cc',
     '$CHROME_DIR/common/json_value_serializer_perftest.cc',
-    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
 ]
 
 env.ChromeTestProgram('perf_tests', input_files)

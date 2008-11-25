@@ -37,7 +37,6 @@ if env['PLATFORM'] == 'win32':
   )
 
 input_files = [
-    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     'flush_cache.cc',
 ]
 

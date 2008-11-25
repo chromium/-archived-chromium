@@ -142,14 +142,6 @@
 			RelativePath=".\flush_cache.cc"
 			>
 		</File>
-		<File
-			RelativePath="..\..\..\test\test_file_util.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\test\test_file_util.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

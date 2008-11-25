@@ -8,7 +8,7 @@
 #include "base/string_piece.h"
 #include "base/process_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/test/test_file_util.h"
+#include "base/test_file_util.h"
 
 int main(int argc, const char* argv[]) {
   base::EnableTerminationOnHeapCorruption();

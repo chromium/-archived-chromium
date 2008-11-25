@@ -834,6 +834,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\test_file_util.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\test_file_util.h"
+			>
+		</File>
+		<File
 			RelativePath="..\thread.cc"
 			>
 		</File>
