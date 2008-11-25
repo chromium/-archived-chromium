@@ -68,7 +68,6 @@ bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
     case IDC_ENCODING_ISO885910:
     case IDC_ENCODING_ISO885914:
     case IDC_ENCODING_ISO885916:
-    case IDC_ENCODING_ISO88599:
     case IDC_ENCODING_WINDOWS1254:
     case IDC_ENCODING_ISO88596:
     case IDC_ENCODING_WINDOWS1256:

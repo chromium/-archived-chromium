@@ -1157,7 +1157,6 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_ISO885910:
     case IDC_ENCODING_ISO885914:
     case IDC_ENCODING_ISO885916:
-    case IDC_ENCODING_ISO88599:
     case IDC_ENCODING_WINDOWS1254:
     case IDC_ENCODING_ISO88596:
     case IDC_ENCODING_WINDOWS1256:
@@ -1929,7 +1928,6 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885910, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885914, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885916, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88599, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1254, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88596, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1256, true);

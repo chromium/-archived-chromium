@@ -53,7 +53,6 @@ static CanonicalEncodingData canonical_encoding_names[] = {
   { IDC_ENCODING_KOI8U, L"KOI8-U", IDS_ENCODING_CYRILLIC },
   { IDC_ENCODING_ISO88597, L"ISO-8859-7", IDS_ENCODING_GREEK },
   { IDC_ENCODING_WINDOWS1253, L"windows-1253", IDS_ENCODING_GREEK },
-  { IDC_ENCODING_ISO88599, L"ISO-8859-9", IDS_ENCODING_TURKISH },
   { IDC_ENCODING_WINDOWS1254, L"windows-1254", IDS_ENCODING_TURKISH },
   { IDC_ENCODING_ISO88596, L"ISO-8859-6", IDS_ENCODING_ARABIC },
   { IDC_ENCODING_WINDOWS1256, L"windows-1256", IDS_ENCODING_ARABIC },
@@ -178,7 +177,6 @@ const int default_encoding_menus[] = {
   0,
   IDC_ENCODING_ISO88597,
   IDC_ENCODING_WINDOWS1253,
-  IDC_ENCODING_ISO88599,
   IDC_ENCODING_WINDOWS1254,
   IDC_ENCODING_ISO88596,
   IDC_ENCODING_WINDOWS1256,
@@ -220,7 +218,8 @@ std::wstring GetEncodingDisplayName(std::wstring encoding_name,
                                     int category_string_id) {
   std::wstring category_name = l10n_util::GetString(category_string_id);
   if (category_string_id != IDS_ENCODING_KOREAN &&
-      category_string_id != IDS_ENCODING_THAI) {
+      category_string_id != IDS_ENCODING_THAI &&
+      category_string_id != IDS_ENCODING_TURKISH) {
     return l10n_util::GetStringF(IDS_ENCODING_DISPLAY_TEMPLATE,
                                  category_name,
                                  encoding_name);

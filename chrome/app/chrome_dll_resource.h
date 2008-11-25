@@ -123,13 +123,13 @@
 #define IDC_ENCODING_ISO885910          32920
 #define IDC_ENCODING_ISO885914          32921
 #define IDC_ENCODING_ISO885916          32922
-#define IDC_ENCODING_ISO88599           32923
-#define IDC_ENCODING_WINDOWS1254        32924
-#define IDC_ENCODING_ISO88596           32925
-#define IDC_ENCODING_WINDOWS1256        32926
-#define IDC_ENCODING_ISO88598           32927
-#define IDC_ENCODING_WINDOWS1255        32928
-#define IDC_ENCODING_WINDOWS1258        32929
+#define IDC_ENCODING_WINDOWS1254        32923
+#define IDC_ENCODING_ISO88596           32924
+#define IDC_ENCODING_WINDOWS1256        32925
+#define IDC_ENCODING_ISO88598           32926
+#define IDC_ENCODING_WINDOWS1255        32927
+#define IDC_ENCODING_WINDOWS1258        32928
+// Free space 32929
 // Spell-check suggestions.
 // If more suggestions have to be inserted, insert them before the _LAST
 // These have to be consecutive.
