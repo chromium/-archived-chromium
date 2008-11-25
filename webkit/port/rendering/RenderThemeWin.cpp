@@ -241,7 +241,7 @@ double RenderThemeWin::caretBlinkFrequency() const
     // Disable the blinking caret in layout test mode, as it introduces
     // a race condition for the pixel tests. http://b/1198440
     if (ChromiumBridge::layoutTestMode())
-        return 999999999;
+        return 0;
 
     // TODO(ericroman): this should be using the platform's blink frequency.
     return RenderTheme::caretBlinkFrequency();
