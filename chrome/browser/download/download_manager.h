@@ -35,6 +35,8 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
 #define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
 
+#include "build/build_config.h"
+
 #include <string>
 #include <map>
 #include <set>
@@ -47,11 +49,13 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history.h"
+#if defined(OS_WIN)
+// TODO(port): Port this header and remove #ifdef.
 #include "chrome/browser/shell_dialogs.h"
+#endif
 #include "chrome/common/pref_member.h"
 
 class DownloadFileManager;
-class DownloadItem;
 class DownloadItemView;
 class DownloadManager;
 class GURL;
@@ -271,6 +275,9 @@ class DownloadItem {
 
 
 // DownloadManager -------------------------------------------------------------
+
+#if defined(OS_WIN)
+// TODO(port): Port this part of the header and remove the #ifdef.
 
 // Browser's download manager: manages all downloads and destination view.
 class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
@@ -563,5 +570,6 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   DISALLOW_EVIL_CONSTRUCTORS(DownloadManager);
 };
 
+#endif  // defined(OS_WIN)
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__

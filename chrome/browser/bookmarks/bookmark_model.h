@@ -5,9 +5,13 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
 
+#include "build/build_config.h"
+
 #include "base/lock.h"
 #include "base/observer_list.h"
+#if defined(OS_WIN)
 #include "base/scoped_handle.h"
+#endif  // defined(OS_WIN)
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/cancelable_request.h"
@@ -436,7 +440,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   Lock url_lock_;
 
   // Used for loading favicons and the empty history request.
-  CancelableRequestConsumerT<BookmarkNode*, NULL> load_consumer_;
+  CancelableRequestConsumerTSimple<BookmarkNode*> load_consumer_;
 
   // Reads/writes bookmarks to disk.
   scoped_refptr<BookmarkStorage> store_;
@@ -446,8 +450,12 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // doesn't exist and the history service hasn't finished loading.
   bool waiting_for_history_load_;
 
+#if defined(OS_WIN)
+  // TODO(port): Implement for other platforms.
+
   // Handle to event signaled when loading is done.
   ScopedHandle loaded_signal_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkModel);
 };

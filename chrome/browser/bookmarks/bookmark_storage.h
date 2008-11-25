@@ -10,6 +10,7 @@
 #include "chrome/browser/browser_process.h"
 
 class BookmarkModel;
+class BookmarkStorageBackend;
 class Profile;
 class Value;
 

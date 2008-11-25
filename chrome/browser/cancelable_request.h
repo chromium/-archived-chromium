@@ -186,20 +186,20 @@ class CancelableRequestConsumerBase {
 };
 
 // Template for clients to use. It allows them to associate random "client
-// data" with a specific requst. The default value for this type is given in
-// |initial_t|. The type T should be small and easily copyable (like a pointer
+// data" with a specific request. The default value for this type is NULL.
+// The type T should be small and easily copyable (like a pointer
 // or an integer).
-template<class T, T initial_t>
-class CancelableRequestConsumerT : public CancelableRequestConsumerBase {
+template<class T>
+class CancelableRequestConsumerTSimple : public CancelableRequestConsumerBase {
  public:
-  CancelableRequestConsumerT() {
+  CancelableRequestConsumerTSimple() {
   }
 
   // Cancel any outstanding requests so that we do not get called back after we
   // are destroyed. As these requests are removed, the providers will call us
   // back on OnRequestRemoved, which will then update the list. To iterate
   // successfully while the list is changing out from under us, we make a copy.
-  virtual ~CancelableRequestConsumerT() {
+  virtual ~CancelableRequestConsumerTSimple() {
     CancelAllRequests();
   }
 
@@ -273,11 +273,15 @@ class CancelableRequestConsumerT : public CancelableRequestConsumerBase {
   };
   typedef std::map<PendingRequest, T> PendingRequestList;
 
+  virtual T get_initial_t() const {
+    return NULL;
+  }
+
   virtual void OnRequestAdded(CancelableRequestProvider* provider,
                               CancelableRequestProvider::Handle handle) {
     DCHECK(pending_requests_.find(PendingRequest(provider, handle)) ==
            pending_requests_.end());
-    pending_requests_[PendingRequest(provider, handle)] = initial_t;
+    pending_requests_[PendingRequest(provider, handle)] = get_initial_t();
   }
 
   virtual void OnRequestRemoved(CancelableRequestProvider* provider,
@@ -294,6 +298,16 @@ class CancelableRequestConsumerT : public CancelableRequestConsumerBase {
 
   // Lists all outstanding requests.
   PendingRequestList pending_requests_;
+};
+
+// See CancelableRequestConsumerTSimple. The default value for T
+// is given in |initial_t|.
+template<class T, T initial_t>
+class CancelableRequestConsumerT : public CancelableRequestConsumerTSimple<T> {
+ protected:
+  virtual T get_initial_t() const {
+    return initial_t;
+  }
 };
 
 // Some clients may not want to store data. Rather than do some complicated

@@ -7,6 +7,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/json_writer.h"
+#include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"
@@ -57,7 +58,7 @@ void FillInStarredEntry(SQLStatement* s, StarredEntry* entry) {
   switch (s->column_int(1)) {
     case 0:
       entry->type = history::StarredEntry::URL;
-      entry->url = GURL(s->column_string16(6));
+      entry->url = GURL(WideToUTF8(s->column_string16(6)));
       break;
     case 1:
       entry->type = history::StarredEntry::BOOKMARK_BAR;
@@ -487,7 +488,7 @@ bool StarredURLDatabase::EnsureStarredIntegrityImpl(
       LOG(WARNING) << "Bookmark not in a bookmark folder found";
       if (!Move(*i, bookmark_node))
         return false;
-      i = unparented_urls->erase(i);
+      unparented_urls->erase(i++);
     }
   }
 
@@ -511,7 +512,7 @@ bool StarredURLDatabase::EnsureStarredIntegrityImpl(
         LOG(WARNING) << "Bookmark folder not on bookmark bar found";
         if (!Move(*i, bookmark_node))
           return false;
-        i = roots->erase(i);
+        roots->erase(i++);
       } else {
         ++i;
       }

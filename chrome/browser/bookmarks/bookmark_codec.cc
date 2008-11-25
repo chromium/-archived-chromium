@@ -134,7 +134,6 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
                                const DictionaryValue& value,
                                BookmarkNode* parent,
                                BookmarkNode* node) {
-  bool created_node = (node == NULL);
   std::wstring title;
   if (!value.GetString(kNameKey, &title))
     return false;
@@ -158,7 +157,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       return false;
     // TODO(sky): this should ignore the node if not a valid URL.
     if (!node)
-      node = new BookmarkNode(model, GURL(url_string));
+      node = new BookmarkNode(model, GURL(WideToUTF8(url_string)));
     if (parent)
       parent->Add(parent->GetChildCount(), node);
     node->type_ = history::StarredEntry::URL;
