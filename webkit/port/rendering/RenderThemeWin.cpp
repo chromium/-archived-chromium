@@ -282,22 +282,16 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             }
             break;
         case CSSValueWebkitMiniControl:
-            faceName = defaultGUIFont(document);
-            // Why 2 points smaller?  Because that's what Gecko does.
-            // Also see 2 places below.
-            fontSize = DefaultFontSize - pointsToPixels(2);
-            break;
         case CSSValueWebkitSmallControl:
-            faceName = defaultGUIFont(document);
-            fontSize = DefaultFontSize - pointsToPixels(2);
-            break;
         case CSSValueWebkitControl:
             faceName = defaultGUIFont(document);
+            // Why 2 points smaller?  Because that's what Gecko does.
             fontSize = DefaultFontSize - pointsToPixels(2);
             break;
         default:
             faceName = defaultGUIFont(document);
             fontSize = DefaultFontSize;
+            break;
     }
 
     if (!cachedDesc)
