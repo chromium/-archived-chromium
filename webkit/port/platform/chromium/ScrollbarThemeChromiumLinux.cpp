@@ -72,6 +72,8 @@ static void initMozState(GtkWidgetState* mozState)
     mozState->isDefault = false;
     mozState->canDefault = false;
     mozState->depressed = false;
+    mozState->curpos = 0;
+    mozState->maxpos = 0;
 }
 
 // -----------------------------------------------------------------------------
