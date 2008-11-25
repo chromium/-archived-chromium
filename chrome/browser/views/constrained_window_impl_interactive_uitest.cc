@@ -103,8 +103,7 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
 
 // Helper function used to get the number of blocked popups out of the window
 // title.
-bool ParseCountOutOfTitle(const std::wstring& title, int* output)
-{
+bool ParseCountOutOfTitle(const std::wstring& title, int* output) {
   // Since we will be reading the number of popup windows open by grabbing the
   // number out of the window title, and that format string is localized, we
   // need to find out the offset into that string.

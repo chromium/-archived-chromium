@@ -2,6 +2,12 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
+// Implementation of BlockedPopupContainer and its corresponding View
+// class. The BlockedPopupContainer is the sort of Model class which owns the
+// blocked popups' TabContents (but like most Chromium interface code, it there
+// isn't a strict Model/View separation), and BlockedPopupContainerView
+// presents the user interface controls, creates and manages the popup menu.
+
 #include "chrome/browser/views/blocked_popup_container.h"
 
 #include <math.h>
@@ -10,19 +16,19 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/path.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/button.h"
 #include "chrome/views/menu_button.h"
-#include "chrome/views/menu.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/gfx/path.h"
 
 #include "generated_resources.h"
 
+namespace {
 // Menu item ID for the "Notify me when a popup is blocked" checkbox. (All
-// other menu IDs are positive and should be base 1 indexies into the vector of
+// other menu IDs are positive and should be base 1 indexes into the vector of
 // blocked popups.)
 const int kNotifyMenuItem = -1;
 
@@ -35,26 +41,31 @@ const int kImpossibleNumberOfPopups = 30;
 const int kSmallPadding = 2;
 
 // The background color of the blocked popup notification.
-static const SkColor kBackgroundColorTop = SkColorSetRGB(255, 242, 183);
-static const SkColor kBackgroundColorBottom = SkColorSetRGB(250, 230, 145);
+const SkColor kBackgroundColorTop = SkColorSetRGB(255, 242, 183);
+const SkColor kBackgroundColorBottom = SkColorSetRGB(250, 230, 145);
 
 // The border color of the blocked popup notification. This is the same as the
 // border around the inside of the tab contents.
-static const SkColor kBorderColor = SkColorSetRGB(190, 205, 223);
+const SkColor kBorderColor = SkColorSetRGB(190, 205, 223);
 // Thickness of the border.
-static const int kBorderSize = 1;
+const int kBorderSize = 1;
 
 // Duration of the showing/hiding animations.
-static const int kShowAnimationDurationMS = 200;
-static const int kHideAnimationDurationMS = 120;
-static const int kFramerate = 25;
+const int kShowAnimationDurationMS = 200;
+const int kHideAnimationDurationMS = 120;
+const int kFramerate = 25;
+
+// views::MenuButton requires that the largest string be passed in to its
+// constructor to reserve space. "99" should preallocate enough space for all
+// numbers.
+const int kWidestNumber = 99;
 
 // Rounded corner radius (in pixels).
-static const int kBackgroundCornerRadius = 4;
+const int kBackgroundCornerRadius = 4;
 
 // Rounded corner definition so the top corners are rounded, and the bottom are
 // normal 90 degree angles.
-static const SkScalar kRoundedCornerRad[8] = {
+const SkScalar kRoundedCornerRad[8] = {
   // Top left corner
   SkIntToScalar(kBackgroundCornerRadius),
   SkIntToScalar(kBackgroundCornerRadius),
@@ -69,56 +80,17 @@ static const SkScalar kRoundedCornerRad[8] = {
   0
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// BlockedPopupContainerView
-//
-// The view presented to the user notifying them of the number of popups
-// blocked.
-//
-class BlockedPopupContainerView : public views::View,
-                                  public views::BaseButton::ButtonListener,
-                                  public Menu::Delegate {
- public:
-  explicit BlockedPopupContainerView(BlockedPopupContainer* container);
-  ~BlockedPopupContainerView();
-
-  // Sets the label on the menu button
-  void UpdatePopupCountLabel();
-
-  // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
-  virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
-
-  // Overridden from views::ButtonListener::ButtonPressed:
-  virtual void ButtonPressed(views::BaseButton* sender);
-
-  // Overridden from Menu::Delegate:
-  virtual bool IsItemChecked(int id) const;
-  virtual void ExecuteCommand(int id);
-
- private:
-  // Our owner and HWND parent.
-  BlockedPopupContainer* container_;
-
-  // The button which brings up the popup menu.
-  views::MenuButton* popup_count_label_;
-
-  // Our "X" button.
-  views::Button* close_button_;
-
-  // Popup menu shown to user.
-  scoped_ptr<Menu> launch_menu_;
-};
+}
 
 BlockedPopupContainerView::BlockedPopupContainerView(
     BlockedPopupContainer* container)
     : container_(container) {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+  ResourceBundle &resource_bundle = ResourceBundle::GetSharedInstance();
 
   // Create a button with a multidigit number to reserve space.
   popup_count_label_ = new views::MenuButton(
-      l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT, IntToWString(99)),
+      l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
+                            IntToWString(kWidestNumber)),
       NULL, true);
   popup_count_label_->SetTextAlignment(views::TextButton::ALIGN_CENTER);
   popup_count_label_->SetListener(this, 1);
@@ -128,11 +100,11 @@ BlockedPopupContainerView::BlockedPopupContainerView(
   close_button_ = new views::Button();
   close_button_->SetFocusable(true);
   close_button_->SetImage(views::Button::BS_NORMAL,
-      rb.GetBitmapNamed(IDR_CLOSE_BAR));
+      resource_bundle.GetBitmapNamed(IDR_CLOSE_BAR));
   close_button_->SetImage(views::Button::BS_HOT,
-      rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
+      resource_bundle.GetBitmapNamed(IDR_CLOSE_BAR_H));
   close_button_->SetImage(views::Button::BS_PUSHED,
-      rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
+      resource_bundle.GetBitmapNamed(IDR_CLOSE_BAR_P));
   close_button_->SetListener(this, 0);
   AddChildView(close_button_);
 
@@ -169,11 +141,11 @@ void BlockedPopupContainerView::Paint(ChromeCanvas* canvas) {
 void BlockedPopupContainerView::Layout() {
   gfx::Size panel_size = GetPreferredSize();
   gfx::Size button_size = close_button_->GetPreferredSize();
-  gfx::Size sz = popup_count_label_->GetPreferredSize();
+  gfx::Size size = popup_count_label_->GetPreferredSize();
 
   popup_count_label_->SetBounds(kSmallPadding, kSmallPadding,
-                                sz.width(),
-                                sz.height());
+                                size.width(),
+                                size.height());
 
   int close_button_padding =
       static_cast<int>(ceil(panel_size.height() / 2.0) -
@@ -185,20 +157,20 @@ void BlockedPopupContainerView::Layout() {
 }
 
 gfx::Size BlockedPopupContainerView::GetPreferredSize() {
-  gfx::Size prefsize = popup_count_label_->GetPreferredSize();
-  prefsize.Enlarge(close_button_->GetPreferredSize().width(), 0);
+  gfx::Size preferred_size = popup_count_label_->GetPreferredSize();
+  preferred_size.Enlarge(close_button_->GetPreferredSize().width(), 0);
   // Add padding to all sides of the |popup_count_label_| except the right.
-  prefsize.Enlarge(kSmallPadding, 2 * kSmallPadding);
+  preferred_size.Enlarge(kSmallPadding, 2 * kSmallPadding);
 
   // Add padding to the left and right side of |close_button_| equal to its
   // horizontal/vertical spacing.
   gfx::Size button_size = close_button_->GetPreferredSize();
   int close_button_padding =
-      static_cast<int>(ceil(prefsize.height() / 2.0) -
+      static_cast<int>(ceil(preferred_size.height() / 2.0) -
                        ceil(button_size.height() / 2.0));
-  prefsize.Enlarge(2 * close_button_padding, 0);
+  preferred_size.Enlarge(2 * close_button_padding, 0);
 
-  return prefsize;
+  return preferred_size;
 }
 
 void BlockedPopupContainerView::ButtonPressed(views::BaseButton* sender) {
@@ -219,9 +191,9 @@ void BlockedPopupContainerView::ButtonPressed(views::BaseButton* sender) {
         l10n_util::GetString(IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION),
         Menu::NORMAL);
 
-    CPoint cursor_pos;
-    ::GetCursorPos(&cursor_pos);
-    launch_menu_->RunMenuAt(cursor_pos.x, cursor_pos.y);
+    CPoint cursor_position;
+    ::GetCursorPos(&cursor_position);
+    launch_menu_->RunMenuAt(cursor_position.x, cursor_position.y);
   } else if (sender == close_button_) {
     container_->set_dismissed();
     container_->CloseAllPopups();
@@ -245,15 +217,12 @@ void BlockedPopupContainerView::ExecuteCommand(int id) {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// BlockedPopupContainer
-
 // static
 BlockedPopupContainer* BlockedPopupContainer::Create(
     TabContents* owner, Profile* profile, const gfx::Point& initial_anchor) {
-  BlockedPopupContainer* c = new BlockedPopupContainer(owner, profile);
-  c->Init(initial_anchor);
-  return c;
+  BlockedPopupContainer* container = new BlockedPopupContainer(owner, profile);
+  container->Init(initial_anchor);
+  return container;
 }
 
 BlockedPopupContainer::~BlockedPopupContainer() {
@@ -341,9 +310,7 @@ void BlockedPopupContainer::CloseAllPopups() {
   HideSelf();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Override from ConstrainedWindow:
-
+// Overridden from ConstrainedWindow:
 void BlockedPopupContainer::CloseConstrainedWindow() {
   CloseEachTabContents();
 
@@ -372,8 +339,7 @@ const gfx::Rect& BlockedPopupContainer::GetCurrentBounds() const {
   return bounds_;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Override from TabContentsDelegate:
+// Overridden from TabContentsDelegate:
 void BlockedPopupContainer::OpenURLFromTab(TabContents* source,
                                            const GURL& url,
                                            const GURL& referrer,
@@ -407,9 +373,9 @@ void BlockedPopupContainer::ReplaceContents(TabContents* source,
 void BlockedPopupContainer::AddNewContents(TabContents* source,
                                            TabContents* new_contents,
                                            WindowOpenDisposition disposition,
-                                           const gfx::Rect& initial_pos,
+                                           const gfx::Rect& initial_position,
                                            bool user_gesture) {
-  owner_->AddNewContents(new_contents, disposition, initial_pos,
+  owner_->AddNewContents(new_contents, disposition, initial_position,
                          user_gesture);
 }
 
@@ -428,11 +394,11 @@ void BlockedPopupContainer::CloseContents(TabContents* source) {
 }
 
 void BlockedPopupContainer::MoveContents(TabContents* source,
-                                         const gfx::Rect& pos) {
+                                         const gfx::Rect& position) {
   for (std::vector<std::pair<TabContents*, gfx::Rect> >::iterator it =
            blocked_popups_.begin(); it != blocked_popups_.end(); ++it) {
     if (it->first == source) {
-      it->second = pos;
+      it->second = position;
       break;
     }
   }
@@ -447,8 +413,7 @@ TabContents* BlockedPopupContainer::GetConstrainingContents(
   return owner_;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Override from Animation:
+// Overridden from Animation:
 void BlockedPopupContainer::AnimateToState(double state) {
   if (in_show_animation_)
     visibility_percentage_ = state;
@@ -458,7 +423,6 @@ void BlockedPopupContainer::AnimateToState(double state) {
   SetPosition();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // Override from views::WidgetWin:
 void BlockedPopupContainer::OnFinalMessage(HWND window) {
   owner_->WillClose(this);
