@@ -644,20 +644,10 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
         int session_to_restore = _wtoi(wstring_value.c_str());
-
-        const TabRestoreService::Tabs& tabs = tab_restore_service_->tabs();
-        for (TabRestoreService::Tabs::const_iterator it = tabs.begin();
-             it != tabs.end(); ++it) {
-          if (it->id == session_to_restore) {
-            TabRestoreService* tab_restore_service = tab_restore_service_;
-            browser->ReplaceRestoredTab(
-                 it->navigations, it->current_navigation_index);
-            tab_restore_service->RemoveHistoricalTabById(session_to_restore);
-            // The current tab has been nuked at this point;
-            // don't touch any member variables.
-            break;
-          }
-        }
+        tab_restore_service_->RestoreEntryById(browser, session_to_restore,
+                                               true);
+        // The current tab has been nuked at this point; don't touch any member
+        // variables.
       }
     }
   }
@@ -680,28 +670,28 @@ void RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs(
 
 void RecentlyClosedTabsHandler::TabRestoreServiceChanged(
     TabRestoreService* service) {
-  const TabRestoreService::Tabs& tabs = service->tabs();
+  const TabRestoreService::Entries& entries = service->entries();
   ListValue list_value;
   int added_count = 0;
 
-  // We filter the list of recently closed to only show 'interesting' tabs,
-  // where an interesting tab navigation is not the new tab ui.
-  for (TabRestoreService::Tabs::const_iterator it = tabs.begin();
-       it != tabs.end() && added_count < 3; ++it) {
-    if (it->navigations.empty())
-      continue;
-
-    const TabNavigation& navigator =
-        it->navigations.at(it->current_navigation_index);
-    if (navigator.url == NewTabUIURL())
-      continue;
-
-    DictionaryValue* dictionary = new DictionaryValue;
-    SetURLAndTitle(dictionary, navigator.title, navigator.url);
-    dictionary->SetInteger(L"sessionId", it->id);
-
-    list_value.Append(dictionary);
-    added_count++;
+  // We filter the list of recently closed to only show 'interesting' entries,
+  // where an interesting entry is either a closed window or a closed tab
+  // whose selected navigation is not the new tab ui.
+  for (TabRestoreService::Entries::const_iterator it = entries.begin();
+       it != entries.end() && added_count < 3; ++it) {
+    TabRestoreService::Entry* entry = *it;
+    DictionaryValue* value = new DictionaryValue();
+    if ((entry->type == TabRestoreService::TAB &&
+         TabToValue(*static_cast<TabRestoreService::Tab*>(entry), value)) ||
+        (entry->type == TabRestoreService::WINDOW &&
+         WindowToValue(*static_cast<TabRestoreService::Window*>(entry),
+                       value))) {
+      value->SetInteger(L"sessionId", entry->id);
+      list_value.Append(value);
+      added_count++;
+    } else {
+      delete value;
+    }
   }
   dom_ui_host_->CallJavascriptFunction(L"recentlyClosedTabs", list_value);
 }
@@ -709,6 +699,48 @@ void RecentlyClosedTabsHandler::TabRestoreServiceChanged(
 void RecentlyClosedTabsHandler::TabRestoreServiceDestroyed(
     TabRestoreService* service) {
   tab_restore_service_ = NULL;
+}
+
+bool RecentlyClosedTabsHandler::TabToValue(
+    const TabRestoreService::Tab& tab,
+    DictionaryValue* dictionary) {
+  if (tab.navigations.empty())
+    return false;
+
+  const TabNavigation& current_navigation =
+      tab.navigations.at(tab.current_navigation_index);
+  if (current_navigation.url == NewTabUIURL())
+    return false;
+
+  SetURLAndTitle(dictionary, current_navigation.title, current_navigation.url);
+  dictionary->SetString(L"type", L"tab");
+  return true;
+}
+
+bool RecentlyClosedTabsHandler::WindowToValue(
+    const TabRestoreService::Window& window,
+    DictionaryValue* dictionary) {
+  if (window.tabs.empty()) {
+    NOTREACHED();
+    return false;
+  }
+
+  ListValue* tab_values = new ListValue();
+  for (size_t i = 0; i < window.tabs.size(); ++i) {
+    DictionaryValue* tab_value = new DictionaryValue();
+    if (TabToValue(window.tabs[i], tab_value))
+      tab_values->Append(tab_value);
+    else
+      delete tab_value;
+  }
+  if (tab_values->GetSize() == 0) {
+    delete tab_values;
+    return false;
+  }
+
+  dictionary->SetString(L"type", L"window");
+  dictionary->Set(L"tabs", tab_values);
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

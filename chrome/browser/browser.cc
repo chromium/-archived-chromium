@@ -189,6 +189,10 @@ Browser::~Browser() {
   if (session_service)
     session_service->WindowClosed(session_id_);
 
+  TabRestoreService* tab_restore_service = profile()->GetTabRestoreService();
+  if (tab_restore_service)
+    tab_restore_service->BrowserClosed(this);
+
   NotificationService::current()->RemoveObserver(
       this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
 
@@ -438,6 +442,10 @@ void Browser::OnWindowClosing() {
   SessionService* session_service = profile()->GetSessionService();
   if (session_service)
     session_service->WindowClosing(session_id());
+
+  TabRestoreService* tab_restore_service = profile()->GetTabRestoreService();
+  if (tab_restore_service)
+    tab_restore_service->BrowserClosing(this);
 
   CloseAllTabs();
 }
@@ -689,14 +697,7 @@ void Browser::RestoreTab() {
   if (!service)
     return;
 
-  const TabRestoreService::Tabs& tabs = service->tabs();
-  if (tabs.empty() || tabs.front().from_last_session)
-    return;
-
-  const TabRestoreService::HistoricalTab& tab = tabs.front();
-  AddRestoredTab(tab.navigations, tab_count(), tab.current_navigation_index,
-                 true);
-  service->RemoveHistoricalTabById(tab.id);
+  service->RestoreMostRecentEntry(this);
 }
 
 void Browser::ConvertPopupToTabbedBrowser() {
@@ -1950,6 +1951,11 @@ void Browser::InitCommandState() {
 
 void Browser::UpdateNavigationCommands() {
   TabContents* current_tab = GetSelectedTabContents();
+  if (!current_tab) {
+    // It's possible for this to be null during tab restore.
+    return;
+  }
+
   NavigationController* nc = current_tab->controller();
   controller_.UpdateCommandEnabled(IDC_BACK, nc->CanGoBack());
   controller_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());

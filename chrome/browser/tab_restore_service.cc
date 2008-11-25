@@ -4,40 +4,37 @@
 
 #include "chrome/browser/tab_restore_service.h"
 
-#include "chrome/browser/profile.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
+#include "chrome/browser/profile.h"
+#include "chrome/common/stl_util-inl.h"
 
 using base::Time;
 
-// HistoricalTab --------------------------------------------------------------
+// Entry ----------------------------------------------------------------------
 
-// ID of the next HistoricalTab.
-static int next_historical_tab_id = 1;
+// ID of the next Entry.
+static int next_entry_id = 1;
 
-TabRestoreService::HistoricalTab::HistoricalTab()
-    : close_time(Time::Now()),
-      from_last_session(false),
-      current_navigation_index(-1),
-      id(next_historical_tab_id++) {
-}
+TabRestoreService::Entry::Entry() : id(next_entry_id++), type(TAB) {}
+
+TabRestoreService::Entry::Entry(Type type) : id(next_entry_id++), type(type) {}
 
 // TabRestoreService ----------------------------------------------------------
 
-// Max number of tabs we'll keep around.
-static const size_t kMaxTabs = 10;
-
-// Amount of time from when the session starts and when we'll allow loading of
-// the last sessions tabs.
-static const int kLoadFromLastSessionMS = 600000;
+// Max number of entries we'll keep around.
+static const size_t kMaxEntries = 10;
 
 TabRestoreService::TabRestoreService(Profile* profile)
     : profile_(profile),
-      loaded_last_session_(false) {
+      loaded_last_session_(false),
+      restoring_(false) {
 }
 
 TabRestoreService::~TabRestoreService() {
   FOR_EACH_OBSERVER(Observer, observer_list_, TabRestoreServiceDestroyed(this));
+  STLDeleteElements(&entries_);
 }
 
 void TabRestoreService::AddObserver(Observer* observer) {
@@ -48,107 +45,112 @@ void TabRestoreService::RemoveObserver(Observer* observer) {
   observer_list_.RemoveObserver(observer);
 }
 
-void TabRestoreService::LoadPreviousSessionTabs() {
-  if (!WillLoadPreviousSessionTabs() || IsLoadingPreviousSessionTabs())
-    return;
-
-  profile_->GetSessionService()->GetLastSession(
-      &cancelable_consumer_,
-      NewCallback(this, &TabRestoreService::OnGotLastSession));
-}
-
-bool TabRestoreService::IsLoadingPreviousSessionTabs() {
-  return cancelable_consumer_.HasPendingRequests();
-}
-
-bool TabRestoreService::WillLoadPreviousSessionTabs() {
-  return (!loaded_last_session_ && tabs_.size() < kMaxTabs &&
-          (Time::Now() - profile_->GetStartTime()).InMilliseconds() <
-          kLoadFromLastSessionMS);
-}
-
 void TabRestoreService::CreateHistoricalTab(NavigationController* tab) {
-  tabs_.push_front(HistoricalTab());
-
-  PopulateTabFromController(tab, &(tabs_.front()));
-
-  while (tabs_.size() > kMaxTabs)
-    tabs_.pop_back();
-
-  NotifyTabsChanged();
-}
-
-void TabRestoreService::RemoveHistoricalTabById(int id) {
-  for (Tabs::iterator i = tabs_.begin(); i != tabs_.end(); ++i) {
-    if (i->id == id) {
-      tabs_.erase(i);
-      NotifyTabsChanged();
-      return;
-    }
-  }
-  // Don't hoark here, we allow an invalid id.
-}
-
-void TabRestoreService::ClearHistoricalTabs() {
-  tabs_.clear();
-  NotifyTabsChanged();
-}
-
-void TabRestoreService::OnGotLastSession(SessionService::Handle handle,
-                                         std::vector<SessionWindow*>* windows) {
-  DCHECK(!loaded_last_session_);
-  loaded_last_session_ = true;
-
-  if (tabs_.size() == kMaxTabs)
+  if (restoring_)
     return;
 
-  AddHistoricalTabs(windows);
+  Browser* browser = Browser::GetBrowserForController(tab, NULL);
+  if (closing_browsers_.find(browser) != closing_browsers_.end())
+    return;
 
+  Tab* local_tab = new Tab();
+  PopulateTabFromController(tab, local_tab);
+  entries_.push_front(local_tab);
+
+  PruneAndNotify();
+}
+
+void TabRestoreService::BrowserClosing(Browser* browser) {
+  if (browser->type() != Browser::TYPE_NORMAL ||
+      browser->tab_count() == 0)
+    return;
+
+  closing_browsers_.insert(browser);
+
+  Window* window = new Window();
+  window->selected_tab_index = browser->selected_index();
+  window->tabs.resize(browser->tab_count());
+  size_t entry_index = 0;
+  for (int tab_index = 0; tab_index < browser->tab_count(); ++tab_index) {
+    PopulateTabFromController(
+        browser->GetTabContentsAt(tab_index)->controller(),
+        &(window->tabs[entry_index]));
+    if (window->tabs[entry_index].navigations.empty())
+      window->tabs.erase(window->tabs.begin() + entry_index);
+    else
+      entry_index++;
+  }
+  if (window->tabs.empty()) {
+    delete window;
+    window = NULL;
+  } else {
+    entries_.push_front(window);
+    PruneAndNotify();
+  }
+}
+
+void TabRestoreService::BrowserClosed(Browser* browser) {
+  closing_browsers_.erase(browser);
+}
+
+void TabRestoreService::ClearEntries() {
+  STLDeleteElements(&entries_);
   NotifyTabsChanged();
 }
 
-void TabRestoreService::AddHistoricalTabs(
-    std::vector<SessionWindow*>* windows) {
-  // First pass, extract the selected tabs in each window.
-  for (size_t i = 0; i < windows->size(); ++i) {
-    SessionWindow* window = (*windows)[i];
-    if (window->type == Browser::TYPE_NORMAL) {
-      DCHECK(window->selected_tab_index >= 0 &&
-             window->selected_tab_index <
-             static_cast<int>(window->tabs.size()));
-      AppendHistoricalTabFromSessionTab(
-          window->tabs[window->selected_tab_index]);
-      if (tabs_.size() == kMaxTabs)
-        return;
-    }
-  }
+void TabRestoreService::RestoreMostRecentEntry(Browser* browser) {
+  if (entries_.empty())
+    return;
 
-  // Second pass, extract the non-selected tabs.
-  for (size_t window_index = 0; window_index < windows->size();
-       ++window_index) {
-    SessionWindow* window = (*windows)[window_index];
-    if (window->type != Browser::TYPE_NORMAL)
-      continue; // Ignore popups.
-
-    for (size_t tab_index = 0; tab_index < window->tabs.size(); ++tab_index) {
-      if (tab_index == window->selected_tab_index)
-        continue; // Pass one took care of this tab.
-      AppendHistoricalTabFromSessionTab(window->tabs[tab_index]);
-      if (tabs_.size() == kMaxTabs)
-        return;
-    }
-  }
+  RestoreEntryById(browser, entries_.front()->id, false);
 }
 
-void TabRestoreService::AppendHistoricalTabFromSessionTab(
-    SessionTab* tab) {
-  tabs_.push_back(HistoricalTab());
-  PopulateTabFromSessionTab(tab, &(tabs_.back()));
+void TabRestoreService::RestoreEntryById(Browser* browser,
+                                         int id,
+                                         bool replace_existing_tab) {
+  Entries::iterator i = GetEntryIteratorById(id);
+  if (i == entries_.end()) {
+    // Don't hoark here, we allow an invalid id.
+    return;
+  }
+
+  restoring_ = true;
+  Entry* entry = *i;
+  entries_.erase(i);
+  i = entries_.end();
+  if (entry->type == TAB) {
+    Tab* tab = static_cast<Tab*>(entry);
+    if (replace_existing_tab) {
+      browser->ReplaceRestoredTab(tab->navigations,
+                                  tab->current_navigation_index);
+    } else {
+      browser->AddRestoredTab(tab->navigations, browser->tab_count(),
+                              tab->current_navigation_index, true);
+    }
+  } else if (entry->type == WINDOW) {
+    const Window* window = static_cast<Window*>(entry);
+    Browser* browser = Browser::Create(profile_);
+    for (size_t tab_i = 0; tab_i < window->tabs.size(); ++tab_i) {
+      const Tab& tab = window->tabs[tab_i];
+      NavigationController* restored_controller =
+          browser->AddRestoredTab(tab.navigations, browser->tab_count(),
+                                  tab.current_navigation_index,
+                                  (tab_i == window->selected_tab_index));
+      if (restored_controller)
+        restored_controller->LoadIfNecessary();
+    }
+    browser->window()->Show();
+  } else {
+    NOTREACHED();
+  }
+  delete entry;
+  restoring_ = false;
+  NotifyTabsChanged();
 }
 
 void TabRestoreService::PopulateTabFromController(
     NavigationController* controller,
-    HistoricalTab* tab) {
+    Tab* tab) {
   const int pending_index = controller->GetPendingEntryIndex();
   int entry_count = controller->GetEntryCount();
   if (entry_count == 0 && pending_index == 0)
@@ -171,14 +173,24 @@ void TabRestoreService::PopulateTabFromController(
     tab->current_navigation_index = 0;
 }
 
-void TabRestoreService::PopulateTabFromSessionTab(
-    SessionTab* session_tab,
-    HistoricalTab* tab) {
-  tab->navigations.swap(session_tab->navigations);
-  tab->from_last_session = true;
-  tab->current_navigation_index = session_tab->current_navigation_index;
-}
-
 void TabRestoreService::NotifyTabsChanged() {
   FOR_EACH_OBSERVER(Observer, observer_list_, TabRestoreServiceChanged(this));
+}
+
+void TabRestoreService::PruneAndNotify() {
+  while (entries_.size() > kMaxEntries) {
+    delete entries_.back();
+    entries_.pop_back();
+  }
+
+  NotifyTabsChanged();
+}
+
+TabRestoreService::Entries::iterator TabRestoreService::GetEntryIteratorById(
+    int id) {
+  for (Entries::iterator i = entries_.begin(); i != entries_.end(); ++i) {
+    if ((*i)->id == id)
+      return i;
+  }
+  return entries_.end();
 }

@@ -263,6 +263,16 @@ class RecentlyClosedTabsHandler : public DOMMessageHandler,
   virtual void TabRestoreServiceDestroyed(TabRestoreService* service);
 
  private:
+  // Converts a closed tab to the value sent down to the NTP. Returns true on
+  // success, false if the value shouldn't be sent down.
+  bool TabToValue(const TabRestoreService::Tab& tab,
+                  DictionaryValue* dictionary);
+
+  // Converts a closed window to the value sent down to the NTP. Returns true
+  // on success, false if the value shouldn't be sent down.
+  bool WindowToValue(const TabRestoreService::Window& window,
+                     DictionaryValue* dictionary);
+
   DOMUIHost* dom_ui_host_;
 
   /// TabRestoreService that we are observing.

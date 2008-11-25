@@ -78,7 +78,7 @@ void BrowsingDataRemover::Remove(int remove_mask) {
     // they can't be more than a day old, so we can simply clear them all.
     TabRestoreService* tab_service = profile_->GetTabRestoreService();
     if (tab_service)
-      tab_service->ClearHistoricalTabs();
+      tab_service->ClearEntries();
 
     // We also delete the last session when we delete the history.
     SessionService* session_service = profile_->GetSessionService();
