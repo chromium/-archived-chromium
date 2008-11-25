@@ -1132,3 +1132,6 @@ LayoutTests/http/tests/loading/onload-vs-immediate-refresh.pl = FAIL
 LayoutTests/http/tests/loading/simple-subframe.html = FAIL
 LayoutTests/http/tests/loading/slow-parsing-subframe.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/frame-load-cancelled-abort.html = FAIL
+
+// MERGE 38575:38600: New test
+LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL
