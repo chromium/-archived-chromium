@@ -39,6 +39,7 @@
 #endif
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
@@ -326,6 +327,17 @@ NPObject* ChromiumBridge::pluginScriptableObject(Widget* widget) {
   // WebPluginImpl.  There isn't a way to dynamically verify it, since the
   // derived class (Widget) has no identifier.
   return static_cast<WebPluginContainer*>(widget)->GetPluginScriptableObject();
+}
+
+bool ChromiumBridge::popupsAllowed(NPP npp) {
+  bool popups_allowed = false;
+  if (npp) {
+    NPAPI::PluginInstance* plugin_instance =
+        reinterpret_cast<NPAPI::PluginInstance*>(npp->ndata);
+    if (plugin_instance)
+      popups_allowed = plugin_instance->popups_allowed();
+  }
+  return popups_allowed;
 }
 
 // Protocol -------------------------------------------------------------------

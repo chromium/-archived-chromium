@@ -39,6 +39,8 @@
 class NativeImageSkia;
 
 typedef struct NPObject NPObject;
+typedef struct _NPP NPP_t;
+typedef NPP_t* NPP;
 
 #if PLATFORM(WIN_OS)
 typedef struct HFONT__* HFONT;
@@ -104,6 +106,7 @@ namespace WebCore {
         // Plugin -------------------------------------------------------------
         static bool plugins(bool refresh, Vector<PluginInfo*>* plugins);
         static NPObject* pluginScriptableObject(Widget* widget);
+        static bool popupsAllowed(NPP npp);
 
         // Protocol -----------------------------------------------------------
         static String uiResourceProtocol();

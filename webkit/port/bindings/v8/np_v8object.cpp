@@ -32,6 +32,7 @@
 #include <sstream>
 #include <v8.h>
 #include "np_v8object.h"
+#include "ChromiumBridge.h"
 #include "Frame.h"
 #include "bindings/npruntime.h"
 #include "npruntime_priv.h"
@@ -41,10 +42,6 @@
 #include "v8_np_utils.h"
 #include "v8_proxy.h"
 #include "DOMWindow.h"
-
-#ifdef OS_WIN
-#include "webkit/glue/plugins/plugin_instance.h"
-#endif // OS_WIN
 
 using WebCore::V8ClassIndex;
 using WebCore::V8Proxy;
@@ -246,17 +243,7 @@ bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
 
 bool NPN_Evaluate(NPP npp, NPObject *npobj, NPString *npscript,
                   NPVariant *result) {
-  bool popups_allowed = false;
-
-#ifdef OS_WIN
-  if (npp) {
-    NPAPI::PluginInstance* plugin_instance =
-        reinterpret_cast<NPAPI::PluginInstance*>(npp->ndata);
-    if (plugin_instance)
-      popups_allowed = plugin_instance->popups_allowed();
-  }
-#endif // OS_WIN
-
+  bool popups_allowed = WebCore::ChromiumBridge::popupsAllowed(npp);
   return NPN_EvaluateHelper(npp, popups_allowed, npobj, npscript, result);
 }
 
