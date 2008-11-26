@@ -2521,6 +2521,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\ScriptValue.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\ScriptValue.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\v8_binding.h"
 			>
 		</File>

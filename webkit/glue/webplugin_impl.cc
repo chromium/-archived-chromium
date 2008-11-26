@@ -36,6 +36,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandleClient.h"
 #include "ResourceResponse.h"
 #include "ScriptController.h"
+#include "ScriptValue.h"
 #include "ScrollView.h"
 #include "Widget.h"
 MSVC_POP_WARNING();
@@ -357,18 +358,20 @@ bool WebPluginImpl::ExecuteScript(const std::string& url,
   // we also need to addref the frame.
   WTF::RefPtr<WebCore::Frame> cur_frame(frame());
 
+  WebCore::ScriptValue result = 
+      frame()->loader()->executeScript(script_str, popups_allowed);
+  WebCore::String script_result;
+  std::wstring wresult;
   bool succ = false;
-  WebCore::String result_str = frame()->loader()->executeScript(script_str,
-                                                                &succ,
-                                                                popups_allowed);
-  std::wstring result;
-  if (succ)
-    result = webkit_glue::StringToStdWString(result_str);
+  if (result.getString(script_result)) {
+    succ = true;
+    wresult = webkit_glue::StringToStdWString(script_result);
+  }
 
   // delegate_ could be NULL because executeScript caused the container to be
   // deleted.
   if (delegate_)
-    delegate_->SendJavaScriptStream(url, result, succ, notify_needed,
+    delegate_->SendJavaScriptStream(url, wresult, succ, notify_needed,
                                     notify_data);
 
   return succ;

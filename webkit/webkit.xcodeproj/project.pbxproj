@@ -459,6 +459,7 @@
 		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		934CC2280EDCC37600A658F2 /* RGBColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 934CC2270EDCC37600A658F2 /* RGBColor.cpp */; };
+		934CC3590EDCCEFE00A658F2 /* ScriptValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 934CC3570EDCCEFE00A658F2 /* ScriptValue.cpp */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
@@ -3967,6 +3968,8 @@
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
 		934CC2290EDCC38400A658F2 /* RGBColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBColor.h; sourceTree = "<group>"; };
+		934CC3570EDCCEFE00A658F2 /* ScriptValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptValue.cpp; sourceTree = "<group>"; };
+		934CC3580EDCCEFE00A658F2 /* ScriptValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptValue.h; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
 		93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CookieJarChromium.cpp; path = chromium/CookieJarChromium.cpp; sourceTree = "<group>"; };
@@ -4508,6 +4511,8 @@
 				E40063600EA907510055B38E /* ScriptCallContextV8.cpp */,
 				E40060D90EA69E0B0055B38E /* ScriptController.h */,
 				E40060DA0EA69E0B0055B38E /* ScriptController.cpp */,
+				934CC3570EDCCEFE00A658F2 /* ScriptValue.cpp */,
+				934CC3580EDCCEFE00A658F2 /* ScriptValue.h */,
 				7B0095DB0DAFF0DC00F72082 /* v8_binding.h */,
 				4DB7F5590E9BD66300C66CE0 /* v8_collection.h */,
 				7B0095DC0DAFF0DC00F72082 /* v8_custom.cpp */,
@@ -8153,6 +8158,7 @@
 				7B0095F30DAFF0DD00F72082 /* np_v8object.cpp in Sources */,
 				7B0095F50DAFF0DD00F72082 /* npruntime.cpp in Sources */,
 				934CC2280EDCC37600A658F2 /* RGBColor.cpp in Sources */,
+				934CC3590EDCCEFE00A658F2 /* ScriptValue.cpp in Sources */,
 				7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */,
 				7B00913B0DAFEFBE00F72082 /* SVGNames.cpp in Sources */,
 				7B00913E0DAFEFBE00F72082 /* UserAgentStyleSheetsData.cpp in Sources */,

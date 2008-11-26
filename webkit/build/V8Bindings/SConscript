@@ -329,6 +329,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/npruntime.cpp',
     '$PORT_DIR/bindings/v8/RGBColor.cpp',
     '$PORT_DIR/bindings/v8/ScriptCallContextV8.cpp',
+    '$PORT_DIR/bindings/v8/ScriptValue.cpp',
     '$PORT_DIR/bindings/v8/v8_custom.cpp',
     '$PORT_DIR/bindings/v8/v8_events.cpp',
     '$PORT_DIR/bindings/v8/v8_helpers.cpp',

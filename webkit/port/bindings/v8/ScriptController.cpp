@@ -263,17 +263,16 @@ bool ScriptController::processingUserGesture() const
 
 
 // Evaluate a script file in the environment of this proxy.
-String ScriptController::evaluate(const String& filename, int baseLine,
+ScriptValue ScriptController::evaluate(const String& filename, int baseLine,
                           const String& code, Node* node, bool* succ)
 {
     if (succ)
         *succ = false;
-    String result;
 
     v8::HandleScope hs;
     v8::Handle<v8::Context> context = V8Proxy::GetContext(m_proxy->frame());
     if (context.IsEmpty())
-        return result;
+        return ScriptValue();
 
     v8::Context::Scope scope(context);
 
@@ -284,42 +283,12 @@ String ScriptController::evaluate(const String& filename, int baseLine,
                                                  node);
 
     if (obj.IsEmpty() || obj->IsUndefined())
-        return result;
+        return ScriptValue();
 
-    // If the return value is not a string, return 0 (what KJS does).
-    if (!obj->IsString()) {
-        v8::TryCatch exception_block;
-        obj = obj->ToString();
-        if (exception_block.HasCaught())
-            obj = v8::String::New("");
-    }
-
-    result = ToWebCoreString(obj);
     if (succ)
         *succ = true;
 
-    return result;
-}
-
-v8::Persistent<v8::Value> ScriptController::evaluate(const String& filename,
-                                             int baseLine,
-                                             const String& code,
-                                             Node* node)
-{
-    v8::HandleScope hs;
-    v8::Handle<v8::Context> context = V8Proxy::GetContext(m_proxy->frame());
-    if (context.IsEmpty())
-        return v8::Persistent<v8::Value>();
-
-    v8::Context::Scope scope(context);
-
-    v8::Local<v8::Value> obj = m_proxy->Evaluate(filename, baseLine, code, node);
-
-    if (obj.IsEmpty())
-        return v8::Persistent<v8::Value>();
-
-    // TODO(fqian): keep track the global handle created.
-    return v8::Persistent<v8::Value>::New(obj);
+    return ScriptValue(obj);
 }
 
 void ScriptController::disposeJSResult(v8::Persistent<v8::Value> result)

@@ -35,6 +35,7 @@
 
 #include "HashMap.h"
 #include "MessagePort.h"
+#include "ScriptValue.h"
 #include "SecurityOrigin.h"
 
 #include "bindings/npruntime.h"
@@ -147,14 +148,8 @@ public:
     // Evaluate a script file in the environment of this proxy.
     // If succeeded, 'succ' is set to true and result is returned
     // as a string.
-    String evaluate(const String& filename, int baseLine, const String& code, Node* node = NULL, bool* succ = NULL);
+    ScriptValue evaluate(const String& filename, int baseLine, const String& code, Node* node = NULL, bool* succ = NULL);
 
-    // Second API function for evaluating a JS code.
-    // It returns a JSResult which must be disposed by calling
-    // disposeJSResult. If the result is not disposed, it can cause
-    // serious memory leak. The caller determines whether the evaluation
-    // is successful by checking the value of JSResult.
-    JSResult evaluate(const String& filename, int baseLine, const String& code, Node*);
     void disposeJSResult(JSResult result);
     void collectGarbage();
 

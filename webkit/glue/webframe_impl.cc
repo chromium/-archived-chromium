@@ -106,6 +106,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandle.h"
 #include "ResourceRequest.h"
 #include "ScriptController.h"
+#include "ScriptValue.h"
 #include "ScrollbarTheme.h"
 #include "SelectionController.h"
 #include "Settings.h"
@@ -349,13 +350,14 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
     // but will it change out from under us?
     String script =
         decodeURLEscapeSequences(kurl.string().substring(sizeof("javascript:")-1));
-    bool succ = false;
-    String value = frame_->loader()->executeScript(script, &succ, true);
-    if (succ && !frame_->loader()->isScheduledLocationChangePending()) {
+    WebCore::ScriptValue result = frame_->loader()->executeScript(script, true);
+    String scriptResult;
+    if (result.getString(scriptResult) && 
+        !frame_->loader()->isScheduledLocationChangePending()) {
       // TODO(darin): We need to figure out how to represent this in session
       // history.  Hint: don't re-eval script when the user or script navigates
       // back-n-forth (instead store the script result somewhere).
-      LoadDocumentData(kurl, value, String("text/html"), String());
+      LoadDocumentData(kurl, scriptResult, String("text/html"), String());
     }
     return;
   }
