@@ -84,9 +84,8 @@ bool MIMETypeRegistry::isSupportedImageMIMETypeForEncoding(const String& mimeTyp
 
 bool MIMETypeRegistry::isSupportedJavaScriptMIMEType(const String& mimeType)
 {
-    const char* data = mimeType.latin1().data();
     return !mimeType.isEmpty()
-        && ChromiumBridge::isSupportedJavascriptMIMEType(data);
+        && ChromiumBridge::isSupportedJavascriptMIMEType(mimeType.latin1().data());
 }
 
 bool MIMETypeRegistry::isSupportedImageResourceMIMEType(const String& mimeType)
