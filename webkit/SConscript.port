@@ -27,8 +27,6 @@ elif env['PLATFORM'] == 'posix':
 input_files = [
     '$PORT_DIR/bridge/chromium/PluginsChromium.cpp',
 
-    '$PORT_DIR/css/RGBColor.cpp',
-
     '$PORT_DIR/history/BackForwardList.cpp',
     '$PORT_DIR/history/CachedPage.cpp',
 

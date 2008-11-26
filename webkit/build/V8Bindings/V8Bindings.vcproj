@@ -2435,18 +2435,18 @@
 		<Filter
 			Name="interpreter"
 			>
-		<File
-			RelativePath="..\..\port\bindings\v8\interpreter\CallFrame.h"
-			>
-		</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\interpreter\CallFrame.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="runtime"
 			>
-		<File
-			RelativePath="..\..\port\bindings\v8\runtime\JSLock.h"
-			>
-		</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\runtime\JSLock.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\..\port\bindings\v8\dom_wrapper_map.h"
@@ -2494,6 +2494,14 @@
 		</File>
 		<File
 			RelativePath=".\precompiled_v8bindings.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\RGBColor.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\RGBColor.h"
 			>
 		</File>
 		<File

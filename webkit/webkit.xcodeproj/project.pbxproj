@@ -458,6 +458,7 @@
 		82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */; };
 		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
+		934CC2280EDCC37600A658F2 /* RGBColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 934CC2270EDCC37600A658F2 /* RGBColor.cpp */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
@@ -1253,7 +1254,6 @@
 		E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260690DCBA013005CFE91 /* BMPImageDecoder.cpp */; };
 		E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */; };
 		E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */; };
-		E45627ED0E2694B8005E4685 /* RGBColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B42A5E80DE213C700659DE0 /* RGBColor.cpp */; };
 		E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B14AA450DE323CD00F4E646 /* CachedPage.cpp */; };
 		E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8BCA0D7F3B39001ECF42 /* BackForwardList.cpp */; };
 		E45628370E269DBB005E4685 /* feed_preview.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254050F0D92E3DA0006B936 /* feed_preview.cc */; };
@@ -2316,8 +2316,6 @@
 		7B2B0A4D0E3143EC00D4C6B7 /* PNGImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PNGImageDecoder.cpp; sourceTree = "<group>"; };
 		7B2B0A4E0E3143EC00D4C6B7 /* PNGImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNGImageDecoder.h; sourceTree = "<group>"; };
 		7B2FB8860D81A9C90050E907 /* WebCorePrefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCorePrefix.h; sourceTree = "<group>"; };
-		7B42A5E80DE213C700659DE0 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
-		7B42A5E90DE213C700659DE0 /* RGBColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBColor.h; sourceTree = "<group>"; };
 		7B5E85AE0D7F28CD001ECF42 /* libwtf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwtf.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B5E85B40D7F28F5001ECF42 /* AlwaysInline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlwaysInline.h; sourceTree = "<group>"; };
 		7B5E85B50D7F28F5001ECF42 /* ASCIICType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCIICType.h; sourceTree = "<group>"; };
@@ -3967,6 +3965,8 @@
 		82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XBMImageDecoder.cpp; sourceTree = "<group>"; };
 		82F14D600ED230E700B36428 /* webcursor_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webcursor_mac.mm; sourceTree = "<group>"; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
+		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
+		934CC2290EDCC38400A658F2 /* RGBColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBColor.h; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
 		93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CookieJarChromium.cpp; path = chromium/CookieJarChromium.cpp; sourceTree = "<group>"; };
@@ -4502,6 +4502,8 @@
 				7B0095D80DAFF0DC00F72082 /* npruntime_impl.h */,
 				7B0095D90DAFF0DC00F72082 /* npruntime_internal.h */,
 				7B0095DA0DAFF0DC00F72082 /* npruntime_priv.h */,
+				934CC2270EDCC37600A658F2 /* RGBColor.cpp */,
+				934CC2290EDCC38400A658F2 /* RGBColor.h */,
 				B5B0D41C0EC8FE6300EA3314 /* runtime */,
 				E40063600EA907510055B38E /* ScriptCallContextV8.cpp */,
 				E40060D90EA69E0B0055B38E /* ScriptController.h */,
@@ -4589,15 +4591,6 @@
 				7B2B0A4E0E3143EC00D4C6B7 /* PNGImageDecoder.h */,
 			);
 			path = png;
-			sourceTree = "<group>";
-		};
-		7B42A5E70DE213AE00659DE0 /* css */ = {
-			isa = PBXGroup;
-			children = (
-				7B42A5E80DE213C700659DE0 /* RGBColor.cpp */,
-				7B42A5E90DE213C700659DE0 /* RGBColor.h */,
-			);
-			path = css;
 			sourceTree = "<group>";
 		};
 		7B5E77540D7F22D8001ECF42 = {
@@ -6667,7 +6660,6 @@
 			isa = PBXGroup;
 			children = (
 				7B9375970D91902E008B9587 /* bridge */,
-				7B42A5E70DE213AE00659DE0 /* css */,
 				7B14AA440DE323A000F4E646 /* history */,
 				E4A970880E3614F200E8EF3B /* page */,
 				822B1BE60DC778FF005C9A96 /* platform */,
@@ -8160,6 +8152,7 @@
 				7B0095F10DAFF0DD00F72082 /* JSXPathNSResolver.cpp in Sources */,
 				7B0095F30DAFF0DD00F72082 /* np_v8object.cpp in Sources */,
 				7B0095F50DAFF0DD00F72082 /* npruntime.cpp in Sources */,
+				934CC2280EDCC37600A658F2 /* RGBColor.cpp in Sources */,
 				7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */,
 				7B00913B0DAFEFBE00F72082 /* SVGNames.cpp in Sources */,
 				7B00913E0DAFEFBE00F72082 /* UserAgentStyleSheetsData.cpp in Sources */,
@@ -9392,7 +9385,6 @@
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E473F6600EAE00A6006C2098 /* PopupMenuChromium.cpp in Sources */,
 				4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */,
-				E45627ED0E2694B8005E4685 /* RGBColor.cpp in Sources */,
 				E40063610EA907510055B38E /* ScriptCallContextV8.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				E473F6620EAE00D5006C2098 /* ScrollView.cpp in Sources */,

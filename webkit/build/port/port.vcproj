@@ -147,14 +147,6 @@
 				RelativePath="..\..\port\css\quirks-overrides.css"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\css\RGBColor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\css\RGBColor.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="page"

@@ -327,6 +327,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
     '$PORT_DIR/bindings/v8/np_v8object.cpp',
     '$PORT_DIR/bindings/v8/npruntime.cpp',
+    '$PORT_DIR/bindings/v8/RGBColor.cpp',
     '$PORT_DIR/bindings/v8/ScriptCallContextV8.cpp',
     '$PORT_DIR/bindings/v8/v8_custom.cpp',
     '$PORT_DIR/bindings/v8/v8_events.cpp',

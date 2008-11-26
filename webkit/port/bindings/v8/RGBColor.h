@@ -26,4 +26,3 @@ class RGBColor : public RefCounted<RGBColor> {
 }  // namespace WebCore
 
 #endif  // RGBColor_h
-
