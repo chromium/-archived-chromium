@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 
+#include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "webkit/glue/webplugin_delegate.h"
@@ -89,6 +90,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY = 8,
     PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES = 16,
     PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
+    PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,
   };
 
   int quirks() { return quirks_; }
@@ -256,6 +258,21 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   // The url with which the plugin was instantiated.
   std::string plugin_url_;
+
+  // The plugin module handle.
+  HMODULE plugin_module_handle_;
+
+  // Indicates whether we IAT patched the TrackPopupMenu function.
+  static bool track_popup_menu_patched_;
+
+  // Helper object for patching the import table of Silverlight.
+  static iat_patch::IATPatchFunction iat_patch_helper_;
+
+  // TrackPopupMenu interceptor. Parameters are the same as the Win32 function
+  // TrackPopupMenu.
+  static BOOL WINAPI TrackPopupMenuPatch(HMENU menu, unsigned int flags, int x,
+                                         int y, int reserved, HWND window,
+                                         const RECT* rect);
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateImpl);
 };

@@ -47,6 +47,9 @@ std::list<MSG> WebPluginDelegateImpl::throttle_queue_;
 
 WebPluginDelegateImpl* WebPluginDelegateImpl::current_plugin_instance_ = NULL;
 
+bool WebPluginDelegateImpl::track_popup_menu_patched_ = false;
+iat_patch::IATPatchFunction WebPluginDelegateImpl::iat_patch_helper_;
+
 WebPluginDelegateImpl* WebPluginDelegateImpl::Create(
     const std::wstring& filename,
     const std::string& mime_type,
@@ -137,7 +140,8 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       handle_event_depth_(0),
       user_gesture_message_posted_(false),
 #pragma warning(suppress: 4355)  // can use this
-      user_gesture_msg_factory_(this) {
+      user_gesture_msg_factory_(this),
+      plugin_module_handle_(NULL) {
   memset(&window_, 0, sizeof(window_));
 
   const WebPluginInfo& plugin_info = instance_->plugin_lib()->plugin_info();
@@ -173,7 +177,13 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     quirks_ |= PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY;
     // VLC 0.8.6d and 0.8.6e crash if multiple instances are created.
     quirks_ |= PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES;
+  } else if (filename == L"npctrl.dll") {
+    // Explanation for this quirk can be found in
+    // WebPluginDelegateImpl::Initialize.
+    quirks_ |= PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU;
   }
+
+  plugin_module_handle_ = ::GetModuleHandle(filename.c_str());
 }
 
 WebPluginDelegateImpl::~WebPluginDelegateImpl() {
@@ -240,8 +250,23 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
   }
 
   plugin->SetWindow(windowed_handle_, handle_event_pump_messages_event_);
-
   plugin_url_ = url.spec();
+
+  // The windowless version of the Silverlight plugin calls the
+  // WindowFromPoint API and passes the result of that to the
+  // TrackPopupMenu API call as the owner window. This causes the API
+  // to fail as the API expects the window handle to live on the same
+  // thread as the caller. It works in the other browsers as the plugin
+  // lives on the browser thread. Our workaround is to intercept the
+  // TrackPopupMenu API for Silverlight and replace the window handle
+  // with the dummy activation window.
+  if (windowless_ && !track_popup_menu_patched_ &&
+      (quirks_ & PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU)) {
+    iat_patch_helper_.Patch(plugin_module_handle_, "user32.dll",
+                            "TrackPopupMenu",
+                            WebPluginDelegateImpl::TrackPopupMenuPatch);
+    track_popup_menu_patched_ = true;
+  }
   return true;
 }
 
@@ -1003,7 +1028,7 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
     ResetEvent(handle_event_pump_messages_event_);
   }
 
-  if (::IsWindow(prev_focus_window)) {
+  if (event->event == WM_RBUTTONUP && ::IsWindow(prev_focus_window)) {
     ::SetFocus(prev_focus_window);
   }
 
@@ -1082,4 +1107,20 @@ bool WebPluginDelegateImpl::IsUserGestureMessage(unsigned int message) {
 void WebPluginDelegateImpl::OnUserGestureEnd() {
   user_gesture_message_posted_ = false;
   instance()->PopPopupsEnabledState();
+}
+
+BOOL WINAPI WebPluginDelegateImpl::TrackPopupMenuPatch(
+    HMENU menu, unsigned int flags, int x, int y, int reserved,
+    HWND window, const RECT* rect) {
+  if (current_plugin_instance_) {
+    unsigned long window_process_id = 0;
+    unsigned long window_thread_id =
+        GetWindowThreadProcessId(window, &window_process_id);
+    // TrackPopupMenu fails if the window passed in belongs to a different
+    // thread.
+    if (::GetCurrentThreadId() != window_thread_id) {
+      window = current_plugin_instance_->dummy_window_for_activation_;
+    }
+  }
+  return TrackPopupMenu(menu, flags, x, y, reserved, window, rect);
 }
