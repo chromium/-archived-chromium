@@ -2,17 +2,24 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-Import(['env', 'env_res'])
-
-env['USING_NPAPI'] = env['BROWSER'] in ['SF', 'NPAPI']
+Import('env')
 
 types = ['CPPSRCS', 'M4SRCS', 'HTML_M4SRCS', 'I18N_M4SRCS', 'STABSRCS',
-         'IDLSRCS', 'LINKSRCS']
+         'IDLSRCS', 'RESSRCS', 'LINKSRCS']
 
-# Set up $BROWSER_XXXSRC = $${BROWSER}_XXXSRC and $FF2_XXXSRC = $FF3_XXXSRC
+# Set up aliases for shared inputs.
 for type in types:
-  env['BROWSER_' + type] = ['$' + env['BROWSER'] + '_' + type]
   env['FF2_' + type] = ['$FF3_' + type]
+  env['NPAPI_' + type] = ['$USING_NPAPI_' + type]
+  env['SF_' + type] = ['$USING_NPAPI_' + type]
+
+def InitBrowserInputs(env):
+  """Set up $BROWSER_XXXSRC = $${BROWSER}_XXXSRC.  Must be called by
+  SConscript.browser, when we have a BROWSER variable available."""
+  for type in types:
+    eval('env.Append(BROWSER_%s = ["$%s_%s"])' % (type, env['BROWSER'], type))
+env.AddMethod(InitBrowserInputs)
+
 
 #-----------------------------------------------------------------------------
 # crash_sender
@@ -119,10 +126,12 @@ mozjs_sources = [
     '$MOZJS_DIR/gears_npapi_bindings/mozjs_npapi_storage.cc'
 ]
 
-env.Append(SF_LINKSRCS =
-    env.SharedObject(
-        mozjs_sources, CPPPATH = env['CPPPATH'] + env['MOZJS_INCLUDE_PATHS'])
-)
+def MozjsSources(env):
+  return env.SharedObject(mozjs_sources,
+      CPPPATH = env['CPPPATH'] + env['MOZJS_INCLUDE_PATHS'])
+env['MozjsSources'] = MozjsSources
+
+env.Append(SF_LINKSRCS = '${MozjsSources(__env__)}')
 
 #-----------------------------------------------------------------------------
 # third_party/breakpad
@@ -740,12 +749,12 @@ elif env['OS'] == 'wince':
 
 #-----------------------------------------------------------------------------
 # workerpool/npapi
-if env['USING_NPAPI']:
-  env.Append(BROWSER_CPPSRCS = [
-      '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
-      '$OPEN_DIR/workerpool/npapi/pool_threads_manager.cc',
-      '$OPEN_DIR/workerpool/workerpool.cc',
-  ])
+
+env.Append(USING_NPAPI_CPPSRCS = [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/npapi/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+])
 
 #-----------------------------------------------------------------------------
 # workerpool/firefox
@@ -837,10 +846,9 @@ if env['OS'] == 'wince':
       '$OPEN_DIR/installer/iemobile/setup.cc',
   ])
 
-  if env_res:
-    env.Append(WINCE_SETUP_LINKSRCS = [
-        env_res.RES('$GENFILES_DIR/setup.rc'),
-    ])
+  env.Append(WINCE_SETUP_RESSRCS = [
+      '$GENFILES_DIR/setup.rc',
+  ])
 
 #-----------------------------------------------------------------------------
 # image
@@ -856,12 +864,11 @@ if not env['OFFICIAL_BUILD'] and env['OS'] != 'wince':
 #-----------------------------------------------------------------------------
 # factory/npapi
 
-if env['USING_NPAPI']:
-  env.Append(BROWSER_CPPSRCS = [
-      '$OPEN_DIR/factory/factory_impl.cc',
-      '$OPEN_DIR/factory/factory_np.cc',
-      '$OPEN_DIR/factory/factory_utils.cc',
-  ])
+env.Append(USING_NPAPI_CPPSRCS = [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_np.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+])
 
 #-----------------------------------------------------------------------------
 # factory/firefox
@@ -943,16 +950,10 @@ env.Append(VISTA_BROKER_CPPSRCS = [
     '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
 ])
 
-if env_res:
-  env.Append(VISTA_BROKER_LINKSRCS = [
-      env_res.RES(
-          '$GENFILES_DIR/vista_broker_string_table.res',
-          '$GENFILES_DIR/string_table.rc',
-          EXTRA_DEFINES = 'VISTA_BROKER=1'),
-      env_res.RES(
-          '$OPEN_DIR/vista_broker/vista_broker.rc',
-          EXTRA_DEFINES = 'VISTA_BROKER=1'),
-  ])
+env.Append(VISTA_BROKER_RESSRCS = [
+    '$GENFILES_DIR/string_table.rc',
+    '$OPEN_DIR/vista_broker/vista_broker.rc',
+])
 
 #-----------------------------------------------------------------------------
 # Safari Installer Plugin
@@ -979,18 +980,16 @@ env.Append(SF_PROXY_DLL_CPPSRCS = [
 #-----------------------------------------------------------------------------
 # resources
 
-if env_res and env['OS'] in ['win32', 'wince']:
-  if env['BROWSER'] in ['IE', 'NPAPI']:
-    env['UI_RES'] = env_res.RES('$GENFILES_DIR/ui_resources.rc')
-    env.Append(BROWSER_LINKSRCS = '$UI_RES')
+env.Append(NPAPI_RESSRCS = [
+    '$GENFILES_DIR/ui_resources.rc',
+    '$OPEN_DIR/base/npapi/module.rc',
+])
 
-    if env['BROWSER'] == 'NPAPI':
-      env['MODULE_RES'] = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
-      env.Append(NPAPI_LINKSRCS = '$MODULE_RES')
-    elif env['BROWSER'] == 'IE':
-      env['MODULE_RES'] = env_res.RES('$OPEN_DIR/base/ie/module.rc')
-      env['STRING_RES'] = env_res.RES('$GENFILES_DIR/string_table.rc')
-      env.Append(IE_LINKSRCS = ['$MODULE_RES', '$STRING_RES'])
+env.Append(IE_RESSRCS = [
+    '$GENFILES_DIR/string_table.rc',
+    '$GENFILES_DIR/ui_resources.rc',
+    '$OPEN_DIR/base/npapi/module.rc',
+])
 
 env.Append(FF3_RESOURCES = [
     '$FF3_OUTDIR/genfiles/browser-overlay.js',

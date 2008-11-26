@@ -30,7 +30,7 @@ env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
 
 env.Prepend(
     CPPDEFINES = [
-# Common items, like notifier, is not related to any browser.
+# Common items, like notifier, are not related to any browser.
         'BROWSER_NONE=1',
     ]
 )
@@ -40,9 +40,6 @@ env.Prepend(
 # Mac OS X a "flavor of Linux"??
 if env['OS'] == 'osx':
   env.Append(CPPDEFINES = ['LINUX'])
-
-# Include the input file list.
-env = env.SConscript('SConscript.inputs', exports={'env': env, 'env_res': None})
 
 
 #-----------------------------------------------------------------------------

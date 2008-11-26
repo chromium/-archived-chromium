@@ -2,8 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import fnmatch
 import os
 import re
+import shutil
 import subprocess
 import utils
 
@@ -23,10 +25,12 @@ env = env.Clone(
     FF2_MODULE = '${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
     MODULE = '${SHLIBPREFIX}gears${SHLIBSUFFIX}',
     WINCE_SETUP = '${SHLIBPREFIX}setup${SHLIBSUFFIX}',
-
-    # Clean up the '#' in *_OUTDIR.
-    BASE_OUTDIR = env.Entry('$BASE_OUTDIR').path,
 )
+
+if env['OS'] in ['win32', 'wince']:
+  env.Append(DATE = 'echo %DATE%.%TIME%')
+else:
+  env.Append(DATE = 'date')
 
 def GetInputs(var): return utils.GetInputs(var, env)
 
@@ -96,12 +100,12 @@ if env['OS'] == 'win32':
           ('OurComponentGUID_NpapiRegistry',
             GGUIDGen('OUR_COMPONENT_GUID_NPAPI_REGISTRY')),
           ('OurMsiVersion', '$MSI_VERSION'),
-          ('OurCommonPath', '$SCONS_DIR/$COMMON_OUTDIR'),
-          ('OurIEPath', '$SCONS_DIR/$IE_OUTDIR'),
-          ('OurIpcTestPath', '$SCONS_DIR/$BASE_OUTDIR/common'),
+          ('OurCommonPath', '$COMMON_OUTDIR'),
+          ('OurIEPath', '$IE_OUTDIR'),
+          ('OurIpcTestPath', '$BASE_OUTDIR/common'),
           ('OurFFPath',
-            '$SCONS_DIR/$BASE_OUTDIR/$INSTALLER_BASEDIR/$INSTALLER_BASENAME'),
-          ('OurNpapiPath', '$SCONS_DIR/$NPAPI_OUTDIR'),
+            '$BASE_OUTDIR/$INSTALLER_BASEDIR/$INSTALLER_BASENAME'),
+          ('OurNpapiPath', '$NPAPI_OUTDIR'),
       ]
   )
   wix_langs = [re.sub('-', '_', lang) for lang in env['I18N_LANGS']]
@@ -112,24 +116,6 @@ if env['OS'] == 'win32':
          for lang in wix_langs],
   )
 
-def IsDir(path):
-  """Test if path (relative to the toplevel dir) is a directory."""
-  path = env.Entry("#/" + path).abspath
-  return os.path.isdir(path)
-
-def StripOutdir(paths):
-  """Strips the Hammer/gears/$MODE/ part from the paths, if its there."""
-  def StripOne(path):
-    path = os.path.normpath(env.subst(str(path)))
-    is_dir = IsDir(path)
-    pattern = env.subst('$BASE_OUTDIR')
-    if path.startswith(pattern): path = path[len(pattern)+1:]
-    if is_dir:
-      # Workaround: SCons doesn't like directories in a source list.
-      return env.Glob(path + "/*")
-    return path
-  return [StripOne(path) for path in paths]
-
 def SafeMkdir(dir):
   """Like the builtin Mkdir, but doesn't fail if the dir exists."""
   def Func(target, source, env):
@@ -137,7 +123,19 @@ def SafeMkdir(dir):
     if not os.path.exists(dir_subst):
       os.makedirs(dir_subst)
     return 0
-  return Action(Func, 'SafeMkdir(' + dir + ')')
+  return Action(Func, 'SafeMkdir("' + dir + '")')
+
+def RecursiveDelete(pattern):
+  """Recursively deletes directories matching a pattern."""
+  def Func(target, source, env):
+    # strip off '.dir' suffix
+    target_dir = env.subst('${TARGET.base}', target=target)
+    for root, dirs, files in os.walk(target_dir):
+      if fnmatch.fnmatch(os.path.normpath(root), pattern):
+        print 'Deleting', root
+        shutil.rmtree(root)
+    return 0
+  return Action(Func, 'RecursiveDelete("' + pattern + '")')
 
 def ToUnixPath(path):
   """Converts windows-style \ to unix-style /."""
@@ -159,9 +157,7 @@ def DirBuilder(env, dirtarget, dirsrcs):
   srcs = []
   actions = [Delete('${TARGET.base}')]
   for target, sources in dirsrcs:
-    # Strip output directory from the src, because builders expect srcs to
-    # be relative to the outdir already.
-    srcs += StripOutdir(sources)
+    srcs += sources
 
     target_is_dir = target.endswith('/')
     if target_is_dir:
@@ -185,14 +181,13 @@ def DirBuilder(env, dirtarget, dirsrcs):
         actions.append(Copy('${TARGET.base}/' + target, source))
 
   # Remove any .svn directories that were copied.
-  # TODO(mpcomplete): maybe use os.walk + shutil.rmtree instead?
-  actions += ['rm -rf `find ${TARGET.base} -name .svn`']
+  actions.append(RecursiveDelete('*/.svn'))
 
   # HACK: Workaround for bug in scons where directories aren't checked for
   # dependency changes.  Instead, we make a temp file the target, and ensure
   # that that file changes everytime we execute these actions.
   # See http://scons.tigris.org/issues/show_bug.cgi?id=2261
-  actions += ['date > ${TARGET}']
+  actions += ['$DATE > ${TARGET}']
   return env.Command(dirtarget + '.dir', srcs, actions)
 env.AddMethod(DirBuilder)
 
@@ -227,7 +222,7 @@ def FirefoxInstaller(env):
   if env['OS'] != 'win32':
     # TODO(playmobil): Inspector should be located in extensions dir on win32.
     dirsrcs += [
-        ('resources/inspector', ['$OPEN_DIR/inspector']),
+        ('resources/inspector', [env.Dir('$OPEN_DIR/inspector')]),
         ('resources/inspector/common/', ['$OPEN_DIR/sdk/gears_init.js',
                                          '$OPEN_DIR/sdk/samples/sample.js']),
     ]
@@ -250,24 +245,23 @@ env.AddMethod(FirefoxInstaller)
 
 def Win32Installer(env):
   wxiobj = env.Command(
-      StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxiobj']),
-      StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxs']),
+      '$COMMON_GENFILES_DIR/win32_msi.wxiobj',
+      '$COMMON_GENFILES_DIR/win32_msi.wxs',
       '$CANDLECOM')
   # TODO(mpcomplete): remove this if/when the notifier goes away.  This
   # creates fake targets to satisfy the installer build.
   notifier = env.Command(
-      StripOutdir([
+      [
           '$COMMON_OUTDIR/notifier.exe',
           '$COMMON_OUTDIR/notifier.dll',
           '$COMMON_OUTDIR/notifier_test.exe'
-      ]), [],
+      ], [],
       'touch $TARGETS')
   # light.exe must be run from $OPEN_DIR
   msi = env.Command(
       '$WIN32_INSTALLER_MSI',
-      [wxiobj, notifier, '$FF_XPI',
-       StripOutdir(['$IE_OUTDIR/$MODULE']),
-       StripOutdir(['$NPAPI_OUTDIR/$MODULE'])],
+      [wxiobj, notifier, '$FF_XPI', '$IE_OUTDIR/$MODULE',
+       '$NPAPI_OUTDIR/$MODULE'],
       'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCES[0].abspath}')
   return msi
 env.AddMethod(Win32Installer)
@@ -276,13 +270,12 @@ def WinCEInstaller(env):
   env['ToUnixPath'] = ToUnixPath
   inf_outdir = ToUnixPath(env.subst('$IE_OUTDIR'))
   inf = env.Command(
-      StripOutdir(['$COMMON_GENFILES_DIR/wince_cab_fixed.inf']),
-      StripOutdir(['$COMMON_GENFILES_DIR/wince_cab.inf']),
+      '$COMMON_GENFILES_DIR/wince_cab_fixed.inf',
+      '$COMMON_GENFILES_DIR/wince_cab.inf',
       'sed -e "s#bin-....wince-arm.ie.#' + inf_outdir + '#g" $SOURCE > $TARGET')
   cab = env.Command(
       '$WINCE_INSTALLER_CAB',
-      [inf, StripOutdir(['$IE_OUTDIR/$MODULE']),
-       StripOutdir(['$IE_OUTDIR/$WINCE_SETUP'])],
+      [inf, '$IE_OUTDIR/$MODULE', '$IE_OUTDIR/$WINCE_SETUP'],
       ['cabwiz ${ToUnixPath(str(SOURCE))} /compress'
        ' /err ${SOURCES[0].base}.log',
        Copy('$TARGET', '${SOURCE.base}.CAB')])
@@ -331,7 +324,7 @@ def SafariInstallerPluginBundle(env):
       ('Contents/MacOS/',
           ['$COMMON_OUTDIR/${SHLIBPREFIX}stats_pane${SHLIBSUFFIX}']), 
       ('Contents/Resources/AdvancedStatsSheet.nib',
-          ['$OPEN_DIR/base/safari/advanced_stats_sheet.nib']),
+          [env.Dir('$OPEN_DIR/base/safari/advanced_stats_sheet.nib')]),
   ]
 
   return env.DirBuilder('${SF_INSTALLER_PLUGIN_BUNDLE}', dirsrcs)
@@ -340,10 +333,10 @@ env.AddMethod(SafariInstallerPluginBundle)
 def SafariInstallerPackage(env):
   proxy = env.SafariPluginProxyBundle()
   pkg = env.Iceberg(env.Dir('${SF_INSTALLER_PKG}'),
-      StripOutdir([
+      [
           '$SF_OUTDIR/genfiles/installer.packproj',
           '$BASE_OUTDIR/' + str(proxy[0]),
-      ]))
+      ])
   return pkg
 env.AddMethod(SafariInstallerPackage)
 

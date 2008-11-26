@@ -22,6 +22,9 @@ env = env.Clone()
 # TODO: other targets
 # - installer (safari, android, ...)
 
+# Initialize our BROWSER_* input files.
+env.InitBrowserInputs()
+
 
 # Building .stab files, using M4FLAGS.
 
@@ -375,10 +378,6 @@ if env['OS'] == 'win32':
 #  browser_specific_objects += \
 #      env.SharedObject('$OPEN_DIR/base/safari/resource_archive.cc')
 
-# Include the input file list.
-env = env.SConscript('SConscript.inputs', exports=['env', 'env_res'])
-
-
 #-----------------------------------------------------------------------------
 # Generate the dependency tree.
 
@@ -430,13 +429,20 @@ for src in GetInputs('$BROWSER_IDLSRCS'):
 if env['BROWSER'] in ['FF2', 'FF3']:
   env.XptLink('gears.xpt', xptsrcs)
 
+# genfiles/%.res: %.rc
+env.Append(BROWSER_LINKSRCS = [
+    [env_res.RES(
+         *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.res', src))
+     for src in GetInputs('$BROWSER_RESSRCS')]
+])
+
 # Add common sources.
 env.Append(BROWSER_LINKSRCS = common_targets['link'])
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
-if env.has_key('UI_RES'):
-  env.Depends('$UI_RES', html_m4s)
-  env.Depends('$MODULE_RES', m4s)
+if env['OS'] in ['win32', 'wince'] and env['BROWSER'] in ['NPAPI', 'IE']:
+  env.Depends('$GENFILES_DIR/ui_resources.rc', html_m4s)
+  env.Depends('$OPEN_DIR/base/npapi/module.rc', m4s)
 
 # Safari resources
 if env['BROWSER'] == 'SF':
@@ -488,6 +494,10 @@ if env['OS'] in ['win32', 'wince'] and env['MODE'] == 'dbg':
 env.Alias('gears', module)
 
 if env['OS'] == 'wince':
+  env.Append(WINCE_SETUP_LINKSRCS = [
+      [env_res.RES(*PatternRule('$GENFILES_DIR/${SOURCE.filebase}.res', src))
+       for src in GetInputs('$WINCE_SETUP_RESSRCS')]
+  ])
   wince_setup = env.ChromeSharedLibrary('setup',
       env.SharedObject(GetInputs('$WINCE_SETUP_CPPSRCS')) +
       GetInputs('$WINCE_SETUP_LINKSRCS'))
@@ -498,6 +508,11 @@ if env['OS'] == 'win32' and env['BROWSER'] == 'IE':
 # Note: vista_broker.exe needs to stay in sync with name used in
 # desktop_win32.cc.
 # TODO(aa): This can move to common_outdir like crash_sender.exe
+  env.Append(VISTA_BROKER_LINKSRCS = [
+       [env_res.RES('$GENFILES_DIR/vista_broker_${SOURCE.filebase}.res',
+           env_res.File(src), EXTRA_DEFINES = 'VISTA_BROKER=1')
+       for src in GetInputs('$VISTA_BROKER_RESSRCS')]
+  ])
   vista_broker = env.ChromeProgram('vista_broker',
       env.SharedObject(GetInputs('$VISTA_BROKER_CPPSRCS')) +
       GetInputs('$VISTA_BROKER_LINKSRCS'))

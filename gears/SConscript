@@ -766,6 +766,9 @@ sconscripts = [
 #  env = env.SConscript('#/$PRIVATE_DIR/SConscript',
 #      exports=['env', 'env_res'])
 
+# Include the input file list.
+env = env.SConscript('SConscript.inputs', exports=['env'])
+
 for each in sconscripts:
   env.SConscript(each,
                  exports=['env'],
@@ -797,3 +800,5 @@ env.SConscript('SConscript.installers',
                exports=['env'],
                variant_dir='$BASE_OUTDIR',
                duplicate=0)
+
+env.Alias('gears-installers', 'gears')
