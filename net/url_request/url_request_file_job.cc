@@ -164,12 +164,11 @@ void URLRequestFileJob::DidResolve(
   if (!request_)
     return;
 
-  DCHECK(!file_info.is_directory);
-
   int rv = net::OK;
   if (!exists) {
     rv = net::ERR_FILE_NOT_FOUND;
   } else {
+    DCHECK(!file_info.is_directory);
     int flags = base::PLATFORM_FILE_OPEN |
                 base::PLATFORM_FILE_READ |
                 base::PLATFORM_FILE_ASYNC;
