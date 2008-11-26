@@ -24,13 +24,14 @@
  */
 
 #include "config.h"
-#include "ChromiumBridge.h"
 #include "CString.h"
 #include "MIMETypeRegistry.h"
 #include "MediaPlayer.h"
 #include "StringHash.h"
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
+
+#include "net/base/mime_util.h"
 
 namespace WebCore
 {
@@ -73,7 +74,7 @@ String MIMETypeRegistry::getMIMETypeForPath(const String& path)
 bool MIMETypeRegistry::isSupportedImageMIMEType(const String& mimeType)
 { 
     return !mimeType.isEmpty()
-        && ChromiumBridge::isSupportedImageMIMEType(mimeType.latin1().data());
+        && net::IsSupportedImageMimeType(mimeType.latin1().data()); 
 }
 
 bool MIMETypeRegistry::isSupportedImageMIMETypeForEncoding(const String& mimeType)
@@ -84,9 +85,8 @@ bool MIMETypeRegistry::isSupportedImageMIMETypeForEncoding(const String& mimeTyp
 
 bool MIMETypeRegistry::isSupportedJavaScriptMIMEType(const String& mimeType)
 {
-    const char* data = mimeType.latin1().data();
     return !mimeType.isEmpty()
-        && ChromiumBridge::isSupportedJavascriptMIMEType(data);
+        && net::IsSupportedJavascriptMimeType(mimeType.latin1().data()); 
 }
 
 bool MIMETypeRegistry::isSupportedImageResourceMIMEType(const String& mimeType)
@@ -97,7 +97,7 @@ bool MIMETypeRegistry::isSupportedImageResourceMIMEType(const String& mimeType)
 bool MIMETypeRegistry::isSupportedNonImageMIMEType(const String& mimeType)
 {
    return !mimeType.isEmpty()
-       && ChromiumBridge::isSupportedNonImageMIMEType(mimeType.latin1().data());
+       && net::IsSupportedNonImageMimeType(mimeType.latin1().data()); 
 }
 
 #if ENABLE(VIDEO)
