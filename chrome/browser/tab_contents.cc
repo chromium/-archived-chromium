@@ -46,8 +46,7 @@ TabContents::TabContents(TabContentsType type)
       shelf_visible_(false),
       max_page_id_(-1),
       blocked_popups_(NULL),
-      capturing_contents_(false),
-      is_being_destroyed_(false) {
+      capturing_contents_(false) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
@@ -76,9 +75,6 @@ void TabContents::CloseContents() {
 }
 
 void TabContents::Destroy() {
-  DCHECK(!is_being_destroyed_);
-  is_being_destroyed_ = true;
-
   // First cleanly close all child windows.
   // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
   // some of these to close.  CloseWindows is async, so it might get called

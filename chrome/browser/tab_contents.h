@@ -246,11 +246,6 @@ class TabContents : public PageNavigator,
   bool is_active() const { return is_active_; }
   void set_is_active(bool active) { is_active_ = active; }
 
-  // Whether the tab is in the process of being destroyed.
-  // Added as a tentative work-around for focus related bug #4633.  This allows
-  // us not to store focus when a tab is being closed.
-  bool is_being_destroyed() const { return is_being_destroyed_; }
-
   // Convenience method for notifying the delegate of a navigation state
   // change. See TabContentsDelegate.
   void NotifyNavigationStateChanged(unsigned changed_flags);
@@ -546,9 +541,6 @@ class TabContents : public PageNavigator,
 
   // Delegates for InfoBars associated with this TabContents.
   std::vector<InfoBarDelegate*> infobar_delegates_;
-
-  // See getter above.
-  bool is_being_destroyed_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContents);
 };
