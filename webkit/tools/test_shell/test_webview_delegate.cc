@@ -408,11 +408,6 @@ bool TestWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
 
 void TestWebViewDelegate::StartDragging(WebView* webview,
                                         const WebDropData& drop_data) {
-#if defined(OS_WIN)
-  // TODO(port): make this work on all platforms.
-  if (!drag_delegate_)
-    drag_delegate_ = new TestDragDelegate(shell_->webViewWnd(),
-                                          shell_->webView());
   if (webkit_glue::IsLayoutTestMode()) {
     WebDropData mutable_drop_data = drop_data;
     if (shell_->layout_test_controller()->ShouldAddFileToPasteboard()) {
@@ -426,6 +421,9 @@ void TestWebViewDelegate::StartDragging(WebView* webview,
   } else {
     // TODO(tc): Drag and drop is disabled in the test shell because we need
     // to be able to convert from WebDragData to an IDataObject.
+    //if (!drag_delegate_)
+    //  drag_delegate_ = new TestDragDelegate(shell_->webViewWnd(),
+    //                                        shell_->webView());
     //const DWORD ok_effect = DROPEFFECT_COPY | DROPEFFECT_LINK | DROPEFFECT_MOVE;
     //DWORD effect;
     //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
@@ -433,7 +431,6 @@ void TestWebViewDelegate::StartDragging(WebView* webview,
     //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
   }
   webview->DragSourceSystemDragEnded();
-#endif
 }
 
 void TestWebViewDelegate::ShowContextMenu(WebView* webview,
