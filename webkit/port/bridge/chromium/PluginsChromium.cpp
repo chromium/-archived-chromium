@@ -31,126 +31,154 @@
 // netscape.plugins object.  See PluginInfoStore.h.
 // They are also used by WebViewImpl to check if a plugin exists for a given
 // MIME type.
-//
 
 #include "config.h"
 
 #include "ChromiumBridge.h"
 #include "PluginData.h"
-#if COMPILER(MSVC)
-__pragma(warning(push, 0))
-#endif
 #include "PluginInfoStore.h"
-#if COMPILER(MSVC)
-__pragma(warning(pop))
-#endif
-#undef LOG
 
 namespace WebCore {
 
+class PluginCache {
+public:
+    PluginCache() : m_loaded(false) { }
+
+    ~PluginCache()
+    {
+        clear();
+    }
+
+    void load(bool refresh)
+    {
+        if (m_loaded) {
+            if (!refresh)
+                return;
+            clear();
+        } else {
+            m_loaded = true;
+        }
+        ChromiumBridge::plugins(refresh, &m_plugins);
+    }
+
+    void clear()
+    {
+        for (size_t i = 0; i < m_plugins.size(); ++i)
+            deleteAllValues(m_plugins[i]->mimes);
+        deleteAllValues(m_plugins);
+        m_plugins.clear();
+    }
+
+    // Returns a PluginInfo pointer.  Caller is responsible for
+    // deleting contents of the PluginInfo.
+    PluginInfo* createPluginInfoForPluginAtIndex(unsigned int index) 
+    {
+        load(false);
+
+        WebCore::PluginInfo* rv = new WebCore::PluginInfo();
+        const WebCore::PluginInfo* plugin = m_plugins[index];
+        rv->name = plugin->name;
+        rv->desc = plugin->desc;
+        rv->file = plugin->file;
+        for (size_t j = 0; j < plugin->mimes.size(); ++j) {
+            WebCore::MimeClassInfo* newMime = new WebCore::MimeClassInfo();
+            const WebCore::MimeClassInfo* mimeType = plugin->mimes[j];
+            newMime->type = mimeType->type;
+            newMime->desc = mimeType->desc;
+            newMime->suffixes = mimeType->suffixes;
+            newMime->plugin = rv;
+            rv->mimes.append(newMime);
+        }
+
+        return rv;
+    }
+
+    unsigned pluginCount() 
+    {
+        load(false);
+
+        return m_plugins.size();
+    }
+
+    bool supportsMIMEType(const WebCore::String &mime_type) 
+    {
+        load(false);
+
+        for (size_t i = 0; i < m_plugins.size(); ++i) {
+            for (size_t j = 0; j < m_plugins[i]->mimes.size(); ++j) {
+                if (ChromiumBridge::matchesMIMEType(
+                        m_plugins[i]->mimes[j]->type, mime_type)) {
+                    // Don't allow wildcard matches here as this will result in
+                    // plugins being instantiated in cases where they should
+                    // not. For e.g. clicking on a link which causes a file to
+                    // be downloaded, special mime types like text/xml, etc. In
+                    // any case the webkit codepaths which invoke this function
+                    // don't expect wildcard plugin matches.
+                    if (m_plugins[i]->mimes[j]->type == "*")
+                        continue;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    String GetPluginMimeTypeFromExtension(const String& extension) 
+    {
+#if !defined(__linux__)
+        // TODO(port): unstub once we have plugin support for Linux
+
+        load(false);
+
+        for (size_t i = 0; i < m_plugins.size(); ++i) {
+            PluginInfo* plugin = m_plugins[i];
+            for (size_t j = 0; j < plugin->mimes.size(); ++j) {
+                MimeClassInfo* mime = plugin->mimes[j];
+                Vector<String> extensions;
+                mime->suffixes.split(",", extensions);
+                for (size_t k = 0; k < extensions.size(); ++k) {
+                    if (extension == extensions[k])
+                        return mime->type;
+                }
+            }
+        }
+#endif
+        return String();
+    }
+
+private:
+    bool m_loaded;
+    Vector<PluginInfo*> m_plugins;
+};
+
 // We cache the plugins ourselves, since if we're getting them from the another
 // process GetPlugins() will be expensive.
-static bool g_loaded_plugins = false;
-static Vector<PluginInfo*> g_plugins;
+static PluginCache pluginCache;
 
-void LoadPlugins(bool refresh)
-{
-    if (g_loaded_plugins && !refresh)
-        return;
-
-    if (g_loaded_plugins) {
-        for (size_t i = 0; i < g_plugins.size(); ++i)
-            deleteAllValues(g_plugins[i]->mimes);
-        deleteAllValues(g_plugins);
-        g_plugins.clear();
-    }
-
-    g_loaded_plugins = true;
-    // these are leaked at shutdown
-    ChromiumBridge::plugins(refresh, &g_plugins);
-}
-
-// Returns a PluginInfo pointer.  Caller is responsible for
-// deleting contents of the PluginInfo.
 PluginInfo* PluginInfoStore::createPluginInfoForPluginAtIndex(unsigned int index) 
 {
-    LoadPlugins(false);
-
-    WebCore::PluginInfo* rv = new WebCore::PluginInfo();
-    const WebCore::PluginInfo* plugin = g_plugins[index];
-    rv->name = plugin->name;
-    rv->desc = plugin->desc;
-    rv->file = plugin->file;
-    for (size_t j = 0; j < plugin->mimes.size(); ++j) {
-        WebCore::MimeClassInfo* new_mime = new WebCore::MimeClassInfo();
-        const WebCore::MimeClassInfo* mime_type = plugin->mimes[j];
-        new_mime->type = mime_type->type;
-        new_mime->desc = mime_type->desc;
-        new_mime->suffixes = mime_type->suffixes;
-        new_mime->plugin = rv;
-        rv->mimes.append(new_mime);
-    }
-
-    return rv;
+    return pluginCache.createPluginInfoForPluginAtIndex(index);
 }
 
 unsigned PluginInfoStore::pluginCount() const 
 {
-    LoadPlugins(false);
-
-    return g_plugins.size();
+    return pluginCache.pluginCount();
 }
 
 bool PluginInfoStore::supportsMIMEType(const WebCore::String &mime_type) 
 {
-    LoadPlugins(false);
-
-    for (size_t i = 0; i < g_plugins.size(); ++i) {
-        for (size_t j = 0; j < g_plugins[i]->mimes.size(); ++j) {
-            if (ChromiumBridge::matchesMIMEType(g_plugins[i]->mimes[j]->type, 
-                                                mime_type)) {
-                // Don't allow wildcard matches here as this will result in
-                // plugins being instantiated in cases where they should not.
-                // For e.g. clicking on a link which causes a file to be
-                // downloaded, special mime types like text/xml, etc. In any
-                // case the webkit codepaths which invoke this function don't
-                // expect wildcard plugin matches.
-                if (g_plugins[i]->mimes[j]->type == "*")
-                    continue;
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return pluginCache.supportsMIMEType(mime_type);
 }
 
 void refreshPlugins(bool) 
 {
-    LoadPlugins(true);
+    pluginCache.load(true);
 }
 
 String GetPluginMimeTypeFromExtension(const String& extension) 
 {
-#if !defined(__linux__)
-    // TODO(port): unstub once we have plugin support for Linux
-    LoadPlugins(false);
-
-    for (size_t i = 0; i < g_plugins.size(); ++i) {
-        PluginInfo* plugin = g_plugins[i];
-        for (size_t j = 0; j < plugin->mimes.size(); ++j) {
-            MimeClassInfo* mime = plugin->mimes[j];
-            Vector<String> extensions;
-            mime->suffixes.split(",", extensions);
-            for (size_t k = 0; k < extensions.size(); ++k) {
-                if (extension == extensions[k])
-                    return mime->type;
-            }
-        }
-    }
-#endif
-
-    return String();
+    return pluginCache.GetPluginMimeTypeFromExtension(extension);
 }
 
 } // namespace WebCore
