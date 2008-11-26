@@ -163,6 +163,7 @@ env.Append(
       ['ENABLE_JSC_MULTIPLE_THREADS', '0'],
       ['ENABLE_ICONDATABASE', '0'],
       ['ENABLE_DATABASE', '1'],
+      ['ENABLE_ACTIVEX_TYPE_CONVERSION_WMPLAYER', '0'],
       ['ENABLE_XSLT', '1'],
       ['ENABLE_XPATH', '1'],
       ['ENABLE_SVG', '1'],
@@ -182,7 +183,6 @@ env.Append(
       'PNG_USER_CONFIG',
       'CHROME_PNG_WRITE_SUPPORT',
       ['__PRETTY_FUNCTION__', '__FUNCTION__'],
-      'DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2',
 
       '__STD_C',
       ['USE_SYSTEM_MALLOC', '1'],
