@@ -174,15 +174,14 @@ void HWNDView::VisibleBoundsInRootChanged() {
 }
 
 void HWNDView::Paint(ChromeCanvas* canvas) {
-  // On Vista, the area behind our window is black (due to the Aero Glass)
-  // this means that during a fast resize (where our content doesn't draw
-  // over the full size of our HWND, and the HWND background color
-  // doesn't show up), we need to cover that blackness with something so
-  // that fast resizes don't result in black flash.
+  // The area behind our window is black, so during a fast resize (where our 
+  // content doesn't draw over the full size of our HWND, and the HWND 
+  // background color doesn't show up), we need to cover that blackness with 
+  // something so that fast resizes don't result in black flash.
   //
   // It would be nice if this used some approximation of the page's
   // current background color.
-  if (installed_clip_ && win_util::ShouldUseVistaFrame())
+  if (installed_clip_)
     canvas->FillRectInt(SkColorSetRGB(255, 255, 255), 0, 0, width(), height());
 }
 
