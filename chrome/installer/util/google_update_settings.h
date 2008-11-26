@@ -36,6 +36,10 @@ class GoogleUpdateSettings {
   // assigned to a partner. Returns false if the information is not available.
   static bool GetBrand(std::wstring* brand);
 
+  // Returns in 'client' the RLZ client id available for some distribution
+  // partners. This value does not exist for most chrome or chromium installs.
+  static bool GetClient(std::wstring* client);
+
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
