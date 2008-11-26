@@ -513,8 +513,6 @@ static LONG toGDIFontWeight(FontWeight fontWeight)
 // TODO in pending/FontCache.h.
 AtomicString FontCache::getGenericFontForScript(UScriptCode script, const FontDescription& description)
 {
-    if (ChromiumBridge::layoutTestMode() && script == USCRIPT_LATIN)
-        return emptyAtom;
     FontDescription::GenericFamilyType generic = description.genericFamily();
     const wchar_t* scriptFont = GetFontFamilyForScript(
         script, static_cast<GenericFamilyType>(generic));

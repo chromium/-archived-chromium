@@ -741,10 +741,6 @@ void TestShell::ShowStartupDebuggingDialog() {
 
 namespace webkit_glue {
 
-IMLangFontLink2* GetLangFontLink() {
-  return webkit_glue::GetLangFontLinkHelper();
-}
-
 std::wstring GetLocalizedString(int message_id) {
   const ATLSTRINGRESOURCEIMAGE* image =
       AtlGetStringResourceImage(_AtlBaseModule.GetModuleInstance(),

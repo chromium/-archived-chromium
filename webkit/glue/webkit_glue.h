@@ -72,13 +72,6 @@ void InitializeForTesting();
 // Turn on the logging for notImplemented() calls from WebCore.
 void EnableWebCoreNotImplementedLogging();
 
-#if defined(OS_WIN)
-// Returns the com object pointer for the FontLink interface. This is the
-// default way to do this operation. It can be called directly from
-// GetLangFontLink.
-IMLangFontLink2* GetLangFontLinkHelper();
-#endif
-
 // Returns screen information corresponding to the given window.  This is the
 // default implementation.
 ScreenInfo GetScreenInfoHelper(gfx::ViewHandle window);

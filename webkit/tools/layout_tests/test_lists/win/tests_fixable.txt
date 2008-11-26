@@ -308,6 +308,13 @@ LayoutTests/fast/js/kde/function_arguments.html = FAIL
 // error in the header of the following test.
 SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
+// Failed with change http://codereview.chromium.org/12457 which changes
+// the fallback font to "times new roman" from "Times". Need to
+// verify if the current behavior is still correct.
+LayoutTests/fast/css/font-family-initial.html = FAIL
+LayoutTests/fast/css/font-face-default-font.html = FAIL
+LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
+
 // ------------------------------------------------------------------------- //
 
 // Bug: 924387, 1058654

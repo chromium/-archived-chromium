@@ -89,44 +89,6 @@ void EnableWebCoreNotImplementedLogging() {
   WebCore::LogNotYetImplemented.state = WTFLogChannelOn;
 }
 
-#if defined(OS_WIN)
-IMLangFontLink2* GetLangFontLinkHelper() {
-  // TODO(hbono): http://b/1072298 Experimentally disabled this code to
-  // prevent registry leaks caused by this IMLangFontLink2 interface.
-  // If you find any font-rendering regressions. Please feel free to blame me.
-  // TODO(hbono): http://b/1072298 The test shell does not use our font metrics
-  // but it uses its own font metrics which heavily depend on this
-  // IMLangFontLink2 interface. Even though we should change the test shell to
-  // use out font metrics and re-baseline such tests, we temporarily let the
-  // test shell use this interface until we complete the said change.
-  if (!IsLayoutTestMode())
-    return NULL;
-
-  static IMultiLanguage *multi_language = NULL;
-
-  if (!multi_language) {
-    if (CoCreateInstance(CLSID_CMultiLanguage, 
-                         0, 
-                         CLSCTX_ALL, 
-                         IID_IMultiLanguage, 
-                         reinterpret_cast<void**>(&multi_language)) != S_OK) {
-        return 0;
-    }
-  }
-
-  static IMLangFontLink2* lang_font_link;
-  if (!lang_font_link) {
-    if (multi_language->QueryInterface(
-            IID_IMLangFontLink2, 
-            reinterpret_cast<void**>(&lang_font_link)) != S_OK) {
-      return 0;
-    }
-  }
-
-  return lang_font_link;
-}
-#endif  // defined(OS_WIN)
-
 std::wstring DumpDocumentText(WebFrame* web_frame) {
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(web_frame);
   WebCore::Frame* frame = webFrameImpl->frame();

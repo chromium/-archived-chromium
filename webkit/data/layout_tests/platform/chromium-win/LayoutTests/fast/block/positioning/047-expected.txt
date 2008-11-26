@@ -55,6 +55,6 @@ layer at (8,8) size 512x868
 layer at (546,179) size 200x49
   RenderBlock (positioned) {SPAN} at (538,171) size 200x48
     RenderText {#text} at (0,-1) size 196x50
-      text run at (0,-1) width 190: "\x{2190} this should be to the right of"
+      text run at (0,-1) width 191: "\x{2190} this should be to the right of"
       text run at (0,15) width 196: "the paragraph, lining up with the"
       text run at (0,31) width 42: "dagger"
