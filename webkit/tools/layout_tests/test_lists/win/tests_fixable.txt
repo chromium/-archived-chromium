@@ -1153,3 +1153,18 @@ LayoutTests/fast/frames/iframe-option-crash.xhtml = FAIL
 
 // MERGE 38600:38625: Expectations changed upstream
 LayoutTests/fast/js/deep-recursion-test.html = FAIL
+
+// MERGE 38625:38653: Expectations changed upstream
+LayoutTests/editing/deleting/delete-by-word-001.html = FAIL
+LayoutTests/editing/deleting/delete-by-word-002.html = FAIL
+LayoutTests/editing/deleting/delete-to-end-of-paragraph.html = FAIL
+LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
+
+// MERGE 38625:38653: Regression
+LayoutTests/fast/events/key-events-in-input-button.html = FAIL
+
+// MERGE 38625:38653: New tests
+LayoutTests/fast/css/computed-style.html = FAIL
+LayoutTests/fast/repaint/change-transform.html = FAIL
+LayoutTests/transitions/transition-drt-api-delay.html = TIMEOUT
+LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT

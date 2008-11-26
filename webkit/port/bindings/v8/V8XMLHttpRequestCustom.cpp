@@ -350,6 +350,16 @@ ACCESSOR_SETTER(XMLHttpRequestOnreadystatechange)
   }
 }
 
+ACCESSOR_GETTER(XMLHttpRequestResponseText)
+{
+  // This is only needed because webkit set this getter as custom.
+  // So we need a custom method to avoid forking the IDL file.
+  INC_STATS("DOM.XMLHttpRequest.responsetext._get");
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
+      V8ClassIndex::XMLHTTPREQUEST, info.Holder());
+  return v8StringOrNull(imp->responseText());
+}
+
 CALLBACK_FUNC_DECL(XMLHttpRequestAddEventListener)
 {
   INC_STATS("DOM.XMLHttpRequest.addEventListener()");
