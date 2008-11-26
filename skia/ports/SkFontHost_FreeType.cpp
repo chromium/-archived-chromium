@@ -792,6 +792,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
     SkFixed scaleY = fScaleY;
     SkFixed mxy = fMatrix22.xy;
     SkFixed myy = fMatrix22.yy;
+    SkScalar xrange = static_cast<SkScalar>(face->bbox.xMax - face->bbox.xMin) / upem;
 
     int leading = face->height - face->ascender + face->descender;
     if (leading < 0)
@@ -817,7 +818,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         y = SkFixedMul(myy, y);
         pts[i].set(SkFixedToScalar(x), SkFixedToScalar(y));
     }
-    
+
     if (mx)
     {
         mx->fTop = pts[0].fX;
@@ -827,6 +828,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         mx->fLeading = pts[4].fX;
         mx->fHeight = pts[5].fX;
         mx->fAvgCharWidth = pts[6].fX;
+        mx->fXRange = xrange;
 
         // The VDMX metrics only make sense in the horizontal direction
         // I believe
@@ -841,6 +843,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fLeading = pts[4].fY;
         my->fHeight = pts[5].fY;
         my->fAvgCharWidth = pts[6].fY;
+        my->fXRange = xrange;
         my->fVDMXMetricsValid = false;
 
         // Attempt to parse the VDMX table to get exact metrics

@@ -52,8 +52,7 @@ void SimpleFontData::platformInit()
     if (!glyphPageZero)
       return;
 
-    static const UChar32 M_char = 'M';
-    m_maxCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(M_char).glyph);
+    m_maxCharWidth = SkScalarRound(metrics.fXRange * SkScalarRound(m_font.size()));
 
     if (metrics.fAvgCharWidth) {
         m_avgCharWidth = SkScalarRound(metrics.fAvgCharWidth);

@@ -588,6 +588,10 @@ public:
         SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
         SkScalar    fHeight;    //!< the vertical distance between two consecutive baselines (>= 0)
         SkScalar    fAvgCharWidth;  //!< the average charactor width (>= 0)
+        SkScalar    fXRange;        //!< This is the maximum range of X bounding box points
+                                    //   in units of em. It's used to calculate a value which
+                                    //   matches Windows's GetTextMetrics tmMaxCharWidth
+                                    //   member exactly.
 
         // VDMX values are exact ascent and descent values for scalable fonts at
         // a certain pixel size.
