@@ -149,7 +149,8 @@ TEST_F(PluginTest, MediaPlayerNew) {
   TestPlugin(L"wmp_new.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, MediaPlayerOld) {
+// http://crbug.com/4809
+TEST_F(PluginTest, DISABLED_MediaPlayerOld) {
   TestPlugin(L"wmp_old.html", kLongWaitTimeout);
 }
 
