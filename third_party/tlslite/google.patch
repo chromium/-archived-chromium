@@ -1,18 +1,16 @@
---- tlslite/TLSRecordLayer.py	2008-02-27 15:45:16.159680300 -0800
-+++ tlslite_google/TLSRecordLayer.py	2008-02-29 14:54:36.515625000 -0800
-@@ -324,8 +324,10 @@
+diff -u tlslite-0.3.8/tlslite/TLSRecordLayer.py chromium//tlslite/TLSRecordLayer.py
+--- tlslite-0.3.8/tlslite/TLSRecordLayer.py	2005-02-21 21:31:41.000000000 -0800
++++ chromium/tlslite/TLSRecordLayer.py	2008-11-25 21:58:04.000000000 -0800
+@@ -322,6 +322,12 @@
+                         AlertDescription.close_notify, AlertLevel.warning)):
+                     yield result
                  alert = None
-                 # Forcing a shutdown as WinHTTP does not seem to be
-                 # responsive to the close notify.
++                # Forcing a shutdown as the OS does not seem to be
++                # responsive to the close notify.
 +                prevCloseSocket = self.closeSocket
-                 self.closeSocket = True
-                 self._shutdown(True)
++                self.closeSocket = True
++                self._shutdown(True)
 +                self.closeSocket = prevCloseSocket
                  while not alert:
                      for result in self._getMsg((ContentType.alert, \
                                                ContentType.application_data)):
-@@ -1124,4 +1126,3 @@
-                          imac_sha.digest()).digest()
- 
-         return stringToBytes(md5Str + shaStr)
--

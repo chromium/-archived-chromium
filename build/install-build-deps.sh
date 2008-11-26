@@ -34,6 +34,7 @@ install_hardy() {
   wget -c http://www.trevp.com/tlslite/tlslite-0.3.8.tar.gz
   tar xvfz tlslite-0.3.8.tar.gz
   cd tlslite-0.3.8/
+    patch -p1 < ../../third_party/tlslite/google.patch
     python setup.py build
     sudo python setup.py install
   cd ..
