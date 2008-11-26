@@ -52,10 +52,15 @@ void SimpleFontData::platformInit()
     if (!glyphPageZero)
       return;
 
-    static const UChar32 e_char = 'e';
     static const UChar32 M_char = 'M';
-    m_avgCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(e_char).glyph);
     m_maxCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(M_char).glyph);
+
+    if (metrics.fAvgCharWidth) {
+        m_avgCharWidth = SkScalarRound(metrics.fAvgCharWidth);
+    } else {
+        static const UChar32 x_char = 'x';
+        m_avgCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(x_char).glyph);
+    }
 }
 
 void SimpleFontData::platformDestroy()

@@ -785,8 +785,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         return;
     }
 
-    SkPoint pts[6];
-    SkFixed ys[6];
+    SkPoint pts[7];
+    SkFixed ys[7];
     FT_Face face = fFace;
     int     upem = face->units_per_EM;
     SkFixed scaleY = fScaleY;
@@ -797,15 +797,20 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
     if (leading < 0)
         leading = 0;
 
+    // Try to get the OS/2 table from the font. This contains the specific
+    // average font width metrics which Windows uses.
+    TT_OS2* os2 = (TT_OS2*) FT_Get_Sfnt_Table(face, ft_sfnt_os2);
+
     ys[0] = -face->bbox.yMax;
     ys[1] = -face->ascender;
     ys[2] = -face->descender;
     ys[3] = -face->bbox.yMin;
     ys[4] = leading;
     ys[5] = face->height;
+    ys[6] = os2 ? os2->xAvgCharWidth : 0;
 
     // convert upem-y values into scalar points
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 7; i++)
     {
         SkFixed y = SkMulDiv(scaleY, ys[i], upem);
         SkFixed x = SkFixedMul(mxy, y);
@@ -821,6 +826,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         mx->fBottom = pts[3].fX;
         mx->fLeading = pts[4].fX;
         mx->fHeight = pts[5].fX;
+        mx->fAvgCharWidth = pts[6].fX;
 
         // The VDMX metrics only make sense in the horizontal direction
         // I believe
@@ -834,6 +840,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fBottom = pts[3].fY;
         my->fLeading = pts[4].fY;
         my->fHeight = pts[5].fY;
+        my->fAvgCharWidth = pts[6].fY;
         my->fVDMXMetricsValid = false;
 
         // Attempt to parse the VDMX table to get exact metrics

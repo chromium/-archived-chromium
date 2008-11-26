@@ -42,7 +42,6 @@ const AtomicString& FontCache::alternateFamilyName(const AtomicString& familyNam
 
 FontPlatformData* FontCache::getSimilarFontPlatformData(const Font& font)
 {
-    notImplemented();
     return 0;
 }
 
@@ -111,7 +110,7 @@ AtomicString FontCache::getGenericFontForScript(UScriptCode script,
                                                 const FontDescription&) 
 {
     notImplemented();
-    return AtomicString();
+    return AtomicString("Times New Roman");
 }
 
 }  // namespace WebCore
