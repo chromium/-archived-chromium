@@ -29,8 +29,8 @@ void Referrer::SuggestHost(const std::string& host) {
 void Referrer::DeleteLeastUseful() {
   std::string least_useful_name;
   // We use longs for durations because we will use multiplication on them.
-  int64 least_useful_latency;  // Duration in milliseconds.
-  int64 least_useful_lifetime;  // Duration in milliseconds.
+  int64 least_useful_latency = 0;  // Duration in milliseconds.
+  int64 least_useful_lifetime = 0;  // Duration in milliseconds.
 
   const base::Time kNow(base::Time::Now());  // Avoid multiple calls.
   for (HostNameMap::iterator it = this->begin(); it != this->end(); ++it) {
