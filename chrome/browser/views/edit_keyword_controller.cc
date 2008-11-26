@@ -173,16 +173,16 @@ void EditKeywordController::Init() {
   // Create the views we'll need.
   view_ = new views::View();
   if (template_url_) {
-    title_tf_ = CreateTextField(template_url_->short_name());
-    keyword_tf_ = CreateTextField(template_url_->keyword());
-    url_tf_ = CreateTextField(GetDisplayURL(*template_url_));
+    title_tf_ = CreateTextField(template_url_->short_name(), false);
+    keyword_tf_ = CreateTextField(template_url_->keyword(), true);
+    url_tf_ = CreateTextField(GetDisplayURL(*template_url_), false);
     // We don't allow users to edit prepopulate URLs. This is done as
     // occasionally we need to update the URL of prepopulated TemplateURLs.
     url_tf_->SetReadOnly(template_url_->prepopulate_id() != 0);
   } else {
-    title_tf_ = CreateTextField(std::wstring());
-    keyword_tf_ = CreateTextField(std::wstring());
-    url_tf_ = CreateTextField(std::wstring());
+    title_tf_ = CreateTextField(std::wstring(), false);
+    keyword_tf_ = CreateTextField(std::wstring(), true);
+    url_tf_ = CreateTextField(std::wstring(), false);
   }
   title_iv_ = new ImageView();
   keyword_iv_ = new ImageView();
@@ -277,8 +277,10 @@ views::Label* EditKeywordController::CreateLabel(int message_id) {
   return label;
 }
 
-TextField* EditKeywordController::CreateTextField(const std::wstring& text) {
-  TextField* text_field = new TextField();
+TextField* EditKeywordController::CreateTextField(const std::wstring& text,
+                                                  bool lowercase) {
+  TextField* text_field = new TextField(
+      lowercase ? TextField::STYLE_LOWERCASE : TextField::STYLE_DEFAULT);
   text_field->SetText(text);
   text_field->SetController(this);
   return text_field;

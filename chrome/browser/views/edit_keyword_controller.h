@@ -7,8 +7,8 @@
 // dialog, and also on its own to confirm the addition of a keyword added by
 // the ExternalJSObject via the RenderView.
 
-#ifndef CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H__
-#define CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H__
+#ifndef CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
+#define CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
 
 #include <Windows.h>
 
@@ -68,8 +68,9 @@ class EditKeywordController : public views::TextField::Controller,
   // Create a Label containing the text with the specified message id.
   views::Label* CreateLabel(int message_id);
 
-  // Creates a text field with the specified text.
-  views::TextField* CreateTextField(const std::wstring& text);
+  // Creates a text field with the specified text. If |lowercase| is true, the
+  // textfield is configured to map all input to lower case.
+  views::TextField* CreateTextField(const std::wstring& text, bool lowercase);
 
   // Returns true if the currently input URL is valid. The URL is valid if it
   // contains no search terms and is a valid url, or if it contains a search
@@ -128,7 +129,7 @@ class EditKeywordController : public views::TextField::Controller,
   views::ImageView* keyword_iv_;
   views::ImageView* url_iv_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(EditKeywordController);
+  DISALLOW_COPY_AND_ASSIGN(EditKeywordController);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H__
+#endif  // CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_

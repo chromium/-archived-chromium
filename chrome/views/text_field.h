@@ -39,7 +39,8 @@ class TextField : public View {
   enum StyleFlags {
     STYLE_DEFAULT = 0,
     STYLE_PASSWORD = 1<<0,
-    STYLE_MULTILINE = 1<<1
+    STYLE_MULTILINE = 1<<1,
+    STYLE_LOWERCASE = 1<<2
   };
 
   TextField::TextField()

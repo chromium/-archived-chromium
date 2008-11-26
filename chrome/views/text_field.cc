@@ -269,6 +269,11 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   RECT r = {0, 0, parent_->width(), parent_->height()};
   Create(parent_->GetWidget()->GetHWND(), r, NULL, style, ex_style);
 
+  if (parent->GetStyle() & TextField::STYLE_LOWERCASE) {
+    DCHECK((parent->GetStyle() & TextField::STYLE_PASSWORD) == 0);
+    SetEditStyle(SES_LOWERCASE, SES_LOWERCASE);
+  }
+
   // Set up the text_object_model_.
   CComPtr<IRichEditOle> ole_interface;
   ole_interface.Attach(GetOleInterface());
@@ -302,11 +307,12 @@ std::wstring TextField::Edit::GetText() const {
 void TextField::Edit::SetText(const std::wstring& text) {
   // Adjusting the string direction before setting the text in order to make
   // sure both RTL and LTR strings are displayed properly.
-  std::wstring localized_text;
-  if (l10n_util::AdjustStringForLocaleDirection(text, &localized_text))
-    SetWindowText(localized_text.c_str());
-  else
-    SetWindowText(text.c_str());
+  std::wstring text_to_set;
+  if (!l10n_util::AdjustStringForLocaleDirection(text, &text_to_set))
+    text_to_set = text;
+  if (parent_->GetStyle() & STYLE_LOWERCASE)
+    text_to_set = l10n_util::ToLower(text_to_set);
+  SetWindowText(text_to_set.c_str());
 }
 
 std::wstring TextField::Edit::GetSelectedText() const {
@@ -739,7 +745,9 @@ void TextField::Edit::OnPaste() {
   std::wstring clipboard_str;
   clipboard->ReadText(&clipboard_str);
   if (!clipboard_str.empty()) {
-    const std::wstring collapsed(CollapseWhitespace(clipboard_str, false));
+    std::wstring collapsed(CollapseWhitespace(clipboard_str, false));
+    if (parent_->GetStyle() & STYLE_LOWERCASE)
+      collapsed = l10n_util::ToLower(collapsed);
     ReplaceSel(collapsed.c_str(), true);
   }
 }
