@@ -594,7 +594,7 @@ void WebContentsViewWin::OnSize(UINT param, const CSize& size) {
   si.nMin = 1;
   si.nMax = 100;
   si.nPage = 10;
-  si.nTrackPos = 50;
+  si.nPos = 50;
 
   ::SetScrollInfo(GetHWND(), SB_HORZ, &si, FALSE);
   ::SetScrollInfo(GetHWND(), SB_VERT, &si, FALSE);
