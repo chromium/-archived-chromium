@@ -5,8 +5,6 @@
 #ifndef BASE_NSS_INIT_H_
 #define BASE_NSS_INIT_H_
 
-#include <string>
-
 namespace base {
 
 // Initialize NSS if it isn't already initialized.  This must be called before

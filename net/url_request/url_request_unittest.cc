@@ -4,13 +4,9 @@
 
 #include "net/url_request/url_request_unittest.h"
 
-#include "build/build_config.h"
-
 #if defined(OS_WIN)
 #include <windows.h>
 #include <shlobj.h>
-#elif defined(OS_LINUX)
-#include "base/nss_init.h"
 #endif
 
 #include <algorithm>
@@ -22,12 +18,10 @@
 #include "base/process_util.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
-#include "base/trace_event.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
-#include "net/base/ssl_test_util.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_network_layer.h"
@@ -107,41 +101,6 @@ TEST_F(URLRequestTest, GetTest) {
   TestDelegate d;
   {
     TestURLRequest r(server.TestServerPage(""), &d);
-
-    r.Start();
-    EXPECT_TRUE(r.is_pending());
-
-    MessageLoop::current()->Run();
-
-    EXPECT_EQ(1, d.response_started_count());
-    EXPECT_FALSE(d.received_data_before_response());
-    EXPECT_NE(0, d.bytes_received());
-  }
-#ifndef NDEBUG
-  DCHECK_EQ(url_request_metrics.object_count,0);
-#endif
-}
-
-class HTTPSRequestTest : public testing::Test {
- protected:
-  SSLTestUtil util_;
-};
-
-#if defined(OS_MACOSX)
-// TODO(port): support temporary root cert on mac
-#define MAYBE_HTTPSGetTest DISABLED_HTTPSGetTest
-#else
-#define MAYBE_HTTPSGetTest HTTPSGetTest
-#endif
-
-TEST_F(HTTPSRequestTest, MAYBE_HTTPSGetTest) {
-  base::TraceLog::StartTracing();
-  HTTPSTestServer https_server(util_.kHostName, util_.kOKHTTPSPort,
-                               util_.kDocRoot, util_.GetOKCertPath());
-
-  TestDelegate d;
-  {
-    TestURLRequest r(https_server.TestServerPage(""), &d);
 
     r.Start();
     EXPECT_TRUE(r.is_pending());
