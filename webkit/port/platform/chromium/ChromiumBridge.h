@@ -96,6 +96,9 @@ namespace WebCore {
         static bool layoutTestMode();
 
         // MimeType -----------------------------------------------------------
+        static bool isSupportedImageMIMEType(const char* mime_type);
+        static bool isSupportedJavascriptMIMEType(const char* mime_type);
+        static bool isSupportedNonImageMIMEType(const char* mime_type);
         static bool matchesMIMEType(const String& pattern, const String& type);
         static String mimeTypeForExtension(const String& ext);
         static String mimeTypeFromFile(const String& file_path);

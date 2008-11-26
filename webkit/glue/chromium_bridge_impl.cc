@@ -247,6 +247,18 @@ bool ChromiumBridge::layoutTestMode() {
 
 // MimeType -------------------------------------------------------------------
 
+bool isSupportedImageMIMEType(const char* mime_type) {
+  return net::IsSupportedImageMimeType(mime_type);
+}
+
+bool isSupportedJavascriptMIMEType(const char* mime_type) {
+  return net::IsSupportedJavascriptMimeType(mime_type);
+}
+
+bool isSupportedNonImageMIMEType(const char* mime_type) {
+  return net::IsSupportedNonImageMimeType(mime_type);
+}
+
 bool ChromiumBridge::matchesMIMEType(const String& pattern,
                                      const String& type) {
   return net::MatchesMimeType(webkit_glue::StringToStdString(pattern), 
