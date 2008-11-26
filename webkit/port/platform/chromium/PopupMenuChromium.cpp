@@ -138,6 +138,10 @@ public:
     // new item is selected (by using the arrow keys).  Default is true.
     void setTextOnIndexChange(bool value) { m_setTextOnIndexChange = value; }
 
+    // Sets whether we should accept the selected index when the popup is
+    // abandonned.
+    void setAcceptOnAbandon(bool value) { m_shouldAcceptOnAbandon = value; }
+
 private:
     friend class PopupContainer;
     friend class RefCounted<PopupListBox>;
@@ -161,7 +165,8 @@ private:
     PopupListBox(PopupMenuClient* client)
         : m_originalIndex(0)
         , m_selectedIndex(0)
-        , m_acceptOnAbandon(false)
+        , m_shouldAcceptOnAbandon(true)
+        , m_willAcceptOnAbandon(false)
         , m_visibleRows(0)
         , m_popupClient(client)
         , m_repeatingChar(0)
@@ -226,10 +231,16 @@ private:
     // enter yet however.
     int m_selectedIndex;
 
+    // Whether we should accept the selectedIndex as chosen when the popup is
+    // "abandoned".  This value is set through its setter and is useful as
+    // select popup menu and form autofill popup menu have different behaviors.
+    bool m_shouldAcceptOnAbandon;
+
     // True if we should accept the selectedIndex as chosen, even if the popup
     // is "abandoned".  This is used for keyboard navigation, where we want the
-    // selection to change immediately.
-    bool m_acceptOnAbandon;
+    // selection to change immediately, and is only used if
+    // m_shouldAcceptOnAbandon is true.
+    bool m_willAcceptOnAbandon;
 
     // This is the number of rows visible in the popup. The maximum number visible at a time is
     // defined as being kMaxVisibleRows. For a scrolled popup, this can be thought of as the
@@ -479,6 +490,10 @@ void PopupContainer::setTextOnIndexChange(bool value) {
   listBox()->setTextOnIndexChange(value);
 }
 
+void PopupContainer::setAcceptOnAbandon(bool value) {
+  listBox()->setAcceptOnAbandon(value);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // PopupListBox implementation
 
@@ -563,6 +578,7 @@ bool PopupListBox::isInterestedInEventForKey(int key_code) {
     case VKEY_NEXT:
     case VKEY_HOME:
     case VKEY_END:
+    case VKEY_TAB:
       return true;
     default:
       return false;
@@ -615,10 +631,18 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
         // want to fire the onchange event until the popup is closed, to match
         // IE).  We change the original index so we revert to that when the
         // popup is closed.
-        m_acceptOnAbandon = true;
+        if (m_shouldAcceptOnAbandon)
+          m_willAcceptOnAbandon = true;
+
         setOriginalIndex(m_selectedIndex);
         if (m_setTextOnIndexChange)
-          m_popupClient->setTextFromItem(m_selectedIndex);
+            m_popupClient->setTextFromItem(m_selectedIndex);
+    } else if (!m_setTextOnIndexChange &&
+               event.windowsVirtualKeyCode() == VKEY_TAB) {
+        // TAB is a special case as it should select the item and advance focus.
+        m_popupClient->setTextFromItem(m_selectedIndex);
+        // Return false so the TAB key event is propagated to the page.
+        return false;
     }
 
     return true;
@@ -796,7 +820,7 @@ void PopupListBox::abandon()
 
     m_selectedIndex = m_originalIndex;
 
-    if (m_acceptOnAbandon)
+    if (m_willAcceptOnAbandon)
         m_popupClient->valueChanged(m_selectedIndex);
 
     // valueChanged may have torn down the popup!
@@ -943,9 +967,9 @@ void PopupListBox::updateFromElement()
     // It happens when pressing a key to jump to an item, then use tab or
     // mouse to get away from the select box. In that case, updateFromElement
     // is called before abandon, which causes discarding of the select result.    
-    if (m_acceptOnAbandon) {
+    if (m_willAcceptOnAbandon) {
         m_popupClient->valueChanged(m_selectedIndex);
-        m_acceptOnAbandon = false;
+        m_willAcceptOnAbandon = false;
     }
 
     clear();

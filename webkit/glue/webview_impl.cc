@@ -431,7 +431,6 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 #endif
       return true;
     }
-    return false;
   }
 
   // A new key being pressed should hide the popup.
@@ -1516,6 +1515,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
           WebCore::PopupContainer::create(autocomplete_popup_client_.get(),
                                           false);
       autocomplete_popup_->setTextOnIndexChange(false);
+      autocomplete_popup_->setAcceptOnAbandon(false);
       autocomplete_popup_->show(focused_node->getRect(), 
                                 page_->mainFrame()->view(), 0);
     }

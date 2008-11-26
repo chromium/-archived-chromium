@@ -70,6 +70,13 @@ public:
     // new item is selected (by using the arrow keys).  Default is true.
     void setTextOnIndexChange(bool value);
 
+    // Sets whether the selection should be accepted when the popup menu is
+    // closed (through ESC being pressed or the focus going away).
+    // Default is true.
+    // Note that when TAB is pressed, the selection is always accepted
+    // regardless of this setting.
+    void setAcceptOnAbandon(bool value);
+
     PopupListBox* listBox() const { return m_listBox.get(); }
 
 private:
