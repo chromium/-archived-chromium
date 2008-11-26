@@ -33,7 +33,7 @@ SafeBrowsingService::SafeBrowsingService()
       enabled_(false),
       resetting_(false),
       database_loaded_(false) {
-  new_safe_browsing_ = CommandLine().HasSwitch(switches::kUseNewSafeBrowsing);
+  new_safe_browsing_ = !CommandLine().HasSwitch(switches::kUseOldSafeBrowsing);
 }
 
 SafeBrowsingService::~SafeBrowsingService() {

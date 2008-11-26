@@ -131,7 +131,7 @@ extern const wchar_t kSdchFilter[];
 extern const wchar_t kEnableGreasemonkey[];
 
 extern const wchar_t kIncognito[];
-extern const wchar_t kUseNewSafeBrowsing[];
+extern const wchar_t kUseOldSafeBrowsing[];
 
 extern const wchar_t kEnableRendererAccessibility[];
 

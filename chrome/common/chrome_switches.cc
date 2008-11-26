@@ -336,10 +336,9 @@ const wchar_t kEnableGreasemonkey[] = L"enable-greasemonkey";
 // Causes the browser to launch directly in incognito mode.
 const wchar_t kIncognito[] = L"incognito";
 
-// Turn on an experimental implementation of SafeBrowsing which improves
-// performance during updates by avoiding the enormous IO from SQLite
-// operations.
-const wchar_t kUseNewSafeBrowsing[] = L"new-safe-browsing";
+// Turn on the old implementation of SafeBrowsing which may have performance
+// problems on some computers during updates.
+const wchar_t kUseOldSafeBrowsing[] = L"old-safe-browsing";
 
 // Turns on the accessibility in the renderer.  Off by default until 
 // http://b/issue?id=1432077 is fixed.

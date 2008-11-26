@@ -368,7 +368,7 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
   database->UpdateStarted();
-  GetListsInfo(database, &lists);
+  database->GetListsInfo(&lists);
   database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
   lists.clear();
@@ -906,7 +906,7 @@ TEST(SafeBrowsingDatabase, HashCaching) {
 
   // Test receiving a full add chunk. The old implementation doesn't support
   // this test, so we bail here.
-  if (!CommandLine().HasSwitch(switches::kUseNewSafeBrowsing)) {
+  if (CommandLine().HasSwitch(switches::kUseOldSafeBrowsing)) {
     TearDownTestDatabase(database);
     return;
   }

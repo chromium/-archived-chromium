@@ -20,9 +20,9 @@ static const wchar_t kBloomFilterFile[] = L" Filter";
 
 // Factory method.
 SafeBrowsingDatabase* SafeBrowsingDatabase::Create() {
-  if (CommandLine().HasSwitch(switches::kUseNewSafeBrowsing))
-    return new SafeBrowsingDatabaseBloom;
-  return new SafeBrowsingDatabaseImpl;
+  if (CommandLine().HasSwitch(switches::kUseOldSafeBrowsing))
+    return new SafeBrowsingDatabaseImpl;
+  return new SafeBrowsingDatabaseBloom;
 }
 
 bool SafeBrowsingDatabase::NeedToCheckUrl(const GURL& url) {
