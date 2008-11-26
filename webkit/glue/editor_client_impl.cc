@@ -650,7 +650,7 @@ void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
 
   // First let's see if there is a password listener for that element.
   WebFrameImpl* webframe =
-      WebFrameImpl::FromFrame(input_element->form()->document()->frame());
+      WebFrameImpl::FromFrame(input_element->document()->frame());
   webkit_glue::PasswordAutocompleteListener* listener =
       webframe->GetPasswordListener(input_element);
   if (listener) {
