@@ -9,6 +9,13 @@
 namespace chrome_browser_net {
 
 void Referrer::SuggestHost(const std::string& host) {
+  // Limit how large our list can get, in case we start make mistakes about
+  // what hostnames are in sub-resources (example: Some advertisments have
+  // a link to the ad agency, and then provide a "surprising" redirect to
+  // the advertised entity, which appears to be a subresource on the page
+  // hosting the ad).
+  static const size_t kMaxSuggestions = 8;
+
   if (host.empty())
     return;
   if (kMaxSuggestions <= size()) {

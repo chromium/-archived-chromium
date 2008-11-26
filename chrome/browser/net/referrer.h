@@ -72,14 +72,8 @@ class Referrer : public HostNameMap {
   // lifetime (time since birth).  For instance, when to names have accrued
   // the same latency_ savings, the older one is less valuable as it didn't
   // accrue savings as quickly.
-  void Referrer::DeleteLeastUseful();
+  void DeleteLeastUseful();
 
-  // Limit how large our list can get, in case we start make mistakes about
-  // what hostnames are in sub-resources (example: Some advertisments have
-  // a link to the ad agency, and then provide a "surprising" redirect to
-  // the advertised entity, which appears to be a subresource on the page
-  // hosting the ad).
-  static const int kMaxSuggestions = 8;
 
   // We put these into a std::map<>, so we need copy constructors.
   // DISALLOW_COPY_AND_ASSIGN(Referrer);
