@@ -33,7 +33,7 @@
         x = r.x + e.offsetLeft + e.offsetWidth / 2;
         y = r.y + e.offsetTop + e.offsetHeight / 2;
         eventSender.mouseMoveTo(x, y);
-        window.setTimeout("runTest2()", 1000);
+        window.setTimeout("runTest2()", 400);
       }
       
       function runTest2() {
@@ -42,7 +42,7 @@
         
         setSelectionCommand(e, 0, e, 1);
         eventSender.mouseMoveTo(0, 0);
-        window.setTimeout("runTest3()", 1000);
+        window.setTimeout("runTest3()", 200);
       }
       
       function runTest3() {
