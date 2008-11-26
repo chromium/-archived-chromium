@@ -1135,3 +1135,14 @@ LayoutTests/http/tests/xmlhttprequest/frame-load-cancelled-abort.html = FAIL
 
 // MERGE 38575:38600: New test
 LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
+
+// MERGE 38600:38625: New tests
+LayoutTests/fast/forms/search-transformed.html = FAIL
+LayoutTests/fast/js/regexp-test-null-string.html = FAIL
+LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
+
+// MERGE 38600:38625: Regressions
+LayoutTests/fast/frames/iframe-option-crash.xhtml = FAIL
+
+// MERGE 38600:38625: Expectations changed upstream
+LayoutTests/fast/js/deep-recursion-test.html = FAIL
