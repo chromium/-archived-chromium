@@ -18,9 +18,12 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "net/base/cookie_monster.h"
+#include "net/http/http_cache.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
+#include "webkit/tools/test_shell/test_shell_request_context.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
 #include "WebSystemInterface.h"
@@ -175,18 +178,26 @@ int main(const int argc, const char *argv[]) {
       new StatsTable(statsfile, kStatsFileThreads, kStatsFileCounters);
   StatsTable::set_current(table);
 
-#if NOT_YET
-  //TODO: record/playback modes
+  net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
   bool playback_mode = 
     parsed_command_line.HasSwitch(test_shell::kPlaybackMode);
   bool record_mode = 
     parsed_command_line.HasSwitch(test_shell::kRecordMode);
 
-  bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
-#endif
+  if (playback_mode)
+    cache_mode = net::HttpCache::PLAYBACK;
+  else if (record_mode)
+    cache_mode = net::HttpCache::RECORD;
 
   bool dump_stats_table =
       parsed_command_line.HasSwitch(test_shell::kDumpStatsTable);
+
+  bool debug_memory_in_use =
+      parsed_command_line.HasSwitch(test_shell::kDebugMemoryInUse);  
+  
+  if (layout_test_mode ||
+      parsed_command_line.HasSwitch(test_shell::kEnableFileCookies))
+    net::CookieMonster::EnableFileScheme();
 
   std::wstring cache_path =
       parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
@@ -195,16 +206,10 @@ int main(const int argc, const char *argv[]) {
     file_util::AppendToPath(&cache_path, L"cache");
   }
 
-  bool debug_memory_in_use =
-      parsed_command_line.HasSwitch(test_shell::kDebugMemoryInUse);  
-  
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
-  //if (cache_path.empty())
-  //  InitSimpleResourceLoaderBridge(new TestShellRequestContext());
-  // else
-  //  InitSimpleResourceLoaderBridge(
-  //     new TestShellRequestContext(layout_test_mode, cache_path, cache_mode));
+  SimpleResourceLoaderBridge::Init(
+      new TestShellRequestContext(cache_path, cache_mode, layout_test_mode));
 
   // Load ICU data tables
   icu_util::Initialize();
