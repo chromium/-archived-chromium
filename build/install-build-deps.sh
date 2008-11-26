@@ -29,7 +29,7 @@ download_deb() {
 install_hardy() {
   sudo apt-get install subversion pkg-config python perl g++ g++-multilib \
        bison flex gperf libnss3-dev libglib2.0-dev libgtk2.0-dev \
-       libnspr4-0d libnspr4-dev wdiff lighttpd php5-cgi
+       libnspr4-0d libnspr4-dev wdiff lighttpd php5-cgi msttcorefonts
 
   wget -c http://www.trevp.com/tlslite/tlslite-0.3.8.tar.gz
   tar xvfz tlslite-0.3.8.tar.gz
@@ -94,10 +94,10 @@ install_hardy_64() {
   done
 }
 
-if grep -q "Ubuntu 8.04" /etc/issue && test `uname -m` = i686
+if egrep -q "Ubuntu 8.04|Ubuntu 8.10" /etc/issue && test `uname -m` = i686
 then
   install_hardy
-elif grep -q "Ubuntu 8.04" /etc/issue && test `uname -m` = x86_64
+elif egrep -q "Ubuntu 8.04|Ubuntu 8.10" /etc/issue && test `uname -m` = x86_64
 then
   install_hardy_64
 else
