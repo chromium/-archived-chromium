@@ -344,5 +344,7 @@ const wchar_t kUseOldSafeBrowsing[] = L"old-safe-browsing";
 // http://b/issue?id=1432077 is fixed.
 const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";
 
-}  // namespace switches
+// Enable HTML5 Video/Audio tag support
+const wchar_t kEnableVideo[] = L"enable-video";
 
+}  // namespace switches

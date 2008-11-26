@@ -135,6 +135,8 @@ extern const wchar_t kUseOldSafeBrowsing[];
 
 extern const wchar_t kEnableRendererAccessibility[];
 
+extern const wchar_t kEnableVideo[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__
