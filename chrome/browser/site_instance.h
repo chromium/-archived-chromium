@@ -15,7 +15,7 @@
 //
 // A SiteInstance is a data structure that is associated with all pages in a
 // given instance of a web site.  Here, a web site is identified by its
-// registered domain name, scheme, and port.  An instance includes all pages
+// registered domain name and scheme.  An instance includes all pages
 // that are connected (i.e., either a user or a script navigated from one
 // to the other).  We represent instances using the BrowsingInstance class.
 //
@@ -70,8 +70,9 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   RenderProcessHost* GetProcess();
 
   // Set / Get the web site that this SiteInstance is rendering pages for.
-  // This includes the scheme, registered domain, and port.  If the URL does
-  // not have a valid registered domain, then the full hostname is stored.
+  // This includes the scheme and registered domain, but not the port.  If the
+  // URL does not have a valid registered domain, then the full hostname is
+  // stored.
   void SetSite(const GURL& url);
   const GURL& site() const { return site_; }
   bool has_site() const { return has_site_; }
@@ -100,15 +101,14 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   // Darin suggests.
   static SiteInstance* CreateSiteInstance(Profile* profile);
 
-  // Returns the site for the given URL, which includes only the scheme,
-  // registered domain, and port.  Returns an empty GURL if the URL has no
-  // host.
+  // Returns the site for the given URL, which includes only the scheme and
+  // registered domain.  Returns an empty GURL if the URL has no host.
   static GURL GetSiteForURL(const GURL& url);
 
   // Return whether both URLs are part of the same web site, for the purpose of
   // assigning them to processes accordingly.  The decision is currently based
   // on the registered domain of the URLs (google.com, bbc.co.uk), as well as
-  // the scheme (https, http) and port.  This ensures that two pages will be in
+  // the scheme (https, http).  This ensures that two pages will be in
   // the same process if they can communicate with other via JavaScript.
   // (e.g., docs.google.com and mail.google.com have DOM access to each other
   // if they both set their document.domain properties to google.com.)

@@ -202,13 +202,15 @@ TEST_F(SiteInstanceTest, SetSite) {
 
 // Test to ensure GetSiteForURL properly returns sites for URLs.
 TEST_F(SiteInstanceTest, GetSiteForURL) {
+  // Pages are irrelevant.
   GURL test_url = GURL("http://www.google.com/index.html");
   EXPECT_EQ(GURL("http://google.com"), SiteInstance::GetSiteForURL(test_url));
 
+  // Ports are irrlevant.
   test_url = GURL("https://www.google.com:8080");
-  EXPECT_EQ(GURL("https://google.com:8080"),
-            SiteInstance::GetSiteForURL(test_url));
+  EXPECT_EQ(GURL("https://google.com"), SiteInstance::GetSiteForURL(test_url));
 
+  // Javascript URLs have no site.
   test_url = GURL("javascript:foo();");
   EXPECT_EQ(GURL::EmptyGURL(), SiteInstance::GetSiteForURL(test_url));
 
@@ -238,9 +240,15 @@ TEST_F(SiteInstanceTest, IsSameWebSite) {
   GURL url_hang = GURL("about:hang");
   GURL url_shorthang = GURL("about:shorthang");
 
+  // Same scheme and port -> same site.
   EXPECT_TRUE(SiteInstance::IsSameWebSite(url_foo, url_foo2));
+
+  // Different scheme -> different site.
   EXPECT_FALSE(SiteInstance::IsSameWebSite(url_foo, url_foo_https));
-  EXPECT_FALSE(SiteInstance::IsSameWebSite(url_foo, url_foo_port));
+
+  // Different port -> same site.
+  // (Changes to document.domain make renderer ignore the port.)
+  EXPECT_TRUE(SiteInstance::IsSameWebSite(url_foo, url_foo_port));
 
   // JavaScript links should be considered same site for anything.
   EXPECT_TRUE(SiteInstance::IsSameWebSite(url_javascript, url_foo));

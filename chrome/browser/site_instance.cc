@@ -85,8 +85,16 @@ GURL SiteInstance::GetSiteForURL(const GURL& url) {
 
   // If the url has a host, then determine the site.
   if (url.has_host()) {
-    // Only keep the scheme, registered domain, and port as given by GetOrigin.
+    // Only keep the scheme and registered domain as given by GetOrigin.  This
+    // may also include a port, which we need to drop.
     site = url.GetOrigin();
+
+    // Remove port, if any.
+    if (site.has_port()) {
+      GURL::Replacements rep;
+      rep.ClearPort();
+      site = site.ReplaceComponents(rep);
+    }
 
     // If this URL has a registered domain, we only want to remember that part.
     std::string domain =
@@ -103,7 +111,9 @@ GURL SiteInstance::GetSiteForURL(const GURL& url) {
 /*static*/
 bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
   // We infer web site boundaries based on the registered domain name of the
-  // top-level page, as well as the scheme and the port.
+  // top-level page and the scheme.  We do not pay attention to the port if
+  // one is present, because pages served from different ports can still
+  // access each other if they change their document.domain variable.
 
   // We must treat javascript: URLs as part of the same site, regardless of
   // the site.
@@ -125,8 +135,8 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
     return false;
   }
 
-  // If the scheme or port differ, they aren't part of the same site.
-  if (url1.scheme() != url2.scheme() || url1.port() != url2.port()) {
+  // If the schemes differ, they aren't part of the same site.
+  if (url1.scheme() != url2.scheme()) {
     return false;
   }
 
