@@ -86,6 +86,14 @@ static float pointsToPixels(float points)
     return points / POINTS_PER_INCH * pixelsPerInch;
 }
 
+static void setSizeIfAuto(RenderStyle* style, const IntSize& size)
+{
+    if (style->width().isIntrinsicOrAuto())
+        style->setWidth(Length(size.width(), Fixed));
+    if (style->height().isAuto())
+        style->setHeight(Length(size.height(), Fixed));
+}
+
 static bool supportsFocus(ControlPart appearance)
 {
     switch (appearance) {
@@ -198,38 +206,6 @@ static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderOb
     GtkTextDirection direction = gtkTextDirection(o->style()->direction());
 
     return moz_gtk_widget_paint(type, pcs->gdk_skia(), &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
-}
-
-static void setToggleSize(RenderStyle* style, ControlPart appearance)
-{
-    // The width and height are both specified, so we shouldn't change them.
-    if (!style->width().isIntrinsicOrAuto() && !style->height().isAuto())
-        return;
-
-    // FIXME: This is probably not correct use of indicator_size and indicator_spacing.
-    gint indicator_size, indicator_spacing;
-
-    switch (appearance) {
-        case CheckboxPart:
-            if (moz_gtk_checkbox_get_metrics(&indicator_size, &indicator_spacing) != MOZ_GTK_SUCCESS)
-                return;
-            break;
-        case RadioPart:
-            if (moz_gtk_radio_get_metrics(&indicator_size, &indicator_spacing) != MOZ_GTK_SUCCESS)
-                return;
-            break;
-        default:
-            return;
-    }
-
-    // Other ports hard-code this to 13, but GTK+ users tend to demand the native look.
-    // It could be made a configuration option values other than 13 actually break site compatibility.
-    int length = indicator_size + indicator_spacing;
-    if (style->width().isIntrinsicOrAuto())
-        style->setWidth(Length(length, Fixed));
-
-    if (style->height().isAuto())
-        style->setHeight(Length(length, Fixed));
 }
 
 static void gtkStyleSetCallback(GtkWidget* widget, GtkStyle* previous, RenderTheme* renderTheme)
@@ -348,7 +324,16 @@ bool RenderThemeGtk::paintCheckbox(RenderObject* o, const RenderObject::PaintInf
 
 void RenderThemeGtk::setCheckboxSize(RenderStyle* style) const
 {
-    setToggleSize(style, RadioPart);
+    // If the width and height are both specified, then we have nothing to do.
+    if (!style->width().isIntrinsicOrAuto() && !style->height().isAuto())
+        return;
+
+    // FIXME:  A hard-coded size of 13 is used.  This is wrong but necessary for now.  It matches Firefox.
+    // At different DPI settings on Windows, querying the theme gives you a larger size that accounts for
+    // the higher DPI.  Until our entire engine honors a DPI setting other than 96, we can't rely on the theme's
+    // metrics.
+    const IntSize size(13, 13);
+    setSizeIfAuto(style, size);
 }
 
 bool RenderThemeGtk::paintRadio(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
@@ -358,7 +343,8 @@ bool RenderThemeGtk::paintRadio(RenderObject* o, const RenderObject::PaintInfo& 
 
 void RenderThemeGtk::setRadioSize(RenderStyle* style) const
 {
-    setToggleSize(style, RadioPart);
+    // Use same sizing for radio box as checkbox.
+    setCheckboxSize(style);
 }
 
 bool RenderThemeGtk::paintButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
@@ -459,15 +445,6 @@ void RenderThemeGtk::adjustSearchFieldResultsButtonStyle(CSSStyleSelector* selec
 bool RenderThemeGtk::controlSupportsTints(const RenderObject* o) const
 {
     return isEnabled(o);
-}
-
-int RenderThemeGtk::baselinePosition(const RenderObject* o) const
-{
-    // FIXME: This strategy is possibly incorrect for the GTK+ port.
-    if (o->style()->appearance() == CheckboxPart||
-        o->style()->appearance() == RadioPart)
-        return o->marginTop() + o->height() - 2;
-    return RenderTheme::baselinePosition(o);
 }
 
 Color RenderThemeGtk::activeListBoxSelectionBackgroundColor() const
