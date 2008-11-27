@@ -22,6 +22,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 #undef LOG
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/hash_tables.h"
 #include "base/string_util.h"
@@ -572,15 +573,18 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   // There are total 2 available base tags in this test file.
   const int kTotalBaseTagCountInTestFile = 2;
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer");
-  page_file_path.append(1, file_util::kPathSeparator);
+
+  FilePath page_file_path = FilePath::FromWStringHack(data_dir_).Append(
+      FILE_PATH_LITERAL("dom_serializer"));
+  file_util::EnsureEndsWithSeparator(&page_file_path);
+
   // Get page dir URL which is base URL of this file.
-  GURL path_dir_url = net::FilePathToFileURL(page_file_path);
+  GURL path_dir_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
   // Get file path.
-  file_util::AppendToPath(&page_file_path, L"html_doc_has_base_tag.htm");
+  page_file_path =
+      page_file_path.Append(FILE_PATH_LITERAL("html_doc_has_base_tag.htm"));
   // Get file URL.
-  GURL file_url = net::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.

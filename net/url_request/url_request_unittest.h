@@ -279,9 +279,11 @@ class TestServer : public base::ProcessFilter {
     std::wstring test_data_directory;
     PathService::Get(base::DIR_SOURCE_ROOT, &test_data_directory);
     std::wstring normalized_document_root = document_root;
+#if defined(OS_WIN)
     std::replace(normalized_document_root.begin(),
                  normalized_document_root.end(),
-                 L'/', file_util::kPathSeparator);
+                 L'/', FilePath::kSeparators[0]);
+#endif
     file_util::AppendToPath(&test_data_directory, normalized_document_root);
 
 #if defined(OS_WIN)

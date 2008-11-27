@@ -147,6 +147,8 @@ TEST_F(FileUtilTest, AppendToPath) {
 #endif
 }
 
+// TODO(port): enable this test for non-Windows.
+#if defined(OS_WIN)
 static const struct InsertBeforeExtensionCase {
   std::wstring path;
   std::wstring suffix;
@@ -204,6 +206,7 @@ TEST_F(FileUtilTest, InsertBeforeExtensionTest) {
     EXPECT_EQ(path, kInsertBeforeExtension[i].result);
   }
 }
+#endif  // defined(OS_WIN)
 
 static const struct filename_case {
   const wchar_t* path;
@@ -785,6 +788,8 @@ TEST_F(FileUtilTest, ReplaceIllegalCharactersTest) {
   }
 }
 
+// TODO(port): enable this test for non-windows.
+#if defined(OS_WIN)
 static const struct ReplaceExtensionCase {
   std::wstring file_name;
   std::wstring extension;
@@ -827,6 +832,7 @@ TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
   file_util::ReplaceExtension(&result_path, L".baz");
   EXPECT_EQ(path + L".baz", result_path);
 }
+#endif  // defined(OS_WIN)
 
 TEST_F(FileUtilTest, FileEnumeratorTest) {
   // Test an empty directory.
@@ -923,6 +929,58 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   EXPECT_FALSE(f6.Next().empty());  // Should have found something
                                     // (we don't care what).
+}
+
+
+void PathComponents(const std::wstring& path,
+                    std::vector<std::wstring>* components) {
+  DCHECK(components != NULL);
+  if (components == NULL)
+    return;
+  std::wstring::size_type start = 0;
+  std::wstring::size_type end = path.find('/', start);
+
+  // Special case the "/" or "\" directory.  On Windows with a drive letter,
+  // this code path won't hit, but the right thing should still happen.
+  // "E:\foo" will turn into "E:","foo".
+  if (end == start) {
+    components->push_back(std::wstring(path, 0, 1));
+    start = end + 1;
+    end = path.find('/', start);
+  }
+  while (end != std::wstring::npos) {
+    std::wstring component = std::wstring(path, start, end - start);
+    components->push_back(component);
+    start = end + 1;
+    end = path.find('/', start);
+  }
+  std::wstring component = std::wstring(path, start);
+  components->push_back(component);
+}
+
+static const struct PathComponentsCase {
+  std::wstring path;
+  FilePath::StringType result;
+} kPathComponents[] = {
+  {L"/foo/bar/baz/", FILE_PATH_LITERAL("/|foo|bar|baz|")},
+  {L"/foo/bar/baz", FILE_PATH_LITERAL("/|foo|bar|baz")},
+  {L"e:/foo", FILE_PATH_LITERAL("e:|foo")},
+};
+
+TEST_F(FileUtilTest, PathComponentsTest) {
+  for (size_t i = 0; i < arraysize(kPathComponents); ++i) {
+    FilePath path = FilePath::FromWStringHack(kPathComponents[i].path);
+    std::vector<FilePath::StringType> comps;
+    file_util::PathComponents(path, &comps);
+
+    FilePath::StringType result;
+    for (size_t j = 0; j < comps.size(); ++j) {
+      result.append(comps[j]);
+      if (j < comps.size() - 1)
+        result.append(FILE_PATH_LITERAL("|"), 1);
+    }
+    EXPECT_EQ(kPathComponents[i].result, result);
+  }
 }
 
 }  // namespace

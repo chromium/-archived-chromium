@@ -532,6 +532,7 @@ void TestShell::DumpRenderTree()
                   file_path);
 }
 
+// static
 std::string TestShell::RewriteLocalUrl(const std::string& url) {
   // Convert file:///tmp/LayoutTests urls to the actual location on disk.
   const char kPrefix[] = "file:///tmp/LayoutTests/";
@@ -539,18 +540,14 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 
   std::string new_url(url);
   if (url.compare(0, kPrefixLen, kPrefix, kPrefixLen) == 0) {
-      std::wstring replace_url;
-      PathService::Get(base::DIR_EXE, &replace_url);
-      file_util::UpOneDirectory(&replace_url);
-      file_util::UpOneDirectory(&replace_url);
-      file_util::AppendToPath(&replace_url, L"webkit");
-      file_util::AppendToPath(&replace_url, L"data");
-      file_util::AppendToPath(&replace_url, L"layout_tests");
-      file_util::AppendToPath(&replace_url, L"LayoutTests");
-      replace_url.push_back(file_util::kPathSeparator);
-      new_url = std::string("file:///") +
-                WideToUTF8(replace_url).append(url.substr(kPrefixLen));
+    FilePath replace_path;
+    PathService::Get(base::DIR_EXE, &replace_path);
+    replace_path = replace_path.DirName().DirName().Append(
+        "webkit/data/layout_tests/LayoutTests/");
+    new_url = std::string("file://") + replace_path.value() +
+        url.substr(kPrefixLen);
   }
+
   return new_url;
 }
 

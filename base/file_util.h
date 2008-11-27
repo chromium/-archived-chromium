@@ -24,23 +24,31 @@
 #include <vector>
 
 #include "base/basictypes.h"
-
-class FilePath;
+#include "base/file_path.h"
 
 namespace file_util {
 
 //-----------------------------------------------------------------------------
 // Constants
 
+#if defined(OS_WIN)
+// The use of this constant is deprecated. Instead use file_util or FilePath
+// functions (Append, TrimTrailingSeparator, etc.), or use
+// FilePath::kSeparator[0].
 extern const wchar_t kPathSeparator;
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Functions that operate purely on a path string w/o touching the filesystem:
 
 // Returns a vector of all of the components of the provided path.
+void PathComponents(const FilePath& path,
+                    std::vector<FilePath::StringType>* components);
+#if defined(OS_WIN)
+// Deprecated temporary compatibility function.
 void PathComponents(const std::wstring& path,
                     std::vector<std::wstring>* components);
+#endif
 
 // Returns true if the given path ends with a path separator character.
 bool EndsWithSeparator(const FilePath& path);
@@ -58,14 +66,17 @@ void TrimTrailingSeparator(std::wstring* dir);
 // Strips the topmost directory from the end of 'dir'.  Assumes 'dir' does not
 // refer to a file.
 // If 'dir' is a root directory, return without change.
+// Deprecated. Use FilePath::DirName instead.
 void UpOneDirectory(std::wstring* dir);
-
 // Strips the topmost directory from the end of 'dir'.  Assumes 'dir' does not
 // refer to a file.
 // If 'dir' is a root directory, the result becomes empty string.
+// Deprecated. Use FilePath::DirName instead.
 void UpOneDirectoryOrEmpty(std::wstring* dir);
 
-// Strips the filename component from the end of 'path'.
+// Strips the filename component from the end of 'path'. If path ends with a
+// separator, then just drop the separator.
+// Deprecated. Use FilePath::DirName instead.
 void TrimFilename(std::wstring* path);
 
 // Returns the filename portion of 'path', without any leading \'s or /'s.
@@ -98,6 +109,9 @@ bool AbsolutePath(FilePath* path);
 // Deprecated temporary compatibility function.
 bool AbsolutePath(std::wstring* path);
 
+// TODO(port): create FilePath versions of these functions, and remove this
+// platform define.
+#if defined(OS_WIN)
 // Inserts |suffix| after the file name portion of |path| but before the
 // extension.
 // Examples:
@@ -107,6 +121,12 @@ bool AbsolutePath(std::wstring* path);
 // path == "C:\pics.old\jojo" suffix == " (1)", returns "C:\pics.old\jojo (1)"
 void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix);
 
+// Replaces the extension of |file_name| with |extension|.  If |file_name|
+// does not have an extension, them |extension| is added.  If |extension| is
+// empty, then the extension is removed from |file_name|.
+void ReplaceExtension(std::wstring* file_name, const std::wstring& extension);
+#endif
+
 // Replaces characters in 'file_name' that are illegal for file names with
 // 'replace_char'. 'file_name' must not be a full or relative path, but just the
 // file name component. Any leading or trailing whitespace in 'file_name' is
@@ -115,11 +135,6 @@ void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix);
 //   file_name == "bad:file*name?.txt", changed to: "bad-file-name-.txt" when
 //   'replace_char' is '-'.
 void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char);
-
-// Replaces the extension of |file_name| with |extension|.  If |file_name|
-// does not have an extension, them |extension| is added.  If |extention| is
-// empty, then the extension is removed from |file_name|.
-void ReplaceExtension(std::wstring* file_name, const std::wstring& extension);
 
 //-----------------------------------------------------------------------------
 // Functions that involve filesystem access or modification:

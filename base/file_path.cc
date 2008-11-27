@@ -18,10 +18,9 @@ const FilePath::CharType FilePath::kSeparators[] = FILE_PATH_LITERAL("/");
 const FilePath::CharType FilePath::kCurrentDirectory[] = FILE_PATH_LITERAL(".");
 const FilePath::CharType FilePath::kParentDirectory[] = FILE_PATH_LITERAL("..");
 
-// Returns true if |character| is in kSeparators.
-static bool IsSeparator(FilePath::CharType character) {
-  for (size_t i = 0; i < arraysize(FilePath::kSeparators) - 1; ++i) {
-    if (character == FilePath::kSeparators[i]) {
+bool FilePath::IsSeparator(CharType character) {
+  for (size_t i = 0; i < arraysize(kSeparators) - 1; ++i) {
+    if (character == kSeparators[i]) {
       return true;
     }
   }

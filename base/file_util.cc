@@ -13,41 +13,45 @@
 #include "base/string_util.h"
 #include "unicode/uniset.h"
 
+#include "base/string_piece.h"
+#include "base/sys_string_conversions.h"
+
 namespace file_util {
 
-const wchar_t kExtensionSeparator = L'.';
-
-void PathComponents(const std::wstring& path,
-                    std::vector<std::wstring>* components) {
-  DCHECK(components != NULL);
-  if (components == NULL)
+void PathComponents(const FilePath& path,
+                    std::vector<FilePath::StringType>* components) {
+  DCHECK(components);
+  if (!components)
     return;
-  std::wstring::size_type start = 0;
-  std::wstring::size_type end = path.find(kPathSeparator, start);
 
-  // Special case the "/" or "\" directory.  On Windows with a drive letter,
-  // this code path won't hit, but the right thing should still happen.
-  // "E:\foo" will turn into "E:","foo".
+  FilePath::StringType path_str = path.value();
+  FilePath::StringType::size_type start = 0;
+  FilePath::StringType::size_type end =
+      path_str.find_first_of(FilePath::kSeparators);
+
+  // If the path starts with a separator, add it to components.
   if (end == start) {
-    components->push_back(std::wstring(path, 0, 1));
+    components->push_back(FilePath::StringType(path_str, 0, 1));
     start = end + 1;
-    end = path.find(kPathSeparator, start);
+    end = path_str.find_first_of(FilePath::kSeparators, start);
   }
-  while (end != std::wstring::npos) {
-    std::wstring component = std::wstring(path, start, end - start);
+  while (end != FilePath::StringType::npos) {
+    FilePath::StringType component =
+        FilePath::StringType(path_str, start, end - start);
     components->push_back(component);
     start = end + 1;
-    end = path.find(kPathSeparator, start);
+    end = path_str.find_first_of(FilePath::kSeparators, start);
   }
-  std::wstring component = std::wstring(path, start);
-  components->push_back(component);
+
+  components->push_back(FilePath::StringType(path_str, start));
 }
 
-bool EndsWithSeparator(const FilePath& file_path) {
-  std::wstring path = file_path.ToWStringHack();
-  bool is_sep = (path.length() > 0 &&
-      path[path.length() - 1] == kPathSeparator);
-  return is_sep;
+bool EndsWithSeparator(const FilePath& path) {
+  FilePath::StringType value = path.value();
+  if (value.empty())
+    return false;
+
+  return FilePath::IsSeparator(value[value.size() - 1]);
 }
 
 bool EnsureEndsWithSeparator(FilePath* path) {
@@ -69,34 +73,6 @@ void TrimTrailingSeparator(std::wstring* dir) {
     dir->resize(dir->length() - 1);
 }
 
-void UpOneDirectory(std::wstring* dir) {
-  TrimTrailingSeparator(dir);
-
-  std::wstring::size_type last_sep = dir->find_last_of(kPathSeparator);
-  if (last_sep != std::wstring::npos)
-    dir->resize(last_sep);
-}
-
-void UpOneDirectoryOrEmpty(std::wstring* dir) {
-  TrimTrailingSeparator(dir);
-
-  std::wstring::size_type last_sep = dir->find_last_of(kPathSeparator);
-  if (last_sep != std::wstring::npos)
-    dir->resize(last_sep);
-  else
-    dir->clear();
-}
-
-void TrimFilename(std::wstring* path) {
-  if (EndsWithSeparator(path)) {
-    TrimTrailingSeparator(path);
-  } else {
-    std::wstring::size_type last_sep = path->find_last_of(kPathSeparator);
-    if (last_sep != std::wstring::npos)
-      path->resize(last_sep);
-  }
-}
-
 std::wstring GetFilenameFromPath(const std::wstring& path) {
   // TODO(erikkay): fix this - it's not using kPathSeparator, but win unit test
   // are exercising '/' as a path separator as well.
@@ -116,34 +92,6 @@ std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path) {
   std::wstring file_name = GetFilenameFromPath(path);
   std::wstring::size_type last_dot = file_name.rfind(L'.');
   return file_name.substr(0, last_dot);
-}
-
-void AppendToPath(std::wstring* path, const std::wstring& new_ending) {
-  if (!path) {
-    NOTREACHED();
-    return;  // Don't crash in this function in release builds.
-  }
-
-  if (!EndsWithSeparator(path))
-    path->push_back(kPathSeparator);
-  path->append(new_ending);
-}
-
-void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix) {
-  DCHECK(path);
-
-  const std::wstring::size_type last_dot = path->rfind(kExtensionSeparator);
-  const std::wstring::size_type last_sep = path->rfind(kPathSeparator);
-
-  if (last_dot == std::wstring::npos ||
-      (last_sep != std::wstring::npos && last_dot < last_sep)) {
-    // The path looks something like "C:\pics.old\jojo" or "C:\pics\jojo".
-    // We should just append the suffix to the entire path.
-    path->append(suffix);
-    return;
-  }
-
-  path->insert(last_dot, suffix);
 }
 
 void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
@@ -216,39 +164,6 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
 #endif
 }
 
-// Appends the extension to file adding a '.' if extension doesn't contain one.
-// This does nothing if extension is empty or '.'. This is used internally by
-// ReplaceExtension.
-static void AppendExtension(const std::wstring& extension,
-                            std::wstring* file) {
-  if (!extension.empty() && extension != L".") {
-    if (extension[0] != L'.')
-      file->append(L".");
-    file->append(extension);
-  }
-}
-
-void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
-  const std::wstring::size_type last_dot = file_name->rfind(L'.');
-  if (last_dot == std::wstring::npos) {
-    // No extension, just append the supplied extension.
-    AppendExtension(extension, file_name);
-    return;
-  }
-  const std::wstring::size_type last_separator =
-      file_name->rfind(kPathSeparator);
-  if (last_separator != std::wstring::npos && last_dot < last_separator) {
-    // File name doesn't have extension, but one of the directories does; don't
-    // replace it, just append the supplied extension. For example
-    // 'c:\tmp.bar\foo'.
-    AppendExtension(extension, file_name);
-    return;
-  }
-  std::wstring result = file_name->substr(0, last_dot);
-  AppendExtension(extension, &result);
-  file_name->swap(result);
-}
-
 bool ContentsEqual(const FilePath& filename1, const FilePath& filename2) {
   // We open the file in binary format even if they are text files because
   // we are just comparing that bytes are exactly same in both files and not
@@ -257,7 +172,7 @@ bool ContentsEqual(const FilePath& filename1, const FilePath& filename2) {
                       std::ios::in | std::ios::binary);
   std::ifstream file2(filename2.value().c_str(),
                       std::ios::in | std::ios::binary);
-  
+
   // Even if both files aren't openable (and thus, in some sense, "equal"),
   // any unusable file yields a result of "false".
   if (!file1.is_open() || !file2.is_open())
@@ -323,22 +238,15 @@ bool AbsolutePath(std::wstring* path_str) {
   *path_str = path.ToWStringHack();
   return true;
 }
-bool Delete(const std::wstring& path, bool recursive) {
-  return Delete(FilePath::FromWStringHack(path), recursive);
-}
-bool EndsWithSeparator(std::wstring* path) {
-  return EndsWithSeparator(FilePath::FromWStringHack(*path));
-}
-bool EndsWithSeparator(const std::wstring& path) {
-  return EndsWithSeparator(FilePath::FromWStringHack(path));
-}
-bool Move(const std::wstring& from_path, const std::wstring& to_path) {
-  return Move(FilePath::FromWStringHack(from_path),
-              FilePath::FromWStringHack(to_path));
-}
-bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
-  return CopyFile(FilePath::FromWStringHack(from_path),
-                  FilePath::FromWStringHack(to_path));
+void AppendToPath(std::wstring* path, const std::wstring& new_ending) {
+  if (!path) {
+    NOTREACHED();
+    return;  // Don't crash in this function in release builds.
+  }
+
+  if (!EndsWithSeparator(path))
+    path->push_back(FilePath::kSeparators[0]);
+  path->append(new_ending);
 }
 bool CopyDirectory(const std::wstring& from_path, const std::wstring& to_path,
                    bool recursive) {
@@ -346,16 +254,14 @@ bool CopyDirectory(const std::wstring& from_path, const std::wstring& to_path,
                        FilePath::FromWStringHack(to_path),
                        recursive);
 }
-bool PathExists(const std::wstring& path) {
-  return PathExists(FilePath::FromWStringHack(path));
-}
-bool DirectoryExists(const std::wstring& path) {
-  return DirectoryExists(FilePath::FromWStringHack(path));
-}
 bool ContentsEqual(const std::wstring& filename1,
                    const std::wstring& filename2) {
   return ContentsEqual(FilePath::FromWStringHack(filename1),
                        FilePath::FromWStringHack(filename2));
+}
+bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
+  return CopyFile(FilePath::FromWStringHack(from_path),
+                  FilePath::FromWStringHack(to_path));
 }
 bool CreateDirectory(const std::wstring& full_path) {
   return CreateDirectory(FilePath::FromWStringHack(full_path));
@@ -366,6 +272,18 @@ bool CreateTemporaryFileName(std::wstring* temp_file) {
     return false;
   *temp_file = temp_file_path.ToWStringHack();
   return true;
+}
+bool Delete(const std::wstring& path, bool recursive) {
+  return Delete(FilePath::FromWStringHack(path), recursive);
+}
+bool DirectoryExists(const std::wstring& path) {
+  return DirectoryExists(FilePath::FromWStringHack(path));
+}
+bool EndsWithSeparator(std::wstring* path) {
+  return EndsWithSeparator(FilePath::FromWStringHack(*path));
+}
+bool EndsWithSeparator(const std::wstring& path) {
+  return EndsWithSeparator(FilePath::FromWStringHack(path));
 }
 bool GetCurrentDirectory(std::wstring* path_str) {
   FilePath path;
@@ -387,12 +305,43 @@ bool GetTempDir(std::wstring* path_str) {
   *path_str = path.ToWStringHack();
   return true;
 }
+bool Move(const std::wstring& from_path, const std::wstring& to_path) {
+  return Move(FilePath::FromWStringHack(from_path),
+              FilePath::FromWStringHack(to_path));
+}
 FILE* OpenFile(const std::wstring& filename, const char* mode) {
   return OpenFile(FilePath::FromWStringHack(filename), mode);
+}
+bool PathExists(const std::wstring& path) {
+  return PathExists(FilePath::FromWStringHack(path));
 }
 bool SetCurrentDirectory(const std::wstring& directory) {
   return SetCurrentDirectory(FilePath::FromWStringHack(directory));
 }
-
+void TrimFilename(std::wstring* path) {
+  if (EndsWithSeparator(path)) {
+    TrimTrailingSeparator(path);
+  } else {
+    *path = FilePath::FromWStringHack(*path).DirName().ToWStringHack();
+  }
+}
+void UpOneDirectory(std::wstring* dir) {
+  FilePath path = FilePath::FromWStringHack(*dir);
+  FilePath directory = path.DirName();
+  // If there is no separator, we will get back kCurrentDirectory.
+  // In this case don't change |dir|.
+  if (directory.value() != FilePath::kCurrentDirectory)
+    *dir = directory.ToWStringHack();
+}
+void UpOneDirectoryOrEmpty(std::wstring* dir) {
+  FilePath path = FilePath::FromWStringHack(*dir);
+  FilePath directory = path.DirName();
+  // If there is no separator, we will get back kCurrentDirectory.
+  // In this case, clear dir.
+  if (directory == path || directory.value() == FilePath::kCurrentDirectory)
+    dir->clear();
+  else
+    *dir = directory.ToWStringHack();
+}
 }  // namespace
 

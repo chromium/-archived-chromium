@@ -123,6 +123,9 @@ class FilePath {
 
   const StringType& value() const { return path_; }
 
+  // Returns true if |character| is in kSeparators.
+  static bool IsSeparator(CharType character);
+
   // Returns a FilePath corresponding to the directory containing the path
   // named by this object, stripping away the file component.  If this object
   // only contains one component, returns a FilePath identifying

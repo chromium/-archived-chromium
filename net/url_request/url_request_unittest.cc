@@ -395,17 +395,13 @@ TEST_F(URLRequestTest, AboutBlankTest) {
 }
 
 TEST_F(URLRequestTest, FileTest) {
-  std::wstring app_path;
+  FilePath app_path;
   PathService::Get(base::FILE_EXE, &app_path);
-
-  std::string app_url = WideToUTF8(app_path);
-  std::replace(app_url.begin(), app_url.end(),
-               file_util::kPathSeparator, L'/');
-  app_url.insert(0, "file:///");
+  GURL app_url = net::FilePathToFileURL(app_path.ToWStringHack());
 
   TestDelegate d;
   {
-    TestURLRequest r(GURL(app_url), &d);
+    TestURLRequest r(app_url, &d);
 
     r.Start();
     EXPECT_TRUE(r.is_pending());

@@ -15,8 +15,6 @@
 
 namespace file_util {
 
-const wchar_t kPathSeparator = L'/';
-
 bool GetTempDir(FilePath* path) {
   const char* tmp = getenv("TMPDIR");
   if (tmp)
@@ -30,7 +28,7 @@ bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   int infile = open(from_path.value().c_str(), O_RDONLY);
   if (infile < 0)
     return false;
-  
+
   int outfile = creat(to_path.value().c_str(), 0666);
   if (outfile < 0) {
     close(infile);

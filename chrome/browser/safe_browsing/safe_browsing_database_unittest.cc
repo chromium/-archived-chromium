@@ -5,6 +5,7 @@
 // Unit tests for the SafeBrowsing storage system.
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -21,7 +22,6 @@
 
 using base::Time;
 
-static const wchar_t kSafeBrowsingTestDatabase[] = L"SafeBrowsingTestDatabase";
 static const wchar_t kBloomSuffix[] = L" Bloom";
 
 namespace {
@@ -59,11 +59,10 @@ namespace {
 
   // Common database test set up code.
   std::wstring GetTestDatabaseName() {
-    std::wstring filename;
+    FilePath filename;
     PathService::Get(base::DIR_TEMP, &filename);
-    filename.push_back(file_util::kPathSeparator);
-    filename.append(kSafeBrowsingTestDatabase);
-    return filename;
+    filename = filename.Append(FILE_PATH_LITERAL("SafeBrowsingTestDatabase"));
+    return filename.ToWStringHack();
   }
 
   SafeBrowsingDatabase* SetupTestDatabase() {
@@ -1042,10 +1041,11 @@ void PeformUpdate(const std::wstring& initial_db,
   IoCounters before, after;
 #endif
 
-  std::wstring filename;
-  PathService::Get(base::DIR_TEMP, &filename);
-  filename.push_back(file_util::kPathSeparator);
-  filename.append(L"SafeBrowsingTestDatabase");
+  FilePath path;
+  PathService::Get(base::DIR_TEMP, &path);
+  path = path.Append(FILE_PATH_LITERAL("SafeBrowsingTestDatabase"));
+  std::wstring filename = path.ToWStringHack();
+
   // In case it existed from a previous run.
   file_util::Delete(filename, false);
 
