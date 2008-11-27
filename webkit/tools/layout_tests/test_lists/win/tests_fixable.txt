@@ -1168,3 +1168,17 @@ LayoutTests/fast/css/computed-style.html = FAIL
 LayoutTests/fast/repaint/change-transform.html = FAIL
 LayoutTests/transitions/transition-drt-api-delay.html = TIMEOUT
 LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT
+
+// MERGE 38653:38729: Expectations changed upstream
+LayoutTests/editing/execCommand/19653-4.html = FAIL
+LayoutTests/editing/deleting/5168598.html = FAIL
+LayoutTests/editing/deleting/delete-link-1.html = FAIL
+LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
+LayoutTests/editing/execCommand/19089.html = FAIL
+LayoutTests/fast/block/positioning/047.html = FAIL
+LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+
+// MERGE 38653:38729: New tests
+LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
+LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
+LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT

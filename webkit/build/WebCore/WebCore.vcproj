@@ -1009,6 +1009,14 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LengthSize.h"
 				>
 			</File>
+      <File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LinkHash.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LinkHash.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LocalizedStrings.h"
 				>

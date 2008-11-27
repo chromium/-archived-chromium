@@ -106,6 +106,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandle.h"
 #include "ResourceRequest.h"
 #include "ScriptController.h"
+#include "ScriptSourceCode.h"
 #include "ScriptValue.h"
 #include "ScrollbarTheme.h"
 #include "SelectionController.h"
@@ -1533,10 +1534,12 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
 }
 
 void WebFrameImpl::ExecuteJavaScript(const std::string& js_code,
-                                     const std::string& script_url) {
-  frame_->loader()->executeScript(webkit_glue::StdStringToString(script_url),
-                                  1,  // base line number (for errors)
-                                  webkit_glue::StdStringToString(js_code));
+                                     const GURL& script_url) {
+  WebCore::ScriptSourceCode source_code(
+      webkit_glue::StdStringToString(js_code),
+      webkit_glue::GURLToKURL(script_url), 
+      1);  // base line number (for errors)
+  frame_->loader()->executeScript(source_code);
 }
 
 std::wstring WebFrameImpl::GetName() {

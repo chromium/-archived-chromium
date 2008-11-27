@@ -127,6 +127,7 @@ class Frame;
 class HTMLPlugInElement;
 class Node;
 class PausedTimeouts;
+class ScriptSourceCode;
 class String;
 class Widget;
 
@@ -148,7 +149,7 @@ public:
     // Evaluate a script file in the environment of this proxy.
     // If succeeded, 'succ' is set to true and result is returned
     // as a string.
-    ScriptValue evaluate(const String& filename, int baseLine, const String& code, Node* node = NULL, bool* succ = NULL);
+    ScriptValue evaluate(const ScriptSourceCode&);
 
     void disposeJSResult(JSResult result);
     void collectGarbage();

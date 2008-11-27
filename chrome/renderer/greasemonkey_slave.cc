@@ -162,7 +162,7 @@ bool GreasemonkeySlave::InjectScripts(WebFrame* frame) {
        script != scripts_.end(); ++script) {
     if (script->MatchesUrl(frame->GetURL())) {
       frame->ExecuteJavaScript(script->GetBody().as_string(),
-                               script->GetURL().as_string());
+                               GURL(script->GetURL().as_string()));
     }
   }
 

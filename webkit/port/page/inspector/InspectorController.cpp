@@ -1634,7 +1634,7 @@ void InspectorController::didFailLoading(DocumentLoader* loader, unsigned long i
     }
 }
 
-void InspectorController::resourceRetrievedByXMLHttpRequest(unsigned long identifier, String& sourceString)
+void InspectorController::resourceRetrievedByXMLHttpRequest(unsigned long identifier, const String& sourceString)
 {
     notImplemented();
 }

@@ -96,7 +96,7 @@ class WebFrameImpl : public WebFrame {
                                           bool replace,
                                           const GURL& fake_url);
   virtual void ExecuteJavaScript(const std::string& js_code,
-                                 const std::string& script_url);
+                                 const GURL& script_url);
   virtual bool GetPreviousState(GURL* url, std::wstring* title,
                                 std::string* history_state) const;
   virtual bool GetCurrentState(GURL* url, std::wstring* title,

@@ -43,6 +43,7 @@
 #include "npruntime_priv.h"
 #include "np_v8object.h"
 #include "PausedTimeouts.h"
+#include "ScriptSourceCode.h"
 #include "Widget.h"
 
 #include "v8_proxy.h"
@@ -263,12 +264,8 @@ bool ScriptController::processingUserGesture() const
 
 
 // Evaluate a script file in the environment of this proxy.
-ScriptValue ScriptController::evaluate(const String& filename, int baseLine,
-                          const String& code, Node* node, bool* succ)
+ScriptValue ScriptController::evaluate(const ScriptSourceCode& sourceCode)
 {
-    if (succ)
-        *succ = false;
-
     v8::HandleScope hs;
     v8::Handle<v8::Context> context = V8Proxy::GetContext(m_proxy->frame());
     if (context.IsEmpty())
@@ -279,14 +276,13 @@ ScriptValue ScriptController::evaluate(const String& filename, int baseLine,
     // HTMLTokenizer used to use base zero line numbers for scripts, now it
     // uses base 1. This confuses v8, which uses line offsets from the
     // first line.
-    v8::Local<v8::Value> obj = m_proxy->Evaluate(filename, baseLine - 1, code,
-                                                 node);
+    v8::Local<v8::Value> obj = m_proxy->Evaluate(sourceCode.url(), 
+                                                 sourceCode.startLine() - 1,
+                                                 sourceCode.source(),
+                                                 NULL);
 
     if (obj.IsEmpty() || obj->IsUndefined())
         return ScriptValue();
-
-    if (succ)
-        *succ = true;
 
     return ScriptValue(obj);
 }

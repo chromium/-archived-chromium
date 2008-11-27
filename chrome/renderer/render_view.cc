@@ -2373,7 +2373,7 @@ void RenderView::EvaluateScript(const std::wstring& frame_xpath,
   if (!web_frame)
     return;
 
-  web_frame->ExecuteJavaScript(WideToUTF8(script), "");
+  web_frame->ExecuteJavaScript(WideToUTF8(script), GURL());
 }
 
 void RenderView::OnScriptEvalRequest(const std::wstring& frame_xpath,
