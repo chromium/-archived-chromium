@@ -619,7 +619,7 @@ sub GenerateReplaceableAttrSetter
 
   push(@implContentDecls, 
        "  static void ${attrName}AttrSetter(v8::Local<v8::String> name," . 
-       " v8::Local<v8::Value> value, const v8::AccessorInfo& info)\n{\n");
+       " v8::Local<v8::Value> value, const v8::AccessorInfo& info) {\n");
 
   push(@implContentDecls, "    INC_STATS(\"DOM.$implClassName.$attrName._set\");\n");
 
@@ -643,7 +643,7 @@ sub GenerateNormalAttrSetter
 
   push(@implContentDecls, 
        "  static void ${attrName}AttrSetter(v8::Local<v8::String> name," . 
-       " v8::Local<v8::Value> value, const v8::AccessorInfo& info)\n{\n");
+       " v8::Local<v8::Value> value, const v8::AccessorInfo& info) {\n");
 
   push(@implContentDecls, "    INC_STATS(\"DOM.$implClassName.$attrName._set\");\n");
 
@@ -757,7 +757,7 @@ sub GenerateFunctionCallback
   my $name = $function->signature->name;
 
   push(@implContentDecls,
-"  static v8::Handle<v8::Value> ${name}Callback(const v8::Arguments& args)\n{\n" .
+"  static v8::Handle<v8::Value> ${name}Callback(const v8::Arguments& args) {\n" .
 "    INC_STATS(\"DOM.$implClassName.$name\");\n");
 
   my $numParameters = @{$function->parameters};
