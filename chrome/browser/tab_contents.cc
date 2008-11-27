@@ -76,9 +76,7 @@ void TabContents::CloseContents() {
 }
 
 void TabContents::Destroy() {
-  // TODO(jcampan): reenable that DCHECK. It seems to cause the RendererCrash
-  //                ui tests to hang for some unclear reason.
-  // DCHECK(!is_being_destroyed_);
+  DCHECK(!is_being_destroyed_);
   is_being_destroyed_ = true;
 
   // First cleanly close all child windows.
