@@ -218,11 +218,6 @@ static const int kUnsentLogDelay = 15;  // 15 seconds
 // (and continue to accrue now log entries) for a much greater period of time.
 static const int kMinSecondsPerLog = 5 * 60;  // five minutes
 
-// We accept suggestions from the log server for how long to wait between
-// submitting logs.  We validate that this "suggestion" is at least the
-// following:
-static const int kMinSuggestedSecondsPerLog = 60;
-
 // When we don't succeed at transmitting a log to a server, we progressively
 // wait longer and longer before sending the next log.  This backoff process
 // help reduce load on the server, and makes the amount of backoff vary between
@@ -491,14 +486,9 @@ void MetricsService::HandleIdleSinceLastTransmission(bool in_idle) {
   // If there wasn't a lot of action, maybe the computer was asleep, in which
   // case, the log transmissions should have stopped.  Here we start them up
   // again.
-  if (in_idle) {
-    idle_since_last_transmission_ = true;
-  } else {
-    if (idle_since_last_transmission_) {
-      idle_since_last_transmission_ = false;
-      StartLogTransmissionTimer();
-    }
-  }
+  if (!in_idle && idle_since_last_transmission_)
+    StartLogTransmissionTimer();
+  idle_since_last_transmission_ = in_idle;
 }
 
 void MetricsService::RecordCleanShutdown() {
@@ -694,11 +684,10 @@ void MetricsService::StopRecording(MetricsLog** log) {
     RecordCurrentHistograms();
 
   current_log_->CloseLog();
-  if (log) {
+  if (log)
     *log = current_log_;
-  } else {
+  else
     delete current_log_;
-  }
   current_log_ = NULL;
 }
 
@@ -725,15 +714,14 @@ void MetricsService::ListenerRegistration(bool start_listening) {
 
 // static
 void MetricsService::AddOrRemoveObserver(NotificationObserver* observer,
-                                NotificationType type,
-                                bool is_add) {
+                                         NotificationType type,
+                                         bool is_add) {
   NotificationService* service = NotificationService::current();
 
-  if (is_add) {
+  if (is_add)
     service->AddObserver(observer, type, NotificationService::AllSources());
-  } else {
+  else
     service->RemoveObserver(observer, type, NotificationService::AllSources());
-  }
 }
 
 void MetricsService::PushPendingLogsToUnsentLists() {
@@ -789,11 +777,6 @@ void MetricsService::StartLogTransmissionTimer() {
   // If timer_pending is true because the fetch is waiting for a response,
   // we return for now and let the response handler start the timer.
   if (timer_pending_)
-    return;
-
-  // Finally, if somehow we got here and the program is still idle since the
-  // last transmission, we shouldn't wake everybody up by starting a timer.
-  if (idle_since_last_transmission_)
     return;
 
   // Before starting the timer, set timer_pending_ to true.
@@ -905,10 +888,10 @@ void MetricsService::MakePendingLog() {
       break;
 
     case SEND_OLD_INITIAL_LOGS:
-        if (!unsent_initial_logs_.empty()) {
-          pending_log_text_ = unsent_initial_logs_.back();
-          break;
-        }
+      if (!unsent_initial_logs_.empty()) {
+        pending_log_text_ = unsent_initial_logs_.back();
+        break;
+      }
       state_ = SENDING_OLD_LOGS;
       // Fall through.
 
@@ -938,26 +921,21 @@ bool MetricsService::TransmissionPermitted() const {
   // anything.  If the server forbids uploading, that's our business, so we take
   // that to mean it forbids current logs, but we still send up the inital logs
   // and any old logs.
-
   if (!user_permits_upload_)
     return false;
-
-  if (server_permits_upload_) {
+  if (server_permits_upload_)
     return true;
-  } else {
-    switch (state_) {
-      case INITIAL_LOG_READY:
-      case SEND_OLD_INITIAL_LOGS:
-      case SENDING_OLD_LOGS:
-        return true;
 
-      case SENDING_CURRENT_LOGS:
-      default:
-        return false;
-    }
+  switch (state_) {
+    case INITIAL_LOG_READY:
+    case SEND_OLD_INITIAL_LOGS:
+    case SENDING_OLD_LOGS:
+      return true;
+
+    case SENDING_CURRENT_LOGS:
+    default:
+      return false;
   }
-
-  return false;
 }
 
 void MetricsService::CollectMemoryDetails() {
@@ -1065,14 +1043,13 @@ void MetricsService::PrepareFetchWithPendingLog() {
   LOG(INFO) << "METRICS LOG: " << pending_log_text_;
 
   std::string compressed_log;
-  bool result = Bzip2Compress(pending_log_text_, &compressed_log);
-
-  if (!result) {
+  if (!Bzip2Compress(pending_log_text_, &compressed_log)) {
     NOTREACHED() << "Failed to compress log for transmission.";
     DiscardPendingLog();
     StartLogTransmissionTimer();  // Maybe we'll do better on next log :-/.
     return;
   }
+
   current_fetch_.reset(new URLFetcher(GURL(kMetricsURL), URLFetcher::POST,
                                       this));
   current_fetch_->set_request_context(Profile::GetDefaultRequestContext());
@@ -1163,8 +1140,8 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   current_fetch_.reset(NULL);  // We're not allowed to re-use it.
 
   // Confirm send so that we can move on.
-  DLOG(INFO) << "METRICS RESPONSE CODE: " << response_code
-      << " status=" << StatusToString(status);
+  DLOG(INFO) << "METRICS RESPONSE CODE: " << response_code << " status=" <<
+      StatusToString(status);
 
   // TODO(petersont): Refactor or remove the following so that we don't have to
   // fake a valid response code.
@@ -1228,8 +1205,8 @@ void MetricsService::HandleBadResponseCode() {
   DLOG(INFO) << "METRICS: transmission attempt returned a failure code.  "
       "Verify network connectivity";
 #ifndef NDEBUG
-  DLOG(INFO) << "Verify your metrics logs are formatted correctly."
-      "  Verify server is active at "  << kMetricsURL;
+  DLOG(INFO) << "Verify your metrics logs are formatted correctly.  "
+      "Verify server is active at " << kMetricsURL;
 #endif
   if (!pending_log()) {
     DLOG(INFO) << "METRICS: Recorder shutdown during log transmission.";
@@ -1240,9 +1217,10 @@ void MetricsService::HandleBadResponseCode() {
         static_cast<int64>(kBackoff * interlog_duration_.InMicroseconds()));
 
     if (kMaxBackoff * TimeDelta::FromSeconds(kMinSecondsPerLog) <
-        interlog_duration_)
+        interlog_duration_) {
       interlog_duration_ = kMaxBackoff *
           TimeDelta::FromSeconds(kMinSecondsPerLog);
+    }
 
     DLOG(INFO) << "METRICS: transmission retry being scheduled in " <<
         interlog_duration_.InSeconds() << " seconds for " <<
@@ -1258,12 +1236,11 @@ void MetricsService::GetSettingsFromResponseData(const std::string& data) {
 
   int data_size = static_cast<int>(data.size());
   if (data_size < 0) {
-    DLOG(INFO) << "METRICS: server response data bad size " <<
-      " aborting extraction of settings";
+    DLOG(INFO) << "METRICS: server response data bad size: " << data_size <<
+      "; aborting extraction of settings";
     return;
   }
-  xmlDocPtr doc = xmlReadMemory(data.c_str(), data_size,
-                                "", NULL, 0);
+  xmlDocPtr doc = xmlReadMemory(data.c_str(), data_size, "", NULL, 0);
   DCHECK(doc);
   // If the document is malformed, we just use the settings that were there.
   if (!doc) {
@@ -1318,8 +1295,11 @@ void MetricsService::GetSettingsFromUploadNode(xmlNodePtr upload_node) {
   GetSettingsFromUploadNodeRecursive(upload_node, props, "", true);
 }
 
-void MetricsService::GetSettingsFromUploadNodeRecursive(xmlNodePtr node,
-    InheritedProperties props, std::string path_prefix, bool uploadOn) {
+void MetricsService::GetSettingsFromUploadNodeRecursive(
+    xmlNodePtr node,
+    InheritedProperties props,
+    std::string path_prefix,
+    bool uploadOn) {
   props.OverwriteWhereNeeded(node);
 
   // The bool uploadOn is set to true if the data represented by current
@@ -1374,14 +1354,14 @@ void MetricsService::GetSettingsFromUploadNodeRecursive(xmlNodePtr node,
   // doesn't have children, so node->children is NULL, and this loop doesn't
   // call (that's how the recursion ends).
   for (xmlNodePtr child_node = node->children;
-      child_node;
-      child_node = child_node->next) {
+       child_node;
+       child_node = child_node->next) {
     GetSettingsFromUploadNodeRecursive(child_node, props, path, uploadOn);
   }
 }
 
 bool MetricsService::NodeProbabilityTest(xmlNodePtr node,
-    InheritedProperties props) const {
+                                         InheritedProperties props) const {
   // Default value of probability on any node is 1, but recall that
   // its parents can already have been rejected for upload.
   double probability = 1;
@@ -1401,8 +1381,8 @@ bool MetricsService::ProbabilityTest(double probability,
   // client_id_ we need in order to make a nice pseudorandomish
   // number in the range [0,denominator).  Too many digits is
   // fine.
-  int relevant_digits = static_cast<int>(
-    ::log10(static_cast<double>(denominator))+1.0);
+  int relevant_digits =
+      static_cast<int>(log10(static_cast<double>(denominator)) + 1.0);
 
   // n is the length of the client_id_ string
   size_t n = client_id_.size();
@@ -1416,20 +1396,20 @@ bool MetricsService::ProbabilityTest(double probability,
   // string somehow to get a big integer idnumber (could be negative
   // from wraparound)
   int big = 1;
-  for (size_t j = n-1; j >= 0; --j) {
-    idnumber += static_cast<int>(client_id_c_str[j])*big;
+  for (size_t j = n - 1; j >= 0; --j) {
+    idnumber += static_cast<int>(client_id_c_str[j]) * big;
     big *= 10;
   }
 
   // Mod id number by denominator making sure to get a non-negative
   // answer.
-  idnumber = ((idnumber%denominator)+denominator)%denominator;
+  idnumber = ((idnumber % denominator) + denominator) % denominator;
 
-  // ((idnumber+salt)%denominator)/denominator is in the range [0,1]
+  // ((idnumber + salt) % denominator) / denominator is in the range [0,1]
   // if it's less than probability we call that an affirmative coin
   // toss.
-  return static_cast<double>((idnumber+salt)%denominator) <
-      probability*denominator;
+  return static_cast<double>((idnumber + salt) % denominator) <
+      probability * denominator;
 }
 
 void MetricsService::LogWindowChange(NotificationType type,
@@ -1695,7 +1675,7 @@ void MetricsService::RecordCurrentHistograms() {
   StatisticsRecorder::GetHistograms(&histograms);
   for (StatisticsRecorder::Histograms::iterator it = histograms.begin();
        histograms.end() != it;
-       it++) {
+       ++it) {
     if ((*it)->flags() & kUmaTargetedHistogramFlag)
       // TODO(petersont):
       // Bug http://code.google.com/p/chromium/issues/detail?id=2739.
