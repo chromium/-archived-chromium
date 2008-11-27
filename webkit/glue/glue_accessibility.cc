@@ -41,6 +41,10 @@ GlueAccessibility::~GlueAccessibility() {
 bool GlueAccessibility::GetAccessibilityInfo(WebView* view,
     const ViewMsg_Accessibility_In_Params& in_params,
     ViewHostMsg_Accessibility_Out_Params* out_params) {
+  WebFrame* main_frame = view->GetMainFrame();
+  if (!main_frame || !static_cast<WebFrameImpl*>(main_frame)->frameview())
+    return false;
+
   if (!root_->accessibility_root_ && !InitAccessibilityRoot(view)) {
     // Failure in retrieving the root.
     return false;
@@ -218,16 +222,11 @@ bool GlueAccessibility::InitAccessibilityRoot(WebView* view) {
   iaccessible_id_ = 0;
 
   WebFrame* main_frame = view->GetMainFrame();
-
-  if (!main_frame)
-    return false;
-
   WebFrameImpl* main_frame_impl = static_cast<WebFrameImpl*>(main_frame);
   WebCore::Frame* frame = main_frame_impl->frame();
-
   WebCore::Document* currentDocument = frame->document();
-  if (!currentDocument) {
-    root_->accessibility_root_ = 0;
+
+  if (!currentDocument || !currentDocument->renderer()) {
     return false;
   } else if (!root_->accessibility_root_ ||
              root_->accessibility_root_->document() != currentDocument) {

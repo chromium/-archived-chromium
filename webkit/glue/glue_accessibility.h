@@ -35,17 +35,17 @@ class GlueAccessibility {
                             const ViewMsg_Accessibility_In_Params& in_params,
                             ViewHostMsg_Accessibility_Out_Params* out_params);
 
-  // Retrieves the RenderObject associated with this WebView, and uses it to
-  // initialize the root of the render-side MSAA tree with the associated
-  // accessibility information. Returns true if successful, false otherwise.
-  bool InitAccessibilityRoot(WebView* view);
-
   // Erases the entry identified by the |iaccessible_id| from the hash map. If
   // |clear_all| is true, all entries are erased. Returns true if successful,
   // false otherwise.
   bool ClearIAccessibleMap(int iaccessible_id, bool clear_all);
 
  private:
+  // Retrieves the RenderObject associated with this WebView, and uses it to
+  // initialize the root of the render-side MSAA tree with the associated
+  // accessibility information. Returns true if successful, false otherwise.
+  bool InitAccessibilityRoot(WebView* view);
+
   // Wrapper around the COM pointer that holds the root of the MSAA tree, to
   // ensure that we are not requiring WebKit includes outside of glue.
   struct GlueAccessibilityRoot;
