@@ -65,6 +65,7 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
 }
 
 void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
+  MessageBox(NULL, message.c_str(), L"JavaScript Alert", MB_OK);
 }
 
 void TestWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {
