@@ -107,10 +107,6 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
             routing_id(), in_params, &out_params_);
     // Necessary for the send to keep the UI responsive.
     msg->EnableMessagePumping();
-    // By default sync calls are unblocking, i.e if the receiver is an outgoing
-    // sync call, it will process received sync calls. Webkit is not reentrant.
-    // We don't want to reenter Webkit if it is in an outgoing sync call.
-    msg->set_unblock(false);
     success = members->render_widget_host_->process()->channel()->
         SendWithTimeout(msg, kAccessibilityMessageTimeOut);
   }
