@@ -3304,10 +3304,21 @@ ACCESSOR_GETTER(ElementEventHandler) {
 }
 
 
-ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
+ACCESSOR_GETTER(HTMLOptionsCollectionLength) {
+  INC_STATS("DOM.HTMLOptionsCollection.length._get");
   HTMLOptionsCollection* imp =
-      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
-          V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
+    V8Proxy::ToNativeObject<HTMLOptionsCollection>(
+        V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
+  int v = imp->length();
+  return v8::Integer::New(v);
+}
+
+
+ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
+  INC_STATS("DOM.HTMLOptionsCollection.length._set");
+  HTMLOptionsCollection* imp =
+    V8Proxy::ToNativeObject<HTMLOptionsCollection>(
+        V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
   double v = value->NumberValue();
   unsigned newLength = 0;
   ExceptionCode ec = 0;

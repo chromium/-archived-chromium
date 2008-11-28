@@ -184,7 +184,7 @@ DECLARE_PROPERTY_ACCESSOR_SETTER(HTMLIFrameElementSrc)
 DECLARE_PROPERTY_ACCESSOR_SETTER(AttrValue)
 
 // Customized setter of HTMLOptionsCollection length
-DECLARE_PROPERTY_ACCESSOR_SETTER(HTMLOptionsCollectionLength)
+DECLARE_PROPERTY_ACCESSOR(HTMLOptionsCollectionLength)
 
 // Customized accessors for HTMLInputElement
 DECLARE_PROPERTY_ACCESSOR_GETTER(HTMLInputElementSelectionStart)
