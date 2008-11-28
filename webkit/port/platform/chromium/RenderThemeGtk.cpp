@@ -30,12 +30,22 @@
 #include "NotImplemented.h"
 #include "PlatformContextSkia.h"
 #include "RenderObject.h"
+#include "ScrollbarTheme.h"
 #include "gtkdrawing.h"
 #include "GdkSkia.h"
 
 #include <gdk/gdk.h>
 
 namespace {
+
+enum PaddingType {
+    TopPadding,
+    RightPadding,
+    BottomPadding,
+    LeftPadding
+};
+
+const int kStyledMenuListInternalPadding[4] = { 1, 4, 1, 4 };
 
 // The default variable-width font size.  We use this as the default font
 // size for the "system font", and as a base size (which we then shrink) for
@@ -122,26 +132,6 @@ static GtkTextDirection gtkTextDirection(TextDirection direction)
         return GTK_TEXT_DIR_NONE;
     }
 }
-
-static void adjustMozStyle(RenderStyle* style, GtkThemeWidgetType type)
-{
-    gint left, top, right, bottom;
-    GtkTextDirection direction = gtkTextDirection(style->direction());
-    gboolean inhtml = true;
-
-    if (moz_gtk_get_widget_border(type, &left, &top, &right, &bottom, direction, inhtml) != MOZ_GTK_SUCCESS)
-        return;
-
-    // FIXME: This approach is likely to be incorrect. See other ports and layout tests to see the problem.
-    const int xpadding = 1;
-    const int ypadding = 1;
-
-    style->setPaddingLeft(Length(xpadding + left, Fixed));
-    style->setPaddingTop(Length(ypadding + top, Fixed));
-    style->setPaddingRight(Length(xpadding + right, Fixed));
-    style->setPaddingBottom(Length(ypadding + bottom, Fixed));
-}
-
 static void setMozState(RenderTheme* theme, GtkWidgetState* state, RenderObject* o)
 {
     state->active = theme->isPressed(o);
@@ -317,6 +307,11 @@ void RenderThemeGtk::systemFont(int propId, Document* document, FontDescription&
     }
 }
 
+int RenderThemeGtk::minimumMenuListSize(RenderStyle* style) const
+{
+    return 0;
+}
+
 bool RenderThemeGtk::paintCheckbox(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
 {
     return paintMozWidget(this, MOZ_GTK_CHECKBUTTON, o, i, rect);
@@ -357,11 +352,6 @@ bool RenderThemeGtk::paintTextField(RenderObject* o, const RenderObject::PaintIn
     return paintMozWidget(this, MOZ_GTK_ENTRY, o, i, rect);
 }
 
-void RenderThemeGtk::adjustTextAreaStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    adjustTextFieldStyle(selector, style, e);
-}
-
 bool RenderThemeGtk::paintTextArea(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
 {
     return paintTextField(o, i, r);
@@ -389,16 +379,44 @@ bool RenderThemeGtk::paintSearchFieldCancelButton(RenderObject* o, const RenderO
 
 void RenderThemeGtk::adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, WebCore::Element* e) const
 {
-    style->resetBorder();
-    style->resetPadding();
-    style->setHeight(Length(Auto));
-    style->setWhiteSpace(PRE);
-    adjustMozStyle(style, MOZ_GTK_DROPDOWN);
+    // Height is locked to auto on all browsers.
+    style->setLineHeight(RenderStyle::initialLineHeight());
 }
 
 bool RenderThemeGtk::paintMenuList(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
 {
     return paintMozWidget(this, MOZ_GTK_DROPDOWN, o, i, rect);
+}
+
+void RenderThemeGtk::adjustMenuListButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
+{
+    adjustMenuListStyle(selector, style, e);
+}
+
+// Used to paint styled menulists (i.e. with a non-default border)
+bool RenderThemeGtk::paintMenuListButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
+{
+    return paintMenuList(o, i, r);
+}
+
+int RenderThemeGtk::popupInternalPaddingLeft(RenderStyle* style) const
+{
+    return menuListInternalPadding(style, LeftPadding);
+}
+
+int RenderThemeGtk::popupInternalPaddingRight(RenderStyle* style) const
+{
+    return menuListInternalPadding(style, RightPadding);
+}
+
+int RenderThemeGtk::popupInternalPaddingTop(RenderStyle* style) const
+{
+    return menuListInternalPadding(style, TopPadding);
+}
+
+int RenderThemeGtk::popupInternalPaddingBottom(RenderStyle* style) const
+{
+    return menuListInternalPadding(style, BottomPadding);
 }
 
 void RenderThemeGtk::adjustButtonInnerStyle(RenderStyle* style) const
@@ -508,6 +526,24 @@ GtkContainer* RenderThemeGtk::gtkContainer() const
     gtk_widget_realize(m_gtkWindow);
 
     return m_gtkContainer;
+}
+
+int RenderThemeGtk::menuListInternalPadding(RenderStyle* style, int paddingType) const
+{
+    // This internal padding is in addition to the user-supplied padding.
+    // Matches the FF behavior.
+    int padding = kStyledMenuListInternalPadding[paddingType];
+
+    // Reserve the space for right arrow here. The rest of the padding is
+    // set by adjustMenuListStyle, since PopMenuWin.cpp uses the padding from
+    // RenderMenuList to lay out the individual items in the popup.
+    // If the MenuList actually has appearance "NoAppearance", then that means
+    // we don't draw a button, so don't reserve space for it.
+    const int bar_type = style->direction() == LTR ? RightPadding : LeftPadding;
+    if (paddingType == bar_type && style->appearance() != NoControlPart)
+        padding += ScrollbarTheme::nativeTheme()->scrollbarThickness();
+
+    return padding;
 }
 
 }  // namespace WebCore

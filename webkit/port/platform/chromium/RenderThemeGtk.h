@@ -56,6 +56,8 @@ public:
     // System fonts.
     virtual void systemFont(int propId, Document*, FontDescription&) const;
 
+    virtual int minimumMenuListSize(RenderStyle*) const;
+
     virtual bool paintCheckbox(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r);
     virtual void setCheckboxSize(RenderStyle* style) const;
 
@@ -66,7 +68,6 @@ public:
 
     virtual bool paintTextField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
-    virtual void adjustTextAreaStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual bool paintTextArea(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
 
     virtual bool paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
@@ -86,6 +87,14 @@ public:
     // entire menulist.
     virtual void adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const;
     virtual bool paintMenuList(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual void adjustMenuListButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const;
+    virtual bool paintMenuListButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+
+    // These methods define the padding for the MenuList's inner block.
+    virtual int popupInternalPaddingLeft(RenderStyle*) const;
+    virtual int popupInternalPaddingRight(RenderStyle*) const;
+    virtual int popupInternalPaddingTop(RenderStyle*) const;
+    virtual int popupInternalPaddingBottom(RenderStyle*) const;
 
     virtual void adjustButtonInnerStyle(RenderStyle* style) const;
 
@@ -120,6 +129,8 @@ private:
     GtkContainer* gtkContainer() const;
 
 private:
+    int menuListInternalPadding(RenderStyle* style, int paddingType) const;
+
     mutable GtkWidget* m_gtkWindow;
     mutable GtkContainer* m_gtkContainer;
     mutable GtkWidget* m_gtkEntry;

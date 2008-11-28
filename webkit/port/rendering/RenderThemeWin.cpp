@@ -609,7 +609,7 @@ int RenderThemeWin::menuListInternalPadding(RenderStyle* style, int paddingType)
     // If the MenuList actually has appearance "NoAppearance", then that means
     // we don't draw a button, so don't reserve space for it.
     const int bar_type = style->direction() == LTR ? RightPadding : LeftPadding;
-    if (paddingType == bar_type && style->appearance() != NoPart)
+    if (paddingType == bar_type && style->appearance() != NoControlPart)
         padding += ScrollbarTheme::nativeTheme()->scrollbarThickness();
 
     return padding;
