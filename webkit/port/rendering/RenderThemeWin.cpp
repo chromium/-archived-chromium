@@ -587,16 +587,6 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
     return false;
 }
 
-void RenderThemeWin::getMinimalButtonPadding(Length* minXPadding) const {
-    // TODO(maruel): This get messy if 1. the theme change; 2. we are serializing.
-    SIZE size;
-    if (SUCCEEDED(gfx::NativeTheme::instance()->GetThemePartSize(
-            gfx::NativeTheme::BUTTON, 0, BP_PUSHBUTTON, PBS_NORMAL, 0, TS_MIN,
-            &size))) {
-        *minXPadding = Length(size.cx, Fixed);
-    }
-}
-
 int RenderThemeWin::menuListInternalPadding(RenderStyle* style, int paddingType) const
 {
     // This internal padding is in addition to the user-supplied padding.

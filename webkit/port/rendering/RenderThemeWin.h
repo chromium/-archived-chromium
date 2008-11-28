@@ -122,9 +122,6 @@ private:
 
     bool paintTextFieldInternal(RenderObject*, const RenderObject::PaintInfo&, const IntRect&, bool);
 
-    // Gets the minimal x button padding according to the current theme.
-    void getMinimalButtonPadding(Length* minXPadding) const;
-
     int menuListInternalPadding(RenderStyle* style, int paddingType) const;
 
     // A flag specifying whether we are in Find-in-page mode or not.
