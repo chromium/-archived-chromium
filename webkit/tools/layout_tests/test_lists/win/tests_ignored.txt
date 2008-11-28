@@ -133,6 +133,7 @@ LayoutTests/fast/js/code-serialize-paren.html = FAIL
 LayoutTests/fast/js/exception-linenums-in-html-1.html = FAIL
 LayoutTests/fast/js/exception-linenums-in-html-2.html = FAIL
 LayoutTests/fast/js/exception-linenums.html = FAIL
+LayoutTests/fast/js/exception-expression-offset.html = FAIL
 
 // These tests rely on specific details of decompilation of 
 // functions. V8 always returns the source code as written; there's
