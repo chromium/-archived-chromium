@@ -543,7 +543,6 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame.html = 
 LayoutTests/fast/js/constructor-attributes.html = FAIL
 LayoutTests/fast/js/eval-cross-window.html = FAIL
 LayoutTests/fast/js/eval-keyword-vs-function.html = FAIL
-LayoutTests/fast/js/exception-sequencing-binops2.html = FAIL
 LayoutTests/fast/js/exception-try-finally-scope-error.html = FAIL
 LayoutTests/fast/js/function-dot-arguments-and-caller.html = FAIL
 LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL

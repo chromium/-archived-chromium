@@ -47,6 +47,11 @@ cyclic-prototypes-expected.txt
 --------------------------
 Exception text is different in v8
 
+exception-sequencing-binops2-excepted.txt
+--------------------------
+V8 follows the ECMA 262 specification w.r.t. the evaluation order of
+comparisons. The latest JSC doesn't.
+
 prefix-syntax.html
 postfix-syntax.html
 --------------------------
