@@ -131,6 +131,7 @@ struct ConsoleMessage {
         , line(li)	
         , url(u)	
         , groupLevel(g) 
+        , repeatCount(1) 
     {	
     }
 
@@ -143,6 +144,7 @@ struct ConsoleMessage {
         , line(context->lineNumber())
         , url(context->sourceURL())
         , groupLevel(g)
+        , repeatCount(1)
     {
 #if USE(JSC)
         JSLock lock(false);
@@ -160,6 +162,21 @@ struct ConsoleMessage {
 #endif
     }
 
+    bool operator==(ConsoleMessage msg) const 
+    { 
+        return msg.source == this->source
+            && msg.level == this->level
+            && msg.message == this->message
+#if USE(JSC)
+            && msg.wrappedArguments == this->wrappedArguments
+#elif USE(V8)
+            && msg.message == this->message
+#endif
+            && msg.line == this->line
+            && msg.url == this->url
+            && msg.groupLevel == this->groupLevel;
+    }
+
     MessageSource source;	
     MessageLevel level;	
     String message;	
@@ -169,6 +186,7 @@ struct ConsoleMessage {
     unsigned line;	
     String url;	
     unsigned groupLevel;
+    unsigned repeatCount;
 };
 
 struct XMLHttpRequestResource {
@@ -826,16 +844,21 @@ void InspectorController::addConsoleMessage(ScriptCallContext* context, ConsoleM
         m_consoleMessages.remove(0);
         delete msg;
     }
-    m_consoleMessages.append(consoleMessage);
-
+    if (m_previousMessage && *m_previousMessage == *consoleMessage) {
+        ++m_previousMessage->repeatCount;
+    } else {
+        m_previousMessage = consoleMessage;
+        m_consoleMessages.append(consoleMessage);
+    }
     if (windowVisible())
-        addScriptConsoleMessage(consoleMessage);
+        addScriptConsoleMessage(m_previousMessage);
 }
 
 void InspectorController::clearConsoleMessages()
 {
     deleteAllValues(m_consoleMessages);
     m_consoleMessages.clear();
+    m_previousMessage = 0;
 }
 
 void InspectorController::startGroup(MessageSource source, ScriptCallContext* context)
@@ -1328,12 +1351,13 @@ void InspectorController::addScriptConsoleMessage(const ConsoleMessage* message)
         v8::Number::New(message->level),
         v8::Number::New(message->line),
         v8StringOrNull(message->url),
-        v8StringOrNull(message->message),
         v8::Number::New(message->groupLevel),
+        v8::Number::New(message->repeatCount),
+        v8StringOrNull(message->message),
     };
 
     v8::Handle<v8::Object> consoleMessage = 
-        SafeAllocation::NewInstance(consoleMessageConstructor, 5, args);
+        SafeAllocation::NewInstance(consoleMessageConstructor, 7, args);
     if (consoleMessage.IsEmpty())
         return;
 
