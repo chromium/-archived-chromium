@@ -167,11 +167,6 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return memory_model_;
   }
 
-  virtual SuspendController* suspend_controller() {
-    DCHECK(CalledOnValidThread());
-    return suspend_controller_.get();
-  }
-
   virtual HANDLE shutdown_event() { return shutdown_event_; }
 
  private:
@@ -242,8 +237,6 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   std::wstring locale_;
 
   MemoryModel memory_model_;
-
-  scoped_refptr<SuspendController> suspend_controller_;
 
   bool checked_for_new_frames_;
   bool using_new_frames_;

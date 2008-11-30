@@ -20,8 +20,10 @@ class SystemMonitor {
     return Singleton<SystemMonitor>::get();
   }
 
-  // To start the System Monitor within an application
-  // use this call.
+  // Start the System Monitor within a process.  This method
+  // is provided so that the battery check can be deferred.
+  // The MessageLoop must be started before calling this
+  // method.
   static void Start();
 
   //
