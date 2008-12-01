@@ -639,8 +639,10 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
             m_popupClient->setTextFromItem(m_selectedIndex);
     } else if (!m_setTextOnIndexChange &&
                event.windowsVirtualKeyCode() == VKEY_TAB) {
-        // TAB is a special case as it should select the item and advance focus.
-        m_popupClient->setTextFromItem(m_selectedIndex);
+        // TAB is a special case as it should select the current item if any and
+        // advance focus.
+        if (m_selectedIndex >= 0)
+            m_popupClient->setTextFromItem(m_selectedIndex);
         // Return false so the TAB key event is propagated to the page.
         return false;
     }
@@ -697,7 +699,7 @@ void PopupListBox::typeAheadFind(const PlatformKeyboardEvent& event)
     }
 
     int itemCount = numItems();
-    int index = (m_selectedIndex + searchStartOffset) % itemCount;
+    int index = (max(0, m_selectedIndex) + searchStartOffset) % itemCount;
     for (int i = 0; i < itemCount; i++, index = (index + 1) % itemCount) {
         if (!isSelectableItem(index))
             continue;
