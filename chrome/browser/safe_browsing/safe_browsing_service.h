@@ -16,7 +16,6 @@
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "base/system_monitor.h"
 #include "base/thread.h"
 #include "base/time.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
@@ -32,8 +31,7 @@ class SafeBrowsingProtocolManager;
 
 // Construction needs to happen on the main thread.
 class SafeBrowsingService
-    : public base::RefCountedThreadSafe<SafeBrowsingService>,
-      public base::SystemMonitor::PowerObserver {
+    : public base::RefCountedThreadSafe<SafeBrowsingService> {
  public:
   // Users of this service implement this interface to be notified
   // asynchronously of the result.
@@ -171,12 +169,10 @@ class SafeBrowsingService
   // the current page is 'safe'.
   void LogPauseDelay(base::TimeDelta time);
 
-  // PowerObserver notifications
   // We defer SafeBrowsing work for a short duration when the computer comes
   // out of a suspend state to avoid thrashing the disk.
-  void OnPowerStateChange(base::SystemMonitor*) {};
-  void OnSuspend(base::SystemMonitor*);
-  void OnResume(base::SystemMonitor*);
+  void OnSuspend();
+  void OnResume();
 
   bool new_safe_browsing() const { return new_safe_browsing_; }
 

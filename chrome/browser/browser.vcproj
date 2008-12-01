@@ -2263,6 +2263,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\suspend_controller.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\suspend_controller.h"
+			>
+		</File>
+		<File
 			RelativePath=".\toolbar_model.cc"
 			>
 		</File>

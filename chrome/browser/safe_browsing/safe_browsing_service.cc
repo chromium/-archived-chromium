@@ -12,7 +12,6 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/safe_browsing/protocol_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_blocking_page.h"
@@ -35,16 +34,9 @@ SafeBrowsingService::SafeBrowsingService()
       resetting_(false),
       database_loaded_(false) {
   new_safe_browsing_ = !CommandLine().HasSwitch(switches::kUseOldSafeBrowsing);
-  base::SystemMonitor* monitor = base::SystemMonitor::Get();
-  DCHECK(monitor);
-  if (monitor)
-    monitor->AddObserver(this);
 }
 
 SafeBrowsingService::~SafeBrowsingService() {
-  base::SystemMonitor* monitor = base::SystemMonitor::Get();
-  if (monitor)
-    monitor->RemoveObserver(this);
 }
 
 // Only called on the UI thread.
@@ -670,17 +662,18 @@ void SafeBrowsingService::CacheHashResults(
   GetDatabase()->CacheHashResults(prefixes, full_hashes);
 }
 
-void SafeBrowsingService::OnSuspend(base::SystemMonitor*) {
+void SafeBrowsingService::OnSuspend() {
 }
 
 // Tell the SafeBrowsing database not to do expensive disk operations for a few
 // minutes after waking up. It's quite likely that the act of resuming from a
 // low power state will involve much disk activity, which we don't want to
 // exacerbate.
-void SafeBrowsingService::OnResume(base::SystemMonitor*) {
+void SafeBrowsingService::OnResume() {
+  DCHECK(MessageLoop::current() == io_loop_);
   if (enabled_) {
-    ChromeThread::GetMessageLoop(ChromeThread::DB)->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &SafeBrowsingService::HandleResume));
+    db_thread_->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &SafeBrowsingService::HandleResume));
   }
 }
 

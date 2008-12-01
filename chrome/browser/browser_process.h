@@ -122,6 +122,8 @@ class BrowserProcess {
 
   virtual MemoryModel memory_model() = 0;
 
+  virtual SuspendController* suspend_controller() = 0;
+
 #if defined(OS_WIN)
   DownloadRequestManager* download_request_manager() {
     ResourceDispatcherHost* rdh = resource_dispatcher_host();
