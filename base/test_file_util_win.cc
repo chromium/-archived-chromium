@@ -13,31 +13,88 @@
 
 namespace file_util {
 
+// We could use GetSystemInfo to get the page size, but this serves
+// our purpose fine since 4K is the page size on x86 as well as x64.
+static const ptrdiff_t kPageSize = 4096;
+
 bool EvictFileFromSystemCache(const wchar_t* file) {
   // Request exclusive access to the file and overwrite it with no buffering.
-  ScopedHandle hfile(
+  ScopedHandle file_handle(
       CreateFile(file, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-                 OPEN_EXISTING, FILE_FLAG_NO_BUFFERING,
-                 NULL));
-  if (!hfile)
+                 OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL));
+  if (!file_handle)
     return false;
 
+  // Get some attributes to restore later.
+  BY_HANDLE_FILE_INFORMATION bhi = {0};
+  CHECK(::GetFileInformationByHandle(file_handle, &bhi));
+
   // Execute in chunks. It could be optimized. We want to do few of these since
-  // these opterations will be slow without the cache.
-  char buffer[4096];
+  // these operations will be slow without the cache.
+
+  // Non-buffered reads and writes need to be sector aligned and since sector
+  // sizes typically range from 512-4096 bytes, we just use the page size.
+  // The buffer size is twice the size of a page (minus one) since we need to
+  // get an aligned pointer into the buffer that we can use.
+  char buffer[2 * kPageSize - 1];
+  // Get an aligned pointer into buffer.
+  char* read_write = reinterpret_cast<char*>(
+      reinterpret_cast<ptrdiff_t>(buffer + kPageSize - 1) & ~(kPageSize - 1));
+  DCHECK((reinterpret_cast<int>(read_write) % kPageSize) == 0);
+
+  // If the file size isn't a multiple of kPageSize, we'll need special
+  // processing.
+  bool file_is_page_aligned = true;
   int total_bytes = 0;
-  DWORD bytes_read;
+  DWORD bytes_read, bytes_written;
   for (;;) {
     bytes_read = 0;
-    ReadFile(hfile, buffer, sizeof(buffer), &bytes_read, NULL);
+    ReadFile(file_handle, read_write, kPageSize, &bytes_read, NULL);
     if (bytes_read == 0)
       break;
 
-    SetFilePointer(hfile, total_bytes, 0, FILE_BEGIN);
-    if (!WriteFile(hfile, buffer, bytes_read, &bytes_read, NULL))
+    if (bytes_read < kPageSize) {
+      // Zero out the remaining part of the buffer.
+      // WriteFile will fail if we provide a buffer size that isn't a
+      // sector multiple, so we'll have to write the entire buffer with
+      // padded zeros and then use SetEndOfFile to truncate the file.
+      ZeroMemory(read_write + bytes_read, kPageSize - bytes_read);
+      file_is_page_aligned = false;
+    }
+
+    // Move back to the position we just read from.
+    // Note that SetFilePointer will also fail if total_bytes isn't sector
+    // aligned, but that shouldn't happen here.
+    DCHECK((total_bytes % kPageSize) == 0);
+    SetFilePointer(file_handle, total_bytes, NULL, FILE_BEGIN);
+    if (!WriteFile(file_handle, read_write, kPageSize, &bytes_written, NULL) ||
+        bytes_written != kPageSize) {
+      DCHECK(false);
       return false;
+    }
+
     total_bytes += bytes_read;
+
+    // If this is false, then we just processed the last portion of the file.
+    if (!file_is_page_aligned)
+      break;
   }
+
+  if (!file_is_page_aligned) {
+    // The size of the file isn't a multiple of the page size, so we'll have
+    // to open the file again, this time without the FILE_FLAG_NO_BUFFERING
+    // flag and use SetEndOfFile to mark EOF.
+    file_handle.Set(CreateFile(file, GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+                               0, NULL));
+    CHECK(SetFilePointer(file_handle, total_bytes, NULL, FILE_BEGIN) !=
+          INVALID_SET_FILE_POINTER);
+    CHECK(::SetEndOfFile(file_handle));
+  }
+
+  // Restore the file attributes.
+  CHECK(::SetFileTime(file_handle, &bhi.ftCreationTime, &bhi.ftLastAccessTime,
+                      &bhi.ftLastWriteTime));
+
   return true;
 }
 
