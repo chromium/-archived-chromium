@@ -13,7 +13,7 @@ class KeywordProviderTest : public testing::Test {
  protected:
   struct test_data {
     const std::wstring input;
-    const int num_results;
+    const size_t num_results;
     const std::wstring output[3];
   };
 
@@ -66,7 +66,7 @@ void KeywordProviderTest::RunTest(
     EXPECT_EQ(keyword_cases[i].num_results, matches.size()) <<
                 L"Input was: " + keyword_cases[i].input;
     if (matches.size() == keyword_cases[i].num_results) {
-      for (int j = 0; j < keyword_cases[i].num_results; ++j) {
+      for (size_t j = 0; j < keyword_cases[i].num_results; ++j) {
         EXPECT_EQ(keyword_cases[i].output[j], matches[j].*member);
       }
     }

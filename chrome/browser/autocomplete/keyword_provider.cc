@@ -16,9 +16,6 @@
 
 #include "generated_resources.h"
 
-static const wchar_t kSearchDescriptionParameter[](L"%1");
-static const wchar_t kSearchValueParameter[](L"%2");
-
 // static
 std::wstring KeywordProvider::SplitReplacementStringFromInput(
     const std::wstring& input) {

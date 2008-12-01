@@ -39,10 +39,10 @@ class SearchProvider : public AutocompleteProvider,
   SearchProvider(ACProviderListener* listener, Profile* profile)
       : AutocompleteProvider(listener, profile, "Search"),
         last_default_provider_(NULL),
-        fetcher_(NULL),
-        history_request_pending_(false),
         have_history_results_(false),
+        history_request_pending_(false),
         suggest_results_pending_(false),
+        fetcher_(NULL),
         have_suggest_results_(false) {
   }
 
