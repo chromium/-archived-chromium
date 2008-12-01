@@ -138,7 +138,6 @@ WebPluginDelegateProxy::WebPluginDelegateProxy(const std::string& mime_type,
       clsid_(clsid),
       plugin_(NULL),
       windowless_(false),
-      first_paint_(true),
       npobject_(NULL),
       send_deferred_update_geometry_(false),
       visible_(false),
@@ -394,6 +393,7 @@ void WebPluginDelegateProxy::ResetWindowlessBitmaps() {
   transport_store_canvas_.reset();
   background_store_.reset();
   background_store_canvas_.release();
+  backing_store_painted_ = gfx::Rect();
 }
 
 bool WebPluginDelegateProxy::CreateBitmap(
@@ -423,14 +423,9 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
     return;
   }
 
-  // No paint events for windowed plugins.  However, if it is the first paint
-  // we don't know yet whether the plugin is windowless or not, so we have to
-  // send the event.
-  if (!windowless_ && !first_paint_) {
-    // TODO(maruel): That's not true for printing and thumbnail capture.
-    // We shall use PrintWindow() to draw the window.
+  // No paint events for windowed plugins.
+  if (!windowless_)
     return;
-  }
 
   // We got a paint before the plugin's coordinates, so there's no buffer to
   // copy from.
@@ -450,14 +445,13 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
         rect.width(), rect.height(), hdc, rect.x(), rect.y(), SRCCOPY);
   }
 
-  if (first_paint_ || background_changed) {
-    gfx::Rect offset_rect = rect;
-    offset_rect.Offset(-plugin_rect_.x(), -plugin_rect_.y());
+  gfx::Rect offset_rect = rect;
+  offset_rect.Offset(-plugin_rect_.x(), -plugin_rect_.y());
+  if (background_changed || !backing_store_painted_.Contains(offset_rect)) {
     Send(new PluginMsg_Paint(instance_id_, offset_rect));
     CopyFromTransportToBacking(offset_rect);
   }
 
-  first_paint_ = false;
   HDC backing_hdc = backing_store_canvas_->getTopPlatformDevice().getBitmapDC();
   BitBlt(hdc, rect.x(), rect.y(), rect.width(), rect.height(), backing_hdc,
       rect.x()-plugin_rect_.x(), rect.y()-plugin_rect_.y(), SRCCOPY);
@@ -702,9 +696,9 @@ void WebPluginDelegateProxy::CopyFromTransportToBacking(const gfx::Rect& rect) {
   // Copy the damaged rect from the transport bitmap to the backing store.
   HDC backing = backing_store_canvas_->getTopPlatformDevice().getBitmapDC();
   HDC transport = transport_store_canvas_->getTopPlatformDevice().getBitmapDC();
-
   BitBlt(backing, rect.x(), rect.y(), rect.width(), rect.height(),
       transport, rect.x(), rect.y(), SRCCOPY);
+  backing_store_painted_ = backing_store_painted_.Union(rect);
 }
 
 void WebPluginDelegateProxy::OnHandleURLRequest(

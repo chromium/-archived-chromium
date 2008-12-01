@@ -150,7 +150,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   RenderView* render_view_;
   WebPlugin* plugin_;
   bool windowless_;
-  bool first_paint_;
   scoped_refptr<PluginChannelHost> channel_host_;
   std::string mime_type_;
   std::string clsid_;
@@ -188,6 +187,8 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   scoped_ptr<gfx::PlatformCanvasWin> transport_store_canvas_;
   scoped_ptr<base::SharedMemory> background_store_;
   scoped_ptr<gfx::PlatformCanvasWin> background_store_canvas_;
+  // This lets us know which portion of the backing store has been painted into.
+  gfx::Rect backing_store_painted_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateProxy);
 };
