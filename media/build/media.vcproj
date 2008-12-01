@@ -125,6 +125,10 @@
 			Name="base"
 			>
 			<File
+				RelativePath="..\base\buffers.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\media.cc"
 				>
 			</File>
