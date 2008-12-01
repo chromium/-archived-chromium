@@ -176,7 +176,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                 std::wstring range);
   virtual bool SmartInsertDeleteEnabled();
   virtual void DidBeginEditing();
-  virtual void DidChangeSelection();
+  virtual void DidChangeSelection(bool is_empty_selection);
   virtual void DidChangeContents();
   virtual void DidEndEditing();
 
@@ -269,6 +269,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   void UpdateForCommittedLoad(WebFrame* webframe, bool is_new_navigation);
   void UpdateURL(WebFrame* frame);
   void UpdateSessionHistory(WebFrame* frame);
+  void UpdateSelectionClipboard(bool is_empty_selection);
 
   // Get a string suitable for dumping a frame to the console.
   std::wstring GetFrameDescription(WebFrame* webframe);

@@ -272,6 +272,10 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // Clear any text selection in the frame.
   virtual void ClearSelection() = 0;
 
+  // Returns the selected text if there is any.  If |as_html| is true, returns
+  // the selection as HTML.  The return value is encoded in utf-8.
+  virtual std::string GetSelection(bool as_html) = 0;
+
   // Paints the contents of this web view in a bitmapped image. This image
   // will not have plugins drawn. Devices are cheap to copy because the data is
   // internally refcounted so we allocate and return a new copy

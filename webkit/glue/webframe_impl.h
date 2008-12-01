@@ -140,6 +140,7 @@ class WebFrameImpl : public WebFrame {
   virtual void Undo();
   virtual void Redo();
   virtual void ClearSelection();
+  virtual std::string GetSelection(bool as_html);
 
   virtual void SetInViewSourceMode(bool enable);
 

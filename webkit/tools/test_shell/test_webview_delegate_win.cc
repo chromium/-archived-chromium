@@ -154,6 +154,10 @@ void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
     EnableWindow(*i, TRUE);
 }
 
+void TestWebViewDelegate::UpdateSelectionClipboard(bool is_empty_selection) {
+  // No selection clipboard on windows, do nothing.
+}
+
 // Private methods -----------------------------------------------------------
 
 void TestWebViewDelegate::SetPageTitle(const std::wstring& title) {

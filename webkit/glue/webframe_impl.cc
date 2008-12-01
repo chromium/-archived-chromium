@@ -1340,6 +1340,16 @@ void WebFrameImpl::ClearSelection() {
   frame()->selection()->clear();
 }
 
+std::string WebFrameImpl::GetSelection(bool as_html) {
+  RefPtr<Range> range = frame()->selection()->toRange();
+  if (as_html) {
+    String markup = WebCore::createMarkup(range.get(), 0);
+    return webkit_glue::StringToStdString(markup);
+  } else {
+    return webkit_glue::StringToStdString(range->text());
+  }
+}
+
 void WebFrameImpl::CreateFrameView() {
   ASSERT(frame_);  // If frame_ doesn't exist, we probably didn't init properly.
 

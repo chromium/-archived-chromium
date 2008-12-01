@@ -15,6 +15,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Editor.h"
 #include "EventHandler.h"
 #include "EventNames.h"
+#include "Frame.h"
 #include "KeyboardCodes.h"
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"
@@ -235,8 +236,11 @@ void EditorClientImpl::didBeginEditing() {
 void EditorClientImpl::respondToChangedSelection() {
   if (use_editor_delegate_) {
     WebViewDelegate* d = web_view_->delegate();
-    if (d)
-      d->DidChangeSelection();
+    if (d) {
+      WebCore::Frame* frame = web_view_->GetFocusedWebCoreFrame();
+      if (frame)
+        d->DidChangeSelection(!frame->selection()->isRange());
+    }
   }
 }
 
@@ -844,4 +848,3 @@ std::wstring EditorClientImpl::Describe(WebCore::CSSStyleDeclaration* style) {
   // an example.  But because none of them use it, it's not yet important.
   return std::wstring();
 }
-

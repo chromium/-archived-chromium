@@ -634,7 +634,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return false;
   }
   virtual void DidBeginEditing() { }
-  virtual void DidChangeSelection() { }
+  virtual void DidChangeSelection(bool is_empty_selection) { }
   virtual void DidChangeContents() { }
   virtual void DidEndEditing() { }
 

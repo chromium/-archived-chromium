@@ -26,6 +26,42 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
+namespace {
+
+
+enum SelectionClipboardType {
+  TEXT_HTML,
+  PLAIN_TEXT,
+};
+
+GdkAtom GetTextHtmlAtom() {
+  GdkAtom kTextHtmlGdkAtom = gdk_atom_intern_static_string("text/html");
+  return kTextHtmlGdkAtom;
+}
+
+void SelectionClipboardGetContents(GtkClipboard* clipboard,
+    GtkSelectionData* selection_data, guint info, gpointer data) {
+  // Ignore formats that we don't know about.
+  if (info != TEXT_HTML && info != PLAIN_TEXT)
+    return;
+
+  WebView* webview = static_cast<WebView*>(data);
+  WebFrame* frame = webview->GetFocusedFrame();
+  std::string selection = frame->GetSelection(TEXT_HTML == info);
+  if (TEXT_HTML == info) {
+    gtk_selection_data_set(selection_data,
+                           GetTextHtmlAtom(),
+                           8 /* bits per data unit, ie, char */,
+                           reinterpret_cast<const guchar*>(selection.data()),
+                           selection.length());
+  } else {
+    gtk_selection_data_set_text(selection_data, selection.data(),
+        selection.length());
+  }
+}
+
+}  // namespace
+
 // WebViewDelegate -----------------------------------------------------------
 
 TestWebViewDelegate::~TestWebViewDelegate() {
@@ -148,6 +184,26 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
   NOTIMPLEMENTED();
+}
+
+void TestWebViewDelegate::UpdateSelectionClipboard(bool is_empty_selection) {
+  if (is_empty_selection)
+    return;
+
+  GtkClipboard* clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+  // Put data on the X clipboard.  This doesn't actually grab the text from
+  // the HTML, it just registers a callback for when someone tries to paste.
+  GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
+  gtk_target_list_add(target_list, GetTextHtmlAtom(), 0, TEXT_HTML);
+  gtk_target_list_add_text_targets(target_list, PLAIN_TEXT);
+
+  gint num_targets = 0;
+  GtkTargetEntry* targets = gtk_target_table_new_from_list(target_list,
+                                                           &num_targets);
+  gtk_clipboard_set_with_data(clipboard, targets, num_targets,
+                              SelectionClipboardGetContents, NULL,
+                              shell_->webView());
+  gtk_target_table_free(targets, num_targets);
 }
 
 // Private methods -----------------------------------------------------------

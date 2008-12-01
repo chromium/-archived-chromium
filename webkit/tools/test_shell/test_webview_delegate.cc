@@ -552,11 +552,12 @@ void TestWebViewDelegate::DidBeginEditing() {
   }
 }
 
-void TestWebViewDelegate::DidChangeSelection() {
+void TestWebViewDelegate::DidChangeSelection(bool is_empty_selection) {
   if (shell_->ShouldDumpEditingCallbacks()) {
     printf("EDITING DELEGATE: "
     "webViewDidChangeSelection:WebViewDidChangeSelectionNotification\n");
   }
+  UpdateSelectionClipboard(is_empty_selection);
 }
 
 void TestWebViewDelegate::DidChangeContents() {

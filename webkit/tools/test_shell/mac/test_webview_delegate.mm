@@ -127,6 +127,10 @@ void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
   NOTIMPLEMENTED();
 }
 
+void TestWebViewDelegate::UpdateSelectionClipboard(bool is_empty_selection) {
+  // No selection clipboard on mac, do nothing.
+}
+
 // Private methods -----------------------------------------------------------
 
 void TestWebViewDelegate::SetPageTitle(const std::wstring& title) {
