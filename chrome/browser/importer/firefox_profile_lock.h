@@ -5,11 +5,16 @@
 #ifndef CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
 #define CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 // Firefox is designed to allow only one application to access its
@@ -78,16 +83,21 @@ class FirefoxProfileLock {
   FRIEND_TEST(FirefoxImporterTest, ProfileLock);
   FRIEND_TEST(FirefoxImporterTest, ProfileLockOrphaned);
 
-  // The name of the lock file.
-  static wchar_t kLockFileName[];
+  static const FilePath::CharType* kLockFileName;
+
+  void Init();
 
   // Full path of the lock file in the profile folder.
-  std::wstring lock_file_;
+  FilePath lock_file_;
 
   // The handle of the lock file.
+#if defined(OS_WIN)
   HANDLE lock_handle_;
+#elif defined(OS_POSIX)
+  int lock_fd_;
+#endif
 
-  DISALLOW_EVIL_CONSTRUCTORS(FirefoxProfileLock);
+  DISALLOW_COPY_AND_ASSIGN(FirefoxProfileLock);
 };
 
 #endif  // CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__

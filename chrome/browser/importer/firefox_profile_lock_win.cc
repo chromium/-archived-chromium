@@ -1,10 +1,10 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "chrome/browser/importer/firefox_profile_lock.h"
 
-#include "base/file_path.h"
+#include <windows.h>
 
 // This class is based on Firefox code in:
 //   profile/dirserviceprovider/src/nsProfileLock.cpp
@@ -51,17 +51,27 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-// static
-const FilePath::CharType* FirefoxProfileLock::kLockFileName =
-    FILE_PATH_LITERAL("parent.local");
-
-FirefoxProfileLock::FirefoxProfileLock(const std::wstring& path) {
-  Init();
-  lock_file_ = FilePath::FromWStringHack(path);
-  lock_file_.Append(kLockFileName);
-  Lock();
+void FirefoxProfileLock::Init() {
+  lock_handle_ = INVALID_HANDLE_VALUE;
 }
 
-FirefoxProfileLock::~FirefoxProfileLock() {
-  Unlock();
+void FirefoxProfileLock::Lock() {
+  if (HasAcquired())
+    return;
+  lock_handle_ = CreateFile(lock_file_.value().c_str(),
+                            GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+                            FILE_FLAG_DELETE_ON_CLOSE, NULL);
 }
+
+void FirefoxProfileLock::Unlock() {
+  if (!HasAcquired())
+    return;
+  CloseHandle(lock_handle_);
+  lock_handle_ = INVALID_HANDLE_VALUE;
+}
+
+bool FirefoxProfileLock::HasAcquired() {
+  return (lock_handle_ != INVALID_HANDLE_VALUE);
+}
+
+

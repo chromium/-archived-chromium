@@ -4,9 +4,9 @@
 
 #include "chrome/browser/importer/firefox2_importer.h"
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/registry.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/importer/firefox_importer_utils.h"
@@ -69,16 +69,19 @@ void Firefox2Importer::StartImport(ProfileInfo profile_info,
 // static
 void Firefox2Importer::LoadDefaultBookmarks(const std::wstring& app_path,
                                             std::set<GURL> *urls) {
+  // TODO(port): Code below is correct only on Windows.
   // Firefox keeps its default bookmarks in a bookmarks.html file that
   // lives at: <Firefox install dir>\defaults\profile\bookmarks.html
-  std::wstring file = app_path;
-  file_util::AppendToPath(&file, L"defaults\\profile\\bookmarks.html");
+  FilePath file = FilePath::FromWStringHack(app_path);
+  file.Append(FILE_PATH_LITERAL("defaults"));
+  file.Append(FILE_PATH_LITERAL("profile"));
+  file.Append(FILE_PATH_LITERAL("bookmarks.html"));
 
   urls->clear();
 
   // Read the whole file.
   std::string content;
-  file_util::ReadFileToString(file, &content);
+  file_util::ReadFileToString(file.ToWStringHack(), &content);
   std::vector<std::string> lines;
   SplitString(content, '\n', &lines);
 

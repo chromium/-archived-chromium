@@ -24,6 +24,7 @@
 #include "chrome/browser/importer/toolbar_importer.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
+#include "chrome/browser/views/importer_lock_view.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/l10n_util.h"
