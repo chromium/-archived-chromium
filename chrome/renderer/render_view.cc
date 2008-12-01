@@ -453,6 +453,7 @@ int RenderView::SwitchFrameToPrintMediaType(const ViewMsg_Print_Params& params,
     NOTREACHED();
     pages = 0;
   } else {
+    DCHECK_GT(printed_document_width_, 0);
     // Force to recalculate the height, otherwise it reuse the current window
     // height as the default.
     float effective_shrink = printed_document_width_ / paper_width;

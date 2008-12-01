@@ -782,6 +782,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\printing\print_job_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\printing\printing_test.h"
 				>
 			</File>
