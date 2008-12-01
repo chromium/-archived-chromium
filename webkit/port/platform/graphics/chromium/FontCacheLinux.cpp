@@ -110,7 +110,7 @@ AtomicString FontCache::getGenericFontForScript(UScriptCode script,
                                                 const FontDescription&) 
 {
     notImplemented();
-    return AtomicString("Times New Roman");
+    return AtomicString();
 }
 
 }  // namespace WebCore
