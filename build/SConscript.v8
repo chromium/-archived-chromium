@@ -9,13 +9,6 @@ Import('env')
 if not env.Dir('$CHROME_SRC_DIR/v8').exists():
   Return()
 
-# Grab the -j flag from the outer environment, if available.
-try:
-  cpus = env.GetOption('num_jobs')
-  cpu_flag = ' -j%d' % cpus
-except AttributeError:
-  cpu_flag = ''
-
 # The v8 build script wants a 'debug'/'release' string to tell it whether
 # to build optimized.  Convert our build flags into that form.
 mode = 'release'
@@ -26,12 +19,12 @@ env = env.Clone(
     V8_MODE = mode,
     V8_MODE_DIR = '$V8_DIR/obj/$V8_MODE',
     V8_SCONS_COM = '$PYTHON $SCONS $SCONSFLAGS mode=$V8_MODE',
-    SCONS='$CHROME_SRC_DIR/third_party/scons/scons.py',
+    SCONS = '$CHROME_SRC_DIR/third_party/scons/scons.py',
     SCONSFLAGS = ('-Q '
                   '-C $OBJ_ROOT/v8 '
                   '-Y $CHROME_SRC_DIR/v8 '
                   '--warn=no-deprecated '
-                  '--warn=no-no-parallel-support' + cpu_flag),
+                  '--warn=no-no-parallel-support'),
 )
 
 # Rather than build v8 with our own commands, we just shell out to v8's
