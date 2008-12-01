@@ -44,7 +44,6 @@
 
 #include <algorithm>
 
-#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/history_types.h"
@@ -112,8 +111,7 @@ MorkReader::~MorkReader() {
 }
 
 bool MorkReader::Read(const std::wstring& filename) {
-  FilePath path = FilePath::FromWStringHack(filename);
-  stream_.open(path.value().c_str());
+  stream_.open(filename.c_str());
   if (!stream_.is_open())
     return false;
 

@@ -4,7 +4,6 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
-#include <atlbase.h>
 #include <windows.h>
 #include <unknwn.h>
 #include <intshcut.h>

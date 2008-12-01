@@ -4,12 +4,10 @@
 
 #include "chrome/browser/importer/ie_importer.h"
 
-#include <atlbase.h>
 #include <intshcut.h>
 #include <pstore.h>
 #include <shlobj.h>
 #include <urlhist.h>
-
 #include <algorithm>
 
 #include "base/file_util.h"

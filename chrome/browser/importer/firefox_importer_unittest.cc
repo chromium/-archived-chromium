@@ -4,7 +4,6 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/importer/firefox2_importer.h"
@@ -147,8 +146,8 @@ TEST(FirefoxImporterTest, Firefox2BookmarkParse) {
 TEST(FirefoxImporterTest, ProfileLock) {
   std::wstring test_path;
   file_util::CreateNewTempDirectory(L"firefox_profile", &test_path);
-  FilePath lock_file_path = FilePath::FromWStringHack(test_path);
-  lock_file_path.Append(FirefoxProfileLock::kLockFileName);
+  std::wstring lock_file_path = test_path;
+  file_util::AppendToPath(&lock_file_path, FirefoxProfileLock::kLockFileName);
 
   scoped_ptr<FirefoxProfileLock> lock;
   EXPECT_EQ(static_cast<FirefoxProfileLock*>(NULL), lock.get());
@@ -174,13 +173,15 @@ TEST(FirefoxImporterTest, ProfileLock) {
 TEST(FirefoxImporterTest, ProfileLockOrphaned) {
   std::wstring test_path;
   file_util::CreateNewTempDirectory(L"firefox_profile", &test_path);
-  FilePath lock_file_path = FilePath::FromWStringHack(test_path);
-  lock_file_path.Append(FirefoxProfileLock::kLockFileName);
+  std::wstring lock_file_path = test_path;
+  file_util::AppendToPath(&lock_file_path, FirefoxProfileLock::kLockFileName);
 
   // Create the orphaned lock file.
-  FILE* lock_file = file_util::OpenFile(lock_file_path, "w");
-  ASSERT_TRUE(lock_file);
-  file_util::CloseFile(lock_file);
+  HANDLE lock_file = CreateFile(lock_file_path.c_str(),
+                                GENERIC_READ | GENERIC_WRITE,
+                                0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
+                                NULL);
+  CloseHandle(lock_file);
   EXPECT_TRUE(file_util::PathExists(lock_file_path));
 
   scoped_ptr<FirefoxProfileLock> lock;

@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
 
 #include "base/values.h"
-#include "build/build_config.h"
 #include "webkit/glue/password_form.h"
 
 class GURL;
@@ -199,16 +198,14 @@ class NSSDecryptor {
   static const wchar_t kPLDS4Library[];
   static const wchar_t kNSPR4Library[];
 
-#if defined(OS_WIN)
   // NSS3 module handles.
   HMODULE nss3_dll_;
   HMODULE softokn3_dll_;
-#endif
 
   // True if NSS_Init() has been called
   bool is_nss_initialized_;
 
-  DISALLOW_COPY_AND_ASSIGN(NSSDecryptor);
+  DISALLOW_EVIL_CONSTRUCTORS(NSSDecryptor);
 };
 
 #endif  // CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_

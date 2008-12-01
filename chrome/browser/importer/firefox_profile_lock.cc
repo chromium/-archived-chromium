@@ -4,7 +4,7 @@
 
 #include "chrome/browser/importer/firefox_profile_lock.h"
 
-#include "base/file_path.h"
+#include "base/file_util.h"
 
 // This class is based on Firefox code in:
 //   profile/dirserviceprovider/src/nsProfileLock.cpp
@@ -52,16 +52,36 @@
 * ***** END LICENSE BLOCK ***** */
 
 // static
-const FilePath::CharType* FirefoxProfileLock::kLockFileName =
-    FILE_PATH_LITERAL("parent.local");
+wchar_t FirefoxProfileLock::kLockFileName[] = L"parent.lock";
 
-FirefoxProfileLock::FirefoxProfileLock(const std::wstring& path) {
-  Init();
-  lock_file_ = FilePath::FromWStringHack(path);
-  lock_file_.Append(kLockFileName);
+FirefoxProfileLock::FirefoxProfileLock(const std::wstring& path)
+    : lock_handle_(INVALID_HANDLE_VALUE) {
+  lock_file_ = path;
+  file_util::AppendToPath(&lock_file_, kLockFileName);
   Lock();
 }
 
 FirefoxProfileLock::~FirefoxProfileLock() {
   Unlock();
 }
+
+void FirefoxProfileLock::Lock() {
+  if (HasAcquired())
+    return;
+  lock_handle_ = CreateFile(lock_file_.c_str(), GENERIC_READ | GENERIC_WRITE,
+                            0, NULL, OPEN_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE,
+                            NULL);
+}
+
+void FirefoxProfileLock::Unlock() {
+  if (!HasAcquired())
+    return;
+  CloseHandle(lock_handle_);
+  lock_handle_ = INVALID_HANDLE_VALUE;
+}
+
+bool FirefoxProfileLock::HasAcquired() {
+  return (lock_handle_ != INVALID_HANDLE_VALUE);
+}
+
+
