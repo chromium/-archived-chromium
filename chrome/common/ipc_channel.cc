@@ -362,42 +362,6 @@ bool Channel::ProcessOutgoingMessages(MessageLoopForIO::IOContext* context,
   return true;
 }
 
-bool Channel::ProcessPendingMessages(DWORD max_wait_msec) {
-  return false;
-  // TODO(darin): this code is broken and leads to busy waiting
-#if 0
-  DCHECK(max_wait_msec <= 0x7FFFFFFF || max_wait_msec == INFINITE);
-
-  HANDLE events[] = {
-    input_state_.overlapped.hEvent,
-    output_state_.overlapped.hEvent
-  };
-  // Only deal with output messages if we have a connection on which to send
-  const int wait_count = waiting_connect_ ? 1 : 2;
-  DCHECK(wait_count <= _countof(events));
-
-  if (max_wait_msec) {
-    DWORD result = WaitForMultipleObjects(wait_count, events, FALSE,
-                                          max_wait_msec);
-    if (result == WAIT_TIMEOUT)
-      return true;
-  }
-
-  bool rv = true;
-  for (int i = 0; i < wait_count; ++i) {
-    if (WaitForSingleObject(events[i], 0) == WAIT_OBJECT_0) {
-      if (i == 0 && processing_incoming_) {
-        rv = false;
-        DLOG(WARNING) << "Would recurse into ProcessIncomingMessages";
-      } else {
-        OnObjectSignaled(events[i]);
-      }
-    }
-  }
-  return rv;
-#endif
-}
-
 void Channel::OnIOCompleted(MessageLoopForIO::IOContext* context,
                             DWORD bytes_transfered, DWORD error) {
   bool ok;

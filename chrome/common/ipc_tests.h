@@ -5,6 +5,8 @@
 #ifndef CHROME_COMMON_IPC_TESTS_H__
 #define CHROME_COMMON_IPC_TESTS_H__
 
+#include "base/process.h"
+
 // This unit test uses 3 types of child processes, a regular pipe client,
 // a client reflector and a IPC server used for fuzzing tests.
 enum ChildType {
@@ -20,7 +22,7 @@ extern const wchar_t kFuzzerChannel[];
 
 // Spawns a child process and then runs the code for one of the 3 possible
 // child modes.
-HANDLE SpawnChild(ChildType child_type);
+base::ProcessHandle SpawnChild(ChildType child_type);
 
 // Runs the fuzzing server child mode. Returns true when the preset number
 // of messages have been received.
