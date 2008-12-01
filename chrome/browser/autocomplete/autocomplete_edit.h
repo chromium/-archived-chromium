@@ -517,6 +517,9 @@ class AutocompleteEditView
   // Sets the window text and the caret position.
   void SetWindowTextAndCaretPos(const std::wstring& text, size_t caret_pos);
 
+  // Returns true if all text is selected.
+  bool IsSelectAll();
+
   // Selects all the text in the edit.  Use this in place of SetSelAll() to
   // avoid selecting the "phantom newline" at the end of the edit.
   void SelectAll(bool reversed);
@@ -724,7 +727,7 @@ class AutocompleteEditView
 
   // Returns true if |sel| represents a forward or backward selection of all the
   // text.
-  bool IsSelectAll(const CHARRANGE& sel) const;
+  bool IsSelectAllForRange(const CHARRANGE& sel) const;
 
   // Given an X coordinate in client coordinates, returns that coordinate
   // clipped to be within the horizontal bounds of the visible text.

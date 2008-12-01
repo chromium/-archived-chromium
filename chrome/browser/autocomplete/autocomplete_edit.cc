@@ -359,29 +359,30 @@ void AutocompleteEditModel::OnKillFocus() {
 }
 
 bool AutocompleteEditModel::OnEscapeKeyPressed() {
-  // Only do something when there is input in progress -- otherwise, if focus
-  // happens to be in the location bar, users can't still hit <esc> to stop a
-  // load.
-  if (!user_input_in_progress_)
-    return false;
-
-  if (!has_temporary_text_ ||
-      (popup_->URLsForCurrentSelection(NULL, NULL, NULL) == original_url_)) {
-    // The popup isn't open or the selection in it is still the default
-    // selection, so revert the box all the way back to its unedited state.
-    view_->RevertAll();
+  if (has_temporary_text_ &&
+      (popup_->URLsForCurrentSelection(NULL, NULL, NULL) != original_url_)) {
+    // The user typed something, then selected a different item.  Restore the
+    // text they typed and change back to the default item.
+    // NOTE: This purposefully does not reset paste_state_.
+    just_deleted_text_ = false;
+    has_temporary_text_ = false;
+    keyword_ui_state_ = original_keyword_ui_state_;
+    popup_->ResetToDefaultMatch();
+    view_->OnRevertTemporaryText();
     return true;
   }
 
-  // The user typed something, then selected a different item.  Restore the
-  // text they typed and change back to the default item.
-  // NOTE: This purposefully does not reset paste_state_.
-  just_deleted_text_ = false;
-  has_temporary_text_ = false;
-  keyword_ui_state_ = original_keyword_ui_state_;
-  popup_->ResetToDefaultMatch();
-  view_->OnRevertTemporaryText();
-  return true;
+  // If the user wasn't editing, but merely had focus in the edit, allow <esc> 
+  // to be processed as an accelerator, so it can still be used to stop a load. 
+  // When the permanent text isn't all selected we still fall through to the 
+  // SelectAll() call below so users can arrow around in the text and then hit 
+  // <esc> to quickly replace all the text; this matches IE.
+  if (!user_input_in_progress_ && view_->IsSelectAll()) 
+    return false;
+
+  view_->RevertAll();
+  view_->SelectAll(true);
+  return false;
 }
 
 void AutocompleteEditModel::OnControlKeyChanged(bool pressed) {
@@ -854,7 +855,8 @@ void AutocompleteEditView::Update(const TabContents* tab_for_state_restoring) {
     CHARRANGE sel;
     GetSelection(sel);
     const bool was_reversed = (sel.cpMin > sel.cpMax);
-    const bool was_sel_all = (sel.cpMin != sel.cpMax) && IsSelectAll(sel);
+    const bool was_sel_all = (sel.cpMin != sel.cpMax) && 
+      IsSelectAllForRange(sel);
 
     RevertAll();
 
@@ -920,6 +922,12 @@ void AutocompleteEditView::SetWindowTextAndCaretPos(const std::wstring& text,
 
   SetWindowText(text.c_str());
   PlaceCaretAt(caret_pos);
+}
+
+bool AutocompleteEditView::IsSelectAll() {
+  CHARRANGE selection;
+  GetSel(selection);
+  return IsSelectAllForRange(selection);
 }
 
 void AutocompleteEditView::SelectAll(bool reversed) {
@@ -1804,9 +1812,7 @@ void AutocompleteEditView::OnPaste() {
   if (!text.empty()) {
     // If this paste will be replacing all the text, record that, so we can do
     // different behaviors in such a case.
-    CHARRANGE sel;
-    GetSel(sel);
-    if (IsSelectAll(sel))
+    if (IsSelectAll())
       model_->on_paste_replacing_all();
     ReplaceSel(text.c_str(), true);
   }
@@ -2047,7 +2053,7 @@ void AutocompleteEditView::PlaceCaretAt(std::wstring::size_type pos) {
   SetSelection(static_cast<LONG>(pos), static_cast<LONG>(pos));
 }
 
-bool AutocompleteEditView::IsSelectAll(const CHARRANGE& sel) const {
+bool AutocompleteEditView::IsSelectAllForRange(const CHARRANGE& sel) const {
   const int text_length = GetTextLength();
   return ((sel.cpMin == 0) && (sel.cpMax >= text_length)) ||
       ((sel.cpMax == 0) && (sel.cpMin >= text_length));
@@ -2353,7 +2359,7 @@ void AutocompleteEditView::StartDragIfNecessary(const CPoint& point) {
   }
 
   const std::wstring start_text(GetText());
-  if (IsSelectAll(sel)) {
+  if (IsSelectAllForRange(sel)) {
     // All the text is selected, export as URL.
     GURL url;
     std::wstring title;
