@@ -645,8 +645,6 @@ LayoutTests/fast/gradients/list-item-gradient.html = FAIL
 LayoutTests/fast/gradients/simple-gradients.html = FAIL
 LayoutTests/fast/media/viewport-media-query.html = FAIL
 LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
-LayoutTests/fast/replaced/absolute-position-percentage-width.html = FAIL
-LayoutTests/fast/replaced/max-width-percent.html = FAIL
 LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL
 LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
 LayoutTests/fast/table/vertical-align-baseline.html = FAIL
@@ -807,7 +805,6 @@ LayoutTests/fast/body-propagation/background-color/003-xhtml.xhtml = FAIL
 LayoutTests/fast/body-propagation/background-color/003.html = FAIL
 LayoutTests/fast/body-propagation/background-color/004-declarative.xhtml = FAIL
 LayoutTests/fast/body-propagation/background-color/004-xhtml.xhtml = FAIL
-LayoutTests/fast/body-propagation/background-color/004.html = FAIL
 LayoutTests/fast/body-propagation/background-color/005-declarative.xhtml = FAIL
 LayoutTests/fast/body-propagation/background-color/005-xhtml.xhtml = FAIL
 LayoutTests/fast/body-propagation/background-color/005.html = FAIL
@@ -867,8 +864,6 @@ LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
 LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
 LayoutTests/fast/dom/constructors-cached.html = FAIL
 LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
-LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
 LayoutTests/fast/js/arguments.html = FAIL
 LayoutTests/fast/js/construct-global-object.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
@@ -882,8 +877,6 @@ LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
 LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
-LayoutTests/transforms/2d/compound-transforms-vs-containers.html = FAIL
-LayoutTests/transforms/2d/transform-origin-borderbox.html = FAIL
 LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 // missing expected results
 SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
@@ -1008,7 +1001,6 @@ LayoutTests/fast/forms/form-element-geometry.html = FAIL
 LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
 LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 LayoutTests/fast/forms/listbox-selection-2.html = FAIL
-LayoutTests/fast/forms/select-initial-position.html = FAIL
 LayoutTests/fast/forms/select-item-background-clip.html = FAIL
 LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 LayoutTests/fast/frames/invalid.html = FAIL
@@ -1062,8 +1054,6 @@ LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
 
 // MERGE 38097:38305 REGRESSIONS
 LayoutTests/editing/pasteboard/merge-end-blockquote.html = FAIL
-LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-2.html = FAIL
-LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote.html = FAIL
 LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
 LayoutTests/fast/events/offsetX-offsetY.html = FAIL
 LayoutTests/fast/frames/cross-site-this.html = FAIL
@@ -1074,11 +1064,9 @@ LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 
 // MERGE 38305:38376 REGRESSIONS: These are all new tests, not regressions.
 // May just need rebaselining.
-LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-3.html = FAIL
 LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
 LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
 LayoutTests/fast/repaint/transform-relative-position.html = FAIL
-LayoutTests/transforms/2d/zoom-menulist.html = FAIL
 
 // MERGE 38389:38450
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
