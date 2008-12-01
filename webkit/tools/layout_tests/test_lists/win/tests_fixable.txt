@@ -1089,7 +1089,8 @@ LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 LayoutTests/security/block-test.html = FAIL
 
 // http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH | PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
 
 // These have been failing for as long as we've had SVG support and were
 // incorrectly removed during a merge.
