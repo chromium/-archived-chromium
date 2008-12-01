@@ -194,7 +194,7 @@ KURL::KURL(const KURL& base,
            const String& relative,
            const TextEncoding& encoding)
 {
-    init(base, relative, &encoding);
+    init(base, relative, &encoding.encodingForFormSubmission());
 }
 
 KURL::KURL(const char* canonical_spec, int canonical_spec_len,
@@ -317,6 +317,14 @@ void KURL::init(const KURL& base, const UChar* rel, int rel_len,
     } else {
         m_url.setUtf8("", 0);
     }
+}
+
+KURL KURL::copy() const
+{
+    KURL result = *this;
+    // TODO(brettw): http://crbug.com/4975 Make this a deep copy.
+    // result.m_string = result.m_string.copy();
+    return result;
 }
 
 bool KURL::hasPath() const

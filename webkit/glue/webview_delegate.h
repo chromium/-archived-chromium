@@ -633,6 +633,15 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual bool SmartInsertDeleteEnabled() {
     return false;
   }
+
+  virtual bool IsSelectTrailingWhitespaceEnabled() {
+#if defined(OS_WIN)
+    return true;
+#else
+    return false;
+#endif
+  }
+
   virtual void DidBeginEditing() { }
   virtual void DidChangeSelection(bool is_empty_selection) { }
   virtual void DidChangeContents() { }

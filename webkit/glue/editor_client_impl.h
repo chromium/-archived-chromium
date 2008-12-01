@@ -34,6 +34,7 @@ class EditorClientImpl : public WebCore::EditorClient {
 
   virtual bool shouldShowDeleteInterface(WebCore::HTMLElement*);
   virtual bool smartInsertDeleteEnabled();
+  virtual bool isSelectTrailingWhitespaceEnabled();
   virtual bool isContinuousSpellCheckingEnabled();
   virtual void toggleContinuousSpellChecking();
   virtual bool isGrammarCheckingEnabled();

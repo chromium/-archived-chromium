@@ -104,6 +104,15 @@ bool EditorClientImpl::smartInsertDeleteEnabled() {
   return true;
 }
 
+bool EditorClientImpl::isSelectTrailingWhitespaceEnabled() {
+  if (use_editor_delegate_) {
+  WebViewDelegate* d = web_view_->delegate();
+  if (d)
+    return d->IsSelectTrailingWhitespaceEnabled();
+  }
+  return true;
+}
+
 bool EditorClientImpl::isContinuousSpellCheckingEnabled() {
   // Spell check everything if possible.
   // FIXME(brettw) This should be modified to do reasonable defaults depending

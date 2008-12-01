@@ -252,6 +252,14 @@
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Console.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Console.h"
@@ -958,6 +966,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\GeolocationService.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\GeolocationService.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\GlyphBuffer.h"
 				>
 			</File>
@@ -967,14 +983,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\GlyphPageTreeNode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\GeolocationService.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\GeolocationService.h"
 				>
 			</File>
 			<File
@@ -1009,7 +1017,7 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LengthSize.h"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LinkHash.cpp"
 				>
 			</File>
@@ -1079,6 +1087,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\PopupMenuStyle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\PurgeableBuffer.h"
 				>
 			</File>
 			<File
@@ -1154,15 +1166,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Threading.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Theme.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\ThemeTypes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Threading.h"
 				>
 			</File>
 			<File

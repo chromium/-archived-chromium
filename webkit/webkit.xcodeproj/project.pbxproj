@@ -466,6 +466,7 @@
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
 		93BF8E9C0EA6B0F30030F05C /* NetworkStateNotifierChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E630EA6AED30030F05C /* NetworkStateNotifierChromium.cpp */; };
 		93BF8F520EA6BD870030F05C /* AccessibilityObjectChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */; };
+		A80DD9190EE4A87900728DDE /* PurgeableBufferMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */; };
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
 		AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90050D7F3CC1001ECF42 /* ColorSkia.cpp */; };
@@ -3981,6 +3982,8 @@
 		93BF8E650EA6AED30030F05C /* ResourceRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ResourceRequest.h; path = chromium/ResourceRequest.h; sourceTree = "<group>"; };
 		93BF8E660EA6AED30030F05C /* ResourceResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ResourceResponse.h; path = chromium/ResourceResponse.h; sourceTree = "<group>"; };
 		93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObjectChromium.cpp; sourceTree = "<group>"; };
+		A80DD9160EE4A85900728DDE /* PurgeableBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PurgeableBuffer.h; sourceTree = "<group>"; };
+		A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PurgeableBufferMac.cpp; sourceTree = "<group>"; };
 		AB332F4B0E95497E0020F882 /* AnimationController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationController.cpp; path = animation/AnimationController.cpp; sourceTree = "<group>"; };
 		AB332F4C0E95497E0020F882 /* AnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationController.h; path = animation/AnimationController.h; sourceTree = "<group>"; };
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
@@ -5648,6 +5651,7 @@
 				7B5E915A0D7F3CC2001ECF42 /* PopupMenu.h */,
 				7B5E915B0D7F3CC2001ECF42 /* PopupMenuClient.h */,
 				4D16411B0EC29D01008F024E /* PopupMenuStyle.h */,
+				A80DD9160EE4A85900728DDE /* PurgeableBuffer.h */,
 				7B5E91870D7F3CC2001ECF42 /* Scrollbar.cpp */,
 				7B5E91880D7F3CC2001ECF42 /* Scrollbar.h */,
 				ABBD24C10EB7C17E00BEC658 /* ScrollbarClient.h */,
@@ -5833,6 +5837,7 @@
 				7B5E90E90D7F3CC2001ECF42 /* LocalCurrentGraphicsContext.mm */,
 				7B5E90EB0D7F3CC2001ECF42 /* LoggingMac.mm */,
 				7B5E90ED0D7F3CC2001ECF42 /* PasteboardHelper.h */,
+				A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */,
 				7B5E90F10D7F3CC2001ECF42 /* ScrollbarThemeMac.h */,
 				7B5E90F20D7F3CC2001ECF42 /* ScrollbarThemeMac.mm */,
 				7B5E90F90D7F3CC2001ECF42 /* SoftLinking.h */,
@@ -9290,6 +9295,7 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
+				A80DD9190EE4A87900728DDE /* PurgeableBufferMac.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

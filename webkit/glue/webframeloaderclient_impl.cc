@@ -1081,7 +1081,7 @@ void WebFrameLoaderClient::finishedLoading(DocumentLoader* dl) {
   }
 }
 
-void WebFrameLoaderClient::updateGlobalHistory(const KURL& kurl) {
+void WebFrameLoaderClient::updateGlobalHistory() {
 }
 
 bool WebFrameLoaderClient::shouldGoToHistoryItem(HistoryItem*) const {
