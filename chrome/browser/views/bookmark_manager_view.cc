@@ -685,7 +685,7 @@ void BookmarkManagerView::ShowToolsMenu(HWND host, int x, int y) {
 // The filter used when opening a file.
 // TODO(sky): need a textual description here once we can add new
 // strings.
-static const wchar_t KFilterString[] = L"*.html\0*.html\0";
+static const wchar_t KFilterString[] = L"*.html\0*.html;*.htm\0";
 
 void BookmarkManagerView::ShowImportBookmarksFileChooser() {
   if (select_file_dialog_.get())
