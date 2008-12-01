@@ -1788,7 +1788,8 @@ bool WebFrameImpl::SpoolPage(int page, gfx::PlatformCanvas* canvas) {
   DCHECK(pages_[page].x() == 0);
   // Offset to get the right square.
   spool.translate(0, -static_cast<float>(pages_[page].y()));
-  frame()->view()->paint(&spool, pages_[page]);
+  // Make sure we're not printing the ScrollView (with scrollbars!)
+  frame()->view()->paintContents(&spool, pages_[page]);
   return true;
 }
 
