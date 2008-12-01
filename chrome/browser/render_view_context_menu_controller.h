@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H__
 #define CHROME_BROWSER_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H__
 
+#include "chrome/common/pref_member.h"
 #include "chrome/views/menu.h"
 #include "chrome/common/render_messages.h"
 
@@ -19,6 +20,7 @@ class RenderViewContextMenuController : public Menu::Delegate {
   // Overridden from Menu::Delegate
   virtual std::wstring GetLabel(int id) const;
   virtual bool IsCommandEnabled(int id) const;
+  virtual bool IsItemChecked(int id) const;
   virtual void ExecuteCommand(int id);
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
@@ -46,6 +48,8 @@ class RenderViewContextMenuController : public Menu::Delegate {
  private:
   WebContents* source_web_contents_;
   ViewHostMsg_ContextMenu_Params params_;
+  StringPrefMember dictionary_language_;
+  int current_dictionary_language_index_;
 };
 
 #endif  // CHROME_BROWSER_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H__

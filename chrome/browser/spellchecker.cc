@@ -34,6 +34,124 @@ using base::TimeTicks;
 
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
+namespace {
+const wchar_t* const g_supported_spellchecker_languages[] = {
+  L"en-US",
+  L"en-GB",
+  L"fr-FR",
+  L"it-IT",
+  L"de-DE",
+  L"es-ES",
+  L"nl-NL",
+  L"pt-BR",
+  L"ru-RU",
+  L"pl-PL",
+  // L"th-TH",  // Not to be included in Spellchecker as per B=1277824
+  L"sv-SE",
+  L"da-DK",
+  L"pt-PT",
+  L"ro-RO",
+  // L"hu-HU",  // Not to be included in Spellchecker as per B=1277824
+  // L"he-IL",  // Not to be included in Spellchecker as per B=1252241
+  L"id-ID",
+  L"cs-CZ",
+  L"el-GR",
+  L"nb-NO",
+  L"vi-VN",
+  // L"bg-BG",  // Not to be included in Spellchecker as per B=1277824
+  L"hr-HR",
+  L"lt-LT",
+  L"sk-SK",
+  L"sl-SI",
+  L"ca-ES",
+  L"lv-LV",
+  // L"uk-UA",  // Not to be included in Spellchecker as per B=1277824
+  L"hi-IN",
+  //
+  // TODO(Sidchat): Uncomment/remove languages as and when they get resolved.
+  //
+};
+
+}
+
+void SpellChecker::SpellCheckLanguages(std::vector<std::wstring>* languages) {
+  for (size_t i = 0;
+       i < arraysize(g_supported_spellchecker_languages);
+       i++) {
+    languages->push_back(g_supported_spellchecker_languages[i]);
+  }
+}
+
+std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
+    const std::wstring& language) {
+  // Look for exact match in the Spell Check language list.
+  for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
+    std::wstring spellcheck_language(g_supported_spellchecker_languages[i]);
+    if (spellcheck_language == language)
+      return language;
+  }
+
+  // Find match for the language. For example, for "hi", the corresponding
+  // Spell Check language is "hi-IN". The input language has to be 2 letter.
+  if (language.length() == 2) {
+    for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
+      std::wstring spellcheck_language(g_supported_spellchecker_languages[i]);
+      std::wstring spellcheck_country(spellcheck_language.substr(0, 2));
+      if (spellcheck_country == language)
+        return spellcheck_language;
+    } 
+  }
+
+  // No match found - return blank.
+  return std::wstring();
+}
+
+int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
+    Profile* profile, std::vector<std::wstring>* display_language_list) {
+  std::vector<std::wstring> language_list;
+  StringPrefMember accept_languages;
+  StringPrefMember dictionary_language;
+  accept_languages.Init(prefs::kAcceptLanguages, 
+      profile->GetPrefs(), NULL);
+  dictionary_language.Init(prefs::kSpellCheckDictionary,
+      profile->GetPrefs(), NULL);
+
+  // The current dictionary language should be there.
+  display_language_list->push_back(dictionary_language.GetValue().c_str());
+
+  // Now scan through the list of accept languages, and find possible mappings
+  // from this list to the existing list of spell check languages.
+  std::vector<std::wstring> accept_language_vector;
+  SplitString(accept_languages.GetValue(), L',', &accept_language_vector);
+  for (size_t i = 0; i < accept_language_vector.size(); i++) {
+    std::wstring language = GetCorrespondingSpellCheckLanguage(
+        accept_language_vector.at(i));
+    if (!language.empty()) {
+      // Check for duplication.
+      bool duplicate = false;
+      for (size_t j = 0; j < display_language_list->size(); j++) {
+        if (display_language_list->at(j) == language)
+          duplicate = true;
+      }
+
+      if (!duplicate)
+        display_language_list->push_back(language.c_str());
+    }
+  }
+
+  // Sort using locale specific sorter.
+  l10n_util::SortStrings(g_browser_process->GetApplicationLocale(),
+                         display_language_list);
+
+  int current_spell_check_language_index = -1;
+  for (size_t i = 0; i < display_language_list->size(); i++) {
+    if (dictionary_language.GetValue() == display_language_list->at(i))
+      current_spell_check_language_index = i;
+  }
+
+  return current_spell_check_language_index;
+}
+
 // This is a helper class which acts as a proxy for invoking a task from the
 // file loop back to the IO loop. Invoking a task from file loop to the IO
 // loop directly is not safe as during browser shutdown, the IO loop tears

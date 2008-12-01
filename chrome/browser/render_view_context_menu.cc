@@ -6,7 +6,9 @@
 
 #include "base/logging.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/common/l10n_util.h"
 #include "webkit/glue/context_node_types.h"
@@ -143,6 +145,24 @@ void RenderViewContextMenu::AppendEditableItems() {
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_PASTE);
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_DELETE);
   AppendSeparator();
+
+  // Add Spell Check options sub menu.
+  spellchecker_sub_menu_ = AppendSubMenu(IDC_SHOW_SPELLCHECKER_SUBMENU,
+      l10n_util::GetString(IDS_CONTENT_CONTEXT_SPELLCHECK_OPTIONS));
+
+  // Add Spell Check languages to sub menu.
+  std::vector<std::wstring> language_vector; 
+  int current_language_index = SpellChecker::
+      GetSpellCheckLanguagesToDisplayInContextMenu(profile_, &language_vector);
+  DCHECK(language_vector.size() <=
+         IDC_SPELLCHECKER_LANGUAGE_LAST - IDC_SPELLCHECKER_LANGUAGE_FIRST);
+  const std::wstring app_locale = g_browser_process->GetApplicationLocale();
+  for (size_t i = 0; i < language_vector.size(); ++i) {
+    std::wstring local_language(l10n_util::GetLocalName(
+        language_vector.at(i), app_locale, true));
+    spellchecker_sub_menu_->AppendMenuItem(
+        IDC_SPELLCHECKER_LANGUAGE_FIRST + i, local_language, RADIO);
+  } 
+  AppendSeparator();
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_SELECTALL);
 }
-

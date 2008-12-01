@@ -7,7 +7,13 @@
 
 #include <vector>
 
+#include "base/string_util.h"
+#include "chrome/browser/browser_process.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/spellcheck_worditerator.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_member.h"
 
 #include "base/task.h"
 #include "unicode/uscript.h"
@@ -17,6 +23,7 @@ class PrefService;
 class Profile;
 class MessageLoop;
 class URLRequestContext;
+
 
 // The Browser's Spell Checker. It checks and suggests corrections.
 //
@@ -65,7 +72,15 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   //    b) Add the word to a file in disk for custom dictionary.
   void AddWord(const std::wstring& word);
 
- private:
+  // Get SpellChecker supported languages.
+  static void SpellCheckLanguages(std::vector<std::wstring>* languages);
+
+  // This function computes a vector of strings which are to be displayed in 
+  // the context menu over a text area for changing spell check languages. It
+  // returns the index of the current spell check language in the vector.
+  static int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
+      Profile* profile, std::vector<std::wstring>* display_language_list);
+
   // Download dictionary files when required.
   class DictionaryDownloadController;
 
@@ -93,6 +108,9 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   std::wstring GetVersionedFileName(const std::wstring& language,
                                     const std::wstring& dict_dir);
 
+  static std::wstring GetCorrespondingSpellCheckLanguage(
+      const std::wstring& language);
+  
   // Path to the spellchecker file.
   std::wstring bdict_file_name_;
 

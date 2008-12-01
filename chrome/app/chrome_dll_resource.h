@@ -150,6 +150,10 @@
 // Free space 32947 - 32950
 #define IDR_CRASHED_PLUGIN              32951
 #define IDC_SHOW_BOOKMARK_MANAGER       32952
+#define IDC_SHOW_SPELLCHECKER_SUBMENU   32953
+// Reserve space for 100 Spell Check languages - currently we have 30.
+#define IDC_SPELLCHECKER_LANGUAGE_FIRST 32954
+#define IDC_SPELLCHECKER_LANGUAGE_LAST  33054
 
 // Next default values for new objects
 //

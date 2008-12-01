@@ -35,6 +35,7 @@ class RenderViewContextMenu : public Menu {
   std::wstring misspelled_word_;
   std::vector<std::wstring> misspelled_word_suggestions_;
   Profile* profile_;
+  Menu* spellchecker_sub_menu_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewContextMenu);
 };

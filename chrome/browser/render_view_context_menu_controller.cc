@@ -13,6 +13,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/navigation_controller.h"
@@ -101,6 +102,12 @@ std::wstring RenderViewContextMenuController::GetLabel(int id) const {
 }
 
 bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
+  // Allow Spell Check language items on sub menu for text area context menu.
+  if (id >= IDC_SPELLCHECKER_LANGUAGE_FIRST
+      && id <= IDC_SPELLCHECKER_LANGUAGE_LAST) {
+    return true;
+  }
+
   switch (id) {
     case IDS_CONTENT_CONTEXT_BACK:
       return source_web_contents_->controller()->CanGoBack();
@@ -173,11 +180,15 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDC_USESPELLCHECKSUGGESTION_3:
     case IDC_USESPELLCHECKSUGGESTION_4:
       return true;
+    case IDC_SHOW_SPELLCHECKER_SUBMENU:
+      return true;
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
       return (source_web_contents_->controller()->GetActiveEntry() != NULL);
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
+      return true;
+    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
       return true;
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
@@ -185,6 +196,17 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     default:
       return false;
   }
+}
+
+bool RenderViewContextMenuController::IsItemChecked(int id) const {
+  std::vector<std::wstring> display_language_vector;
+  int spellcheck_language_index = SpellChecker::
+      GetSpellCheckLanguagesToDisplayInContextMenu(
+          source_web_contents_->profile(), &display_language_vector);
+  if (id - IDC_SPELLCHECKER_LANGUAGE_FIRST == spellcheck_language_index)
+    return true;
+
+  return false;
 }
 
 bool RenderViewContextMenuController::GetAcceleratorInfo(
@@ -222,6 +244,24 @@ bool RenderViewContextMenuController::GetAcceleratorInfo(
 }
 
 void RenderViewContextMenuController::ExecuteCommand(int id) {
+  // Check to see if one of the spell check language ids have been clicked.
+  if (id >= IDC_SPELLCHECKER_LANGUAGE_FIRST &&
+      id <= IDC_SPELLCHECKER_LANGUAGE_LAST) {
+    std::vector<std::wstring> display_language_vector; 
+    int current_language = SpellChecker::
+        GetSpellCheckLanguagesToDisplayInContextMenu(
+            source_web_contents_->profile(), &display_language_vector);
+    if (id - IDC_SPELLCHECKER_LANGUAGE_FIRST < 
+        static_cast<int>(display_language_vector.size())) {
+      StringPrefMember dictionary_language;
+      dictionary_language.Init(prefs::kSpellCheckDictionary,
+          source_web_contents_->profile()->GetPrefs(), NULL);
+      dictionary_language.SetValue(display_language_vector.at(
+          id - IDC_SPELLCHECKER_LANGUAGE_FIRST));
+    }
+      
+    return;
+  }
   switch (id) {
     case IDS_CONTENT_CONTEXT_OPENLINKNEWTAB:
       OpenURL(params_.link_url, NEW_BACKGROUND_TAB, PageTransition::LINK);

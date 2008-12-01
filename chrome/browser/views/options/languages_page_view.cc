@@ -16,6 +16,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/views/options/language_combobox_model.h"
 #include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/views/restart_message_box.h"
@@ -39,43 +40,6 @@
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
-
-static const wchar_t* const g_supported_spellchecker_languages[] = {
-  L"en-US",
-  L"en-GB",
-  L"fr-FR",
-  L"it-IT",
-  L"de-DE",
-  L"es-ES",
-  L"nl-NL",
-  L"pt-BR",
-  L"ru-RU",
-  L"pl-PL",
-  // L"th-TH",  // Not to be included in Spellchecker as per B=1277824
-  L"sv-SE",
-  L"da-DK",
-  L"pt-PT",
-  L"ro-RO",
-  // L"hu-HU",  // Not to be included in Spellchecker as per B=1277824
-  // L"he-IL",  // Not to be included in Spellchecker as per B=1252241
-  L"id-ID",
-  L"cs-CZ",
-  L"el-GR",
-  L"nb-NO",
-  L"vi-VN",
-  // L"bg-BG",  // Not to be included in Spellchecker as per B=1277824
-  L"hr-HR",
-  L"lt-LT",
-  L"sk-SK",
-  L"sl-SI",
-  L"ca-ES",
-  L"lv-LV",
-  // L"uk-UA",  // Not to be included in Spellchecker as per B=1277824
-  L"hi-IN",
-  //
-  // TODO(Sidchat): Uncomment/remove languages as and when they get resolved.
-  //
-};
 
 static const wchar_t* const accept_language_list[] = {
   L"af",     // Afrikaans
@@ -665,8 +629,13 @@ void LanguagesPageView::InitControlLayout() {
 
   // Determine Locale Codes.
   std::vector<std::wstring> locale_codes;
-  for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i)
-    locale_codes.push_back(g_supported_spellchecker_languages[i]);
+  std::vector<std::wstring> spell_check_languages;
+  SpellChecker::SpellCheckLanguages(&spell_check_languages);
+  for (size_t i = 0; 
+       i < spell_check_languages.size();
+       ++i) {
+    locale_codes.push_back(spell_check_languages.at(i));
+  }
   dictionary_language_model_.reset(new LanguageComboboxModel(profile(),
                                                              locale_codes));
   change_dictionary_language_combobox_ =
