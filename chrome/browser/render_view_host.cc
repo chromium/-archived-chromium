@@ -1033,6 +1033,10 @@ void RenderViewHost::DisassociateFromPopupCount() {
   Send(new ViewMsg_DisassociateFromPopupCount(routing_id_));
 }
 
+void RenderViewHost::PopupNotificationVisibilityChanged(bool visible) {
+  Send(new ViewMsg_PopupNotificationVisiblityChanged(routing_id_, visible));
+}
+
 void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {
   delegate_->GoToEntryAtOffset(offset);
 }

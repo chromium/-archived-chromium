@@ -98,6 +98,7 @@ class WebContents : public TabContents,
   virtual void ShowContents();
   virtual void HideContents();
   virtual void SetDownloadShelfVisible(bool visible);
+  virtual void PopupNotificationVisibilityChanged(bool visible);
 
   // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably

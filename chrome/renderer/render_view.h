@@ -273,6 +273,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // WebWidgetDelegate
   // Most methods are handled by RenderWidget.
   virtual void Show(WebWidget* webwidget, WindowOpenDisposition disposition);
+  virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void RunModal(WebWidget* webwidget);
 
   // Do not delete directly.  This class is reference counted.
@@ -470,6 +471,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
       int request_id,
       const std::vector<std::wstring>& suggestions,
       int default_suggestions_index);
+
+  // Message that the popup notification has been shown or hidden.
+  void OnPopupNotificationVisiblityChanged(bool visible);
 
 #ifdef CHROME_PERSONALIZATION
   void OnPersonalizationEvent(std::string event_name, std::string event_args);
@@ -695,7 +699,16 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // WebCore (via the window.history.go API).  We only have one such navigation
   // pending at a time.
   scoped_refptr<WebHistoryItem> history_navigation_item_;
-  
+
+  // We need to prevent windows from closing themselves with a window.close()
+  // call while a blocked popup notification is being displayed. We cannot
+  // synchronously querry the Browser process. We cannot wait for the Browser
+  // process to send a message to us saying that a blocked popup notification
+  // is being displayed. We instead assume that when we create a window off
+  // this RenderView, that it is going to be blocked until we get a message
+  // from the Browser process telling us otherwise.
+  bool popup_notification_visible_;
+
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
 

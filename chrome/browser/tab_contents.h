@@ -337,6 +337,9 @@ class TabContents : public PageNavigator,
   // of unwanted popups.
   void CloseAllSuppressedPopups();
 
+  // Called when the blocked popup notification is shown or hidden.
+  virtual void PopupNotificationVisibilityChanged(bool visible) { }
+
   // Views and focus -----------------------------------------------------------
 
   // Returns the actual window that is focused when this TabContents is shown.

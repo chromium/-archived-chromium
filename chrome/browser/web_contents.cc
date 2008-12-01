@@ -486,6 +486,10 @@ void WebContents::SetDownloadShelfVisible(bool visible) {
   }
 }
 
+void WebContents::PopupNotificationVisibilityChanged(bool visible) {
+  render_view_host()->PopupNotificationVisibilityChanged(visible);
+}
+
 // Stupid view pass-throughs
 void WebContents::CreateView() {
   view_->CreateView();
@@ -847,11 +851,8 @@ void WebContents::UpdateThumbnail(const GURL& url,
 }
 
 void WebContents::Close(RenderViewHost* rvh) {
-  // Ignore this if it comes from a RenderViewHost that we aren't showing, and
-  // refuse to allow javascript to close this window if we have a blocked popup
-  // notification.
-  if (delegate() && rvh == render_view_host() &&
-      !ShowingBlockedPopupNotification())
+  // Ignore this if it comes from a RenderViewHost that we aren't showing.
+  if (delegate() && rvh == render_view_host())
     delegate()->CloseContents(this);
 }
 

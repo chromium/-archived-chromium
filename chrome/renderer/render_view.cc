@@ -162,7 +162,8 @@ RenderView::RenderView()
     decrement_shared_popup_at_destruction_(false),
     greasemonkey_enabled_(false),
     waiting_for_create_window_ack_(false),
-    form_field_autofill_request_id_(0) {
+    form_field_autofill_request_id_(0),
+    popup_notification_visible_(false)  {
   resource_dispatcher_ = new ResourceDispatcher(this);
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateRendererPersonalization();
@@ -387,6 +388,9 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
                         OnDisassociateFromPopupCount)
     IPC_MESSAGE_HANDLER(ViewMsg_AutofillSuggestions,
                         OnReceivedAutofillSuggestions)
+    IPC_MESSAGE_HANDLER(ViewMsg_PopupNotificationVisiblityChanged,
+                        OnPopupNotificationVisiblityChanged)
+
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
   IPC_END_MESSAGE_MAP()
@@ -1692,6 +1696,10 @@ void RenderView::OnReceivedAutofillSuggestions(
                                         default_suggestion_index);
 }
 
+void RenderView::OnPopupNotificationVisiblityChanged(bool visible) {
+  popup_notification_visible_ = visible;
+}
+
 void RenderView::ShowModalHTMLDialog(const GURL& url, int width, int height,
                                      const std::string& json_arguments,
                                      std::string* json_retval) {
@@ -1764,6 +1772,10 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
   // Check to make sure we aren't overloading on popups.
   if (shared_popup_counter_->data > kMaximumNumberOfUnacknowledgedPopups)
     return NULL;
+
+  // This window can't be closed from a window.close() call until we receive a
+  // message from the Browser process explicitly allowing it.
+  popup_notification_visible_ = true;
 
   int32 routing_id = MSG_ROUTING_NONE;
   HANDLE modal_dialog_event = NULL;
@@ -1894,6 +1906,11 @@ void RenderView::Show(WebWidget* webwidget, WindowOpenDisposition disposition) {
   Send(new ViewHostMsg_ShowView(
       opener_id_, routing_id_, disposition, initial_pos_,
       WasOpenedByUserGestureHelper()));
+}
+
+void RenderView::CloseWidgetSoon(WebWidget* webwidget) {
+  if (popup_notification_visible_ == false)
+    RenderWidget::CloseWidgetSoon(webwidget);
 }
 
 void RenderView::RunModal(WebWidget* webwidget) {

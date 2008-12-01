@@ -471,6 +471,12 @@ IPC_BEGIN_MESSAGES(View, 1)
                       std::vector<std::wstring> /* suggestions */,
                       int /* index of default suggestion */)
 
+  // Sent by the Browser process to alert a window about whether a blocked
+  // popup notification is visible. The renderer assumes every new window is a
+  // blocked popup until notified otherwise.
+  IPC_MESSAGE_ROUTED1(ViewMsg_PopupNotificationVisiblityChanged,
+                      bool /* Whether it is visible */)
+
 IPC_END_MESSAGES(View)
 
 

@@ -392,6 +392,10 @@ class RenderViewHost : public RenderWidgetHost {
   // as a popup.
   void DisassociateFromPopupCount();
 
+  // Notifies the Renderer that we've either displayed or hidden the popup
+  // notification.
+  void PopupNotificationVisibilityChanged(bool visible);
+
   // Called by the AutofillManager when the list of suggestions is ready.
   void AutofillSuggestionsReturned(const std::vector<std::wstring>& suggestions,
                                    int64 node_id,

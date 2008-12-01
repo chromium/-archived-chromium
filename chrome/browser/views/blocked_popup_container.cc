@@ -306,6 +306,7 @@ std::wstring BlockedPopupContainer::GetDisplayStringForItem(int index) {
 
 void BlockedPopupContainer::CloseAllPopups() {
   CloseEachTabContents();
+  owner_->PopupNotificationVisibilityChanged(false);
   container_view_->UpdatePopupCountLabel();
   HideSelf();
 }

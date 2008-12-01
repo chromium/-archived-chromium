@@ -292,6 +292,8 @@ void TabContents::AddNewContents(TabContents* new_contents,
 
     delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
                               user_gesture);
+
+    PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
   }
 }
 
@@ -311,6 +313,7 @@ void TabContents::AddConstrainedPopup(TabContents* new_contents,
   }
 
   blocked_popups_->AddTabContents(new_contents, initial_pos);
+  PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
 }
 
 void TabContents::CloseAllSuppressedPopups() {
