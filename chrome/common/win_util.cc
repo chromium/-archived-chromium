@@ -434,6 +434,7 @@ bool SaveFileAsWithFilter(HWND owner,
   std::wstring file_ext = file_util::GetFileExtensionFromPath(suggested_name);
   if (save_as.nFileExtension == 0) {
     // No extension is specified. Append the default extension.
+    final_name->append(L".");
     final_name->append(file_ext);
   } else if (save_as.nFileExtension == wcslen(save_as.lpstrFile)) {
     // The path ends with a ".". This is not supported on windows and since
