@@ -280,17 +280,24 @@ void CookiesTableView::RemoveSelectedCookies() {
 
   // Remove the selected cookies.  This iterates over the rows backwards, which
   // is required when calling RemoveCookies, see bug 2994.
-  int first_selected_row = -1;
+  int last_selected_view_row = -1;
+  int remove_count = 0;
   for (views::TableView::iterator i = SelectionBegin();
        i != SelectionEnd(); ++i) {
-    int selected_row = *i;
-    if (first_selected_row == -1)
-      first_selected_row = selected_row;
-    cookies_model_->RemoveCookies(selected_row, 1);
+    int selected_model_row = *i;
+    ++remove_count;
+    if (last_selected_view_row == -1) {
+      // Store the view row since the view to model mapping changes when
+      // we delete.
+      last_selected_view_row = model_to_view(selected_model_row);
+    }
+    cookies_model_->RemoveCookies(selected_model_row, 1);
   }
-  // Keep an element selected
-  if (RowCount() > 0)
-    Select(std::min(RowCount() - 1, first_selected_row));
+
+  // Select the next row after the last row deleted (unless removing last row).
+  DCHECK(RowCount() > 0 && last_selected_view_row != -1);
+  Select(view_to_model(std::min(RowCount() - 1, 
+      last_selected_view_row - remove_count + 1)));
 }
 
 void CookiesTableView::OnKeyDown(unsigned short virtual_keycode) {
