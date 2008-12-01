@@ -122,7 +122,7 @@ class AssignableInterface {
 // pointer of the object to receive the OnAssignment callback.
 template <class OwnerType, class BufferType>
 class AssignableBuffer : public AssignableInterface<BufferType>,
-    public base::RefCountedThreadSafe<AssignableBuffer<OwnerType, BufferType>> {
+    public base::RefCountedThreadSafe<AssignableBuffer<OwnerType, BufferType> > {
  public:
   explicit AssignableBuffer(OwnerType* owner)
     : owner_(owner),
