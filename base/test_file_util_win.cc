@@ -84,6 +84,7 @@ bool EvictFileFromSystemCache(const wchar_t* file) {
     // The size of the file isn't a multiple of the page size, so we'll have
     // to open the file again, this time without the FILE_FLAG_NO_BUFFERING
     // flag and use SetEndOfFile to mark EOF.
+    file_handle.Set(NULL);
     file_handle.Set(CreateFile(file, GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
                                0, NULL));
     CHECK(SetFilePointer(file_handle, total_bytes, NULL, FILE_BEGIN) !=
