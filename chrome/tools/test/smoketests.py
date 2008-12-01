@@ -28,10 +28,14 @@ import subprocess
 import sys
 import time
 
-import google.httpd_utils
-import google.path_utils
-import google.process_utils
-
+try:
+  import google.httpd_utils
+  import google.path_utils
+  import google.process_utils
+except ImportError:
+  print ("\n>> You must have your local path of trunk/src/tools/python added"
+         " to your PYTHONPATH.<<\n")
+  raise
 
 # Keep a global httpd object so it can be killed in the event of errors.
 _httpd = None
