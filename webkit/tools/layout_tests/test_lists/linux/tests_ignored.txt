@@ -53,7 +53,7 @@ LayoutTests/fast/dom/gc-10.html = FAIL
 // This fails because we're missing various useless apple-specific
 // properties on the window object.
 // This test also timeouts in Debug mode. See bug 1058654.
-LayoutTests/fast/dom/Window/window-properties.html = FAIL | TIMEOUT
+LayoutTests/fast/dom/Window/window-properties.html = FAIL TIMEOUT
 
 // Safari specific test to ensure that JavaScript errors aren't logged when in
 // private browsing mode.
@@ -71,17 +71,17 @@ LayoutTests/fast/events/option-tab.html = FAIL
 
 // Chrome does not support WebArchives (just like Safari for Windows).
 // See bug 761653.
-SKIP : LayoutTests/webarchive/loading = FAIL | TIMEOUT
+SKIP : LayoutTests/webarchive/loading = FAIL TIMEOUT
 LayoutTests/webarchive = PASS
-LayoutTests/svg/webarchive = FAIL | PASS
-LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL | PASS
+LayoutTests/svg/webarchive = FAIL PASS
+LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL PASS
 
 // Bug 932737
 LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 
 // Mac-specific stuff
 // Don't run the platform/mac* tests
-LayoutTests/platform = FAIL | PASS
+LayoutTests/platform = FAIL PASS
 
 // Ignored because we do not have OBJC bindings
 LayoutTests/editing/pasteboard/paste-RTFD.html = FAIL
@@ -115,7 +115,7 @@ LayoutTests/http/tests/misc/willCacheResponse-delegate-callback.html = FAIL
 // Checks for very kjs-specific garbage collector
 // behavior. Gc-9 is completely braindamaged; it tests that certain
 // properties are reset by the garbage collector. It looks to pass recently.
-LayoutTests/fast/dom/gc-9.html = PASS | FAIL
+LayoutTests/fast/dom/gc-9.html = PASS FAIL
 
 // This test checks that ((new Error()).message is undefined, which is
 // a direct contradiction of the javascript spec 15.11.4.3 which
@@ -140,7 +140,7 @@ LayoutTests/fast/js/exception-linenums.html = FAIL
 // certain "native" functions where the V8 output does not include
 // newline characters. This is working as intended and we don't care
 // if the tests pass or fail. 
-LayoutTests/fast/js/function-names.html = FAIL | PASS
+LayoutTests/fast/js/function-names.html = FAIL PASS
 
 // WebKit has moved/changed this test upstream
 // https://bugs.webkit.org/show_bug.cgi?id=18681
@@ -176,7 +176,7 @@ LayoutTests/editing/selection/click-before-and-after-table.html = FAIL
 SKIP : LayoutTests/plugins/get-url-with-blank-target.html = FAIL
 
 // This test doesn't work on the bbot.  Works locally.
-SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL | PASS | TIMEOUT
+SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL PASS TIMEOUT
 
 // Dashboard-related test
 SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL

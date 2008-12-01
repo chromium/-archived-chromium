@@ -210,7 +210,7 @@ LayoutTests/plugins/netscape-enumerate.html = FAIL
 // This tests the screen's pixel depth, which we don't set on the buildbots
 // so it depends on the users settings.  Making this a broken test for us.
 // The test must be fixed to not depend on user settings and rebaselined.  post-beta.
-LayoutTests/fast/dom/Window/window-screen-properties.html = PASS | FAIL
+LayoutTests/fast/dom/Window/window-screen-properties.html = PASS FAIL
 
 // Bug: 849060
 // Plugin creation is delayed until after first layout, so
@@ -531,7 +531,7 @@ LayoutTests/fast/js/date-set-to-nan.html = FAIL
 // fail quickly if window.applicationCache is undefined (then we don't have to
 // skip them).
 // http://crbug.com/2844
-SKIP : LayoutTests/http/tests/appcache = TIMEOUT | FAIL
+SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // Depends on postMessage in a way we don't support:
 // http://code.google.com/p/chromium/issues/detail?id=2857
@@ -674,20 +674,20 @@ LayoutTests/fast/canvas/drawImage.html = FAIL
 LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
-LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
+LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
 LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
-DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
+DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Fails in release and debug. Sometimes crashes in debug.
-LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH
+LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -717,9 +717,9 @@ LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
 LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
-LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL | CRASH
-LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL | CRASH
-LayoutTests/svg/batik/paints/patternRegions.svg = FAIL | CRASH
+LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
+LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
+LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
 LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 LayoutTests/svg/carto.net/colourpicker.svg = FAIL
@@ -734,7 +734,7 @@ LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
 // Flaky on both release and debug. 
-LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL | CRASH
+LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
 LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 LayoutTests/svg/custom/focus-ring.svg = FAIL
@@ -780,16 +780,16 @@ LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 // Post-merge Debug only Crashes
 // This test also produces an unending stream of blank lines on stderr,
 // which makes it hang the test harness.
-SKIP | DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
+SKIP DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
 
 // One of these svg tests sometimes crash in debug mode.  It seems to only
 // happen when all the dynamic-updates tests are run together.
-DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
-DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.html = CRASH | PASS
-DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH | PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.html = CRASH PASS
+DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
-LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
+LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
 
 // Crash in DEBUG only
 DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
@@ -1032,9 +1032,9 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.htm
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
-LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
-LayoutTests/animations/big-rotation.html = FAIL | PASS
-DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
+LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+LayoutTests/animations/big-rotation.html = FAIL PASS
+DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
 LayoutTests/animations/keyframes-rule.html = FAIL
@@ -1043,7 +1043,7 @@ LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
 LayoutTests/fast/layers/opacity-transforms.html = FAIL
-LayoutTests/fast/profiler = FAIL | TIMEOUT
+LayoutTests/fast/profiler = FAIL TIMEOUT
 LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
@@ -1052,13 +1052,13 @@ LayoutTests/transforms/transform-value-types.html = FAIL
 // MERGE 37604:38097 REGRESSIONS
 LayoutTests/svg/carto.net/combobox.svg = FAIL
 pending/security/block-test.html = FAIL
-LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL | PASS
+LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
 // Bug 1341582
-LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
-LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
+LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
+LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
 
-LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL | TIMEOUT
+LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
 LayoutTests/editing/pasteboard/merge-end-blockquote.html = FAIL
@@ -1089,8 +1089,8 @@ LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 LayoutTests/security/block-test.html = FAIL
 
 // http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH | PASS
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH PASS
 
 // These have been failing for as long as we've had SVG support and were
 // incorrectly removed during a merge.

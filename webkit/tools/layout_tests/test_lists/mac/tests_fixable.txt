@@ -15,7 +15,7 @@ LayoutTests/editing/execCommand/copy-without-selection.html = FAIL
 // Works fine when run stand-alone.  Not needed for Beta.
 // Also skipped by Apple on Windows, due to intermittent failure 
 // (rdar://5313536)
-LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL | TIMEOUT
+LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL TIMEOUT
 
 // Bug 877986.
 // WebKit's CSS counters are somewhat broken, thus expected results are failures
@@ -35,14 +35,14 @@ LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 // Difference in caching headers
 LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
-LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT | CRASH
+LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
 LayoutTests/http/tests/xmlhttprequest/methods-async.html = TIMEOUT
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
 LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // http://crbug.com/2975 : Need to support upload progress notifications in
 // the resource bridge.
-LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL | CRASH
+LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL CRASH
 LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
 
@@ -56,7 +56,7 @@ LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
 // The under-lines are a cosmetic error which is not necessary to fix for Beta. (eseidel)
-LayoutTests/fast/forms/input-text-maxlength.html = FAIL | CRASH
+LayoutTests/fast/forms/input-text-maxlength.html = FAIL CRASH
 LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
 // Bug: 1145887
@@ -85,14 +85,14 @@ LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
 // Bug 972450: These tests don't work with fast timers due to setTimeout
 // races. Pending versions have these fixed.
-LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
+LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 
 // Bug 982608: test had a wrong result for one condition
-LayoutTests/plugins/destroy-stream-twice.html = FAIL | TIMEOUT
+LayoutTests/plugins/destroy-stream-twice.html = FAIL TIMEOUT
 
 // This test has been modified and placed in pending, so we ignore the original
 // until we get our modification into WebKit.
-LayoutTests/security/block-test.html = PASS | FAIL | CRASH | TIMEOUT
+LayoutTests/security/block-test.html = PASS FAIL CRASH TIMEOUT
 
 // Bug 1124522
 // Test forked into pending and fixed.
@@ -106,7 +106,7 @@ LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 // Bug 1199617.  Forked to pending/svg/carto.net/window.svg.
 // Test did not wait for all created functions to be called via
 // setTimeout.
-LayoutTests/svg/carto.net/window.svg = FAIL | PASS
+LayoutTests/svg/carto.net/window.svg = FAIL PASS
 
 // -----------------------------------------------------------------
 // Other
@@ -150,13 +150,13 @@ LayoutTests/fast/encoding/idn-security.html = FAIL
 // implemented in test shell.
 // This is a test tool problem, not a Chrome problem.
 LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
-LayoutTests/fast/history/subframe-is-visited.html = FAIL | CRASH
+LayoutTests/fast/history/subframe-is-visited.html = FAIL CRASH
 
 // Bug 1027226
 // Bug 945322: test shell should dump text when
 // layoutTestController.notifyDone() is called
 // Not critical for beta.
-LayoutTests/editing/selection/drag-in-iframe.html = FAIL | TIMEOUT
+LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
 
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
@@ -166,7 +166,7 @@ LayoutTests/plugins/netscape-enumerate.html = FAIL
 // This tests the screen's pixel depth, which we don't set on the buildbots
 // so it depends on the users settings.  Making this a broken test for us.
 // The test must be fixed to not depend on user settings and rebaselined.  post-beta.
-LayoutTests/fast/dom/Window/window-screen-properties.html = PASS | FAIL
+LayoutTests/fast/dom/Window/window-screen-properties.html = PASS FAIL
 
 // Bug: 849060
 // Plugin creation is delayed until after first layout, so
@@ -368,16 +368,16 @@ LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers d
 // failure in any way and nothing needs to be done to fix it. I'm leaving it
 // in tests_fixable in case we change the test shell's webview delegate to
 // ignore console messages while doing a pixel dump
-LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL | PASS
+LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL PASS
 
 // Bug 1107191.  These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
-LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS | FAIL
-LayoutTests/svg/batik/text/textDecoration2.svg = PASS | FAIL
-LayoutTests/svg/batik/text/textFeatures.svg = PASS | FAIL
-LayoutTests/svg/batik/text/textProperties.svg = PASS | FAIL
-LayoutTests/svg/batik/text/textStyles.svg = PASS | FAIL
-LayoutTests/svg/text/text-text-03-b.svg = PASS | FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS FAIL
+LayoutTests/svg/batik/text/textDecoration2.svg = PASS FAIL
+LayoutTests/svg/batik/text/textFeatures.svg = PASS FAIL
+LayoutTests/svg/batik/text/textProperties.svg = PASS FAIL
+LayoutTests/svg/batik/text/textStyles.svg = PASS FAIL
+LayoutTests/svg/text/text-text-03-b.svg = PASS FAIL
 
 //
 // -----------------------------------------------------------------
@@ -399,8 +399,8 @@ LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
 // unpainted space (filled red in Debug but not in Release).
 // These have been filed upstream, and should be deferred from Beta
 // https://bugs.webkit.org/show_bug.cgi?id=8423
-LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS | FAIL
-LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
+LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS FAIL
+LayoutTests/fast/flexbox/flex-hang.html = PASS FAIL
 
 // Bug: 1166260
 LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
@@ -419,8 +419,8 @@ LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
 LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
 
 // These two appear to be flaky in debug mode only. Not sure when they started failing.
-LayoutTests/http/tests/navigation/post-goback2.html = FAIL | PASS
-LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
+LayoutTests/http/tests/navigation/post-goback2.html = FAIL PASS
+LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL PASS
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
@@ -428,9 +428,9 @@ chrome/fast/dom/java-applet-calls.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site not access allowed".
 // See bug # 2306
-LayoutTests/http/tests/ssl/verify-ssl-enabled.php = PASS | FAIL
-pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | TIMEOUT
-pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEOUT | CRASH
+LayoutTests/http/tests/ssl/verify-ssl-enabled.php = PASS FAIL
+pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS TIMEOUT
+pending/http/tests/security/cross-frame-access-protocol.html = PASS TIMEOUT CRASH
 
 // Some tests playing with dates don't work on the open source buildbot.
 // See bug # 2307
@@ -451,7 +451,7 @@ LayoutTests/fast/js/date-set-to-nan.html = FAIL
 // fail quickly if window.applicationCache is undefined (then we don't have to
 // skip them).
 // http://crbug.com/2844
-SKIP : LayoutTests/http/tests/appcache = TIMEOUT | FAIL
+SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // Depends on postMessage in a way we don't support:
 // http://code.google.com/p/chromium/issues/detail?id=2857
@@ -518,7 +518,7 @@ LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 
 LayoutTests/accessibility = FAIL
 LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
-LayoutTests/http/tests/misc/acid3.html = FAIL | TIMEOUT
+LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
 LayoutTests/http/tests/security/xss-eval.html = FAIL
@@ -534,26 +534,26 @@ LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
 LayoutTests/editing/selection/caret-rtl-2.html = FAIL
-LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL | PASS
+LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL PASS
 LayoutTests/fast/block/float/float-avoidance.html = FAIL
 // Flaky
 LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
-LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS | TIMEOUT
+LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 LayoutTests/http/tests/navigation/back-to-slow-frame.html = FAIL
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
-LayoutTests/http/tests/navigation/post-basic.html = FAIL | PASS
-LayoutTests/http/tests/navigation/post-frames.html = FAIL | PASS
-LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL | TIMEOUT
+LayoutTests/http/tests/navigation/post-basic.html = FAIL PASS
+LayoutTests/http/tests/navigation/post-frames.html = FAIL PASS
+LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL TIMEOUT
 LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
 LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-shortcut.html = FAIL
 LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-addEventListener.html = FAIL
 LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.html = FAIL
 LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
 LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
-LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL | TIMEOUT
-LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH | PASS
+LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL TIMEOUT
+LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 // Flaky on both release and debug. 
 LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
@@ -566,40 +566,40 @@ chrome/fast/forms/basic-textareas-quirks.html = FAIL
 pending/fast/canvas/fillrect_gradient.html = FAIL
 pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
-pending/dom/html/level2/html/HTMLFrameElement09.html = PASS | CRASH
-pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
+pending/dom/html/level2/html/HTMLFrameElement09.html = PASS CRASH
+pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS CRASH
 
 // TODO(eroman): passed for me locally, need to see why failed on buildbot...
-LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS | FAIL
+LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS FAIL
 
 // Post-merge Debug only Crashes
-LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH PASS
 // One of these svg tests sometimes crash in debug mode.  It seems to only
 // happen when all the dynamic-updates tests are run together.
-LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-cy-attr.html = CRASH | PASS
-LayoutTests/fast/dom/gc-1.html = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-cy-attr.html = CRASH PASS
+LayoutTests/fast/dom/gc-1.html = CRASH PASS
 
 // Post-merge flakey on debug builds (passes consistently on release)
-LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
-LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
+LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL PASS
+LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL PASS
 
 // Bug 4079, also flakey after merge. Debug builds only.
-LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL | PASS
+LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL PASS
 
 // Started crashing in DEBUG only with r2842 (mbelshe)
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH PASS
 
 // Started failing in DEBUG only with one of the following revisions (all darin): 3587, 3588, 3589
-LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PASS
+LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
-LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
+LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
 
 // Crash in DEBUG only
-LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
+LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH PASS
 
 // NEW FOR MERGE 36102:37604
 LayoutTests/animations/matrix-anim.html = FAIL
@@ -613,7 +613,7 @@ LayoutTests/fast/js/arguments.html = FAIL
 LayoutTests/fast/js/construct-global-object.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
-LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL | cRASH
+LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL CRASH
 LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 // missing expected results
 SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
@@ -661,9 +661,9 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.htm
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
-//LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
-LayoutTests/animations/big-rotation.html = FAIL | PASS
-DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
+//LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+LayoutTests/animations/big-rotation.html = FAIL PASS
+DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
 LayoutTests/animations/keyframes-rule.html = FAIL
@@ -676,20 +676,20 @@ LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 LayoutTests/fast/forms/textarea-width.html = FAIL
 LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
-LayoutTests/fast/profiler = FAIL | TIMEOUT
+LayoutTests/fast/profiler = FAIL TIMEOUT
 LayoutTests/fast/text/international/hindi-spacing.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 LayoutTests/transforms/transform-value-types.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
-pending/security/block-test.html = FAIL | CRASH
-LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL | PASS
+pending/security/block-test.html = FAIL CRASH
+LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
 // Bug 1341582
-LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
-LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
+LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
+LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
 
-LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL | TIMEOUT
+LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
 LayoutTests/fast/frames/cross-site-this.html = FAIL
@@ -858,11 +858,11 @@ LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 LayoutTests/fast/dom/Window/atob-btoa.html = FAIL
-LayoutTests/fast/dom/Window/element-constructors-on-window.html = FAIL | CRASH
-LayoutTests/fast/dom/Window/get-set-properties.html = FAIL | CRASH
+LayoutTests/fast/dom/Window/element-constructors-on-window.html = FAIL CRASH
+LayoutTests/fast/dom/Window/get-set-properties.html = FAIL CRASH
 LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
 LayoutTests/fast/dom/Window/window-property-clearing.html = FAIL
-LayoutTests/fast/dom/Window/window-property-shadowing.html = FAIL | CRASH
+LayoutTests/fast/dom/Window/window-property-shadowing.html = FAIL CRASH
 LayoutTests/fast/dom/documenturi-assigned-junk-implies-relative-urls-do-not-resolve.html = FAIL
 LayoutTests/fast/dom/getElementsByClassName/011.xml = FAIL
 LayoutTests/fast/dom/global-constructors.html = FAIL
@@ -885,7 +885,7 @@ LayoutTests/fast/encoding/utf-16-little-endian.html = FAIL
 LayoutTests/fast/events/5056619.html = FAIL
 LayoutTests/fast/events/access-key-self-destruct.html = FAIL
 LayoutTests/fast/events/anchor-empty-focus.html = FAIL
-LayoutTests/fast/events/arrow-keys-on-body.html = FAIL | CRASH
+LayoutTests/fast/events/arrow-keys-on-body.html = FAIL CRASH
 LayoutTests/fast/events/arrow-navigation.html = FAIL
 LayoutTests/fast/events/autoscroll-in-textfield.html = FAIL
 LayoutTests/fast/events/autoscroll.html = FAIL
@@ -1033,7 +1033,7 @@ LayoutTests/fast/forms/radio_checked_dynamic.html = FAIL
 LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
 LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
 LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
-LayoutTests/fast/forms/search-hidden-cancel-button.html = FAIL | CRASH
+LayoutTests/fast/forms/search-hidden-cancel-button.html = FAIL CRASH
 LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 LayoutTests/fast/forms/search-rtl.html = FAIL
 LayoutTests/fast/forms/searchfield-heights.html = FAIL
@@ -1057,7 +1057,7 @@ LayoutTests/fast/forms/select-type-ahead-non-latin.html = FAIL
 LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 LayoutTests/fast/forms/stuff-on-my-optgroup.html = FAIL
 LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
-LayoutTests/fast/forms/targeted-frame-submission.html = FAIL | CRASH
+LayoutTests/fast/forms/targeted-frame-submission.html = FAIL CRASH
 LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
 LayoutTests/fast/forms/textarea-align.html = FAIL
 LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
@@ -1182,7 +1182,7 @@ LayoutTests/http/tests/loading/bad-scheme-subframe.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL
 LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
 LayoutTests/http/tests/misc/redirect.php = FAIL
-LayoutTests/http/tests/misc/refresh-headers.php = FAIL | CRASH
+LayoutTests/http/tests/misc/refresh-headers.php = FAIL CRASH
 LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
 LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
@@ -1213,7 +1213,7 @@ LayoutTests/http/tests/navigation/success200-goback.html = FAIL
 LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
 LayoutTests/http/tests/navigation/success200-reload.html = FAIL
 LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
-LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL | CRASH
+LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
 LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
@@ -1221,7 +1221,7 @@ LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = FAIL
 LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = FAIL
 LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = FAIL
-LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL TIMEOUT
 LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-custom.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-get-override.html = FAIL
@@ -1237,20 +1237,20 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame.html 
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe.html = FAIL
-LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = FAIL | CRASH
+LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = FAIL CRASH
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/XMLHttpRequestException.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/web-apps/008.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/web-apps/011.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/web-apps/014.html = FAIL
-LayoutTests/plugins/createScriptableObject-before-start.html = FAIL | CRASH
-LayoutTests/plugins/embed-attributes-setting.html = FAIL | CRASH
+LayoutTests/plugins/createScriptableObject-before-start.html = FAIL CRASH
+LayoutTests/plugins/embed-attributes-setting.html = FAIL CRASH
 LayoutTests/plugins/embed-attributes-style.html = FAIL
-LayoutTests/plugins/get-empty-url.html = FAIL | CRASH
+LayoutTests/plugins/get-empty-url.html = FAIL CRASH
 LayoutTests/plugins/get-url-that-the-resource-load-delegate-will-disallow.html = FAIL
 LayoutTests/plugins/getintidentifier-special-values.html = FAIL
-LayoutTests/plugins/inner-html-display-none.html = FAIL | CRASH
+LayoutTests/plugins/inner-html-display-none.html = FAIL CRASH
 LayoutTests/plugins/invoke.html = FAIL
 LayoutTests/plugins/mouse-events.html = FAIL
 LayoutTests/plugins/netscape-destroy-plugin-script-objects.html = FAIL
@@ -1351,7 +1351,7 @@ chrome/plugins/return-npobject.html = FAIL
 chrome/plugins/script-object-invoke.html = FAIL
 pending/fast/events/special-key-events-in-input-text.html = FAIL
 pending/fast/repaint/bugzilla-6473.html = FAIL
-pending/plugins/iframe-shims.html = FAIL | CRASH
+pending/plugins/iframe-shims.html = FAIL CRASH
 LayoutTests/fast/forms/input-select-on-click.html = FAIL
 LayoutTests/fast/forms/onselect-textfield.html = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
@@ -1359,27 +1359,27 @@ LayoutTests/fast/forms/input-appearance-elementFromPoint.html = FAIL
 LayoutTests/fast/profiler/document-dot-write.html = FAIL
 LayoutTests/fast/profiler/stop-then-function-call.html = FAIL
 LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
-LayoutTests/http/tests/navigation/error404-goback.html = FAIL | PASS
+LayoutTests/http/tests/navigation/error404-goback.html = FAIL PASS
 
 // These crash
-LayoutTests/fast/events/frame-tab-focus.html = CRASH | FAIL
+LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 LayoutTests/fast/forms/focus2.html = CRASH
 LayoutTests/fast/forms/input-text-enter.html = CRASH
 LayoutTests/fast/forms/tabs-with-modifiers.html = CRASH
 LayoutTests/fast/html/tab-order.html = CRASH
 LayoutTests/http/tests/misc/xhtml.php = CRASH
-LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = CRASH | FAIL
+LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = CRASH FAIL
 LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = CRASH
 LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH
-LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH | TIMEOUT | PASS
-LayoutTests/plugins/bindings-test.html = CRASH | FAIL
+LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH TIMEOUT PASS
+LayoutTests/plugins/bindings-test.html = CRASH FAIL
 chrome/plugins/call-as-function.html = CRASH
 LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH
 LayoutTests/fast/events/option-tab.html = CRASH
-LayoutTests/http/tests/plugins/post-url-file.html = CRASH | TIMEOUT
-chrome/plugins/get-file-url.html = CRASH | TIMEOUT
-LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH | PASS
+LayoutTests/http/tests/plugins/post-url-file.html = CRASH TIMEOUT
+chrome/plugins/get-file-url.html = CRASH TIMEOUT
+LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH PASS
 
 
 // These time out
@@ -1387,7 +1387,7 @@ LayoutTests/fast/events/anchor-image-scrolled-x-y.html = TIMEOUT
 LayoutTests/fast/events/event-view-toString.html = TIMEOUT
 LayoutTests/fast/events/open-window-from-another-frame.html = TIMEOUT
 LayoutTests/fast/forms/search-event-delay.html = TIMEOUT
-LayoutTests/fast/history/history_reload.html = TIMEOUT | PASS | FAIL
+LayoutTests/fast/history/history_reload.html = TIMEOUT PASS FAIL
 LayoutTests/http/tests/misc/referrer.html = TIMEOUT
 LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT
 LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
@@ -1399,4 +1399,4 @@ LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
 LayoutTests/tables/mozilla_expected_failures/bugs/bug2479-5.html = TIMEOUT
 pending/plugins/destroy-stream-twice.htm = TIMEOUT
-LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT | PASS
+LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS

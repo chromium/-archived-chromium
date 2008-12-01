@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import path_utils
+import platform_utils
 import compare_failures
 
 
@@ -123,15 +124,20 @@ class TestExpectationsFile:
   lines of:
   
     LayoutTests/fast/js/fixme.js = FAIL
-    LayoutTests/fast/js/flaky.js = FAIL | PASS
-    LayoutTests/fast/js/crash.js = CRASH | TIMEOUT | FAIL | PASS
+    LayoutTests/fast/js/flaky.js = FAIL PASS
+    LayoutTests/fast/js/crash.js = CRASH TIMEOUT FAIL PASS
     ...
 
-  In case you want to skip tests completely or mark debug mode only 
-  expectations, add SKIP and/or DEBUG respectively:
-    SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
-    DEBUG : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
-    DEBUG | SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
+  To add other options:
+    SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
+    DEBUG : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
+    DEBUG SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
+    LINUX DEBUG SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
+    LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
+
+  SKIP: Doesn't run the test.
+  DEBUG: Expectations only apply when running the debug build.
+  LINUX/WIN/MAC: Expectations apply only to these platforms.
 
   A test can be included twice, but not via the same path. If a test is included
   twice, then the more precise path wins.
@@ -141,6 +147,8 @@ class TestExpectationsFile:
                    'fail': FAIL,
                    'timeout': TIMEOUT,
                    'crash': CRASH }
+  
+  PLATFORMS = [ 'mac', 'linux', 'win' ]
 
   def __init__(self, path, full_test_list, is_debug_mode):
     """path is the path to the expectation file. An error is thrown if a test
@@ -182,6 +190,22 @@ class TestExpectationsFile:
         self._tests[expectation].remove(test)
       del self._expectations[test]
 
+  def _HasCurrentPlatform(self, options):
+    """ Returns true if the current platform is in the options list or if no
+    platforms are listed.
+    """
+    has_any_platforms = False
+    
+    for platform in self.PLATFORMS:
+      if platform in options:
+        has_any_platforms = True
+        break
+
+    if not has_any_platforms:
+      return True
+
+    return platform_utils.GetTestListPlatformName().lower() in options
+
   def _Read(self, path, is_debug_mode):
     """For each test in an expectations file, generate the expectations for it.
 
@@ -199,13 +223,14 @@ class TestExpectationsFile:
       if line.find(':') is -1:
         test_and_expectations = line
         is_skipped = False
-        is_debug = False
       else:
         parts = line.split(':')
         test_and_expectations = parts[1]
         options = self._GetOptionsList(parts[0])
         is_skipped = 'skip' in options
         if not is_debug_mode and 'debug' in options:
+          continue
+        if not self._HasCurrentPlatform(options):
           continue
 
       tests_and_expecation_parts = test_and_expectations.split('=')
@@ -226,7 +251,7 @@ class TestExpectationsFile:
           self._ReportSyntaxError(path, lineno, str(err))
 
   def _GetOptionsList(self, listString):
-    return [part.strip().lower() for part in listString.split('|')]
+    return [part.strip().lower() for part in listString.strip().split(' ')]
 
   def _ParseExpectations(self, string):
     result = set()
