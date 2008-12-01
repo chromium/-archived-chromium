@@ -2305,7 +2305,6 @@
 		7B0E59620DB3D195007D4907 /* PageURLRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PageURLRecord.cpp; path = icon/PageURLRecord.cpp; sourceTree = "<group>"; };
 		7B0E59630DB3D195007D4907 /* PageURLRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PageURLRecord.h; path = icon/PageURLRecord.h; sourceTree = "<group>"; };
 		7B14AA450DE323CD00F4E646 /* CachedPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CachedPage.cpp; sourceTree = "<group>"; };
-		7B14AA460DE323CD00F4E646 /* CachedPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPage.h; sourceTree = "<group>"; };
 		7B14AAA80DE3340400F4E646 /* CharsetData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CharsetData.cpp; sourceTree = "<group>"; };
 		7B27489D0E43815F009BCE03 /* libpcre.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpcre.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B2B0A3F0E3143CF00D4C6B7 /* ImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDecoder.h; sourceTree = "<group>"; };
@@ -4567,7 +4566,6 @@
 				7B5E8BCA0D7F3B39001ECF42 /* BackForwardList.cpp */,
 				7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */,
 				7B14AA450DE323CD00F4E646 /* CachedPage.cpp */,
-				7B14AA460DE323CD00F4E646 /* CachedPage.h */,
 			);
 			path = history;
 			sourceTree = "<group>";

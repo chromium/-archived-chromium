@@ -31,6 +31,7 @@
 
 #include "CachedPage.h"
 #include "Document.h"
+#include "DocumentLoader.h"
 #include "FrameView.h"
 #include "CachedPagePlatformData.h"
 
