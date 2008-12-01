@@ -3,14 +3,17 @@
 # found in the LICENSE file.
 
 # Notes:
-# This assumes you have a working gears checkout from p4 in the current dir.
-# Steps for this:
-# > echo %USER%-chromegears > p4config
-# or on linux/osx:
-# > echo $USER-chromegears > p4config
-# > set P4CONFIG=p4config
-# > g4 client -p //depot/googleclient/gears/p4_depot_paths
-# > g4 sync
+# This is the main Gears SConscript file.  From here, we include sub-scripts
+# that handle building various targets (third party libs, common exes, the
+# browser plugins themselves, and installers).  Some sub-scripts return a
+# dictionary of variables to be appended to the environment, so other
+# sub-scripts can use them.
+#
+# To check out the Gears sources, you need to make sure this directory is in
+# your .gclient file, so its DEPS get processed.  Example:
+#   { "name"        : "src/gears",
+#     "url"         : "svn://chrome-svn/chrome/trunk/src/gears",
+#   },
 #
 # This is a work-in-progress conversion of the current Gears set of Makefiles.
 # A lot of the stuff doesn't translate to SCons-land well, and I'm not sure
@@ -39,7 +42,6 @@ env = env.Clone(
     PRIVATE_DIR = "gears_internal",
     THIRD_PARTY_DIR = "third_party",
     PRIVATE_THIRD_PARTY_DIR = "third_party_internal",
-    SYMBIAN_DIR = "symbian_internal",
 )
 
 if not os.path.exists(env.Dir('#/$OPEN_DIR').abspath):
@@ -127,9 +129,22 @@ env.Replace(
     GENFILES_DIR = "$BROWSER_OUTDIR/genfiles",
     COMMON_GENFILES_DIR = "$COMMON_OUTDIR/genfiles",
 
-    INSTALLER_BASEDIR = 'installers',
+    INSTALLER_OUTDIR = '$BASE_OUTDIR/installers',
+)
+
+# Outputs
+env.Replace(
     INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
-    INSTALLER_OUTDIR = '$BASE_OUTDIR/$INSTALLER_BASEDIR',
+
+    FF_XPI = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.xpi',
+    WIN32_INSTALLER_MSI = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.msi',
+    WINCE_INSTALLER_CAB = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.cab',
+
+    SF_INSTALLER_PLUGIN_BUNDLE = '$INSTALLER_OUTDIR/Safari/StatsPane.bundle',
+    SF_PLUGIN_BUNDLE = '$INSTALLER_OUTDIR/Safari/Gears.bundle',
+    SF_PLUGIN_PROXY_BUNDLE = '$INSTALLER_OUTDIR/Safari/Gears.plugin',
+    SF_INPUTMANAGER_BUNDLE = '$INSTALLER_OUTDIR/Safari/GearsEnabler',
+    SF_INSTALLER_PKG = '$INSTALLER_OUTDIR/Safari/Gears.pkg',
 )
 
 # Library flags
@@ -706,8 +721,8 @@ elif env['OS'] == 'osx':
           'WebKit',
       ],
       M4FLAGS = [
-          '-DGEARS_ENABLER_PATH="$INSTALLER_OUTDIR/Safari/GearsEnabler"',
-          '-DGEARS_PLUGIN_PATH="$INSTALLER_OUTDIR/Safari/Gears.plugin"',
+          '-DGEARS_ENABLER_PATH="$SF_INPUTMANAGER_BUNDLE"',
+          '-DGEARS_PLUGIN_PATH="$SF_PLUGIN_PROXY_BUNDLE"',
           '-DGEARS_INSTALLER_OUT_DIR="$INSTALLER_OUTDIR/Safari"',
       ],
   )
@@ -766,33 +781,40 @@ sconscripts = [
 #  env = env.SConscript('#/$PRIVATE_DIR/SConscript',
 #      exports=['env', 'env_res'])
 
-# Include the input file list.
-env = env.SConscript('SConscript.inputs', exports=['env'])
-
 for each in sconscripts:
   env.SConscript(each,
                  exports=['env'],
                  variant_dir='$COMMON_OUTDIR',
                  duplicate=0)
 
-# Must come before SConscript.browser because it Imports targets from this
-# SConscript.
-env.SConscript('SConscript.common',
+# Order of execution is important here.  Each sub-script adds to the
+# environment, for use by later scripts.
+env = env.SConscript('SConscript.inputs', exports=['env'])
+
+outputs = env.SConscript('SConscript.common',
                exports=['env'],
                variant_dir='$COMMON_OUTDIR',
                duplicate=0)
+env.Append(**outputs)
 
 browsers = [env['BROWSER']]
 if browsers[0] == 'all':
   browsers = env['VALID_BROWSERS']
 print 'Building:', browsers
 
+# We run the browser script once for each browser target we want to build.
+# Each script adds variables to the environment in the form of
+# '${BROWSER}_foo = bar' for use by the installers script.
 for each in browsers:
   env.Replace(BROWSER = each)
-  env.SConscript('SConscript.browser',
+  outputs = env.SConscript('SConscript.browser',
                  exports=['env'],
                  variant_dir='$BROWSER_OUTDIR',
                  duplicate=0)
+  browser_outputs = {}
+  for key, value in outputs.iteritems():
+    browser_outputs[each + '_' + key] = value
+  env.Append(**browser_outputs)
 
 # Note: even though the installers write to $INSTALLER_OUTDIR, they need to
 # read files from other dirs, so we give them a variant_dir at the toplevel.
