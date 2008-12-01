@@ -3053,6 +3053,9 @@ each locale. -->
       <message name="IDS_ENTER_KEY" desc="Enter key">
         Enter
       </message>
+      <message name="IDS_F1_KEY" desc="F1 key">
+        F1
+      </message>
 
       <!-- Strings used in local directory listings -->
       <message name="IDS_DIRECTORY_LISTING_HEADER" desc="When viewing a local directory, this is the title of the page.">

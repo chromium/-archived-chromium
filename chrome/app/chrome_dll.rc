@@ -51,6 +51,7 @@ BEGIN
     "T",                 IDC_FOCUS_TOOLBAR,  VIRTKEY, SHIFT, ALT
     VK_RIGHT,            IDC_FORWARD,        VIRTKEY, ALT
     VK_BACK,             IDC_FORWARD,        VIRTKEY, SHIFT
+    VK_F1,               IDC_HELPMENU,       VIRTKEY
     "T",                 IDC_NEWTAB,         VIRTKEY, CONTROL
     "N",                 IDC_NEWWINDOW,      VIRTKEY, CONTROL
     "N",                 IDC_GOOFFTHERECORD, VIRTKEY, CONTROL, SHIFT
