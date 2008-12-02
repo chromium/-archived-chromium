@@ -1135,9 +1135,6 @@ LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 // MERGE 38600:38625: Regressions
 LayoutTests/fast/frames/iframe-option-crash.xhtml = FAIL
 
-// MERGE 38600:38625: Expectations changed upstream
-LayoutTests/fast/js/deep-recursion-test.html = FAIL
-
 // MERGE 38625:38653: Expectations changed upstream
 LayoutTests/editing/deleting/delete-by-word-001.html = FAIL
 LayoutTests/editing/deleting/delete-by-word-002.html = FAIL

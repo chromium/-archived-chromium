@@ -27,6 +27,8 @@ Only error messages are different.
 deep-recursion.html
 --------------------------
 It takes more than 1000 recursive calls to get a stack overflow in V8.
+We differ from the upstream expected results because the v8 exception message
+doesn't have a trailing period.  This is intentional for consistency.
 
 function-decompilation-operators.html
 function-prototype.html
