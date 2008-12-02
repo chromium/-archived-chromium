@@ -60,11 +60,10 @@ int64 TimeValToMicroseconds(const struct timeval& tv) {
 }
 
 int ProcessMetrics::GetCPUUsage() {
-  int retval;
   struct timeval now;
   struct rusage usage;
 
-  retval = gettimeofday(&now, NULL);
+  int retval = gettimeofday(&now, NULL);
   if (retval)
     return 0;
   retval = getrusage(RUSAGE_SELF, &usage);
