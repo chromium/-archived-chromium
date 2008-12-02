@@ -432,51 +432,7 @@ bool BackendImpl::DoomEntriesSince(const Time initial_time) {
 }
 
 bool BackendImpl::OpenNextEntry(void** iter, Entry** next_entry) {
-  if (disabled_)
-    return false;
-
-  Rankings::ScopedRankingsBlock rankings(&rankings_,
-      reinterpret_cast<CacheRankingsBlock*>(*iter));
-  Rankings::ScopedRankingsBlock next(&rankings_,
-                                     rankings_.GetNext(rankings.get()));
-  *next_entry = NULL;
-  *iter = NULL;
-  if (!next.get())
-    return false;
-
-  scoped_refptr<EntryImpl> entry;
-  if (next->Data()->pointer) {
-    entry = reinterpret_cast<EntryImpl*>(next->Data()->pointer);
-  } else {
-    bool dirty;
-    EntryImpl* temp = NULL;
-    if (NewEntry(Addr(next->Data()->contents), &temp, &dirty))
-      return false;
-    entry.swap(&temp);
-
-    if (dirty) {
-      // We cannot trust this entry. Call MatchEntry to go through the regular
-      // path and take the appropriate action.
-      std::string key = entry->GetKey();
-      uint32 hash = entry->GetHash();
-      entry = NULL;  // Release the entry.
-      temp = MatchEntry(key, hash, false);
-      if (temp)
-        temp->Release();
-
-      return false;
-    }
-
-    entry.swap(&temp);
-    temp = EntryImpl::Update(temp);  // Update returns an adref'd entry.
-    entry.swap(&temp);
-    if (!entry.get())
-      return false;
-  }
-
-  entry.swap(reinterpret_cast<EntryImpl**>(next_entry));
-  *iter = next.release();
-  return true;
+  return OpenFollowingEntry(true, iter, next_entry);
 }
 
 void BackendImpl::EndEnumeration(void** iter) {
@@ -547,15 +503,15 @@ bool BackendImpl::CreateExternalFile(Addr* address) {
   int file_number = data_->header.last_file + 1;
   Addr file_address(0);
   bool success = false;
-  for (int i = 0; (i < 0x0fffffff) && !success; i++, file_number++) {
+  for (int i = 0; i < 0x0fffffff; i++, file_number++) {
     if (!file_address.SetFileNumber(file_number)) {
       file_number = 1;
       continue;
     }
     std::wstring name = GetFileName(file_address);
     int flags = base::PLATFORM_FILE_READ |
-                base::PLATFORM_FILE_WRITE | 
-                base::PLATFORM_FILE_CREATE | 
+                base::PLATFORM_FILE_WRITE |
+                base::PLATFORM_FILE_CREATE |
                 base::PLATFORM_FILE_EXCLUSIVE_WRITE;
     scoped_refptr<disk_cache::File> file(new disk_cache::File(
         base::CreatePlatformFile(name.c_str(), flags, NULL)));
@@ -563,6 +519,7 @@ bool BackendImpl::CreateExternalFile(Addr* address) {
       continue;
 
     success = true;
+    break;
   }
 
   DCHECK(success);
@@ -584,7 +541,8 @@ void BackendImpl::DeleteBlock(Addr block_address, bool deep) {
 }
 
 void BackendImpl::UpdateRank(CacheRankingsBlock* node, bool modified) {
-  rankings_.UpdateRank(node, modified);
+  if (!read_only_)
+    rankings_.UpdateRank(node, modified);
 }
 
 void BackendImpl::RecoveredEntry(CacheRankingsBlock* rankings) {
@@ -708,6 +666,10 @@ void BackendImpl::SetUnitTestMode() {
   unit_test_ = true;
 }
 
+void BackendImpl::SetUpgradeMode() {
+  read_only_ = true;
+}
+
 void BackendImpl::ClearRefCountForTest() {
   num_refs_ = 0;
 }
@@ -730,6 +692,10 @@ int BackendImpl::SelfCheck() {
   }
 
   return CheckAllEntries();
+}
+
+bool BackendImpl::OpenPrevEntry(void** iter, Entry** prev_entry) {
+  return OpenFollowingEntry(false, iter, prev_entry);
 }
 
 // ------------------------------------------------------------------------
@@ -755,8 +721,8 @@ bool BackendImpl::InitBackingStore(bool* file_created) {
   file_util::AppendToPath(&index_name, kIndexName);
 
   int flags = base::PLATFORM_FILE_READ |
-              base::PLATFORM_FILE_WRITE | 
-              base::PLATFORM_FILE_OPEN_ALWAYS | 
+              base::PLATFORM_FILE_WRITE |
+              base::PLATFORM_FILE_OPEN_ALWAYS |
               base::PLATFORM_FILE_EXCLUSIVE_WRITE;
   scoped_refptr<disk_cache::File> file(new disk_cache::File(
       base::CreatePlatformFile(index_name.c_str(), flags, file_created)));
@@ -866,7 +832,7 @@ int BackendImpl::NewEntry(Addr address, EntryImpl** entry, bool* dirty) {
 }
 
 EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
-                                     bool find_parent) {
+                                   bool find_parent) {
   Addr address(data_->table[hash & mask_]);
   EntryImpl* cache_entry = NULL;
   EntryImpl* parent_entry = NULL;
@@ -942,6 +908,57 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
   }
 
   return find_parent ? parent_entry : cache_entry;
+}
+
+// This is the actual implementation for OpenNextEntry and OpenPrevEntry.
+bool BackendImpl::OpenFollowingEntry(bool forward, void** iter,
+                                     Entry** next_entry) {
+  if (disabled_)
+    return false;
+
+  Rankings::ScopedRankingsBlock rankings(&rankings_,
+      reinterpret_cast<CacheRankingsBlock*>(*iter));
+  CacheRankingsBlock* next_block = forward ? rankings_.GetNext(rankings.get()) :
+                                             rankings_.GetPrev(rankings.get());
+  Rankings::ScopedRankingsBlock next(&rankings_, next_block);
+  *next_entry = NULL;
+  *iter = NULL;
+  if (!next.get())
+    return false;
+
+  scoped_refptr<EntryImpl> entry;
+  if (next->Data()->pointer) {
+    entry = reinterpret_cast<EntryImpl*>(next->Data()->pointer);
+  } else {
+    bool dirty;
+    EntryImpl* temp = NULL;
+    if (NewEntry(Addr(next->Data()->contents), &temp, &dirty))
+      return false;
+    entry.swap(&temp);
+
+    if (dirty) {
+      // We cannot trust this entry. Call MatchEntry to go through the regular
+      // path and take the appropriate action.
+      std::string key = entry->GetKey();
+      uint32 hash = entry->GetHash();
+      entry = NULL;  // Release the entry.
+      temp = MatchEntry(key, hash, false);
+      if (temp)
+        temp->Release();
+
+      return false;
+    }
+
+    entry.swap(&temp);
+    temp = EntryImpl::Update(temp);  // Update returns an adref'd entry.
+    entry.swap(&temp);
+    if (!entry.get())
+      return false;
+  }
+
+  entry.swap(reinterpret_cast<EntryImpl**>(next_entry));
+  *iter = next.release();
+  return true;
 }
 
 void BackendImpl::DestroyInvalidEntry(Addr address, EntryImpl* entry) {

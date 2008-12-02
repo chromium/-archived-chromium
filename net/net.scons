@@ -16,6 +16,7 @@ env.Append(
 
 sconscript_files = [
     'crash_cache.scons',
+    'dump_cache.scons',
     'net_lib.scons',
     'net_perftests.scons',
     'net_unittests.scons',

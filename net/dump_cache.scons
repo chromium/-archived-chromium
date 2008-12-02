@@ -1,0 +1,35 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration the dump_cache{,.exe} executable.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$NET_DIR/using_net.scons',
+])
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/WX',
+      ],
+  )
+
+input_files = [
+    'tools/dump_cache/dump_cache.cc',
+    'tools/dump_cache/dump_files.cc',
+    'tools/dump_cache/upgrade.cc',
+]
+
+
+if env['PLATFORM'] == 'win32':
+
+  env.ChromeTestProgram('dump_cache', input_files)

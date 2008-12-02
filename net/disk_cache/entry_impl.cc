@@ -499,6 +499,12 @@ void EntryImpl::DecrementIoCount() {
   backend_->DecrementIoCount();
 }
 
+void EntryImpl::SetTimes(base::Time last_used, base::Time last_modified) {
+  node_.Data()->last_used = last_used.ToInternalValue();
+  node_.Data()->last_modified = last_modified.ToInternalValue();
+  node_.set_modified();
+}
+
 bool EntryImpl::CreateDataBlock(int index, int size) {
   Addr address(entry_.Data()->data_addr[index]);
   DCHECK(0 == index || 1 == index);

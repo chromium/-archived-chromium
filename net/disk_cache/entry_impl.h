@@ -84,6 +84,10 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   void IncrementIoCount();
   void DecrementIoCount();
 
+  // Set the access times for this entry. This method provides support for
+  // the upgrade tool.
+  void SetTimes(base::Time last_used, base::Time last_modified);
+
  private:
   ~EntryImpl();
 

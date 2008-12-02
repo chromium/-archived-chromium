@@ -23,12 +23,12 @@ class BackendImpl : public Backend {
  public:
   explicit BackendImpl(const std::wstring& path)
       : path_(path), block_files_(path), mask_(0), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false),
+        init_(false), restarted_(false), unit_test_(false), read_only_(false),
         ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {}
   // mask can be used to limit the usable size of the hash table, for testing.
   BackendImpl(const std::wstring& path, uint32 mask)
       : path_(path), block_files_(path), mask_(mask), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false),
+        init_(false), restarted_(false), unit_test_(false), read_only_(false),
         ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {}
   ~BackendImpl();
 
@@ -109,12 +109,18 @@ class BackendImpl : public Backend {
   // Sets internal parameters to enable unit testing mode.
   void SetUnitTestMode();
 
+  // Sets internal parameters to enable upgrade mode (for internal tools).
+  void SetUpgradeMode();
+
   // Clears the counter of references to test handling of corruptions.
   void ClearRefCountForTest();
 
   // Peforms a simple self-check, and returns the number of dirty items
   // or an error code (negative value).
   int SelfCheck();
+
+  // Same bahavior as OpenNextEntry but walks the list from back to front.
+  bool OpenPrevEntry(void** iter, Entry** prev_entry);
 
  private:
   // Creates a new backing file for the cache index.
@@ -134,6 +140,9 @@ class BackendImpl : public Backend {
   // on the list of entries with the same hash (or bucket).
   EntryImpl* MatchEntry(const std::string& key, uint32 hash,
                          bool find_parent);
+
+  // Opens the next or previous entry on a cache iteration.
+  bool OpenFollowingEntry(bool forward, void** iter, Entry** next_entry);
 
   void DestroyInvalidEntry(Addr address, EntryImpl* entry);
 
@@ -175,6 +184,7 @@ class BackendImpl : public Backend {
   bool init_;  // controls the initialization of the system.
   bool restarted_;
   bool unit_test_;
+  bool read_only_;  // Prevents updates of the rankings data (used by tools).
   bool disabled_;
 
   Stats stats_;  // Usage statistcs.
