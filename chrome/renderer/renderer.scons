@@ -77,7 +77,7 @@ if env['PLATFORM'] == 'posix':
     input_files.remove(remove)
 
 # TODO(port): Port these to Mac
-if env['PLATFORM'] == 'darin':
+if env['PLATFORM'] == 'darwin':
   to_be_ported_files = [
       'about_handler.cc',
       'chrome_plugin_host.cc',

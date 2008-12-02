@@ -12,6 +12,7 @@
 #include <queue>
 #include <string>
 
+#include "base/compiler_specific.h"
 #include "base/task.h"
 #include "chrome/browser/url_fetcher.h"
 #include "net/base/sdch_manager.h"
@@ -19,8 +20,9 @@
 class SdchDictionaryFetcher : public URLFetcher::Delegate,
                               public SdchFetcher {
  public:
-  #pragma warning(suppress: 4355)  // OK to pass "this" here.
-  SdchDictionaryFetcher() : method_factory_(this), task_is_pending_(false) {}
+  SdchDictionaryFetcher() : 
+      ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
+      task_is_pending_(false) {}
   virtual ~SdchDictionaryFetcher() {}
 
   // Implementation of SdchFetcher class.
