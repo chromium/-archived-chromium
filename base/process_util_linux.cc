@@ -322,9 +322,4 @@ bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
   return true;
 }
 
-int ProcessMetrics::GetCPUUsage() {
-  // TODO(port): This needs to be replaced by an call to getrusage().
-  return -1;
-}
-
 }  // namespace base
