@@ -19,6 +19,13 @@ env.Append(
 )
 
 if env.Bit('windows'):
+  env.Replace(
+      CHROMIUM_LINK_OPT_FLAGS = [
+          '/OPT:REF',           # VCLinkerTool.OptimizeReferences="2"
+          '/OPT:NOICF',         # VCLinkerTool.EnableCOMDATFolding="2"
+          '/OPT:NOWIN98',       # VCLinkerTool.OptimizeForWindows98="1"
+      ],
+  ),
   env.Append(
       CCFLAGS = [
           '/Oy-',
@@ -26,8 +33,5 @@ if env.Bit('windows'):
       ],
       LINKFLAGS = [
           '/INCREMENTAL:NO',    # VCLinkerTool.LinkIncremental="1"
-          '/OPT:REF',           # VCLinkerTool.OptimizeReferences="2"
-          '/OPT:ICF',           # VCLinkerTool.EnableCOMDATFolding="2"
-          '/OPT:NOWIN98',       # VCLinkerTool.OptimizeForWindows98="1"
       ],
   )

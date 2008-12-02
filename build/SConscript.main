@@ -19,28 +19,49 @@ default_warnings = ['no-no-parallel-support']
 SetOption('warn', default_warnings + GetOption('warn'))
 
 
-chrome_build_type = ARGUMENTS.get('CHROME_BUILD_TYPE')
-if chrome_build_type is None:
-  chrome_build_type = os.environ.get('CHROME_BUILD_TYPE', ''),
-
-chromium_build = ARGUMENTS.get('CHROMIUM_BUILD')
-if chromium_build is None:
-  chromium_build = os.environ.get('CHROMIUM_BUILD', ''),
+# Variables for controlling the build.
+#
+# The following variables can be set either on the command line
+# or in the external environment when executing SCons, with the
+# command line overriding any environment setting.
+#
+# CHROME_BUILD_TYPE
+#    When set, applies settings from the file
+#    build\internal\release_impl${CHROME_BUILD_TYPE}.scons
+#    to be applied to the construction environment.
+#
+# CHROMIUM_BUILD
+#    When set, applies settings from the file
+#    build\internal\chromium_build${CHROMIUM_BUILD}.scons
+#    to be applied to the construction environment.
+#
+# INCREMENTAL
+#    Controls whether or not libraries and executable programs are
+#    linked incrementally.  When set to any True value (1, T, y, True),
+#    uses the /INCREMENTAL flag to the Microsoft linker.  An
+#    explicit False value (0, f, N, false) uses the /INCREMENTAL:NO.
+#    When not set, the default is to link debug (developer) builds
+#    incrementally, but release builds use full links.
+#
+clvars = Variables('scons.opts', ARGUMENTS)
+clvars.AddVariables(
+    ('CHROME_BUILD_TYPE', '', os.environ.get('CHROME_BUILD_TYPE', '')),
+    ('CHROMIUM_BUILD', '', os.environ.get('CHROMIUM_BUILD', '')),
+    BoolVariable('INCREMENTAL', '', os.environ.get('INCREMENTAL')),
+)
 
 
 root_env = Environment(
     tools = ['component_setup',
              'chromium_builders',
              'chromium_load_component'],
+    variables = clvars,
 
     # Requested list of system (shared) libraries, from the comma separated
     # SYSTEM_LIBS command-line argument
     req_system_libs = [],
     # All supported system libraries, for the help message
     all_system_libs = [],
-
-    CHROME_BUILD_TYPE = chrome_build_type,
-    CHROMIUM_BUILD = chromium_build,
 
     CHROME_SRC_DIR = '$MAIN_DIR/..',
     DESTINATION_ROOT = '$MAIN_DIR/Hammer',
@@ -214,6 +235,7 @@ del windows_env['LINKFLAGS_DEBUG']
 del windows_env['CCFLAGS_OPTIMIZED']
 
 windows_env['PDB'] = '${TARGET.base}.pdb'
+windows_env['MSVC_BATCH'] = True
 
 # TODO(bradnelson): this should not need to be gated on host platform.
 if root_env['PLATFORM'] in ['win32', 'cygwin']:
@@ -504,19 +526,19 @@ mac_env.Replace(
 
 mac_env.FilterOut(
     BUILD_SCONSCRIPTS = [
-        '$BSPATCH_DIR/bspatch.scons',
-        '$BSDIFF_DIR/bsdiff.scons',
-        '$LIBJPEG_DIR/SConscript',
-        '$LIBXML_DIR/SConscript',
-        '$LIBXSLT_DIR/SConscript',
         '$BREAKPAD_DIR/SConscript',
-        '$CHROME_DIR/SConscript',
+        '$BSDIFF_DIR/bsdiff.scons',
+        '$BSPATCH_DIR/bspatch.scons',
+        '$CHROME_DIR/chrome.scons',
         '$GEARS_DIR/SConscript',
         '$GOOGLE_UPDATE_DIR/SConscript',
+        '$LIBJPEG_DIR/libjpeg.scons',
+        '$LIBXML_DIR/libxml.scons',
+        '$LIBXSLT_DIR/libxslt.scons',
         '$RLZ_DIR/SConscript',
         '$SANDBOX_DIR/sandbox.scons',
-        'build/SConscript.v8',
         '$WEBKIT_DIR/SConscript',
+        'build/SConscript.v8',
     ],
 )
 

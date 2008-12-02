@@ -35,9 +35,6 @@ env.Prepend(
         # generated from history/history_indexer.idl.
         'history',
     ],
-    CPPDEFINES = [
-        'GOOGLE_CHROME_BUILD',
-    ],
 )
 
 if env['PLATFORM'] == 'win32':

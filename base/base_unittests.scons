@@ -25,12 +25,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
       '$LIBEVENT_DIR/using_libevent.scons',
   ])
 
-env.Prepend(
-    CPPDEFINES = [
-        'GOOGLE_CHROME_BUILD',
-    ],
-)
-
 if env['PLATFORM'] == 'win32':
   env.Prepend(
       CCFLAGS = [

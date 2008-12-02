@@ -10,11 +10,17 @@ customization we need to make to the different things we build.
 
 def generate(env):
   def ChromeProgram(env, *args, **kw):
-    return env.ComponentProgram(*args, **kw)
+    result = env.ComponentProgram(*args, **kw)
+    if env.get('INCREMENTAL'):
+      env.Precious(result)
+    return result
   env.AddMethod(ChromeProgram)
 
   def ChromeTestProgram(env, *args, **kw):
-    return env.ComponentTestProgram(*args, **kw)
+    result = env.ComponentTestProgram(*args, **kw)
+    if env.get('INCREMENTAL'):
+      env.Precious(*result)
+    return result
   env.AddMethod(ChromeTestProgram)
 
   def ChromeStaticLibrary(env, *args, **kw):
@@ -24,7 +30,10 @@ def generate(env):
 
   def ChromeSharedLibrary(env, *args, **kw):
     kw['COMPONENT_STATIC'] = False
-    return [env.ComponentLibrary(*args, **kw)[0]]
+    result = [env.ComponentLibrary(*args, **kw)[0]]
+    if env.get('INCREMENTAL'):
+      env.Precious(result)
+    return result
   env.AddMethod(ChromeSharedLibrary)
 
   def ChromeObject(env, *args, **kw):

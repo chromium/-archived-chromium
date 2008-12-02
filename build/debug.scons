@@ -22,6 +22,12 @@ env.Append(
 )
 
 if env['PLATFORM'] == 'win32':
+  if env.get('INCREMENTAL') is None:
+    # INCREMENTAL was not specified on the command line or in the
+    # external environment; debug default is incremental link.
+    env['INCREMENTAL'] = True
+    env['CHROMIUM_INCREMENTAL_FLAGS'] = '/INCREMENTAL'
+
   env.Append(
       CCFLAGS = [
           '/Od',              # VCCLCompilerTool.Optimization="0"
@@ -29,7 +35,6 @@ if env['PLATFORM'] == 'win32':
           '/MTd',             # VCCLCompilerTool.RuntimeLibrary="1"
       ],
       LINKFLAGS = [
-          '/INCREMENTAL',     # VCLinkerTool.LinkIncremental="2"
           '/DEBUG',
       ],
   )

@@ -25,9 +25,6 @@ env.Prepend(
 # TODO(port)
 if env_res['PLATFORM'] == 'win32':
   env_res.Append(
-      CPPDEFINES = [
-          'GOOGLE_CHROME_BUILD',
-      ],
       CPPPATH = [
           '.',
           '$CHROME_SRC_DIR',
@@ -75,7 +72,6 @@ env_dll.Prepend(
         'U_STATIC_IMPLEMENTATION',
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',
-        'GOOGLE_CHROME_BUILD',
         'LIBXSLT_STATIC',
         'LIBXML_STATIC',
         '_WINDLL',

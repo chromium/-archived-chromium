@@ -21,6 +21,12 @@ env.Append(
 )
 
 if env.Bit('windows'):
+  if env.get('INCREMENTAL') is None:
+    # INCREMENTAL was not specified on the command line or in the
+    # external environment; release default is full link.
+    env['INCREMENTAL'] = False
+    env['CHROMIUM_INCREMENTAL_FLAGS'] = '/INCREMENTAL:NO'
+
   env.Replace(
       CHROMIUM_CC_OPT_FLAGS = [
           '/O2',                # VCCLCompilerTool.Optimization="2"

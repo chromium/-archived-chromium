@@ -17,10 +17,17 @@ env.Append(
     ],
     LINKFLAGS = [
         '$CHROMIUM_LINK_OPT_FLAGS',
+        '$CHROMIUM_INCREMENTAL_FLAGS',
     ],
 )
 
 if env['PLATFORM'] == 'win32':
+  incremental = env.get('INCREMENTAL')
+  if incremental is not None:
+    if incremental:
+      env['CHROMIUM_INCREMENTAL_FLAGS'] = '/INCREMENTAL'
+    else:
+      env['CHROMIUM_INCREMENTAL_FLAGS'] = '/INCREMENTAL:NO'
   env.Append(
       ARFLAGS = [
           '/ignore:4221',
