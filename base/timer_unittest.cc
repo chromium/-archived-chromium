@@ -145,3 +145,24 @@ TEST(TimerTest, RepeatingTimer_Cancel) {
   RunTest_RepeatingTimer_Cancel(MessageLoop::TYPE_UI);
   RunTest_RepeatingTimer_Cancel(MessageLoop::TYPE_IO);
 }
+
+TEST(TimerTest, MessageLoopShutdown) {
+  // This test is designed to verify that shutdown of the
+  // message loop does not cause crashes if there were pending
+  // timers not yet fired.  It may only trigger exceptions
+  // if debug heap checking (or purify) is enabled.
+  bool did_run = false;
+  {
+    OneShotTimerTester a(&did_run);
+    OneShotTimerTester b(&did_run);
+    OneShotTimerTester c(&did_run);
+    OneShotTimerTester d(&did_run);
+    {
+      MessageLoop loop(MessageLoop::TYPE_DEFAULT);
+      a.Start();
+      b.Start();
+    }  // MessageLoop destructs by falling out of scope.
+  }  // OneShotTimers destruct.  SHOULD NOT CRASH, of course.
+
+  EXPECT_EQ(false, did_run);
+}
