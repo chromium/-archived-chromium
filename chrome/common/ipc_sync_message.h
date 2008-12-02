@@ -5,9 +5,7 @@
 #ifndef CHROME_COMMON_IPC_SYNC_MESSAGE_H__
 #define CHROME_COMMON_IPC_SYNC_MESSAGE_H__
 
-#if defined(OS_WIN)
 #include <windows.h>
-#endif
 #include <string>
 #include "base/basictypes.h"
 #include "chrome/common/ipc_message.h"
@@ -18,7 +16,7 @@ class MessageReplyDeserializer;
 
 class SyncMessage : public Message {
  public:
-  SyncMessage(int32 routing_id, uint16 type, PriorityValue priority,
+  SyncMessage(int32 routing_id, WORD type, PriorityValue priority,
               MessageReplyDeserializer* deserializer);
 
   // Call this to get a deserializer for the output parameters.
@@ -26,8 +24,6 @@ class SyncMessage : public Message {
   // for deleting the deserializer when they're done.
   MessageReplyDeserializer* GetReplyDeserializer();
 
-// TODO(playmobil): reimplement on POSIX.
-#if defined(OS_WIN)
   // If this message can cause the receiver to block while waiting for user
   // input (i.e. by calling MessageBox), then the caller needs to pump window
   // messages and dispatch asynchronous messages while waiting for the reply.
@@ -48,7 +44,6 @@ class SyncMessage : public Message {
   void EnableMessagePumping();
 
   HANDLE pump_messages_event() const { return pump_messages_event_; }
-#endif  // defined(OS_WIN)
 
   // Returns true if the message is a reply to the given request id.
   static bool IsMessageReplyTo(const Message& msg, int request_id);
@@ -73,9 +68,7 @@ class SyncMessage : public Message {
   static bool WriteSyncHeader(Message* msg, const SyncHeader& header);
 
   MessageReplyDeserializer* deserializer_;
-#if defined(OS_WIN)
   HANDLE pump_messages_event_;
-#endif
 
   static uint32 next_id_;  // for generation of unique ids
 };

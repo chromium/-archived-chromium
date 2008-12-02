@@ -255,7 +255,6 @@ struct ParamTraits<base::Time> {
   }
 };
 
-#if defined(OS_WIN)
 template <>
 struct ParamTraits<LOGFONT> {
   typedef LOGFONT param_type;
@@ -300,7 +299,6 @@ struct ParamTraits<MSG> {
     return result;
   }
 };
-#endif  // defined(OS_WIN)
 
 template <>
 struct ParamTraits<SkBitmap> {
@@ -425,7 +423,7 @@ struct ParamTraits<std::map<K, V> > {
   typedef std::map<K, V> param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, static_cast<int>(p.size()));
-    typename param_type::const_iterator iter;
+    param_type::const_iterator iter;
     for (iter = p.begin(); iter != p.end(); ++iter) {
       WriteParam(m, iter->first);
       WriteParam(m, iter->second);
@@ -473,7 +471,6 @@ struct ParamTraits<GURL> {
 };
 
 // and, a few more useful types...
-#if defined(OS_WIN)
 template <>
 struct ParamTraits<HANDLE> {
   typedef HANDLE param_type;
@@ -583,7 +580,6 @@ struct ParamTraits<POINT> {
     l->append(StringPrintf(L"(%d, %d)", p.x, p.y));
   }
 };
-#endif  // defined(OS_WIN)
 
 template <>
 struct ParamTraits<gfx::Point> {
@@ -727,7 +723,6 @@ struct ParamTraits<CacheManager::ResourceTypeStats> {
   }
 };
 
-#if defined(OS_WIN)
 template <>
 struct ParamTraits<XFORM> {
   typedef XFORM param_type;
@@ -751,7 +746,6 @@ struct ParamTraits<XFORM> {
     l->append(L"<XFORM>");
   }
 };
-#endif  // defined(OS_WIN)
 
 template <>
 struct ParamTraits<WebCursor> {
@@ -981,7 +975,7 @@ struct ParamTraits<webkit_glue::WebApplicationInfo> {
 template <class Param>
 class MessageWithTuple : public Message {
  public:
-  MessageWithTuple(int32 routing_id, uint16 type, const Param& p)
+  MessageWithTuple(int32 routing_id, WORD type, const Param& p)
       : Message(routing_id, type, PRIORITY_NORMAL) {
     WriteParam(this, p);
   }
@@ -1092,7 +1086,7 @@ void GenerateLogData(const std::wstring& channel, const Message& message,
 template <class SendParam, class ReplyParam>
 class MessageWithReply : public SyncMessage {
  public:
-  MessageWithReply(int32 routing_id, uint16 type,
+  MessageWithReply(int32 routing_id, WORD type,
                    const SendParam& send, const ReplyParam& reply)
       : SyncMessage(routing_id, type, PRIORITY_NORMAL,
                     new ParamDeserializer<ReplyParam>(reply)) {
@@ -1114,7 +1108,7 @@ class MessageWithReply : public SyncMessage {
     } else {
       // This is an outgoing reply.  Now that we have the output parameters, we
       // can finally log the message.
-      typename ReplyParam::ValueTuple p;
+      ReplyParam::ValueTuple p;
       void* iter = SyncMessage::GetDataIterator(msg);
       ReadParam(msg, &iter, &p);
       LogParam(p, l);
@@ -1128,7 +1122,7 @@ class MessageWithReply : public SyncMessage {
     Message* reply = GenerateReply(msg);
     bool error;
     if (ReadParam(msg, &iter, &send_params)) {
-      typename ReplyParam::ValueTuple reply_params;
+      ReplyParam::ValueTuple reply_params;
       DispatchToMethod(obj, func, send_params, &reply_params);
       WriteParam(reply, reply_params);
       error = false;

@@ -14,11 +14,8 @@ namespace IPC {
 
 //------------------------------------------------------------------------------
 
-class Channel : public Message::Sender
-#if defined(OS_WIN)
-    , public MessageLoopForIO::IOHandler
-#endif
-    {
+class Channel : public MessageLoopForIO::IOHandler,
+                public Message::Sender {
   // Security tests need access to the pipe handle.
   friend class ChannelTest;
 
@@ -89,8 +86,16 @@ class Channel : public Message::Sender
   //
   virtual bool Send(Message* message);
 
+  // Process any pending incoming and outgoing messages.  Wait for at most
+  // max_wait_msec for pending messages if there are none.  Returns true if
+  // there were no pending messages or if pending messages were successfully
+  // processed.  Returns false if there are pending messages that cannot be
+  // processed for some reason (e.g., because ProcessIncomingMessages would be
+  // re-entered).
+  // TODO(darin): Need a better way of dealing with the recursion problem.
+  bool ProcessPendingMessages(DWORD max_wait_msec);
+
  private:
-#if defined(OS_WIN)
   const std::wstring PipeName(const std::wstring& channel_id) const;
   bool CreatePipe(const std::wstring& channel_id, Mode mode);
   bool ProcessConnection();
@@ -102,14 +107,12 @@ class Channel : public Message::Sender
   // MessageLoop::IOHandler implementation.
   virtual void OnIOCompleted(MessageLoopForIO::IOContext* context,
                              DWORD bytes_transfered, DWORD error);
-#endif
 
  private:
   enum {
     BUF_SIZE = 4096
   };
 
-#if defined(OS_WIN)
   struct State {
     explicit State(Channel* channel);
     ~State();
@@ -121,7 +124,6 @@ class Channel : public Message::Sender
   State output_state_;
 
   HANDLE pipe_;
-#endif
   Listener* listener_;
 
   // Messages to be sent are queued here.
@@ -151,10 +153,10 @@ class Channel : public Message::Sender
   // just the process id (pid).  The message has a special routing_id
   // (MSG_ROUTING_NONE) and type (HELLO_MESSAGE_TYPE).
   enum {
-    HELLO_MESSAGE_TYPE = kuint16max  // Maximum value of message type (uint16),
-                                     // to avoid conflicting with normal
-                                     // message types, which are enumeration
-                                     // constants starting from 0.
+    HELLO_MESSAGE_TYPE = MAXWORD  // Maximum value of message type (WORD),
+                                  // to avoid conflicting with normal
+                                  // message types, which are enumeration
+                                  // constants starting from 0.
   };
 };
 

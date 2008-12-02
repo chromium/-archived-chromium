@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#if defined(OS_WIN)
 #include <windows.h>
-#endif
 #include <stdio.h>
 #include <iostream>
 #include <string>
@@ -17,7 +15,6 @@
 #include "base/debug_on_start.h"
 #include "base/perftimer.h"
 #include "base/process_util.h"
-#include "base/scoped_nsautorelease_pool.h"
 #include "base/thread.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_channel.h"
@@ -92,7 +89,7 @@ class MyChannelListener : public IPC::Channel::Listener {
   virtual void OnMessageReceived(const IPC::Message& message) {
     IPC::MessageIterator iter(message);
 
-    iter.NextInt();
+    int index = iter.NextInt();
     const std::string data = iter.NextString();
 
     if (--messages_left_ == 0) {
@@ -119,8 +116,6 @@ class MyChannelListener : public IPC::Channel::Listener {
 };
 static MyChannelListener channel_listener;
 
-// TODO(playmobil): Implement
-#if defined(OS_WIN)
 TEST(IPCChannelTest, ChannelTest) {
   // setup IPC channel
   IPC::Channel chan(kTestClientChannel, IPC::Channel::MODE_SERVER,
@@ -169,7 +164,6 @@ TEST(IPCChannelTest, ChannelProxyTest) {
   }
   thread.Stop();
 }
-#endif  // defined(OS_WIN)
 
 static bool RunTestClient() {
   // setup IPC channel
@@ -182,6 +176,7 @@ static bool RunTestClient() {
   MessageLoop::current()->Run();
   return true;
 }
+
 #endif  // !PERFORMANCE_TEST
 
 #ifdef PERFORMANCE_TEST
@@ -345,8 +340,6 @@ static bool RunReflector() {
 
 #endif  // PERFORMANCE_TEST
 
-// TODO(playmobil): Implement
-#if defined(OS_WIN)
 // All fatal log messages (e.g. DCHECK failures) imply unit test failures
 static void IPCTestAssertHandler(const std::string& str) {
   FAIL() << str;
@@ -389,21 +382,9 @@ HANDLE SpawnChild(ChildType child_type) {
 
   return process;
 }
-#endif  // defined(OS_WIN)
-
-// TODO(playmobil): Implement
-#if defined(OS_POSIX)
-base::ProcessHandle SpawnChild(ChildType child_type) {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-#endif
-
 
 int main(int argc, char** argv) {
-  base::ScopedNSAutoreleasePool scoped_pool;
   base::EnableTerminationOnHeapCorruption();
-#if defined(OS_WIN)
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
@@ -415,7 +396,6 @@ int main(int argc, char** argv) {
     SuppressErrorDialogs();
     logging::SetLogAssertHandler(IPCTestAssertHandler);
   }
-#endif  // defined(OS_WIN)
 
 #ifndef PERFORMANCE_TEST
   if (CommandLine().HasSwitch(kChild))
@@ -433,3 +413,4 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
