@@ -722,7 +722,7 @@ LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 LayoutTests/svg/carto.net/scrollbar.svg = FAIL
-LayoutTests/svg/carto.net/selectionlist.svg = FAIL
+LayoutTests/svg/carto.net/selectionlist.svg = FAIL | CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
 LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
@@ -1176,8 +1176,5 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
 LayoutTests/editing/selection/5057506.html = FAIL
 LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LayoutTests/http/tests/misc/DOMContentLoaded-event.html = TIMEOUT
-
-// Started failing in r6179:r6184. Not sure which change was the culprit.
-DEBUG : LayoutTests/svg/carto.net/selectionlist.svg = CRASH
 
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
