@@ -160,8 +160,6 @@ class RenderViewHostDelegate {
   // The state for the page changed and should be updated.
   virtual void UpdateState(RenderViewHost* render_view_host,
                            int32 page_id,
-                           const GURL& url,
-                           const std::wstring& title,
                            const std::string& state) { }
 
   // The page's title was changed and should be updated.

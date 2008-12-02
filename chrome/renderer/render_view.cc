@@ -830,7 +830,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   bool is_reload = params.reload;
 
   WebFrame* main_frame = webview()->GetMainFrame();
-  if (is_reload && !main_frame->HasCurrentState()) {
+  if (is_reload && !main_frame->HasCurrentHistoryState()) {
     // We cannot reload if we do not have any history state.  This happens, for
     // example, when recovering from a crash.  Our workaround here is a bit of
     // a hack since it means that reload after a crashed tab does not cause an
@@ -1162,13 +1162,10 @@ void RenderView::UpdateSessionHistory(WebFrame* frame) {
   if (page_id_ == -1)
     return;
 
-  GURL url;
-  std::wstring title;
   std::string state;
-  if (!webview()->GetMainFrame()->GetPreviousState(&url, &title, &state))
+  if (!webview()->GetMainFrame()->GetPreviousHistoryState(&state))
     return;
-
-  Send(new ViewHostMsg_UpdateState(routing_id_, page_id_, url, title, state));
+  Send(new ViewHostMsg_UpdateState(routing_id_, page_id_, state));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1926,13 +1923,10 @@ void RenderView::SyncNavigationState() {
   if (!webview())
     return;
 
-  GURL url;
-  std::wstring title;
   std::string state;
-  if (!webview()->GetMainFrame()->GetCurrentState(&url, &title, &state))
+  if (!webview()->GetMainFrame()->GetCurrentHistoryState(&state))
     return;
-
-  Send(new ViewHostMsg_UpdateState(routing_id_, page_id_, url, title, state));
+  Send(new ViewHostMsg_UpdateState(routing_id_, page_id_, state));
 }
 
 void RenderView::ShowContextMenu(WebView* webview,

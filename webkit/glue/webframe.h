@@ -99,21 +99,25 @@ class WebFrame : public base::RefCounted<WebFrame> {
                                  const GURL& script_url) = 0;
 
   // Returns a string representing the state of the previous page load for
-  // later use when loading as well as the uri and title of the page.  The
-  // previous page is the page that was loaded before DidCommitLoadForFrame was
-  // received.  Returns false if there is no state.
-  virtual bool GetPreviousState(GURL* url, std::wstring* title,
-                                std::string* history_state) const = 0;
+  // later use when loading. The previous page is the page that was loaded
+  // before DidCommitLoadForFrame was received.
+  //
+  // Returns false if there is no valid state to return (for example, there is
+  // no previous item). Returns true if the previous item's state was retrieved,
+  // even if that state may be empty.
+  virtual bool GetPreviousHistoryState(std::string* history_state) const = 0;
 
   // Returns a string representing the state of the current page load for later
-  // use when loading as well as the url and title of the page.  Returns false
-  // if there is no state.
-  virtual bool GetCurrentState(GURL* url, std::wstring* title,
-                               std::string* history_state) const = 0;
+  // use when loading as well as the url and title of the page.
+  //
+  // Returns false if there is no valid state to return (for example, there is
+  // no previous item). Returns true if the current item's state was retrieved,
+  // even if that state may be empty.
+  virtual bool GetCurrentHistoryState(std::string* history_state) const = 0;
 
   // Returns true if there is a current history item.  A newly created WebFrame
   // lacks a history item.  Otherwise, this will always be true.
-  virtual bool HasCurrentState() const = 0;
+  virtual bool HasCurrentHistoryState() const = 0;
 
   // Returns the current URL of the frame, or the empty string if there is no
   // URL to retrieve (for example, the frame may never have had any content).

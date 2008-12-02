@@ -565,10 +565,8 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   // Notifies the browser that we have session history information.
   // page_id: unique ID that allows us to distinguish between history entries.
-  IPC_MESSAGE_ROUTED4(ViewHostMsg_UpdateState,
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_UpdateState,
                       int32 /* page_id */,
-                      GURL /* url */,
-                      std::wstring /* title */,
                       std::string /* state */)
 
   // Changes the title for the page in the UI when the page is navigated or the

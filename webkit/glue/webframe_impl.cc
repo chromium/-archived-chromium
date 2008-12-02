@@ -477,8 +477,7 @@ GURL WebFrameImpl::GetOSDDURL() const {
   return GURL();
 }
 
-bool WebFrameImpl::GetPreviousState(GURL* url, std::wstring* title,
-                                    std::string* history_state) const {
+bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
   // We use the previous item here because documentState (filled-out forms)
   // only get saved to history when it becomes the previous item.  The caller
   // is expected to query the history state after a navigation occurs, after
@@ -494,14 +493,10 @@ bool WebFrameImpl::GetPreviousState(GURL* url, std::wstring* title,
   StatsScope<StatsCounterTimer> history_scope(history_timer);
 
   webkit_glue::HistoryItemToString(item, history_state);
-  *url = webkit_glue::KURLToGURL(item->url());
-  *title = webkit_glue::StringToStdWString(item->title());
-
   return true;
 }
 
-bool WebFrameImpl::GetCurrentState(GURL* url, std::wstring* title,
-                                   std::string* state) const {
+bool WebFrameImpl::GetCurrentHistoryState(std::string* state) const {
   if (frame_->loader())
     frame_->loader()->saveDocumentAndScrollState();
   RefPtr<HistoryItem> item = frame_->page()->backForwardList()->currentItem();
@@ -509,13 +504,10 @@ bool WebFrameImpl::GetCurrentState(GURL* url, std::wstring* title,
     return false;
 
   webkit_glue::HistoryItemToString(item, state);
-  *url = webkit_glue::KURLToGURL(item->url());
-  *title = webkit_glue::StringToStdWString(item->title());
-
   return true;
 }
 
-bool WebFrameImpl::HasCurrentState() const {
+bool WebFrameImpl::HasCurrentHistoryState() const {
   return frame_->page()->backForwardList()->currentItem() != NULL;
 }
 

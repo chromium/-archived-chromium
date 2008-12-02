@@ -745,8 +745,6 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
 
 void WebContents::UpdateState(RenderViewHost* rvh,
                               int32 page_id,
-                              const GURL& url,
-                              const std::wstring& title,
                               const std::string& state) {
   if (rvh != render_view_host() ||
       render_manager_.showing_interstitial_page()) {
@@ -774,27 +772,12 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   if (entry_index < 0)
     return;
   NavigationEntry* entry = controller()->GetEntryAtIndex(entry_index);
-  unsigned changed_flags = 0;
 
-  // Update the URL.
-  if (url != entry->url()) {
-    changed_flags |= INVALIDATE_URL;
-    if (entry == controller()->GetActiveEntry())
-      fav_icon_helper_.FetchFavIcon(url);
-    entry->set_url(url);
-  }
-
-  // Save the new title if it changed.
-  if (UpdateTitleForEntry(entry, title))
-    changed_flags |= INVALIDATE_TITLE;
-
-  // Update the state (forms, etc.).
-  if (state != entry->content_state())
-    entry->set_content_state(state);
+  if (state == entry->content_state())
+    return;  // Nothing to update.
+  entry->set_content_state(state);
 
   // Notify everybody of the changes (only when the current page changed).
-  if (changed_flags && entry == controller()->GetActiveEntry())
-    NotifyNavigationStateChanged(changed_flags);
   controller()->NotifyEntryChanged(entry, entry_index);
 }
 

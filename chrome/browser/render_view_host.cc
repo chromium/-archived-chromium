@@ -832,14 +832,8 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
 }
 
 void RenderViewHost::OnMsgUpdateState(int32 page_id,
-                                      const GURL& url,
-                                      const std::wstring& title,
                                       const std::string& state) {
-  GURL validated_url(url);
-  FilterURL(RendererSecurityPolicy::GetInstance(),
-            process()->host_id(), &validated_url);
-
-  delegate_->UpdateState(this, page_id, validated_url, title, state);
+  delegate_->UpdateState(this, page_id, state);
 }
 
 void RenderViewHost::OnMsgUpdateTitle(int32 page_id,

@@ -231,8 +231,6 @@ class WebContents : public TabContents,
                            const ViewHostMsg_FrameNavigate_Params& params);
   virtual void UpdateState(RenderViewHost* render_view_host,
                            int32 page_id,
-                           const GURL& url,
-                           const std::wstring& title,
                            const std::string& state);
   virtual void UpdateTitle(RenderViewHost* render_view_host,
                            int32 page_id,

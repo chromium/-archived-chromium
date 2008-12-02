@@ -763,15 +763,9 @@ void TestWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
   if (!entry)
     return;
 
-  GURL url;
-  std::wstring title;
   std::string state;
-  if (!shell_->webView()->GetMainFrame()->
-      GetPreviousState(&url, &title, &state))
+  if (!shell_->webView()->GetMainFrame()->GetPreviousHistoryState(&state))
     return;
-
-  entry->SetURL(url);
-  entry->SetTitle(title);
   entry->SetContentState(state);
 }
 
