@@ -330,7 +330,9 @@ LRESULT Window::OnAppCommand(HWND window, short app_command, WORD device,
 }
 
 void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
-  if (!window_delegate_->ExecuteWindowsCommand(command_id))
+  // We NULL check |window_delegate_| here because we can be sent WM_COMMAND
+  // messages even after the window is destroyed.
+  if (!window_delegate_ || !window_delegate_->ExecuteWindowsCommand(command_id))
     WidgetWin::OnCommand(notification_code, command_id, window);
 }
 
