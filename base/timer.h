@@ -135,42 +135,21 @@ class BaseTimer : public BaseTimer_Helper {
           receiver_(receiver),
           method_(method) {
     }
-
-    virtual ~TimerTask() {
-      ClearBaseTimer();
-    }
-
     virtual void Run() {
       if (!timer_)  // timer_ is null if we were orphaned.
         return;
-      if (kIsRepeating)
-        ResetBaseTimer();
-      else
-        ClearBaseTimer();
+      SelfType* self = static_cast<SelfType*>(timer_);
+      if (kIsRepeating) {
+        self->Reset();
+      } else {
+        self->delayed_task_ = NULL;
+      }
       DispatchToMethod(receiver_, method_, Tuple0());
     }
-
     TimerTask* Clone() const {
       return new TimerTask(delay_, receiver_, method_);
     }
-
    private:
-    // Inform the Base that the timer is no longer active.
-    void ClearBaseTimer() {
-      if (timer_) {
-        SelfType* self = static_cast<SelfType*>(timer_);
-        self->delayed_task_ = NULL;
-      }
-    }
-
-    // Inform the Base that we're resetting the timer.
-    void ResetBaseTimer() {
-      DCHECK(timer_);
-      DCHECK(kIsRepeating);
-      SelfType* self = static_cast<SelfType*>(timer_);
-      self->Reset();
-    }
-
     Receiver* receiver_;
     ReceiverMethod method_;
   };
