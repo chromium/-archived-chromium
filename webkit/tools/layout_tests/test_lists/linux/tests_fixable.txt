@@ -1176,7 +1176,6 @@ LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
 // Tests that fail on linux but pass on windows.
-LayoutTests/css1/box_properties/acid_test.html = FAIL
 LayoutTests/css1/font_properties/font.html = FAIL
 LayoutTests/css1/font_properties/font_size.html = FAIL
 LayoutTests/css1/pseudo/multiple_pseudo_elements.html = FAIL
