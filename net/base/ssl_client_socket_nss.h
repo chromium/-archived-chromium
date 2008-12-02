@@ -76,8 +76,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   char* user_buf_;
   int user_buf_len_;
 
-  int server_cert_status_;
-
   bool completed_handshake_;
 
   enum State {

@@ -6,12 +6,10 @@
 
 #include <nspr.h>
 #include <nss.h>
-#include <secerr.h>
 // Work around https://bugzilla.mozilla.org/show_bug.cgi?id=455424
 // until NSS 3.12.2 comes out and we update to it.
 #define Lock FOO_NSS_Lock
 #include <ssl.h>
-#include <sslerr.h>
 #include <pk11pub.h>
 #undef Lock
 
@@ -23,16 +21,18 @@
 
 static const int kRecvBufferSize = 4096;
 
-// nss calls this if an incoming certificate is invalid.
+/*
+ * nss calls this if an incoming certificate is invalid.
+ * TODO(port): expose to app via GetSSLInfo so it can put up 
+ * the appropriate GUI and retry with override if desired
+ */
 static SECStatus
 ownBadCertHandler(void * arg, PRFileDesc * socket)
 {
     PRErrorCode err = PR_GetError();
-    LOG(INFO) << "server certificate is invalid; NSS error code " << err;
-    // Return SECSuccess to override the problem, 
-    // or SECFailure to let the original function fail
-    // Chromium wants it to fail here, and may retry it later.
-    return SECFailure;
+    LOG(ERROR) << "server certificate is invalid; NSS error code " << err;
+    // Return SECSuccess to override the problem, SECFailure to let the original function fail
+    return SECSuccess;  /* override, say it's OK. */
 }
 
 
@@ -44,7 +44,6 @@ namespace net {
 #define EnterFunction(x)
 #define LeaveFunction(x)
 #define GotoState(s) next_state_ = s
-#define LogData(s, len)
 #else
 #define EnterFunction(x)  LOG(INFO) << (void *)this << " " << __FUNCTION__ << \
                            " enter " << x << "; next_state " << next_state_
@@ -52,78 +51,7 @@ namespace net {
                            " leave " << x << "; next_state " << next_state_
 #define GotoState(s) do { LOG(INFO) << (void *)this << " " << __FUNCTION__ << \
                            " jump to state " << s; next_state_ = s; } while (0)
-#define LogData(s, len)   LOG(INFO) << (void *)this << " " << __FUNCTION__ << \
-                           " data [" << std::string(s, len) << "]";
-
 #endif
-
-namespace {
-
-int NetErrorFromNSPRError(PRErrorCode err) {
-  // TODO(port): fill this out as we learn what's important
-  switch (err) {
-    case PR_WOULD_BLOCK_ERROR:
-      return ERR_IO_PENDING;
-    case SSL_ERROR_NO_CYPHER_OVERLAP:
-      return ERR_SSL_VERSION_OR_CIPHER_MISMATCH;
-    case SSL_ERROR_BAD_CERT_DOMAIN:
-      return ERR_CERT_COMMON_NAME_INVALID;
-    case SEC_ERROR_EXPIRED_CERTIFICATE:
-      return ERR_CERT_DATE_INVALID;
-    case SEC_ERROR_BAD_SIGNATURE:
-      return ERR_CERT_INVALID;
-    case SSL_ERROR_REVOKED_CERT_ALERT:
-    case SEC_ERROR_REVOKED_CERTIFICATE:
-    case SEC_ERROR_REVOKED_KEY:
-      return ERR_CERT_REVOKED;
-    case SEC_ERROR_UNKNOWN_ISSUER:
-      return ERR_CERT_AUTHORITY_INVALID;
-
-    default: {
-      if (IS_SSL_ERROR(err)) {
-        LOG(WARNING) << "Unknown SSL error " << err <<
-            " mapped to net::ERR_SSL_PROTOCOL_ERROR";
-        return ERR_SSL_PROTOCOL_ERROR;
-      }
-      if (IS_SEC_ERROR(err)) {
-        // TODO(port): Probably not the best mapping
-        LOG(WARNING) << "Unknown SEC error " << err <<
-            " mapped to net::ERR_CERT_INVALID";
-        return ERR_CERT_INVALID;
-      }
-      LOG(WARNING) << "Unknown error " << err <<
-          " mapped to net::ERR_FAILED";
-      return ERR_FAILED;
-    }
-  }
-}
-
-// Shared with the Windows code. TODO(avi): merge to a common place
-int CertStatusFromNetError(int error) {
-  switch (error) {
-    case ERR_CERT_COMMON_NAME_INVALID:
-      return CERT_STATUS_COMMON_NAME_INVALID;
-    case ERR_CERT_DATE_INVALID:
-      return CERT_STATUS_DATE_INVALID;
-    case ERR_CERT_AUTHORITY_INVALID:
-      return CERT_STATUS_AUTHORITY_INVALID;
-    case ERR_CERT_NO_REVOCATION_MECHANISM:
-      return CERT_STATUS_NO_REVOCATION_MECHANISM;
-    case ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
-      return CERT_STATUS_UNABLE_TO_CHECK_REVOCATION;
-    case ERR_CERT_REVOKED:
-      return CERT_STATUS_REVOKED;
-    case ERR_CERT_CONTAINS_ERRORS:
-      NOTREACHED();
-      // Falls through.
-    case ERR_CERT_INVALID:
-      return CERT_STATUS_INVALID;
-    default:
-      return 0;
-  }
-}
-
-}  // namespace
 
 bool SSLClientSocketNSS::nss_options_initialized_ = false;
 
@@ -142,7 +70,6 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       user_callback_(NULL),
       user_buf_(NULL),
       user_buf_len_(0),
-      server_cert_status_(0),
       completed_handshake_(false),
       next_state_(STATE_NONE),
       nss_fd_(NULL),
@@ -221,7 +148,7 @@ int SSLClientSocketNSS::Read(char* buf, int buf_len,
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
-  LeaveFunction(rv);
+  LeaveFunction("");
   return rv;
 }
 
@@ -240,30 +167,14 @@ int SSLClientSocketNSS::Write(const char* buf, int buf_len,
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
-  LeaveFunction(rv);
+  LeaveFunction("");
   return rv;
 }
 
 void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
   EnterFunction("");
+  // TODO(port): implement!
   ssl_info->Reset();
-  SSLChannelInfo channel_info;
-  SECStatus ok = SSL_GetChannelInfo(nss_fd_, 
-                                    &channel_info, sizeof(channel_info));
-  if (ok == SECSuccess) {
-    SSLCipherSuiteInfo cipher_info;
-    ok = SSL_GetCipherSuiteInfo(channel_info.cipherSuite, 
-                                &cipher_info, sizeof(cipher_info));
-    if (ok == SECSuccess) {
-      ssl_info->security_bits = cipher_info.effectiveKeyBits;
-    } else {
-      ssl_info->security_bits = -1;
-      NOTREACHED();
-    }
-  }
-  ssl_info->cert_status = server_cert_status_;
-  // TODO(port): implement X509Certificate so we can set the cert field!
-  // CERTCertificate *nssCert = SSL_PeerCertificate(nss_fd_);
   LeaveFunction("");
 }
 
@@ -467,32 +378,13 @@ int SSLClientSocketNSS::DoConnectComplete(int result) {
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
-  // SNI is enabled automatically if TLS is enabled -- as long as
-  // SSL_V2_COMPATIBLE_HELLO isn't.  
-  // So don't do V2 compatible hellos unless we're really using SSL2,
-  // to avoid errors like
-  // "common name `mail.google.com' != requested host name `gmail.com'"
-  rv = SSL_OptionSet(nss_fd_, SSL_V2_COMPATIBLE_HELLO, 
-                     ssl_config_.ssl2_enabled);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
   rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SSL3, ssl_config_.ssl3_enabled);
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
-  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_TLS, ssl_config_.tls1_enabled);
+  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SSL3, ssl_config_.tls1_enabled);
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
-
-#ifdef SSL_ENABLE_SESSION_TICKETS
-  // Support RFC 5077
-  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SESSION_TICKETS, PR_TRUE);
-  if (rv != SECSuccess)
-     LOG(INFO) << "SSL_ENABLE_SESSION_TICKETS failed.  Old system nss?";
-#else
-  #error "You need to install NSS-3.12 or later to build chromium"
-#endif
 
   rv = SSL_OptionSet(nss_fd_, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
   if (rv != SECSuccess)
@@ -515,38 +407,31 @@ int SSLClientSocketNSS::DoConnectComplete(int result) {
 
 int SSLClientSocketNSS::DoHandshakeRead() {
   EnterFunction("");
-  int net_error;
   int rv = SSL_ForceHandshake(nss_fd_);
-
   if (rv == SECSuccess) {
-    net_error = OK;
     // there's a callback for this, too
     completed_handshake_ = true;
     // Indicate we're ready to handle I/O.  Badly named?
     GotoState(STATE_NONE);
-  } else {
-    PRErrorCode prerr = PR_GetError();
-    net_error = NetErrorFromNSPRError(prerr);
-
-    // If not done, stay in this state
-    if (net_error == ERR_IO_PENDING) {
-      GotoState(STATE_HANDSHAKE_READ);
-    } else {
-      server_cert_status_ = CertStatusFromNetError(net_error);
-      LOG(ERROR) << "handshake failed; NSS error code " << prerr 
-                 << ", net_error " << net_error << ", server_cert_status " << server_cert_status_;
-    }
+    LeaveFunction("");
+    return OK;
   }
-
+  PRErrorCode prerr = PR_GetError();
+  if (prerr == PR_WOULD_BLOCK_ERROR) {
+    // at this point, it should have tried to send some bytes
+    GotoState(STATE_HANDSHAKE_READ);
+    LeaveFunction("");
+    return ERR_IO_PENDING;
+  }
+  // TODO: map rv to net error code properly
   LeaveFunction("");
-  return net_error;
+  return ERR_SSL_PROTOCOL_ERROR;
 }
     
 int SSLClientSocketNSS::DoPayloadRead() {
   EnterFunction(user_buf_len_);
   int rv = PR_Read(nss_fd_, user_buf_, user_buf_len_);
   if (rv >= 0) {
-    LogData(user_buf_, rv);
     user_buf_ = NULL;
     LeaveFunction("");
     return rv;
@@ -567,7 +452,6 @@ int SSLClientSocketNSS::DoPayloadWrite() {
   EnterFunction(user_buf_len_);
   int rv = PR_Write(nss_fd_, user_buf_, user_buf_len_);
   if (rv >= 0) {
-    LogData(user_buf_, rv);
     user_buf_ = NULL;
     LeaveFunction("");
     return rv;
