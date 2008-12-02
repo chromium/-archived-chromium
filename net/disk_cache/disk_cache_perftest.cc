@@ -9,7 +9,6 @@
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/perftimer.h"
-#include "base/platform_test.h"
 #if defined(OS_WIN)
 #include "base/scoped_handle.h"
 #endif
@@ -21,6 +20,7 @@
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/hash.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 using base::Time;
 

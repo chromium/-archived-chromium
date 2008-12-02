@@ -4,11 +4,11 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/platform_test.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_errors.h"
 #include "net/base/test_completion_callback.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 static const char kTestData[] = "0123456789";
 static const int kTestDataSize = arraysize(kTestData) - 1;

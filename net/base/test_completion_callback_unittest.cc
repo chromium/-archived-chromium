@@ -7,8 +7,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "net/base/completion_callback.h"
 #include "net/base/test_completion_callback.h"
-#include "base/platform_test.h"
 #include "base/worker_pool.h"
+#include "testing/platform_test.h"
 
 typedef PlatformTest TestCompletionCallbackTest;
 

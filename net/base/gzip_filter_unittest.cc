@@ -7,10 +7,10 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/platform_test.h"
 #include "base/scoped_ptr.h"
 #include "net/base/gzip_filter.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 #include "third_party/zlib/zlib.h"
 
 namespace {

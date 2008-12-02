@@ -5,7 +5,6 @@
 #include <math.h>  // ceil
 
 #include "base/compiler_specific.h"
-#include "base/platform_test.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/test_completion_callback.h"
 #include "net/base/upload_data.h"
@@ -15,6 +14,7 @@
 #include "net/proxy/proxy_resolver_fixed.h"
 #include "net/proxy/proxy_resolver_null.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 //-----------------------------------------------------------------------------
 

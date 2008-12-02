@@ -10,11 +10,11 @@
 
 #include "base/condition_variable.h"
 #include "base/logging.h"
-#include "base/platform_test.h"
 #include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
 #include "base/spin_wait.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 using base::TimeDelta;
 using base::TimeTicks;

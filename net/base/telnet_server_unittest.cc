@@ -4,9 +4,9 @@
 
 // Tests TelnetServer.
 
-#include "base/platform_test.h"
 #include "net/base/listen_socket_unittest.h"
 #include "net/base/telnet_server.h"
+#include "testing/platform_test.h"
 
 static const char* kCRLF = "\r\n";
 

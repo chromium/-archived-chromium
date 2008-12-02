@@ -4,11 +4,11 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/platform_test.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/text_database.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 using base::Time;
 

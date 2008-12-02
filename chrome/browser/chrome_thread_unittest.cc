@@ -4,9 +4,9 @@
 
 #include <vector>
 
-#include "base/platform_test.h"
 #include "chrome/browser/chrome_thread.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 typedef PlatformTest ChromeThreadTest;
 

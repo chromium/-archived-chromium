@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
-#include "base/platform_test.h"
 #include "base/sys_info.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 typedef PlatformTest SysInfoTest;
 

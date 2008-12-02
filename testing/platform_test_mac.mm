@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/platform_test.h"
+#include "platform_test.h"
 
 #import <Foundation/Foundation.h>
 

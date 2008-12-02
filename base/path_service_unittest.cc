@@ -8,12 +8,12 @@
 #include "base/file_util.h"
 #include "base/file_path.h"
 #include "base/logging.h"
-#include "base/platform_test.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/gtest/include/gtest/gtest-spi.h"
+#include "testing/platform_test.h"
 
 namespace {
 

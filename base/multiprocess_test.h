@@ -6,11 +6,11 @@
 #define BASE_MULTIPROCESS_TEST_H__
 
 #include "base/command_line.h"
-#include "base/platform_test.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/multiprocess_func_list.h"
+#include "testing/platform_test.h"
 
 #if defined(OS_POSIX)
 #include <sys/types.h>

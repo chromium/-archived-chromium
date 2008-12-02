@@ -6,8 +6,8 @@
 #define NET_DISK_CACHE_DISK_CACHE_TEST_BASE_H_
 
 #include "base/basictypes.h"
-#include "base/platform_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 namespace disk_cache {
 

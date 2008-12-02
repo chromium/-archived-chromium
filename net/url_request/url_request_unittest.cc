@@ -14,7 +14,6 @@
 
 #include "base/message_loop.h"
 #include "base/path_service.h"
-#include "base/platform_test.h"
 #include "base/process_util.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
@@ -27,6 +26,7 @@
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 using base::Time;
 

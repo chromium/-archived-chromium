@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_PLATFORM_TEST_H_
-#define BASE_PLATFORM_TEST_H_
+#ifndef TESTING_PLATFORM_TEST_H_
+#define TESTING_PLATFORM_TEST_H_
 
-#include "build/build_config.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#if defined(OS_MACOSX)
+#if defined(GTEST_OS_MAC)
 #ifdef __OBJC__
 @class NSAutoreleasePool;
 #else
@@ -30,8 +29,8 @@ class PlatformTest : public testing::Test {
 };
 #else
 typedef testing::Test PlatformTest;
-#endif // OS_MACOSX
+#endif // GTEST_OS_MAC
 
-#endif // BASE_PLATFORM_TEST_H_
+#endif // TESTING_PLATFORM_TEST_H_
 
 
