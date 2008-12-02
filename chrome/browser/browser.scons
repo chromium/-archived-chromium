@@ -58,6 +58,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'chrome_thread.cc',
       'cross_site_request_manager.cc',
       'download/save_file.cc',
+      'extensions/extension.cc',
       'google_url_tracker.cc',
       'google_util.cc',
       'history/archived_database.cc',

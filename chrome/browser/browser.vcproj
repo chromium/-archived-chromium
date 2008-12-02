@@ -2154,6 +2154,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="extensions"
+			>
+			<File
+				RelativePath=".\extensions\extension.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\browser_trial.cc"
 			>

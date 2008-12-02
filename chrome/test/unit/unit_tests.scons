@@ -115,6 +115,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'run_all_unittests.cc',
 
       '$CHROME_DIR/browser/chrome_thread_unittest.cc',
+      '$CHROME_DIR/browser/extensions/extension_unittest.cc',
       '$CHROME_DIR/browser/history/history_types_unittest.cc',
       '$CHROME_DIR/browser/history/snippet_unittest.cc',
       '$CHROME_DIR/browser/history/text_database_unittest.cc',
