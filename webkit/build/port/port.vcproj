@@ -1383,10 +1383,6 @@
 		<Filter
 			Name="bridge"
 			>
-			<File
-				RelativePath="..\..\pending\ScriptController.h"
-				>
-			</File>
 			<Filter
 				Name="chromium"
 				>
