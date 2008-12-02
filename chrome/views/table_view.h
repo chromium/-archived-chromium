@@ -472,9 +472,6 @@ class TableView : public NativeControl,
   // Overriden to destroy the image list.
   virtual void OnDestroy();
 
-  // Overriden to work around bug when RTL.
-  virtual void OnContextMenu(const CPoint& location);
-
   // Used to sort the two rows. Returns a value < 0, == 0 or > 0 indicating
   // whether the row2 comes before row1, row2 is the same as row1 or row1 comes
   // after row2. This invokes CompareValues on the model with the sorted column.

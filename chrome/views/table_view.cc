@@ -559,6 +559,46 @@ LRESULT CALLBACK TableView::TableWndProc(HWND window,
   static int mouse_down_x, mouse_down_y;
 
   switch (message) {
+    case WM_CONTEXTMENU: {
+      // This addresses two problems seen with context menus in right to left
+      // locales:
+      // 1. The mouse coordinates in the l_param were occasionally wrong in
+      //    weird ways. This is most often seen when right clicking on the
+      //    list-view twice in a row.
+      // 2. Right clicking on the icon would show the scrollbar menu.
+      //
+      // As a work around this uses the position of the cursor and ignores
+      // the position supplied in the l_param.
+      if (table_view->UILayoutIsRightToLeft() &&
+          (GET_X_LPARAM(l_param) != -1 || GET_Y_LPARAM(l_param) != -1)) {
+        CPoint screen_point;
+        GetCursorPos(&screen_point);
+        CPoint table_point = screen_point;
+        CRect client_rect;
+        if (ScreenToClient(window, &table_point) &&
+            GetClientRect(window, &client_rect) &&
+            client_rect.PtInRect(table_point)) {
+          // The point is over the client area of the table, handle it ourself.
+          // But first select the row if it isn't already selected.
+          LVHITTESTINFO hit_info = {0};
+          hit_info.pt.x = table_point.x;
+          hit_info.pt.y = table_point.y;
+          int view_index = ListView_HitTest(window, &hit_info);
+          if (view_index != -1) {
+            int model_index = table_view->view_to_model(view_index);
+            if (!table_view->IsItemSelected(model_index))
+              table_view->Select(model_index);
+          }
+          table_view->OnContextMenu(screen_point);
+          return 0;  // So that default processing doesn't occur.
+        }
+      }
+      // else case: default handling is fine, so break and let the default
+      // handler service the request (which will likely calls us back with
+      // OnContextMenu).
+      break;
+    }
+
     case WM_CANCELMODE: {
       if (in_mouse_down) {
         in_mouse_down = false;
@@ -1060,6 +1100,9 @@ LRESULT TableView::OnNotify(int w_param, LPNMHDR hdr) {
       break;
     }
 
+    case LVN_MARQUEEBEGIN:  // We don't want the marque selection.
+      return 1;
+
     default:
       break;
   }
@@ -1074,21 +1117,6 @@ void TableView::OnDestroy() {
     if (image_list)
       ImageList_Destroy(image_list);
   }
-}
-
-void TableView::OnContextMenu(const CPoint& location) {
-  if (!GetContextMenuController())
-    return;
-
-  if (!UILayoutIsRightToLeft() || (location.x == -1 && location.y == -1)) {
-    NativeControl::OnContextMenu(location);
-    return;
-  }
-  // For some reason context menu gestures when rtl have the wrong coordinates;
-  // get the position of the cursor and use it.
-  CPoint cursor_point;
-  GetCursorPos(&cursor_point);
-  NativeControl::OnContextMenu(cursor_point);
 }
 
 // Returns result, unless ascending is false in which case -result is returned.
