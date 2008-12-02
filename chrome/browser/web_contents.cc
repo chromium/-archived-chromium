@@ -776,8 +776,6 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   if (state == entry->content_state())
     return;  // Nothing to update.
   entry->set_content_state(state);
-
-  // Notify everybody of the changes (only when the current page changed).
   controller()->NotifyEntryChanged(entry, entry_index);
 }
 
