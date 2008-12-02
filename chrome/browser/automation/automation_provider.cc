@@ -2366,10 +2366,8 @@ void AutomationProvider::GetSSLInfoBarCount(const IPC::Message& message,
   int count = -1;  // -1 means error.
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
-    if (nav_controller) {
-      count = static_cast<int>(nav_controller->ssl_manager()->
-          visible_info_bars_.size());
-    }
+    if (nav_controller)
+      count = nav_controller->active_contents()->infobar_delegate_count();
   }
   Send(new AutomationMsg_GetSSLInfoBarCountResponse(message.routing_id(),
                                                     count));
@@ -2383,8 +2381,7 @@ void AutomationProvider::ClickSSLInfoBarLink(const IPC::Message& message,
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller) {
-      int count = static_cast<int>(nav_controller->ssl_manager()->
-          visible_info_bars_.size());
+      int count = nav_controller->active_contents()->infobar_delegate_count();
       if (info_bar_index >= 0 && info_bar_index < count) {
         if (wait_for_navigation) {
           AddNavigationStatusListener(nav_controller,
@@ -2393,10 +2390,11 @@ void AutomationProvider::ClickSSLInfoBarLink(const IPC::Message& message,
               new AutomationMsg_ClickSSLInfoBarLinkResponse(
                   message.routing_id(), true));
         }
-        SSLManager::SSLInfoBar* info_bar = 
-          nav_controller->ssl_manager()->visible_info_bars_.
-          GetElementAt(info_bar_index);
-        info_bar->LinkActivated(NULL, 0);  // Parameters are not used.
+        InfoBarDelegate* delegate =
+            nav_controller->active_contents()->GetInfoBarDelegateAt(
+                info_bar_index);
+        if (delegate->AsConfirmInfoBarDelegate())
+          delegate->AsConfirmInfoBarDelegate()->Accept();
         success = true;
       }
     }

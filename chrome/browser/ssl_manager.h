@@ -27,7 +27,6 @@
 #include "webkit/glue/resource_type.h"
 
 class AutomationProvider;
-class InfoBarItemView;
 class NavigationEntry;
 class LoadFromMemoryCacheDetails;
 class LoadNotificationDetails;
@@ -262,32 +261,6 @@ class SSLManager : public NotificationObserver {
     virtual SecurityStyle GetDefaultStyle(const GURL& url) = 0;
   };
 
-  // An info bar with a message and an optional link that runs a task when
-  // clicked.
-  class SSLInfoBar : public InfoBarItemView,
-                     public views::LinkController {
-   public:
-    SSLInfoBar(SSLManager* manager,
-               const std::wstring& message,
-               const std::wstring& link_text,
-               Task* task);
-
-    virtual ~SSLInfoBar();
-
-    const std::wstring GetMessageText() const;
-
-    // views::LinkController method.
-    virtual void LinkActivated(views::Link* source, int event_flags);
-
-   private:
-    views::Label* label_;
-    views::Link* link_;
-    SSLManager* manager_;
-    scoped_ptr<Task> task_;
-
-    DISALLOW_COPY_AND_ASSIGN(SSLInfoBar);
-  };
-
   static void RegisterUserPrefs(PrefService* prefs);
 
   // Construct an SSLManager for the specified tab.
@@ -402,9 +375,6 @@ class SSLManager : public NotificationObserver {
   // Called on the UI thread.
   void NavigationStateChanged();
 
-  // Called when one of our infobars closes.
-  void OnInfoBarClose(SSLInfoBar* info_bar);
-
   // Called to determine if there were any processed SSL errors from request.
   bool ProcessedSSLErrorFromRequest() const;
 
@@ -427,9 +397,6 @@ class SSLManager : public NotificationObserver {
                              std::wstring* ca_name);
 
  private:
-  // The AutomationProvider needs to access the InfoBars.
-  friend class AutomationProvider;
-
   // SSLMessageInfo contains the information necessary for displaying a message
   // in an info-bar.
   struct SSLMessageInfo {
@@ -479,9 +446,6 @@ class SSLManager : public NotificationObserver {
   // The NavigationController that owns this SSLManager.  We are responsible
   // for the security UI of this tab.
   NavigationController* controller_;
-
-  // The list of currently visible SSL InfoBars.
-  ObserverList<SSLInfoBar> visible_info_bars_;
 
   // Handles registering notifications with the NotificationService.
   NotificationRegistrar registrar_;

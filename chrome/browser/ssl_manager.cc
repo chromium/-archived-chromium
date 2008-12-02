@@ -9,6 +9,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/provisional_load_details.h"
+#include "chrome/browser/infobar_delegate.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/navigation_controller.h"
@@ -36,55 +37,55 @@
 #include "webkit/glue/resource_type.h"
 #include "generated_resources.h"
 
-SSLManager::SSLInfoBar::SSLInfoBar(SSLManager* manager,
-                                   const std::wstring& message,
-                                   const std::wstring& link_text,
-                                   Task* task)
-    : label_(NULL),
-      link_(NULL),
-      manager_(manager),
-      task_(task) {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  if (!message.empty()) {
-    label_ = new views::Label(message);
-    label_->SetFont(rb.GetFont(ResourceBundle::MediumFont));
-    label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-    AddChildViewLeading(label_);
+class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
+ public:
+   SSLInfoBarDelegate(TabContents* contents,
+                      const std::wstring message,
+                      const std::wstring& button_label,
+                      Task* task)
+      : message_(message),
+        button_label_(button_label),
+        task_(task),
+        ConfirmInfoBarDelegate(contents) {
   }
+  virtual ~SSLInfoBarDelegate() {}
 
-  if (!link_text.empty()) {
-    DCHECK(task) << L"Link and no task";  // What do you want to do when users
-                                          // click the link??
-    link_ = new views::Link(link_text);
-    link_->SetFont(rb.GetFont(ResourceBundle::MediumFont));
-    link_->SetController(this);
-    AddChildViewTrailing(link_);
+  // Overridden from ConfirmInfoBarDelegate:
+  virtual void InfoBarClosed() {
+    delete this;
   }
-
-  SetIcon(*rb.GetBitmapNamed(IDR_INFOBAR_SSL_WARNING));
-  DCHECK(manager);
-}
-
-SSLManager::SSLInfoBar::~SSLInfoBar() {
-  // Notify our manager that we no longer exist.
-  manager_->OnInfoBarClose(this);
-}
-
-const std::wstring SSLManager::SSLInfoBar::GetMessageText() const {
-  if (!label_)
-    return std::wstring();
-
-  return label_->GetText();
-}
-
-void SSLManager::SSLInfoBar::LinkActivated(views::Link* source,
-                                           int event_flags) {
-  if (task_.get()) {
-    task_->Run();
-    task_.reset();  // Ensures we won't run the task again.
+  virtual std::wstring GetMessageText() const {
+    return message_;
   }
-  Close();
-}
+  virtual SkBitmap* GetIcon() const {
+    return ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_INFOBAR_SSL_WARNING);
+  }
+  virtual int GetButtons() const {
+    return !button_label_.empty() ? BUTTON_OK : BUTTON_NONE;
+  }
+  virtual std::wstring GetButtonLabel(InfoBarButton button) const {
+    return button_label_;
+  }
+  virtual bool Accept() {
+    if (task_.get()) {
+      task_->Run();
+      task_.reset();  // Ensures we won't run the task again.
+    }
+    return true;
+  }
+  
+
+ private:
+  // Labels for the InfoBar's message and button.
+  std::wstring message_;
+  std::wstring button_label_;
+
+  // A task to run when the InfoBar is accepted.
+  scoped_ptr<Task> task_;
+
+  DISALLOW_COPY_AND_ASSIGN(SSLInfoBarDelegate);
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // SSLManager
@@ -118,8 +119,6 @@ SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
 }
 
 SSLManager::~SSLManager() {
-  // Close any of our info bars that are still left.
-  FOR_EACH_OBSERVER(SSLInfoBar, visible_info_bars_, Close());
 }
 
 // Delegate API method.
@@ -149,29 +148,10 @@ void SSLManager::ShowMessageWithLink(const std::wstring& msg,
   if (entry->ssl().security_style() <= SECURITY_STYLE_UNAUTHENTICATED)
     return;
 
-  // TODO(brettw) have a more general way to deal with info bars.
-  if (controller_->active_contents()->AsWebContents()) {
-    InfoBarView* info_bar_view = controller_->active_contents()->
-        AsWebContents()->view()->GetInfoBarView();
-    DCHECK(info_bar_view);
-
-    if (!info_bar_view)
-      return;
-
-    // Check if we are already displaying this message.
-    ObserverList<SSLInfoBar>::Iterator it(visible_info_bars_);
-    SSLInfoBar* info_bar;
-    while (info_bar = it.GetNext()) {
-      if (info_bar->GetMessageText() == msg)
-        return;
-    }
-
-    // Show the message.
-    info_bar = new SSLInfoBar(this, msg, link_text, task);
-    visible_info_bars_.AddObserver(info_bar);
-
-    // false indicates info_bar is not automatically removed.
-    info_bar_view->AppendInfoBarItem(info_bar, false);
+  if (controller_->active_contents()) {
+    controller_->active_contents()->AddInfoBar(
+        new SSLInfoBarDelegate(controller_->active_contents(), msg, link_text,
+                               task));
   }
 }
 
@@ -235,11 +215,6 @@ bool SSLManager::CanShowInsecureContent(const GURL& url) {
 
 void SSLManager::AllowShowInsecureContentForURL(const GURL& url) {
   can_show_insecure_content_for_host_.insert(url.host());
-}
-
-void SSLManager::OnInfoBarClose(SSLInfoBar* info_bar) {
-  // |info_bar| is no longer visible.  No need to track it any more.
-  visible_info_bars_.RemoveObserver(info_bar);
 }
 
 bool SSLManager::ProcessedSSLErrorFromRequest() const {
@@ -586,15 +561,6 @@ void SSLManager::DidCommitProvisionalLoad(
 
   bool changed = false;
   if (details->is_main_frame) {
-    // We are navigating to a new page, it's time to close the info bars.  They
-    // will automagically disappear from the visible_info_bars_ list (when
-    // OnInfoBarClose is invoked).
-    // TODO(jcampan): if we are navigating to an interstitial page, we close
-    // the info-bars. That is unfortunate as if you decide to go back to the
-    // original page, the info-bars are now gone.  We would need a way to
-    // restore them in that case.
-    FOR_EACH_OBSERVER(SSLInfoBar, visible_info_bars_, Close());
-
     // Update the SSL states of the pending entry.
     NavigationEntry* entry = controller_->GetActiveEntry();
     if (entry) {
