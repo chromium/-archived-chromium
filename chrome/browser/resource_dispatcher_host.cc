@@ -1912,7 +1912,7 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(
   for (size_t i = 0; i < matching_requests.size(); ++i) {
     PendingRequestList::iterator iter =
         pending_requests_.find(matching_requests[i]);
-    DCHECK(iter != pending_requests_.end());
+    CHECK(iter != pending_requests_.end());
     RemovePendingRequest(iter);
   }
 }
