@@ -1043,7 +1043,7 @@ LayoutTests/transforms/transform-value-types.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
 LayoutTests/svg/carto.net/combobox.svg = FAIL
-pending/security/block-test.html = FAIL
+pending/security/block-test.html = FAIL CRASH
 LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
 // Bug 1341582
@@ -1172,7 +1172,6 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
 // MERGE 38729:38760: Regressions
 LayoutTests/editing/selection/5057506.html = FAIL
 LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
-LayoutTests/http/tests/misc/DOMContentLoaded-event.html = TIMEOUT
 
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
