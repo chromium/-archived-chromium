@@ -91,6 +91,10 @@ void TestShell::InitializeTestShell(bool interactive) {
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Italic.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold_Italic.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Verdana_Italic.ttf",
     NULL
   };
   for (size_t i = 0; fonts[i]; ++i) {
