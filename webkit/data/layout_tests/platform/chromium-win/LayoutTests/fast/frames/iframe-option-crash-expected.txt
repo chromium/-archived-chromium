@@ -15,5 +15,3 @@ layer at (0,0) size 800x195
           layer at (0,0) size 300x150
             RenderBlock {HTML} at (0,0) size 300x150
               RenderBody {BODY} at (8,8) size 284x134
-                RenderText {#text} at (0,0) size 16x19
-                  text run at (0,0) width 16: "55"
