@@ -101,6 +101,8 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
 
   if (errno != EINPROGRESS) {
     DLOG(INFO) << "connect failed: " << errno;
+    close(socket_);
+    socket_ = kInvalidSocket;
     return MapPosixError(errno);
   }
 
