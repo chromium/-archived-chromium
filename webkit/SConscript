@@ -55,10 +55,26 @@ elif env['PLATFORM'] == 'posix':
       ],
   )
 
-env.Prepend(
-    WEBKIT_DIR_PORT_INC = "$CHROME_SRC_DIR/webkit/port",
+env.Append(
+    WEBCORE_DIR = '$THIRD_PARTY_WEBKIT_DIR/WebCore',
+    PENDING_DIR = "$WEBKIT_DIR/pending",
+    PORT_DIR = "$WEBKIT_DIR/port",
 
-    CPPPATH = [
+    JAVASCRIPTCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore",
+    WTF_DIR = "$JAVASCRIPTCORE_DIR/wtf",
+    KJS_DIR = "$JAVASCRIPTCORE_DIR/kjs",
+    PCRE_DIR = "$JAVASCRIPTCORE_DIR/pcre",
+
+    V8BINDINGS_DIR = "$WEBKIT_DIR/V8Bindings",
+    DERIVED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/DerivedSources"),
+    SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
+
+    WEBKIT_DIR_PORT_INC = env.Dir("$CHROME_SRC_DIR/webkit/port"),
+)
+
+env.Prepend(
+
+    CPPPATH = [env.Dir(x) for x in [
         '$WEBKIT_DIR/build/localized_strings',
         '$WEBKIT_DIR/build/JSConfig/WebCore',
 
@@ -137,23 +153,10 @@ env.Prepend(
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/xml',
 
         '$CHROME_SRC_DIR',
-    ],
+    ]],
 )
 
 env.Append(
-    WEBCORE_DIR = '$THIRD_PARTY_WEBKIT_DIR/WebCore',
-    PENDING_DIR = "$WEBKIT_DIR/pending",
-    PORT_DIR = "$WEBKIT_DIR/port",
-
-    JAVASCRIPTCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore",
-    WTF_DIR = "$JAVASCRIPTCORE_DIR/wtf",
-    KJS_DIR = "$JAVASCRIPTCORE_DIR/kjs",
-    PCRE_DIR = "$JAVASCRIPTCORE_DIR/pcre",
-
-    V8BINDINGS_DIR = "$WEBKIT_DIR/V8Bindings",
-    DERIVED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/DerivedSources"),
-    SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
-
     CPPDEFINES = [
       'U_STATIC_IMPLEMENTATION',
       '_SCL_SECURE_NO_DEPRECATE',
