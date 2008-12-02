@@ -263,7 +263,7 @@ bool GlueAccessibility::ClearIAccessibleMap(int iaccessible_id,
     if (it->second) {
       // Erase element from reverse hashmap.
       IAccessibleToIntMap::iterator it2 =
-          iaccessible_to_int_map_.find(it->second);
+          iaccessible_to_int_map_.find(it->second.get());
 
       DCHECK(it2 != iaccessible_to_int_map_.end());
       iaccessible_to_int_map_.erase(it2);

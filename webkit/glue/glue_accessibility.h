@@ -12,7 +12,9 @@
 
 class WebView;
 
-typedef stdext::hash_map<int, IAccessible*> IntToIAccessibleMap;
+template <typename T> class COMPtr;
+
+typedef stdext::hash_map<int, COMPtr<IAccessible> > IntToIAccessibleMap;
 typedef stdext::hash_map<IAccessible*, int> IAccessibleToIntMap;
 
 ////////////////////////////////////////////////////////////////////////////////
