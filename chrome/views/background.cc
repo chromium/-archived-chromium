@@ -4,11 +4,11 @@
 
 #include "chrome/views/background.h"
 
-#include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/painter.h"
 #include "chrome/views/view.h"
+#include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkPaint.h"
 
 namespace views {
@@ -68,7 +68,7 @@ Background::~Background() {
 
 void Background::SetNativeControlColor(SkColor color) {
   DeleteObject(native_control_brush_);
-  native_control_brush_ = CreateSolidBrush(gfx::SkColorToCOLORREF(color));
+  native_control_brush_ = CreateSolidBrush(skia::SkColorToCOLORREF(color));
 }
 
 //static

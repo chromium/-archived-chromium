@@ -25,16 +25,13 @@ if env['PLATFORM'] == 'win32':
   )
 
 input_files = [
-    'convolver.cc',
     'gdi_util.cc',
-    'image_operations.cc',
     'native_theme.cc',
     'png_decoder.cc',
     'png_encoder.cc',
     'point.cc',
     'rect.cc',
     'size.cc',
-    'skia_utils.cc',
 ]
 
 if env['PLATFORM'] in ('posix', 'darwin'):
@@ -43,7 +40,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   to_be_ported_files = [
       'gdi_util.cc',
       'native_theme.cc',
-      'skia_utils.cc',
   ]
   for remove in to_be_ported_files:
     input_files.remove(remove)

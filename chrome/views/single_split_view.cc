@@ -4,9 +4,9 @@
 
 #include "chrome/views/single_split_view.h"
 
-#include "base/gfx/skia_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/background.h"
+#include "skia/ext/skia_utils_win.h"
 
 namespace views {
 
@@ -19,7 +19,7 @@ SingleSplitView::SingleSplitView(View* leading, View* trailing)
   AddChildView(trailing);
   set_background(
       views::Background::CreateSolidBackground(
-          gfx::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
+          skia::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
 }
 
 void SingleSplitView::Layout() {

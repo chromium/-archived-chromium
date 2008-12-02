@@ -10,7 +10,6 @@
 
 #include "base/base_drag_source.h"
 #include "base/gfx/native_theme.h"
-#include "base/gfx/skia_utils.h"
 #include "base/message_loop.h"
 #include "base/task.h"
 #include "base/timer.h"

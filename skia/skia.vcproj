@@ -1321,6 +1321,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ext\convolver.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\convolver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\image_operations.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\image_operations.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ext\platform_canvas.h"
 				>
 			</File>
@@ -1342,6 +1358,22 @@
 			</File>
 			<File
 				RelativePath=".\ext\platform_device_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\skia_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\skia_utils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\skia_utils_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\skia_utils_win.h"
 				>
 			</File>
 			<File

@@ -10,7 +10,6 @@
 
 #include "base/command_line.h"
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_piece.h"
@@ -38,6 +37,7 @@
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
+#include "skia/ext/image_operations.h"
 #include "skia/ext/vector_canvas.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
@@ -57,7 +57,6 @@
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
-//#include "webkit/port/platform/graphics/PlatformContextSkia.h"
 
 #include "generated_resources.h"
 
@@ -798,8 +797,8 @@ bool RenderView::CaptureThumbnail(WebFrame* frame,
   device->accessBitmap(false).extractSubset(&subset, src_rect);
 
   // Resample the subset that we want to get it the right size.
-  *thumbnail = gfx::ImageOperations::Resize(
-      subset, gfx::ImageOperations::RESIZE_LANCZOS3, gfx::Size(w, h));
+  *thumbnail = skia::ImageOperations::Resize(
+      subset, skia::ImageOperations::RESIZE_LANCZOS3, gfx::Size(w, h));
 
   score->boring_score = CalculateBoringScore(thumbnail);
 

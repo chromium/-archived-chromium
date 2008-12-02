@@ -4,7 +4,6 @@
 
 #include "chrome/browser/fav_icon_helper.h"
 
-#include "base/gfx/image_operations.h"
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
 #include "chrome/browser/navigation_entry.h"
@@ -13,6 +12,7 @@
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/gfx/favicon_size.h"
+#include "skia/ext/image_operations.h"
 
 FavIconHelper::FavIconHelper(WebContents* web_contents)
     : web_contents_(web_contents),
@@ -257,8 +257,8 @@ SkBitmap FavIconHelper::ConvertToFavIconSize(const SkBitmap& image) {
   int height = image.height();
   if (width > 0 && height > 0) {
     calc_favicon_target_size(&width, &height);
-    return gfx::ImageOperations::Resize(
-          image, gfx::ImageOperations::RESIZE_LANCZOS3,
+    return skia::ImageOperations::Resize(
+          image, skia::ImageOperations::RESIZE_LANCZOS3,
           gfx::Size(width, height));
   }
   return image;

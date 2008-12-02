@@ -152,6 +152,10 @@ input_files = [
   'sgl/SkUtils.cpp',
   'sgl/SkWriter32.cpp',
   'sgl/SkXfermode.cpp',
+
+  'ext/convolver.cc',
+  'ext/image_operations.cc',
+  'ext/skia_utils.cc',
 ]
 
 if env['PLATFORM'] == 'posix':
@@ -176,11 +180,13 @@ if env['PLATFORM'] == 'darwin':
   input_files.append('ext/bitmap_platform_device_mac.cc')
   input_files.append('ext/platform_canvas_mac.cc')
   input_files.append('ext/platform_device_mac.cc')
+  input_files.append('ext/skia_utils_mac.cc')
 
 if env['PLATFORM'] == 'win32':
   input_files.append('ext/bitmap_platform_device_win.cc')
   input_files.append('ext/platform_canvas_win.cc')
   input_files.append('ext/platform_device_win.cc')
+  input_files.append('ext/skia_utils_win.cc')
   input_files.append('ext/vector_canvas.cc')
   input_files.append('ext/vector_device.cc')
 

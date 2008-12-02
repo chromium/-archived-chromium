@@ -5,11 +5,13 @@
 #include "skia/ext/vector_device.h"
 
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "base/scoped_handle.h"
-
+#include "skia/ext/skia_utils_win.h"
 #include "SkUtils.h"
+
+// TOOD(brettw) remove this when this file is changed over to namespace skia.
+using namespace skia;
 
 namespace gfx {
 

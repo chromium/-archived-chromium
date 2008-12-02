@@ -6,10 +6,11 @@
 #include <time.h>
 #include <vector>
 
-#include "base/gfx/convolver.h"
+#include "skia/ext/convolver.h"
+
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace gfx {
+namespace skia {
 
 namespace {
 
@@ -123,5 +124,5 @@ TEST(Convolver, Halve) {
   }
 }
 
-}  // namespace gfx
+}  // namespace skia
 

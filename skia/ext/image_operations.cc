@@ -7,16 +7,20 @@
 #include <limits>
 #include <vector>
 
-#include "base/gfx/image_operations.h"
+#include "skia/ext/image_operations.h"
 
-#include "base/gfx/convolver.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "base/stack_container.h"
+#include "skia/ext/convolver.h"
 #include "SkBitmap.h"
 
-namespace gfx {
+// TODO(brettw) this should be removed when the base/gfx dependencies are
+// removed.
+using namespace gfx;
+
+namespace skia {
 
 namespace {
 
@@ -113,7 +117,7 @@ class ResizeFilter {
       case ImageOperations::RESIZE_BOX:
         return EvalBox(pos);
       case ImageOperations::RESIZE_LANCZOS3:
-        return EvalLanczos(3, pos);
+        return EvalLanczos(2, pos);
       default:
         NOTREACHED();
         return 0;
@@ -358,5 +362,5 @@ SkBitmap ImageOperations::CreateBlendedBitmap(const SkBitmap& first,
   return blended;
 }
 
-}  // namespace gfx
+}  // namespace skia
 

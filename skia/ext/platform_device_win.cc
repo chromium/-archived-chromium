@@ -5,11 +5,14 @@
 #include "skia/ext/platform_device_win.h"
 
 #include "base/logging.h"
-#include "base/gfx/skia_utils.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkUtils.h"
+#include "skia/ext/skia_utils_win.h"
+
+// TODO(brettw) remove this when this file is converted to namespace skia.
+using namespace skia;
 
 namespace gfx {
 

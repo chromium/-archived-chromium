@@ -10,11 +10,11 @@
 #include <vssym32.h>
 
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/skia_utils.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/scoped_handle.h"
 #include "skia/ext/platform_canvas.h"
+#include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkShader.h"
 
 namespace gfx {
@@ -213,8 +213,8 @@ HRESULT NativeTheme::PaintScrollbarTrack(HDC hdc,
   } else {
     // Create a 2x2 checkerboard pattern using the 3D face and highlight
     // colors.
-    SkColor face = COLORREFToSkColor(color3DFace);
-    SkColor highlight = COLORREFToSkColor(GetSysColor(COLOR_3DHILIGHT));
+    SkColor face = skia::COLORREFToSkColor(color3DFace);
+    SkColor highlight = skia::COLORREFToSkColor(GetSysColor(COLOR_3DHILIGHT));
     SkColor buffer[] = { face, highlight, highlight, face };
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
@@ -232,7 +232,7 @@ HRESULT NativeTheme::PaintScrollbarTrack(HDC hdc,
     shader->setLocalMatrix(matrix);
     SkPaint paint;
     paint.setShader(shader)->unref();
-    canvas->drawIRect(RECTToSkIRect(*target_rect), paint);
+    canvas->drawIRect(skia::RECTToSkIRect(*target_rect), paint);
   }
   if (classic_state & DFCS_PUSHED)
     InvertRect(hdc, target_rect);
@@ -466,7 +466,7 @@ HRESULT NativeTheme::GetThemeColor(ThemeName theme,
     COLORREF color_ref;
     if (get_theme_color_(handle, part_id, state_id, prop_id, &color_ref) ==
         S_OK) {
-      *color = gfx::COLORREFToSkColor(color_ref);
+      *color = skia::COLORREFToSkColor(color_ref);
       return S_OK;
     }
   }
@@ -480,7 +480,7 @@ SkColor NativeTheme::GetThemeColorWithDefault(ThemeName theme,
                                               int default_sys_color) const {
   SkColor color;
   if (GetThemeColor(theme, part_id, state_id, prop_id, &color) != S_OK)
-    color = gfx::COLORREFToSkColor(GetSysColor(default_sys_color));
+    color = skia::COLORREFToSkColor(GetSysColor(default_sys_color));
   return color;
 }
 
