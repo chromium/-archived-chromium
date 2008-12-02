@@ -73,8 +73,7 @@ env.Append(
 )
 
 env.Prepend(
-
-    CPPPATH = [env.Dir(x) for x in [
+    CPPPATH = [env.subst(x) for x in [
         '$WEBKIT_DIR/build/localized_strings',
         '$WEBKIT_DIR/build/JSConfig/WebCore',
 
