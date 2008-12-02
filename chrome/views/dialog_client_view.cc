@@ -76,7 +76,7 @@ class DialogButton : public NativeButton {
 ChromeFont DialogClientView::dialog_button_font_;
 static const int kDialogMinButtonWidth = 75;
 static const int kDialogButtonLabelSpacing = 16;
-static const int kDialogButtonContentSpacing = 0;
+static const int kDialogButtonContentSpacing = 5;
 
 // The group used by the buttons.  This name is chosen voluntarily big not to
 // conflict with other groups that could be in the dialog content.
