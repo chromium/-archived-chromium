@@ -1144,7 +1144,7 @@ LayoutTests/editing/deleting/delete-by-word-002.html = FAIL
 LayoutTests/editing/deleting/delete-to-end-of-paragraph.html = FAIL
 LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
-// MERGE 38625:38653: Regression
+// MERGE 38625:38653: Regressions
 LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 
 // MERGE 38625:38653: New tests
@@ -1166,3 +1166,13 @@ LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
+
+// MERGE 38729:38760: New tests
+LayoutTests/editing/selection/doubleclick-whitespace.html = FAIL
+LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
+LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
+
+// MERGE 38729:38760: Regressions
+LayoutTests/editing/selection/5057506.html = FAIL
+LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+LayoutTests/http/tests/misc/DOMContentLoaded-event.html = TIMEOUT
