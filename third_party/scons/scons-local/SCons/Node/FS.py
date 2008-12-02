@@ -1897,6 +1897,10 @@ class Dir(Base):
             entry_names = filter(lambda n: n not in ('.', '..'), dir.entries.keys())
             node_names = map(lambda n, e=dir.entries: e[n].name, entry_names)
             names.extend(node_names)
+            if not strings:
+                # Make sure the working directory (self) actually has
+                # entries for all Nodes in repositories or variant dirs.
+                map(self.Entry, node_names)
             if ondisk:
                 try:
                     disk_names = os.listdir(dir.abspath)
