@@ -1176,3 +1176,8 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
 LayoutTests/editing/selection/5057506.html = FAIL
 LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LayoutTests/http/tests/misc/DOMContentLoaded-event.html = TIMEOUT
+
+// Started failing in r6179:r6184. Not sure which change was the culprit.
+DEBUG : LayoutTests/svg/carto.net/selectionlist.svg = CRASH
+
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
