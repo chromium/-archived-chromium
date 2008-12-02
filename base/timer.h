@@ -82,6 +82,7 @@ class BaseTimer_Helper {
     TimerTask(TimeDelta delay) : delay_(delay) {
       // timer_ is set in InitiateDelayedTask.
     }
+    virtual ~TimerTask() {}
     BaseTimer_Helper* timer_;
     TimeDelta delay_;
   };
@@ -135,21 +136,49 @@ class BaseTimer : public BaseTimer_Helper {
           receiver_(receiver),
           method_(method) {
     }
+
+    virtual ~TimerTask() {
+      // This task may be getting cleared because the MessageLoop has been
+      // destructed.  If so, don't leave the Timer with a dangling pointer
+      // to this now-defunct task.
+      ClearBaseTimer();
+    }
+
     virtual void Run() {
       if (!timer_)  // timer_ is null if we were orphaned.
         return;
-      SelfType* self = static_cast<SelfType*>(timer_);
-      if (kIsRepeating) {
-        self->Reset();
-      } else {
-        self->delayed_task_ = NULL;
-      }
+      if (kIsRepeating)
+        ResetBaseTimer();
+      else
+        ClearBaseTimer();
       DispatchToMethod(receiver_, method_, Tuple0());
     }
+
     TimerTask* Clone() const {
       return new TimerTask(delay_, receiver_, method_);
     }
+
    private:
+    // Inform the Base that the timer is no longer active.
+    void ClearBaseTimer() {
+      if (timer_) {
+        SelfType* self = static_cast<SelfType*>(timer_);
+        // It is possible that the Timer has already been reset, and that this
+        // Task is old.  So, if the Timer points to a different task, assume
+        // that the Timer has already taken care of properly setting the task.
+        if (self->delayed_task_ == this)
+          self->delayed_task_ = NULL;
+      }
+    }
+
+    // Inform the Base that we're resetting the timer.
+    void ResetBaseTimer() {
+      DCHECK(timer_);
+      DCHECK(kIsRepeating);
+      SelfType* self = static_cast<SelfType*>(timer_);
+      self->Reset();
+    }
+
     Receiver* receiver_;
     ReceiverMethod method_;
   };
