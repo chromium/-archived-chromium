@@ -73,13 +73,23 @@ if env['OS'] == 'win32':
       GetInputs('$CRASH_SENDER_CPPSRCS'),
       LIBS = Split('advapi32.lib shell32.lib wininet.lib'))
 elif env['OS'] == 'osx':
-  pass
-  # crash_sender = env.Program('crash_sender', crash_sender_srcs,
-  #     FRAMEWORKS = Split('Carbon Cocoa Foundation IOKit SystemConfiguration'),
-  #     LIBS='stdc++')
+  outputs['CRASH_SENDER_EXE'] = env.ChromeProgram('crash_sender',
+      GetInputs('$CRASH_SENDER_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] +
+          Split('Carbon Cocoa Foundation IOKit SystemConfiguration'),
+      LIBS = env['LIBS'] + ['crypto', 'stdc++'])
 env.Alias('gears', outputs['CRASH_SENDER_EXE'])
 
 if env['OS'] == 'osx':
+# Crash inspector is launched by the crashed process from it's exception
+# handler and is what actually communicates with the crashed process to
+# extract the minidump.  It then launches crash_sender in order to actually
+# send the minidump over the wire.
+  outputs['OSX_CRASH_INSPECTOR_EXE'] = env.ChromeProgram('crash_inspector',
+      GetInputs('$OSX_CRASH_INSPECTOR_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] + ['Carbon'],
+      LIBS = env['LIBS'] + ['breakpad_osx-gears'])
+
   outputs['SF_INSTALLER_PLUGIN_EXE'] = env.ChromeSharedLibrary('stats_pane',
       GetInputs('$SF_INSTALLER_PLUGIN_CPPSRCS'),
       FRAMEWORKS = env['FRAMEWORKS'] + Split('Cocoa InstallerPlugins'))

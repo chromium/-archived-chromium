@@ -31,7 +31,19 @@ if env['OS'] == 'win32':
       '$THIRD_PARTY_DIR/breakpad/src/common/windows/http_upload.cc',
   ])
 elif env['OS'] == 'osx':
-  print 'TODO: crash_sender'
+  env.Append(CRASH_SENDER_CPPSRCS = [
+      '$OPEN_DIR/base/common/exception_handler_osx/nshost_macaddress.m',
+      '$OPEN_DIR/crash_sender/crash_sender_osx.m',
+      '$THIRD_PARTY_DIR/breakpad/src/common/mac/HTTPMultipartUpload.m',
+  ])
+
+  env.Append(OSX_CRASH_INSPECTOR_CPPSRCS = [
+      '$THIRD_PARTY_DIR/breakpad_osx/src/common/convert_UTF.c',
+      '$OPEN_DIR/base/common/exception_handler_osx/inspector.mm',
+      '$OPEN_DIR/base/common/exception_handler_osx/mach_ipc.mm',
+      '$OPEN_DIR/base/common/exception_handler_osx/on_demand_server.mm',
+      '$OPEN_DIR/base/common/exception_handler_osx/simple_string_dictionary.mm',
+  ])
 
 #-----------------------------------------------------------------------------
 # ipc_test
@@ -155,12 +167,13 @@ if env['OS'] == 'win32':
 
 #-----------------------------------------------------------------------------
 # third_party/breakpad_osx
+
 env.Append(SF_CPPSRCS = [
-     '$OPEN_DIR/base/common/exception_handler_osx.mm',
-     '$OPEN_DIR/base/common/exception_handler_osx/google_breakpad.mm',
-     '$OPEN_DIR/base/common/exception_handler_osx/mach_ipc.mm',
-     '$OPEN_DIR/base/common/exception_handler_osx/on_demand_server.mm',
-     '$OPEN_DIR/base/common/exception_handler_osx/simple_string_dictionary.mm'
+    '$OPEN_DIR/base/common/exception_handler_osx.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/google_breakpad.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/mach_ipc.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/on_demand_server.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/simple_string_dictionary.mm'
 ])
 
 #-----------------------------------------------------------------------------

@@ -213,7 +213,7 @@ def FirefoxInstaller():
         ('components/gears_ff2.pdb', ['$FF2_MODULE_PDB']),
         ('components/gears.pdb', ['$FF3_MODULE_PDB']),
     ]
-  # TODO: notifier, os x
+  # TODO: launchurl
 
   dir = env.DirBuilder('$INSTALLER_OUTDIR/$INSTALLER_BASENAME', dirsrcs)
   actions = [
@@ -270,6 +270,8 @@ def SafariPluginBundle():
       ('Contents/Resources/English.lproj/InfoPlist.strings',
           ['$OPEN_DIR/tools/osx/English.lproj/InfoPlist.strings']),
       ('Contents/Resources/', env.Glob('#/$OPEN_DIR/ui/safari/*.nib')),
+      ('Contents/Resources/', '$CRASH_SENDER_EXE'),
+      ('Contents/Resources/', '$OSX_CRASH_INSPECTOR_EXE'),
       # TODO(mpcomplete): crash sendor/inspector, launchurl
       ('Contents/MacOS/', ['$SF_MODULE']), 
   ]
