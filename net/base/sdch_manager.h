@@ -97,6 +97,7 @@ class SdchManager {
     DICTIONARY_SELECTED_FROM_NON_HTTP = 33,
     DICTIONARY_IS_TOO_LARGE= 34,
     DICTIONARY_COUNT_EXCEEDED = 35,
+    DICTIONARY_ALREADY_SCHEDULED_TO_DOWNLOAD = 36,
 
     // Failsafe hack.
     ATTEMPT_TO_DECODE_NON_HTTP_DATA = 40,
@@ -105,6 +106,10 @@ class SdchManager {
     // Content-Encoding problems detected, with no action taken.
     MULTIENCODING_FOR_NON_SDCH_REQUEST = 50,
     SDCH_CONTENT_ENCODE_FOR_NON_SDCH_REQUEST = 51,
+
+    // Dictionary manager issues.
+    DOMAIN_BLACKLIST_INCLUDES_TARGET = 60,
+
 
     MAX_PROBLEM_CODE  // Used to bound histogram.
   };

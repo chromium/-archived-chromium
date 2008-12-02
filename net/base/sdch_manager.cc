@@ -64,10 +64,10 @@ SdchManager::~SdchManager() {
 bool SdchManager::BlacklistDomain(const GURL& url) {
   if (!global_ )
     return false;
-  std::string domain(url.host());
   UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.UptimeBeforeBlacklisting_M",
        Time::Now() - FieldTrialList::application_start_time());
-  global_->blacklisted_domains_.insert(url.host());
+  std::string domain(StringToLowerASCII(url.host()));
+  global_->blacklisted_domains_.insert(domain);
   return true;
 }
 
@@ -88,7 +88,11 @@ const bool SdchManager::IsInSupportedDomain(const GURL& url) const {
     return true;
 
   std::string domain = StringToLowerASCII(url.host());
-  return blacklisted_domains_.end() == blacklisted_domains_.find(domain);
+  bool was_blacklisted(blacklisted_domains_.end() ==
+                       blacklisted_domains_.find(domain));
+  if (was_blacklisted)
+    SdchErrorRecovery(DOMAIN_BLACKLIST_INCLUDES_TARGET);
+  return was_blacklisted;
 }
 
 bool SdchManager::CanFetchDictionary(const GURL& referring_url,

@@ -6,6 +6,14 @@
 #include "chrome/browser/profile.h"
 
 void SdchDictionaryFetcher::Schedule(const GURL& dictionary_url) {
+  // Avoid pushing duplicate copy onto queue.  We may fetch this url again later
+  // and get a different dictionary, but there is no reason to have it in the
+  // queue twice at one time.
+  if (!fetch_queue_.empty() && fetch_queue_.back() == dictionary_url) {
+    SdchManager::SdchErrorRecovery(
+        SdchManager::DICTIONARY_ALREADY_SCHEDULED_TO_DOWNLOAD);
+    return;
+  }
   fetch_queue_.push(dictionary_url);
   ScheduleDelayedRun();
 }
