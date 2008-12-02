@@ -90,6 +90,12 @@ if env['OS'] == 'osx':
       FRAMEWORKS = env['FRAMEWORKS'] + ['Carbon'],
       LIBS = env['LIBS'] + ['breakpad_osx-gears'])
 
+  outputs['OSX_LAUNCHURL_EXE'] = env.ChromeProgram('launch_url_with_browser',
+      GetInputs('$OSX_LAUNCHURL_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] +
+          Split('CoreFoundation ApplicationServices'),
+      LIBS = env['LIBS'] + ['stdc++'])
+
   outputs['SF_INSTALLER_PLUGIN_EXE'] = env.ChromeSharedLibrary('stats_pane',
       GetInputs('$SF_INSTALLER_PLUGIN_CPPSRCS'),
       FRAMEWORKS = env['FRAMEWORKS'] + Split('Cocoa InstallerPlugins'))

@@ -46,6 +46,13 @@ elif env['OS'] == 'osx':
   ])
 
 #-----------------------------------------------------------------------------
+# launch_url_with_browser
+
+env.Append(OSX_LAUNCHURL_CPPSRCS = [
+    '$OPEN_DIR/base/safari/launch_url_in_browser.cc',
+])
+
+#-----------------------------------------------------------------------------
 # ipc_test
 
 env.Append(COMMON_M4SRCS = [
