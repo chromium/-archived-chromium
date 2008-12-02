@@ -1477,7 +1477,11 @@ LayoutTests/tables/mozilla/other/ms.html = FAIL
 LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 
+// This fails because it requests bold+italic Impact faces, which don't exist.
+// Our simulation of them differs in metrics from Windows's simulation and
+// this is probably not worth the effort
 chrome/fonts/impact.html = FAIL
+
 chrome/fonts/lucida-grande.html = FAIL
 chrome/plugins/get-url-with-blank-target.html = FAIL
 chrome/plugins/multiple-plugins.html = FAIL
