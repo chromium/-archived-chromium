@@ -74,7 +74,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
       break;
 
   // TODO(port): make these platform agnostic when we restructure this code.
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_MACOSX)
     case WebInputEvent::MOUSE_DOUBLE_CLICK:
       ++m_clickCount;
       // fall through
