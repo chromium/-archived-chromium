@@ -10,11 +10,12 @@ to find the repository and revision to merge from.
 Example usage:
   merge.py
   merge.py --new_revision 12345
-  merge.py --diff3_cmd myfancydiffcommand.exe
+  merge.py --diff3-tool kdiff3
 
 """
 
 import optparse
+import os
 import subprocess
 import xml.dom.minidom
 
@@ -23,8 +24,11 @@ import google.path_utils
 class Merger(object):
   """ Does svn merges. """
   
+  DIFF3_WRAPPER_PATH = os.path.join('..', '..', 'webkit', 'tools', 'merge', 
+      'diff3-wrapper.py')
+  
   def __init__(self, repository, webkit_root, old_revision, 
-      new_revision, is_dry_run, diff3_cmd=None):
+      new_revision, is_dry_run, diff3_tool=None):
     """
     Args:
       repository: the repository that we are merging to/from.
@@ -34,14 +38,14 @@ class Merger(object):
       new_revision: the revision we are merging to.
       is_dry_run: whether to actually make changes or just print intended
           changes.
-      diff3_cmd: the tool for doing 3-way diffs.
+      diff3_tool: the tool for doing 3-way diffs.
     """
     self._repository = repository
     self._webkit_root = webkit_root
     self._old_revision = old_revision
     self._new_revision = new_revision
     self._is_dry_run = is_dry_run
-    self._diff3_cmd = diff3_cmd
+    self._diff3_tool = diff3_tool
 
   def MergeDirectory(self, directory):
     """ Merges the given directory in the repository into the same directory
@@ -50,9 +54,11 @@ class Merger(object):
     command = ["svn", "merge", "--accept", "edit", "-r", 
         "%s:%s" % (self._old_revision, self._new_revision), 
         "%s/%s" % (self._repository, directory), directory]
-    if self._diff3_cmd is not None:
+    if self._diff3_tool is not None:
       command.append("--diff3-cmd")
-      command.append(self._diff3_cmd)
+      command.append(self.DIFF3_WRAPPER_PATH)
+      command.append("-x")
+      command.append("--use-%s" % self._diff3_tool)
     print ' '.join(command)
     if not self._is_dry_run:
       #TODO(ojan): Check return code here.
@@ -98,6 +104,10 @@ def UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
     #TODO(ojan): Check that the write suceeded.
     file.write(new_merge_revision)
 
+def UpdateDeps(deps_path, new_revision, is_dry_run):
+  #TODO(ojan): Get this to update the revision of the appropriate bits in DEPS.
+  pass
+  
 def main(options, args):
   """ Does the merge and updates WEBKIT_MERGE_REVISION.
   
@@ -114,6 +124,9 @@ def main(options, args):
 
   webkit_merge_revision_path = google.path_utils.FindUpward(
       google.path_utils.ScriptDir(), 'WEBKIT_MERGE_REVISION')
+      
+  deps_path = google.path_utils.FindUpward(
+      google.path_utils.ScriptDir(), 'DEPS')
 
   repository_and_revision = GetCurrentRepositoryAndRevision(
       webkit_merge_revision_path)
@@ -129,17 +142,18 @@ def main(options, args):
       'third_party', 'WebKit')
 
   merger = Merger(repository, webkit_root, old_revision, new_revision, 
-      options.dry_run, options.diff3_cmd)
+      options.dry_run, options.diff3_tool)
   merger.MergeDirectory("JavaScriptCore")
   merger.MergeDirectory("WebCore")
   
   UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
       new_revision, options.dry_run)
+  UpdateDeps(deps_path, new_revision, options.dry_run)
 
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
-  option_parser.add_option("", "--diff3-cmd", default=None,
-                           help="Optional. Path to 3-way diff tool.")
+  option_parser.add_option("", "--diff3-tool", default=None,
+      help="Optional. diff3 tool to use. Can be 'kdiff3' or 'beyondcompare'")
   option_parser.add_option("", "--new-revision", default=None,
                            help="Optional. Revision to merge to. Tip of tree "
                                 "revision will be used if omitted.")
