@@ -141,7 +141,7 @@ int ProxyResolverMac::GetProxyConfig(ProxyConfig* config) {
             kSCPropNetProxiesProxyAutoConfigURLString,
             CFStringGetTypeID());
     if (pac_url_ref)
-      config->pac_url = base::SysCFStringRefToUTF8(pac_url_ref);
+      config->pac_url = GURL(base::SysCFStringRefToUTF8(pac_url_ref));
   }
   
   // proxies (for now only ftp, http and https)
@@ -222,13 +222,13 @@ int ProxyResolverMac::GetProxyConfig(ProxyConfig* config) {
 
 // Gets the proxy information for a query URL from a PAC. Implementation
 // inspired by http://developer.apple.com/samplecode/CFProxySupportTool/
-int ProxyResolverMac::GetProxyForURL(const std::string& query_url,
-                                     const std::string& pac_url,
+int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
+                                     const GURL& pac_url,
                                      ProxyInfo* results) {
   scoped_cftyperef<CFStringRef> query_ref(
-      base::SysUTF8ToCFStringRef(query_url));
+      base::SysUTF8ToCFStringRef(query_url.spec()));
   scoped_cftyperef<CFStringRef> pac_ref(
-      base::SysUTF8ToCFStringRef(pac_url));
+      base::SysUTF8ToCFStringRef(pac_url.spec()));
   scoped_cftyperef<CFURLRef> query_url_ref(
       CFURLCreateWithString(kCFAllocatorDefault,
                             query_ref.get(),

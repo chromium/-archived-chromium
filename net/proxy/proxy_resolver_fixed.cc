@@ -13,8 +13,8 @@ int ProxyResolverFixed::GetProxyConfig(ProxyConfig* config) {
   return OK;
 }
 
-int ProxyResolverFixed::GetProxyForURL(const std::string& query_url,
-                                       const std::string& pac_url,
+int ProxyResolverFixed::GetProxyForURL(const GURL& query_url,
+                                       const GURL& pac_url,
                                        ProxyInfo* results) {
   NOTREACHED() << "Should not be asked to do proxy auto config";
   return ERR_FAILED;

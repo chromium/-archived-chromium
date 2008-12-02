@@ -177,7 +177,7 @@ class ProxyService::PacRequest :
     public base::RefCountedThreadSafe<ProxyService::PacRequest> {
  public:
   PacRequest(ProxyService* service,
-             const std::string& pac_url,
+             const GURL& pac_url,
              CompletionCallback* callback)
       : service_(service),
         callback_(callback),
@@ -190,7 +190,7 @@ class ProxyService::PacRequest :
       origin_loop_ = MessageLoop::current();
   }
 
-  void Query(const std::string& url, ProxyInfo* results) {
+  void Query(const GURL& url, ProxyInfo* results) {
     results_ = results;
     // If we have a valid callback then execute Query asynchronously
     if (callback_) {
@@ -214,8 +214,8 @@ class ProxyService::PacRequest :
  private:
   // Runs on the PAC thread if a valid callback is provided.
   void DoQuery(ProxyResolver* resolver,
-               const std::string& query_url,
-               const std::string& pac_url) {
+               const GURL& query_url,
+               const GURL& pac_url) {
     int rv = resolver->GetProxyForURL(query_url, pac_url, &results_buf_);
     if (origin_loop_) {
       origin_loop_->PostTask(FROM_HERE,
@@ -253,7 +253,7 @@ class ProxyService::PacRequest :
 
   // Usable from within DoQuery on the PAC thread.
   ProxyInfo results_buf_;
-  std::string pac_url_;
+  GURL pac_url_;
   MessageLoop* origin_loop_;
 };
 
@@ -326,7 +326,7 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
       return OK;
     }
 
-    if (!config_.pac_url.empty() || config_.auto_detect) {
+    if (config_.pac_url.is_valid() || config_.auto_detect) {
       if (callback) {
         // Create PAC thread for asynchronous mode.
         if (!pac_thread_.get()) {
@@ -341,9 +341,20 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
 
       scoped_refptr<PacRequest> req =
           new PacRequest(this, config_.pac_url, callback);
-      // TODO(darin): We should strip away any reference fragment since it is
-      // not relevant, and moreover it could contain non-ASCII bytes.
-      req->Query(url.spec(), result);
+
+      // Strip away any reference fragments and the username/password, as they
+      // are not relevant to proxy resolution.
+      GURL sanitized_url;
+      { // TODO(eroman): The following duplicates logic from
+        // HttpUtil::SpecForRequest. Should probably live in net_util.h
+        GURL::Replacements replacements;
+        replacements.ClearUsername();
+        replacements.ClearPassword();
+        replacements.ClearRef();
+        sanitized_url = url.ReplaceComponents(replacements);
+      }
+
+      req->Query(sanitized_url, result);
 
       if (callback) {
         if (pac_request)

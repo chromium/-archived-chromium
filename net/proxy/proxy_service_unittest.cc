@@ -18,8 +18,8 @@ class MockProxyResolver : public net::ProxyResolver {
     *results = *(config.get());
     return net::OK;
   }
-  virtual int GetProxyForURL(const std::string& query_url,
-                             const std::string& pac_url,
+  virtual int GetProxyForURL(const GURL& query_url,
+                             const GURL& pac_url,
                              net::ProxyInfo* results) {
     if (pac_url != config->pac_url)
       return net::ERR_INVALID_ARGUMENT;
@@ -59,7 +59,7 @@ TEST(ProxyServiceTest, Direct) {
 
 TEST(ProxyServiceTest, PAC) {
   MockProxyResolver resolver;
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy");
   resolver.info_predicate_query_host = "www.google.com";
 
@@ -76,7 +76,7 @@ TEST(ProxyServiceTest, PAC) {
 
 TEST(ProxyServiceTest, PAC_FailoverToDirect) {
   MockProxyResolver resolver;
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy:8080");
   resolver.info_predicate_query_host = "www.google.com";
 
@@ -100,7 +100,7 @@ TEST(ProxyServiceTest, PAC_FailsToDownload) {
   // Test what happens when we fail to download the PAC URL.
 
   MockProxyResolver resolver;
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy:8080");
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = true;
@@ -133,7 +133,7 @@ TEST(ProxyServiceTest, ProxyFallback) {
   // are bad.
 
   MockProxyResolver resolver;
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy1:8080;foopy2:9090");
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;
@@ -160,7 +160,7 @@ TEST(ProxyServiceTest, ProxyFallback) {
 
   // Create a new resolver that returns 3 proxies. The second one is already
   // known to be bad.
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy3:7070;foopy1:8080;foopy2:9090");
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;
@@ -191,7 +191,7 @@ TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
   // Test proxy failover when new settings are available.
 
   MockProxyResolver resolver;
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy1:8080;foopy2:9090");
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;
@@ -211,7 +211,7 @@ TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
 
   // Fake an error on the proxy, and also a new configuration on the proxy.
   resolver.config.reset(new net::ProxyConfig);
-  resolver.config->pac_url = "http://foopy-new/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy-new/proxy.pac");
 
   rv = service.ReconsiderProxyAfterError(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
@@ -226,7 +226,7 @@ TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
 
   // We simulate a new configuration.
   resolver.config.reset(new net::ProxyConfig);
-  resolver.config->pac_url = "http://foopy-new2/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy-new2/proxy.pac");
 
   // We fake anothe error. It should go back to the first proxy.
   rv = service.ReconsiderProxyAfterError(url, &info, NULL, NULL);
@@ -238,7 +238,7 @@ TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
   // Test proxy failover when the configuration is bad.
 
   MockProxyResolver resolver;
-  resolver.config->pac_url = "http://foopy/proxy.pac";
+  resolver.config->pac_url = GURL("http://foopy/proxy.pac");
   resolver.info.UseNamedProxy("foopy1:8080;foopy2:9090");
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;

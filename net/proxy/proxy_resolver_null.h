@@ -15,8 +15,8 @@ class ProxyResolverNull : public ProxyResolver {
   virtual int GetProxyConfig(ProxyConfig* config) {
     return ERR_NOT_IMPLEMENTED;
   }
-  virtual int GetProxyForURL(const std::string& query_url,
-                             const std::string& pac_url,
+  virtual int GetProxyForURL(const GURL& query_url,
+                             const GURL& pac_url,
                              ProxyInfo* results) {
     return ERR_NOT_IMPLEMENTED;
   }

@@ -13,6 +13,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/time.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
 
 #if defined(OS_WIN)
@@ -44,7 +45,7 @@ class ProxyConfig {
   bool auto_detect;
 
   // If non-empty, indicates the URL of the proxy auto-config file to use.
-  std::string pac_url;
+  GURL pac_url;
 
   // If non-empty, indicates the proxy server to use (of the form host:port).
   // If proxies depend on the scheme, a string of the format
@@ -274,8 +275,8 @@ class ProxyResolver {
   // Query the proxy auto-config file (specified by |pac_url|) for the proxy to
   // use to load the given |query_url|.  Returns OK if successful or an error
   // code if otherwise.
-  virtual int GetProxyForURL(const std::string& query_url,
-                             const std::string& pac_url,
+  virtual int GetProxyForURL(const GURL& query_url,
+                             const GURL& pac_url,
                              ProxyInfo* results) = 0;
 };
 

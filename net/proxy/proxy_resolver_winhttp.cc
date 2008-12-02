@@ -84,14 +84,14 @@ int ProxyResolverWinHttp::GetProxyConfig(ProxyConfig* config) {
     }
   }
   if (ie_config.lpszAutoConfigUrl)
-    config->pac_url = WideToASCII(ie_config.lpszAutoConfigUrl);
+    config->pac_url = GURL(ie_config.lpszAutoConfigUrl);
 
   FreeConfig(&ie_config);
   return OK;
 }
 
-int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
-                                         const std::string& pac_url,
+int ProxyResolverWinHttp::GetProxyForURL(const GURL& query_url,
+                                         const GURL& pac_url,
                                          ProxyInfo* results) {
   // If we don't have a WinHTTP session, then create a new one.
   if (!session_handle_ && !OpenWinHttpSession())
@@ -106,7 +106,7 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
   WINHTTP_AUTOPROXY_OPTIONS options = {0};
   options.fAutoLogonIfChallenged = FALSE;
   options.dwFlags = WINHTTP_AUTOPROXY_CONFIG_URL;
-  std::wstring pac_url_wide = ASCIIToWide(pac_url);
+  std::wstring pac_url_wide = ASCIIToWide(pac_url.spec());
   options.lpszAutoConfigUrl =
       pac_url_wide.empty() ? L"http://wpad/wpad.dat" : pac_url_wide.c_str();
 
@@ -119,12 +119,13 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
   // get good performance in the case where WinHTTP uses an out-of-process
   // resolver.  This is important for Vista and Win2k3.
   BOOL ok = CallWinHttpGetProxyForUrl(
-      session_handle_, ASCIIToWide(query_url).c_str(), &options, &info);
+      session_handle_, ASCIIToWide(query_url.spec()).c_str(), &options, &info);
   if (!ok) {
     if (ERROR_WINHTTP_LOGIN_FAILURE == GetLastError()) {
       options.fAutoLogonIfChallenged = TRUE;
       ok = CallWinHttpGetProxyForUrl(
-          session_handle_, ASCIIToWide(query_url).c_str(), &options, &info);
+          session_handle_, ASCIIToWide(query_url.spec()).c_str(),
+          &options, &info);
     }
     if (!ok) {
       DWORD error = GetLastError();
