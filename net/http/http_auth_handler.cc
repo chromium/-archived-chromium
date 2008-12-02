@@ -12,7 +12,6 @@ bool HttpAuthHandler::InitFromChallenge(std::string::const_iterator begin,
                                         HttpAuth::Target target) {
   target_ = target;
   score_ = -1;
-  scheme_ = NULL;
 
   bool ok = Init(begin, end);
 

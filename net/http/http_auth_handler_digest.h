@@ -23,7 +23,7 @@ class HttpAuthHandlerDigest : public HttpAuthHandler {
  protected:
   virtual bool Init(std::string::const_iterator challenge_begin,
                     std::string::const_iterator challenge_end) {
-    nonce_count_ = 1;
+    nonce_count_ = 0;
     return ParseChallenge(challenge_begin, challenge_end);
   }
 

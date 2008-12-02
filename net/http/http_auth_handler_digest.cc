@@ -89,7 +89,7 @@ std::string HttpAuthHandlerDigest::GenerateCredentials(
   // This may not be possible when there are multiple connections to the
   // server though:
   // https://bugzilla.mozilla.org/show_bug.cgi?id=114451
-  int nonce_count = nonce_count_++;
+  int nonce_count = ++nonce_count_;
 
   // Extract the request method and path -- the meaning of 'path' is overloaded
   // in certain cases, to be a hostname.

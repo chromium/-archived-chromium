@@ -29,12 +29,12 @@ class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
                          HttpAuth::Target target);
 
   // Lowercase name of the auth scheme
-  std::string scheme() const {
+  const std::string& scheme() const {
     return scheme_;
   }
 
   // The realm value that was parsed during Init().
-  std::string realm() const {
+  const std::string& realm() const {
     return realm_;
   }
 
@@ -62,7 +62,7 @@ class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
                     std::string::const_iterator challenge_end) = 0;
 
   // The lowercase auth-scheme {"basic", "digest", "ntlm", ...}
-  const char* scheme_;
+  std::string scheme_;
 
   // The realm.
   std::string realm_;
