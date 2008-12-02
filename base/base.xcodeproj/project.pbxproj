@@ -82,7 +82,6 @@
 		7B836E180E55CE5B00F6AD31 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B836D970E55CE4700F6AD31 /* libicudata.a */; };
 		7B8505B30E5B432200730B43 /* size.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B8505A40E5B3FBE00730B43 /* size.cc */; };
 		7B8505D30E5B43EE00730B43 /* rect_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45629E40E27C058005E4685 /* rect_unittest.cc */; };
-		7B8505D40E5B43FE00730B43 /* convolver_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06790E3F714300172919 /* convolver_unittest.cc */; };
 		7B8505D50E5B441000730B43 /* png_codec_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562A200E27C8C1005E4685 /* png_codec_unittest.cc */; };
 		7B8505D90E5B445100730B43 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 825403B10D92D2E50006B936 /* libbase_gfx.a */; };
 		7B85062A0E5B556900730B43 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D5E0E55081400185273 /* libpng.a */; };
@@ -150,10 +149,7 @@
 		A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A0270A0E4A630D00498DA9 /* file_util_mac.mm */; };
 		A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */; };
 		AB4C147D0EC0E3F600655FED /* time_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_mac.cc */; };
-		AB956E030E5DDB7A00BBE9D8 /* image_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06370E3F6C1F00172919 /* image_operations.cc */; };
-		AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A063B0E3F6C3000172919 /* image_operations_unittest.cc */; };
 		ABE1BA2A0E7574D1009041DA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE1BA290E7574D1009041DA /* ApplicationServices.framework */; };
-		ABE1BA610E75757C009041DA /* skia_utils_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABE1BA600E75757C009041DA /* skia_utils_mac.cc */; };
 		ABF4B98F0DC2BA6900A6E319 /* base_paths_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */; };
 		ABF4B99E0DC2BB6000A6E319 /* clipboard_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */; };
 		ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254031B0D92D1F40006B936 /* json_reader.cc */; };
@@ -179,7 +175,6 @@
 		BA73AA330E5F614B00A20026 /* condition_variable_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA73AA320E5F614B00A20026 /* condition_variable_unittest.cc */; };
 		E45062A60E40A9BE0025A81A /* base_switches.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825402CB0D92D1390006B936 /* base_switches.cc */; };
 		E48A05F70E3F61B300172919 /* command_line.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133490E37A41D00110AA2 /* command_line.cc */; };
-		E48A06710E3F70E200172919 /* convolver.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06680E3F70B500172919 /* convolver.cc */; };
 		E48FB9990EC4ED850052B72B /* process_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9980EC4ED850052B72B /* process_posix.cc */; };
 		E48FB9EA0EC4F53B0052B72B /* process_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9E90EC4F53B0052B72B /* process_util_mac.mm */; };
 		E49115EF0E47B461001EE8C3 /* at_exit.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49115EC0E47B461001EE8C3 /* at_exit.cc */; };
@@ -1433,14 +1428,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E48A06710E3F70E200172919 /* convolver.cc in Sources */,
-				AB956E030E5DDB7A00BBE9D8 /* image_operations.cc in Sources */,
 				825403EE0D92D31D0006B936 /* png_decoder.cc in Sources */,
 				825403F00D92D31D0006B936 /* png_encoder.cc in Sources */,
 				825403F20D92D31D0006B936 /* point.cc in Sources */,
 				825403F50D92D31D0006B936 /* rect.cc in Sources */,
 				7B8505B30E5B432200730B43 /* size.cc in Sources */,
-				ABE1BA610E75757C009041DA /* skia_utils_mac.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1453,7 +1445,6 @@
 				B52C916C0E9428F500208D01 /* clipboard_unittest.cc in Sources */,
 				7B78D38F0E54FE0100609465 /* command_line_unittest.cc in Sources */,
 				BA73AA330E5F614B00A20026 /* condition_variable_unittest.cc in Sources */,
-				7B8505D40E5B43FE00730B43 /* convolver_unittest.cc in Sources */,
 				ABF68B2B0EB0F93E00E72835 /* field_trial_unittest.cc in Sources */,
 				4D11B89F0E929F0700EF7617 /* file_path_unittest.cc in Sources */,
 				A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */,
@@ -1461,7 +1452,6 @@
 				93611B1A0E5A878400F9405D /* histogram_unittest.cc in Sources */,
 				7BAE392B0E6F4EF200C3F750 /* hmac_unittest.cc in Sources */,
 				B57E4D780E9C26340090055D /* idletimer_unittest.cc in Sources */,
-				AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */,
 				7B78D3920E54FE0100609465 /* json_reader_unittest.cc in Sources */,
 				7B78D3930E54FE0100609465 /* json_writer_unittest.cc in Sources */,
 				7BF892E00E758883000BAF8A /* lazy_instance_unittest.cc in Sources */,
