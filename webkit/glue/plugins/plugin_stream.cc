@@ -17,8 +17,8 @@
 namespace NPAPI {
 
 PluginStream::~PluginStream() {
-  // always cleanup our temporary files.
-  CleanupTempFile();
+  // always close our temporary files.
+  CloseTempFile();
   free(const_cast<char*>(stream_.url));
 }
 

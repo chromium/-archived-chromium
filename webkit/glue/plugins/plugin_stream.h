@@ -87,9 +87,6 @@ class PluginStream : public base::RefCounted<PluginStream> {
   // Closes the temporary file if it is open.
   void CloseTempFile();
 
-  // Closes the temporary file if it is open and deletes the file.
-  void CleanupTempFile();
-
   // Sends the data to the file. Called From WriteToFile.
   size_t WriteBytes(const char *buf, size_t length);
 

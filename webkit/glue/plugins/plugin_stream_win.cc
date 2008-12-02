@@ -89,14 +89,6 @@ void PluginStream::CloseTempFile() {
   }
 }
 
-void PluginStream::CleanupTempFile() {
-  CloseTempFile();
-  if (temp_file_name_[0] != '\0') {
-    DeleteFileA(temp_file_name_);
-    temp_file_name_[0] = '\0';
-  }
-}
-
 bool PluginStream::TempFileIsValid() {
   return temp_file_handle_ != INVALID_HANDLE_VALUE;
 }

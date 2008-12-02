@@ -67,12 +67,6 @@ void PluginStream::CloseTempFile() {
   temp_file_ = NULL;
 }
 
-void PluginStream::CleanupTempFile() {
-  CloseTempFile();
-  file_util::Delete(temp_file_path_, false);
-  temp_file_path_ = FilePath("");
-}
-
 bool PluginStream::TempFileIsValid() {
   return temp_file_ != NULL;
 }

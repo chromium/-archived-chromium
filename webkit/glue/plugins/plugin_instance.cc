@@ -4,6 +4,7 @@
 
 #include "webkit/glue/plugins/plugin_instance.h"
 
+#include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/thread_local_storage.h"
@@ -205,6 +206,11 @@ void PluginInstance::NPP_Destroy() {
     mozilla_extenstions_ = NULL;
   }
 #endif
+
+  for (unsigned int file_index = 0; file_index < files_created_.size();
+       file_index++) {
+    file_util::Delete(files_created_[file_index], false);
+  }
 }
 
 NPError PluginInstance::NPP_SetWindow(NPWindow *window) {
@@ -272,6 +278,12 @@ void PluginInstance::NPP_StreamAsFile(NPStream *stream, const char *fname) {
   if (npp_functions_->asfile != 0) {
     npp_functions_->asfile(npp_, stream, fname);
   }
+
+  // Creating a temporary FilePath instance on the stack as the explicit
+  // FilePath constructor with StringType as an argument causes a compiler
+  // error when invoked via vector push back.
+  FilePath file_name(UTF8ToWide(fname));
+  files_created_.push_back(file_name);
 }
 
 void PluginInstance::NPP_URLNotify(const char *url,

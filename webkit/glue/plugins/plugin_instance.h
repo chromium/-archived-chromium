@@ -13,6 +13,7 @@
 #include <stack>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/thread_local_storage.h"
@@ -253,6 +254,10 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
 
   // True if in CloseStreams().
   bool in_close_streams_;
+
+  // List of files created for the current plugin instance. File names are
+  // added to the list every time the NPP_StreamAsFile function is called.
+  std::vector<FilePath> files_created_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginInstance);
 };
