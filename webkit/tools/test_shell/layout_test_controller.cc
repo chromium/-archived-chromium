@@ -50,6 +50,7 @@ bool LayoutTestController::wait_until_done_ = false;
 bool LayoutTestController::can_open_windows_ = false;
 bool LayoutTestController::close_remaining_windows_ = true;
 bool LayoutTestController::should_add_file_to_pasteboard_ = false;
+bool LayoutTestController::stop_provisional_frame_loads_ = false;
 LayoutTestController::WorkQueue LayoutTestController::work_queue_;
 CppVariant LayoutTestController::globalFlag_;
 
@@ -92,6 +93,7 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("addFileToPasteboardOnDrag", &LayoutTestController::addFileToPasteboardOnDrag);
   BindMethod("execCommand", &LayoutTestController::execCommand);
   BindMethod("setPopupBlockingEnabled", &LayoutTestController::setPopupBlockingEnabled);
+  BindMethod("setStopProvisionalFrameLoads", &LayoutTestController::setStopProvisionalFrameLoads);
 
   // The following are stubs.
   BindMethod("dumpAsWebArchive", &LayoutTestController::dumpAsWebArchive);
@@ -362,6 +364,7 @@ void LayoutTestController::Reset() {
   wait_until_done_ = false;
   can_open_windows_ = false;
   should_add_file_to_pasteboard_ = false;
+  stop_provisional_frame_loads_ = false;
   globalFlag_.Set(false);
 
   if (close_remaining_windows_) {
@@ -523,6 +526,12 @@ void LayoutTestController::addFileToPasteboardOnDrag(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
   should_add_file_to_pasteboard_ = true;
+}
+
+void LayoutTestController::setStopProvisionalFrameLoads(
+    const CppArgumentList& args, CppVariant* result) {
+  result->SetNull();
+  stop_provisional_frame_loads_ = true;
 }
 
 //

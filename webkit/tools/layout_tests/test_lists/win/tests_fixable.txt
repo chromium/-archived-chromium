@@ -580,10 +580,6 @@ LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 // http://code.google.com/p/chromium/issues/detail?id=2972
 LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
-// layoutTestController.setStopProvisionalFrameLoads needs implementing
-// http://code.google.com/p/chromium/issues/detail?id=2980
-LayoutTests/fast/loader/stop-provisional-loads.html = FAIL
-
 // Our shadows looks wrong. The text not having shadows is to be expected, but
 // it looks like we're missing a red shadow that Safari has.
 // http://code.google.com/p/chromium/issues/detail?id=2982

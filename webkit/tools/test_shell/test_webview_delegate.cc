@@ -181,6 +181,12 @@ void TestWebViewDelegate::DidStartProvisionalLoadForFrame(
   if (!top_loading_frame_) {
     top_loading_frame_ = frame;
   }
+
+  if (shell_->layout_test_controller()->StopProvisionalFrameLoads()) {
+    printf("%S - stopping load in didStartProvisionalLoadForFrame callback\n",
+           GetFrameDescription(frame).c_str());
+    frame->StopLoading();
+  }
   UpdateAddressBar(webview);
 }
 

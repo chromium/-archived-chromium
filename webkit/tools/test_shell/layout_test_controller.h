@@ -117,6 +117,11 @@ class LayoutTestController : public CppBoundClass {
   // Set the WebPreference that controls webkit's popup blocking.
   void setPopupBlockingEnabled(const CppArgumentList& args, CppVariant* result);
 
+  // If true, causes provisional frame loads to be stopped for the remainder of
+  // the test.
+  void setStopProvisionalFrameLoads(const CppArgumentList& args,
+                                    CppVariant* result);
+
   // The following are only stubs.  TODO(pamg): Implement any of these that
   // are needed to pass the layout tests.
   void dumpAsWebArchive(const CppArgumentList& args, CppVariant* result);
@@ -167,6 +172,7 @@ class LayoutTestController : public CppBoundClass {
   bool AcceptsEditing() { return accepts_editing_; }
   bool CanOpenWindows() { return can_open_windows_; }
   bool ShouldAddFileToPasteboard() { return should_add_file_to_pasteboard_; }
+  bool StopProvisionalFrameLoads() { return stop_provisional_frame_loads_; }
 
   // Called by the webview delegate when the toplevel frame load is done.
   void LocationChangeDone();
@@ -263,6 +269,10 @@ class LayoutTestController : public CppBoundClass {
 
   // If true and a drag starts, adds a file to the drag&drop clipboard.
   static bool should_add_file_to_pasteboard_;
+
+  // If true, stops provisional frame loads during the
+  // DidStartProvisionalLoadForFrame callback.
+  static bool stop_provisional_frame_loads_;
 
   // If true, don't dump output until notifyDone is called.
   static bool wait_until_done_;
