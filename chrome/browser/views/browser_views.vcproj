@@ -650,6 +650,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\new_profile_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\new_profile_dialog.h"
+			>
+		</File>
+		<File
 			RelativePath=".\page_info_window.cc"
 			>
 		</File>
@@ -703,6 +711,14 @@
 		</File>
 		<File
 			RelativePath=".\sad_tab_view.h"
+			>
+		</File>
+		<File
+			RelativePath=".\select_profile_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\select_profile_dialog.h"
 			>
 		</File>
 		<File

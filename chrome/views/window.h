@@ -116,6 +116,8 @@ class Window : public WidgetWin {
   // resource identified by |col_resource_id|, the height in the same fashion.
   // TODO(beng): This should eventually live somewhere else, probably closer to
   //             ClientView.
+  static int GetLocalizedContentsWidth(int col_resource_id);
+  static int GetLocalizedContentsHeight(int row_resource_id);
   static gfx::Size GetLocalizedContentsSize(int col_resource_id,
                                             int row_resource_id);
 

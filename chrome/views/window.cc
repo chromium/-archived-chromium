@@ -201,20 +201,30 @@ void Window::ExecuteSystemMenuCommand(int command) {
 }
 
 // static
-gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
-                                           int row_resource_id) {
+int Window::GetLocalizedContentsWidth(int col_resource_id) {
+  double chars = _wtof(l10n_util::GetString(col_resource_id).c_str());
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
-
-  double chars = _wtof(l10n_util::GetString(col_resource_id).c_str());
-  double lines = _wtof(l10n_util::GetString(row_resource_id).c_str());
-
   int width = font.GetExpectedTextWidth(static_cast<int>(chars));
+  DCHECK(width > 0);
+  return width;
+}
+
+// static
+int Window::GetLocalizedContentsHeight(int row_resource_id) {
+  double lines = _wtof(l10n_util::GetString(row_resource_id).c_str());
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
   int height = static_cast<int>(font.height() * lines);
+  DCHECK(height > 0);
+  return height;
+}
 
-  DCHECK(width > 0 && height > 0);
-
-  return gfx::Size(width, height);
+// static
+gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
+                                           int row_resource_id) {
+  return gfx::Size(GetLocalizedContentsWidth(col_resource_id),
+                   GetLocalizedContentsHeight(row_resource_id));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

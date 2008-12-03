@@ -43,6 +43,9 @@ class MessageBoxView : public views::View {
                  const std::wstring& message,
                  const std::wstring& default_prompt);
 
+  // Returns the text box.
+  views::TextField* text_box() { return prompt_field_; }
+
   // Returns user entered data in the prompt field.
   std::wstring GetInputText();
 
@@ -58,6 +61,9 @@ class MessageBoxView : public views::View {
   // first call. Otherwise, it changes the label of the current checkbox. To
   // start, the message box has no checkbox until this function is called.
   void SetCheckBoxLabel(const std::wstring& label);
+
+  // Sets the state of the check-box.
+  void SetCheckBoxSelected(bool selected);
 
  protected:
   // Layout and Painting functions.

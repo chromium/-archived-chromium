@@ -154,6 +154,27 @@
 // Reserve space for 100 Spell Check languages - currently we have 30.
 #define IDC_SPELLCHECKER_LANGUAGE_FIRST 32954
 #define IDC_SPELLCHECKER_LANGUAGE_LAST  33054
+// We have a menu item for opening a new window in a specific profile, and it
+// has dynamic number of sub menu items. The number of sub menu items depends on
+// the number of existing profiles. But we only show menu items for nine
+// different profiles, plus a menu item for other than the nine profiles (if
+// there are more than nine profiles), plus a menu item for new profile.
+#define IDC_NEWPROFILEWINDOW            33055
+#define IDC_SELECT_PROFILE              33056
+#define IDC_NEW_PROFILE                 33057
+// Define menu IDs for nine profiles to provide accelarators like CTRL +
+// SHIFT + 1, CTRL + SHIFT + 2, etc. for them.
+#define IDC_NEWPROFILEWINDOW_PROFILE1   33058
+#define IDC_NEWPROFILEWINDOW_PROFILE2   33059
+#define IDC_NEWPROFILEWINDOW_PROFILE3   33060
+#define IDC_NEWPROFILEWINDOW_PROFILE4   33061
+#define IDC_NEWPROFILEWINDOW_PROFILE5   33062
+#define IDC_NEWPROFILEWINDOW_PROFILE6   33063
+#define IDC_NEWPROFILEWINDOW_PROFILE7   33064
+#define IDC_NEWPROFILEWINDOW_PROFILE8   33065
+#define IDC_NEWPROFILEWINDOW_PROFILE9   33066
+#define IDC_NEWPROFILEWINDOW_MIN_ID     IDC_NEWPROFILEWINDOW_PROFILE1
+#define IDC_NEWPROFILEWINDOW_MAX_ID     IDC_NEWPROFILEWINDOW_PROFILE9
 
 // Next default values for new objects
 //
@@ -161,7 +182,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        3001
-#define _APS_NEXT_COMMAND_VALUE         32947
+#define _APS_NEXT_COMMAND_VALUE         33067
 #define _APS_NEXT_CONTROL_VALUE         4017
 #define _APS_NEXT_SYMED_VALUE           1001
 #endif

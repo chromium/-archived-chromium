@@ -296,6 +296,9 @@ Chrome supports. -->
       <message name="IDS_IMPORT_BOOKMARKS" desc="Explanatory text for the importing progress dialog when importing a bookmarks.html file from the bookmark manager">
         Google Chrome is now importing Favorites/Bookmarks.
       </message>
+      <message name="IDS_START_IN_PROFILE_SHORTCUT_NAME" desc="Name of the desktop shortcut to start the application in a specific profile.">
+        Google Chrome for <ph name="profile_name">$1</ph>
+      </message>
     </messages>
   </release>
 </grit>

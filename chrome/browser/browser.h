@@ -5,6 +5,9 @@
 #ifndef CHROME_BROWSER_BROWSER_H_
 #define CHROME_BROWSER_BROWSER_H_
 
+#include <vector>
+
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/controller.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/browser_window.h"
@@ -76,10 +79,19 @@ class Browser : public TabStripModelDelegate,
 
   Type type() const { return type_; }
   Profile* profile() const { return profile_; }
+  const std::vector<std::wstring>& user_data_dir_profiles() const {
+    return g_browser_process->user_data_dir_profiles();
+  }
   BrowserWindow* window() const { return window_; }
   ToolbarModel* toolbar_model() { return &toolbar_model_; }
   const SessionID& session_id() const { return session_id_; }
   CommandController* controller() { return &controller_; }
+
+  // Setters /////////////////////////////////////////////////////////////////
+
+  void set_user_data_dir_profiles(const std::vector<std::wstring>& profiles) {
+    g_browser_process->user_data_dir_profiles() = profiles;
+  }
 
   // Browser Creation Helpers /////////////////////////////////////////////////
 
@@ -217,6 +229,10 @@ class Browser : public TabStripModelDelegate,
   void CloseTab();
   void CloseApp();
   void NewWindow();
+  // Commands to create a new window in a specific profile.
+  void NewProfileWindowByName(const std::wstring& profile);
+  // The index starts with 0, and specifies the index in the profiles vector.
+  void NewProfileWindowByIndex(int index);
   void NewIncognitoWindow();
   void CloseWindow();
   void SelectNextTab();
@@ -276,6 +292,8 @@ class Browser : public TabStripModelDelegate,
   void ShowDownloadsTab();
   void OpenBookmarksManager();
   void ToggleBookmarksBar();
+  void OpenSelectProfileDialog();
+  void OpenNewProfileDialog();
 
   /////////////////////////////////////////////////////////////////////////////
 

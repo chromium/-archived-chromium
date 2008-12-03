@@ -256,6 +256,9 @@ be available for now. -->
       <message name="IDS_IMPORT_BOOKMARKS" desc="Explanatory text for the importing progress dialog when importing a bookmarks.html file from the bookmark manager">
         Chromium is now importing Favorites/Bookmarks.
       </message>
+      <message name="IDS_START_IN_PROFILE_SHORTCUT_NAME" desc="Name of the desktop shortcut to start the application in a specific profile.">
+        Chromium for <ph name="profile_name">$1</ph>
+      </message>
     </messages>
   </release>
 </grit>

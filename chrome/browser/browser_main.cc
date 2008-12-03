@@ -39,6 +39,7 @@
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/url_fixer_upper.h"
+#include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/chrome_constants.h"
@@ -323,6 +324,10 @@ int BrowserMain(CommandLine &parsed_command_line,
   // BrowserProcessImpl's constructor should set g_browser_process.
   DCHECK(g_browser_process);
 
+  std::wstring local_state_path;
+  PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
+  bool local_state_file_exists = file_util::PathExists(local_state_path);
+
   // Load local state.  This includes the application locale so we know which
   // locale dll to load.
   PrefService* local_state = browser_process->local_state();
@@ -359,6 +364,27 @@ int BrowserMain(CommandLine &parsed_command_line,
       first_run_ui_bypass = true;
   }
 
+  // If the local state file for the current profile doesn't exist and the
+  // parent profile command line flag is present, then we should inherit some
+  // local state from the parent profile.
+  // Checking that the local state file for the current profile doesn't exist
+  // is the most robust way to determine whether we need to inherit or not
+  // since the parent profile command line flag can be present even when the
+  // current profile is not a new one, and in that case we do not want to
+  // inherit and reset the user's setting.
+  if (!local_state_file_exists &&
+      parsed_command_line.HasSwitch(switches::kParentProfile)) {
+    std::wstring parent_profile =
+        parsed_command_line.GetSwitchValue(switches::kParentProfile);
+    PrefService parent_local_state(parent_profile);
+    parent_local_state.RegisterStringPref(prefs::kApplicationLocale,
+                                          std::wstring());
+    // Right now, we only inherit the locale setting from the parent profile.
+    local_state->SetString(
+        prefs::kApplicationLocale,
+        parent_local_state.GetString(prefs::kApplicationLocale));
+  }
+
   ResourceBundle::InitSharedInstance(
       local_state->GetString(prefs::kApplicationLocale));
   // We only load the theme dll in the browser process.
@@ -377,6 +403,9 @@ int BrowserMain(CommandLine &parsed_command_line,
 #ifdef TRACK_ALL_TASK_OBJECTS
   tracking_objects = tracked_objects::ThreadData::StartTracking(true);
 #endif
+
+  // Initialize the shared instance of user data manager.
+  UserDataManager::Create();
 
   // Try to create/load the profile.
   ProfileManager* profile_manager = browser_process->profile_manager();

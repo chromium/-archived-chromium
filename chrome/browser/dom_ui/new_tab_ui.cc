@@ -16,6 +16,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/template_url.h"
+#include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -168,11 +169,27 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
     NOTREACHED();
     return;
   }
+
+  // Show the profile name in the title and most visited labels if the current
+  // profile is not the default.
+  std::wstring title;
+  std::wstring most_visited;
+  if (UserDataManager::Get()->is_current_profile_default()) {
+    title = l10n_util::GetString(IDS_NEW_TAB_TITLE);
+    most_visited = l10n_util::GetString(IDS_NEW_TAB_MOST_VISITED);
+  } else {
+    // Get the current profile name.
+    std::wstring profile_name =
+      UserDataManager::Get()->current_profile_name();
+    title = l10n_util::GetStringF(IDS_NEW_TAB_TITLE_WITH_PROFILE_NAME,
+                                  profile_name);
+    most_visited = l10n_util::GetStringF(
+        IDS_NEW_TAB_MOST_VISITED_WITH_PROFILE_NAME,
+        profile_name);
+  }
   DictionaryValue localized_strings;
-  localized_strings.SetString(L"title",
-      l10n_util::GetString(IDS_NEW_TAB_TITLE));
-  localized_strings.SetString(L"mostvisited",
-      l10n_util::GetString(IDS_NEW_TAB_MOST_VISITED));
+  localized_strings.SetString(L"title", title);
+  localized_strings.SetString(L"mostvisited", most_visited);
   localized_strings.SetString(L"searches",
       l10n_util::GetString(IDS_NEW_TAB_SEARCHES));
   localized_strings.SetString(L"bookmarks",
@@ -841,7 +858,17 @@ NewTabUIContents::NewTabUIContents(Profile* profile,
     incognito_(false),
     most_visited_handler_(NULL) {
   set_type(TAB_CONTENTS_NEW_TAB_UI);
-  set_forced_title(l10n_util::GetString(IDS_NEW_TAB_TITLE));
+
+  // Show profile name in the title if the current profile is not the default.
+  std::wstring title;
+  if (UserDataManager::Get()->is_current_profile_default()) {
+    title = l10n_util::GetString(IDS_NEW_TAB_TITLE);
+  } else {
+    title = l10n_util::GetStringF(
+        IDS_NEW_TAB_TITLE_WITH_PROFILE_NAME,
+        UserDataManager::Get()->current_profile_name());
+  }
+  set_forced_title(title);
 
   if (profile->IsOffTheRecord())
     incognito_ = true;

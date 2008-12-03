@@ -19,6 +19,7 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/go_button.h"
@@ -74,7 +75,9 @@ BrowserToolbarView::BrowserToolbarView(CommandController* controller,
       profile_(NULL),
       acc_focused_view_(NULL),
       browser_(browser),
-      tab_(NULL) {
+      tab_(NULL),
+      profiles_helper_(new GetProfilesHelper(this)),
+      profiles_menu_(NULL) {
   back_menu_model_.reset(new BackForwardMenuModel(
       browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
   forward_menu_model_.reset(new BackForwardMenuModel(
@@ -87,6 +90,7 @@ BrowserToolbarView::BrowserToolbarView(CommandController* controller,
 }
 
 BrowserToolbarView::~BrowserToolbarView() {
+  profiles_helper_->OnDelegateDeleted();
 }
 
 void BrowserToolbarView::Init(Profile* profile) {
@@ -538,6 +542,16 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
                                l10n_util::GetString(IDS_NEWWINDOW));
   menu.AppendMenuItemWithLabel(IDC_GOOFFTHERECORD,
                                l10n_util::GetString(IDS_GOOFFTHERECORD));
+
+  // Enumerate profiles asynchronously and then create the parent menu item
+  // "Open new window in profile...". We will create the child menu items for
+  // this once the asynchronous call is done. See OnGetProfilesDone.
+  profiles_helper_->GetProfiles(NULL);
+  Menu* profiles_menu = menu.AppendSubMenu(
+      IDC_NEWPROFILEWINDOW,
+      l10n_util::GetString(IDS_NEWPROFILEWINDOW));
+  profiles_menu_ = profiles_menu;
+
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARKS_BAR,
                                l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
@@ -565,6 +579,9 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   menu.AppendMenuItemWithLabel(IDC_EXIT, l10n_util::GetString(IDS_EXIT));
 
   menu.RunMenuAt(pt.x, pt.y);
+
+  // Menu is going away, so set the profiles menu pointer to NULL.
+  profiles_menu_ = NULL;
 }
 
 bool BrowserToolbarView::IsItemChecked(int id) const {
@@ -588,6 +605,39 @@ void BrowserToolbarView::RunMenu(views::View* source, const CPoint& pt,
     default:
       NOTREACHED() << "Invalid source menu.";
   }
+}
+
+void BrowserToolbarView::OnGetProfilesDone(
+    const std::vector<std::wstring>& profiles) {
+  // Nothing to do if the menu has gone away.
+  if (!profiles_menu_)
+    return;
+
+  // Store the latest list of profiles in the browser.
+  browser_->set_user_data_dir_profiles(profiles);
+
+  // Number of sub menu items that we can show directly.
+  const int sub_items_count = IDC_NEWPROFILEWINDOW_MAX_ID -
+                              IDC_NEWPROFILEWINDOW_MIN_ID + 1;
+  std::vector<std::wstring>::const_iterator iter = profiles.begin();
+  // Add direct sub menu items for profiles.
+  for (int i = IDC_NEWPROFILEWINDOW_MIN_ID;
+       i <= IDC_NEWPROFILEWINDOW_MAX_ID && iter != profiles.end();
+       ++i, ++iter) {
+    profiles_menu_->AppendMenuItemWithLabel(i, *iter);
+  }
+  // If there are more profiles then show "Other" link.
+  if (iter != profiles.end()) {
+    profiles_menu_->AppendSeparator();
+    profiles_menu_->AppendMenuItemWithLabel(
+        IDC_SELECT_PROFILE,
+        l10n_util::GetString(IDS_NEWPROFILEWINDOW_OTHERPROFILE));
+  }
+  // Always show a link to select a new profile.
+  profiles_menu_->AppendSeparator();
+  profiles_menu_->AppendMenuItemWithLabel(
+      IDC_NEW_PROFILE,
+      l10n_util::GetString(IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY));
 }
 
 bool BrowserToolbarView::GetAccessibleRole(VARIANT* role) {
@@ -696,6 +746,19 @@ void BrowserToolbarView::Observe(NotificationType type,
       SchedulePaint();
     }
   }
+}
+
+void BrowserToolbarView::ExecuteCommand(int id) {
+  // If the command id is for one of the sub-menu-items of the new profile
+  // window menu then we need to get the name of the profile from the menu
+  // item id and then pass on that to the browser to take action.
+  if (id >= IDC_NEWPROFILEWINDOW_MIN_ID && id <= IDC_NEWPROFILEWINDOW_MAX_ID) {
+    browser_->NewProfileWindowByIndex(id - IDC_NEWPROFILEWINDOW_MIN_ID);
+    return;
+  }
+
+  // For all other menu items, use the method in the base class.
+  EncodingMenuControllerDelegate::ExecuteCommand(id);
 }
 
 bool BrowserToolbarView::GetAcceleratorInfo(int id,

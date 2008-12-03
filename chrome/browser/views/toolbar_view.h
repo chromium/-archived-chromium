@@ -7,10 +7,12 @@
 
 #include <vector>
 
+#include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/back_forward_menu_model.h"
 #include "chrome/browser/controller.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
+#include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
@@ -37,7 +39,8 @@ class BrowserToolbarView : public views::View,
                            public views::ViewMenuDelegate,
                            public views::DragController,
                            public LocationBarView::Delegate,
-                           public NotificationObserver {
+                           public NotificationObserver,
+                           public GetProfilesHelper::Delegate {
  public:
   BrowserToolbarView(CommandController* controller, Browser* browser);
   virtual ~BrowserToolbarView();
@@ -57,10 +60,14 @@ class BrowserToolbarView : public views::View,
   virtual bool IsItemChecked(int id) const;
 
   // Overridden from Menu::BaseControllerDelegate:
+  virtual void ExecuteCommand(int id);
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
   // views::MenuDelegate
   virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
+
+  // GetProfilesHelper::Delegate method.
+  virtual void OnGetProfilesDone(const std::vector<std::wstring>& profiles);
 
   // Sets the profile which is active on the currently-active tab.
   void SetProfile(Profile* profile);
@@ -180,6 +187,12 @@ class BrowserToolbarView : public views::View,
   // Current tab we're showing state for.
   TabContents* tab_;
 
+  // Profiles menu to populate with profile names.
+  Menu* profiles_menu_;
+
+  // Helper class to enumerate profiles information on the file thread.
+  scoped_refptr<GetProfilesHelper> profiles_helper_;
+
   // Controls whether or not a home button should be shown on the toolbar.
   BooleanPrefMember show_home_button_;
 
@@ -188,4 +201,3 @@ class BrowserToolbarView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H__
-

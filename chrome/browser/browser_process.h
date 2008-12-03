@@ -11,6 +11,7 @@
 #define CHROME_BROWSER_BROWSER_PROCESS_H__
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/message_loop.h"
@@ -134,7 +135,15 @@ class BrowserProcess {
   virtual HANDLE shutdown_event() = 0;
 #endif
 
+  // Returns a reference to the user-data-dir based profiles vector.
+  std::vector<std::wstring>& user_data_dir_profiles() {
+    return user_data_dir_profiles_;
+  }
+
  private:
+  // User-data-dir based profiles.
+  std::vector<std::wstring> user_data_dir_profiles_;
+
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcess);
 };
 

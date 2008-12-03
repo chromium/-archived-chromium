@@ -112,6 +112,9 @@ const wchar_t kTestSandbox[]                   = L"test-sandbox";
 // for all of its state.
 const wchar_t kUserDataDir[]                   = L"user-data-dir";
 
+// Specifies the path to the user data folder for the parent profile.
+const wchar_t kParentProfile[]                = L"parent-profile";
+
 // Specifies that the associated value should be launched in "application" mode.
 const wchar_t kApp[]                           = L"app";
 

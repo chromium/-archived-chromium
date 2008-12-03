@@ -37,11 +37,14 @@
 #include "chrome/browser/site_instance.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/url_fixer_upper.h"
+#include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/browser/views/new_profile_dialog.h"
+#include "chrome/browser/views/select_profile_dialog.h"
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/web_contents_view.h"
@@ -654,6 +657,26 @@ void Browser::NewWindow() {
   Browser::OpenEmptyWindow(profile_->GetOriginalProfile());
 }
 
+void Browser::OpenSelectProfileDialog() {
+  UserMetrics::RecordAction(L"SelectProfile", profile_);
+  SelectProfileDialog::RunDialog();
+}
+
+void Browser::OpenNewProfileDialog() {
+  UserMetrics::RecordAction(L"CreateProfile", profile_);
+  NewProfileDialog::RunDialog();
+}
+
+void Browser::NewProfileWindowByName(const std::wstring& profile) {
+  UserMetrics::RecordAction(L"NewProfileWindowByName", profile_);
+  UserDataManager::Get()->LaunchChromeForProfile(profile);
+}
+
+void Browser::NewProfileWindowByIndex(int index) {
+  UserMetrics::RecordAction(L"NewProfileWindowByIndex", profile_);
+  UserDataManager::Get()->LaunchChromeForProfile(index);
+}
+
 void Browser::NewIncognitoWindow() {
   UserMetrics::RecordAction(L"NewIncognitoWindow", profile_);
   Browser::OpenEmptyWindow(profile_->GetOffTheRecordProfile());
@@ -1182,9 +1205,21 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SHOW_DOWNLOADS: ShowDownloadsTab(); break;
     case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarksManager(); break;
     case IDC_SHOW_BOOKMARKS_BAR: ToggleBookmarksBar(); break;
+    case IDC_NEWPROFILEWINDOW:
+    case IDC_SELECT_PROFILE:
+      OpenSelectProfileDialog();
+      break;
+    case IDC_NEW_PROFILE: OpenNewProfileDialog(); break;
 
     default:
-      LOG(WARNING) << "Received Unimplemented Command: " << id;
+      // Handle the user action for creating a new window in a specific profile.
+      if (id >= IDC_NEWPROFILEWINDOW_MIN_ID &&
+          id <= IDC_NEWPROFILEWINDOW_MAX_ID) {
+        int index = id - IDC_NEWPROFILEWINDOW_MIN_ID;
+        NewProfileWindowByIndex(index);
+      } else {
+        LOG(WARNING) << "Received Unimplemented Command: " << id;
+      }
       break;
   }
 }
@@ -2016,6 +2051,16 @@ void Browser::UpdateNavigationCommands() {
                                        !current_tab->GetFavIcon().isNull());
   controller_.UpdateCommandEnabled(IDC_DUPLICATE,
                                    CanDuplicateContentsAt(selected_index()));
+
+  // Enable various IDC_NEWPROFILEWINDOW* commands.
+  controller_.UpdateCommandEnabled(IDC_NEWPROFILEWINDOW, true);
+  controller_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_PROFILE, true);
+  for (int i = IDC_NEWPROFILEWINDOW_MIN_ID;
+       i <= IDC_NEWPROFILEWINDOW_MAX_ID;
+       ++i) {
+    controller_.UpdateCommandEnabled(i, true);
+  }
 }
 
 void Browser::SetStarredButtonToggled(bool starred) {

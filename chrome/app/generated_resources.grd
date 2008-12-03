@@ -361,6 +361,12 @@ each locale. -->
       <message name="IDS_NEWWINDOW" desc="The text label of the New Window menu item" >
         &amp;New window
       </message>
+      <message name="IDS_NEWPROFILEWINDOW" desc="The text label of the New profile Window menu item" >
+        New window in &amp;profile
+      </message>
+      <message name="IDS_NEWPROFILEWINDOW_OTHERPROFILE" desc="The text label of the sub menu item of New profile Window menu item to select a profile other than the ones displayed in the sub-menu items." >
+        Other...
+      </message>
       <message name="IDS_GOOFFTHERECORD" desc="The text label of the New incognito window menu item">
         New &amp;incognito window
       </message>
@@ -2834,9 +2840,17 @@ each locale. -->
                desc="Title of the new tab page, this is only shown while loading, then the title comes from the page">
         New Tab
       </message>
+      <message name="IDS_NEW_TAB_TITLE_WITH_PROFILE_NAME"
+               desc="Title of the new tab page with profile name, this is only shown while loading, then the title comes from the page">
+        New Tab [<ph name="PROFILE_NAME">$1</ph>]
+      </message>
       <message name="IDS_NEW_TAB_MOST_VISITED"
                desc="The 'Most Visited' heading on the new tab page">
         Most visited
+      </message>
+      <message name="IDS_NEW_TAB_MOST_VISITED_WITH_PROFILE_NAME"
+               desc="The 'Most Visited' heading on the new tab page">
+        Most visited [<ph name="PROFILE_NAME">$1</ph>]
       </message>
       <message name="IDS_NEW_TAB_SEARCHES"
                desc="The 'Searches' heading on the new tab page">
@@ -3144,7 +3158,29 @@ each locale. -->
       <message name="IDS_CANT_WRITE_USER_DIRECTORY_CHOOSE_DIRECTORY_BUTTON" desc="Text on button that opens another dialog to choose a new directory for user data.">
         Choose Another Directory...
       </message>
-      
+
+      <!-- User data directory profiles dialog -->
+      <message name="IDS_SELECT_PROFILE_DIALOG_TITLE" desc="Title of the dialog that lets the user select a profile to open a new window.">
+        Select a Profile
+      </message>
+      <message name="IDS_SELECT_PROFILE_DIALOG_LABEL_TEXT" desc="The label for the combo box that shows all the available profiles.">
+        Select a profile to open a new window
+      </message>
+      <message name="IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY" desc="Text for an extra entry in the profiles combo box. The user can select this entry to create a new profile.">
+        &lt;New Profile&gt;...
+      </message>
+
+      <!-- User data directory new profile dialog -->
+      <message name="IDS_NEW_PROFILE_DIALOG_TITLE" desc="Title of dialog that lets the user enter a new profile name to open new window.">
+        Enter a Profile Name
+      </message>
+      <message name="IDS_NEW_PROFILE_DIALOG_LABEL_TEXT" desc="The label for the text box that lets the user enter a new profile name.">
+        Enter a new profile name
+      </message>
+      <message name="IDS_NEW_PROFILE_DIALOG_CREATE_SHORTCUT_TEXT" desc="The label for the text box that lets the user enter a new profile name.">
+        Create a desktop shortcut for this profile
+      </message>
+
       <!-- Advanced Section Titles -->
       <message name="IDS_OPTIONS_ADVANCED_SECTION_TITLE_PRIVACY">
         Privacy
