@@ -15,8 +15,8 @@
 
 namespace {
 
-bool PairFirstLessThan(const std::pair<int,int>& a,
-                       const std::pair<int,int>& b) {
+bool PairFirstLessThan(const Snippet::MatchPosition& a,
+                       const Snippet::MatchPosition& b) {
   return a.first < b.first;
 }
 
@@ -25,7 +25,7 @@ bool PairFirstLessThan(const std::pair<int,int>& a,
 void CoalescePositionsFrom(size_t offset,
                            Snippet::MatchPositions* match_positions) {
   DCHECK(offset < match_positions->size());
-  std::pair<int,int>& pair((*match_positions)[offset]);
+  Snippet::MatchPosition& pair((*match_positions)[offset]);
   ++offset;
   while (offset < match_positions->size() &&
          pair.second >= (*match_positions)[offset].first) {
@@ -37,9 +37,12 @@ void CoalescePositionsFrom(size_t offset,
 // Makes sure there is a pair in match_positions that contains the specified
 // range. This keeps the pairs ordered in match_positions by first, and makes
 // sure none of the pairs in match_positions touch each other.
-void AddMatch(int start, int end, Snippet::MatchPositions* match_positions) {
-  DCHECK(start < end && match_positions);
-  std::pair<int,int> pair(start, end);
+void AddMatch(size_t start,
+              size_t end,
+              Snippet::MatchPositions* match_positions) {
+  DCHECK(start < end);
+  DCHECK(match_positions);
+  Snippet::MatchPosition pair(start, end);
   if (match_positions->empty()) {
     match_positions->push_back(pair);
     return;
@@ -97,11 +100,11 @@ void AddMatch(int start, int end, Snippet::MatchPositions* match_positions) {
 //           matches offset.
 // wide_pos: current index in the wide string. This is the same as the return
 //           value.
-int AdvanceAndReturnWidePos(const char* utf8_string,
-                            int utf8_length,
-                            int offset,
-                            int* utf8_pos,
-                            int* wide_pos) {
+size_t AdvanceAndReturnWidePos(const char* utf8_string,
+                               int32_t utf8_length,
+                               int32_t offset,
+                               int32_t* utf8_pos,
+                               size_t* wide_pos) {
   DCHECK(offset >= *utf8_pos && offset <= utf8_length);
 
   UChar32 wide_char;
@@ -115,7 +118,7 @@ int AdvanceAndReturnWidePos(const char* utf8_string,
 // Given a character break iterator over a UTF-8 string, set the iterator
 // position to |*utf8_pos| and move by |count| characters. |count| can
 // be either positive or negative.
-void MoveByNGraphemes(BreakIterator* bi, int count, int* utf8_pos) {
+void MoveByNGraphemes(BreakIterator* bi, int count, size_t* utf8_pos) {
   // Ignore the return value. A side effect of the current position
   // being set at or following |*utf8_pos| is exploited here.
   // It's simpler than calling following(n) and then previous().
@@ -123,7 +126,7 @@ void MoveByNGraphemes(BreakIterator* bi, int count, int* utf8_pos) {
   // snippet generation. If not, revisit the way we scan in ComputeSnippet.
   bi->isBoundary(*utf8_pos);
   bi->next(count);
-  *utf8_pos = static_cast<int>(bi->current());
+  *utf8_pos = static_cast<size_t>(bi->current());
 }
 
 // The amount of context to include for a given hit. Note that it's counted
@@ -134,8 +137,8 @@ const int kSnippetContext = 50;
 // from the previous match. The window size is counted in terms
 // of graphemes rather than bytes in UTF-8.
 bool IsNextMatchWithinSnippetWindow(BreakIterator* bi,
-                                    int previous_match_end,
-                                    int next_match_start) {
+                                    size_t previous_match_end,
+                                    size_t next_match_start) {
   // If it's within a window in terms of bytes, it's certain
   // that it's within a window in terms of graphemes as well.
   if (next_match_start < previous_match_end + kSnippetContext)
@@ -168,8 +171,8 @@ void Snippet::ExtractMatchPositions(const std::string& offsets_str,
   for (size_t i = 0; i < offsets.size() - 3; i += 4) {
     if (offsets[i] != column_num)
       continue;
-    const int start = atoi(offsets[i+2].c_str());
-    const int end = start + atoi(offsets[i+3].c_str());
+    const size_t start = atoi(offsets[i + 2].c_str());
+    const size_t end = start + atoi(offsets[i + 3].c_str());
     AddMatch(start, end, match_positions);
   }
 }
@@ -179,17 +182,16 @@ void Snippet::ConvertMatchPositionsToWide(
     const std::string& utf8_string,
     Snippet::MatchPositions* match_positions) {
   DCHECK(match_positions);
-  int utf8_pos = 0;
-  int wide_pos = 0;
+  int32_t utf8_pos = 0;
+  size_t wide_pos = 0;
   const char* utf8_cstring = utf8_string.c_str();
-  const int utf8_length = static_cast<int>(utf8_string.size());
+  const int32_t utf8_length = static_cast<int32_t>(utf8_string.size());
   for (Snippet::MatchPositions::iterator i = match_positions->begin();
        i != match_positions->end(); ++i) {
     i->first = AdvanceAndReturnWidePos(utf8_cstring, utf8_length,
                                        i->first, &utf8_pos, &wide_pos);
-    i->second =
-        AdvanceAndReturnWidePos(utf8_cstring, utf8_length, i->second, &utf8_pos,
-                                &wide_pos);
+    i->second = AdvanceAndReturnWidePos(utf8_cstring, utf8_length,
+                                        i->second, &utf8_pos, &wide_pos);
   }
 }
 
@@ -198,17 +200,12 @@ void Snippet::ComputeSnippet(const MatchPositions& match_positions,
   // The length of snippets we try to produce.
   // We can generate longer snippets but stop once we cross kSnippetMaxLength.
   const size_t kSnippetMaxLength = 200;
-
-
   const std::wstring kEllipsis = L" ... ";
-
-  // Grab the size as an int to cut down on casts later.
-  const int document_size = static_cast<int>(document.size());
 
   UText* document_utext = NULL;
   UErrorCode status = U_ZERO_ERROR;
   document_utext = utext_openUTF8(document_utext, document.data(),
-                                  document_size, &status);
+                                  document.size(), &status);
   // Locale does not matter because there's no per-locale customization
   // for character iterator.
   scoped_ptr<BreakIterator> bi(
@@ -220,14 +217,14 @@ void Snippet::ComputeSnippet(const MatchPositions& match_positions,
   // context around each match.  If matches are near enough each other (within
   // kSnippetContext), we skip the "..." between them.
   std::wstring snippet;
-  int start = 0;
+  size_t start = 0;
   for (size_t i = 0; i < match_positions.size(); ++i) {
     // Some shorter names for the current match.
-    const int match_start = match_positions[i].first;
-    const int match_end = match_positions[i].second;
+    const size_t match_start = match_positions[i].first;
+    const size_t match_end = match_positions[i].second;
 
     // Add the context, if any, to show before the match.
-    int context_start = match_start;
+    size_t context_start = match_start;
     MoveByNGraphemes(bi.get(), -kSnippetContext, &context_start);
     start = std::max(start, context_start);
     if (start < match_start) {
@@ -237,17 +234,17 @@ void Snippet::ComputeSnippet(const MatchPositions& match_positions,
     }
 
     // Add the match.
-    matches_.push_back(std::make_pair(static_cast<int>(snippet.size()), 0));
+    const size_t first = snippet.size();
     snippet += UTF8ToWide(document.substr(match_start,
                                           match_end - match_start));
-    matches_.back().second = static_cast<int>(snippet.size());
+    matches_.push_back(std::make_pair(first, snippet.size()));
 
     // Compute the context, if any, to show after the match.
-    int end;
+    size_t end;
     // Check if the next match falls within our snippet window.
     if (i + 1 < match_positions.size() &&
         IsNextMatchWithinSnippetWindow(bi.get(), match_end,
-          match_positions[i + 1].first)) {
+            match_positions[i + 1].first)) {
       // Yes, it's within the window.  Make the end context extend just up
       // to the next match.
       end = match_positions[i + 1].first;
@@ -257,7 +254,7 @@ void Snippet::ComputeSnippet(const MatchPositions& match_positions,
       end = match_end;
       MoveByNGraphemes(bi.get(), kSnippetContext, &end);
       snippet += UTF8ToWide(document.substr(match_end, end - match_end));
-      if (end < document_size)
+      if (end < document.size())
         snippet += kEllipsis;
     }
     start = end;

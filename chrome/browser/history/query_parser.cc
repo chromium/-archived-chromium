@@ -60,10 +60,10 @@ bool QueryNodeWord::HasMatchIn(const std::vector<QueryWord>& words,
                                Snippet::MatchPositions* match_positions) const {
   for (size_t i = 0; i < words.size(); ++i) {
     if (Matches(words[i].word, false)) {
-      int match_start = words[i].position;
+      size_t match_start = words[i].position;
       match_positions->push_back(
-          std::pair<int, int>(match_start,
-                              match_start + static_cast<int>(word_.size())));
+          Snippet::MatchPosition(match_start,
+                                 match_start + static_cast<int>(word_.size())));
       return true;
     }
   }
@@ -176,8 +176,8 @@ bool QueryNodePhrase::HasMatchIn(
     if (matched_all) {
       const QueryWord& last_word = words[i + children_.size() - 1];
       match_positions->push_back(
-          std::pair<int, int>(words[i].position,
-                              last_word.position + last_word.word.length()));
+          Snippet::MatchPosition(words[i].position,
+                                 last_word.position + last_word.word.length()));
       return true;
     }
   }

@@ -122,8 +122,8 @@ class SnippetRenderer : public views::View {
                  int x,
                  int y,
                  Snippet::MatchPositions::const_iterator match_iter,
-                 int start,
-                 int end);
+                 size_t start,
+                 size_t end);
 
   DISALLOW_EVIL_CONSTRUCTORS(SnippetRenderer);
 };
@@ -179,9 +179,12 @@ void SnippetRenderer::Paint(ChromeCanvas* canvas) {
 }
 
 int SnippetRenderer::ProcessRun(
-    ChromeCanvas* canvas, int x, int y,
+    ChromeCanvas* canvas,
+    int x,
+    int y,
     Snippet::MatchPositions::const_iterator match_iter,
-    int start, int end) {
+    size_t start,
+    size_t end) {
   int total_width = 0;
 
   while (start < end) {
@@ -195,7 +198,7 @@ int SnippetRenderer::ProcessRun(
     // Determine the next substring to process by examining whether
     // we're before a match or within a match.
     ChromeFont* font = &text_font_;
-    int next = end;
+    size_t next = end;
     if (match_iter != snippet_.matches().end()) {
       if (match_iter->first > start) {
         // We're in a plain region.

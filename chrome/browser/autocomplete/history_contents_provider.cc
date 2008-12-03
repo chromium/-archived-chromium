@@ -218,7 +218,7 @@ void HistoryContentsProvider::ClassifyDescription(
     // Classify matches in the title.
     for (Snippet::MatchPositions::const_iterator i = title_matches.begin();
          i != title_matches.end(); ++i) {
-      if (static_cast<size_t>(i->first) != offset) {
+      if (i->first != offset) {
         match->description_class.push_back(
             ACMatchClassification(offset, ACMatchClassification::NONE));
       }

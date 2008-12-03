@@ -79,8 +79,8 @@ const char* kThaiSample = "Google \xE0\xB9\x80\xE0\xB8\x81\xE0\xB9\x87"
 "\xE0\xB8\xB8\xE0\xB8\x93";
 
 // Comparator for sorting by the first element in a pair.
-bool ComparePair1st(const std::pair<int, int>& a,
-                    const std::pair<int, int>& b) {
+bool ComparePair1st(const Snippet::MatchPosition& a,
+                    const Snippet::MatchPosition& b) {
   return a.first < b.first;
 }
 
@@ -106,11 +106,9 @@ std::wstring BuildSnippet(const std::string& document,
   for (std::vector<std::string>::iterator qw = query_words.begin();
        qw != query_words.end(); ++qw) {
     // Insert all instances of this word into match_pairs.
-    std::string::size_type ofs = 0;
+    size_t ofs = 0;
     while ((ofs = document_folded.find(*qw, ofs)) != std::string::npos) {
-      match_positions.push_back(
-          std::make_pair(static_cast<int>(ofs),
-                         static_cast<int>(ofs + qw->size())));
+      match_positions.push_back(std::make_pair(ofs, ofs + qw->size()));
       ofs += qw->size();
     }
   }
@@ -229,7 +227,7 @@ TEST(Snippets, ExtractMatchPositions) {
   struct TestData {
     const std::string offsets_string;
     const size_t expected_match_count;
-    const int expected_matches[10];
+    const size_t expected_matches[10];
   } data[] = {
     { "0 0 1 2 0 0 4 1 0 0 1 5",            1,     { 1,6 } },
     { "0 0 1 4 0 0 2 1",                    1,     { 1,5 } },
