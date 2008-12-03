@@ -69,6 +69,15 @@ class SSLUITest : public UITest {
     return path;
   }
 
+  HTTPSTestServer GoodServer() {
+    return HTTPSTestServer(kHostName, kOKHTTPSPort, kDocRoot, GetOKCertPath());
+  }
+
+  HTTPSTestServer BadServer() {
+    return HTTPSTestServer(kHostName, kBadHTTPSPort, kDocRoot, 
+                           GetExpiredCertPath());
+  }
+
  private:
   void CheckCATrusted() {
     HCERTSTORE cert_store = CertOpenSystemStore(NULL, L"ROOT");
@@ -144,8 +153,7 @@ TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
 
 // Visits a page over OK https:
 TEST_F(SSLUITest, TestOKHTTPS) {
-  HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
-                               kDocRoot, GetOKCertPath());
+  HTTPSTestServer https_server = GoodServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               https_server.TestServerPageW(L"files/ssl/google.html"));
@@ -166,8 +174,7 @@ TEST_F(SSLUITest, TestOKHTTPS) {
 
 // Visits a page with https error:
 TEST_F(SSLUITest, TestHTTPSExpiredCert) {
-  HTTPSTestServer https_server(kHostName, kBadHTTPSPort,
-                               kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer https_server = BadServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               https_server.TestServerPageW(L"files/ssl/google.html"));
@@ -203,8 +210,7 @@ TEST_F(SSLUITest, TestHTTPSExpiredCert) {
 
 // Visits a page with mixed content.
 TEST_F(SSLUITest, TestMixedContents) {
-  HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
-                               kDocRoot, GetOKCertPath());
+  HTTPSTestServer https_server = GoodServer();
   TestServer http_server(kDocRoot);
 
   // Load a page with mixed-content, the default behavior is to show the mixed
@@ -276,10 +282,8 @@ TEST_F(SSLUITest, TestMixedContents) {
 // - frames content is replaced with warning
 // - images and scripts are filtered out entirely
 TEST_F(SSLUITest, TestUnsafeContents) {
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -328,8 +332,7 @@ TEST_F(SSLUITest, TestUnsafeContents) {
 
 // Visits a page with mixed content loaded by JS (after the initial page load).
 TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
-  HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
-                               kDocRoot, GetOKCertPath());
+  HTTPSTestServer https_server = GoodServer();
   TestServer http_server(kDocRoot);
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -368,8 +371,7 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
 // referencing that same image over http (hoping it is coming from the webcore
 // memory cache).
 TEST_F(SSLUITest, TestCachedMixedContents) {
-  HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
-                               kDocRoot, GetOKCertPath());
+  HTTPSTestServer https_server = GoodServer();
   TestServer http_server(kDocRoot);
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -476,8 +478,7 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
 
 // Test that navigating to a #ref does not change a bad security state.
 TEST_F(SSLUITest, TestRefNavigation) {
-  HTTPSTestServer https_server(kHostName, kBadHTTPSPort,
-                               kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer https_server = BadServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               https_server.TestServerPageW(L"files/ssl/page_with_refs.html"));
@@ -521,8 +522,7 @@ TEST_F(SSLUITest, TestRefNavigation) {
 // Disabled because flaky (bug #2136).
 TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
   TestServer http_server(kDocRoot);
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer bad_https_server = BadServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -546,10 +546,8 @@ TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
 
 // Visit a page over bad https that is a redirect to a page with good https.
 TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL url1 = bad_https_server.TestServerPageW(L"server-redirect?");
@@ -581,10 +579,8 @@ TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
 
 // Visit a page over good https that is a redirect to a page with bad https.
 TEST_F(SSLUITest, TestRedirectGoodToBadHTTPS) {
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL url1 = good_https_server.TestServerPageW(L"server-redirect?");
@@ -612,10 +608,8 @@ TEST_F(SSLUITest, TestRedirectGoodToBadHTTPS) {
 // bad).
 TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
   TestServer http_server(kDocRoot);
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
 
   // HTTP redirects to good HTTPS.
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -657,8 +651,7 @@ TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
 // we don't keep the secure state).
 TEST_F(SSLUITest, TestRedirectHTTPSToHTTP) {
   TestServer http_server(kDocRoot);
-  HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
-                               kDocRoot, GetOKCertPath());
+  HTTPSTestServer https_server = GoodServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL https_url = https_server.TestServerPageW(L"server-redirect?");
@@ -714,10 +707,8 @@ TEST_F(SSLUITest, TestConnectToBadPort) {
 // - navigate to HTTP (expect mixed content), then back
 TEST_F(SSLUITest, TestGoodFrameNavigation) {
   TestServer http_server(kDocRoot);
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
   
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -811,10 +802,8 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
 // From a bad HTTPS top frame:
 // - navigate to an OK HTTPS frame (expected to be still authentication broken).
 TEST_F(SSLUITest, TestBadFrameNavigation) {
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
   
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -856,10 +845,8 @@ TEST_F(SSLUITest, TestBadFrameNavigation) {
 // stay unauthenticated).
 TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   TestServer http_server(kDocRoot);
-  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
-                                    kDocRoot, GetOKCertPath());
-  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
-                                   kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer good_https_server = GoodServer();
+  HTTPSTestServer bad_https_server = BadServer();
   
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
