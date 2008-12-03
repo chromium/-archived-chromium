@@ -24,10 +24,10 @@ void PasswordManager::RegisterUserPrefs(PrefService* prefs) {
 }
 
 PasswordManager::PasswordManager(WebContents* web_contents)
-    : web_contents_(web_contents),
+    : ConfirmInfoBarDelegate(web_contents),
+      web_contents_(web_contents),
       observer_(NULL),
-      login_managers_deleter_(&pending_login_managers_),
-      ConfirmInfoBarDelegate(web_contents) {
+      login_managers_deleter_(&pending_login_managers_) {
   password_manager_enabled_.Init(prefs::kPasswordManagerEnabled,
       web_contents->profile()->GetPrefs(), NULL);
 }

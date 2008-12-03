@@ -22,8 +22,13 @@ bool InfoBarDelegate::ShouldExpire(
   return is_reload || (contents_unique_id_ != details.entry->unique_id());
 }
 
-InfoBarDelegate::InfoBarDelegate(TabContents* contents) {
-  // Initialize the unique id that we use to expire.
+InfoBarDelegate::InfoBarDelegate(TabContents* contents)
+    : contents_unique_id_(0) {
+  if (contents)
+    StoreActiveEntryUniqueID(contents);
+}
+
+void InfoBarDelegate::StoreActiveEntryUniqueID(TabContents* contents) {
   NavigationEntry* active_entry = contents->controller()->GetActiveEntry();
   contents_unique_id_ = active_entry ? active_entry->unique_id() : 0;
 }
@@ -39,6 +44,12 @@ bool AlertInfoBarDelegate::EqualsDelegate(InfoBarDelegate* delegate) const {
 }
 
 AlertInfoBarDelegate::AlertInfoBarDelegate(TabContents* contents)
+    : InfoBarDelegate(contents) {
+}
+
+// LinkInfoBarDelegate: --------------------------------------------------------
+
+LinkInfoBarDelegate::LinkInfoBarDelegate(TabContents* contents)
     : InfoBarDelegate(contents) {
 }
 
@@ -64,9 +75,9 @@ SimpleAlertInfoBarDelegate::SimpleAlertInfoBarDelegate(
     TabContents* contents,
     const std::wstring& message,
     SkBitmap* icon)
-    : message_(message),
-      icon_(icon),
-      AlertInfoBarDelegate(contents) {
+    : AlertInfoBarDelegate(contents),
+      message_(message),
+      icon_(icon) {
 }
 
 std::wstring SimpleAlertInfoBarDelegate::GetMessageText() const {

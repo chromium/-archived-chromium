@@ -6,16 +6,20 @@
 
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
-#include "chrome/browser/views/info_bar_alternate_nav_url_view.h"
 #include "chrome/browser/web_contents.h"
-#include "chrome/browser/web_contents_view.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/resource_bundle.h"
+
+#include "generated_resources.h"
 
 AlternateNavURLFetcher::AlternateNavURLFetcher(
     const std::wstring& alternate_nav_url)
-    : alternate_nav_url_(alternate_nav_url),
+    : LinkInfoBarDelegate(NULL),
+      alternate_nav_url_(alternate_nav_url),
       controller_(NULL), 
       state_(NOT_STARTED),
-      navigated_to_entry_(false) {
+      navigated_to_entry_(false),
+      infobar_contents_(NULL) {
   registrar_.Add(this, NOTIFY_NAV_ENTRY_PENDING,
                  NotificationService::AllSources());
 }
@@ -52,7 +56,6 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
                         Source<NavigationController>(controller_));
       navigated_to_entry_ = true;
       ShowInfobarIfPossible();
-      // DON'T DO ANYTHING AFTER HERE SINCE |this| MAY BE DELETED!
       break;
 
     case NOTIFY_TAB_CLOSED:
@@ -80,31 +83,51 @@ void AlternateNavURLFetcher::OnURLFetchComplete(const URLFetcher* source,
        (response_code == 401) || (response_code == 407))) {
     state_ = SUCCEEDED;
     ShowInfobarIfPossible();
-    // DON'T DO ANYTHING AFTER HERE SINCE |this| MAY BE DELETED!
   } else {
     state_ = FAILED;
   }
+}
+
+std::wstring AlternateNavURLFetcher::GetMessageTextWithOffset(
+    size_t* link_offset) const {
+  const std::wstring label = l10n_util::GetStringF(
+      IDS_ALTERNATE_NAV_URL_VIEW_LABEL, std::wstring(), link_offset);
+  DCHECK(*link_offset != std::wstring::npos);
+  return label;
+}
+
+std::wstring AlternateNavURLFetcher::GetLinkText() const {
+  return alternate_nav_url_;
+}
+
+SkBitmap* AlternateNavURLFetcher::GetIcon() const {
+  return ResourceBundle::GetSharedInstance().GetBitmapNamed(
+      IDR_INFOBAR_ALT_NAV_URL);
+}
+
+bool AlternateNavURLFetcher::LinkClicked(WindowOpenDisposition disposition) {
+  infobar_contents_->OpenURL(
+      GURL(alternate_nav_url_), GURL(), disposition,
+      // Pretend the user typed this URL, so that navigating to
+      // it will be the default action when it's typed again in
+      // the future.
+      PageTransition::TYPED);
+
+  // We should always close, even if the navigation did not occur within this
+  // TabContents.
+  return true;
+}
+
+void AlternateNavURLFetcher::InfoBarClosed() {
+  delete this;
 }
 
 void AlternateNavURLFetcher::ShowInfobarIfPossible() {
   if (!navigated_to_entry_ || state_ != SUCCEEDED)
     return;
 
-  const NavigationEntry* const entry = controller_->GetActiveEntry();
-  DCHECK(entry);
-  if (entry->tab_type() != TAB_CONTENTS_WEB)
-    return;
-  TabContents* tab_contents =
-      controller_->GetTabContents(TAB_CONTENTS_WEB);
-  DCHECK(tab_contents);
-  WebContents* web_contents = tab_contents->AsWebContents();
-  // The infobar will auto-expire this view on the next user-initiated
-  // navigation, so we don't need to keep track of it.
-  web_contents->view()->GetInfoBarView()->AddChildView(
-      new InfoBarAlternateNavURLView(alternate_nav_url_));
-
-  // Now we're no longer referencing the navigation controller or the url fetch,
-  // so our job is done.
-  delete this;
+  infobar_contents_ = controller_->active_contents();
+  StoreActiveEntryUniqueID(infobar_contents_);
+  // We will be deleted when the InfoBar is destroyed. (See InfoBarClosed).
+  infobar_contents_->AddInfoBar(this);
 }
-

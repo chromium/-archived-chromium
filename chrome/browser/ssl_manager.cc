@@ -43,10 +43,10 @@ class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
                       const std::wstring message,
                       const std::wstring& button_label,
                       Task* task)
-      : message_(message),
+      : ConfirmInfoBarDelegate(contents),
+        message_(message),
         button_label_(button_label),
-        task_(task),
-        ConfirmInfoBarDelegate(contents) {
+        task_(task) {
   }
   virtual ~SSLInfoBarDelegate() {}
 
@@ -74,7 +74,6 @@ class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
     }
     return true;
   }
-  
 
  private:
   // Labels for the InfoBar's message and button.

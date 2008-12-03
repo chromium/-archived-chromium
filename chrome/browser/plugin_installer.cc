@@ -14,8 +14,8 @@
 #include "generated_resources.h"
 
 PluginInstaller::PluginInstaller(WebContents* web_contents)
-    : web_contents_(web_contents),
-      ConfirmInfoBarDelegate(web_contents) {
+    : ConfirmInfoBarDelegate(web_contents),
+      web_contents_(web_contents) {
 }
 
 PluginInstaller::~PluginInstaller() {

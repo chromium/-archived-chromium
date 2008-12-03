@@ -55,8 +55,8 @@ namespace {
 class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
  public:
   explicit SessionCrashedInfoBarDelegate(TabContents* contents)
-      : profile_(contents->profile()),
-        ConfirmInfoBarDelegate(contents) {
+      : ConfirmInfoBarDelegate(contents),
+        profile_(contents->profile()) {
   }
 
   // Overridden from ConfirmInfoBarDelegate:

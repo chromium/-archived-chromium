@@ -7,6 +7,7 @@
 
 #include "chrome/browser/infobar_delegate.h"
 #include "chrome/views/base_button.h"
+#include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
 
 class InfoBarContainer;
@@ -131,6 +132,29 @@ class AlertInfoBar : public InfoBar {
   views::ImageView* icon_;
 
   DISALLOW_COPY_AND_ASSIGN(AlertInfoBar);
+};
+
+class LinkInfoBar : public InfoBar,
+                    public views::LinkController {
+ public:
+  explicit LinkInfoBar(LinkInfoBarDelegate* delegate);
+  virtual ~LinkInfoBar();
+
+  // Overridden from views::LinkController:
+  virtual void LinkActivated(views::Link* source, int event_flags);
+
+  // Overridden from views::View:
+  virtual void Layout();
+
+ private:
+  LinkInfoBarDelegate* GetDelegate();
+
+  views::ImageView* icon_;
+  views::Label* label_1_;
+  views::Label* label_2_;
+  views::Link* link_;
+
+  DISALLOW_COPY_AND_ASSIGN(LinkInfoBar);
 };
 
 class ConfirmInfoBar : public AlertInfoBar,

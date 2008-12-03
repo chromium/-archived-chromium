@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "chrome/browser/infobar_delegate.h"
 #include "chrome/browser/url_fetcher.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
@@ -26,7 +27,8 @@ class NavigationController;
 // We'll do this when the load commits, or when the navigation controller
 // itself is deleted.
 class AlternateNavURLFetcher : public NotificationObserver,
-                               public URLFetcher::Delegate {
+                               public URLFetcher::Delegate,
+                               public LinkInfoBarDelegate {
  public:
   enum State {
     NOT_STARTED,
@@ -52,10 +54,16 @@ class AlternateNavURLFetcher : public NotificationObserver,
                                   const ResponseCookies& cookies,
                                   const std::string& data);
 
+  // LinkInfoBarDelegate
+  virtual std::wstring GetMessageTextWithOffset(size_t* link_offset) const;
+  virtual std::wstring GetLinkText() const;
+  virtual SkBitmap* GetIcon() const;
+  virtual bool LinkClicked(WindowOpenDisposition disposition);
+  virtual void InfoBarClosed();
+
  private:
   // Displays the infobar if all conditions are met (the page has loaded and
-  // the fetch of the alternate URL succeeded). If the infobar is displayed,
-  // this object is no longer necessary and this function WILL DELETE |this|!.
+  // the fetch of the alternate URL succeeded).
   void ShowInfobarIfPossible();
 
   std::wstring alternate_nav_url_;
@@ -63,6 +71,9 @@ class AlternateNavURLFetcher : public NotificationObserver,
   NavigationController* controller_;
   State state_;
   bool navigated_to_entry_;
+  
+  // The TabContents the InfoBarDelegate was added to.
+  TabContents* infobar_contents_;
 
   NotificationRegistrar registrar_;
 

@@ -14,6 +14,7 @@
 class AlertInfoBarDelegate;
 class ConfirmInfoBarDelegate;
 class InfoBar;
+class LinkInfoBarDelegate;
 
 // An interface implemented by objects wishing to control an InfoBar.
 // Implementing this interface is not sufficient to use an InfoBar, since it
@@ -46,8 +47,13 @@ class InfoBarDelegate {
   // platform-specific.
   virtual InfoBar* CreateInfoBar() = 0;
 
-  // Returns a pointer to the ConfirmInfoBarDelegate interface, if implemented.
+  // Returns a pointer to the AlertInfoBarDelegate interface, if implemented.
   virtual AlertInfoBarDelegate* AsAlertInfoBarDelegate() {
+    return NULL;
+  }
+
+  // Returns a pointer to the LinkInfoBarDelegate interface, if implemented.
+  virtual LinkInfoBarDelegate* AsLinkInfoBarDelegate() {
     return NULL;
   }
 
@@ -57,14 +63,17 @@ class InfoBarDelegate {
   }
 
  protected:
-  // Constructs the InfoBarDelegate for the specified TabContents'
-  // NavigationController.
+  // Provided to subclasses as a convenience to initialize the state of this
+  // object. If |contents| is non-NULL, its active entry's unique ID will be
+  // stored using StoreActiveEntryUniqueID automatically.
   explicit InfoBarDelegate(TabContents* contents);
-  
- private:
-  // The TabContents this InfoBarDelegate was added to.
-  TabContents* contents_;
 
+  // Store the unique id for the active entry in the specified TabContents, to
+  // be used later upon navigation to determine if this InfoBarDelegate should
+  // be expired from |contents_|.
+  void StoreActiveEntryUniqueID(TabContents* contents);
+
+ private:
   // The unique id of the active NavigationEntry of the TabContents taht we were
   // opened for. Used to help expire on navigations.
   int contents_unique_id_;
@@ -92,6 +101,47 @@ class AlertInfoBarDelegate : public InfoBarDelegate {
   explicit AlertInfoBarDelegate(TabContents* contents);
 
   DISALLOW_COPY_AND_ASSIGN(AlertInfoBarDelegate);
+};
+
+// An interface derived from InfoBarDelegate implemented by objects wishing to
+// control a LinkInfoBar.
+class LinkInfoBarDelegate : public InfoBarDelegate {
+ public:
+  // Returns the message string to be displayed in the InfoBar. |link_offset|
+  // is the position where the link should be inserted. If |link_offset| is set
+  // to std::wstring::npos (it is by default), the link is right aligned within
+  // the InfoBar rather than being embedded in the message text.
+  virtual std::wstring GetMessageTextWithOffset(size_t* link_offset) const {
+    *link_offset = std::wstring::npos;
+    return std::wstring();
+  }
+
+  // Returns the text of the link to be displayed.
+  virtual std::wstring GetLinkText() const = 0;
+
+  // Returns the icon that should be shown for this InfoBar, or NULL if there is
+  // none.
+  virtual SkBitmap* GetIcon() const { return NULL; }
+
+  // Called when the Link is clicked. The |disposition| specifies how the
+  // resulting document should be loaded (based on the event flags present when
+  // the link was clicked). This function returns true if the InfoBar should be
+  // closed now or false if it should remain until the user explicitly closes
+  // it.
+  virtual bool LinkClicked(WindowOpenDisposition disposition) {
+    return true; 
+  }
+
+  // Overridden from InfoBarDelegate:
+  virtual InfoBar* CreateInfoBar();
+  virtual LinkInfoBarDelegate* AsLinkInfoBarDelegate() {
+    return this;
+  }
+
+ protected:
+  explicit LinkInfoBarDelegate(TabContents* contents);
+
+  DISALLOW_COPY_AND_ASSIGN(LinkInfoBarDelegate);
 };
 
 // An interface derived from InfoBarDelegate implemented by objects wishing to
