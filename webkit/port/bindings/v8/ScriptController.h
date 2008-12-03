@@ -35,6 +35,7 @@
 
 #include "HashMap.h"
 #include "MessagePort.h"
+#include "ScriptInstance.h"
 #include "ScriptValue.h"
 #include "SecurityOrigin.h"
 
@@ -164,7 +165,7 @@ public:
 
     NPRuntimeFunctions* functions();
 
-    JSInstanceHandle createScriptInstanceForWidget(Widget*);
+    PassScriptInstance createScriptInstanceForWidget(Widget*);
 
     void clearPluginObjects();
     void disconnectFrame();
@@ -279,26 +280,6 @@ private:
 #if ENABLE(NETSCAPE_PLUGIN_API)
     NPObject* m_windowScriptNPObject;
 #endif
-};
-
-// JSInstance is an abstraction for a wrapped C class.  JSC and V8
-// have very different implementations.
-class JSInstanceHolder {
-public:
-    JSInstanceHolder();
-    JSInstanceHolder(JSInstanceHandle);
-    ~JSInstanceHolder();
-    // Returns true if the holder is empty.
-    bool IsEmpty();
-    // Get the contained JSInstance.
-    JSInstance Get();
-    // Clear the contained JSInstance.
-    void Clear();
-    JSInstanceHolder& operator=(JSInstanceHandle);
-    static JSInstance EmptyInstance();
-
-private:
-    JSPersistentInstance m_instance;
 };
 
 }  // namespace WebCore

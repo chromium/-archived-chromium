@@ -101,6 +101,7 @@
 #include "RenderWidget.h"
 #include "ScheduledAction.h"
 #include "ScriptCallContext.h"
+#include "ScriptController.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
 #include "StyleSheetList.h"
@@ -1794,10 +1795,15 @@ NAMED_PROPERTY_GETTER(HTMLPlugInElement) {
   INC_STATS("DOM.HTMLPlugInElement.NamedPropertyGetter");
   HTMLPlugInElement* imp =
       V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
-  v8::Local<v8::Object> instance =
-      v8::Local<v8::Object>::New(imp->getInstance());
-  if (instance.IsEmpty()) return v8::Handle<v8::Object>();
-  return NPObjectGetNamedProperty(instance, name);
+  ScriptInstance script_instance = imp->getInstance();
+  if (script_instance) {
+    v8::Local<v8::Object> instance =
+        v8::Local<v8::Object>::New(script_instance->instance());
+    if (!instance.IsEmpty()) {
+      return NPObjectGetNamedProperty(instance, name);
+    }
+  }
+  return v8::Handle<v8::Object>();
 }
 
 
@@ -1805,13 +1811,15 @@ NAMED_PROPERTY_SETTER(HTMLPlugInElement) {
   INC_STATS("DOM.HTMLPlugInElement.NamedPropertySetter");
   HTMLPlugInElement* imp =
       V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
-  v8::Local<v8::Object> instance =
-      v8::Local<v8::Object>::New(imp->getInstance());
-  if (instance.IsEmpty()) {
-    return v8::Handle<v8::Value>();  // do not block the call
+  ScriptInstance script_instance = imp->getInstance();
+  if (script_instance) {
+    v8::Local<v8::Object> instance =
+        v8::Local<v8::Object>::New(script_instance->instance());
+    if (!instance.IsEmpty()) {
+      return NPObjectSetNamedProperty(instance, name, value);
+    }
   }
-
-  return NPObjectSetNamedProperty(instance, name, value);
+  return v8::Handle<v8::Value>();  // do not block the call
 }
 
 
@@ -1825,10 +1833,15 @@ INDEXED_PROPERTY_GETTER(HTMLPlugInElement) {
   INC_STATS("DOM.HTMLPlugInElement.IndexedPropertyGetter");
   HTMLPlugInElement* imp =
       V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
-  v8::Local<v8::Object> instance =
-      v8::Local<v8::Object>::New(imp->getInstance());
-  if (instance.IsEmpty()) return v8::Handle<v8::Object>();
-  return NPObjectGetIndexedProperty(instance, index);
+  ScriptInstance script_instance = imp->getInstance();
+  if (script_instance) {
+    v8::Local<v8::Object> instance =
+        v8::Local<v8::Object>::New(script_instance->instance());
+    if (!instance.IsEmpty()) {
+      return NPObjectGetIndexedProperty(instance, index);
+    }
+  }
+  return v8::Handle<v8::Object>();
 }
 
 
@@ -1836,13 +1849,15 @@ INDEXED_PROPERTY_SETTER(HTMLPlugInElement) {
   INC_STATS("DOM.HTMLPlugInElement.IndexedPropertySetter");
   HTMLPlugInElement* imp =
       V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
-  v8::Local<v8::Object> instance =
-      v8::Local<v8::Object>::New(imp->getInstance());
-  if (instance.IsEmpty()) {
-    return v8::Handle<v8::Value>();  // do not block the call
+  ScriptInstance script_instance = imp->getInstance();
+  if (script_instance) {
+    v8::Local<v8::Object> instance =
+        v8::Local<v8::Object>::New(script_instance->instance());
+    if (!instance.IsEmpty()) {
+      return NPObjectSetIndexedProperty(instance, index, value);
+    }
   }
-
-  return NPObjectSetIndexedProperty(instance, index, value);
+  return v8::Handle<v8::Value>();  // do not block the call
 }
 
 NAMED_PROPERTY_GETTER(StyleSheetList) {

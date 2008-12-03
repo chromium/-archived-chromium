@@ -61,9 +61,13 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(
     // The holder object is a subtype of HTMLPlugInElement.
     HTMLPlugInElement* imp =
         V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(args.Holder());
-    v8::Handle<v8::Object> instance = imp->getInstance();
-    npobject = V8Proxy::ToNativeObject<NPObject>(
-        V8ClassIndex::NPOBJECT, instance);
+    ScriptInstance script_instance = imp->getInstance();
+    if (script_instance) {
+      npobject = V8Proxy::ToNativeObject<NPObject>(
+          V8ClassIndex::NPOBJECT, script_instance->instance());
+    } else {
+      npobject = NULL;
+    }
 
   } else {
     // The holder object is not a subtype of HTMLPlugInElement, it

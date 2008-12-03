@@ -363,16 +363,16 @@ bool ScriptController::isEnabled() const
     return m_proxy->isEnabled();
 }
 
-JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
+PassScriptInstance ScriptController::createScriptInstanceForWidget(Widget* widget)
 {
     ASSERT(widget != 0);
 
     if (widget->isFrameView())
-        return JSInstanceHolder::EmptyInstance();
+        return 0;
 
     NPObject* npObject = ChromiumBridge::pluginScriptableObject(widget);
     if (!npObject)
-        return JSInstanceHolder::EmptyInstance();
+        return 0;
 
     // Frame Memory Management for NPObjects
     // -------------------------------------
@@ -404,8 +404,7 @@ JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
     // Track the plugin object.  We've been given a reference to the object.
     m_pluginObjects.set(widget, npObject);
 
-    JSInstance instance = wrapper;
-    return instance;
+    return V8ScriptInstance::create(wrapper);
 }
 
 void ScriptController::cleanupScriptObjectsForPlugin(void* nativeHandle)
@@ -494,64 +493,6 @@ void ScriptController::attachDebugger(void*)
 void ScriptController::updateDocument()
 {
     m_proxy->updateDocument();
-}
-
-
-JSInstanceHolder::JSInstanceHolder()
-{
-}
-
-JSInstanceHolder::JSInstanceHolder(JSInstanceHandle instance)
-{
-    *this = instance;
-}
-
-JSInstanceHolder::~JSInstanceHolder()
-{
-    Clear();
-}
-
-bool JSInstanceHolder::IsEmpty()
-{
-    return m_instance.IsEmpty();
-}
-
-JSInstance JSInstanceHolder::Get()
-{
-    return v8::Local<v8::Object>::New(m_instance);
-}
-
-void JSInstanceHolder::Clear()
-{
-    if (m_instance.IsEmpty())
-        return;
-    v8::HandleScope scope;
-    v8::Persistent<v8::Object> handle(m_instance);
-#ifndef NDEBUG
-    V8Proxy::UnregisterGlobalHandle(this, handle);
-#endif
-    handle.Dispose();
-    m_instance.Clear();
-}
-
-JSInstance JSInstanceHolder::EmptyInstance()
-{
-    return v8::Local<v8::Object>();
-}
-
-JSInstanceHolder& JSInstanceHolder::operator=(JSInstanceHandle instance)
-{
-    Clear();
-    if (instance.IsEmpty())
-        return *this;
-
-    v8::Persistent<v8::Object> handle =
-        v8::Persistent<v8::Object>::New(instance);
-    m_instance = handle;
-#ifndef NDEBUG
-    V8Proxy::RegisterGlobalHandle(JSINSTANCE, this, handle);
-#endif
-    return *this;
 }
 
 }  // namespace WebCpre

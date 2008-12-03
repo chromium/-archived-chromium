@@ -39,6 +39,7 @@
 
 /* Begin PBXBuildFile section */
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
+		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
 		4D1637CD0EBFA49E008F024E /* SQLiteDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */; };
@@ -1434,6 +1435,8 @@
 /* Begin PBXFileReference section */
 		046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapImageSingleFrameSkia.h; sourceTree = "<group>"; };
 		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
+		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
+		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
 		4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteAuthorizer.cpp; sourceTree = "<group>"; };
 		4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteDatabase.cpp; sourceTree = "<group>"; };
 		4D1637C50EBFA49E008F024E /* SQLiteDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteDatabase.h; sourceTree = "<group>"; };
@@ -4516,6 +4519,8 @@
 				E40063600EA907510055B38E /* ScriptCallContextV8.cpp */,
 				E40060D90EA69E0B0055B38E /* ScriptController.h */,
 				E40060DA0EA69E0B0055B38E /* ScriptController.cpp */,
+				41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */,
+				41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */,
 				934CC3570EDCCEFE00A658F2 /* ScriptValue.cpp */,
 				934CC3580EDCCEFE00A658F2 /* ScriptValue.h */,
 				7B0095DB0DAFF0DC00F72082 /* v8_binding.h */,
@@ -8166,6 +8171,7 @@
 				7B0095F30DAFF0DD00F72082 /* np_v8object.cpp in Sources */,
 				7B0095F50DAFF0DD00F72082 /* npruntime.cpp in Sources */,
 				934CC2280EDCC37600A658F2 /* RGBColor.cpp in Sources */,
+				41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */,
 				934CC3590EDCCEFE00A658F2 /* ScriptValue.cpp in Sources */,
 				7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */,
 				7B00913B0DAFEFBE00F72082 /* SVGNames.cpp in Sources */,
