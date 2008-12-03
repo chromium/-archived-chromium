@@ -80,6 +80,8 @@ input_files = [
   'effects/SkShaderExtras.cpp',
   'effects/SkTransparentShader.cpp',
   'effects/SkUnitMappers.cpp',
+  'ext/image_operations.cc',
+  'ext/convolver.cc',
   'images/SkImageDecoder.cpp',
   'images/SkImageRef.cpp',
   'images/SkStream.cpp',
