@@ -10,11 +10,11 @@
 #include <vssym32.h>
 
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/skia_utils.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/scoped_handle.h"
 #include "skia/ext/platform_canvas.h"
+#include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkShader.h"
 
 namespace gfx {
