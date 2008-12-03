@@ -12,7 +12,6 @@
 #include <vsstyle.h>
 
 #include "base/gfx/native_theme.h"
-#include "base/gfx/skia_utils.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -25,6 +24,7 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/widget.h"
+#include "skia/ext/skia_utils_win.h"
 
 #include "generated_resources.h"
 

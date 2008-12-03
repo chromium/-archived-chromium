@@ -11,7 +11,6 @@
 
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
-#include "base/gfx/skia_utils.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
@@ -31,6 +30,7 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/widget.h"
 #include "generated_resources.h"
+#include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkBitmap.h"
 
 namespace {

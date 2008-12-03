@@ -4,11 +4,11 @@
 
 #include "chrome/views/background.h"
 
-#include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/painter.h"
 #include "chrome/views/view.h"
+#include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkPaint.h"
 
 namespace views {

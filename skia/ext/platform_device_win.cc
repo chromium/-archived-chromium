@@ -5,7 +5,7 @@
 #include "skia/ext/platform_device_win.h"
 
 #include "base/logging.h"
-#include "base/gfx/skia_utils.h"
+#include "skia/ext/skia_utils_win.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkRegion.h"

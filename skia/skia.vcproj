@@ -1361,6 +1361,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ext\skia_utils_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\skia_utils_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ext\vector_canvas.cc"
 				>
 			</File>

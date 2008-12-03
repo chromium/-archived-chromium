@@ -12,9 +12,12 @@
 #include "chrome/common/gfx/color_utils.h"
 
 #include "base/basictypes.h"
-#include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "skia/include/SkBitmap.h"
+
+#if defined(OS_WIN)
+#include "skia/ext/skia_utils_win.h"
+#endif
 
 namespace color_utils {
 

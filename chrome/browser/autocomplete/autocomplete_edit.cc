@@ -8,7 +8,6 @@
 
 #include "base/base_drag_source.h"
 #include "base/clipboard.h"
-#include "base/gfx/skia_utils.h"
 #include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/scoped_clipboard_writer.h"
@@ -35,6 +34,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/accessibility/autocomplete_accessibility.h"
 #include "googleurl/src/url_util.h"
+#include "skia/ext/skia_utils_win.h"
 
 #include "generated_resources.h"
 

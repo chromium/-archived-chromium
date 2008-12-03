@@ -9,7 +9,6 @@
 
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "base/gfx/skia_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/icon_util.h"
@@ -18,6 +17,7 @@
 #include "chrome/views/hwnd_view.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
+#include "skia/ext/skia_utils_win.h"
 
 namespace views {
 

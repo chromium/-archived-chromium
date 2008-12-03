@@ -7,7 +7,6 @@
 #include <limits>
 
 #include "base/base_drag_source.h"
-#include "base/gfx/skia_utils.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -45,6 +44,7 @@
 #include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "generated_resources.h"
+#include "skia/ext/skia_utils_win.h"
 
 using views::BaseButton;
 using views::DropTargetEvent;

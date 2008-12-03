@@ -177,14 +177,6 @@
 			RelativePath="..\gfx\size.h"
 			>
 		</File>
-		<File
-			RelativePath="..\gfx\skia_utils.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\skia_utils.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

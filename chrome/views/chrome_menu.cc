@@ -10,7 +10,6 @@
 
 #include "base/base_drag_source.h"
 #include "base/gfx/native_theme.h"
-#include "base/gfx/skia_utils.h"
 #include "base/message_loop.h"
 #include "base/task.h"
 #include "base/timer.h"
@@ -25,6 +24,7 @@
 #include "chrome/views/view_constants.h"
 #include "chrome/views/widget_win.h"
 #include "generated_resources.h"
+#include "skia/ext/skia_utils_win.h"
 
 #undef min
 #undef max
