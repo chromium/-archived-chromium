@@ -625,10 +625,14 @@ void EnsureRectIsVisibleInRect(const gfx::Rect& parent_rect,
   // windows in hyperspace.
   // TODO(mpcomplete): I don't see what the second check in each 'if' does that
   // isn't handled by the LAST set of 'ifs'.  Maybe we can remove it.
-  if (child_rect->x() < 0 || child_rect->x() > parent_rect.right())
-    child_rect->set_x(padding);
-  if (child_rect->y() < 0 || child_rect->y() > parent_rect.bottom())
-    child_rect->set_y(padding);
+  if (child_rect->x() < parent_rect.x() ||
+      child_rect->x() > parent_rect.right()) {
+    child_rect->set_x(parent_rect.x() + padding);
+  }
+  if (child_rect->y() < parent_rect.y() ||
+      child_rect->y() > parent_rect.bottom()) {
+    child_rect->set_y(parent_rect.y() + padding);
+  }
 
   // LAST, nudge the window back up into the client area if its x,y position is
   // within the parent bounds but its width/height place it off-screen.
