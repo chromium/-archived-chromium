@@ -527,6 +527,7 @@ typedef struct _NPPrint
 
 // BEGIN GOOGLE MODIFICATIONS
 #ifdef XP_MACOSX
+typedef struct _NPNSMenu NPNSMenu;
 typedef NPNSMenu NPMenu;
 #else
 typedef void * NPMenu;
