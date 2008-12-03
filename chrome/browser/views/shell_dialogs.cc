@@ -291,10 +291,9 @@ void SelectFileDialogImpl::ExecuteSelectFile(
   if (type == SELECT_FOLDER) {
     success = RunSelectFolderDialog(title, run_state.owner, &path);
   } else if (type == SELECT_SAVEAS_FILE) {
-    const wchar_t* filter_string = filter.empty() ? NULL : filter.c_str();
     unsigned index = 0;
     success = win_util::SaveFileAsWithFilter(run_state.owner, default_path,
-        filter_string, default_extension, &index, &path);
+        filter, default_extension, &index, &path);
     DisableOwner(run_state.owner);
   } else if (type == SELECT_OPEN_FILE) {
     success = RunOpenFileDialog(title, filter, run_state.owner, &path);

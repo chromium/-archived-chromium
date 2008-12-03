@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_WIN_UTIL_H__
-#define CHROME_COMMON_WIN_UTIL_H__
+#ifndef CHROME_COMMON_WIN_UTIL_H_
+#define CHROME_COMMON_WIN_UTIL_H_
 
 #include <objbase.h>
 
@@ -52,7 +52,7 @@ class CoMemReleaser {
  private:
   T* mem_ptr_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CoMemReleaser);
+  DISALLOW_COPY_AND_ASSIGN(CoMemReleaser);
 };
 
 // Initializes COM in the constructor, and uninitializes COM in the
@@ -68,7 +68,7 @@ class ScopedCOMInitializer {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedCOMInitializer);
+  DISALLOW_COPY_AND_ASSIGN(ScopedCOMInitializer);
 };
 
 // Creates a string interpretation of the time of day represented by the given
@@ -159,7 +159,7 @@ bool SaveFileAs(HWND owner,
 // extension.
 bool SaveFileAsWithFilter(HWND owner,
                           const std::wstring& suggested_name,
-                          const wchar_t* filter,
+                          const std::wstring& filter,
                           const std::wstring& def_ext,
                           unsigned* index,
                           std::wstring* final_name);
@@ -239,5 +239,4 @@ ChromeFont GetWindowTitleFont();
 
 }  // namespace win_util
 
-#endif  // WIN_COMMON_WIN_UTIL_H__
-
+#endif  // CHROME_COMMON_WIN_UTIL_H_

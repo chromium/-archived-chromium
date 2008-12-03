@@ -20,6 +20,7 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/common/l10n_util.h"
+#include "net/base/mime_util.h"
 #include "generated_resources.h"
 
 // Ensure that we pick up this link library.
@@ -361,7 +362,7 @@ bool SaveFileAs(HWND owner,
   unsigned index = 1;
   return SaveFileAsWithFilter(owner,
                               suggested_name,
-                              filter.c_str(),
+                              filter,
                               L"",
                               &index,
                               final_name);
@@ -369,11 +370,14 @@ bool SaveFileAs(HWND owner,
 
 bool SaveFileAsWithFilter(HWND owner,
                           const std::wstring& suggested_name,
-                          const wchar_t* filter,
+                          const std::wstring& filter,
                           const std::wstring& def_ext,
                           unsigned* index,
                           std::wstring* final_name) {
   DCHECK(final_name);
+  // Having an empty filter makes for a bad user experience. We should always
+  // specify a filter when saving.
+  DCHECK(!filter.empty());
   std::wstring file_part = file_util::GetFilenameFromPath(suggested_name);
 
   // The size of the in/out buffer in number of characters we pass to win32
@@ -394,7 +398,7 @@ bool SaveFileAsWithFilter(HWND owner,
   save_as.hwndOwner = owner;
   save_as.hInstance = NULL;
 
-  save_as.lpstrFilter = filter;
+  save_as.lpstrFilter = filter.empty() ? NULL : filter.c_str();
 
   save_as.lpstrCustomFilter = NULL;
   save_as.nMaxCustFilter = 0;
@@ -431,16 +435,53 @@ bool SaveFileAsWithFilter(HWND owner,
   final_name->assign(save_as.lpstrFile);
   *index = save_as.nFilterIndex;
 
-  std::wstring file_ext = file_util::GetFileExtensionFromPath(suggested_name);
-  if (save_as.nFileExtension == 0) {
-    // No extension is specified. Append the default extension.
-    final_name->append(L".");
-    final_name->append(file_ext);
-  } else if (save_as.nFileExtension == wcslen(save_as.lpstrFile)) {
-    // The path ends with a ".". This is not supported on windows and since
-    // we don't use a windows API to create the file, it will make the file
-    // impossible to open.
-    final_name->resize(final_name->size() - 1);
+  // Figure out what filter got selected from the vector with embedded nulls.
+  // NOTE: The filter contains a string with embedded nulls, such as:
+  // JPG Image\0*.jpg\0All files\0*.*\0\0
+  // The filter index is 1-based index for which pair got selected. So, using
+  // the example above, if the first index was selected we need to skip 1
+  // instance of null to get to "*.jpg".
+  std::vector<std::wstring> filters;
+  if (!filter.empty() && save_as.nFilterIndex > 0)
+    SplitString(filter, '\0', &filters);
+  std::wstring filter_selected;
+  if (!filters.empty())
+    filter_selected = filters[(2 * (save_as.nFilterIndex - 1)) + 1];
+
+  // Get the extension that was suggested to the user (when the Save As dialog
+  // was opened) and the extension the user ended up selecting (|final_ext|).
+  std::wstring suggested_ext =
+      file_util::GetFileExtensionFromPath(suggested_name);
+  std::wstring final_ext =
+      file_util::GetFileExtensionFromPath(*final_name);
+  // If we can't get the extension from the suggested_name, we use the default
+  // extension passed in. This is to cover cases like when saving a web page,
+  // where we get passed in a name without an extension and a default extension
+  // along with it.
+  if (suggested_ext.empty())
+    suggested_ext = def_ext;
+
+  if (filter_selected.empty() || filter_selected == L"*.*") {
+    // If the user selects 'All files' we respect any extension given to us from
+    // the File Save dialog. We also strip any trailing dots, which matches
+    // Windows Explorer and is needed because Windows doesn't allow filenames
+    // to have trailing dots. The GetSaveFileName dialog will not return a
+    // string with only one or more dots.
+    size_t index = final_name->find_last_not_of(L'.');
+    if (index < final_name->size() - 1)
+      *final_name = final_name->substr(0, index + 1);
+  } else {
+    // User selected a specific filter (not *.*) so we need to check if the
+    // extension provided has the same mime type. If it doesn't we append the
+    // extension.
+    std::string suggested_mime_type, selected_mime_type;
+    if (suggested_ext != final_ext &&
+        (!net::GetMimeTypeFromExtension(suggested_ext, &suggested_mime_type) ||
+         !net::GetMimeTypeFromExtension(final_ext, &selected_mime_type) ||
+         suggested_mime_type != selected_mime_type)) {
+      final_name->append(L".");
+      final_name->append(suggested_ext);
+    }
   }
 
   return true;
@@ -820,4 +861,3 @@ ChromeFont GetWindowTitleFont() {
 }
 
 }  // namespace win_util
-

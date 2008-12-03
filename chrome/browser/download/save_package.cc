@@ -920,7 +920,7 @@ bool SavePackage::GetSaveInfo(const std::wstring& suggest_name,
   // Use "Web Page, Complete" option as default choice of saving page.
   unsigned index = 2;
 
-  // If the conetnts can not be saved as complete-HTML, do not show the
+  // If the contents can not be saved as complete-HTML, do not show the
   // file filters.
   if (CanSaveAsComplete(param->current_tab_mime_type)) {
     // Create filter string.
@@ -930,8 +930,11 @@ bool SavePackage::GetSaveInfo(const std::wstring& suggest_name,
     filter[filter.size() - 2] = L'\0';
 
     if (!win_util::SaveFileAsWithFilter(container_hwnd,
-        suggest_name, filter.c_str(), L"htm",
-        &index, &param->saved_main_file_path))
+                                        suggest_name,
+                                        filter,
+                                        L"htm",
+                                        &index,
+                                        &param->saved_main_file_path))
       return false;
   } else {
     if (!win_util::SaveFileAs(container_hwnd, suggest_name,
