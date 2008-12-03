@@ -7,11 +7,15 @@ import shutil
 import sys
 
 
+if sys.platform == 'win32':
+  console = 'con'
+else:
+  console = '/dev/tty'
 p = ARGUMENTS.get('PROGRESS')
 if p == 'spinner':
-  Progress(['/\r', '|\r', '\\\r', '-\r'], interval=5, file=open('con', 'w'))
+  Progress(['/\r', '|\r', '\\\r', '-\r'], interval=5, file=open(console, 'w'))
 elif p == 'name':
-  Progress('$TARGET\r', overwrite=True, file=open('con', 'w'))
+  Progress('$TARGET\r', overwrite=True, file=open(console, 'w'))
 
 
 default_warnings = ['no-missing-sconscript', 'no-no-parallel-support']
@@ -24,6 +28,13 @@ SetOption('warn', default_warnings + GetOption('warn'))
 # The following variables can be set either on the command line
 # or in the external environment when executing SCons, with the
 # command line overriding any environment setting.
+#
+# BUILD_TARGET_DIR
+#    Specifies the target subdirectory name in which we'll
+#    build everything.  This is intended to mimic the Visual
+#    Visual Studio "Debug\" and "Release\" subdirectories.
+#    The default value is "Hammer."
+#
 #
 # CHROME_BUILD_TYPE
 #    When set, applies settings from the file
@@ -45,6 +56,7 @@ SetOption('warn', default_warnings + GetOption('warn'))
 #
 clvars = Variables('scons.opts', ARGUMENTS)
 clvars.AddVariables(
+    ('BUILD_TARGET_DIR', '', 'Hammer'),
     ('CHROME_BUILD_TYPE', '', os.environ.get('CHROME_BUILD_TYPE', '')),
     ('CHROMIUM_BUILD', '', os.environ.get('CHROMIUM_BUILD', '')),
     BoolVariable('INCREMENTAL', '', os.environ.get('INCREMENTAL')),
@@ -64,7 +76,7 @@ root_env = Environment(
     all_system_libs = [],
 
     CHROME_SRC_DIR = '$MAIN_DIR/..',
-    DESTINATION_ROOT = '$MAIN_DIR/Hammer',
+    DESTINATION_ROOT = '$MAIN_DIR/$BUILD_TARGET_DIR',
 
     # Where ComponentTestProgram() will build test executables.
     TESTS_DIR = '$DESTINATION_ROOT',
@@ -586,17 +598,6 @@ mac_env.Append(
 
     ICU_LIBS = ['icui18n', 'icuuc', 'icudata'],
 )
-
-
-# Add --clobber (for the buildbot).
-# NOTE: seems to be crucial to do this before any builders are invoked.
-AddOption('--clobber', action='store_true', dest='clobber', default=False,
-          help='Delete build directory before building.')
-if GetOption('clobber'):
-  shutil.rmtree(root_env.Dir('$DESTINATION_ROOT').abspath, True)
-  # sconsign file gets put here at the moment.
-  shutil.rmtree(root_env.Dir('$MAIN_DIR/scons-out').abspath, True)
-
 
 
 # -------------------------------------------------------------------------
