@@ -29,6 +29,17 @@
     </edit>
   </match>
 
+  <!-- Some layout tests specify Helvetica as a family and we need to make sure
+       that we don't fallback to Times New Roman for them -->
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>Helvetica</string>
+    </test>
+    <edit name="family" mode="assign">
+      <string>Arial</string>
+    </edit>
+  </match>
+
   <match target="pattern">
     <test qual="any" name="family">
       <string>sans-serif</string>

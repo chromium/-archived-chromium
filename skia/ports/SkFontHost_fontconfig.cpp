@@ -100,6 +100,7 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
     va_start(ap, value);
 
     FcPattern* pattern = FcPatternCreate();
+    bool family_requested = false;
 
     for (;;) {
         FcValue fcvalue;
@@ -116,6 +117,9 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
         }
         FcPatternAdd(pattern, type, fcvalue, 0);
 
+        if (vtype == FcTypeString && strcmp(type, FC_FAMILY) == 0)
+            family_requested = true;
+
         type = va_arg(ap, const char *);
         if (!type)
             break;
@@ -128,9 +132,55 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
     FcConfigSubstitute(0, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
+    // Font matching:
+    // CSS often specifies a fallback list of families:
+    //    font-family: a, b, c, serif;
+    // However, fontconfig will always do its best to find *a* font when asked
+    // for something so we need a way to tell if the match which it has found is
+    // "good enough" for us. Otherwise, we can return NULL which gets piped up
+    // and lets WebKit know to try the next CSS family name. However, fontconfig
+    // configs allow substitutions (mapping "Arial -> Helvetica" etc) and we
+    // wish to support that.
+    //
+    // Thus, if a specific family is requested we set @family_requested. Then we
+    // record two strings: the family name after config processing and the
+    // family name after resolving. If the two are equal, it's a good match.
+    //
+    // So consider the case where a user has mapped Arial to Helvetica in their
+    // config.
+    //    requested family: "Arial"
+    //    post_config_family: "Helvetica"
+    //    post_match_family: "Helvetica"
+    //      -> good match
+    //
+    // and for a missing font:
+    //    requested family: "Monaco"
+    //    post_config_family: "Monaco"
+    //    post_match_family: "Times New Roman"
+    //      -> BAD match
+    FcChar8* post_config_family;
+    FcPatternGetString(pattern, FC_FAMILY, 0, &post_config_family);
+
     FcResult result;
     FcPattern* match = FcFontMatch(0, pattern, &result);
+    if (!match) {
+        FcPatternDestroy(pattern);
+        return NULL;
+    }
+
+    FcChar8* post_match_family;
+    FcPatternGetString(match, FC_FAMILY, 0, &post_match_family);
+    const bool family_names_match =
+        !family_requested ?
+        true :
+        strcmp((char *) post_config_family, (char *) post_match_family) == 0;
+
     FcPatternDestroy(pattern);
+
+    if (!family_names_match) {
+        FcPatternDestroy(match);
+        return NULL;
+    }
 
     return match;
 }
