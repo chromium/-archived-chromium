@@ -792,31 +792,9 @@ LayoutTests/animations/big-rotation.html = FAIL PASS
 // http://crbug.com/5074
 LayoutTests/animations/keyframes-rule.html = FAIL
 
-// Wrong font is chosen for some reason -- sans vs serif.
-LINUX : LayoutTests/css2.1/t040103-escapes-01-b.html = FAIL
-
 // Wrong, and the baseline appears to be wrong in a different way!
 LINUX : LayoutTests/css2.1/t040302-c61-ex-len-00-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t040302-c61-rel-len-00-b-ag.html = FAIL
-
-// Uses an arrow glyph that isn't in our Linux font setup yet.
-LINUX : LayoutTests/css2.1/t0805-c5519-brdr-r-00-a.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5521-brdr-l-00-a.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5521-brdr-l-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5521-ibrdr-l-00-a.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c414-flt-02-c.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c414-flt-03-c.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c414-flt-04-c.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltblck-01-d.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltcont-00-d-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-02-c-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-03-c-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwrap-00-b.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c414-flt-01-b.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c414-flt-03-b-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c414-flt-ln-01-d-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c5525-flt-l-00-b-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c5525-flt-r-00-b-g.html = FAIL
 
 // Radio buttons rendered differently between Linux and Windows.
 LINUX MAC : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
