@@ -183,7 +183,7 @@ if env['PLATFORM'] == 'win32':
   input_files.append('ext/bitmap_platform_device_win.cc')
   input_files.append('ext/platform_canvas_win.cc')
   input_files.append('ext/platform_device_win.cc')
-  input_files.append('ext/skia_utils_win.cc")
+  input_files.append('ext/skia_utils_win.cc')
   input_files.append('ext/vector_canvas.cc')
   input_files.append('ext/vector_device.cc')
 
