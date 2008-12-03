@@ -34,6 +34,10 @@
 
 #include "v8.h"
 
+#ifndef NDEBUG
+#include "v8_proxy.h"  // for register and unregister global handles.
+#endif
+
 namespace WebCore {
 
 class String;
@@ -44,12 +48,22 @@ public:
 
     ScriptValue(v8::Handle<v8::Value> value) 
     {
-        m_value = v8::Persistent<v8::Value>::New(value);
+        if (!value.IsEmpty()) {
+            m_value = v8::Persistent<v8::Value>::New(value);
+#ifndef NDEBUG
+            V8Proxy::RegisterGlobalHandle(SCRIPTVALUE, this, m_value);
+#endif
+        }
     }
 
     ScriptValue(const ScriptValue& value) 
     {
-        m_value = v8::Persistent<v8::Value>::New(value.m_value);
+        if (!value.m_value.IsEmpty()) {
+            m_value = v8::Persistent<v8::Value>::New(value.m_value);
+#ifndef NDEBUG
+            V8Proxy::RegisterGlobalHandle(SCRIPTVALUE, this, m_value);
+#endif
+        }
     }
 
     ScriptValue& operator=(const ScriptValue& value) 
@@ -57,15 +71,30 @@ public:
         if (this == &value) 
             return *this;
 
-        m_value.Dispose();
-        m_value = v8::Persistent<v8::Value>::New(value.m_value);
+        clear();
+        if (!value.m_value.IsEmpty()) { 
+            m_value = v8::Persistent<v8::Value>::New(value.m_value);
+#ifndef NDEBUG
+            V8Proxy::RegisterGlobalHandle(SCRIPTVALUE, this, m_value);
+#endif
+        }
+
         return *this;
     }
 
+    void clear() {
+        if (!m_value.IsEmpty()) {
+#ifndef NDEBUG
+            V8Proxy::UnregisterGlobalHandle(this, m_value);
+#endif
+            m_value.Dispose();
+            m_value.Clear();
+        }
+    }
+
     ~ScriptValue() 
-    { 
-        m_value.Dispose();
-        m_value.Clear();
+    {
+        clear();
     }
 
     bool getString(String& result) const;

@@ -86,7 +86,8 @@ void log_info(Frame* frame, const String& msg, const String& url);
   V(SCHEDULED_ACTION)           \
   V(EVENT_LISTENER)             \
   V(NODE_FILTER)                \
-  V(JSINSTANCE)                 \
+  V(SCRIPTVALUE)                \
+  V(JSINSTANCE)
 
 
 // Host information of persistent handles.
