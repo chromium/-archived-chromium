@@ -783,6 +783,15 @@ LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL P
 // Crash in DEBUG only
 DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 
+// This test is timing sensitive and sometimes fails.  However, other tests
+// in the LayoutTests/animations/ directory are timing sensitive in the same
+// way.  Maybe this is just flaky because it's animating faster?
+LayoutTests/animations/big-rotation.html = FAIL PASS
+
+// Differences between v8 and jsc for typeof(window.CSSStyleDeclaration).
+// http://crbug.com/5074
+LayoutTests/animations/keyframes-rule.html = FAIL
+
 // Wrong font is chosen for some reason -- sans vs serif.
 LINUX : LayoutTests/css2.1/t040103-escapes-01-b.html = FAIL
 
@@ -1338,11 +1347,9 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.htm
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
-LayoutTests/animations/big-rotation.html = FAIL PASS
 DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
-LayoutTests/animations/keyframes-rule.html = FAIL
 LayoutTests/editing/deleting/smart-editing-disabled.html = FAIL
 LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
