@@ -251,7 +251,6 @@ if env['PLATFORM'] == 'win32':
       'safe_browsing/safe_browsing_blocking_page.cc',
       'sandbox_policy.cc',
       'session_backend.cc',
-      'session_crashed_view.cc',
       'session_restore.cc',
       'session_service.cc',
       'shell_integration.cc',
