@@ -5,7 +5,7 @@
 #include "skia/ext/bitmap_platform_device_mac.h"
 
 #include "base/logging.h"
-#include "base/gfx/skia_utils_mac.h"
+#include "skia/ext/skia_utils_mac.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkUtils.h"

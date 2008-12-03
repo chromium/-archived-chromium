@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 
-#ifndef BASE_GFX_SKIA_UTILS_MAC_H__
-#define BASE_GFX_SKIA_UTILS_MAC_H__
+#ifndef SKIA_EXT_SKIA_UTILS_MAC_H_
+#define SKIA_EXT_SKIA_UTILS_MAC_H_
 
 #include "SkColor.h"
 #include <CoreGraphics/CGColor.h>
@@ -30,7 +30,7 @@ inline const SkPoint& CGPointToSkPoint(const CGPoint& point) {
 
 // Matrix converters.
 CGAffineTransform SkMatrixToCGAffineTransform(const SkMatrix& matrix);
-  
+
 // Rectangle converters.
 SkRect CGRectToSkRect(const CGRect& rect);
 SkIRect CGRectToSkIRect(const CGRect& rect);
@@ -47,5 +47,5 @@ CGColorRef SkColorToCGColorRef(SkColor color);
 
 }  // namespace gfx
 
-#endif
+#endif  // SKIA_EXT_SKIA_UTILS_MAC_H_
 

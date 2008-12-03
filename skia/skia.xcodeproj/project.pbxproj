@@ -10,6 +10,7 @@
 		7B4DF47E0E5B5FE0004D7619 /* SkNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B4DF47D0E5B5FE0004D7619 /* SkNinePatch.cpp */; };
 		7B4DF4800E5B6005004D7619 /* SkScaledBitmapSampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B4DF47F0E5B6005004D7619 /* SkScaledBitmapSampler.cpp */; };
 		7B4DF48A0E5B609B004D7619 /* SkTypeface_fake.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B4DF4820E5B6087004D7619 /* SkTypeface_fake.cpp */; };
+		A708CBA30EE7078500C531EA /* skia_utils_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A708CBA10EE7078500C531EA /* skia_utils_mac.cc */; };
 		A70A3BAE0ED7385F00C31871 /* bitmap_platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BA80ED7385F00C31871 /* bitmap_platform_device_mac.cc */; };
 		A70A3BAF0ED7385F00C31871 /* platform_canvas_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BAA0ED7385F00C31871 /* platform_canvas_mac.cc */; };
 		A70A3BB00ED7385F00C31871 /* platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BAC0ED7385F00C31871 /* platform_device_mac.cc */; };
@@ -149,6 +150,8 @@
 		7B4DF47F0E5B6005004D7619 /* SkScaledBitmapSampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkScaledBitmapSampler.cpp; sourceTree = "<group>"; };
 		7B4DF4810E5B6087004D7619 /* SkDrawProcs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkDrawProcs.h; sourceTree = "<group>"; };
 		7B4DF4820E5B6087004D7619 /* SkTypeface_fake.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkTypeface_fake.cpp; sourceTree = "<group>"; };
+		A708CBA10EE7078500C531EA /* skia_utils_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skia_utils_mac.cc; path = ext/skia_utils_mac.cc; sourceTree = "<group>"; };
+		A708CBA20EE7078500C531EA /* skia_utils_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skia_utils_mac.h; path = ext/skia_utils_mac.h; sourceTree = "<group>"; };
 		A70A3BA80ED7385F00C31871 /* bitmap_platform_device_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bitmap_platform_device_mac.cc; path = ext/bitmap_platform_device_mac.cc; sourceTree = "<group>"; };
 		A70A3BA90ED7385F00C31871 /* bitmap_platform_device_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitmap_platform_device_mac.h; path = ext/bitmap_platform_device_mac.h; sourceTree = "<group>"; };
 		A70A3BAA0ED7385F00C31871 /* platform_canvas_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = platform_canvas_mac.cc; path = ext/platform_canvas_mac.cc; sourceTree = "<group>"; };
@@ -500,6 +503,8 @@
 				A70A3BAB0ED7385F00C31871 /* platform_canvas_mac.h */,
 				A70A3BAC0ED7385F00C31871 /* platform_device_mac.cc */,
 				A70A3BAD0ED7385F00C31871 /* platform_device_mac.h */,
+				A708CBA10EE7078500C531EA /* skia_utils_mac.cc */,
+				A708CBA20EE7078500C531EA /* skia_utils_mac.h */,
 			);
 			name = ext;
 			sourceTree = "<group>";
@@ -926,6 +931,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A70A3BAE0ED7385F00C31871 /* bitmap_platform_device_mac.cc in Sources */,
+				A74368B90EE61BBF003562CC /* convolver.cc in Sources */,
+				A74368BA0EE61BBF003562CC /* image_operations.cc in Sources */,
 				A70A3BAF0ED7385F00C31871 /* platform_canvas_mac.cc in Sources */,
 				A70A3BB00ED7385F00C31871 /* platform_device_mac.cc in Sources */,
 				E48EE4D20E34E873009DE966 /* Sk1DPathEffect.cpp in Sources */,
@@ -985,6 +992,7 @@
 				E48EE5060E34E873009DE966 /* SkGlyphCache.cpp in Sources */,
 				E48EE5070E34E873009DE966 /* SkGradientShader.cpp in Sources */,
 				E48EE5080E34E873009DE966 /* SkGraphics.cpp in Sources */,
+				A708CBA30EE7078500C531EA /* skia_utils_mac.cc in Sources */,
 				E48EE5090E34E873009DE966 /* SkImageDecoder.cpp in Sources */,
 				E48EE50A0E34E873009DE966 /* SkImageDecoder_Factory.cpp in Sources */,
 				E48EE50B0E34E873009DE966 /* SkImageRef.cpp in Sources */,
@@ -1045,8 +1053,6 @@
 				E48EE5380E34E873009DE966 /* SkUtils.cpp in Sources */,
 				E48EE5390E34E873009DE966 /* SkWriter32.cpp in Sources */,
 				E48EE53A0E34E873009DE966 /* SkXfermode.cpp in Sources */,
-				A74368B90EE61BBF003562CC /* convolver.cc in Sources */,
-				A74368BA0EE61BBF003562CC /* image_operations.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
