@@ -571,7 +571,7 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
     gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
 
     HDC hdc = canvas->beginPlatformPaint();
-    COLORREF clr = o->style()->backgroundColor().rgb();
+    COLORREF clr = o->style()->backgroundColor().rgb() & 0xFFFFFF;
     RECT renderRect = helper.rect();
 
     gfx::NativeTheme::instance()->PaintTextField(hdc,
