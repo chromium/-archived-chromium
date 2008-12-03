@@ -506,13 +506,6 @@ void URLRequestHttpJob::AddExtraHeaders() {
           + avail_dictionaries + "\r\n";
       request_info_.load_flags |= net::LOAD_SDCH_DICTIONARY_ADVERTISED;
     }
-
-    scoped_ptr<FileVersionInfo> file_version_info(
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-    request_info_.extra_headers += "X-SDCH: Chrome ";
-    request_info_.extra_headers +=
-        WideToASCII(file_version_info->product_version());
-    request_info_.extra_headers += "\r\n";
   }
 
   URLRequestContext* context = request_->context();
