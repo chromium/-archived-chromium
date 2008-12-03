@@ -146,7 +146,6 @@ class FilePath {
   // only to |component| is returned.  |component| must be a relative path;
   // it is an error to pass an absolute path.
   FilePath Append(const StringType& component) const WARN_UNUSED_RESULT;
-  FilePath Append(const FilePath& component) const WARN_UNUSED_RESULT;
 
   // Returns true if this FilePath contains an absolute path.  On Windows, an
   // absolute path begins with either a drive letter specification followed by
@@ -169,6 +168,13 @@ class FilePath {
   std::wstring ToWStringHack() const;
 
  private:
+  // If this FilePath contains a drive letter specification, returns the
+  // position of the last character of the drive letter specification,
+  // otherwise returns npos.  This can only be true on Windows, when a pathname
+  // begins with a letter followed by a colon.  On other platforms, this always
+  // returns npos.
+  StringType::size_type FindDriveLetter() const;
+
   // Remove trailing separators from this object.  If the path is absolute, it
   // will never be stripped any more than to refer to the absolute root
   // directory, so "////" will become "/", not "".  A leading pair of

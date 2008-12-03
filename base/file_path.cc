@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/file_path.h"
-#include "base/logging.h"
 
 // These includes are just for the *Hack functions, and should be removed
 // when those functions are removed.
@@ -18,48 +17,6 @@ const FilePath::CharType FilePath::kSeparators[] = FILE_PATH_LITERAL("/");
 
 const FilePath::CharType FilePath::kCurrentDirectory[] = FILE_PATH_LITERAL(".");
 const FilePath::CharType FilePath::kParentDirectory[] = FILE_PATH_LITERAL("..");
-
-namespace {
-
-// If this FilePath contains a drive letter specification, returns the
-// position of the last character of the drive letter specification,
-// otherwise returns npos.  This can only be true on Windows, when a pathname
-// begins with a letter followed by a colon.  On other platforms, this always
-// returns npos.
-FilePath::StringType::size_type FindDriveLetter(
-    const FilePath::StringType& path) {
-#if defined(FILE_PATH_USES_DRIVE_LETTERS)
-  // This is dependent on an ASCII-based character set, but that's a
-  // reasonable assumption.  iswalpha can be too inclusive here.
-  if (path.length() >= 2 && path[1] == L':' &&
-      ((path[0] >= L'A' && path[0] <= L'Z') ||
-       (path[0] >= L'a' && path[0] <= L'z'))) {
-    return 1;
-  }
-  return FilePath::StringType::npos;
-#else  // FILE_PATH_USES_DRIVE_LETTERS
-  return FilePath::StringType::npos;
-#endif  // FILE_PATH_USES_DRIVE_LETTERS
-}
-
-bool IsPathAbsolute(const FilePath::StringType& path) {
-#if defined(FILE_PATH_USES_DRIVE_LETTERS)
-  FilePath::StringType::size_type letter = FindDriveLetter(path);
-  if (letter != FilePath::StringType::npos) {
-    // Look for a separator right after the drive specification.
-    return path.length() > letter + 1 &&
-        FilePath::IsSeparator(path[letter + 1]);
-  }
-  // Look for a pair of leading separators.
-  return path.length() > 1 &&
-      FilePath::IsSeparator(path[0]) && FilePath::IsSeparator(path[1]);
-#else  // FILE_PATH_USES_DRIVE_LETTERS
-  // Look for a separator in the first position.
-  return path.length() > 0 && FilePath::IsSeparator(path[0]);
-#endif  // FILE_PATH_USES_DRIVE_LETTERS
-}
-
-}  // namespace
 
 bool FilePath::IsSeparator(CharType character) {
   for (size_t i = 0; i < arraysize(kSeparators) - 1; ++i) {
@@ -83,7 +40,7 @@ FilePath FilePath::DirName() const {
   // is no drive letter, as will always be the case on platforms which do not
   // support drive letters, letter will be npos, or -1, so the comparisons and
   // resizes below using letter will still be valid.
-  StringType::size_type letter = FindDriveLetter(new_path.path_);
+  StringType::size_type letter = new_path.FindDriveLetter();
 
   StringType::size_type last_separator =
       new_path.path_.find_last_of(kSeparators, StringType::npos,
@@ -116,7 +73,7 @@ FilePath FilePath::BaseName() const {
   new_path.StripTrailingSeparators();
 
   // The drive letter, if any, is always stripped.
-  StringType::size_type letter = FindDriveLetter(new_path.path_);
+  StringType::size_type letter = new_path.FindDriveLetter();
   if (letter != StringType::npos) {
     new_path.path_.erase(0, letter + 1);
   }
@@ -135,7 +92,6 @@ FilePath FilePath::BaseName() const {
 }
 
 FilePath FilePath::Append(const FilePath::StringType& component) const {
-  DCHECK(!IsPathAbsolute(component));
   if (path_.compare(kCurrentDirectory) == 0) {
     // Append normally doesn't do any normalization, but as a special case,
     // when appending to kCurrentDirectory, just return a new path for the
@@ -160,7 +116,7 @@ FilePath FilePath::Append(const FilePath::StringType& component) const {
     if (!IsSeparator(new_path.path_[new_path.path_.length() - 1])) {
 
       // Don't append a separator if the path is just a drive letter.
-      if (FindDriveLetter(new_path.path_) + 1 != new_path.path_.length()) {
+      if (new_path.FindDriveLetter() + 1 != new_path.path_.length()) {
         new_path.path_.append(1, kSeparators[0]);
       }
     }
@@ -170,12 +126,34 @@ FilePath FilePath::Append(const FilePath::StringType& component) const {
   return new_path;
 }
 
-FilePath FilePath::Append(const FilePath& component) const {
-  return Append(component.value());
+FilePath::StringType::size_type FilePath::FindDriveLetter() const {
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  // This is dependent on an ASCII-based character set, but that's a
+  // reasonable assumption.  iswalpha can be too inclusive here.
+  if (path_.length() >= 2 && path_[1] == L':' &&
+      ((path_[0] >= L'A' && path_[0] <= L'Z') ||
+       (path_[0] >= L'a' && path_[0] <= L'z'))) {
+    return 1;
+  }
+  return StringType::npos;
+#else  // FILE_PATH_USES_DRIVE_LETTERS
+  return StringType::npos;
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
 }
 
 bool FilePath::IsAbsolute() const {
-  return IsPathAbsolute(path_);
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  StringType::size_type letter = FindDriveLetter();
+  if (letter != StringType::npos) {
+    // Look for a separator right after the drive specification.
+    return path_.length() > letter + 1 && IsSeparator(path_[letter + 1]);
+  }
+  // Look for a pair of leading separators.
+  return path_.length() > 1 && IsSeparator(path_[0]) && IsSeparator(path_[1]);
+#else  // FILE_PATH_USES_DRIVE_LETTERS
+  // Look for a separator in the first position.
+  return path_.length() > 0 && IsSeparator(path_[0]);
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
 }
 
 #if defined(OS_POSIX)
@@ -207,7 +185,7 @@ void FilePath::StripTrailingSeparators() {
   // letter, start will be set appropriately to prevent stripping the first
   // separator following the drive letter, if a separator immediately follows
   // the drive letter.
-  StringType::size_type start = FindDriveLetter(path_) + 2;
+  StringType::size_type start = FindDriveLetter() + 2;
 
   StringType::size_type last_stripped = StringType::npos;
   for (StringType::size_type pos = path_.length();
