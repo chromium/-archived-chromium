@@ -32,6 +32,10 @@
 
 using base::TimeTicks;
 
+const wchar_t UITest::kFailedNoCrashService[] =
+    L"NOTE: This test is expected to fail if crash_service.exe is not "
+    L"running. Start it manually before running this test (see the build "
+    L"output directory).";
 bool UITest::in_process_renderer_ = false;
 bool UITest::in_process_plugins_ = false;
 bool UITest::no_sandbox_ = false;
@@ -119,10 +123,10 @@ void UITest::TearDown() {
     file_util::CountFilesCreatedAfter(crash_dump_path, test_start_time_) / 2;
   std::wstring error_msg =
       L"Encountered an unexpected crash in the program during this test.";
-  if (expected_crashes_ > 0 && actual_crashes == 0)
-    error_msg += L"  NOTE: This test is expected to fail if crash_service.exe "
-                 L"is not running. Start it manually before running this "
-                 L"test (see the build output directory).";
+  if (expected_crashes_ > 0 && actual_crashes == 0) {
+    error_msg += L"  ";
+    error_msg += kFailedNoCrashService;
+  }
   EXPECT_EQ(expected_crashes_, actual_crashes) << error_msg;
 }
 

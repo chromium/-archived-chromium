@@ -296,7 +296,7 @@ class PageLoadTest : public UITest {
       // Page load crashed and test automation timed out.
       EXPECT_EQ(NAVIGATION_TIME_OUT, metrics.result);
       // Found a crash dump
-      EXPECT_EQ(1, metrics.crash_dump_count);
+      EXPECT_EQ(1, metrics.crash_dump_count) << kFailedNoCrashService;
       // Browser did not crash, and exited cleanly.
       EXPECT_EQ(true, metrics.browser_clean_exit);
       EXPECT_EQ(1, metrics.browser_launch_count);

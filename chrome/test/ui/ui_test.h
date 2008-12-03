@@ -37,6 +37,9 @@ class UITest : public testing::Test {
   static const int kWaitForActionMaxMsec = 10000;
   // Delay to let the browser complete the test.
   static const int kMaxTestExecutionTime = 30000;
+  // String to display when a test fails because the crash service isn't
+  // running.
+  static const wchar_t kFailedNoCrashService[];
 
   // Tries to delete the specified file/directory returning true on success.
   // This differs from file_util::Delete in that it repeatedly invokes Delete
