@@ -129,9 +129,17 @@ class TestRunner:
       # to sort it.  So we save it to add back to the list later.
       saved_test_files = self._test_files
 
+    # We first check the platform specific sub directory for the test lists.
+    # If the platform specific sub dir doesn't exist, we fall back to the
+    # TEST_FILE_DIR directory.  Once we're all using the same test list, we
+    # can remove this fallback.
     file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
     file_dir = os.path.join(file_dir, path_utils.TestListPlatformDir())
     file_dir = path_utils.GetAbsolutePath(file_dir)
+    if not os.path.exists(os.path.join(file_dir,
+        test_expectations.TestExpectations.FIXABLE)):
+      file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
+      file_dir = path_utils.GetAbsolutePath(file_dir)
 
     is_debug_mode = self._options.target == 'Debug'
     expectations = test_expectations.TestExpectations(self._test_files,
