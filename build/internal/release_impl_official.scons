@@ -27,7 +27,7 @@ if env.Bit('windows'):
           '/Ox',    # VCCLCompilerTool.OmitFramePointers="true"
           '/GT',    # VCCLCompilerTool.EnableFiberSafeOptimizations="true"
           '/GL',    # VCCLCompilerTool.WholeProgramOptimization="true"
-      ]
+      ],
       LINKFLAGS = [
           '/LTCG',  # VCLinkerTool.LinkTimeCodeGeneration="1"
       ],

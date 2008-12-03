@@ -28,7 +28,7 @@ if env['PLATFORM'] == 'win32':
   env.Append(
       CCFLAGS = [
           '/Oy-',
-      ]
+      ],
       LINKFLAGS = [
           '/INCREMENTAL:NO',    # VCLinkerTool.LinkIncremental="1"
       ],
