@@ -1426,18 +1426,6 @@ LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
 LayoutTests/fast/workers/worker-gc.html = TIMEOUT
 LayoutTests/fast/workers/worker-location.html = TIMEOUT
 
-// MERGE 38550:38575: Regressions.
-LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
-LayoutTests/fast/events/onunload-window-property.html = FAIL
-LayoutTests/http/tests/loading/basic.html = FAIL
-LayoutTests/http/tests/loading/empty-subframe.html = FAIL
-LayoutTests/http/tests/loading/gmail-assert-on-load.html = FAIL
-LayoutTests/http/tests/loading/location-hash-reload-cycle.html = FAIL
-LayoutTests/http/tests/loading/onload-vs-immediate-refresh.pl = FAIL
-LayoutTests/http/tests/loading/simple-subframe.html = FAIL
-LayoutTests/http/tests/loading/slow-parsing-subframe.html = FAIL
-LayoutTests/http/tests/xmlhttprequest/frame-load-cancelled-abort.html = FAIL
-
 // MERGE 38575:38600: New test
 LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
 
@@ -1487,6 +1475,5 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
 // MERGE 38729:38760: Regressions
 LayoutTests/editing/selection/5057506.html = FAIL
 LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
-LayoutTests/http/tests/misc/DOMContentLoaded-event.html = TIMEOUT
 
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
