@@ -39,26 +39,43 @@ void SimpleFontData::platformInit()
         m_descent = SkScalarCeil(metrics.fHeight) - m_ascent;
     }
 
-    m_xHeight = SkScalarToFloat(-metrics.fAscent) * 0.56f;   // hack I stole from the Windows port
+    GlyphPage* glyphPageZero = GlyphPageTreeNode::getRootChild(this, 0)->page();
+    if (!glyphPageZero)
+      return;
+
+    static const UChar32 x_char = 'x';
+    const Glyph x_glyph = glyphPageZero->glyphDataForCharacter(x_char).glyph;
+
+    if (x_glyph) {
+      // If the face includes a glyph for x we measure its height exactly.
+      SkRect xbox;
+
+      paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+      paint.measureText(&x_glyph, 2, &xbox);
+
+      m_xHeight = -xbox.fTop;
+    } else {
+      // hack taken from the Windows port
+      m_xHeight = static_cast<float>(m_ascent) * 0.56;
+    }
+
     m_lineGap = SkScalarRound(metrics.fLeading);
     m_lineSpacing = m_ascent + m_descent + m_lineGap;
 
     // In WebKit/WebCore/platform/graphics/SimpleFontData.cpp, m_spaceWidth is
     // calculated for us, but we need to calculate m_maxCharWidth and
     // m_avgCharWidth in order for text entry widgets to be sized correctly.
-    // Skia doesn't expose either of these so we calculate them ourselves
-
-    GlyphPage* glyphPageZero = GlyphPageTreeNode::getRootChild(this, 0)->page();
-    if (!glyphPageZero)
-      return;
 
     m_maxCharWidth = SkScalarRound(metrics.fXRange * SkScalarRound(m_font.size()));
 
     if (metrics.fAvgCharWidth) {
         m_avgCharWidth = SkScalarRound(metrics.fAvgCharWidth);
     } else {
-        static const UChar32 x_char = 'x';
-        m_avgCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(x_char).glyph);
+        if (x_glyph) {
+          m_avgCharWidth = widthForGlyph(x_glyph);
+        } else {
+          m_avgCharWidth = m_xHeight;
+        }
     }
 }
 
