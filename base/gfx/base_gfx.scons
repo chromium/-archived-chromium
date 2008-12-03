@@ -25,9 +25,7 @@ if env['PLATFORM'] == 'win32':
   )
 
 input_files = [
-    'convolver.cc',
     'gdi_util.cc',
-    'image_operations.cc',
     'native_theme.cc',
     'png_decoder.cc',
     'png_encoder.cc',

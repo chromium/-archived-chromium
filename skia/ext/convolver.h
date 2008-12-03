@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_CONVOLVER_H__
-#define BASE_GFX_CONVOLVER_H__
+#ifndef SKIA_EXT_CONVOLVER_H_
+#define SKIA_EXT_CONVOLVER_H_
 
 #include <vector>
 
@@ -133,5 +133,5 @@ void BGRAConvolve2D(const uint8* source_data,
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_CONVOLVER_H__
+#endif  // SKIA_EXT_CONVOLVER_H_
 

@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 
-#include "base/gfx/image_operations.h"
+#include "skia/ext/image_operations.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "SkBitmap.h"
 

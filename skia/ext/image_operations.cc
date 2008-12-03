@@ -7,14 +7,14 @@
 #include <limits>
 #include <vector>
 
-#include "base/gfx/image_operations.h"
+#include "skia/ext/image_operations.h"
 
-#include "base/gfx/convolver.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "base/stack_container.h"
 #include "SkBitmap.h"
+#include "skia/ext/convolver.h"
 
 namespace gfx {
 

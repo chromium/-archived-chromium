@@ -4,10 +4,10 @@
 
 #include "chrome/common/gfx/icon_util.h"
 #include "base/file_util.h"
-#include "base/gfx/image_operations.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "chrome/common/win_util.h"
+#include "skia/ext/image_operations.h"
 #include "skia/include/SkBitmap.h"
 
 // Defining the dimensions for the icon images. We store only one value because

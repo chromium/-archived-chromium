@@ -5,8 +5,8 @@
 #include <algorithm>
 
 #include "base/basictypes.h"
-#include "base/gfx/convolver.h"
 #include "base/logging.h"
+#include "skia/ext/convolver.h"
 
 namespace gfx {
 

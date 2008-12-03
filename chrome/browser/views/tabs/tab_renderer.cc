@@ -6,7 +6,6 @@
 
 #include "chrome/browser/views/tabs/tab_renderer.h"
 
-#include "base/gfx/image_operations.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -17,6 +16,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "generated_resources.h"
+#include "skia/ext/image_operations.h"
 
 static const int kLeftPadding = 16;
 static const int kTopPadding = 6;

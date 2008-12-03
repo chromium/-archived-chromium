@@ -43,7 +43,7 @@
 #include "SkiaUtils.h"
 #include "SkShader.h"
 
-#include "base/gfx/image_operations.h"  // TODO(brettw) remove this dependency.
+#include "skia/ext/image_operations.h"
 #include "skia/ext/platform_canvas.h"
 
 namespace WebCore {

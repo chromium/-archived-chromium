@@ -29,7 +29,7 @@
 
 #include "config.h"
 
-#include "base/gfx/image_operations.h"
+#include "skia/ext/image_operations.h"
 
 #include "NativeImageSkia.h"
 #include "SkiaUtils.h"

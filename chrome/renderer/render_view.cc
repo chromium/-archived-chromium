@@ -10,7 +10,6 @@
 
 #include "base/command_line.h"
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_piece.h"
@@ -38,6 +37,7 @@
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
+#include "skia/ext/image_operations.h"
 #include "skia/ext/vector_canvas.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"

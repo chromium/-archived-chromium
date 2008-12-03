@@ -8,7 +8,6 @@
 #include <set>
 
 #include "base/file_util.h"
-#include "base/gfx/image_operations.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -31,6 +30,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/window.h"
+#include "skia/ext/image_operations.h"
 #include "webkit/glue/image_decoder.h"
 
 #include "generated_resources.h"
