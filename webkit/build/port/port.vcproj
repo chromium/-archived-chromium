@@ -1164,14 +1164,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\TransparencyHelperWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\TransparencyHelperWin.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\graphics\ThemeHelperWin.cpp"
 					>
 				</File>
