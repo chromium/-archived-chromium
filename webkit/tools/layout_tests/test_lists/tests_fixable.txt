@@ -806,14 +806,14 @@ LINUX : LayoutTests/css2.1/t0905-c5525-fltwrap-00-b.html = FAIL
 LINUX : LayoutTests/css2.1/t090501-c414-flt-01-b.html = FAIL
 LINUX : LayoutTests/css2.1/t090501-c414-flt-03-b-g.html = FAIL
 LINUX : LayoutTests/css2.1/t090501-c414-flt-ln-01-d-g.html = FAIL
+LINUX : LayoutTests/css2.1/t090501-c5525-flt-l-00-b-g.html = FAIL
+LINUX : LayoutTests/css2.1/t090501-c5525-flt-r-00-b-g.html = FAIL
 
 // Radio buttons rendered differently between Linux and Windows.
 LINUX : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 
 // Uncharacterized tests that fail on linux but pass on windows.
 // TODO(port): figure out what's wrong with these and annotate appropriately.
-LINUX : LayoutTests/css2.1/t090501-c5525-flt-l-00-b-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c5525-flt-r-00-b-g.html = FAIL
 LINUX : LayoutTests/css2.1/t100304-c43-rpl-bbx-01-d-g.html = FAIL
 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
@@ -858,8 +858,6 @@ LINUX : LayoutTests/fast/block/basic/014.html = FAIL
 LINUX : LayoutTests/fast/block/basic/minheight.html = FAIL
 LINUX : LayoutTests/fast/block/margin-collapse/103.html = FAIL
 LINUX : LayoutTests/fast/block/positioning/051.html = FAIL
-LINUX : LayoutTests/fast/css/002.html = FAIL
-LINUX : LayoutTests/fast/css/003.html = FAIL
 LINUX : LayoutTests/fast/css/acid2-pixel.html = FAIL
 LINUX : LayoutTests/fast/css/acid2.html = FAIL
 LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = FAIL
@@ -941,10 +939,8 @@ LINUX : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 LINUX : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
 LINUX : LayoutTests/fast/inspector/style.html = FAIL
-LINUX : LayoutTests/fast/invalid/008.html = FAIL
 LINUX : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX : LayoutTests/fast/lists/001.html = FAIL
-LINUX : LayoutTests/fast/lists/008.html = FAIL
 LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 LINUX : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
 LINUX : LayoutTests/fast/loader/loadInProgress.html = FAIL
@@ -1077,7 +1073,6 @@ LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 LINUX : LayoutTests/svg/text/text-ws-01-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-ws-02-t.svg = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug16252.html = FAIL
-LINUX : LayoutTests/tables/mozilla/bugs/bug22513.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug4093.html = FAIL
@@ -1088,7 +1083,6 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 
 // Depends on plugin support.
-
 LINUX : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LINUX : LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 LINUX : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
