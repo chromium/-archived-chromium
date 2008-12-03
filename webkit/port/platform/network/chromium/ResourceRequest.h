@@ -41,7 +41,8 @@ namespace WebCore {
             TargetIsMainFrame,
             TargetIsSubFrame,
             TargetIsSubResource,
-            TargetIsObject
+            TargetIsObject,
+            TargetIsMedia
         };
 
         ResourceRequest(const String& url) 

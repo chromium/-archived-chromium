@@ -15,10 +15,13 @@ class ResourceType {
     SUB_RESOURCE,    // a resource like images, js, css
     OBJECT,          // an object (or embed) tag for a plugin,
                      // or a resource that a plugin requested.
+    MEDIA,           // a media resource.
+    LAST_TYPE        // Place holder so we don't need to change ValidType
+                     // everytime.
   };
 
   static bool ValidType(int32 type) {
-    return type >= MAIN_FRAME && type <= OBJECT;
+    return type >= MAIN_FRAME && type < LAST_TYPE;
   }
 
   static Type FromInt(int32 type) {

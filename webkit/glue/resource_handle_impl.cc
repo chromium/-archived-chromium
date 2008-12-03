@@ -75,6 +75,8 @@ static ResourceType::Type FromTargetType(ResourceRequest::TargetType type) {
       return ResourceType::SUB_RESOURCE;
     case ResourceRequest::TargetIsObject:
       return ResourceType::OBJECT;
+    case ResourceRequest::TargetIsMedia:
+      return ResourceType::MEDIA;
     default:
       NOTREACHED();
       return ResourceType::SUB_RESOURCE;
