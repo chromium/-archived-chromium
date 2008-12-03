@@ -132,6 +132,7 @@ WidgetWin::WidgetWin()
 }
 
 WidgetWin::~WidgetWin() {
+  MessageLoopForUI::current()->RemoveObserver(this);
 }
 
 void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
@@ -547,16 +548,6 @@ LRESULT WidgetWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
   tooltip_manager_->OnMouse(msg, w_param, l_param);
   SetMsgHandled(FALSE);
   return 0;
-}
-
-void WidgetWin::OnNCDestroy() {
-  // Destroy the view hierarchy here as the window is destroyed, _before_ the
-  // Widget is destroyed and before our associated focus manager is destroyed.
-  // Views in the view hierarchy may attempt to manipulate the focus manager or
-  // other aspects of the window in ways that are not compatible with the fact
-  // that it has just been destroyed.
-  MessageLoopForUI::current()->RemoveObserver(this);
-  root_view_.reset(NULL);
 }
 
 void WidgetWin::OnNCLButtonDblClk(UINT flags, const CPoint& point) {

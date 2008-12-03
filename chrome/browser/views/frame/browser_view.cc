@@ -629,10 +629,16 @@ void BrowserView::Observe(NotificationType type,
 // BrowserView, TabStripModelObserver implementation:
 
 void BrowserView::TabDetachedAt(TabContents* contents, int index) {
-  // We need to break the TabContentsContainerView's attachment to whatever HWND
-  // it's hosting since if the window is destroyed it'll try to hide it even
-  // after the new window has parented it.
-  contents_container_->SetTabContents(NULL);
+  // We use index here rather than comparing |contents| because by this time
+  // the model has already removed |contents| from its list, so
+  // browser_->GetSelectedTabContents() will return NULL or something else.
+  if (index == browser_->tabstrip_model()->selected_index()) {
+    // We need to reset the current tab contents to NULL before it gets
+    // freed. This is because the focus manager performs some operations
+    // on the selected TabContents when it is removed.
+    infobar_container_->ChangeTabContents(NULL);
+    contents_container_->SetTabContents(NULL);
+  }
 }
 
 void BrowserView::TabSelectedAt(TabContents* old_contents,
