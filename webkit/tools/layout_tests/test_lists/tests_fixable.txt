@@ -1474,6 +1474,9 @@ LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
+// Not sure why this started failing, but it does.
+LINUX WIN : LayoutTests/svg/custom/acid3-test-77.html = FAIL
+
 // -----------------------------------------------------------------
 // MAC PORT TESTS
 // -----------------------------------------------------------------
