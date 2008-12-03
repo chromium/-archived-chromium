@@ -31,6 +31,16 @@ struct DefaultSingletonTraits {
   static const bool kRegisterAtExit = true;
 };
 
+
+// Alternate traits for use with the Singleton<Type>.  Identical to
+// DefaultSingletonTraits except that the Singleton will not be cleaned up
+// at exit.
+template<typename Type>
+struct LeakySingletonTraits : public DefaultSingletonTraits<Type> {
+  static const bool kRegisterAtExit = false;
+};
+
+
 // The Singleton<Type, Traits, DifferentiatingType> class manages a single
 // instance of Type which will be created on first use and will be destroyed at
 // normal process exit). The Trait::Delete function will not be called on
