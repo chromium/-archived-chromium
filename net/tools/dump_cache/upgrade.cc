@@ -331,17 +331,22 @@ void MasterSM::DoGetKey(int bytes_read) {
   DEBUGMSG("Master DoGetKey\n");
   DCHECK(state_ == MASTER_GET_KEY);
   DCHECK(input_->msg.command == GET_KEY);
-  if (input_->msg.result == RESULT_NAME_OVERFLOW)
+  if (input_->msg.result == RESULT_NAME_OVERFLOW) {
     // The key is too long. Just move on.
+    printf("Skipping entry (name too long)\n");
     return SendGetPrevEntry();
+  }
 
   if (input_->msg.result != RESULT_OK)
     return Fail();
 
   std::string key(input_->buffer);
   DCHECK(key.size() == input_->msg.buffer_bytes - 1);
-  if (!cache_->CreateEntry(key, reinterpret_cast<disk_cache::Entry**>(&entry_)))
-    return Fail();
+  if (!cache_->CreateEntry(key,
+                           reinterpret_cast<disk_cache::Entry**>(&entry_))) {
+    printf("Skipping entry \"%s\" (name conflict!)\n", key.c_str());
+    return SendGetPrevEntry();
+  }
 
   if (key.size() < 60) {
     DEBUGMSG("Entry \"%s\" created\n", key.c_str());
@@ -433,6 +438,12 @@ void MasterSM::DoReadData(int bytes_read) {
     return Fail();
 
   int read_size = input_->msg.buffer_bytes;
+  if (!read_size) {
+    printf("Read failed, entry \"%s\" truncated!\n", entry_->GetKey().c_str());
+    bytes_remaining_ = 0;
+    return SendReadData();
+  }
+
   if (read_size != entry_->WriteData(stream_, offset_, input_->buffer,
                                      read_size, NULL, false))
     return Fail();
