@@ -95,6 +95,7 @@ void TestShell::InitializeTestShell(bool interactive) {
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Italic.ttf",
+    "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf",
     NULL
   };
   for (size_t i = 0; fonts[i]; ++i) {

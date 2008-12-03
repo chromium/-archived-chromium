@@ -5,12 +5,16 @@
 #include "config.h"
 #include "FontCache.h"
 
+#include <fontconfig/fontconfig.h>
+
 #include "AtomicString.h"
 #include "CString.h"
+#include "Font.h"
 #include "FontDescription.h"
 #include "FontPlatformData.h"
 #include "Logging.h"
 #include "NotImplemented.h"
+#include "SimpleFontData.h"
 
 #include "SkPaint.h"
 #include "SkTypeface.h"
@@ -23,11 +27,43 @@ void FontCache::platformInit()
 }
 
 const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
-                                                          const UChar* characters, 
+                                                          const UChar* characters,
                                                           int length)
 {
-    notImplemented();
-    return NULL;
+    FcCharSet* cset = FcCharSetCreate();
+    for (int i = 0; i < length; ++i)
+        FcCharSetAddChar(cset, characters[i]);
+
+    FcPattern* pattern = FcPatternCreate();
+
+    FcValue fcvalue;
+    fcvalue.type = FcTypeCharSet;
+    fcvalue.u.c = cset;
+    FcPatternAdd(pattern, FC_CHARSET, fcvalue, 0);
+
+    FcConfigSubstitute(0, pattern, FcMatchPattern);
+    FcDefaultSubstitute(pattern);
+
+    FcResult result;
+    FcPattern* match = FcFontMatch(0, pattern, &result);
+    FcPatternDestroy(pattern);
+
+    SimpleFontData* ret = NULL;
+
+    if (match) {
+        FcChar8* family;
+        if (FcPatternGetString(match, FC_FAMILY, 0, &family) == FcResultMatch) {
+            FontPlatformData* fpd =
+                createFontPlatformData(font.fontDescription(),
+                                       AtomicString((char *) family));
+            ret = new SimpleFontData(*fpd);
+        }
+        FcPatternDestroy(match);
+    }
+
+    FcCharSetDestroy(cset);
+
+    return ret;
 }
 
 const AtomicString& FontCache::alternateFamilyName(const AtomicString& familyName)
@@ -62,7 +98,7 @@ FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontD
 {
     const char* name = 0;
     CString s;
-    
+
     if (family.length() == 0) {
         static const struct {
             FontDescription::GenericFamilyType mType;
@@ -88,7 +124,7 @@ FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontD
         s = family.string().utf8();
         name = s.data();
     }
-    
+
     int style = SkTypeface::kNormal;
     if (fontDescription.weight() >= FontWeightBold)
         style |= SkTypeface::kBold;
@@ -109,7 +145,7 @@ FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontD
 }
 
 AtomicString FontCache::getGenericFontForScript(UScriptCode script,
-                                                const FontDescription&) 
+                                                const FontDescription& descript)
 {
     notImplemented();
     return AtomicString();

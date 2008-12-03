@@ -63,7 +63,7 @@ bool GlyphPage::fill(unsigned offset, unsigned length, UChar* buffer, unsigned b
 
     unsigned allGlyphs = 0; // track if any of the glyphIDs are non-zero
     for (unsigned i = 0; i < length; i++) {
-        setGlyphDataForIndex(offset + i, glyphs[i], fontData);
+        setGlyphDataForIndex(offset + i, glyphs[i], glyphs[i] ? fontData : NULL);
         allGlyphs |= glyphs[i];
     }
     return allGlyphs != 0;
