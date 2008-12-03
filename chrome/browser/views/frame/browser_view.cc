@@ -1091,21 +1091,10 @@ int BrowserView::LayoutBookmarkBar(int top) {
 }
 int BrowserView::LayoutInfoBar(int top) {
   if (SupportsWindowFeature(FEATURE_INFOBAR)) {
-    // Layout the new infobar.
+    // Layout the InfoBar container.
     gfx::Size ps = infobar_container_->GetPreferredSize();
     infobar_container_->SetBounds(0, top, width(), ps.height());
     top += ps.height();
-
-    if (active_info_bar_) {
-      // Layout the old infobar.
-      ps = active_info_bar_->GetPreferredSize();
-      active_info_bar_->SetBounds(0, top, width(), ps.height());
-      top += ps.height();
-      if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_ &&
-          !show_bookmark_bar_pref_.GetValue()) {
-        top -= kSeparationLineHeight;
-      }
-    }
   }
   return top;
 }
@@ -1147,13 +1136,9 @@ bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
 }
 
 bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
-  views::View* new_info_bar = NULL;
-  if (contents && contents->AsWebContents() &&
-      contents->AsWebContents()->view()->IsInfoBarVisible())
-    new_info_bar = contents->AsWebContents()->view()->GetInfoBarView();
-  UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
-
-  // TODO(beng): remove this function once the InfoBar rejiggering is complete.
+  // TODO(beng): Remove this function once the interface between
+  //             InfoBarContainer, DownloadShelfView and TabContents and this
+  //             view is sorted out.
   return true;
 }
 

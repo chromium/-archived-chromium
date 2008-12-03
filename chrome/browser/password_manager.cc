@@ -8,7 +8,6 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/web_contents.h"
-#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

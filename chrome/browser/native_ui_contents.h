@@ -16,6 +16,7 @@
 namespace views {
 class CheckBox;
 class FocusTraversable;
+class ImageView;
 class ScrollView;
 class Throbber;
 }

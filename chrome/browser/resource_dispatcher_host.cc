@@ -27,8 +27,6 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_util.h"
-#include "chrome/browser/views/info_bar_view.h"
-#include "chrome/browser/views/info_bar_message_view.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/common/render_messages.h"

@@ -11,8 +11,6 @@
 #include "chrome/views/widget_win.h"
 
 class FindBarWin;
-class InfoBarView;
-class InfoBarMessageView;
 class SadTabView;
 struct WebDropData;
 class WebDropTarget;
@@ -38,10 +36,6 @@ class WebContentsViewWin : public WebContentsView,
   virtual HWND GetContentHWND() const;
   virtual void GetContainerBounds(gfx::Rect* out) const;
   virtual void OnContentsDestroy();
-  virtual void DisplayErrorInInfoBar(const std::wstring& text);
-  virtual void SetInfoBarVisible(bool visible);
-  virtual bool IsInfoBarVisible() const;
-  virtual InfoBarView* GetInfoBarView();
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
@@ -121,20 +115,9 @@ class WebContentsViewWin : public WebContentsView,
   // A drop target object that handles drags over this WebContents.
   scoped_refptr<WebDropTarget> drop_target_;
 
-  // InfoBarView, lazily created.
-  scoped_ptr<InfoBarView> info_bar_view_;
-
   // Used to render the sad tab. This will be non-NULL only when the sad tab is
   // visible.
   scoped_ptr<SadTabView> sad_tab_;
-
-  // Info bar for crashed plugin message.
-  // IMPORTANT: This instance is owned by the InfoBarView. It is valid
-  // only if InfoBarView::GetChildIndex for this view is valid.
-  InfoBarMessageView* error_info_bar_message_;
-
-  // Whether the info bar view is visible.
-  bool info_bar_visible_;
 
   // Whether to ignore the next CHAR keyboard event.
   bool ignore_next_char_event_;

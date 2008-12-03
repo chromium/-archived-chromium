@@ -14,7 +14,6 @@
 #include "chrome/browser/provisional_load_details.h"
 #include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/browser/security_style.h"
-#include "chrome/browser/views/info_bar_message_view.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"

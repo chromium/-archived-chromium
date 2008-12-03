@@ -177,46 +177,6 @@
 			Name="Info Bars"
 			>
 			<File
-				RelativePath=".\info_bar_alternate_nav_url_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_alternate_nav_url_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_confirm_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_confirm_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_item_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_item_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_message_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_message_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\info_bar_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\infobars\infobar_container.cc"
 				>
 			</File>

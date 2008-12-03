@@ -16,8 +16,6 @@
 #include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/views/find_bar_win.h"
-#include "chrome/browser/views/info_bar_message_view.h"
-#include "chrome/browser/views/info_bar_view.h"
 #include "chrome/browser/views/sad_tab_view.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/web_drag_source.h"
@@ -41,8 +39,6 @@ BOOL CALLBACK DetachPluginWindowsCallback(HWND window, LPARAM param) {
 
 WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
     : web_contents_(web_contents),
-      error_info_bar_message_(NULL),
-      info_bar_visible_(false),
       ignore_next_char_event_(false) {
 }
 
@@ -168,47 +164,11 @@ void WebContentsViewWin::OnContentsDestroy() {
     find_bar_->Close();
 }
 
-void WebContentsViewWin::DisplayErrorInInfoBar(const std::wstring& text) {
-  InfoBarView* view = GetInfoBarView();
-  if (-1 == view->GetChildIndex(error_info_bar_message_)) {
-    error_info_bar_message_ = new InfoBarMessageView(text);
-    view->AddChildView(error_info_bar_message_);
-  } else {
-    error_info_bar_message_->SetMessageText(text);
-  }
-}
-
 void WebContentsViewWin::OnDestroy() {
   if (drop_target_.get()) {
     RevokeDragDrop(GetHWND());
     drop_target_ = NULL;
   }
-}
-
-void WebContentsViewWin::SetInfoBarVisible(bool visible) {
-  if (info_bar_visible_ != visible) {
-    info_bar_visible_ = visible;
-    if (info_bar_visible_) {
-      // Invoke GetInfoBarView to force the info bar to be created.
-      GetInfoBarView();
-    }
-    web_contents_->ToolbarSizeChanged(false);
-  }
-}
-
-bool WebContentsViewWin::IsInfoBarVisible() const {
-  return info_bar_visible_;
-}
-
-InfoBarView* WebContentsViewWin::GetInfoBarView() {
-  if (info_bar_view_.get() == NULL) {
-    // TODO(brettw) currently the InfoBar thinks its owned by the WebContents,
-    // but it should instead think it's owned by us.
-    info_bar_view_.reset(new InfoBarView(web_contents_));
-    // We own the info-bar.
-    info_bar_view_->SetParentOwned(false);
-  }
-  return info_bar_view_.get();
 }
 
 void WebContentsViewWin::SetPageTitle(const std::wstring& title) {

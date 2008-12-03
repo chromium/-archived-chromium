@@ -16,7 +16,6 @@
 #include "chrome/browser/render_view_host_delegate.h"
 
 class Browser;
-class InfoBarView;
 class RenderViewHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
@@ -76,26 +75,6 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // window is being torn down without input from the WebContents. Try to
   // implement functions that way rather than adding stuff here.
   virtual void OnContentsDestroy() = 0;
-
-  // Displays the given error in the info bar. A new info bar will be shown if
-  // one is not shown already. The new error text will replace any existing
-  // text shown by this same function.
-  //
-  // Note: this replacement behavior is historical; crashed plugin and out of
-  // JS memory used the same message. This seems reasonable, but it may not be
-  // the best thing for all error messages.
-  virtual void DisplayErrorInInfoBar(const std::wstring& text) = 0;
-
-  // Set/get whether or not the info bar is visible. See also the ChromeFrame
-  // method InfoBarVisibilityChanged and TabContents::IsInfoBarVisible.
-  virtual void SetInfoBarVisible(bool visible) = 0;
-  virtual bool IsInfoBarVisible() const = 0;
-
-  // Create the InfoBarView and returns it if none has been created.
-  // Just returns existing InfoBarView if it is already created.
-  // TODO(brettw) this probably shouldn't be here. There should be methods to
-  // tell us what we need to display instead.
-  virtual InfoBarView* GetInfoBarView() = 0;
 
   // Sets the page title for the native widgets corresponding to the view. This
   // is not strictly necessary and isn't expected to be displayed anywhere, but

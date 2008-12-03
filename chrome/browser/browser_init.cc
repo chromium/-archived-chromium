@@ -31,7 +31,6 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/browser/web_app_launcher.h"
-#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
