@@ -273,11 +273,8 @@ TEST(FilePathTest, Append) {
   for (size_t i = 0; i < arraysize(cases); ++i) {
     FilePath root(cases[i].inputs[0]);
     FilePath::StringType leaf(cases[i].inputs[1]);
-    FilePath observed_str = root.Append(leaf);
-    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed_str.value()) <<
-              "i: " << i << ", root: " << root.value() << ", leaf: " << leaf;
-    FilePath observed_path = root.Append(FilePath(leaf));
-    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed_path.value()) <<
+    FilePath observed = root.Append(leaf);
+    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed.value()) <<
               "i: " << i << ", root: " << root.value() << ", leaf: " << leaf;
   }
 }
