@@ -70,6 +70,12 @@ void DebuggerView::SetOutputViewReady() {
     Output(*i);
   }
   pending_output_.clear();
+
+  for (std::vector<std::string>::const_iterator i = pending_events_.begin();
+       i != pending_events_.end(); ++i) {
+    ExecuteJavascript(*i);
+  }
+  pending_events_.clear();
 }
 
 void DebuggerView::Output(const std::string& out) {
@@ -81,11 +87,10 @@ void DebuggerView::Output(const std::wstring& out) {
     pending_output_.push_back(out);
     return;
   }
-  Value* str_value = Value::CreateStringValue(out);
-  std::string json;
-  JSONWriter::Write(str_value, false, &json);
-  const std::string js = StringPrintf("appendText(%s)", json.c_str());
-  ExecuteJavascript(js);
+
+  DictionaryValue* body = new DictionaryValue;
+  body->Set(L"text", Value::CreateStringValue(out));
+  SendEventToPage(L"appendText", body);
 }
 
 void DebuggerView::OnInit() {
@@ -100,26 +105,19 @@ void DebuggerView::OnInit() {
   web_container_->SetTabContents(web_contents_);
   web_contents_->render_view_host()->AllowDOMUIBindings();
 
-  GURL contents("chrome-resource://debugger/");
+  GURL contents("chrome-resource://inspector/debugger.html");
+
   web_contents_->controller()->LoadURL(contents, GURL(),
                                        PageTransition::START_PAGE);
 }
 
 void DebuggerView::OnShow() {
   web_contents_->Focus();
-  if (output_ready_)
-    ExecuteJavascript("focusOnCommandLine()");
 }
 
 void DebuggerView::OnClose() {
   web_container_->SetTabContents(NULL);
   web_contents_->CloseContents();
-}
-
-void DebuggerView::SetDebuggerBreak(bool is_broken) {
-  const std::string js =
-      StringPrintf("setDebuggerBreak(%s)", is_broken ? "true" : "false");
-  ExecuteJavascript(js);
 }
 
 void DebuggerView::OpenURLFromTab(TabContents* source,
@@ -129,6 +127,26 @@ void DebuggerView::OpenURLFromTab(TabContents* source,
                                PageTransition::Type transition) {
   BrowserList::GetLastActive()->OpenURL(url, referrer, disposition,
                                         transition);
+}
+
+
+void DebuggerView::SendEventToPage(const std::wstring& name, 
+                                   Value* body) {
+  DictionaryValue msg;
+  msg.SetString(L"type", L"event");
+  msg.SetString(L"event", name);
+  msg.Set(L"body", body);
+
+  std::string json;
+  JSONWriter::Write(&msg, false, &json);
+
+  const std::string js =
+    StringPrintf("DebuggerIPC.onMessageReceived(%s)", json.c_str());
+  if (output_ready_) {
+    ExecuteJavascript(js);
+  } else {
+    pending_events_.push_back(js);
+  }
 }
 
 void DebuggerView::ExecuteJavascript(const std::string& js) {

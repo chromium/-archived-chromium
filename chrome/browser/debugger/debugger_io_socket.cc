@@ -23,7 +23,7 @@ DebuggerInputOutputSocket::DebuggerInputOutputSocket(int port)
   io_loop_ = g_browser_process->io_thread()->message_loop();
 }
 
-void DebuggerInputOutputSocket::Start(DebuggerShell* debugger) {
+void DebuggerInputOutputSocket::Start(DebuggerHost* debugger) {
   DebuggerInputOutput::Start(debugger);
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &DebuggerInputOutputSocket::StartListening));
@@ -57,7 +57,7 @@ void DebuggerInputOutputSocket::DidAccept(ListenSocket *server,
     connection_ = connection;
     connection_->AddRef();
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        debugger_, &DebuggerShell::DidConnect));
+        debugger_, &DebuggerHost::DidConnect));
   } else {
     delete connection;
   }
@@ -114,7 +114,7 @@ void DebuggerInputOutputSocket::DidRead(ListenSocket *connection,
   if (connection == connection_) {
     const std::wstring wstr = UTF8ToWide(data);
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        debugger_, &DebuggerShell::ProcessCommand, wstr));
+        debugger_, &DebuggerHost::ProcessCommand, wstr));
   } else {
     // TODO(erikkay): assert?
   }

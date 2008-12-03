@@ -6,16 +6,15 @@
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_WINDOW_H__
 
 #include "chrome/browser/debugger/debugger_io.h"
-#include "chrome/views/text_field.h"
 #include "chrome/views/window.h"
 #include "chrome/views/window_delegate.h"
 
 class DebuggerView;
+class ListValue;
 class TabContents;
 
 class DebuggerWindow : public DebuggerInputOutput,
-                       public views::WindowDelegate,
-                       public views::TextField::Controller {
+                       public views::WindowDelegate {
  public:
   DebuggerWindow();
   virtual ~DebuggerWindow();
@@ -33,21 +32,19 @@ class DebuggerWindow : public DebuggerInputOutput,
   virtual void Output(const std::string& out);
   virtual void OutputLine(const std::string& out);
   virtual void OutputPrompt(const std::string& prompt);
-  virtual void Start(DebuggerShell* debugger);
+  virtual void Start(DebuggerHost* debugger);
   virtual void SetDebuggerReady(bool ready);
   virtual void SetDebuggerBreak(bool brk);
+
+  // Note that this method will take ownership of argv.
+  virtual void CallFunctionInPage(const std::wstring& name, 
+                                  ListValue* argv);
 
   // views::WindowDelegate methods:
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool CanResize() const;
   virtual views::View* GetContentsView();
-
-  // Overridden from views::TextField::Controller:
-  virtual void ContentsChanged(views::TextField* sender,
-                               const std::wstring& new_contents);
-  virtual void HandleKeystroke(views::TextField* sender, UINT message,
-                               TCHAR key, UINT repeat_count, UINT flags);
 
  private:
   views::Window* window_;

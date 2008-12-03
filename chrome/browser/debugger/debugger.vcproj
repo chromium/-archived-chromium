@@ -150,6 +150,18 @@
 			>
 		</File>
 		<File
+			RelativePath=".\debugger_host.h"
+			>
+		</File>
+		<File
+			RelativePath=".\debugger_host_impl.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\debugger_host_impl.h"
+			>
+		</File>
+		<File
 			RelativePath=".\debugger_io.h"
 			>
 		</File>

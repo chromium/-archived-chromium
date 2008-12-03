@@ -5,7 +5,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/constrained_window.h"
-#include "chrome/browser/debugger/debugger_shell.h"
+#include "chrome/browser/debugger/debugger_host_impl.h"
 #include "chrome/browser/debugger/debugger_view.h"
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
@@ -42,7 +42,7 @@ void DebuggerWindow::Show(TabContents* tab) {
   view_->OnShow();
   debugger_ready_ = true;
   debugger_break_ = false;
-  DebuggerShell* debugger = new DebuggerShell(this);
+  DebuggerHostImpl* debugger = new DebuggerHostImpl(this);
   DebuggerWrapper* wrapper = g_browser_process->debugger_wrapper();
   if (!wrapper) {
     g_browser_process->InitDebuggerWrapper(0);
@@ -95,7 +95,7 @@ void DebuggerWindow::OutputLine(const std::string &out) {
 void DebuggerWindow::OutputPrompt(const std::string& prompt) {
 }
 
-void DebuggerWindow::Start(DebuggerShell* debugger) {
+void DebuggerWindow::Start(DebuggerHost* debugger) {
 #ifndef CHROME_DEBUGGER_DISABLED
   DebuggerInputOutput::Start(debugger);
 #endif
@@ -116,14 +116,23 @@ void DebuggerWindow::SetDebuggerBreak(bool brk) {
   if (debugger_break_ != brk) {
     debugger_break_ = brk;
     if (window_) {
-      if (view_)
-        view_->SetDebuggerBreak(brk);
       window_->UpdateWindowTitle();
       if (brk)
         window_->Activate();
     }
   }
 #endif
+}
+
+void DebuggerWindow::CallFunctionInPage(const std::wstring& name, 
+                                        ListValue* argv) {
+  if (view_) {
+    DictionaryValue* body = new DictionaryValue;
+    body->Set(L"arguments", argv);
+    view_->SendEventToPage(name, body);
+  } else {
+    delete argv;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -160,27 +169,3 @@ bool DebuggerWindow::CanResize() const {
 views::View* DebuggerWindow::GetContentsView() {
   return view_;
 }
-
-///////////////////////////////////////////////////////////////////
-// Overridden from views::TextField::Controller:
-
-void DebuggerWindow::ContentsChanged(views::TextField* sender,
-                                     const std::wstring& new_contents) {
-  //
-}
-
-void DebuggerWindow::HandleKeystroke(views::TextField* sender, UINT message,
-                                     TCHAR key, UINT repeat_count,
-                                     UINT flags) {
-#ifndef CHROME_DEBUGGER_DISABLED
-  if (key == VK_RETURN) {
-    std::wstring txt = sender->GetText();
-    if (txt.length()) {
-      view_->Output(L"$ " + txt);
-      debugger_->ProcessCommand(txt);
-      sender->SetText(L"");
-    }
-  }
-#endif
-}
-

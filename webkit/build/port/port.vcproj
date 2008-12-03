@@ -224,6 +224,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\port\page\inspector\debugger.css"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\inspector\debugger.html"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\inspector\DebuggerConsole.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\inspector\DebuggerIPC.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\inspector\DebuggerPanel.js"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\inspector\DebuggerShell.js"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ElementsPanel.js"
 				>
 			</File>

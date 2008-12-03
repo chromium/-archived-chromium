@@ -23,7 +23,7 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 
-class DebuggerShell;
+class DebuggerHost;
 
 class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
  public:
@@ -31,8 +31,8 @@ class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
 
   virtual ~DebuggerWrapper();
 
-  void SetDebugger(DebuggerShell* debugger);
-  DebuggerShell* GetDebugger();
+  void SetDebugger(DebuggerHost* debugger);
+  DebuggerHost* GetDebugger();
 
   void DebugMessage(const std::wstring& msg);
 
@@ -40,7 +40,7 @@ class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
   void OnDebugDisconnect();
 
  private:
-  scoped_refptr<DebuggerShell> debugger_;
+  scoped_refptr<DebuggerHost> debugger_;
 };
 
 #endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_

@@ -8,7 +8,7 @@
 #include "chrome/browser/debugger/debugger_io.h"
 #include "net/base/telnet_server.h"
 
-class DebuggerShell;
+class DebuggerHost;
 class MessageLoop;
 
 // Interaction with the underlying Socket object MUST happen in the IO thread.
@@ -35,7 +35,7 @@ public:
   virtual void Output(const std::string& out);
   virtual void OutputLine(const std::string& out);
   virtual void OutputPrompt(const std::string& prompt);
-  virtual void Start(DebuggerShell* debugger);
+  virtual void Start(DebuggerHost* debugger);
   // Stop must be called prior to this object being released, so that cleanup
   // can happen in the IO thread.
   virtual void Stop();

@@ -18,6 +18,7 @@
 class DebuggerView;
 class DebuggerWindow;
 class TabContentsContainerView;
+class Value;
 class WebContents;
 
 class DebuggerView : public views::View,
@@ -37,9 +38,6 @@ class DebuggerView : public views::View,
 
   // Called when the window is being closed.
   void OnClose();
-
-  // Called when the debugger hits a breakpoint or continues.
-  void SetDebuggerBreak(bool is_broken);
 
   void SetOutputViewReady();
 
@@ -81,6 +79,10 @@ class DebuggerView : public views::View,
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) {}
   virtual bool CanBlur() const { return false; }
 
+  // To pass messages from DebuggerHost to debugger UI.
+  // Note that this method will take ownership of body.
+  void SendEventToPage(const std::wstring& name, Value* body);
+
  private:
   void ExecuteJavascript(const std::string& js);
 
@@ -88,6 +90,7 @@ class DebuggerView : public views::View,
   WebContents* web_contents_;
   TabContentsContainerView* web_container_;
   std::vector<std::wstring> pending_output_;
+  std::vector<std::string> pending_events_;
   bool output_ready_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DebuggerView);

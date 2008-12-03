@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "debugger_wrapper.h"
-#include "debugger_shell.h"
-#include "debugger_io_socket.h"
+#include "chrome/browser/debugger/debugger_wrapper.h"
+#include "chrome/browser/debugger/debugger_shell.h"
+#include "chrome/browser/debugger/debugger_io_socket.h"
+#include "chrome/browser/debugger/debugger_host.h"
 
 DebuggerWrapper::DebuggerWrapper(int port) {
 #ifndef CHROME_DEBUGGER_DISABLED
@@ -19,11 +20,11 @@ DebuggerWrapper::DebuggerWrapper(int port) {
 DebuggerWrapper::~DebuggerWrapper() {
 }
 
-void DebuggerWrapper::SetDebugger(DebuggerShell* debugger) {
+void DebuggerWrapper::SetDebugger(DebuggerHost* debugger) {
   debugger_ = debugger;
 }
 
-DebuggerShell* DebuggerWrapper::GetDebugger() {
+DebuggerHost* DebuggerWrapper::GetDebugger() {
   return debugger_.get();
 }
 

@@ -17,6 +17,7 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "chrome/browser/debugger/debugger_host.h"
 
 #ifdef CHROME_DEBUGGER_DISABLED
 
@@ -44,7 +45,7 @@ class DebuggerInputOutput;
 class MessageLoop;
 class TabContents;
 
-class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
+class DebuggerShell : public DebuggerHost {
  public:
   DebuggerShell(DebuggerInputOutput *io);
   virtual ~DebuggerShell();

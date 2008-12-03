@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd"> 
+<html>
+<!--
+ The UI for the javascript debugger window.
+-->
+  <head>
+    <title>JavaScript Debugger</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF8" />
+    <link rel="stylesheet" href="debugger.css" type="text/css" />
+    <script type="text/javascript" src="DebuggerConsole.js"></script>
+    <script type="text/javascript" src="DebuggerIPC.js"></script>
+    <script type="text/javascript" src="DebuggerShell.js"></script>
+  </head>
+
+  <body onload="onLoad();">
+  
+    <table id='outer'>
+      <tr>
+        <td valign='bottom' id='output'>Chrome JavaScript Debugger<br />Type 'help' for a list of commands.<br /></td>
+      </tr>
+    </table>
+
+    <div id='command-line'>
+      <!-- TODO(erikkay) - use addEventListener instead -->
+      <input id='command-line-text'
+             type="text" />
+    </div>
+
+  </body>
+</html>
