@@ -1107,7 +1107,6 @@ LINUX MAC : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT
 
 
 // NEW FOR MERGE 36102:37604
-LayoutTests/animations/matrix-anim.html = FAIL
 LINUX WIN : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
 LINUX WIN : LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.html = FAIL
 LINUX WIN : LayoutTests/fast/body-propagation/background-color/001-xhtml.xhtml = FAIL

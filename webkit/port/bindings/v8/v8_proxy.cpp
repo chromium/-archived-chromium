@@ -1257,11 +1257,16 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::CSSVALUELIST:
       SetCollectionIndexedGetter<CSSValueList, CSSValue>(
-          desc, 
+          desc,
           V8ClassIndex::CSSVALUE);
       break;
     case V8ClassIndex::CSSVARIABLESDECLARATION:
       SetCollectionStringOrNullIndexedGetter<CSSVariablesDeclaration>(desc);
+      break;
+    case V8ClassIndex::WEBKITCSSTRANSFORMVALUE:
+      SetCollectionIndexedGetter<WebKitCSSTransformValue, CSSValue>(
+          desc,
+          V8ClassIndex::CSSVALUE);
       break;
     case V8ClassIndex::UNDETECTABLEHTMLCOLLECTION:
       desc->InstanceTemplate()->MarkAsUndetectable();  // fall through
