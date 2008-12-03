@@ -33,16 +33,18 @@ layer at (0,0) size 800x600
           text run at (0,0) width 276: "This tests pasting text into a Mail blockquote. "
           text run at (276,0) width 506: "The last bit of content in the incoming fragment should be merged with the paragraph"
           text run at (0,20) width 210: "after the position being pasted into."
-      RenderBlock {DIV} at (0,128) size 784x40
-        RenderBlock {BLOCKQUOTE} at (40,0) size 704x40
+      RenderBlock {DIV} at (0,128) size 784x56
+        RenderBlock {BLOCKQUOTE} at (40,0) size 704x20
           RenderBlock {DIV} at (0,0) size 704x20
             RenderText {#text} at (0,0) size 78x19
               text run at (0,0) width 78: "Blockquoted"
             RenderText {#text} at (78,0) size 20x19
               text run at (78,0) width 20: "foo"
-          RenderBlock {DIV} at (0,20) size 704x20
+        RenderBlock (anonymous) at (0,36) size 784x0
+        RenderBlock {BLOCKQUOTE} at (40,36) size 704x20
+          RenderBlock {DIV} at (0,0) size 704x20
             RenderText {#text} at (0,0) size 20x19
               text run at (0,0) width 20: "bar"
-            RenderText {#text} at (20,0) size 31x19
-              text run at (20,0) width 31: " Text"
-caret: position 3 of child 0 {#text} of child 1 {DIV} of child 0 {BLOCKQUOTE} of child 10 {DIV} of child 1 {BODY} of child 0 {HTML} of document
+            RenderText {#text} at (20,0) size 27x19
+              text run at (20,0) width 27: "Text"
+caret: position 3 of child 0 {#text} of child 0 {DIV} of child 1 {BLOCKQUOTE} of child 10 {DIV} of child 1 {BODY} of child 0 {HTML} of document

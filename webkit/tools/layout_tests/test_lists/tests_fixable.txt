@@ -1367,20 +1367,16 @@ LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
 LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
-LayoutTests/editing/pasteboard/merge-end-blockquote.html = FAIL
+// Bug 5051: several steps of this test fail for an unknown reason.
 LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
-LayoutTests/fast/events/offsetX-offsetY.html = FAIL
+// Bug 5053: fails (maybe V8?)
 LayoutTests/fast/frames/cross-site-this.html = FAIL
-LayoutTests/fast/js/large-expressions.html = FAIL
-LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 
 LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 
-// MERGE 38305:38376 REGRESSIONS: These are all new tests, not regressions.
-// May just need rebaselining.
+// MERGE 38305:38376 REGRESSION (new test)
+// Bug 5032: The image is flipped horizontally from the reference.
 LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
-LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
-LayoutTests/fast/repaint/transform-relative-position.html = FAIL
 
 // MERGE 38389:38450
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
