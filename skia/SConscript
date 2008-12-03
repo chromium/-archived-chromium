@@ -82,6 +82,7 @@ input_files = [
   'effects/SkUnitMappers.cpp',
   'ext/image_operations.cc',
   'ext/convolver.cc',
+  'ext/skia_utils.cc',
   'images/SkImageDecoder.cpp',
   'images/SkImageRef.cpp',
   'images/SkStream.cpp',

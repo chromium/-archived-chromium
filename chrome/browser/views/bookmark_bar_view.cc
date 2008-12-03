@@ -44,7 +44,7 @@
 #include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "generated_resources.h"
-#include "skia/ext/skia_utils_win.h"
+#include "skia/ext/skia_utils.h"
 
 using views::BaseButton;
 using views::DropTargetEvent;

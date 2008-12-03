@@ -1361,6 +1361,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ext\skia_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\skia_utils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ext\skia_utils_win.cc"
 				>
 			</File>

@@ -6,7 +6,6 @@
 #define BASE_GFX_SKIA_UTILS_WIN_H_
 
 #include "SkColor.h"
-#include "SkShader.h"
 
 struct SkIRect;
 struct SkPoint;
@@ -37,12 +36,6 @@ inline const SkIRect& RECTToSkIRect(const RECT& rect) {
 inline const RECT& SkIRectToRECT(const SkIRect& rect) {
   return reinterpret_cast<const RECT&>(rect);
 }
-
-// Creates a vertical gradient shader. The caller owns the shader.
-SkShader* CreateGradientShader(int start_point,
-                               int end_point,
-                               SkColor start_color,
-                               SkColor end_color);
 
 // Converts COLORREFs (0BGR) to the ARGB layout Skia expects.
 SkColor COLORREFToSkColor(COLORREF color);

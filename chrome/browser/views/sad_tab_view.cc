@@ -10,6 +10,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "generated_resources.h"
+#include "skia/ext/skia_utils.h"
 #include "skia/include/SkGradientShader.h"
 
 static const int kSadTabOffset = -64;
@@ -34,20 +35,11 @@ SadTabView::SadTabView() {
   InitClass();
 }
 
-static SkShader* CreateGradientShader(int end_point) {
-  SkColor grad_colors[2] = { kBackgroundColor, kBackgroundEndColor };
-  SkPoint grad_points[2];
-  grad_points[0].set(SkIntToScalar(0), SkIntToScalar(0));
-  grad_points[1].set(SkIntToScalar(0), SkIntToScalar(end_point));
-  return SkGradientShader::CreateLinear(
-      grad_points, grad_colors, NULL, 2, SkShader::kRepeat_TileMode);
-}
-
 void SadTabView::Paint(ChromeCanvas* canvas) {
-  SkShader* background_shader = CreateGradientShader(height());
   SkPaint paint;
-  paint.setShader(background_shader);
-  background_shader->unref();
+  paint.setShader(gfx::CreateGradientShader(0, height(),
+                                            kBackgroundColor,
+                                            kBackgroundEndColor))->safeUnref();
   paint.setStyle(SkPaint::kFill_Style);
   canvas->drawRectCoords(0, 0,
                          SkIntToScalar(width()), SkIntToScalar(height()),

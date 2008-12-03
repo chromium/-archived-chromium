@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-#include "base/gfx/skia_utils.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
@@ -31,6 +30,7 @@
 #include "chrome/views/menu_button.h"
 #include "chrome/views/single_split_view.h"
 #include "chrome/views/window.h"
+#include "skia/ext/skia_utils.h"
 
 #include "generated_resources.h"
 

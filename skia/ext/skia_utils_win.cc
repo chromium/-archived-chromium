@@ -35,20 +35,6 @@ SkRect RECTToSkRect(const RECT& rect) {
   return sk_rect;
 }
 
-SkShader* CreateGradientShader(int start_point,
-                               int end_point,
-                               SkColor start_color,
-                               SkColor end_color) {
-  SkColor grad_colors[2] = { start_color, end_color};
-  SkPoint grad_points[2];
-  grad_points[0].set(SkIntToScalar(0), SkIntToScalar(start_point));
-  grad_points[1].set(SkIntToScalar(0), SkIntToScalar(end_point));
-
-  return SkGradientShader::CreateLinear(
-      grad_points, grad_colors, NULL, 2, SkShader::kRepeat_TileMode);
-}
-
-
 SkColor COLORREFToSkColor(COLORREF color) {
 #ifndef _MSC_VER
   return SkColorSetRGB(GetRValue(color), GetGValue(color), GetBValue(color));
