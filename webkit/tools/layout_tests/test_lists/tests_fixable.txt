@@ -801,7 +801,6 @@ LINUX MAC : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 
 // Uncharacterized tests that fail on linux but pass on windows.
 // TODO(port): figure out what's wrong with these and annotate appropriately.
-LINUX : LayoutTests/css2.1/t100304-c43-rpl-bbx-01-d-g.html = FAIL
 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-02-d-agi.html = FAIL
