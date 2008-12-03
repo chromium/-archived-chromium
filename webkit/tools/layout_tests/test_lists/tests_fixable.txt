@@ -784,10 +784,6 @@ LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL P
 DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 
 // Tests that fail on linux but pass on windows.
-LINUX : LayoutTests/css1/pseudo/multiple_pseudo_elements.html = FAIL
-LINUX : LayoutTests/css1/text_properties/line_height.html = FAIL
-LINUX : LayoutTests/css1/text_properties/text_indent.html = FAIL
-LINUX : LayoutTests/css1/units/length_units.html = FAIL
 LINUX : LayoutTests/css2.1/t040103-escapes-01-b.html = FAIL
 LINUX : LayoutTests/css2.1/t040302-c61-ex-len-00-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t040302-c61-rel-len-00-b-ag.html = FAIL
