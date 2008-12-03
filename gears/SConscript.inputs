@@ -136,6 +136,15 @@ env.Append(SF_M4SRCS = [
 ])
 
 #-----------------------------------------------------------------------------
+# Keystone
+
+env.Append(SF_M4SRCS = [
+    '$PRIVATE_DIR/tools/osx/installer/InstallationCheck.strings.m4',
+    '$PRIVATE_DIR/tools/osx/installer/keystone_installer.packproj.m4',
+    '$PRIVATE_DIR/tools/osx/installer/postflight.sh.m4',
+])
+
+#-----------------------------------------------------------------------------
 # mozjs bindings
 
 mozjs_sources = [

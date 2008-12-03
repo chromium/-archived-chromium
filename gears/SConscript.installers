@@ -339,6 +339,36 @@ def SafariInstallerPackage():
   return pkg
 safari_installer_package = SafariInstallerPackage()
 
+def SafariKeystoneInstaller():
+  if not os.path.exists(env.Dir('#/$PRIVATE_DIR').abspath):
+    print 'Skipping Safari Keystone installer. Required sources are not public.'
+    return []
+
+  env.Append(CREATE_DISK_IMAGE =
+      "/usr/bin/hdiutil create -ov -imagekey zlib-level=9 -fs HFS+"
+      " -format UDZO -volname '$FRIENDLY_NAME ${VERSION}'"
+      " -srcfolder '${INSTALLER_OUTDIR}/Safari/dmg/' -scrub"
+      " -nocrossdev '${SF_KEYSTONE_INSTALLER_DMG}'"
+  )
+
+  pkg = env.Iceberg(env.Dir('${SF_KEYSTONE_INSTALLER_MPKG}'),
+      ['$SF_OUTDIR/genfiles/keystone_installer.packproj'])
+  env.Depends(pkg, GetInputs('$SF_M4S'))
+  env.Depends(pkg, safari_installer_package)
+
+  dirsrcs = [
+      ('/', [pkg]),
+      ('/.keystone_install',
+          ['$PRIVATE_DIR/tools/osx/installer/keystone_install']),
+  ]
+  dmg = env.DirBuilder('$INSTALLER_OUTDIR/Safari/dmg', dirsrcs)
+  env.AddPostAction(dmg, 'chmod +x ${TARGET.base}/.keystone_install')
+  # hdiutil is crashy under leopard, so try twice.
+  env.AddPostAction(dmg, '$CREATE_DISK_IMAGE || $CREATE_DISK_IMAGE')
+
+  return dmg
+safari_keystone_installer = SafariKeystoneInstaller()
+
 installers = []
 if 'FF3' in env['VALID_BROWSERS']:
   installers += firefox_installer
@@ -350,6 +380,7 @@ if 'SF' in env['VALID_BROWSERS']:
       safari_installer_plugin_bundle,
       safari_installer_package,
       safari_input_manager_bundle,
+      safari_keystone_installer,
   ]
 if env['OS'] == 'win32':
   installers += win32_installer

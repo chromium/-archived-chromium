@@ -389,6 +389,7 @@ outputs = {}
 # genfiles/%: %.m4
 m4s = [env.M4(*PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
        for src in GetInputs('$BROWSER_M4SRCS')]
+outputs['M4S'] = m4s
 
 # genfiles/%.html: %.html_m4
 html_m4s = [env.M4(

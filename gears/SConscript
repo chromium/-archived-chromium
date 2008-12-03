@@ -139,6 +139,10 @@ env.Replace(
     FF_XPI = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.xpi',
     WIN32_INSTALLER_MSI = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.msi',
     WINCE_INSTALLER_CAB = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.cab',
+    # Keyston SF Metapackage installer, bundled with Keystone as part of a
+    # DMG.
+    SF_KEYSTONE_INSTALLER_DMG = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.dmg',
+    SF_KEYSTONE_INSTALLER_MPKG = '$INSTALLER_OUTDIR/Safari/${FRIENDLY_NAME}.mpkg',
 
     SF_INSTALLER_PLUGIN_BUNDLE = '$INSTALLER_OUTDIR/Safari/StatsPane.bundle',
     SF_PLUGIN_BUNDLE = '$INSTALLER_OUTDIR/Safari/Gears.bundle',
@@ -724,6 +728,12 @@ elif env['OS'] == 'osx':
           '-DGEARS_ENABLER_PATH="$SF_INPUTMANAGER_BUNDLE"',
           '-DGEARS_PLUGIN_PATH="$SF_PLUGIN_PROXY_BUNDLE"',
           '-DGEARS_INSTALLER_OUT_DIR="$INSTALLER_OUTDIR/Safari"',
+
+          # Keystone
+          '-DKEYSTONE_BASE_DIR="$MAIN_DIR/$PRIVATE_THIRD_PARTY_DIR/googlemac/Releases/Keystone/"',
+          '-DGEARS_INSTALLER_PACKAGE="$SF_INSTALLER_PKG"',
+          '-DGEARS_GENFILES_DIR="$SF_OUTDIR/genfiles"',
+          '-DGEARS_TOOLS_DIR="$MAIN_DIR/$PRIVATE_DIR/tools"',
       ],
   )
   if not env['OFFICIAL_BUILD']:
