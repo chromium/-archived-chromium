@@ -16,10 +16,17 @@ Example usage:
 
 import optparse
 import os
+import re
 import subprocess
 import xml.dom.minidom
 
 import google.path_utils
+
+DEPS_PATHS_TO_UPDATE = [
+  "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@",
+  "http://svn.webkit.org/repository/webkit/trunk/WebKit@",
+  "http://svn.webkit.org/repository/webkit/trunk/WebKitLibraries@",
+]
 
 class Merger(object):
   """ Does svn merges. """
@@ -71,8 +78,7 @@ def GetCurrentRepositoryAndRevision(webkit_merge_revision_path):
   Args:
     webkit_merge_revision_path: path to WEBKIT_MERGE_REVISION file.
   """
-  file = open(webkit_merge_revision_path)
-  contents = file.read().strip()
+  contents = open(webkit_merge_revision_path).read().strip()
   split_contents = contents.split("@")
   return {'repository': split_contents[0], 'old_revision': split_contents[1]}
 
@@ -100,14 +106,29 @@ def UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
   if is_dry_run:
     print "%s=%s" % (webkit_merge_revision_path, new_merge_revision)
   else:
-    file = open(webkit_merge_revision_path, "w")
+    print "Updating %s" % webkit_merge_revision_path
     #TODO(ojan): Check that the write suceeded.
-    file.write(new_merge_revision)
+    open(webkit_merge_revision_path, "w").write(new_merge_revision)
 
 def UpdateDeps(deps_path, new_revision, is_dry_run):
-  #TODO(ojan): Get this to update the revision of the appropriate bits in DEPS.
-  pass
-  
+  contents = open(deps_path).read()
+  for path in DEPS_PATHS_TO_UPDATE:
+    pattern = re.compile(path + "\d+", re.MULTILINE)
+    contents = pattern.sub(path + str(new_revision), contents)
+  if is_dry_run:
+    print "%s=%s" % (deps_path, contents)
+  else:
+    print "Updating %s" % deps_path
+    open(deps_path, "w").write(contents)
+    
+def Sync(is_dry_run):
+  sync_command = ["gclient", "sync"]
+  if is_dry_run:
+    print ' '.join(sync_command)
+  else:
+    #TODO(ojan): Check return code here.
+    subprocess.call(sync_command, shell=True)
+
 def main(options, args):
   """ Does the merge and updates WEBKIT_MERGE_REVISION.
   
@@ -115,18 +136,10 @@ def main(options, args):
     options: a dictionary of commandline arguments.
     args: currently unused.
   """
-  #TODO(ojan): Check return code here.
-  sync_command = ["gclient", "sync"]
-  if options.dry_run:
-    print ' '.join(sync_command)
-  else:
-    subprocess.call(sync_command, shell=True)
-
+  Sync(options.dry_run)
+  
   webkit_merge_revision_path = google.path_utils.FindUpward(
       google.path_utils.ScriptDir(), 'WEBKIT_MERGE_REVISION')
-      
-  deps_path = google.path_utils.FindUpward(
-      google.path_utils.ScriptDir(), 'DEPS')
 
   repository_and_revision = GetCurrentRepositoryAndRevision(
       webkit_merge_revision_path)
@@ -148,7 +161,10 @@ def main(options, args):
   
   UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
       new_revision, options.dry_run)
+  deps_path = google.path_utils.FindUpward(
+      google.path_utils.ScriptDir(), 'src', 'DEPS')
   UpdateDeps(deps_path, new_revision, options.dry_run)
+  Sync(options.dry_run)
 
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
