@@ -533,11 +533,6 @@ LayoutTests/fast/js/date-set-to-nan.html = FAIL
 // http://crbug.com/2844
 SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
-// Depends on postMessage in a way we don't support:
-// http://code.google.com/p/chromium/issues/detail?id=2857
-LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-uppercase.html = FAIL
-LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame.html = FAIL
-
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
 LayoutTests/fast/js/constructor-attributes.html = FAIL
