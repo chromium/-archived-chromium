@@ -207,6 +207,7 @@ class WidgetWin : public Widget,
     MSG_WM_MOVING(OnMoving)
     MSG_WM_NCACTIVATE(OnNCActivate)
     MSG_WM_NCCALCSIZE(OnNCCalcSize)
+    MSG_WM_NCDESTROY(OnNCDestroy)
     MSG_WM_NCHITTEST(OnNCHitTest)
     MSG_WM_NCMOUSEMOVE(OnNCMouseMove)
     MSG_WM_NCLBUTTONDBLCLK(OnNCLButtonDblClk)
@@ -384,6 +385,7 @@ class WidgetWin : public Widget,
   virtual LRESULT OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCActivate(BOOL active) { SetMsgHandled(FALSE); return 0; }
   virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param) { SetMsgHandled(FALSE); return 0; }
+  virtual void OnNCDestroy();
   virtual LRESULT OnNCHitTest(const CPoint& pt) { SetMsgHandled(FALSE); return 0; }
   virtual void OnNCLButtonDblClk(UINT flags, const CPoint& point);
   virtual void OnNCLButtonDown(UINT flags, const CPoint& point);
