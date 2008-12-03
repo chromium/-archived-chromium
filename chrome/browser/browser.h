@@ -440,7 +440,7 @@ class Browser : public TabStripModelDelegate,
 
   // OnBeforeUnload handling //////////////////////////////////////////////////
 
-  typedef std::vector<TabContents*> UnloadListenerVector;
+  typedef std::set<TabContents*> UnloadListenerSet;
 
   // Processes the next tab that needs it's beforeunload/unload event fired.
   void ProcessPendingTabs();
@@ -452,10 +452,10 @@ class Browser : public TabStripModelDelegate,
   // events since the user cancelled closing the window.
   void CancelWindowClose();
 
-  // Removes the tab from the associated vector. Returns whether the tab
-  // was in the vector in the first place.
+  // Removes |tab| from the passed |set|.
+  // Returns whether the tab was in the set in the first place.
   // TODO(beng): this method needs a better name!
-  bool RemoveFromVector(UnloadListenerVector* vector, TabContents* tab);
+  bool RemoveFromSet(UnloadListenerSet* set, TabContents* tab);
 
   // Cleans up state appropriately when we are trying to close the browser and
   // the tab has finished firing it's unload handler. We also use this in the 
@@ -566,11 +566,11 @@ class Browser : public TabStripModelDelegate,
 
   // Tracks tabs that need there beforeunload event fired before we can
   // close the browser. Only gets populated when we try to close the browser.
-  UnloadListenerVector tabs_needing_before_unload_fired_;
+  UnloadListenerSet tabs_needing_before_unload_fired_;
 
   // Tracks tabs that need there unload event fired before we can
   // close the browser. Only gets populated when we try to close the browser.
-  UnloadListenerVector tabs_needing_unload_fired_;
+  UnloadListenerSet tabs_needing_unload_fired_;
 
   // Whether we are processing the beforeunload and unload events of each tab
   // in preparation for closing the browser.

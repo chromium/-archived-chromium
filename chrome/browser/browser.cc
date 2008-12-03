@@ -419,7 +419,7 @@ bool Browser::ShouldCloseWindow() {
   for (int i = 0; i < tab_count(); ++i) {
     if (tabstrip_model_.TabHasUnloadListener(i)) {
       TabContents* tab = GetTabContentsAt(i);
-      tabs_needing_before_unload_fired_.push_back(tab);
+      tabs_needing_before_unload_fired_.insert(tab);
     }
   }
 
@@ -1769,10 +1769,10 @@ void Browser::BeforeUnloadFired(TabContents* tab,
     return;
   }
 
-  if (RemoveFromVector(&tabs_needing_before_unload_fired_, tab)) {
+  if (RemoveFromSet(&tabs_needing_before_unload_fired_, tab)) {
     // Now that beforeunload has fired, put the tab on the queue to fire
     // unload.
-    tabs_needing_unload_fired_.push_back(tab);
+    tabs_needing_unload_fired_.insert(tab);
     ProcessPendingTabs();
     // We want to handle firing the unload event ourselves since we want to 
     // fire all the beforeunload events before attempting to fire the unload
@@ -2222,7 +2222,7 @@ void Browser::ProcessPendingTabs() {
   // Process beforeunload tabs first. When that queue is empty, process
   // unload tabs.
   if (!tabs_needing_before_unload_fired_.empty()) {
-    TabContents* tab = tabs_needing_before_unload_fired_.back();
+    TabContents* tab = *(tabs_needing_before_unload_fired_.begin());
     tab->AsWebContents()->render_view_host()->FirePageBeforeUnload();
   } else if (!tabs_needing_unload_fired_.empty()) {
     // We've finished firing all beforeunload events and can proceed with unload
@@ -2233,7 +2233,7 @@ void Browser::ProcessPendingTabs() {
     // TODO(ojan): We can probably fire all the unload events in parallel and
     // get a perf benefit from that in the cases where the tab hangs in it's
     // unload handler or takes a long time to page in.
-    TabContents* tab = tabs_needing_unload_fired_.back();
+    TabContents* tab = *(tabs_needing_unload_fired_.begin());
     tab->AsWebContents()->render_view_host()->FirePageUnload();
   } else {
     NOTREACHED();
@@ -2258,25 +2258,21 @@ void Browser::CancelWindowClose() {
   is_attempting_to_close_browser_ = false;
 }
 
-bool Browser::RemoveFromVector(UnloadListenerVector* vector,
-                               TabContents* tab) {
+bool Browser::RemoveFromSet(UnloadListenerSet* set, TabContents* tab) {
   DCHECK(is_attempting_to_close_browser_);
 
-  for (UnloadListenerVector::iterator it = vector->begin();
-       it != vector->end();
-       ++it) {
-    if (*it == tab) {
-      vector->erase(it);
-      return true;
-    }
+  UnloadListenerSet::iterator iter = std::find(set->begin(), set->end(), tab);
+  if (iter != set->end()) {
+    set->erase(iter);
+    return true;
   }
   return false;
 }
 
 void Browser::ClearUnloadState(TabContents* tab) {
   DCHECK(is_attempting_to_close_browser_);
-  RemoveFromVector(&tabs_needing_before_unload_fired_, tab);
-  RemoveFromVector(&tabs_needing_unload_fired_, tab);
+  RemoveFromSet(&tabs_needing_before_unload_fired_, tab);
+  RemoveFromSet(&tabs_needing_unload_fired_, tab);
   ProcessPendingTabs();
 }
 

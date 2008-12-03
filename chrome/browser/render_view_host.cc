@@ -230,16 +230,22 @@ void RenderViewHost::SetNavigationsSuspended(bool suspend) {
 }
 
 void RenderViewHost::FirePageBeforeUnload() {
-  if (IsRenderViewLive()) {
+  if (!IsRenderViewLive()) {
+    // This RenderViewHost doesn't have a live renderer, so just skip running
+    // the onbeforeunload handler.
+    OnMsgShouldCloseACK(true);
+    return;
+  }
+
+  // This may be called more than once (if the user clicks the tab close button
+  // several times, or if she clicks the tab close button than the browser close
+  // button), so this test makes sure we only send the message once.
+  if (!is_waiting_for_unload_ack_) {
     // Start the hang monitor in case the renderer hangs in the beforeunload
     // handler.
     is_waiting_for_unload_ack_ = true;
     StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
     Send(new ViewMsg_ShouldClose(routing_id_));
-  } else {
-    // This RenderViewHost doesn't have a live renderer, so just skip running
-    // the onbeforeunload handler.
-    OnMsgShouldCloseACK(true);
   }
 }
 
