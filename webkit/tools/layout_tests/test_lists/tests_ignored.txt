@@ -184,3 +184,10 @@ SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL
 
 // Not a test?
 SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
+
+// This fails because it requests bold+italic Impact faces, which don't exist.
+// Our simulation of them differs in metrics from Windows's simulation and
+// this is probably not worth the effort to fix.
+LINUX : chrome/fonts/impact.html = FAIL
+// Expects Lucida Grande to exist.
+LINUX : chrome/fonts/lucida-grande.html = FAIL

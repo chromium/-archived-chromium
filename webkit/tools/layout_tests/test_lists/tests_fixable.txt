@@ -1083,23 +1083,8 @@ LINUX : LayoutTests/tables/mozilla/other/ms.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 
-// This fails because it requests bold+italic Impact faces, which don't exist.
-// Our simulation of them differs in metrics from Windows's simulation and
-// this is probably not worth the effort
-LINUX : chrome/fonts/impact.html = FAIL
+// Depends on plugin support.
 
-LINUX : chrome/fonts/lucida-grande.html = FAIL
-LINUX : chrome/plugins/get-url-with-blank-target.html = FAIL
-LINUX : chrome/plugins/multiple-plugins.html = FAIL
-LINUX : chrome/plugins/nested-plugin-objects.html = FAIL
-LINUX : chrome/plugins/refcount-leaks.html = FAIL
-LINUX : chrome/plugins/return-npobject.html = FAIL
-LINUX : chrome/plugins/script-object-invoke.html = FAIL
-LINUX : pending/fast/events/special-key-events-in-input-text.html = FAIL
-LINUX : pending/plugins/iframe-shims.html = FAIL
-
-// Tests that time out on linux but pass on windows.
-LINUX : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT
 LINUX : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LINUX : LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 LINUX : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
@@ -1107,11 +1092,20 @@ LINUX : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-naviga
 LINUX : LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 LINUX : LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 LINUX : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
-LINUX : chrome/plugins/get-file-url.html = TIMEOUT
-LINUX : pending/plugins/destroy-stream-twice.html = TIMEOUT
-
-// Tests that crash on linux but pass on windows.
 LINUX : chrome/plugins/call-as-function.html = CRASH
+LINUX : chrome/plugins/get-file-url.html = TIMEOUT
+LINUX : chrome/plugins/get-url-with-blank-target.html = FAIL
+LINUX : chrome/plugins/multiple-plugins.html = FAIL
+LINUX : chrome/plugins/nested-plugin-objects.html = FAIL
+LINUX : chrome/plugins/refcount-leaks.html = FAIL
+LINUX : chrome/plugins/return-npobject.html = FAIL
+LINUX : chrome/plugins/script-object-invoke.html = FAIL
+LINUX : pending/plugins/destroy-stream-twice.html = TIMEOUT
+LINUX : pending/plugins/iframe-shims.html = FAIL
+
+// Depends on event_sending_controller fixes.
+LINUX : pending/fast/events/special-key-events-in-input-text.html = FAIL
+LINUX : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT
 
 
 // NEW FOR MERGE 36102:37604
