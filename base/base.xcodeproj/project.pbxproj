@@ -40,6 +40,7 @@
 		4D11B59C0E91730500EF7617 /* rand_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B5970E9172F800EF7617 /* rand_util_unittest.cc */; };
 		4D11B89E0E929F0400EF7617 /* file_path.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B89B0E929EFF00EF7617 /* file_path.cc */; };
 		4D11B89F0E929F0700EF7617 /* file_path_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B89D0E929EFF00EF7617 /* file_path_unittest.cc */; };
+		4D64ABDA0EE6FA110021761F /* skia_utils_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7436A470EE6F591003562CC /* skia_utils_mac.cc */; };
 		536092FA0ECE474500D1B91E /* dtoa.cc in Sources */ = {isa = PBXBuildFile; fileRef = 536092F80ECE474500D1B91E /* dtoa.cc */; settings = {COMPILER_FLAGS = "-Wno-write-strings -Wno-all"; }; };
 		536092FB0ECE474500D1B91E /* g_fmt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 536092F90ECE474500D1B91E /* g_fmt.cc */; settings = {COMPILER_FLAGS = "-Wno-write-strings -Wno-all"; }; };
 		7B26302F0E82F218001CE27F /* message_pump_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B26302D0E82F218001CE27F /* message_pump_libevent.cc */; };
@@ -1059,8 +1060,6 @@
 		825403B40D92D2EC0006B936 /* gfx */ = {
 			isa = PBXGroup;
 			children = (
-				A7436A470EE6F591003562CC /* skia_utils_mac.cc */,
-				A7436A480EE6F591003562CC /* skia_utils_mac.h */,
 				825403C80D92D31D0006B936 /* native_theme.cc */,
 				825403C90D92D31D0006B936 /* native_theme.h */,
 				7B8505A20E5B3FBE00730B43 /* native_theme_unittest.cc */,
@@ -1077,6 +1076,8 @@
 				E45629E40E27C058005E4685 /* rect_unittest.cc */,
 				7B8505A40E5B3FBE00730B43 /* size.cc */,
 				825403D70D92D31D0006B936 /* size.h */,
+				A7436A470EE6F591003562CC /* skia_utils_mac.cc */,
+				A7436A480EE6F591003562CC /* skia_utils_mac.h */,
 			);
 			path = gfx;
 			sourceTree = "<group>";
@@ -1415,6 +1416,7 @@
 				825403F20D92D31D0006B936 /* point.cc in Sources */,
 				825403F50D92D31D0006B936 /* rect.cc in Sources */,
 				7B8505B30E5B432200730B43 /* size.cc in Sources */,
+				4D64ABDA0EE6FA110021761F /* skia_utils_mac.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
