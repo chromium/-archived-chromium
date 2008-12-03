@@ -35,8 +35,8 @@
 #include "SkiaUtils.h"
 #include "UniscribeHelperTextRun.h"
 
-#include "base/gfx/skia_utils.h"  // TODO(brettw) remove this dependency.
 #include "skia/ext/platform_canvas_win.h"
+#include "skia/ext/skia_utils_win.h"  // TODO(brettw) remove this dependency.
 
 namespace WebCore {
 
