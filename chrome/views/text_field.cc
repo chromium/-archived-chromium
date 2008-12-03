@@ -12,6 +12,7 @@
 #include <vsstyle.h>
 
 #include "base/gfx/native_theme.h"
+#include "base/gfx/skia_utils.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -24,8 +25,8 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/widget.h"
+
 #include "generated_resources.h"
-#include "skia/ext/skia_utils_win.h"
 
 using gfx::NativeTheme;
 
@@ -1086,7 +1087,7 @@ void TextField::UpdateEditBackgroundColor() {
 
   COLORREF bg_color;
   if (!use_default_background_color_)
-    bg_color = skia::SkColorToCOLORREF(background_color_);
+    bg_color = gfx::SkColorToCOLORREF(background_color_);
   else
     bg_color = GetSysColor(read_only_ ? COLOR_3DFACE : COLOR_WINDOW);
   edit_->SetBackgroundColor(bg_color);

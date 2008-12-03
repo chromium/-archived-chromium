@@ -10,8 +10,8 @@
 #include "SkRegion.h"
 #include "SkUtils.h"
 
+#include "base/gfx/skia_utils_mac.h"
 #include "base/logging.h"
-#include "skia/ext/skia_utils_mac.h"
 
 namespace gfx {
 

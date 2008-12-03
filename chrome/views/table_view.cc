@@ -9,6 +9,7 @@
 
 #include "base/string_util.h"
 #include "base/win_util.h"
+#include "base/gfx/skia_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/icon_util.h"
@@ -17,7 +18,6 @@
 #include "chrome/views/hwnd_view.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
-#include "skia/ext/skia_utils_win.h"
 
 namespace views {
 
@@ -1203,10 +1203,10 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
           custom_cell_font_ = CreateFontIndirect(&logfont);
           SelectObject(draw_info->nmcd.hdc, custom_cell_font_);
           draw_info->clrText = foreground.color_is_set
-                               ? skia::SkColorToCOLORREF(foreground.color)
+                               ? gfx::SkColorToCOLORREF(foreground.color)
                                : CLR_DEFAULT;
           draw_info->clrTextBk = background.color_is_set
-                                 ? skia::SkColorToCOLORREF(background.color)
+                                 ? gfx::SkColorToCOLORREF(background.color)
                                  : CLR_DEFAULT;
           return CDRF_NEWFONT;
         }
@@ -1256,7 +1256,7 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
               // background (or rather windows paints background, then invokes
               // this twice). As such, we always fill in the background.
               canvas.drawColor(
-                  skia::COLORREFToSkColor(GetSysColor(bg_color_index)),
+                  gfx::COLORREFToSkColor(GetSysColor(bg_color_index)),
                   SkPorterDuff::kSrc_Mode);
               // + 1 for padding (we declared the image as 18x18 in the list-
               // view when they are 16x16 so we get an extra pixel of padding).

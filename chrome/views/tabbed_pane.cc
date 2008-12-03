@@ -7,6 +7,7 @@
 #include <vssym32.h>
 
 #include "base/gfx/native_theme.h"
+#include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"

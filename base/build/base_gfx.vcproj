@@ -122,11 +122,27 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\gfx\convolver.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\convolver.h"
+			>
+		</File>
+		<File
 			RelativePath="..\gfx\gdi_util.cc"
 			>
 		</File>
 		<File
 			RelativePath="..\gfx\gdi_util.h"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\image_operations.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\image_operations.h"
 			>
 		</File>
 		<File
@@ -175,6 +191,14 @@
 		</File>
 		<File
 			RelativePath="..\gfx\size.h"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\skia_utils.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\skia_utils.h"
 			>
 		</File>
 	</Files>

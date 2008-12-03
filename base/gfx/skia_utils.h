@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SKIA_EXT_SKIA_UTILS_WIN_H_
-#define SKIA_EXT_SKIA_UTILS_WIN_H_
+#ifndef BASE_GFX_SKIA_UTILS_H__
+#define BASE_GFX_SKIA_UTILS_H__
 
 #include "SkColor.h"
 #include "SkShader.h"
@@ -16,7 +16,7 @@ typedef DWORD COLORREF;
 typedef struct tagPOINT POINT;
 typedef struct tagRECT RECT;
 
-namespace skia {
+namespace gfx {
 
 // Converts a Skia point to a Windows POINT.
 POINT SkPointToPOINT(const SkPoint& point);
@@ -50,7 +50,7 @@ SkColor COLORREFToSkColor(COLORREF color);
 // Converts ARGB to COLORREFs (0BGR).
 COLORREF SkColorToCOLORREF(SkColor color);
 
-}  // namespace skia
+}  // namespace gfx
 
-#endif  // SKIA_EXT_SKIA_UTILS_WIN_H_
+#endif
 

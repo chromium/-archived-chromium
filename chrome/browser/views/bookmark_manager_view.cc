@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "base/gfx/skia_utils.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
@@ -30,8 +31,8 @@
 #include "chrome/views/menu_button.h"
 #include "chrome/views/single_split_view.h"
 #include "chrome/views/window.h"
+
 #include "generated_resources.h"
-#include "skia/ext/skia_utils.h"
 
 // If non-null, there is an open editor and this is the window it is contained
 // in it.
@@ -298,7 +299,7 @@ void BookmarkManagerView::PaintBackground(ChromeCanvas* canvas) {
   canvas->drawColor(kBackgroundColorBottom, SkPorterDuff::kSrc_Mode);
 
   SkPaint paint;
-  paint.setShader(skia::CreateGradientShader(0, kBackgroundGradientHeight,
+  paint.setShader(gfx::CreateGradientShader(0, kBackgroundGradientHeight,
       kBackgroundColorTop,
       kBackgroundColorBottom))->safeUnref();
   canvas->FillRectInt(0, 0, width(), kBackgroundGradientHeight, paint);

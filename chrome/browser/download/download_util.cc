@@ -11,6 +11,7 @@
 #include "base/base_drag_source.h"
 #include "base/file_util.h"
 #include "base/scoped_clipboard_writer.h"
+#include "base/gfx/image_operations.h"
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
@@ -24,7 +25,6 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/view.h"
 #include "generated_resources.h"
-#include "skia/ext/image_operations.h"
 #include "SkPath.h"
 #include "SkShader.h"
 

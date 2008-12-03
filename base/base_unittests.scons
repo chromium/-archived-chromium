@@ -93,6 +93,8 @@ input_files = [
     'word_iterator_unittest.cc',
     'worker_pool_unittest.cc',
      
+    'gfx/convolver_unittest.cc',
+    'gfx/image_operations_unittest.cc',
     'gfx/native_theme_unittest.cc',
     'gfx/png_codec_unittest.cc',
     'gfx/rect_unittest.cc',

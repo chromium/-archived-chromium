@@ -3,12 +3,11 @@
 // found in the LICENSE file.
 
 #include "chrome/common/gfx/icon_util.h"
-
 #include "base/file_util.h"
+#include "base/gfx/image_operations.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "chrome/common/win_util.h"
-#include "skia/ext/image_operations.h"
 #include "skia/include/SkBitmap.h"
 
 // Defining the dimensions for the icon images. We store only one value because
@@ -404,8 +403,8 @@ void IconUtil::CreateResizedBitmapSet(const SkBitmap& bitmap_to_resize,
         inserted_original_bitmap = true;
       }
     }
-    bitmaps->push_back(skia::ImageOperations::Resize(
-        bitmap_to_resize, skia::ImageOperations::RESIZE_LANCZOS3,
+    bitmaps->push_back(gfx::ImageOperations::Resize(
+        bitmap_to_resize, gfx::ImageOperations::RESIZE_LANCZOS3,
         gfx::Size(icon_dimensions_[i], icon_dimensions_[i])));
   }
 

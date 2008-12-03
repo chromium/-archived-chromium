@@ -10,6 +10,7 @@
 
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
+#include "base/gfx/skia_utils.h"
 #include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/app/locales/locale_settings.h"

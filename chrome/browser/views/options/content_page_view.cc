@@ -11,6 +11,7 @@
 
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
+#include "base/gfx/skia_utils.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
@@ -30,7 +31,6 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/widget.h"
 #include "generated_resources.h"
-#include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkBitmap.h"
 
 namespace {
@@ -102,7 +102,7 @@ void FileDisplayArea::Paint(ChromeCanvas* canvas) {
   RECT rect = { 0, 0, width(), height() };
   gfx::NativeTheme::instance()->PaintTextField(
       dc, EP_EDITTEXT, ETS_READONLY, 0, &rect,
-      skia::SkColorToCOLORREF(text_field_background_color_), true, true);
+      gfx::SkColorToCOLORREF(text_field_background_color_), true, true);
   canvas->endPlatformPaint();
   canvas->DrawBitmapInt(default_folder_icon_, icon_bounds_.x(),
                         icon_bounds_.y());

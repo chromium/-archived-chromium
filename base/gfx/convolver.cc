@@ -4,12 +4,11 @@
 
 #include <algorithm>
 
-#include "skia/ext/convolver.h"
-
 #include "base/basictypes.h"
+#include "base/gfx/convolver.h"
 #include "base/logging.h"
 
-namespace skia {
+namespace gfx {
 
 namespace {
 
@@ -332,5 +331,5 @@ void BGRAConvolve2D(const uint8* source_data,
   }
 }
 
-}  // namespace skia
+}  // namespace gfx
 

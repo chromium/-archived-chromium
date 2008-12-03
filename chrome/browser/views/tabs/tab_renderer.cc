@@ -6,6 +6,7 @@
 
 #include "chrome/browser/views/tabs/tab_renderer.h"
 
+#include "base/gfx/image_operations.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -16,7 +17,6 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "generated_resources.h"
-#include "skia/ext/image_operations.h"
 
 static const int kLeftPadding = 16;
 static const int kTopPadding = 6;
@@ -586,13 +586,13 @@ void TabRenderer::PaintActiveTabBackground(ChromeCanvas* canvas) {
 void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
                                           double opacity) {
   bool is_otr = data_.off_the_record;
-  SkBitmap left = skia::ImageOperations::CreateBlendedBitmap(
+  SkBitmap left = gfx::ImageOperations::CreateBlendedBitmap(
                   (is_otr ? *tab_inactive_otr_l : *tab_inactive_l),
                   *tab_hover_l, opacity);
-  SkBitmap center = skia::ImageOperations::CreateBlendedBitmap(
+  SkBitmap center = gfx::ImageOperations::CreateBlendedBitmap(
                    (is_otr ? *tab_inactive_otr_c : *tab_inactive_c),
                     *tab_hover_c, opacity);
-  SkBitmap right = skia::ImageOperations::CreateBlendedBitmap(
+  SkBitmap right = gfx::ImageOperations::CreateBlendedBitmap(
                    (is_otr ? *tab_inactive_otr_r : *tab_inactive_r),
                    *tab_hover_r, opacity);
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SKIA_EXT_CONVOLVER_H_
-#define SKIA_EXT_CONVOLVER_H_
+#ifndef BASE_GFX_CONVOLVER_H__
+#define BASE_GFX_CONVOLVER_H__
 
 #include <vector>
 
@@ -14,7 +14,7 @@
 #undef FloatToFixed
 #endif
 
-namespace skia {
+namespace gfx {
 
 // Represents a filter in one dimension. Each output pixel has one entry in this
 // object for the filter values contributing to it. You build up the filter
@@ -131,7 +131,7 @@ void BGRAConvolve2D(const uint8* source_data,
                     const ConvolusionFilter1D& yfilter,
                     uint8* output);
 
-}  // namespace skia
+}  // namespace gfx
 
-#endif  // SKIA_EXT_CONVOLVER_H_
+#endif  // BASE_GFX_CONVOLVER_H__
 

@@ -28,11 +28,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
+
+#include "base/gfx/image_operations.h"
+
 #include "NativeImageSkia.h"
-
 #include "SkiaUtils.h"
-
-#include "skia/ext/image_operations.h"
 
 NativeImageSkia::NativeImageSkia()
     : SkBitmap(),
@@ -61,8 +61,8 @@ bool NativeImageSkia::hasResizedBitmap(int w, int h) const {
 
 SkBitmap NativeImageSkia::resizedBitmap(int w, int h) const {
     if (m_resizedImage.width() != w || m_resizedImage.height() != h) {
-        m_resizedImage = skia::ImageOperations::Resize(*this,
-            skia::ImageOperations::RESIZE_LANCZOS3, gfx::Size(w, h));
+        m_resizedImage = gfx::ImageOperations::Resize(*this,
+            gfx::ImageOperations::RESIZE_LANCZOS3, gfx::Size(w, h));
     }
     return m_resizedImage;
 }

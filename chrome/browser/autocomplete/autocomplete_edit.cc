@@ -8,6 +8,7 @@
 
 #include "base/base_drag_source.h"
 #include "base/clipboard.h"
+#include "base/gfx/skia_utils.h"
 #include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/scoped_clipboard_writer.h"

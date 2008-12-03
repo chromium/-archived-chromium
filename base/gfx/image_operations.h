@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SKIA_EXT_IMAGE_OPERATIONS_H_
-#define SKIA_EXT_IMAGE_OPERATIONS_H_
+#ifndef BASE_GFX_IMAGE_OPERATIONS_H__
+#define BASE_GFX_IMAGE_OPERATIONS_H__
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 
 class SkBitmap;
 
-namespace skia {
+namespace gfx {
 
 class ImageOperations {
  public:
@@ -37,14 +37,14 @@ class ImageOperations {
   // The destination subset must be smaller than the destination image.
   static SkBitmap Resize(const SkBitmap& source,
                          ResizeMethod method,
-                         const gfx::Size& dest_size,
-                         const gfx::Rect& dest_subset);
+                         const Size& dest_size,
+                         const Rect& dest_subset);
 
   // Alternate version for resizing and returning the entire bitmap rather than
   // a subset.
   static SkBitmap Resize(const SkBitmap& source,
                          ResizeMethod method,
-                         const gfx::Size& dest_size);
+                         const Size& dest_size);
 
 
   // Create a bitmap that is a blend of two others. The alpha argument
@@ -57,7 +57,7 @@ class ImageOperations {
   ImageOperations();  // Class for scoping only.
 };
 
-}  // namespace skia
+}  // namespace gfx
 
-#endif  // SKIA_EXT_IMAGE_OPERATIONS_H_
+#endif  // BASE_GFX_IMAGE_OPERATIONS_H__
 

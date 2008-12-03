@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "base/gfx/native_theme.h"
+#include "base/gfx/skia_utils.h"
 #include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "skia/ext/skia_utils_mac.h"
+#include "base/gfx/skia_utils_mac.h"
 
 #include "base/logging.h"
 #include "SkMatrix.h"

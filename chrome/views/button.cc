@@ -7,12 +7,12 @@
 #include <atlbase.h>
 #include <atlapp.h>
 
+#include "base/gfx/image_operations.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/event.h"
-#include "skia/ext/image_operations.h"
 
 #include "generated_resources.h"
 
@@ -105,7 +105,7 @@ SkBitmap Button::GetImageToPaint() {
   SkBitmap img;
 
   if (!images_[BS_HOT].isNull() && hover_animation_->IsAnimating()) {
-    img = skia::ImageOperations::CreateBlendedBitmap(images_[BS_NORMAL],
+    img = gfx::ImageOperations::CreateBlendedBitmap(images_[BS_NORMAL],
               images_[BS_HOT], hover_animation_->GetCurrentValue());
   } else {
     img = images_[GetState()];

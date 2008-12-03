@@ -13,8 +13,6 @@
 		A70A3BAE0ED7385F00C31871 /* bitmap_platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BA80ED7385F00C31871 /* bitmap_platform_device_mac.cc */; };
 		A70A3BAF0ED7385F00C31871 /* platform_canvas_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BAA0ED7385F00C31871 /* platform_canvas_mac.cc */; };
 		A70A3BB00ED7385F00C31871 /* platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BAC0ED7385F00C31871 /* platform_device_mac.cc */; };
-		A74368350EE5C759003562CC /* skia_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = A74368310EE5C759003562CC /* skia_utils.cc */; };
-		A74368360EE5C759003562CC /* skia_utils_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A74368330EE5C759003562CC /* skia_utils_mac.cc */; };
 		E48EE4D20E34E873009DE966 /* Sk1DPathEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4C46860DAE9C4F00FC0DB7 /* Sk1DPathEffect.cpp */; };
 		E48EE4D30E34E873009DE966 /* Sk2DPathEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4C46870DAE9C4F00FC0DB7 /* Sk2DPathEffect.cpp */; };
 		E48EE4D40E34E873009DE966 /* Sk64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4C465C0DAE9C4A00FC0DB7 /* Sk64.cpp */; };
@@ -155,10 +153,6 @@
 		A70A3BAB0ED7385F00C31871 /* platform_canvas_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = platform_canvas_mac.h; path = ext/platform_canvas_mac.h; sourceTree = "<group>"; };
 		A70A3BAC0ED7385F00C31871 /* platform_device_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = platform_device_mac.cc; path = ext/platform_device_mac.cc; sourceTree = "<group>"; };
 		A70A3BAD0ED7385F00C31871 /* platform_device_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = platform_device_mac.h; path = ext/platform_device_mac.h; sourceTree = "<group>"; };
-		A74368310EE5C759003562CC /* skia_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skia_utils.cc; path = ext/skia_utils.cc; sourceTree = "<group>"; };
-		A74368320EE5C759003562CC /* skia_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skia_utils.h; path = ext/skia_utils.h; sourceTree = "<group>"; };
-		A74368330EE5C759003562CC /* skia_utils_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skia_utils_mac.cc; path = ext/skia_utils_mac.cc; sourceTree = "<group>"; };
-		A74368340EE5C759003562CC /* skia_utils_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skia_utils_mac.h; path = ext/skia_utils_mac.h; sourceTree = "<group>"; };
 		AB4C45B00DAE9C3700FC0DB7 /* SkTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkTime.cpp; sourceTree = "<group>"; };
 		AB4C465C0DAE9C4A00FC0DB7 /* Sk64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sk64.cpp; sourceTree = "<group>"; };
 		AB4C465D0DAE9C4A00FC0DB7 /* SkBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBuffer.cpp; sourceTree = "<group>"; };
@@ -500,10 +494,6 @@
 				A70A3BAB0ED7385F00C31871 /* platform_canvas_mac.h */,
 				A70A3BAC0ED7385F00C31871 /* platform_device_mac.cc */,
 				A70A3BAD0ED7385F00C31871 /* platform_device_mac.h */,
-				A74368310EE5C759003562CC /* skia_utils.cc */,
-				A74368320EE5C759003562CC /* skia_utils.h */,
-				A74368330EE5C759003562CC /* skia_utils_mac.cc */,
-				A74368340EE5C759003562CC /* skia_utils_mac.h */,
 			);
 			name = ext;
 			sourceTree = "<group>";
@@ -1049,8 +1039,6 @@
 				E48EE5380E34E873009DE966 /* SkUtils.cpp in Sources */,
 				E48EE5390E34E873009DE966 /* SkWriter32.cpp in Sources */,
 				E48EE53A0E34E873009DE966 /* SkXfermode.cpp in Sources */,
-				A74368350EE5C759003562CC /* skia_utils.cc in Sources */,
-				A74368360EE5C759003562CC /* skia_utils_mac.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
