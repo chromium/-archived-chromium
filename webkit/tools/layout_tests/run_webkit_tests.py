@@ -88,7 +88,7 @@ class TestRunner:
     """Generate a set of test files and place them in self._test_files, with
     appropriate subsets in self._ignored_failures, self._fixable_failures,
     and self._fixable_crashes.
-    
+
     Args:
       paths: a list of command line paths relative to the webkit/tests
              directory.  glob patterns are ok.
@@ -160,20 +160,20 @@ class TestRunner:
     logging.info('Run: %d tests' % len(self._test_files))
     logging.info('Skipped: %d tests' % len(skipped))
     logging.info('Skipped tests do not appear in any of the below numbers\n')
-    logging.info('Expected passes: %d tests' % 
-                 len(self._test_files - 
-                     expectations.GetFixable() - 
-                     expectations.GetIgnored())) 
-    logging.info(('Expected failures: %d fixable, %d ignored') % 
+    logging.info('Expected passes: %d tests' %
+                 len(self._test_files -
+                     expectations.GetFixable() -
+                     expectations.GetIgnored()))
+    logging.info(('Expected failures: %d fixable, %d ignored') %
                  (len(expectations.GetFixableFailures()),
                   len(expectations.GetIgnoredFailures())))
-    logging.info(('Expected timeouts: %d fixable, %d ignored') % 
+    logging.info(('Expected timeouts: %d fixable, %d ignored') %
                  (len(expectations.GetFixableTimeouts()),
-                  len(expectations.GetIgnoredTimeouts())))   
-    logging.info('Expected crashes: %d fixable tests' % 
+                  len(expectations.GetIgnoredTimeouts())))
+    logging.info('Expected crashes: %d fixable tests' %
                  len(expectations.GetFixableCrashes()))
 
-    # Store the expectations in this object to allow it to be used to 
+    # Store the expectations in this object to allow it to be used to
     # track regressions and print results.
     self._expectations = expectations
 
@@ -203,7 +203,7 @@ class TestRunner:
 
     For each test file, we run each test type.  If there are any failures, we
     collect them for reporting.
-    
+
     Return:
       We return nonzero if there are regressions compared to the last run.
     """
@@ -233,7 +233,7 @@ class TestRunner:
     filename_queue = Queue.Queue()
     for test_file in test_files:
       filename_queue.put((test_file, path_utils.FilenameToUri(test_file)))
-    
+
     # If we have http tests, the first one will be an http test.
     if test_files and test_files[0].find(self.HTTP_SUBDIR) >= 0:
       self._http_server.Start()
@@ -261,10 +261,10 @@ class TestRunner:
 
       if self._options.startup_dialog:
         shell_args.append('--testshell-startup-dialog')
-        
+
       if self._options.gp_fault_error_box:
         shell_args.append('--gp-fault-error-box')
-        
+
       if self._options.winhttp:
         shell_args.append('--winhttp')
 
@@ -290,7 +290,7 @@ class TestRunner:
     print
     end_time = time.time()
     logging.info("%f total testing time" % (end_time - start_time))
-    
+
     print "-" * 78
 
     # Tests are done running. Compare failures with expected failures.
@@ -319,7 +319,7 @@ class TestRunner:
 
   def _PrintResults(self, test_failures, output):
     """Print a short summary to stdout about how many tests passed.
-    
+
     Args:
       test_failures is a dictionary mapping the test filename to a list of
       TestFailure objects if the test failed
@@ -350,9 +350,9 @@ class TestRunner:
           fixable_failures.add(test)
         if not self._expectations.IsIgnored(test):
           AddFailure(non_ignored_counts, failure.__class__)
-          non_ignored_failures.add(test)                
-                             
-    # Print breakdown of tests we need to fix and want to pass. 
+          non_ignored_failures.add(test)
+
+    # Print breakdown of tests we need to fix and want to pass.
     # Include skipped fixable tests in the statistics.
     skipped = self._expectations.GetFixableSkipped()
 
@@ -363,7 +363,7 @@ class TestRunner:
                              skipped, output)
 
     self._PrintResultSummary("=> Tests we want to pass",
-                             (self._test_files - 
+                             (self._test_files -
                               self._expectations.GetIgnored()),
                              non_ignored_failures,
                              non_ignored_counts,
@@ -418,7 +418,7 @@ class TestRunner:
     Args:
       test_failures is a dictionary mapping the test filename to a list of
       TestFailure objects if the test failed
-    
+
     Return:
       A set of regressions (unexpected failures, hangs, or crashes)
     """
@@ -435,7 +435,7 @@ class TestRunner:
       cf.PrintRegressions(output_file)
       output_file.close()
 
-    return cf.GetRegressions()    
+    return cf.GetRegressions()
 
   def _WriteResultsHtmlFile(self, test_failures, regressions):
     """Write results.html which is a summary of tests that failed.
@@ -647,19 +647,19 @@ if '__main__' == __name__:
                            help="show expected result file path for each test "
                                 "(implies --verbose)")
   option_parser.add_option("", "--startup-dialog", action="store_true",
-                           default=False, 
+                           default=False,
                            help="create a dialog on test_shell.exe startup")
   option_parser.add_option("", "--gp-fault-error-box", action="store_true",
-                           default=False, 
+                           default=False,
                            help="enable Windows GP fault error box")
   option_parser.add_option("", "--winhttp", action="store_true",
-                           default=False, 
+                           default=False,
                            help="Use WinHTTP stack")
   option_parser.add_option("", "--test-list", action="append",
                            help="read list of tests to run from file",
                            metavar="FILE")
   option_parser.add_option("", "--nocheck-sys-deps", action="store_true",
-                           default=False, 
+                           default=False,
                            help="Don't check the system dependencies (themes)")
   options, args = option_parser.parse_args()
   main(options, args)
