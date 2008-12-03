@@ -125,8 +125,8 @@ TEST_F(DirectoryWatcherTest, Unregister) {
 
 // Verify that modifications to a subdirectory isn't noticed.
 TEST_F(DirectoryWatcherTest, SubDir) {
-  FilePath subdir = test_dir_.Append(FILE_PATH_LITERAL("SubDir"));
-  ASSERT_TRUE(file_util::CreateDirectory(subdir.value()));
+  FilePath subdir(FILE_PATH_LITERAL("SubDir"));
+  ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
 
   DirectoryWatcher watcher;
   ASSERT_TRUE(watcher.Watch(test_dir_, this));
