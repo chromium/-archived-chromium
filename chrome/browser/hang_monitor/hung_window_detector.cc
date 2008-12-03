@@ -154,7 +154,6 @@ bool HungWindowDetector::CheckChildWindow(HWND child_window) {
         }
       }
     } else {
-      DCHECK(IsHungAppWindow(child_window) == false);
       RemoveProp(child_window, kHungChildWindowTimeout);
     }
   }
