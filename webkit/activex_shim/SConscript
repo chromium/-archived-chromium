@@ -23,9 +23,8 @@ env.Append(
         '/WX',
         '/Wp64',
     ],
-# TODO(bradnelson): Scons should really have a way to handle this.
-    ARFLAGS = [
-        '/LIBPATH:$PLATFORMSDK_VISTA_REL', 'Urlmon.Lib',
+    LIBS = [
+        'Urlmon',
     ],
 )
 
@@ -41,4 +40,3 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('activex_shim', input_files)
-

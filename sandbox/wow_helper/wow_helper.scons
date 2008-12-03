@@ -19,8 +19,6 @@ if env['PLATFORM'] == 'win32':
       ],
       CPPPATH = [
           '$CHROME_SRC_DIR',
-          '$PLATFORMSDK_VISTA/files/Include',
-          '$PLATFORMSDK_VISTA/files/VC/INCLUDE',
       ],
       CCFLAGS = [
           '/nologo',
