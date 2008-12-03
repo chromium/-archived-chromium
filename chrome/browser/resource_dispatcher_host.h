@@ -7,7 +7,7 @@
 // fowards the messages from the URLRequests back to the correct process for
 // handling.
 //
-// See http://wiki.corp.google.com/twiki/bin/view/Main/ChromeMultiProcessResourceLoading
+// See http://dev.chromium.org/developers/design-documents/multi-process-resource-loading
 
 #ifndef CHROME_BROWSER_RESOURCE_DISPATCHER_HOST_H__
 #define CHROME_BROWSER_RESOURCE_DISPATCHER_HOST_H__

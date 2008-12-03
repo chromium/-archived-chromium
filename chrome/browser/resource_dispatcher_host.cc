@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// See http://wiki.corp.google.com/twiki/bin/view/Main/ChromeMultiProcessResourceLoading
+// See http://dev.chromium.org/developers/design-documents/multi-process-resource-loading
 
 #include <vector>
 
