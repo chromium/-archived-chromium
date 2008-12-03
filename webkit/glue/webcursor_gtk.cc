@@ -14,6 +14,35 @@
 
 using WebCore::PlatformCursor;
 
+namespace {
+
+// webcursor_gtk_data.h is taken directly from WebKit's CursorGtk.h.
+#include "webkit/glue/webcursor_gtk_data.h"
+
+// This helper function is taken directly from WebKit's CursorGtk.cpp.
+// It attempts to create a custom cursor from the data inlined in
+// webcursor_gtk_data.h.
+GdkCursor* GetInlineCustomCursor(CustomCursorType type) {
+  const CustomCursor& custom = CustomCursors[type];
+  GdkCursor* cursor = gdk_cursor_new_from_name(gdk_display_get_default(),
+                                               custom.name);
+  if (!cursor) {
+    const GdkColor fg = { 0, 0, 0, 0 };
+    const GdkColor bg = { 65535, 65535, 65535, 65535 };
+    GdkPixmap* source = gdk_bitmap_create_from_data(NULL, custom.bits,
+                                                    32, 32);
+    GdkPixmap* mask = gdk_bitmap_create_from_data(NULL, custom.mask_bits,
+                                                  32, 32);
+    cursor = gdk_cursor_new_from_pixmap(source, mask, &fg, &bg,
+                                        custom.hot_x, custom.hot_y);
+    g_object_unref(source);
+    g_object_unref(mask);
+  }
+  return cursor;
+}
+
+}  // end anonymous namespace
+
 GdkCursorType WebCursor::GetCursorType() const {
   // http://library.gnome.org/devel/gdk/2.12/gdk-Cursors.html has images
   // of the default X theme, but beware that the user's cursor theme can
@@ -98,9 +127,7 @@ GdkCursorType WebCursor::GetCursorType() const {
     case PlatformCursor::typeNotAllowed:
       NOTIMPLEMENTED(); return GDK_ARROW;
     case PlatformCursor::typeZoomIn:
-      NOTIMPLEMENTED(); return GDK_ARROW;
     case PlatformCursor::typeZoomOut:
-      NOTIMPLEMENTED(); return GDK_ARROW;
     case PlatformCursor::typeCustom:
       return GDK_CURSOR_IS_PIXMAP;
   }
@@ -109,6 +136,18 @@ GdkCursorType WebCursor::GetCursorType() const {
 }
 
 GdkCursor* WebCursor::GetCustomCursor() const {
+  switch (type_) {
+    case PlatformCursor::typeZoomIn:
+      return GetInlineCustomCursor(CustomCursorZoomIn);
+    case PlatformCursor::typeZoomOut:
+      return GetInlineCustomCursor(CustomCursorZoomOut);
+  }
+
+  if (type_ != PlatformCursor::typeCustom) {
+    NOTREACHED();
+    return NULL;
+  }
+
   const guchar* data = reinterpret_cast<const guchar*>(&custom_data_[0]);
   GdkPixbuf* pixbuf =
       gdk_pixbuf_new_from_data(data,
