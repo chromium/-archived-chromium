@@ -90,11 +90,15 @@ static bool GetInfoFromDataUrl(const GURL& url,
   std::string mime_type;
   std::string charset;
   if (net::DataURL::Parse(url, &mime_type, &charset, data)) {
+    *status = URLRequestStatus(URLRequestStatus::SUCCESS, 0);
     info->request_time = Time::Now();
     info->response_time = Time::Now();
+    info->headers = NULL;
     info->mime_type.swap(mime_type);
     info->charset.swap(charset);
-    *status = URLRequestStatus(URLRequestStatus::SUCCESS, 0);
+    info->security_info.clear();
+    info->content_length = -1;
+
     return true;
   }
 
