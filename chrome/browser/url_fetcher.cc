@@ -120,8 +120,7 @@ void URLFetcher::Core::StartURLRequest() {
       if (!extra_request_headers_.empty())
         extra_request_headers_ += "\r\n";
       StringAppendF(&extra_request_headers_,
-                    "Content-Length: %d\r\nContent-Type: %s",
-                    upload_content_.size(), upload_content_type_.c_str());
+                    "Content-Type: %s", upload_content_type_.c_str());
       request_->AppendBytesToUpload(upload_content_.data(),
                                     static_cast<int>(upload_content_.size()));
       break;
