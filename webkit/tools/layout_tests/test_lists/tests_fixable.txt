@@ -798,10 +798,14 @@ LINUX MAC : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counter-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
 
+// It's not clear that the test isn't wrong here. It believes that middle
+// aligning 15px Ahem should end up in a certain spot. But we have the
+// x-height correct and we're still one px off.
+LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
+
 // Uncharacterized tests that fail on linux but pass on windows.
 // TODO(port): figure out what's wrong with these and annotate appropriately.
 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
-LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-02-d-agi.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
