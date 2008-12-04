@@ -305,7 +305,7 @@ def SafariInstallerPluginBundle():
   dirsrcs = [
       ('Contents/Info.plist',
           ['$OPEN_DIR/base/safari/advanced_stats_sheet.plist']),
-      ('Contents/MacOS/', ['$SF_INSTALLER_PLUGIN_EXE']),
+      ('Contents/MacOS/InstallerPlugin', ['$SF_INSTALLER_PLUGIN_EXE']),
       ('Contents/Resources/AdvancedStatsSheet.nib',
           [env.Dir('#/$OPEN_DIR/base/safari/advanced_stats_sheet.nib')]),
   ]
@@ -320,10 +320,11 @@ def SafariInputManagerBundle():
       'sed \'s/$${EXECUTABLE_NAME}/GearsEnabler/\' |'
       'sed \'s/$${PRODUCT_NAME}/GearsEnabler/\' > $TARGET')
   dirsrcs = [
-      ('Contents/Info.plist', [info]),
-      ('Contents/MacOS/', ['$SF_INPUTMANAGER_EXE']),
-      ('Contents/Resources/English.lproj/',
+      ('GearsEnabler.bundle/Contents/Info.plist', [info]),
+      ('GearsEnabler.bundle/Contents/MacOS/', ['$SF_INPUTMANAGER_EXE']),
+      ('GearsEnabler.bundle/Contents/Resources/English.lproj/',
           ['$OPEN_DIR/tools/osx/English.lproj/InfoPlist.strings']),
+      ('Info', ['$OPEN_DIR/tools/osx/Info']),
   ]
 
   return env.DirBuilder('$SF_INPUTMANAGER_BUNDLE', dirsrcs)
