@@ -25,6 +25,7 @@ import logging
 import optparse
 import os
 import Queue
+import random
 import shutil
 import subprocess
 import sys
@@ -227,7 +228,10 @@ class TestRunner:
     google.path_utils.MaybeMakeDirectory(self._options.results_directory)
 
     test_files = list(self._test_files)
-    test_files.sort(self.TestFilesSort)
+    if self._options.randomize_order:
+      random.shuffle(test_files)
+    else:
+      test_files.sort(self.TestFilesSort)
     # Create the thread safe queue of (test filenames, test URIs) tuples. Each
     # TestShellThread pulls values from this queue.
     filename_queue = Queue.Queue()
@@ -661,5 +665,9 @@ if '__main__' == __name__:
   option_parser.add_option("", "--nocheck-sys-deps", action="store_true",
                            default=False,
                            help="Don't check the system dependencies (themes)")
+  option_parser.add_option("", "--randomize-order", action="store_true",
+                           default=False,
+                           help=("Run tests in random order (useful for "
+                                 "tracking down corruption)"))
   options, args = option_parser.parse_args()
   main(options, args)
