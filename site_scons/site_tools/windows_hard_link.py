@@ -40,7 +40,7 @@ import stat
 import sys
 import SCons
 
-if sys.platform in ('win32', 'cygwin'):
+if sys.platform == 'win32':
   # Only attempt to load pywin32 on Windows systems
   try:
     import win32file

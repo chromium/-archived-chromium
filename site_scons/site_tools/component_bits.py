@@ -191,11 +191,11 @@ def SetBits(env, *args):
 
 
 def ClearBits(env, *args):
-  """Sets the bits in the environment.
+  """Clears the bits in the environment.
 
   Args:
     env: Environment to check.
-    args: List of bit names to set.
+    args: List of bit names to clear (remove).
   """
   _CheckDeclared(args)
   env['_BITS'] = env['_BITS'].difference(args)

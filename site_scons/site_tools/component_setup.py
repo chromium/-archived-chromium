@@ -70,9 +70,11 @@ def PreEvaluateVariables(env):
   Args:
     env: Environment for the current build mode.
   """
-  # Convert directory variables to strings
+  # Convert directory variables to strings.  Must use .abspath not str(), since
+  # otherwise $OBJ_ROOT is converted to a relative path, which evaluates
+  # improperly in SConscripts not in $MAIN_DIR.
   for var in env.SubstList2('$PRE_EVALUATE_DIRS'):
-    env[var] = str(env.Dir('$' + var))
+    env[var] = env.Dir('$' + var).abspath
 
 
 #------------------------------------------------------------------------------
@@ -194,6 +196,46 @@ def generate(env):
   # Note that this currently forces projects which want to override the
   # default to do so after including the component_setup tool.
   env.Default('$DESTINATION_ROOT')
+
+  # Use brief command line strings if necessary
+  SCons.Script.Help("""\
+  --verbose                   Print verbose output while building, including
+                              the full command lines for all commands.
+  --brief                     Print brief output while building (the default).
+                              This and --verbose are opposites.  Use --silent
+                              to turn off all output.
+""")
+  SCons.Script.AddOption(
+      '--brief',
+      dest='brief_comstr',
+      default=True,
+      action='store_true',
+      help='brief command line output')
+  SCons.Script.AddOption(
+      '--verbose',
+      dest='brief_comstr',
+      default=True,
+      action='store_false',
+      help='verbose command line output')
+  if env.GetOption('brief_comstr'):
+    env.SetDefault(
+        ARCOMSTR='________Creating library $TARGET',
+        ASCOMSTR='________Assembling $TARGET',
+        CCCOMSTR='________Compiling $TARGET',
+        CONCAT_SOURCE_COMSTR='________ConcatSource $TARGET',
+        CXXCOMSTR='________Compiling $TARGET',
+        LDMODULECOMSTR='________Building loadable module $TARGET',
+        LINKCOMSTR='________Linking $TARGET',
+        MANIFEST_COMSTR='________Updating manifest for $TARGET',
+        MIDLCOMSTR='________Compiling IDL $TARGET',
+        PCHCOMSTR='________Precompiling $TARGET',
+        RANLIBCOMSTR='________Indexing $TARGET',
+        RCCOMSTR='________Compiling resource $TARGET',
+        SHCCCOMSTR='________Compiling $TARGET',
+        SHCXXCOMSTR='________Compiling $TARGET',
+        SHLINKCOMSTR='________Linking $TARGET',
+        SHMANIFEST_COMSTR='________Updating manifest for $TARGET',
+    )
 
   # Add other default tools from our toolkit
   # TODO(rspangler): Currently this needs to be before SOURCE_ROOT in case a

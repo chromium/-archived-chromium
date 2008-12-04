@@ -46,7 +46,8 @@ def ReplaceStrings(target, source, env):
   From env:
     REPLACE_STRINGS: A list of pairs of regex search and replacement strings.
         The body of the source file has substitution performed on each
-        pair (search_regex, replacement) in order.
+        pair (search_regex, replacement) in order.  SCons variables in the
+        replacement strings will be evaluated.
 
   Returns:
     The target node, a file with contents from source, with the substitutions
@@ -64,7 +65,7 @@ def ReplaceStrings(target, source, env):
   fh.close()
   # Do replacements.
   for r in env['REPLACE_STRINGS']:
-    text = re.sub(r[0], r[1], text)
+    text = re.sub(r[0], env.subst(r[1]), text)
   # Write it out.
   fh = open(target[0].abspath, 'wb')
   fh.write(text)

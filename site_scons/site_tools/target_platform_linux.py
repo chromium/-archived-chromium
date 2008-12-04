@@ -73,6 +73,15 @@ def generate(env):
       TARGET_PLATFORM='LINUX',
       COMPONENT_PLATFORM_SETUP=ComponentPlatformSetup,
       CCFLAG_INCLUDE='-include',     # Command line option to include a header
+
+      # Code coverage related.
+      COVERAGE_CCFLAGS=['-ftest-coverage', '-fprofile-arcs'],
+      COVERAGE_LIBS='gcov',
+      COVERAGE_STOP_CMD=[
+          '$COVERAGE_MCOV --directory "$TARGET_ROOT" --output "$TARGET"',
+          ('$COVERAGE_GENHTML --output-directory $COVERAGE_HTML_DIR '
+           '$COVERAGE_OUTPUT_FILE'),
+      ],
   )
 
   env.Append(

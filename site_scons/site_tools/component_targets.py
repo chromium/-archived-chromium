@@ -113,7 +113,8 @@ def AddTargetGroup(name, description):
   Args:
     name: Name of target group.  This should be the name of an alias which
         points to other aliases for the specific targets.
-    description: Description of the target group.
+    description: Description of the target group.  Should read properly when
+        appended to 'The following ' - for example, 'programs can be built'.
   """
 
   # Warn if the target group already exists with a different description
@@ -147,6 +148,8 @@ def GetTargetModes():
   This dict is not fully populated until after BuildEnvironments() has been
   called.
   """
+  # TODO(rspangler): Better to rename this to # GetTargetBuildEnvironments()?
+  # That's a more description name.
   return __target_modes
 
 
@@ -197,7 +200,9 @@ def SetTargetProperty(self, target_name, all_modes=False, **kwargs):
 
 
 def AddTargetHelp():
-  """Adds help for the targets, groups, and modes."""
+  """Adds SCons help for the targets, groups, and modes.
+
+  This is called automatically by BuildEnvironments()."""
   help_text = ''
 
   for group in GetTargetGroups().values():

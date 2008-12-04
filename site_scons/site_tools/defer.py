@@ -37,6 +37,11 @@ import types
 import SCons.Errors
 
 
+# Current group name being executed by ExecuteDefer().  Set to None outside
+# of ExecuteDefer().
+_execute_defer_context = None
+
+
 class DeferGroup:
   """Named list of functions to be deferred."""
   # If we derive DeferGroup from object, instances of it return type
@@ -127,6 +132,11 @@ def ExecuteDefer(self):
   Args:
     self: Current environment context.
   """
+  # Check for re-entrancy
+  global _execute_defer_context
+  if _execute_defer_context:
+    raise SCons.Errors.UserError('Re-entrant call to ExecuteDefer().')
+
   # Save directory, so SConscript functions can occur in the right subdirs
   oldcwd = os.getcwd()
 
@@ -141,24 +151,39 @@ def ExecuteDefer(self):
   defer_groups = GetDeferGroups(self)
 
   # Loop through deferred functions
-  while defer_groups:
-    did_work = False
-    for name, group in defer_groups.items():
-      if group.after.intersection(defer_groups.keys()):
-        continue        # Still have dependencies
-      if group.func_env_cwd:
-        # Run all the functions in our named group
-        for func, env, cwd in group.func_env_cwd:
-          os.chdir(cwd)
-          func(env)
-      did_work = True
-      del defer_groups[name]
-      break
-    if not did_work:
-      errmsg = 'Error in ExecuteDefer: dependency cycle detected.\n'
+  try:
+    while defer_groups:
+      did_work = False
       for name, group in defer_groups.items():
-        errmsg += '   %s after: %s\n' % (name, group.after)
-      raise SCons.Errors.UserError(errmsg)
+        if group.after.intersection(defer_groups.keys()):
+          continue        # Still have dependencies
+
+        # Set defer context
+        _execute_defer_context = name
+
+        # Remove this group from the list of defer groups now, in case one of
+        # the functions it calls adds back a function into that defer group.
+        del defer_groups[name]
+
+        if group.func_env_cwd:
+          # Run all the functions in our named group
+          for func, env, cwd in group.func_env_cwd:
+            os.chdir(cwd)
+            func(env)
+
+        # The defer groups have been altered, so restart the search for
+        # functions that can be executed.
+        did_work = True
+        break
+
+      if not did_work:
+        errmsg = 'Error in ExecuteDefer: dependency cycle detected.\n'
+        for name, group in defer_groups.items():
+          errmsg += '   %s after: %s\n' % (name, group.after)
+        raise SCons.Errors.UserError(errmsg)
+  finally:
+    # No longer in a defer context
+    _execute_defer_context = None
 
   # Restore directory
   os.chdir(oldcwd)
@@ -271,6 +296,18 @@ def Defer(self, *args, **kwargs):
 
   # Add dependencies for the function
   group.after.update(after)
+
+  # If we are already inside a call to ExecuteDefer(), any functions which are
+  # deferring until after the current function must also be deferred until
+  # after this new function.  In short, this means that if b() defers until
+  # after a() and a() calls Defer() to defer c(), then b() must also defer
+  # until after c().
+  if _execute_defer_context and name != _execute_defer_context:
+    for other_name, other_group in GetDeferGroups(self).items():
+      if other_name == name:
+        continue        # Don't defer after ourselves
+      if _execute_defer_context in other_group.after:
+        other_group.after.add(name)
 
 
 def generate(env):

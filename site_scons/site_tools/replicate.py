@@ -50,15 +50,15 @@ def Replicate(env, target, source, **kw):
     env: Environment in which to operate.
     target: Destination(s) for copy.  Must evaluate to a directory via
         env.Dir(), or a list of directories.  If more than one directory is
-        passed, the entire source list will be copied to all target
-        directories.
+        passed, the entire source list will be copied to each target
+        directory.
     source: Source file(s) to copy.  May be a string, Node, or a list of
         mixed strings or Nodes.  Strings will be passed through env.Glob() to
         evaluate wildcards.  If a source evaluates to a directory, the entire
         directory will be recursively copied.
 
   From env:
-    REPLICATE_RENAME: A list of pairs of regex search and replacement strings.
+    REPLICATE_REPLACE: A list of pairs of regex search and replacement strings.
         Each full destination path has substitution performed on each pair
         (search_regex, replacement) in order.
 

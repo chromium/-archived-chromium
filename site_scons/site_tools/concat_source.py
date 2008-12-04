@@ -110,17 +110,20 @@ def generate(env):
   """SCons entry point for this tool."""
 
   # Add the builder
-  action = SCons.Script.Action(ConcatSourceBuilder,
+  action = SCons.Script.Action(ConcatSourceBuilder, '$CONCAT_SOURCE_COMSTR',
                                varlist = ['CONCAT_SOURCE_SUFFIXES'])
   builder = SCons.Script.Builder(action = action, suffix = '$CXXFILESUFFIX')
   env.Append(BUILDERS={'ConcatSourceBuilder': builder})
 
-  # Suffixes of sources we can concatenate.  Files not in this list will be
-  # passed through untouched.  (Note that on Mac, Objective C/C++ files
-  # cannot be concatenated with regular C/C++ files.)
-  # TODO(rspangler): Probably shouldn't mix C, C++ either...
-  env['CONCAT_SOURCE_SUFFIXES'] = ['.c', '.C', '.cxx', '.cpp', '.c++', '.cc',
-                                   '.h', '.H', '.hxx', '.hpp', '.hh']
+  env.SetDefault(
+      CONCAT_SOURCE_COMSTR = 'Creating ConcatSource $TARGET from $SOURCES',
+      # Suffixes of sources we can concatenate.  Files not in this list will be
+      # passed through untouched.  (Note that on Mac, Objective C/C++ files
+      # cannot be concatenated with regular C/C++ files.)
+      # TODO(rspangler): Probably shouldn't mix C, C++ either...
+      CONCAT_SOURCE_SUFFIXES = ['.c', '.C', '.cxx', '.cpp', '.c++', '.cc',
+                                '.h', '.H', '.hxx', '.hpp', '.hh'],
+  )
 
   # Add a psuedo-builder method which can look at the environment to determine
   # whether to call the ConcatSource builder or not
