@@ -353,7 +353,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
         decodeURLEscapeSequences(kurl.string().substring(sizeof("javascript:")-1));
     WebCore::ScriptValue result = frame_->loader()->executeScript(script, true);
     String scriptResult;
-    if (result.getString(scriptResult) && 
+    if (result.getString(scriptResult) &&
         !frame_->loader()->isScheduledLocationChangePending()) {
       // TODO(darin): We need to figure out how to represent this in session
       // history.  Hint: don't re-eval script when the user or script navigates
@@ -764,6 +764,9 @@ void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
 }
 
 void WebFrameImpl::IncreaseMatchCount(int count, int request_id) {
+  // This function should only be called on the mainframe.
+  DCHECK(this == static_cast<WebFrameImpl*>(GetView()->GetMainFrame()));
+
   total_matchcount_ += count;
 
   // Update the UI with the latest findings.
@@ -816,6 +819,9 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
 #if defined(OS_WIN)
     WebCore::RenderThemeWin::setFindInPageMode(true);
 #endif
+    // Store which frame was active. This will come in handy later when we
+    // change the active match ordinal below.
+    WebFrameImpl* old_active_frame = main_frame_impl->active_match_frame_;
     // Set this frame as the active frame (the one with the active highlight).
     main_frame_impl->active_match_frame_ = this;
 
@@ -841,13 +847,23 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
       // to find the active rect for us so we can update the ordinal (n of m).
       locating_active_rect_ = true;
     } else {
-      // This is FindNext so we need to increment (or decrement) the count and
-      // wrap if needed.
-      request.forward ? ++active_match_index_ : --active_match_index_;
-      if (active_match_index_ + 1 > last_match_count_)
-        active_match_index_ = 0;
-      if (active_match_index_ + 1 == 0)
-        active_match_index_ = last_match_count_ - 1;
+      if (old_active_frame != this) {
+        // If the active frame has changed it means that we have a multi-frame
+        // page and we just switch to searching in a new frame. Then we just
+        // want to reset the index.
+        if (request.forward)
+          active_match_index_ = 0;
+        else
+          active_match_index_ = last_match_count_ - 1;
+      } else {
+        // We are still the active frame, so increment (or decrement) the
+        // |active_match_index|, wrapping if needed (on single frame pages).
+        request.forward ? ++active_match_index_ : --active_match_index_;
+        if (active_match_index_ + 1 > last_match_count_)
+          active_match_index_ = 0;
+        if (active_match_index_ + 1 == 0)
+          active_match_index_ = last_match_count_ - 1;
+      }
     }
 
 #if defined(OS_WIN)
@@ -885,7 +901,8 @@ int WebFrameImpl::OrdinalOfFirstMatchForFrame(WebFrameImpl* frame) const {
        it != frame;
        it = static_cast<WebFrameImpl*>(
            webview_impl_->GetNextFrameAfter(it, true))) {
-    ordinal += it->last_match_count_;
+    if (it->last_match_count_ > 0)
+      ordinal += it->last_match_count_;
   }
 
   return ordinal;
@@ -1539,7 +1556,7 @@ void WebFrameImpl::ExecuteJavaScript(const std::string& js_code,
                                      const GURL& script_url) {
   WebCore::ScriptSourceCode source_code(
       webkit_glue::StdStringToString(js_code),
-      webkit_glue::GURLToKURL(script_url), 
+      webkit_glue::GURLToKURL(script_url),
       1);  // base line number (for errors)
   frame_->loader()->executeScript(source_code);
 }
@@ -1828,4 +1845,3 @@ void WebFrameImpl::ClearPasswordListeners() {
   }
   password_listeners_.clear();
 }
-

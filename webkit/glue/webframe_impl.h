@@ -336,7 +336,7 @@ class WebFrameImpl : public WebFrame {
   RefPtr<WebCore::Range> active_match_;
 
   // The index of the active match.
-  size_t active_match_index_;
+  int active_match_index_;
 
   // This flag is used by the scoping effort to determine if we need to figure
   // out which rectangle is the active match. Once we find the active
@@ -357,7 +357,7 @@ class WebFrameImpl : public WebFrame {
   // don't loose count between scoping efforts, and is also used (in conjunction
   // with last_search_string_ and scoping_complete_) to figure out if we need to
   // search the frame again.
-  size_t last_match_count_;
+  int last_match_count_;
 
   // This variable keeps a cumulative total of matches found so far for ALL the
   // frames on the page, and is only incremented by calling IncreaseMatchCount
@@ -375,7 +375,7 @@ class WebFrameImpl : public WebFrame {
 
   // Keeps track of when the scoping effort should next invalidate the scrollbar
   // and the frame area.
-  size_t next_invalidate_after_;
+  int next_invalidate_after_;
 
  private:
   // A bit mask specifying area of the frame to invalidate.

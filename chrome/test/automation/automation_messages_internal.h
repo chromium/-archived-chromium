@@ -311,15 +311,15 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // (1=case sensitive, 0=case insensitive). If an error occurs, matches_found
   // will be -1.
   //
-  // NOTE: This message has been deprecated, please use the new message
-  // AutomationMsg_FindRequest below.
+  // NOTE: These two messages have been deprecated, please use the new messages
+  // AutomationMsg_FindRequest and AutomationMsg_FindInPageResponse2 below.
   //
-  IPC_MESSAGE_ROUTED4(AutomationMsg_FindInPageRequest,
+  IPC_MESSAGE_ROUTED4(AutomationMsg_FindInPageRequest,   // DEPRECATED.
                       int, /* tab_handle */
                       std::wstring, /* find_request */
                       int, /* forward */
                       int /* match_case */)
-  IPC_MESSAGE_ROUTED1(AutomationMsg_FindInPageResponse,
+  IPC_MESSAGE_ROUTED1(AutomationMsg_FindInPageResponse,  // DEPRECATED.
                       int /* matches_found */)
 
   // This message sends a inspect element request for a given tab. The response
@@ -733,7 +733,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // This message starts a find within a tab corresponding to the supplied
   // tab handle. The parameter |request| specifies what to search for.
   // If an error occurs, |matches_found| will be -1 (see response message
-  // AutomationMsg_FindInPageResponse).
+  // AutomationMsg_FindInPageResponse2).
   //
   IPC_MESSAGE_ROUTED2(AutomationMsg_FindRequest,
                       int, /* tab_handle */
@@ -807,4 +807,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_ShowingAppModalDialogResponse,
                       bool /* showing dialog */)
 
+  // Returns the ordinal and the number of matches found as a response to
+  // a AutomationMsg_FindRequest.
+  IPC_MESSAGE_ROUTED2(AutomationMsg_FindInPageResponse2,
+                      int /* active_ordinal */,
+                      int /* matches_found */)
 IPC_END_MESSAGES(Automation)

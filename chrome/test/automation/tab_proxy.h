@@ -178,9 +178,11 @@ class TabProxy : public AutomationResourceProxy {
   // specifies what string to search for, |forward| specifies whether to search
   // in forward direction, and |match_case| specifies case sensitivity
   // (true=case sensitive). |find_next| specifies whether this is a new search
-  // or a continuation of the old one. A return value of -1 indicates failure.
+  // or a continuation of the old one. |ordinal| is an optional parameter that
+  // returns the ordinal of the active match (also known as "the 7" part of
+  // "7 of 9"). A return value of -1 indicates failure.
   int FindInPage(const std::wstring& search_string, FindInPageDirection forward,
-                 FindInPageCase match_case, bool find_next);
+                 FindInPageCase match_case, bool find_next, int* ordinal);
 
   bool GetCookies(const GURL& url, std::string* cookies);
   bool GetCookieByName(const GURL& url,

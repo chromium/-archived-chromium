@@ -410,7 +410,8 @@ class FindInPageNotificationObserver : public NotificationObserver {
                                  int32 routing_id)
       : automation_(automation),
         parent_tab_(parent_tab),
-        routing_id_(routing_id) {
+        routing_id_(routing_id),
+        active_match_ordinal_(-1) {
     NotificationService::current()->
         AddObserver(this, NOTIFY_FIND_RESULT_AVAILABLE,
                     Source<TabContents>(parent_tab_));
@@ -431,8 +432,13 @@ class FindInPageNotificationObserver : public NotificationObserver {
     if (type == NOTIFY_FIND_RESULT_AVAILABLE) {
       Details<FindNotificationDetails> find_details(details);
       if (find_details->request_id() == kFindInPageRequestId) {
+        // We get multiple responses and one of those will contain the ordinal.
+        // This message comes to us before the final update is sent.
+        if (find_details->active_match_ordinal() > -1)
+          active_match_ordinal_ = find_details->active_match_ordinal();
         if (find_details->final_update()) {
-          automation_->Send(new AutomationMsg_FindInPageResponse(routing_id_,
+          automation_->Send(new AutomationMsg_FindInPageResponse2(routing_id_,
+              active_match_ordinal_,
               find_details->number_of_matches()));
         } else {
           DLOG(INFO) << "Ignoring, since we only care about the final message";
@@ -455,6 +461,9 @@ class FindInPageNotificationObserver : public NotificationObserver {
   AutomationProvider* automation_;
   TabContents* parent_tab_;
   int32 routing_id_;
+  // We will at some point (before final update) be notified of the ordinal and
+  // we need to preserve it so we can send it later.
+  int active_match_ordinal_;
 };
 
 const int FindInPageNotificationObserver::kFindInPageRequestId = -1;
@@ -1712,14 +1721,14 @@ void AutomationProvider::HandleFindInPageRequest(
     int forward, int match_case) {
   NOTREACHED() << "This function has been deprecated."
     << "Please use HandleFindRequest instead.";
-  Send(new AutomationMsg_FindInPageResponse(message.routing_id(), -1));
+  Send(new AutomationMsg_FindInPageResponse2(message.routing_id(), -1, -1));
   return;
 }
 
 void AutomationProvider::HandleFindRequest(const IPC::Message& message,
     int handle, const FindInPageRequest& request) {
   if (!tab_tracker_->ContainsHandle(handle)) {
-    Send(new AutomationMsg_FindInPageResponse(message.routing_id(), -1));
+    Send(new AutomationMsg_FindInPageResponse2(message.routing_id(), -1, -1));
     return;
   }
 

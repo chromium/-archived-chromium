@@ -121,7 +121,8 @@ bool TabProxy::GetFindWindowLocation(int* x, int* y) {
 int TabProxy::FindInPage(const std::wstring& search_string,
                          FindInPageDirection forward,
                          FindInPageCase match_case,
-                         bool find_next) {
+                         bool find_next,
+                         int* active_ordinal) {
   if (!is_valid())
     return -1;
 
@@ -136,14 +137,18 @@ int TabProxy::FindInPage(const std::wstring& search_string,
   bool succeeded = sender_->SendAndWaitForResponse(
       new AutomationMsg_FindRequest(0, handle_, request),
       &response,
-      AutomationMsg_FindInPageResponse::ID);
+      AutomationMsg_FindInPageResponse2::ID);
   if (!succeeded)
     return -1;
 
   void* iter = NULL;
+  int ordinal;
   int matches_found;
-  AutomationMsg_FindInPageResponse::Read(response, &matches_found);
-
+  response->ReadInt(&iter, &ordinal);
+  response->ReadInt(&iter, &matches_found);
+  if (active_ordinal)
+    *active_ordinal = ordinal;
+  delete response;
   return matches_found;
 }
 
