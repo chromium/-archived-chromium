@@ -17,7 +17,7 @@ TEST(IPCMessageTest, Serialize) {
     "#inva://idurl/",
   };
 
-  for (int i = 0; i < arraysize(serialize_cases); i++) {
+  for (size_t i = 0; i < arraysize(serialize_cases); i++) {
     GURL input(serialize_cases[i]);
     IPC::Message msg(1, 2, IPC::Message::PRIORITY_NORMAL);
     IPC::ParamTraits<GURL>::Write(&msg, input);

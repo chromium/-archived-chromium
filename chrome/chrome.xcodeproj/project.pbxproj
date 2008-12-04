@@ -33,6 +33,18 @@
 			name = All;
 			productName = All;
 		};
+		E4F325930EE837BF002533CE /* run_ipc_tests */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = E4F325970EE837BF002533CE /* Build configuration list for PBXAggregateTarget "run_ipc_tests" */;
+			buildPhases = (
+				E4F325960EE837BF002533CE /* ShellScript */,
+			);
+			dependencies = (
+				E4F3259B0EE837DD002533CE /* PBXTargetDependency */,
+			);
+			name = run_ipc_tests;
+			productName = run_unit_tests;
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -139,7 +151,6 @@
 		4DDC64580EAE394200FB5EBE /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DDC64550EAE392400FB5EBE /* libzlib.a */; };
 		B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */; };
 		B562C8430ED49C830077A23F /* mach_ipc_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B562C8420ED49C830077A23F /* mach_ipc_mac.mm */; };
-		B5FDBFB80EE4627100BEC6E6 /* ipc_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBE0E9D4C9F009A6919 /* ipc_tests.cc */; };
 		B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */; };
 		B5FDC1C90EE48ADB00BEC6E6 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF7A0E9D5449009A6919 /* AppKit.framework */; };
 		B5FDC1CA0EE48ADB00BEC6E6 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDD10E9D5295009A6919 /* CoreFoundation.framework */; };
@@ -150,7 +161,6 @@
 		B5FDC1D30EE48ADB00BEC6E6 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF410E9D538D009A6919 /* libgtest.a */; };
 		B5FDC1D40EE48ADB00BEC6E6 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE690E9D52DC009A6919 /* libicudata.a */; };
 		B5FDC1D60EE48ADB00BEC6E6 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE710E9D52DC009A6919 /* libicuuc.a */; };
-		B5FDC1E50EE48B1600BEC6E6 /* ipc_fuzzing_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAD0E9D4C9F009A6919 /* ipc_fuzzing_tests.cc */; };
 		B5FDC2180EE48F4100BEC6E6 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
 		E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADF0E9D49DE009A6919 /* safe_browsing_database_bloom.cc */; };
 		E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE10E9D49DE009A6919 /* safe_browsing_database_impl.cc */; };
@@ -175,6 +185,13 @@
 		E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4F324420EE5CE94002533CE /* extension_unittest.cc */; };
 		E4F324980EE5D7DE002533CE /* snippet_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA060E9D48F7009A6919 /* snippet_unittest.cc */; };
 		E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB8F0E9D4C9F009A6919 /* chrome_paths.cc */; };
+		E4F3257D0EE83679002533CE /* ipc_message_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB40E9D4C9F009A6919 /* ipc_message_utils.cc */; };
+		E4F325850EE836F2002533CE /* ipc_message_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB30E9D4C9F009A6919 /* ipc_message_unittest.cc */; };
+		E4F325880EE83745002533CE /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B00330E9D5459009A6919 /* libskia.a */; };
+		E4F3258A0EE8375A002533CE /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC90E9D525B009A6919 /* libbase_gfx.a */; };
+		E4F3258C0EE83767002533CE /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
+		E4F325C80EE83A45002533CE /* ipc_fuzzing_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAD0E9D4C9F009A6919 /* ipc_fuzzing_tests.cc */; };
+		E4F325D10EE83B71002533CE /* ipc_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBE0E9D4C9F009A6919 /* ipc_tests.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -576,6 +593,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4D7BFC190E9D4CB9009A6919;
 			remoteInfo = common;
+		};
+		E4F3259A0EE837DD002533CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5FDBFAD0EE4623000BEC6E6;
+			remoteInfo = ipc_tests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1389,12 +1413,15 @@
 				B5FDC1CA0EE48ADB00BEC6E6 /* CoreFoundation.framework in Frameworks */,
 				B5FDC1CB0EE48ADB00BEC6E6 /* Foundation.framework in Frameworks */,
 				B5FDC1CC0EE48ADB00BEC6E6 /* libbase.a in Frameworks */,
+				E4F3258A0EE8375A002533CE /* libbase_gfx.a in Frameworks */,
 				B5FDC1D00EE48ADB00BEC6E6 /* libcommon.a in Frameworks */,
 				B5FDC2180EE48F4100BEC6E6 /* libicui18n.a in Frameworks */,
 				B5FDC1D40EE48ADB00BEC6E6 /* libicudata.a in Frameworks */,
 				B5FDC1D60EE48ADB00BEC6E6 /* libicuuc.a in Frameworks */,
 				B5FDC1D10EE48ADB00BEC6E6 /* libevent.a in Frameworks */,
+				E4F3258C0EE83767002533CE /* libgoogleurl.a in Frameworks */,
 				B5FDC1D30EE48ADB00BEC6E6 /* libgtest.a in Frameworks */,
+				E4F325880EE83745002533CE /* libskia.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2630,6 +2657,7 @@
 				4D7BFB2C0E9D4BE5009A6919 /* unit_tests */,
 				4D7B014C0E9D572C009A6919 /* run_unit_tests */,
 				B5FDBFAD0EE4623000BEC6E6 /* ipc_tests */,
+				E4F325930EE837BF002533CE /* run_ipc_tests */,
 			);
 		};
 /* End PBXProject section */
@@ -2842,6 +2870,20 @@
 			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		E4F325960EE837BF002533CE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -2926,6 +2968,7 @@
 				4D7BFB350E9D4C18009A6919 /* chrome_thread_unittest.cc in Sources */,
 				4D7BFB710E9D4C55009A6919 /* chunk_range_unittest.cc in Sources */,
 				4D7BFB510E9D4C3E009A6919 /* dns_host_info_unittest.cc in Sources */,
+				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
 				4D7BFCE30E9D4DCE009A6919 /* jpeg_codec_unittest.cc in Sources */,
 				4D7BFCE70E9D4DD4009A6919 /* json_value_serializer_unittest.cc in Sources */,
@@ -2936,11 +2979,10 @@
 				4D7BFCF30E9D4E07009A6919 /* run_all_unittests.cc in Sources */,
 				E48FB9870EC4EBA10052B72B /* safe_browsing_database_unittest.cc in Sources */,
 				4D7BFB7F0E9D4C63009A6919 /* safe_browsing_util_unittest.cc in Sources */,
+				E4F324980EE5D7DE002533CE /* snippet_unittest.cc in Sources */,
 				4D7BFB3E0E9D4C2F009A6919 /* text_database_unittest.cc in Sources */,
 				4D7BFB610E9D4C4B009A6919 /* units_unittest.cc in Sources */,
 				4D7BFB420E9D4C35009A6919 /* visit_tracker_unittest.cc in Sources */,
-				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
-				E4F324980EE5D7DE002533CE /* snippet_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2959,6 +3001,7 @@
 				4D7BFC330E9D4CF9009A6919 /* env_vars.cc in Sources */,
 				B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */,
 				4D7BFC380E9D4CFF009A6919 /* ipc_message.cc in Sources */,
+				E4F3257D0EE83679002533CE /* ipc_message_utils.cc in Sources */,
 				4D7BFC580E9D4D0E009A6919 /* jpeg_codec.cc in Sources */,
 				4D7BFC4B0E9D4D06009A6919 /* json_value_serializer.cc in Sources */,
 				4D7BFC540E9D4D09009A6919 /* libxml_utils.cc in Sources */,
@@ -2983,8 +3026,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5FDC1E50EE48B1600BEC6E6 /* ipc_fuzzing_tests.cc in Sources */,
-				B5FDBFB80EE4627100BEC6E6 /* ipc_tests.cc in Sources */,
+				E4F325C80EE83A45002533CE /* ipc_fuzzing_tests.cc in Sources */,
+				E4F325850EE836F2002533CE /* ipc_message_unittest.cc in Sources */,
+				E4F325D10EE83B71002533CE /* ipc_tests.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3150,6 +3194,11 @@
 			isa = PBXTargetDependency;
 			target = 4D7BFC190E9D4CB9009A6919 /* common */;
 			targetProxy = B5FDBFB30EE4625B00BEC6E6 /* PBXContainerItemProxy */;
+		};
+		E4F3259B0EE837DD002533CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5FDBFAD0EE4623000BEC6E6 /* ipc_tests */;
+			targetProxy = E4F3259A0EE837DD002533CE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -3355,6 +3404,20 @@
 			};
 			name = Release;
 		};
+		E4F325980EE837BF002533CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = run_ipc_tests;
+			};
+			name = Debug;
+		};
+		E4F325990EE837BF002533CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = run_unit_tests;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3426,6 +3489,15 @@
 			buildConfigurations = (
 				B5FDBFB00EE4623000BEC6E6 /* Debug */,
 				B5FDBFB10EE4623000BEC6E6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E4F325970EE837BF002533CE /* Build configuration list for PBXAggregateTarget "run_ipc_tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E4F325980EE837BF002533CE /* Debug */,
+				E4F325990EE837BF002533CE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
