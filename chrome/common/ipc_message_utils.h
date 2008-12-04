@@ -1106,7 +1106,7 @@ class MessageWithReply : public SyncMessage {
       ReadParam(msg, &iter, &p);
       LogParam(p, l);
 
-#if IPC_MESSAGE_LOG_ENABLED
+#if defined(IPC_MESSAGE_LOG_ENABLED)
       const std::wstring& output_params = msg->output_params();
       if (!l->empty() && !output_params.empty())
         l->append(L", ");
