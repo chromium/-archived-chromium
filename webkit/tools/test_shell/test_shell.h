@@ -76,10 +76,10 @@ public:
     static void CleanupLogging();
 
     // Initialization and clean up of a static member variable.
-    static void InitializeTestShell(bool interactive);
+    static void InitializeTestShell(bool layout_test_mode);
     static void ShutdownTestShell();
 
-    static bool interactive() { return interactive_; }
+    static bool layout_test_mode() { return layout_test_mode_; }
 
     // Called from the destructor to let each platform do any necessary
     // cleanup.
@@ -100,8 +100,7 @@ public:
 
     void Show(WebView* webview, WindowOpenDisposition disposition);
 
-    // We use this to avoid relying on Windows focus during non-interactive
-    // mode.
+    // We use this to avoid relying on Windows focus during layout test mode.
     void SetFocus(WebWidgetHost* host, bool enable);
 
     LayoutTestController* layout_test_controller() {
@@ -125,19 +124,19 @@ public:
     // Passes options from LayoutTestController through to the delegate (or
     // any other caller).
     bool ShouldDumpEditingCallbacks() {
-      return !interactive_ &&
+      return layout_test_mode_ &&
              layout_test_controller_->ShouldDumpEditingCallbacks();
     }
     bool ShouldDumpFrameLoadCallbacks() {
-      return !interactive_ && (test_is_preparing_ || test_is_pending_) &&
+      return layout_test_mode_ && (test_is_preparing_ || test_is_pending_) &&
              layout_test_controller_->ShouldDumpFrameLoadCallbacks();
     }
     bool ShouldDumpResourceLoadCallbacks() {
-      return !interactive_ && (test_is_preparing_ || test_is_pending_) &&
+      return layout_test_mode_ && (test_is_preparing_ || test_is_pending_) &&
              layout_test_controller_->ShouldDumpResourceLoadCallbacks();
     }
     bool ShouldDumpTitleChanges() {
-      return !interactive_ &&
+      return layout_test_mode_ &&
              layout_test_controller_->ShouldDumpTitleChanges();
     }
     bool AcceptsEditing() {
@@ -288,10 +287,10 @@ private:
     static HINSTANCE instance_handle_;
 #endif
 
-    // False when the app is being run using the --layout-tests switch.
-    static bool interactive_;
+    // True when the app is being run using the --layout-tests switch.
+    static bool layout_test_mode_;
 
-    // Timeout for page load when running non-interactive file tests, in ms.
+    // Default timeout in ms for file page loads when in layout test mode.
     static int file_test_timeout_ms_;
 
     scoped_ptr<LayoutTestController> layout_test_controller_;

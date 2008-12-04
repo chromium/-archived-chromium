@@ -44,8 +44,7 @@
 
 namespace {
 
-// Default timeout for page load when running non-interactive file
-// tests, in ms.
+// Default timeout in ms for file page loads when in layout test mode.
 const int kDefaultFileTestTimeoutMillisecs = 10 * 1000;
 
 // Content area size for newly created windows.
@@ -96,7 +95,7 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
 // Initialize static member variable
 WindowList* TestShell::window_list_;
 WebPreferences* TestShell::web_prefs_ = NULL;
-bool TestShell::interactive_ = true;
+bool TestShell::layout_test_mode_ = false;
 int TestShell::file_test_timeout_ms_ = kDefaultFileTestTimeoutMillisecs;
 
 TestShell::TestShell() 
@@ -196,7 +195,7 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
 
 // static
 void TestShell::InitLogging(bool suppress_error_dialogs,
-                            bool running_layout_tests,
+                            bool layout_test_mode,
                             bool enable_gp_fault_error_box) {
     if (suppress_error_dialogs)
         logging::SetLogAssertHandler(UnitTestAssertHandler);
@@ -219,7 +218,7 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
     // output from disrupting whether or not we pass.
     logging::LoggingDestination destination = 
         logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
-    if (running_layout_tests)
+    if (layout_test_mode)
       destination = logging::LOG_ONLY_TO_FILE;
 
     // We might have multiple test_shell processes going at once
@@ -237,7 +236,7 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
     // Turn on logging of notImplemented()s inside WebKit, but only if we're
     // not running layout tests (because otherwise they'd corrupt the test
     // output).
-    if (!running_layout_tests)
+    if (!layout_test_mode)
       webkit_glue::EnableWebCoreNotImplementedLogging();
 }
 
@@ -287,7 +286,7 @@ void TestShell::ResetWebPreferences() {
         web_prefs_->minimum_logical_font_size = 9;
         web_prefs_->javascript_can_open_windows_automatically = true;
         web_prefs_->dom_paste_enabled = true;
-        web_prefs_->developer_extras_enabled = interactive_;
+        web_prefs_->developer_extras_enabled = !layout_test_mode_;
         web_prefs_->shrinks_standalone_images_to_fit = false;
         web_prefs_->uses_universal_detector = false;
         web_prefs_->text_areas_are_resizable = false;
@@ -316,7 +315,7 @@ void TestShell::Show(WebView* webview, WindowOpenDisposition disposition) {
 
 void TestShell::BindJSObjectsToWindow(WebFrame* frame) {
     // Only bind the test classes if we're running tests.
-    if (!interactive_) {
+    if (layout_test_mode_) {
         layout_test_controller_->BindToJavascript(frame, 
                                                   L"layoutTestController");
         event_sending_controller_->BindToJavascript(frame,
@@ -336,7 +335,7 @@ void TestShell::CallJSGC() {
 WebView* TestShell::CreateWebView(WebView* webview) {
     // If we're running layout tests, only open a new window if the test has
     // called layoutTestController.setCanOpenWindows()
-    if (!interactive_ && !layout_test_controller_->CanOpenWindows())
+    if (layout_test_mode_ && !layout_test_controller_->CanOpenWindows())
         return NULL;
 
     TestShell* new_win;
@@ -410,7 +409,7 @@ void TestShell::Reload() {
 }
 
 void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
-  if (interactive_) {
+  if (!layout_test_mode_) {
     InteractiveSetFocus(host, enable);
   } else {
     if (enable) {

@@ -51,8 +51,8 @@ const int kTestWindowHeight = 600;
 const int kSVGTestWindowWidth = 480;
 const int kSVGTestWindowHeight = 360;
 
-// Hide the window offscreen when it is non-interactive.  Mac OS X limits
-// window positions to +/- 16000
+// Hide the window offscreen when in layout test mode.  Mac OS X limits
+// window positions to +/- 16000.
 const int kTestWindowXLocation = -14000;
 const int kTestWindowYLocation = -14000;
 
@@ -127,9 +127,9 @@ void TestShell::PlatformShutdown() {
 }
 
 // static
-void TestShell::InitializeTestShell(bool interactive) {
+void TestShell::InitializeTestShell(bool layout_test_mode) {
   window_list_ = new WindowList;
-  interactive_ = interactive;
+  layout_test_mode_ = layout_test_mode;
   
   web_prefs_ = new WebPreferences;
   
@@ -524,7 +524,7 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
     SizeTo(kSVGTestWindowWidth, kSVGTestWindowHeight);
   } else {
     // only resize back to the default when running tests
-    if (!interactive())
+    if (layout_test_mode())
       SizeToDefault();
   }
 

@@ -214,7 +214,7 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
 
   // Don't display an error page if we're running layout tests, because
   // DumpRenderTree doesn't.
-  if (!shell_->interactive())
+  if (shell_->layout_test_mode())
     return;
 
   // Don't display an error page if this is simply a cancelled load.  Aside
@@ -352,7 +352,7 @@ void TestWebViewDelegate::AddMessageToConsole(WebView* webview,
                                               const std::wstring& message,
                                               unsigned int line_no,
                                               const std::wstring& source_id) {
-  if (shell_->interactive()) {
+  if (!shell_->layout_test_mode()) {
     logging::LogMessage("CONSOLE", 0).stream() << "\"" 
                                                << message.c_str() 
                                                << ",\" source: " 
@@ -379,7 +379,7 @@ void TestWebViewDelegate::AddMessageToConsole(WebView* webview,
 
 void TestWebViewDelegate::RunJavaScriptAlert(WebView* webview,
                                              const std::wstring& message) {
-  if (shell_->interactive()) {
+  if (!shell_->layout_test_mode()) {
     ShowJavaScriptAlert(message);
   } else {
     std::string utf8 = WideToUTF8(message);
@@ -389,7 +389,7 @@ void TestWebViewDelegate::RunJavaScriptAlert(WebView* webview,
 
 bool TestWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
                                                const std::wstring& message) {
-  if (!shell_->interactive()) {
+  if (shell_->layout_test_mode()) {
     // When running tests, write to stdout.
     std::string utf8 = WideToUTF8(message);
     printf("CONFIRM: %s\n", utf8.c_str());
@@ -401,7 +401,7 @@ bool TestWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
 bool TestWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
     const std::wstring& message, const std::wstring& default_value,
     std::wstring* result) {
-  if (!shell_->interactive()) {
+  if (shell_->layout_test_mode()) {
     // When running tests, write to stdout.
     std::string utf8_message = WideToUTF8(message);
     std::string utf8_default_value = WideToUTF8(default_value);
@@ -455,7 +455,7 @@ void TestWebViewDelegate::ShowContextMenu(WebView* webview,
   captured_context_menu_events_.push_back(context);
 }
 
-// The output from these methods in non-interactive mode should match that
+// The output from these methods in layout test mode should match that
 // expected by the layout tests.  See EditingDelegate.m in DumpRenderTree.
 bool TestWebViewDelegate::ShouldBeginEditing(WebView* webview, 
                                              std::wstring range) {
@@ -687,7 +687,7 @@ void TestWebViewDelegate::LocationChangeDone(WebDataSource* data_source) {
   if (data_source->GetWebFrame() == top_loading_frame_) {
     top_loading_frame_ = NULL;
 
-    if (!shell_->interactive())
+    if (shell_->layout_test_mode())
       shell_->layout_test_controller()->LocationChangeDone();
   }
 }

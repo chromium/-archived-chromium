@@ -18,7 +18,7 @@ const wchar_t kCrashDumps[] = L"crash-dumps";  // Enable crash dumps
 const wchar_t kNoTree[] = L"notree";  // Don't dump the render tree.
 const wchar_t kDumpPixels[] = L"pixel-tests";  // Enable pixel tests.
 // Optional command line switch that specifies timeout time for page load when
-// running non-interactive file tests, in ms.
+// running file tests in layout test mode, in ms.
 const wchar_t kTestShellTimeOut[] = L"time-out-ms";
 
 const wchar_t kStartupDialog[] = L"testshell-startup-dialog";

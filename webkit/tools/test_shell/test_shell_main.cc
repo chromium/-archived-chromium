@@ -235,14 +235,13 @@ int main(int argc, char* argv[]) {
   InitCommonControlsEx(&InitCtrlEx);
 #endif
 
-  bool interactive = !layout_test_mode;
-  TestShell::InitializeTestShell(interactive);
+  TestShell::InitializeTestShell(layout_test_mode);
 
   if (parsed_command_line.HasSwitch(test_shell::kAllowScriptsToCloseWindows))
     TestShell::SetAllowScriptsToCloseWindows();
 
   // Disable user themes for layout tests so pixel tests are consistent.
-  if (!interactive) {
+  if (layout_test_mode) {
 #if defined(OS_WIN)
     gfx::NativeTheme::instance()->DisableTheming();
 #elif defined(OS_LINUX)
@@ -272,7 +271,7 @@ int main(int argc, char* argv[]) {
   std::wstring uri;
 
   // Default to a homepage if we're interactive.
-  if (interactive) {
+  if (!layout_test_mode) {
     PathService::Get(base::DIR_SOURCE_ROOT, &uri);
     file_util::AppendToPath(&uri, L"webkit");
     file_util::AppendToPath(&uri, L"data");

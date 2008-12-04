@@ -138,10 +138,9 @@ int main(const int argc, const char *argv[]) {
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
   bool layout_test_mode =
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
-  bool interactive = !layout_test_mode;
   
   TestShell::InitLogging(suppress_error_dialogs, layout_test_mode, false);
-  TestShell::InitializeTestShell(interactive);
+  TestShell::InitializeTestShell(layout_test_mode);
 
   bool no_tree = parsed_command_line.HasSwitch(test_shell::kNoTree);
   
@@ -221,7 +220,7 @@ int main(const int argc, const char *argv[]) {
   std::wstring uri;
 
   // Default to a homepage if we're interactive
-  if (interactive) {
+  if (!layout_test_mode) {
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     NSString *testShellPath =
         [resourcePath stringByAppendingPathComponent:@"test_shell/index.html"];

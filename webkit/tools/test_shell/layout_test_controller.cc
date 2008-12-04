@@ -246,7 +246,7 @@ void LayoutTestController::waitUntilDone(
 
 void LayoutTestController::notifyDone(
     const CppArgumentList& args, CppVariant* result) {
-  if (!shell_->interactive() && wait_until_done_ &&
+  if (shell_->layout_test_mode() && wait_until_done_ &&
       !shell_->delegate()->top_loading_frame() && work_queue_.empty()) {
     shell_->TestFinished();
   }
@@ -608,7 +608,7 @@ void LayoutTestController::setPrivateBrowsingEnabled(
 void LayoutTestController::fallbackMethod(
     const CppArgumentList& args, CppVariant* result) {
   std::wstring message(L"JavaScript ERROR: unknown method called on LayoutTestController");
-  if (shell_->interactive()) {
+  if (!shell_->layout_test_mode()) {
     logging::LogMessage("CONSOLE:", 0).stream() << message;
   } else {
     printf("CONSOLE MESSAGE: %S\n", message.c_str());

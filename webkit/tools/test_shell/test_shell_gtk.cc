@@ -42,9 +42,9 @@ const FcChar8* FilePathAsFcChar(const FilePath& path) {
 }
 
 // static
-void TestShell::InitializeTestShell(bool interactive) {
+void TestShell::InitializeTestShell(bool layout_test_mode) {
   window_list_ = new WindowList;
-  interactive_ = interactive;
+  layout_test_mode_ = layout_test_mode;
 
   web_prefs_ = new WebPreferences;
 
@@ -461,7 +461,7 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
     SizeToSVG();
   else {
     // only resize back to the default when running tests
-    if (!interactive())
+    if (layout_test_mode())
       SizeToDefault();
   }
 

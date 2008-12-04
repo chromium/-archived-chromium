@@ -59,9 +59,9 @@ int main(int argc, char* argv[]) {
   TestShell::SetFileTestTimeout(USER_TIMER_MAXIMUM);
 #endif
 
-  // Initialize test shell in non-interactive mode, which will let us load one
+  // Initialize test shell in layout test mode, which will let us load one
   // request than automatically quit.
-  TestShell::InitializeTestShell(false);
+  TestShell::InitializeTestShell(true);
 
   webkit_glue::InitializeForTesting();
 

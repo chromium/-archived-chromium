@@ -50,7 +50,7 @@ static wchar_t g_currentTestName[kPathBufSize];
 // Forward declarations of functions included in this code module:
 static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
-// Hide the window offscreen when it is non-interactive.
+// Hide the window offscreen when in layout test mode.
 // This would correspond with a minimized window position if x = y = -32000.
 // However we shift the x to 0 to pass test cross-frame-access-put.html
 // which expects screenX/screenLeft to be 0 (http://b/issue?id=1227945).
@@ -119,14 +119,14 @@ HINSTANCE TestShell::instance_handle_;
 /////////////////////////////////////////////////////////////////////////////
 // static methods on TestShell
 
-void TestShell::InitializeTestShell(bool interactive) {
+void TestShell::InitializeTestShell(bool layout_test_mode) {
   // Start COM stuff.
   HRESULT res = OleInitialize(NULL);
   DCHECK(SUCCEEDED(res));
 
   window_list_ = new WindowList;
   instance_handle_ = ::GetModuleHandle(NULL);
-  interactive_ = interactive;
+  layout_test_mode_ = layout_test_mode;
 
   web_prefs_ = new WebPreferences;
 
@@ -547,7 +547,7 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
     SizeToSVG();
   } else {
     // only resize back to the default when running tests
-    if (!interactive())
+    if (layout_test_mode())
       SizeToDefault();
   }
 

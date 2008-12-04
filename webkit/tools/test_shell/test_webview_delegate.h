@@ -255,7 +255,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   void SetAddressBarURL(const GURL& url);
 
   // Show a JavaScript alert as a popup message.
-  // The caller should test whether we're in interactive mode and only
+  // The caller should test whether we're in layout test mode and only
   // call this function when we really want a message to pop up.
   void ShowJavaScriptAlert(const std::wstring& message);
 
