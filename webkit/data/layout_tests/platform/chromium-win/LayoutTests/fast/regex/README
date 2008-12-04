@@ -1,3 +1,9 @@
 early-acid3-86
 ------------------------
 Only differ in error message.
+
+test1
+------------------------
+/^\ca\cA\c[\c{\c:/ 
+is a syntactically invalid JavaScript regular expression according to
+the spec and we therefore reject it.

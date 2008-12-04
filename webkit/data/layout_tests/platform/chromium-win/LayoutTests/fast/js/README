@@ -20,6 +20,7 @@ object-extra-comma.html
 property-getters-and-setters.html
 regexp-range-out-of-order.html
 regexp-no-extensions.html
+regexp-test-null-string.html
 array-functions-non-arrays.html
 --------------------------
 Only error messages are different.
@@ -79,9 +80,13 @@ KJS has an extra period "." after the error message.  V8 does not.
 
 recursion-limit-equal.html
 regexp-compile-crash.html
-regexp-charclass-crash.html
 --------------------------
 Only difference is error message written to the console.
+
+regexp-charclass-crash.html
+--------------------------
+This tests arbitrary limits on the sizes of regexps allowed by JSCRE.
+We allow larger regexp and therefore this test gives no exception.
 
 number-toString
 --------------------------
@@ -114,5 +119,5 @@ Only difference is the parse error message.
 
 regexp-overflow
 --------------------------
-This tests artificial limits on the size of regexps.  We allow
-simple regexps to be larger than what jsc allows
+This tests artificial limits on the size of regexps.  We allow larger
+regexps than JSCRE.

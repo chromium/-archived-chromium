@@ -1412,8 +1412,6 @@ LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
 // MERGE 38600:38625: New tests
 // Bug 4997, this looks mostly OK, but the test reports FAIL.
 LayoutTests/fast/forms/search-transformed.html = FAIL
-// Bug 4998: probably v8 related (or at least in our regexp engine).
-LayoutTests/fast/js/regexp-test-null-string.html = FAIL
 // Big 4999: we need to fix this same bug in our plugin handling Apple did in
 // r38611.
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL

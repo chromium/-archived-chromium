@@ -490,11 +490,8 @@ void ChromiumBridge::incrementStatsCounter(const char* name) {
 #if USE(V8)
 // TODO(evanm): remove this conversion thunk once v8 supports plain char*
 // counter functions.
-static int* CounterFunction(const wchar_t* name) {
-  return StatsTable::FindLocation(WideToASCII(name).c_str());
-}
 void ChromiumBridge::initV8CounterFunction() {
-  v8::V8::SetCounterFunction(CounterFunction);
+  v8::V8::SetCounterFunction(StatsTable::FindLocation);
 }
 #endif
 

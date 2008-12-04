@@ -13,7 +13,7 @@ PASS /\4294967296/.exec("\"94967296").toString() is "\"94967296"
 PASS /\8589934592/.exec("8589934592").toString() is "8589934592"
 PASS "\nAbc\n".replace(/(\n)[^\n]+$/, "$1") is "\nAbc\n"
 PASS /x$/.exec("x\n") is null
-PASS /x++/ threw exception SyntaxError: Invalid regular expression: /x++/: nothing to repeat.
+PASS /x++/ threw exception SyntaxError: Invalid regular expression: /x++/: Nothing to repeat.
 PASS /[]]/.exec("]") is null
 
 Octal escape sequences are in Annex B of the standard.
