@@ -671,7 +671,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Fails in release and debug. Sometimes crashes in debug.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -1063,6 +1063,16 @@ LINUX : LayoutTests/tables/mozilla/images/adforce_imgis_com.html = FAIL
 LINUX : LayoutTests/tables/mozilla/other/ms.html = FAIL
 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
+LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
+LINUX : LayoutTests/css2.1/t0805-c5518-brdr-t-01-e.html = FAIL
+LINUX : LayoutTests/css2.1/t0805-c5520-brdr-b-01-e.html = FAIL
+LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-00-c-g.html = FAIL
+LINUX : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
+LINUX : LayoutTests/fast/js/date-big-setdate.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug8381.html = FAIL
+LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
+LINUX : chrome/plugins/call-as-function.html = FAIL
+LINUX : pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 
 // Depends on plugin support.
 LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
