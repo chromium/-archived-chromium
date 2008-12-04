@@ -158,6 +158,9 @@ WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle box,
   WebWidgetHost* host = new WebWidgetHost();
   host->view_ = CreateWindow(box, host);
   host->webwidget_ = WebWidget::Create(delegate);
+  // We manage our own double buffering because we need to be able to update
+  // the expose area in an ExposeEvent within the lifetime of the event handler.
+  gtk_widget_set_double_buffered(GTK_WIDGET(host->view_), false);
 
   return host;
 }
@@ -232,6 +235,9 @@ void WebWidgetHost::Paint() {
   // Paint the canvas if necessary.  Allow painting to generate extra rects the
   // first time we call it.  This is necessary because some WebCore rendering
   // objects update their layout only when painted.
+  // Store the total area painted in total_paint. Then tell the gdk window
+  // to update that area after we're done painting it.
+  gfx::Rect total_paint;
   for (int i = 0; i < 2; ++i) {
     paint_rect_ = client_rect.Intersect(paint_rect_);
     if (!paint_rect_.IsEmpty()) {
@@ -240,19 +246,32 @@ void WebWidgetHost::Paint() {
 
       DLOG_IF(WARNING, i == 1) << "painting caused additional invalidations";
       PaintRect(rect);
+      total_paint = total_paint.Union(rect);
     }
   }
   DCHECK(paint_rect_.IsEmpty());
 
-  // BitBlit to the X server
+  // Invalidate the paint region on the widget's underlying gdk window. Note
+  // that gdk_window_invalidate_* will generate extra expose events, which
+  // we wish to avoid. So instead we use calls to begin_paint/end_paint.
+  GdkRectangle grect = {
+      total_paint.x(),
+      total_paint.y(),
+      total_paint.width(),
+      total_paint.height(),
+  };
+  gdk_window_begin_paint_rect(view_->window, &grect);
+
+  // BitBlit to the gdk window.
   gfx::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
   gfx::BitmapPlatformDeviceLinux* const bitdev =
     static_cast<gfx::BitmapPlatformDeviceLinux* >(&platdev);
-  
   cairo_t* cairo_drawable = gdk_cairo_create(view_->window);
   cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
   cairo_paint(cairo_drawable);
   cairo_destroy(cairo_drawable);
+
+  gdk_window_end_paint(view_->window);
 }
 
 void WebWidgetHost::ResetScrollRect() {
