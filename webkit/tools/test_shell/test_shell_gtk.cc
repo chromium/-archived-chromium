@@ -466,9 +466,6 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
   if (frame_name)
     frame_string = frame_name;
 
-  LOG(INFO) << "Loading " << WideToUTF8(url) << " in frame '"
-          << WideToUTF8(frame_string) << "'";
-
   std::wstring path(url);
   GURL gurl;
   // PathExists will reject any string with no leading '/'
