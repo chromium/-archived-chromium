@@ -658,7 +658,7 @@ LINUX WIN : LayoutTests/fast/canvas/drawImage.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
-LINUX WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
+LINUX WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 LINUX WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 LINUX WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
@@ -756,7 +756,7 @@ pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
 
 // This test seems to fail on the builders but not locally.
-LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
+LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL CRASH
 
 // TODO(eroman): passed for me locally, need to see why failed on buildbot...
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
@@ -1075,6 +1075,7 @@ LINUX : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
 LINUX : LayoutTests/fast/js/date-big-setdate.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug8381.html = FAIL
 LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
+LINUX : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-y-attr.html = CRASH
 
 // Depends on plugin support.
 LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
@@ -1295,7 +1296,7 @@ LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL CRASH
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
@@ -1816,7 +1817,7 @@ MAC : LayoutTests/fast/js/postfix-syntax.html = FAIL
 MAC : LayoutTests/fast/js/prefix-syntax.html = FAIL
 MAC : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
 MAC : LayoutTests/fast/js/recursion-limit-equal.html = FAIL
-MAC : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL
+MAC LINUX : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/js/regexp-compile-crash.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile.html = FAIL
 MAC : LayoutTests/fast/js/regexp-no-extensions.html = FAIL

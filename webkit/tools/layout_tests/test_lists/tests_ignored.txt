@@ -191,8 +191,6 @@ SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
 // Our simulation of them differs in metrics from Windows's simulation and
 // this is probably not worth the effort to fix.
 LINUX : chrome/fonts/impact.html = FAIL
-// Expects Lucida Grande to exist.
-LINUX : chrome/fonts/lucida-grande.html = FAIL
 
 // This test times out in debug mode.  It is testing arbitrary limits
 // on the sizes of regular expressions.  We handle larger regular 
