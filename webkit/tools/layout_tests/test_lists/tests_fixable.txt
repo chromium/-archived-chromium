@@ -1071,8 +1071,6 @@ LINUX : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
 LINUX : LayoutTests/fast/js/date-big-setdate.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug8381.html = FAIL
 LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
-LINUX : chrome/plugins/call-as-function.html = FAIL
-LINUX : pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 
 // Depends on plugin support.
 LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
@@ -1082,7 +1080,7 @@ LINUX MAC : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-na
 LINUX MAC : LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 LINUX MAC : LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 LINUX MAC : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
-LINUX MAC : chrome/plugins/call-as-function.html = CRASH
+LINUX MAC : chrome/plugins/call-as-function.html = CRASH FAIL
 LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
 LINUX MAC : chrome/plugins/get-url-with-blank-target.html = FAIL
 LINUX MAC : chrome/plugins/multiple-plugins.html = FAIL
