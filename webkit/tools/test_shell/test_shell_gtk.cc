@@ -44,8 +44,11 @@ const FcChar8* FilePathAsFcChar(const FilePath& path) {
 // static
 void TestShell::InitializeTestShell(bool interactive) {
   window_list_ = new WindowList;
-  web_prefs_ = new WebPreferences;
   interactive_ = interactive;
+
+  web_prefs_ = new WebPreferences;
+
+  ResetWebPreferences();
 
   // We wish to make the layout tests reproducable with respect to fonts. Skia
   // uses fontconfig to resolve font family names from WebKit into actual font
