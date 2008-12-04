@@ -9,6 +9,7 @@ Also defines the TestArguments "struct" to pass them additional arguments.
 
 import cgi
 import difflib
+import errno
 import os.path
 import subprocess
 
@@ -178,7 +179,19 @@ class TestTypeBase(object):
              actual_filename, expected_win_filename]
       filename = self.OutputFilename(filename,
                       test_type + self.FILENAME_SUFFIX_WDIFF)
-      wdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+      try:
+        wdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+      except OSError, e:
+        if errno.ENOENT != e.errno:
+          raise e
+        out = open(filename, 'wb')
+        out.write(
+            """wdiff not installed.<br/>"""
+            """If you're running OS X, you can install via macports.<br/>"""
+            """If running Ubuntu linux, you can run "sudo apt-get install"""
+            """ wdiff".""")
+        out.close()
+        return
       wdiff = cgi.escape(wdiff)
       wdiff = wdiff.replace('##WDIFF_DEL##', '<span class=del>')
       wdiff = wdiff.replace('##WDIFF_ADD##', '<span class=add>')

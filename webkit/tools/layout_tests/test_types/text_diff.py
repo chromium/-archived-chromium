@@ -63,13 +63,12 @@ class TestTextDiff(test_type_base.TestTypeBase):
     if output != expected:
       # Text doesn't match, write output files.
       self.WriteOutputFiles(filename, "", ".txt", output, expected,
-                            diff=True, wdiff=test_args.wdiff)
+                            diff=True, wdiff=True)
 
       if expected == '':
         failures.append(test_failures.FailureMissingResult(self))
       else:
-        failures.append(test_failures.FailureTextMismatch(self,
-                                                          test_args.wdiff))
+        failures.append(test_failures.FailureTextMismatch(self, True))
 
     return failures
 
