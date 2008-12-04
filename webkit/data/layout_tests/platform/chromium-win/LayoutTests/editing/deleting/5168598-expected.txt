@@ -18,7 +18,5 @@ layer at (0,0) size 800x600
         RenderText {#text} at (0,0) size 0x0
 layer at (10,87) size 151x16
   RenderBlock {DIV} at (2,3) size 151x16
-    RenderInline {FONT} at (0,0) size 0x16
-      RenderInline {SPAN} at (0,0) size 0x16
-        RenderBR {BR} at (1,0) size 0x16
-caret: position 0 of child 0 {BR} of child 0 {SPAN} of child 0 {FONT} of child 0 {DIV} of child 3 {INPUT} of child 0 {BODY} of child 0 {HTML} of document
+    RenderBR {BR} at (1,0) size 0x16
+caret: position 0 of child 0 {BR} of child 0 {DIV} of child 3 {INPUT} of child 0 {BODY} of child 0 {HTML} of document
