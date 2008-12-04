@@ -74,6 +74,7 @@ if env['PLATFORM'] == 'win32':
           'rpcrt4.lib',
           'shlwapi.lib',
           'winmm.lib',
+          'Urlmon',
       ],
 
       LINKFLAGS = [

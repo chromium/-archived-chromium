@@ -16,6 +16,7 @@ env.Prepend(
         'googleurl',
         env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'base',
+        'Urlmon',
     ],
 )
 
@@ -46,4 +47,3 @@ input_files = [
 dll = env.ChromeSharedLibrary('npaxshim', input_files)
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)
-
