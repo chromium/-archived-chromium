@@ -124,7 +124,8 @@ if not env['OFFICIAL_BUILD']:
 env.Append(COMMON_M4SRCS = [
     '$OPEN_DIR/installer/npapi_msi.wxs.m4',
     '$OPEN_DIR/installer/win32_msi.wxs.m4',
-    '$OPEN_DIR/installer/wince_cab.inf.m4',
+    '$OPEN_DIR/installer/wince_cab_ie.inf.m4',
+    '$OPEN_DIR/installer/wince_cab_op.inf.m4',
 ])
 
 #-----------------------------------------------------------------------------
@@ -240,12 +241,16 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/base/common/byte_store.cc',
     '$OPEN_DIR/base/common/byte_store_test.cc',
     '$OPEN_DIR/base/common/circular_buffer_test.cc',
+    '$OPEN_DIR/base/common/common_np_android.cc',
     '$OPEN_DIR/base/common/common_win32.cc',
     '$OPEN_DIR/base/common/database_name_table.cc',
     '$OPEN_DIR/base/common/event.cc',
     '$OPEN_DIR/base/common/event_test.cc',
     '$OPEN_DIR/base/common/file.cc',
+    '$OPEN_DIR/base/common/file_posix.cc',
     '$OPEN_DIR/base/common/file_test.cc',
+    '$OPEN_DIR/base/common/file_win32.cc',
+    '$OPEN_DIR/base/common/file_wince.cc',
     '$OPEN_DIR/base/common/html_event_monitor.cc',
     '$OPEN_DIR/base/common/http_utils.cc',
     '$OPEN_DIR/base/common/js_dom_element.cc',
@@ -256,6 +261,7 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/base/common/memory_buffer.cc',
     '$OPEN_DIR/base/common/memory_buffer_test.cc',
     '$OPEN_DIR/base/common/message_queue.cc',
+    '$OPEN_DIR/base/common/message_queue_android.cc',
     '$OPEN_DIR/base/common/message_service.cc',
     '$OPEN_DIR/base/common/message_service_test.cc',
     '$OPEN_DIR/base/common/mime_detect.cc',
@@ -266,6 +272,7 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/base/common/name_value_table.cc',
     '$OPEN_DIR/base/common/name_value_table_test.cc',
     '$OPEN_DIR/base/common/paths.cc',
+    '$OPEN_DIR/base/common/paths_android.cc',
     '$OPEN_DIR/base/common/permissions_db.cc',
     '$OPEN_DIR/base/common/permissions_db_test.cc',
     '$OPEN_DIR/base/common/permissions_manager.cc',
@@ -293,6 +300,7 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/base/common/thread_win32.cc',
     '$OPEN_DIR/base/common/timed_call.cc',
     '$OPEN_DIR/base/common/timed_call_test.cc',
+    '$OPEN_DIR/base/common/time_utils_win32.cc',
     '$OPEN_DIR/base/common/url_utils.cc',
     '$OPEN_DIR/base/common/url_utils_test.cc',
     '$OPEN_DIR/base/common/user_config.cc',
@@ -320,8 +328,6 @@ env.Append(FF3_IDLSRCS = [
 ])
 
 env.Append(FF3_CPPSRCS = [
-    '$OPEN_DIR/base/common/file_posix.cc',
-    '$OPEN_DIR/base/common/file_win32.cc',
     '$OPEN_DIR/base/common/html_event_monitor_ff.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
@@ -333,7 +339,6 @@ env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/base/common/js_runner_ff_marshaling.cc',
     '$OPEN_DIR/base/common/message_queue_ff.cc',
     '$OPEN_DIR/base/common/paths_ff.cc',
-    '$OPEN_DIR/base/common/time_utils_win32.cc',
     '$OPEN_DIR/base/firefox/dom_utils.cc',
     '$OPEN_DIR/base/firefox/module.cc',
     '$OPEN_DIR/base/firefox/ns_file_utils.cc',
@@ -368,23 +373,20 @@ env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
     '$OPEN_DIR/base/common/js_runner_ie.cc',
-    '$OPEN_DIR/base/common/message_queue_ie.cc',
+    '$OPEN_DIR/base/common/message_queue_win32.cc',
     '$OPEN_DIR/base/ie/module.cc',
     '$OPEN_DIR/base/ie/module_wrapper.cc',
     '$OPEN_DIR/base/common/paths_ie.cc',
-    '$OPEN_DIR/base/common/time_utils_win32.cc',
 ])
 
 if env['OS'] == 'win32':
   env.Append(IE_CPPSRCS = [
-      '$OPEN_DIR/base/common/file_win32.cc',
       '$OPEN_DIR/base/common/html_event_monitor_ie.cc',
       '$OPEN_DIR/base/ie/browser_listener.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
   ])
 elif env['OS'] == 'wince':
   env.Append(IE_CPPSRCS = [
-      '$OPEN_DIR/base/common/file_wince.cc',
       '$OPEN_DIR/base/common/html_event_monitor_iemobile.cc',
   ])
 
@@ -413,9 +415,7 @@ env.Append(NPAPI_CPPSRCS = [
 if env['OS'] == 'win32':
   env.Append(NPAPI_CPPSRCS = [
       '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
-      '$OPEN_DIR/base/common/file_win32.cc',
       '$OPEN_DIR/base/common/message_queue_cr.cc',
-      '$OPEN_DIR/base/common/time_utils_win32.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
   ])
 
@@ -424,7 +424,6 @@ if env['OS'] == 'win32':
 env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/base/common/common_sf.mm',
     '$OPEN_DIR/base/common/detect_version_collision_osx.cc',
-    '$OPEN_DIR/base/common/file_posix.cc',
     '$OPEN_DIR/base/common/html_event_monitor_np.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
@@ -443,6 +442,7 @@ env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/base/safari/browser_utils_sf.cc',
     '$OPEN_DIR/base/safari/curl_downloader.mm',
     '$OPEN_DIR/base/safari/messagebox.mm',
+    '$OPEN_DIR/base/safari/proxy_resolver_mac.cc',
     '$OPEN_DIR/base/safari/safari_workarounds.m',
 ])
 
@@ -497,12 +497,13 @@ env.Append(BROWSER_CPPSRCS = [
 
 env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/desktop/desktop.cc',
+    '$OPEN_DIR/desktop/desktop_android.cc',
     '$OPEN_DIR/desktop/desktop_linux.cc',
     '$OPEN_DIR/desktop/desktop_osx.cc',
     '$OPEN_DIR/desktop/desktop_test.cc',
     '$OPEN_DIR/desktop/desktop_win32.cc',
     '$OPEN_DIR/desktop/dll_data_wince.cc',
-    '$OPEN_DIR/desktop/drag_and_drop_registry.cc',
+    '$OPEN_DIR/desktop/drop_target_base.cc',
     '$OPEN_DIR/desktop/drop_target_registration.cc',
     '$OPEN_DIR/desktop/notification_message_orderer.cc',
     '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
@@ -531,12 +532,21 @@ env.Append(BROWSER_CPPSRCS = [
 ])
 
 env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/desktop/drag_and_drop_utils_ff.cc',
     '$OPEN_DIR/desktop/drop_target_ff.cc',
 ])
 
 env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/desktop/drag_and_drop_utils_ie.cc',
     '$OPEN_DIR/desktop/drop_target_ie.cc',
 ])
+
+if not env['OFFICIAL_BUILD']:
+  # The Drag-and-Drop API has not been finalized for official builds.
+  env.Append(SF_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_sf.mm',
+      '$OPEN_DIR/desktop/drop_target_sf.cc',
+  ])
 
 #-----------------------------------------------------------------------------
 # localserver/common
@@ -553,6 +563,7 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/localserver/common/managed_resource_store.cc',
     '$OPEN_DIR/localserver/common/manifest.cc',
     '$OPEN_DIR/localserver/common/resource_store.cc',
+    '$OPEN_DIR/localserver/common/safe_http_request.cc',
     '$OPEN_DIR/localserver/common/update_task.cc',
     '$OPEN_DIR/localserver/common/update_task_single_process.cc',
     '$OPEN_DIR/localserver/file_submitter.cc',
@@ -582,7 +593,6 @@ env.Append(NPAPI_CPPSRCS = [
     '$OPEN_DIR/localserver/chrome/http_cookies_cr.cc',
     '$OPEN_DIR/localserver/chrome/http_request_cr.cc',
     '$OPEN_DIR/localserver/chrome/update_task_cr.cc',
-    '$OPEN_DIR/localserver/common/safe_http_request.cc',
     '$OPEN_DIR/localserver/npapi/async_task_np.cc',
 ])
 
@@ -598,7 +608,6 @@ env.Append(SF_CPPSRCS = [
      '$OPEN_DIR/localserver/safari/localserver_db_proxy.mm',
      '$OPEN_DIR/localserver/common/progress_event.cc',
      '$OPEN_DIR/localserver/safari/progress_input_stream.mm',
-     '$OPEN_DIR/localserver/common/safe_http_request.cc',
      '$OPEN_DIR/localserver/safari/ui_thread.cc'
 ])
 
@@ -607,7 +616,6 @@ env.Append(SF_CPPSRCS = [
 
 env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/localserver/common/progress_event.cc',
-    '$OPEN_DIR/localserver/common/safe_http_request.cc',
     '$OPEN_DIR/localserver/firefox/async_task_ff.cc',
     '$OPEN_DIR/localserver/firefox/cache_intercept.cc',
     '$OPEN_DIR/localserver/firefox/http_request_ff.cc',
@@ -932,11 +940,15 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/geolocation/geolocation_db.cc',
     '$OPEN_DIR/geolocation/geolocation_db_test.cc',
     '$OPEN_DIR/geolocation/geolocation_test.cc',
-    '$OPEN_DIR/geolocation/gps_location_provider_wince.cc',
+    '$OPEN_DIR/geolocation/gps_device_android.cc',
+    '$OPEN_DIR/geolocation/gps_device_wince.cc',
+    '$OPEN_DIR/geolocation/gps_location_provider.cc',
     '$OPEN_DIR/geolocation/location_provider.cc',
     '$OPEN_DIR/geolocation/location_provider_pool.cc',
+    '$OPEN_DIR/geolocation/looper_thread_android.cc',
     '$OPEN_DIR/geolocation/network_location_provider.cc',
     '$OPEN_DIR/geolocation/network_location_request.cc',
+    '$OPEN_DIR/geolocation/radio_data_provider_android.cc',
     '$OPEN_DIR/geolocation/radio_data_provider_wince.cc',
     '$OPEN_DIR/geolocation/reverse_geocoder.cc',
     '$OPEN_DIR/geolocation/timed_callback.cc',

@@ -110,4 +110,18 @@ input_files = [
     '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_x86.s',
 ]
 
+if env['OS'] == 'osx':
+  # Safari-specific SpiderMonkey files.
+  input_files += [
+      '$MOZJS_DIR/nspr/pr/src/md/unix/darwin.c',
+      '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_ppc.s',
+      '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_x86.s',
+  ]
+elif env['OS'] == 'android':
+  # Files needed for Android builds.
+  input_files += [
+      '$MOZJS_DIR/nspr/pr/src/md/unix/linux.c',
+      '$MOZJS_DIR/nspr/pr/src/misc/prlog2.c',
+  ]
+
 env.GearsStaticLibrary('mozjs-gears', input_files)

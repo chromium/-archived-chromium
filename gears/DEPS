@@ -2,7 +2,7 @@
 chrome_rev = ''
 
 # We pull 2 components from the Gears tree at this revision.
-gears_rev = '@2955'
+gears_rev = '@3081'
 
 deps = {
   "src/build":
