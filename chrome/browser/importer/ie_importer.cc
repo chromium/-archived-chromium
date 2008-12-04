@@ -495,7 +495,7 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
     entry.url = url;
     entry.creation_time = GetFileCreationTime(*it);
     if (!relative_path.empty())
-      SplitString(relative_path, file_util::kPathSeparator, &entry.path);
+      file_util::PathComponents(relative_path, &entry.path);
 
     // Flatten the bookmarks in Link folder onto bookmark toolbar. Otherwise,
     // put it into "Other bookmarks".

@@ -29,16 +29,6 @@
 namespace file_util {
 
 //-----------------------------------------------------------------------------
-// Constants
-
-#if defined(OS_WIN)
-// The use of this constant is deprecated. Instead use file_util or FilePath
-// functions (Append, TrimTrailingSeparator, etc.), or use
-// FilePath::kSeparator[0].
-extern const wchar_t kPathSeparator;
-#endif
-
-//-----------------------------------------------------------------------------
 // Functions that operate purely on a path string w/o touching the filesystem:
 
 // Returns a vector of all of the components of the provided path.
@@ -80,6 +70,7 @@ void UpOneDirectoryOrEmpty(std::wstring* dir);
 void TrimFilename(std::wstring* path);
 
 // Returns the filename portion of 'path', without any leading \'s or /'s.
+// Deprecated. Use FilePath::BaseName instead.
 std::wstring GetFilenameFromPath(const std::wstring& path);
 
 // Returns "jpg" for path "C:\pics\jojo.jpg", or an empty string if
@@ -109,9 +100,6 @@ bool AbsolutePath(FilePath* path);
 // Deprecated temporary compatibility function.
 bool AbsolutePath(std::wstring* path);
 
-// TODO(port): create FilePath versions of these functions, and remove this
-// platform define.
-#if defined(OS_WIN)
 // Inserts |suffix| after the file name portion of |path| but before the
 // extension.
 // Examples:
@@ -119,11 +107,17 @@ bool AbsolutePath(std::wstring* path);
 // path == "jojo.jpg"         suffix == " (1)", returns "jojo (1).jpg"
 // path == "C:\pics\jojo"     suffix == " (1)", returns "C:\pics\jojo (1)"
 // path == "C:\pics.old\jojo" suffix == " (1)", returns "C:\pics.old\jojo (1)"
-void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix);
+void InsertBeforeExtension(FilePath* path, const FilePath::StringType& suffix);
 
 // Replaces the extension of |file_name| with |extension|.  If |file_name|
 // does not have an extension, them |extension| is added.  If |extension| is
 // empty, then the extension is removed from |file_name|.
+void ReplaceExtension(FilePath* file_name,
+                      const FilePath::StringType& extension);
+
+#if defined(OS_WIN)
+// Deprecated temporary compatibility functions.
+void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix);
 void ReplaceExtension(std::wstring* file_name, const std::wstring& extension);
 #endif
 

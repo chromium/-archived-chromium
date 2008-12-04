@@ -16,6 +16,12 @@
 #include "base/string_piece.h"
 #include "base/sys_string_conversions.h"
 
+namespace {
+
+const FilePath::CharType kExtensionSeparator = FILE_PATH_LITERAL('.');
+
+}
+
 namespace file_util {
 
 void PathComponents(const FilePath& path,
@@ -73,13 +79,6 @@ void TrimTrailingSeparator(std::wstring* dir) {
     dir->resize(dir->length() - 1);
 }
 
-std::wstring GetFilenameFromPath(const std::wstring& path) {
-  // TODO(erikkay): fix this - it's not using kPathSeparator, but win unit test
-  // are exercising '/' as a path separator as well.
-  std::wstring::size_type pos = path.find_last_of(L"\\/");
-  return std::wstring(path, pos == std::wstring::npos ? 0 : pos + 1);
-}
-
 std::wstring GetFileExtensionFromPath(const std::wstring& path) {
   std::wstring file_name = GetFilenameFromPath(path);
   std::wstring::size_type last_dot = file_name.rfind(L'.');
@@ -92,6 +91,53 @@ std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path) {
   std::wstring file_name = GetFilenameFromPath(path);
   std::wstring::size_type last_dot = file_name.rfind(L'.');
   return file_name.substr(0, last_dot);
+}
+
+void InsertBeforeExtension(FilePath* path, const FilePath::StringType& suffix) {
+  FilePath::StringType& value =
+      const_cast<FilePath::StringType&>(path->value());
+
+  const FilePath::StringType::size_type last_dot =
+      value.rfind(kExtensionSeparator);
+  const FilePath::StringType::size_type last_separator =
+      value.find_last_of(FilePath::StringType(FilePath::kSeparators));
+
+  if (last_dot == FilePath::StringType::npos ||
+      (last_separator != std::wstring::npos && last_dot < last_separator)) {
+    // The path looks something like "C:\pics.old\jojo" or "C:\pics\jojo".
+    // We should just append the suffix to the entire path.
+    value.append(suffix);
+    return;
+  }
+
+  value.insert(last_dot, suffix);
+}
+
+void ReplaceExtension(FilePath* path, const FilePath::StringType& extension) {
+  FilePath::StringType clean_extension;
+  // If the new extension is "" or ".", then we will just remove the current
+  // extension.
+  if (!extension.empty() &&
+      extension != FilePath::StringType(&kExtensionSeparator, 1)) {
+    if (extension[0] != kExtensionSeparator)
+      clean_extension.append(&kExtensionSeparator, 1);
+    clean_extension.append(extension);
+  }
+
+  FilePath::StringType& value =
+      const_cast<FilePath::StringType&>(path->value());
+  const FilePath::StringType::size_type last_dot =
+      value.rfind(kExtensionSeparator);
+  const FilePath::StringType::size_type last_separator =
+      value.find_last_of(FilePath::StringType(FilePath::kSeparators));
+
+  // Erase the current extension, if any.
+  if ((last_dot > last_separator ||
+      last_separator == FilePath::StringType::npos) &&
+      last_dot != FilePath::StringType::npos)
+    value.erase(last_dot);
+
+  value.append(clean_extension);
 }
 
 void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
@@ -294,6 +340,12 @@ bool GetCurrentDirectory(std::wstring* path_str) {
 }
 bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
   return GetFileInfo(FilePath::FromWStringHack(file_path), results);
+}
+std::wstring GetFilenameFromPath(const std::wstring& path) {
+  if (path.empty() || EndsWithSeparator(path))
+    return std::wstring();
+
+  return FilePath::FromWStringHack(path).BaseName().ToWStringHack();
 }
 bool GetFileSize(const std::wstring& file_path, int64* file_size) {
   return GetFileSize(FilePath::FromWStringHack(file_path), file_size);

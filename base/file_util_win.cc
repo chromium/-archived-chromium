@@ -18,14 +18,6 @@
 
 namespace file_util {
 
-const wchar_t kPathSeparator = L'\\';
-const wchar_t kExtensionSeparator = L'.';
-
-void PathComponents(const std::wstring& path,
-                    std::vector<std::wstring>* components) {
-  PathComponents(FilePath(path), components);
-}
-
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   wchar_t path_buffer[MAX_PATH];
   wchar_t* file_ptr = NULL;
@@ -47,55 +39,6 @@ bool AbsolutePath(FilePath* path) {
   return true;
 }
 
-void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix) {
-  DCHECK(path);
-
-  const std::wstring::size_type last_dot = path->rfind(kExtensionSeparator);
-  const std::wstring::size_type last_sep = path->rfind(kPathSeparator);
-
-  if (last_dot == std::wstring::npos ||
-      (last_sep != std::wstring::npos && last_dot < last_sep)) {
-    // The path looks something like "C:\pics.old\jojo" or "C:\pics\jojo".
-    // We should just append the suffix to the entire path.
-    path->append(suffix);
-    return;
-  }
-
-  path->insert(last_dot, suffix);
-}
-
-// Appends the extension to file adding a '.' if extension doesn't contain one.
-// This does nothing if extension is empty or '.'. This is used internally by
-// ReplaceExtension.
-static void AppendExtension(const std::wstring& extension,
-                            std::wstring* file) {
-  if (!extension.empty() && extension != L".") {
-    if (extension[0] != L'.')
-      file->append(L".");
-    file->append(extension);
-  }
-}
-
-void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
-  const std::wstring::size_type last_dot = file_name->rfind(L'.');
-  if (last_dot == std::wstring::npos) {
-    // No extension, just append the supplied extension.
-    AppendExtension(extension, file_name);
-    return;
-  }
-  const std::wstring::size_type last_separator =
-      file_name->rfind(kPathSeparator);
-  if (last_separator != std::wstring::npos && last_dot < last_separator) {
-    // File name doesn't have extension, but one of the directories does; don't
-    // replace it, just append the supplied extension. For example
-    // 'c:\tmp.bar\foo'.
-    AppendExtension(extension, file_name);
-    return;
-  }
-  std::wstring result = file_name->substr(0, last_dot);
-  AppendExtension(extension, &result);
-  file_name->swap(result);
-}
 int CountFilesCreatedAfter(const std::wstring& path,
                            const FILETIME& comparison_time) {
   int file_count = 0;
@@ -750,5 +693,23 @@ std::wstring FileEnumerator::Next() {
     return (file_type_ & FileEnumerator::DIRECTORIES) ? cur_file : Next();
   }
   return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
+}
+
+// Deprecated functions ----------------------------------------------------
+
+void InsertBeforeExtension(std::wstring* path_str,
+                           const std::wstring& suffix) {
+  FilePath path(*path_str);
+  InsertBeforeExtension(&path, suffix);
+  path_str->assign(path.value());
+}
+void PathComponents(const std::wstring& path,
+                    std::vector<std::wstring>* components) {
+  PathComponents(FilePath(path), components);
+}
+void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
+  FilePath path(*file_name);
+  ReplaceExtension(&path, extension);
+  file_name->assign(path.value());
 }
 }  // namespace file_util

@@ -28,7 +28,7 @@ class WebDatabaseTest : public testing::Test {
     _itow_s(static_cast<int>(GetTickCount()), b, arraysize(b), 10);
 
     PathService::Get(chrome::DIR_TEST_DATA, &file_);
-    file_ += file_util::kPathSeparator;
+    file_ += FilePath::kSeparators[0];
     file_ += L"TestWebDatabase";
     file_ += b;
     file_ += L".db";

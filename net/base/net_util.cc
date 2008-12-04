@@ -49,7 +49,8 @@ using base::Time;
 namespace {
 
 // what we prepend to get a file URL
-static const wchar_t kFileURLPrefix[] = L"file:///";
+static const FilePath::CharType kFileURLPrefix[] =
+    FILE_PATH_LITERAL("file:///");
 
 // The general list of blocked ports. Will be blocked unless a specific
 // protocol overrides it. (Ex: ftp can use ports 20 and 21)
@@ -638,12 +639,12 @@ void IDNToUnicodeOneComponent(const char16* comp,
 
 namespace net {
 
-GURL FilePathToFileURL(const std::wstring& file_path) {
+GURL FilePathToFileURL(const FilePath& path) {
   // Produce a URL like "file:///C:/foo" for a regular file, or
   // "file://///server/path" for UNC. The URL canonicalizer will fix up the
   // latter case to be the canonical UNC form: "file://server/path"
-  std::wstring url_str(kFileURLPrefix);
-  url_str.append(file_path);
+  FilePath::StringType url_string(kFileURLPrefix);
+  url_string.append(path.value());
 
   // Now do replacement of some characters. Since we assume the input is a
   // literal filename, anything the URL parser might consider special should
@@ -651,18 +652,21 @@ GURL FilePathToFileURL(const std::wstring& file_path) {
 
   // must be the first substitution since others will introduce percents as the
   // escape character
-  ReplaceSubstringsAfterOffset(&url_str, 0, L"%", L"%25");
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL("%"), FILE_PATH_LITERAL("%25"));
 
   // semicolon is supposed to be some kind of separator according to RFC 2396
-  ReplaceSubstringsAfterOffset(&url_str, 0, L";", L"%3B");
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL(";"), FILE_PATH_LITERAL("%3B"));
 
-  ReplaceSubstringsAfterOffset(&url_str, 0, L"#", L"%23");
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+      FILE_PATH_LITERAL("#"), FILE_PATH_LITERAL("%23"));
 
-#if defined(WCHAR_T_IS_UTF32)
-  return GURL(WideToUTF8(url_str));
-#else
-  return GURL(url_str);
-#endif
+  return GURL(url_string);
+}
+
+GURL FilePathToFileURL(const std::wstring& path_str) {
+  return FilePathToFileURL(FilePath::FromWStringHack(path_str));
 }
 
 std::wstring GetSpecificHeader(const std::wstring& headers,

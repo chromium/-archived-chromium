@@ -230,7 +230,7 @@ TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
 TEST_F(BrowserTest, DuplicateTab) {
   std::wstring path_prefix = test_data_directory_;
   file_util::AppendToPath(&path_prefix, L"session_history");
-  path_prefix += file_util::kPathSeparator;
+  path_prefix += FilePath::kSeparators[0];
   GURL url1 = net::FilePathToFileURL(path_prefix + L"bot1.html");
   GURL url2 = net::FilePathToFileURL(path_prefix + L"bot2.html");
   GURL url3 = GURL("about:blank");

@@ -41,7 +41,7 @@ class VisitDatabaseTest : public testing::Test,
   // Test setup.
   void SetUp() {
     PathService::Get(base::DIR_TEMP, &db_file_);
-    db_file_.push_back(file_util::kPathSeparator);
+    db_file_.push_back(FilePath::kSeparators[0]);
     db_file_.append(L"VisitTest.db");
     file_util::Delete(db_file_, false);
 

@@ -102,7 +102,7 @@ class DownloadTest : public UITest {
   virtual void SetUp() {
     UITest::SetUp();
     download_prefix_ = GetDownloadDirectory();
-    download_prefix_ += file_util::kPathSeparator;
+    download_prefix_ += FilePath::kSeparators[0];
   }
 
  protected:

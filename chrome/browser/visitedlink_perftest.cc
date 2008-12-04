@@ -34,14 +34,12 @@ VisitedLinkMaster::PostNewTableEvent DummyBroadcastNewTableEvent;
 void DummyBroadcastNewTableEvent(base::SharedMemory *table) {
 }
 
-// Call at the beginning of the test to retrieve the database name and to
-// delete any old databases left by previous unit tests. The input buffer
-// should be MAX_PATH long.
-void InitDBName(wchar_t* db_name) {
-  ASSERT_TRUE(GetCurrentDirectory(MAX_PATH, db_name));
-  if (db_name[wcslen(db_name) - 1] != file_util::kPathSeparator)
-    wcsncat_s(db_name, MAX_PATH, &file_util::kPathSeparator, 1);
-  wcscat_s(db_name, MAX_PATH, L"TempVisitedLinks");
+// Call at the beginning of the test to retrieve the database name.
+void InitDBName(std::wstring* db_name) {
+  FilePath db_path;
+  ASSERT_TRUE(file_util::GetCurrentDirectory(&db_path));
+  db_path = db_path.Append(FILE_PATH_LITERAL("TempVisitedLinks"));
+  *db_name = db_path.ToWStringHack();
 }
 
 // this checks IsVisited for the URLs starting with the given prefix and
@@ -62,13 +60,13 @@ void FillTable(VisitedLinkMaster& master, const char* prefix,
 
 class VisitedLink : public testing::Test {
  protected:
-  wchar_t db_name_[MAX_PATH];
+  std::wstring db_name_;
   virtual void SetUp() {
-    InitDBName(db_name_);
-    DeleteFile(db_name_);
+    InitDBName(&db_name_);
+    file_util::Delete(db_name_, false);
   }
   virtual void TearDown() {
-    DeleteFile(db_name_);
+    file_util::Delete(db_name_, false);
   }
 };
 
@@ -145,7 +143,7 @@ TEST_F(VisitedLink, TestLoad) {
   for (int i = 0; i < load_count; i++)
   {
     // make sure the file has to be re-loaded
-    file_util::EvictFileFromSystemCache(db_name_);
+    file_util::EvictFileFromSystemCache(db_name_.c_str());
 
     // cold load (no OS cache, hopefully)
     {

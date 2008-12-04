@@ -45,7 +45,7 @@ class Database {
     // get an empty file for the test DB
     std::wstring filename;
     PathService::Get(base::DIR_TEMP, &filename);
-    filename.push_back(file_util::kPathSeparator);
+    filename.push_back(FilePath::kSeparators[0]);
     filename.append(ASCIIToWide(name));
 
     if (create) {
@@ -390,7 +390,7 @@ class SafeBrowsingDatabaseTest {
         logging::DELETE_OLD_LOG_FILE);
 
     PathService::Get(base::DIR_TEMP, &filename_);
-    filename_.push_back(file_util::kPathSeparator);
+    filename_.push_back(FilePath::kSeparators[0]);
     filename_.append(name);
   }
 

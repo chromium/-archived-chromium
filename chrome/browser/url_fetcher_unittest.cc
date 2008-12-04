@@ -263,7 +263,7 @@ URLFetcherBadHTTPSTest::URLFetcherBadHTTPSTest() {
   PathService::Get(base::DIR_SOURCE_ROOT, &cert_dir_);
   cert_dir_ += L"/chrome/test/data/ssl/certificates/";
   std::replace(cert_dir_.begin(), cert_dir_.end(),
-               L'/', file_util::kPathSeparator);
+               L'/', FilePath::kSeparators[0]);
 }
 
 // The "server certificate expired" error should result in automatic

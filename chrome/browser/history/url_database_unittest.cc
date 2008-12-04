@@ -39,7 +39,7 @@ class URLDatabaseTest : public testing::Test,
   // Test setup.
   void SetUp() {
     PathService::Get(base::DIR_TEMP, &db_file_);
-    db_file_.push_back(file_util::kPathSeparator);
+    db_file_.push_back(FilePath::kSeparators[0]);
     db_file_.append(L"URLTest.db");
 
     EXPECT_EQ(SQLITE_OK, sqlite3_open(WideToUTF8(db_file_).c_str(), &db_));

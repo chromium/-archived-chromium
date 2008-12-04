@@ -92,13 +92,13 @@ bool MinidumpCallback(const wchar_t *dumpPath,
   // will be happening on developers' machines where they have debuggers.
   StackWString<kPathBufSize * 2> origPath;
   origPath->append(dumpPath);
-  origPath->push_back(file_util::kPathSeparator);
+  origPath->push_back(FilePath::kSeparators[0]);
   origPath->append(minidumpID);
   origPath->append(L".dmp");
 
   StackWString<kPathBufSize * 2> newPath;
   newPath->append(dumpPath);
-  newPath->push_back(file_util::kPathSeparator);
+  newPath->push_back(FilePath::kSeparators[0]);
   newPath->append(g_currentTestName);
   newPath->append(L"-");
   newPath->append(minidumpID);
@@ -329,7 +329,7 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
     file_util::AppendToPath(&replace_url, L"data");
     file_util::AppendToPath(&replace_url, L"layout_tests");
     file_util::AppendToPath(&replace_url, L"LayoutTests");
-    replace_url.push_back(file_util::kPathSeparator);
+    replace_url.push_back(FilePath::kSeparators[0]);
     new_url = std::string("file:///") +
               WideToUTF8(replace_url).append(url.substr(kPrefixLen));
   }

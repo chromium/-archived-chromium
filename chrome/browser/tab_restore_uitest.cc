@@ -21,7 +21,7 @@ class TabRestoreUITest : public UITest {
   TabRestoreUITest() : UITest() {
     std::wstring path_prefix = test_data_directory_;
     file_util::AppendToPath(&path_prefix, L"session_history");
-    path_prefix += file_util::kPathSeparator;
+    path_prefix += FilePath::kSeparators[0];
     url1_ = net::FilePathToFileURL(path_prefix + L"bot1.html");
     url2_ = net::FilePathToFileURL(path_prefix + L"bot2.html");
   }

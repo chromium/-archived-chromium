@@ -21,13 +21,16 @@ namespace {
 class SessionRestoreUITest : public UITest {
  protected:
   SessionRestoreUITest() : UITest() {
-    std::wstring path_prefix = test_data_directory_;
-    file_util::AppendToPath(&path_prefix, L"session_history");
-    path_prefix += file_util::kPathSeparator;
+    FilePath path_prefix = FilePath::FromWStringHack(test_data_directory_);
+    path_prefix = path_prefix.Append(FILE_PATH_LITERAL("session_history"))
+        .Append(FilePath::StringType(&FilePath::kSeparators[0], 1));
 
-    url1 = net::FilePathToFileURL(path_prefix + L"bot1.html");
-    url2 = net::FilePathToFileURL(path_prefix + L"bot2.html");
-    url3 = net::FilePathToFileURL(path_prefix + L"bot3.html");
+    url1 = net::FilePathToFileURL(
+        path_prefix.Append(FILE_PATH_LITERAL("bot1.html")));
+    url2 = net::FilePathToFileURL(
+        path_prefix.Append(FILE_PATH_LITERAL("bot2.html")));
+    url3 = net::FilePathToFileURL(
+        path_prefix.Append(FILE_PATH_LITERAL("bot3.html")));
   }
 
   virtual void QuitBrowserAndRestore() {

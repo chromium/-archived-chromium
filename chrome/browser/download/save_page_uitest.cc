@@ -52,7 +52,7 @@ class SavePageTest : public UITest {
   virtual void SetUp() {
     UITest::SetUp();
     EXPECT_TRUE(file_util::CreateNewTempDirectory(L"", &save_dir_));
-    save_dir_ += file_util::kPathSeparator;
+    save_dir_ += FilePath::kSeparators[0];
   }
 
   std::wstring save_dir_;

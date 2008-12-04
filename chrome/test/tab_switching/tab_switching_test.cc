@@ -33,7 +33,7 @@ class TabSwitchingUITest : public UITest {
     file_util::UpOneDirectory(&path_prefix_);
     file_util::AppendToPath(&path_prefix_, L"data");
     file_util::AppendToPath(&path_prefix_, L"tab_switching");
-    path_prefix_ += file_util::kPathSeparator;
+    path_prefix_ += FilePath::kSeparators[0];
 
     show_window_ = true;
   }
@@ -120,7 +120,7 @@ class TabSwitchingUITest : public UITest {
     for (int i = 0; i < arraysize(files); ++i) {
       file_name = path_prefix_;
       file_name += files[i];
-      file_name += file_util::kPathSeparator;
+      file_name += FilePath::kSeparators[0];
       file_name += L"index.html";
       browser_proxy_->AppendTab(net::FilePathToFileURL(file_name));
       number_of_new_tabs_opened++;

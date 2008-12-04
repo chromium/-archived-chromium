@@ -147,29 +147,27 @@ TEST_F(FileUtilTest, AppendToPath) {
 #endif
 }
 
-// TODO(port): enable this test for non-Windows.
-#if defined(OS_WIN)
 static const struct InsertBeforeExtensionCase {
   std::wstring path;
-  std::wstring suffix;
+  FilePath::StringType suffix;
   std::wstring result;
 } kInsertBeforeExtension[] = {
-  {L"", L"", L""},
-  {L"", L"txt", L"txt"},
-  {L".", L"txt", L"txt."},
-  {L".", L"", L"."},
-  {L"foo.dll", L"txt", L"footxt.dll"},
-  {L"foo.dll", L".txt", L"foo.txt.dll"},
-  {L"foo", L"txt", L"footxt"},
-  {L"foo", L".txt", L"foo.txt"},
-  {L"foo.baz.dll", L"txt", L"foo.baztxt.dll"},
-  {L"foo.baz.dll", L".txt", L"foo.baz.txt.dll"},
-  {L"foo.dll", L"", L"foo.dll"},
-  {L"foo.dll", L".", L"foo..dll"},
-  {L"foo", L"", L"foo"},
-  {L"foo", L".", L"foo."},
-  {L"foo.baz.dll", L"", L"foo.baz.dll"},
-  {L"foo.baz.dll", L".", L"foo.baz..dll"},
+  {L"", FILE_PATH_LITERAL(""), L""},
+  {L"", FILE_PATH_LITERAL("txt"), L"txt"},
+  {L".", FILE_PATH_LITERAL("txt"), L"txt."},
+  {L".", FILE_PATH_LITERAL(""), L"."},
+  {L"foo.dll", FILE_PATH_LITERAL("txt"), L"footxt.dll"},
+  {L"foo.dll", FILE_PATH_LITERAL(".txt"), L"foo.txt.dll"},
+  {L"foo", FILE_PATH_LITERAL("txt"), L"footxt"},
+  {L"foo", FILE_PATH_LITERAL(".txt"), L"foo.txt"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL("txt"), L"foo.baztxt.dll"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL(".txt"), L"foo.baz.txt.dll"},
+  {L"foo.dll", FILE_PATH_LITERAL(""), L"foo.dll"},
+  {L"foo.dll", FILE_PATH_LITERAL("."), L"foo..dll"},
+  {L"foo", FILE_PATH_LITERAL(""), L"foo"},
+  {L"foo", FILE_PATH_LITERAL("."), L"foo."},
+  {L"foo.baz.dll", FILE_PATH_LITERAL(""), L"foo.baz.dll"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL("."), L"foo.baz..dll"},
 #if defined(OS_WIN)
   {L"\\", L"", L"\\"},
   {L"\\", L"txt", L"\\txt"},
@@ -184,29 +182,28 @@ static const struct InsertBeforeExtensionCase {
   {L"C:\\bar.baz\\foo.dll.exe", L"", L"C:\\bar.baz\\foo.dll.exe"},
   {L"C:\\bar\\baz\\foo.exe", L" (1)", L"C:\\bar\\baz\\foo (1).exe"},
 #elif defined(OS_POSIX)
-  {L"/", L"", L"/"},
-  {L"/", L"txt", L"/txt"},
-  {L"/.", L"txt", L"/txt."},
-  {L"/.", L"", L"/."},
-  {L"/bar/foo.dll", L"txt", L"/bar/footxt.dll"},
-  {L"/bar.baz/foodll", L"txt", L"/bar.baz/foodlltxt"},
-  {L"/bar.baz/foo.dll", L"txt", L"/bar.baz/footxt.dll"},
-  {L"/bar.baz/foo.dll.exe", L"txt", L"/bar.baz/foo.dlltxt.exe"},
-  {L"/bar.baz/foo", L"", L"/bar.baz/foo"},
-  {L"/bar.baz/foo.exe", L"", L"/bar.baz/foo.exe"},
-  {L"/bar.baz/foo.dll.exe", L"", L"/bar.baz/foo.dll.exe"},
-  {L"/bar/baz/foo.exe", L" (1)", L"/bar/baz/foo (1).exe"},
+  {L"/", "", L"/"},
+  {L"/", "txt", L"/txt"},
+  {L"/.", "txt", L"/txt."},
+  {L"/.", "", L"/."},
+  {L"/bar/foo.dll", "txt", L"/bar/footxt.dll"},
+  {L"/bar.baz/foodll", "txt", L"/bar.baz/foodlltxt"},
+  {L"/bar.baz/foo.dll", "txt", L"/bar.baz/footxt.dll"},
+  {L"/bar.baz/foo.dll.exe", "txt", L"/bar.baz/foo.dlltxt.exe"},
+  {L"/bar.baz/foo", "", L"/bar.baz/foo"},
+  {L"/bar.baz/foo.exe", "", L"/bar.baz/foo.exe"},
+  {L"/bar.baz/foo.dll.exe", "", L"/bar.baz/foo.dll.exe"},
+  {L"/bar/baz/foo.exe", " (1)", L"/bar/baz/foo (1).exe"},
 #endif
 };
 
 TEST_F(FileUtilTest, InsertBeforeExtensionTest) {
   for (unsigned int i = 0; i < arraysize(kInsertBeforeExtension); ++i) {
-    std::wstring path(kInsertBeforeExtension[i].path);
+    FilePath path = FilePath::FromWStringHack(kInsertBeforeExtension[i].path);
     file_util::InsertBeforeExtension(&path, kInsertBeforeExtension[i].suffix);
-    EXPECT_EQ(path, kInsertBeforeExtension[i].result);
+    EXPECT_EQ(kInsertBeforeExtension[i].result, path.ToWStringHack());
   }
 }
-#endif  // defined(OS_WIN)
 
 static const struct filename_case {
   const wchar_t* path;
@@ -788,51 +785,48 @@ TEST_F(FileUtilTest, ReplaceIllegalCharactersTest) {
   }
 }
 
-// TODO(port): enable this test for non-windows.
-#if defined(OS_WIN)
 static const struct ReplaceExtensionCase {
   std::wstring file_name;
-  std::wstring extension;
+  FilePath::StringType extension;
   std::wstring result;
 } kReplaceExtension[] = {
-  {L"", L"", L""},
-  {L"", L"txt", L".txt"},
-  {L".", L"txt", L".txt"},
-  {L".", L"", L""},
-  {L"foo.dll", L"txt", L"foo.txt"},
-  {L"foo.dll", L".txt", L"foo.txt"},
-  {L"foo", L"txt", L"foo.txt"},
-  {L"foo", L".txt", L"foo.txt"},
-  {L"foo.baz.dll", L"txt", L"foo.baz.txt"},
-  {L"foo.baz.dll", L".txt", L"foo.baz.txt"},
-  {L"foo.dll", L"", L"foo"},
-  {L"foo.dll", L".", L"foo"},
-  {L"foo", L"", L"foo"},
-  {L"foo", L".", L"foo"},
-  {L"foo.baz.dll", L"", L"foo.baz"},
-  {L"foo.baz.dll", L".", L"foo.baz"},
+  {L"", FILE_PATH_LITERAL(""), L""},
+  {L"", FILE_PATH_LITERAL("txt"), L".txt"},
+  {L".", FILE_PATH_LITERAL("txt"), L".txt"},
+  {L".", FILE_PATH_LITERAL(""), L""},
+  {L"foo.dll", FILE_PATH_LITERAL("txt"), L"foo.txt"},
+  {L"foo.dll", FILE_PATH_LITERAL(".txt"), L"foo.txt"},
+  {L"foo", FILE_PATH_LITERAL("txt"), L"foo.txt"},
+  {L"foo", FILE_PATH_LITERAL(".txt"), L"foo.txt"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL("txt"), L"foo.baz.txt"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL(".txt"), L"foo.baz.txt"},
+  {L"foo.dll", FILE_PATH_LITERAL(""), L"foo"},
+  {L"foo.dll", FILE_PATH_LITERAL("."), L"foo"},
+  {L"foo", FILE_PATH_LITERAL(""), L"foo"},
+  {L"foo", FILE_PATH_LITERAL("."), L"foo"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL(""), L"foo.baz"},
+  {L"foo.baz.dll", FILE_PATH_LITERAL("."), L"foo.baz"},
 };
 
 TEST_F(FileUtilTest, ReplaceExtensionTest) {
   for (unsigned int i = 0; i < arraysize(kReplaceExtension); ++i) {
-    std::wstring file_name(kReplaceExtension[i].file_name);
-    file_util::ReplaceExtension(&file_name, kReplaceExtension[i].extension);
-    EXPECT_EQ(file_name, kReplaceExtension[i].result);
+    FilePath path = FilePath::FromWStringHack(kReplaceExtension[i].file_name);
+    file_util::ReplaceExtension(&path, kReplaceExtension[i].extension);
+    EXPECT_EQ(kReplaceExtension[i].result, path.ToWStringHack());
   }
 }
 
 // Make sure ReplaceExtension doesn't replace an extension that occurs as one of
 // the directory names of the path.
 TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
-  std::wstring path;
-  file_util::AppendToPath(&path, L"foo.bar");
-  file_util::AppendToPath(&path, L"foo");
+  FilePath path;
+  path = path.Append(FILE_PATH_LITERAL("foo.bar"));
+  path = path.Append(FILE_PATH_LITERAL("foo"));
   // '/foo.bar/foo' with extension '.baz'
-  std::wstring result_path = path;
-  file_util::ReplaceExtension(&result_path, L".baz");
-  EXPECT_EQ(path + L".baz", result_path);
+  FilePath result_path = path;
+  file_util::ReplaceExtension(&result_path, FILE_PATH_LITERAL(".baz"));
+  EXPECT_EQ(path.ToWStringHack() + L".baz", result_path.ToWStringHack());
 }
-#endif  // defined(OS_WIN)
 
 TEST_F(FileUtilTest, FileEnumeratorTest) {
   // Test an empty directory.
