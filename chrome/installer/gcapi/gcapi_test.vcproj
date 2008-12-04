@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="gcapi_test"
+	ProjectGUID="{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}"
+	RootNamespace="gcapi_test"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops"
+			>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops"
+			>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<File
+			RelativePath=".\gcapi_test.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\gcapi.h"
+			>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

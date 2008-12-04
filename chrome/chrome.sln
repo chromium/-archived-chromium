@@ -1921,8 +1921,26 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "te", "app\locales\te.vcproj
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcapi_lib", "installer\gcapi\gcapi_lib.vcproj", "{CD2FD73A-6AAB-4886-B887-760D18E8B635}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcapi_dll", "installer\gcapi\gcapi_dll.vcproj", "{B802A2FE-E4E2-4F5A-905A-D5128875C954}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcapi_test", "installer\gcapi\gcapi_test.vcproj", "{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{B802A2FE-E4E2-4F5A-905A-D5128875C954} = {B802A2FE-E4E2-4F5A-905A-D5128875C954}
+		{CD2FD73A-6AAB-4886-B887-760D18E8B635} = {CD2FD73A-6AAB-4886-B887-760D18E8B635}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -2714,6 +2732,14 @@ Global
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C}.Release|Win32.ActiveCfg = Release|Win32
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C}.Release|Win32.Build.0 = Release|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Debug|Win32.Build.0 = Debug|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Release|Win32.ActiveCfg = Release|Win32
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}.Release|Win32.Build.0 = Release|Win32
 		{B802A2FE-E4E2-4F5A-905A-D5128875C954}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{B802A2FE-E4E2-4F5A-905A-D5128875C954}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{B802A2FE-E4E2-4F5A-905A-D5128875C954}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -3233,6 +3259,7 @@ Global
 		{B2D715CE-4CBB-415A-A032-E700C90ADF91} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{B30B0E1F-1CE9-4DEF-A752-7498FD709C1F} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C} = {873D095E-150E-4262-8C41-2D8ED02F0F57}
+		{B64B396B-8EF1-4B6B-A07E-48D40EB961AB} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
 		{B802A2FE-E4E2-4F5A-905A-D5128875C954} = {EB684A4B-98F7-4E68-8EA7-EA74ACF7060B}
 		{B84553C8-5676-427B-B3E4-23DDDC4DBC7B} = {EF78C1F9-AA17-4CA5-B6CB-39B37A73A3DA}
 		{B92AE829-E1CD-4781-824A-DCB1603A1672} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
