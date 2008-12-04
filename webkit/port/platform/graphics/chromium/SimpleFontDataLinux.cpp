@@ -39,24 +39,11 @@ void SimpleFontData::platformInit()
         m_descent = SkScalarCeil(metrics.fHeight) - m_ascent;
     }
 
-    GlyphPage* glyphPageZero = GlyphPageTreeNode::getRootChild(this, 0)->page();
-    if (!glyphPageZero)
-      return;
-
-    static const UChar32 x_char = 'x';
-    const Glyph x_glyph = glyphPageZero->glyphDataForCharacter(x_char).glyph;
-
-    if (x_glyph) {
-      // If the face includes a glyph for x we measure its height exactly.
-      SkRect xbox;
-
-      paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-      paint.measureText(&x_glyph, 2, &xbox);
-
-      m_xHeight = -xbox.fTop;
+    if (metrics.fXHeight) {
+        m_xHeight = metrics.fXHeight;
     } else {
-      // hack taken from the Windows port
-      m_xHeight = static_cast<float>(m_ascent) * 0.56;
+        // hack taken from the Windows port
+        m_xHeight = static_cast<float>(m_ascent) * 0.56;
     }
 
     m_lineGap = SkScalarRound(metrics.fLeading);
@@ -71,10 +58,17 @@ void SimpleFontData::platformInit()
     if (metrics.fAvgCharWidth) {
         m_avgCharWidth = SkScalarRound(metrics.fAvgCharWidth);
     } else {
-        if (x_glyph) {
-          m_avgCharWidth = widthForGlyph(x_glyph);
-        } else {
-          m_avgCharWidth = m_xHeight;
+        m_avgCharWidth = m_xHeight;
+
+        GlyphPage* glyphPageZero = GlyphPageTreeNode::getRootChild(this, 0)->page();
+
+        if (glyphPageZero) {
+            static const UChar32 x_char = 'x';
+            const Glyph x_glyph = glyphPageZero->glyphDataForCharacter(x_char).glyph;
+
+            if (x_glyph) {
+                m_avgCharWidth = widthForGlyph(x_glyph);
+            }
         }
     }
 }

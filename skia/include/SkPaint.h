@@ -592,6 +592,7 @@ public:
                                     //   in units of em. It's used to calculate a value which
                                     //   matches Windows's GetTextMetrics tmMaxCharWidth
                                     //   member exactly.
+        SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
 
         // VDMX values are exact ascent and descent values for scalable fonts at
         // a certain pixel size.

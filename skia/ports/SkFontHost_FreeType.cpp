@@ -810,6 +810,17 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
     ys[5] = face->height;
     ys[6] = os2 ? os2->xAvgCharWidth : 0;
 
+    SkScalar x_height;
+    const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
+    if (x_glyph) {
+        FT_BBox bbox;
+        FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
+        FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
+        x_height = static_cast<SkScalar>(bbox.yMax) / 64;
+    } else {
+        x_height = 0;
+    }
+
     // convert upem-y values into scalar points
     for (int i = 0; i < 7; i++)
     {
@@ -829,6 +840,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         mx->fHeight = pts[5].fX;
         mx->fAvgCharWidth = pts[6].fX;
         mx->fXRange = xrange;
+        mx->fXHeight = x_height;
 
         // The VDMX metrics only make sense in the horizontal direction
         // I believe
@@ -844,6 +856,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fHeight = pts[5].fY;
         my->fAvgCharWidth = pts[6].fY;
         my->fXRange = xrange;
+        my->fXHeight = x_height;
         my->fVDMXMetricsValid = false;
 
         // Attempt to parse the VDMX table to get exact metrics
