@@ -193,3 +193,9 @@ SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
 LINUX : chrome/fonts/impact.html = FAIL
 // Expects Lucida Grande to exist.
 LINUX : chrome/fonts/lucida-grande.html = FAIL
+
+// This test times out in debug mode.  It is testing arbitrary limits
+// on the sizes of regular expressions.  We handle larger regular 
+// expressions than JSCRE, but it takes a long time to run this test
+// because it repeatedly creates big regular expressions.
+DEBUG : LayoutTests/fast/js/regexp-charclass-crash.html = PASS TIMEOUT
