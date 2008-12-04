@@ -811,14 +811,18 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
     ys[6] = os2 ? os2->xAvgCharWidth : 0;
 
     SkScalar x_height;
-    const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
-    if (x_glyph) {
-        FT_BBox bbox;
-        FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
-        FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
-        x_height = static_cast<SkScalar>(bbox.yMax) / 64;
+    if (os2 && os2->sxHeight) {
+        x_height = static_cast<SkScalar>(os2->sxHeight) / 64;
     } else {
-        x_height = 0;
+        const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
+        if (x_glyph) {
+            FT_BBox bbox;
+            FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
+            FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
+            x_height = static_cast<SkScalar>(bbox.yMax) / 64;
+        } else {
+            x_height = 0;
+        }
     }
 
     // convert upem-y values into scalar points
