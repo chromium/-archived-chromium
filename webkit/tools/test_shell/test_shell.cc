@@ -124,6 +124,7 @@ TestShell::TestShell()
 }
 
 TestShell::~TestShell() {
+    LoadURL(L"about:blank");
     // Call GC twice to clean up garbage.
     CallJSGC();
     CallJSGC();
