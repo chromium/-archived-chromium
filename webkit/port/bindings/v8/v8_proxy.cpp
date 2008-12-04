@@ -1009,6 +1009,7 @@ void V8Proxy::SetJSWrapperForDOMObject(void* obj, v8::Persistent<v8::Object> wra
 ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       ASSERT(false);
 #undef MAKE_CASE
+      default: break;
     }
 #endif
     dom_object_map().set(obj, wrapper);
