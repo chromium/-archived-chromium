@@ -452,7 +452,6 @@ linux_env.FilterOut(
     BUILD_SCONSCRIPTS = [
         '$BSPATCH_DIR/bspatch.scons',
         '$BSDIFF_DIR/bsdiff.scons',
-        '$GEARS_DIR/SConscript',
         '$GOOGLE_UPDATE_DIR/SConscript',
         '$RLZ_DIR/SConscript',
         '$SANDBOX_DIR/sandbox.scons',
@@ -548,7 +547,6 @@ mac_env.FilterOut(
         '$BSDIFF_DIR/bsdiff.scons',
         '$BSPATCH_DIR/bspatch.scons',
         '$CHROME_DIR/chrome.scons',
-        '$GEARS_DIR/SConscript',
         '$GOOGLE_UPDATE_DIR/SConscript',
         '$LIBJPEG_DIR/libjpeg.scons',
         '$LIBXML_DIR/libxml.scons',
