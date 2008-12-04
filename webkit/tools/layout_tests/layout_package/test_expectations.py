@@ -136,7 +136,8 @@ class TestExpectationsFile:
     LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 
   SKIP: Doesn't run the test.
-  DEBUG: Expectations only apply when running the debug build.
+  DEBUG: Expectations apply only to the debug build.
+  RELEASE: Expectations apply only to release build.
   LINUX/WIN/MAC: Expectations apply only to these platforms.
 
   A test can be included twice, but not via the same path. If a test is included
@@ -217,9 +218,6 @@ class TestExpectationsFile:
       line = StripComments(line)
       if not line: continue
 
-      # TODO(ojan): If you specify different expectations for debug and release,
-      # the release builder will currently say you have multiple expectations
-      # for this file. booo!
       if line.find(':') is -1:
         test_and_expectations = line
         is_skipped = False
@@ -228,8 +226,11 @@ class TestExpectationsFile:
         test_and_expectations = parts[1]
         options = self._GetOptionsList(parts[0])
         is_skipped = 'skip' in options
-        if not is_debug_mode and 'debug' in options:
-          continue
+        if 'release' in options or 'debug' in options:
+          if is_debug_mode and 'debug' not in options:
+            continue
+          if not is_debug_mode and 'release' not in options:
+            continue
         if not self._HasCurrentPlatform(options):
           continue
 
