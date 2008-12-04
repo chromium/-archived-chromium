@@ -16,6 +16,9 @@ using base::TimeDelta;
 
 namespace {
 
+// Index for the file used to store the key, if any (files_[kKeyFileIndex]).
+const int kKeyFileIndex = 3;
+
 // This class implements FileIOCallback to buffer the callback from a file IO
 // operation from the actual net class.
 class SyncCallback: public disk_cache::FileIOCallback {
@@ -72,7 +75,8 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
   entry_.LazyInit(backend->File(address), address);
   doomed_ = false;
   backend_ = backend;
-  unreported_size_[0] = unreported_size_[1] = 0;
+  for (int i = 0; i < NUM_STREAMS; i++)
+    unreported_size_[i] = 0;
 }
 
 // When an entry is deleted from the cache, we clean up all the data associated
@@ -85,7 +89,7 @@ EntryImpl::~EntryImpl() {
   if (doomed_) {
     UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteHeader", GetDataSize(0));
     UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteData", GetDataSize(1));
-    for (int index = 0; index < kKeyFileIndex; index++) {
+    for (int index = 0; index < NUM_STREAMS; index++) {
       Addr address(entry_.Data()->data_addr[index]);
       if (address.is_initialized()) {
         DeleteData(address, index);
@@ -106,7 +110,7 @@ EntryImpl::~EntryImpl() {
     backend_->DeleteBlock(entry_.address(), false);
   } else {
     bool ret = true;
-    for (int index = 0; index < kKeyFileIndex; index++) {
+    for (int index = 0; index < NUM_STREAMS; index++) {
       if (user_buffers_[index].get()) {
         if (!(ret = Flush(index, entry_.Data()->data_size[index], false)))
           LOG(ERROR) << "Failed to save user data";
@@ -154,6 +158,7 @@ std::string EntryImpl::GetKey() const {
   if (entry->Data()->key_len > kMaxInternalKeyLength) {
     Addr address(entry->Data()->long_key);
     DCHECK(address.is_initialized());
+    COMPILE_ASSERT(NUM_STREAMS == kKeyFileIndex, invalid_key_index);
     File* file = const_cast<EntryImpl*>(this)->GetBackingFile(address,
                                                               kKeyFileIndex);
 
@@ -182,7 +187,7 @@ Time EntryImpl::GetLastModified() const {
 }
 
 int32 EntryImpl::GetDataSize(int index) const {
-  if (index < 0 || index > 1)
+  if (index < 0 || index >= NUM_STREAMS)
     return 0;
 
   CacheEntryBlock* entry = const_cast<CacheEntryBlock*>(&entry_);
@@ -192,7 +197,7 @@ int32 EntryImpl::GetDataSize(int index) const {
 int EntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
                         net::CompletionCallback* completion_callback) {
   DCHECK(node_.Data()->dirty);
-  if (index < 0 || index > 1)
+  if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
   int entry_size = entry_.Data()->data_size[index];
@@ -258,7 +263,7 @@ int EntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
                          net::CompletionCallback* completion_callback,
                          bool truncate) {
   DCHECK(node_.Data()->dirty);
-  if (index < 0 || index > 1)
+  if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
   if (offset < 0 || buf_len < 0)
@@ -372,6 +377,7 @@ bool EntryImpl::CreateEntry(Addr node_address, const std::string& key,
   node->pointer = this;
 
   entry_store->hash = hash;
+  entry_store->creation_time = Time::Now().ToInternalValue();
   entry_store->key_len = static_cast<int32>(key.size());
   if (entry_store->key_len > kMaxInternalKeyLength) {
     Addr address(0);
@@ -507,7 +513,7 @@ void EntryImpl::SetTimes(base::Time last_used, base::Time last_modified) {
 
 bool EntryImpl::CreateDataBlock(int index, int size) {
   Addr address(entry_.Data()->data_addr[index]);
-  DCHECK(0 == index || 1 == index);
+  DCHECK(index >= 0 && index < NUM_STREAMS);
 
   if (!CreateBlock(size, &address))
     return false;
@@ -577,10 +583,10 @@ File* EntryImpl::GetBackingFile(Addr address, int index) {
 }
 
 File* EntryImpl::GetExternalFile(Addr address, int index) {
-  DCHECK(index >= 0 && index <= 2);
+  DCHECK(index >= 0 && index <= kKeyFileIndex);
   if (!files_[index].get()) {
     // For a key file, use mixed mode IO.
-    scoped_refptr<File> file(new File(2 == index));
+    scoped_refptr<File> file(new File(kKeyFileIndex == index));
     if (file->Init(backend_->GetFileName(address)))
       files_[index].swap(file);
   }

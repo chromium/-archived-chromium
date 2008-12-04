@@ -16,10 +16,13 @@ disk_cache::RankCrashes g_rankings_crash = disk_cache::NO_CRASH;
 
 namespace {
 
-const int kHeadIndex = 0;
-const int kTailIndex = 1;
-const int kTransactionIndex = 2;
-const int kOperationIndex = 3;
+enum Lists {
+  NO_USE = 0,   // List of entries that have not been reused.
+  LOW_USE,      // List of entries with low reuse.
+  HIGH_USE,     // List of entries with high reuse.
+  DELETED,      // List of recently deleted or doomed entries.
+  LAST_ELEMENT
+};
 
 enum Operation {
   INSERT = 1,
@@ -37,25 +40,29 @@ class Transaction {
   // avoid having the compiler doing optimizations on when to read or write
   // from user_data because it is the basis of the crash detection. Maybe
   // volatile is not enough for that, but it should be a good hint.
-  Transaction(volatile int32* user_data, disk_cache::Addr addr, Operation op);
+  Transaction(volatile disk_cache::LruData* data, disk_cache::Addr addr,
+              Operation op, int list);
   ~Transaction();
  private:
-  volatile int32* user_data_;
-  DISALLOW_EVIL_CONSTRUCTORS(Transaction);
+  volatile disk_cache::LruData* data_;
+  DISALLOW_COPY_AND_ASSIGN(Transaction);
 };
 
-Transaction::Transaction(volatile int32* user_data, disk_cache::Addr addr,
-                         Operation op) : user_data_(user_data) {
-  DCHECK(!user_data_[kTransactionIndex]);
+Transaction::Transaction(volatile disk_cache::LruData* data,
+                         disk_cache::Addr addr, Operation op, int list)
+    : data_(data) {
+  DCHECK(!data_->transaction);
   DCHECK(addr.is_initialized());
-  user_data_[kOperationIndex] = op;
-  user_data_[kTransactionIndex] = static_cast<int32>(addr.value());
+  data_->operation = op;
+  data_->operation_list = list;
+  data_->transaction = addr.value();
 }
 
 Transaction::~Transaction() {
-  DCHECK(user_data_[kTransactionIndex]);
-  user_data_[kTransactionIndex] = 0;
-  user_data_[kOperationIndex] = 0;
+  DCHECK(data_->transaction);
+  data_->transaction = 0;
+  data_->operation = 0;
+  data_->operation_list = 0;
 }
 
 // Code locations that can generate crashes.
@@ -160,14 +167,13 @@ bool Rankings::Init(BackendImpl* backend) {
     return false;
 
   backend_ = backend;
-  MappedFile* file = backend_->File(Addr(RANKINGS, 0, 0, 0));
 
-  header_ = reinterpret_cast<BlockFileHeader*>(file->buffer());
+  control_data_ = backend_->GetLruData();
 
   head_ = ReadHead();
   tail_ = ReadTail();
 
-  if (header_->user[kTransactionIndex])
+  if (control_data_->transaction)
     CompleteTransaction();
 
   init_ = true;
@@ -178,7 +184,7 @@ void Rankings::Reset() {
   init_ = false;
   head_.set_value(0);
   tail_.set_value(0);
-  header_ = NULL;
+  control_data_ = NULL;
 }
 
 bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
@@ -220,7 +226,7 @@ bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
 void Rankings::Insert(CacheRankingsBlock* node, bool modified) {
   Trace("Insert 0x%x", node->address().value());
   DCHECK(node->HasData());
-  Transaction lock(header_->user, node->address(), INSERT);
+  Transaction lock(control_data_, node->address(), INSERT, NO_USE);
   CacheRankingsBlock head(backend_->File(head_), head_);
   if (head_.is_initialized()) {
     if (!GetRanking(&head))
@@ -307,7 +313,7 @@ void Rankings::Remove(CacheRankingsBlock* node) {
   if (!CheckLinks(node, &prev, &next))
     return;
 
-  Transaction lock(header_->user, node->address(), REMOVE);
+  Transaction lock(control_data_, node->address(), REMOVE, NO_USE);
   prev.Data()->next = next.address().value();
   next.Data()->prev = prev.address().value();
   GenerateCrash(ON_REMOVE_1);
@@ -368,7 +374,7 @@ void Rankings::UpdateRank(CacheRankingsBlock* node, bool modified) {
 }
 
 void Rankings::CompleteTransaction() {
-  Addr node_addr(static_cast<CacheAddr>(header_->user[kTransactionIndex]));
+  Addr node_addr(static_cast<CacheAddr>(control_data_->transaction));
   if (!node_addr.is_initialized() || node_addr.is_separate_file()) {
     NOTREACHED();
     LOG(ERROR) << "Invalid rankings info.";
@@ -387,10 +393,10 @@ void Rankings::CompleteTransaction() {
   // We want to leave the node inside the list. The entry must me marked as
   // dirty, and will be removed later. Otherwise, we'll get assertions when
   // attempting to remove the dirty entry.
-  if (INSERT == header_->user[kOperationIndex]) {
+  if (INSERT == control_data_->operation) {
     Trace("FinishInsert h:0x%x t:0x%x", head_.value(), tail_.value());
     FinishInsert(&node);
-  } else if (REMOVE == header_->user[kOperationIndex]) {
+  } else if (REMOVE == control_data_->operation) {
     Trace("RevertRemove h:0x%x t:0x%x", head_.value(), tail_.value());
     RevertRemove(&node);
   } else {
@@ -400,8 +406,8 @@ void Rankings::CompleteTransaction() {
 }
 
 void Rankings::FinishInsert(CacheRankingsBlock* node) {
-  header_->user[kTransactionIndex] = 0;
-  header_->user[kOperationIndex] = 0;
+  control_data_->transaction = 0;
+  control_data_->operation = 0;
   if (head_.value() != node->address().value()) {
     if (tail_.value() == node->address().value()) {
       // This part will be skipped by the logic of Insert.
@@ -420,13 +426,13 @@ void Rankings::RevertRemove(CacheRankingsBlock* node) {
   Addr prev_addr(node->Data()->prev);
   if (!next_addr.is_initialized() || !prev_addr.is_initialized()) {
     // The operation actually finished. Nothing to do.
-    header_->user[kTransactionIndex] = 0;
+    control_data_->transaction = 0;
     return;
   }
   if (next_addr.is_separate_file() || prev_addr.is_separate_file()) {
     NOTREACHED();
     LOG(WARNING) << "Invalid rankings info.";
-    header_->user[kTransactionIndex] = 0;
+    control_data_->transaction = 0;
     return;
   }
 
@@ -465,8 +471,8 @@ void Rankings::RevertRemove(CacheRankingsBlock* node) {
 
   next.Store();
   prev.Store();
-  header_->user[kTransactionIndex] = 0;
-  header_->user[kOperationIndex] = 0;
+  control_data_->transaction = 0;
+  control_data_->operation = 0;
 }
 
 CacheRankingsBlock* Rankings::GetNext(CacheRankingsBlock* node) {
@@ -588,21 +594,19 @@ bool Rankings::SanityCheck(CacheRankingsBlock* node, bool from_list) {
 }
 
 Addr Rankings::ReadHead() {
-  CacheAddr head = static_cast<CacheAddr>(header_->user[kHeadIndex]);
-  return Addr(head);
+  return Addr(control_data_->heads[NO_USE]);
 }
 
 Addr Rankings::ReadTail() {
-  CacheAddr tail = static_cast<CacheAddr>(header_->user[kTailIndex]);
-  return Addr(tail);
+  return Addr(control_data_->tails[NO_USE]);
 }
 
 void Rankings::WriteHead() {
-  header_->user[kHeadIndex] = static_cast<int32>(head_.value());
+  control_data_->heads[NO_USE] = head_.value();
 }
 
 void Rankings::WriteTail() {
-  header_->user[kTailIndex] = static_cast<int32>(tail_.value());
+  control_data_->tails[NO_USE] = tail_.value();
 }
 
 bool Rankings::CheckEntry(CacheRankingsBlock* rankings) {

@@ -89,10 +89,11 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   void SetTimes(base::Time last_used, base::Time last_modified);
 
  private:
-  ~EntryImpl();
+   enum {
+     NUM_STREAMS = 3
+   };
 
-  // Index for the file used to store the key, if any (files_[kKeyFileIndex]).
-  static const int kKeyFileIndex = 2;
+  ~EntryImpl();
 
   // Initializes the storage for an internal or external data block.
   bool CreateDataBlock(int index, int size);
@@ -134,9 +135,10 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   CacheEntryBlock entry_;     // Key related information for this entry.
   CacheRankingsBlock node_;   // Rankings related information for this entry.
   BackendImpl* backend_;      // Back pointer to the cache.
-  scoped_array<char> user_buffers_[2];  // Store user data.
-  scoped_refptr<File> files_[3];  // Files to store external user data and key.
-  int unreported_size_[2];    // Bytes not reported yet to the backend.
+  scoped_array<char> user_buffers_[NUM_STREAMS];  // Store user data.
+  scoped_refptr<File> files_[NUM_STREAMS + 1];  // Files to store external user
+                                                // data and key.
+  int unreported_size_[NUM_STREAMS];  // Bytes not reported yet to the backend.
   bool doomed_;               // True if this entry was removed from the cache.
 
   DISALLOW_EVIL_CONSTRUCTORS(EntryImpl);

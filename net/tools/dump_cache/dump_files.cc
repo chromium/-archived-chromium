@@ -61,6 +61,13 @@ void DumpIndexHeader(const std::wstring name) {
   printf("last file number: %d\n", header.last_file);
   printf("current id: %d\n", header.this_id);
   printf("table length: %d\n", header.table_len);
+  for (int i = 0; i < 5; i++) {
+    printf("head %d: 0x%x\n", i, header.lru.heads[i]);
+    printf("tail %d: 0x%x\n", i, header.lru.tails[i]);
+  }
+  printf("transaction: 0x%x\n", header.lru.transaction);
+  printf("operation: %d\n", header.lru.operation);
+  printf("operation list: %d\n", header.lru.operation_list);
   printf("-------------------------\n\n");
 }
 
@@ -218,10 +225,13 @@ void DumpEntry(const disk_cache::EntryStore& entry) {
   printf("key length: %d\n", entry.key_len);
   printf("key: \"%s\"\n", key.c_str());
   printf("key addr: 0x%x\n", entry.long_key);
-  printf("data size 0: %d\n", entry.data_size[0]);
-  printf("data size 1: %d\n", entry.data_size[1]);
-  printf("data addr 0: 0x%x\n", entry.data_addr[0]);
-  printf("data addr 1: 0x%x\n", entry.data_addr[1]);
+  printf("reuse count: %d\n", entry.reuse_count);
+  printf("refetch count: %d\n", entry.refetch_count);
+  printf("state: %d\n", entry.state);
+  for (int i = 0; i < 4; i++) {
+    printf("data size %d: %d\n", i, entry.data_size[i]);
+    printf("data addr %d: 0x%x\n", i, entry.data_addr[i]);
+  }
   printf("----------\n\n");
 }
 

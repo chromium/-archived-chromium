@@ -15,12 +15,13 @@ MemEntryImpl::MemEntryImpl(MemBackendImpl* backend) {
   doomed_ = false;
   backend_ = backend;
   ref_count_ = 0;
-  data_size_[0] = data_size_[1] = 0;
+  for (int i = 0; i < NUM_STREAMS; i++)
+    data_size_[i] = 0;
 }
 
 MemEntryImpl::~MemEntryImpl() {
-  backend_->ModifyStorageSize(data_size_[0], 0);
-  backend_->ModifyStorageSize(data_size_[1], 0);
+  for (int i = 0; i < NUM_STREAMS; i++)
+    backend_->ModifyStorageSize(data_size_[i], 0);
   backend_->ModifyStorageSize(static_cast<int32>(key_.size()), 0);
 }
 
@@ -75,7 +76,7 @@ Time MemEntryImpl::GetLastModified() const {
 }
 
 int32 MemEntryImpl::GetDataSize(int index) const {
-  if (index < 0 || index > 1)
+  if (index < 0 || index >= NUM_STREAMS)
     return 0;
 
   return data_size_[index];
@@ -83,7 +84,7 @@ int32 MemEntryImpl::GetDataSize(int index) const {
 
 int MemEntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
                            net::CompletionCallback* completion_callback) {
-  if (index < 0 || index > 1)
+  if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
   int entry_size = GetDataSize(index);
@@ -105,7 +106,7 @@ int MemEntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
 int MemEntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
                          net::CompletionCallback* completion_callback,
                          bool truncate) {
-  if (index < 0 || index > 1)
+  if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
   if (offset < 0 || buf_len < 0)

@@ -24,6 +24,7 @@ class DiskCacheEntryTest : public DiskCacheTestWithCache {
   void InternalAsyncIO();
   void ExternalSyncIO();
   void ExternalAsyncIO();
+  void StreamAccess();
   void GetKey();
   void GrowData();
   void TruncateData();
@@ -371,6 +372,41 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyExternalAsyncIO) {
   SetMemoryOnlyMode();
   InitCache();
   ExternalAsyncIO();
+}
+
+void DiskCacheEntryTest::StreamAccess() {
+  disk_cache::Entry *entry = NULL;
+  ASSERT_TRUE(cache_->CreateEntry("the first key", &entry));
+  ASSERT_TRUE(NULL != entry);
+
+  const int kBufferSize = 1024;
+  char buffer1[kBufferSize];
+  char buffer2[kBufferSize];
+
+  const int kNumStreams = 3;
+  for (int i = 0; i < kNumStreams; i++) {
+    CacheTestFillBuffer(buffer1, kBufferSize, false);
+    EXPECT_EQ(kBufferSize, entry->WriteData(i, 0, buffer1, kBufferSize, NULL,
+                                            false));
+    memset(buffer2, 0, kBufferSize);
+    EXPECT_EQ(kBufferSize, entry->ReadData(i, 0, buffer2, kBufferSize, NULL));
+    EXPECT_EQ(0, memcmp(buffer1, buffer2, kBufferSize));
+  }
+
+  EXPECT_EQ(net::ERR_INVALID_ARGUMENT,
+            entry->ReadData(kNumStreams, 0, buffer1, kBufferSize, NULL));
+  entry->Close();
+}
+
+TEST_F(DiskCacheEntryTest, StreamAccess) {
+  InitCache();
+  StreamAccess();
+}
+
+TEST_F(DiskCacheEntryTest, MemoryOnlyStreamAccess) {
+  SetMemoryOnlyMode();
+  InitCache();
+  StreamAccess();
 }
 
 void DiskCacheEntryTest::GetKey() {

@@ -68,6 +68,9 @@ class BackendImpl : public Backend {
   // the related storage in addition of releasing the related block.
   void DeleteBlock(Addr block_address, bool deep);
 
+  // Retrieves a pointer to the lru-related data.
+  LruData* GetLruData();
+
   // Updates the ranking information for an entry.
   void UpdateRank(CacheRankingsBlock* node, bool modified);
 

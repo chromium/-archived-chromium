@@ -36,7 +36,7 @@
 // entry keeps track of all the information related to the same cache entry,
 // such as the key, hash value, data pointers etc. A rankings node keeps track
 // of the information that is updated frequently for a given entry, such as its
-// location on the LRU list, last access time etc.
+// location on the LRU lists, last access time etc.
 //
 // The files that store internal information for the cache (blocks and index)
 // are at least partially memory mapped. They have a location that is signaled
@@ -63,7 +63,16 @@ typedef uint32 CacheAddr;
 
 const int kIndexTablesize = 0x10000;
 const uint32 kIndexMagic = 0xC103CAC3;
-const uint32 kCurrentVersion = 0x10003;  // Version 1.3.
+const uint32 kCurrentVersion = 0x20000;  // Version 2.0.
+
+struct LruData {
+  CacheAddr heads[5];
+  CacheAddr tails[5];
+  CacheAddr transaction;     // In-flight operation target.
+  int32     operation;       // Actual in-flight operation.
+  int32     operation_list;  // In-flight operation list.
+  int32     pad[7];
+};
 
 // Header for the master index file.
 struct IndexHeader {
@@ -75,7 +84,8 @@ struct IndexHeader {
   int32       this_id;       // Id for all entries being changed (dirty flag).
   CacheAddr   stats;         // Storage for usage data.
   int32       table_len;     // Actual size of the table (0 == kIndexTablesize).
-  int32       pad[8];
+  int32       pad[64];
+  LruData     lru;           // Eviction control data.
   IndexHeader() {
     memset(this, 0, sizeof(*this));
     magic = kIndexMagic;
@@ -99,16 +109,28 @@ struct EntryStore {
   uint32      hash;               // Full hash of the key.
   CacheAddr   next;               // Next entry with the same hash or bucket.
   CacheAddr   rankings_node;      // Rankings node for this entry.
+  int32       reuse_count;        // How often is this entry used.
+  int32       refetch_count;      // How often is this fetched from the net.
+  int32       state;              // Current state.
+  uint64      creation_time;
   int32       key_len;
   CacheAddr   long_key;           // Optional address of a long key.
-  int32       data_size[2];       // We can store up to 2 data chunks for each
-  CacheAddr   data_addr[2];       // entry.
-  char        key[256 - 9 * 4];   // null terminated
+  int32       data_size[4];       // We can store up to 4 data streams for each
+  CacheAddr   data_addr[4];       // entry.
+  int32       pad[6];
+  char        key[256 - 24 * 4];  // null terminated
 };
 
 COMPILE_ASSERT(sizeof(EntryStore) == 256, bad_EntyStore);
 const int kMaxInternalKeyLength = 4 * sizeof(EntryStore) -
                                   offsetof(EntryStore, key) - 1;
+
+// Possible states for a given entry.
+enum EntryState {
+  ENTRY_NORMAL = 0,
+  ENTRY_EVICTED,    // The entry was recently evicted from the cache.
+  ENTRY_DOOMED      // The entry was doomed.
+};
 
 #pragma pack(push, old, 4)
 // Rankings information for a given entry.

@@ -12,7 +12,7 @@ namespace {
 
 const wchar_t kPipePrefix[] = L"\\\\.\\pipe\\dump_cache_";
 const int kChannelSize = 64 * 1024;
-const int kNumStreams = 2;
+const int kNumStreams = 4;
 
 // Simple macro to print out formatted debug messages. It is similar to a DLOG
 // except that it doesn't include a header.

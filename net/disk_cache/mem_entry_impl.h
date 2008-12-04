@@ -57,6 +57,10 @@ class MemEntryImpl : public Entry {
   bool InUse();
 
  private:
+   enum {
+     NUM_STREAMS = 3
+   };
+
   ~MemEntryImpl();
 
   // Grows and cleans up the data buffer.
@@ -66,8 +70,8 @@ class MemEntryImpl : public Entry {
   void UpdateRank(bool modified);
 
   std::string key_;
-  std::vector<char> data_[2];  // User data.
-  int32 data_size_[2];
+  std::vector<char> data_[NUM_STREAMS];  // User data.
+  int32 data_size_[NUM_STREAMS];
   int ref_count_;
 
   MemEntryImpl* next_;         // Pointers for the LRU list.

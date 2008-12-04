@@ -4,8 +4,8 @@
 
 // See net/disk_cache/disk_cache.h for the public interface.
 
-#ifndef NET_DISK_CACHE_RANKINGS_H__
-#define NET_DISK_CACHE_RANKINGS_H__
+#ifndef NET_DISK_CACHE_RANKINGS_H_
+#define NET_DISK_CACHE_RANKINGS_H_
 
 #include <list>
 
@@ -141,14 +141,14 @@ class Rankings {
   bool init_;
   Addr head_;
   Addr tail_;
-  BlockFileHeader* header_;  // Header of the block-file used to store rankings.
   BackendImpl* backend_;
+  LruData* control_data_;  // Data related to the LRU lists.
   IteratorList iterators_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Rankings);
+  DISALLOW_COPY_AND_ASSIGN(Rankings);
 };
 
 }  // namespace disk_cache
 
-#endif  // NET_DISK_CACHE_RANKINGS_H__
+#endif  // NET_DISK_CACHE_RANKINGS_H_
 

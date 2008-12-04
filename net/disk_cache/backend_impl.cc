@@ -540,6 +540,10 @@ void BackendImpl::DeleteBlock(Addr block_address, bool deep) {
   block_files_.DeleteBlock(block_address, deep);
 }
 
+LruData* BackendImpl::GetLruData() {
+  return &data_->header.lru;
+}
+
 void BackendImpl::UpdateRank(CacheRankingsBlock* node, bool modified) {
   if (!read_only_)
     rankings_.UpdateRank(node, modified);
