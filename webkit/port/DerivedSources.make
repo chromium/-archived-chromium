@@ -1010,11 +1010,9 @@ XPathGrammar.cpp : xml/XPathGrammar.y $(PROJECT_FILE)
 
 # user agent style sheets
 
-USER_AGENT_STYLE_SHEETS = $(WebCore)/css/view-source.css $(WebCore)/css/svg.css 
-UserAgentStyleSheets.h : css/make-css-file-arrays.pl $(USER_AGENT_STYLE_SHEETS) $(WebCore)/css/html4.css $(PORTROOT)/css/html4-overrides.css $(PORTROOT)/css/quirks-overrides.css
-	cat $(WebCore)/css/html4.css $(PORTROOT)/css/html4-overrides.css > $(DerivedSourcesDir)/html4.css
-	cat $(WebCore)/css/quirks.css $(PORTROOT)/css/quirks-overrides.css > $(DerivedSourcesDir)/quirks.css
-	perl $< $@ UserAgentStyleSheetsData.cpp $(DerivedSourcesDir)/html4.css $(DerivedSourcesDir)/quirks.css $(USER_AGENT_STYLE_SHEETS)
+USER_AGENT_STYLE_SHEETS = $(WebCore)/css/html4.css $(WebCore)/css/quirks.css $(WebCore)/css/view-source.css $(WebCore)/css/svg.css $(WebCore)/css/wml.css $(WebCore)/css/themeWin.css $(WebCore)/css/themeWinQuirks.css
+UserAgentStyleSheets.h : css/make-css-file-arrays.pl $(USER_AGENT_STYLE_SHEETS)
+	perl $< $@ UserAgentStyleSheetsData.cpp $(USER_AGENT_STYLE_SHEETS)
 
 # character set name table
 
