@@ -154,6 +154,7 @@ void RenderViewContextMenu::AppendEditableItems() {
   std::vector<std::wstring> language_vector; 
   int current_language_index = SpellChecker::
       GetSpellCheckLanguagesToDisplayInContextMenu(profile_, &language_vector);
+  // Add the spell check languages.
   DCHECK(language_vector.size() <=
          IDC_SPELLCHECKER_LANGUAGE_LAST - IDC_SPELLCHECKER_LANGUAGE_FIRST);
   const std::wstring app_locale = g_browser_process->GetApplicationLocale();
@@ -162,7 +163,12 @@ void RenderViewContextMenu::AppendEditableItems() {
         language_vector.at(i), app_locale, true));
     spellchecker_sub_menu_->AppendMenuItem(
         IDC_SPELLCHECKER_LANGUAGE_FIRST + i, local_language, RADIO);
-  } 
+  }
+
+  // Add item in the sub menu to pop up the fonts and languages options menu.
+  spellchecker_sub_menu_->AppendSeparator();
+  spellchecker_sub_menu_->AppendDelegateMenuItem(
+      IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS);
   AppendSeparator();
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_SELECTALL);
 }

@@ -9,6 +9,7 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -184,11 +185,11 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
       return true;
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
+    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
+      return true;
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
       return (source_web_contents_->controller()->GetActiveEntry() != NULL);
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
-      return true;
-    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
       return true;
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
@@ -444,6 +445,14 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       source_web_contents_->render_view_host()->AddToDictionary(
           params_.misspelled_word);
+      break;
+
+    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
+      views::Window::CreateChromeWindow(
+          source_web_contents_->GetContentHWND(),
+          gfx::Rect(),
+          new FontsLanguagesWindowView(
+              source_web_contents_->profile()))->Show();
       break;
 
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.
