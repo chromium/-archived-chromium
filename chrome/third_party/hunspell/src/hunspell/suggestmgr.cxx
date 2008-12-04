@@ -896,6 +896,18 @@ int SuggestMgr::ngsuggest(char** wlst, char * w, HashMgr* pHMgr)
 
   struct hentry* hp = NULL;
   int col = -1;
+  
+  #ifdef HUNSPELL_CHROME_CLIENT
+  // A static array of hentries required for walking the hash table.
+  struct hentry static_hentry[MAX_ROOTS];
+
+  // Static arrays to store the |word| and |astr| elements pointed to by the
+  // hentry elements on static_hentry.
+  static const int kMaxWordLen = 128;
+  char hentry_word[MAX_ROOTS][kMaxWordLen];
+  unsigned short hentry_astr[MAX_ROOTS];
+  #endif
+
   while ((hp = pHMgr->walk_hashtable(col, hp))) {
     if ((hp->astr) && (pAMgr) && 
        (TESTAFF(hp->astr, pAMgr->get_forbiddenword(), hp->alen) ||
@@ -903,15 +915,29 @@ int SuggestMgr::ngsuggest(char** wlst, char * w, HashMgr* pHMgr)
           TESTAFF(hp->astr, pAMgr->get_onlyincompound(), hp->alen))) continue;
     sc = ngram(3, word, hp->word, NGRAM_LONGER_WORSE);
     if (sc > scores[lp]) {
-      scores[lp] = sc;  
+      scores[lp] = sc;
+      #ifdef HUNSPELL_CHROME_CLIENT
+      roots[lp] = &static_hentry[lp];
+      roots[lp]->alen = hp->alen;
+      if (hp->astr)
+        hentry_astr[lp] = *hp->astr;
+      roots[lp]->astr = &hentry_astr[lp];   
+      roots[lp]->wlen = hp->wlen;
+      strcpy(&hentry_word[lp][0], hp->word);
+      roots[lp]->word = &hentry_word[lp][0];
+      roots[lp]->next = NULL;
+      roots[lp]->next_homonym = NULL;
+      #else
       roots[lp] = hp;
+      #endif
+      
       lval = sc;
       for (j=0; j < MAX_ROOTS; j++)
         if (scores[j] < lval) {
           lp = j;
           lval = scores[j];
         }
-    }  
+    }
   }
 
   // find minimum threshhold for a passable suggestion

@@ -41,6 +41,10 @@ class HashMgr
 public:
 #ifdef HUNSPELL_CHROME_CLIENT
   HashMgr(hunspell::BDictReader* reader);
+  
+  // Return the hentry corresponding to the given word. Returns NULL if the 
+  // word is not there in the cache.
+  hentry* GetHentryFromHEntryCache(char* word);
 
   // Called before we do a new operation. This will empty the cache of pointers
   // to hentries that we have cached. In Chrome, we make these on-demand, but
@@ -89,6 +93,7 @@ private:
   // followed by the homonym pointer.
   typedef std::map<std::string, hentry*> HEntryCache;
   HEntryCache hentry_cache;
+
 #else
   int load_config(FILE* aff_handle);
   int parse_aliasf(char * line, FILE * af);

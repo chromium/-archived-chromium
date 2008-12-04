@@ -285,11 +285,9 @@ int HashMgr::put_word_pattern(const char * word, int wl, const char * pattern)
 struct hentry * HashMgr::walk_hashtable(int &col, struct hentry * hp) const
 {
 #ifdef HUNSPELL_CHROME_CLIENT
-  // DANGER! This is kind of impossible to make work correctly, since Hunspell
-  // will keep arbitrary hentry pointers into our table. Therefore, the caller
-  // (SuggestMgr::ngsuggest) will need to be modified to not do this for us
-  // to be able to uncomment this function.
-/*
+  // This function creates a new hentry if NULL is passed as hp. It also takes
+  // the responsibility of deleting the pointer hp when walk is over.
+  
   // This function is only ever called by one place and not nested. We can
   // therefore keep static state between calls and use |col| as a "reset" flag
   // to avoid changing the API. It is set to -1 for the first call.
@@ -302,11 +300,26 @@ struct hentry * HashMgr::walk_hashtable(int &col, struct hentry * hp) const
 
   int affix_ids[hunspell::BDict::MAX_AFFIXES_PER_WORD];
   static const int kMaxWordLen = 128;
-  static char word_buf[kMaxWordLen];
-  int affix_count = word_iterator.Advance(word_buf, kMaxWordLen, affix_ids);
-  return AffixIDsToHentry(word_buf, affix_ids, affix_count);
-*/
-  return NULL;
+  static char word[kMaxWordLen];
+  int affix_count = word_iterator.Advance(word, kMaxWordLen, affix_ids);
+  if (affix_count == 0) {
+    delete hp;
+    return NULL;
+  }
+  short word_len = static_cast<short>(strlen(word));
+
+  // For now, just re-compute the |hp| and return it. No need to create linked
+  // lists for the extra affixes. If hp is NULL, create it here.
+  if (!hp)
+    hp = new hentry;
+  hp->word = word;
+  hp->wlen = word_len;
+  hp->alen = (short)const_cast<HashMgr*>(this)->get_aliasf(affix_ids[0],
+                                                           &hp->astr);
+  hp->next = NULL;
+  hp->next_homonym = NULL;
+  
+  return hp;
 #else
   //reset to start
   if ((col < 0) || (hp == NULL)) {
@@ -765,7 +778,8 @@ int  HashMgr::parse_aliasf(char * line, FILE * af)
 
 #ifdef HUNSPELL_CHROME_CLIENT
 hentry* HashMgr::AffixIDsToHentry(char* word,
-                                  int* affix_ids, int affix_count) const
+                                  int* affix_ids, 
+                                  int affix_count) const
 {
   if (affix_count == 0)
     return NULL;
@@ -804,6 +818,19 @@ hentry* HashMgr::AffixIDsToHentry(char* word,
 
   cache[std_word] = first_he;  // Save this word in the cache for later.
   return first_he;
+}
+
+#endif
+
+#ifdef HUNSPELL_CHROME_CLIENT
+hentry* HashMgr::GetHentryFromHEntryCache(char* word) {
+  HEntryCache& cache = const_cast<HashMgr*>(this)->hentry_cache;
+  std::string std_word(word);
+  HEntryCache::iterator found = cache.find(std_word);
+  if (found != cache.end())
+    return found->second;
+  else
+    return NULL;
 }
 
 #endif
