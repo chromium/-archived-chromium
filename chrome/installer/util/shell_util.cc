@@ -51,7 +51,9 @@ class RegistryEntry {
     std::wstring open_cmd = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
 
     entries.push_front(new RegistryEntry(L"Software\\Classes\\ChromeHTML",
-                                         L"Chrome HTML"));
+                                         ShellUtil::kChromeHTMLProgIdDesc));
+    entries.push_front(new RegistryEntry(L"Software\\Classes\\ChromeHTML",
+                                         ShellUtil::kRegUrlProtocol, L""));
     entries.push_front(new RegistryEntry(
         L"Software\\Classes\\ChromeHTML\\DefaultIcon", icon_path));
     entries.push_front(new RegistryEntry(
@@ -210,6 +212,10 @@ bool CreateChromeRegKeysForXP(HKEY root_key, const std::wstring& chrome_exe) {
   std::wstring html_prog_id = classes_path + L"\\" +
                               ShellUtil::kChromeHTMLProgId;
   items->AddCreateRegKeyWorkItem(root_key, html_prog_id);
+  items->AddSetRegValueWorkItem(root_key, html_prog_id,
+                                L"", ShellUtil::kChromeHTMLProgIdDesc, true);
+  items->AddSetRegValueWorkItem(root_key, html_prog_id,
+                                ShellUtil::kRegUrlProtocol, L"", true);
   std::wstring default_icon = html_prog_id + ShellUtil::kRegDefaultIcon;
   items->AddCreateRegKeyWorkItem(root_key, default_icon);
   items->AddSetRegValueWorkItem(root_key, default_icon, L"",
@@ -341,17 +347,16 @@ const wchar_t* ShellUtil::kRegStartMenuInternet =
 const wchar_t* ShellUtil::kRegClasses = L"Software\\Classes";
 const wchar_t* ShellUtil::kRegRegisteredApplications =
     L"Software\\RegisteredApplications";
-const wchar_t* ShellUtil::kRegShellChromeHTML = L"\\shell\\ChromeHTML";
-const wchar_t* ShellUtil::kRegShellChromeHTMLCommand =
-    L"\\shell\\ChromeHTML\\command";
 const wchar_t* ShellUtil::kRegVistaUrlPrefs =
     L"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice";
 
 const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromeHTML";
+const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chrome HTML";
 const wchar_t* ShellUtil::kFileAssociations[] = {L".htm", L".html", L".shtml",
     L".xht", L".xhtml", NULL};
 const wchar_t* ShellUtil::kProtocolAssociations[] = {L"ftp", L"http", L"https",
     NULL};
+const wchar_t* ShellUtil::kRegUrlProtocol = L"URL Protocol";
 
 ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
     const std::wstring& chrome_exe, bool skip_if_not_admin) {

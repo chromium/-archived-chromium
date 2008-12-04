@@ -57,13 +57,8 @@ class ShellUtil {
   // Name that we give to Chrome file association handler ProgId.
   static const wchar_t* kChromeHTMLProgId;
 
-  // Relative path of shell Chrome Progid in Windows registry
-  // (i.e. \\shell\\ChromeHTML).
-  static const wchar_t* kRegShellChromeHTML;
-
-  // Relative path of shell Chrome Progid command in Windows registry
-  // (i.e. \\shell\\ChromeHTML\\command).
-  static const wchar_t* kRegShellChromeHTMLCommand;
+  // Description of Chrome file/URL association handler ProgId.
+  static const wchar_t* kChromeHTMLProgIdDesc;
 
   // Registry path that stores url associations on Vista.
   static const wchar_t* kRegVistaUrlPrefs;
@@ -73,6 +68,9 @@ class ShellUtil {
 
   // Protocols that Chrome registers itself for.
   static const wchar_t* kProtocolAssociations[];
+
+  // Registry value name that is needed for ChromeHTML ProgId
+  static const wchar_t* kRegUrlProtocol;
 
   // This method adds Chrome to the list that shows up in Add/Remove Programs->
   // Set Program Access and Defaults and also creates Chrome ProgIds under
