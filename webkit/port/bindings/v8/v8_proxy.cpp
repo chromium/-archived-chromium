@@ -711,15 +711,16 @@ static void GCEpilogue()
     it != end; ++it) {
     void* obj = it->first;
     v8::Persistent<v8::Object> wrapper = v8::Persistent<v8::Object>(it->second);
-    ASSERT(!wrapper.IsWeak());
     V8ClassIndex::V8WrapperType type = V8Proxy::GetDOMWrapperType(wrapper);
     switch (type) {
-#define MAKE_CASE(TYPE, NAME)                   \
-      case V8ClassIndex::TYPE: {                \
-        NAME* impl = static_cast<NAME*>(obj);   \
-        if (impl->hasPendingActivity())         \
+#define MAKE_CASE(TYPE, NAME)                                     \
+      case V8ClassIndex::TYPE: {                                  \
+        NAME* impl = static_cast<NAME*>(obj);                     \
+        if (impl->hasPendingActivity()) {                         \
+          ASSERT(!wrapper.IsWeak());                              \
           wrapper.MakeWeak(impl, &WeakActiveDOMObjectCallback);   \
-        break;                                  \
+        }                                                         \
+        break;                                                    \
       }
 ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       default:
