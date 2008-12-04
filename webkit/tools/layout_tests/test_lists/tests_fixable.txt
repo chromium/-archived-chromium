@@ -512,11 +512,6 @@ LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS TIMEOUT
 pending/http/tests/security/cross-frame-access-protocol.html = CRASH PASS TIMEOUT
 
-// Some tests playing with dates don't work on the open source buildbot.
-// See bug # 2307
-LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
-LayoutTests/fast/js/date-big-setdate.html = FAIL
-
 // V8 doesn't stable sort. This is not required and may never be fixed. It is
 // tracked by: http://code.google.com/p/v8/issues/detail?id=90
 LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
@@ -1436,9 +1431,9 @@ LayoutTests/editing/execCommand/19653-4.html = FAIL
 LayoutTests/editing/deleting/5168598.html = FAIL
 LayoutTests/editing/deleting/delete-link-1.html = FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
-LINUX WIN : LayoutTests/editing/execCommand/19089.html = FAIL
-LINUX WIN : LayoutTests/fast/block/positioning/047.html = FAIL
-LINUX WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
+LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
+LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 
 // MERGE 38653:38729: New tests
 LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
@@ -1577,9 +1572,6 @@ LayoutTests/svg/hixie/use/002-test.xml = FAIL
 LayoutTests/svg/hixie/use/002.xml = FAIL
 LayoutTests/svg/hixie/viewbox/001.xml = FAIL
 LayoutTests/svg/hixie/viewbox/004.xml = FAIL
-
-// Not sure why this started failing, but it does.
-LINUX WIN : LayoutTests/svg/custom/acid3-test-77.html = FAIL
 
 // -----------------------------------------------------------------
 // MAC PORT TESTS
