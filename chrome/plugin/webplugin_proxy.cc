@@ -373,10 +373,6 @@ void WebPluginProxy::UpdateTransform() {
   SetWorldTransform(windowless_hdc_, &xf);
 }
 
-void WebPluginProxy::CancelDocumentLoad() {
-  Send(new PluginHostMsg_CancelDocumentLoad(route_id_));
-}
-
 void WebPluginProxy::InitiateHTTPRangeRequest(const char* url,
                                               const char* range_info,
                                               void* existing_stream,

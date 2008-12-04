@@ -124,7 +124,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
                              std::string* json_retval);
   void OnMissingPluginStatus(int status);
   void OnGetCPBrowsingContext(uint32* context);
-  void OnCancelDocumentLoad();
   void OnInitiateHTTPRangeRequest(const std::string& url,
                                   const std::string& range_info,
                                   HANDLE existing_stream, bool notify_needed,

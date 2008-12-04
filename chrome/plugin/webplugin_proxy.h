@@ -86,8 +86,6 @@ class WebPluginProxy : public WebPlugin {
                       const base::SharedMemoryHandle& windowless_buffer,
                       const base::SharedMemoryHandle& background_buffer);
 
-  void CancelDocumentLoad();
-
   void InitiateHTTPRangeRequest(const char* url,
                                 const char* range_info,
                                 void* existing_stream,
