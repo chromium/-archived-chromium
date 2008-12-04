@@ -1106,11 +1106,13 @@ class MessageWithReply : public SyncMessage {
       ReadParam(msg, &iter, &p);
       LogParam(p, l);
 
+#if IPC_MESSAGE_LOG_ENABLED
       const std::wstring& output_params = msg->output_params();
       if (!l->empty() && !output_params.empty())
         l->append(L", ");
 
       l->append(output_params);
+#endif
     } else {
       // This is an outgoing reply.  Now that we have the output parameters, we
       // can finally log the message.
