@@ -571,7 +571,7 @@ END
       }
     }
 
-    push(@implContentDecls, "    Peerable* wrapper = $wrapper;\n");
+    push(@implContentDecls, "    void* wrapper = $wrapper;\n");
   } elsif ($nativeType ne "RGBColor") {
     push(@implContentDecls, "    $nativeType v = ");
     
@@ -1858,6 +1858,7 @@ sub IsDOMNodeType
     return 1 if $type eq 'Node';
     return 1 if $type eq 'ProcessingInstruction';
     return 1 if $type eq 'SVGElement';
+    return 1 if $type eq 'SVGDocument';
     return 1 if $type eq 'SVGSVGElement';
     return 1 if $type eq 'SVGUseElement';
     return 1 if $type eq 'Text';

@@ -33,8 +33,8 @@ class V8Custom {
  public:
 
   // Constants.
-  static const int kDOMWrapperObjectIndex = 0;
-  static const int kDOMWrapperTypeIndex = 1;
+  static const int kDOMWrapperTypeIndex = 0;
+  static const int kDOMWrapperObjectIndex = 1;
   static const int kDefaultWrapperInternalFieldCount = 2;
 
   static const int kDocumentImplementationIndex =

@@ -61,7 +61,7 @@ class V8AbstractEventListener : public EventListener {
   // the event listener is deleted. Fix this!
   Frame* m_frame;
 
-  // Listener object, avoid using peer because it can keep this object alive.
+  // Listener object.
   v8::Persistent<v8::Object> m_listener;
 
   // Flags this is a HTML type listener.

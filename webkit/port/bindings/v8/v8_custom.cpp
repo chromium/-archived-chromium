@@ -281,17 +281,17 @@ CALLBACK_FUNC_DECL(MessageChannelConstructor) {
   
   // Create wrappers for the two associated MessagePorts.
   v8::Handle<v8::Value> port1_wrapper =
-    V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT,
-                        static_cast<Peerable*>(obj->port1()));
+    V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, obj->port1());
   v8::Handle<v8::Value> port2_wrapper =
-    V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT,
-                        static_cast<Peerable*>(obj->port2()));
+    V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, obj->port2());
   
   v8::Handle<v8::Object> wrapper_object = args.Holder();
 
   // Setup the standard wrapper object internal fields.
   V8Proxy::SetDOMWrapper(
       wrapper_object, V8ClassIndex::MESSAGECHANNEL, obj.get());
+
+  obj->ref();
   V8Proxy::SetJSWrapperForDOMObject(
       obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));
 
@@ -435,13 +435,16 @@ CALLBACK_FUNC_DECL(XSLTProcessorRemoveParameter) {
 
 
 // ---- Canvas support ----
-static v8::Handle<v8::Value> CanvasStyleToV8Object(CanvasStyle* style)
-{
-    if (style->canvasGradient())
-        return V8Proxy::ToV8Object(V8ClassIndex::CANVASGRADIENT, static_cast<Peerable*>(style->canvasGradient()));
-    if (style->canvasPattern())
-        return V8Proxy::ToV8Object(V8ClassIndex::CANVASPATTERN, static_cast<Peerable*>(style->canvasPattern()));
-    return v8String(style->color());
+static v8::Handle<v8::Value> CanvasStyleToV8Object(CanvasStyle* style) {
+  if (style->canvasGradient()) {
+    return V8Proxy::ToV8Object(V8ClassIndex::CANVASGRADIENT,
+                               style->canvasGradient());
+  }
+  if (style->canvasPattern()) {
+    return V8Proxy::ToV8Object(V8ClassIndex::CANVASPATTERN,
+                               style->canvasPattern());
+  }
+  return v8String(style->color());
 }
 
 static PassRefPtr<CanvasStyle> V8ObjectToCanvasStyle(v8::Handle<v8::Value> value)
@@ -528,8 +531,7 @@ ACCESSOR_GETTER(DocumentLocation) {
     return v8::Null();
 
   DOMWindow* window = imp->frame()->domWindow();
-  return V8Proxy::ToV8Object(V8ClassIndex::LOCATION,
-                             static_cast<Peerable*>(window->location()));
+  return V8Proxy::ToV8Object(V8ClassIndex::LOCATION, window->location());
 }
 
 
@@ -638,8 +640,7 @@ static v8::Handle<v8::Value> HTMLCollectionGetNamedItems(
       return V8Proxy::NodeToV8Object(namedItems.at(0).get());
     default:
       NodeList* list = new V8VectorNodeList(namedItems);
-      return V8Proxy::ToV8Object(V8ClassIndex::NODELIST,
-                                 static_cast<Peerable*>(list));
+      return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, list);
   }
 }
 
@@ -1393,8 +1394,7 @@ NAMED_PROPERTY_GETTER(DOMWindow) {
       if (items->length() == 1) {
         return V8Proxy::NodeToV8Object(items->firstItem());
       } else {
-        return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,
-                                   static_cast<Peerable*>(items.get()));
+        return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,items.get());
       }
     }
   }
@@ -1451,7 +1451,7 @@ NAMED_PROPERTY_GETTER(HTMLDocument)
             return value;
     }
 
-  HTMLDocument* imp = V8Proxy::DOMWrapperToNode<HTMLDocument>(info.Holder());
+    HTMLDocument* imp = V8Proxy::DOMWrapperToNode<HTMLDocument>(info.Holder());
 
     // Fast case for named elements that are not there.
     if (!imp->hasNamedItem(key.impl()) && !imp->hasExtraNamedItem(key.impl()))
@@ -1463,12 +1463,12 @@ NAMED_PROPERTY_GETTER(HTMLDocument)
     if (items->length() == 1) {
         Node* node = items->firstItem();
         Frame* frame = 0;
-        if (node->hasTagName(HTMLNames::iframeTag) && (frame = static_cast<HTMLIFrameElement*>(node)->contentFrame()))
+        if (node->hasTagName(HTMLNames::iframeTag) &&
+           (frame = static_cast<HTMLIFrameElement*>(node)->contentFrame()))
             return V8Proxy::ToV8Object(V8ClassIndex::DOMWINDOW, frame->domWindow());
-    return V8Proxy::NodeToV8Object(node);
+        return V8Proxy::NodeToV8Object(node);
     }
-    return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,
-                             static_cast<Peerable*>(items.get()));
+    return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION, items.get());
 }
 
 
@@ -1516,8 +1516,7 @@ NAMED_PROPERTY_GETTER(HTMLFormElement) {
     return V8Proxy::NodeToV8Object(elements.at(0).get());
   } else {
     NodeList* collection = new V8VectorNodeList(elements);
-    return V8Proxy::ToV8Object(V8ClassIndex::NODELIST,
-                               static_cast<Peerable*>(collection));
+    return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, collection);
   }
 }
 
@@ -2173,8 +2172,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
       V8Proxy::SetDOMException(ec);
       return v8::Handle<v8::Value>();
     }
-    return V8Proxy::ToV8Object(V8ClassIndex::CANVASPATTERN,
-                               static_cast<Peerable*>(pattern.get()));
+    return V8Proxy::ToV8Object(V8ClassIndex::CANVASPATTERN, pattern.get());
   }
 
   if (V8HTMLCanvasElement::HasInstance(arg)) {
@@ -2187,8 +2185,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
       V8Proxy::SetDOMException(ec);
       return v8::Handle<v8::Value>();
     }
-    return V8Proxy::ToV8Object(V8ClassIndex::CANVASPATTERN,
-                               static_cast<Peerable*>(pattern.get()));
+    return V8Proxy::ToV8Object(V8ClassIndex::CANVASPATTERN, pattern.get());
   }
 
   V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
@@ -2888,8 +2885,7 @@ CALLBACK_FUNC_DECL(DocumentEvaluate) {
       V8Proxy::SetDOMException(ec);
     return v8::Handle<v8::Value>();
   }
-  return V8Proxy::ToV8Object(V8ClassIndex::XPATHRESULT,
-                             static_cast<Peerable*>(result.get()));
+  return V8Proxy::ToV8Object(V8ClassIndex::XPATHRESULT, result.get());
 }
 
 // DOMWindow -------------------------------------------------------------------
@@ -3408,9 +3404,8 @@ CALLBACK_FUNC_DECL(SVGMatrixInverse) {
     return v8::Handle<v8::Value>();
   }
 
-  Peerable* peer = static_cast<Peerable*>(
+  return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX,
       new V8SVGStaticPODTypeWrapper<AffineTransform>(result));
-  return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX, peer);
 }
 
 CALLBACK_FUNC_DECL(SVGMatrixRotateFromVector) {
@@ -3431,9 +3426,8 @@ CALLBACK_FUNC_DECL(SVGMatrixRotateFromVector) {
     return v8::Handle<v8::Value>();
   }
 
-  Peerable* peer = static_cast<Peerable*>(
+  return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX,
       new V8SVGStaticPODTypeWrapper<AffineTransform>(result));
-  return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX, peer);
 }
 
 CALLBACK_FUNC_DECL(SVGElementInstanceAddEventListener) {

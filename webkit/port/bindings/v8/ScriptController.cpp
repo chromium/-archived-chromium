@@ -100,12 +100,12 @@ bool ScriptController::isSafeScript(Frame* target)
 
 void ScriptController::gcProtectJSWrapper(void* dom_object)
 {
-    V8Proxy::GCProtect(static_cast<Peerable*>(dom_object));
+    V8Proxy::GCProtect(dom_object);
 }
 
 void ScriptController::gcUnprotectJSWrapper(void* dom_object)
 {
-    V8Proxy::GCUnprotect(static_cast<Peerable*>(dom_object));
+    V8Proxy::GCUnprotect(dom_object);
 }
 
 void ScriptController::entangleMessagePorts(MessagePort *port1,
@@ -130,7 +130,7 @@ void ScriptController::entangleMessagePorts(MessagePort *port1,
 void ScriptController::unentangleMessagePort(MessagePort *port)
 {
     // Remove the wrapper entanglement when a port is unentangled.
-    if (port->peer() != NULL) {
+    if (V8Proxy::DOMObjectHasJSWrapper(port)) {
         v8::Handle<v8::Value> wrapper =
             V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port);
         ASSERT(wrapper->IsObject());
@@ -377,9 +377,9 @@ PassScriptInstance ScriptController::createScriptInstanceForWidget(Widget* widge
     // Frame Memory Management for NPObjects
     // -------------------------------------
     // NPObjects are treated differently than other objects wrapped by JS.
-    // NPObjects are not Peerable, and cannot be made peerable, since NPObjects
-    // can be created either by the browser (e.g. the main window object) or by
-    // the plugin (the main plugin object for a HTMLEmbedElement).  Further,
+    // NPObjects can be created either by the browser (e.g. the main
+    // window object) or by the plugin (the main plugin object
+    // for a HTMLEmbedElement).  Further,
     // unlike most DOM Objects, the frame is especially careful to ensure 
     // NPObjects terminate at frame teardown because if a plugin leaks a 
     // reference, it could leak its objects (or the browser's objects).

@@ -42,9 +42,7 @@ namespace WebCore {
 template<typename PODType>
 class V8SVGPODTypeWrapper : public RefCounted<V8SVGPODTypeWrapper<PODType> > {
 public:
-    // Start with a refcount of 0 because the only reference to this
-    // object will be the JavaScript peer created for it.
-    V8SVGPODTypeWrapper() : RefCounted<V8SVGPODTypeWrapper<PODType> >(0) { }
+    V8SVGPODTypeWrapper() { }
     virtual ~V8SVGPODTypeWrapper() { }
     virtual operator PODType() = 0;
     virtual void commitChange(PODType, SVGElement*) = 0;

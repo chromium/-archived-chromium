@@ -58,7 +58,8 @@ CALLBACK_FUNC_DECL(XMLHttpRequestConstructor) {
   RefPtr<XMLHttpRequest> xhr = XMLHttpRequest::create(doc);
   V8Proxy::SetDOMWrapper(args.Holder(),
       V8ClassIndex::ToInt(V8ClassIndex::XMLHTTPREQUEST), xhr.get());
-  // Set object as the peer.
+  // Add object to the wrapper map.
+  xhr->ref();
   V8Proxy::SetJSWrapperForActiveDOMObject(xhr.get(),
       v8::Persistent<v8::Object>::New(args.Holder()));
   return args.Holder();

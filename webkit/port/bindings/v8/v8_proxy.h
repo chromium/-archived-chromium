@@ -205,8 +205,8 @@ class V8Proxy {
   void RemoveObjectEventListener(V8ObjectEventListener* listener);
 
   // Protect/Unprotect JS wrappers of a DOM object.
-  static void GCProtect(Peerable* dom_object);
-  static void GCUnprotect(Peerable* dom_object);
+  static void GCProtect(void* dom_object);
+  static void GCUnprotect(void* dom_object);
 
   // Create a lazy event listener.
   PassRefPtr<EventListener> createInlineEventListener(
@@ -312,8 +312,10 @@ class V8Proxy {
   template <class C>
   static C* DOMWrapperToNative(v8::Handle<v8::Value> object) {
     ASSERT(MaybeDOMWrapper(object));
-    return ExtractCPointer<C>(
-        v8::Handle<v8::Object>::Cast(object)->GetInternalField(0));
+    v8::Handle<v8::Value> ptr =
+      v8::Handle<v8::Object>::Cast(object)->GetInternalField(
+          V8Custom::kDOMWrapperObjectIndex);
+    return ExtractCPointer<C>(ptr);
   }
 
   // A help function extract a node type pointer from a DOM wrapper.
@@ -377,8 +379,7 @@ class V8Proxy {
 
   // DOMImplementation is a singleton and it is handled in a special
   // way.  A wrapper is generated per document and stored in an
-  // internal field of the document.  When wrapping the
-  // DOMImplementation object, the peer field is not set.
+  // internal field of the document.
   static v8::Handle<v8::Value> DOMImplementationToV8Object(
       DOMImplementation* impl);
 
@@ -391,10 +392,12 @@ class V8Proxy {
   template <int tag, typename T>
     static v8::Handle<v8::Value> ConstructDOMObject(const v8::Arguments& args);
 
-  // Set JS wrapper of a DOM object
-  static void SetJSWrapperForDOMObject(Peerable* obj,
+  // Checks whether a DOM object has a JS wrapper.
+  static bool DOMObjectHasJSWrapper(void* obj); 
+  // Set JS wrapper of a DOM object, the caller in charge of increase ref.
+  static void SetJSWrapperForDOMObject(void* obj,
                                        v8::Persistent<v8::Object> wrapper);
-  static void SetJSWrapperForActiveDOMObject(Peerable* obj,
+  static void SetJSWrapperForActiveDOMObject(void* obj,
                                              v8::Persistent<v8::Object> wrapper);
   static void SetJSWrapperForDOMNode(Node* node,
                                      v8::Persistent<v8::Object> wrapper);
@@ -447,14 +450,12 @@ class V8Proxy {
   // Returns the JS wrapper of a window object, initializes the environment
   // of the window frame if needed.
   static v8::Handle<v8::Value> WindowToV8Object(DOMWindow* window);
-  static v8::Handle<v8::Value> ActiveDOMObjectToV8Object(
-      V8ClassIndex::V8WrapperType type, Peerable* obj);
 
 #if ENABLE(SVG)
   static v8::Handle<v8::Value> SVGElementInstanceToV8Object(
       SVGElementInstance* instance);
   static v8::Handle<v8::Value> SVGObjectWithContextToV8Object(
-    Peerable* object, V8ClassIndex::V8WrapperType type);
+      V8ClassIndex::V8WrapperType type, void* object);
 #endif
 
   // Set hidden references in a DOMWindow object of a frame.
@@ -537,6 +538,7 @@ v8::Handle<v8::Value> V8Proxy::ConstructDOMObject(const v8::Arguments& args) {
   // SetDOMWrapper(), which effectively holds a reference to obj.
   RefPtr<T> obj = T::create();
   V8Proxy::SetDOMWrapper(args.Holder(), tag, obj.get());
+  obj->ref();
   V8Proxy::SetJSWrapperForDOMObject(
       obj.get(), v8::Persistent<v8::Object>::New(args.Holder()));
   return args.Holder();
