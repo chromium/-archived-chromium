@@ -174,6 +174,7 @@
 		E4F324860EE5D26F002533CE /* template_url_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9490E9D4839009A6919 /* template_url_parser.cc */; };
 		E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4F324420EE5CE94002533CE /* extension_unittest.cc */; };
 		E4F324980EE5D7DE002533CE /* snippet_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA060E9D48F7009A6919 /* snippet_unittest.cc */; };
+		E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB8F0E9D4C9F009A6919 /* chrome_paths.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2950,6 +2951,7 @@
 				4D7BFC260E9D4CE8009A6919 /* animation.cc in Sources */,
 				4D7BFC280E9D4CEB009A6919 /* chrome_constants.cc in Sources */,
 				4D7BFC2A0E9D4CED009A6919 /* chrome_counters.cc in Sources */,
+				E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */,
 				4D7BFC2C0E9D4CF1009A6919 /* chrome_switches.cc in Sources */,
 				4D7BFCC90E9D4D72009A6919 /* color_utils.cc in Sources */,
 				4D7BFCCE0E9D4D7A009A6919 /* cookie_monster_sqlite.cc in Sources */,
