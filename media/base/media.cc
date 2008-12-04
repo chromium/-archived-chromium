@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "media/base/buffers.h"
+#include "media/base/filters.h"
 
 namespace media {
 

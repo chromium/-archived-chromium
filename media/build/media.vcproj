@@ -129,6 +129,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\filters.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\media.cc"
 				>
 			</File>
