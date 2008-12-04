@@ -32,7 +32,8 @@ SafeBrowsingService::SafeBrowsingService()
       protocol_manager_(NULL),
       enabled_(false),
       resetting_(false),
-      database_loaded_(false) {
+      database_loaded_(false),
+      update_in_progress_(false) {
   new_safe_browsing_ = !CommandLine().HasSwitch(switches::kUseOldSafeBrowsing);
 }
 
@@ -469,9 +470,11 @@ void SafeBrowsingService::HandleOneCheck(
   delete check;
 }
 
-void SafeBrowsingService::GetAllChunks() {
+void SafeBrowsingService::UpdateStarted() {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
+  DCHECK(!update_in_progress_);
+  update_in_progress_ = true;
   db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::GetAllChunksFromDatabase));
 }
@@ -479,8 +482,11 @@ void SafeBrowsingService::GetAllChunks() {
 void SafeBrowsingService::UpdateFinished(bool update_succeeded) {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &SafeBrowsingService::DatabaseUpdateFinished, update_succeeded));
+  if (update_in_progress_) {
+    update_in_progress_ = false;
+    db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &SafeBrowsingService::DatabaseUpdateFinished, update_succeeded));
+  }
 }
 
 void SafeBrowsingService::DatabaseUpdateFinished(bool update_succeeded) {

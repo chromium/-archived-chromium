@@ -134,9 +134,9 @@ class SafeBrowsingService
       bool can_cache);
   void HandleChunk(const std::string& list, std::deque<SBChunk>* chunks);
   void HandleChunkDelete(std::vector<SBChunkDelete>* chunk_deletes);
-  void GetAllChunks();
 
-  // Called when a complete update cycle has finished.
+  // Update management.
+  void UpdateStarted();
   void UpdateFinished(bool update_succeeded);
 
   // The blocking page on the UI thread has completed.
@@ -289,6 +289,9 @@ class SafeBrowsingService
 
   // Indicates if the database has finished initialization.
   bool database_loaded_;
+
+  // Indicates if we're currently in an update cycle.
+  bool update_in_progress_;
 
   // Clients that we've queued up for checking later once the database is ready.
   typedef struct {

@@ -218,6 +218,7 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
                       << "failed parse.";
         must_back_off = true;
         chunk_request_urls_.clear();
+        sb_service_->UpdateFinished(false);
       }
 
       if (request_type_ == CHUNK_REQUEST && parsed_ok) {
@@ -234,6 +235,7 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
       must_back_off = true;
       if (request_type_ == CHUNK_REQUEST)
         chunk_request_urls_.clear();
+      sb_service_->UpdateFinished(false);
       SB_DLOG(INFO) << "SafeBrowsing request for: " << source->url()
                     << ", failed with error: " << response_code;
     }
@@ -267,7 +269,6 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
                               &next_update_sec, &re_key,
                               &reset, chunk_deletes, &chunk_urls)) {
         delete chunk_deletes;
-        sb_service_->UpdateFinished(false);
         return false;
       }
 
@@ -433,7 +434,7 @@ int SafeBrowsingProtocolManager::GetNextBackOffTime(int* error_count,
 //              isn't that much overhead. Measure!
 void SafeBrowsingProtocolManager::IssueUpdateRequest() {
   request_type_ = UPDATE_REQUEST;
-  sb_service_->GetAllChunks();
+  sb_service_->UpdateStarted();
 }
 
 void SafeBrowsingProtocolManager::IssueChunkRequest() {
