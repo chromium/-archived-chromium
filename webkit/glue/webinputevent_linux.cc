@@ -51,6 +51,7 @@ WebMouseEvent::WebMouseEvent(const GdkEventButton* event) {
   y = static_cast<int>(event->y);
   global_x = static_cast<int>(event->x_root);
   global_y = static_cast<int>(event->y_root);
+  layout_test_click_count = 0;
 
   switch (event->type) {
     case GDK_BUTTON_PRESS:

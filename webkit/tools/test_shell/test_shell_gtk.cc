@@ -232,13 +232,15 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   // output.
   webView()->SetUseEditorDelegate(true);
 
-  if (!startingURL.empty())
-    LoadURL(startingURL.c_str());
-
   gtk_container_add(GTK_CONTAINER(m_mainWnd), vbox);
   gtk_widget_show_all(m_mainWnd);
   toolbar_height_ = toolbar->allocation.height +
       gtk_box_get_spacing(GTK_BOX(vbox));
+
+  // LoadURL will do a resize (which uses toolbar_height_), so make sure we
+  // don't call LoadURL until we've completed all of our GTK setup.
+  if (!startingURL.empty())
+    LoadURL(startingURL.c_str());
 
   bool bIsSVGTest = startingURL.find(L"W3C-SVG-1.1") != std::wstring::npos;
   if (bIsSVGTest)
