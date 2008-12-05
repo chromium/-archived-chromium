@@ -33,6 +33,7 @@
 #include "ScrollbarTheme.h"
 #include "gtkdrawing.h"
 #include "GdkSkia.h"
+#include "UserAgentStyleSheets.h"
 
 #include <gdk/gdk.h>
 
@@ -218,6 +219,17 @@ RenderThemeGtk::RenderThemeGtk()
     , m_gtkEntry(0)
     , m_gtkTreeView(0)
 {
+}
+
+// Use the Windows style sheets to match their metrics.
+String RenderThemeGtk::extraDefaultStyleSheet()
+{
+    return String(themeWinUserAgentStyleSheet, sizeof(themeWinUserAgentStyleSheet));
+}
+
+String RenderThemeGtk::extraQuirksStyleSheet()
+{
+    return String(themeWinQuirksUserAgentStyleSheet, sizeof(themeWinQuirksUserAgentStyleSheet));
 }
 
 bool RenderThemeGtk::supportsFocusRing(const RenderStyle* style) const
