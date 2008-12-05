@@ -448,8 +448,8 @@ bool ShellUtil::CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
     std::wstring shortcut_path;
     if (ShellUtil::GetDesktopPath(false, &shortcut_path)) {
       file_util::AppendToPath(&shortcut_path, shortcut_name);
-      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path,
-                                                   create_new);
+      ret = ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path,
+                                            create_new);
     } else {
       ret = false;
     }
@@ -458,8 +458,10 @@ bool ShellUtil::CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
     std::wstring shortcut_path;
     if (ShellUtil::GetDesktopPath(true, &shortcut_path)) {
       file_util::AppendToPath(&shortcut_path, shortcut_name);
-      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path,
-                                                   create_new);
+      // Note we need to call the create operation and then AND the result
+      // with the create operation of user level shortcut.
+      ret = ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path,
+                                            create_new) && ret;
     } else {
       ret = false;
     }
@@ -480,8 +482,8 @@ bool ShellUtil::CreateChromeQuickLaunchShortcut(const std::wstring& chrome_exe,
     std::wstring user_ql_path;
     if (ShellUtil::GetQuickLaunchPath(false, &user_ql_path)) {
       file_util::AppendToPath(&user_ql_path, shortcut_name);
-      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, user_ql_path,
-                                                   create_new);
+      ret = ShellUtil::UpdateChromeShortcut(chrome_exe, user_ql_path,
+                                            create_new);
     } else {
       ret = false;
     }
@@ -493,8 +495,8 @@ bool ShellUtil::CreateChromeQuickLaunchShortcut(const std::wstring& chrome_exe,
     std::wstring default_ql_path;
     if (ShellUtil::GetQuickLaunchPath(true, &default_ql_path)) {
       file_util::AppendToPath(&default_ql_path, shortcut_name);
-      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, default_ql_path,
-                                                   create_new);
+      ret = ShellUtil::UpdateChromeShortcut(chrome_exe, default_ql_path,
+                                            create_new) && ret;
     } else {
       ret = false;
     }
@@ -549,7 +551,7 @@ bool ShellUtil::RemoveChromeDesktopShortcut(int shell_change) {
     std::wstring shortcut_path;
     if (ShellUtil::GetDesktopPath(false, &shortcut_path)) {
       file_util::AppendToPath(&shortcut_path, shortcut_name);
-      ret = ret && file_util::Delete(shortcut_path, false);
+      ret = file_util::Delete(shortcut_path, false);
     } else {
       ret = false;
     }
@@ -559,7 +561,7 @@ bool ShellUtil::RemoveChromeDesktopShortcut(int shell_change) {
     std::wstring shortcut_path;
     if (ShellUtil::GetDesktopPath(true, &shortcut_path)) {
       file_util::AppendToPath(&shortcut_path, shortcut_name);
-      ret = ret && file_util::Delete(shortcut_path, false);
+      ret = file_util::Delete(shortcut_path, false) && ret;
     } else {
       ret = false;
     }
@@ -578,7 +580,7 @@ bool ShellUtil::RemoveChromeQuickLaunchShortcut(int shell_change) {
     std::wstring user_ql_path;
     if (ShellUtil::GetQuickLaunchPath(false, &user_ql_path)) {
       file_util::AppendToPath(&user_ql_path, shortcut_name);
-      ret = ret && file_util::Delete(user_ql_path, false);
+      ret = file_util::Delete(user_ql_path, false);
     } else {
       ret = false;
     }
@@ -589,7 +591,7 @@ bool ShellUtil::RemoveChromeQuickLaunchShortcut(int shell_change) {
     std::wstring default_ql_path;
     if (ShellUtil::GetQuickLaunchPath(true, &default_ql_path)) {
       file_util::AppendToPath(&default_ql_path, shortcut_name);
-      ret = ret && file_util::Delete(default_ql_path, false);
+      ret = file_util::Delete(default_ql_path, false) && ret;
     } else {
       ret = false;
     }
