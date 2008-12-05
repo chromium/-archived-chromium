@@ -173,7 +173,7 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
     const bool family_names_match =
         !family_requested ?
         true :
-        strcmp((char *) post_config_family, (char *) post_match_family) == 0;
+        strcasecmp((char *) post_config_family, (char *) post_match_family) == 0;
 
     FcPatternDestroy(pattern);
 
