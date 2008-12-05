@@ -710,9 +710,7 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 LINUX WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 LINUX WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
-LINUX WIN RELEASE : LayoutTests/svg/carto.net/selectionlist.svg = FAIL
-// Started failing in r6179:r6184. Not sure which change was the culprit.
-LINUX WIN DEBUG : LayoutTests/svg/carto.net/selectionlist.svg = CRASH
+LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
