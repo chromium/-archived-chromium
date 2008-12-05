@@ -176,18 +176,23 @@ bool BrowserList::HasBrowserWithProfile(Profile* profile) {
 }
 
 // static
-bool BrowserList::is_app_modal_ = false;
+views::AppModalDialogDelegate* BrowserList::app_modal_dialog_ = NULL;
 
 // static
-void BrowserList::SetIsShowingAppModalDialog(bool is_app_modal) {
-  // If we are already modal, we can't go modal again.
-  DCHECK(!(is_app_modal_ && is_app_modal));
-  is_app_modal_ = is_app_modal;
+void BrowserList::SetShowingAppModalDialog(
+    views::AppModalDialogDelegate* dialog) {
+  DCHECK(!(app_modal_dialog_ && dialog));
+  app_modal_dialog_ = dialog;
+}
+
+// static
+views::AppModalDialogDelegate* BrowserList::GetShowingAppModalDialog() {
+  return app_modal_dialog_;
 }
 
 // static
 bool BrowserList::IsShowingAppModalDialog() {
-  return is_app_modal_;
+  return app_modal_dialog_ != NULL;
 }
 
 // static

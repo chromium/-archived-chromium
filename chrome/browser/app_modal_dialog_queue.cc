@@ -24,7 +24,7 @@ void AppModalDialogQueue::AddDialog(views::AppModalDialogDelegate* dialog) {
 // static
 void AppModalDialogQueue::ShowNextDialog() {
   app_modal_dialog_queue_->pop();
-  BrowserList::SetIsShowingAppModalDialog(false);
+  BrowserList::SetShowingAppModalDialog(NULL);
   if (!app_modal_dialog_queue_->empty()) {
     ShowModalDialog(app_modal_dialog_queue_->front());
   } else {
@@ -43,6 +43,7 @@ void AppModalDialogQueue::ActivateModalDialog() {
 void AppModalDialogQueue::ShowModalDialog(
     views::AppModalDialogDelegate* dialog) {
   dialog->ShowModalDialog();
-  BrowserList::SetIsShowingAppModalDialog(true);
+  BrowserList::SetShowingAppModalDialog(dialog);
 }
+
 

@@ -15,6 +15,7 @@
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
+#include "chrome/views/dialog_delegate.h"
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -302,32 +303,56 @@ bool AutomationProxy::WaitForWindowCountToBecome(int count,
   return false;
 }
 
-bool AutomationProxy::GetShowingAppModalDialog(bool* showing_app_modal_dialog) {
-  if (!showing_app_modal_dialog) {
+bool AutomationProxy::GetShowingAppModalDialog(
+    bool* showing_app_modal_dialog,
+    views::DialogDelegate::DialogButton* button) {
+  if (!showing_app_modal_dialog || !button) {
     NOTREACHED();
     return false;
   }
 
   IPC::Message* response = NULL;
   bool is_timeout = true;
-  bool succeeded = SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_ShowingAppModalDialogRequest(0), &response,
-      AutomationMsg_ShowingAppModalDialogResponse::ID,
-      kMaxCommandExecutionTime, &is_timeout);
-  if (!succeeded)
+  if (!SendAndWaitForResponseWithTimeout(
+          new AutomationMsg_ShowingAppModalDialogRequest(0), &response,
+          AutomationMsg_ShowingAppModalDialogResponse::ID,
+          kMaxCommandExecutionTime, &is_timeout)) {
     return false;
+  }
 
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
   if (is_timeout) {
     DLOG(ERROR) << "ShowingAppModalDialog did not complete in a timely fashion";
     return false;
   }
 
   void* iter = NULL;
-  if (!response->ReadBool(&iter, showing_app_modal_dialog)) {
-    succeeded = false;
+  int button_int = 0;
+  if (!response->ReadBool(&iter, showing_app_modal_dialog) ||
+      !response->ReadInt(&iter, &button_int))
+    return false;
+
+  *button = static_cast<views::DialogDelegate::DialogButton>(button_int);
+  return true;
+}
+
+bool AutomationProxy::ClickAppModalDialogButton(
+    views::DialogDelegate::DialogButton button) {
+  IPC::Message* response = NULL;
+  bool is_timeout = true;
+  if (!SendAndWaitForResponseWithTimeout(
+          new AutomationMsg_ClickAppModalDialogButtonRequest(0, button),
+          &response,
+          AutomationMsg_ClickAppModalDialogButtonResponse::ID,
+          kMaxCommandExecutionTime, &is_timeout)) {
+    return false;
   }
 
-  delete response;
+  bool succeeded = false;
+  void* iter = NULL;
+  if (!response->ReadBool(&iter, &succeeded))
+    return false;
+
   return succeeded;
 }
 
@@ -336,7 +361,9 @@ bool AutomationProxy::WaitForAppModalDialog(int wait_timeout) {
   const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
   while (TimeTicks::Now() - start < timeout) {
     bool dialog_shown = false;
-    bool succeeded = GetShowingAppModalDialog(&dialog_shown);
+    views::DialogDelegate::DialogButton button =
+        views::DialogDelegate::DIALOGBUTTON_NONE;
+    bool succeeded = GetShowingAppModalDialog(&dialog_shown, &button);
     if (!succeeded) {
       // Try again next round, but log it.
       DLOG(ERROR) << "GetShowingAppModalDialog returned false";

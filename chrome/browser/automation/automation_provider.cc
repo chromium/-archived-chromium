@@ -30,6 +30,8 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
+#include "chrome/views/app_modal_dialog_delegate.h"
+#include "chrome/views/window.h"
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_filter.h"
 
@@ -811,6 +813,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         SetIntPreference)
     IPC_MESSAGE_HANDLER(AutomationMsg_ShowingAppModalDialogRequest,
                         GetShowingAppModalDialog)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ClickAppModalDialogButtonRequest,
+                        ClickAppModalDialogButton)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1074,9 +1078,38 @@ void AutomationProvider::GetBrowserWindowCount(const IPC::Message& message) {
 }
 
 void AutomationProvider::GetShowingAppModalDialog(const IPC::Message& message) {
+  views::AppModalDialogDelegate* dialog_delegate =
+      BrowserList::GetShowingAppModalDialog();
   Send(new AutomationMsg_ShowingAppModalDialogResponse(
-           message.routing_id(),
-           static_cast<bool>(BrowserList::IsShowingAppModalDialog())));
+           message.routing_id(), dialog_delegate != NULL,
+           dialog_delegate ? dialog_delegate->GetDialogButtons() :
+                             views::DialogDelegate::DIALOGBUTTON_NONE));
+}
+
+void AutomationProvider::ClickAppModalDialogButton(const IPC::Message& message,
+                                                   int button) {
+  bool success = false;
+
+  views::AppModalDialogDelegate* dialog_delegate =
+      BrowserList::GetShowingAppModalDialog();
+  if (dialog_delegate &&
+      (dialog_delegate->GetDialogButtons() & button) == button) {
+    views::DialogClientView* client_view =
+        dialog_delegate->window()->client_view()->AsDialogClientView();
+    if ((button & views::DialogDelegate::DIALOGBUTTON_OK) ==
+        views::DialogDelegate::DIALOGBUTTON_OK) {
+      client_view->AcceptWindow();
+      success =  true;
+    }
+    if ((button & views::DialogDelegate::DIALOGBUTTON_CANCEL) ==
+        views::DialogDelegate::DIALOGBUTTON_CANCEL) {
+      DCHECK(!success) << "invalid param, OK and CANCEL specified";
+      client_view->CancelWindow();
+      success =  true;
+    }
+  }
+  Send(new AutomationMsg_ClickAppModalDialogButtonResponse(
+      message.routing_id(), success));
 }
 
 void AutomationProvider::GetBrowserWindow(const IPC::Message& message,

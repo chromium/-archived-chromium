@@ -106,6 +106,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                  int handle);
   void GetBrowserWindowCount(const IPC::Message& message);
   void GetShowingAppModalDialog(const IPC::Message& message);
+  void ClickAppModalDialogButton(const IPC::Message& message,
+                                 int button);
   void GetBrowserWindow(const IPC::Message& message, int index);
   void GetLastActiveBrowserWindow(const IPC::Message& message);
   void GetActiveWindow(const IPC::Message& message);

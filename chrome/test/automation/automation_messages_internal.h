@@ -802,14 +802,23 @@ IPC_BEGIN_MESSAGES(Automation, 0)
                       bool /* success */)
 
   // Queries whether an app modal dialog is currently being shown. (i.e. a
-  // javascript alert).
+  // javascript alert) and which buttons it contains.
   IPC_MESSAGE_ROUTED0(AutomationMsg_ShowingAppModalDialogRequest)
-  IPC_MESSAGE_ROUTED1(AutomationMsg_ShowingAppModalDialogResponse,
-                      bool /* showing dialog */)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_ShowingAppModalDialogResponse,
+                      bool /* showing dialog */,
+                      int /* view::DelegateDialog::DialogButton */)
 
   // Returns the ordinal and the number of matches found as a response to
   // a AutomationMsg_FindRequest.
   IPC_MESSAGE_ROUTED2(AutomationMsg_FindInPageResponse2,
                       int /* active_ordinal */,
                       int /* matches_found */)
+
+  // This message triggers the specified button for the currently showing
+  // modal dialog.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_ClickAppModalDialogButtonRequest,
+                      int /* view::DelegateDialog::DialogButton */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_ClickAppModalDialogButtonResponse,
+                      bool /* success */)
+
 IPC_END_MESSAGES(Automation)

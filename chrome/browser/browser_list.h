@@ -11,6 +11,7 @@
 #include "chrome/browser/browser.h"
 
 namespace views {
+class AppModalDialogDelegate;
 class Window;
 };
 class WebContents;
@@ -76,30 +77,9 @@ class BrowserList {
   // Returns true if there is at least one Browser with the specified profile.
   static bool HasBrowserWithProfile(Profile* profile);
 
-  // Set whether the last active browser should be modal or not, if
-  // |is_app_modal| is true, the last active browser window will be activated
-  // and brought to the front whenever the user attempts to activate any other
-  // browser window. If |is_app_modal| is false all window activation works as
-  // normal. SetIsShowingAppModalDialog should not be called with |is_app_modal|
-  // set to true if the last active browser is already modal.
-  //
-  // TODO(devint): http://b/issue?id=1123402 Application modal dialogs aren't
-  // selected, just the last active browser. Therefore, to properly use this
-  // function we have to set the modal dialog as a child of a browser,
-  // activate that browser window, call SetIsShowingAppModalDialog(true), and
-  // implement the modal dialog as window modal to its parent. This still isn't
-  // perfect,however, because it just assures that the browser is activated, and
-  // the dialog will be on top of that browser, but inactive. It will activate
-  // if the users attempts to interact with its parent window (the browser).
-  // Ideally we should activate the modal dialog, not just its parent browser.
-  //
-  // There is probably a less clunky way overall to implement application
-  // modality. Currently, if IsShowingAppModalDialog returns true, we handle
-  // messages right before the browser activates, and activate whatever
-  // GetLastActive() returns instead of whatever was trying to be activated.
-  // It'd be better if we could use built in OS modality handling to deal with
-  // this, but Windows only supports system modal or parent window modal.
-  static void SetIsShowingAppModalDialog(bool is_app_modal);
+  // Sets the passed dialog delegate as the currently showing dialog.
+  static void SetShowingAppModalDialog(views::AppModalDialogDelegate* dialog);
+  static views::AppModalDialogDelegate* GetShowingAppModalDialog();
 
   // True if the last active browser is application modal, false otherwise. See
   // SetIsShowingAppModalDialog for more details.
@@ -153,8 +133,8 @@ class BrowserList {
   typedef std::vector<views::Window*> DependentWindowList;
   static DependentWindowList dependent_windows_;
 
-  // True if last_active_ is app modal, false otherwise.
-  static bool is_app_modal_;
+  // Set to the currently showing modal dialog delegate if any, NULL otherwise.
+  static views::AppModalDialogDelegate* app_modal_dialog_;
 };
 
 

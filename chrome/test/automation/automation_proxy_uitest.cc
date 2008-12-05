@@ -17,12 +17,14 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
+#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/event.h"
 #include "net/base/net_util.h"
 
 class AutomationProxyTest : public UITest {
  protected:
   AutomationProxyTest() {
+    dom_automation_enabled_ = true;
     CommandLine::AppendSwitchWithValue(&launch_arguments_,
                                        switches::kLang,
                                        L"en-us");
@@ -817,4 +819,90 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
   std::vector<AutocompleteMatchData> matches;
   EXPECT_TRUE(edit->GetAutocompleteMatches(&matches));
   EXPECT_FALSE(matches.empty());
+}
+
+TEST_F(AutomationProxyTest, AppModalDialogTest) {
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+  scoped_ptr<TabProxy> tab(browser->GetTab(0));
+  tab.reset(browser->GetTab(0));
+  ASSERT_TRUE(tab.get());
+
+  bool modal_dialog_showing = false;
+  views::DialogDelegate::DialogButton button =
+      views::DialogDelegate::DIALOGBUTTON_NONE;
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_FALSE(modal_dialog_showing);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_NONE, button);
+
+  // Show a simple alert.
+  std::string content =
+      "data:text/html,<html><head><script>function onload() {"
+      "setTimeout(\"alert('hello');\", 1000); }</script></head>"
+      "<body onload='onload()'></body></html>";
+  tab->NavigateToURL(GURL(content));
+  EXPECT_TRUE(automation()->WaitForAppModalDialog(3000));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_TRUE(modal_dialog_showing);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_OK, button);
+
+  // Test that clicking missing button fails graciously and does not close the
+  // dialog.
+  EXPECT_FALSE(automation()->ClickAppModalDialogButton(
+      views::DialogDelegate::DIALOGBUTTON_CANCEL));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_TRUE(modal_dialog_showing);
+
+  // Now click OK, that should close the dialog.
+  EXPECT_TRUE(automation()->ClickAppModalDialogButton(
+      views::DialogDelegate::DIALOGBUTTON_OK));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_FALSE(modal_dialog_showing);
+
+  // Show a confirm dialog.
+  content =
+      "data:text/html,<html><head><script>var result = -1; function onload() {"
+      "setTimeout(\"result = confirm('hello') ? 0 : 1;\", 1000);} </script>"
+      "</head><body onload='onload()'></body></html>";
+  tab->NavigateToURL(GURL(content));
+  EXPECT_TRUE(automation()->WaitForAppModalDialog(3000));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_TRUE(modal_dialog_showing);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_OK |
+            views::DialogDelegate::DIALOGBUTTON_CANCEL, button);
+
+  // Click OK.
+  EXPECT_TRUE(automation()->ClickAppModalDialogButton(
+      views::DialogDelegate::DIALOGBUTTON_OK));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_FALSE(modal_dialog_showing);
+  int result = -1;
+  EXPECT_TRUE(tab->ExecuteAndExtractInt(
+      L"", L"window.domAutomationController.send(result);", &result));
+  EXPECT_EQ(0, result);
+
+  // Try again.
+  tab->NavigateToURL(GURL(content));
+  EXPECT_TRUE(automation()->WaitForAppModalDialog(3000));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_TRUE(modal_dialog_showing);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_OK |
+            views::DialogDelegate::DIALOGBUTTON_CANCEL, button);
+
+  // Click Cancel this time.
+  EXPECT_TRUE(automation()->ClickAppModalDialogButton(
+      views::DialogDelegate::DIALOGBUTTON_CANCEL));
+  EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+                                                     &button));
+  EXPECT_FALSE(modal_dialog_showing);
+  EXPECT_TRUE(tab->ExecuteAndExtractInt(
+      L"", L"window.domAutomationController.send(result);", &result));
+  EXPECT_EQ(1, result);
 }
