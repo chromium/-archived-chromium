@@ -133,7 +133,8 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
   deserializer.set_allow_trailing_comma(true);
   Value* root_val = NULL;
   have_suggest_results_ = status.is_success() && (response_code == 200) &&
-      deserializer.Deserialize(&root_val) && ParseSuggestResults(root_val);
+      deserializer.Deserialize(&root_val, NULL) &&
+      ParseSuggestResults(root_val);
   delete root_val;
   ConvertResultsToAutocompleteMatches();
   listener_->OnProviderUpdate(!suggest_results_.empty());

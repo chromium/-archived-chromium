@@ -21,11 +21,12 @@
 //   character, the function skips a Unicode BOM at the beginning of the
 //   Unicode string (converted from the input UTF-8 string) before parsing it.
 //
-// TODO(tc): It would be nice to give back an error string when we fail to
-//   parse JSON.
 // TODO(tc): Add a parsing option to to relax object keys being wrapped in
 //   double quotes
 // TODO(tc): Add an option to disable comment stripping
+// TODO(aa): Consider making the constructor public and the static Read() method
+// only a convenience for the common uses with more complex configuration going
+// on the instance.
 
 #ifndef BASE_JSON_READER_H_
 #define BASE_JSON_READER_H_
@@ -74,25 +75,51 @@ class JSONReader {
     }
   };
 
-  // Reads and parses |json| and populates |root|.  If |json| is not a properly
-  // formed JSON string, returns false and leaves root unaltered.  If
-  // allow_trailing_comma is true, we will ignore trailing commas in objects
-  // and arrays even though this goes against the RFC.
+  // Error messages that can be returned.
+  static const char* kBadRootElementType;
+  static const char* kInvalidEscape;
+  static const char* kSyntaxError;
+  static const char* kTrailingComma;
+  static const char* kTooMuchNesting;
+  static const char* kUnexpectedDataAfterRoot;
+  static const char* kUnsupportedEncoding;
+  static const char* kUnquotedDictionaryKey;
+
+  // Reads and parses |json| and populates |root|. If |json| is not a properly
+  // formed JSON string, returns false, leaves root unaltered and sets
+  // error_message if it was non-null. If allow_trailing_comma is true, we will
+  // ignore trailing commas in objects and arrays even though this goes against
+  // the RFC.
   static bool Read(const std::string& json,
                    Value** root,
                    bool allow_trailing_comma);
 
+  // Reads and parses |json| like Read(). |error_message_out| is optional. If
+  // specified and false is returned, error_message_out will be populated with
+  // a string describing the error. Otherwise, error_message_out is unmodified.
+  static bool ReadAndReturnError(const std::string& json,
+                                 Value** root,
+                                 bool allow_trailing_comma,
+                                 std::string *error_message_out);
+
  private:
-  JSONReader(const wchar_t* json_start_pos, bool allow_trailing_comma);
+  static std::string FormatErrorMessage(int line, int column,
+                                        const char* description);
+
+  JSONReader();
   DISALLOW_EVIL_CONSTRUCTORS(JSONReader);
 
   FRIEND_TEST(JSONReaderTest, Reading);
+  FRIEND_TEST(JSONReaderTest, ErrorMessages);
+
+  // Returns the error message if the last call to JsonToValue() failed. If the
+  // last call did not fail, returns a valid empty string.
+  std::string error_message() { return error_message_; }
 
   // Pass through method from JSONReader::Read.  We have this so unittests can
   // disable the root check.
-  static bool JsonToValue(const std::string& json, Value** root,
-                          bool check_root,
-                          bool allow_trailing_comma);
+  bool JsonToValue(const std::string& json, Value** root, bool check_root,
+                   bool allow_trailing_comma);
 
   // Recursively build Value.  Returns false if we don't have a valid JSON
   // string.  If |is_root| is true, we verify that the root element is either
@@ -135,6 +162,13 @@ class JSONReader {
   // Checks if json_pos_ matches str.
   bool NextStringMatch(const std::wstring& str);
 
+  // Creates the error message that will be returned to the caller. The current
+  // line and column are determined and added into the final message.
+  void SetErrorMessage(const char* description, const wchar_t* error_pos);
+
+  // Pointer to the starting position in the input string.
+  const wchar_t* start_pos_;
+
   // Pointer to the current position in the input string.
   const wchar_t* json_pos_;
 
@@ -143,6 +177,9 @@ class JSONReader {
 
   // A parser flag that allows trailing commas in objects and arrays.
   bool allow_trailing_comma_;
+
+  // Contains the error message for the last call to JsonToValue(), if any.
+  std::string error_message_;
 };
 
 #endif  // BASE_JSON_READER_H_

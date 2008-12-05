@@ -13,7 +13,7 @@ namespace {
 DictionaryValue* ReadJSONPrefs(const std::string& data) {
   JSONStringValueSerializer json(data);
   Value* root;
-  if (!json.Deserialize(&root))
+  if (!json.Deserialize(&root, NULL))
     return NULL;
   if (!root->IsType(Value::TYPE_DICTIONARY)) {
     delete root;

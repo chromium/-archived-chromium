@@ -71,66 +71,116 @@ bool ReadHexDigits(JSONReader::Token& token, int digits) {
 
 }  // anonymous namespace
 
+const char* JSONReader::kBadRootElementType =
+    "Root value must be an array or object.";
+const char* JSONReader::kInvalidEscape =
+    "Invalid escape sequence.";
+const char* JSONReader::kSyntaxError =
+    "Syntax error.";
+const char* JSONReader::kTrailingComma =
+    "Trailing comma not allowed.";
+const char* JSONReader::kTooMuchNesting =
+    "Too much nesting.";
+const char* JSONReader::kUnexpectedDataAfterRoot =
+    "Unexpected data after root element.";
+const char* JSONReader::kUnsupportedEncoding =
+    "Unsupported encoding. JSON must be UTF-8.";
+const char* JSONReader::kUnquotedDictionaryKey =
+    "Dictionary keys must be quoted.";
+
 /* static */
 bool JSONReader::Read(const std::string& json,
                       Value** root,
                       bool allow_trailing_comma) {
-  return JsonToValue(json, root, true, allow_trailing_comma);
+  return ReadAndReturnError(json, root, allow_trailing_comma, NULL);
 }
 
 /* static */
-bool JSONReader::JsonToValue(const std::string& json,
-                             Value** root,
-                             bool check_root,
-                             bool allow_trailing_comma) {
-  // The input must be in UTF-8.
-  if (!IsStringUTF8(json.c_str()))
+bool JSONReader::ReadAndReturnError(const std::string& json,
+                                    Value** root,
+                                    bool allow_trailing_comma,
+                                    std::string *error_message_out) {
+  JSONReader reader = JSONReader();
+  if (reader.JsonToValue(json, root, true, allow_trailing_comma)) {
+    return true;
+  } else {
+    if (error_message_out)
+      *error_message_out = reader.error_message();
     return false;
+  }
+}
+
+/* static */
+std::string JSONReader::FormatErrorMessage(int line, int column,
+                                           const char* description) {
+  return StringPrintf("Line: %i, column: %i, %s",
+                      line, column, description);
+}
+
+JSONReader::JSONReader()
+  : start_pos_(NULL), json_pos_(NULL), stack_depth_(0),
+    allow_trailing_comma_(false) {}
+
+bool JSONReader::JsonToValue(const std::string& json, Value** root,
+                             bool check_root, bool allow_trailing_comma) {
+  // The input must be in UTF-8.
+  if (!IsStringUTF8(json.c_str())) {
+    error_message_ = kUnsupportedEncoding;
+    return false;
+  }
+
   // The conversion from UTF8 to wstring removes null bytes for us
   // (a good thing).
   std::wstring json_wide(UTF8ToWide(json));
-  const wchar_t* json_cstr = json_wide.c_str();
+  start_pos_ = json_wide.c_str();
 
   // When the input JSON string starts with a UTF-8 Byte-Order-Mark
   // (0xEF, 0xBB, 0xBF), the UTF8ToWide() function converts it to a Unicode
   // BOM (U+FEFF). To avoid the JSONReader::BuildValue() function from
   // mis-treating a Unicode BOM as an invalid character and returning false,
   // skip a converted Unicode BOM if it exists.
-  if (!json_wide.empty() && json_cstr[0] == 0xFEFF) {
-    ++json_cstr;
+  if (!json_wide.empty() && start_pos_[0] == 0xFEFF) {
+    ++start_pos_;
   }
 
-  JSONReader reader(json_cstr, allow_trailing_comma);
+  json_pos_ = start_pos_;
+  allow_trailing_comma_ = allow_trailing_comma;
+  stack_depth_ = 0;
+  error_message_.clear();
 
   Value* temp_root = NULL;
-  bool success = reader.BuildValue(&temp_root, check_root);
 
   // Only modify root_ if we have valid JSON and nothing else.
-  if (success && reader.ParseToken().type == Token::END_OF_INPUT) {
-    *root = temp_root;
-    return true;
+  if (BuildValue(&temp_root, check_root)) {
+    if (ParseToken().type == Token::END_OF_INPUT) {
+      *root = temp_root;
+      return true;
+    } else {
+      SetErrorMessage(kUnexpectedDataAfterRoot, json_pos_);
+    }
   }
+
+  // Default to calling errors "syntax errors".
+  if (error_message_.empty())
+    SetErrorMessage(kSyntaxError, json_pos_);
 
   if (temp_root)
     delete temp_root;
   return false;
 }
 
-JSONReader::JSONReader(const wchar_t* json_start_pos,
-                       bool allow_trailing_comma)
-  : json_pos_(json_start_pos),
-    stack_depth_(0),
-    allow_trailing_comma_(allow_trailing_comma) {}
-
 bool JSONReader::BuildValue(Value** node, bool is_root) {
   ++stack_depth_;
-  if (stack_depth_ > kStackLimit)
+  if (stack_depth_ > kStackLimit) {
+    SetErrorMessage(kTooMuchNesting, json_pos_);
     return false;
+  }
 
   Token token = ParseToken();
   // The root token must be an array or an object.
   if (is_root && token.type != Token::OBJECT_BEGIN &&
       token.type != Token::ARRAY_BEGIN) {
+    SetErrorMessage(kBadRootElementType, json_pos_);
     return false;
   }
 
@@ -184,6 +234,7 @@ bool JSONReader::BuildValue(Value** node, bool is_root) {
             // consumers need the parsing leniency, so handle accordingly.
             if (token.type == Token::ARRAY_END) {
               if (!allow_trailing_comma_) {
+                SetErrorMessage(kTrailingComma, json_pos_);
                 delete array;
                 return false;
               }
@@ -212,6 +263,7 @@ bool JSONReader::BuildValue(Value** node, bool is_root) {
         DictionaryValue* dict = new DictionaryValue;
         while (token.type != Token::OBJECT_END) {
           if (token.type != Token::STRING) {
+            SetErrorMessage(kUnquotedDictionaryKey, json_pos_);
             delete dict;
             return false;
           }
@@ -252,6 +304,7 @@ bool JSONReader::BuildValue(Value** node, bool is_root) {
             // consumers need the parsing leniency, so handle accordingly.
             if (token.type == Token::OBJECT_END) {
               if (!allow_trailing_comma_) {
+                SetErrorMessage(kTrailingComma, json_pos_);
                 delete dict;
                 return false;
               }
@@ -347,12 +400,16 @@ JSONReader::Token JSONReader::ParseStringToken() {
       // Make sure the escaped char is valid.
       switch (c) {
         case 'x':
-          if (!ReadHexDigits(token, 2))
+          if (!ReadHexDigits(token, 2)) {
+            SetErrorMessage(kInvalidEscape, json_pos_ + token.length);
             return kInvalidToken;
+          }
           break;
         case 'u':
-          if (!ReadHexDigits(token, 4))
+          if (!ReadHexDigits(token, 4)) {
+            SetErrorMessage(kInvalidEscape, json_pos_ + token.length);
             return kInvalidToken;
+          }
           break;
         case '\\':
         case '/':
@@ -365,6 +422,7 @@ JSONReader::Token JSONReader::ParseStringToken() {
         case '"':
           break;
         default:
+          SetErrorMessage(kInvalidEscape, json_pos_ + token.length);
           return kInvalidToken;
       }
     } else if ('"' == c) {
@@ -582,3 +640,25 @@ bool JSONReader::EatComment() {
   return true;
 }
 
+void JSONReader::SetErrorMessage(const char* description,
+                                 const wchar_t* error_pos) {
+  int line_number = 1;
+  int column_number = 1;
+
+  // Figure out the line and column the error occured at.
+  for (const wchar_t* pos = start_pos_; pos != error_pos; ++pos) {
+    if (*pos == '\0') {
+      NOTREACHED();
+      return;
+    }
+
+    if (*pos == '\n') {
+      ++line_number;
+      column_number = 1;
+    } else {
+      ++column_number;
+    }
+  }
+
+  error_message_ = FormatErrorMessage(line_number, column_number, description);
+}

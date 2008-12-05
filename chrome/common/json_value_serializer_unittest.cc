@@ -18,7 +18,7 @@ TEST(JSONValueSerializerTest, Roundtrip) {
     "{\"bool\":true,\"int\":42,\"list\":[1,2],\"null\":null,\"real\":3.14}";
   Value* root = NULL;
   JSONStringValueSerializer serializer(original_serialization);
-  ASSERT_TRUE(serializer.Deserialize(&root));
+  ASSERT_TRUE(serializer.Deserialize(&root, NULL));
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
 
@@ -121,7 +121,7 @@ TEST(JSONValueSerializerTest, UnicodeStrings) {
   // escaped ascii text -> json
   Value* deserial_root = NULL;
   JSONStringValueSerializer deserializer(expected);
-  ASSERT_TRUE(deserializer.Deserialize(&deserial_root));
+  ASSERT_TRUE(deserializer.Deserialize(&deserial_root, NULL));
   DictionaryValue* dict_root = static_cast<DictionaryValue*>(deserial_root);
   std::wstring web_value;
   ASSERT_TRUE(dict_root->GetString(L"web", &web_value));
@@ -145,7 +145,7 @@ TEST(JSONValueSerializerTest, HexStrings) {
   // escaped ascii text -> json
   Value* deserial_root = NULL;
   JSONStringValueSerializer deserializer(expected);
-  ASSERT_TRUE(deserializer.Deserialize(&deserial_root));
+  ASSERT_TRUE(deserializer.Deserialize(&deserial_root, NULL));
   DictionaryValue* dict_root = static_cast<DictionaryValue*>(deserial_root);
   std::wstring test_value;
   ASSERT_TRUE(dict_root->GetString(L"test", &test_value));
@@ -156,7 +156,7 @@ TEST(JSONValueSerializerTest, HexStrings) {
   deserial_root = NULL;
   std::string escaped_chars = "{\"test\":\"\\x67\\x6f\"}";
   JSONStringValueSerializer deserializer2(escaped_chars);
-  ASSERT_TRUE(deserializer2.Deserialize(&deserial_root));
+  ASSERT_TRUE(deserializer2.Deserialize(&deserial_root, NULL));
   dict_root = static_cast<DictionaryValue*>(deserial_root);
   ASSERT_TRUE(dict_root->GetString(L"test", &test_value));
   ASSERT_EQ(std::wstring(L"go"), test_value);
@@ -172,8 +172,8 @@ TEST(JSONValueSerializerTest, AllowTrailingComma) {
   JSONStringValueSerializer serializer(test_with_commas);
   serializer.set_allow_trailing_comma(true);
   JSONStringValueSerializer serializer_expected(test_no_commas);
-  ASSERT_TRUE(serializer.Deserialize(&root));
-  ASSERT_TRUE(serializer_expected.Deserialize(&root_expected));
+  ASSERT_TRUE(serializer.Deserialize(&root, NULL));
+  ASSERT_TRUE(serializer_expected.Deserialize(&root_expected, NULL));
   ASSERT_TRUE(root->Equals(root_expected));
 
   delete root;
@@ -262,7 +262,7 @@ TEST_F(JSONFileValueSerializerTest, Roundtrip) {
 
   JSONFileValueSerializer deserializer(original_file_path);
   Value* root;
-  ASSERT_TRUE(deserializer.Deserialize(&root));
+  ASSERT_TRUE(deserializer.Deserialize(&root, NULL));
 
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
@@ -312,7 +312,7 @@ TEST_F(JSONFileValueSerializerTest, RoundtripNested) {
 
   JSONFileValueSerializer deserializer(original_file_path);
   Value* root;
-  ASSERT_TRUE(deserializer.Deserialize(&root));
+  ASSERT_TRUE(deserializer.Deserialize(&root, NULL));
 
   // Now try writing.
   std::wstring written_file_path = test_dir_;
@@ -338,7 +338,7 @@ TEST_F(JSONFileValueSerializerTest, NoWhitespace) {
   ASSERT_TRUE(file_util::PathExists(source_file_path));
   JSONFileValueSerializer serializer(source_file_path);
   Value* root;
-  ASSERT_TRUE(serializer.Deserialize(&root));
+  ASSERT_TRUE(serializer.Deserialize(&root, NULL));
   ASSERT_TRUE(root);
   delete root;
 }

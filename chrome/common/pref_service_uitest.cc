@@ -83,7 +83,7 @@ TEST_F(PreferenceServiceTest, PreservedWindowPlacementIsLoaded) {
 
   JSONFileValueSerializer deserializer(tmp_pref_file_);
   Value* root = NULL;
-  ASSERT_TRUE(deserializer.Deserialize(&root));
+  ASSERT_TRUE(deserializer.Deserialize(&root, NULL));
 
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));

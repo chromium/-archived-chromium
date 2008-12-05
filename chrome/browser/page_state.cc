@@ -42,7 +42,7 @@ void PageState::InitWithBytes(const std::string& bytes) {
   JSONStringValueSerializer serializer(bytes);
   Value* root = NULL;
 
-  if (!serializer.Deserialize(&root))
+  if (!serializer.Deserialize(&root, NULL))
     NOTREACHED();
 
   if (root != NULL && root->GetType() == Value::TYPE_DICTIONARY) {

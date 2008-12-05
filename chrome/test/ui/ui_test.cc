@@ -463,7 +463,7 @@ static DictionaryValue* LoadDictionaryValueFromPath(const std::wstring& path) {
 
   JSONFileValueSerializer serializer(path);
   Value* root_value = NULL;
-  if (serializer.Deserialize(&root_value) &&
+  if (serializer.Deserialize(&root_value, NULL) &&
       root_value->GetType() != Value::TYPE_DICTIONARY) {
     delete root_value;
     return NULL;

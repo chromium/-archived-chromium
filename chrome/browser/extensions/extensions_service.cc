@@ -86,7 +86,7 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
 
     JSONFileValueSerializer serializer(manifest_path.ToWStringHack());
     Value* root = NULL;
-    if (!serializer.Deserialize(&root)) {
+    if (!serializer.Deserialize(&root, NULL)) {
       ReportExtensionLoadError(frontend.get(), 
                                Extension::kInvalidManifestError);
       continue;

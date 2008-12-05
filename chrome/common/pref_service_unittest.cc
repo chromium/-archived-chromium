@@ -155,19 +155,20 @@ TEST_F(PrefServiceTest, Overlay) {
   Value* transient_value;
   {
     JSONStringValueSerializer serializer(transient);
-    ASSERT_TRUE(serializer.Deserialize(&transient_value));
+    ASSERT_TRUE(serializer.Deserialize(&transient_value, NULL));
   }
   prefs.transient()->Set(transient_string, transient_value);
 
   Value* both_transient_value;
   {
     JSONStringValueSerializer serializer(transient);
-    ASSERT_TRUE(serializer.Deserialize(&both_transient_value));
+    ASSERT_TRUE(serializer.Deserialize(&both_transient_value, NULL));
   }
   prefs.transient()->Set(L"both", both_transient_value);
 
   // Register test prefs
-  const wchar_t* kTypes[] = { L"neither.", L"persistent.", L"transient.", L"both." };
+  const wchar_t* kTypes[] =
+      { L"neither.", L"persistent.", L"transient.", L"both." };
   for (size_t i = 0; i < arraysize(kTypes); ++i) {
     wchar_t temp[1024];
     wcscpy_s(temp, kTypes[i]);

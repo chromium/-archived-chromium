@@ -352,8 +352,10 @@ class ValueSerializer {
   // The method should return true if and only if the root parameter is set
   // to a complete Value representation of the serialized form.  If the
   // return value is true, the caller takes ownership of the objects pointed
-  // to by root.  If the return value is false, root should be unchanged.
-  virtual bool Deserialize(Value** root) = 0;
+  // to by root.  If the return value is false, root should be unchanged and if
+  // error_message is non-null, it should be filled with a message describing
+  // the error.
+  virtual bool Deserialize(Value** root, std::string* error_message) = 0;
 };
 
 #endif  // BASE_VALUES_H_

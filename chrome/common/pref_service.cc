@@ -137,7 +137,7 @@ bool PrefService::LoadPersistentPrefs(const std::wstring& file_path) {
 
   JSONFileValueSerializer serializer(file_path);
   Value* root = NULL;
-  if (serializer.Deserialize(&root)) {
+  if (serializer.Deserialize(&root, NULL)) {
     // Preferences should always have a dictionary root.
     if (!root->IsType(Value::TYPE_DICTIONARY)) {
       delete root;
@@ -156,7 +156,7 @@ void PrefService::ReloadPersistentPrefs() {
 
   JSONFileValueSerializer serializer(pref_filename_);
   Value* root;
-  if (serializer.Deserialize(&root)) {
+  if (serializer.Deserialize(&root, NULL)) {
     // Preferences should always have a dictionary root.
     if (!root->IsType(Value::TYPE_DICTIONARY)) {
       delete root;

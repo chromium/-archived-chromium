@@ -555,7 +555,7 @@ bool TabProxy::ExecuteAndExtractValue(const std::wstring& frame_xpath,
   json.append("]");
 
   JSONStringValueSerializer deserializer(json);
-  succeeded = deserializer.Deserialize(value);
+  succeeded = deserializer.Deserialize(value, NULL);
 
   delete response;
   return succeeded;

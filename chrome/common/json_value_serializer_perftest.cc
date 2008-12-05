@@ -54,7 +54,7 @@ TEST_F(JSONValueSerializerTests, Reading) {
     for (size_t j = 0; j < test_cases_.size(); ++j) {
       Value* root = NULL;
       JSONStringValueSerializer reader(test_cases_[j]);
-      ASSERT_TRUE(reader.Deserialize(&root));
+      ASSERT_TRUE(reader.Deserialize(&root, NULL));
       delete root;
     }
   }
@@ -69,7 +69,7 @@ TEST_F(JSONValueSerializerTests, CompactWriting) {
   for (size_t i = 0; i < test_cases_.size(); ++i) {
     Value* root = NULL;
     JSONStringValueSerializer reader(test_cases_[i]);
-    ASSERT_TRUE(reader.Deserialize(&root));
+    ASSERT_TRUE(reader.Deserialize(&root, NULL));
     test_cases.push_back(root);
   }
 

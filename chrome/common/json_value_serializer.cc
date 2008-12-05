@@ -21,11 +21,14 @@ bool JSONStringValueSerializer::Serialize(const Value& root) {
   return true;
 }
 
-bool JSONStringValueSerializer::Deserialize(Value** root) {
+bool JSONStringValueSerializer::Deserialize(Value** root,
+                                            std::string* error_message) {
   if (!json_string_)
     return false;
 
-  return JSONReader::Read(*json_string_, root, allow_trailing_comma_);
+  return JSONReader::ReadAndReturnError(*json_string_, root,
+                                        allow_trailing_comma_,
+                                        error_message);
 }
 
 /******* File Serializer *******/
@@ -47,12 +50,13 @@ bool JSONFileValueSerializer::Serialize(const Value& root) {
   return true;
 }
 
-bool JSONFileValueSerializer::Deserialize(Value** root) {
+bool JSONFileValueSerializer::Deserialize(Value** root,
+                                          std::string* error_message) {
   std::string json_string;
   if (!file_util::ReadFileToString(json_file_path_, &json_string)) {
     return false;
   }
   JSONStringValueSerializer serializer(json_string);
-  return serializer.Deserialize(root);
+  return serializer.Deserialize(root, error_message);
 }
 
