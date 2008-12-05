@@ -1,0 +1,4 @@
+keyframes-rule.html
+------------------------------
+typeof(window.CSSStyleDeclaration) returns Object in JSC and function in V8.
+This isn't important.

@@ -780,10 +780,6 @@ DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 // way.  Maybe this is just flaky because it's animating faster?
 LayoutTests/animations/big-rotation.html = FAIL PASS
 
-// Differences between v8 and jsc for typeof(window.CSSStyleDeclaration).
-// http://crbug.com/5074
-LayoutTests/animations/keyframes-rule.html = FAIL
-
 // Wrong, and the baseline appears to be wrong in a different way!
 LINUX : LayoutTests/css2.1/t040302-c61-ex-len-00-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t040302-c61-rel-len-00-b-ag.html = FAIL
