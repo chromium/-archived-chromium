@@ -89,7 +89,6 @@ void Filter::FixupEncodingTypes(
       // .gz files.  We match Firefox's nsHttpChannel::ProcessNormal and ignore
       // the Content-Encoding here.
       encoding_types->clear();
-    return;
   }
 
   if (!is_sdch_response) {

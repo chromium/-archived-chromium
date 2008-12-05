@@ -144,7 +144,11 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
       return FILTER_NEED_MORE_DATA;
     }
     if (PASS_THROUGH == decoding_status_) {
-      return CopyOut(dest_buffer, dest_len);
+      // We must pass in available_space, but it will be changed to bytes_used.
+      FilterStatus result = CopyOut(dest_buffer, &available_space);
+      // Accumulate the returned count of bytes_used (a.k.a., available_space).
+      *dest_len += available_space;
+      return result;
     }
     DCHECK(false);
     decoding_status_ = DECODING_ERROR;
