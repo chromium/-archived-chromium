@@ -249,6 +249,8 @@ IPC_BEGIN_MESSAGES(PluginHost, 6)
   IPC_SYNC_MESSAGE_ROUTED0_1(PluginHostMsg_GetCPBrowsingContext,
                              uint32 /* context */)
 
+  IPC_MESSAGE_ROUTED0(PluginHostMsg_CancelDocumentLoad)
+
   IPC_MESSAGE_ROUTED5(PluginHostMsg_InitiateHTTPRangeRequest,
                       std::string /* url */,
                       std::string /* range_info */,

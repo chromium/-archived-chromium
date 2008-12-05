@@ -322,6 +322,7 @@ void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginHostMsg_URLRequest, OnHandleURLRequest)
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetCPBrowsingContext,
                         OnGetCPBrowsingContext)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_CancelDocumentLoad, OnCancelDocumentLoad)
     IPC_MESSAGE_HANDLER(PluginHostMsg_InitiateHTTPRangeRequest,
                         OnInitiateHTTPRangeRequest)
     IPC_MESSAGE_UNHANDLED_ERROR()
@@ -732,6 +733,10 @@ void WebPluginDelegateProxy::URLRequestRouted(const std::string& url,
                                                void* notify_data) {
   Send(new PluginMsg_URLRequestRouted(instance_id_, url, notify_needed,
                                       notify_data));
+}
+
+void WebPluginDelegateProxy::OnCancelDocumentLoad() {
+  plugin_->CancelDocumentLoad();
 }
 
 void WebPluginDelegateProxy::OnInitiateHTTPRangeRequest(
