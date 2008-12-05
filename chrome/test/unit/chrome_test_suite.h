@@ -8,6 +8,7 @@
 #include "base/stats_table.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "base/test_suite.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -24,6 +25,8 @@ public:
 protected:
 
   virtual void Initialize() {
+    base::ScopedNSAutoreleasePool autorelease_pool;
+    
     TestSuite::Initialize();
 
     chrome::RegisterPathProvider();

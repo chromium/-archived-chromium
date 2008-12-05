@@ -13,9 +13,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/json_value_serializer.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-class ExtensionsServiceTest : public testing::Test {
-};
+#include "testing/platform_test.h"
 
 
 // A mock implementation of ExtensionsServiceFrontendInterface for testing the
@@ -50,10 +48,11 @@ class ExtensionsServiceTestFrontend
   std::vector<std::wstring> errors_;
 };
 
+// make the test a PlatformTest to setup autorelease pools properly on mac
+typedef PlatformTest ExtensionsServiceTest;
 
 // Test loading extensions from the profile directory.
 TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
-#if defined(OS_WIN)
   std::wstring extensions_dir;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_dir));
   FilePath manifest_path = FilePath::FromWStringHack(extensions_dir).Append(
@@ -94,5 +93,4 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   EXPECT_EQ(std::wstring(L""),
             frontend->extensions()->at(1)->description());
   EXPECT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
-#endif
 };

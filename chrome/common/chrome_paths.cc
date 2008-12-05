@@ -213,28 +213,26 @@ bool PathProvider(int key, FilePath* result) {
     // will fail if executed from an installed executable (because the
     // generated path won't exist).
     case chrome::DIR_TEST_DATA:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
+      if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
-      file_util::UpOneDirectory(&cur);
+      file_util::AppendToPath(&cur, L"chrome");
       file_util::AppendToPath(&cur, L"test");
       file_util::AppendToPath(&cur, L"data");
       if (!file_util::PathExists(cur))  // we don't want to create this
         return false;
       break;
     case chrome::DIR_TEST_TOOLS:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
+      if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
-      file_util::UpOneDirectory(&cur);
+      file_util::AppendToPath(&cur, L"chrome");
       file_util::AppendToPath(&cur, L"tools");
       file_util::AppendToPath(&cur, L"test");
       if (!file_util::PathExists(cur))  // we don't want to create this
         return false;
       break;
     case chrome::FILE_PYTHON_RUNTIME:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
+      if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
-      file_util::UpOneDirectory(&cur);  // chrome
-      file_util::UpOneDirectory(&cur);
       file_util::AppendToPath(&cur, L"third_party");
       file_util::AppendToPath(&cur, L"python_24");
       file_util::AppendToPath(&cur, L"python.exe");
@@ -242,9 +240,9 @@ bool PathProvider(int key, FilePath* result) {
         return false;
       break;
     case chrome::FILE_TEST_SERVER:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
+      if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
-      file_util::UpOneDirectory(&cur);
+      file_util::AppendToPath(&cur, L"net");
       file_util::AppendToPath(&cur, L"tools");
       file_util::AppendToPath(&cur, L"test");
       file_util::AppendToPath(&cur, L"testserver");
