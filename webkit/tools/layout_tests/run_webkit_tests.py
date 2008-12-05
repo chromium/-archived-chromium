@@ -39,6 +39,7 @@ from layout_package import http_server
 from layout_package import path_utils
 from layout_package import test_failures
 from layout_package import test_shell_thread
+from test_types import fuzzy_image_diff
 from test_types import image_diff
 from test_types import test_type_base
 from test_types import text_diff
@@ -597,6 +598,8 @@ def main(options, args):
   test_runner.AddTestType(simplified_text_diff.SimplifiedTextDiff)
   if not options.no_pixel_tests:
     test_runner.AddTestType(image_diff.ImageDiff)
+    if options.fuzzy_pixel_tests:
+      test_runner.AddTestType(fuzzy_image_diff.FuzzyImageDiff)
   has_new_failures = test_runner.Run()
   logging.info("Exit status: %d" % has_new_failures)
   sys.exit(has_new_failures)
@@ -606,6 +609,10 @@ if '__main__' == __name__:
   option_parser.add_option("", "--no-pixel-tests", action="store_true",
                            default=False,
                            help="disable pixel-to-pixel PNG comparisons")
+  option_parser.add_option("", "--fuzzy-pixel-tests", action="store_true",
+                           default=False,
+                           help="Also use fuzzy matching to compare pixel test "
+                                "outputs.")
   option_parser.add_option("", "--results-directory",
                            default="layout-test-results",
                            help="Output results directory source dir,"

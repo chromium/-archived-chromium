@@ -202,3 +202,10 @@ class FailureImageHashMismatch(FailureWithType):
     # to the PNGs rather than the checksums.
     return "Image mismatch"
 
+class FailureFuzzyFailure(FailureWithType):
+  """Image hashes didn't match."""
+  OUT_FILENAMES = ["-actual-win.png", "-expected.png"]
+
+  @staticmethod
+  def Message():
+    return "Fuzzy image match also failed"
