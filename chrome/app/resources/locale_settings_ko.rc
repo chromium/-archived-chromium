@@ -19,7 +19,6 @@ BEGIN
   IDS_SPELLCHECK_DICTIONARY     "en-US"
   IDS_LEARN_MORE_MALWARE_URL    "http://www.google.co.kr/support/bin/answer.py?answer=45449&topic=360&hl=ko&sa=X&oi=malwarewarninglink&resnum=1&ct=help"
   IDS_LEARN_MORE_PHISHING_URL   "http://www.google.com/support/bin/answer.py?answer=106318&hl=ko"
-  IDS_PAGE_MENU_REPORT_PHISHING_WEBSITE_URL "http://fix.me.please/?url=$1"
   IDS_OPTIONS_DIALOG_WIDTH_CHARS "98"
   IDS_OPTIONS_DIALOG_HEIGHT_LINES "39"
   IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS "26"

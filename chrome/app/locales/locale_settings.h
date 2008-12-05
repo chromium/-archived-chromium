@@ -47,8 +47,7 @@
 
 // Removed: #define IDS_REPORT_ERROR_PHISHING_URL 1018
 
-// URL for reporting a site as phishing.
-#define IDS_PAGE_MENU_REPORT_PHISHING_WEBSITE_URL 1019
+// Removed: #define IDS_PAGE_MENU_REPORT_PHISHING_WEBSITE_URL 1019
 
 // The width of the Options dialog box, in characters (character width =
 // average character width for default dialog box font)
