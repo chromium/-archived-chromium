@@ -97,7 +97,9 @@
 #include "InspectorController.h"
 #include "KeyboardEvent.h"
 #include "Location.h"
+#include "MediaError.h"
 #include "MediaList.h"
+#include "MediaPlayer.h"
 #include "MessageChannel.h"
 #include "MessageEvent.h"
 #include "MessagePort.h"
@@ -127,6 +129,7 @@
 #include "StyleSheetList.h"
 #include "TextEvent.h"
 #include "TextMetrics.h"
+#include "TimeRanges.h"
 #include "TreeWalker.h"
 #include "WebKitCSSTransformValue.h"
 #include "XMLHttpRequest.h"
@@ -2582,8 +2585,7 @@ bool V8Proxy::IsWrapperOfType(v8::Handle<v8::Value> value,
   macro(textarea, TEXTAREA)                      \
   macro(title, TITLE)                            \
   macro(ul, ULIST)                               \
-  macro(xmp, PRE)                                \
-  FOR_EACH_VIDEO_TAG(macro)
+  macro(xmp, PRE)
 
 V8ClassIndex::V8WrapperType V8Proxy::GetHTMLElementType(HTMLElement* element)
 {
@@ -2592,6 +2594,15 @@ V8ClassIndex::V8WrapperType V8Proxy::GetHTMLElementType(HTMLElement* element)
 #define ADD_TO_HASH_MAP(tag, name) \
     map.set(#tag, V8ClassIndex::HTML##name##ELEMENT);
 FOR_EACH_TAG(ADD_TO_HASH_MAP)
+#if ENABLE(VIDEO)
+    // If MediaPlayer::isAvailable() == false, WebCore::videoConstructor
+    // created a HTMLElement object for <video> tag rather than HTMLVideoElement
+    // so only add the mappings if the media player is available, or we will get
+    // the wrong element type. Same thing for <audio> and <source>.
+    if (MediaPlayer::isAvailable()) {
+FOR_EACH_VIDEO_TAG(ADD_TO_HASH_MAP)
+    }
+#endif
 #undef ADD_TO_HASH_MAP
   }
 
