@@ -658,7 +658,8 @@ LINUX WIN : LayoutTests/fast/canvas/drawImage.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
-LINUX WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
+WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
+LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 LINUX WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 LINUX WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
@@ -671,7 +672,8 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Fails in release and debug. Sometimes crashes in debug.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
+WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
+LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -758,7 +760,8 @@ pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
 
 // This test seems to fail on the builders but not locally.
-LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL CRASH
+WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
+LINUX : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL CRASH
 
 // TODO(eroman): passed for me locally, need to see why failed on buildbot...
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
@@ -1087,7 +1090,8 @@ LINUX MAC : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-na
 LINUX MAC : LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 LINUX MAC : LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 LINUX MAC : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
-LINUX MAC : chrome/plugins/call-as-function.html = CRASH FAIL
+MAC : chrome/plugins/call-as-function.html = CRASH
+LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
 LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
 LINUX MAC : chrome/plugins/get-url-with-blank-target.html = FAIL
 LINUX MAC : chrome/plugins/multiple-plugins.html = FAIL
@@ -1298,7 +1302,8 @@ LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL CRASH
+WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
+LINUX : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL CRASH
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
@@ -1819,7 +1824,8 @@ MAC : LayoutTests/fast/js/postfix-syntax.html = FAIL
 MAC : LayoutTests/fast/js/prefix-syntax.html = FAIL
 MAC : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
 MAC : LayoutTests/fast/js/recursion-limit-equal.html = FAIL
-MAC LINUX : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL TIMEOUT
+MAC : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL
+LINUX : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/js/regexp-compile-crash.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile.html = FAIL
 MAC : LayoutTests/fast/js/regexp-no-extensions.html = FAIL
