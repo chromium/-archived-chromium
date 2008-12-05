@@ -7,6 +7,7 @@ Import('env')
 env = env.Clone()
 
 env.ApplySConscript([
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$SKIA_DIR/using_skia.scons',
 ])
 
