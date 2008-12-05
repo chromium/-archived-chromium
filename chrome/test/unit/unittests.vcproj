@@ -1033,6 +1033,10 @@
 				RelativePath="..\..\browser\extensions\extension_unittest.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\..\browser\extensions\extensions_service_unittest.cc"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1,0 +1,10 @@
+{
+  "format_version": 1,
+  "id": "com.google.myextension1",
+  "name": "My extension 1",
+  "description": "The first extension that I made.",
+  "content_scripts": [
+    "script1.user.js",
+    "script2.user.js"
+  ]
+}

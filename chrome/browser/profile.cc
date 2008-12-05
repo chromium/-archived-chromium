@@ -17,6 +17,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/greasemonkey_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/navigation_controller.h"
@@ -384,6 +385,10 @@ class OffTheRecordProfileImpl : public Profile,
     return profile_->GetVisitedLinkMaster();
   }
 
+  virtual ExtensionsService* GetExtensionsService() {
+    return profile_->GetExtensionsService();
+  }
+
   virtual GreasemonkeyMaster* GetGreasemonkeyMaster() {
     return profile_->GetGreasemonkeyMaster();
   }
@@ -547,6 +552,7 @@ class OffTheRecordProfileImpl : public Profile,
 ProfileImpl::ProfileImpl(const std::wstring& path)
     : path_(path),
       off_the_record_(false),
+      extensions_service_(new ExtensionsService(FilePath(path))),
       history_service_created_(false),
       created_web_data_service_(false),
       created_download_manager_(false),
@@ -686,6 +692,10 @@ VisitedLinkMaster* ProfileImpl::GetVisitedLinkMaster() {
   }
 
   return visited_link_master_.get();
+}
+
+ExtensionsService* ProfileImpl::GetExtensionsService() {
+  return extensions_service_.get();
 }
 
 GreasemonkeyMaster* ProfileImpl::GetGreasemonkeyMaster() {

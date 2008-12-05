@@ -7,30 +7,35 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
-const std::wstring Extension::kFormatVersionKey(L"format_version");
-const std::wstring Extension::kIdKey(L"id");
-const std::wstring Extension::kNameKey(L"name");
-const std::wstring Extension::kDescriptionKey(L"description");
-const std::wstring Extension::kContentScriptsKey(L"content_scripts");
+const FilePath::CharType* Extension::kManifestFilename =
+    FILE_PATH_LITERAL("manifest");
 
-const std::wstring Extension::kInvalidFormatVersionError(
+const wchar_t* Extension::kFormatVersionKey = L"format_version";
+const wchar_t* Extension::kIdKey = L"id";
+const wchar_t* Extension::kNameKey = L"name";
+const wchar_t* Extension::kDescriptionKey = L"description";
+const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
+
+const wchar_t* Extension::kInvalidManifestError =
+    L"Manifest is missing or invalid.";
+const wchar_t* Extension::kInvalidFormatVersionError =
     StringPrintf(L"Required key '%ls' is missing or invalid",
-                 kFormatVersionKey.c_str()));
-const std::wstring Extension::kInvalidIdError(
+                 kFormatVersionKey).c_str();
+const wchar_t* Extension::kInvalidIdError =
     StringPrintf(L"Required key '%ls' is missing or invalid.",
-                 kIdKey.c_str()));
-const std::wstring Extension::kInvalidNameError(
+                 kIdKey).c_str();
+const wchar_t* Extension::kInvalidNameError =
     StringPrintf(L"Required key '%ls' is missing or has invalid type.",
-                 kNameKey.c_str()));
-const std::wstring Extension::kInvalidDescriptionError(
+                 kNameKey).c_str();
+const wchar_t* Extension::kInvalidDescriptionError =
     StringPrintf(L"Invalid type for '%ls' key.",
-                 kDescriptionKey.c_str()));
-const std::wstring Extension::kInvalidContentScriptsListError(
+                 kDescriptionKey).c_str();
+const wchar_t* Extension::kInvalidContentScriptsListError =
     StringPrintf(L"Invalid type for '%ls' key.",
-                 kContentScriptsKey.c_str()));
-const std::wstring Extension::kInvalidContentScriptError(
+                 kContentScriptsKey).c_str();
+const wchar_t* Extension::kInvalidContentScriptError =
     StringPrintf(L"Invalid type for %ls at index ",
-                 kContentScriptsKey.c_str()));
+                 kContentScriptsKey).c_str();
 
 bool Extension::InitFromValue(const DictionaryValue& source,
                               std::wstring* error) {

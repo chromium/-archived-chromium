@@ -66,6 +66,9 @@ class TestingProfile : public Profile {
   virtual VisitedLinkMaster* GetVisitedLinkMaster() {
     return NULL;
   }
+  virtual ExtensionsService* GetExtensionsService() {
+    return NULL;
+  }
   virtual GreasemonkeyMaster* GetGreasemonkeyMaster() {
     return NULL;
   }

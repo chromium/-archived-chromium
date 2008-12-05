@@ -336,6 +336,9 @@ const wchar_t kSdchFilter[] = L"enable-sdch";
 // Enable Greasemonkey script support.
 const wchar_t kEnableGreasemonkey[] = L"enable-greasemonkey";
 
+// Enable extensions.
+const wchar_t kEnableExtensions[] = L"enable-extensions";
+
 // Causes the browser to launch directly in incognito mode.
 const wchar_t kIncognito[] = L"incognito";
 

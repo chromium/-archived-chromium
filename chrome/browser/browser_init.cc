@@ -22,6 +22,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
+#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/infobar_delegate.h"
 #include "chrome/browser/navigation_controller.h"
@@ -480,6 +481,11 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
         base::EventRecorder::current()->StartPlayback(script_path);
     }
   }
+
+  // Start up the extensions service
+  if (parsed_command_line.HasSwitch(switches::kEnableExtensions))
+    profile->GetExtensionsService()->Init();
+
   return true;
 }
 

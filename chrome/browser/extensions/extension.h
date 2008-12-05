@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_H__
-#define CHROME_BROWSER_EXTENSIONS_EXTENSION_H__
+#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
+#define CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
 
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/string16.h"
 #include "base/values.h"
 
@@ -19,20 +20,24 @@ class Extension {
   // The format for extension manifests that this code understands.
   static const int kExpectedFormatVersion = 1;
 
+  // The name of the manifest inside an extension.
+  static const FilePath::CharType* kManifestFilename;
+
   // Keys used in JSON representation of extensions.
-  static const std::wstring kFormatVersionKey;
-  static const std::wstring kIdKey;
-  static const std::wstring kNameKey;
-  static const std::wstring kDescriptionKey;
-  static const std::wstring kContentScriptsKey;
+  static const wchar_t* kFormatVersionKey;
+  static const wchar_t* kIdKey;
+  static const wchar_t* kNameKey;
+  static const wchar_t* kDescriptionKey;
+  static const wchar_t* kContentScriptsKey;
 
   // Error messages returned from InitFromValue().
-  static const std::wstring kInvalidFormatVersionError;
-  static const std::wstring kInvalidIdError;
-  static const std::wstring kInvalidNameError;
-  static const std::wstring kInvalidDescriptionError;
-  static const std::wstring kInvalidContentScriptsListError;
-  static const std::wstring kInvalidContentScriptError;
+  static const wchar_t* kInvalidFormatVersionError;
+  static const wchar_t* kInvalidManifestError;
+  static const wchar_t* kInvalidIdError;
+  static const wchar_t* kInvalidNameError;
+  static const wchar_t* kInvalidDescriptionError;
+  static const wchar_t* kInvalidContentScriptsListError;
+  static const wchar_t* kInvalidContentScriptError;
 
   // A human-readable ID for the extension. The convention is to use something
   // like 'com.example.myextension', but this is not currently enforced. An
@@ -68,4 +73,4 @@ class Extension {
   DISALLOW_COPY_AND_ASSIGN(Extension);
 };
 
-#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_H__
+#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_H_

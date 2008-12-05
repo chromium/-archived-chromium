@@ -24,6 +24,7 @@
 
 class BookmarkModel;
 class DownloadManager;
+class ExtensionsService;
 class GreasemonkeyMaster;
 class HistoryService;
 class NavigationController;
@@ -101,6 +102,10 @@ class Profile {
   // profile.  The VisitedLinkMaster is lazily created the first time
   // that this method is called.
   virtual VisitedLinkMaster* GetVisitedLinkMaster() = 0;
+
+  // Retrieves a pointer to the ExtensionsService associated with this
+  // profile. The ExtensionsService is created at startup.
+  virtual ExtensionsService* GetExtensionsService() = 0;
 
   // Retrieves a pointer to the GreasemonkeyMaster associated with this
   // profile.  The GreasemonkeyMaster is lazily created the first time
@@ -243,6 +248,7 @@ class ProfileImpl : public Profile,
   virtual Profile* GetOriginalProfile();
   virtual VisitedLinkMaster* GetVisitedLinkMaster();
   virtual GreasemonkeyMaster* GetGreasemonkeyMaster();
+  virtual ExtensionsService* GetExtensionsService();
   virtual HistoryService* GetHistoryService(ServiceAccessType sat);
   virtual WebDataService* GetWebDataService(ServiceAccessType sat);
   virtual PrefService* GetPrefs();
@@ -303,6 +309,7 @@ class ProfileImpl : public Profile,
   std::wstring path_;
   bool off_the_record_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
+  scoped_refptr<ExtensionsService> extensions_service_;
   scoped_refptr<GreasemonkeyMaster> greasemonkey_master_;
   scoped_ptr<PrefService> prefs_;
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;

@@ -2173,6 +2173,14 @@
 				RelativePath=".\extensions\extension.h"
 				>
 			</File>
+			<File
+				RelativePath=".\extensions\extensions_service.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extensions_service.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\browser_trial.cc"
