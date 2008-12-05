@@ -1,0 +1,6 @@
+This file documents why the various tests have been rebaselined.
+
+eval-keyword-vs-function
+eval-cross-window
+--------------------------
+Only difference is the value of toString() on the window object.

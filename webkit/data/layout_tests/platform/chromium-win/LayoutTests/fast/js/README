@@ -121,3 +121,8 @@ regexp-overflow
 --------------------------
 This tests artificial limits on the size of regexps.  We allow larger
 regexps than JSCRE.
+
+eval-keyword-vs-function
+eval-cross-window
+--------------------------
+Only difference is the value of toString() on the window object.
