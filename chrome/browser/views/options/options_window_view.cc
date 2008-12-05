@@ -15,6 +15,9 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/views/user_data_page_view.h"
+#endif
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/root_view.h"
@@ -183,16 +186,27 @@ void OptionsWindowView::Init() {
   tabs_->SetListener(this);
   AddChildView(tabs_);
 
+  int tab_index = 0;
   GeneralPageView* general_page = new GeneralPageView(profile_);
-  tabs_->AddTabAtIndex(0, l10n_util::GetString(IDS_OPTIONS_GENERAL_TAB_LABEL),
+  tabs_->AddTabAtIndex(tab_index++,
+                       l10n_util::GetString(IDS_OPTIONS_GENERAL_TAB_LABEL),
                        general_page, false);
 
   ContentPageView* content_page = new ContentPageView(profile_);
-  tabs_->AddTabAtIndex(1, l10n_util::GetString(IDS_OPTIONS_CONTENT_TAB_LABEL),
+  tabs_->AddTabAtIndex(tab_index++,
+                       l10n_util::GetString(IDS_OPTIONS_CONTENT_TAB_LABEL),
                        content_page, false);
 
+#ifdef CHROME_PERSONALIZATION
+  UserDataPageView* user_data_page = new UserDataPageView(profile_);
+  tabs_->AddTabAtIndex(tab_index++,
+                       l10n_util::GetString(IDS_OPTIONS_USER_DATA_TAB_LABEL),
+                       user_data_page, false);
+#endif
+
   AdvancedPageView* advanced_page = new AdvancedPageView(profile_);
-  tabs_->AddTabAtIndex(2, l10n_util::GetString(IDS_OPTIONS_ADVANCED_TAB_LABEL),
+  tabs_->AddTabAtIndex(tab_index++,
+                       l10n_util::GetString(IDS_OPTIONS_ADVANCED_TAB_LABEL),
                        advanced_page, false);
 
   DCHECK(tabs_->GetTabCount() == OPTIONS_PAGE_COUNT);
