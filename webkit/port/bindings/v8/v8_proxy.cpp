@@ -1376,7 +1376,11 @@ v8::Local<v8::Function> V8Proxy::GetConstructor(
       proto = v8::Persistent<v8::String>::New(v8::String::New("__proto__"));
     }
     v8::Handle<v8::FunctionTemplate> templ = GetTemplate(t);
+    v8::TryCatch try_catch;
+    // This might fail if we're running out of stack or memory.
     v8::Local<v8::Function> value = templ->GetFunction();
+    if (value.IsEmpty())
+      return v8::Local<v8::Function>();
     m_constructor_cache->Set(v8::Integer::New(t), value);
     value->Set(proto, m_initial_object_prototype);
     return value;
