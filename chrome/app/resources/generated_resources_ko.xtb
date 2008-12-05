@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">다음 페이지에서 응답이 없습니다. 페이지가 응답할 때까지 기다리거나 종료할 수 있습니다.</translation>
 <translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/>분 남음</translation>
 <translation id="2179052183774520942">검색엔진 추가</translation>
+<translation id="2956948609882871496">북마크 가져오기...</translation>
 <translation id="1621207256975573490">프레임을 다른 이름으로 저장...(&amp;f)</translation>
 <translation id="2278562042389100163">브라우저 창 열기</translation>
+<translation id="4589279373639964403">북마크 내보내기...</translation>
 <translation id="5463275305984126951"><ph name="LOCATION"/>의 색인</translation>
 <translation id="5154917547274118687">메모리</translation>
 <translation id="873849583815421063">종료 중...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">가져오기 건너뛰기</translation>
 <translation id="5516565854418269276">북마크바 항상 표시(&amp;A)</translation>
 <translation id="6426222199977479699">SSL 오류</translation>
+<translation id="443008484043213881">도구</translation>
 <translation id="8534801226027872331">이는 브라우저에 제출된 인증서에 오류가 있어 인증서를 판독할 수 없는 경우입니다. 인증서의 주소 정보나 연결을 보호하는 데 사용된 인증서의 다른 정보를 크롬이 판독하지 못한 것일 수 있습니다. 더 이상 진행하지 않는 것이 좋습니다.</translation>
 <translation id="4422347585044846479">이 페이지에 대한 북마크 편집</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">예</translation>
 <translation id="6513615899227776181">플러그인: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/>일 남음</translation>
+<translation id="1059307158073710225">맞춤법 검사:</translation>
 <translation id="7643817847124207232">인터넷 연결이 끊어졌습니다.</translation>
 <translation id="932327136139879170">홈</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/>분 남음</translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">그러나 이 페이지에는 안전하지 않은 다른 자료도 포함되어 있습니다. 이러한 자료는 전송 중에 다른 사용자에게 노출될 수 있으며, 해커에 의해 조작될 경우 페이지의 모양이나 움직임이 변경될 수도 있습니다.</translation>
 <translation id="4515911410595374805">이 페이지의 일부 요소는 통합 소스에서 가져온 것이므로 표시되지 않았습니다.</translation>
 <translation id="1195447618553298278">알 수 없는 오류</translation>
+<translation id="1087119889335281750">&amp;맞춤법 추천 없음</translation>
 <translation id="5076340679995252485">붙여넣기(&amp;P)</translation>
 <translation id="14171126816530869"><ph name="LOCALITY"/>에 위치한 <ph name="ORGANIZATION"/>의 주소를 <ph name="ISSUER"/>이(가) 확인했습니다.</translation>
 <translation id="1587275751631642843">자바스크립트 콘솔(&amp;J)</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312"><ph name="SEARCH_KEY"/>을(를) 눌러 <ph name="SITE_NAME"/> 검색</translation>
 <translation id="2342959293776168129">다운로드 기록 삭제</translation>
 <translation id="2503522102815150840">브라우저 충돌...</translation>
+<translation id="2815500128677761940">북마크바</translation>
 <translation id="8041183585493091279">추천 검색어 서비스 URL:</translation>
 <translation id="9189691339671500905">검색주소창에서 사용한 검색엔진을 설정합니다.</translation>
 <translation id="4571852245489094179">북마크 및 설정 가져오기</translation>
@@ -180,14 +186,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">호스트 알아내는 중...</translation>
 <translation id="3967132639560659870">다음 페이지에 여러 개의 SSL 오류가 있음:</translation>
+<translation id="5039804452771397117">허용</translation>
 <translation id="2266011376676382776">페이지 응답없음</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">북마크바</translation>
+<translation id="3493653833301553455">양식 자동완성:</translation>
 <translation id="644038709730536388">유해한 온라인 소프트웨어로부터 컴퓨터를 보호하는 방법에 대해 자세히 알아보세요.</translation>
 <translation id="4172706149171596436">프록시 설정 변경</translation>
 <translation id="5650551054760837876">검색결과를 찾지 못했습니다.</translation>
 <translation id="3234408098842461169">아래 화살표</translation>
 <translation id="825608351287166772">여권과 같은 신분증처럼 인증서에도 유효기간이 있습니다. 브라우저에 제출한 인증서가 아직 유효하지 않습니다. 인증서의 유효기간이 지난 경우 인증서 상태에 대한 특정 정보(예: 인증서 폐기 및 신뢰 가능 여부)가 유지되지 않습니다. 마찬가지로, 해당 인증서에 대한 신뢰성을 확인할 수 없습니다. 더 이상 진행하지 않는 것이 좋습니다.</translation>
+<translation id="2742457360514408037">차단된 팝업: <ph name="COUNT"/>개</translation>
 <translation id="4874539263382920044">제목에는 문자가 하나 이상 포함되어야 합니다.</translation>
 <translation id="3549657413697417275">방문한 페이지 검색</translation>
 <translation id="4250680216510889253">아니요</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">폴더 추가...</translation>
 <translation id="2794293857160098038">기본 검색 옵션</translation>
 <translation id="5935630983280450497"><ph name="NUMBER_ONE"/>분 남음</translation>
+<translation id="5496587651328244253">구성</translation>
 <translation id="5568069709869097550">로그인할 수 없음</translation>
 <translation id="4181898366589410653">서버 인증서에서 폐기 매커니즘을 발견하지 못했습니다.</translation>
 <translation id="6364916375976753737">왼쪽으로 스크롤</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">로드 중...</translation>
 <translation id="6592392877063354583"><ph name="SECURE_PAGE_URL"/>의 페이지에는 안전하지 못한 <ph name="INSECURE_RESOURCE_URL"/>의 콘텐츠가 포함되어 있습니다.</translation>
 <translation id="3810973564298564668">설정</translation>
+<translation id="254416073296957292">&amp;언어 설정...</translation>
 <translation id="4222982218026733335">유효하지 않은 서버 인증서</translation>
 <translation id="495091556140548787">최근 닫은 탭</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창에서 연 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 그러나 다운로드한 파일이나 작성한 북마크는 저장됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 주의:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 기업<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 제공하고 사용자의 키보드 입력을 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
@@ -249,6 +260,7 @@
 <translation id="6100736666660498114">시작 메뉴</translation>
 <translation id="1120098871254928930">모든 콘텐츠를 로드하도록 허용</translation>
 <translation id="3994878504415702912">글꼴 크기(&amp;Z)</translation>
+<translation id="5602600725402519729">새로고침</translation>
 <translation id="7965010376480416255">공유 메모리</translation>
 <translation id="6248988683584659830">검색 설정</translation>
 <translation id="8887733174653581061">항상 맨 위에 표시</translation>
@@ -274,6 +286,7 @@
 <translation id="3819791248093819058">다음 웹 주소에 대해 발견된 웹페이지가 없습니다. &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">이전</translation>
 <translation id="583281660410589416">알 수 없음</translation>
+<translation id="5528368756083817449">북마크 관리자</translation>
 <translation id="1560991001553749272">북마크가 추가되었습니다.</translation>
 <translation id="3966072572894326936">다른 폴더 선택...</translation>
 <translation id="7781829728241885113">어제</translation>
@@ -286,8 +299,10 @@
 <translation id="7334704644505105275">자바스크립트 디버거 - 사용 중</translation>
 <translation id="7629827748548208700">탭: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">크기</translation>
+<translation id="1383876407941801731">검색</translation>
 <translation id="8398877366907290961">무시하고 계속하기</translation>
 <translation id="290414493736480793">응답</translation>
+<translation id="6449085810994685586">&amp;입력란 맞춤법 확인</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/>분 남음</translation>
 <translation id="8664389313780386848">페이지 소스 보기(&amp;V)</translation>
 <translation id="57646104491463491">수정된 날짜</translation>
@@ -381,6 +396,7 @@
 <translation id="8695758493354644945"><ph name="SEARCH_TERMS"/>이(가) 포함된 방문자 페이지에서 <ph name="NUM_MATCHES"/>개의 최신 결과 보기</translation>
 <translation id="8186012393692847636">제안 서비스를 사용하여 검색어 및 주소창에 입력되는 URL을 완성합니다.</translation>
 <translation id="4711094779914110278">터키어</translation>
+<translation id="4002066346123236978">제목</translation>
 <translation id="9015241028623917394">현재 페이지 관리</translation>
 <translation id="7861215335140947162">다운로드(&amp;D)</translation>
 <translation id="2505402373176859469"><ph name="TOTAL_SIZE"/>중 <ph name="RECEIVED_AMOUNT"/></translation>
@@ -410,6 +426,7 @@
 <translation id="8877448029301136595">[상위 디렉토리]</translation>
 <translation id="1963227389609234879">모두 삭제</translation>
 <translation id="2496180316473517155">인터넷 사용 기록</translation>
+<translation id="602251597322198729">사이트에서 여러 개의 파일을 다운로드하려 하고 있습니다. 허용하시겠습니까?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/>시간</translation>
 <translation id="6691936601825168937">앞으로(F)</translation>
 <translation id="7736284018483078792">맞춤법 검사 사전의 언어를 변경합니다.</translation>
@@ -439,7 +456,10 @@
 <translation id="8053959338015477773">이 페이지에 일부 요소를 표시하는 데는 추가적인 플러그인이 필요합니다.</translation>
 <translation id="4666192354592784528">이 페이지는 안전하지 않은 연결로 검색될 수 있습니다. 이 페이지에는 안전하지 않은 연결로 검색되는 요소가 포함돼 있습니다.</translation>
 <translation id="7414887922320653780"><ph name="NUMBER_ONE"/>시간 남음</translation>
+<translation id="399179161741278232">가져온 북마크</translation>
+<translation id="3927932062596804919">거부</translation>
 <translation id="6484929352454160200"><ph name="PRODUCT_NAME"/>의 새 버전 사용 가능</translation>
+<translation id="7035824132811506448">최근 추가된 항목</translation>
 <translation id="2371076942591664043">완료되면 열기(&amp;d)</translation>
 <translation id="6069278982995177296">새 창에서 보기</translation>
 <translation id="2979639724566107830">새 창에서 열기</translation>
@@ -449,7 +469,7 @@
 <translation id="4047498523333824092">가장 최근에 열어본 페이지</translation>
 <translation id="6503077044568424649">자주 방문한 페이지</translation>
 <translation id="1040471547130882189">플러그인 응답없음</translation>
-<translation id="790025292736025802"><ph name="URL"/>을 찾을 수 없음</translation>
+<translation id="790025292736025802"><ph name="URL"/>을(를) 찾을 수 없습니다.</translation>
 <translation id="895347679606913382">다운로드 시작 중...</translation>
 <translation id="3319048459796106952">새 시크릿 창(&amp;I)</translation>
 <translation id="4195643157523330669">새 탭에서 열기</translation>
@@ -469,6 +489,7 @@
 <translation id="8434177709403049435">인코딩(&amp;E)</translation>
 <translation id="7895330511272068835">플러그인 사용</translation>
 <translation id="9012607008263791152">이 사이트를 방문하는 것이 내 컴퓨터에 해를 줄 수 있음을 잘 알고 있습니다.</translation>
+<translation id="6004539838376062211">&amp;맞춤법 검사 옵션</translation>
 <translation id="7887334752153342268">새 창에서 보기</translation>
 <translation id="703748601351783580">모든 북마크를 새 창에서 열기</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -477,6 +498,7 @@
 <translation id="5291303148298143069">팝업 차단 시 알림</translation>
 <translation id="2115926821277323019">유효한 URL이어야 함</translation>
 <translation id="7397054681783221164">다음 항목 삭제:</translation>
+<translation id="4891251785049117953">저장된 양식 데이터 삭제</translation>
 <translation id="7554791636758816595">새 탭</translation>
 <translation id="4400697530699263877">DNS 프리페칭으로 페이지 로드 속도 개선하기</translation>
 <translation id="1086613338090581534">만료되지 않은 인증서에 대해 인증서 발급자는 '폐기 목록'을 관리해야 할 책임이 있습니다. 인증서가 손상된 경우 발급자는 해당 인증서를 폐기 목록에 추가하여 인증서를 폐기할 수 있으며, 폐기된 인증서는 브라우저에서 신뢰하지 않습니다. 만료된 인증서에 대해서는 폐기 상태를 유지하지 않아도 되므로, 방문 중인 웹사이트에서 유효했던 인증서가 손상되어 폐기되었는지 또는 아직 안전하게 사용할 수 있는지를 현재로서는 확인할 수 없습니다. 이와 마찬가지로 통신 중인 웹사이트가 합법적인지 또는 인증서가 손상되어 현재 통신 중인 해커가 이를 소유하고 있는지를 확인할 수도 없습니다. 더 이상 진행하지 않는 것이 좋습니다.</translation>
@@ -493,6 +515,7 @@
 <translation id="4890855023395992542">서비스 URL</translation>
 <translation id="2814489978934728345">해당 페이지 로드 중지</translation>
 <translation id="2354001756790975382">기타 북마크</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/>이 업데이트되었습니다.</translation>
 <translation id="641480858134062906"><ph name="URL"/>을(를) 로드하지 못했습니다.</translation>
 <translation id="3693415264595406141">비밀번호:</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/>을(를) 기본 검색엔진으로 유지</translation>
@@ -514,6 +537,7 @@
 <translation id="345693547134384690">새 탭에서 이미지 열기(&amp;i)</translation>
 <translation id="1375198122581997741">버전 정보</translation>
 <translation id="1474307029659222435">새 창에서 프레임 열기(&amp;w)</translation>
+<translation id="3527085408025491307">폴더</translation>
 <translation id="3169621169201401257">이러한 부분에 문제가 있을 경우 <ph name="DOMAIN"/>에 대한 Google <ph name="DIAGNOSTIC_PAGE"/>를 참조하시기 바랍니다.</translation>
 <translation id="2559292239863842334">다른 사이트에서 자주 사용하는 검색창이 여기에 나타납니다.</translation>
 <translation id="770015031906360009">그리스어</translation>
@@ -521,6 +545,7 @@
 <translation id="884923133447025588">폐기 매커니즘을 찾을 수 없습니다.</translation>
 <translation id="9170848237812810038">실행 취소(&amp;U)</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/>이 <ph name="VERSION"/>로 업데이트되었습니다.</translation>
 <translation id="9154176715500758432">이 페이지에 머무르기</translation>
 <translation id="5875565123733157100">버그 유형:</translation>
 <translation id="2440604414813129000">소스 보기(&amp;o)</translation>
@@ -547,6 +572,7 @@
 <translation id="4745142959976410383">사용자가 요청한 것이 아니라면 시스템에 해커가 공격한 것일 수 있습니다. 이 요청을 했는지 확실치 않으면 취소를 클릭하세요.</translation>
 <translation id="8288345061925649502">검색엔진 변경</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/>초</translation>
+<translation id="6652942492341627832">텍스트 저장 후 유사한 입력란 자동 완성</translation>
 <translation id="5139955368427980650">열기(&amp;O)</translation>
 <translation id="746319800473277382">다음 사이트 홈페이지로 이동:</translation>
 <translation id="8562413501751825163">가져오기 전에 Firefox 창 닫기</translation>
@@ -569,6 +595,7 @@
 <translation id="1485146213770915382">검색어가 표시되는 URL에 <ph name="SEARCH_TERMS_LITERAL"/>을(를) 삽입합니다.</translation>
 <translation id="5626134646977739690">이름:</translation>
 <translation id="7125953501962311360">기본 브라우저:</translation>
+<translation id="721197778055552897">이 문제에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">안전하지 않은 콘텐츠가 포함되어 이 프레임을 차단했습니다.</translation>
 <translation id="8112223930265703044">전체</translation>
@@ -578,6 +605,7 @@
 <translation id="486595306984036763">피싱 보고서 열기</translation>
 <translation id="1568162916422682473">다음 플러그인이 작동을 멈췄습니다. : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">기본 설정으로 돌아가기</translation>
+<translation id="8116972784401310538">&amp;북마크 관리자</translation>
 <translation id="6040143037577758943">닫기</translation>
 <translation id="4910619056351738551">다음과 같은 몇 가지 제안이 있습니다.</translation>
 <translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트에 악성코드를 호스팅하는 것으로 보이는 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;의 요소가 포함되어 있습니다. 악성코드는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 소프트웨어입니다. 악성코드를 포함하는 사이트에 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>

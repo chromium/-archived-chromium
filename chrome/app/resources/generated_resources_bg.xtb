@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">Следните страници са блокирали. Можете да изчакате, докато те се активират отново, или да ги затворите.</translation>
 <translation id="1209866192426315618">Остават <ph name="NUMBER_DEFAULT"/> минути</translation>
 <translation id="2179052183774520942">Добавяне на търсеща машина</translation>
+<translation id="2956948609882871496">Импортиране на отметки...</translation>
 <translation id="1621207256975573490">&amp;Запазване на рамката като...</translation>
 <translation id="2278562042389100163">Отваряне на прозореца на браузъра</translation>
+<translation id="4589279373639964403">Експортиране на отметките...</translation>
 <translation id="5463275305984126951">Индекс на <ph name="LOCATION"/></translation>
 <translation id="5154917547274118687">Памет</translation>
 <translation id="873849583815421063">Завършва...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">Пропускане на импортирането</translation>
 <translation id="5516565854418269276">&amp;Непрекъснато показване на лентата на отметките</translation>
 <translation id="6426222199977479699">SSL грешка</translation>
+<translation id="443008484043213881">Инструменти</translation>
 <translation id="8534801226027872331">В този случай представеният на браузъра ви сертификат съдържа грешки, които не могат да бъдат изтълкувани. Това може да означава, че не можем да разберем информацията за самоличността в самия сертификат или друга информация в него, използвана за подсигуряването на връзката. Не продължавайте нататък!</translation>
 <translation id="4422347585044846479">Редактиране на отметката за тази страница</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">Да</translation>
 <translation id="6513615899227776181">Приставка: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184">Остават <ph name="NUMBER_MANY"/> дни</translation>
+<translation id="1059307158073710225">Проверка на правописа:</translation>
 <translation id="7643817847124207232">Връзката с интернет прекъсна.</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868">Остават <ph name="NUMBER_MANY"/> мин</translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">Тази страница обаче съдържа други ресурси, които не са сигурни. Те могат да бъдат видени от други хора, докато се прехвърлят, и съответно да бъдат видоизменени от хакер с цел промяна на облика и начина на работа на страницата.</translation>
 <translation id="4515911410595374805">Някои елементи в тази страница са от непроверен източник, поради което не са показани.</translation>
 <translation id="1195447618553298278">Неизвестна грешка.</translation>
+<translation id="1087119889335281750">&amp;Няма предложения за правопис</translation>
 <translation id="5076340679995252485">&amp;Поставяне</translation>
 <translation id="14171126816530869">Самоличността на <ph name="ORGANIZATION"/> от <ph name="LOCALITY"/> е проверена от <ph name="ISSUER"/>.</translation>
 <translation id="1587275751631642843">&amp;Конзола на JavaScript</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312">Натиснете <ph name="SEARCH_KEY"/>, за да търсите с <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Изчистване на историята на изтеглянията</translation>
 <translation id="2503522102815150840">О, ужас! Браузърът блокира</translation>
+<translation id="2815500128677761940">Лента на отметките</translation>
 <translation id="8041183585493091279">URL адрес на услугата за предложения:</translation>
 <translation id="9189691339671500905">Задайте търсещата машина, която да се използва в полето за всичко.</translation>
 <translation id="4571852245489094179">Импортиране на отметки и настройки</translation>
@@ -180,14 +186,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Получава се разрешение от хоста...</translation>
 <translation id="3967132639560659870">На тази страница има няколко SSL грешки:</translation>
+<translation id="5039804452771397117">Разрешаване</translation>
 <translation id="2266011376676382776">Блокирали страници</translation>
 <translation id="1805966933547717780">http://www.google.com/support/chrome/?hl=bg</translation>
 <translation id="5782620817391526544">Лента на отметките</translation>
+<translation id="3493653833301553455">Автоматично попълване на формуляри:</translation>
 <translation id="644038709730536388">Научете повече за това как да се предпазите от зловреден софтуер в интернет.</translation>
 <translation id="4172706149171596436">Промяна на настройките на прокси сървъра</translation>
 <translation id="5650551054760837876">Не са намерени резултати от търсенето.</translation>
 <translation id="3234408098842461169">Стрелка надолу</translation>
 <translation id="825608351287166772">Сертификатите имат срок на валидност, също както обикновените документи за самоличност, които имате (напр. паспорт). Представеният на браузъра ви сертификат още не е валиден. Когато срокът на валидност на сертификата не е започнал, не се изисква да се поддържа определена информация за състоянието му (като например дали е анулиран и съответно ненадежден). Поради това не е възможно да се потвърди дали сертификатът е надежден или не. Не продължавайте нататък.</translation>
+<translation id="2742457360514408037">Блокирани изскачащи прозорци: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">Заглавието трябва да съдържа поне един знак</translation>
 <translation id="3549657413697417275">Търсене в историята ви</translation>
 <translation id="4250680216510889253">Не</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">Добавяне на папка...</translation>
 <translation id="2794293857160098038">Опции за търсене по подразбиране</translation>
 <translation id="5935630983280450497">Остава <ph name="NUMBER_ONE"/> мин</translation>
+<translation id="5496587651328244253">Организиране</translation>
 <translation id="5568069709869097550">Не може да се влезе</translation>
 <translation id="4181898366589410653">В сертификата на сървъра не бе намерен механизъм за анулиране.</translation>
 <translation id="6364916375976753737">Превъртане наляво</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">Зарежда се...</translation>
 <translation id="6592392877063354583">В страницата на адрес <ph name="SECURE_PAGE_URL"/> има несигурно съдържание от <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="3810973564298564668">Управление</translation>
+<translation id="254416073296957292">&amp;Езикови настройки...</translation>
 <translation id="4222982218026733335">Невалиден сертификат на сървъра</translation>
 <translation id="495091556140548787">Наскоро затворени раздели</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Преминахте в режим „инкогнито“<ph name="END_BOLD"/>. Страниците, които разглеждате в този прозорец, няма да се показват в хронологията на браузъра ви или в хронологията на търсенията и няма да оставят други доказателства, като например бисквитки в компютъра ви, след затварянето на прозореца при използване на функция „инкогнито“. Всички файлове, които изтегляте, или отметки, които създавате, ще бъдат запазени обаче.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Преминаването в режим „инкогнито“ не засяга поведението на други хора, сървъри или софтуер. Внимавайте за следното:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Уебсайтове, които събират или споделят информация за Вас<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Доставчици на интернет услуги или работодатели, които проследяват страниците, които посещавате<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Злонамерен софтуер, който проследява колко пъти натискате клавишите в замяна на безплатни емотикони<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Наблюдение от тайни агенти<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Хора, които са стоят зад вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Научете повече<ph name="END_LINK"/> за сърфирането инкогнито.</translation>
@@ -249,6 +260,7 @@
 <translation id="6100736666660498114">Меню „Старт“</translation>
 <translation id="1120098871254928930">Да се зарежда цялото съдържание</translation>
 <translation id="3994878504415702912">&amp;Мащаб</translation>
+<translation id="5602600725402519729">&amp;Повторно зареждане</translation>
 <translation id="7965010376480416255">Споделена памет</translation>
 <translation id="6248988683584659830">Настройки за търсене</translation>
 <translation id="8887733174653581061">Винаги отгоре</translation>
@@ -274,6 +286,7 @@
 <translation id="3819791248093819058">Не бе намерена уеб страница за уеб адреса: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">Предишна</translation>
 <translation id="583281660410589416">Неизвестно</translation>
+<translation id="5528368756083817449">Диспечер на отметките</translation>
 <translation id="1560991001553749272">Отметката бе добавена!</translation>
 <translation id="3966072572894326936">Изберете друга папка...</translation>
 <translation id="7781829728241885113">Вчера</translation>
@@ -286,8 +299,10 @@
 <translation id="7334704644505105275">Инструмент за откриване и отстраняване на грешки в JavaScript - Зает</translation>
 <translation id="7629827748548208700">Раздел: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">Размер</translation>
+<translation id="1383876407941801731">Търсене</translation>
 <translation id="8398877366907290961">Продължаване напред въпреки това</translation>
 <translation id="290414493736480793">Благодарности</translation>
+<translation id="6449085810994685586">&amp;Проверка на правописа на това поле</translation>
 <translation id="50960180632766478">Остават <ph name="NUMBER_FEW"/> мин</translation>
 <translation id="8664389313780386848">&amp;Преглед на изходния код на страницата</translation>
 <translation id="57646104491463491">Дата на промяна</translation>
@@ -381,6 +396,7 @@
 <translation id="8695758493354644945">Вижте <ph name="NUM_MATCHES"/> наскоро посетени страници, които съдържат <ph name="SEARCH_TERMS"/></translation>
 <translation id="8186012393692847636">Използвайте услугата за предложения, която завършва вместо вас заявките за търсене и URL адресите, докато ги въвеждате в адресното поле</translation>
 <translation id="4711094779914110278">Турски</translation>
+<translation id="4002066346123236978">Заглавие</translation>
 <translation id="9015241028623917394">Управление на текущата страница</translation>
 <translation id="7861215335140947162">&amp;За изтегляне</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> от <ph name="TOTAL_SIZE"/></translation>
@@ -410,6 +426,7 @@
 <translation id="8877448029301136595">[главна директория]</translation>
 <translation id="1963227389609234879">Премахване на всички</translation>
 <translation id="2496180316473517155">История на сърфирането</translation>
+<translation id="602251597322198729">Прави се опит за изтегляне на няколко файла от този сайт на компютъра ви. Искате ли да разрешите това?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> часа</translation>
 <translation id="6691936601825168937">&amp;Препращане</translation>
 <translation id="7736284018483078792">Промяна на езика на речника за проверка на правописа.</translation>
@@ -439,7 +456,10 @@
 <translation id="8053959338015477773">Изисква се допълнителна приставка, за да се покажат някои от елементите на тази страница.</translation>
 <translation id="4666192354592784528">Тази страница не се изтегля изцяло по сигурна връзка.  Тя съдържа елементи, които се изтеглят по несигурна връзка.</translation>
 <translation id="7414887922320653780">Остава <ph name="NUMBER_ONE"/> час</translation>
+<translation id="399179161741278232">Импортирани</translation>
+<translation id="3927932062596804919">Отказ</translation>
 <translation id="6484929352454160200">Налице е нова версия на <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">Наскоро добавени</translation>
 <translation id="2371076942591664043">Отваряне &amp;след изтегляне</translation>
 <translation id="6069278982995177296">Дублиране</translation>
 <translation id="2979639724566107830">Отваряне в нов прозорец</translation>
@@ -469,6 +489,7 @@
 <translation id="8434177709403049435">&amp;Кодиране</translation>
 <translation id="7895330511272068835">Всичко за приставките</translation>
 <translation id="9012607008263791152">Наясно съм , че посещаването на този сайт може да навреди на компютъра ми.</translation>
+<translation id="6004539838376062211">&amp;Опции на програмата за проверка на правописа</translation>
 <translation id="7887334752153342268">Дублиране</translation>
 <translation id="703748601351783580">Отваряне на всички отметки в нов прозорец</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -477,6 +498,7 @@
 <translation id="5291303148298143069">Известяване, когато е блокиран изскачащ прозорец</translation>
 <translation id="2115926821277323019">Трябва да е валиден URL адрес</translation>
 <translation id="7397054681783221164">Следните елементи да се заличат:</translation>
+<translation id="4891251785049117953">Изчистване на запазените данни за попълване на формуляри</translation>
 <translation id="7554791636758816595">Нов раздел</translation>
 <translation id="4400697530699263877">DNS настройките да се извличат предварително, за да се подобри скоростта на зареждане на страниците</translation>
 <translation id="1086613338090581534">Издателят поддържа т.нар. „списък на анулираните сертификати“ за сертификатите, чиято валидност не е изтекла. Ако даден сертификат бъде компрометиран, издателят може да го анулира, като го добави в списъка на анулираните сертификати, след което браузърът повече няма да го счита за надежден. Не е задължително да се поддържа списък за състоянието на сертификатите с изтекла валидност, поради което въпреки че използваният от вас сертификат за уебсайта, който посещавате, някога е бил валиден, понастоящем не е възможно да се определи дали той е бил компрометиран и впоследствие анулиран или дали продължава да е сигурен. Поради тази причина не е възможно да се разбере дали сте установили връзка с изправен уебсайт или с хакер, който използва сертификата, след като го е компрометирал. Не продължавайте нататък!</translation>
@@ -493,7 +515,8 @@
 <translation id="4890855023395992542">URL адрес на услугата:</translation>
 <translation id="2814489978934728345">Спира зареждането на тази страница</translation>
 <translation id="2354001756790975382">Други отметки</translation>
-<translation id="641480858134062906"><ph name="URL"/> не можа да се зареди</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> бе актуализиран</translation>
+<translation id="641480858134062906">Неуспешно зареждане на <ph name="URL"/></translation>
 <translation id="3693415264595406141">Парола:</translation>
 <translation id="74568296546932365">Запазване на <ph name="PAGE_TITLE"/> като търсеща машина по подразбиране</translation>
 <translation id="6181769708911894002">Внимание! Посещаването на този сайт може да навреди на компютъра ви!</translation>
@@ -514,6 +537,7 @@
 <translation id="345693547134384690">Отваряне на &amp;изображението в нов раздел</translation>
 <translation id="1375198122581997741">Всичко за версията</translation>
 <translation id="1474307029659222435">Отваряне на рамката в нов прозоре&amp;ц</translation>
+<translation id="3527085408025491307">Папка</translation>
 <translation id="3169621169201401257">За подробна информация относно проблемите с тези елементи посетете <ph name="DIAGNOSTIC_PAGE"/> на Google за <ph name="DOMAIN"/>.</translation>
 <translation id="2559292239863842334">Тук ще се покажат полетата за търсене, които използвате най-често в други сайтове.</translation>
 <translation id="770015031906360009">Гръцки</translation>
@@ -521,6 +545,7 @@
 <translation id="884923133447025588">Не е намерен механизъм за анулиране.</translation>
 <translation id="9170848237812810038">&amp;Отмяна</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/> KБ</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> бе актуализиран до <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">Нека остана на тази страница</translation>
 <translation id="5875565123733157100">Тип на грешката:</translation>
 <translation id="2440604414813129000">&amp;Преглед на изходния код</translation>
@@ -547,6 +572,7 @@
 <translation id="4745142959976410383">Ако тази заявка не е била подадена от вас, това може да е опит за проникване в компютъра ви. Освен ако изрично не сте подали тази заявка, натиснете бутона „Отказ“.</translation>
 <translation id="8288345061925649502">Промяна на търсещата машина</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> сек</translation>
+<translation id="6652942492341627832">Запазване и показване на текста, въведен в подобни полета</translation>
 <translation id="5139955368427980650">&amp;Отваряне</translation>
 <translation id="746319800473277382">Към началната страница на сайта:</translation>
 <translation id="8562413501751825163">Затворете Firefox преди импортиране</translation>
@@ -569,6 +595,7 @@
 <translation id="1485146213770915382">Поставете <ph name="SEARCH_TERMS_LITERAL"/> в URL адреса, където трябва да се покажат думите за търсене.</translation>
 <translation id="5626134646977739690">Име:</translation>
 <translation id="7125953501962311360">Браузър по подразбиране:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Научете повече<ph name="END_LINK"/> за този проблем.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">Тази рамка бе блокирана, защото съдържанието й е несигурно.</translation>
 <translation id="8112223930265703044">Всичко</translation>
@@ -578,6 +605,7 @@
 <translation id="486595306984036763">Отваряне на сигнала за „фишинг“</translation>
 <translation id="1568162916422682473">Възникна грешка в следната приставка : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Да, нека се възстановят</translation>
+<translation id="8116972784401310538">&amp;Диспечер на отметките</translation>
 <translation id="6040143037577758943">Затваряне</translation>
 <translation id="4910619056351738551">Можете да направите следното:</translation>
 <translation id="7451556917824271099">Уебсайтът на адрес &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; съдържа елементи от сайта &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, който изглежда хоства злонамерен софтуер. Това е софтуер, който може да навреди на компютъра ви или да извършва операции без вашето съгласие.  Компютърът ви може да се зарази дори само при посещение на сайт, съдържащ злонамерен софтуер.</translation>

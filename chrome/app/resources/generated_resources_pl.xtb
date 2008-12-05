@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">Następujące strony nie odpowiadają. Możesz zaczekać, aż strony zaczną odpowiadać, lub zamknąć je.</translation>
 <translation id="1209866192426315618">Pozostało minut: <ph name="NUMBER_DEFAULT"/></translation>
 <translation id="2179052183774520942">Dodaj wyszukiwarkę</translation>
+<translation id="2956948609882871496">Importuj zakładki...</translation>
 <translation id="1621207256975573490">Zapisz &amp;ramkę jako...</translation>
 <translation id="2278562042389100163">Otwórz okno przeglądarki</translation>
+<translation id="4589279373639964403">Eksportuj zakładki...</translation>
 <translation id="5463275305984126951">Indeks – <ph name="LOCATION"/></translation>
 <translation id="5154917547274118687">Pamięć</translation>
 <translation id="873849583815421063">Kończenie...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">Pomiń importowanie</translation>
 <translation id="5516565854418269276">&amp;Zawsze pokazuj pasek zakładek</translation>
 <translation id="6426222199977479699">Błąd SSL</translation>
+<translation id="443008484043213881">Narzędzia</translation>
 <translation id="8534801226027872331">W tym przypadku certyfikat przedstawiany przeglądarce zawiera błędy i nie może zostać przetworzony. Może to oznaczać, że nie znamy zawartych w certyfikacie informacji o tożsamości lub innych określonych danych używanych do zabezpieczenia połączenia. Nie należy wykonywać dalszych czynności.</translation>
 <translation id="4422347585044846479">Edytuj zakładkę tej strony</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">Tak</translation>
 <translation id="6513615899227776181">Dodatek plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184">Pozostało dni: <ph name="NUMBER_MANY"/></translation>
+<translation id="1059307158073710225">Sprawdź pisownię:</translation>
 <translation id="7643817847124207232">Połączenie internetowe zostało utracone.</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868">Pozostało minut: <ph name="NUMBER_MANY"/></translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">Jednak strona ta zawiera także niezabezpieczone elementy. Mogą one być wyświetlane przez innych użytkowników podczas przesyłania i mogą zostać zmodyfikowane przez intruza w celu zmiany wyglądu albo działania strony.</translation>
 <translation id="4515911410595374805">Niektóry elementy na tej stronie pochodzą z niezweryfikowanego źródła i nie zostały wyświetlone.</translation>
 <translation id="1195447618553298278">Nieznany błąd.</translation>
+<translation id="1087119889335281750">&amp;Brak podpowiedzi dotyczących pisowni</translation>
 <translation id="5076340679995252485">&amp;Wklej</translation>
 <translation id="14171126816530869">Tożsamość organizacji <ph name="ORGANIZATION"/> (<ph name="LOCALITY"/>) została zweryfikowana przed wystawcę <ph name="ISSUER"/>.</translation>
 <translation id="1587275751631642843">Konsola &amp;JavaScript</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312">Kliknij przycisk <ph name="SEARCH_KEY"/>, aby przeszukać witrynę <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Wyczyść historię pobierania</translation>
 <translation id="2503522102815150840">Awaria przeglądarki... błąd</translation>
+<translation id="2815500128677761940">Pasek zakładek</translation>
 <translation id="8041183585493091279">Adres URL usługi propozycji:</translation>
 <translation id="9189691339671500905">Ustaw wyszukiwarkę używaną w polu omnibox.</translation>
 <translation id="4571852245489094179">Importuj zakładki i ustawienia</translation>
@@ -180,14 +186,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Łączenie z hostem...</translation>
 <translation id="3967132639560659870">Na tej stronie wystąpiło kilka błędów SSL:</translation>
+<translation id="5039804452771397117">Zezwalaj</translation>
 <translation id="2266011376676382776">Strona nie odpowiada</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">Pasek zakładek</translation>
+<translation id="3493653833301553455">Automatyczne wypełnianie formularza:</translation>
 <translation id="644038709730536388">Więcej informacji na temat ochrony przed szkodliwym oprogramowaniem w internecie.</translation>
 <translation id="4172706149171596436">Zmień ustawienia proxy</translation>
 <translation id="5650551054760837876">Nie znaleziono wyników wyszukiwania.</translation>
 <translation id="3234408098842461169">Strzałka w dół</translation>
 <translation id="825608351287166772">Certyfikaty mają okres ważności, tak samo jak dokumenty tożsamości (na przykład paszport). Certyfikat przedstawiony przeglądarce nie jest jeszcze ważny. Jeśli certyfikat przekroczył okres ważności, nie trzeba przechowywać niektórych informacji o jego stanie (na przykład danych dotyczących unieważnienia). W związku z tym nie można zweryfikować wiarygodności takiego certyfikatu. Nie należy wykonywać dalszych czynności.</translation>
+<translation id="2742457360514408037">Zablokowane wyskakujące okienka: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">Tytuł musi zawierać co najmniej jeden znak</translation>
 <translation id="3549657413697417275">Przeszukaj historię</translation>
 <translation id="4250680216510889253">Nie</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">Dodaj folder...</translation>
 <translation id="2794293857160098038">Opcje domyślnej wyszukiwarki</translation>
 <translation id="5935630983280450497">Pozostała <ph name="NUMBER_ONE"/> minuta</translation>
+<translation id="5496587651328244253">Organizuj</translation>
 <translation id="5568069709869097550">Nie można się zalogować</translation>
 <translation id="4181898366589410653">Nie znaleziono mechanizmu unieważniania w certyfikacie serwera.</translation>
 <translation id="6364916375976753737">Przewiń w lewo</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">Ładowanie...</translation>
 <translation id="6592392877063354583">Strona <ph name="SECURE_PAGE_URL"/> zawiera niezabezpieczoną treść z witryny <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="3810973564298564668">Zarządzaj</translation>
+<translation id="254416073296957292">&amp;Ustawienia języka...</translation>
 <translation id="4222982218026733335">Nieprawidłowy certyfikat serwera</translation>
 <translation id="495091556140548787">Niedawno zamknięte karty</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jesteś teraz incognito<ph name="END_BOLD"/>. Strony przeglądane w tym oknie nie będą wyświetlane w historii przeglądarki ani historii wyszukiwania. Po zamknięciu okna incognito na komputerze nie zostanie po nich żaden ślad np. w postaci plików cookie. Zachowane zostaną jednak pobrane pliki lub utworzone zakładki.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Przejście do trybu incognito nie ma wpływu na działania innych osób, serwery ani oprogramowanie. Należy uważać na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>witryny zbierające lub udostępniające dane na temat użytkowników<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>dostawców usług internetowych oraz pracowników śledzących odwiedzane przez użytkowników strony<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>złośliwe oprogramowanie śledzące naciśnięcia klawiszy w zamian za darmowe emotikony <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>monitoring prowadzony przez tajnych agentów<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>osoby stojące za plecami<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Więcej informacji<ph name="END_LINK"/> na temat trybu incognito przeglądarki.</translation>
@@ -249,6 +260,7 @@
 <translation id="6100736666660498114">Menu Start</translation>
 <translation id="1120098871254928930">Zezwól na ładowanie całej treści</translation>
 <translation id="3994878504415702912">&amp;Rozmiar tekstu</translation>
+<translation id="5602600725402519729">O&amp;dśwież</translation>
 <translation id="7965010376480416255">Pamięć współużytkowana</translation>
 <translation id="6248988683584659830">Ustawienia wyszukiwania</translation>
 <translation id="8887733174653581061">Zawsze na wierzchu</translation>
@@ -274,6 +286,7 @@
 <translation id="3819791248093819058">Nie znaleziono strony internetowej pod adresem: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">Poprzednia</translation>
 <translation id="583281660410589416">Nieznany</translation>
+<translation id="5528368756083817449">Menedżer zakładek</translation>
 <translation id="1560991001553749272">Dodano zakładkę!</translation>
 <translation id="3966072572894326936">Wybierz inny folder...</translation>
 <translation id="7781829728241885113">Wczoraj</translation>
@@ -286,8 +299,10 @@
 <translation id="7334704644505105275">Debuger JavaScript – zajęty</translation>
 <translation id="7629827748548208700">Karta: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">Rozmiar</translation>
+<translation id="1383876407941801731">Wyszukiwanie</translation>
 <translation id="8398877366907290961">Kontynuuj mimo wszystko</translation>
 <translation id="290414493736480793">Potwierdzenia</translation>
+<translation id="6449085810994685586">&amp;Sprawdź pisownię w tym polu</translation>
 <translation id="50960180632766478">Pozostało minut: <ph name="NUMBER_FEW"/></translation>
 <translation id="8664389313780386848">&amp;Wyświetl źródło strony</translation>
 <translation id="57646104491463491">Data modyfikacji</translation>
@@ -381,6 +396,7 @@
 <translation id="8695758493354644945">Wyświetl ostatnie strony (<ph name="NUM_MATCHES"/>) w historii zawierające hasła <ph name="SEARCH_TERMS"/></translation>
 <translation id="8186012393692847636">Użyj usługi podpowiedzi, aby umożliwić uzupełnianie wyszukiwań i adresów URL wpisywanych w pasku adresu</translation>
 <translation id="4711094779914110278">Turecki</translation>
+<translation id="4002066346123236978">Nazwa</translation>
 <translation id="9015241028623917394">Opcje strony</translation>
 <translation id="7861215335140947162">&amp;Pobrane pliki</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> z <ph name="TOTAL_SIZE"/></translation>
@@ -410,6 +426,7 @@
 <translation id="8877448029301136595">[katalog główny]</translation>
 <translation id="1963227389609234879">Usuń wszystko</translation>
 <translation id="2496180316473517155">Historia przeglądania</translation>
+<translation id="602251597322198729">Witryna próbuje pobrać wiele plików. Czy chcesz na to zezwolić?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> godz.</translation>
 <translation id="6691936601825168937">&amp;Dalej</translation>
 <translation id="7736284018483078792">Zmień język słownika sprawdzania pisowni.</translation>
@@ -439,7 +456,10 @@
 <translation id="8053959338015477773">Wyświetlenie pewnych elementów na tej stronie wymaga dodatkowego dodatku plug-in.</translation>
 <translation id="4666192354592784528">Ta strona nie jest pobierana w całości za pośrednictwem bezpiecznego połączenia.  Zawiera ona pewne elementy pobrane za pośrednictwem niezabezpieczonych połączeń.</translation>
 <translation id="7414887922320653780">Pozostała <ph name="NUMBER_ONE"/> godzina</translation>
+<translation id="399179161741278232">Zaimportowane</translation>
+<translation id="3927932062596804919">Odmawiaj</translation>
 <translation id="6484929352454160200">Dostępna jest nowa wersja aplikacji <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">Ostatnio dodane</translation>
 <translation id="2371076942591664043">Otwórz po &amp;zakończeniu</translation>
 <translation id="6069278982995177296">Duplikuj</translation>
 <translation id="2979639724566107830">Otwórz w nowym oknie</translation>
@@ -469,6 +489,7 @@
 <translation id="8434177709403049435">&amp;Kodowanie</translation>
 <translation id="7895330511272068835">Informacje o dodatkach plug-in</translation>
 <translation id="9012607008263791152">Rozumiem, że odwiedzenie tej witryny może spowodować uszkodzenie komputera.</translation>
+<translation id="6004539838376062211">&amp;Opcje sprawdzania pisowni</translation>
 <translation id="7887334752153342268">Duplikuj</translation>
 <translation id="703748601351783580">Otwórz wszystkie zakładki w nowym oknie</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -477,6 +498,7 @@
 <translation id="5291303148298143069">Powiadom mnie o zablokowaniu wyskakującego okienka</translation>
 <translation id="2115926821277323019">Adres URL musi być prawidłowy</translation>
 <translation id="7397054681783221164">Wykonaj następujące zadania:</translation>
+<translation id="4891251785049117953">Wyczyść zapisane dane formularza</translation>
 <translation id="7554791636758816595">Nowa karta</translation>
 <translation id="4400697530699263877">Użyj funkcji ładowania stron z wyprzedzeniem, aby przyspieszyć pracę</translation>
 <translation id="1086613338090581534">W przypadku certyfikatu, który nie wygasł, wystawca jest odpowiedzialny za utrzymywanie tzw. listy unieważnionych certyfikatów. Jeśli bezpieczeństwo certyfikatu zostanie naruszone, wystawca może go unieważnić, dodając go do listy unieważnionych certyfikatów, dzięki czemu przeglądarka nie będzie mu już ufać. Nie trzeba utrzymywać stanu unieważnienia dla certyfikatów, których ważność wygasła, więc jeśli ten certyfikat był prawidłowy dla odwiedzanej witryny, nie można określić, czy został on naruszony i w konsekwencji unieważniony, czy też pozostaje bezpieczny. Nie można określić, czy nawiązano komunikację z prawidłową witryną internetową, czy też certyfikat został naruszony i obecnie znajduje się w posiadaniu intruza, z którym się komunikujesz. Nie wolno wykonywać dalszych czynności.</translation>
@@ -493,6 +515,7 @@
 <translation id="4890855023395992542">Adres URL usługi:</translation>
 <translation id="2814489978934728345">Zatrzymaj ładowanie strony</translation>
 <translation id="2354001756790975382">Inne zakładki</translation>
+<translation id="8561574028787046517">Aplikacja <ph name="PRODUCT_NAME"/> została uaktualniona</translation>
 <translation id="641480858134062906">Nie można załadować adresu <ph name="URL"/></translation>
 <translation id="3693415264595406141">Hasło:</translation>
 <translation id="74568296546932365">Zachowaj <ph name="PAGE_TITLE"/> jako domyślną wyszukiwarkę</translation>
@@ -514,6 +537,7 @@
 <translation id="345693547134384690">Otwórz &amp;grafikę w nowej karcie</translation>
 <translation id="1375198122581997741">Informacje o wersji</translation>
 <translation id="1474307029659222435">Otwórz ramkę w nowym &amp;oknie</translation>
+<translation id="3527085408025491307">Folder</translation>
 <translation id="3169621169201401257">Więcej informacji na temat problemów występujących we wskazanych elementach znajduje się na stronie <ph name="DIAGNOSTIC_PAGE"/> dla domeny <ph name="DOMAIN"/>.</translation>
 <translation id="2559292239863842334">Tutaj są wyświetlane pola wyszukiwania najczęściej używane w innych witrynach.</translation>
 <translation id="770015031906360009">Grecki</translation>
@@ -521,6 +545,7 @@
 <translation id="884923133447025588">Nie znaleziono mechanizmu unieważniania.</translation>
 <translation id="9170848237812810038">&amp;Cofnij</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/> KB</translation>
+<translation id="4444364671565852729">Aplikacja <ph name="PRODUCT_NAME"/> została uaktualniona do wersji <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">Pozostań na tej stronie</translation>
 <translation id="5875565123733157100">Typ błędu:</translation>
 <translation id="2440604414813129000">Wyświetl ź&amp;ródło</translation>
@@ -547,6 +572,7 @@
 <translation id="4745142959976410383">Jeśli żądanie nie zostało wywołane przez Ciebie, może stanowić atak na system. Jeśli nie podjęto bezpośrednich działań wywołujących to żądanie, kliknij przycisk Anuluj.</translation>
 <translation id="8288345061925649502">Zmień wyszukiwarkę</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> s</translation>
+<translation id="6652942492341627832">Zapisz i pokaż tekst wpisany w podobnych polach</translation>
 <translation id="5139955368427980650">&amp;Otwórz</translation>
 <translation id="746319800473277382">Przejdź do strony głównej witryny:</translation>
 <translation id="8562413501751825163">Zamknij Firefoxa przed importowaniem</translation>
@@ -569,6 +595,7 @@
 <translation id="1485146213770915382">Do adresu URL możesz dodać wybrane słowa wyszukiwania poprzedzone parametrem <ph name="SEARCH_TERMS_LITERAL"/>.</translation>
 <translation id="5626134646977739690">Nazwa:</translation>
 <translation id="7125953501962311360">Domyślna przeglądarka:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Więcej informacji<ph name="END_LINK"/> na temat tego problemu.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">Ramka została zablokowana, ponieważ zawiera kilka niezabezpieczonych elementów.</translation>
 <translation id="8112223930265703044">Wszystko</translation>
@@ -578,6 +605,7 @@
 <translation id="486595306984036763">Otwórz raport dotyczący wyłudzania danych (phishingu)</translation>
 <translation id="1568162916422682473">Następujący dodatek plug-in uległ awarii: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Przywróć domyślne</translation>
+<translation id="8116972784401310538">&amp;Menedżer zakładek</translation>
 <translation id="6040143037577758943">Zamknij</translation>
 <translation id="4910619056351738551">Oto kilka propozycji:</translation>
 <translation id="7451556917824271099">Witryna &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; zawiera elementy z witryny &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; zawierającej złośliwe oprogramowanie, które może uszkodzić komputer lub w inny sposób działać bez zgody użytkownika.  Samo odwiedzenie witryny, w której przechowywane jest złośliwe oprogramowanie, może spowodować zainfekowanie komputera.</translation>

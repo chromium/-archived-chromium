@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">Følgende sider svarer ikke. Du kan vente til de svarer, eller du kan lukke dem.</translation>
 <translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/> minutter igjen</translation>
 <translation id="2179052183774520942">Legg til søkemotor</translation>
+<translation id="2956948609882871496">Importer bokmerker...</translation>
 <translation id="1621207256975573490">Lagre &amp;ramme som...</translation>
 <translation id="2278562042389100163">Åpne nettleservindu</translation>
+<translation id="4589279373639964403">Eksporter bokmerker</translation>
 <translation id="5463275305984126951">Indeks for <ph name="LOCATION"/></translation>
 <translation id="5154917547274118687">Minne</translation>
 <translation id="873849583815421063">Nesten ferdig...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">Hopp over import</translation>
 <translation id="5516565854418269276">Vis &amp;alltid bokmerkelinje</translation>
 <translation id="6426222199977479699">SSL-feil</translation>
+<translation id="443008484043213881">Verktøy</translation>
 <translation id="8534801226027872331">Sertifikatet som i dette tilfellet er presentert til nettleseren, inneholder feil og kan ikke forstås. Dette kan innebære at vi ikke forstår identitetsinformasjonen i sertifikatet, eller visse andre opplysninger i sertifikatet som brukes til å sikre tilkoblingen. Du bør ikke fortsette.</translation>
 <translation id="4422347585044846479">Rediger bokmerket for denne siden</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">Ja</translation>
 <translation id="6513615899227776181">Tilleggsmodul: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/> dager igjen</translation>
+<translation id="1059307158073710225">Kontroller stavemåten:</translation>
 <translation id="7643817847124207232">Internett-tilkoblingen er blitt borte.</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/> minutter igjen</translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">Denne siden omfatter imidlertid andre ressurser som ikke er sikre. Disse ressursene er synlige for andre mens de er i transitt, og en angriper kan modifisere dem for å endre på utseendet på eller adferden til siden.</translation>
 <translation id="4515911410595374805">Noen av elementene på denne siden kommer fra en uverifisert kilde, og vises ikke.</translation>
 <translation id="1195447618553298278">Ukjent feil.</translation>
+<translation id="1087119889335281750">&amp;Ingen forslag til stavemåte</translation>
 <translation id="5076340679995252485">&amp;Lim inn</translation>
 <translation id="14171126816530869">Identiteten til <ph name="ORGANIZATION"/> på <ph name="LOCALITY"/> er verifisert av <ph name="ISSUER"/>.</translation>
 <translation id="1587275751631642843">&amp;JavaScript-konsoll</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312">Trykk <ph name="SEARCH_KEY"/> for å søke på <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Tøm nedlastingsloggen</translation>
 <translation id="2503522102815150840">Nettleseren henger seg opp</translation>
+<translation id="2815500128677761940">Bokmerkelinje</translation>
 <translation id="8041183585493091279">Nettadresse for forslagstjeneste:</translation>
 <translation id="9189691339671500905">Angi søkemotoren som skal brukes i omniboksen.</translation>
 <translation id="4571852245489094179">Importer bokmerker og innstillinger</translation>
@@ -180,14 +186,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Løser vert:</translation>
 <translation id="3967132639560659870">Det er flere SSL-feil på denne siden:</translation>
+<translation id="5039804452771397117">Tillat</translation>
 <translation id="2266011376676382776">Sider svarer ikke</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">Bokmerkelinje</translation>
+<translation id="3493653833301553455">Automatisk utfylling av skjema:</translation>
 <translation id="644038709730536388">Finn ut mer om hvordan du beskytter deg selv mot skadelig programvare på Internett.</translation>
 <translation id="4172706149171596436">Endre proxy-innstillinger</translation>
 <translation id="5650551054760837876">Ingen søkeresultater funnet.</translation>
 <translation id="3234408098842461169">Pil ned</translation>
 <translation id="825608351287166772">Sertifikater har en gyldighetsperiode, på linje med andre identitetsdokumenter (f.eks. pass). Sertifikatet som er presentert for nettleseren, er ikke gyldig ennå. Når et sertifikat er utenfor gyldighetsperioden, er det ikke påkrevd å vedlikeholde enkelte opplysninger om statusen for sertifikatet (om det er tilbakekalt og ikke lenger klarert). Det er dermed ikke mulig å verifisere at dette sertifikatet er pålitelig. Du bør ikke fortsette.</translation>
+<translation id="2742457360514408037">Antall blokkerte forgrunnsvinduer: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">Tittelen må inneholde minst ett tegn</translation>
 <translation id="3549657413697417275">Søk i loggen</translation>
 <translation id="4250680216510889253">Nei</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">Legg til mappe...</translation>
 <translation id="2794293857160098038">Standard søkealternativer</translation>
 <translation id="5935630983280450497"><ph name="NUMBER_ONE"/> minutt igjen</translation>
+<translation id="5496587651328244253">Organiser</translation>
 <translation id="5568069709869097550">Kan ikke logge på</translation>
 <translation id="4181898366589410653">Finner ingen tilbakekallingsmekanisme i serverens sertifikat.</translation>
 <translation id="6364916375976753737">Rull mot venstre</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">Laster inn...</translation>
 <translation id="6592392877063354583">Siden på <ph name="SECURE_PAGE_URL"/> inneholder usikkert innhold fra <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="3810973564298564668">Administrer</translation>
+<translation id="254416073296957292">&amp;Språkinnstillinger...</translation>
 <translation id="4222982218026733335">Ugyldig serversertifikat</translation>
 <translation id="495091556140548787">Nylig lukkede faner</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nå inkognito<ph name="END_BOLD"/>. Sider du viser i dette vinduet, vises ikke i nettlesingsloggen eller søkeloggen. De etterlater heller ikke andre spor på datamaskinen, for eksempel informasjonskapsler, når du lukker Inkognito-vinduet. Eventuelle filer du laster ned eller bokmerker du oppretter, beholdes imidlertid. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Atferden til andre personer, servere eller programvare påvirkes ikke når du går inkognito. Vær på vakt mot følgende:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Nettsteder som samler inn eller deler informasjon om deg<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internett-leverandører eller ansatte som sporer sidene du besøker<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Skadelig programvare som sporer tastetrykkene dine i bytte mot gratis smilefjes<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Overvåkning fra hemmelige agenter<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Folk som står bak deg<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Mer informasjon<ph name="END_LINK"/> om surfing i inkognitomodus.</translation>
@@ -249,6 +260,7 @@
 <translation id="6100736666660498114">Start-meny</translation>
 <translation id="1120098871254928930">Tillat at alt innhold lastes inn</translation>
 <translation id="3994878504415702912">&amp;Zoom</translation>
+<translation id="5602600725402519729">&amp;Last inn på nytt</translation>
 <translation id="7965010376480416255">Lagret minne</translation>
 <translation id="6248988683584659830">Søkeinnstillinger</translation>
 <translation id="8887733174653581061">Alltid øverst</translation>
@@ -274,6 +286,7 @@
 <translation id="3819791248093819058">Finner ingen nettside for denne nettadressen: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">Forrige</translation>
 <translation id="583281660410589416">Ukjent</translation>
+<translation id="5528368756083817449">Bokmerkebehandling</translation>
 <translation id="1560991001553749272">Bokmerke lagt til.</translation>
 <translation id="3966072572894326936">Velg en annen mappe...</translation>
 <translation id="7781829728241885113">I går</translation>
@@ -286,8 +299,10 @@
 <translation id="7334704644505105275">Feilsøkingsprogram for JavaScript – Opptatt</translation>
 <translation id="7629827748548208700">Fane: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">Størrelse</translation>
+<translation id="1383876407941801731">Søk</translation>
 <translation id="8398877366907290961">Fortsett likevel</translation>
 <translation id="290414493736480793">Bidragsytere</translation>
+<translation id="6449085810994685586">&amp;Kontroller stavingen i dette feltet</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> minutter igjen</translation>
 <translation id="8664389313780386848">&amp;Vis sidekilde</translation>
 <translation id="57646104491463491">Dato endret</translation>
@@ -381,6 +396,7 @@
 <translation id="8695758493354644945">Se <ph name="NUM_MATCHES"/> nylige sider i loggen som inneholder <ph name="SEARCH_TERMS"/></translation>
 <translation id="8186012393692847636">Bruk en forslagstjeneste som hjelper deg med å fullføre søk og nettadresser som du skriver inn i adressefeltet</translation>
 <translation id="4711094779914110278">Tyrkisk</translation>
+<translation id="4002066346123236978">Tittel</translation>
 <translation id="9015241028623917394">Alternativer for denne siden</translation>
 <translation id="7861215335140947162">Ne&amp;dlastinger</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> av <ph name="TOTAL_SIZE"/></translation>
@@ -410,6 +426,7 @@
 <translation id="8877448029301136595">[overordnet katalog]</translation>
 <translation id="1963227389609234879">Fjern alle</translation>
 <translation id="2496180316473517155">Nettlesingslogg</translation>
+<translation id="602251597322198729">Dette nettstedet forsøker å laste ned flere filer. Vil du tillate dette?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> timer</translation>
 <translation id="6691936601825168937">&amp;Frem</translation>
 <translation id="7736284018483078792">Endre språket for stavekontrollordlisten.</translation>
@@ -439,7 +456,10 @@
 <translation id="8053959338015477773">Det kreves en ekstra tilleggsmodul for å vise noen av elementene på denne siden.</translation>
 <translation id="4666192354592784528">Det er ikke alle elementene på denne siden som hentes over en sikker tilkobling.  Den inneholder noen elementer som hentes over usikre tilkoblinger.</translation>
 <translation id="7414887922320653780"><ph name="NUMBER_ONE"/> time igjen</translation>
+<translation id="399179161741278232">Importert</translation>
+<translation id="3927932062596804919">Ikke tillat</translation>
 <translation id="6484929352454160200">En ny versjon av <ph name="PRODUCT_NAME"/> er tilgjengelig</translation>
+<translation id="7035824132811506448">Nylig lagt til</translation>
 <translation id="2371076942591664043">Åpne når ne&amp;dlastingen er ferdig</translation>
 <translation id="6069278982995177296">Dupliser</translation>
 <translation id="2979639724566107830">Åpne i nytt vindu</translation>
@@ -449,7 +469,7 @@
 <translation id="4047498523333824092">Gjenopprett sidene som sist var åpne</translation>
 <translation id="6503077044568424649">Mest besøkt</translation>
 <translation id="1040471547130882189">Tilleggsmodulen svarer ikke</translation>
-<translation id="790025292736025802"><ph name="URL"/> ble ikke funnet</translation>
+<translation id="790025292736025802">Finner ikke <ph name="URL"/></translation>
 <translation id="895347679606913382">Starter...</translation>
 <translation id="3319048459796106952">Nytt &amp;Inkognito-vindu</translation>
 <translation id="4195643157523330669">Åpne i ny fane</translation>
@@ -469,6 +489,7 @@
 <translation id="8434177709403049435">&amp;Koding</translation>
 <translation id="7895330511272068835">Om tilleggsmoduler</translation>
 <translation id="9012607008263791152">Jeg forstår at dette nettstedet kan skade datamaskinen.</translation>
+<translation id="6004539838376062211">&amp;Alternativer for stavekontroll</translation>
 <translation id="7887334752153342268">Dupliser</translation>
 <translation id="703748601351783580">Åpne alle bokmerker i nytt vindu</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -477,6 +498,7 @@
 <translation id="5291303148298143069">Varsle meg når et popup-vindu blokkeres</translation>
 <translation id="2115926821277323019">Må være en gyldig nettadresse</translation>
 <translation id="7397054681783221164">Slett følgende elementer:</translation>
+<translation id="4891251785049117953">Fjern lagrede skjemadata</translation>
 <translation id="7554791636758816595">Ny fane</translation>
 <translation id="4400697530699263877">Bruk DNS-forhåndshenting for å forbedre sideinnlastingsytelsen</translation>
 <translation id="1086613338090581534">Utstederen av et sertifikat som ikke er utløpt, er ansvarlig for opprette en såkalt «tilbakekallingsliste». Hvis et sertifikat blir skadet, kan utstederen tilbakekalle det ved å legge det til i tilbakekallingslisten, slik at det ikke lenger regnes som pålitelig av nettleseren. Tilbakekallingsstatusen blir ikke oppdatert for utløpte sertifikater. Selv om dette sertifikatet var gyldig for nettstedet du besøker, er det ikke lenger mulig å finne ut om sertifikatet ble skadet og dermed tilbakekalt, eller om det fortsatt er sikkert. Derfor er det umulig å si om du kommuniserer med det ekte nettstedet, eller om sertifikatet ble skadet og nå er i hendene på en angriper som du kommuniserer med. Du bør ikke fortsette videre.</translation>
@@ -493,7 +515,8 @@
 <translation id="4890855023395992542">Tjenestenettadresse:</translation>
 <translation id="2814489978934728345">Stopp innlasting av denne siden</translation>
 <translation id="2354001756790975382">Andre bokmerker</translation>
-<translation id="641480858134062906">Kan ikke laste inn <ph name="URL"/></translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> har blitt oppdatert</translation>
+<translation id="641480858134062906">Fikk ikke lastet inn <ph name="URL"/></translation>
 <translation id="3693415264595406141">Passord:</translation>
 <translation id="74568296546932365">Behold <ph name="PAGE_TITLE"/> som standard søkemotor</translation>
 <translation id="6181769708911894002">Advarsel: Dette nettstedet kan skade datamaskinen!</translation>
@@ -514,6 +537,7 @@
 <translation id="345693547134384690">Åpne b&amp;ilde i ny fane</translation>
 <translation id="1375198122581997741">Om versjon</translation>
 <translation id="1474307029659222435">Åpne ramme i nytt &amp;vindu</translation>
+<translation id="3527085408025491307">Mappe</translation>
 <translation id="3169621169201401257">Hvis du vil ha detaljert informasjon om problemene med disse elementene, kan du gå til Googles <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
 <translation id="2559292239863842334">Søkeboksene som du bruker oftest på andre nettsteder, vises her.</translation>
 <translation id="770015031906360009">Gresk</translation>
@@ -521,6 +545,7 @@
 <translation id="884923133447025588">Finner ingen tilbakekallingsmekanisme.</translation>
 <translation id="9170848237812810038">&amp;Angre</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/> kB</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> er oppdatert til <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">Bli værende på denne siden</translation>
 <translation id="5875565123733157100">Feiltype:</translation>
 <translation id="2440604414813129000">Vis &amp;kilde</translation>
@@ -551,6 +576,7 @@ Midlertidig stanset</translation>
 <translation id="4745142959976410383">Hvis du ikke igangsatte denne forespørselen, kan den være et forsøk på å angripe systemet ditt. Med mindre du gjorde noe for å igangsette denne forespørselen, bør du trykke Avbryt.</translation>
 <translation id="8288345061925649502">Endre søkemotor</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> sekunder</translation>
+<translation id="6652942492341627832">Lagre og vis tekst skrevet inn i lignende felter</translation>
 <translation id="5139955368427980650">&amp;Åpne</translation>
 <translation id="746319800473277382">Gå til startsiden for nettstedet:</translation>
 <translation id="8562413501751825163">Lukk Firefox før importering</translation>
@@ -573,6 +599,7 @@ Midlertidig stanset</translation>
 <translation id="1485146213770915382">Sett inn <ph name="SEARCH_TERMS_LITERAL"/> i nettadressen der søkeordene skal vises.</translation>
 <translation id="5626134646977739690">Navn:</translation>
 <translation id="7125953501962311360">Standardnettleser:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Mer informasjon<ph name="END_LINK"/> om dette problemet.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">Denne rammen ble blokkert fordi den inneholder usikkert innhold.</translation>
 <translation id="8112223930265703044">Alt</translation>
@@ -582,6 +609,7 @@ Midlertidig stanset</translation>
 <translation id="486595306984036763">Åpne rapport om nettfisking</translation>
 <translation id="1568162916422682473">Følgende tilleggsmodul har hengt seg opp: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Tilbakestill til standard</translation>
+<translation id="8116972784401310538">&amp;Bokmerkebehandling</translation>
 <translation id="6040143037577758943">Lukk</translation>
 <translation id="4910619056351738551">Her er noen forslag:</translation>
 <translation id="7451556917824271099">Nettstedet på &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; inneholder elementer fra nettstedet &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, som ser ut til å være vert for skadelig programvare – programvare som kan skade datamaskinen eller operere på annen måte uten ditt samtykke. Bare det å besøke et nettsted med skadelig programvare kan infisere datamaskinen.</translation>

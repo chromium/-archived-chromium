@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">A(s) página(s) que se seguem(m) deixaram de ter qualquer resposta. Pode esperar pela respectiva resposta ou desactivá-las.</translation>
 <translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/> min. restantes</translation>
 <translation id="2179052183774520942">Adicionar motor de pesquisa</translation>
+<translation id="2956948609882871496">Importar marcadores...</translation>
 <translation id="1621207256975573490">Guardar &amp;moldura como...</translation>
 <translation id="2278562042389100163">Abrir janela do browser</translation>
+<translation id="4589279373639964403">Exportar marcadores...</translation>
 <translation id="5463275305984126951">Índice de <ph name="LOCATION"/></translation>
 <translation id="5154917547274118687">Memória</translation>
 <translation id="873849583815421063">A terminar...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">Avançar importação</translation>
 <translation id="5516565854418269276">Mostr&amp;ar sempre barra de marcadores</translation>
 <translation id="6426222199977479699">Erro de SSL</translation>
+<translation id="443008484043213881">Ferramentas</translation>
 <translation id="8534801226027872331">Neste caso, o certificado apresentado ao seu browser tem erros e não é possível compreendê-lo. Isto poderá significar que não nos é possível compreender as informações de identidade incluídas no certificado ou que há determinadas informações no certificado que são utilizadas para garantir a segurança da ligação. Não deverá prosseguir.</translation>
 <translation id="4422347585044846479">Editar marcador para esta página</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -99,7 +102,7 @@
 <translation id="6163363155248589649">&amp;Normal</translation>
 <translation id="3873963583678942942">(Sem nome)</translation>
 <translation id="8725178340343806893">Favoritos/Marcadores</translation>
-<translation id="3605499851022050619">P�gina de diagn�stico Navega��o segura</translation>
+<translation id="3605499851022050619">Página de diagnóstico Navegação segura</translation>
 <translation id="4307992518367153382">Noções básicas</translation>
 <translation id="5912378097832178659">&amp;Editar motores de pesquisa...</translation>
 <translation id="4813345808229079766">Ligação</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">Sim</translation>
 <translation id="6513615899227776181">Plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/> dias restantes</translation>
+<translation id="1059307158073710225">Verificar ortografia:</translation>
 <translation id="7643817847124207232">A ligação à Internet perdeu-se.</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/> min. restantes</translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">Contudo, esta página inclui outros recursos que não são seguros. Estes recursos podem ser visualizados por outras pessoas em trânsito e podem ser modificados por um utilizador mal intencionado para alterar o aspecto e comportamento da página.</translation>
 <translation id="4515911410595374805">Alguns dos elementos desta página são provenientes de uma fonte não verificada e não foram apresentados.</translation>
 <translation id="1195447618553298278">Erro desconhecido.</translation>
+<translation id="1087119889335281750">&amp;Não existem sugestões de ortografia</translation>
 <translation id="5076340679995252485">C&amp;olar</translation>
 <translation id="14171126816530869">A identidade de <ph name="ORGANIZATION"/> em <ph name="LOCALITY"/> foi verificada por <ph name="ISSUER"/>.</translation>
 <translation id="1587275751631642843">Consola de &amp;JavaScript</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312">Prima <ph name="SEARCH_KEY"/> para pesquisar no <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Limpar histórico de transferências</translation>
 <translation id="2503522102815150840">Falha do browser... boom</translation>
+<translation id="2815500128677761940">Barra de marcadores</translation>
 <translation id="8041183585493091279">URL do serviço de sugestões:</translation>
 <translation id="9189691339671500905">Defina o motor de pesquisa utilizado na caixa geral.</translation>
 <translation id="4571852245489094179">Importar marcadores e definições</translation>
@@ -178,16 +184,19 @@
 <translation id="772440777491435074">Informações do certificado...</translation>
 <translation id="2869459179306435079">Importar definições de:</translation>
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
-<translation id="3369624026883419694">A resolver anfitri�o...</translation>
+<translation id="3369624026883419694">A resolver anfitrião...</translation>
 <translation id="3967132639560659870">Existem vários erros de SSL nesta página:</translation>
+<translation id="5039804452771397117">Permitir</translation>
 <translation id="2266011376676382776">Página(s) sem resposta</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">Barra de marcadores</translation>
+<translation id="3493653833301553455">Preenchimento automático de formulário:</translation>
 <translation id="644038709730536388">Saiba mais sobre como proteger-se contra softwares malignos on-line.</translation>
 <translation id="4172706149171596436">Alterar definições de proxy</translation>
 <translation id="5650551054760837876">Nenhum resultado de pesquisa encontrado.</translation>
 <translation id="3234408098842461169">Seta para baixo</translation>
 <translation id="825608351287166772">Os certificados têm um período de validade, à semelhança de qualquer documento de identidade (como, por exemplo, um passaporte). O certificado apresentado ao seu browser ainda não é válido. Quando um certificado ultrapassa o respectivo período de validade, deixa de ser necessária a manutenção de determinadas informações sobre o estado do certificado (se foi revogado e se deverá deixar de ser considerado fidedigno). Como tal, não é possível verificar se este certificado é de confiança. Não deverá prosseguir.</translation>
+<translation id="2742457360514408037">Pop-ups bloqueados: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">O titulo deverá conter pelo menos um carácter</translation>
 <translation id="3549657413697417275">Pesquisar no histórico</translation>
 <translation id="4250680216510889253">Não</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">Adicionar pasta...</translation>
 <translation id="2794293857160098038">Opções de pesquisa predefinidas</translation>
 <translation id="5935630983280450497"><ph name="NUMBER_ONE"/> min. restante</translation>
+<translation id="5496587651328244253">Organizar</translation>
 <translation id="5568069709869097550">Não é possível iniciar sessão</translation>
 <translation id="4181898366589410653">Não foi encontrado qualquer mecanismo de revogação no certificado do servidor.</translation>
 <translation id="6364916375976753737">Deslocar-se para a esquerda</translation>
@@ -207,7 +217,7 @@
 <translation id="347250956943431997">O certificado do servidor foi revogado</translation>
 <translation id="9087164549070846958">No entanto, se trabalhar numa organização responsável pela criação dos seus próprios certificados e tentar ligar a um Web site interno dessa organização utilizando um certificado desse tipo, poderá conseguir resolver este problema de forma segura. Pode importar o certificado de raiz da sua organização como &quot;certificado de raiz&quot;; em seguida, os certificados emitidos ou verificados pela sua organização serão considerados fidedignos, fazendo com que não veja este erro da próxima vez que tentar ligar a um Web site interno. Contacte a equipa de ajuda da sua organização para obter assistência para adicionar um novo certificado de raiz ao Windows.</translation>
 <translation id="7977590112176369853">&lt;introduzir consulta&gt;</translation>
-<translation id="5155632014218747366">Para obter informa��es detalhadas sobre os problemas com este site, visite a Google <ph name="DIAGNOSTIC_PAGE"/> para <ph name="DOMAIN"/>.</translation>
+<translation id="5155632014218747366">Para obter informações detalhadas sobre os problemas com este site, visite a Google <ph name="DIAGNOSTIC_PAGE"/> para <ph name="DOMAIN"/>.</translation>
 <translation id="1120026268649657149">A palavra-chave tem de estar vazia ou ser exclusiva</translation>
 <translation id="5317780077021120954">Guardar</translation>
 <translation id="358344266898797651">Celta</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">A carregar...</translation>
 <translation id="6592392877063354583">A página em <ph name="SECURE_PAGE_URL"/> contém conteúdos não seguros de <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="3810973564298564668">Gerir</translation>
+<translation id="254416073296957292">&amp;Definições de idioma...</translation>
 <translation id="4222982218026733335">Certificado de servidor inválido</translation>
 <translation id="495091556140548787">Separadores fechados recentemente</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Está neste momento no modo sem registo<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não serão apresentadas no histórico do seu browser ou no histórico de pesquisas, não deixando quaisquer indícios, tais como cookies, no seu computador depois de fechar a janela sem registo. No entanto, quaisquer ficheiros que transfira ou marcadores de posição que crie serão preservados.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>O modo sem registo não afecta o comportamento de outras pessoas, servidores ou de software. Tenha em atenção:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Web sites que recolhem ou partilham informações sobre o utilizador<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Fornecedores de serviços Internet ou funcionários que controlam as páginas que visita<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software mal intencionado que controla os seus batimentos de tecla em troca de sorrisos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Monitorização por agentes secretos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pessoas atrás de si enquanto está ao computador<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre a navegação sem registo.</translation>
@@ -249,8 +260,9 @@
 <translation id="6100736666660498114">Menu Iniciar</translation>
 <translation id="1120098871254928930">Permitir que todos os conteúdos sejam carregados</translation>
 <translation id="3994878504415702912">&amp;Zoom</translation>
+<translation id="5602600725402519729">&amp;Recarregar</translation>
 <translation id="7965010376480416255">Memória partilhada</translation>
-<translation id="6248988683584659830">Pesquisar defini��es</translation>
+<translation id="6248988683584659830">Pesquisar definições</translation>
 <translation id="8887733174653581061">Sempre visível</translation>
 <translation id="610886263749567451">Alerta JavaScript</translation>
 <translation id="8413126021676339697">Mostrar histórico completo</translation>
@@ -274,6 +286,7 @@
 <translation id="3819791248093819058">Não foi encontrada qualquer página Web para o endereço Web: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">Anterior</translation>
 <translation id="583281660410589416">Desconhecido</translation>
+<translation id="5528368756083817449">Gestor de marcadores</translation>
 <translation id="1560991001553749272">Marcador adicionado!</translation>
 <translation id="3966072572894326936">Escolher outra pasta...</translation>
 <translation id="7781829728241885113">Ontem</translation>
@@ -286,8 +299,10 @@
 <translation id="7334704644505105275">Depurador de JavaScript - Ocupado</translation>
 <translation id="7629827748548208700">Separador: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">Tamanho</translation>
+<translation id="1383876407941801731">Pesquisa</translation>
 <translation id="8398877366907290961">Prosseguir</translation>
 <translation id="290414493736480793">Confirmações</translation>
+<translation id="6449085810994685586">Verifi&amp;car a ortografia deste campo</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> min. restantes</translation>
 <translation id="8664389313780386848">&amp;Ver fonte da página</translation>
 <translation id="57646104491463491">Data modificada</translation>
@@ -381,6 +396,7 @@
 <translation id="8695758493354644945">Ver <ph name="NUM_MATCHES"/> páginas recentes do histórico que contenham <ph name="SEARCH_TERMS"/></translation>
 <translation id="8186012393692847636">Utilizar um serviço de sugestão para ajudar a concluir pesquisas e URLs escritos na barra de endereço</translation>
 <translation id="4711094779914110278">Turco</translation>
+<translation id="4002066346123236978">Título</translation>
 <translation id="9015241028623917394">Controlar a página actual</translation>
 <translation id="7861215335140947162">&amp;Transferências</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> de <ph name="TOTAL_SIZE"/></translation>
@@ -410,6 +426,7 @@
 <translation id="8877448029301136595">[directório principal]</translation>
 <translation id="1963227389609234879">Remover tudo</translation>
 <translation id="2496180316473517155">Histórico de navegação</translation>
+<translation id="602251597322198729">Este site está a tentar transferir vários ficheiros. Pretende autorizar?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> horas</translation>
 <translation id="6691936601825168937">A&amp;vançar</translation>
 <translation id="7736284018483078792">Altere o idioma do dicionário de verificação ortográfica.</translation>
@@ -439,7 +456,10 @@
 <translation id="8053959338015477773">É necessário um plug-in adicional para apresentar alguns elementos nesta página.</translation>
 <translation id="4666192354592784528">Esta página não é totalmente obtida através de uma ligação segura.  A página contém alguns elementos obtidos através de ligações não seguras.</translation>
 <translation id="7414887922320653780"><ph name="NUMBER_ONE"/> hora restante</translation>
+<translation id="399179161741278232">Importado</translation>
+<translation id="3927932062596804919">Recusar</translation>
 <translation id="6484929352454160200">Está disponível uma nova versão do <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">Recentemente adicionados</translation>
 <translation id="2371076942591664043">Abrir quando estiver concluí&amp;do</translation>
 <translation id="6069278982995177296">Duplicado</translation>
 <translation id="2979639724566107830">Abrir numa nova janela</translation>
@@ -469,6 +489,7 @@
 <translation id="8434177709403049435">&amp;Codificação</translation>
 <translation id="7895330511272068835">Acerca dos plug-ins</translation>
 <translation id="9012607008263791152">Compreendo que visitar este site poderá danificar o meu computador.</translation>
+<translation id="6004539838376062211">Opçõe&amp;s do verificador ortográfico</translation>
 <translation id="7887334752153342268">Duplicado</translation>
 <translation id="703748601351783580">Abrir todos os marcadores numa nova janela</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -477,6 +498,7 @@
 <translation id="5291303148298143069">Notificar-me quando uma janela de pop-up for bloqueada</translation>
 <translation id="2115926821277323019">Tem de ser um URL válido</translation>
 <translation id="7397054681783221164">Limpe os seguintes itens:</translation>
+<translation id="4891251785049117953">Limpar dados de formulário guardados</translation>
 <translation id="7554791636758816595">Novo separador</translation>
 <translation id="4400697530699263877">Utilizar Obtenção prévia de DNS para melhorar o desempenho das páginas ao carregar</translation>
 <translation id="1086613338090581534">No caso de um certificado que não tenha expirado, o emissor desse certificado é responsável pela manutenção de algo denominado &quot;lista de revogação&quot;. Se um certificado for comprometido em algum momento, o emissor poderá revogá-lo adicionando-o à lista de revogação; em seguida, esse certificado deixará de ser considerado fidedigno pelo seu browser. A manutenção do estado de revogação não é necessária no caso de certificados expirados; como tal, embora este certificado fosse válido para o Web site que está visitar, não é possível determinar neste momento se o certificado foi comprometido e subsequentemente revogado ou se permanece seguro. Por conseguinte, é impossível saber se está a comunicar com o Web site legítimo ou se o certificado foi comprometido e se encontra agora na posse de um utilizador mal intencionado com quem está a comunicar. Não deverá prosseguir para além deste ponto.</translation>
@@ -493,6 +515,7 @@
 <translation id="4890855023395992542">URL de serviço:</translation>
 <translation id="2814489978934728345">Parar de carregar esta página</translation>
 <translation id="2354001756790975382">Outros marcadores</translation>
+<translation id="8561574028787046517">O <ph name="PRODUCT_NAME"/> foi actualizado</translation>
 <translation id="641480858134062906">Falha ao carregar <ph name="URL"/></translation>
 <translation id="3693415264595406141">Palavra-passe:</translation>
 <translation id="74568296546932365">Manter o <ph name="PAGE_TITLE"/> como motor de pesquisa predefinido</translation>
@@ -514,6 +537,7 @@
 <translation id="345693547134384690">Abrir imagem num novo separador</translation>
 <translation id="1375198122581997741">Acerca da versão</translation>
 <translation id="1474307029659222435">Abrir moldura numa nova &amp;janela</translation>
+<translation id="3527085408025491307">Pasta</translation>
 <translation id="3169621169201401257">Para obter informações mais detalhadas sobre os problemas com estes elementos, visite a <ph name="DIAGNOSTIC_PAGE"/> no Google para <ph name="DOMAIN"/>.</translation>
 <translation id="2559292239863842334">As caixas de pesquisa utilizadas mais frequentemente noutros sites serão apresentadas aqui.</translation>
 <translation id="770015031906360009">Grego</translation>
@@ -521,6 +545,7 @@
 <translation id="884923133447025588">Não foi encontrado qualquer mecanismo de revogação.</translation>
 <translation id="9170848237812810038">An&amp;ular</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729">O <ph name="PRODUCT_NAME"/> foi actualizado para a versão <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">Permanecer nesta página</translation>
 <translation id="5875565123733157100">Tipo de erro:</translation>
 <translation id="2440604414813129000">Ver fonte</translation>
@@ -547,6 +572,7 @@
 <translation id="4745142959976410383">Se não tiver iniciado este pedido, tal poderá representar uma tentativa de ataque ao seu sistema. A menos que tenha efectuado uma acção explícita para iniciar este pedido, deverá premir Cancelar.</translation>
 <translation id="8288345061925649502">Alterar motor de pesquisa</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> seg.</translation>
+<translation id="6652942492341627832">Guardar e mostrar texto escrito em campos semelhantes</translation>
 <translation id="5139955368427980650">&amp;Abrir</translation>
 <translation id="746319800473277382">Vá para a página inicial do site:</translation>
 <translation id="8562413501751825163">Feche o Firefox antes da importação</translation>
@@ -569,6 +595,7 @@
 <translation id="1485146213770915382">Insira <ph name="SEARCH_TERMS_LITERAL"/> no URL em que os termos de pesquisa deverão ser apresentados.</translation>
 <translation id="5626134646977739690">Nome:</translation>
 <translation id="7125953501962311360">Browser predefinido:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre este problema.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">Esta moldura foi bloqueada, pois contém alguns conteúdos não seguros.</translation>
 <translation id="8112223930265703044">Todos</translation>
@@ -578,6 +605,7 @@
 <translation id="486595306984036763">Abrir relatório de phishing</translation>
 <translation id="1568162916422682473">Ocorreu uma falha no seguinte plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Repor predefinições</translation>
+<translation id="8116972784401310538">&amp;Gestor de marcadores</translation>
 <translation id="6040143037577758943">Fechar</translation>
 <translation id="4910619056351738551">Seguem-se algumas sugestões:</translation>
 <translation id="7451556917824271099">O Web site em &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; contém elementos do site &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, o qual parece alojar software maligno – ou seja, software que pode danificar o seu computador ou funcionar sem o seu consentimento.  A mera visita a um site que contenha software maligno pode infectar o seu computador.</translation>

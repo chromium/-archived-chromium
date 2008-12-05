@@ -47,8 +47,10 @@
 <translation id="7931071620596053769">Le pagine seguenti non rispondono. Puoi attendere che tornino a rispondere o puoi terminarle.</translation>
 <translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/> min. rimanenti</translation>
 <translation id="2179052183774520942">Aggiungi motore di ricerca</translation>
+<translation id="2956948609882871496">Importa Preferiti...</translation>
 <translation id="1621207256975573490">Salva &amp;frame con nome...</translation>
 <translation id="2278562042389100163">Apri finestra browser</translation>
+<translation id="4589279373639964403">Esporta Preferiti...</translation>
 <translation id="5463275305984126951">Indice di <ph name="LOCATION"/></translation>
 <translation id="5154917547274118687">Memoria</translation>
 <translation id="873849583815421063">Completamento in corso...</translation>
@@ -62,6 +64,7 @@
 <translation id="4684748086689879921">Ignora importazione</translation>
 <translation id="5516565854418269276">Mostra &amp;sempre barra dei Preferiti</translation>
 <translation id="6426222199977479699">Errore SSL</translation>
+<translation id="443008484043213881">Strumenti</translation>
 <translation id="8534801226027872331">In questo caso il certificato presentato al browser contiene degli errori e non è comprensibile. Potremmo non essere in grado di verificare le informazioni sull'identità contenute nel certificato o altre informazioni utilizzate per proteggere la connessione. Non procedere oltre.</translation>
 <translation id="4422347585044846479">Modifica Preferito</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -141,6 +144,7 @@
 <translation id="1426410128494586442">Sì</translation>
 <translation id="6513615899227776181">Plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/> giorni rimanenti</translation>
+<translation id="1059307158073710225">Controllo ortografico:</translation>
 <translation id="7643817847124207232">Connessione a Internet interrotta.</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/> min. rimanenti</translation>
@@ -160,6 +164,7 @@
 <translation id="7012108905414904806">Tuttavia, questa pagina include risorse non sicure. Tali risorse potrebbero essere visualizzate da altri utenti e potrebbero essere modificate da un hacker al fine di cambiare l'aspetto o il comportamento della pagina.</translation>
 <translation id="4515911410595374805">Alcuni elementi presenti sulla pagina provengono da un'origine non verificata e non sono stati visualizzati.</translation>
 <translation id="1195447618553298278">Errore sconosciuto.</translation>
+<translation id="1087119889335281750">&amp;Nessun suggerimento ortografico</translation>
 <translation id="5076340679995252485">&amp;Incolla</translation>
 <translation id="14171126816530869">L'identità di <ph name="ORGANIZATION"/> con sede a <ph name="LOCALITY"/> è stata verifica da <ph name="ISSUER"/>.</translation>
 <translation id="1587275751631642843">Console &amp;JavaScript</translation>
@@ -169,6 +174,7 @@
 <translation id="6151323131516309312">Premi <ph name="SEARCH_KEY"/> per cercare su <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Cancella cronologia download</translation>
 <translation id="2503522102815150840">Il browser si impalla...</translation>
+<translation id="2815500128677761940">Barra dei Preferiti</translation>
 <translation id="8041183585493091279">URL suggerimenti:</translation>
 <translation id="9189691339671500905">Imposta il motore di ricerca utilizzato nella barra degli indirizzi.</translation>
 <translation id="4571852245489094179">Importa preferiti e impostazioni</translation>
@@ -184,14 +190,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Risoluzione host in corso...</translation>
 <translation id="3967132639560659870">Sono presenti diversi errori SSL sulla pagina:</translation>
+<translation id="5039804452771397117">Consenti</translation>
 <translation id="2266011376676382776">La pagina non risponde</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">Barra dei Preferiti</translation>
+<translation id="3493653833301553455">Compilazione automatica moduli:</translation>
 <translation id="644038709730536388">Scopri come proteggere il tuo computer dai software dannosi presenti sulla Rete.</translation>
 <translation id="4172706149171596436">Modifica impostazioni proxy</translation>
 <translation id="5650551054760837876">Nessun risultato di ricerca trovato.</translation>
 <translation id="3234408098842461169">Freccia GIÙ</translation>
 <translation id="825608351287166772">I certificati hanno un periodo di validità, proprio come un qualsiasi documento di identità. Il certificato presentato non è ancora valido. Quando il certificato non rientra nel periodo di validità, l'autorità emittente non è tenuta a specificare determinate informazioni sullo stato del certificato (ad esempio, se è stato revocato e non è più affidabile). Non è possibile, pertanto, verificare l'affidabilità del certificato. Non procedere oltre.</translation>
+<translation id="2742457360514408037">Popup bloccati: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">Il titolo deve contenere almeno un carattere</translation>
 <translation id="3549657413697417275">Cerca nella cronologia</translation>
 <translation id="4250680216510889253">No</translation>
@@ -203,6 +212,7 @@
 <translation id="6500444002471948304">Aggiungi cartella...</translation>
 <translation id="2794293857160098038">Opzioni di ricerca predefinite</translation>
 <translation id="5935630983280450497"><ph name="NUMBER_ONE"/> min. rimanente</translation>
+<translation id="5496587651328244253">Organizza</translation>
 <translation id="5568069709869097550">Non riesco a effettuare l'accesso</translation>
 <translation id="4181898366589410653">Nessun sistema di revoca trovato nel certificato del server.</translation>
 <translation id="6364916375976753737">Scorri a sinistra</translation>
@@ -231,6 +241,7 @@
 <translation id="370665806235115550">Caricamento in corso...</translation>
 <translation id="6592392877063354583">La pagina <ph name="SECURE_PAGE_URL"/> presenta contenuti non protetti provenienti da <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="3810973564298564668">Gestisci</translation>
+<translation id="254416073296957292">Impostazioni di &amp;lingua...</translation>
 <translation id="4222982218026733335">Certificato del server non valido</translation>
 <translation id="495091556140548787">Schede chiuse di recente</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sei passato alla navigazione in incognito<ph name="END_BOLD"/>. Le pagine aperte in questa finestra non vengono registrate nella cronologia di navigazione o di ricerca, e non lasciano traccia sul tuo computer, ad esempio sotto forma di cookie, una volta chiusa la finestra. Tuttavia, qualsiasi file scaricato o preferito creato verrà conservato.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La navigazione in incognito non influisce sul comportamento di altri utenti, server o software. Diffida di:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Siti web che raccolgono o condividono informazioni su di te<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provider di servizi Internet o datori di lavoro che registrano le pagine da te visitate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software dannosi che registrano le sequenze di tasti da te utilizzate in cambio di smiley gratuiti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Agenti segreti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persone che ti stanno alle spalle<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> sulla navigazione in incognito.</translation>
@@ -253,6 +264,7 @@
 <translation id="6100736666660498114">Menu di avvio</translation>
 <translation id="1120098871254928930">Consenti il caricamento di tutti i contenuti</translation>
 <translation id="3994878504415702912">&amp;Carattere</translation>
+<translation id="5602600725402519729">Ri&amp;carica</translation>
 <translation id="7965010376480416255">Memoria condivisa</translation>
 <translation id="6248988683584659830">Impostazioni di ricerca</translation>
 <translation id="8887733174653581061">Sempre in primo piano</translation>
@@ -278,6 +290,7 @@
 <translation id="3819791248093819058">Nessuna pagina web trovata all'indirizzo: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">Indietro</translation>
 <translation id="583281660410589416">Sconosciuto</translation>
+<translation id="5528368756083817449">Gestione Preferiti</translation>
 <translation id="1560991001553749272">Aggiunto ai Preferiti!</translation>
 <translation id="3966072572894326936">Scegli un'altra cartella...</translation>
 <translation id="7781829728241885113">Ieri</translation>
@@ -290,8 +303,10 @@
 <translation id="7334704644505105275">Debugger JavaScript - Occupato</translation>
 <translation id="7629827748548208700">Scheda: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">Dimensioni</translation>
+<translation id="1383876407941801731">Ricerca</translation>
 <translation id="8398877366907290961">Procedi comunque</translation>
 <translation id="290414493736480793">Ringraziamenti</translation>
+<translation id="6449085810994685586">&amp;Verifica l'ortografia in questo campo</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> min. rimanenti</translation>
 <translation id="8664389313780386848">&amp;Visualizza sorgente pagina</translation>
 <translation id="57646104491463491">Data ultima modifica</translation>
@@ -385,6 +400,7 @@
 <translation id="8695758493354644945">Visualizza <ph name="NUM_MATCHES"/> pagine recenti nella cronologia contenenti <ph name="SEARCH_TERMS"/></translation>
 <translation id="8186012393692847636">Utilizza i suggerimenti per completare i termini di ricerca e gli URL digitati nella barra degli indirizzi</translation>
 <translation id="4711094779914110278">Turco</translation>
+<translation id="4002066346123236978">Titolo</translation>
 <translation id="9015241028623917394">Controlla pagina corrente</translation>
 <translation id="7861215335140947162">&amp;Download</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> di <ph name="TOTAL_SIZE"/></translation>
@@ -414,6 +430,7 @@
 <translation id="8877448029301136595">[directory principale]</translation>
 <translation id="1963227389609234879">Rimuovi tutto</translation>
 <translation id="2496180316473517155">Cronologia di navigazione</translation>
+<translation id="602251597322198729">Questo sito sta tentando di scaricare più file. Consentire l'operazione?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> ore</translation>
 <translation id="6691936601825168937">&amp;Avanti</translation>
 <translation id="7736284018483078792">Cambia la lingua del dizionario.</translation>
@@ -443,7 +460,10 @@
 <translation id="8053959338015477773">Per visualizzare alcuni elementi sulla pagina è necessario un plug-in aggiuntivo.</translation>
 <translation id="4666192354592784528">La pagina non viene recuperata interamente tramite una connessione protetta.  Contiene elementi recuperati tramite connessioni non protette.</translation>
 <translation id="7414887922320653780"><ph name="NUMBER_ONE"/> ora rimanente</translation>
+<translation id="399179161741278232">Importati</translation>
+<translation id="3927932062596804919">Non consentire</translation>
 <translation id="6484929352454160200">È disponibile una nuova versione di <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">Aggiunti di recente</translation>
 <translation id="2371076942591664043">Apri al &amp;termine</translation>
 <translation id="6069278982995177296">Duplica</translation>
 <translation id="2979639724566107830">Apri in un'altra finestra</translation>
@@ -473,6 +493,7 @@
 <translation id="8434177709403049435">&amp;Codifica</translation>
 <translation id="7895330511272068835">Informazioni sui plug-in</translation>
 <translation id="9012607008263791152">Sono consapevole che accedendo a questo sito potrei danneggiare il mio computer.</translation>
+<translation id="6004539838376062211">&amp;Opzioni correttore ortografico</translation>
 <translation id="7887334752153342268">Duplica</translation>
 <translation id="703748601351783580">Apri tutti i Preferiti in un'altra finestra</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -481,6 +502,7 @@
 <translation id="5291303148298143069">Avvisami quando un popup viene bloccato</translation>
 <translation id="2115926821277323019">Specificare un URL valido</translation>
 <translation id="7397054681783221164">Cancella i seguenti elementi:</translation>
+<translation id="4891251785049117953">Cancella i dati salvati del modulo</translation>
 <translation id="7554791636758816595">Nuova scheda</translation>
 <translation id="4400697530699263877">Utilizza la prelettura DNS per migliorare le prestazioni di caricamento delle pagine</translation>
 <translation id="1086613338090581534">Per un certificato non scaduto l'autorità emittente è responsabile della gestione di un cosiddetto &quot;elenco di revoche&quot;. Qualora un certificato fosse compromesso, l'autorità emittente ha la possibilità di revocarlo aggiungendolo all'elenco di revoche. In questo modo il certificato non viene più ritenuto affidabile dal browser. Tuttavia per i certificati scaduti non è necessario mantenere lo stato di revoca, pertanto, sebbene in precedenza il certificato fosse valido per il sito web che stai visitando, al momento non è possibile stabilire se è stato violato, e di conseguenza revocato, o se è ancora sicuro. Non è possibile stabilire se stai comunicando con un sito web attendibile o se il certificato è stato violato da un hacker. Non procedere oltre questo punto.</translation>
@@ -497,6 +519,7 @@
 <translation id="4890855023395992542">URL servizio:</translation>
 <translation id="2814489978934728345">Interrompi il caricamento della pagina</translation>
 <translation id="2354001756790975382">Altri Preferiti</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> è stato aggiornato</translation>
 <translation id="641480858134062906">Caricamento <ph name="URL"/> non riuscito</translation>
 <translation id="3693415264595406141">Password:</translation>
 <translation id="74568296546932365">Mantieni <ph name="PAGE_TITLE"/> come motore di ricerca predefinito</translation>
@@ -518,6 +541,7 @@
 <translation id="345693547134384690">Apri &amp;immagine in un'altra scheda</translation>
 <translation id="1375198122581997741">Informazioni sulla versione</translation>
 <translation id="1474307029659222435">Apri frame in un'altra &amp;finestra</translation>
+<translation id="3527085408025491307">Cartella</translation>
 <translation id="3169621169201401257">Per maggiori informazioni sui problemi riscontrati per questi elementi, visita la pagina <ph name="DIAGNOSTIC_PAGE"/> di <ph name="DOMAIN"/>.</translation>
 <translation id="2559292239863842334">Le caselle di ricerca utilizzate più spesso su altri siti verranno visualizzate qui.</translation>
 <translation id="770015031906360009">Greco</translation>
@@ -525,6 +549,7 @@
 <translation id="884923133447025588">Nessun sistema di revoca trovato.</translation>
 <translation id="9170848237812810038">&amp;Annulla</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> è stato aggiornato alla versione <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">Rimani su questa pagina</translation>
 <translation id="5875565123733157100">Tipo di bug:</translation>
 <translation id="2440604414813129000">Visualizza &amp;sorgente</translation>
@@ -551,6 +576,7 @@
 <translation id="4745142959976410383">Se la richiesta non è stata avviata da te, potrebbe trattarsi di un tentativo di attacco al tuo sistema. A meno che tu non abbia esplicitamente avviato questa richiesta, ti consigliamo di fare clic su Annulla.</translation>
 <translation id="8288345061925649502">Cambia motore di ricerca</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> sec.</translation>
+<translation id="6652942492341627832">Salva e mostra il testo inserito in campi simili</translation>
 <translation id="5139955368427980650">&amp;Apri</translation>
 <translation id="746319800473277382">Vai alla home page del sito.</translation>
 <translation id="8562413501751825163">Chiudi Firefox prima di eseguire l'importazione</translation>
@@ -573,6 +599,7 @@
 <translation id="1485146213770915382">Inserisci <ph name="SEARCH_TERMS_LITERAL"/> nell'URL come segnaposto per i termini di ricerca.</translation>
 <translation id="5626134646977739690">Nome:</translation>
 <translation id="7125953501962311360">Browser predefinito:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> su questo problema.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">Il frame è stato bloccato poiché contiene contenuti non protetti.</translation>
 <translation id="8112223930265703044">Tutto</translation>
@@ -582,6 +609,7 @@
 <translation id="486595306984036763">Apri rapporto sul phishing</translation>
 <translation id="1568162916422682473">I seguenti plug-in hanno avuto un arresto anomalo: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Ripristina impostazioni predefinite</translation>
+<translation id="8116972784401310538">Gestione &amp;Preferiti</translation>
 <translation id="6040143037577758943">Chiudi</translation>
 <translation id="4910619056351738551">Ecco qualche suggerimento:</translation>
 <translation id="7451556917824271099">Il sito web all'indirizzo &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; contiene elementi provenienti dal sito &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; in cui sembra essere presente malware, ovvero software in grado di danneggiare il tuo computer o, comunque, di funzionare senza il tuo consenso. Visitare un sito che contiene malware è sufficiente per infettare il tuo computer.</translation>

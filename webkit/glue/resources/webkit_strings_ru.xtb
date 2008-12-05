@@ -16,7 +16,7 @@
 <translation id="8141602879876242471">Это индекс с возможностью поиска. Введите ключевые слова для поиска:</translation>
 <translation id="6845533974506654842">нажать</translation>
 <translation id="8244226242650769279">графическая карта</translation>
-<translation id="1383141426028388991">Не удалось установить плагин с <ph name="URL"/></translation>
+<translation id="1383141426028388991">Не удалось установить подключаемый модуль со следующего адреса: <ph name="URL"/></translation>
 <translation id="2548326553472216322">Нет недавних поисков</translation>
 <translation id="5944544982112848342">2048 (Крупный размер)</translation>
 <translation id="3040011195152428237">ссылка</translation>

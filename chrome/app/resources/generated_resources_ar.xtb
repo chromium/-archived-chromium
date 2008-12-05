@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">أصبحت الصفحة/الصفحات التالية غير مستجيبة. يمكنك الانتظار حتى يتاح الدخول إليها مجددًا أو إغلاقها</translation>
 <translation id="1209866192426315618">عدد الدقائق المتبقية: <ph name="NUMBER_DEFAULT"/></translation>
 <translation id="2179052183774520942">إضافة محرّك بحث</translation>
+<translation id="2956948609882871496">استيراد الإشارات...</translation>
 <translation id="1621207256975573490">حفظ ا&amp;لإطار باسم...</translation>
 <translation id="2278562042389100163">فتح نافذة المتصفح</translation>
+<translation id="4589279373639964403">تصدير الإشارات...</translation>
 <translation id="5463275305984126951">فهرس المجلّد <ph name="LOCATION"/></translation>
 <translation id="5154917547274118687">الذاكرة</translation>
 <translation id="873849583815421063">توشك عملية الاستيرد على الانتهاء...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">إلغاء الاستيراد</translation>
 <translation id="5516565854418269276">ع&amp;رض شريط الإشارات دائماً</translation>
 <translation id="6426222199977479699">خطأ في SSL</translation>
+<translation id="443008484043213881">الأدوات</translation>
 <translation id="8534801226027872331">هذا يعني أنّ الشهادة  المقدّمة للمتصفّح تحتوي على أخطاء ويتعذّر فهمها.  قد يعزى ذلك إلى عدم وضوح معلومات الهوية أو معلومات أخرى في الشهادة  تضمن أمن الاتصال. يجب عدم المتابعة.</translation>
 <translation id="4422347585044846479">تعديل إشارة هذه الصفحة</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/>‏ (<ph name="DOMAIN_NAME"/>)</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">نعم</translation>
 <translation id="6513615899227776181">المكوّن الإضافي: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184">عدد الأيام المتبقيّة <ph name="NUMBER_MANY"/></translation>
+<translation id="1059307158073710225">التدقيق الإملائي:</translation>
 <translation id="7643817847124207232">انقطع الاتصال بالإنترنت.</translation>
 <translation id="932327136139879170">الصفحة الرئيسية</translation>
 <translation id="5600907569873192868">عدد الدقائق المتبقية: <ph name="NUMBER_MANY"/></translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">غير أنّ هذه الصفحة تحتوي على موارد أخرى غير آمنة يمكن للآخرين الاطّلاع عليها أثناء مرورهم بالصفحة، أو يمكن أن تتعرّض لمحاولة تسلّل بهدف تغيير شكل الصفحة أو أدائها.</translation>
 <translation id="4515911410595374805">لم يتمّ عرض بعض العناصر في هذه الصفحة لعدم موثوقية مصدرها.</translation>
 <translation id="1195447618553298278">خطأ  غير محدّد.</translation>
+<translation id="1087119889335281750">&amp;لا توجد اقتراحات إملائية</translation>
 <translation id="5076340679995252485">ل&amp;صق</translation>
 <translation id="14171126816530869">تمّ التحقق من هوية <ph name="ORGANIZATION"/> في <ph name="LOCALITY"/> من قِبل <ph name="ISSUER"/>.</translation>
 <translation id="1587275751631642843">&amp;وحدة تحكم جافا سكريبت</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312">اضغط على <ph name="SEARCH_KEY"/> للبحث في الموقع <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">محو سجلّ التحميل</translation>
 <translation id="2503522102815150840">تعطّل المتصفح...</translation>
+<translation id="2815500128677761940">شريط الإشارات</translation>
 <translation id="8041183585493091279">عنوان URL لخدمة الاقتراحات:</translation>
 <translation id="9189691339671500905">تعيّين محرّك البحث المستخدم في شريط العناوين.</translation>
 <translation id="4571852245489094179">استيراد الإشارات والإعدادات</translation>
@@ -180,14 +186,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">إثبات هوية المضيف...</translation>
 <translation id="3967132639560659870">تحتوي هذه الصفحة على العديد من اخطاء SSL:</translation>
+<translation id="5039804452771397117">سماح</translation>
 <translation id="2266011376676382776">الصفحة (الصفحات) غير المستجيبة</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">شريط الإشارات</translation>
+<translation id="3493653833301553455">ملء النموذج تلقائيًا:</translation>
 <translation id="644038709730536388">مزيد من المعلومات عن طرق الحماية من البرمجيّات الضارّة.</translation>
 <translation id="4172706149171596436">تغيير إعدادات الخادم الوسيط</translation>
 <translation id="5650551054760837876">لم يتمّ العثور على أي نتائج بحث.</translation>
 <translation id="3234408098842461169">مفتاح سهم  إلى أسفل</translation>
 <translation id="825608351287166772">للشهادات مدّة صلاحية تمامًا كأي مستند هوية (مثل جواز السفر). وبما أنّ الشهادة المقدّمة للمتصفّح لا تزال غير صالحة، أي خارج مدّة صلاحيتها، لا تتوفّر معلومات عن حالتها (أي إذا كانت باطلة وتاليًا غير موثوق بها). يجب عدم المتابعة.</translation>
+<translation id="2742457360514408037">النوافذ التطفلية الممنوعة: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">يجب أن يحتوي العنوان على حرف واحد على الأقل</translation>
 <translation id="3549657413697417275">البحث في السجلّ</translation>
 <translation id="4250680216510889253">لا</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">إضافة مجلّد...</translation>
 <translation id="2794293857160098038">خيارات البحث الافتراضية</translation>
 <translation id="5935630983280450497">عدد الدقائق المتبقية: <ph name="NUMBER_ONE"/></translation>
+<translation id="5496587651328244253">تنظيم</translation>
 <translation id="5568069709869097550">تعذّر الدخول</translation>
 <translation id="4181898366589410653">لم يتمّ العثور على أي آلية إبطال في شهادة الخادم.</translation>
 <translation id="6364916375976753737">التمرير إلى اليمين</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">تحميل...</translation>
 <translation id="6592392877063354583">تحتوي الصفحة <ph name="SECURE_PAGE_URL"/> على محتوىً غير آمن مصدره <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="3810973564298564668">إدارة محرّكات البحث</translation>
+<translation id="254416073296957292">إعدادات &amp;اللغة...</translation>
 <translation id="4222982218026733335">شهادة الخادم غير صالحة</translation>
 <translation id="495091556140548787">علامات التبويب المغلقة حديثًا</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>لقد انتقلتَ إلى وضع التصفّح المتخفّي<ph name="END_BOLD"/>. ممّا يعني أنّ الصفحات التي تشاهدها في هذه النافذة لن تظهر في سجلّ التصّفح أو في سجلّ البحث، ولن تخلّف أيّ أثر في الكمبيوتر ، على غرار ملفّات تعريف الارتباط، بعد إغلاق نافذة التصفّح المتخفّي. ولكن سيتمّ الاحتفاظ  بالملفّات المحمّلة والصفحات المعلّمة  بإشارة.
@@ -259,6 +270,7 @@
 <translation id="6100736666660498114">قائمة بدء التشغيل</translation>
 <translation id="1120098871254928930">السماح بتحميل المحتوى كلّه</translation>
 <translation id="3994878504415702912">&amp;تكبير/تصغير</translation>
+<translation id="5602600725402519729">إعادة &amp;تحميل</translation>
 <translation id="7965010376480416255">الذاكرة المشتركة</translation>
 <translation id="6248988683584659830">إعدادات البحث</translation>
 <translation id="8887733174653581061">جعل النافذة في المقدّمة دائمًا</translation>
@@ -284,6 +296,7 @@
 <translation id="3819791248093819058">لم يتمّ العثور على أيّ صفحة ويب على العنوان: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">السابق</translation>
 <translation id="583281660410589416">غير محدّد</translation>
+<translation id="5528368756083817449">مدير الإشارات</translation>
 <translation id="1560991001553749272">تمّت إضافة إشارة!</translation>
 <translation id="3966072572894326936">اختيار مجلّد آخر...</translation>
 <translation id="7781829728241885113">أمس</translation>
@@ -296,8 +309,10 @@
 <translation id="7334704644505105275">مصّح جافا سكريبت  - مشغول</translation>
 <translation id="7629827748548208700">علامة التبويب: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">الحجم</translation>
+<translation id="1383876407941801731">البحث</translation>
 <translation id="8398877366907290961">المتابعة على كلّ حال</translation>
 <translation id="290414493736480793">كلمات شكر</translation>
+<translation id="6449085810994685586">&amp;مراجعة هذا الحقل إملائيًا</translation>
 <translation id="50960180632766478">عدد الدقائق المتبقية: <ph name="NUMBER_FEW"/></translation>
 <translation id="8664389313780386848">عرض م&amp;صدر الصفحة</translation>
 <translation id="57646104491463491">تاريخ التعديل</translation>
@@ -391,6 +406,7 @@
 <translation id="8695758493354644945">راجع صفحات السجلّ <ph name="NUM_MATCHES"/> الحديثة المتضمّنة &quot;<ph name="SEARCH_TERMS"/>&quot;</translation>
 <translation id="8186012393692847636">عرض اقتراحات لتسهيل إكمال عمليات البحث وعناوين URL المدخلة في شريط العناوين</translation>
 <translation id="4711094779914110278">التركيّة</translation>
+<translation id="4002066346123236978">العنوان</translation>
 <translation id="9015241028623917394">التحكّم في الصفحة الحالية</translation>
 <translation id="7861215335140947162">&amp;الملفاّت المحمّلة</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> من <ph name="TOTAL_SIZE"/></translation>
@@ -420,6 +436,7 @@
 <translation id="8877448029301136595">[الدليل الأصل]</translation>
 <translation id="1963227389609234879">إزالة كلمات المرور كلّها</translation>
 <translation id="2496180316473517155">سجلّ التصفح</translation>
+<translation id="602251597322198729">يحاول هذا الموقع تنزيل ملفات متعددة. هل تريد السماح بهذا الإجراء؟</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> ساعة</translation>
 <translation id="6691936601825168937">إعا&amp;دة توجيه</translation>
 <translation id="7736284018483078792">تغيير لغة قاموس التدقيق الإملائي.</translation>
@@ -449,7 +466,10 @@
 <translation id="8053959338015477773">يتطلّب عرض بعض  العناصر في  هذه الصفحة مكوّنًا إضافيًا آخر.</translation>
 <translation id="4666192354592784528">تمّ استرجاع بعض عناصر هذه الصفحة عبر اتّصالات غير آمنة.</translation>
 <translation id="7414887922320653780">عدد الساعات المتبقية: <ph name="NUMBER_ONE"/></translation>
+<translation id="399179161741278232">المستوردة</translation>
+<translation id="3927932062596804919">رفض</translation>
 <translation id="6484929352454160200">يتوفّر إصدار جديد من <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">المضافة حديثًا</translation>
 <translation id="2371076942591664043">فتح الملفّ عند &amp;انتهاء التحميل</translation>
 <translation id="6069278982995177296">تكرار</translation>
 <translation id="2979639724566107830">فتح الإشارة في نافذة جديدة</translation>
@@ -459,7 +479,7 @@
 <translation id="4047498523333824092">استعادة آخر الصفحات التي تمّ فتحها</translation>
 <translation id="6503077044568424649">المواقع الأكثر زيارة</translation>
 <translation id="1040471547130882189">المكوّن الإضافي غير مستجيب</translation>
-<translation id="790025292736025802">تعذّر العثور على العنوان <ph name="URL"/></translation>
+<translation id="790025292736025802">تعذر العثور على <ph name="URL"/></translation>
 <translation id="895347679606913382">بدء التحميل...</translation>
 <translation id="3319048459796106952">نافذة &amp; جديدة للتصفّح المتخفّي</translation>
 <translation id="4195643157523330669">فتح الإشارة في علامة تبويب جديدة</translation>
@@ -479,6 +499,7 @@
 <translation id="8434177709403049435">&amp;التشفير</translation>
 <translation id="7895330511272068835">معلومات عن المكوّنات الإضافية</translation>
 <translation id="9012607008263791152">أدرك أنّ زيارة هذا الموقع قد تلحق الضرر بالكمبيوتر وأتحمّل المسؤولية.</translation>
+<translation id="6004539838376062211">خيارات &amp;المدقق الإملائي</translation>
 <translation id="7887334752153342268">تكرار</translation>
 <translation id="703748601351783580">فتح جميع الإشارات في نافذة جديدة</translation>
 <translation id="1293699935367580298">مفتاح Esc</translation>
@@ -487,6 +508,7 @@
 <translation id="5291303148298143069">إبلاغي عند حجب نافذة تطفّلية</translation>
 <translation id="2115926821277323019">يجب أن يكون عنوان URL صالحًا</translation>
 <translation id="7397054681783221164">مسح العناصر التالية:</translation>
+<translation id="4891251785049117953">مسح بيانات النموذج المحفوظ</translation>
 <translation id="7554791636758816595">علامة تبويب جديدة</translation>
 <translation id="4400697530699263877">استخدام تقنية الجلب المسبق لنظام (DNS) لتحسين أداء تحميل الصفحات</translation>
 <translation id="1086613338090581534">بالنسبة إلى الشهادات السارية الصلاحية، يجب على الجهة المصدرة إنشاء قائمة تدعى &quot;قائمة الإبطال&quot; تضيف إليها الشهادات المشكوك في صحّتها بعد إبطالها. وأمّا الشهادات المنتهية الصلاحية فلا تنطبق عليها حالة الإبطال، إذ حتى لو كانت الشهادة صالحة في الماضي للموقع المقصود، ليس ما يثبت ما إذا كانت قد تعرّضت للسرقة أو التعديل فوجب إبطالها، أم أنّها لا تزال صالحة. ولهذا يتعذّر التحقّق ممّا إذا كنت على اتّصال بالموقع الشرعيّ أم بمتسلّل ما استحوذ على الشهادة.  يجب التوقّف عند هذا الحدّ وعدم متابعة عملية البحث.</translation>
@@ -503,7 +525,8 @@
 <translation id="4890855023395992542">عنوان URL للخدمة:</translation>
 <translation id="2814489978934728345">وقف تحميل هذه الصفحة</translation>
 <translation id="2354001756790975382">الإشارات الأخرى</translation>
-<translation id="641480858134062906">إخفاق عملية تحميل <ph name="URL"/></translation>
+<translation id="8561574028787046517">تم تحديث <ph name="PRODUCT_NAME"/></translation>
+<translation id="641480858134062906">فشل تحميل <ph name="URL"/></translation>
 <translation id="3693415264595406141">كلمة المرور:</translation>
 <translation id="74568296546932365">إبقاء <ph name="PAGE_TITLE"/> كمحرّك البحث الافتراضي</translation>
 <translation id="6181769708911894002">تحذير: إنّ زيارة هذا الموقع قد تلحق الضرر بالكمبيوتر!</translation>
@@ -524,6 +547,7 @@
 <translation id="345693547134384690">فتح &amp;الصورة في علامة تبويب جديدة</translation>
 <translation id="1375198122581997741">معلومات عن الإصدار</translation>
 <translation id="1474307029659222435">&amp;فتح الإطار في نافذة جديدة</translation>
+<translation id="3527085408025491307">المجلد</translation>
 <translation id="3169621169201401257">لمزيد من  التفاصيل عن مشاكل هذه العناصر، راجع صفحة <ph name="DIAGNOSTIC_PAGE"/> في Google، القسم الخاص بالموقع <ph name="DOMAIN"/></translation>
 <translation id="2559292239863842334">ستظهر هنا مربّعات البحث التي تستخدمها عادةً في مواقع أخرى.</translation>
 <translation id="770015031906360009">اليونانية</translation>
@@ -531,6 +555,7 @@
 <translation id="884923133447025588">لم يتمّ العثور على أي آلبة إبطال.</translation>
 <translation id="9170848237812810038">&amp;إلغاء</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/> ‏                 كيلوبايت</translation>
+<translation id="4444364671565852729">تم تحديث <ph name="PRODUCT_NAME"/> إلى الإصدار <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">البقاء في هذه الصفحة</translation>
 <translation id="5875565123733157100">نوع الخلل:</translation>
 <translation id="2440604414813129000">عرض الم&amp;صدر</translation>
@@ -557,6 +582,7 @@
 <translation id="4745142959976410383">إذا لم يكن هذا الطلب صادر عنك، فقد تكون هناك محاولة تسلّل إلى نظام الكمبيوتر. إذا كنت لم تتّخذ أيّ إجراء صريح لبدء هذا الطلب، يجب الضغط على إلغاء.</translation>
 <translation id="8288345061925649502">تغيير محرّك البحث</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> ثوانٍ</translation>
+<translation id="6652942492341627832">حفظ وعرض النص المكتوب في حقول مماثلة</translation>
 <translation id="5139955368427980650">ف&amp;تح</translation>
 <translation id="746319800473277382">الذهاب إلى صفحة الموقع الرئيسة</translation>
 <translation id="8562413501751825163">إغلاق متصفّح فايرفوكس قبل بدء عملية الاستيراد</translation>
@@ -579,6 +605,7 @@
 <translation id="1485146213770915382">إدراج &quot;<ph name="SEARCH_TERMS_LITERAL"/>&quot; في عنوان URL حيث يجب أن تظهر كلمات البحث.</translation>
 <translation id="5626134646977739690">الاسم:</translation>
 <translation id="7125953501962311360">المتصفّح الافتراضي:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>مزيد من المعلومات<ph name="END_LINK"/> حول هذه المشكلة.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">تمّ حجب هذا الإطار لتضمّنه بعض المحتوى غير الآمن.</translation>
 <translation id="8112223930265703044">البيانات كلّها</translation>
@@ -588,6 +615,7 @@
 <translation id="486595306984036763">إعداد تقرير تصيّد</translation>
 <translation id="1568162916422682473">لقد طرأ عطل على المكوّن الإضافي التالي: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">الإعادة إلى الإعدادات الافتراضية</translation>
+<translation id="8116972784401310538">م&amp;دير الإشارات</translation>
 <translation id="6040143037577758943">إغلاق</translation>
 <translation id="4910619056351738551">في ما يلي بعض الاقتراحات:</translation>
 <translation id="7451556917824271099">يحتوي الموقع &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; على عناصر من الموقع &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; الذي يبدو أنّه يستضيف برمجيّات خبيثة- وهي برامج تلحق الضرر بالكمبيوتر وتعمل بدون موافقة منك.  احذر هذه المواقع لأنّ مجرّد زيارتها كفيلة بإفساد الكمبيوتر.</translation>

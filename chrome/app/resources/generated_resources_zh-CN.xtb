@@ -43,8 +43,10 @@
 <translation id="7931071620596053769">以下网页不响应。 您既可以等待它们响应，也可以关闭它们。</translation>
 <translation id="1209866192426315618">剩下 <ph name="NUMBER_DEFAULT"/> 分钟</translation>
 <translation id="2179052183774520942">添加搜索引擎</translation>
+<translation id="2956948609882871496">导入书签...</translation>
 <translation id="1621207256975573490">帧另存为(&amp;F)...</translation>
 <translation id="2278562042389100163">打开浏览器窗口</translation>
+<translation id="4589279373639964403">导出书签...</translation>
 <translation id="5463275305984126951"><ph name="LOCATION"/> 的索引</translation>
 <translation id="5154917547274118687">内存</translation>
 <translation id="873849583815421063">即将完成...</translation>
@@ -58,6 +60,7 @@
 <translation id="4684748086689879921">退出导入</translation>
 <translation id="5516565854418269276">总是显示书签栏(&amp;A)</translation>
 <translation id="6426222199977479699">SSL 错误</translation>
+<translation id="443008484043213881">工具</translation>
 <translation id="8534801226027872331">这种情况下，提交给您的浏览器的证书包含错误，无法理解。 这意味着我们无法理解证书中的身份信息或用来保证连接安全的某些其他信息。 您不应再继续。</translation>
 <translation id="4422347585044846479">修改此页的书签</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -137,6 +140,7 @@
 <translation id="1426410128494586442">是</translation>
 <translation id="6513615899227776181">插件： <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184">剩下 <ph name="NUMBER_MANY"/> 天</translation>
+<translation id="1059307158073710225">拼写检查：</translation>
 <translation id="7643817847124207232">互联网连接已遗失。</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868">剩下 <ph name="NUMBER_MANY"/> 分钟</translation>
@@ -156,6 +160,7 @@
 <translation id="7012108905414904806">不过，此页包含其他不安全的资源。 其他人可能会在传输中查看这些资源，攻击者也可以修改这些资源，从而改变网页的外观或行为。</translation>
 <translation id="4515911410595374805">此页某些元素的来源未得到验证，不会显示。</translation>
 <translation id="1195447618553298278">未知错误。</translation>
+<translation id="1087119889335281750">无拼写建议(&amp;N)</translation>
 <translation id="5076340679995252485">粘贴(&amp;P)</translation>
 <translation id="14171126816530869">位於 <ph name="LOCALITY"/> 的 <ph name="ORGANIZATION"/>，已经过 <ph name="ISSUER"/> 验證身份。</translation>
 <translation id="1587275751631642843">JavaScript 控制台(&amp;J)</translation>
@@ -165,6 +170,7 @@
 <translation id="6151323131516309312">按一下 <ph name="SEARCH_KEY"/> 以搜寻 <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">清除下载历史记录</translation>
 <translation id="2503522102815150840">浏览器崩溃了...轰隆隆</translation>
+<translation id="2815500128677761940">书签栏</translation>
 <translation id="8041183585493091279">建议服务网址：</translation>
 <translation id="9189691339671500905">在提示框中设置所用的搜索引擎。</translation>
 <translation id="4571852245489094179">导入书签和设置</translation>
@@ -180,14 +186,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">正在解析主机...</translation>
 <translation id="3967132639560659870">此页有几个 SSL 错误：</translation>
+<translation id="5039804452771397117">允许</translation>
 <translation id="2266011376676382776">网页不响应</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">书签栏</translation>
+<translation id="3493653833301553455">表单自动填写：</translation>
 <translation id="644038709730536388">了解保护自己、免遭网上有害软件侵害的详情。</translation>
 <translation id="4172706149171596436">更改代理设置</translation>
 <translation id="5650551054760837876">未找到搜索结果。</translation>
 <translation id="3234408098842461169">向下箭头</translation>
 <translation id="825608351287166772">就像您可能拥有的所有身份证明文件（如护照）一样，证书也有有效期。 提交给您的浏览器的证书尚未生效。 如果某证书超出了自己的有效期，则不要求维护有关证书状态（它是否已被吊销，不应再得到信任）的特定信息。 这样就不可能验证此证书是否值得信任。 您不应再继续。</translation>
+<translation id="2742457360514408037">已拦截弹出式窗口数：<ph name="COUNT"/></translation>
 <translation id="4874539263382920044">标题必须至少包含一个字符</translation>
 <translation id="3549657413697417275">搜索您的历史记录</translation>
 <translation id="4250680216510889253">否</translation>
@@ -199,6 +208,7 @@
 <translation id="6500444002471948304">添加文件夹...</translation>
 <translation id="2794293857160098038">默认搜索选项</translation>
 <translation id="5935630983280450497">剩下 <ph name="NUMBER_ONE"/> 分钟</translation>
+<translation id="5496587651328244253">整理</translation>
 <translation id="5568069709869097550">无法登录</translation>
 <translation id="4181898366589410653">未在服务器证书中找到吊销机制</translation>
 <translation id="6364916375976753737">向左滚动</translation>
@@ -227,6 +237,7 @@
 <translation id="370665806235115550">正在加载...</translation>
 <translation id="6592392877063354583"><ph name="SECURE_PAGE_URL"/> 的网页包含了来自 <ph name="INSECURE_RESOURCE_URL"/> 的不安全内容。</translation>
 <translation id="3810973564298564668">管理</translation>
+<translation id="254416073296957292">语言设置(&amp;L)...</translation>
 <translation id="4222982218026733335">服务器证书无效</translation>
 <translation id="495091556140548787">最近关闭的标签页</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已经隐身了<ph name="END_BOLD"/>。 您在此窗口查看的网页将不会显示在浏览器历史记录或搜索历史记录中，并且在您关闭隐身窗口后，这些网页也不会在您的计算机上留下其他记录，例如 Cookie。 不过，您下载的所有文件或创建的书签都会被保存。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>隐身状态并不影响其他人、服务器或软件的行为。 请警惕：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共享有关您的信息的网站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您所访问的网页的互联网服务提供商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您为获取免费笑脸图标所用按键的恶意软件<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>间谍的监视<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身后的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>了解<ph name="END_LINK"/>有关隐身浏览的详情。</translation>
@@ -249,6 +260,7 @@
 <translation id="6100736666660498114">“开始”菜单</translation>
 <translation id="1120098871254928930">允许加载所有内容</translation>
 <translation id="3994878504415702912">缩放(&amp;Z)</translation>
+<translation id="5602600725402519729">重新加载(&amp;L)</translation>
 <translation id="7965010376480416255">共享内存</translation>
 <translation id="6248988683584659830">搜索设置</translation>
 <translation id="8887733174653581061">前端显示</translation>
@@ -274,6 +286,7 @@
 <translation id="3819791248093819058">未在此网址找到网页： &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">上一个</translation>
 <translation id="583281660410589416">未知</translation>
+<translation id="5528368756083817449">书签管理器</translation>
 <translation id="1560991001553749272">书签已添加！</translation>
 <translation id="3966072572894326936">选择另一文件夹...</translation>
 <translation id="7781829728241885113">昨天</translation>
@@ -286,8 +299,10 @@
 <translation id="7334704644505105275">JavaScript 调试程序 - 正忙</translation>
 <translation id="7629827748548208700">标签： <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">大小</translation>
+<translation id="1383876407941801731">搜索</translation>
 <translation id="8398877366907290961">仍然继续</translation>
 <translation id="290414493736480793">确认</translation>
+<translation id="6449085810994685586">检查字段的拼写(&amp;C)</translation>
 <translation id="50960180632766478">剩下 <ph name="NUMBER_FEW"/> 分钟</translation>
 <translation id="8664389313780386848">查看网页源文件(&amp;V)</translation>
 <translation id="57646104491463491">修改日期</translation>
@@ -395,6 +410,7 @@
 <translation id="8695758493354644945">请参阅记录中包含「<ph name="SEARCH_TERMS"/>」的 <ph name="NUM_MATCHES"/> 个最新网页</translation>
 <translation id="8186012393692847636">使用建议服务，帮助您填写要在地址栏中输入的搜索和网址</translation>
 <translation id="4711094779914110278">土耳其语</translation>
+<translation id="4002066346123236978">标题</translation>
 <translation id="9015241028623917394">控制当前页</translation>
 <translation id="7861215335140947162">下载(&amp;D)</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/>，总共 <ph name="TOTAL_SIZE"/></translation>
@@ -424,6 +440,7 @@
 <translation id="8877448029301136595">[父目录]</translation>
 <translation id="1963227389609234879">全部删除</translation>
 <translation id="2496180316473517155">浏览历史记录</translation>
+<translation id="602251597322198729">此网站试图下载多个文件。是否允许此操作？</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> 小时</translation>
 <translation id="6691936601825168937">前进(&amp;F)</translation>
 <translation id="7736284018483078792">更改拼写检查字典的语言。</translation>
@@ -453,7 +470,10 @@
 <translation id="8053959338015477773">要在此页上显示某些元素，需要其他插件。</translation>
 <translation id="4666192354592784528">通过安全连接无法完全检索此页。  此页包含某些需要通过不安全连接检索的元素。</translation>
 <translation id="7414887922320653780">剩下 <ph name="NUMBER_ONE"/> 小时</translation>
+<translation id="399179161741278232">已导入</translation>
+<translation id="3927932062596804919">拒绝</translation>
 <translation id="6484929352454160200">现已提供新版本的 <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">最近添加的书签</translation>
 <translation id="2371076942591664043">完成时打开(&amp;D)</translation>
 <translation id="6069278982995177296">复制</translation>
 <translation id="2979639724566107830">在新窗口中打开</translation>
@@ -463,7 +483,7 @@
 <translation id="4047498523333824092">恢复上次打开的网页</translation>
 <translation id="6503077044568424649">最热门</translation>
 <translation id="1040471547130882189">插件不响应</translation>
-<translation id="790025292736025802">找不到 <ph name="URL"/></translation>
+<translation id="790025292736025802">未找到 <ph name="URL"/></translation>
 <translation id="895347679606913382">开始下载...</translation>
 <translation id="3319048459796106952">新隐身窗口(&amp;I)</translation>
 <translation id="4195643157523330669">在新标签页中打开</translation>
@@ -483,6 +503,7 @@
 <translation id="8434177709403049435">编码(&amp;E)</translation>
 <translation id="7895330511272068835">关于插件</translation>
 <translation id="9012607008263791152">我已了解访问此网站可能会损害我的计算机。</translation>
+<translation id="6004539838376062211">拼写检查选项(&amp;S)</translation>
 <translation id="7887334752153342268">复制</translation>
 <translation id="703748601351783580">在新窗口中打开所有书签</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -491,6 +512,7 @@
 <translation id="5291303148298143069">当弹出式窗口被阻止时通知我</translation>
 <translation id="2115926821277323019">必须是有效网址</translation>
 <translation id="7397054681783221164">清除以下项目：</translation>
+<translation id="4891251785049117953">清除已保存的表单数据</translation>
 <translation id="7554791636758816595">新标签页</translation>
 <translation id="4400697530699263877">使用预提取 DNS 改善网页加载效果</translation>
 <translation id="1086613338090581534">对于未过期的证书，证书的颁发者负责维护被称为“吊销列表”的列表。 如果证书遭到了破坏，颁发者就可以将其添加到“吊销列表”，从而吊销此证书，这样您的浏览器就不会再信任此证书。 对已过期的证书不要求维护吊销状态，所以尽管此证书以前对您所访问的网站是有效的，目前还是无从判断证书是已遭到破坏，随后将被吊销，还是仍处于安全状态。 因此，您无从得知自己是在与合法网站通信，还是证书已遭到破坏，目前已被攻击者掌握，而您是在与攻击者通信。 您不应绕开这一点。</translation>
@@ -507,7 +529,8 @@
 <translation id="4890855023395992542">服务网址：</translation>
 <translation id="2814489978934728345">停止加载此页</translation>
 <translation id="2354001756790975382">其他书签</translation>
-<translation id="641480858134062906">无法载入 <ph name="URL"/></translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/>已更新</translation>
+<translation id="641480858134062906">无法加载 <ph name="URL"/></translation>
 <translation id="3693415264595406141">密码:</translation>
 <translation id="74568296546932365">保留 <ph name="PAGE_TITLE"/> 为预设搜寻引擎</translation>
 <translation id="6181769708911894002">警告： 访问此网站可能损害您的计算机！</translation>
@@ -528,6 +551,7 @@
 <translation id="345693547134384690">在新标签页中打开图片(&amp;I)</translation>
 <translation id="1375198122581997741">关于版本</translation>
 <translation id="1474307029659222435">在新窗口中打开帧(&amp;W)</translation>
+<translation id="3527085408025491307">文件夹</translation>
 <translation id="3169621169201401257">有关这些元素的问题的详情，请访问 <ph name="DOMAIN"/> 的 Google <ph name="DIAGNOSTIC_PAGE"/>。</translation>
 <translation id="2559292239863842334">此处将出现您在其他网站上最常用的搜索框。</translation>
 <translation id="770015031906360009">希腊语</translation>
@@ -535,6 +559,7 @@
 <translation id="884923133447025588">未找到任何吊销机制。</translation>
 <translation id="9170848237812810038">撤消(&amp;U)</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/>已更新为 <ph name="VERSION"/></translation>
 <translation id="9154176715500758432">留在此页</translation>
 <translation id="5875565123733157100">错误类型：</translation>
 <translation id="2440604414813129000">查看源文件(&amp;O)</translation>
@@ -561,6 +586,7 @@
 <translation id="4745142959976410383">如果您没有发出此请求，可能是您的系统遭到了攻击。 除非您通过某一明确的操作发出了此请求，否则您应该按下“取消”。</translation>
 <translation id="8288345061925649502">更改搜索引擎</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> 秒</translation>
+<translation id="6652942492341627832">保存并显示在相似字段中键入的文本</translation>
 <translation id="5139955368427980650">打开(&amp;O)</translation>
 <translation id="746319800473277382">转到此网站的主页：</translation>
 <translation id="8562413501751825163">导入之前关闭 Firefox</translation>
@@ -583,6 +609,7 @@
 <translation id="1485146213770915382">在网址中应该出现搜寻字词的位置插入 <ph name="SEARCH_TERMS_LITERAL"/>。</translation>
 <translation id="5626134646977739690">名称：</translation>
 <translation id="7125953501962311360">默认浏览器：</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>详细了解<ph name="END_LINK"/>此问题。</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">此帧因包含某些不安全内容而被拦截。</translation>
 <translation id="8112223930265703044">所有内容</translation>
@@ -592,6 +619,7 @@
 <translation id="486595306984036763">打开网络欺诈报告</translation>
 <translation id="1568162916422682473">下列外掛程式已损毁: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">重置为默认值</translation>
+<translation id="8116972784401310538">书签管理器(&amp;B)</translation>
 <translation id="6040143037577758943">关闭</translation>
 <translation id="4910619056351738551">以下是一些建议：</translation>
 <translation id="7451556917824271099">位於 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的网站包含来自 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; 网站的元素，且其中似乎包含恶意程式，可能损害您的电脑或在未经您同意之下擅自执行。单凭造访包含恶意程式的网站就足以影响您的电脑。</translation>

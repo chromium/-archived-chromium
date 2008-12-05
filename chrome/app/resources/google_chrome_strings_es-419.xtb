@@ -1,13 +1,19 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="es-419">
+<translation id="8579274574697852281">Para usar Google Chrome, se necesita Windows Vista o Windows XP con SP1 o superior.</translation>
+<translation id="698670068493841342">Google Chrome ya se instaló para este usuario. Si el software no funciona, desinstale Google Chrome y descárguelo nuevamente.</translation>
 <translation id="7400722733683201933">Acerca de Google Chrome</translation>
 <translation id="7101265395643981223">Iniciar Google Chrome</translation>
 <translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. Todos los derechos reservados.</translation>
 <translation id="1549918799472947005">Chrome utiliza tu motor de búsqueda predeterminado, que actualmente es <ph name="PAGE_TITLE"/>. ¿Deseas mantener tu motor de búsqueda predeterminado?</translation>
+<translation id="2370289711218562573">Google Chrome está importando favoritos y marcadores:</translation>
+<translation id="8970027151245482499">Google Chrome no está instalado o no se pudo encontrar el directorio de instalación. Descargue Google Chrome nuevamente.</translation>
 <translation id="7958215378280655655">Al restablecer las opciones de Google Chrome, se revertirán los cambios que haya realizado en la configuración predeterminada. ¿Desea restablecer las opciones de Chrome?</translation>
 <translation id="4281844954008187215">Condiciones del servicio</translation>
 <translation id="1137776625614346046">El área &quot;Más visitados&quot; muestra los sitios web que visitas con mayor frecuencia. Cuando hayas utilizado Google Chrome durante un tiempo, al abrir una nueva pestaña podrás ver los sitios más visitados. Encontrarás más información sobre ésta y otras funciones en la página <ph name="BEGIN_LINK"/>Cómo empezar<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">No se pudo completar la instalación debido a un error no identificado. Si Google Chrome se está ejecutando en este momento, ciérrelo e intente nuevamente.</translation>
+<translation id="4149882025268051530">El instalador no pudo descomprimir el archivo. Descargue Google Chrome nuevamente.</translation>
 <translation id="6817660909204164466">Ayúdanos a mejorar Google Chrome enviándonos estadísticas de uso e informes de error.</translation>
 <translation id="8227755444512189073">Google Chrome debe iniciar una aplicación externa para administrar <ph name="SCHEME"/> enlaces. El enlace solicitado es <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -18,10 +24,12 @@
 <translation id="3889417619312448367">Desinstalar Google Chrome</translation>
 <translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
 <translation id="8810218179782551669">Idioma de Google Chrome:</translation>
+<translation id="3940866277504106378">Es posible que Google Chrome utilice servicios web con el objetivo de mejorar la navegación, pero usted puede desactivar estos servicios si así lo desea.</translation>
 <translation id="7001386529596391893">Crear accesos directos de Google Chrome en estas ubicaciones:</translation>
 <translation id="6134282421960734039">¿Quieres que Chrome guarde tu contraseña?</translation>
 <translation id="1195935957447623558">Google Chrome no se cerró correctamente. Para volver a abrir las páginas que había abierto, haga clic en Restaurar.</translation>
 <translation id="2499193704281978000">Google Chrome no responde. ¿Quieres reiniciarlo ahora?</translation>
+<translation id="7747138024166251722">El instalador no pudo crear un directorio temporal. Verifique si hay espacio disponible en el disco y cuenta con permiso para instalar software.</translation>
 <translation id="6009537148180854585">Intentó ponerse en contacto con &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, pero el servidor presentó un certificado con errores. Google Chrome no puede utilizar un certificado con errores y no puede validar la identidad del sitio con la que intentó ponerse en contacto. Su conexión es insegura y no debería continuar.</translation>
 <translation id="3324235665723428530">No se puede utilizar su perfil porque pertenece a una versión más nueva de Google Chrome.\n\nEs posible que no pueda utilizar algunas funciones. Especifique otro directorio para el perfil o utilice una versión más nueva de Chrome.</translation>
 <translation id="1759842336958782510">Chrome</translation>
@@ -37,15 +45,20 @@
 <translation id="8172671748763307156">¿Está seguro que desea desinstalar Google Chrome? (¿Fue algo que dijimos?)</translation>
 <translation id="5046764976540625289">Salir de Chrome</translation>
 <translation id="582763753075639530">Cierra todas las ventanas de Chrome y reinicia el programa para que este cambio surta efecto.</translation>
+<translation id="8776515774046280928">Google Chrome ya está instalado en este equipo y está disponible para todos los usuarios. Si desea instalar Google Chrome a nivel de usuario, primero debe desinstalar la versión que un administrador instaló a nivel del sistema.</translation>
 <translation id="3335672657969596251">Google Chrome no es compatible con <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">Este equipo ya cuenta con una versión más reciente de Google Chrome. Si el software no funciona, desinstale Google Chrome y descárguelo nuevamente.</translation>
 <translation id="1964682833763362793">Cierra todas las ventanas de Chrome e inténtalo de nuevo.</translation>
+<translation id="1001534784610492198">El instalador está dañado o no es válido. Descargue Google Chrome nuevamente.</translation>
 <translation id="6626317981028933585">Lamentablemente, las opciones de su Mozilla Firefox no están disponibles si el navegador se encuentra activado. Para importar esas opciones a Google Chrome, guarde su trabajo y cierre todas las ventanas de Firefox. Luego, haga clic en Continuar.</translation>
 <translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Un administrador instaló Google Chrome en este equipo, que está disponible para todos los usuarios, y la versión de Google Chrome instalada a nivel del sistema reemplazará la versión instalada a nivel de usuario en este momento.</translation>
 <translation id="3870154837782082782">Google Inc.</translation>
 <translation id="1446473746922165495">Cambiar el idioma utilizado en los menúes, cuadros de diálogo y sugerencias de ayuda de Google Chrome.</translation>
 <translation id="9189723490960700326">Intentó ponerse en contacto con &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, pero el servidor presentó un certificado vencido. No hay información que indique si ese certificado fue interceptado desde su caducidad. Esto significa que Google Chrome no puede garantizar que está comunicándose con &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; y no con un usuario malintencionado. No continúe.</translation>
 <translation id="7106741999175697885">Administrador de tareas - Google Chrome</translation>
 <translation id="8449380764213232436">Google Chrome está importando los siguientes elementos desde <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Se produjo un error del sistema operativo durante la instalación. Descargue Google Chrome nuevamente.</translation>
 <translation id="2618799103663374905">Añadir accesos directos de Google Chrome, barra de lanzamiento rápido y menú Inicio</translation>
 <translation id="1144950271450340860">Intentó ponerse en contacto con &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, pero el servidor presentó un certificado que emitió una entidad que no es segura para el sistema operativo de su computadora. Esto puede significar que el servidor generó sus propias credenciales de seguridad, de las cuales Google Chrome no puede garantizar la información de identidad, o un usuario malintencionado está tratando de interceptar sus comunicaciones. No continúe, &lt;strong&gt;especialmente&lt;/strong&gt; si es la primera vez que ve esta advertencia en este sitio.</translation>
 </translationbundle>
