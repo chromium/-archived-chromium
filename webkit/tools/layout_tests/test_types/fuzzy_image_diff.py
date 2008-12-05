@@ -40,7 +40,6 @@ class FuzzyImageDiff(test_type_base.TestTypeBase):
 
     # Run the fuzzymatcher
     r = subprocess.call(['fuzzymatch', test_args.png_path, expected_png_file])
-    print '  fuzzymatch returned', r
     if r != 0:
       failures.append(test_failures.FailureFuzzyFailure(self))
 
