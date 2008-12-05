@@ -2085,5 +2085,13 @@ MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT
 LayoutTests/fast/dom/HTMLDocument/document-open-return-value.html = FAIL
 LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
+// WebKit Merge 38850:38900 regressions
+LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-width-attr.html = CRASH
+
+// WebKit Merge 38850:38900 new tests
+LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
+LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
+LayoutTests/fast/dom/dom-constructors.html = FAIL
+
 // The test passes on a local build, but fail on buildbot in DEBUG mode only.
 DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
