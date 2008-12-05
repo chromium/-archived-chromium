@@ -39,7 +39,9 @@ gfx::Size ComboBox::GetPreferredSize() {
   COMBOBOXINFO cbi;
   memset(reinterpret_cast<unsigned char*>(&cbi), 0, sizeof(cbi));
   cbi.cbSize = sizeof(cbi);
-  ::SendMessage(hwnd, CB_GETCOMBOBOXINFO, 0, reinterpret_cast<LPARAM>(&cbi));
+  // Note: Don't use CB_GETCOMBOBOXINFO since that crashes on WOW64 systems
+  // when you have a global message hook installed.
+  GetComboBoxInfo(hwnd, &cbi);
   gfx::Rect rect_item(cbi.rcItem);
   gfx::Rect rect_button(cbi.rcButton);
   gfx::Size border = gfx::NativeTheme::instance()->GetThemeBorderSize(
