@@ -28,7 +28,7 @@ extern const wchar_t kRegRenameCmdField[];
 extern const wchar_t kRegRLZBrandField[];
 extern const wchar_t kRegUsageStatsField[];
 extern const wchar_t kRegVersionField[];
-extern const wchar_t kRegClientField[];
+extern const wchar_t kRegReferralField[];
 
 extern const wchar_t kEnvProductVersionKey[];
 }  // namespace google_update

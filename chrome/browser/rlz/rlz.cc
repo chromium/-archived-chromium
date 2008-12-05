@@ -108,13 +108,13 @@ bool LoadRLZLibrary(int directory_key) {
 }
 
 bool SendFinancialPing(const wchar_t* brand, const wchar_t* lang,
-                       const wchar_t* client, bool exclude_id) {
+                       const wchar_t* referral, bool exclude_id) {
   RLZTracker::AccessPoint points[] = {RLZTracker::CHROME_OMNIBOX, 
                                       RLZTracker::CHROME_HOME_PAGE,
                                       RLZTracker::NO_ACCESS_POINT};
   if (!send_ping)
     return false; 
-  return send_ping(RLZTracker::CHROME, points, L"chrome", brand, client, lang,
+  return send_ping(RLZTracker::CHROME, points, L"chrome", brand, referral, lang,
                    exclude_id, NULL);
 }
 
@@ -180,9 +180,9 @@ class DailyPingTask : public Task {
       lang = L"en";
     std::wstring brand;
     GoogleUpdateSettings::GetBrand(&brand);
-    std::wstring client;
-    GoogleUpdateSettings::GetClient(&client);
-    if (SendFinancialPing(brand.c_str(), lang.c_str(), client.c_str(),
+    std::wstring referral;
+    GoogleUpdateSettings::GetReferral(&referral);
+    if (SendFinancialPing(brand.c_str(), lang.c_str(), referral.c_str(),
                           is_organic(brand)))
       access_values_state = ACCESS_VALUES_STALE;
   }
