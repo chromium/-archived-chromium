@@ -75,9 +75,12 @@ bool MediaFormat::Contains(const std::wstring& key) const {
 }
 
 void MediaFormat::Clear() {
-  for (ValueMap::iterator iter(value_map_.begin());
-       iter != value_map_.end(); iter = value_map_.erase(iter))
+  ValueMap::iterator iter(value_map_.begin());
+  while (iter != value_map_.end()) {
     delete iter->second;
+    value_map_.erase(iter);
+    iter = value_map_.begin();
+  }
 }
 
 void MediaFormat::SetAsBoolean(const std::wstring& key, bool in_value) {
