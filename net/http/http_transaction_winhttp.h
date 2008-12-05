@@ -93,6 +93,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
   int DidSendRequest();
   int DidWriteData(DWORD num_bytes);
   int DidReadData(DWORD num_bytes);
+  void LogTransactionMetrics() const;
   int DidReceiveHeaders();
 
   int PopulateAuthChallenge();

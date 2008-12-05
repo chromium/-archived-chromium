@@ -977,8 +977,10 @@ int HttpTransactionWinHttp::Read(char* buf, int buf_len,
   DCHECK(request_handle_);
 
   // If we have already received the full response, then we know we are done.
-  if (content_length_remaining_ == 0)
+  if (content_length_remaining_ == 0) {
+    LogTransactionMetrics();
     return 0;
+  }
 
   session_callback_->set_read_buf(buf);
   session_callback_->set_read_buf_len(buf_len);
@@ -1439,12 +1441,20 @@ int HttpTransactionWinHttp::DidReadData(DWORD num_bytes) {
   // We have read the entire response.  Mark the request done to unblock a
   // queued request.
   if (rv == 0) {
+    LogTransactionMetrics();
     DCHECK(request_submitted_);
     request_submitted_ = false;
     session_->request_throttle()->NotifyRequestDone(connect_peer_);
   }
 
   return rv;
+}
+
+void HttpTransactionWinHttp::LogTransactionMetrics() const {
+  base::TimeDelta duration = base::Time::Now() - response_.request_time;
+  if (60 < duration.InMinutes())
+    return;
+  UMA_HISTOGRAM_LONG_TIMES(L"Net.Transaction_Latency_WinHTTP", duration);
 }
 
 int HttpTransactionWinHttp::DidReceiveHeaders() {
