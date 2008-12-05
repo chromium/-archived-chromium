@@ -418,7 +418,10 @@ sub GenerateConstructorGetter
 
     V8ClassIndex::V8WrapperType type = V8ClassIndex::FromInt(data->Int32Value());
         
-    return V8Proxy::retrieve()->GetConstructor(type);
+    v8::Handle<v8::FunctionTemplate> desc = V8Proxy::GetTemplate(type);
+    v8::Handle<v8::Function> func = desc->GetFunction();
+    ASSERT(func->IsFunction());
+    return func;
   }
 
 END

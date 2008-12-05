@@ -443,7 +443,6 @@ class V8ClassIndex {
     ALL_WRAPPER_TYPES(DEFINE_ENUM)
 #undef DEFINE_ENUM
     CLASSINDEX_END,
-    WRAPPER_TYPE_COUNT = CLASSINDEX_END
   };
 
   static int ToInt(V8WrapperType type) { return static_cast<int>(type); }

@@ -984,14 +984,6 @@ V8Proxy::~V8Proxy()
 {
     clearForClose();
     DestroyGlobal();
-    if (!m_constructor_cache.IsEmpty()) {
-      m_constructor_cache.Dispose();
-      m_constructor_cache.Clear();
-    }
-    if (!m_initial_object_prototype.IsEmpty()) {
-      m_initial_object_prototype.Dispose();
-      m_initial_object_prototype.Clear();
-    }
 }
 
 void V8Proxy::DestroyGlobal()
@@ -1363,30 +1355,6 @@ v8::Local<v8::Value> V8Proxy::CallFunction(v8::Handle<v8::Function> function,
     HandleFatalErrorInV8();
 
   return result;
-}
-
-
-v8::Local<v8::Function> V8Proxy::GetConstructor(
-    V8ClassIndex::V8WrapperType t) {
-  ASSERT(ContextInitialized());
-  v8::Local<v8::Value> cached = m_constructor_cache->Get(v8::Integer::New(t));
-  if (cached->IsUndefined()) {
-    static v8::Persistent<v8::String> proto;
-    if (proto.IsEmpty()) {
-      proto = v8::Persistent<v8::String>::New(v8::String::New("__proto__"));
-    }
-    v8::Handle<v8::FunctionTemplate> templ = GetTemplate(t);
-    v8::TryCatch try_catch;
-    // This might fail if we're running out of stack or memory.
-    v8::Local<v8::Function> value = templ->GetFunction();
-    if (value.IsEmpty())
-      return v8::Local<v8::Function>();
-    m_constructor_cache->Set(v8::Integer::New(t), value);
-    value->Set(proto, m_initial_object_prototype);
-    return value;
-  } else {
-    return v8::Local<v8::Function>::Cast(cached);
-  }
 }
 
 
@@ -2133,19 +2101,12 @@ void V8Proxy::initContextIfNeeded()
 #endif
   }
 
-  v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(
-      m_global->Get(v8::String::New("Object")));
-  m_initial_object_prototype = v8::Persistent<v8::Value>::New(
-      object->Get(v8::String::New("prototype")));
-  m_constructor_cache = v8::Persistent<v8::Array>::New(
-      v8::Array::New(V8ClassIndex::WRAPPER_TYPE_COUNT));
-
   // Create a new JS window object and use it as the prototype for the
   // shadow global object.
-  v8::Handle<v8::Function> window_constructor =
-      GetConstructor(V8ClassIndex::DOMWINDOW);
+  v8::Persistent<v8::FunctionTemplate> window_descriptor =
+      GetTemplate(V8ClassIndex::DOMWINDOW);
   v8::Local<v8::Object> js_window =
-      SafeAllocation::NewInstance(window_constructor);
+      SafeAllocation::NewInstance(window_descriptor->GetFunction());
   if (js_window.IsEmpty())
     return;
 
@@ -2459,7 +2420,8 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
     desc_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
   }
 
-  v8::Local<v8::Function> function = retrieve()->GetConstructor(desc_type);
+  v8::Persistent<v8::FunctionTemplate> desc = GetTemplate(desc_type);
+  v8::Local<v8::Function> function = desc->GetFunction();
   v8::Local<v8::Object> instance = SafeAllocation::NewInstance(function);
   if (!instance.IsEmpty()) {
     // Avoid setting the DOM wrapper for failed allocations.
