@@ -1133,7 +1133,11 @@ bool ResourceDispatcherHost::BufferedEventHandler::DelayResponse() {
   std::string mime_type;
   request_->GetMimeType(&mime_type);
 
-  if (net::ShouldSniffMimeType(request_->url(), mime_type)) {
+  std::string content_type_options;
+  request_->GetResponseHeaderByName("x-content-type-options",
+                                    &content_type_options);
+  if (content_type_options != "nosniff" &&
+      net::ShouldSniffMimeType(request_->url(), mime_type)) {
     // We're going to look at the data before deciding what the content type
     // is.  That means we need to delay sending the ResponseStarted message
     // over the IPC channel.

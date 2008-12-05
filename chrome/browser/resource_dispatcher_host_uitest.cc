@@ -50,6 +50,10 @@ TEST_F(ResourceDispatcherTest, SniffHTMLWithNoContentType) {
                  L"Content Sniffer Test 0");
 }
 
+TEST_F(ResourceDispatcherTest, RespectNoSniffDirective) {
+  CheckTitleTest(L"nosniff-test.html", L"");
+}
+
 TEST_F(ResourceDispatcherTest, DoNotSniffHTMLFromTextPlain) {
   CheckTitleTest(L"content-sniffer-test1.html", L"");
 }
