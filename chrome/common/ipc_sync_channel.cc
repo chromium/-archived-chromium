@@ -40,8 +40,8 @@ class SyncChannel::ReceivedSyncMsgQueue :
     public base::RefCountedThreadSafe<ReceivedSyncMsgQueue> {
  public:
   // Returns the ReceivedSyncMsgQueue instance for this thread, creating one
-  // if necessary.  Call RemoveListener on the same thread when done.
-  static ReceivedSyncMsgQueue* AddListener() {
+  // if necessary.  Call RemoveContext on the same thread when done.
+  static ReceivedSyncMsgQueue* AddContext() {
     // We want one ReceivedSyncMsgQueue per listener thread (i.e. since multiple
     // SyncChannel objects can block the same thread).
     ReceivedSyncMsgQueue* rv = lazy_tls_ptr_.Pointer()->Get();
@@ -57,8 +57,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   // Called on IPC thread when a synchronous message or reply arrives.
-  void QueueMessage(const Message& msg, Channel::Listener* listener,
-                    const std::wstring& channel_id) {
+  void QueueMessage(const Message& msg, SyncChannel::SyncContext* context) {
     bool was_task_pending;
     {
       AutoLock auto_lock(message_lock_);
@@ -68,8 +67,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
 
       // We set the event in case the listener thread is blocked (or is about
       // to). In case it's not, the PostTask dispatches the messages.
-      message_queue_.push(ReceivedMessage(new Message(msg), listener,
-                                          channel_id));
+      message_queue_.push_back(QueuedMessage(new Message(msg), context));
     }
 
     SetEvent(dispatch_event_);
@@ -80,10 +78,10 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   void QueueReply(const Message &msg, SyncChannel::SyncContext* context) {
-    received_replies_.push_back(Reply(new Message(msg), context));
+    received_replies_.push_back(QueuedMessage(new Message(msg), context));
   }
 
-  // Called on the listerner's thread to process any queues synchronous
+  // Called on the listener's thread to process any queues synchronous
   // messages.
   void DispatchMessagesTask() {
     {
@@ -95,19 +93,16 @@ class SyncChannel::ReceivedSyncMsgQueue :
 
   void DispatchMessages() {
     while (true) {
-      Message* message = NULL;
-      std::wstring channel_id;
-      Channel::Listener* listener = NULL;
+      Message* message;
+      scoped_refptr<SyncChannel::SyncContext> context;
       {
         AutoLock auto_lock(message_lock_);
         if (message_queue_.empty())
           break;
 
-        ReceivedMessage& blocking_msg = message_queue_.front();
-        message = blocking_msg.message;
-        listener = blocking_msg.listener;
-        channel_id = blocking_msg.channel_id;
-        message_queue_.pop();
+        message = message_queue_.front().message;
+        context = message_queue_.front().context;
+        message_queue_.pop_front();
       }
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
@@ -116,12 +111,12 @@ class SyncChannel::ReceivedSyncMsgQueue :
         logger->OnPreDispatchMessage(*message);
 #endif
 
-      if (listener)
-        listener->OnMessageReceived(*message);
+      if (context->listener())
+        context->listener()->OnMessageReceived(*message);
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
       if (logger->Enabled())
-        logger->OnPostDispatchMessage(*message, channel_id);
+        logger->OnPostDispatchMessage(*message, context->channel_id());
 #endif
 
       delete message;
@@ -129,23 +124,17 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   // SyncChannel calls this in its destructor.
-  void RemoveListener(Channel::Listener* listener) {
+  void RemoveContext(SyncContext* context) {
     AutoLock auto_lock(message_lock_);
 
-    SyncMessageQueue temp_queue;
-    while (!message_queue_.empty()) {
-      if (message_queue_.front().listener != listener) {
-        temp_queue.push(message_queue_.front());
+    SyncMessageQueue::iterator iter = message_queue_.begin();
+    while (iter != message_queue_.end()) {
+      if (iter->context == context) {
+        delete iter->message;
+        iter = message_queue_.erase(iter);
       } else {
-        delete message_queue_.front().message;
+        iter++;
       }
-
-      message_queue_.pop();
-    }
-
-    while (!temp_queue.empty()) {
-      message_queue_.push(temp_queue.front());
-      temp_queue.pop();
     }
 
     if (--listener_count_ == 0) {
@@ -184,29 +173,17 @@ class SyncChannel::ReceivedSyncMsgQueue :
       listener_count_(0) {
   }
 
-  // Holds information about a queued synchronous message.
-  struct ReceivedMessage {
-    ReceivedMessage(Message* m, Channel::Listener* l, const std::wstring& i)
-        : message(m), listener(l), channel_id(i) { }
-    Message* message;
-    Channel::Listener* listener;
-    std::wstring channel_id;
-  };
-
-  typedef std::queue<ReceivedMessage> SyncMessageQueue;
-  SyncMessageQueue message_queue_;
-
-  // Holds information about a queued reply message.
-  struct Reply {
-    Reply(Message* m, SyncChannel::SyncContext* c)
-        : message(m),
-          context(c) { }
-
+  // Holds information about a queued synchronous message or reply.
+  struct QueuedMessage {
+    QueuedMessage(Message* m, SyncContext* c) : message(m), context(c) { }
     Message* message;
     scoped_refptr<SyncChannel::SyncContext> context;
   };
 
-  std::vector<Reply> received_replies_;
+  typedef std::deque<QueuedMessage> SyncMessageQueue;
+  SyncMessageQueue message_queue_;  
+
+  std::vector<QueuedMessage> received_replies_;
 
   // Set when we got a synchronous message that we must respond to as the
   // sender needs its reply before it can reply to our original synchronous
@@ -228,7 +205,7 @@ SyncChannel::SyncContext::SyncContext(
     HANDLE shutdown_event)
     : ChannelProxy::Context(listener, filter, ipc_thread),
       shutdown_event_(shutdown_event),
-      received_sync_msgs_(ReceivedSyncMsgQueue::AddListener()){
+      received_sync_msgs_(ReceivedSyncMsgQueue::AddContext()){
 }
 
 SyncChannel::SyncContext::~SyncContext() {
@@ -304,7 +281,7 @@ bool SyncChannel::SyncContext::TryToUnblockListener(const Message* msg) {
 
 void SyncChannel::SyncContext::Clear() {
   CancelPendingSends();
-  received_sync_msgs_->RemoveListener(listener());
+  received_sync_msgs_->RemoveContext(this);
 
   Context::Clear();
 }
@@ -318,7 +295,7 @@ void SyncChannel::SyncContext::OnMessageReceived(const Message& msg) {
     return;
 
   if (msg.should_unblock()) {
-    received_sync_msgs_->QueueMessage(msg, listener(), channel_id());
+    received_sync_msgs_->QueueMessage(msg, this);
     return;
   }
 
@@ -349,8 +326,8 @@ void SyncChannel::SyncContext::OnSendTimeout(int message_id) {
   AutoLock auto_lock(deserializers_lock_);
   PendingSyncMessageQueue::iterator iter;
   for (iter = deserializers_.begin(); iter != deserializers_.end(); iter++) {
-    if ((*iter).id == message_id) {
-      SetEvent((*iter).done_event);
+    if (iter->id == message_id) {
+      SetEvent(iter->done_event);
       break;
     }
   }
@@ -360,7 +337,7 @@ void SyncChannel::SyncContext::CancelPendingSends() {
   AutoLock auto_lock(deserializers_lock_);
   PendingSyncMessageQueue::iterator iter;
   for (iter = deserializers_.begin(); iter != deserializers_.end(); iter++)
-    SetEvent((*iter).done_event);
+    SetEvent(iter->done_event);
 }
 
 void SyncChannel::SyncContext::OnObjectSignaled(HANDLE object) {

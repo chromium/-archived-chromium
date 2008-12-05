@@ -128,8 +128,10 @@ class ChannelProxy : public Message::Sender {
             MessageLoop* ipc_thread);
     virtual ~Context() { }
     MessageLoop* ipc_message_loop() const { return ipc_message_loop_; }
+    Channel::Listener* listener() const { return listener_; }
+    const std::wstring& channel_id() const { return channel_id_; }
 
-  protected:
+   protected:
     // IPC::Channel::Listener methods:
     virtual void OnMessageReceived(const Message& message);
     virtual void OnChannelConnected(int32 peer_pid);
@@ -137,9 +139,6 @@ class ChannelProxy : public Message::Sender {
 
     // Like OnMessageReceived but doesn't try the filters.
     void OnMessageReceivedNoFilter(const Message& message);
-
-    Channel::Listener* listener() const { return listener_; }
-    const std::wstring& channel_id() const { return channel_id_; }
 
     // Gives the filters a chance at processing |message|.
     // Returns true if the message was processed, false otherwise.
