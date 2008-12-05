@@ -9,11 +9,12 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/test_suite.h"
-#include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#if defined(OS_WIN) // to be ported
 #include "chrome/common/resource_bundle.h"
 #include "chrome/test/testing_browser_process.h"
+#endif
 
 class ChromeTestSuite : public TestSuite {
 public:
@@ -26,7 +27,9 @@ protected:
     TestSuite::Initialize();
 
     chrome::RegisterPathProvider();
+#if defined(OS_WIN) // to be ported
     g_browser_process = new TestingBrowserProcess;
+#endif
 
     // Notice a user data override, and otherwise default to using a custom
     // user data directory that lives alongside the current app.
@@ -40,10 +43,12 @@ protected:
     if (!user_data_dir.empty())
       PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
+#if defined(OS_WIN) // to be ported
     // Force unittests to run using en-us so if we test against string
     // output, it'll pass regardless of the system language.
     ResourceBundle::InitSharedInstance(L"en-us");
     ResourceBundle::GetSharedInstance().LoadThemeResources();
+#endif
 
     // initialize the global StatsTable for unit_tests
     stats_table_ = new StatsTable("unit_tests", 20, 200);
@@ -51,10 +56,12 @@ protected:
   }
 
   virtual void Shutdown() {
+#if defined(OS_WIN) // to be ported
     ResourceBundle::CleanupSharedInstance();
 
     delete g_browser_process;
     g_browser_process = NULL;
+#endif
 
     // Tear down shared StatsTable; prevents unit_tests from leaking it.
     StatsTable::set_current(NULL);
