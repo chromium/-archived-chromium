@@ -97,6 +97,11 @@ static const struct {
    "image/jpeg",
    L"evil.jpg"},
 
+  {"filename=ok.exe",
+   L"http://www.goodguy.com/ok.exe",
+   "binary/octet-stream",
+   L"ok.exe"},
+
   {"filename=evil.exe.exe",
    L"http://www.goodguy.com/evil.exe.exe",
    "dance/party",

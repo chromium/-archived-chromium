@@ -1179,6 +1179,10 @@ bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
     return true;
   if (net::MatchesMimeType("text/javascript;version=*", mime_type))
     return true;
+  // Some sites use binary/octet-stream to mean application/octet-stream.
+  // See http://code.google.com/p/chromium/issues/detail?id=1573
+  if (net::MatchesMimeType("binary/octet-stream", mime_type))
+    return true;
 
   // We don't consider other non-application types to be executable.
   if (!net::MatchesMimeType("application/*", mime_type))
