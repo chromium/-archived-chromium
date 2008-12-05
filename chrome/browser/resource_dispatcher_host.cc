@@ -1933,6 +1933,8 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 
 void ResourceDispatcherHost::RemovePendingRequest(
     const PendingRequestList::iterator& iter) {
+  size_t num_requests_before = pending_requests_.size();
+
   // Notify the login handler that this request object is going away.
   ExtraRequestInfo* info = ExtraInfoForRequest(iter->second);
   if (info && info->login_handler)
@@ -1944,6 +1946,9 @@ void ResourceDispatcherHost::RemovePendingRequest(
   // If we have no more pending requests, then stop the load state monitor
   if (pending_requests_.empty())
     update_load_states_timer_.Stop();
+
+  size_t num_requests_after = pending_requests_.size();
+  CHECK(num_requests_after == num_requests_before - 1);
 }
 
 // URLRequest::Delegate -------------------------------------------------------
