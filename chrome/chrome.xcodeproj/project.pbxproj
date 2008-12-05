@@ -25,6 +25,7 @@
 			buildPhases = (
 			);
 			dependencies = (
+				E450625E0EE88D54003BE099 /* PBXTargetDependency */,
 				4D7BFB080E9D4B98009A6919 /* PBXTargetDependency */,
 				4D7BFC200E9D4CD4009A6919 /* PBXTargetDependency */,
 				4D640CF20EAE86D800EBCFC0 /* PBXTargetDependency */,
@@ -162,6 +163,17 @@
 		B5FDC1D40EE48ADB00BEC6E6 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE690E9D52DC009A6919 /* libicudata.a */; };
 		B5FDC1D60EE48ADB00BEC6E6 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE710E9D52DC009A6919 /* libicuuc.a */; };
 		B5FDC2180EE48F4100BEC6E6 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
+		E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E45060F10EE87D41003BE099 /* chrome_exe_main.mm */; };
+		E45061110EE88056003BE099 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E450610F0EE88056003BE099 /* MainMenu.xib */; };
+		E45061120EE88069003BE099 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF7A0E9D5449009A6919 /* AppKit.framework */; };
+		E45061C50EE8807E003BE099 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE820E9D532E009A6919 /* Foundation.framework */; };
+		E45062680EE890C2003BE099 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
+		E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
+		E45062A90EE89154003BE099 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE690E9D52DC009A6919 /* libicudata.a */; };
+		E45062AA0EE89154003BE099 /* libicudata_stub.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6B0E9D52DC009A6919 /* libicudata_stub.a */; };
+		E45062AB0EE89154003BE099 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6F0E9D52DC009A6919 /* libicutu.a */; };
+		E45062AC0EE89154003BE099 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE710E9D52DC009A6919 /* libicuuc.a */; };
+		E45062C70EE8939A003BE099 /* chromium.icns in Resources */ = {isa = PBXBuildFile; fileRef = E45062C60EE8939A003BE099 /* chromium.icns */; };
 		E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADF0E9D49DE009A6919 /* safe_browsing_database_bloom.cc */; };
 		E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE10E9D49DE009A6919 /* safe_browsing_database_impl.cc */; };
 		E48FB9760EC4EA320052B72B /* url_request_failed_dns_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB96E0EC4EA270052B72B /* url_request_failed_dns_job.cc */; };
@@ -593,6 +605,55 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4D7BFC190E9D4CB9009A6919;
 			remoteInfo = common;
+		};
+		E450625D0EE88D54003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45060E30EE87B86003BE099 /* app */;
+			remoteInfo = app;
+		};
+		E45062660EE890B3003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFDBE0E9D525B009A6919 /* base.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 825402BA0D92D0FA0006B936 /* base */;
+			remoteInfo = base;
+		};
+		E450629B0EE8912D003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFE5B0E9D52DC009A6919 /* icu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudata */;
+			remoteInfo = icudata;
+		};
+		E450629D0EE8912D003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFE5B0E9D52DC009A6919 /* icu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BD5408A0D6F743F003CD41E /* icudata_stub */;
+			remoteInfo = icudata_stub;
+		};
+		E450629F0EE8912D003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFE5B0E9D52DC009A6919 /* icu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BD53EA50D6F6FC7003CD41E /* icui18n */;
+			remoteInfo = icui18n;
+		};
+		E45062A10EE8912D003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFE5B0E9D52DC009A6919 /* icu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BD540250D6F727B003CD41E /* icutu */;
+			remoteInfo = icutu;
+		};
+		E45062A30EE8912D003BE099 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFE5B0E9D52DC009A6919 /* icu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BD53AAA0D6F6671003CD41E /* icuuc */;
+			remoteInfo = icuuc;
 		};
 		E4F3259A0EE837DD002533CE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1327,6 +1388,11 @@
 		B562C8420ED49C830077A23F /* mach_ipc_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mach_ipc_mac.mm; sourceTree = "<group>"; };
 		B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ipc_tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_channel_posix.cc; sourceTree = "<group>"; };
+		E45060E40EE87B86003BE099 /* Chromium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chromium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E45060E60EE87B86003BE099 /* app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "app-Info.plist"; path = "app/app-Info.plist"; sourceTree = "<group>"; };
+		E45060F10EE87D41003BE099 /* chrome_exe_main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = chrome_exe_main.mm; path = app/chrome_exe_main.mm; sourceTree = "<group>"; };
+		E45061100EE88056003BE099 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = app/nibs/English.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		E45062C60EE8939A003BE099 /* chromium.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = chromium.icns; path = app/theme/chromium/chromium.icns; sourceTree = "<group>"; };
 		E48FB9610EC4EA270052B72B /* automation_autocomplete_edit_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_autocomplete_edit_tracker.h; sourceTree = "<group>"; };
 		E48FB9620EC4EA270052B72B /* automation_browser_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_browser_tracker.h; sourceTree = "<group>"; };
 		E48FB9630EC4EA270052B72B /* automation_constrained_window_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_constrained_window_tracker.h; sourceTree = "<group>"; };
@@ -1422,6 +1488,21 @@
 				E4F3258C0EE83767002533CE /* libgoogleurl.a in Frameworks */,
 				B5FDC1D30EE48ADB00BEC6E6 /* libgtest.a in Frameworks */,
 				E4F325880EE83745002533CE /* libskia.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E45060E20EE87B86003BE099 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E45061120EE88069003BE099 /* AppKit.framework in Frameworks */,
+				E45061C50EE8807E003BE099 /* Foundation.framework in Frameworks */,
+				E45062680EE890C2003BE099 /* libbase.a in Frameworks */,
+				E45062A90EE89154003BE099 /* libicudata.a in Frameworks */,
+				E45062AA0EE89154003BE099 /* libicudata_stub.a in Frameworks */,
+				E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */,
+				E45062AB0EE89154003BE099 /* libicutu.a in Frameworks */,
+				E45062AC0EE89154003BE099 /* libicuuc.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1548,6 +1629,7 @@
 				4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */,
 				4D7BFB2D0E9D4BE5009A6919 /* unit_tests */,
 				B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */,
+				E45060E40EE87B86003BE099 /* Chromium.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1555,6 +1637,7 @@
 		4D7BF3380E9D479D009A6919 /* chrome */ = {
 			isa = PBXGroup;
 			children = (
+				E45060DE0EE8784C003BE099 /* app */,
 				4D7BF8210E9D47FB009A6919 /* browser */,
 				4D7BFB840E9D4C6F009A6919 /* common */,
 				4D640CB90EAE863E00EBCFC0 /* renderer */,
@@ -2423,6 +2506,33 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E45060DE0EE8784C003BE099 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				E45060E60EE87B86003BE099 /* app-Info.plist */,
+				E45060F10EE87D41003BE099 /* chrome_exe_main.mm */,
+				E450610A0EE87FB6003BE099 /* nibs */,
+				E45062D40EE89659003BE099 /* resources */,
+			);
+			name = app;
+			sourceTree = "<group>";
+		};
+		E450610A0EE87FB6003BE099 /* nibs */ = {
+			isa = PBXGroup;
+			children = (
+				E450610F0EE88056003BE099 /* MainMenu.xib */,
+			);
+			name = nibs;
+			sourceTree = "<group>";
+		};
+		E45062D40EE89659003BE099 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				E45062C60EE8939A003BE099 /* chromium.icns */,
+			);
+			name = resources;
+			sourceTree = "<group>";
+		};
 		E48FB9600EC4EA270052B72B /* automation */ = {
 			isa = PBXGroup;
 			children = (
@@ -2583,6 +2693,29 @@
 			productReference = B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */;
 			productType = "com.apple.product-type.tool";
 		};
+		E45060E30EE87B86003BE099 /* app */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E45060E90EE87B86003BE099 /* Build configuration list for PBXNativeTarget "app" */;
+			buildPhases = (
+				E45060E00EE87B86003BE099 /* Resources */,
+				E45060E10EE87B86003BE099 /* Sources */,
+				E45060E20EE87B86003BE099 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E45062670EE890B3003BE099 /* PBXTargetDependency */,
+				E450629C0EE8912D003BE099 /* PBXTargetDependency */,
+				E450629E0EE8912D003BE099 /* PBXTargetDependency */,
+				E45062A00EE8912D003BE099 /* PBXTargetDependency */,
+				E45062A20EE8912D003BE099 /* PBXTargetDependency */,
+				E45062A40EE8912D003BE099 /* PBXTargetDependency */,
+			);
+			name = app;
+			productName = app;
+			productReference = E45060E40EE87B86003BE099 /* Chromium.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2651,6 +2784,7 @@
 			projectRoot = "";
 			targets = (
 				4D7BFB040E9D4B8C009A6919 /* All */,
+				E45060E30EE87B86003BE099 /* app */,
 				4D7BF3050E9D477E009A6919 /* browser */,
 				4D7BFC190E9D4CB9009A6919 /* common */,
 				4D640CEA0EAE86BD00EBCFC0 /* renderer */,
@@ -2839,6 +2973,18 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E45060E00EE87B86003BE099 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E45062C70EE8939A003BE099 /* chromium.icns in Resources */,
+				E45061110EE88056003BE099 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		4D3D54770EC3A4D800650CA0 /* Strip If Needed */ = {
@@ -3032,6 +3178,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E45060E10EE87B86003BE099 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3195,12 +3349,58 @@
 			target = 4D7BFC190E9D4CB9009A6919 /* common */;
 			targetProxy = B5FDBFB30EE4625B00BEC6E6 /* PBXContainerItemProxy */;
 		};
+		E450625E0EE88D54003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45060E30EE87B86003BE099 /* app */;
+			targetProxy = E450625D0EE88D54003BE099 /* PBXContainerItemProxy */;
+		};
+		E45062670EE890B3003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = base;
+			targetProxy = E45062660EE890B3003BE099 /* PBXContainerItemProxy */;
+		};
+		E450629C0EE8912D003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = icudata;
+			targetProxy = E450629B0EE8912D003BE099 /* PBXContainerItemProxy */;
+		};
+		E450629E0EE8912D003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = icudata_stub;
+			targetProxy = E450629D0EE8912D003BE099 /* PBXContainerItemProxy */;
+		};
+		E45062A00EE8912D003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = icui18n;
+			targetProxy = E450629F0EE8912D003BE099 /* PBXContainerItemProxy */;
+		};
+		E45062A20EE8912D003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = icutu;
+			targetProxy = E45062A10EE8912D003BE099 /* PBXContainerItemProxy */;
+		};
+		E45062A40EE8912D003BE099 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = icuuc;
+			targetProxy = E45062A30EE8912D003BE099 /* PBXContainerItemProxy */;
+		};
 		E4F3259B0EE837DD002533CE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B5FDBFAD0EE4623000BEC6E6 /* ipc_tests */;
 			targetProxy = E4F3259A0EE837DD002533CE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		E450610F0EE88056003BE099 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E45061100EE88056003BE099 /* English */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		4D640CEC0EAE86BD00EBCFC0 /* Debug */ = {
@@ -3404,6 +3604,27 @@
 			};
 			name = Release;
 		};
+		E45060E70EE87B86003BE099 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D7BF2FD0E9D46E6009A6919 /* executable.xcconfig */;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				INFOPLIST_FILE = "app/app-Info.plist";
+				PRODUCT_NAME = Chromium;
+			};
+			name = Debug;
+		};
+		E45060E80EE87B86003BE099 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D7BF2FD0E9D46E6009A6919 /* executable.xcconfig */;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				INFOPLIST_FILE = "app/app-Info.plist";
+				PRODUCT_NAME = Chromium;
+			};
+			name = Release;
+		};
 		E4F325980EE837BF002533CE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3489,6 +3710,15 @@
 			buildConfigurations = (
 				B5FDBFB00EE4623000BEC6E6 /* Debug */,
 				B5FDBFB10EE4623000BEC6E6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E45060E90EE87B86003BE099 /* Build configuration list for PBXNativeTarget "app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E45060E70EE87B86003BE099 /* Debug */,
+				E45060E80EE87B86003BE099 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
