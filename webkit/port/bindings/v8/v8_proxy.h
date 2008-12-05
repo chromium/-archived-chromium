@@ -238,6 +238,9 @@ class V8Proxy {
                                     int argc,
                                     v8::Handle<v8::Value> argv[]);
 
+  // Returns the dom constructor function for the given node type.
+  v8::Local<v8::Function> GetConstructor(V8ClassIndex::V8WrapperType type);
+
   // Returns the window object of the currently executing context.
   static DOMWindow* retrieveWindow();
   // Returns the window object associated with a context.
@@ -516,6 +519,8 @@ class V8Proxy {
   v8::Persistent<v8::Object> m_global;
 
   v8::Persistent<v8::Value> m_document;
+  v8::Persistent<v8::Array> m_constructor_cache;
+  v8::Persistent<v8::Value> m_initial_object_prototype;
 
   // Utility context holding JavaScript functions used internally.
   static v8::Persistent<v8::Context> m_utilityContext;
