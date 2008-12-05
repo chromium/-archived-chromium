@@ -119,6 +119,11 @@ public:
     void ResetTestController() {
       layout_test_controller_->Reset();
       event_sending_controller_->Reset();
+
+      // Reset state in the test webview delegate.  We don't need to call
+      // SetSelectTrailingWhitespaceEnabled because enabling smart
+      // insert/delete will disable select trailing whitespace.
+      delegate()->SetSmartInsertDeleteEnabled(true);
     }
 
     // Passes options from LayoutTestController through to the delegate (or

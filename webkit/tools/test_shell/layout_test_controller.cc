@@ -94,6 +94,8 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("execCommand", &LayoutTestController::execCommand);
   BindMethod("setPopupBlockingEnabled", &LayoutTestController::setPopupBlockingEnabled);
   BindMethod("setStopProvisionalFrameLoads", &LayoutTestController::setStopProvisionalFrameLoads);
+  BindMethod("setSmartInsertDeleteEnabled", &LayoutTestController::setSmartInsertDeleteEnabled);
+  BindMethod("setSelectTrailingWhitespaceEnabled", &LayoutTestController::setSelectTrailingWhitespaceEnabled);
 
   // The following are stubs.
   BindMethod("dumpAsWebArchive", &LayoutTestController::dumpAsWebArchive);
@@ -534,6 +536,25 @@ void LayoutTestController::setStopProvisionalFrameLoads(
   stop_provisional_frame_loads_ = true;
 }
 
+void LayoutTestController::setSmartInsertDeleteEnabled(
+    const CppArgumentList& args, CppVariant* result) {
+  if (args.size() > 0 && args[0].isBool()) {
+    shell_->delegate()->SetSmartInsertDeleteEnabled(args[0].value.boolValue);
+  }
+
+  result->SetNull();
+}
+
+void LayoutTestController::setSelectTrailingWhitespaceEnabled(
+    const CppArgumentList& args, CppVariant* result) {
+  if (args.size() > 0 && args[0].isBool()) {
+    shell_->delegate()->SetSelectTrailingWhitespaceEnabled(
+        args[0].value.boolValue);
+  }
+
+  result->SetNull();
+}
+
 //
 // Unimplemented stubs
 //
@@ -615,4 +636,3 @@ void LayoutTestController::fallbackMethod(
   }
   result->SetNull();
 }
-
