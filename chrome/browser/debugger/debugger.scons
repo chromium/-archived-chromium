@@ -27,6 +27,7 @@ env.Prepend(
 
 input_files = [
     'debugger_contents.cc',
+    'debugger_host_impl.cpp',
     'debugger_io_socket.cc',
     'debugger_node.cc',
     'debugger_shell.cc',
