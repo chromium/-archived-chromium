@@ -541,10 +541,6 @@ LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 LayoutTests/fast/js/static-scope-object.html = FAIL
 LayoutTests/fast/js/delete-getters-setters.html = FAIL
 
-// Console output won't have line numbers until V8 gives us a way to get that
-// information. <http://crbug.com/2960>
-LayoutTests/fast/dom/Window/console-functions.html = FAIL
-
 // Shadows don't render correctly for these tests.
 // http://code.google.com/p/chromium/issues/detail?id=2969
 LINUX WIN : LayoutTests/fast/canvas/shadow-offset-1.html = FAIL

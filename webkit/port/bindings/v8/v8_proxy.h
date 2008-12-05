@@ -421,6 +421,11 @@ class V8Proxy {
   static bool IsWrapperOfType(v8::Handle<v8::Value> obj,
                               V8ClassIndex::V8WrapperType classType);
 
+  // Function for retrieving the line number and source name for the top
+  // JavaScript stack frame.
+  static int GetSourceLineNumber();
+  static String GetSourceName();
+
  private:
   void initContextIfNeeded();
   void DisconnectEventListeners();
@@ -495,11 +500,25 @@ class V8Proxy {
     return v8::Local<v8::Context>::New(m_context);
   }
 
+  // Create and populate the utility context.
+  static void CreateUtilityContext();
+
+  // Returns a local handle of the utility context.
+  static v8::Local<v8::Context> GetUtilityContext() {
+    if (m_utilityContext.IsEmpty()) {
+      CreateUtilityContext();
+    }
+    return v8::Local<v8::Context>::New(m_utilityContext);
+  }
+
   Frame* m_frame;
   v8::Persistent<v8::Context> m_context;
   v8::Persistent<v8::Object> m_global;
 
   v8::Persistent<v8::Value> m_document;
+
+  // Utility context holding JavaScript functions used internally.
+  static v8::Persistent<v8::Context> m_utilityContext;
 
   int m_handlerLineno;
 

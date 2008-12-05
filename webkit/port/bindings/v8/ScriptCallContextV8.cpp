@@ -34,12 +34,16 @@
 #include "KURL.h"
 #include "v8.h"
 #include "v8_binding.h"
+#include "v8_proxy.h"
 
 namespace WebCore {
 
 ScriptCallContext::ScriptCallContext(const v8::Arguments& args)
     : m_args(args)
 {
+  // Line numbers in V8 are starting from zero.
+  m_lineNumber = V8Proxy::GetSourceLineNumber() + 1;
+  m_sourceURL = KURL(V8Proxy::GetSourceName());
 }
 
 String ScriptCallContext::argumentStringAt(unsigned index,
@@ -58,12 +62,12 @@ unsigned ScriptCallContext::argumentCount() const
 
 unsigned ScriptCallContext::lineNumber() const
 {
-    return 0;
+    return m_lineNumber;
 }
 
 KURL ScriptCallContext::sourceURL() const
 {
-    return KURL();
+    return m_sourceURL;
 }
 
 }  // namespace WebCore

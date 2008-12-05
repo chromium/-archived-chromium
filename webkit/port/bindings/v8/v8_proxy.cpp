@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <v8.h>
+#include <v8-debug.h>
 
 #include "v8_proxy.h"
 #include "dom_wrapper_map.h"
@@ -215,6 +216,10 @@ namespace WebCore {
 // the same tree are considered alive. This is done by creating
 // object groups in GC prologue callbacks. The mark-compact
 // collector will remove these groups after each GC.
+
+
+// Static utility context.
+v8::Persistent<v8::Context> V8Proxy::m_utilityContext;
 
 
 // A helper class for undetectable document.all
@@ -3145,6 +3150,73 @@ void V8Proxy::BindJSObjectToWindow(Frame* frame,
 void V8Proxy::ProcessConsoleMessages()
 {
     ConsoleMessageManager::ProcessDelayedMessages();
+}
+
+
+// Create the utility context for holding JavaScript functions used internally
+// which are not visible to JavaScript executing on the page.
+void V8Proxy::CreateUtilityContext() {
+    ASSERT(m_utilityContext.IsEmpty());
+
+    v8::HandleScope scope;
+    v8::Handle<v8::ObjectTemplate> global_template = v8::ObjectTemplate::New();
+    m_utilityContext = v8::Context::New(NULL, global_template);
+    v8::Context::Scope context_scope(m_utilityContext);
+
+    // Compile JavaScript function for retrieving the source line of the top
+    // JavaScript stack frame.
+    static const char* frame_source_line_source =
+        "function frame_source_line(exec_state) {"
+        "  return exec_state.frame(0).sourceLine();"
+        "}";
+    v8::Script::Compile(v8::String::New(frame_source_line_source))->Run();
+
+    // Compile JavaScript function for retrieving the source name of the top
+    // JavaScript stack frame.
+    static const char* frame_source_name_source =
+        "function frame_source_name(exec_state) {"
+        "  var frame = exec_state.frame(0);"
+        "  if (frame.func().resolved() && "
+        "      frame.func().script() && "
+        "      frame.func().script().name()) {"
+        "    return frame.func().script().name();"
+        "  }"
+        "}";
+    v8::Script::Compile(v8::String::New(frame_source_name_source))->Run();
+}
+
+
+int V8Proxy::GetSourceLineNumber() {
+    v8::HandleScope scope;
+    v8::Handle<v8::Context> utility_context = V8Proxy::GetUtilityContext();
+    if (utility_context.IsEmpty()) {
+        return 0;
+    }
+    v8::Context::Scope context_scope(utility_context);
+    v8::Handle<v8::Function> frame_source_line;
+    frame_source_line = v8::Local<v8::Function>::Cast(
+        utility_context->Global()->Get(v8::String::New("frame_source_line")));
+    if (frame_source_line.IsEmpty()) {
+        return 0;
+    }
+    return v8::Debug::Call(frame_source_line)->Int32Value();
+}
+
+
+String V8Proxy::GetSourceName() {
+    v8::HandleScope scope;
+    v8::Handle<v8::Context> utility_context = GetUtilityContext();
+    if (utility_context.IsEmpty()) {
+        return String();
+    }
+    v8::Context::Scope context_scope(utility_context);
+    v8::Handle<v8::Function> frame_source_name;
+    frame_source_name = v8::Local<v8::Function>::Cast(
+        utility_context->Global()->Get(v8::String::New("frame_source_name")));
+    if (frame_source_name.IsEmpty()) {
+        return String();
+    }
+    return ToWebCoreString(v8::Debug::Call(frame_source_name));
 }
 
 }  // namespace WebCore
