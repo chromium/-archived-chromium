@@ -279,6 +279,7 @@ if env['PLATFORM'] == 'win32':
       'toolbar_model.cc',
       'url_fetcher.cc',
       'url_fixer_upper.cc',
+      'user_data_manager.cc',
       'view_source_contents.cc',
       'visitedlink_master.cc',
       'web_app.cc',
