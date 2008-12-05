@@ -264,12 +264,6 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
   return result;
 }
 
-bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
-  int status;
-  waitpid(handle, &status, 0);
-  return WIFEXITED(status);
-}
-
 bool CleanupProcesses(const std::wstring& executable_name,
                       int wait_milliseconds,
                       int exit_code,

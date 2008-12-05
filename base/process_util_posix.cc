@@ -7,11 +7,13 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/sys_info.h"
+#include "base/time.h"
 
 const int kMicrosecondsPerSecond = 1000000;
 
@@ -51,6 +53,22 @@ void RaiseProcessToHighPriority() {
   // setpriority() or sched_getscheduler, but these all require extra rights.
 }
 
+bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+  int status;
+  pid_t ret_pid = waitpid(handle, &status, WNOHANG);
+
+  // If the process hasn't exited yet, then sleep and try again.
+  Time wakeup_time = Time::Now() + TimeDelta::FromMilliseconds(
+      wait_milliseconds);
+  while (ret_pid == 0 && Time::Now() < wakeup_time) {
+    int64 sleep_time_usecs = (wakeup_time - Time::Now()).InMicroseconds();
+    usleep(sleep_time_usecs);  // usleep will exit on EINTR.
+    ret_pid = waitpid(handle, &status, WNOHANG);
+  }
+
+  return WIFEXITED(status);
+}
+
 namespace {
 
 int64 TimeValToMicroseconds(const struct timeval& tv) {
@@ -69,7 +87,7 @@ int ProcessMetrics::GetCPUUsage() {
   retval = getrusage(RUSAGE_SELF, &usage);
   if (retval)
     return 0;
-  
+
   int64 system_time = (TimeValToMicroseconds(usage.ru_stime) +
                        TimeValToMicroseconds(usage.ru_utime)) /
                         processor_count_;

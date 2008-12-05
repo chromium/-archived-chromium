@@ -52,13 +52,6 @@ bool LaunchApp(const CommandLine& cl,
   return LaunchApp(cl.argv(), wait, process_handle);
 }
 
-bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
-  // TODO(playmobil): Do we need to support wait_milliseconds?
-  int status;
-  waitpid(handle, &status, 0);
-  return WIFEXITED(status);
-}
-
 bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
   // TODO(pinkerton): can we implement this? On linux it relies on /proc.
   return false;
