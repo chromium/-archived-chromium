@@ -613,18 +613,6 @@ void LanguagesPageView::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_ENABLE_SPELLCHECK));
   enable_spellchecking_checkbox_->SetListener(this);
   enable_spellchecking_checkbox_->SetMultiLine(true);
-  
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(language_info_label_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-
-  const int double_column_view_set_2_id = 2;
-  column_set = layout->AddColumnSet(double_column_view_set_2_id);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
-                        GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
-                        GridLayout::USE_PREF, 0, 0);
 
   // Determine Locale Codes.
   std::vector<std::wstring> locale_codes;
@@ -641,18 +629,32 @@ void LanguagesPageView::InitControlLayout() {
       new views::ComboBox(dictionary_language_model_.get());
   change_dictionary_language_combobox_->SetListener(this);
 
+  // SpellCheck language settings.
+  layout->StartRow(0, single_column_view_set_id);
+  layout->AddView(enable_spellchecking_checkbox_);
+  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  const int double_column_view_set_2_id = 2;
+  column_set = layout->AddColumnSet(double_column_view_set_2_id);
+  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
+                        GridLayout::USE_PREF, 0, 0);
+  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
+                        GridLayout::USE_PREF, 0, 0);
+
+  layout->StartRow(0, double_column_view_set_2_id);
+  layout->AddView(dictionary_language_label_);
+  layout->AddView(change_dictionary_language_combobox_);
+
+  // UI language settings.
+  layout->AddPaddingRow(0, kUnrelatedControlLargeVerticalSpacing);
+  layout->StartRow(0, single_column_view_set_id);
+  layout->AddView(language_info_label_);
+  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+
   layout->StartRow(0, double_column_view_set_2_id);
   layout->AddView(ui_language_label_);
   layout->AddView(change_ui_language_combobox_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-
-  // SpellChecker settings.
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(enable_spellchecking_checkbox_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-  layout->StartRow(0, double_column_view_set_2_id);
-  layout->AddView(dictionary_language_label_);
-  layout->AddView(change_dictionary_language_combobox_);
 
   // Init member prefs so we can update the controls if prefs change.
   app_locale_.Init(prefs::kApplicationLocale,
