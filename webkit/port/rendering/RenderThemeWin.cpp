@@ -28,6 +28,7 @@
 #include <vssym32.h>
 
 #include "ChromiumBridge.h"
+#include "CSSStyleSheet.h"
 #include "CSSValueKeywords.h"
 #include "Document.h"
 #include "FontSelector.h"
@@ -36,6 +37,7 @@
 #include "ScrollbarTheme.h"
 #include "SkiaUtils.h"
 #include "ThemeHelperWin.h"
+#include "UserAgentStyleSheets.h"
 
 // TODO(brettw) all of these dependencies should eventually be removed.
 #include "base/gfx/native_theme.h"
@@ -197,6 +199,16 @@ RenderTheme* theme()
 {
     static RenderThemeWin winTheme;
     return &winTheme;
+}
+
+String RenderThemeWin::extraDefaultStyleSheet()
+{
+    return String(themeWinUserAgentStyleSheet, sizeof(themeWinUserAgentStyleSheet));
+}
+
+String RenderThemeWin::extraQuirksStyleSheet()
+{
+    return String(themeWinQuirksUserAgentStyleSheet, sizeof(themeWinQuirksUserAgentStyleSheet));
 }
 
 bool RenderThemeWin::supportsFocusRing(const RenderStyle* style) const

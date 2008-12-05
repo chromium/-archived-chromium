@@ -137,18 +137,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="css"
-			>
-			<File
-				RelativePath="..\..\port\css\html4-overrides.css"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\css\quirks-overrides.css"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="page"
 			>
 			<File

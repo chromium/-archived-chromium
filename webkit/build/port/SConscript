@@ -542,23 +542,15 @@ def cat_files(target, source, env):
     fin.close()
   fout.close()
 
-env.Command('$DERIVED_DIR/html4.css',
-            ['$PORT_DIR/css/html4.css',
-             '$PORTROOT/css/html4-overrides.css'],
-            cat_files)
-
-env.Command('$DERIVED_DIR/quirks.css',
-            ['$PORT_DIR/css/quirks.css',
-             '$PORTROOT/css/quirks-overrides.css'],
-            cat_files)
-
 env.Command(['$DERIVED_DIR/UserAgentStyleSheets.h',
              '$DERIVED_DIR/UserAgentStyleSheetsData.cpp'],
             ['$PORT_DIR/css/make-css-file-arrays.pl',
              '$PORT_DIR/css/view-source.css',
              '$PORT_DIR/css/svg.css',
-             '$DERIVED_DIR/html4.css',
-             '$DERIVED_DIR/quirks.css'],
+             '$PORT_DIR/css/html4.css',
+             '$PORT_DIR/css/quirks.css',
+             '$PORT_DIR/css/themeWin.css',
+             '$PORT_DIR/css/themeWinQuirks.css'],
             '$PERL ${SOURCES[0].posix} ${TARGETS.posix} ${SOURCES[1:].posix}')
 
 def create_h_wrapper(target, source, env):
