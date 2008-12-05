@@ -22,10 +22,13 @@
 #include "google_update_idl_i.c"
 
 namespace {
-// Check if the currently running Chrome can be updated by Google Update by
-// checking if it is running from the standard location. Return true if running
-// from the standard location, otherwise return false.
+// Check if the currently running instance can be updated by Google Update.
+// Returns true only if the instance running is a Google Chrome
+// distribution installed in a standard location.
 bool CanUpdateCurrentChrome(const std::wstring& chrome_exe_path) {
+#if !defined(GOOGLE_CHROME_BUILD)
+  return false;
+#else
   std::wstring user_exe_path = installer::GetChromeInstallPath(false);
   std::wstring machine_exe_path = installer::GetChromeInstallPath(true);
   std::transform(user_exe_path.begin(), user_exe_path.end(),
@@ -42,6 +45,7 @@ bool CanUpdateCurrentChrome(const std::wstring& chrome_exe_path) {
   }
 
   return true;
+#endif
 }
 
 // Creates an instance of a COM Local Server class using either plain vanilla
@@ -319,4 +323,3 @@ bool GoogleUpdate::ReportFailure(HRESULT hr, GoogleUpdateErrorCode error_code,
       &GoogleUpdate::ReportResults, UPGRADE_ERROR, error_code));
   return false;
 }
-
