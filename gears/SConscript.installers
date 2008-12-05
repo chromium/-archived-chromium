@@ -255,7 +255,7 @@ def WinCEInstaller():
   inf_outdir = ToUnixPath(env.subst('$IE_OUTDIR'))
   inf = env.Command(
       '$COMMON_GENFILES_DIR/wince_cab_fixed.inf',
-      '$COMMON_GENFILES_DIR/wince_cab.inf',
+      '$COMMON_GENFILES_DIR/wince_cab_ie.inf',
       'sed -e "s#bin-....wince-arm.ie.#' + inf_outdir + '#g" $SOURCE > $TARGET')
   cab = env.Command(
       '$WINCE_INSTALLER_CAB',
