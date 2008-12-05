@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SCOPED_CLIPBOARD_WRITER_H_
-#define SCOPED_CLIPBOARD_WRITER_H_
+// This file declares the ScopedClipboardWriter class, a wrapper around
+// the Clipboard class which simplifies writing data to the system clipboard.
+// Upon deletion the class atomically writes all data to |clipboard_|,
+// avoiding any potential race condition with other processes that are also
+// writing to the system clipboard.
+#ifndef BASE_SCOPED_CLIPBOARD_WRITER_H_
+#define BASE_SCOPED_CLIPBOARD_WRITER_H_
 
 #include "base/clipboard.h"
-
-#if defined(OS_WIN)
-class SkBitmap;
-#endif
 
 // This class is a wrapper for |Clipboard| that handles packing data
 // into a Clipboard::ObjectMap.
@@ -22,19 +23,21 @@ class ScopedClipboardWriter {
 
   ~ScopedClipboardWriter();
 
-  // Adds UNICODE and ASCII text to the clipboard.
+  // Converts |text| to UTF-8 and adds it to the clipboard.
   void WriteText(const std::wstring& text);
 
   // Adds HTML to the clipboard.  The url parameter is optional, but especially
-  // useful if the HTML fragment contains relative links
-  void WriteHTML(const std::wstring& markup, const std::string& src_url);
+  // useful if the HTML fragment contains relative links.
+  void WriteHTML(const std::wstring& markup, const std::string& source_url);
 
-  // Adds a bookmark to the clipboard
-  void WriteBookmark(const std::wstring& title, const std::string& url);
+  // Adds a bookmark to the clipboard.
+  void WriteBookmark(const std::wstring& bookmark_title,
+                     const std::string& url);
 
   // Adds both a bookmark and an HTML hyperlink to the clipboard.  It is a
-  // convenience wrapper around WriteBookmark and WriteHTML.
-  void WriteHyperlink(const std::wstring& title, const std::string& url);
+  // convenience wrapper around WriteBookmark and WriteHTML. |link_text| is
+  // used as the bookmark title.
+  void WriteHyperlink(const std::wstring& link_text, const std::string& url);
 
   // Adds a file or group of files to the clipboard.
   void WriteFile(const std::wstring& file);
@@ -49,9 +52,11 @@ class ScopedClipboardWriter {
   // memcpy the pixels into GDI and the blit the bitmap to the clipboard.
   // Pixel format is assumed to be 32-bit BI_RGB.
   void WriteBitmapFromPixels(const void* pixels, const gfx::Size& size);
-#endif
+#endif  // defined(OS_WIN)
 
  protected:
+  // We accumulate the data passed to the various targets in the |objects_|
+  // vector, and pass it to Clipboard::WriteObjects() during object destruction.
   Clipboard::ObjectMap objects_;
   Clipboard* clipboard_;
 
@@ -60,3 +65,4 @@ class ScopedClipboardWriter {
 };
 
 #endif  // SCOPED_CLIPBOARD_WRITER_H_
+

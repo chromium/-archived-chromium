@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// This file implements the ScopedClipboardWriter class. Documentation on its
+// purpose can be found in base/scoped_clipboard_writer.h. Documentation on the
+// format of the parameters for each clipboard target can be found in
+// base/clipboard.h.
 #include "base/scoped_clipboard_writer.h"
 
 #include "base/clipboard.h"
@@ -22,57 +26,57 @@ void ScopedClipboardWriter::WriteText(const std::wstring& text) {
 
   std::string utf8_text = WideToUTF8(text);
 
-  Clipboard::ObjectMapParams params;
-  params.push_back(Clipboard::ObjectMapParam(utf8_text.begin(),
-                                             utf8_text.end()));
-  objects_[Clipboard::CBF_TEXT] = params;
+  Clipboard::ObjectMapParams parameters;
+  parameters.push_back(Clipboard::ObjectMapParam(utf8_text.begin(),
+                                                 utf8_text.end()));
+  objects_[Clipboard::CBF_TEXT] = parameters;
 }
 
 void ScopedClipboardWriter::WriteHTML(const std::wstring& markup,
-                                      const std::string& src_url) {
+                                      const std::string& source_url) {
   if (markup.empty())
     return;
 
   std::string utf8_markup = WideToUTF8(markup);
 
-  Clipboard::ObjectMapParams params;
-  params.push_back(
+  Clipboard::ObjectMapParams parameters;
+  parameters.push_back(
       Clipboard::ObjectMapParam(utf8_markup.begin(),
                                 utf8_markup.end()));
-  if (!src_url.empty()) {
-    params.push_back(Clipboard::ObjectMapParam(src_url.begin(),
-                                               src_url.end()));
+  if (!source_url.empty()) {
+    parameters.push_back(Clipboard::ObjectMapParam(source_url.begin(),
+                                                   source_url.end()));
   }
 
-  objects_[Clipboard::CBF_HTML] = params;
+  objects_[Clipboard::CBF_HTML] = parameters;
 }
 
-void ScopedClipboardWriter::WriteBookmark(const std::wstring& title,
+void ScopedClipboardWriter::WriteBookmark(const std::wstring& bookmark_title,
                                           const std::string& url) {
-  if (title.empty() || url.empty())
+  if (bookmark_title.empty() || url.empty())
     return;
 
-  std::string utf8_markup = WideToUTF8(title);
+  std::string utf8_markup = WideToUTF8(bookmark_title);
 
-  Clipboard::ObjectMapParams params;
-  params.push_back(Clipboard::ObjectMapParam(utf8_markup.begin(),
-                                             utf8_markup.end()));
-  params.push_back(Clipboard::ObjectMapParam(url.begin(), url.end()));
-  objects_[Clipboard::CBF_BOOKMARK] = params;
+  Clipboard::ObjectMapParams parameters;
+  parameters.push_back(Clipboard::ObjectMapParam(utf8_markup.begin(),
+                                                 utf8_markup.end()));
+  parameters.push_back(Clipboard::ObjectMapParam(url.begin(), url.end()));
+  objects_[Clipboard::CBF_BOOKMARK] = parameters;
 }
 
-void ScopedClipboardWriter::WriteHyperlink(const std::wstring& title,
+void ScopedClipboardWriter::WriteHyperlink(const std::wstring& link_text,
                                            const std::string& url) {
-  if (title.empty() || url.empty())
+  if (link_text.empty() || url.empty())
     return;
 
-  std::string utf8_markup = WideToUTF8(title);
+  std::string utf8_markup = WideToUTF8(link_text);
 
-  Clipboard::ObjectMapParams params;
-  params.push_back(Clipboard::ObjectMapParam(utf8_markup.begin(),
-                                             utf8_markup.end()));
-  params.push_back(Clipboard::ObjectMapParam(url.begin(), url.end()));
-  objects_[Clipboard::CBF_LINK] = params;
+  Clipboard::ObjectMapParams parameters;
+  parameters.push_back(Clipboard::ObjectMapParam(utf8_markup.begin(),
+                                                 utf8_markup.end()));
+  parameters.push_back(Clipboard::ObjectMapParam(url.begin(), url.end()));
+  objects_[Clipboard::CBF_LINK] = parameters;
 }
 
 void ScopedClipboardWriter::WriteFile(const std::wstring& file) {
@@ -85,23 +89,23 @@ void ScopedClipboardWriter::WriteFiles(const std::vector<std::wstring>& files) {
   if (files.empty())
     return;
 
-  Clipboard::ObjectMapParam param;
+  Clipboard::ObjectMapParam parameter;
 
   for (std::vector<std::wstring>::const_iterator iter = files.begin();
        iter != files.end(); ++iter) {
     std::string filename = WideToUTF8(*iter);
     for (std::string::const_iterator filename_iter = filename.begin();
          filename_iter != filename.end(); ++filename_iter) {
-      param.push_back(*filename_iter);
+      parameter.push_back(*filename_iter);
     }
-    param.push_back('\0');
+    parameter.push_back('\0');
   }
 
-  param.push_back('\0');
+  parameter.push_back('\0');
 
-  Clipboard::ObjectMapParams params;
-  params.push_back(param);
-  objects_[Clipboard::CBF_FILES] = params;
+  Clipboard::ObjectMapParams parameters;
+  parameters.push_back(parameter);
+  objects_[Clipboard::CBF_FILES] = parameters;
 }
 
 void ScopedClipboardWriter::WriteWebSmartPaste() {
@@ -111,20 +115,21 @@ void ScopedClipboardWriter::WriteWebSmartPaste() {
 #if defined(OS_WIN)
 void ScopedClipboardWriter::WriteBitmapFromPixels(const void* pixels,
                                                   const gfx::Size& size) {
-  Clipboard::ObjectMapParam param1, param2;
+  Clipboard::ObjectMapParam pixels_parameter, size_parameter;
   const char* pixels_data = reinterpret_cast<const char*>(pixels);
-  size_t pixels_len = 4 * size.width() * size.height();
-  for (size_t i = 0; i < pixels_len; i++)
-    param1.push_back(pixels_data[i]);
+  size_t pixels_length = 4 * size.width() * size.height();
+  for (size_t i = 0; i < pixels_length; i++)
+    pixels_parameter.push_back(pixels_data[i]);
 
   const char* size_data = reinterpret_cast<const char*>(&size);
-  size_t size_len = sizeof(gfx::Size);
-  for (size_t i = 0; i < size_len; i++)
-    param2.push_back(size_data[i]);
+  size_t size_length = sizeof(gfx::Size);
+  for (size_t i = 0; i < size_length; i++)
+    size_parameter.push_back(size_data[i]);
 
-  Clipboard::ObjectMapParams params;
-  params.push_back(param1);
-  params.push_back(param2);
-  objects_[Clipboard::CBF_BITMAP] = params;
+  Clipboard::ObjectMapParams parameters;
+  parameters.push_back(pixels_parameter);
+  parameters.push_back(size_parameter);
+  objects_[Clipboard::CBF_BITMAP] = parameters;
 }
 #endif  // defined(OS_WIN)
+

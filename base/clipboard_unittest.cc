@@ -17,13 +17,13 @@ TEST_F(ClipboardTest, ClearTest) {
   Clipboard clipboard;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteText(std::wstring(L"clear me"));
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteText(std::wstring(L"clear me"));
   }
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteHTML(std::wstring(L"<b>broom</b>"), "");
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteHTML(std::wstring(L"<b>broom</b>"), "");
   }
 
   EXPECT_FALSE(clipboard.IsFormatAvailable(
@@ -39,8 +39,8 @@ TEST_F(ClipboardTest, TextTest) {
   std::string ascii_text;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteText(text);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteText(text);
   }
 
   EXPECT_TRUE(clipboard.IsFormatAvailable(
@@ -60,8 +60,8 @@ TEST_F(ClipboardTest, HTMLTest) {
   std::string url("http://www.example.com/"), url_result;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteHTML(markup, url);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteHTML(markup, url);
   }
 
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
@@ -72,7 +72,7 @@ TEST_F(ClipboardTest, HTMLTest) {
   // TODO(playmobil): It's not clear that non windows clipboards need to support
   // this.
   EXPECT_EQ(url, url_result);
-#endif
+#endif  // defined(OS_WIN)
 }
 
 TEST_F(ClipboardTest, TrickyHTMLTest) {
@@ -82,8 +82,8 @@ TEST_F(ClipboardTest, TrickyHTMLTest) {
   std::string url, url_result;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteHTML(markup, url);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteHTML(markup, url);
   }
 
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
@@ -94,7 +94,7 @@ TEST_F(ClipboardTest, TrickyHTMLTest) {
   // TODO(playmobil): It's not clear that non windows clipboards need to support
   // this.
   EXPECT_EQ(url, url_result);
-#endif
+#endif  // defined(OS_WIN)
 }
 
 // TODO(estade): Port the following test (decide what target we use for urls)
@@ -106,8 +106,8 @@ TEST_F(ClipboardTest, BookmarkTest) {
   std::string url("http://www.example.com/"), url_result;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteBookmark(title, url);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteBookmark(title, url);
   }
 
   EXPECT_EQ(true,
@@ -116,7 +116,7 @@ TEST_F(ClipboardTest, BookmarkTest) {
   EXPECT_EQ(title, title_result);
   EXPECT_EQ(url, url_result);
 }
-#endif
+#endif  // defined(OS_WIN)
 
 TEST_F(ClipboardTest, MultiFormatTest) {
   Clipboard clipboard;
@@ -127,9 +127,9 @@ TEST_F(ClipboardTest, MultiFormatTest) {
   std::string ascii_text;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteHTML(markup, url);
-    scw.WriteText(text);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteHTML(markup, url);
+    clipboard_writer.WriteText(text);
   }
 
   EXPECT_EQ(true,
@@ -144,7 +144,7 @@ TEST_F(ClipboardTest, MultiFormatTest) {
   // TODO(playmobil): It's not clear that non windows clipboards need to support
   // this.
   EXPECT_EQ(url, url_result);
-#endif
+#endif  // defined(OS_WIN)
   clipboard.ReadText(&text_result);
   EXPECT_EQ(text, text_result);
   clipboard.ReadAsciiText(&ascii_text);
@@ -159,15 +159,15 @@ TEST_F(ClipboardTest, FileTest) {
   Clipboard clipboard;
 #if defined(OS_WIN)
   std::wstring file = L"C:\\Downloads\\My Downloads\\A Special File.txt";
-#else
+#elif defined(OS_MACOSX)
   // OS X will print a warning message if we stick a non-existant file on the
   // clipboard.
   std::wstring file = L"/usr/bin/make";
-#endif
+#endif  // defined(OS_MACOSX)
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteFile(file);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteFile(file);
   }
 
   std::wstring out_file;
@@ -188,15 +188,15 @@ TEST_F(ClipboardTest, MultipleFilesTest) {
   std::wstring file1 = L"/usr/bin/make";
   std::wstring file2 = L"/usr/bin/man";
   std::wstring file3 = L"/usr/bin/perl";
-#endif
+#endif  // defined(OS_MACOSX)
   std::vector<std::wstring> files;
   files.push_back(file1);
   files.push_back(file2);
   files.push_back(file3);
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteFiles(files);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteFiles(files);
   }
 
   std::vector<std::wstring> out_files;
@@ -218,8 +218,8 @@ TEST_F(ClipboardTest, HyperlinkTest) {
                     L"The Example Company</a>"), html_result;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteHyperlink(title, url);
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteHyperlink(title, url);
   }
 
   EXPECT_EQ(true,
@@ -231,15 +231,14 @@ TEST_F(ClipboardTest, HyperlinkTest) {
   EXPECT_EQ(url, url_result);
   clipboard.ReadHTML(&html_result, &url_result);
   EXPECT_EQ(html, html_result);
-  //XXX EXPECT_FALSE(url_result.is_valid());
 }
 
 TEST_F(ClipboardTest, WebSmartPasteTest) {
   Clipboard clipboard;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteWebSmartPaste();
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteWebSmartPaste();
   }
 
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
@@ -256,11 +255,12 @@ TEST_F(ClipboardTest, BitmapTest) {
   Clipboard clipboard;
 
   {
-    ScopedClipboardWriter scw(&clipboard);
-    scw.WriteBitmapFromPixels(fake_bitmap, gfx::Size(3, 4));
+    ScopedClipboardWriter clipboard_writer(&clipboard);
+    clipboard_writer.WriteBitmapFromPixels(fake_bitmap, gfx::Size(3, 4));
   }
 
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
                       Clipboard::GetBitmapFormatType()));
 }
-#endif
+#endif  // defined(OS_WIN)
+
