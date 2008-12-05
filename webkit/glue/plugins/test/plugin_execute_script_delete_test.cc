@@ -31,6 +31,17 @@ int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
   if (WM_PAINT == np_event->event && 
       base::strcasecmp(test_name_.c_str(),
                        "execute_script_delete_in_paint") == 0) {
+    NPString script_string;
+    script_string.UTF8Characters = "javascript:alert(\"hi\")";
+    script_string.UTF8Length = 
+        static_cast<unsigned int>(strlen("javascript:alert(\"hi\")"));
+
+    NPObject *window_obj = NULL;
+    browser->getvalue(id(), NPNVWindowNPObject, &window_obj);
+    NPVariant result_var;
+    NPError result = browser->evaluate(id(), window_obj,
+                                       &script_string, &result_var);
+
     NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
     NPUTF8* targetString = NULL;
     browser->geturl(id(), urlString, targetString);

@@ -382,11 +382,8 @@ void PluginInstance::DidReceiveManualData(const char* buffer, int length) {
 void PluginInstance::DidFinishManualLoading() {
   DCHECK(load_manually_);
   if (plugin_data_stream_.get() != NULL) {
-    // Don't close the stream if there are outstanding seekable requests.
-    if (!plugin_data_stream_->seekable()) {
-      plugin_data_stream_->DidFinishLoading();
-      plugin_data_stream_->Close(NPRES_DONE);
-    }
+    plugin_data_stream_->DidFinishLoading();
+    plugin_data_stream_->Close(NPRES_DONE);
     plugin_data_stream_ = NULL;
   }
 }
@@ -469,6 +466,13 @@ void PluginInstance::RequestRead(NPStream* stream, NPByteRange* range_list) {
     range_list = range_list->next;
     if (range_list) {
       range_info += ",";
+    }
+  }
+
+  if (plugin_data_stream_) {
+    if (plugin_data_stream_->stream() == stream) {
+      webplugin_->CancelDocumentLoad();
+      plugin_data_stream_ = NULL;
     }
   }
 

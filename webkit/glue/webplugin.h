@@ -129,6 +129,9 @@ class WebPlugin {
                                 bool notify, const char* url,
                                 void* notify_data, bool popups_allowed) = 0;
 
+  // Cancels document load.
+  virtual void CancelDocumentLoad() = 0;
+
   // Initiates a HTTP range request.
   virtual void InitiateHTTPRangeRequest(const char* url,
                                         const char* range_info,

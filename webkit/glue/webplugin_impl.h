@@ -270,6 +270,8 @@ class WebPluginImpl : public WebPlugin,
                         bool notify, const char* url,
                         void* notify_data, bool popups_allowed);
 
+  void CancelDocumentLoad();
+
   void InitiateHTTPRangeRequest(const char* url, const char* range_info,
                                 HANDLE existing_stream, bool notify_needed,
                                 HANDLE notify_data);
