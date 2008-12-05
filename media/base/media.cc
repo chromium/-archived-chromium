@@ -4,6 +4,7 @@
 
 #include "media/base/buffers.h"
 #include "media/base/filters.h"
+#include "media/base/media_format.h"
 
 namespace media {
 
@@ -11,4 +12,4 @@ namespace media {
 void DoNothing() {
 }
 
-} // namespace media
+}  // namespace media

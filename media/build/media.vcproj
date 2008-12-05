@@ -136,6 +136,14 @@
 				RelativePath="..\base\media.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\base\media_format.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\media_format.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
