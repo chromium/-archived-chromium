@@ -124,28 +124,32 @@ TestShell::TestShell()
 }
 
 TestShell::~TestShell() {
-    // Call GC twice to clean up garbage.
-    CallJSGC();
-    CallJSGC();
+  // Navigate to an empty page to fire all the destruction logic for the
+  // current page.
+  LoadURL(L"about:blank");
 
-    PlatformCleanUp();
+  // Call GC twice to clean up garbage.
+  CallJSGC();
+  CallJSGC();
 
-    StatsTable *table = StatsTable::current();
-    if (dump_stats_table_on_exit_) {
-      // Dump the stats table.
-      printf("<stats>\n");
-      if (table != NULL) {
-          int counter_max = table->GetMaxCounters();
-          for (int index=0; index < counter_max; index++) {
-              std::string name(table->GetRowName(index));
-              if (name.length() > 0) {
-                  int value = table->GetRowValue(index);
-                  printf("%s:\t%d\n", name.c_str(), value);
-              }
-          }
+  PlatformCleanUp();
+
+  StatsTable *table = StatsTable::current();
+  if (dump_stats_table_on_exit_) {
+    // Dump the stats table.
+    printf("<stats>\n");
+    if (table != NULL) {
+      int counter_max = table->GetMaxCounters();
+      for (int index=0; index < counter_max; index++) {
+        std::string name(table->GetRowName(index));
+        if (name.length() > 0) {
+          int value = table->GetRowValue(index);
+          printf("%s:\t%d\n", name.c_str(), value);
+        }
       }
-      printf("</stats>\n");
     }
+    printf("</stats>\n");
+  }
 }
 
 void TestShell::ShutdownTestShell() {

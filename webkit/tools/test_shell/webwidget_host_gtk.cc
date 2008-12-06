@@ -49,8 +49,7 @@ gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
   return FALSE;
 }
 
-gboolean DestroyEvent(GtkWidget* widget, GdkEvent* event,
-                      WebWidgetHost* host) {
+gboolean WindowDestroyed(GtkWidget* widget, WebWidgetHost* host) {
   host->WindowDestroyed();
   return FALSE;
 }
@@ -133,7 +132,7 @@ gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
   GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
   g_signal_connect(widget, "configure-event", G_CALLBACK(ConfigureEvent), host);
   g_signal_connect(widget, "expose-event", G_CALLBACK(ExposeEvent), host);
-  g_signal_connect(widget, "destroy-event", G_CALLBACK(DestroyEvent), host);
+  g_signal_connect(widget, "destroy", G_CALLBACK(::WindowDestroyed), host);
   g_signal_connect(widget, "key-press-event", G_CALLBACK(KeyPressReleaseEvent),
                    host);
   g_signal_connect(widget, "key-release-event",
@@ -285,11 +284,6 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(false);
 }
 
-// -----------------------------------------------------------------------------
-// This is called when the GTK window is destroyed. In the Windows code this
-// deletes this object. Since it's only test_shell it probably doesn't matter
-// that much.
-// -----------------------------------------------------------------------------
 void WebWidgetHost::WindowDestroyed() {
   delete this;
 }

@@ -135,13 +135,17 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 }
 
 void TestShell::PlatformCleanUp() {
+  // The GTK widgets will be destroyed, which will free the associated
+  // objects.  So we don't need the scoped_ptr to free the webViewHost.
+  m_webViewHost.release();
 }
 
 // GTK callbacks ------------------------------------------------------
 namespace {
 
 // Callback for when the main window is destroyed.
-void MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
+gboolean MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
+
   TestShell::RemoveWindowFromList(GTK_WIDGET(window));
 
   if (TestShell::windowList()->empty() || shell->is_modal()) {
@@ -150,6 +154,8 @@ void MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
   }
 
   delete shell;
+
+  return FALSE;  // Don't stop this message.
 }
 
 // Callback for when you click the back button.
