@@ -36,6 +36,14 @@
  *
  * Build with:
  *   % gcc -o fuzzymatch fuzzymatch.c -llept -ljpeg -ltiff -lpng -lz -lm -Wall -O2
+ *
+ * Options:
+ *   --highlight: write highlight.png which is a copy of the first image
+ *     argument where the differing areas (after noise removal) are ringed
+ *     in red
+ *   --no-ignore-scrollbars: usually the rightmost 15px of the image are
+ *     ignored to account for scrollbars. Use this flag to include them in
+ *     consideration
  */
 
 #include <unistd.h>
@@ -44,25 +52,44 @@
 
 static int
 usage(const char *argv0) {
-  fprintf(stderr, "Usage: %s <input a> <input b>\n", argv0);
+  fprintf(stderr, "Usage: %s [--highlight] [--no-ignore-scrollbars] "
+                  "<input a> <input b>\n", argv0);
   return 1;
 }
 
 int
 main(int argc, char **argv) {
-  if (argc != 3)
+  if (argc < 3)
     return usage(argv[0]);
 
-  PIX *a = pixRead(argv[1]);
-  PIX *b = pixRead(argv[2]);
+  char highlight = 0;
+  char ignore_scrollbars = 1;
+
+  int argi = 1;
+
+  for (; argi < argc; ++argi) {
+    if (strcmp("--highlight", argv[argi]) == 0) {
+      highlight = 1;
+    } else if (strcmp("--no-ignore-scrollbars", argv[argi]) == 0) {
+      ignore_scrollbars = 0;
+    } else {
+      break;
+    }
+  }
+
+  if (argc - argi < 2)
+    return usage(argv[0]);
+
+  PIX *a = pixRead(argv[argi]);
+  PIX *b = pixRead(argv[argi + 1]);
 
   if (!a) {
-    fprintf(stderr, "Failed to open %s\n", argv[1]);
+    fprintf(stderr, "Failed to open %s\n", argv[argi]);
     return 1;
   }
 
   if (!b) {
-    fprintf(stderr, "Failed to open %s\n", argv[1]);
+    fprintf(stderr, "Failed to open %s\n", argv[argi + 1]);
     return 1;
   }
 
@@ -74,17 +101,32 @@ main(int argc, char **argv) {
 
   PIX *delta = pixAbsDifference(a, b);
   pixInvert(delta, delta);
-  pixDestroy(&a);
+  if (!highlight)
+    pixDestroy(&a);
   pixDestroy(&b);
 
   PIX *deltagray = pixConvertRGBToGray(delta, 0, 0, 0);
   pixDestroy(&delta);
 
   PIX *deltabinary = pixThresholdToBinary(deltagray, 254);
+  PIX *deltabinaryclipped;
+  const int clipwidth = pixGetWidth(deltabinary) - 15;
+  const int clipheight = pixGetHeight(deltabinary) - 15;
 
-  PIX *hopened = pixOpenBrick(NULL, deltabinary, 3, 1);
-  PIX *vopened = pixOpenBrick(NULL, deltabinary, 1, 3);
-  pixDestroy(&deltabinary);
+  if (ignore_scrollbars && clipwidth > 0 && clipheight > 0) {
+    BOX *clip = boxCreate(0, 0, clipwidth, clipheight);
+
+    deltabinaryclipped = pixClipRectangle(deltabinary, clip, NULL);
+    boxDestroy(&clip);
+    pixDestroy(&deltabinary);
+  } else {
+    deltabinaryclipped = deltabinary;
+    deltabinary = NULL;
+  }
+
+  PIX *hopened = pixOpenBrick(NULL, deltabinaryclipped, 3, 1);
+  PIX *vopened = pixOpenBrick(NULL, deltabinaryclipped, 1, 3);
+  pixDestroy(&deltabinaryclipped);
 
   PIX *opened = pixOr(NULL, hopened, vopened);
   pixDestroy(&hopened);
@@ -94,5 +136,14 @@ main(int argc, char **argv) {
   pixCountPixels(opened, &count, NULL);
   fprintf(stderr, "%d\n", count);
 
-  return count;
+  if (count && highlight) {
+    PIX *d1 = pixDilateBrick(NULL, opened, 7, 7);
+    PIX *d2 = pixDilateBrick(NULL, opened, 3, 3);
+    pixInvert(d2, d2);
+    pixAnd(d1, d1, d2);
+    pixPaintThroughMask(a, d1, 0, 0, 0xff << 24);
+    pixWrite("highlight.png", a, IFF_PNG);
+  }
+
+  return count > 0;
 }
