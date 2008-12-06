@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/session_service_test_helper.h"
+#include "chrome/browser/sessions/session_service_test_helper.h"
 
-#include "chrome/browser/session_backend.h"
-#include "chrome/browser/session_service.h"
+#include "chrome/browser/sessions/session_backend.h"
+#include "chrome/browser/sessions/session_id.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -32,7 +34,7 @@ void SessionServiceTestHelper::ReadWindows(
     std::vector<SessionWindow*>* windows) {
   Time last_time;
   ScopedVector<SessionCommand> read_commands;
-  backend()->ReadSessionImpl(false, &(read_commands.get()));
+  backend()->ReadLastSessionCommandsImpl(&(read_commands.get()));
   RestoreSessionFromCommands(read_commands.get(), windows);
 }
 
@@ -60,12 +62,12 @@ void SessionServiceTestHelper::AssertTabEquals(
 void SessionServiceTestHelper::AssertNavigationEquals(
     const TabNavigation& expected,
     const TabNavigation& actual) {
-  EXPECT_TRUE(expected.url == actual.url);
-  EXPECT_EQ(expected.referrer, actual.referrer);
-  EXPECT_EQ(expected.title, actual.title);
-  EXPECT_EQ(expected.state, actual.state);
-  EXPECT_EQ(expected.transition, actual.transition);
-  EXPECT_EQ(expected.type_mask, actual.type_mask);
+  EXPECT_TRUE(expected.url() == actual.url());
+  EXPECT_EQ(expected.referrer(), actual.referrer());
+  EXPECT_EQ(expected.title(), actual.title());
+  EXPECT_EQ(expected.state(), actual.state());
+  EXPECT_EQ(expected.transition(), actual.transition());
+  EXPECT_EQ(expected.type_mask(), actual.type_mask());
 }
 
 void SessionServiceTestHelper::AssertSingleWindowWithSingleTab(
@@ -77,6 +79,6 @@ void SessionServiceTestHelper::AssertSingleWindowWithSingleTab(
 }
 
 SessionBackend* SessionServiceTestHelper::backend() {
-  return service_->backend_.get();
+  return service_->backend();
 }
 

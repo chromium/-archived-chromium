@@ -23,8 +23,9 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/render_process_host.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/spellchecker.h"
-#include "chrome/browser/tab_restore_service.h"
 #include "chrome/browser/template_url_fetcher.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/visitedlink_master.h"
@@ -574,7 +575,7 @@ ProfileImpl::ProfileImpl(const std::wstring& path)
 }
 
 ProfileImpl::~ProfileImpl() {
-  tab_restore_service_.reset();
+  tab_restore_service_ = NULL;
 
   StopCreateSessionServiceTimer();
   // TemplateURLModel schedules a task on the WebDataService from its
@@ -878,12 +879,12 @@ Time ProfileImpl::GetStartTime() const {
 
 TabRestoreService* ProfileImpl::GetTabRestoreService() {
   if (!tab_restore_service_.get())
-    tab_restore_service_.reset(new TabRestoreService(this));
+    tab_restore_service_ = new TabRestoreService(this);
   return tab_restore_service_.get();
 }
 
 void ProfileImpl::ResetTabRestoreService() {
-  tab_restore_service_.reset(NULL);
+  tab_restore_service_ = NULL;
 }
 
 // To be run in the IO thread to notify all resource message filters that the 

@@ -27,8 +27,8 @@
 #include "chrome/browser/infobar_delegate.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/session_restore.h"
 #include "chrome/browser/session_startup_pref.h"
+#include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/browser/web_app_launcher.h"
@@ -76,7 +76,7 @@ class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
   }
   virtual bool Accept() {
     // Restore the session.
-    SessionRestore::RestoreSession(profile_, NULL, false, true, false,
+    SessionRestore::RestoreSession(profile_, NULL, true, false,
                                    std::vector<GURL>());
     return true;
   }
@@ -507,8 +507,7 @@ bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
         // infobar.
         return false;
       }
-      SessionRestore::RestoreSessionSynchronously(profile_, false,  
-                                                  urls_to_open);
+      SessionRestore::RestoreSessionSynchronously(profile_, urls_to_open);
       return true;
 
     case SessionStartupPref::URLS:

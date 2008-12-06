@@ -104,7 +104,7 @@ ui_test_files = [
     '$CHROME_DIR/browser/resource_dispatcher_host_uitest.cc',
     '$CHROME_DIR/browser/sanity_uitest.cc',
     '$CHROME_DIR/browser/session_history_uitest.cc',
-    '$CHROME_DIR/browser/session_restore_uitest.cc',
+    '$CHROME_DIR/browser/sessions/session_restore_uitest.cc',
     '$CHROME_DIR/browser/ssl_uitest.cc',
     '$CHROME_DIR/browser/tab_restore_uitest.cc',
     '$CHROME_DIR/browser/view_source_uitest.cc',

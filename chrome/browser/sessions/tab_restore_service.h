@@ -2,15 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_RESTORE_SERVICE_H_
-#define CHROME_BROWSER_TAB_RESTORE_SERVICE_H_
+#ifndef CHROME_BROWSER_SESSIONS_TAB_RESTORE_SERVICE_H_
+#define CHROME_BROWSER_SESSIONS_TAB_RESTORE_SERVICE_H_
 
 #include <list>
 
 #include "base/observer_list.h"
 #include "base/time.h"
-#include "chrome/browser/session_service.h"
+#include "chrome/browser/sessions/base_session_service.h"
+#include "chrome/browser/sessions/session_id.h"
+#include "chrome/browser/sessions/session_types.h"
 
+class Browser;
 class NavigationController;
 class Profile;
 
@@ -25,7 +28,7 @@ class Profile;
 //
 // To listen for changes to the set of entries managed by the TabRestoreService
 // add an observer.
-class TabRestoreService {
+class TabRestoreService : public BaseSessionService {
  public:
   // Observer is notified when the set of entries managed by TabRestoreService
   // changes in some way.
@@ -52,7 +55,7 @@ class TabRestoreService {
 
     // Unique id for this entry. The id is guaranteed to be unique for a
     // session.
-    int id;
+    SessionID::id_type id;
 
     // The type of the entry.
     Type type;
@@ -63,7 +66,6 @@ class TabRestoreService {
     Tab() : Entry(TAB), current_navigation_index(-1) {}
 
     // The navigations.
-    // WARNING: navigations may be empty.
     std::vector<TabNavigation> navigations;
 
     // Index of the selected navigation in navigations.
@@ -85,7 +87,7 @@ class TabRestoreService {
 
   // Creates a new TabRestoreService.
   explicit TabRestoreService(Profile* profile);
-  ~TabRestoreService();
+  virtual ~TabRestoreService();
 
   // Adds/removes an observer. TabRestoreService does not take ownership of
   // the observer.
@@ -120,7 +122,16 @@ class TabRestoreService {
   // Restores an entry by id. If there is no entry with an id matching |id|,
   // this does nothing. If |replace_existing_tab| is true and id identifies a
   // tab, the newly created tab replaces the selected tab in |browser|.
-  void RestoreEntryById(Browser* browser, int id, bool replace_existing_tab);
+  void RestoreEntryById(Browser* browser,
+                        SessionID::id_type id,
+                        bool replace_existing_tab);
+
+  // Loads the tabs from the previous session. This does nothing if the tabs
+  // from the previous session have already been loaded.
+  void LoadTabsFromLastSession();
+
+ protected:
+  virtual void Save();
 
  private:
   // Populates tabs->navigations from the NavigationController.
@@ -130,23 +141,78 @@ class TabRestoreService {
   // Notifies observers the tabs have changed.
   void NotifyTabsChanged();
 
+  // Adds |entry| to the list of entries. If |prune| is true |PruneAndNotify|
+  // is invoked. If |to_front| is true the entry is added to the front,
+  // otherwise the back. Normal closes go to the front, but tab/window closes
+  // from the previous session are added to the back.
+  void AddEntry(Entry* entry, bool prune, bool to_front);
+
   // Prunes entries_ to contain only kMaxEntries and invokes NotifyTabsChanged.
   void PruneAndNotify();
 
   // Returns an iterator into entries_ whose id matches |id|.
-  Entries::iterator GetEntryIteratorById(int id);
+  Entries::iterator GetEntryIteratorById(SessionID::id_type id);
 
-  Profile* profile_;
+  // Schedules the commands for a window close.
+  void ScheduleCommandsForWindow(const Window& window);
 
-  // Whether we've loaded the last session.
-  bool loaded_last_session_;
+  // Schedules the commands for a tab close. |selected_index| gives the
+  // index of the selected navigation.
+  void ScheduleCommandsForTab(const Tab& tab, int selected_index);
+
+  // Creates a window close command.
+  SessionCommand* CreateWindowCommand(SessionID::id_type id,
+                                      int selected_tab_index,
+                                      int num_tabs);
+
+  // Creates a tab close command.
+  SessionCommand* CreateSelectedNavigationInTabCommand(
+      SessionID::id_type tab_id,
+      int32 index);
+
+  // Creates a restore command.
+  SessionCommand* CreateRestoredEntryCommand(SessionID::id_type entry_id);
+
+  // Returns the index to persist as the selected index. This is the same
+  // as |tab.current_navigation_index| unless the entry at
+  // |tab.current_navigation_index| shouldn't be persisted. Returns -1 if
+  // no valid navigation to persist.
+  int GetSelectedNavigationIndexToPersist(const Tab& tab);
+
+  // Invoked when we've loaded the session commands from the previous run.
+  // This creates entries and adds them to entries_, notifying the observer.
+  void OnGotLastSessionCommands(
+      Handle handle,
+      scoped_refptr<InternalGetCommandsRequest> request);
+
+  // Returns true if |tab| has more than one navigation. If |tab| has more
+  // than one navigation |tab->current_navigation_index| is constrained based
+  // on the number of navigations.
+  bool ValidateTab(Tab* tab);
+
+  // Validates all entries in |entries|, deleting any with no navigations.
+  // This also deletes any entries beyond the max number of entries we can
+  // hold.
+  void ValidateAndDeleteEmptyEntries(std::vector<Entry*>* entries);
 
   // Set of entries.
   Entries entries_;
 
+  // Whether we've loaded the last session.
+  bool loaded_last_session_;
+
   // Are we restoring a tab? If this is true we ignore requests to create a
   // historical tab.
   bool restoring_;
+
+  // Have the max number of entries ever been created?
+  bool reached_max_;
+
+  // The number of entries to write.
+  int entries_to_write_;
+
+  // Number of entries we've written.
+  int entries_written_;
 
   ObserverList<Observer> observer_list_;
 
@@ -155,7 +221,10 @@ class TabRestoreService {
   // avoid creating historical tabs for them.
   std::set<Browser*> closing_browsers_;
 
+  // Used when loading commands from the previous session.
+  CancelableRequestConsumer load_tabs_consumer_;
+
   DISALLOW_COPY_AND_ASSIGN(TabRestoreService);
 };
 
-#endif  // CHROME_BROWSER_TAB_RESTORE_SERVICE_H_
+#endif  // CHROME_BROWSER_SESSIONS_TAB_RESTORE_SERVICE_H_

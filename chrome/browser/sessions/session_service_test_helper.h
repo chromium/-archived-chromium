@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SESSION_SERVICE_TEST_HELPER_H__
-#define CHROME_BROWSER_SESSION_SERVICE_TEST_HELPER_H__
+#ifndef CHROME_BROWSER_SESSIONS_SERVICE_TEST_HELPER_H_
+#define CHROME_BROWSER_SESSIONS_SERVICE_TEST_HELPER_H_
 
 #include <vector>
 
@@ -15,7 +15,7 @@ class SessionID;
 class SessionService;
 struct SessionTab;
 struct SessionWindow;
-struct TabNavigation;
+class TabNavigation;
 
 // A simple class that makes writing SessionService related tests easier.
 
@@ -64,8 +64,7 @@ class SessionServiceTestHelper {
  private:
   scoped_refptr<SessionService> service_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SessionServiceTestHelper);
+  DISALLOW_COPY_AND_ASSIGN(SessionServiceTestHelper);
 };
 
-#endif  // CHROME_BROWSER_SESSION_SERVICE_TEST_HELPER_H__
-
+#endif  // CHROME_BROWSER_SESSIONS_SERVICE_TEST_HELPER_H_

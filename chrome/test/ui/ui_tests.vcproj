@@ -306,7 +306,7 @@
 			Name="TestSessionRestore"
 			>
 			<File
-				RelativePath="..\..\browser\session_restore_uitest.cc"
+				RelativePath="..\..\browser\sessions\session_restore_uitest.cc"
 				>
 			</File>
 		</Filter>

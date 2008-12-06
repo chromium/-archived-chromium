@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/session_service.h"
+#include "chrome/browser/sessions/session_service.h"
 
 #include <limits>
 
@@ -17,9 +17,10 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/session_backend.h"
-#include "chrome/browser/session_restore.h"
 #include "chrome/browser/session_startup_pref.h"
+#include "chrome/browser/sessions/session_backend.h"
+#include "chrome/browser/sessions/session_restore.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_service.h"
@@ -47,17 +48,31 @@ static const SessionCommand::id_type kCommandSetWindowBounds2 = 10;
 static const SessionCommand::id_type
     kCommandTabNavigationPathPrunedFromFront = 11;
 
-// Max number of navigation entries in each direction we'll persist.
-static const int kMaxNavigationCountToPersist = 6;
-
-// Delay between when a command is received, and when we save it to the
-// backend.
-static const int kSaveDelayMS = 2500;
-
 // Every kWritesPerReset commands triggers recreating the file.
 static const int kWritesPerReset = 250;
 
 namespace {
+
+// The callback from GetLastSession is internally routed to SessionService
+// first and then the caller. This is done so that the SessionWindows can be
+// recreated from the SessionCommands and the SessionWindows passed to the
+// caller. The following class is used for this.
+class InternalLastSessionRequest :
+    public BaseSessionService::InternalGetCommandsRequest {
+ public:
+  InternalLastSessionRequest(
+      CallbackType* callback,
+      SessionService::LastSessionCallback* real_callback)
+      : BaseSessionService::InternalGetCommandsRequest(callback),
+        real_callback(real_callback) {
+  }
+
+  // The callback supplied to GetLastSession.
+  scoped_ptr<SessionService::LastSessionCallback> real_callback;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(InternalLastSessionRequest);
+};
 
 // Various payload structures.
 struct ClosedPayload {
@@ -91,75 +106,26 @@ typedef IDAndIndexPayload WindowTypePayload;
 
 typedef IDAndIndexPayload TabNavigationPathPrunedFromFrontPayload;
 
-// Helper used by CreateUpdateTabNavigationCommand(). It writes |str| to
-// |pickle|, if and only if |str| fits within (|max_bytes| - |*bytes_written|).
-// |bytes_written| is incremented to reflect the data written.
-void WriteStringToPickle(Pickle& pickle, int* bytes_written, int max_bytes,
-                         const std::string& str) {
-  int num_bytes = str.size() * sizeof(char);
-  if (*bytes_written + num_bytes < max_bytes) {
-    *bytes_written += num_bytes;
-    pickle.WriteString(str);
-  } else {
-    pickle.WriteString(std::string());
-  }
-}
-
-// Wide version of WriteStringToPickle.
-void WriteWStringToPickle(Pickle& pickle, int* bytes_written, int max_bytes,
-                          const std::wstring& str) {
-  int num_bytes = str.size() * sizeof(wchar_t);
-  if (*bytes_written + num_bytes < max_bytes) {
-    *bytes_written += num_bytes;
-    pickle.WriteWString(str);
-  } else {
-    pickle.WriteWString(std::wstring());
-  }
-}
-
 }  // namespace
-
-// SessionID ------------------------------------------------------------------
-
-static SessionID::id_type next_id = 1;
-
-SessionID::SessionID() {
-  id_ = next_id++;
-}
 
 // SessionService -------------------------------------------------------------
 
 SessionService::SessionService(Profile* profile)
-    : profile_(profile),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      save_factory_(this),
-      pending_reset_(false),
+    : BaseSessionService(SESSION_RESTORE, profile, std::wstring()),
       has_open_tabbed_browsers_(false),
       move_on_new_browser_(false) {
-  DCHECK(profile);
-  // We should never be created when off the record.
-  DCHECK(!profile->IsOffTheRecord());
-  Init(profile->GetPath());
+  Init();
 }
 
 SessionService::SessionService(const std::wstring& save_path)
-    : profile_(NULL),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      save_factory_(this),
-      pending_reset_(false),
+    : BaseSessionService(SESSION_RESTORE, NULL, save_path),
       has_open_tabbed_browsers_(false),
       move_on_new_browser_(false) {
-  Init(save_path);
+  Init();
 }
 
 SessionService::~SessionService() {
-  if (!backend_.get())
-    return;
   Save();
-  // If no pending requests, then the backend closes immediately and is
-  // deleted. Otherwise the backend is deleted after all pending requests on
-  // the file thread complete, which is done before the process exits.
-  backend_ = NULL;
 
   // Unregister our notifications.
   NotificationService::current()->RemoveObserver(
@@ -187,11 +153,11 @@ void SessionService::MoveCurrentSessionToLastSession() {
 
   Save();
 
-  if (!backend_thread_) {
-    backend_->MoveCurrentSessionToLastSession();
+  if (!backend_thread()) {
+    backend()->MoveCurrentSessionToLastSession();
   } else {
-    backend_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        backend_.get(), &SessionBackend::MoveCurrentSessionToLastSession));
+    backend_thread()->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        backend(), &SessionBackend::MoveCurrentSessionToLastSession));
   }
 }
 
@@ -363,7 +329,8 @@ void SessionService::UpdateTabNavigation(const SessionID& window_id,
     range.first = std::min(index, range.first);
     range.second = std::max(index, range.second);
   }
-  ScheduleCommand(CreateUpdateTabNavigationCommand(tab_id, index, entry));
+  ScheduleCommand(CreateUpdateTabNavigationCommand(kCommandUpdateTabNavigation,
+                                                   tab_id.id(), index, entry));
 }
 
 void SessionService::TabRestored(NavigationController* controller) {
@@ -371,7 +338,7 @@ void SessionService::TabRestored(NavigationController* controller) {
     return;
 
   BuildCommandsForTab(controller->window_id(), controller, -1,
-                      &pending_commands_, NULL);
+                      &pending_commands(), NULL);
   StartSaveTimer();
 }
 
@@ -402,49 +369,16 @@ void SessionService::SetSelectedTabInWindow(const SessionID& window_id,
   ScheduleCommand(CreateSetSelectedTabInWindow(window_id, index));
 }
 
-SessionService::Handle SessionService::GetSavedSession(
-    CancelableRequestConsumerBase* consumer,
-    SavedSessionCallback* callback) {
-  return GetSessionImpl(consumer, callback, true);
-}
-
 SessionService::Handle SessionService::GetLastSession(
     CancelableRequestConsumerBase* consumer,
-    SavedSessionCallback* callback) {
-  return GetSessionImpl(consumer, callback, false);
+    LastSessionCallback* callback) {
+  return ScheduleGetLastSessionCommands(
+      new InternalLastSessionRequest(
+          NewCallback(this, &SessionService::OnGotLastSessionCommands),
+          callback), consumer);
 }
 
-void SessionService::CreateSavedSession() {
-  std::vector<SessionCommand*> commands;
-  // Commands are freed by backend.
-  BuildCommandsFromBrowsers(&commands, NULL, NULL);
-  if (!backend_thread_) {
-    backend_->SaveSession(commands);
-  } else {
-    backend_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        backend_.get(), &SessionBackend::SaveSession, commands));
-  }
-}
-
-void SessionService::DeleteSession(bool saved_session) {
-  if (!backend_thread_) {
-    backend_->DeleteSession(saved_session);
-  } else {
-    backend_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        backend_.get(), &SessionBackend::DeleteSession, saved_session));
-  }
-}
-
-void SessionService::CopyLastSessionToSavedSession() {
-  if (!backend_thread_) {
-    backend_->CopyLastSessionToSavedSession();
-  } else {
-    backend_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        backend_.get(), &SessionBackend::CopyLastSessionToSavedSession));
-  }
-}
-
-void SessionService::Init(const std::wstring& path) {
+void SessionService::Init() {
   // Register for the notifications we're interested in.
   NotificationService::current()->AddObserver(
       this, NOTIFY_TAB_PARENTED, NotificationService::AllSources());
@@ -458,14 +392,6 @@ void SessionService::Init(const std::wstring& path) {
       this, NOTIFY_NAV_ENTRY_COMMITTED, NotificationService::AllSources());
   NotificationService::current()->AddObserver(
       this, NOTIFY_BROWSER_OPENED, NotificationService::AllSources());
-
-  DCHECK(!path.empty());
-  commands_since_reset_ = 0;
-  backend_ = new SessionBackend(path);
-  backend_thread_ = g_browser_process->file_thread();
-  if (!backend_thread_)
-    backend_->Init();
-  // If backend_thread, backend will init itself as appropriate.
 }
 
 void SessionService::Observe(NotificationType type,
@@ -475,7 +401,7 @@ void SessionService::Observe(NotificationType type,
   switch (type) {
     case NOTIFY_BROWSER_OPENED: {
       Browser* browser = Source<Browser>(source).ptr();
-      if (browser->profile() != profile_ ||
+      if (browser->profile() != profile() ||
           !should_track_changes_for_browser_type(browser->type())) {
         return;
       }
@@ -488,10 +414,10 @@ void SessionService::Observe(NotificationType type,
           MoveCurrentSessionToLastSession();
           move_on_new_browser_ = false;
         }
-        SessionStartupPref pref = SessionStartupPref::GetStartupPref(profile_);
+        SessionStartupPref pref = SessionStartupPref::GetStartupPref(profile());
         if (pref.type == SessionStartupPref::LAST) {
           SessionRestore::RestoreSession(
-              profile_, browser, false, false, false, std::vector<GURL>());
+              profile(), browser, false, false, std::vector<GURL>());
         }
       }
       SetWindowType(browser->session_id(), browser->type());
@@ -553,21 +479,6 @@ void SessionService::Observe(NotificationType type,
     default:
       NOTREACHED();
   }
-}
-
-SessionService::Handle SessionService::GetSessionImpl(
-    CancelableRequestConsumerBase* consumer,
-    SavedSessionCallback* callback,
-    bool is_saved_session) {
-  scoped_refptr<InternalSavedSessionRequest> request(
-      new InternalSavedSessionRequest(
-          NewCallback(this, &SessionService::OnGotSessionCommands),
-          callback,
-          is_saved_session));
-  AddRequest(request.get(), consumer);
-  backend_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      backend_.get(), &SessionBackend::ReadSession, request));
-  return request->handle();
 }
 
 SessionCommand* SessionService::CreateSetSelectedTabInWindow(
@@ -649,46 +560,6 @@ SessionCommand* SessionService::CreateWindowClosedCommand(
   return command;
 }
 
-SessionCommand* SessionService::CreateUpdateTabNavigationCommand(
-    const SessionID& tab_id,
-    int index,
-    const NavigationEntry& entry) {
-  // Use pickle to handle marshalling.
-  Pickle pickle;
-  pickle.WriteInt(tab_id.id());
-  pickle.WriteInt(index);
-
-  // We only allow navigations up to 63k (which should be completely
-  // reasonable). On the off chance we get one that is too big, try to
-  // keep the url.
-
-  // Bound the string data (which is variable length) to
-  // |max_state_size bytes| bytes.
-  static const SessionCommand::size_type max_state_size =
-      std::numeric_limits<SessionCommand::size_type>::max() - 1024;
-
-  int bytes_written = 0;
-  
-  WriteStringToPickle(pickle, &bytes_written, max_state_size,
-                      entry.display_url().spec());
-
-  WriteWStringToPickle(pickle, &bytes_written, max_state_size,
-                       entry.title());
-
-  WriteStringToPickle(pickle, &bytes_written, max_state_size,
-                      entry.content_state());
-
-  pickle.WriteInt(entry.transition_type());
-  int type_mask = entry.has_post_data() ? TabNavigation::HAS_POST_DATA : 0;
-  pickle.WriteInt(type_mask);
-
-  WriteStringToPickle(pickle, &bytes_written, max_state_size,
-      entry.referrer().is_valid() ? entry.referrer().spec() : std::string());
-
-  // Adding more data? Be sure and update TabRestoreService too.
-  return new SessionCommand(kCommandUpdateTabNavigation, pickle);
-}
-
 SessionCommand* SessionService::CreateSetSelectedNavigationIndexCommand(
     const SessionID& tab_id,
     int index) {
@@ -713,17 +584,18 @@ SessionCommand* SessionService::CreateSetWindowTypeCommand(
   return command;
 }
 
-void SessionService::OnGotSessionCommands(
+void SessionService::OnGotLastSessionCommands(
     Handle handle,
-    scoped_refptr<InternalSavedSessionRequest> request) {
+    scoped_refptr<InternalGetCommandsRequest> request) {
   if (request->canceled())
     return;
   ScopedVector<SessionWindow> valid_windows;
   RestoreSessionFromCommands(
       request->commands, &(valid_windows.get()));
-  request->real_callback->RunWithParams(
-      SavedSessionCallback::TupleType(request->handle(),
-                                      &(valid_windows.get())));
+  static_cast<InternalLastSessionRequest*>(request.get())->
+      real_callback->RunWithParams(
+          LastSessionCallback::TupleType(request->handle(),
+                                         &(valid_windows.get())));
 }
 
 void SessionService::RestoreSessionFromCommands(
@@ -793,7 +665,7 @@ std::vector<TabNavigation>::iterator
   DCHECK(navigations);
   for (std::vector<TabNavigation>::iterator i = navigations->begin();
        i != navigations->end(); ++i) {
-    if (i->index >= index)
+    if (i->index() >= index)
       return i;
   }
   return navigations->end();
@@ -952,8 +824,8 @@ bool SessionService::CreateTabsAndWindows(
         // And update the index of existing navigations.
         for (std::vector<TabNavigation>::iterator i = tab->navigations.begin();
              i != tab->navigations.end();) {
-          i->index -= payload.index;
-          if (i->index < 0)
+          i->set_index(i->index() - payload.index);
+          if (i->index() < 0)
             i = tab->navigations.erase(i);
           else
             ++i;
@@ -962,42 +834,16 @@ bool SessionService::CreateTabsAndWindows(
       }
 
       case kCommandUpdateTabNavigation: {
-        scoped_ptr<Pickle> pickle(command->PayloadAsPickle());
-        if (!pickle.get())
-          return true;
         TabNavigation navigation;
         SessionID::id_type tab_id;
-        void* iterator = NULL;
-        std::string url_spec;
-        if (!pickle->ReadInt(&iterator, &tab_id) ||
-            !pickle->ReadInt(&iterator, &(navigation.index)) ||
-            !pickle->ReadString(&iterator, &url_spec) ||
-            !pickle->ReadWString(&iterator, &(navigation.title)) ||
-            !pickle->ReadString(&iterator, &(navigation.state)) ||
-            !pickle->ReadInt(&iterator,
-                             reinterpret_cast<int*>(&(navigation.transition))))
+        if (!RestoreUpdateTabNavigationCommand(*command, &navigation, &tab_id))
           return true;
-        // type_mask did not always exist in the written stream. As such, we
-        // don't fail if it can't be read.
-        bool has_type_mask =
-            pickle->ReadInt(&iterator, &(navigation.type_mask));
 
-        if (has_type_mask) {
-          // the "referrer" property was added after type_mask to the written
-          // stream. As such, we don't fail if it can't be read.
-          std::string referrer_spec;
-          pickle->ReadString(&iterator, &referrer_spec);
-          if (!referrer_spec.empty()) {
-            navigation.referrer = GURL(referrer_spec);
-          }
-        }
-
-        navigation.url = GURL(url_spec);
         SessionTab* tab = GetTab(tab_id, tabs);
         std::vector<TabNavigation>::iterator i =
             FindClosestNavigationWithIndex(&(tab->navigations),
-                                           navigation.index);
-        if (i != tab->navigations.end() && i->index == navigation.index)
+                                           navigation.index());
+        if (i != tab->navigations.end() && i->index() == navigation.index())
           *i = navigation;
         else
           tab->navigations.insert(i, navigation);
@@ -1048,8 +894,8 @@ void SessionService::BuildCommandsForTab(
       CreateSetTabWindowCommand(window_id, controller->session_id()));
   const int current_index = controller->GetCurrentEntryIndex();
   const int min_index = std::max(0,
-                                 current_index - kMaxNavigationCountToPersist);
-  const int max_index = std::min(current_index + kMaxNavigationCountToPersist,
+                                 current_index - max_persist_navigation_count);
+  const int max_index = std::min(current_index + max_persist_navigation_count,
                                  controller->GetEntryCount());
   const int pending_index = controller->GetPendingEntryIndex();
   if (tab_to_available_range) {
@@ -1062,7 +908,8 @@ void SessionService::BuildCommandsForTab(
     DCHECK(entry);
     if (ShouldTrackEntry(*entry)) {
       commands->push_back(
-          CreateUpdateTabNavigationCommand(controller->session_id(),
+          CreateUpdateTabNavigationCommand(kCommandUpdateTabNavigation,
+                                           controller->session_id().id(),
                                            i,
                                            *entry));
     }
@@ -1098,7 +945,7 @@ void SessionService::BuildCommandsForBrowser(
   for (int i = 0; i < browser->tab_count(); ++i) {
     TabContents* tab = browser->GetTabContentsAt(i);
     DCHECK(tab);
-    if (tab->profile() == profile_) {
+    if (tab->profile() == profile()) {
       BuildCommandsForTab(browser->session_id(), tab->controller(), i,
                           commands, tab_to_available_range);
       if (windows_to_track && !added_to_windows_to_track) {
@@ -1134,11 +981,11 @@ void SessionService::BuildCommandsFromBrowsers(
 }
 
 void SessionService::ScheduleReset() {
-  pending_reset_ = true;
-  STLDeleteElements(&pending_commands_);
+  set_pending_reset(true);
+  STLDeleteElements(&pending_commands());
   tab_to_available_range_.clear();
   windows_tracking_.clear();
-  BuildCommandsFromBrowsers(&pending_commands_, &tab_to_available_range_,
+  BuildCommandsFromBrowsers(&pending_commands(), &tab_to_available_range_,
                             &windows_tracking_);
   if (!windows_tracking_.empty()) {
     // We're lazily created on startup and won't get an initial batch of
@@ -1164,7 +1011,7 @@ bool SessionService::ReplacePendingCommand(SessionCommand* command) {
     return false;
   }
   for (std::vector<SessionCommand*>::reverse_iterator i =
-       pending_commands_.rbegin(); i != pending_commands_.rend(); ++i) {
+       pending_commands().rbegin(); i != pending_commands().rend(); ++i) {
     SessionCommand* existing_command = *i;
     if (existing_command->id() == kCommandUpdateTabNavigation) {
       SessionID::id_type existing_tab_id;
@@ -1181,8 +1028,8 @@ bool SessionService::ReplacePendingCommand(SessionCommand* command) {
         // it with the new one. We need to add to the end of the list just in
         // case there is a prune command after the update command.
         delete existing_command;
-        pending_commands_.erase(i.base() - 1);
-        pending_commands_.push_back(command);
+        pending_commands().erase(i.base() - 1);
+        pending_commands().push_back(command);
         return true;
       }
       return false;
@@ -1195,17 +1042,15 @@ void SessionService::ScheduleCommand(SessionCommand* command) {
   DCHECK(command);
   if (ReplacePendingCommand(command))
     return;
-  commands_since_reset_++;
-  pending_commands_.push_back(command);
+  BaseSessionService::ScheduleCommand(command);
   // Don't schedule a reset on tab closed/window closed. Otherwise we may
   // lose tabs/windows we want to restore from if we exit right after this.
-  if (!pending_reset_ && pending_window_close_ids_.empty() &&
-      commands_since_reset_ >= kWritesPerReset &&
+  if (!pending_reset() && pending_window_close_ids_.empty() &&
+      commands_since_reset() >= kWritesPerReset &&
       (command->id() != kCommandTabClosed &&
        command->id() != kCommandWindowClosed)) {
     ScheduleReset();
   }
-  StartSaveTimer();
 }
 
 void SessionService::CommitPendingCloses() {
@@ -1222,39 +1067,8 @@ void SessionService::CommitPendingCloses() {
   pending_window_close_ids_.clear();
 }
 
-void SessionService::Save() {
-  DCHECK(backend_.get());
-
-  if (pending_commands_.empty())
-    return;
-
-  if (!backend_thread_) {
-    backend_->AppendCommands(
-        new std::vector<SessionCommand*>(pending_commands_), pending_reset_);
-  } else {
-    backend_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        backend_.get(), &SessionBackend::AppendCommands,
-        new std::vector<SessionCommand*>(pending_commands_),
-        pending_reset_));
-  }
-  if (pending_reset_) {
-    commands_since_reset_ = 0;
-    pending_reset_ = false;
-  }
-  // Backend took ownership of commands.
-  pending_commands_.clear();
-}
-
-void SessionService::StartSaveTimer() {
-  // Don't start a timer when testing (profile == NULL).
-  if (profile_ && save_factory_.empty()) {
-    MessageLoop::current()->PostDelayedTask(FROM_HERE,
-        save_factory_.NewRunnableMethod(&SessionService::Save), kSaveDelayMS);
-  }
-}
-
 bool SessionService::IsOnlyOneTabLeft() {
-  if (!profile_) {
+  if (!profile()) {
     // We're testing, always return false.
     return false;
   }
@@ -1266,7 +1080,7 @@ bool SessionService::IsOnlyOneTabLeft() {
        i != BrowserList::end(); ++i) {
     const SessionID::id_type window_id = (*i)->session_id().id();
     if (should_track_changes_for_browser_type((*i)->type()) &&
-        (*i)->profile()->GetOriginalProfile() == profile_ &&
+        (*i)->profile()->GetOriginalProfile() == profile() &&
         window_closing_ids_.find(window_id) == window_closing_ids_.end()) {
       if (++window_count > 1)
         return false;
@@ -1280,7 +1094,7 @@ bool SessionService::IsOnlyOneTabLeft() {
 }
 
 bool SessionService::HasOpenTabbedBrowsers(const SessionID& window_id) {
-  if (!profile_) {
+  if (!profile()) {
     // We're testing, always return false.
     return true;
   }
@@ -1294,7 +1108,7 @@ bool SessionService::HasOpenTabbedBrowsers(const SessionID& window_id) {
     if (browser_id != window_id.id() &&
         window_closing_ids_.find(browser_id) == window_closing_ids_.end() &&
         should_track_changes_for_browser_type(browser->type()) &&
-        browser->profile()->GetOriginalProfile() == profile_) {
+        browser->profile()->GetOriginalProfile() == profile()) {
       return true;
     }
   }
@@ -1303,16 +1117,4 @@ bool SessionService::HasOpenTabbedBrowsers(const SessionID& window_id) {
 
 bool SessionService::ShouldTrackChangesToWindow(const SessionID& window_id) {
   return windows_tracking_.find(window_id.id()) != windows_tracking_.end();
-}
-
-bool SessionService::ShouldTrackEntry(const NavigationEntry& entry) {
-  // Don't track entries that have post data. Post data may contain passwords
-  // and other sensitive data users don't want stored to disk.
-  return entry.display_url().is_valid() && !entry.has_post_data();
-}
-
-// InternalSavedSessionRequest ------------------------------------------------
-
-SessionService::InternalSavedSessionRequest::~InternalSavedSessionRequest() {
-  STLDeleteElements(&commands);
 }

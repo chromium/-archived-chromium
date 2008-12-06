@@ -474,19 +474,27 @@
 			Name="TestSessionService"
 			>
 			<File
-				RelativePath="..\..\browser\session_backend_unittest.cc"
+				RelativePath="..\..\browser\sessions\session_backend_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\session_service_test_helper.cc"
+				RelativePath="..\..\browser\sessions\session_service_test_helper.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\session_service_test_helper.h"
+				RelativePath="..\..\browser\sessions\session_service_test_helper.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\session_service_unittest.cc"
+				RelativePath="..\..\browser\sessions\session_service_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestTabRestoreService"
+			>
+			<File
+				RelativePath="..\..\browser\sessions\tab_restore_service_unittest.cc"
 				>
 			</File>
 		</Filter>

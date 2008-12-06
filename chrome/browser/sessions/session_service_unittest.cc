@@ -7,9 +7,10 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/navigation_entry.h"
-#include "chrome/browser/session_backend.h"
-#include "chrome/browser/session_service.h"
-#include "chrome/browser/session_service_test_helper.h"
+#include "chrome/browser/sessions/session_backend.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/session_service_test_helper.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/scoped_vector.h"
 #include "chrome/common/stl_util-inl.h"
@@ -29,7 +30,8 @@ class SessionServiceTest : public testing::Test {
     file_util::CreateDirectory(path_);
     file_util::AppendToPath(&path_, b);
 
-    helper_.set_service(new SessionService(path_));
+    SessionService* session_service = new SessionService(path_);
+    helper_.set_service(session_service);
 
     service()->SetWindowType(window_id, Browser::TYPE_NORMAL);
     service()->SetWindowBounds(window_id, window_bounds, false);
@@ -46,13 +48,13 @@ class SessionServiceTest : public testing::Test {
                         int index,
                         bool select) {
     NavigationEntry entry(TAB_CONTENTS_UNKNOWN_TYPE);
-    entry.set_url(navigation.url);
-    entry.set_referrer(navigation.referrer);
-    entry.set_title(navigation.title);
-    entry.set_content_state(navigation.state);
-    entry.set_transition_type(navigation.transition);
+    entry.set_url(navigation.url());
+    entry.set_referrer(navigation.referrer());
+    entry.set_title(navigation.title());
+    entry.set_content_state(navigation.state());
+    entry.set_transition_type(navigation.transition());
     entry.set_has_post_data(
-        navigation.type_mask & TabNavigation::HAS_POST_DATA);
+        navigation.type_mask() & TabNavigation::HAS_POST_DATA);
     service()->UpdateTabNavigation(window_id, tab_id, index, entry);
     if (select)
       service()->SetSelectedNavigationIndex(window_id, tab_id, index);
@@ -62,7 +64,8 @@ class SessionServiceTest : public testing::Test {
     // Forces closing the file.
     helper_.set_service(NULL);
 
-    helper_.set_service(new SessionService(path_));
+    SessionService* session_service = new SessionService(path_);
+    helper_.set_service(session_service);
     helper_.ReadWindows(windows);
   }
 
@@ -115,7 +118,7 @@ TEST_F(SessionServiceTest, PrunePostData1) {
 
   TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  nav1.type_mask = TabNavigation::HAS_POST_DATA;
+  nav1.set_type_mask(TabNavigation::HAS_POST_DATA);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
   UpdateNavigation(window_id, tab_id, nav1, 0, true);
@@ -135,7 +138,7 @@ TEST_F(SessionServiceTest, PrunePostData2) {
   TabNavigation nav1(0, GURL("http://google.com"),
                      GURL("http://www.referrer.com"), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  nav1.type_mask = TabNavigation::HAS_POST_DATA;
+  nav1.set_type_mask(TabNavigation::HAS_POST_DATA);
   TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
 
@@ -436,9 +439,9 @@ TEST_F(SessionServiceTest, PruneFromFront) {
   SessionTab* tab = windows[0]->tabs[0];
   ASSERT_EQ(1, tab->current_navigation_index);
   EXPECT_EQ(3U, tab->navigations.size());
-  EXPECT_TRUE(GURL(base_url + IntToString(2)) == tab->navigations[0].url);
-  EXPECT_TRUE(GURL(base_url + IntToString(3)) == tab->navigations[1].url);
-  EXPECT_TRUE(GURL(base_url + IntToString(4)) == tab->navigations[2].url);
+  EXPECT_TRUE(GURL(base_url + IntToString(2)) == tab->navigations[0].url());
+  EXPECT_TRUE(GURL(base_url + IntToString(3)) == tab->navigations[1].url());
+  EXPECT_TRUE(GURL(base_url + IntToString(4)) == tab->navigations[2].url());
 }
 
 // Prunes from front so that we have no entries.

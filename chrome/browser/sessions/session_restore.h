@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SESSION_RESTORE_H__
-#define CHROME_BROWSER_SESSION_RESTORE_H__
+#ifndef CHROME_BROWSER_SESSIONS_SESSION_RESTORE_H_
+#define CHROME_BROWSER_SESSIONS_SESSION_RESTORE_H_
 
 #include <vector>
 
@@ -30,7 +30,6 @@ class SessionRestore {
   // If urls_to_open is non-empty, a tab is added for each of the URLs.
   static void RestoreSession(Profile* profile,
                              Browser* browser,
-                             bool use_saved_session,
                              bool clobber_existing_window,
                              bool always_create_tabbed_browser,
                              const std::vector<GURL>& urls_to_open);
@@ -41,7 +40,6 @@ class SessionRestore {
   // If urls_to_open is non-empty, a tab is added for each of the URLs.
   static void RestoreSessionSynchronously(
       Profile* profile,
-      bool use_saved_session,
       const std::vector<GURL>& urls_to_open);
 
   // The max number of non-selected tabs SessionRestore loads when restoring
@@ -51,8 +49,7 @@ class SessionRestore {
  private:
   SessionRestore();
 
-  DISALLOW_EVIL_CONSTRUCTORS(SessionRestore);
+  DISALLOW_COPY_AND_ASSIGN(SessionRestore);
 };
 
-#endif  // CHROME_BROWSER_SESSION_RESTORE_H__
-
+#endif  // CHROME_BROWSER_SESSIONS_SESSION_RESTORE_H_

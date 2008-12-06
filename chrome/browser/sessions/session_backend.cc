@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/session_backend.h"
+#include "chrome/browser/sessions/session_backend.h"
 
 #include <limits>
 
@@ -43,13 +43,14 @@ class SessionFileReader {
   // Reads the contents of the file specified in the constructor, returning
   // true on success. It is up to the caller to free all SessionCommands
   // added to commands.
-  bool Read(std::vector<SessionCommand*>* commands);
+  bool Read(BaseSessionService::SessionType type,
+            std::vector<SessionCommand*>* commands);
 
  private:
   // Reads a single command, returning it. A return value of NULL indicates
   // either there are no commands, or there was an error. Use errored_ to
   // distinguish the two. If NULL is returned, and there is no error, it means
-  // the end of file was sucessfully reached.
+  // the end of file was successfully reached.
   SessionCommand* ReadCommand();
 
   // Shifts the unused portion of buffer_ to the beginning and fills the
@@ -76,7 +77,8 @@ class SessionFileReader {
   DISALLOW_EVIL_CONSTRUCTORS(SessionFileReader);
 };
 
-bool SessionFileReader::Read(std::vector<SessionCommand*>* commands) {
+bool SessionFileReader::Read(BaseSessionService::SessionType type,
+                             std::vector<SessionCommand*>* commands) {
   if (!handle_.IsValid())
     return false;
   int32 header[2];
@@ -93,8 +95,13 @@ bool SessionFileReader::Read(std::vector<SessionCommand*>* commands) {
     read_commands->push_back(command);
   if (!errored_)
     read_commands->swap(*commands);
-  UMA_HISTOGRAM_TIMES(L"SessionRestore.read_session_file_time",
-                      TimeTicks::Now() - start_time);
+  if (type == BaseSessionService::TAB_RESTORE) {
+    UMA_HISTOGRAM_TIMES(L"TabRestore.read_session_file_time",
+                        TimeTicks::Now() - start_time);
+  } else {
+    UMA_HISTOGRAM_TIMES(L"SessionRestore.read_session_file_time",
+                        TimeTicks::Now() - start_time);
+  }
   return !errored_;
 }
 
@@ -166,47 +173,23 @@ bool SessionFileReader::FillBuffer() {
 
 }  // namespace
 
-// SessionCommand -------------------------------------------------------------
-
-SessionCommand::SessionCommand(id_type id, size_type size)
-    : id_(id),
-      contents_(size, 0) {
-}
-
-SessionCommand::SessionCommand(id_type id, const Pickle& pickle)
-    : id_(id),
-      contents_(pickle.size(), 0) {
-  DCHECK(pickle.size() < std::numeric_limits<size_type>::max());
-  memcpy(contents(), pickle.data(), pickle.size());
-}
-
-bool SessionCommand::GetPayload(void* dest, size_t count) const {
-  if (size() != count)
-    return false;
-  memcpy(dest, &(contents_[0]), count);
-  return true;
-}
-
-Pickle* SessionCommand::PayloadAsPickle() const {
-  return new Pickle(contents(), static_cast<int>(size()));
-}
-
 // SessionBackend -------------------------------------------------------------
 
-// Target file name.
+// File names (current and previous) for a type of TAB.
+static const wchar_t* const kCurrentTabSessionFileName = L"Current Tabs";
+static const wchar_t* const kLastTabSessionFileName = L"Last Tabs";
+
+// File names (current and previous) for a type of SESSION.
 static const wchar_t* const kCurrentSessionFileName = L"Current Session";
-
-// Previous target file.
 static const wchar_t* const kLastSessionFileName = L"Last Session";
-
-// Saved session file name.
-static const wchar_t* const kSavedSessionFileName = L"Saved Session";
 
 // static
 const int SessionBackend::kFileReadBufferSize = 1024;
 
-SessionBackend::SessionBackend(const std::wstring& path_to_dir)
-    : path_to_dir_(path_to_dir),
+SessionBackend::SessionBackend(BaseSessionService::SessionType type,
+                               const std::wstring& path_to_dir)
+    : type_(type),
+      path_to_dir_(path_to_dir),
       last_session_valid_(false),
       inited_(false),
       empty_file_(true) {
@@ -225,15 +208,6 @@ void SessionBackend::Init() {
   MoveCurrentSessionToLastSession();
 }
 
-void SessionBackend::SaveSession(
-    const std::vector<SessionCommand*>& commands) {
-  Init();
-  ScopedHandle handle(OpenAndWriteHeader(GetSavedSessionPath()));
-  if (handle.IsValid())
-    AppendCommandsToFile(handle, commands);
-  STLDeleteContainerPointers(commands.begin(), commands.end());
-}
-
 void SessionBackend::AppendCommands(
     std::vector<SessionCommand*>* commands,
     bool reset_first) {
@@ -249,36 +223,27 @@ void SessionBackend::AppendCommands(
   delete commands;
 }
 
-void SessionBackend::ReadSession(
-    scoped_refptr<SessionService::InternalSavedSessionRequest> request) {
+void SessionBackend::ReadLastSessionCommands(
+    scoped_refptr<BaseSessionService::InternalGetCommandsRequest> request) {
   if (request->canceled())
     return;
   Init();
-  ReadSessionImpl(request->is_saved_session, &(request->commands));
+  ReadLastSessionCommandsImpl(&(request->commands));
   request->ForwardResult(
-      SessionService::InternalSavedSessionRequest::TupleType(request->handle(),
-                                                             request));
+      BaseSessionService::InternalGetCommandsRequest::TupleType(
+          request->handle(), request));
 }
 
-bool SessionBackend::ReadSessionImpl(bool use_save_file,
-                                     std::vector<SessionCommand*>* commands) {
+bool SessionBackend::ReadLastSessionCommandsImpl(
+    std::vector<SessionCommand*>* commands) {
   Init();
-  const std::wstring path =
-      use_save_file ? GetSavedSessionPath() : GetLastSessionPath();
-  SessionFileReader file_reader(path);
-  return file_reader.Read(commands);
+  SessionFileReader file_reader(GetLastSessionPath());
+  return file_reader.Read(type_, commands);
 }
 
-void SessionBackend::DeleteSession(bool saved_session) {
+void SessionBackend::DeleteLastSession() {
   Init();
-  const std::wstring path =
-      saved_session ? GetSavedSessionPath() : GetLastSessionPath();
-  file_util::Delete(path, false);
-}
-
-void SessionBackend::CopyLastSessionToSavedSession() {
-  Init();
-  file_util::CopyFile(GetLastSessionPath(), GetSavedSessionPath());
+  file_util::Delete(GetLastSessionPath(), false);
 }
 
 void SessionBackend::MoveCurrentSessionToLastSession() {
@@ -292,8 +257,13 @@ void SessionBackend::MoveCurrentSessionToLastSession() {
   if (file_util::PathExists(current_session_path)) {
     int64 file_size;
     if (file_util::GetFileSize(current_session_path, &file_size)) {
-      UMA_HISTOGRAM_COUNTS(L"SessionRestore.last_session_file_size",
-                           static_cast<int>(file_size / 1024));
+      if (type_ == BaseSessionService::TAB_RESTORE) {
+        UMA_HISTOGRAM_COUNTS(L"TabRestore.last_session_file_size",
+                             static_cast<int>(file_size / 1024));
+      } else {
+        UMA_HISTOGRAM_COUNTS(L"SessionRestore.last_session_file_size",
+                             static_cast<int>(file_size / 1024));
+      }
     }
     last_session_valid_ = file_util::Move(current_session_path,
                                           last_session_path);
@@ -314,7 +284,10 @@ bool SessionBackend::AppendCommandsToFile(
     DWORD wrote;
     const size_type content_size = static_cast<size_type>((*i)->size());
     const size_type total_size =  content_size + sizeof(id_type);
-    UMA_HISTOGRAM_COUNTS(L"SessionRestore.command_size", total_size);
+    if (type_ == BaseSessionService::TAB_RESTORE)
+      UMA_HISTOGRAM_COUNTS(L"TabRestore.command_size", total_size);
+    else
+      UMA_HISTOGRAM_COUNTS(L"SessionRestore.command_size", total_size);
     if (!WriteFile(handle, &total_size, sizeof(total_size), &wrote, NULL) ||
         wrote != sizeof(total_size)) {
       NOTREACHED() << "error writing";
@@ -362,18 +335,18 @@ HANDLE SessionBackend::OpenAndWriteHeader(const std::wstring& path) {
 
 std::wstring SessionBackend::GetLastSessionPath() {
   std::wstring path = path_to_dir_;
-  file_util::AppendToPath(&path, kLastSessionFileName);
-  return path;
-}
-
-std::wstring SessionBackend::GetSavedSessionPath() {
-  std::wstring path = path_to_dir_;
-  file_util::AppendToPath(&path, kSavedSessionFileName);
+  if (type_ == BaseSessionService::TAB_RESTORE)
+    file_util::AppendToPath(&path, kLastTabSessionFileName);
+  else
+    file_util::AppendToPath(&path, kLastSessionFileName);
   return path;
 }
 
 std::wstring SessionBackend::GetCurrentSessionPath() {
   std::wstring path = path_to_dir_;
-  file_util::AppendToPath(&path, kCurrentSessionFileName);
+  if (type_ == BaseSessionService::TAB_RESTORE)
+    file_util::AppendToPath(&path, kCurrentTabSessionFileName);
+  else
+    file_util::AppendToPath(&path, kCurrentSessionFileName);
   return path;
 }

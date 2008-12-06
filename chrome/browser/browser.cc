@@ -33,6 +33,7 @@
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/ssl_error_info.h"
 #include "chrome/browser/site_instance.h"
 #include "chrome/browser/task_manager.h"
@@ -2234,11 +2235,6 @@ NavigationController* Browser::BuildRestoredNavigationController(
   if (!navigations.empty()) {
     DCHECK(selected_navigation >= 0 &&
            selected_navigation < static_cast<int>(navigations.size()));
-    // We should have a valid URL, if we don't fall back to the default.
-    GURL url = navigations[selected_navigation].url;
-    if (url.is_empty())
-      url = GetHomePage();
-
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
     return new NavigationController(profile_, navigations, selected_navigation);

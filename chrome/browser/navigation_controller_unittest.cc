@@ -9,8 +9,9 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/session_service.h"
-#include "chrome/browser/session_service_test_helper.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/session_service_test_helper.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents_factory.h"
@@ -1529,9 +1530,9 @@ TEST_F(NavigationControllerHistoryTest, NavigationThenBack) {
   TabNavigation nav(0, url0, GURL(), std::wstring(), std::string(),
                     PageTransition::LINK);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
-  nav.url = url1;
+  nav.set_url(url1);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[1]);
-  nav.url = url2;
+  nav.set_url(url2);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[2]);
 }
 
@@ -1559,6 +1560,6 @@ TEST_F(NavigationControllerHistoryTest, NavigationPruning) {
   TabNavigation nav(0, url0, GURL(), std::wstring(), std::string(),
                     PageTransition::LINK);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
-  nav.url = url2;
+  nav.set_url(url2);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[1]);
 }

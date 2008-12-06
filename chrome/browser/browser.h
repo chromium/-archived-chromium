@@ -11,7 +11,7 @@
 #include "chrome/browser/controller.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/session_id.h"
+#include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -27,7 +27,7 @@ class LocationBarView;
 class PrefService;
 class Profile;
 class StatusBubble;
-struct TabNavigation;
+class TabNavigation;
 class WebApp;
 
 class Browser : public TabStripModelDelegate,
@@ -539,7 +539,7 @@ class Browser : public TabStripModelDelegate,
   // Unique identifier of this browser for session restore. This id is only
   // unique within the current session, and is not guaranteed to be unique
   // across sessions.
-  SessionID session_id_;
+  const SessionID session_id_;
 
   // TODO(beng): should be combined with ToolbarModel now that this is the only
   //             implementation.

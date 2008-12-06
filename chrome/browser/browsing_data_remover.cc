@@ -8,8 +8,8 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/session_service.h"
-#include "chrome/browser/tab_restore_service.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/webdata/web_data_service.h"
@@ -77,13 +77,15 @@ void BrowsingDataRemover::Remove(int remove_mask) {
     // We also delete the list of recently closed tabs. Since these expire,
     // they can't be more than a day old, so we can simply clear them all.
     TabRestoreService* tab_service = profile_->GetTabRestoreService();
-    if (tab_service)
+    if (tab_service) {
       tab_service->ClearEntries();
+      tab_service->DeleteLastSession();
+    }
 
     // We also delete the last session when we delete the history.
     SessionService* session_service = profile_->GetSessionService();
     if (session_service)
-      session_service->DeleteSession(false);   // Last session.
+      session_service->DeleteLastSession();
   }
 
   if (remove_mask & REMOVE_DOWNLOADS) {

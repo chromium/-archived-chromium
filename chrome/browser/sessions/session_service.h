@@ -2,165 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SESSION_SERVICE_H__
-#define CHROME_BROWSER_SESSION_SERVICE_H__
+#ifndef CHROME_BROWSER_SESSIONS_SESSION_SERVICE_H_
+#define CHROME_BROWSER_SESSIONS_SESSION_SERVICE_H_
 
 #include <map>
 
 #include "base/basictypes.h"
-#include "base/gfx/rect.h"
-#include "base/task.h"
-#include "base/time.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/cancelable_request.h"
-#include "chrome/browser/session_id.h"
+#include "chrome/browser/sessions/base_session_service.h"
+#include "chrome/browser/sessions/session_id.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/page_transition_types.h"
-#include "chrome/common/stl_util-inl.h"
-#include "googleurl/src/gurl.h"
 
 class Browser;
 class NavigationController;
 class NavigationEntry;
 class Profile;
-class TabContents;
-class SessionBackend;
 class SessionCommand;
-
-namespace base {
-class Thread;
-}
-
-// TabNavigation  ------------------------------------------------------------
-
-// TabNavigation corresponds to a NavigationEntry.
-
-struct TabNavigation {
-  friend class SessionService;
-
-  enum TypeMask {
-    HAS_POST_DATA = 1
-  };
-
-  TabNavigation() : transition(PageTransition::TYPED), type_mask(0), index(-1) {
-  }
-  TabNavigation(int index,
-                const GURL& url,
-                const GURL& referrer,
-                const std::wstring& title,
-                const std::string& state,
-                PageTransition::Type transition)
-      : url(url),
-        referrer(referrer),
-        title(title),
-        state(state),
-        transition(transition),
-        type_mask(0),
-        index(index) {}
-
-
-  GURL url;
-  GURL referrer;
-
-  // The title of the page.
-  std::wstring title;
-  std::string state;
-  PageTransition::Type transition;
-
-  // A mask used for arbitrary boolean values needed to represent a
-  // NavigationEntry. Currently only contains HAS_POST_DATA or 0.
-  int type_mask;
-
- private:
-  // The index in the NavigationController. If this is -1, it means this
-  // TabNavigation is bogus.
-  //
-  // This is used when determining the selected TabNavigation and only useful
-  // by SessionService.
-  int index;
-};
-
-// SessionTab ----------------------------------------------------------------
-
-// SessionTab corresponds to a NavigationController.
-
-struct SessionTab {
-  SessionTab() : tab_visual_index(-1), current_navigation_index(-1) { }
-
-  // Unique id of the window.
-  SessionID window_id;
-
-  // Unique if of the tab.
-  SessionID tab_id;
-
-  // Visual index of the tab within its window. There may be gaps in these
-  // values.
-  //
-  // NOTE: this is really only useful for the SessionService during
-  // restore, others can likely ignore this and use the order of the
-  // tabs in SessionWindow.tabs.
-  int tab_visual_index;
-
-  // Identifies the index of the current navigation in navigations. For
-  // example, if this is 2 it means the current navigation is navigations[2].
-  //
-  // NOTE: when the service is creating SessionTabs, initially this
-  // corresponds to TabNavigation.index, not the index in navigations. When done
-  // creating though, this is set to the index in navigations.
-  int current_navigation_index;
-
-  std::vector<TabNavigation> navigations;
-
- private:
-  DISALLOW_EVIL_CONSTRUCTORS(SessionTab);
-};
-
-// SessionWindow -------------------------------------------------------------
-
-// Describes a saved window.
-
-struct SessionWindow {
-  SessionWindow()
-      : selected_tab_index(-1),
-      type(Browser::TYPE_NORMAL),
-        is_constrained(true),
-        is_maximized(false) {}
-  ~SessionWindow() { STLDeleteElements(&tabs); }
-
-  // Identifier of the window.
-  SessionID window_id;
-
-  // Bounds of the window.
-  gfx::Rect bounds;
-
-  // Index of the selected tab in tabs; -1 if no tab is selected. After restore
-  // this value is guaranteed to be a valid index into tabs.
-  //
-  // NOTE: when the service is creating SessionWindows, initially this
-  // corresponds to SessionTab.tab_visual_index, not the index in
-  // tabs. When done creating though, this is set to the index in
-  // tabs.
-  int selected_tab_index;
-
-  // Type of the browser. Currently we only store browsers of type
-  // TYPE_NORMAL and TYPE_POPUP.
-  Browser::Type type;
-
-  // If true, the window is constrained.
-  //
-  // Currently SessionService prunes all constrained windows so that session
-  // restore does not attempt to restore them.
-  bool is_constrained;
-
-  // The tabs, ordered by visual order.
-  std::vector<SessionTab*> tabs;
-
-  // Is the window maximized?
-  bool is_maximized;
-
- private:
-  DISALLOW_EVIL_CONSTRUCTORS(SessionWindow);
-};
+struct SessionTab;
+struct SessionWindow;
 
 // SessionService ------------------------------------------------------------
 
@@ -168,19 +27,12 @@ struct SessionWindow {
 // and tabs so that they can be restored at a later date. The state of the
 // currently open browsers is referred to as the current session.
 //
-// SessionService supports restoring from two distinct points (or sessions):
-// . The previous or last session. The previous session typically corresponds
-//   to the last run of the browser, but not always. For example, if the user
-//   has a tabbed browser and app window running, closes the tabbed browser,
-//   then creates a new tabbed browser the current session is made the last
-//   session and the current session reset. This is done to provide the
-//   illusion that app windows run in separate processes.
-// . A user defined point. That is, any time CreateSavedSession is invoked
-//   the save session is reset from the current state of the browser.
-//
-// Additionally the current session can be made the 'last' session at any point
-// by way of MoveCurrentSessionToLastSession. This may be done at certain points
-// during the browser that are viewed as changing the 
+// SessionService supports restoring from the previous or last session. The
+// previous session typically corresponds to the last run of the browser, but
+// not always. For example, if the user has a tabbed browser and app window
+// running, closes the tabbed browser, then creates a new tabbed browser the
+// current session is made the last session and the current session reset. This
+// is done to provide the illusion that app windows run in separate processes.
 //
 // SessionService itself maintains a set of SessionCommands that allow
 // SessionService to rebuild the open state of the browser (as
@@ -188,10 +40,8 @@ struct SessionWindow {
 // flushed to SessionBackend and written to a file. Every so often
 // SessionService rebuilds the contents of the file from the open state
 // of the browser.
-
-class SessionService : public CancelableRequestProvider,
-                       public NotificationObserver,
-                       public base::RefCountedThreadSafe<SessionService> {
+class SessionService : public BaseSessionService,
+                       public NotificationObserver {
   friend class SessionServiceTestHelper;
  public:
   // Creates a SessionService for the specified profile.
@@ -199,7 +49,7 @@ class SessionService : public CancelableRequestProvider,
   // For testing.
   explicit SessionService(const std::wstring& save_path);
 
-  ~SessionService();
+  virtual ~SessionService();
 
   // Resets the contents of the file from the current state of all open
   // browsers whose profile matches our profile.
@@ -279,83 +129,28 @@ class SessionService : public CancelableRequestProvider,
   //
   // The time gives the time the session was closed.
   typedef Callback2<Handle, std::vector<SessionWindow*>*>::Type
-      SavedSessionCallback;
-
-  // Fetches the contents of the save session, notifying the callback when
-  // done. If the callback is supplied an empty vector of SessionWindows
-  // it means the session could not be restored.
-  Handle GetSavedSession(CancelableRequestConsumerBase* consumer,
-                         SavedSessionCallback* callback);
+      LastSessionCallback;
 
   // Fetches the contents of the last session, notifying the callback when
   // done. If the callback is supplied an empty vector of SessionWindows
   // it means the session could not be restored.
+  //
+  // The created request does NOT directly invoke the callback, rather the
+  // callback invokes OnGotSessionCommands from which we map the
+  // SessionCommands to browser state, then notify the callback.
   Handle GetLastSession(CancelableRequestConsumerBase* consumer,
-                        SavedSessionCallback* callback);
-
-  // Creates a save session from the current state of the browser.
-  void CreateSavedSession();
-
-  // Deletes the saved session if saved session is true, or the last session
-  // if saved_session is false.
-  void DeleteSession(bool saved_session);
-
-  // Creates a saved session from the contents of the last session.
-  void CopyLastSessionToSavedSession();
-
-  // The callback from Get*Session is internally routed to SessionService
-  // first. This is done so that the SessionWindows can be recreated from
-  // the SessionCommands. The following types are used for this.
-  class InternalSavedSessionRequest;
-
-  typedef Callback2<Handle, scoped_refptr<InternalSavedSessionRequest> >::Type
-      InternalSavedSessionCallback;
-
-  // Request class used from Get*Session.
-  class InternalSavedSessionRequest :
-      public CancelableRequest<InternalSavedSessionCallback> {
-   public:
-    InternalSavedSessionRequest(CallbackType* callback,
-                                SavedSessionCallback* real_callback,
-                                bool is_saved_session)
-        : CancelableRequest(callback),
-          real_callback(real_callback),
-          is_saved_session(is_saved_session) {
-    }
-    virtual ~InternalSavedSessionRequest();
-
-    // The callback supplied to Get*Session.
-    scoped_ptr<SavedSessionCallback> real_callback;
-
-    // Whether the request is for a saved session, or the last session.
-    bool is_saved_session;
-
-    // The commands. The backend fills this in for us.
-    std::vector<SessionCommand*> commands;
-
-   private:
-    DISALLOW_EVIL_CONSTRUCTORS(InternalSavedSessionRequest);
-  };
+                        LastSessionCallback* callback);
 
  private:
   typedef std::map<SessionID::id_type,std::pair<int,int> > IdToRange;
   typedef std::map<SessionID::id_type,SessionTab*> IdToSessionTab;
   typedef std::map<SessionID::id_type,SessionWindow*> IdToSessionWindow;
 
-  // Various initialization; called from the constructor.
-  void Init(const std::wstring& path);
+  void Init();
 
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-
-  // Get*Session call into this to schedule the request. The request
-  // does NOT directly invoke the callback, rather the callback invokes
-  // OnGotSessionCommands from which we map the SessionCommands to browser
-  // state, then notify the callback.
-  Handle GetSessionImpl(CancelableRequestConsumerBase* consumer,
-                        SavedSessionCallback* callback,
-                        bool is_saved_session);
 
   // Methods to create the various commands. It is up to the caller to delete
   // the returned the SessionCommand* object.
@@ -376,11 +171,6 @@ class SessionService : public CancelableRequestProvider,
 
   SessionCommand* CreateWindowClosedCommand(SessionID::id_type tab_id);
 
-  SessionCommand* CreateUpdateTabNavigationCommand(
-      const SessionID& tab_id,
-      int index,
-      const NavigationEntry& entry);
-
   SessionCommand* CreateSetSelectedNavigationIndexCommand(
       const SessionID& tab_id,
       int index);
@@ -391,9 +181,9 @@ class SessionService : public CancelableRequestProvider,
   // Callback form the backend for getting the commands from the previous
   // or save file. Converts the commands in SessionWindows and notifies
   // the real callback.
-  void OnGotSessionCommands(
+  void OnGotLastSessionCommands(
       Handle handle,
-      scoped_refptr<InternalSavedSessionRequest> request);
+      scoped_refptr<InternalGetCommandsRequest> request);
 
   // Converts the commands into SessionWindows. On return any valid
   // windows are added to valid_windows. It is up to the caller to delete
@@ -499,12 +289,6 @@ class SessionService : public CancelableRequestProvider,
   // Converts all pending tab/window closes to commands and schedules them.
   void CommitPendingCloses();
 
-  // Saves pending commands to the backend.
-  void Save();
-
-  // Starts the save timer (if it isn't running already).
-  void StartSaveTimer();
-
   // Returns true if there is only one window open with a single tab that shares
   // our profile.
   bool IsOnlyOneTabLeft();
@@ -516,20 +300,10 @@ class SessionService : public CancelableRequestProvider,
   // Returns true if changes to tabs in the specified window should be tracked.
   bool ShouldTrackChangesToWindow(const SessionID& window_id);
 
-  // Should we track the specified entry?
-  bool SessionService::ShouldTrackEntry(const NavigationEntry& entry);
-
   // Returns true if we track changes to the specified browser type.
   static bool should_track_changes_for_browser_type(Browser::Type type) {
     return type == Browser::TYPE_NORMAL;
   }
-
-  // The profile used to determine where to save, as well as what tabs
-  // to persist.
-  Profile* profile_;
-
-  // The number of commands sent to the backend before doing a reset.
-  int commands_since_reset_;
 
   // Maps from session tab id to the range of navigation entries that has
   // been written to disk.
@@ -537,16 +311,6 @@ class SessionService : public CancelableRequestProvider,
   // This is only used if not all the navigation entries have been
   // written.
   IdToRange tab_to_available_range_;
-
-  // Commands we need to send over to the backend.
-  std::vector<SessionCommand*>  pending_commands_;
-
-  // Whether the backend file should be recreated the next time we send
-  // over the commands.
-  bool pending_reset_;
-
-  // Used to invoke Save.
-  ScopedRunnableMethodFactory<SessionService> save_factory_;
 
   // When the user closes the last window, where the last window is the
   // last tabbed browser and no more tabbed browsers are open with the same
@@ -570,13 +334,6 @@ class SessionService : public CancelableRequestProvider,
   typedef std::set<SessionID::id_type> WindowsTracking;
   WindowsTracking windows_tracking_;
 
-  // The backend.
-  scoped_refptr<SessionBackend> backend_;
-
-  // Thread backend tasks are run on. This comes from the profile, and is
-  // null during testing.
-  base::Thread* backend_thread_;
-
   // Are there any open open tabbed browsers?
   bool has_open_tabbed_browsers_;
 
@@ -585,7 +342,8 @@ class SessionService : public CancelableRequestProvider,
   // is made the previous session. See description above class for details on
   // current/previou session.
   bool move_on_new_browser_;
+
+  DISALLOW_COPY_AND_ASSIGN(SessionService);
 };
 
-#endif  // CHROME_BROWSER_SESSION_SERVICE_H__
-
+#endif  // CHROME_BROWSER_SESSIONS_SESSION_SERVICE_H_

@@ -339,7 +339,7 @@ class ProfileImpl : public Profile,
   // See GetStartTime for details.
   base::Time start_time_;
 
-  scoped_ptr<TabRestoreService> tab_restore_service_;
+  scoped_refptr<TabRestoreService> tab_restore_service_;
 
   // This can not be a scoped_refptr because we must release it on the I/O
   // thread.

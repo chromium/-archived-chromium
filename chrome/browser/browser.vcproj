@@ -562,14 +562,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\session_restore.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\session_restore.h"
-				>
-			</File>
-			<File
 				RelativePath=".\session_startup_pref.cc"
 				>
 			</File>
@@ -1478,31 +1470,67 @@
 			Name="Sessions and Tab Restore"
 			>
 			<File
-				RelativePath=".\session_backend.cc"
+				RelativePath=".\sessions\base_session_service.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\session_backend.h"
+				RelativePath=".\sessions\base_session_service.h"
 				>
 			</File>
 			<File
-				RelativePath=".\session_id.h"
+				RelativePath=".\sessions\session_backend.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\session_service.cc"
+				RelativePath=".\sessions\session_backend.h"
 				>
 			</File>
 			<File
-				RelativePath=".\session_service.h"
+				RelativePath=".\sessions\session_id.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\tab_restore_service.cc"
+				RelativePath=".\sessions\session_id.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tab_restore_service.h"
+				RelativePath=".\sessions\session_command.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_command.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_restore.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_restore.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_service.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_service.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_types.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_types.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\tab_restore_service.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\tab_restore_service.h"
 				>
 			</File>
 		</Filter>

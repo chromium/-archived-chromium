@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/session_restore.h"
+#include "chrome/browser/sessions/session_restore.h"
 
 #include <vector>
 
@@ -12,7 +12,8 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/session_service.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
@@ -182,14 +183,12 @@ class SessionRestoreImpl : public NotificationObserver {
  public:
   SessionRestoreImpl(Profile* profile,
                      Browser* browser,
-                     bool use_saved_session,
                      bool synchronous,
                      bool clobber_existing_window,
                      bool always_create_tabbed_browser,
                      const std::vector<GURL>& urls_to_open)
       : profile_(profile),
         browser_(browser),
-        use_saved_session_(use_saved_session),
         synchronous_(synchronous),
         clobber_existing_window_(clobber_existing_window),
         always_create_tabbed_browser_(always_create_tabbed_browser),
@@ -199,12 +198,9 @@ class SessionRestoreImpl : public NotificationObserver {
   void SessionRestoreImpl::Restore() {
     SessionService* session_service = profile_->GetSessionService();
     DCHECK(session_service);
-    SessionService::SavedSessionCallback* callback =
+    SessionService::LastSessionCallback* callback =
         NewCallback(this, &SessionRestoreImpl::OnGotSession);
-    if (use_saved_session_)
-      session_service->GetSavedSession(&request_consumer_, callback);
-    else
-      session_service->GetLastSession(&request_consumer_, callback);
+    session_service->GetLastSession(&request_consumer_, callback);
 
     if (synchronous_) {
       MessageLoop::current()->Run();
@@ -384,10 +380,6 @@ class SessionRestoreImpl : public NotificationObserver {
   // The first browser to restore to, may be null.
   Browser* browser_;
 
-  // Whether we're restoring the saved session (true) or the last session
-  // (false).
-  const bool use_saved_session_;
-
   // Whether or not restore is synchronous.
   const bool synchronous_;
 
@@ -420,7 +412,6 @@ size_t SessionRestore::num_tabs_to_load_ = 0;
 
 static void Restore(Profile* profile,
                     Browser* browser,
-                    bool use_saved_session,
                     bool synchronous,
                     bool clobber_existing_window,
                     bool always_create_tabbed_browser,
@@ -430,28 +421,25 @@ static void Restore(Profile* profile,
     return;
   // SessionRestoreImpl takes care of deleting itself when done.
   SessionRestoreImpl* restorer =
-      new SessionRestoreImpl(profile, browser, use_saved_session,
-                             synchronous, clobber_existing_window,
-                             always_create_tabbed_browser,
-                             urls_to_open);
+      new SessionRestoreImpl(profile, browser, synchronous,
+                             clobber_existing_window,
+                             always_create_tabbed_browser, urls_to_open);
   restorer->Restore();
 }
 
 // static
 void SessionRestore::RestoreSession(Profile* profile,
                                     Browser* browser,
-                                    bool use_saved_session,
                                     bool clobber_existing_window,
                                     bool always_create_tabbed_browser,
                                     const std::vector<GURL>& urls_to_open) {
-  Restore(profile, browser, use_saved_session, false, clobber_existing_window,
+  Restore(profile, browser, false, clobber_existing_window,
           always_create_tabbed_browser, urls_to_open);
 }
 
 // static
 void SessionRestore::RestoreSessionSynchronously(
     Profile* profile,
-    bool use_saved_session,
     const std::vector<GURL>& urls_to_open) {
-  Restore(profile, NULL, use_saved_session, true, false, true, urls_to_open);
+  Restore(profile, NULL, true, false, true, urls_to_open);
 }

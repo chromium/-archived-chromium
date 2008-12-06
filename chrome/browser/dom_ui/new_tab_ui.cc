@@ -15,6 +15,7 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_view_host.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/user_metrics.h"
@@ -677,8 +678,13 @@ void RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs(
 
     // GetTabRestoreService() can return NULL (i.e., when in Off the
     // Record mode)
-    if (tab_restore_service_)
+    if (tab_restore_service_) {
+      // This does nothing if the tabs have already been loaded or they
+      // shouldn't be loaded.
+      tab_restore_service_->LoadTabsFromLastSession();
+
       tab_restore_service_->AddObserver(this);
+    }
   }
 
   if (tab_restore_service_)
@@ -726,10 +732,11 @@ bool RecentlyClosedTabsHandler::TabToValue(
 
   const TabNavigation& current_navigation =
       tab.navigations.at(tab.current_navigation_index);
-  if (current_navigation.url == NewTabUIURL())
+  if (current_navigation.url() == NewTabUIURL())
     return false;
 
-  SetURLAndTitle(dictionary, current_navigation.title, current_navigation.url);
+  SetURLAndTitle(dictionary, current_navigation.title(),
+                 current_navigation.url());
   dictionary->SetString(L"type", L"tab");
   return true;
 }

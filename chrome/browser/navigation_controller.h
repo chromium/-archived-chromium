@@ -9,7 +9,7 @@
 
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/session_id.h"
+#include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/site_instance.h"
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/browser/tab_contents_type.h"
@@ -20,7 +20,7 @@ class Profile;
 class TabContents;
 class WebContents;
 class TabContentsCollector;
-struct TabNavigation;
+class TabNavigation;
 struct ViewHostMsg_FrameNavigate_Params;
 
 // A NavigationController maintains the back-forward list for a single tab and
@@ -538,7 +538,7 @@ class NavigationController {
   // Unique identifier of this controller for session restore. This id is only
   // unique within the current session, and is not guaranteed to be unique
   // across sessions.
-  SessionID session_id_;
+  const SessionID session_id_;
 
   // Unique identifier of the window we're in. Used by session restore.
   SessionID window_id_;

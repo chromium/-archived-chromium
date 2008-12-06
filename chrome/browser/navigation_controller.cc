@@ -13,7 +13,7 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/repost_form_warning_dialog.h"
-#include "chrome/browser/session_service.h"
+#include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/site_instance.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
@@ -137,30 +137,11 @@ static void CreateNavigationEntriesFromTabNavigations(
     const std::vector<TabNavigation>& navigations,
     std::vector<linked_ptr<NavigationEntry> >* entries) {
   // Create a NavigationEntry for each of the navigations.
+  int page_id = 0;
   for (std::vector<TabNavigation>::const_iterator i =
-           navigations.begin(); i != navigations.end(); ++i) {
-    const TabNavigation& navigation = *i;
-
-    GURL real_url = navigation.url;
-    TabContentsType type = TabContents::TypeForURL(&real_url);
-    DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
-
-    NavigationEntry* entry = new NavigationEntry(
-        type,
-        NULL,  // The site instance for restored tabs is sent on navigation
-               // (WebContents::GetSiteInstanceForEntry).
-        static_cast<int>(i - navigations.begin()),
-        real_url,
-        navigation.referrer,
-        navigation.title,
-        // Use a transition type of reload so that we don't incorrectly
-        // increase the typed count.
-        PageTransition::RELOAD);
-    entry->set_display_url(navigation.url);
-    entry->set_content_state(navigation.state);
-    entry->set_has_post_data(
-        navigation.type_mask & TabNavigation::HAS_POST_DATA);
-    entries->push_back(linked_ptr<NavigationEntry>(entry));
+           navigations.begin(); i != navigations.end(); ++i, ++page_id) {
+    entries->push_back(
+        linked_ptr<NavigationEntry>(i->ToNavigationEntry(page_id)));
   }
 }
 

@@ -5,7 +5,8 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/time.h"
-#include "chrome/browser/session_backend.h"
+#include "chrome/browser/sessions/session_backend.h"
+#include "chrome/common/stl_util-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -57,7 +58,8 @@ class SessionBackendTest : public testing::Test {
 };
 
 TEST_F(SessionBackendTest, SimpleReadWrite) {
-  scoped_refptr<SessionBackend> backend(new SessionBackend(path_));
+  scoped_refptr<SessionBackend> backend(
+      new SessionBackend(BaseSessionService::SESSION_RESTORE, path_));
   struct TestData data = { 1,  "a" };
   std::vector<SessionCommand*> commands;
   commands.push_back(CreateCommandFromData(data));
@@ -66,8 +68,8 @@ TEST_F(SessionBackendTest, SimpleReadWrite) {
 
   // Read it back in.
   backend = NULL;
-  backend = new SessionBackend(path_);
-  backend->ReadSessionImpl(false, &commands);
+  backend = new SessionBackend(BaseSessionService::SESSION_RESTORE, path_);
+  backend->ReadLastSessionCommandsImpl(&commands);
 
   ASSERT_EQ(1, commands.size());
   AssertCommandEqualsData(data, commands[0]);
@@ -75,14 +77,14 @@ TEST_F(SessionBackendTest, SimpleReadWrite) {
   STLDeleteElements(&commands);
 
   backend = NULL;
-  backend = new SessionBackend(path_);
-  backend->ReadSessionImpl(false, &commands);
+  backend = new SessionBackend(BaseSessionService::SESSION_RESTORE, path_);
+  backend->ReadLastSessionCommandsImpl(&commands);
 
   ASSERT_EQ(0, commands.size());
 
   // Make sure we can delete.
-  backend->DeleteSession(false);
-  backend->ReadSessionImpl(false, &commands);
+  backend->DeleteLastSession();
+  backend->ReadLastSessionCommandsImpl(&commands);
   ASSERT_EQ(0, commands.size());
 }
 
@@ -104,11 +106,12 @@ TEST_F(SessionBackendTest, RandomData) {
   };
 
   for (int i = 0; i < arraysize(data); ++i) {
-    scoped_refptr<SessionBackend> backend(new SessionBackend(path_));
+    scoped_refptr<SessionBackend> backend(
+        new SessionBackend(BaseSessionService::SESSION_RESTORE, path_));
     std::vector<SessionCommand*> commands;
     if (i != 0) {
       // Read previous data.
-      backend->ReadSessionImpl(false, &commands);
+      backend->ReadLastSessionCommandsImpl(&commands);
       ASSERT_EQ(i, commands.size());
       for (std::vector<SessionCommand*>::iterator j = commands.begin();
            j != commands.end(); ++j) {
@@ -128,7 +131,8 @@ TEST_F(SessionBackendTest, BigData) {
     { 2,  "ab" },
   };
 
-  scoped_refptr<SessionBackend> backend(new SessionBackend(path_));
+  scoped_refptr<SessionBackend> backend(
+      new SessionBackend(BaseSessionService::SESSION_RESTORE, path_));
   std::vector<SessionCommand*> commands;
   commands.push_back(CreateCommandFromData(data[0]));
   const SessionCommand::size_type big_size = SessionBackend::kFileReadBufferSize + 100;
@@ -142,9 +146,9 @@ TEST_F(SessionBackendTest, BigData) {
   commands.clear();
 
   backend = NULL;
-  backend = new SessionBackend(path_);
+  backend = new SessionBackend(BaseSessionService::SESSION_RESTORE, path_);
   commands.clear();
-  backend->ReadSessionImpl(false, &commands);
+  backend->ReadLastSessionCommandsImpl(&commands);
   ASSERT_EQ(3, commands.size());
   AssertCommandEqualsData(data[0], commands[0]);
   AssertCommandEqualsData(data[1], commands[2]);
@@ -157,41 +161,20 @@ TEST_F(SessionBackendTest, BigData) {
   STLDeleteElements(&commands);
 }
 
-TEST_F(SessionBackendTest, SaveSession) {
-  struct TestData data[] = {
-    { 1,  "a" },
-    { 2,  "ab" },
-  };
-
-  scoped_refptr<SessionBackend> backend(new SessionBackend(path_));
-  std::vector<SessionCommand*> commands;
-  for (int i = 0; i < arraysize(data); ++i) {
-    commands.push_back(CreateCommandFromData(data[i]));
-  }
-  backend->SaveSession(commands);
-
-  commands.clear();
-
-  backend->ReadSessionImpl(true, &commands);
-  ASSERT_EQ(arraysize(data), commands.size());
-  for (int i = 0; i < arraysize(data); ++i)
-    AssertCommandEqualsData(data[i], commands[i]);
-  STLDeleteElements(&commands);
-}
-
 TEST_F(SessionBackendTest, EmptyCommand) {
   TestData empty_command;
   empty_command.command_id = 1;
-  scoped_refptr<SessionBackend> backend(new SessionBackend(path_));
+  scoped_refptr<SessionBackend> backend(
+      new SessionBackend(BaseSessionService::SESSION_RESTORE, path_));
+  std::vector<SessionCommand*>* empty_commands =
+      new std::vector<SessionCommand*>();
+  empty_commands->push_back(CreateCommandFromData(empty_command));
+  backend->AppendCommands(empty_commands, true);
+  backend->MoveCurrentSessionToLastSession();
+
   std::vector<SessionCommand*> commands;
-  commands.push_back(CreateCommandFromData(empty_command));
-  backend->SaveSession(commands);
-
-  commands.clear();
-
-  backend->ReadSessionImpl(true, &commands);
+  backend->ReadLastSessionCommandsImpl(&commands);
   ASSERT_EQ(1, commands.size());
   AssertCommandEqualsData(empty_command, commands[0]);
   STLDeleteElements(&commands);
 }
-
