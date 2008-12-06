@@ -812,7 +812,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
 
     SkScalar x_height;
     if (os2 && os2->sxHeight) {
-        x_height = static_cast<SkScalar>(os2->sxHeight) / 64;
+        x_height = (static_cast<SkScalar>(os2->sxHeight) / upem) *
+                   (static_cast<SkScalar>(fScaleX) / 65536);
     } else {
         const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
         if (x_glyph) {
