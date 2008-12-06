@@ -476,7 +476,7 @@ v8::Handle<v8::Value> V8Proxy::SVGObjectWithContextToV8Object(
 SVG_OBJECT_TYPES(MAKE_CASE)
 #undef MAKE_CASE
 #define MAKE_CASE(TYPE, NAME)     \
-      case V8ClassIndex::TYPE:  \
+      case V8ClassIndex::TYPE:    \
         static_cast<V8SVGPODTypeWrapper<NAME>*>(object)->ref(); break;
 SVG_POD_NATIVE_TYPES(MAKE_CASE)
 #undef MAKE_CASE

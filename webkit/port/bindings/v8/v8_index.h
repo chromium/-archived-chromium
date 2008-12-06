@@ -377,7 +377,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(SVGUNITTYPES, SVGUnitTypes)                                         \
   V(SVGZOOMEVENT, SVGZoomEvent)
 
-// SVG POD types shoud list all types whose IDL has PODType declaration.
+// SVG POD types should list all types whose IDL has PODType declaration.
 #define SVG_POD_TYPES(V)                                                \
   V(SVGLENGTH, SVGLength)                                               \
   V(SVGTRANSFORM, SVGTransform)                                         \

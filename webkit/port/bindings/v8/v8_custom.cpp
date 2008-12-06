@@ -1394,7 +1394,7 @@ NAMED_PROPERTY_GETTER(DOMWindow) {
       if (items->length() == 1) {
         return V8Proxy::NodeToV8Object(items->firstItem());
       } else {
-        return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,items.get());
+        return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION, items.get());
       }
     }
   }
