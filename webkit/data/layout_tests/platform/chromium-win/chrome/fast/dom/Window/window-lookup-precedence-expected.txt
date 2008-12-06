@@ -1,134 +1,134 @@
-window.Attr IS function Attr() { [native code] }
-window.CDATASection IS function CDATASection() { [native code] }
-window.CSSCharsetRule IS function CSSCharsetRule() { [native code] }
-window.CSSFontFaceRule IS function CSSFontFaceRule() { [native code] }
-window.CSSImportRule IS function CSSImportRule() { [native code] }
-window.CSSMediaRule IS function CSSMediaRule() { [native code] }
-window.CSSPageRule IS function CSSPageRule() { [native code] }
-window.CSSPrimitiveValue IS function CSSPrimitiveValue() { [native code] }
-window.CSSRule IS function CSSRule() { [native code] }
-window.CSSRuleList IS function CSSRuleList() { [native code] }
-window.CSSStyleDeclaration IS function CSSStyleDeclaration() { [native code] }
-window.CSSStyleRule IS function CSSStyleRule() { [native code] }
-window.CSSStyleSheet IS function CSSStyleSheet() { [native code] }
-window.CSSValue IS function CSSValue() { [native code] }
-window.CSSValueList IS function CSSValueList() { [native code] }
-window.CharacterData IS function CharacterData() { [native code] }
-window.Comment IS function Comment() { [native code] }
-window.Counter IS function Counter() { [native code] }
-window.DOMException IS function DOMCoreException() { [native code] }
-window.DOMImplementation IS function DOMImplementation() { [native code] }
-window.DOMParser IS function DOMParser() { [native code] }
-window.Document IS function Document() { [native code] }
-window.DocumentFragment IS function DocumentFragment() { [native code] }
-window.DocumentType IS function DocumentType() { [native code] }
-window.Element IS function Element() { [native code] }
-window.Entity IS function Entity() { [native code] }
-window.EntityReference IS function EntityReference() { [native code] }
-window.Event IS function Event() { [native code] }
-window.EventException IS function EventException() { [native code] }
-window.HTMLAnchorElement IS function HTMLAnchorElement() { [native code] }
-window.HTMLAppletElement IS function HTMLAppletElement() { [native code] }
-window.HTMLAreaElement IS function HTMLAreaElement() { [native code] }
-window.HTMLBRElement IS function HTMLBRElement() { [native code] }
-window.HTMLBaseElement IS function HTMLBaseElement() { [native code] }
-window.HTMLBaseFontElement IS function HTMLBaseFontElement() { [native code] }
-window.HTMLBlockquoteElement IS function HTMLBlockquoteElement() { [native code] }
-window.HTMLBodyElement IS function HTMLBodyElement() { [native code] }
-window.HTMLButtonElement IS function HTMLButtonElement() { [native code] }
-window.HTMLCanvasElement IS function HTMLCanvasElement() { [native code] }
-window.HTMLDListElement IS function HTMLDListElement() { [native code] }
-window.HTMLDirectoryElement IS function HTMLDirectoryElement() { [native code] }
-window.HTMLDivElement IS function HTMLDivElement() { [native code] }
-window.HTMLDocument IS function HTMLDocument() { [native code] }
-window.HTMLElement IS function HTMLElement() { [native code] }
-window.HTMLEmbedElement IS function HTMLEmbedElement() { [native code] }
-window.HTMLFieldSetElement IS function HTMLFieldSetElement() { [native code] }
-window.HTMLFontElement IS function HTMLFontElement() { [native code] }
-window.HTMLFormElement IS function HTMLFormElement() { [native code] }
-window.HTMLFrameElement IS function HTMLFrameElement() { [native code] }
-window.HTMLFrameSetElement IS function HTMLFrameSetElement() { [native code] }
-window.HTMLHRElement IS function HTMLHRElement() { [native code] }
-window.HTMLHeadElement IS function HTMLHeadElement() { [native code] }
-window.HTMLHeadingElement IS function HTMLHeadingElement() { [native code] }
-window.HTMLHtmlElement IS function HTMLHtmlElement() { [native code] }
-window.HTMLIFrameElement IS function HTMLIFrameElement() { [native code] }
-window.HTMLImageElement IS function HTMLImageElement() { [native code] }
-window.HTMLInputElement IS function HTMLInputElement() { [native code] }
-window.HTMLIsIndexElement IS function HTMLIsIndexElement() { [native code] }
-window.HTMLLIElement IS function HTMLLIElement() { [native code] }
-window.HTMLLabelElement IS function HTMLLabelElement() { [native code] }
-window.HTMLLegendElement IS function HTMLLegendElement() { [native code] }
-window.HTMLLinkElement IS function HTMLLinkElement() { [native code] }
-window.HTMLMapElement IS function HTMLMapElement() { [native code] }
-window.HTMLMarqueeElement IS function HTMLMarqueeElement() { [native code] }
-window.HTMLMenuElement IS function HTMLMenuElement() { [native code] }
-window.HTMLMetaElement IS function HTMLMetaElement() { [native code] }
-window.HTMLModElement IS function HTMLModElement() { [native code] }
-window.HTMLOListElement IS function HTMLOListElement() { [native code] }
-window.HTMLObjectElement IS function HTMLObjectElement() { [native code] }
-window.HTMLOptGroupElement IS function HTMLOptGroupElement() { [native code] }
-window.HTMLOptionElement IS function HTMLOptionElement() { [native code] }
-window.HTMLParagraphElement IS function HTMLParagraphElement() { [native code] }
-window.HTMLParamElement IS function HTMLParamElement() { [native code] }
-window.HTMLPreElement IS function HTMLPreElement() { [native code] }
-window.HTMLQuoteElement IS function HTMLQuoteElement() { [native code] }
-window.HTMLScriptElement IS function HTMLScriptElement() { [native code] }
-window.HTMLSelectElement IS function HTMLSelectElement() { [native code] }
-window.HTMLStyleElement IS function HTMLStyleElement() { [native code] }
-window.HTMLTableCaptionElement IS function HTMLTableCaptionElement() { [native code] }
-window.HTMLTableCellElement IS function HTMLTableCellElement() { [native code] }
-window.HTMLTableColElement IS function HTMLTableColElement() { [native code] }
-window.HTMLTableElement IS function HTMLTableElement() { [native code] }
-window.HTMLTableRowElement IS function HTMLTableRowElement() { [native code] }
-window.HTMLTableSectionElement IS function HTMLTableSectionElement() { [native code] }
-window.HTMLTextAreaElement IS function HTMLTextAreaElement() { [native code] }
-window.HTMLTitleElement IS function HTMLTitleElement() { [native code] }
-window.HTMLUListElement IS function HTMLUListElement() { [native code] }
-window.KeyboardEvent IS function KeyboardEvent() { [native code] }
-window.MediaList IS function MediaList() { [native code] }
-window.MessageEvent IS function MessageEvent() { [native code] }
-window.MouseEvent IS function MouseEvent() { [native code] }
-window.MutationEvent IS function MutationEvent() { [native code] }
-window.NamedNodeMap IS function NamedNodeMap() { [native code] }
-window.Node IS function Node() { [native code] }
-window.NodeFilter IS function NodeFilter() { [native code] }
-window.NodeList IS function NodeList() { [native code] }
-window.Notation IS function Notation() { [native code] }
-window.OverflowEvent IS function OverflowEvent() { [native code] }
-window.ProcessingInstruction IS function ProcessingInstruction() { [native code] }
-window.ProgressEvent IS function ProgressEvent() { [native code] }
-window.Range IS function Range() { [native code] }
-window.RangeException IS function RangeException() { [native code] }
-window.Rect IS function Rect() { [native code] }
-window.SVGAngle IS function SVGAngle() { [native code] }
-window.SVGColor IS function SVGColor() { [native code] }
-window.SVGException IS function SVGException() { [native code] }
-window.SVGGradientElement IS function SVGGradientElement() { [native code] }
-window.SVGLength IS function SVGLength() { [native code] }
-window.SVGMarkerElement IS function SVGMarkerElement() { [native code] }
-window.SVGPaint IS function SVGPaint() { [native code] }
-window.SVGPathSeg IS function SVGPathSeg() { [native code] }
-window.SVGPreserveAspectRatio IS function SVGPreserveAspectRatio() { [native code] }
-window.SVGRenderingIntent IS function SVGRenderingIntent() { [native code] }
-window.SVGTextContentElement IS function SVGTextContentElement() { [native code] }
-window.SVGTextPathElement IS function SVGTextPathElement() { [native code] }
-window.SVGTransform IS function SVGTransform() { [native code] }
-window.SVGUnitTypes IS function SVGUnitTypes() { [native code] }
-window.StyleSheet IS function StyleSheet() { [native code] }
-window.StyleSheetList IS function StyleSheetList() { [native code] }
-window.Text IS function Text() { [native code] }
-window.TextEvent IS function TextEvent() { [native code] }
-window.UIEvent IS function UIEvent() { [native code] }
-window.WheelEvent IS function WheelEvent() { [native code] }
-window.XMLDocument IS function Document() { [native code] }
-window.XMLHttpRequest IS function XMLHttpRequest() { [native code] }
-window.XMLHttpRequestException IS function XMLHttpRequestException() { [native code] }
-window.XMLSerializer IS function XMLSerializer() { [native code] }
-window.XPathEvaluator IS function XPathEvaluator() { [native code] }
-window.XPathException IS function XPathException() { [native code] }
-window.XPathResult IS function XPathResult() { [native code] }
-window.XSLTProcessor IS function XSLTProcessor() { [native code] }
+window.Attr IS [object Function]
+window.CDATASection IS [object Function]
+window.CSSCharsetRule IS [object Function]
+window.CSSFontFaceRule IS [object Function]
+window.CSSImportRule IS [object Function]
+window.CSSMediaRule IS [object Function]
+window.CSSPageRule IS [object Function]
+window.CSSPrimitiveValue IS [object Function]
+window.CSSRule IS [object Function]
+window.CSSRuleList IS [object Function]
+window.CSSStyleDeclaration IS [object Function]
+window.CSSStyleRule IS [object Function]
+window.CSSStyleSheet IS [object Function]
+window.CSSValue IS [object Function]
+window.CSSValueList IS [object Function]
+window.CharacterData IS [object Function]
+window.Comment IS [object Function]
+window.Counter IS [object Function]
+window.DOMException IS [object Function]
+window.DOMImplementation IS [object Function]
+window.DOMParser IS [object Function]
+window.Document IS [object Function]
+window.DocumentFragment IS [object Function]
+window.DocumentType IS [object Function]
+window.Element IS [object Function]
+window.Entity IS [object Function]
+window.EntityReference IS [object Function]
+window.Event IS [object Function]
+window.EventException IS [object Function]
+window.HTMLAnchorElement IS [object Function]
+window.HTMLAppletElement IS [object Function]
+window.HTMLAreaElement IS [object Function]
+window.HTMLBRElement IS [object Function]
+window.HTMLBaseElement IS [object Function]
+window.HTMLBaseFontElement IS [object Function]
+window.HTMLBlockquoteElement IS [object Function]
+window.HTMLBodyElement IS [object Function]
+window.HTMLButtonElement IS [object Function]
+window.HTMLCanvasElement IS [object Function]
+window.HTMLDListElement IS [object Function]
+window.HTMLDirectoryElement IS [object Function]
+window.HTMLDivElement IS [object Function]
+window.HTMLDocument IS [object Function]
+window.HTMLElement IS [object Function]
+window.HTMLEmbedElement IS [object Function]
+window.HTMLFieldSetElement IS [object Function]
+window.HTMLFontElement IS [object Function]
+window.HTMLFormElement IS [object Function]
+window.HTMLFrameElement IS [object Function]
+window.HTMLFrameSetElement IS [object Function]
+window.HTMLHRElement IS [object Function]
+window.HTMLHeadElement IS [object Function]
+window.HTMLHeadingElement IS [object Function]
+window.HTMLHtmlElement IS [object Function]
+window.HTMLIFrameElement IS [object Function]
+window.HTMLImageElement IS [object Function]
+window.HTMLInputElement IS [object Function]
+window.HTMLIsIndexElement IS [object Function]
+window.HTMLLIElement IS [object Function]
+window.HTMLLabelElement IS [object Function]
+window.HTMLLegendElement IS [object Function]
+window.HTMLLinkElement IS [object Function]
+window.HTMLMapElement IS [object Function]
+window.HTMLMarqueeElement IS [object Function]
+window.HTMLMenuElement IS [object Function]
+window.HTMLMetaElement IS [object Function]
+window.HTMLModElement IS [object Function]
+window.HTMLOListElement IS [object Function]
+window.HTMLObjectElement IS [object Function]
+window.HTMLOptGroupElement IS [object Function]
+window.HTMLOptionElement IS [object Function]
+window.HTMLParagraphElement IS [object Function]
+window.HTMLParamElement IS [object Function]
+window.HTMLPreElement IS [object Function]
+window.HTMLQuoteElement IS [object Function]
+window.HTMLScriptElement IS [object Function]
+window.HTMLSelectElement IS [object Function]
+window.HTMLStyleElement IS [object Function]
+window.HTMLTableCaptionElement IS [object Function]
+window.HTMLTableCellElement IS [object Function]
+window.HTMLTableColElement IS [object Function]
+window.HTMLTableElement IS [object Function]
+window.HTMLTableRowElement IS [object Function]
+window.HTMLTableSectionElement IS [object Function]
+window.HTMLTextAreaElement IS [object Function]
+window.HTMLTitleElement IS [object Function]
+window.HTMLUListElement IS [object Function]
+window.KeyboardEvent IS [object Function]
+window.MediaList IS [object Function]
+window.MessageEvent IS [object Function]
+window.MouseEvent IS [object Function]
+window.MutationEvent IS [object Function]
+window.NamedNodeMap IS [object Function]
+window.Node IS [object Function]
+window.NodeFilter IS [object Function]
+window.NodeList IS [object Function]
+window.Notation IS [object Function]
+window.OverflowEvent IS [object Function]
+window.ProcessingInstruction IS [object Function]
+window.ProgressEvent IS [object Function]
+window.Range IS [object Function]
+window.RangeException IS [object Function]
+window.Rect IS [object Function]
+window.SVGAngle IS [object Function]
+window.SVGColor IS [object Function]
+window.SVGException IS [object Function]
+window.SVGGradientElement IS [object Function]
+window.SVGLength IS [object Function]
+window.SVGMarkerElement IS [object Function]
+window.SVGPaint IS [object Function]
+window.SVGPathSeg IS [object Function]
+window.SVGPreserveAspectRatio IS [object Function]
+window.SVGRenderingIntent IS [object Function]
+window.SVGTextContentElement IS [object Function]
+window.SVGTextPathElement IS [object Function]
+window.SVGTransform IS [object Function]
+window.SVGUnitTypes IS [object Function]
+window.StyleSheet IS [object Function]
+window.StyleSheetList IS [object Function]
+window.Text IS [object Function]
+window.TextEvent IS [object Function]
+window.UIEvent IS [object Function]
+window.WheelEvent IS [object Function]
+window.XMLDocument IS [object Function]
+window.XMLHttpRequest IS [object Function]
+window.XMLHttpRequestException IS [object Function]
+window.XMLSerializer IS [object Function]
+window.XPathEvaluator IS [object Function]
+window.XPathException IS [object Function]
+window.XPathResult IS [object Function]
+window.XSLTProcessor IS [object Function]
 window.alert IS [object global]
 window.atob IS [object global]
 window.back IS [object global]

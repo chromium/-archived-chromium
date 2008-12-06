@@ -6,7 +6,7 @@ On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE
 PASS e.toString() is "Error: INVALID_NODE_TYPE_ERR: DOM Range Exception 2"
 PASS Object.prototype.toString.call(e) is "[object RangeException]"
 FAIL Object.prototype.toString.call(e.__proto__) should be [object RangeExceptionPrototype]. Was [object Object].
-FAIL e.constructor.toString() should be [object RangeExceptionConstructor]. Was function RangeException() { [native code] }.
+FAIL e.constructor.toString() should be [object RangeExceptionConstructor]. Was [object Function].
 PASS e.constructor is window.RangeException
 PASS e.INVALID_NODE_TYPE_ERR is e.constructor.INVALID_NODE_TYPE_ERR
 PASS e.BAD_BOUNDARYPOINTS_ERR is 1
