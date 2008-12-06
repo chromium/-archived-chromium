@@ -266,7 +266,7 @@ double RenderThemeWin::caretBlinkFrequency() const
         return 0;
 
     // This involves a system call, so we cache the result.
-    static double blinkInterval = querySystemBlinkInterval(RenderTheme::caretBlinkFrequency());
+    static double blinkInterval = querySystemBlinkInterval(RenderTheme::caretBlinkInterval());
     return blinkInterval;
 }
 

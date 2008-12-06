@@ -57,7 +57,6 @@ input_files = [
     '$WEBCORE_DIR/css/CSSInitialValue.cpp',
     '$WEBCORE_DIR/css/CSSMediaRule.cpp',
     '$WEBCORE_DIR/css/CSSMutableStyleDeclaration.cpp',
-    '$WEBCORE_DIR/css/CSSNthSelector.cpp',
     '$WEBCORE_DIR/css/CSSPageRule.cpp',
     '$WEBCORE_DIR/css/CSSParser.cpp',
     '$WEBCORE_DIR/css/CSSParserValues.cpp',

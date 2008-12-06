@@ -503,7 +503,6 @@
 		ABBD246E0EB7B1DA00BEC658 /* MessagePort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24680EB7B1DA00BEC658 /* MessagePort.cpp */; };
 		ABBD246F0EB7B1DA00BEC658 /* XMLTokenizerLibxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD246C0EB7B1DA00BEC658 /* XMLTokenizerLibxml2.cpp */; };
 		ABBD24790EB7B31B00BEC658 /* V8MessagePortCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24780EB7B31B00BEC658 /* V8MessagePortCustom.cpp */; };
-		ABBD24820EB7BCBB00BEC658 /* CSSNthSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24800EB7BCBB00BEC658 /* CSSNthSelector.cpp */; };
 		ABBD248A0EB7BEA400BEC658 /* CachedResourceHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24840EB7BEA400BEC658 /* CachedResourceHandle.cpp */; };
 		ABBD248B0EB7BEA400BEC658 /* ImageLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24860EB7BEA400BEC658 /* ImageLoader.cpp */; };
 		ABBD248C0EB7BEA400BEC658 /* MediaDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24880EB7BEA400BEC658 /* MediaDocument.cpp */; };
@@ -4120,8 +4119,6 @@
 		ABBD246B0EB7B1DA00BEC658 /* NodeRenderStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeRenderStyle.h; sourceTree = "<group>"; };
 		ABBD246C0EB7B1DA00BEC658 /* XMLTokenizerLibxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLTokenizerLibxml2.cpp; sourceTree = "<group>"; };
 		ABBD24780EB7B31B00BEC658 /* V8MessagePortCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8MessagePortCustom.cpp; sourceTree = "<group>"; };
-		ABBD24800EB7BCBB00BEC658 /* CSSNthSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSNthSelector.cpp; sourceTree = "<group>"; };
-		ABBD24810EB7BCBB00BEC658 /* CSSNthSelector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSNthSelector.h; sourceTree = "<group>"; };
 		ABBD24840EB7BEA400BEC658 /* CachedResourceHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CachedResourceHandle.cpp; sourceTree = "<group>"; };
 		ABBD24850EB7BEA400BEC658 /* CachedResourceHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedResourceHandle.h; sourceTree = "<group>"; };
 		ABBD24860EB7BEA400BEC658 /* ImageLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageLoader.cpp; sourceTree = "<group>"; };
@@ -4797,8 +4794,6 @@
 				7B5E88F20D7F3A08001ECF42 /* CSSMutableStyleDeclaration.cpp */,
 				7B5E88F30D7F3A08001ECF42 /* CSSMutableStyleDeclaration.h */,
 				7B5E88F40D7F3A08001ECF42 /* CSSNamespace.h */,
-				ABBD24800EB7BCBB00BEC658 /* CSSNthSelector.cpp */,
-				ABBD24810EB7BCBB00BEC658 /* CSSNthSelector.h */,
 				7B5E88F50D7F3A08001ECF42 /* CSSPageRule.cpp */,
 				7B5E88F60D7F3A08001ECF42 /* CSSPageRule.h */,
 				7B5E88F90D7F3A08001ECF42 /* CSSParser.cpp */,
@@ -8575,7 +8570,6 @@
 				E45623B90E268E87005E4685 /* CSSMappedAttributeDeclaration.cpp in Sources */,
 				E456238B0E268E87005E4685 /* CSSMediaRule.cpp in Sources */,
 				E456238C0E268E87005E4685 /* CSSMutableStyleDeclaration.cpp in Sources */,
-				ABBD24820EB7BCBB00BEC658 /* CSSNthSelector.cpp in Sources */,
 				E456238D0E268E87005E4685 /* CSSPageRule.cpp in Sources */,
 				E456238E0E268E87005E4685 /* CSSParser.cpp in Sources */,
 				4DB7EFC00E9BA0F300C66CE0 /* CSSParserValues.cpp in Sources */,
