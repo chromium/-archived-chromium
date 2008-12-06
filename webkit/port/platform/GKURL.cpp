@@ -86,10 +86,15 @@ inline void AssertProtocolIsGood(const char* protocol)
 // string if the input string is NULL. This will always ensure we have a non-
 // NULL character pointer since ReplaceComponents has special meaning for NULL.
 inline const url_parse::UTF16Char* CharactersOrEmpty(const String& str) {
-  static const url_parse::UTF16Char zero = 0;
-  return str.characters() ?
-         reinterpret_cast<const url_parse::UTF16Char*>(str.characters()) :
-         &zero;
+    static const url_parse::UTF16Char zero = 0;
+    return str.characters() ?
+           reinterpret_cast<const url_parse::UTF16Char*>(str.characters()) :
+           &zero;
+}
+
+inline bool IsUnicodeEncoding(const TextEncoding* encoding) 
+{
+    return encoding->encodingForFormSubmission() == UTF8Encoding();
 }
 
 }  // namespace
@@ -254,16 +259,17 @@ void KURL::init(const KURL& base,
 void KURL::init(const KURL& base, const char* rel, int rel_len,
                 const TextEncoding* query_encoding)
 {
-    // As a performance optimization, we only use the charset converter if the
-    // encoding is not UTF-8. The URL canonicalizer will be more efficient with
-    // no charset converter object because it can do UTF-8 internally with no
-    // extra copies.
-    //
+    // As a performance optimization, we do not use the charset converter if
+    // encoding is UTF-8 or other Unicode encodings. Note that this is
+    // per HTML5 2.5.3 (resolving URL). The URL canonicalizer will be
+    // more efficient with no charset converter object because it
+    // can do UTF-8 internally with no extra copies. 
+
     // We feel free to make the charset converter object every time since it's
     // just a wrapper around a reference.
     WebCoreCharsetConverter charset_converter_object(query_encoding);
     WebCoreCharsetConverter* charset_converter =
-        (!query_encoding || *query_encoding == UTF8Encoding()) ? 0 :
+        (!query_encoding || IsUnicodeEncoding(query_encoding)) ? 0 :
         &charset_converter_object;
 
     url_canon::RawCanonOutputT<char> output;
@@ -299,7 +305,7 @@ void KURL::init(const KURL& base, const UChar* rel, int rel_len,
 {
     WebCoreCharsetConverter charset_converter_object(query_encoding);
     WebCoreCharsetConverter* charset_converter =
-        (!query_encoding || *query_encoding == UTF8Encoding()) ? 0 :
+        (!query_encoding || IsUnicodeEncoding(query_encoding)) ? 0 :
         &charset_converter_object;
 
     url_canon::RawCanonOutputT<char> output;
