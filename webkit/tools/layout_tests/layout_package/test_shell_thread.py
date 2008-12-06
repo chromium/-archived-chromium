@@ -91,9 +91,9 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
   return failures
 
 
-def StartTestShell(binary, args):
+def StartTestShell(command, args):
   """Returns the process for a new test_shell started in layout-tests mode."""
-  cmd = [binary, '--layout-tests'] + args
+  cmd = command + ['--layout-tests'] + args
   return subprocess.Popen(cmd,
                           stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE,
@@ -102,7 +102,7 @@ def StartTestShell(binary, args):
 
 class SingleTestThread(threading.Thread):
   """Thread wrapper for running a single test file."""
-  def __init__(self, test_shell_binary, shell_args, test_uri, filename,
+  def __init__(self, test_shell_command, shell_args, test_uri, filename,
                test_types, test_args):
     """
     Args:
@@ -112,7 +112,7 @@ class SingleTestThread(threading.Thread):
     """
 
     threading.Thread.__init__(self)
-    self._binary = test_shell_binary
+    self._command = test_shell_command
     self._shell_args = shell_args
     self._test_uri = test_uri
     self._filename = filename
@@ -121,7 +121,7 @@ class SingleTestThread(threading.Thread):
     self._single_test_failures = []
 
   def run(self):
-    proc = StartTestShell(self._binary, self._shell_args + [self._test_uri])
+    proc = StartTestShell(self._command, self._shell_args + [self._test_uri])
     self._single_test_failures = ProcessOutput(proc,
                                                self._filename,
                                                self._test_uri,
@@ -134,14 +134,14 @@ class SingleTestThread(threading.Thread):
 
 class TestShellThread(threading.Thread):
 
-  def __init__(self, filename_queue, test_shell_binary, test_types,
+  def __init__(self, filename_queue, test_shell_command, test_types,
                test_args, shell_args, options):
     """Initialize all the local state for this test shell thread.
 
     Args:
       filename_queue: A thread safe Queue class that contains tuples of
                       (filename, uri) pairs.
-      test_shell_binary: The path to test_shell.exe
+      test_shell_command: A list specifying the command+args for test_shell
       test_types: A list of TestType objects to run the test output against.
       test_args: A TestArguments object to pass to each TestType.
       shell_args: Any extra arguments to be passed to test_shell.exe.
@@ -151,7 +151,7 @@ class TestShellThread(threading.Thread):
     """
     threading.Thread.__init__(self)
     self._filename_queue = filename_queue
-    self._test_shell_binary = test_shell_binary
+    self._test_shell_command = test_shell_command
     self._test_types = test_types
     self._test_args = test_args
     self._test_shell_proc = None
@@ -213,7 +213,7 @@ class TestShellThread(threading.Thread):
     state or progress, we can only run per-test timeouts when running test
     files singly.
     """
-    worker = SingleTestThread(self._test_shell_binary,
+    worker = SingleTestThread(self._test_shell_command,
                               self._shell_args,
                               test_uri,
                               filename,
@@ -264,7 +264,7 @@ class TestShellThread(threading.Thread):
     """
     if (not self._test_shell_proc or
         self._test_shell_proc.poll() is not None):
-      self._test_shell_proc = StartTestShell(self._test_shell_binary,
+      self._test_shell_proc = StartTestShell(self._test_shell_command,
                                              self._shell_args)
 
   def _KillTestShell(self):

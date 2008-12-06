@@ -213,6 +213,14 @@ class TestRunner:
       return 0
     start_time = time.time()
     test_shell_binary = path_utils.TestShellBinaryPath(self._options.target)
+    test_shell_command = [test_shell_binary]
+
+    if self._options.wrapper:
+      # This split() isn't really what we want -- it incorrectly will
+      # split quoted strings within the wrapper argument -- but in
+      # practice it shouldn't come up and the --help output warns
+      # about it anyway.
+      test_shell_command = self._options.wrapper.split() + test_shell_command
 
     # Check that the system dependencies (themes, fonts, ...) are correct.
     if not self._options.nocheck_sys_deps:
@@ -277,7 +285,7 @@ class TestRunner:
         shell_args.append('--time-out-ms=' + self._options.time_out_ms)
 
       thread = test_shell_thread.TestShellThread(filename_queue,
-                                                 test_shell_binary,
+                                                 test_shell_command,
                                                  test_types,
                                                  test_args,
                                                  shell_args,
@@ -659,6 +667,11 @@ if '__main__' == __name__:
   option_parser.add_option("", "--gp-fault-error-box", action="store_true",
                            default=False,
                            help="enable Windows GP fault error box")
+  option_parser.add_option("", "--wrapper",
+                           help="wrapper command to insert before invocations "
+                                "of test_shell; option is split on whitespace "
+                                "before running.  (example: "
+                                "--wrapper='valgrind --smc-check=all')")
   option_parser.add_option("", "--winhttp", action="store_true",
                            default=False,
                            help="Use WinHTTP stack")
