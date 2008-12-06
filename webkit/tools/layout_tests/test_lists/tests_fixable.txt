@@ -1383,6 +1383,7 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
 LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
 // MERGE 38760:38800: New tests
