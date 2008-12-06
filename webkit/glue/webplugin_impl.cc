@@ -10,6 +10,7 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cursor.h"
 #include "Document.h"
+#include "DocumentLoader.h"
 #include "Element.h"
 #include "Event.h"
 #include "EventNames.h"
@@ -111,7 +112,10 @@ class MultiPartResponseClient : public WebCore::ResourceHandleClient {
   WebPluginResourceClient* resource_client_;
 };
 
-WebPluginContainer::WebPluginContainer(WebPluginImpl* impl) : impl_(impl) { }
+WebPluginContainer::WebPluginContainer(WebPluginImpl* impl) 
+    : impl_(impl),
+      ignore_response_error_(false) {
+}
 
 WebPluginContainer::~WebPluginContainer() {
   impl_->SetContainer(NULL);
@@ -221,6 +225,8 @@ void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
 void WebPluginContainer::didReceiveResponse(
     const WebCore::ResourceResponse& response) {
 
+  set_ignore_response_error(false);
+
   HttpResponseInfo http_response_info;
   ReadHttpResponseInfo(response, &http_response_info);
 
@@ -241,7 +247,8 @@ void WebPluginContainer::didFinishLoading() {
 }
 
 void WebPluginContainer::didFail(const WebCore::ResourceError&) {
-  impl_->delegate_->DidManualLoadFail();
+  if (!ignore_response_error_)
+    impl_->delegate_->DidManualLoadFail();
 }
 
 void WebPluginContainer::ReadHttpResponseInfo(
@@ -1266,7 +1273,10 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
 }
 
 void WebPluginImpl::CancelDocumentLoad() {
-  frame()->loader()->stopLoading(false);
+  if (frame()->loader()->activeDocumentLoader()) {
+    widget_->set_ignore_response_error(true);
+    frame()->loader()->activeDocumentLoader()->stopLoading();
+  }
 }
 
 void WebPluginImpl::InitiateHTTPRangeRequest(const char* url,

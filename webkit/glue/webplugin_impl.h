@@ -87,6 +87,10 @@ class WebPluginContainer : public WebCore::Widget {
   void didFinishLoading();
   void didFail(const WebCore::ResourceError&);
 
+  void set_ignore_response_error(bool ignore_response_error) {
+    ignore_response_error_ = ignore_response_error;
+  }
+
   struct HttpResponseInfo {
     std::string url;
     std::wstring mime_type;
@@ -100,6 +104,8 @@ class WebPluginContainer : public WebCore::Widget {
 
  private:
   WebPluginImpl* impl_;
+  // Set to true if the next response error should be ignored.
+  bool ignore_response_error_;
 };
 
 // This is the WebKit side of the plugin implementation that forwards calls,
