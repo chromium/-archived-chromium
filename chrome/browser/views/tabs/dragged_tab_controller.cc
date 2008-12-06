@@ -1134,8 +1134,12 @@ void DraggedTabController::OnAnimateToBoundsComplete() {
   // detach even though we aren't attached to a TabStrip. Guard against that.
   if (attached_tabstrip_) {
     Tab* tab = GetTabMatchingDraggedContents(attached_tabstrip_);
-    if (tab)
+    if (tab) {
       tab->SetVisible(true);
+      // Paint the tab now, otherwise there may be slight flicker between the
+      // time the dragged tab window is destroyed and we paint.
+      tab->PaintNow();
+    }
   }
   CleanUpHiddenFrame();
 
