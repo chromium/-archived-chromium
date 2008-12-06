@@ -1358,6 +1358,32 @@ v8::Local<v8::Value> V8Proxy::CallFunction(v8::Handle<v8::Function> function,
 }
 
 
+v8::Local<v8::Function> V8Proxy::GetConstructor(V8ClassIndex::V8WrapperType t)
+{
+    ASSERT(ContextInitialized());
+    v8::Local<v8::Value> cached =
+        m_dom_constructor_cache->Get(v8::Integer::New(V8ClassIndex::ToInt(t)));
+    if (cached->IsFunction()) {
+        return v8::Local<v8::Function>::Cast(cached);
+    }
+
+    // Not in cache.
+    {
+        v8::Handle<v8::FunctionTemplate> templ = GetTemplate(t);
+        v8::TryCatch try_catch;
+        // This might fail if we're running out of stack or memory.
+        v8::Local<v8::Function> value = templ->GetFunction();
+        if (value.IsEmpty())
+            return v8::Local<v8::Function>();
+        m_dom_constructor_cache->Set(v8::Integer::New(t), value);
+        // Hotmail fix, see comments in v8_proxy.h above
+        // m_dom_constructor_cache.
+        value->Set(v8::String::New("__proto__"), m_object_prototype);
+        return value;
+    }
+}
+
+
 v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     V8ClassIndex::V8WrapperType type)
 {
@@ -1808,14 +1834,32 @@ void V8Proxy::ClearDocumentWrapper()
 }
 
 
+void V8Proxy::DisposeContext() {
+    ASSERT(!m_context.IsEmpty());
+    m_context.Dispose();
+    m_context.Clear();
+
+#ifndef NDEBUG
+    UnregisterGlobalHandle(this, m_object_prototype);
+    UnregisterGlobalHandle(this, m_dom_constructor_cache);
+#endif
+
+    ASSERT(!m_dom_constructor_cache.IsEmpty());
+    m_dom_constructor_cache.Dispose();
+    m_dom_constructor_cache.Clear();
+
+    ASSERT(!m_object_prototype.IsEmpty());
+    m_object_prototype.Dispose();
+    m_object_prototype.Clear();
+}
+
 void V8Proxy::clearForClose()
 {
     if (!m_context.IsEmpty()) {
         v8::HandleScope handle_scope;
 
         ClearDocumentWrapper();
-        m_context.Dispose();
-        m_context.Clear();
+        DisposeContext();
     }
 }
 
@@ -1845,8 +1889,7 @@ void V8Proxy::clearForNavigation()
         // Separate the context from its global object.
         m_context->DetachGlobal();
 
-        m_context.Dispose();
-        m_context.Clear();
+        DisposeContext();
 
         // Reinitialize the context so the global object points to
         // the new DOM window.
@@ -2101,12 +2144,23 @@ void V8Proxy::initContextIfNeeded()
 #endif
   }
 
+  v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(
+      m_global->Get(v8::String::New("Object")));
+  m_object_prototype = v8::Persistent<v8::Value>::New(
+      object->Get(v8::String::New("prototype")));
+  m_dom_constructor_cache = v8::Persistent<v8::Array>::New(
+      v8::Array::New(V8ClassIndex::WRAPPER_TYPE_COUNT));
+#ifndef NDEBUG
+  RegisterGlobalHandle(PROXY, this, m_object_prototype);
+  RegisterGlobalHandle(PROXY, this, m_dom_constructor_cache);
+#endif
+
   // Create a new JS window object and use it as the prototype for the
   // shadow global object.
-  v8::Persistent<v8::FunctionTemplate> window_descriptor =
-      GetTemplate(V8ClassIndex::DOMWINDOW);
+  v8::Handle<v8::Function> window_constructor =
+      GetConstructor(V8ClassIndex::DOMWINDOW);
   v8::Local<v8::Object> js_window =
-      SafeAllocation::NewInstance(window_descriptor->GetFunction());
+      SafeAllocation::NewInstance(window_constructor);
   if (js_window.IsEmpty())
     return;
 
@@ -2420,8 +2474,14 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
     desc_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
   }
 
-  v8::Persistent<v8::FunctionTemplate> desc = GetTemplate(desc_type);
-  v8::Local<v8::Function> function = desc->GetFunction();
+  v8::Local<v8::Function> function;
+  V8Proxy* proxy = V8Proxy::retrieve();
+  if (proxy) {
+    // Constructor is configured.
+    function = proxy->GetConstructor(desc_type);
+  } else {
+    function = GetTemplate(desc_type)->GetFunction();
+  }
   v8::Local<v8::Object> instance = SafeAllocation::NewInstance(function);
   if (!instance.IsEmpty()) {
     // Avoid setting the DOM wrapper for failed allocations.
