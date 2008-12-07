@@ -6,6 +6,7 @@
 #include "base/time.h"
 #include "chrome/browser/url_fetcher.h"
 #include "chrome/browser/url_fetcher_protect.h"
+#include "net/base/ssl_test_util.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -15,8 +16,6 @@ using base::TimeDelta;
 namespace {
 
 const wchar_t kDocRoot[] = L"chrome/test/data";
-const char kHostName[] = "127.0.0.1";
-const int kBadHTTPSPort = 9666;
 
 class URLFetcherTest : public testing::Test, public URLFetcher::Delegate {
  public:
@@ -99,6 +98,7 @@ class URLFetcherBadHTTPSTest : public URLFetcherTest {
 
  protected:
   std::wstring GetExpiredCertPath();
+  SSLTestUtil util_;
 
  private:
   std::wstring cert_dir_;
@@ -408,8 +408,8 @@ TEST_F(URLFetcherProtectTest, ServerUnavailable) {
 }
 
 TEST_F(URLFetcherBadHTTPSTest, BadHTTPSTest) {
-  HTTPSTestServer server(kHostName, kBadHTTPSPort,
-                         kDocRoot, GetExpiredCertPath());
+  HTTPSTestServer server(util_.kHostName, util_.kBadHTTPSPort,
+                         kDocRoot, util_.GetExpiredCertPath().ToWStringHack());
 
   CreateFetcher(GURL(server.TestServerPage("defaultresponse")));
 

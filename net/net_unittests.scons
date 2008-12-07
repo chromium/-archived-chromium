@@ -54,6 +54,7 @@ input_files = [
     'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
     'base/run_all_unittests.cc',
+    'base/ssl_test_util.cc',
     'base/ssl_client_socket_unittest.cc',
     'base/tcp_client_socket_unittest.cc',
     'base/telnet_server_unittest.cc',

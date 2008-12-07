@@ -461,6 +461,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\ssl_test_util.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\tcp_client_socket.h"
 				>
 			</File>
