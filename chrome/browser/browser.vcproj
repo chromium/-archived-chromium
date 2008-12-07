@@ -2191,7 +2191,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="extensions"
+			Name="Extensions"
 			>
 			<File
 				RelativePath=".\extensions\extension.cc"
