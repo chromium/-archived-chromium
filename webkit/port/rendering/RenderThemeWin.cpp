@@ -185,7 +185,8 @@ static void setSizeIfAuto(RenderStyle* style, const IntSize& size)
         style->setHeight(Length(size.height(), Fixed));
 }
 
-static double querySystemBlinkInterval(double defaultInterval) {
+static double querySystemBlinkInterval(double defaultInterval)
+{
     UINT blinkTime = ::GetCaretBlinkTime();
     if (blinkTime == 0)
         return defaultInterval;
@@ -258,7 +259,7 @@ Color RenderThemeWin::platformTextSearchHighlightColor() const
     return Color(255, 255, 150);
 }
 
-double RenderThemeWin::caretBlinkFrequency() const
+double RenderThemeWin::caretBlinkInterval() const
 {
     // Disable the blinking caret in layout test mode, as it introduces
     // a race condition for the pixel tests. http://b/1198440

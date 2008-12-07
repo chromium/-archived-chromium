@@ -54,7 +54,7 @@ public:
     virtual Color platformActiveSelectionForegroundColor() const;
     virtual Color platformInactiveSelectionForegroundColor() const;
 
-    virtual double caretBlinkFrequency() const;
+    virtual double caretBlinkInterval() const;
 
     // System fonts.
     virtual void systemFont(int propId, Document*, FontDescription&) const;

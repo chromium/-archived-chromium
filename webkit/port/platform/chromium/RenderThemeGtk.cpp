@@ -205,6 +205,20 @@ static void gtkStyleSetCallback(GtkWidget* widget, GtkStyle* previous, RenderThe
     renderTheme->platformColorsDidChange();
 }
 
+static double querySystemBlinkInterval(double defaultInterval)
+{
+    GtkSettings* settings = gtk_settings_get_default();
+
+    gboolean shouldBlink;
+    gint time;
+
+    g_object_get(settings, "gtk-cursor-blink", &shouldBlink, "gtk-cursor-blink-time", &time, NULL);
+
+    if (!shouldBlink)
+        return 0;
+
+    return time / 1000.0;
+}
 
 // Implement WebCore::theme() for getting the global RenderTheme.
 RenderTheme* theme()
@@ -261,27 +275,16 @@ Color RenderThemeGtk::platformInactiveSelectionForegroundColor() const
     return makeColor(widget->style->text[GTK_STATE_ACTIVE]);
 }
 
-double RenderThemeGtk::caretBlinkFrequency() const
+double RenderThemeGtk::caretBlinkInterval() const
 {
     // Disable the blinking caret in layout test mode, as it introduces
     // a race condition for the pixel tests. http://b/1198440
-    if (ChromiumBridge::layoutTestMode()) {
-        // TODO(port): We need to disable this under linux, but returning 0
-        // (like Windows does) sends gtk into an infinite expose loop. Do
-        // something about this later.
-    }
-
-    GtkSettings* settings = gtk_settings_get_default();
-
-    gboolean shouldBlink;
-    gint time;
-
-    g_object_get(settings, "gtk-cursor-blink", &shouldBlink, "gtk-cursor-blink-time", &time, NULL);
-
-    if (!shouldBlink)
+    if (ChromiumBridge::layoutTestMode())
         return 0;
 
-    return time / 2000.;
+    // We cache the interval so we don't have to repeatedly request it from gtk.
+    static double blinkInterval = querySystemBlinkInterval(RenderTheme::caretBlinkInterval());
+    return blinkInterval;
 }
 
 void RenderThemeGtk::systemFont(int propId, Document* document, FontDescription& fontDescription) const
