@@ -20,7 +20,7 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
  public:
   // Creates our datasource and sets our user message to a specific message
   // from our string bundle.
-  DebuggerHTMLSource() 
+  DebuggerHTMLSource()
       : DataSource("debugger", MessageLoop::current()) { }
 
   // Called when the network layer has requested a resource underneath
@@ -38,7 +38,7 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
       SendResponse(request_id, NULL);
       return;
     }
-    
+
     std::wstring debugger_path =
         CommandLine().GetSwitchValue(switches::kJavaScriptDebuggerPath);
     std::string data_str;
@@ -126,6 +126,6 @@ void DebuggerContents::AttachMessageHandlers() {
 
 // static
 bool DebuggerContents::IsDebuggerUrl(const GURL& url) {
-  return (url.SchemeIs("chrome-resource") && url.host() == "inspector");
+  return (url.SchemeIs("chrome") && url.host() == "inspector");
 }
 

@@ -178,23 +178,12 @@ each locale. -->
       <message name="IDS_VIEW_SOURCE_TITLE" desc="The ViewSource tab title.">
         Source of <ph name="PAGE_URL">%s</ph>
       </message>
-      <message name="IDS_HISTORY_SEARCH_BUTTON" desc="Title of the button in the history page that triggers a search">
-        Search history
-      </message>
-      <message name="IDS_HISTORY_NO_RESULTS" desc="Text shown when no history search results have been found">
-        No search results found.
-      </message>
+
+
       <message name="IDS_HISTORY_SEARCH_STRING" desc="Text showing what the user searched for">
-        Search Results for '<ph name="SEARCH_STRING">$1<ex>pie</ex></ph>'
-      </message>
-      <message name="IDS_HISTORY_NO_ITEMS" desc="Text shown when the user has no history">
-        All the pages you visit will appear here unless you open them in an incognito window. You can use the Search button on this page to search all the pages in your history.
-      </message>
-      <message name="IDS_HISTORY_LOADING" desc="Text shown when we're loading the user's history">
-        Loading...
-      </message>
-      <message name="IDS_HISTORY_DATE_WITH_RELATIVE_TIME" desc="In the history view, some dates are formatted as 'Today - Wednesday, Nov 7, 2007">
-        <ph name="RELATIVE_DATE">$1<ex>Today</ex></ph> - <ph name="FULL_DATE">$2<ex>Wednesday, Nov 7, 2007</ex></ph>
+        Search Results for '<ph name="SEARCH_STRING">
+          $1<ex>pie</ex>
+        </ph>'
       </message>
       <message name="IDS_HISTORY_DELETE_PRIOR_VISITS_LINK" desc="Title of the link that allows the user to delete visits prior to the specified point">
         Delete history for this day
@@ -204,6 +193,48 @@ each locale. -->
       </message>
       <message name="IDS_HISTORY_DELETE_PRIOR_VISITS_WARNING_TITLE" desc="Title of the warning dialog">
         Delete
+      </message>
+
+      <!-- History HTML UI -->
+      <message name="IDS_HISTORY_LOADING" desc="Text shown when we're loading the user's history">
+        Loading...
+      </message>
+      <message name="IDS_HISTORY_DATE_WITH_RELATIVE_TIME" desc="In the history view, some dates are formatted as 'Today - Wednesday, Nov 7, 2007">
+        <ph name="RELATIVE_DATE">
+          $1<ex>Today</ex>
+        </ph> - <ph name="FULL_DATE">
+          $2<ex>Wednesday, Nov 7, 2007</ex>
+        </ph>
+      </message>
+      <message name="IDS_HISTORY_NO_RESULTS" desc="Text shown when no history search results have been found">
+        No search results found.
+      </message>
+      <message name="IDS_HISTORY_NO_ITEMS" desc="Text shown when the user has no history">
+        All the pages you visit will appear here unless you open them in an incognito window. You can use the Search button on this page to search all the pages in your history.
+      </message>
+      <message name="IDS_HISTORY_SEARCH_BUTTON" desc="Title of the button in the history page that triggers a search">
+        Search history
+      </message>
+      <message name="IDS_HISTORY_NEWEST" desc="HTML text shown as page navigation tool to take the user to the top of their history">
+        Newest
+      </message>
+      <message name="IDS_HISTORY_NEWER" desc="HTML text shown as page navigation tool to take the user back to the more recent page">
+        Newer
+      </message>
+      <message name="IDS_HISTORY_OLDER" desc="HTML text shown as page navigation tool to take the user forward to their older history">
+        Older
+      </message>
+      <message name="IDS_HISTORY_SEARCHRESULTSFOR" desc="Format string for search results">
+        Search results for '<ph name="SEARCH_STRING">%s</ph>'
+      </message>
+      <message name="IDS_HISTORY_BROWSERESULTS" desc="Title of browsing results page">
+        History
+      </message>
+      <message name="IDS_HISTORY_CONTINUED" desc="Shown after the date if the data is continued from the previous page">
+        (Cont.)
+      </message>
+      <message name="IDS_HISTORY_DELETE" desc="Link shown after the date, allowing the user to delete that date">
+        delete
       </message>
 
       <!-- Generic terms -->

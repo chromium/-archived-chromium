@@ -569,7 +569,7 @@ bool HistoryService::CanAddURL(const GURL& url) const {
     return false;
 
   if (url.SchemeIs("javascript") ||
-      url.SchemeIs("chrome-resource") ||
+      url.SchemeIs("chrome") ||
       url.SchemeIs("view-source"))
     return false;
 

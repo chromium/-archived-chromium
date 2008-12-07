@@ -536,7 +536,7 @@ int BrowserMain(CommandLine &parsed_command_line,
   // Config the network module so it has access to resources.
   net::NetModule::SetResourceProvider(NetResourceProvider);
 
-  // Register our global network handler for chrome-resource:// URLs.
+  // Register our global network handler for chrome:// URLs.
   RegisterURLRequestChromeJob();
 
   browser_process->InitBrokerServices(broker_services);

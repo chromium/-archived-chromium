@@ -226,11 +226,11 @@ void webkit_glue::ClipboardReadHTML(std::wstring* markup, GURL* url) {
 }
 
 GURL webkit_glue::GetInspectorURL() {
-  return GURL("chrome-resource://inspector/inspector.html");
+  return GURL("chrome://inspector/inspector.html");
 }
 
 std::string webkit_glue::GetUIResourceProtocol() {
-  return "chrome-resource";
+  return "chrome";
 }
 
 bool webkit_glue::GetPlugins(bool refresh,

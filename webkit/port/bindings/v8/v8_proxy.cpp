@@ -1978,7 +1978,6 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
     if (active_security_origin->protocol() == ui_resource_protocol) {
         KURL inspector_url = ChromiumBridge::inspectorURL();
         ASSERT(inspector_url.protocol() == ui_resource_protocol);
-        ASSERT(inspector_url.protocol().endsWith("-resource"));
 
         // The Inspector can access anything.
         if (active_security_origin->host() == inspector_url.host())

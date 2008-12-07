@@ -80,6 +80,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\history.html"
+			>
+		</File>
+		<File
 			RelativePath=".\incognito_tab.html"
 			>
 		</File>

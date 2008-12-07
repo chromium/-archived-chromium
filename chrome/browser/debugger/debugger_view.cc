@@ -105,8 +105,7 @@ void DebuggerView::OnInit() {
   web_container_->SetTabContents(web_contents_);
   web_contents_->render_view_host()->AllowDOMUIBindings();
 
-  GURL contents("chrome-resource://inspector/debugger.html");
-
+  GURL contents("chrome://inspector/debugger.html");
   web_contents_->controller()->LoadURL(contents, GURL(),
                                        PageTransition::START_PAGE);
 }
@@ -130,7 +129,7 @@ void DebuggerView::OpenURLFromTab(TabContents* source,
 }
 
 
-void DebuggerView::SendEventToPage(const std::wstring& name, 
+void DebuggerView::SendEventToPage(const std::wstring& name,
                                    Value* body) {
   DictionaryValue msg;
   msg.SetString(L"type", L"event");
@@ -150,7 +149,7 @@ void DebuggerView::SendEventToPage(const std::wstring& name,
 }
 
 void DebuggerView::ExecuteJavascript(const std::string& js) {
-  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(L"", 
+  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(L"",
       UTF8ToWide(js));
 }
 

@@ -16,7 +16,7 @@ class MessageLoop;
 class URLRequest;
 class URLRequestJob;
 
-// To serve dynamic data off of chrome-resource: URLs, implement the
+// To serve dynamic data off of chrome: URLs, implement the
 // ChromeURLDataManager::DataSource interface and register your handler
 // with AddDataSource.
 

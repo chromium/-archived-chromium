@@ -199,7 +199,7 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
     return false;
 
   *result_type = TAB_CONTENTS_ABOUT_UI;
-  std::string about_url = "chrome-resource://about/";
+  std::string about_url = "chrome://about/";
   about_url.append(url->path());
   *url = GURL(about_url);
   return true;

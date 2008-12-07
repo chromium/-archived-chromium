@@ -74,7 +74,7 @@ class NativeUIContents : public TabContents,
       views::View** focus_traversable_view);
   virtual views::RootView* GetContentsRootView() { return GetRootView(); }
 
-  // Return the scheme used. We currently use nativeui:
+  // Return the scheme used. We currently use chrome-nativeui:
   static std::string GetScheme();
 
   // Register a NativeUIFactory for a given path.

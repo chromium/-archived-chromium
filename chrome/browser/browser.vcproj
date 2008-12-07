@@ -1866,11 +1866,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dom_ui\dom_ui.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_contents.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_contents.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dom_ui\dom_ui_host.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\dom_ui\dom_ui_host.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\history_ui.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\history_ui.h"
 				>
 			</File>
 			<File

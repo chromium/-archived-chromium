@@ -10,4 +10,5 @@
 #define IDR_SAFE_BROWSING_MALWARE_BLOCK   209
 #define IDR_SAFE_BROWSING_PHISHING_BLOCK  210
 #define IDR_INCOGNITO_TAB_HTML         211
-#define IDR_CREDITS_HTML              212
+#define IDR_CREDITS_HTML               212
+#define IDR_HISTORY_HTML               213

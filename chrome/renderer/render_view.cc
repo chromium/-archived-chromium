@@ -100,7 +100,7 @@ static int32 next_page_id_ = 1;
 static const int kMaximumNumberOfUnacknowledgedPopups = 25;
 
 static const char* const kUnreachableWebDataURL =
-    "chrome-resource://chromewebdata/";
+    "chrome://chromewebdata/";
 
 static const char* const kBackForwardNavigationScheme = "history";
 

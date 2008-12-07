@@ -29,3 +29,4 @@ IDR_SAFE_BROWSING_MALWARE_BLOCK      BINDATA   "browser_resources\\safe_browsing
 IDR_SAFE_BROWSING_PHISHING_BLOCK     BINDATA   "browser_resources\\safe_browsing_phishing_block_flat.html"
 IDR_INCOGNITO_TAB_HTML       BINDATA   "browser_resources\\incognito_tab_flat.html"
 IDR_CREDITS_HTML             BINDATA   "browser_resources\\about_credits_flat.html"
+IDR_HISTORY_HTML             BINDATA   "browser_resources\\history_flat.html"

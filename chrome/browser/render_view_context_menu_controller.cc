@@ -480,7 +480,7 @@ bool RenderViewContextMenuController::IsDevCommandEnabled(int id) const {
     return false;
 
   // Don't inspect inspector, new tab UI, etc.
-  if (active_entry->url().SchemeIs("chrome-resource"))
+  if (active_entry->url().SchemeIs("chrome"))
     return false;
 
   // Don't inspect about:network, about:memory, etc.

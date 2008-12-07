@@ -10,6 +10,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_resources.h"
+#include "chrome/browser/dom_ui/dom_ui_contents.h"
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/navigation_entry.h"
@@ -35,12 +36,6 @@ using base::TimeTicks;
 
 // The URL scheme used for the new tab.
 static const char kNewTabUIScheme[] = "chrome-internal";
-
-// The path used in internal URLs to thumbnail data.
-static const char kThumbnailPath[] = "thumb";
-
-// The path used in internal URLs to favicon data.
-static const char kFavIconPath[] = "favicon";
 
 // The number of most visited pages we show.
 const int kMostVisitedPages = 9;
@@ -261,101 +256,6 @@ void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
 
   SendResponse(request_id, html_bytes);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// ThumbnailSource
-
-ThumbnailSource::ThumbnailSource(Profile* profile)
-    : DataSource(kThumbnailPath, MessageLoop::current()), profile_(profile) {}
-
-void ThumbnailSource::StartDataRequest(const std::string& path,
-                                       int request_id) {
-  HistoryService* hs = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (hs) {
-    HistoryService::Handle handle = hs->GetPageThumbnail(
-        GURL(path),
-        &cancelable_consumer_,
-        NewCallback(this, &ThumbnailSource::OnThumbnailDataAvailable));
-    // Attach the ChromeURLDataManager request ID to the history request.
-    cancelable_consumer_.SetClientData(hs, handle, request_id);
-  } else {
-    // Tell the caller that no thumbnail is available.
-    SendResponse(request_id, NULL);
-  }
-}
-
-void ThumbnailSource::OnThumbnailDataAvailable(
-    HistoryService::Handle request_handle,
-    scoped_refptr<RefCountedBytes> data) {
-  HistoryService* hs =
-    profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  int request_id = cancelable_consumer_.GetClientData(hs, request_handle);
-  // Forward the data along to the networking system.
-  if (data.get() && !data->data.empty()) {
-    SendResponse(request_id, data);
-  } else {
-    if (!default_thumbnail_.get()) {
-      default_thumbnail_ = new RefCountedBytes;
-      ResourceBundle::GetSharedInstance().LoadImageResourceBytes(
-          IDR_DEFAULT_THUMBNAIL, &default_thumbnail_->data);
-    }
-
-    SendResponse(request_id, default_thumbnail_);
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// FavIconSource
-
-FavIconSource::FavIconSource(Profile* profile)
-    : DataSource(kFavIconPath, MessageLoop::current()), profile_(profile) {}
-
-void FavIconSource::StartDataRequest(const std::string& path, int request_id) {
-  HistoryService* hs = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (hs) {
-    HistoryService::Handle handle;
-    if (path.size() > 8 && path.substr(0, 8) == "iconurl/") {
-      handle = hs->GetFavIcon(
-          GURL(path.substr(8)),
-          &cancelable_consumer_,
-          NewCallback(this, &FavIconSource::OnFavIconDataAvailable));
-    } else {
-      handle = hs->GetFavIconForURL(
-          GURL(path),
-          &cancelable_consumer_,
-          NewCallback(this, &FavIconSource::OnFavIconDataAvailable));
-    }
-    // Attach the ChromeURLDataManager request ID to the history request.
-    cancelable_consumer_.SetClientData(hs, handle, request_id);
-  } else {
-    SendResponse(request_id, NULL);
-  }
-}
-
-void FavIconSource::OnFavIconDataAvailable(
-    HistoryService::Handle request_handle,
-    bool know_favicon,
-    scoped_refptr<RefCountedBytes> data,
-    bool expired,
-    GURL icon_url) {
-  HistoryService* hs =
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  int request_id = cancelable_consumer_.GetClientData(hs, request_handle);
-
-  if (know_favicon && data.get() && !data->data.empty()) {
-    // Forward the data along to the networking system.
-    SendResponse(request_id, data);
-  } else {
-    if (!default_favicon_.get()) {
-      default_favicon_ = new RefCountedBytes;
-      ResourceBundle::GetSharedInstance().LoadImageResourceBytes(
-          IDR_DEFAULT_FAVICON, &default_favicon_->data);
-    }
-
-    SendResponse(request_id, default_favicon_);
-  }
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // MostVisitedHandler
@@ -847,7 +747,7 @@ bool NewTabUIHandleURL(GURL* url,
     return false;
 
   *result_type = TAB_CONTENTS_NEW_TAB_UI;
-  *url = GURL("chrome-resource://new-tab/");
+  *url = GURL(DOMUIContents::GetScheme() + "://new-tab/");
 
   return true;
 }

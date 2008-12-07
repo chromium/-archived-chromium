@@ -20,9 +20,9 @@ enum TabContentsType;
 // Return the URL for the new tab page.
 GURL NewTabUIURL();
 
-// If a |url| is a chrome: URL, this method sets up |url|, and |result_type|
-// to the appropriate values for displaying the new tab page and returns true.
-// Exposed for use by BrowserURLHandler.
+// If a |url| is a chrome-internal: URL, this method sets up |url|, and 
+// |result_type| to the appropriate values for displaying the new tab page 
+// and returns true. Exposed for use by BrowserURLHandler.
 bool NewTabUIHandleURL(GURL* url, TabContentsType* result_type);
 
 // The following classes aren't used outside of new_tab_ui.cc but are
@@ -67,71 +67,6 @@ class IncognitoTabHTMLSource : public ChromeURLDataManager::DataSource {
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(IncognitoTabHTMLSource);
-};
-
-// ThumbnailSource is the gateway between network-level chrome-resource:
-// requests for thumbnails and the history backend that serves these.
-class ThumbnailSource : public ChromeURLDataManager::DataSource {
- public:
-  explicit ThumbnailSource(Profile* profile);
-
-  // Called when the network layer has requested a resource underneath
-  // the path we registered.
-  virtual void StartDataRequest(const std::string& path, int request_id);
-
-  virtual std::string GetMimeType(const std::string&) const {
-    // Rely on image decoder inferring the correct type.
-    return std::string();
-  }
-
-  // Called when thumbnail data is available from the history backend.
-  void OnThumbnailDataAvailable(
-      HistoryService::Handle request_handle,
-      scoped_refptr<RefCountedBytes> data);
-
- private:
-  Profile* profile_;
-  CancelableRequestConsumerT<int, 0> cancelable_consumer_;
-
-  // Raw PNG representation of the thumbnail to show when the thumbnail
-  // database doesn't have a thumbnail for a webpage.
-  scoped_refptr<RefCountedBytes> default_thumbnail_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(ThumbnailSource);
-};
-
-// ThumbnailSource is the gateway between network-level chrome-resource:
-// requests for favicons and the history backend that serves these.
-class FavIconSource : public ChromeURLDataManager::DataSource {
- public:
-  explicit FavIconSource(Profile* profile);
-
-  // Called when the network layer has requested a resource underneath
-  // the path we registered.
-  virtual void StartDataRequest(const std::string& path, int request_id);
-
-  virtual std::string GetMimeType(const std::string&) const {
-    // Rely on image decoder inferring the correct type.
-    return std::string();
-  }
-
-  // Called when favicon data is available from the history backend.
-  void OnFavIconDataAvailable(
-      HistoryService::Handle request_handle,
-      bool know_favicon,
-      scoped_refptr<RefCountedBytes> data,
-      bool expired,
-      GURL url);
-
- private:
-  Profile* profile_;
-  CancelableRequestConsumerT<int, 0> cancelable_consumer_;
-
-  // Raw PNG representation of the favicon to show when the favicon
-  // database doesn't have a favicon for a webpage.
-  scoped_refptr<RefCountedBytes> default_favicon_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(FavIconSource);
 };
 
 // The handler for Javascript messages related to the "most visited" view.

@@ -24,8 +24,8 @@
 #endif
 
 // The URL scheme used for internal chrome resources.
-// This URL scheme is never needed by code external to this module.
-static const char kChromeURLScheme[] = "chrome-resource";
+// TODO(glen): Choose a better location for this.
+static const char kChromeURLScheme[] = "chrome";
 
 // The single global instance of ChromeURLDataManager.
 ChromeURLDataManager chrome_url_data_manager;
@@ -123,7 +123,7 @@ void ChromeURLDataManager::URLToRequest(const GURL& url,
     return;
   }
 
-  // Our input looks like: chrome-resource://source_name/extra_bits?foo .
+  // Our input looks like: chrome://source_name/extra_bits?foo .
   // So the url's "host" is our source, and everything after the host is
   // the path.
   source_name->assign(url.host());
