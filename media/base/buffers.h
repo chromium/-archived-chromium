@@ -2,35 +2,58 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Defines various types of timestamped media buffers used for transporting
+// data between filters.  Every buffer contains a timestamp in microseconds
+// describing the relative position of the buffer within the media stream, and
+// the duration in microseconds for the length of time the buffer will be
+// rendered.
+//
+// Timestamps are derived directly from the encoded media file and are commonly
+// known as the presentation timestamp (PTS).  Durations are a best-guess and
+// are usually derived from the sample/frame rate of the media file.
+//
+// Due to encoding and transmission errors, it is not guaranteed that timestamps
+// arrive in a monotonically increasing order nor that the next timestamp will
+// be equal to the previous timestamp plus the duration.
+//
+// In the ideal scenario for a 25fps movie, buffers are timestamped as followed:
+//
+//               Buffer0      Buffer1      Buffer2      ...      BufferN
+// Timestamp:        0us      40000us      80000us      ...   (N*40000)us
+// Duration*:    40000us      40000us      40000us      ...       40000us
+//
+//  *25fps = 0.04s per frame = 40000us per frame
+
 #ifndef MEDIA_BASE_BUFFERS_H_
 #define MEDIA_BASE_BUFFERS_H_
 
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
 
 namespace media {
 
-// NOTE: this isn't a true interface since RefCountedThreadSafe has non-virtual
-// members, therefore implementors should NOT subclass RefCountedThreadSafe.
-//
-// If you do, AddRef/Release will have different outcomes depending on the
-// current type of the pointer (StreamSampleInterface vs. SomeImplementation).
 class StreamSampleInterface :
     public base::RefCountedThreadSafe<StreamSampleInterface> {
  public:
-  virtual ~StreamSampleInterface() {}
-
+  // Returns the timestamp of this buffer in microseconds.
   virtual int64 GetTimestamp() = 0;
+
+  // Returns the duration of this buffer in microseconds.
   virtual int64 GetDuration() = 0;
+
+  // Sets the timestamp of this buffer in microseconds.
   virtual void SetTimestamp(int64 timestamp) = 0;
+
+  // Sets the duration of this buffer in microseconds.
   virtual void SetDuration(int64 duration) = 0;
+
+ protected:
+  friend class base::RefCountedThreadSafe<StreamSampleInterface>;
+  virtual ~StreamSampleInterface() {}
 };
 
 
 class BufferInterface : public StreamSampleInterface {
  public:
-  virtual ~BufferInterface() {}
-
   // Returns a read only pointer to the buffer data.
   virtual const char* GetData() = 0;
 
@@ -41,8 +64,6 @@ class BufferInterface : public StreamSampleInterface {
 
 class WritableBufferInterface : public BufferInterface  {
  public:
-  virtual ~WritableBufferInterface() {}
-
   // Returns a read-write pointer to the buffer data.
   virtual char* GetWritableData() = 0;
 
@@ -93,14 +114,13 @@ struct VideoSurface {
 
 class VideoFrameInterface : public StreamSampleInterface {
  public:
-  virtual ~VideoFrameInterface() {}
-
   // Locks the underlying surface and fills out the given VideoSurface and
-  // returns true if successful, false otherwise.
+  // returns true if successful, false otherwise.  Any additional calls to Lock
+  // will fail.
   virtual bool Lock(VideoSurface* surface) = 0;
 
-  // Unlocks the underlying surface, any previous VideoSurfaces are no longer
-  // guaranteed to be valid.
+  // Unlocks the underlying surface, the VideoSurface acquired from Lock is no
+  // longer guaranteed to be valid.
   virtual void Unlock() = 0;
 };
 
@@ -108,8 +128,6 @@ class VideoFrameInterface : public StreamSampleInterface {
 template <class BufferType>
 class AssignableInterface {
  public:
-  virtual ~AssignableInterface() {}
-
   // Assigns a buffer to the owner.
   virtual void SetBuffer(BufferType* buffer) = 0;
 
@@ -129,7 +147,6 @@ class AssignableBuffer : public AssignableInterface<BufferType>,
       buffer_(NULL) {
     DCHECK(owner_);
   }
-  virtual ~AssignableBuffer() {}
 
   // AssignableBufferInterface<BufferType>
   virtual void SetBuffer(BufferType* buffer) {
