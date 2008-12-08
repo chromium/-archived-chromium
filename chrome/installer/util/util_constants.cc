@@ -53,6 +53,10 @@ const wchar_t kRegisterChromeBrowser[] = L"register-chrome-browser";
 // to support in-use updates. Also deletes opv key.
 const wchar_t kRenameChromeExe[] = L"rename-chrome-exe";
 
+// When we try to relaunch setup.exe as admin on Vista, we append this command
+// line flag so that we try the launch only once.
+const wchar_t kRunAsAdmin[] = L"run-as-admin";
+
 // Install Chrome to system wise location. The default is per user install.
 const wchar_t kSystemLevel[] = L"system-level";
 

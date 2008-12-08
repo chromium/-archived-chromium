@@ -482,14 +482,26 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     return RenameChromeExecutables(system_install);
   }
 
-  if (system_install &&
-      win_util::GetWinVersion() == win_util::WINVERSION_VISTA &&
-      !IsUserAnAdmin()) {
-    std::wstring exe = parsed_command_line.program();
-    std::wstring params(command_line);
-    DWORD exit_code = installer_util::UNKNOWN_STATUS;
-    InstallUtil::ExecuteExeAsAdmin(exe, params, &exit_code);
-    return exit_code;
+  if (system_install && !IsUserAnAdmin()) {
+    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA &&
+        !parsed_command_line.HasSwitch(installer_util::switches::kRunAsAdmin)) {
+      std::wstring exe = parsed_command_line.program();
+      std::wstring params(command_line);
+      // Append --run-as-admin flag to let the new instance of setup.exe know
+      // that we already tried to launch ourselves as admin.
+      params.append(L" --");
+      params.append(installer_util::switches::kRunAsAdmin);
+      DWORD exit_code = installer_util::UNKNOWN_STATUS;
+      InstallUtil::ExecuteExeAsAdmin(exe, params, &exit_code);
+      return exit_code;
+    } else {
+      LOG(ERROR) << "Non admin user can not install system level Chrome.";
+      InstallUtil::WriteInstallerResult(system_install,
+                                        installer_util::INSUFFICIENT_RIGHTS,
+                                        IDS_INSTALL_INSUFFICIENT_RIGHTS_BASE,
+                                        NULL);
+      return installer_util::INSUFFICIENT_RIGHTS;
+    }
   }
 
   // Check the existing version installed.

@@ -24,6 +24,7 @@ enum InstallStatus {
   TEMP_DIR_FAILED,       // Unable to get Temp directory
   UNCOMPRESSION_FAILED,  // Failed to uncompress Chrome archive
   INVALID_ARCHIVE,       // Something wrong with the installer archive
+  INSUFFICIENT_RIGHTS,   // User trying system level install is not Admin
   CHROME_NOT_INSTALLED,  // Chrome not installed (returned in case of uninstall)
   CHROME_RUNNING,        // Chrome currently running (when trying to uninstall)
   UNINSTALL_CONFIRMED,   // User has confirmed Chrome uninstall
@@ -69,6 +70,7 @@ extern const wchar_t kLogFile[];
 extern const wchar_t kMakeChromeDefault[];
 extern const wchar_t kRegisterChromeBrowser[];
 extern const wchar_t kRenameChromeExe[];
+extern const wchar_t kRunAsAdmin[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
 extern const wchar_t kVerboseLogging[];
