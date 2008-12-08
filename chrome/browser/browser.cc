@@ -1099,22 +1099,22 @@ void Browser::ExecuteCommand(int id) {
   // The order of commands in this switch statement must match the function
   // declaration order in browser.h!
   switch (id) {
-    case IDC_BACK: GoBack(); break;
-    case IDC_FORWARD: GoForward(); break;
-    case IDC_RELOAD: Reload(); break;
-    case IDC_STOP: Stop(); break;
-    case IDC_HOME: Home(); break;
-    case IDC_GO: Go(); break;
-    case IDC_OPEN_CURRENT_URL: OpenCurrentURL(); break;
+    case IDC_BACK:                  GoBack();                      break;
+    case IDC_FORWARD:               GoForward();                   break;
+    case IDC_RELOAD:                Reload();                      break;
+    case IDC_STOP:                  Stop();                        break;
+    case IDC_HOME:                  Home();                        break;
+    case IDC_GO:                    Go();                          break;
+    case IDC_OPEN_CURRENT_URL:      OpenCurrentURL();              break;
 
-    case IDC_NEW_TAB: NewTab(); break;
-    case IDC_CLOSE_TAB: CloseTab(); break;
-    case IDC_CLOSE_WEB_APP: CloseApp(); break;
-    case IDC_NEW_WINDOW: NewWindow(); break;
-    case IDC_NEW_INCOGNITO_WINDOW: NewIncognitoWindow(); break;
-    case IDC_CLOSE_WINDOW: CloseWindow(); break;
-    case IDC_SELECT_NEXT_TAB: SelectNextTab(); break;
-    case IDC_SELECT_PREVIOUS_TAB: SelectPreviousTab(); break;
+    case IDC_NEW_TAB:               NewTab();                      break;
+    case IDC_CLOSE_TAB:             CloseTab();                    break;
+    case IDC_CLOSE_WEB_APP:         CloseApp();                    break;
+    case IDC_NEW_WINDOW:            NewWindow();                   break;
+    case IDC_NEW_INCOGNITO_WINDOW:  NewIncognitoWindow();          break;
+    case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
+    case IDC_SELECT_NEXT_TAB:       SelectNextTab();               break;
+    case IDC_SELECT_PREVIOUS_TAB:   SelectPreviousTab();           break;
     case IDC_SELECT_TAB_0:
     case IDC_SELECT_TAB_1:
     case IDC_SELECT_TAB_2:
@@ -1122,36 +1122,37 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SELECT_TAB_4:
     case IDC_SELECT_TAB_5:
     case IDC_SELECT_TAB_6:
-    case IDC_SELECT_TAB_7: SelectNumberedTab(id - IDC_SELECT_TAB_0); break;
-    case IDC_SELECT_LAST_TAB: SelectLastTab(); break;
-    case IDC_DUPLICATE_TAB: DuplicateTab(); break;
-    case IDC_RESTORE_TAB: RestoreTab(); break;
-    case IDC_SHOW_AS_TAB: ConvertPopupToTabbedBrowser(); break;
-    case IDC_EXIT: Exit(); break;
+    case IDC_SELECT_TAB_7:          SelectNumberedTab(id - IDC_SELECT_TAB_0);
+                                                                   break;
+    case IDC_SELECT_LAST_TAB:       SelectLastTab();               break;
+    case IDC_DUPLICATE_TAB:         DuplicateTab();                break;
+    case IDC_RESTORE_TAB:           RestoreTab();                  break;
+    case IDC_SHOW_AS_TAB:           ConvertPopupToTabbedBrowser(); break;
+    case IDC_EXIT:                  Exit();                        break;
 
-    case IDC_CUT: Cut(); break;
-    case IDC_COPY: Copy(); break;
-    case IDC_COPY_URL: CopyCurrentPageURL(); break;
-    case IDC_PASTE: Paste(); break;
+    case IDC_CUT:                   Cut();                         break;
+    case IDC_COPY:                  Copy();                        break;
+    case IDC_COPY_URL:              CopyCurrentPageURL();          break;
+    case IDC_PASTE:                 Paste();                       break;
 
-    case IDC_FIND: Find(); break;
-    case IDC_FIND_NEXT: FindNext(); break;
-    case IDC_FIND_PREVIOUS: FindPrevious(); break;
+    case IDC_FIND:                  Find();                        break;
+    case IDC_FIND_NEXT:             FindNext();                    break;
+    case IDC_FIND_PREVIOUS:         FindPrevious();                break;
 
-    case IDC_ZOOM_PLUS: ZoomIn(); break;
-    case IDC_ZOOM_MINUS: ZoomOut(); break;
-    case IDC_ZOOM_NORMAL: ZoomReset(); break;
+    case IDC_ZOOM_PLUS:             ZoomIn();                      break;
+    case IDC_ZOOM_MINUS:            ZoomOut();                     break;
+    case IDC_ZOOM_NORMAL:           ZoomReset();                   break;
 
-    case IDC_FOCUS_LOCATION: FocusLocationBar(); break;
-    case IDC_FOCUS_SEARCH: FocusSearch(); break;
-    case IDC_FOCUS_TOOLBAR: FocusToolbar(); break;
+    case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
+    case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
+    case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
 
-    case IDC_STAR: BookmarkCurrentPage(); break;
-    case IDC_VIEW_SOURCE: ViewSource(); break;
-    case IDC_CLOSE_POPUPS: ClosePopups(); break;
-    case IDC_PRINT: Print(); break;
-    case IDC_SAVE_PAGE: SavePage(); break;
-    case IDC_ENCODING_AUTO_DETECT: ToggleEncodingAutoDetect(); break;
+    case IDC_STAR:                  BookmarkCurrentPage();         break;
+    case IDC_VIEW_SOURCE:           ViewSource();                  break;
+    case IDC_CLOSE_POPUPS:          ClosePopups();                 break;
+    case IDC_PRINT:                 Print();                       break;
+    case IDC_SAVE_PAGE:             SavePage();                    break;
+    case IDC_ENCODING_AUTO_DETECT:  ToggleEncodingAutoDetect();    break;
     case IDC_ENCODING_UTF8:
     case IDC_ENCODING_UTF16LE:
     case IDC_ENCODING_ISO88591:
@@ -1187,30 +1188,28 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_WINDOWS1256:
     case IDC_ENCODING_ISO88598:
     case IDC_ENCODING_WINDOWS1255:
-    case IDC_ENCODING_WINDOWS1258: OverrideEncoding(id); break;
+    case IDC_ENCODING_WINDOWS1258:  OverrideEncoding(id);          break;
 
-    case IDC_EDIT_SEARCH_ENGINES: OpenKeywordEditor(); break;
-    case IDC_CLEAR_BROWSING_DATA: OpenClearBrowsingDataDialog(); break;
-    case IDC_IMPORT_SETTINGS: OpenImportSettingsDialog(); break;
-    case IDC_REPORT_BUG: OpenBugReportDialog(); break;
-    case IDC_DEBUGGER: OpenDebuggerWindow(); break;
-    case IDC_JS_CONSOLE: OpenJavaScriptConsole(); break;
-    case IDC_CREATE_SHORTCUTS: OpenCreateShortcutsDialog(); break;
-    case IDC_VIEW_PASSWORDS: OpenPasswordManager(); break;
-    case IDC_ABOUT: OpenAboutChromeDialog(); break;
-    case IDC_OPEN_FILE: OpenFile(); break;
-    case IDC_TASK_MANAGER: OpenTaskManager(); break;
-    case IDC_OPTIONS: OpenOptionsDialog(); break;
-    case IDC_HELP_PAGE: OpenHelpTab(); break;
-    case IDC_SHOW_HISTORY: ShowHistoryTab(); break;
-    case IDC_SHOW_DOWNLOADS: ShowDownloadsTab(); break;
-    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager(); break;
-    case IDC_SHOW_BOOKMARK_BAR: ToggleBookmarkBar(); break;
+    case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
+    case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
+    case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
+    case IDC_REPORT_BUG:            OpenBugReportDialog();         break;
+    case IDC_DEBUGGER:              OpenDebuggerWindow();          break;
+    case IDC_JS_CONSOLE:            OpenJavaScriptConsole();       break;
+    case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
+    case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
+    case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
+    case IDC_OPEN_FILE:             OpenFile();                    break;
+    case IDC_TASK_MANAGER:          OpenTaskManager();             break;
+    case IDC_OPTIONS:               OpenOptionsDialog();           break;
+    case IDC_HELP_PAGE:             OpenHelpTab();                 break;
+    case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
+    case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
+    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
+    case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
     case IDC_PROFILE_MENU:
-    case IDC_SELECT_PROFILE:
-      OpenSelectProfileDialog();
-      break;
-    case IDC_NEW_PROFILE: OpenNewProfileDialog(); break;
+    case IDC_SELECT_PROFILE:        OpenSelectProfileDialog();     break;
+    case IDC_NEW_PROFILE:           OpenNewProfileDialog();        break;
 
     default:
       // Handle the user action for creating a new window in a specific profile.

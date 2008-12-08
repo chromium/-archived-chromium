@@ -32,103 +32,103 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // pick those up in the WM_APPCOMMAND message.
 IDR_MAINFRAME ACCELERATORS
 BEGIN
-    VK_LEFT,             IDC_BACK,           VIRTKEY, ALT
-    VK_BACK,             IDC_BACK,           VIRTKEY
-    VK_F4,               IDC_CLOSE_TAB,      VIRTKEY, CONTROL
-    "W",                 IDC_CLOSE_TAB,      VIRTKEY, CONTROL
-    "W",                 IDC_CLOSE_POPUPS,   VIRTKEY, SHIFT, ALT
-    "L",                 IDC_DEBUGGER,       VIRTKEY, CONTROL, SHIFT
-    "J",                 IDC_JS_CONSOLE,     VIRTKEY, CONTROL, SHIFT
-    "F",                 IDC_FIND,           VIRTKEY, CONTROL
-    "G",                 IDC_FIND_NEXT,      VIRTKEY, CONTROL
-    VK_F3,               IDC_FIND_NEXT,      VIRTKEY
-    "G",                 IDC_FIND_PREVIOUS,  VIRTKEY, CONTROL, SHIFT
-    VK_F3,               IDC_FIND_PREVIOUS,  VIRTKEY, SHIFT
-    VK_F6,               IDC_FOCUS_LOCATION, VIRTKEY
-    "D",                 IDC_FOCUS_LOCATION, VIRTKEY, ALT
-    "L",                 IDC_FOCUS_LOCATION, VIRTKEY, CONTROL
-    "K",                 IDC_FOCUS_SEARCH,   VIRTKEY, CONTROL
-    "E",                 IDC_FOCUS_SEARCH,   VIRTKEY, CONTROL
-    "T",                 IDC_FOCUS_TOOLBAR,  VIRTKEY, SHIFT, ALT
-    VK_RIGHT,            IDC_FORWARD,        VIRTKEY, ALT
-    VK_BACK,             IDC_FORWARD,        VIRTKEY, SHIFT
-    VK_F1,               IDC_HELP_PAGE,      VIRTKEY
-    "T",                 IDC_NEW_TAB,        VIRTKEY, CONTROL
-    "N",                 IDC_NEW_WINDOW,     VIRTKEY, CONTROL
+    VK_LEFT,        IDC_BACK,                   VIRTKEY, ALT
+    VK_BACK,        IDC_BACK,                   VIRTKEY
+    VK_F4,          IDC_CLOSE_TAB,              VIRTKEY, CONTROL
+    "W",            IDC_CLOSE_TAB,              VIRTKEY, CONTROL
+    "W",            IDC_CLOSE_POPUPS,           VIRTKEY, SHIFT, ALT
+    VK_OEM_3,       IDC_DEBUGGER,               VIRTKEY, ALT
+    "J",            IDC_JS_CONSOLE,             VIRTKEY, CONTROL, SHIFT
+    "F",            IDC_FIND,                   VIRTKEY, CONTROL
+    "G",            IDC_FIND_NEXT,              VIRTKEY, CONTROL
+    VK_F3,          IDC_FIND_NEXT,              VIRTKEY
+    "G",            IDC_FIND_PREVIOUS,          VIRTKEY, CONTROL, SHIFT
+    VK_F3,          IDC_FIND_PREVIOUS,          VIRTKEY, SHIFT
+    VK_F6,          IDC_FOCUS_LOCATION,         VIRTKEY
+    "D",            IDC_FOCUS_LOCATION,         VIRTKEY, ALT
+    "L",            IDC_FOCUS_LOCATION,         VIRTKEY, CONTROL
+    "K",            IDC_FOCUS_SEARCH,           VIRTKEY, CONTROL
+    "E",            IDC_FOCUS_SEARCH,           VIRTKEY, CONTROL
+    "T",            IDC_FOCUS_TOOLBAR,          VIRTKEY, SHIFT, ALT
+    VK_RIGHT,       IDC_FORWARD,                VIRTKEY, ALT
+    VK_BACK,        IDC_FORWARD,                VIRTKEY, SHIFT
+    VK_F1,          IDC_HELP_PAGE,              VIRTKEY
+    "T",            IDC_NEW_TAB,                VIRTKEY, CONTROL
+    "N",            IDC_NEW_WINDOW,             VIRTKEY, CONTROL
     // CTRL + M is used for opening the dialog to let the user select
     // a profile to open a new window.
     // CTRL + SHIFT + N (N = 1 to 9) is used to let the user open a new
     // window in profile 1 to profile 9 directly.
-    "M",                 IDC_SELECT_PROFILE,        VIRTKEY, CONTROL
-    "1",                 IDC_NEW_WINDOW_PROFILE_0,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD1,          IDC_NEW_WINDOW_PROFILE_0,  VIRTKEY, CONTROL, SHIFT
-    "2",                 IDC_NEW_WINDOW_PROFILE_1,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD2,          IDC_NEW_WINDOW_PROFILE_1,  VIRTKEY, CONTROL, SHIFT
-    "3",                 IDC_NEW_WINDOW_PROFILE_2,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD3,          IDC_NEW_WINDOW_PROFILE_2,  VIRTKEY, CONTROL, SHIFT
-    "4",                 IDC_NEW_WINDOW_PROFILE_3,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD4,          IDC_NEW_WINDOW_PROFILE_3,  VIRTKEY, CONTROL, SHIFT
-    "5",                 IDC_NEW_WINDOW_PROFILE_4,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD5,          IDC_NEW_WINDOW_PROFILE_4,  VIRTKEY, CONTROL, SHIFT
-    "6",                 IDC_NEW_WINDOW_PROFILE_5,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD6,          IDC_NEW_WINDOW_PROFILE_5,  VIRTKEY, CONTROL, SHIFT
-    "7",                 IDC_NEW_WINDOW_PROFILE_6,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD7,          IDC_NEW_WINDOW_PROFILE_6,  VIRTKEY, CONTROL, SHIFT
-    "8",                 IDC_NEW_WINDOW_PROFILE_7,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD8,          IDC_NEW_WINDOW_PROFILE_7,  VIRTKEY, CONTROL, SHIFT
-    "9",                 IDC_NEW_WINDOW_PROFILE_8,  VIRTKEY, CONTROL, SHIFT
-    VK_NUMPAD9,          IDC_NEW_WINDOW_PROFILE_8,  VIRTKEY, CONTROL, SHIFT
-    "N",                 IDC_NEW_INCOGNITO_WINDOW,  VIRTKEY, CONTROL, SHIFT
-    "O",                 IDC_OPEN_FILE,      VIRTKEY, CONTROL
-    "P",                 IDC_PRINT,          VIRTKEY, CONTROL
-    "R",                 IDC_RELOAD,         VIRTKEY, CONTROL
-    VK_F5,               IDC_RELOAD,         VIRTKEY
-    VK_F5,               IDC_RELOAD,         VIRTKEY, CONTROL
-    VK_F5,               IDC_RELOAD,         VIRTKEY, SHIFT
-    VK_HOME,             IDC_HOME,           VIRTKEY, ALT
-    "T",                 IDC_RESTORE_TAB,    VIRTKEY, CONTROL, SHIFT
-    "S",                 IDC_SAVE_PAGE,      VIRTKEY, CONTROL
-    "9",                 IDC_SELECT_LAST_TAB,VIRTKEY, CONTROL
-    VK_NUMPAD9,          IDC_SELECT_LAST_TAB,VIRTKEY, CONTROL
-    VK_TAB,              IDC_SELECT_NEXT_TAB,VIRTKEY, CONTROL
-    VK_NEXT,             IDC_SELECT_NEXT_TAB,VIRTKEY, CONTROL
-    VK_TAB,              IDC_SELECT_PREVIOUS_TAB,   VIRTKEY, CONTROL, SHIFT
-    VK_PRIOR,            IDC_SELECT_PREVIOUS_TAB,   VIRTKEY, CONTROL
+    "M",            IDC_SELECT_PROFILE,         VIRTKEY, CONTROL
+    "1",            IDC_NEW_WINDOW_PROFILE_0,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD1,     IDC_NEW_WINDOW_PROFILE_0,   VIRTKEY, CONTROL, SHIFT
+    "2",            IDC_NEW_WINDOW_PROFILE_1,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD2,     IDC_NEW_WINDOW_PROFILE_1,   VIRTKEY, CONTROL, SHIFT
+    "3",            IDC_NEW_WINDOW_PROFILE_2,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD3,     IDC_NEW_WINDOW_PROFILE_2,   VIRTKEY, CONTROL, SHIFT
+    "4",            IDC_NEW_WINDOW_PROFILE_3,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD4,     IDC_NEW_WINDOW_PROFILE_3,   VIRTKEY, CONTROL, SHIFT
+    "5",            IDC_NEW_WINDOW_PROFILE_4,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD5,     IDC_NEW_WINDOW_PROFILE_4,   VIRTKEY, CONTROL, SHIFT
+    "6",            IDC_NEW_WINDOW_PROFILE_5,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD6,     IDC_NEW_WINDOW_PROFILE_5,   VIRTKEY, CONTROL, SHIFT
+    "7",            IDC_NEW_WINDOW_PROFILE_6,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD7,     IDC_NEW_WINDOW_PROFILE_6,   VIRTKEY, CONTROL, SHIFT
+    "8",            IDC_NEW_WINDOW_PROFILE_7,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD8,     IDC_NEW_WINDOW_PROFILE_7,   VIRTKEY, CONTROL, SHIFT
+    "9",            IDC_NEW_WINDOW_PROFILE_8,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD9,     IDC_NEW_WINDOW_PROFILE_8,   VIRTKEY, CONTROL, SHIFT
+    "N",            IDC_NEW_INCOGNITO_WINDOW,   VIRTKEY, CONTROL, SHIFT
+    "O",            IDC_OPEN_FILE,              VIRTKEY, CONTROL
+    "P",            IDC_PRINT,                  VIRTKEY, CONTROL
+    "R",            IDC_RELOAD,                 VIRTKEY, CONTROL
+    VK_F5,          IDC_RELOAD,                 VIRTKEY
+    VK_F5,          IDC_RELOAD,                 VIRTKEY, CONTROL
+    VK_F5,          IDC_RELOAD,                 VIRTKEY, SHIFT
+    VK_HOME,        IDC_HOME,                   VIRTKEY, ALT
+    "T",            IDC_RESTORE_TAB,            VIRTKEY, CONTROL, SHIFT
+    "S",            IDC_SAVE_PAGE,              VIRTKEY, CONTROL
+    "9",            IDC_SELECT_LAST_TAB,        VIRTKEY, CONTROL
+    VK_NUMPAD9,     IDC_SELECT_LAST_TAB,        VIRTKEY, CONTROL
+    VK_TAB,         IDC_SELECT_NEXT_TAB,        VIRTKEY, CONTROL
+    VK_NEXT,        IDC_SELECT_NEXT_TAB,        VIRTKEY, CONTROL
+    VK_TAB,         IDC_SELECT_PREVIOUS_TAB,    VIRTKEY, CONTROL, SHIFT
+    VK_PRIOR,       IDC_SELECT_PREVIOUS_TAB,    VIRTKEY, CONTROL
 // NOTE: IDC_SELECT_TAB_N is bound to the key N+1, and selects the tab at
 // index N. For example, IDC_SELECT_TAB_0 is bound to control 1, and selects
 // the tab at index 0.
-    "1",                 IDC_SELECT_TAB_0,   VIRTKEY, CONTROL
-    VK_NUMPAD1,          IDC_SELECT_TAB_0,   VIRTKEY, CONTROL
-    "2",                 IDC_SELECT_TAB_1,   VIRTKEY, CONTROL
-    VK_NUMPAD2,          IDC_SELECT_TAB_1,   VIRTKEY, CONTROL
-    "3",                 IDC_SELECT_TAB_2,   VIRTKEY, CONTROL
-    VK_NUMPAD3,          IDC_SELECT_TAB_2,   VIRTKEY, CONTROL
-    "4",                 IDC_SELECT_TAB_3,   VIRTKEY, CONTROL
-    VK_NUMPAD4,          IDC_SELECT_TAB_3,   VIRTKEY, CONTROL
-    "5",                 IDC_SELECT_TAB_4,   VIRTKEY, CONTROL
-    VK_NUMPAD5,          IDC_SELECT_TAB_4,   VIRTKEY, CONTROL
-    "6",                 IDC_SELECT_TAB_5,   VIRTKEY, CONTROL
-    VK_NUMPAD6,          IDC_SELECT_TAB_5,   VIRTKEY, CONTROL
-    "7",                 IDC_SELECT_TAB_6,   VIRTKEY, CONTROL
-    VK_NUMPAD7,          IDC_SELECT_TAB_6,   VIRTKEY, CONTROL
-    "8",                 IDC_SELECT_TAB_7,   VIRTKEY, CONTROL
-    VK_NUMPAD8,          IDC_SELECT_TAB_7,   VIRTKEY, CONTROL
-    "B",                 IDC_SHOW_BOOKMARK_BAR,     VIRTKEY, CONTROL
-    "B",                 IDC_SHOW_BOOKMARK_MANAGER, VIRTKEY, CONTROL, SHIFT
-    "J",                 IDC_SHOW_DOWNLOADS, VIRTKEY, CONTROL
-    "H",                 IDC_SHOW_HISTORY,   VIRTKEY, CONTROL
-    "D",                 IDC_STAR,           VIRTKEY, CONTROL
-    VK_ESCAPE,           IDC_STOP,           VIRTKEY
-    VK_ESCAPE,           IDC_TASK_MANAGER,   VIRTKEY, SHIFT
-    "U",                 IDC_VIEW_SOURCE,    VIRTKEY, CONTROL
-    VK_OEM_MINUS,        IDC_ZOOM_MINUS,     VIRTKEY, CONTROL
-    VK_OEM_MINUS,        IDC_ZOOM_MINUS,     VIRTKEY, CONTROL, SHIFT
-    VK_SUBTRACT,         IDC_ZOOM_MINUS,     VIRTKEY, CONTROL
-    VK_OEM_PLUS,         IDC_ZOOM_PLUS,      VIRTKEY, CONTROL
-    VK_OEM_PLUS,         IDC_ZOOM_PLUS,      VIRTKEY, CONTROL, SHIFT
-    VK_ADD,              IDC_ZOOM_PLUS,      VIRTKEY, CONTROL
-    "0",                 IDC_ZOOM_NORMAL,    VIRTKEY, CONTROL
-    VK_NUMPAD0,          IDC_ZOOM_NORMAL,    VIRTKEY, CONTROL
+    "1",            IDC_SELECT_TAB_0,           VIRTKEY, CONTROL
+    VK_NUMPAD1,     IDC_SELECT_TAB_0,           VIRTKEY, CONTROL
+    "2",            IDC_SELECT_TAB_1,           VIRTKEY, CONTROL
+    VK_NUMPAD2,     IDC_SELECT_TAB_1,           VIRTKEY, CONTROL
+    "3",            IDC_SELECT_TAB_2,           VIRTKEY, CONTROL
+    VK_NUMPAD3,     IDC_SELECT_TAB_2,           VIRTKEY, CONTROL
+    "4",            IDC_SELECT_TAB_3,           VIRTKEY, CONTROL
+    VK_NUMPAD4,     IDC_SELECT_TAB_3,           VIRTKEY, CONTROL
+    "5",            IDC_SELECT_TAB_4,           VIRTKEY, CONTROL
+    VK_NUMPAD5,     IDC_SELECT_TAB_4,           VIRTKEY, CONTROL
+    "6",            IDC_SELECT_TAB_5,           VIRTKEY, CONTROL
+    VK_NUMPAD6,     IDC_SELECT_TAB_5,           VIRTKEY, CONTROL
+    "7",            IDC_SELECT_TAB_6,           VIRTKEY, CONTROL
+    VK_NUMPAD7,     IDC_SELECT_TAB_6,           VIRTKEY, CONTROL
+    "8",            IDC_SELECT_TAB_7,           VIRTKEY, CONTROL
+    VK_NUMPAD8,     IDC_SELECT_TAB_7,           VIRTKEY, CONTROL
+    "B",            IDC_SHOW_BOOKMARK_BAR,      VIRTKEY, CONTROL
+    "B",            IDC_SHOW_BOOKMARK_MANAGER,  VIRTKEY, CONTROL, SHIFT
+    "J",            IDC_SHOW_DOWNLOADS,         VIRTKEY, CONTROL
+    "H",            IDC_SHOW_HISTORY,           VIRTKEY, CONTROL
+    "D",            IDC_STAR,                   VIRTKEY, CONTROL
+    VK_ESCAPE,      IDC_STOP,                   VIRTKEY
+    VK_ESCAPE,      IDC_TASK_MANAGER,           VIRTKEY, SHIFT
+    "U",            IDC_VIEW_SOURCE,            VIRTKEY, CONTROL
+    VK_OEM_MINUS,   IDC_ZOOM_MINUS,             VIRTKEY, CONTROL
+    VK_OEM_MINUS,   IDC_ZOOM_MINUS,             VIRTKEY, CONTROL, SHIFT
+    VK_SUBTRACT,    IDC_ZOOM_MINUS,             VIRTKEY, CONTROL
+    VK_OEM_PLUS,    IDC_ZOOM_PLUS,              VIRTKEY, CONTROL
+    VK_OEM_PLUS,    IDC_ZOOM_PLUS,              VIRTKEY, CONTROL, SHIFT
+    VK_ADD,         IDC_ZOOM_PLUS,              VIRTKEY, CONTROL
+    "0",            IDC_ZOOM_NORMAL,            VIRTKEY, CONTROL
+    VK_NUMPAD0,     IDC_ZOOM_NORMAL,            VIRTKEY, CONTROL
 END
 
 
@@ -170,9 +170,9 @@ END
 // future to get the icon from the .exe, which would save a copy.
 
 #if defined(GOOGLE_CHROME_BUILD)
-IDR_MAINFRAME           ICON                    "theme\google_chrome\chrome.ico"
+IDR_MAINFRAME       ICON                        "theme\google_chrome\chrome.ico"
 #else
-IDR_MAINFRAME           ICON                    "theme\chromium\chromium.ico"
+IDR_MAINFRAME       ICON                        "theme\chromium\chromium.ico"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
