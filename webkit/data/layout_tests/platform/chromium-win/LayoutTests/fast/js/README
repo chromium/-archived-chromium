@@ -126,3 +126,9 @@ eval-keyword-vs-function
 eval-cross-window
 --------------------------
 Only difference is the value of toString() on the window object.
+
+constructor-attributes
+--------------------------
+The only difference is that V8 defines the constructor attribute on the
+prototype for DOM objects just as for other objects.
+The V8 implementation is consistent with the JavaScript specification and IE.
