@@ -95,16 +95,18 @@ bool MIMETypeRegistry::isSupportedImageResourceMIMEType(const String& mimeType)
     
 bool MIMETypeRegistry::isSupportedNonImageMIMEType(const String& mimeType)
 {
-   return !mimeType.isEmpty()
-       && ChromiumBridge::isSupportedNonImageMIMEType(mimeType.latin1().data());
+    return !mimeType.isEmpty()
+        && ChromiumBridge::isSupportedNonImageMIMEType(mimeType.latin1().data());
 }
 
-#if ENABLE(VIDEO)
 bool MIMETypeRegistry::isSupportedMediaMIMEType(const String& mimeType)
 {
-    return MediaPlayer::supportsType(mimeType);
-}
+    HashSet<String> supportedMediaMIMETypes;
+#if ENABLE(VIDEO)
+    MediaPlayer::getSupportedTypes(supportedMediaMIMETypes);
 #endif
+    return !mimeType.isEmpty() && supportedMediaMIMETypes.contains(mimeType);
+}
 
 bool MIMETypeRegistry::isJavaAppletMIMEType(const String& mimeType)
 {
