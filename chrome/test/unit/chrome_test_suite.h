@@ -5,17 +5,21 @@
 #ifndef CHROME_TEST_UNIT_CHROME_TEST_SUITE_H_
 #define CHROME_TEST_UNIT_CHROME_TEST_SUITE_H_
 
+#include "build/build_config.h"
+
 #include "base/stats_table.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/test_suite.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#if defined(OS_WIN) // to be ported
+#if defined(OS_WIN)
+// TODO(port): Remove the #ifdef when ResourceBundle is ported.
 #include "chrome/common/resource_bundle.h"
-#include "chrome/test/testing_browser_process.h"
 #endif
+#include "chrome/test/testing_browser_process.h"
 
 class ChromeTestSuite : public TestSuite {
 public:
@@ -26,13 +30,11 @@ protected:
 
   virtual void Initialize() {
     base::ScopedNSAutoreleasePool autorelease_pool;
-    
+
     TestSuite::Initialize();
 
     chrome::RegisterPathProvider();
-#if defined(OS_WIN) // to be ported
     g_browser_process = new TestingBrowserProcess;
-#endif
 
     // Notice a user data override, and otherwise default to using a custom
     // user data directory that lives alongside the current app.
@@ -46,7 +48,9 @@ protected:
     if (!user_data_dir.empty())
       PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
-#if defined(OS_WIN) // to be ported
+#if defined(OS_WIN)
+    // TODO(port): Remove the #ifdef when ResourceBundle is ported.
+    //
     // Force unittests to run using en-us so if we test against string
     // output, it'll pass regardless of the system language.
     ResourceBundle::InitSharedInstance(L"en-us");
@@ -59,12 +63,13 @@ protected:
   }
 
   virtual void Shutdown() {
-#if defined(OS_WIN) // to be ported
+#if defined(OS_WIN)
+    // TODO(port): Remove the #ifdef when ResourceBundle is ported.
     ResourceBundle::CleanupSharedInstance();
+#endif
 
     delete g_browser_process;
     g_browser_process = NULL;
-#endif
 
     // Tear down shared StatsTable; prevents unit_tests from leaking it.
     StatsTable::set_current(NULL);

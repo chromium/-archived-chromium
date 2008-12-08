@@ -46,7 +46,7 @@ TEST(MRUCacheTest, Basic) {
   static const int kItem1Key = 5;
   CachedItem item1(10);
   Cache::iterator inserted_item = cache.Put(kItem1Key, item1);
-  EXPECT_EQ(1, cache.size());
+  EXPECT_EQ(1U, cache.size());
 
   // Check that item1 was properly inserted.
   {
@@ -64,7 +64,7 @@ TEST(MRUCacheTest, Basic) {
   static const int kItem2Key = 7;
   CachedItem item2(12);
   cache.Put(kItem2Key, item2);
-  EXPECT_EQ(2, cache.size());
+  EXPECT_EQ(2U, cache.size());
 
   // Check that item1 is the oldest since item2 was added afterwards.
   {
@@ -94,14 +94,14 @@ TEST(MRUCacheTest, Basic) {
   {
     Cache::reverse_iterator next = cache.Erase(cache.rbegin());
 
-    EXPECT_EQ(1, cache.size());
+    EXPECT_EQ(1U, cache.size());
 
     EXPECT_TRUE(next == cache.rbegin());
     EXPECT_EQ(kItem1Key, next->first);
     EXPECT_EQ(item1.value, next->second.value);
 
     cache.Erase(cache.begin());
-    EXPECT_EQ(0, cache.size());
+    EXPECT_EQ(0U, cache.size());
   }
 }
 
@@ -163,7 +163,7 @@ TEST(MRUCacheTest, KeyReplacement) {
   CachedItem item5(50);
   cache.Put(kItem3Key, item5);
 
-  EXPECT_EQ(4, cache.size());
+  EXPECT_EQ(4U, cache.size());
   for (int i = 0; i < 3; ++i) {
     Cache::reverse_iterator iter = cache.rbegin();
     ASSERT_TRUE(iter != cache.rend());
@@ -191,7 +191,7 @@ TEST(MRUCacheTest, Owning) {
 
   // There should still be one item, and one extra live item.
   Cache::iterator iter = cache.Get(kItem1Key);
-  EXPECT_EQ(1, cache.size());
+  EXPECT_EQ(1U, cache.size());
   EXPECT_TRUE(iter != cache.end());
   EXPECT_EQ(initial_count + 1, cached_item_live_count);
 
