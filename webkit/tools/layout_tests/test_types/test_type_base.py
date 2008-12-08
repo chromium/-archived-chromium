@@ -36,6 +36,10 @@ class TestArguments(object):
   # Whether to report the locations of the expected result files used.
   show_sources = False
 
+# Python bug workaround.  See the wdiff code in WriteOutputFiles for an
+# explanation.
+_wdiff_available = True
+
 class TestTypeBase(object):
   # Filename pieces when writing failures to the test results directory.
   FILENAME_SUFFIX_ACTUAL = "-actual-win"
@@ -179,11 +183,29 @@ class TestTypeBase(object):
              actual_filename, expected_win_filename]
       filename = self.OutputFilename(filename,
                       test_type + self.FILENAME_SUFFIX_WDIFF)
+
+      global _wdiff_available
+
       try:
-        wdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+        # Python's Popen has a bug that causes any pipes opened to a process
+        # that can't be exceuted to be leaked.  Since this code is specifically
+        # designed to tolerate exec failures to gracefully handle cases where
+        # wdiff is not installed, the bug results in a massive file descriptor
+        # leak.  As a workaround, if an exec failure is ever experienced for
+        # wdiff, assume it's not available.  This will leak one file descriptor
+        # but that's better than leaking each time wdiff would be run.
+        #
+        # http://mail.python.org/pipermail/python-list/2008-August/505753.html
+        # http://bugs.python.org/issue3210
+        if _wdiff_available:
+          wdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
       except OSError, e:
-        if errno.ENOENT != e.errno:
+        if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+          _wdiff_available = False
+        else:
           raise e
+
+      if not _wdiff_available:
         out = open(filename, 'wb')
         out.write(
             """wdiff not installed.<br/>"""
@@ -192,6 +214,7 @@ class TestTypeBase(object):
             """ wdiff".""")
         out.close()
         return
+
       wdiff = cgi.escape(wdiff)
       wdiff = wdiff.replace('##WDIFF_DEL##', '<span class=del>')
       wdiff = wdiff.replace('##WDIFF_ADD##', '<span class=add>')
