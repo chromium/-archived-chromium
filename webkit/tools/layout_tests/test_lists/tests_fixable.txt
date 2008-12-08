@@ -806,17 +806,6 @@ LINUX : LayoutTests/css2.1/t1508-c527-font-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1601-c547-indent-00-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/AppletsCollection.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement02.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement03.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement04.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement05.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement06.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement07.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement08.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement09.html = FAIL
-LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
 LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 LINUX MAC : LayoutTests/editing/deleting/5729680.html = FAIL
 LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
@@ -900,9 +889,7 @@ LINUX MAC : LayoutTests/fast/forms/textfield-to-password-on-focus.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 LINUX MAC : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
-LINUX MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX MAC : LayoutTests/fast/lists/001.html = FAIL
-LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/url-parse-1.html = FAIL
@@ -978,9 +965,24 @@ LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflig
 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = FAIL
 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache.html = FAIL
 
+// Internationalization / complex characters / etc
+LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
+
 // Depends on plugin support.
 LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
 MAC : chrome/plugins/call-as-function.html = CRASH
+LINUX MAC : LayoutTests/dom/html/level2/html/AppletsCollection.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement02.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement03.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement04.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement05.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement06.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement07.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement08.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement09.html = FAIL
+LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
+LINUX MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
