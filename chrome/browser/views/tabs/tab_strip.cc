@@ -293,8 +293,11 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
       // of the animation.
       // Removed animated Tabs are never selected.
       double start_width = start_unselected_width_;
+      // Make sure target_width is at least abs(kTabHOffset), otherwise if
+      // less than kTabHOffset during layout tabs get negatively offset.
       double target_width =
-          Tab::GetMinimumUnselectedSize().width() + kTabHOffset;
+          std::max(abs(kTabHOffset),
+                   Tab::GetMinimumUnselectedSize().width() + kTabHOffset);
       double delta = start_width - target_width;
       return start_width - (delta * animation_.GetCurrentValue());
     }
