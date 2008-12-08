@@ -34,6 +34,7 @@
 #include "Element.h"
 #include "Frame.h"
 #include "HitTestResult.h"
+#include "HTMLNames.h"
 #include "Image.h"
 #include "KURL.h"
 #include "NativeImageSkia.h"
@@ -43,6 +44,11 @@
 #include "RenderImage.h"
 #include "TextEncoding.h"
 #include "markup.h"
+
+#if ENABLE(SVG)
+#include "SVGNames.h"
+#include "XLinkNames.h"
+#endif
 
 namespace WebCore {
 
@@ -91,8 +97,23 @@ void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
     ChromiumBridge::clipboardWriteURL(url, title);
 }
 
-void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
+void Pasteboard::writeImage(Node* node, const KURL& link_url, const String& title)
 {
+    // If the image is wrapped in a link, |url| points to the target of the
+    // link.  This isn't useful to us, so get the actual image URL.
+    AtomicString urlString;
+    if (node->hasTagName(HTMLNames::imgTag) || node->hasTagName(HTMLNames::inputTag))
+        urlString = static_cast<Element*>(node)->getAttribute(HTMLNames::srcAttr);
+#if ENABLE(SVG)
+    else if (node->hasTagName(SVGNames::imageTag))
+        urlString = static_cast<Element*>(node)->getAttribute(XLinkNames::hrefAttr);
+#endif
+    else if (node->hasTagName(HTMLNames::embedTag) || node->hasTagName(HTMLNames::objectTag)) {
+        Element* element = static_cast<Element*>(node);
+        urlString = element->getAttribute(element->imageSourceAttributeName());
+    }
+    KURL url = urlString.isEmpty() ? KURL() : node->document()->completeURL(parseURL(urlString));
+
     ASSERT(node && node->renderer() && node->renderer()->isImage());
     RenderImage* renderer = static_cast<RenderImage*>(node->renderer());
     CachedImage* cachedImage = static_cast<CachedImage*>(renderer->cachedImage());
