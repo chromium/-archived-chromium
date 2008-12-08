@@ -6,12 +6,17 @@
 
 #include <fstream>
 
+#include "build/build_config.h"
+
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#if defined(OS_WIN)
+#include "base/win_util.h"
+#endif
 #include "testing/gtest/include/gtest/gtest.h"
 
 // For tests where we wait a bit to verify nothing happened
@@ -125,8 +130,15 @@ TEST_F(DirectoryWatcherTest, Unregister) {
 
 // Verify that modifications to a subdirectory isn't noticed.
 TEST_F(DirectoryWatcherTest, SubDir) {
-  FilePath subdir = test_dir_.Append(FILE_PATH_LITERAL("SubDir"));
-  ASSERT_TRUE(file_util::CreateDirectory(subdir.value()));
+#if defined(OS_WIN)
+  // Temporarily disabling test on Vista, see
+  // http://code.google.com/p/chromium/issues/detail?id=5072
+  // TODO: Enable this test, quickly.
+  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA)
+    return;
+#endif
+  FilePath subdir(FILE_PATH_LITERAL("SubDir"));
+  ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
 
   DirectoryWatcher watcher;
   ASSERT_TRUE(watcher.Watch(test_dir_, this));
@@ -141,7 +153,7 @@ TEST_F(DirectoryWatcherTest, SubDir) {
   loop_.Run();
 
   // We shouldn't have been notified and shouldn't have crashed.
-  ASSERT_EQ(directory_mods_, 0);
+  ASSERT_EQ(0, directory_mods_);
 }
 
 namespace {
