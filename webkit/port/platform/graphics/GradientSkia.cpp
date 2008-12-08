@@ -28,7 +28,6 @@
 
 #include "CSSParser.h"
 #include "GraphicsContext.h"
-#include "NotImplemented.h"
 
 #include "SkGradientShader.h"
 #include "SkiaUtils.h"
@@ -121,6 +120,12 @@ SkShader* Gradient::platformGradient()
     fill_stops(m_stops.data(), m_stops.size(), pos, colors);
 
     if (m_radial) {
+        // TODO(mmoss) CSS radial Gradients allow an offset focal point (the
+        // "start circle"), but skia doesn't seem to support that, so this just
+        // ignores m_p0/m_r0 and draws the gradient centered in the "end
+        // circle" (m_p1/m_r1).
+        // See http://webkit.org/blog/175/introducing-css-gradients/ for a
+        // description of the expected behavior.
         m_gradient = SkGradientShader::CreateRadial(m_p1,
             WebCoreFloatToSkScalar(m_r1), colors, pos,
             static_cast<int>(count_used), SkShader::kClamp_TileMode);
@@ -135,8 +140,8 @@ SkShader* Gradient::platformGradient()
 
 void Gradient::fill(GraphicsContext* context, const FloatRect& rect)
 {
-    // Until this is filled, we don't support CSSGradients
-    notImplemented();
+    context->setFillGradient(this);
+    context->fillRect(rect);
 }
 
 } // namespace WebCore
