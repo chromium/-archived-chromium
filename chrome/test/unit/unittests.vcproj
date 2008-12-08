@@ -755,6 +755,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TreeTreeNodeIterator"
+			>
+			<File
+				RelativePath="..\..\views\tree_node_iterator_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestWindowSizer"
 			>
 			<File

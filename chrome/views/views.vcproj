@@ -582,6 +582,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\tree_node_iterator.h"
+			>
+		</File>
+		<File
 			RelativePath=".\tree_node_model.h"
 			>
 		</File>
