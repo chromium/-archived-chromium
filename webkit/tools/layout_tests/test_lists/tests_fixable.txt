@@ -1534,6 +1534,7 @@ MAC : LayoutTests/editing/pasteboard/4641033.html = FAIL
 MAC : LayoutTests/editing/pasteboard/4806874.html = FAIL
 MAC : LayoutTests/editing/pasteboard/4944770-1.html = FAIL
 MAC : LayoutTests/editing/pasteboard/4944770-2.html = FAIL
+MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 MAC : LayoutTests/editing/pasteboard/drop-link.html = FAIL
 MAC : LayoutTests/editing/pasteboard/drop-text-without-selection.html = FAIL
