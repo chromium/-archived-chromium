@@ -1940,15 +1940,17 @@ void ResourceDispatcherHost::RemovePendingRequest(
   if (info && info->login_handler)
     info->login_handler->OnRequestCancelled();
 
+  CHECK(pending_requests_.size() == num_requests_before);
   delete iter->second;
+  CHECK(pending_requests_.size() == num_requests_before);
   pending_requests_.erase(iter);
+  CHECK(pending_requests_.size() == num_requests_before - 1);
 
   // If we have no more pending requests, then stop the load state monitor
   if (pending_requests_.empty())
     update_load_states_timer_.Stop();
 
-  size_t num_requests_after = pending_requests_.size();
-  CHECK(num_requests_after == num_requests_before - 1);
+  CHECK(pending_requests_.size() == num_requests_before - 1);
 }
 
 // URLRequest::Delegate -------------------------------------------------------
