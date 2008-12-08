@@ -18,16 +18,33 @@ typedef HRESULT (CALLBACK *ShowHTMLDlg)(HWND parent_hwnd,
                                         VARIANT *out_args);
 }  // namespace.
 
-
 namespace installer {
 
 // Windows implementation of the HTML dialog class. The main danger with
 // using the IE embedded control as a child window of a custom window is that
 // it still contains too much browser functionality, allowing the user to do
-// things that are not expected of a plain dialog. ShowHTMLDialog api solves
+// things that are not expected of a plain dialog. ShowHTMLDialog API solves
 // that problem but gives us a not very customizable frame. We solve that
 // using hooks to end up with a robust dialog at the expense of having to do
-// the buttons in html itself.
+// the buttons in html itself, like so:
+//
+// <form onsubmit="submit_it(this); return false;">
+//  <input name="accept" type="checkbox" /> My cool option
+//  <input name="submit" type="submit" value="[accept]" />
+// </form>
+// 
+// function submit_it(f) {
+//  if (f.accept.checked) {
+//    window.returnValue = 1;  <-- this matches HTML_DLG_ACCEPT
+//  } else {
+//    window.returnValue = 2;  <-- this matches HTML_DLG_DECLINE
+//  }
+//  window.close();
+// }
+//
+// Note that on the submit handler you need to set window.returnValue to one of
+// the values of DialogResult and call window.close().
+
 class HTMLDialogWin : public HTMLDialog {
  public:
   HTMLDialogWin(const std::wstring& url) : url_(url) {
@@ -37,11 +54,10 @@ class HTMLDialogWin : public HTMLDialog {
 
   virtual DialogResult ShowModal(void* parent_window,
                                  CustomizationCallback* callback) {
-    if (!InternalDoDialog(callback))
+    int result = HTML_DLG_DECLINE;
+    if (!InternalDoDialog(callback, &result))
       return HTML_DLG_ERROR;
-    // TODO(cpu): Remove the HTML_DLG_ACCEPT and read the real return
-    // value from the ShowHTMLDialog call.
-    return HTML_DLG_ACCEPT;
+    return static_cast<DialogResult>(result);
   }
 
   // TODO(cpu): Not yet implemented.
@@ -50,7 +66,7 @@ class HTMLDialogWin : public HTMLDialog {
   }
 
  private:
-  bool InternalDoDialog(CustomizationCallback* callback);
+  bool InternalDoDialog(CustomizationCallback* callback, int* result);
   static LRESULT CALLBACK MsgFilter(int code, WPARAM wParam, LPARAM lParam);
 
   std::wstring url_;
@@ -86,7 +102,8 @@ LRESULT HTMLDialogWin::MsgFilter(int code, WPARAM wParam, LPARAM lParam) {
   return ::CallNextHookEx(hook_, code, wParam, lParam);
 }
 
-bool HTMLDialogWin::InternalDoDialog(CustomizationCallback* callback) {
+bool HTMLDialogWin::InternalDoDialog(CustomizationCallback* callback,
+                                     int* result) {
   if (!mshtml_)
     return false;
   ShowHTMLDlg show_html_dialog =
@@ -109,9 +126,16 @@ bool HTMLDialogWin::InternalDoDialog(CustomizationCallback* callback) {
       callback_ = callback;
   }
 
+  VARIANT v_result;
+  ::VariantInit(&v_result);
+
   // Creates the window with the embedded IE control in a modal loop.
-  HRESULT hr = show_html_dialog(NULL, url_moniker, NULL, extra_args, NULL);
+  HRESULT hr = show_html_dialog(NULL, url_moniker, NULL, extra_args, &v_result);
   url_moniker->Release();
+
+  if (v_result.vt == VT_I4)
+    *result = v_result.intVal;
+  ::VariantClear(&v_result);
 
   if (hook_) {
     ::UnhookWindowsHookEx(hook_);
@@ -119,6 +143,38 @@ bool HTMLDialogWin::InternalDoDialog(CustomizationCallback* callback) {
     hook_ = NULL;
   }
   return SUCCEEDED(hr);
+}
+
+// EulaHTMLDialog implementation ---------------------------------------------
+
+void EulaHTMLDialog::Customizer::OnBeforeCreation(void** extra) {
+}
+
+// The customization of the window consists in removing the close button and
+// replacing the existing 'e' icon with the standard informational icon.
+void EulaHTMLDialog::Customizer::OnBeforeDisplay(void* window) {
+  if (!window)
+    return;
+  HWND top_window = static_cast<HWND>(window);
+  LONG_PTR style = ::GetWindowLongPtrW(top_window, GWL_STYLE);
+  ::SetWindowLongPtrW(top_window, GWL_STYLE, style & ~WS_SYSMENU);
+  HICON ico = ::LoadIcon(NULL, IDI_INFORMATION);
+  ::SendMessageW(top_window, WM_SETICON, ICON_SMALL,
+                 reinterpret_cast<LPARAM>(ico));
+}
+
+EulaHTMLDialog::EulaHTMLDialog(const std::wstring& file) {
+  dialog_ = CreateNativeHTMLDialog(file);
+}
+
+EulaHTMLDialog::~EulaHTMLDialog() {
+  delete dialog_;
+}
+
+bool EulaHTMLDialog::ShowModal() {
+  Customizer customizer;
+  dialog_->ShowModal(NULL, &customizer);
+  return false;
 }
 
 }  // namespace installer
