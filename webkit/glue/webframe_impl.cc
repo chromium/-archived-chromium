@@ -1116,7 +1116,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
         ReportFindInPageSelection(
             webkit_glue::FromIntRect(
                 frame()->view()->convertToContainingWindow(result_bounds)),
-                OrdinalOfFirstMatchForFrame(this) + active_match_index_ + 1,
+                active_match_index_ + 1,
                 request.request_id);
   #endif
       }

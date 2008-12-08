@@ -153,6 +153,36 @@ TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
   EXPECT_EQ(7, ordinal);
 }
 
+// We could get ordinals out of whack when restarting search in subframes.
+// See http://crbug.com/5132
+TEST_F(FindInPageControllerTest, FindInPage_Issue5132) {
+  TestServer server(L"chrome/test/data");
+
+  // First we navigate to our frames page.
+  GURL url = server.TestServerPageW(kFramePage);
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
+
+  // Search for 'goa' three times (6 matches on page).
+  int ordinal = 0;
+  EXPECT_EQ(6, tab->FindInPage(L"goa", FWD, IGNORE_CASE, false, &ordinal));
+  EXPECT_EQ(1, ordinal);
+  // FindNext returns -1 for match count because it doesn't bother with
+  // recounting the number of matches. We don't care about the match count
+  // anyway in this case, we just want to check the ordinal.
+  EXPECT_EQ(-1, tab->FindInPage(L"goa", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(2, ordinal);
+  EXPECT_EQ(-1, tab->FindInPage(L"goa", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, ordinal);
+  // Add space to search (should result in no matches).
+  EXPECT_EQ(0, tab->FindInPage(L"goa ", FWD, IGNORE_CASE, false, &ordinal));
+  EXPECT_EQ(-1, ordinal);
+  // Remove the space, should be back to '3 out of 6')
+  EXPECT_EQ(6, tab->FindInPage(L"goa", FWD, IGNORE_CASE, false, &ordinal));
+  EXPECT_EQ(3, ordinal);
+}
+
 // Load a page with no selectable text and make sure we don't crash.
 TEST_F(FindInPageControllerTest, FindUnSelectableText) {
   TestServer server(L"chrome/test/data");
