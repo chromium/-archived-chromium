@@ -838,7 +838,6 @@ LINUX : LayoutTests/fast/css/font-weight-1.html = FAIL
 LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
 LINUX MAC : LayoutTests/fast/css/rtl-ordering.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
-LINUX : LayoutTests/fast/dom/anchor-toString.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
