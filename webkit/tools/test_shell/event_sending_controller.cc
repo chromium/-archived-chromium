@@ -377,8 +377,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
       code = kKeyCodeUp;
     } else if (L"delete" == code_str) {
       code = kKeyCodeDelete;
-    }
-    else {
+    } else {
       DCHECK(code_str.length() == 1);
       code = code_str[0];
       needs_shift_key_modifier = NeedsShiftModifer(code);
@@ -393,6 +392,14 @@ int EventSendingController::GetButtonNumberFromSingleArg(
     event_down.type = WebInputEvent::KEY_DOWN;
     event_down.modifiers = 0;
     event_down.key_code = code;
+#if defined(OS_LINUX)
+    // TODO(deanm): This code is a confusing mix of different platform key
+    // codes.  Since we're not working with a GDK event, we can't use our
+    // GDK -> webkit converter, which means the Linux specific extra |text|
+    // field goes uninitialized.  I don't know how to correctly calculate this
+    // field, but for now we will at least initialize it, even if it's wrong.
+    event_down.text = code;
+#endif
 
     if (args.size() >= 2 && (args[1].isObject() || args[1].isString()))
       ApplyKeyModifiers(&(args[1]), &event_down);
