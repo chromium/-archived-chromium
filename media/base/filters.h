@@ -2,12 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Filters are connected in a strongly typed manner, with downstream filters
+// always reading data from upstream filters.  Upstream filters have no clue
+// who is actually reading from them, and return the results via OnAssignment
+// using the AssignableInterface<SomeBufferType> interface:
+//
+//                         DemuxerStream(Video) <- VideoDecoder <- VideoRenderer
+// DataSource <- Demuxer <
+//                         DemuxerStream(Audio) <- AudioDecoder <- AudioRenderer
+//
+// Upstream -------------------------------------------------------> Downstream
+//                         <- Reads flow this way
+//                    Buffer assignments flow this way ->
+//
+// Every filter maintains a reference to the scheduler, who maintains data
+// shared between filters (i.e., reference clock value, playback state).  The
+// scheduler is also responsible for scheduling filter tasks (i.e., a read on
+// a VideoDecoder would result in scheduling a Decode task).  Filters can also
+// use the scheduler to signal errors and shutdown playback.
+
 #ifndef MEDIA_BASE_FILTERS_H_
 #define MEDIA_BASE_FILTERS_H_
 
 #include <limits>
 #include <string>
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
 
 namespace media {
@@ -34,44 +52,22 @@ enum FilterType {
   FILTER_MAX
 };
 
-// Filters are connected in a strongly typed manner, with downstream filters
-// always reading data from upstream filters.  Upstream filters have no clue
-// who is actually reading from them, and return the results via OnAssignment
-// using the AssignableInterface<SomeBufferType> interface:
-//
-//                         DemuxerStream(Video) <- VideoDecoder <- VideoRenderer
-// DataSource <- Demuxer <
-//                         DemuxerStream(Audio) <- AudioDecoder <- AudioRenderer
-//
-// Upstream -------------------------------------------------------> Downstream
-//                         <- Reads flow this way
-//                    Buffer assignments flow this way ->
-//
-// Every filter maintains a reference to the scheduler, who maintains data
-// shared between filters (i.e., reference clock value, playback state).  The
-// scheduler is also responsible for scheduling filter tasks (i.e., a read on
-// a VideoDecoder would result in scheduling a Decode task).  Filters can also
-// use the scheduler to signal errors and shutdown playback.
 
-
-// NOTE: this isn't a true interface since RefCountedThreadSafe has non-virtual
-// members, therefore implementors should NOT subclass RefCountedThreadSafe.
-//
-// If you do, AddRef/Release will have different outcomes depending on the
-// current type of the pointer (StreamSampleInterface vs. SomeImplementation)
 class MediaFilterInterface :
   public base::RefCountedThreadSafe<MediaFilterInterface> {
  public:
-  virtual ~MediaFilterInterface() {}
-
   virtual void SetScheduler(SchedulerFilterInterface* scheduler) = 0;
+
+ protected:
+  friend class base::RefCountedThreadSafe<MediaFilterInterface>;
+  virtual ~MediaFilterInterface() {}
 };
+
 
 class DataSourceInterface : public MediaFilterInterface {
  public:
   static const FilterType kFilterType = FILTER_DATA_SOURCE;
   static const size_t kReadError = static_cast<size_t>(-1);
-  virtual ~DataSourceInterface() {}
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(const std::wstring& uri) = 0;
@@ -99,7 +95,6 @@ class DataSourceInterface : public MediaFilterInterface {
 class DemuxerInterface : public MediaFilterInterface {
  public:
   static const FilterType kFilterType = FILTER_DEMUXER;
-  virtual ~DemuxerInterface() {}
 
   // Initializes this filter, returns true if successful, false otherwise. 
   virtual bool Initialize(DataSourceInterface* data_source) = 0;
@@ -114,8 +109,6 @@ class DemuxerInterface : public MediaFilterInterface {
 
 class DemuxerStreamInterface {
  public:
-  virtual ~DemuxerStreamInterface() {}
-
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
 
@@ -127,7 +120,6 @@ class DemuxerStreamInterface {
 class VideoDecoderInterface : public MediaFilterInterface {
  public:
   static const FilterType kFilterType = FILTER_VIDEO_DECODER;
-  virtual ~VideoDecoderInterface() {}
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DemuxerStreamInterface* demuxer_stream) = 0;
@@ -143,7 +135,6 @@ class VideoDecoderInterface : public MediaFilterInterface {
 class AudioDecoderInterface : public MediaFilterInterface {
  public:
   static const FilterType kFilterType = FILTER_AUDIO_DECODER;
-  virtual ~AudioDecoderInterface() {}
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DemuxerStreamInterface* demuxer_stream) = 0;
@@ -159,7 +150,6 @@ class AudioDecoderInterface : public MediaFilterInterface {
 class VideoRendererInterface : public MediaFilterInterface {
  public:
   static const FilterType kFilterType = FILTER_VIDEO_RENDERER;
-  virtual ~VideoRendererInterface() {}
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(VideoDecoderInterface* decoder) = 0;
@@ -169,7 +159,6 @@ class VideoRendererInterface : public MediaFilterInterface {
 class AudioRendererInterface : public MediaFilterInterface {
  public:
   static const FilterType kFilterType = FILTER_AUDIO_RENDERER;
-  virtual ~AudioRendererInterface() {}
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(AudioDecoderInterface* decoder) = 0;
