@@ -14,9 +14,11 @@ namespace IPC {
 
 //------------------------------------------------------------------------------
 
-class Channel : public Message::Sender
+class Channel : public Message::Sender,
 #if defined(OS_WIN)
-    , public MessageLoopForIO::IOHandler
+    public MessageLoopForIO::IOHandler
+#elif defined(OS_POSIX)
+    public MessageLoopForIO::FileWatcher
 #endif
     {
   // Security tests need access to the pipe handle.
@@ -90,9 +92,9 @@ class Channel : public Message::Sender
   virtual bool Send(Message* message);
 
  private:
-#if defined(OS_WIN)
   const std::wstring PipeName(const std::wstring& channel_id) const;
   bool CreatePipe(const std::wstring& channel_id, Mode mode);
+#if defined(OS_WIN)
   bool ProcessConnection();
   bool ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
                                DWORD bytes_read);
@@ -102,14 +104,11 @@ class Channel : public Message::Sender
   // MessageLoop::IOHandler implementation.
   virtual void OnIOCompleted(MessageLoopForIO::IOContext* context,
                              DWORD bytes_transfered, DWORD error);
-#endif
-
  private:
   enum {
     BUF_SIZE = 4096
   };
 
-#if defined(OS_WIN)
   struct State {
     explicit State(Channel* channel);
     ~State();
@@ -121,7 +120,36 @@ class Channel : public Message::Sender
   State output_state_;
 
   HANDLE pipe_;
-#endif
+#elif defined(OS_POSIX)
+  bool ProcessIncomingMessages();
+  bool ProcessOutgoingMessages();
+
+  void OnFileReadReady(int fd);
+  void OnFileWriteReady(int fd);
+
+
+  Mode mode_;
+
+  // TODO(playmobil): do we need to change BUF_SIZE ?
+ private:
+  enum {
+    BUF_SIZE = 4096
+  };
+
+  // PIMPL to encapsulate libevent structures.
+  struct EventHolder;
+  EventHolder *server_listen_connection_event_;
+  EventHolder *read_event_;
+  EventHolder *write_event_;
+
+  // If sending a message blocks then we use this variable
+  // to keep track of where we are.
+  size_t message_send_bytes_written_;
+
+  int server_listen_pipe_;
+  int pipe_;
+  std::string pipe_name_;
+#endif  // defined(OS_POSIX)
   Listener* listener_;
 
   // Messages to be sent are queued here.
