@@ -473,11 +473,14 @@ class MessageLoopForIO : public MessageLoop {
 
 #elif defined(OS_POSIX)
   typedef base::MessagePumpLibevent::Watcher Watcher;
+  typedef base::MessagePumpLibevent::FileWatcher FileWatcher;
 
   // Please see MessagePumpLibevent for definitions of these methods.
   void WatchSocket(int socket, short interest_mask,
                    struct event* e, Watcher* watcher);
+  void WatchFileHandle(int fd, short interest_mask, event* e, FileWatcher*);
   void UnwatchSocket(struct event* e);
+  void UnwatchFileHandle(event* e);
 #endif  // defined(OS_POSIX)
 };
 

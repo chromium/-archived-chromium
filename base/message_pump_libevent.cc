@@ -26,7 +26,7 @@ static int SetNonBlocking(int fd)
 // Called if a byte is received on the wakeup pipe.
 void MessagePumpLibevent::OnWakeup(int socket, short flags, void* context) {
 
-  base::MessagePumpLibevent* that = 
+  base::MessagePumpLibevent* that =
               static_cast<base::MessagePumpLibevent*>(context);
   DCHECK(that->wakeup_pipe_out_ == socket);
 
@@ -60,7 +60,7 @@ bool MessagePumpLibevent::Init() {
   wakeup_pipe_in_ = fds[1];
 
   wakeup_event_ = new event;
-  event_set(wakeup_event_, wakeup_pipe_out_, EV_READ | EV_PERSIST, 
+  event_set(wakeup_event_, wakeup_pipe_out_, EV_READ | EV_PERSIST,
 	    OnWakeup, this);
   event_base_set(event_base_, wakeup_event_);
 
@@ -77,7 +77,7 @@ MessagePumpLibevent::~MessagePumpLibevent() {
   event_base_free(event_base_);
 }
 
-void MessagePumpLibevent::WatchSocket(int socket, short interest_mask, 
+void MessagePumpLibevent::WatchSocket(int socket, short interest_mask,
                                       event* e, Watcher* watcher) {
 
   // Set current interest mask and message pump for this event
@@ -91,18 +91,53 @@ void MessagePumpLibevent::WatchSocket(int socket, short interest_mask,
     NOTREACHED();
 }
 
+void MessagePumpLibevent::WatchFileHandle(int fd, short interest_mask,
+                                          event* e, FileWatcher* watcher) {
+  // Set current interest mask and message pump for this event
+  if ((interest_mask & EV_READ) != 0) {
+    event_set(e, fd, interest_mask, OnFileReadReadinessNotification, watcher);
+  } else {
+    event_set(e, fd, interest_mask, OnFileWriteReadinessNotification, watcher);
+  }
+
+  // Tell libevent which message pump this fd will belong to when we add it.
+  event_base_set(event_base_, e);
+
+  // Add this fd to the list of monitored sockets.
+  if (event_add(e, NULL))
+    NOTREACHED();
+}
+
 void MessagePumpLibevent::UnwatchSocket(event* e) {
   // Remove this socket from the list of monitored sockets.
   if (event_del(e))
     NOTREACHED();
 }
 
-void MessagePumpLibevent::OnReadinessNotification(int socket, short flags, 
+void MessagePumpLibevent::UnwatchFileHandle(event* e) {
+  // Remove this fd from the list of monitored fds.
+  if (event_del(e))
+    NOTREACHED();
+}
+
+void MessagePumpLibevent::OnReadinessNotification(int socket, short flags,
                                                   void* context) {
   // The given socket is ready for I/O.
   // Tell the owner what kind of I/O the socket is ready for.
   Watcher* watcher = static_cast<Watcher*>(context);
   watcher->OnSocketReady(flags);
+}
+
+void MessagePumpLibevent::OnFileReadReadinessNotification(int fd, short flags,
+                                                          void* context) {
+  FileWatcher* watcher = static_cast<FileWatcher*>(context);
+  watcher->OnFileReadReady(fd);
+}
+
+void MessagePumpLibevent::OnFileWriteReadinessNotification(int fd, short flags,
+                                                           void* context) {
+  FileWatcher* watcher = static_cast<FileWatcher*>(context);
+  watcher->OnFileWriteReady(fd);
 }
 
 // Reentrant!

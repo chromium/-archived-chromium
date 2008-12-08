@@ -18,7 +18,7 @@ namespace base {
 // TODO(dkegel): add support for background file IO somehow
 class MessagePumpLibevent : public MessagePump {
  public:
-  // Used with WatchObject to asynchronously monitor the I/O readiness of a
+  // Used with WatchSocket to asynchronously monitor the I/O readiness of a
   // socket.
   class Watcher {
    public:
@@ -27,21 +27,37 @@ class MessagePumpLibevent : public MessagePump {
     virtual void OnSocketReady(short eventmask) = 0;
   };
 
+  // Used with WatchFileHandle to monitor I/O readiness for a File Handle.
+  class FileWatcher {
+   public:
+    virtual ~FileWatcher() {}
+    // Called from MessageLoop::Run when a non-blocking read/write can be made.
+    virtual void OnFileReadReady(int fd) = 0;
+    virtual void OnFileWriteReady(int fd) = 0;
+  };
+
   MessagePumpLibevent();
   virtual ~MessagePumpLibevent();
 
   // Have the current thread's message loop watch for a ready socket.
   // Caller must provide a struct event for this socket for libevent's use.
   // The event and interest_mask fields are defined in libevent.
-  // Returns true on success.  
+  // Returns true on success.
   // TODO(dkegel): hide libevent better; abstraction still too leaky
   // TODO(dkegel): better error handing
   // TODO(dkegel): switch to edge-triggered readiness notification
   void WatchSocket(int socket, short interest_mask, event* e, Watcher*);
 
+  // TODO(playmobil): Merge this with WatchSocket().
+  void WatchFileHandle(int fd, short interest_mask, event* e, FileWatcher*);
+
   // Stop watching a socket.
   // Event was previously initialized by WatchSocket.
   void UnwatchSocket(event* e);
+
+  // Stop watching a File Handle.
+  // Event was previously initialized by WatchFileHandle.
+  void UnwatchFileHandle(event* e);
 
   // MessagePump methods:
   virtual void Run(Delegate* delegate);
@@ -63,17 +79,23 @@ class MessagePumpLibevent : public MessagePump {
   // The time at which we should call DoDelayedWork.
   Time delayed_work_time_;
 
-  // Libevent dispatcher.  Watches all sockets registered with it, and sends 
+  // Libevent dispatcher.  Watches all sockets registered with it, and sends
   // readiness callbacks when a socket is ready for I/O.
   event_base* event_base_;
 
   // Called by libevent to tell us a registered socket is ready
   static void OnReadinessNotification(int socket, short flags, void* context);
 
+  // Called by libevent to tell us a registered fd is ready.
+  static void OnFileReadReadinessNotification(int fd, short flags,
+                                              void* context);
+  static void OnFileWriteReadinessNotification(int fd, short flags,
+                                               void* context);
+
   // Unix pipe used to implement ScheduleWork()
   // ... callback; called by libevent inside Run() when pipe is ready to read
   static void OnWakeup(int socket, short flags, void* context);
-  // ... write end; ScheduleWork() writes a single byte to it 
+  // ... write end; ScheduleWork() writes a single byte to it
   int wakeup_pipe_in_;
   // ... read end; OnWakeup reads it and then breaks Run() out of its sleep
   int wakeup_pipe_out_;

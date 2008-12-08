@@ -193,7 +193,7 @@ void MessageLoop::RunInternal() {
     return;
   }
 #endif
-  
+
   pump_->Run(this);
 }
 
@@ -206,10 +206,10 @@ bool MessageLoop::ProcessNextDelayedNonNestableTask() {
 
   if (deferred_non_nestable_work_queue_.empty())
     return false;
-  
+
   Task* task = deferred_non_nestable_work_queue_.front().task;
   deferred_non_nestable_work_queue_.pop();
-  
+
   RunTask(task);
   return true;
 }
@@ -420,7 +420,7 @@ bool MessageLoop::DoDelayedWork(Time* next_delayed_work_time) {
     *next_delayed_work_time = Time();
     return false;
   }
-  
+
   if (delayed_work_queue_.top().delayed_run_time > Time::Now()) {
     *next_delayed_work_time = delayed_work_queue_.top().delayed_run_time;
     return false;
@@ -428,7 +428,7 @@ bool MessageLoop::DoDelayedWork(Time* next_delayed_work_time) {
 
   PendingTask pending_task = delayed_work_queue_.top();
   delayed_work_queue_.pop();
-  
+
   if (!delayed_work_queue_.empty())
     *next_delayed_work_time = delayed_work_queue_.top().delayed_run_time;
 
@@ -593,12 +593,22 @@ bool MessageLoopForIO::WaitForIOCompletion(DWORD timeout, IOHandler* filter) {
 
 #elif defined(OS_POSIX)
 
-void MessageLoopForIO::WatchSocket(int socket, short interest_mask, 
+void MessageLoopForIO::WatchSocket(int socket, short interest_mask,
                                    struct event* e, Watcher* watcher) {
   pump_libevent()->WatchSocket(socket, interest_mask, e, watcher);
 }
 
+void MessageLoopForIO::WatchFileHandle(int fd, short interest_mask,
+                                       struct event* e, FileWatcher* watcher) {
+  pump_libevent()->WatchFileHandle(fd, interest_mask, e, watcher);
+}
+
+
 void MessageLoopForIO::UnwatchSocket(struct event* e) {
   pump_libevent()->UnwatchSocket(e);
+}
+
+void MessageLoopForIO::UnwatchFileHandle(struct event* e) {
+  pump_libevent()->UnwatchFileHandle(e);
 }
 #endif
