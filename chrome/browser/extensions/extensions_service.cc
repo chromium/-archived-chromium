@@ -48,9 +48,10 @@ MessageLoop* ExtensionsService::GetMessageLoop() {
 }
 
 void ExtensionsService::OnExtensionsLoadedFromDirectory(
-    ExtensionList* extensions) {
-  extensions_.assign(extensions->begin(), extensions->end());
-  delete extensions;
+    ExtensionList* new_extensions) {
+  extensions_.insert(extensions_.end(), new_extensions->begin(),
+                     new_extensions->end());
+  delete new_extensions;
 
   // TODO(aa): Notify extensions are loaded.
 }
@@ -91,6 +92,7 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
       continue;
     }
 
+    scoped_ptr<Value> scoped_root(root);
     if (!root->IsType(Value::TYPE_DICTIONARY)) {
       ReportExtensionLoadError(frontend.get(), child_path,
                                Extension::kInvalidManifestError);

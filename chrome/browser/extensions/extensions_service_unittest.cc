@@ -45,9 +45,10 @@ class ExtensionsServiceTestFrontend
     errors_.push_back(message);
   }
 
-  virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions) {
-    extensions_.assign(extensions->begin(), extensions->end());
-    delete extensions;
+  virtual void OnExtensionsLoadedFromDirectory(ExtensionList* new_extensions) {
+    extensions_.insert(extensions_.end(), new_extensions->begin(),
+                       new_extensions->end());
+    delete new_extensions;
   }
 
  private:
