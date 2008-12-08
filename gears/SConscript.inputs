@@ -5,7 +5,7 @@
 Import('env')
 
 types = ['CPPSRCS', 'M4SRCS', 'HTML_M4SRCS', 'I18N_M4SRCS', 'STABSRCS',
-         'IDLSRCS', 'RESSRCS', 'LINKSRCS']
+         'IDLSRCS', 'RESSRCS', 'LINKSRCS', 'SHLINKSRCS']
 
 # Set up aliases for shared inputs.
 for type in types:
@@ -1065,9 +1065,11 @@ if env['OS'] == 'win32':
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/libv8core.lib',
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/no_snapshotv8.lib',
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/libjscre.lib',
+  ])
+  env.Append(NPAPI_SHLINKSRCS = [
       '$OPEN_DIR/base/chrome/module.def',
   ])
-  env.Append(IE_LINKSRCS = [
+  env.Append(IE_SHLINKSRCS = [
       '$OPEN_DIR/tools/mscom.def',
   ])
 

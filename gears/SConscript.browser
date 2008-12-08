@@ -313,7 +313,7 @@ elif env['BROWSER'] == 'NPAPI':
           'delayimp.lib',
           'comdlg32.lib',
       ],
-      LINKFLAGS = [
+      SHLINKFLAGS = [
           '/DELAYLOAD:"comdlg32.dll"',
       ],
   )
@@ -430,7 +430,7 @@ if env['BROWSER'] in ['FF2', 'FF3']:
   outputs['MODULE_TYPELIB'] = env.XptLink('gears.xpt', xptsrcs)
 
 # genfiles/%.res: %.rc
-env.Append(BROWSER_LINKSRCS = [
+env.Append(BROWSER_SHLINKSRCS = [
     [env_res.RES(
          *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.res', src))
      for src in GetInputs('$BROWSER_RESSRCS')]
@@ -484,13 +484,19 @@ if env['BROWSER'] == 'SF':
 
 module = env.ChromeSharedLibrary('gears-$OS-$ARCH-$MODE-${BROWSER}',
     env.SharedObject(GetInputs('$BROWSER_CPPSRCS')) +
-    GetInputs('$BROWSER_LINKSRCS'))
+    GetInputs('$BROWSER_LINKSRCS $BROWSER_SHLINKSRCS'))
 outputs['MODULE'] = env.InstallAs('${SHLIBPREFIX}gears${SHLIBSUFFIX}', module)
 if env['OS'] in ['win32', 'wince'] and env['MODE'] == 'dbg':
   outputs['MODULE_PDB'] = env.InstallAs('gears.pdb',
       'gears-$OS-$ARCH-$MODE-${BROWSER}.pdb')
   env.Alias('gears', outputs['MODULE_PDB'])
 env.Alias('gears', outputs['MODULE'])
+
+if env['OS'] == 'win32' and env['BROWSER'] == 'NPAPI':
+  lib = env.ChromeStaticLibrary('gears-static',
+      env.SharedObject(GetInputs('$BROWSER_CPPSRCS')) +
+      GetInputs('$BROWSER_LINKSRCS'))
+  env.Alias('gears-static', lib)
 
 if env['OS'] == 'wince':
   env.Append(WINCE_SETUP_LINKSRCS = [

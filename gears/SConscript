@@ -214,9 +214,9 @@ if env['OS'] in ['win32', 'wince']:
     env['ENV']['LIB'] = os.environ['LIB']
     env['ENV']['INCLUDE'] = os.environ['INCLUDE']
 
-  # HACK to disable manifest creation, since it breaks all the time.
-  env['LINKCOM'] = env['LINKCOM'][0]
-  env['SHLINKCOM'] = env['SHLINKCOM'][0]
+  mtcom = 'echo Manifest creation disabled, since it breaks a lot.'
+  env['MANIFEST_COM'] = mtcom
+  env['SHMANIFEST_COM'] = mtcom
 
 # Building M4 files
 env.Tool('m4')
@@ -320,8 +320,9 @@ env.Replace(
     FRAMEWORKS = [],
     LIBS = [],
     LIBPATH = ['$COMPONENT_LIBRARY_DIR'],
-    LINKFLAGS = [],
-    SHLINKFLAGS = [],
+    COMMON_LINKFLAGS = [],  # for both executables and shared libs
+    LINKFLAGS = ['$COMMON_LINKFLAGS'],  # for executables
+    SHLINKFLAGS = ['$COMMON_LINKFLAGS'],  # for shared libs
     COMPONENT_LIBRARY_DIR = '$COMMON_OUTDIR/lib',
 )
 
@@ -446,11 +447,14 @@ if env['OS'] in ['win32', 'wince']:
           '/NOLOGO',
       ],
 # Shared lib and exe flags.
-      LINKFLAGS = [
+      COMMON_LINKFLAGS = [
           '/NOLOGO',
           '/DEBUG',
           '/RELEASE',
           '/PDB:${TARGET.base}.pdb',
+      ],
+      SHLINKFLAGS = [
+          '/DLL',
 # Set the preferred base address.  This value was chosen because (a) it's near
 # the top of the valid address range, and (b) it doesn't conflict with other
 # DLLs loaded by Chrome in either the browser or plugin process.
@@ -505,13 +509,14 @@ if env['OS'] in ['win32', 'wince']:
         ARFLAGS = [
             '/MACHINE:X86',
         ],
-        LINKFLAGS = [
+        COMMON_LINKFLAGS = [
             '/MACHINE:X86',
             '/NODEFAULTLIB:msvcrt',
 # Flags for security hardening (only available for win32, not wince).
             '/DYNAMICBASE',
             '/SAFESEH',
-
+        ],
+        SHLINKFLAGS = [
 # We only use /SUBSYSTEM on DLLs. For EXEs we omit the flag, and
 # the presence of main() or WinMain() determines the subsystem.
             '/SUBSYSTEM:WINDOWS',
@@ -550,10 +555,12 @@ if env['OS'] in ['win32', 'wince']:
         ARFLAGS = [
             '/MACHINE:THUMB',
         ],
-        LINKFLAGS = [
+        COMMON_LINKFLAGS = [
             '/MACHINE:THUMB',
             '/NODEFAULTLIB:secchk.lib',
             '/NODEFAULTLIB:oldnames.lib',
+        ],
+        SHLINKFLAGS = [
             '/SUBSYSTEM:WINDOWSCE,5.01',
         ],
         VC80_CPPPATH = [
@@ -581,7 +588,7 @@ if env['OS'] in ['win32', 'wince']:
           '/MT',
           '/O2',
         ],
-        LINKFLAGS = [
+        COMMON_LINKFLAGS = [
           '/INCREMENTAL:NO',
           '/OPT:REF',
           '/OPT:ICF',
@@ -623,12 +630,12 @@ elif env['OS'] == 'linux':
           '-funsigned-char',
           '-Wno-char-subscripts',
       ],
-      LINKFLAGS = [
+      COMMON_LINKFLAGS = [
           '-fPIC',
           '-Bsymbolic',
           '-pthread',
-
-# TODO: Following are DLLFLAGS.  Figure something out for non-lib targets.
+      ],
+      SHLINKFLAGS = [
           '-shared',
           '-Wl,--version-script',
           '-Wl,$OPEN_DIR/tools/xpcom-ld-script',
@@ -708,7 +715,7 @@ elif env['OS'] == 'osx':
           ('-include', env.File('#/$OPEN_DIR/base/safari/prefix_header.h').abspath),
           ('-isysroot', '$OSX_SDK_ROOT')
       ],
-      LINKFLAGS = [
+      COMMON_LINKFLAGS = [
            '-mmacosx-version-min=10.4',
            '-fPIC',
            '-Bsymbolic',
@@ -716,6 +723,8 @@ elif env['OS'] == 'osx':
            ('-arch', 'i386'),
            ('-isysroot', '$OSX_SDK_ROOT'),
            '-Wl,-dead_strip',
+      ],
+      SHLINKFLAGS = [
           '-bundle',  # DLLFLAGS
       ],
       FRAMEWORKS = [
@@ -756,12 +765,6 @@ elif env['OS'] == 'osx':
             '-O2',
         ],
     )
-
-# TODO(mpcomplete): fix this and properly separate our DLL flags from EXE
-# flags.
-env.Append(SHLINKFLAGS = ['$LINKFLAGS'])
-if env['OS'] in ['wince', 'win32']:
-  env.Append(SHLINKFLAGS = ['/DLL'])
 
 # Custom builder to work around a scons and/or hammer bug.  ComponentLibrary
 # tries to install the library to COMPONENT_LIBRARY_DIR, but since we overrode
