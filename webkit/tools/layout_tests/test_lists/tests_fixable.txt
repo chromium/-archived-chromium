@@ -2012,6 +2012,3 @@ LayoutTests/fast/dom/dom-constructors.html = FAIL
 
 // The test passes on a local build, but fail on buildbot in DEBUG mode only.
 DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
-
-// TODO(tc): Regression caused by r6531.  Disable while investigating.
-LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL

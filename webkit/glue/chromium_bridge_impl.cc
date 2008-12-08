@@ -185,14 +185,8 @@ void ChromiumBridge::clipboardWriteImage(const NativeImageSkia* bitmap,
   if (!url.isEmpty()) {
     GURL gurl = webkit_glue::KURLToGURL(url);
     scw.WriteBookmark(webkit_glue::StringToStdWString(title), gurl.spec());
-
-#if defined(OS_MACOSX) || defined(OS_LINUX)
-    // We intentionally don't write HTML or text to the clipboard on Windows
-    // because some apps prefer HTML or text to the image data but we want the
-    // image data to take priority.
     scw.WriteHTML(UrlToImageMarkup(url, title), "");
     scw.WriteText(ASCIIToWide(gurl.spec()));
-#endif
   }
 }
 
