@@ -107,7 +107,6 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
     }
 
     extensions->push_back(extension.release());
-    delete root;
   }
 
   ReportExtensionsLoaded(frontend.get(), extensions.release());
