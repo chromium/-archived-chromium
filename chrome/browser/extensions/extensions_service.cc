@@ -55,11 +55,10 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
   // TODO(aa): Notify extensions are loaded.
 }
 
-void ExtensionsService::OnExtensionLoadError(const std::wstring& error) {
-  // TODO(aa): Print the error message out somewhere better. Ideally we would
-  // use the JavaScript console I think, but that is complicated since these
-  // errors are not related to any particular page.
-  LOG(WARNING) << "Error loading extension: " << error;
+void ExtensionsService::OnExtensionLoadError(const std::string& error) {
+  // TODO(aa): Print the error message out somewhere better. I think we are
+  // going to need some sort of 'extension inspector'.
+  LOG(WARNING) << error;
 }
 
 
@@ -79,35 +78,34 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
      FilePath manifest_path = FilePath::FromWStringHack(child_path).Append(
          Extension::kManifestFilename);
     if (!file_util::PathExists(manifest_path)) {
-      ReportExtensionLoadError(frontend.get(), 
+      ReportExtensionLoadError(frontend.get(), child_path,
                                Extension::kInvalidManifestError);
       continue;
     }
 
     JSONFileValueSerializer serializer(manifest_path.ToWStringHack());
     Value* root = NULL;
-    if (!serializer.Deserialize(&root, NULL)) {
-      ReportExtensionLoadError(frontend.get(), 
-                               Extension::kInvalidManifestError);
+    std::string error;
+    if (!serializer.Deserialize(&root, &error)) {
+      ReportExtensionLoadError(frontend.get(), child_path, error);
       continue;
     }
 
     if (!root->IsType(Value::TYPE_DICTIONARY)) {
-      ReportExtensionLoadError(frontend.get(), 
+      ReportExtensionLoadError(frontend.get(), child_path,
                                Extension::kInvalidManifestError);
       continue;
     }
 
     scoped_ptr<Extension> extension(new Extension());
-    std::wstring error;
     if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root),
                                   &error)) {
-      ReportExtensionLoadError(frontend.get(), 
-                               Extension::kInvalidManifestError);
+      ReportExtensionLoadError(frontend.get(), child_path, error);
       continue;
     }
 
     extensions->push_back(extension.release());
+    delete root;
   }
 
   ReportExtensionsLoaded(frontend.get(), extensions.release());
@@ -115,10 +113,13 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
 }
 
 void ExtensionsServiceBackend::ReportExtensionLoadError(
-    ExtensionsServiceFrontendInterface *frontend, const std::wstring &error) {
+    ExtensionsServiceFrontendInterface *frontend, const std::wstring& path,
+    const std::string &error) {
+  std::string message = StringPrintf("Could not load extension from '%s'. %s",
+                                     WideToASCII(path).c_str(), error.c_str());
   frontend->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
       frontend, &ExtensionsServiceFrontendInterface::OnExtensionLoadError,
-      error));
+      message));
 }
 
 void ExtensionsServiceBackend::ReportExtensionsLoaded(

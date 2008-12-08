@@ -11,7 +11,7 @@ class ExtensionTest : public testing::Test {
 
 TEST(ExtensionTest, InitFromValueInvalid) {
   Extension extension;
-  std::wstring error;
+  std::string error;
 
   // Test invalid format version
   DictionaryValue input_value;
@@ -57,7 +57,7 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
 TEST(ExtensionTest, InitFromValueValid) {
   Extension extension;
-  std::wstring error;
+  std::string error;
   DictionaryValue input_value;
   DictionaryValue output_value;
 

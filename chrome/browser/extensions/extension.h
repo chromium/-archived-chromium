@@ -31,13 +31,13 @@ class Extension {
   static const wchar_t* kContentScriptsKey;
 
   // Error messages returned from InitFromValue().
-  static const wchar_t* kInvalidFormatVersionError;
-  static const wchar_t* kInvalidManifestError;
-  static const wchar_t* kInvalidIdError;
-  static const wchar_t* kInvalidNameError;
-  static const wchar_t* kInvalidDescriptionError;
-  static const wchar_t* kInvalidContentScriptsListError;
-  static const wchar_t* kInvalidContentScriptError;
+  static const char* kInvalidFormatVersionError;
+  static const char* kInvalidManifestError;
+  static const char* kInvalidIdError;
+  static const char* kInvalidNameError;
+  static const char* kInvalidDescriptionError;
+  static const char* kInvalidContentScriptsListError;
+  static const char* kInvalidContentScriptError;
 
   // A human-readable ID for the extension. The convention is to use something
   // like 'com.example.myextension', but this is not currently enforced. An
@@ -59,7 +59,7 @@ class Extension {
   }
 
   // Initialize the extension from a parsed manifest.
-  bool InitFromValue(const DictionaryValue& value, std::wstring* error);
+  bool InitFromValue(const DictionaryValue& value, std::string* error);
 
   // Serialize the extension to a DictionaryValue.
   void CopyToValue(DictionaryValue* value);

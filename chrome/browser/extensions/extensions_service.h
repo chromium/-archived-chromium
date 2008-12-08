@@ -27,7 +27,7 @@ class ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop() = 0;
 
   // Called when loading an extension fails.
-  virtual void OnExtensionLoadError(const std::wstring& message) = 0;
+  virtual void OnExtensionLoadError(const std::string& message) = 0;
 
   // Called with results from LoadExtensionsFromDirectory(). The frontend
   // takes ownership of the list.
@@ -51,7 +51,7 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 
   // ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop();
-  virtual void OnExtensionLoadError(const std::wstring& message);
+  virtual void OnExtensionLoadError(const std::string& message);
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions);
 
  private:
@@ -94,7 +94,8 @@ class ExtensionsServiceBackend
  private:
   // Notify a frontend that there was an error loading an extension.
   void ReportExtensionLoadError(ExtensionsServiceFrontendInterface* frontend,
-                                const std::wstring& error);
+                                const std::wstring& path,
+                                const std::string& error);
 
   // Notify a frontend that extensions were loaded.
   void ReportExtensionsLoaded(ExtensionsServiceFrontendInterface* frontend,

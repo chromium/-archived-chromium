@@ -21,12 +21,19 @@
 class ExtensionsServiceTestFrontend
     : public ExtensionsServiceFrontendInterface {
  public:
-  std::vector<std::wstring>* errors() {
+  ~ExtensionsServiceTestFrontend() {
+    for (ExtensionList::iterator iter = extensions_.begin();
+         iter != extensions_.end(); ++iter) {
+      delete *iter;
+    }
+  }
+
+  std::vector<std::string>* errors() {
     return &errors_;
   }
 
   ExtensionList* extensions() {
-    return extensions_.get();
+    return &extensions_;
   }
 
   // ExtensionsServiceFrontendInterface
@@ -34,18 +41,19 @@ class ExtensionsServiceTestFrontend
     return &message_loop_;
   }
 
-  virtual void OnExtensionLoadError(const std::wstring& message) {
+  virtual void OnExtensionLoadError(const std::string& message) {
     errors_.push_back(message);
   }
 
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions) {
-    extensions_.reset(extensions);
+    extensions_.assign(extensions->begin(), extensions->end());
+    delete extensions;
   }
 
  private:
   MessageLoop message_loop_;
-  scoped_ptr<ExtensionList> extensions_;
-  std::vector<std::wstring> errors_;
+  ExtensionList extensions_;
+  std::vector<std::string> errors_;
 };
 
 // make the test a PlatformTest to setup autorelease pools properly on mac
@@ -70,8 +78,6 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   // Note: There can be more errors if there are extra directories, like .svn
   // directories.
   EXPECT_TRUE(frontend->errors()->size() >= 2u);
-  EXPECT_EQ(Extension::kInvalidManifestError, frontend->errors()->at(0));
-  EXPECT_EQ(Extension::kInvalidManifestError, frontend->errors()->at(1));
   EXPECT_EQ(2u, frontend->extensions()->size());
 
   EXPECT_EQ(std::wstring(L"com.google.myextension1"),

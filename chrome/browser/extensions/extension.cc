@@ -16,23 +16,23 @@ const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kDescriptionKey = L"description";
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 
-const wchar_t* Extension::kInvalidManifestError =
-    L"Manifest is missing or invalid.";
-const wchar_t* Extension::kInvalidFormatVersionError =
-    L"Required key 'format_version' is missing or invalid";
-const wchar_t* Extension::kInvalidIdError =
-    L"Required key 'id' is missing or invalid.";
-const wchar_t* Extension::kInvalidNameError =
-    L"Required key 'name' is missing or has invalid type.";
-const wchar_t* Extension::kInvalidDescriptionError =
-    L"Invalid type for 'description' key.";
-const wchar_t* Extension::kInvalidContentScriptsListError =
-    L"Invalid type for 'content_scripts' key.";
-const wchar_t* Extension::kInvalidContentScriptError =
-    L"Invalid type for content_scripts at index ";
+const char* Extension::kInvalidManifestError =
+    "Manifest is missing or invalid.";
+const char* Extension::kInvalidFormatVersionError =
+    "Required key 'format_version' is missing or invalid";
+const char* Extension::kInvalidIdError =
+    "Required key 'id' is missing or invalid.";
+const char* Extension::kInvalidNameError =
+    "Required key 'name' is missing or has invalid type.";
+const char* Extension::kInvalidDescriptionError =
+    "Invalid type for 'description' key.";
+const char* Extension::kInvalidContentScriptsListError =
+    "Invalid type for 'content_scripts' key.";
+const char* Extension::kInvalidContentScriptError =
+    "Invalid type for content_scripts at index ";
 
 bool Extension::InitFromValue(const DictionaryValue& source,
-                              std::wstring* error) {
+                              std::string* error) {
   // Check format version.
   int format_version = 0;
   if (!source.GetInteger(kFormatVersionKey, &format_version) ||
@@ -76,7 +76,7 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       std::wstring content_script;
       if (!list_value->Get(i, &value) || !value->GetAsString(&content_script)) {
         *error = kInvalidContentScriptError;
-        *error += IntToWString(i);
+        *error += IntToString(i);
         return false;
       }
 
