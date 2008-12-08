@@ -286,7 +286,7 @@ class AutomatedUITest : public UITest {
   // Displays the bookmark bar.
   // Returns true if call to activate the accelerator is successful.
   // XML element: <ShowBookmarks/>
-  bool ShowBookmarksBar();
+  bool ShowBookmarkBar();
 
   // Opens the Downloads page in the current active browser window.
   // XML element: <Downloads/>

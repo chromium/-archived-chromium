@@ -1036,12 +1036,12 @@ void Browser::ShowDownloadsTab() {
   ShowNativeUITab(DownloadTabUI::GetURL());
 }
 
-void Browser::OpenBookmarksManager() {
+void Browser::OpenBookmarkManager() {
   UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
   window_->ShowBookmarkManager();
 }
 
-void Browser::ToggleBookmarksBar() {
+void Browser::ToggleBookmarkBar() {
   UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
   window_->ToggleBookmarkBar();
 }
@@ -1105,16 +1105,16 @@ void Browser::ExecuteCommand(int id) {
     case IDC_STOP: Stop(); break;
     case IDC_HOME: Home(); break;
     case IDC_GO: Go(); break;
-    case IDC_OPENURL: OpenCurrentURL(); break;
+    case IDC_OPEN_CURRENT_URL: OpenCurrentURL(); break;
 
-    case IDC_NEWTAB: NewTab(); break;
-    case IDC_CLOSETAB: CloseTab(); break;
+    case IDC_NEW_TAB: NewTab(); break;
+    case IDC_CLOSE_TAB: CloseTab(); break;
     case IDC_CLOSE_WEB_APP: CloseApp(); break;
-    case IDC_NEWWINDOW: NewWindow(); break;
-    case IDC_GOOFFTHERECORD: NewIncognitoWindow(); break;
-    case IDC_CLOSEWINDOW: CloseWindow(); break;
+    case IDC_NEW_WINDOW: NewWindow(); break;
+    case IDC_NEW_INCOGNITO_WINDOW: NewIncognitoWindow(); break;
+    case IDC_CLOSE_WINDOW: CloseWindow(); break;
     case IDC_SELECT_NEXT_TAB: SelectNextTab(); break;
-    case IDC_SELECT_PREV_TAB: SelectPreviousTab(); break;
+    case IDC_SELECT_PREVIOUS_TAB: SelectPreviousTab(); break;
     case IDC_SELECT_TAB_0:
     case IDC_SELECT_TAB_1:
     case IDC_SELECT_TAB_2:
@@ -1124,7 +1124,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SELECT_TAB_6:
     case IDC_SELECT_TAB_7: SelectNumberedTab(id - IDC_SELECT_TAB_0); break;
     case IDC_SELECT_LAST_TAB: SelectLastTab(); break;
-    case IDC_DUPLICATE: DuplicateTab(); break;
+    case IDC_DUPLICATE_TAB: DuplicateTab(); break;
     case IDC_RESTORE_TAB: RestoreTab(); break;
     case IDC_SHOW_AS_TAB: ConvertPopupToTabbedBrowser(); break;
     case IDC_EXIT: Exit(); break;
@@ -1147,10 +1147,10 @@ void Browser::ExecuteCommand(int id) {
     case IDC_FOCUS_TOOLBAR: FocusToolbar(); break;
 
     case IDC_STAR: BookmarkCurrentPage(); break;
-    case IDC_VIEWSOURCE: ViewSource(); break;
-    case IDC_CLOSEPOPUPS: ClosePopups(); break;
+    case IDC_VIEW_SOURCE: ViewSource(); break;
+    case IDC_CLOSE_POPUPS: ClosePopups(); break;
     case IDC_PRINT: Print(); break;
-    case IDC_SAVEPAGE: SavePage(); break;
+    case IDC_SAVE_PAGE: SavePage(); break;
     case IDC_ENCODING_AUTO_DETECT: ToggleEncodingAutoDetect(); break;
     case IDC_ENCODING_UTF8:
     case IDC_ENCODING_UTF16LE:
@@ -1192,21 +1192,21 @@ void Browser::ExecuteCommand(int id) {
     case IDC_EDIT_SEARCH_ENGINES: OpenKeywordEditor(); break;
     case IDC_CLEAR_BROWSING_DATA: OpenClearBrowsingDataDialog(); break;
     case IDC_IMPORT_SETTINGS: OpenImportSettingsDialog(); break;
-    case IDS_COMMANDS_REPORTBUG: OpenBugReportDialog(); break;
+    case IDC_REPORT_BUG: OpenBugReportDialog(); break;
     case IDC_DEBUGGER: OpenDebuggerWindow(); break;
-    case IDC_SHOW_JS_CONSOLE: OpenJavaScriptConsole(); break;
-    case IDC_CREATE_SHORTCUT: OpenCreateShortcutsDialog(); break;
+    case IDC_JS_CONSOLE: OpenJavaScriptConsole(); break;
+    case IDC_CREATE_SHORTCUTS: OpenCreateShortcutsDialog(); break;
     case IDC_VIEW_PASSWORDS: OpenPasswordManager(); break;
     case IDC_ABOUT: OpenAboutChromeDialog(); break;
-    case IDC_OPENFILE: OpenFile(); break;
-    case IDC_TASKMANAGER: OpenTaskManager(); break;
+    case IDC_OPEN_FILE: OpenFile(); break;
+    case IDC_TASK_MANAGER: OpenTaskManager(); break;
     case IDC_OPTIONS: OpenOptionsDialog(); break;
-    case IDC_HELPMENU: OpenHelpTab(); break;
+    case IDC_HELP_PAGE: OpenHelpTab(); break;
     case IDC_SHOW_HISTORY: ShowHistoryTab(); break;
     case IDC_SHOW_DOWNLOADS: ShowDownloadsTab(); break;
-    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarksManager(); break;
-    case IDC_SHOW_BOOKMARKS_BAR: ToggleBookmarksBar(); break;
-    case IDC_NEWPROFILEWINDOW:
+    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager(); break;
+    case IDC_SHOW_BOOKMARK_BAR: ToggleBookmarkBar(); break;
+    case IDC_PROFILE_MENU:
     case IDC_SELECT_PROFILE:
       OpenSelectProfileDialog();
       break;
@@ -1214,9 +1214,9 @@ void Browser::ExecuteCommand(int id) {
 
     default:
       // Handle the user action for creating a new window in a specific profile.
-      if (id >= IDC_NEWPROFILEWINDOW_MIN_ID &&
-          id <= IDC_NEWPROFILEWINDOW_MAX_ID) {
-        int index = id - IDC_NEWPROFILEWINDOW_MIN_ID;
+      if (id >= IDC_NEW_WINDOW_PROFILE_0 &&
+          id <= IDC_NEW_WINDOW_PROFILE_LAST) {
+        int index = id - IDC_NEW_WINDOW_PROFILE_0;
         NewProfileWindowByIndex(index);
       } else {
         LOG(WARNING) << "Received Unimplemented Command: " << id;
@@ -1881,15 +1881,15 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_RELOAD, true);
   controller_.UpdateCommandEnabled(IDC_HOME, type() == TYPE_NORMAL);
   controller_.UpdateCommandEnabled(IDC_GO, true);
-  controller_.UpdateCommandEnabled(IDC_NEWTAB, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSETAB, true);
-  controller_.UpdateCommandEnabled(IDC_NEWWINDOW, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSEWINDOW, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_TAB, true);
+  controller_.UpdateCommandEnabled(IDC_CLOSE_TAB, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW, true);
+  controller_.UpdateCommandEnabled(IDC_CLOSE_WINDOW, true);
   controller_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, true);
   controller_.UpdateCommandEnabled(IDC_FOCUS_SEARCH, true);
   controller_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, true);
   controller_.UpdateCommandEnabled(IDC_STAR, true);
-  controller_.UpdateCommandEnabled(IDC_OPENURL, true);
+  controller_.UpdateCommandEnabled(IDC_OPEN_CURRENT_URL, true);
   controller_.UpdateCommandEnabled(IDC_SHOWALLTABS_NEXT, true);
   controller_.UpdateCommandEnabled(IDC_SHOWALLTABS_PREV, true);
   controller_.UpdateCommandEnabled(IDC_SHOWALLTABS, true);
@@ -1899,10 +1899,10 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_FIND, true);
   controller_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
   controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
-  controller_.UpdateCommandEnabled(IDS_COMMANDS_REPORTBUG, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, true);
+  controller_.UpdateCommandEnabled(IDC_REPORT_BUG, true);
+  controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_NEXT_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_SELECT_PREV_TAB, true);
+  controller_.UpdateCommandEnabled(IDC_SELECT_PREVIOUS_TAB, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_0, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_1, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_2, true);
@@ -1912,28 +1912,28 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_6, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_7, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_VIEWSOURCE, true);
-  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUT, false);
+  controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE, true);
+  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
   controller_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, true);
   controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
   controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
   controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
-  controller_.UpdateCommandEnabled(IDC_OPENFILE, true);
-  controller_.UpdateCommandEnabled(IDC_TASKMANAGER, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSEPOPUPS, true);
+  controller_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
+  controller_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
+  controller_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
   controller_.UpdateCommandEnabled(IDC_PRINT, true);
   controller_.UpdateCommandEnabled(IDC_COPY_URL, true);
-  controller_.UpdateCommandEnabled(IDC_DUPLICATE, true);
-  controller_.UpdateCommandEnabled(IDC_GOOFFTHERECORD, true);
+  controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   controller_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, true);
   controller_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, true);
   controller_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
   controller_.UpdateCommandEnabled(IDC_ABOUT, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARKS_BAR, true);
+  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING, true);
+  controller_.UpdateCommandEnabled(IDC_ENCODING_MENU, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
@@ -1981,8 +1981,8 @@ void Browser::InitCommandState() {
   // the debugger doesn't work in single process mode
   controller_.UpdateCommandEnabled(IDC_DEBUGGER,
       !RenderProcessHost::run_renderer_in_process());
-  controller_.UpdateCommandEnabled(IDC_DEVELOPER, true);
-  controller_.UpdateCommandEnabled(IDC_HELPMENU, true);
+  controller_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, true);
+  controller_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
 }
 
 void Browser::UpdateNavigationCommands() {
@@ -2003,19 +2003,19 @@ void Browser::UpdateNavigationCommands() {
     SetStarredButtonToggled(web_contents->is_starred());
 
     // View-source should not be enabled if already in view-source mode.
-    controller_.UpdateCommandEnabled(IDC_VIEWSOURCE,
+    controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
         current_tab->type() != TAB_CONTENTS_VIEW_SOURCE &&
         current_tab->controller()->GetActiveEntry());
 
-    controller_.UpdateCommandEnabled(IDC_ZOOM, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
     bool enable_encoding =
         SavePackage::IsSavableContents(web_contents->contents_mime_type()) &&
         SavePackage::IsSavableURL(current_tab->GetURL());
-    controller_.UpdateCommandEnabled(IDC_ENCODING, enable_encoding);
+    controller_.UpdateCommandEnabled(IDC_ENCODING_MENU, enable_encoding);
 
-    controller_.UpdateCommandEnabled(IDC_SAVEPAGE,
+    controller_.UpdateCommandEnabled(IDC_SAVE_PAGE,
         SavePackage::IsSavableURL(current_tab->GetURL()));
-    controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, true);
+    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
     controller_.UpdateCommandEnabled(IDC_FIND, true);
     controller_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
     controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
@@ -2023,19 +2023,19 @@ void Browser::UpdateNavigationCommands() {
     controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
     controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
     controller_.UpdateCommandEnabled(IDC_STOP, true);
-    controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, true);
+    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
     controller_.UpdateCommandEnabled(IDC_PRINT, true);
   } else {
-    controller_.UpdateCommandEnabled(IDC_VIEWSOURCE, false);
-    controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, false);
+    controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE, false);
+    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, false);
 
     // Both disable the starring button and ensure it doesn't show a star.
     controller_.UpdateCommandEnabled(IDC_STAR, false);
     SetStarredButtonToggled(false);
-    controller_.UpdateCommandEnabled(IDC_ZOOM, false);
-    controller_.UpdateCommandEnabled(IDC_ENCODING, false);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, false);
+    controller_.UpdateCommandEnabled(IDC_ENCODING_MENU, false);
 
-    controller_.UpdateCommandEnabled(IDC_SAVEPAGE, false);
+    controller_.UpdateCommandEnabled(IDC_SAVE_PAGE, false);
     controller_.UpdateCommandEnabled(IDC_FIND, false);
     controller_.UpdateCommandEnabled(IDC_FIND_NEXT, false);
     controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, false);
@@ -2043,22 +2043,22 @@ void Browser::UpdateNavigationCommands() {
     controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, false);
     controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, false);
     controller_.UpdateCommandEnabled(IDC_STOP, false);
-    controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, false);
+    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, false);
     controller_.UpdateCommandEnabled(IDC_PRINT, false);
   }
 
-  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUT,
+  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
                                    current_tab->type() == TAB_CONTENTS_WEB &&
                                        !current_tab->GetFavIcon().isNull());
-  controller_.UpdateCommandEnabled(IDC_DUPLICATE,
+  controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
                                    CanDuplicateContentsAt(selected_index()));
 
   // Enable various IDC_NEWPROFILEWINDOW* commands.
-  controller_.UpdateCommandEnabled(IDC_NEWPROFILEWINDOW, true);
+  controller_.UpdateCommandEnabled(IDC_PROFILE_MENU, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
   controller_.UpdateCommandEnabled(IDC_NEW_PROFILE, true);
-  for (int i = IDC_NEWPROFILEWINDOW_MIN_ID;
-       i <= IDC_NEWPROFILEWINDOW_MAX_ID;
+  for (int i = IDC_NEW_WINDOW_PROFILE_0;
+       i <= IDC_NEW_WINDOW_PROFILE_LAST;
        ++i) {
     controller_.UpdateCommandEnabled(i, true);
   }
@@ -2169,7 +2169,7 @@ void Browser::ProcessPendingUIUpdates() {
 
       if (contents == GetSelectedTabContents()) {
         TabContents* current_tab = GetSelectedTabContents();
-        controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUT,
+        controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
             current_tab->type() == TAB_CONTENTS_WEB &&
             !current_tab->GetFavIcon().isNull());
       }

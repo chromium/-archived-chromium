@@ -290,8 +290,8 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   context_menu_->AppendMenuItemWithLabel(IDS_PASTE,
                                          l10n_util::GetString(IDS_PASTE));
   context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(IDS_SELECTALL,
-                                         l10n_util::GetString(IDS_SELECTALL));
+  context_menu_->AppendMenuItemWithLabel(IDS_SELECT_ALL,
+                                         l10n_util::GetString(IDS_SELECT_ALL));
 }
 
 TextField::Edit::~Edit() {
@@ -360,13 +360,13 @@ void TextField::Edit::SetBackgroundColor(COLORREF bg_color) {
 
 bool TextField::Edit::IsCommandEnabled(int id) const {
   switch (id) {
-    case IDS_UNDO:      return !parent_->IsReadOnly() && !!CanUndo();
-    case IDS_CUT:       return !parent_->IsReadOnly() && !!CanCut();
-    case IDS_COPY:      return !!CanCopy();
-    case IDS_PASTE:     return !parent_->IsReadOnly() && !!CanPaste();
-    case IDS_SELECTALL: return !!CanSelectAll();
-    default:            NOTREACHED();
-                        return false;
+    case IDS_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
+    case IDS_CUT:        return !parent_->IsReadOnly() && !!CanCut();
+    case IDS_COPY:       return !!CanCopy();
+    case IDS_PASTE:      return !parent_->IsReadOnly() && !!CanPaste();
+    case IDS_SELECT_ALL: return !!CanSelectAll();
+    default:             NOTREACHED();
+                         return false;
   }
 }
 
@@ -374,12 +374,12 @@ void TextField::Edit::ExecuteCommand(int id) {
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   switch (id) {
-    case IDS_UNDO:      Undo();       break;
-    case IDS_CUT:       Cut();        break;
-    case IDS_COPY:      Copy();       break;
-    case IDS_PASTE:     Paste();      break;
-    case IDS_SELECTALL: SelectAll();  break;
-    default:            NOTREACHED(); break;
+    case IDS_UNDO:       Undo();       break;
+    case IDS_CUT:        Cut();        break;
+    case IDS_COPY:       Copy();       break;
+    case IDS_PASTE:      Paste();      break;
+    case IDS_SELECT_ALL: SelectAll();  break;
+    default:             NOTREACHED(); break;
   }
   OnAfterPossibleChange();
 }

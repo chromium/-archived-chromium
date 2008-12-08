@@ -210,7 +210,7 @@ TEST_F(AccessibilityTest, TestStarBtnStatusOnNewTab) {
   // Add empty new tab and check status.
   int old_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&old_tab_count));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   int new_tab_count;
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
               5000));
@@ -335,7 +335,7 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
 
   // Add empty new tab and check status.
   ASSERT_TRUE(window->GetTabCount(&old_tab_count));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
               5000));
   // Check tab count. Also, check accessibility object's children.
@@ -484,7 +484,7 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
 
   // Add empty new tab and check status.
   ASSERT_TRUE(window->GetTabCount(&old_tab_count));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
               5000));
   // Check tab count.

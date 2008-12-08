@@ -180,11 +180,11 @@ TEST_F(BrowserTest, TabNavigationAccelerators) {
   // to.
   int old_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&old_tab_count));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   int new_tab_count;
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
       5000));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   old_tab_count = new_tab_count;
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
       5000));
@@ -202,7 +202,7 @@ TEST_F(BrowserTest, TabNavigationAccelerators) {
   ASSERT_TRUE(window->WaitForTabToBecomeActive(1, 5000));
 
   // Navigate back to the first tab using the previous accelerators.
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_PREV_TAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_PREVIOUS_TAB));
   ASSERT_TRUE(window->WaitForTabToBecomeActive(0, 5000));
 
   // Navigate to the last tab using the select last accelerator.
@@ -248,7 +248,7 @@ TEST_F(BrowserTest, DuplicateTab) {
   ASSERT_TRUE(automation()->GetBrowserWindowCount(&initial_window_count));
 
   // Duplicate the tab.
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_DUPLICATE));
+  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_DUPLICATE_TAB));
 
   // The duplicated tab should not end up in a new window.
   int window_count;

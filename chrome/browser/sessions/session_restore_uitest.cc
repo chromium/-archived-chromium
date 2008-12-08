@@ -47,7 +47,7 @@ class SessionRestoreUITest : public UITest {
     scoped_ptr<BrowserProxy> browser_proxy(
         automation()->GetBrowserWindow(window_index));
     ASSERT_TRUE(browser_proxy.get());
-    ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_CLOSEWINDOW));
+    ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_CLOSE_WINDOW));
     browser_proxy.reset();
     int window_count;
     ASSERT_TRUE(automation()->WaitForWindowCountToChange(initial_count,
@@ -266,7 +266,7 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   // Create an off the record window and wait for it to appear.
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_GOOFFTHERECORD));
+  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_INCOGNITO_WINDOW));
   int window_count;
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
                                                        kWaitForActionMsec) &&
@@ -389,7 +389,7 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
 
   // Create two new tabs.
   int new_tab_count;
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
                                                      kWaitForActionMsec));
   scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(new_tab_count - 1));
@@ -397,7 +397,7 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
   tab_count = new_tab_count;
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
                                                      kWaitForActionMsec));
   last_tab.reset(browser_proxy->GetTab(new_tab_count - 1));

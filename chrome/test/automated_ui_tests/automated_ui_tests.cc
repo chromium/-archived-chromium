@@ -328,7 +328,7 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   } else if (LowerCaseEqualsASCII(action, "selectprevtab")) {
     did_complete_action = SelectPreviousTab();
   } else if (LowerCaseEqualsASCII(action, "showbookmarks")) {
-    did_complete_action = ShowBookmarksBar();
+    did_complete_action = ShowBookmarkBar();
   } else if (LowerCaseEqualsASCII(action, "setup")) {
     LaunchBrowserAndServer();
     did_complete_action = true;
@@ -445,7 +445,7 @@ bool AutomatedUITest::CloseActiveTab() {
   // Avoid quitting the application by not closing the last window.
   if (tab_count > 1) {
     int new_tab_count;
-    return_value = browser->RunCommand(IDC_CLOSETAB);
+    return_value = browser->RunCommand(IDC_CLOSE_TAB);
     // Wait for the tab to close before we continue.
     if (!browser->WaitForTabCountToChange(
         tab_count, &new_tab_count, kWaitForActionMaxMsec)) {
@@ -454,7 +454,7 @@ bool AutomatedUITest::CloseActiveTab() {
     }
   } else if (tab_count == 1 && browser_windows_count > 1) {
     int new_window_count;
-    return_value = browser->RunCommand(IDC_CLOSETAB);
+    return_value = browser->RunCommand(IDC_CLOSE_TAB);
     // Wait for the window to close before we continue.
     if (!automation()->WaitForWindowCountToChange(
         browser_windows_count, &new_window_count, kWaitForActionMaxMsec)) {
@@ -469,7 +469,7 @@ bool AutomatedUITest::CloseActiveTab() {
 }
 
 bool AutomatedUITest::DuplicateTab() {
-  return RunCommand(IDC_DUPLICATE);
+  return RunCommand(IDC_DUPLICATE_TAB);
 }
 
 bool AutomatedUITest::FindInPage() {
@@ -481,7 +481,7 @@ bool AutomatedUITest::ForwardButton() {
 }
 
 bool AutomatedUITest::GoOffTheRecord() {
-  return RunCommand(IDC_GOOFFTHERECORD);
+  return RunCommand(IDC_NEW_INCOGNITO_WINDOW);
 }
 
 bool AutomatedUITest::Home() {
@@ -489,7 +489,7 @@ bool AutomatedUITest::Home() {
 }
 
 bool AutomatedUITest::JavaScriptConsole() {
-  return RunCommand(IDC_SHOW_JS_CONSOLE);
+  return RunCommand(IDC_JS_CONSOLE);
 }
 
 bool AutomatedUITest::JavaScriptDebugger() {
@@ -541,7 +541,7 @@ bool AutomatedUITest::NewTab() {
       &is_timeout);
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.
-  bool return_value = RunCommand(IDC_NEWTAB);
+  bool return_value = RunCommand(IDC_NEW_TAB);
   if (!browser->WaitForTabCountToChange(
       old_tab_count, &new_tab_count, kWaitForActionMaxMsec)) {
     AddWarningAttribute("tab_count_failed_to_change");
@@ -567,7 +567,7 @@ bool AutomatedUITest::OpenImportSettingsDialog() {
 }
 
 bool AutomatedUITest::OpenTaskManagerDialog() {
-  return RunCommand(IDC_TASKMANAGER);
+  return RunCommand(IDC_TASK_MANAGER);
 }
 
 bool AutomatedUITest::OpenViewPasswordsDialog() {
@@ -623,11 +623,11 @@ bool AutomatedUITest::SelectNextTab() {
 }
 
 bool AutomatedUITest::SelectPreviousTab() {
-  return RunCommand(IDC_SELECT_PREV_TAB);
+  return RunCommand(IDC_SELECT_PREVIOUS_TAB);
 }
 
-bool AutomatedUITest::ShowBookmarksBar() {
-  return RunCommand(IDC_SHOW_BOOKMARKS_BAR);
+bool AutomatedUITest::ShowBookmarkBar() {
+  return RunCommand(IDC_SHOW_BOOKMARK_BAR);
 }
 
 bool AutomatedUITest::ShowDownloads() {
@@ -643,7 +643,7 @@ bool AutomatedUITest::StarPage() {
 }
 
 bool AutomatedUITest::ViewSource() {
-  return RunCommand(IDC_VIEWSOURCE);
+  return RunCommand(IDC_VIEW_SOURCE);
 }
 
 bool AutomatedUITest::ZoomMinus() {

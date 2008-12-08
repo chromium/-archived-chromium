@@ -675,7 +675,7 @@ void WebPluginDelegateProxy::PaintSadPlugin(HDC hdc, const gfx::Rect& rect) {
 
   if (!sad_plugin_) {
     sad_plugin_ = ResourceBundle::LoadBitmap(
-        _AtlBaseModule.GetResourceInstance(), IDR_CRASHED_PLUGIN);
+        _AtlBaseModule.GetResourceInstance(), IDR_SAD_PLUGIN);
   }
 
   if (sad_plugin_) {

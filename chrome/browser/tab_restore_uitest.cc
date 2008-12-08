@@ -245,7 +245,7 @@ TEST_F(TabRestoreUITest, RestoreWindow) {
   new_tab->NavigateToURL(url2_);
 
   // Close the window.
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_CLOSEWINDOW));
+  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_CLOSE_WINDOW));
   browser_proxy.reset();
   new_tab.reset();
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(window_count - 1,

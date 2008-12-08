@@ -476,7 +476,7 @@ TEST_F(AutomationProxyTest, AcceleratorNewTab) {
   int old_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&old_tab_count));
 
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEWTAB));
+  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   int new_tab_count;
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
                                               5000));
@@ -785,7 +785,7 @@ TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
   scoped_ptr<AutocompleteEditProxy> edit1(
       automation()->GetAutocompleteEditForBrowser(browser1.get()));
   ASSERT_TRUE(edit1.get());
-  EXPECT_TRUE(browser1->ApplyAccelerator(IDC_NEWWINDOW));
+  EXPECT_TRUE(browser1->ApplyAccelerator(IDC_NEW_WINDOW));
   scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
   scoped_ptr<AutocompleteEditProxy> edit2(

@@ -104,8 +104,8 @@ std::wstring RenderViewContextMenuController::GetLabel(int id) const {
 
 bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
   // Allow Spell Check language items on sub menu for text area context menu.
-  if (id >= IDC_SPELLCHECKER_LANGUAGE_FIRST
-      && id <= IDC_SPELLCHECKER_LANGUAGE_LAST) {
+  if ((id >= IDC_SPELLCHECK_LANGUAGES_FIRST) &&
+      (id < IDC_SPELLCHECK_LANGUAGES_LAST)) {
     return true;
   }
 
@@ -175,13 +175,13 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDS_CONTENT_CONTEXT_COPYIMAGE:
     case IDS_CONTENT_CONTEXT_PRINT:
     case IDS_CONTENT_CONTEXT_SEARCHWEBFOR:
-    case IDC_USESPELLCHECKSUGGESTION_0:
-    case IDC_USESPELLCHECKSUGGESTION_1:
-    case IDC_USESPELLCHECKSUGGESTION_2:
-    case IDC_USESPELLCHECKSUGGESTION_3:
-    case IDC_USESPELLCHECKSUGGESTION_4:
+    case IDC_SPELLCHECK_SUGGESTION_0:
+    case IDC_SPELLCHECK_SUGGESTION_1:
+    case IDC_SPELLCHECK_SUGGESTION_2:
+    case IDC_SPELLCHECK_SUGGESTION_3:
+    case IDC_SPELLCHECK_SUGGESTION_4:
       return true;
-    case IDC_SHOW_SPELLCHECKER_SUBMENU:
+    case IDC_SPELLCHECK_MENU:
       return true;
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
@@ -204,7 +204,7 @@ bool RenderViewContextMenuController::IsItemChecked(int id) const {
   int spellcheck_language_index = SpellChecker::
       GetSpellCheckLanguagesToDisplayInContextMenu(
           source_web_contents_->profile(), &display_language_vector);
-  if (id - IDC_SPELLCHECKER_LANGUAGE_FIRST == spellcheck_language_index)
+  if (id - IDC_SPELLCHECK_LANGUAGES_FIRST == spellcheck_language_index)
     return true;
 
   return false;
@@ -246,19 +246,19 @@ bool RenderViewContextMenuController::GetAcceleratorInfo(
 
 void RenderViewContextMenuController::ExecuteCommand(int id) {
   // Check to see if one of the spell check language ids have been clicked.
-  if (id >= IDC_SPELLCHECKER_LANGUAGE_FIRST &&
-      id <= IDC_SPELLCHECKER_LANGUAGE_LAST) {
+  if (id >= IDC_SPELLCHECK_LANGUAGES_FIRST &&
+      id < IDC_SPELLCHECK_LANGUAGES_LAST) {
     std::vector<std::wstring> display_language_vector; 
     int current_language = SpellChecker::
         GetSpellCheckLanguagesToDisplayInContextMenu(
             source_web_contents_->profile(), &display_language_vector);
-    if (id - IDC_SPELLCHECKER_LANGUAGE_FIRST < 
+    if (id - IDC_SPELLCHECK_LANGUAGES_FIRST < 
         static_cast<int>(display_language_vector.size())) {
       StringPrefMember dictionary_language;
       dictionary_language.Init(prefs::kSpellCheckDictionary,
           source_web_contents_->profile()->GetPrefs(), NULL);
       dictionary_language.SetValue(display_language_vector.at(
-          id - IDC_SPELLCHECKER_LANGUAGE_FIRST));
+          id - IDC_SPELLCHECK_LANGUAGES_FIRST));
     }
       
     return;
@@ -433,13 +433,13 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       break;
     }
 
-    case IDC_USESPELLCHECKSUGGESTION_0:
-    case IDC_USESPELLCHECKSUGGESTION_1:
-    case IDC_USESPELLCHECKSUGGESTION_2:
-    case IDC_USESPELLCHECKSUGGESTION_3:
-    case IDC_USESPELLCHECKSUGGESTION_4:
+    case IDC_SPELLCHECK_SUGGESTION_0:
+    case IDC_SPELLCHECK_SUGGESTION_1:
+    case IDC_SPELLCHECK_SUGGESTION_2:
+    case IDC_SPELLCHECK_SUGGESTION_3:
+    case IDC_SPELLCHECK_SUGGESTION_4:
       source_web_contents_->render_view_host()->Replace(
-          params_.dictionary_suggestions[id - IDC_USESPELLCHECKSUGGESTION_0]);
+          params_.dictionary_suggestions[id - IDC_SPELLCHECK_SUGGESTION_0]);
       break;
 
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:

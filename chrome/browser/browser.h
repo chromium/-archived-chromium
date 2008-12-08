@@ -290,8 +290,8 @@ class Browser : public TabStripModelDelegate,
   void OpenHelpTab();
   void ShowHistoryTab();
   void ShowDownloadsTab();
-  void OpenBookmarksManager();
-  void ToggleBookmarksBar();
+  void OpenBookmarkManager();
+  void ToggleBookmarkBar();
   void OpenSelectProfileDialog();
   void OpenNewProfileDialog();
 

@@ -119,9 +119,9 @@ void RenderViewContextMenu::AppendSelectionItems() {
 void RenderViewContextMenu::AppendEditableItems() {
   // Append Dictionary spell check suggestions.
   for (size_t i = 0; i < misspelled_word_suggestions_.size() &&
-       IDC_USESPELLCHECKSUGGESTION_0 + i <= IDC_USESPELLCHECKSUGGESTION_LAST;
+       IDC_SPELLCHECK_SUGGESTION_0 + i <= IDC_SPELLCHECK_SUGGESTION_LAST;
        i ++) {
-    AppendMenuItemWithLabel(IDC_USESPELLCHECKSUGGESTION_0 + static_cast<int>(i),
+    AppendMenuItemWithLabel(IDC_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
                             misspelled_word_suggestions_[i]);
   }
   if (misspelled_word_suggestions_.size() > 0)
@@ -147,22 +147,22 @@ void RenderViewContextMenu::AppendEditableItems() {
   AppendSeparator();
 
   // Add Spell Check options sub menu.
-  spellchecker_sub_menu_ = AppendSubMenu(IDC_SHOW_SPELLCHECKER_SUBMENU,
-      l10n_util::GetString(IDS_CONTENT_CONTEXT_SPELLCHECK_OPTIONS));
+  spellchecker_sub_menu_ = AppendSubMenu(IDC_SPELLCHECK_MENU,
+      l10n_util::GetString(IDS_CONTENT_CONTEXT_SPELLCHECK_MENU));
 
   // Add Spell Check languages to sub menu.
   std::vector<std::wstring> language_vector; 
   int current_language_index = SpellChecker::
       GetSpellCheckLanguagesToDisplayInContextMenu(profile_, &language_vector);
   // Add the spell check languages.
-  DCHECK(language_vector.size() <=
-         IDC_SPELLCHECKER_LANGUAGE_LAST - IDC_SPELLCHECKER_LANGUAGE_FIRST);
+  DCHECK(language_vector.size() <
+         IDC_SPELLCHECK_LANGUAGES_LAST - IDC_SPELLCHECK_LANGUAGES_FIRST);
   const std::wstring app_locale = g_browser_process->GetApplicationLocale();
   for (size_t i = 0; i < language_vector.size(); ++i) {
     std::wstring local_language(l10n_util::GetLocalName(
         language_vector.at(i), app_locale, true));
     spellchecker_sub_menu_->AppendMenuItem(
-        IDC_SPELLCHECKER_LANGUAGE_FIRST + i, local_language, RADIO);
+        IDC_SPELLCHECK_LANGUAGES_FIRST + i, local_language, RADIO);
   }
 
   // Add item in the sub menu to pop up the fonts and languages options menu.

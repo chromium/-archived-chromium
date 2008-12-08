@@ -84,7 +84,7 @@ TEST_F(ViewSourceTest, ViewSourceInPageMenuEnabledOnANormalPage) {
   GURL url = server.TestServerPageW(test_html_);
   NavigateToURL(url);
 
-  EXPECT_TRUE(IsPageMenuCommandEnabled(IDC_VIEWSOURCE));
+  EXPECT_TRUE(IsPageMenuCommandEnabled(IDC_VIEW_SOURCE));
 }
 
 // Make sure that when looking at the page source, we can't select
@@ -97,6 +97,6 @@ TEST_F(ViewSourceTest, ViewSourceInPageMenuDisabledWhileViewingSource) {
   GURL url_viewsource = GURL("view-source:" + url.spec());
   NavigateToURL(url_viewsource);
 
-  EXPECT_FALSE(IsPageMenuCommandEnabled(IDC_VIEWSOURCE));
+  EXPECT_FALSE(IsPageMenuCommandEnabled(IDC_VIEW_SOURCE));
 }
 

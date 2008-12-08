@@ -2238,7 +2238,7 @@ void AutomationProvider::SavePage(const IPC::Message& message,
   NavigationController* nav = tab_tracker_->GetResource(tab_handle);
   Browser* browser = FindAndActivateTab(nav);
   DCHECK(browser);
-  if (!browser->IsCommandEnabled(IDC_SAVEPAGE)) {
+  if (!browser->IsCommandEnabled(IDC_SAVE_PAGE)) {
     Send(new AutomationMsg_SavePageResponse(message.routing_id(), false));
     return;
   }

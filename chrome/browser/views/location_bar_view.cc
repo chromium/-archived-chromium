@@ -321,7 +321,7 @@ void LocationBarView::OnAutocompleteAccept(
 
   if (controller_) {
     if (alternate_nav_url.empty()) {
-      controller_->ExecuteCommand(IDC_OPENURL);
+      controller_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
       return;
     }
 
@@ -330,7 +330,7 @@ void LocationBarView::OnAutocompleteAccept(
     // The AlternateNavURLFetcher will listen for the pending navigation
     // notification that will be issued as a result of the "open URL." It
     // will automatically install itself into that navigation controller.
-    controller_->ExecuteCommand(IDC_OPENURL);
+    controller_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
     if (fetcher->state() == AlternateNavURLFetcher::NOT_STARTED) {
       // I'm not sure this should be reachable, but I'm not also sure enough
       // that it shouldn't to stick in a NOTREACHED().  In any case, this is

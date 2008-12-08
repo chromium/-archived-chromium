@@ -255,7 +255,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   ASSERT_TRUE(browser.get() != NULL);
 
   // Toggle the bookmark bar state.
-  browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+  browser->ApplyAccelerator(IDC_SHOW_BOOKMARK_BAR);
   EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), true));
 
   // Open the Find window and wait for it to animate.
@@ -280,8 +280,8 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   EXPECT_EQ(x, new_x);
   EXPECT_EQ(y, new_y);
 
-  // Now reset the bookmarks bar state and try the same again.
-  browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+  // Now reset the bookmark bar state and try the same again.
+  browser->ApplyAccelerator(IDC_SHOW_BOOKMARK_BAR);
   EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), false));
 
   // Bookmark bar has moved, reset our coordinates.

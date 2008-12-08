@@ -756,8 +756,8 @@ AutocompleteEditView::AutocompleteEditView(
     context_menu_->AppendMenuItemWithLabel(
         IDS_PASTE_AND_GO, l10n_util::GetString(IDS_PASTE_AND_GO));
     context_menu_->AppendSeparator();
-    context_menu_->AppendMenuItemWithLabel(IDS_SELECTALL,
-                                           l10n_util::GetString(IDS_SELECTALL));
+    context_menu_->AppendMenuItemWithLabel(
+        IDS_SELECT_ALL, l10n_util::GetString(IDS_SELECT_ALL));
     context_menu_->AppendSeparator();
     context_menu_->AppendMenuItemWithLabel(
         IDS_EDIT_SEARCH_ENGINES, l10n_util::GetString(IDS_EDIT_SEARCH_ENGINES));
@@ -1174,7 +1174,7 @@ bool AutocompleteEditView::IsCommandEnabled(int id) const {
     case IDS_COPY:         return !!CanCopy();
     case IDS_PASTE:        return !!CanPaste();
     case IDS_PASTE_AND_GO: return CanPasteAndGo(GetClipboardText());
-    case IDS_SELECTALL:    return !!CanSelectAll();
+    case IDS_SELECT_ALL:   return !!CanSelectAll();
     case IDS_EDIT_SEARCH_ENGINES:
       return command_controller_->IsCommandEnabled(IDC_EDIT_SEARCH_ENGINES);
     default:               NOTREACHED(); return false;
@@ -1219,7 +1219,7 @@ void AutocompleteEditView::ExecuteCommand(int id) {
       Paste();
       break;
 
-    case IDS_SELECTALL:
+    case IDS_SELECT_ALL:
       SelectAll(false);
       break;
 

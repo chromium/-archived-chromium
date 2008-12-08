@@ -33,25 +33,25 @@
 #define IDC_STOP                        32770
 #define IDC_RELOAD                      32771
 #define IDC_GO                          32772
-#define IDC_NEWTAB                      32773
-#define IDC_CLOSETAB                    32774
-#define IDC_NEWWINDOW                   32775
-#define IDC_CLOSEWINDOW                 32776
+#define IDC_NEW_TAB                     32773
+#define IDC_CLOSE_TAB                   32774
+#define IDC_NEW_WINDOW                  32775
+#define IDC_CLOSE_WINDOW                32776
 #define IDC_FOCUS_LOCATION              32777
 #define IDC_FOCUS_SEARCH                32778
 #define IDC_STAR                        32779
-#define IDC_OPENURL                     32780
+#define IDC_OPEN_CURRENT_URL            32780
 #define IDC_FIND                        32781
 #define IDC_FIND_NEXT                   32782
 #define IDC_FIND_PREVIOUS               32783
 #define IDC_CUT                         32784
 #define IDC_COPY                        32785
 #define IDC_PASTE                       32786
-#define IDC_SAVEPAGE                    32787
+#define IDC_SAVE_PAGE                   32787
 #define IDC_PRINT                       32788
-#define IDC_VIEWSOURCE                  32789
+#define IDC_VIEW_SOURCE                 32789
 #define IDC_SELECT_NEXT_TAB             32790
-#define IDC_SELECT_PREV_TAB             32791
+#define IDC_SELECT_PREVIOUS_TAB         32791
 #define IDC_SELECT_TAB_0                32792
 #define IDC_SELECT_TAB_1                32793
 #define IDC_SELECT_TAB_2                32794
@@ -61,7 +61,7 @@
 #define IDC_SELECT_TAB_6                32798
 #define IDC_SELECT_TAB_7                32799
 #define IDC_SELECT_LAST_TAB             32800
-#define IDC_CREATE_SHORTCUT             32801
+#define IDC_CREATE_SHORTCUTS            32801
 #define IDC_SHOWALLTABS_NEXT            32802
 #define IDC_SHOWALLTABS_PREV            32803
 #define IDC_SHOWALLTABS                 32804
@@ -69,15 +69,15 @@
 #define IDC_ZOOM_PLUS                   32806
 #define IDC_ZOOM_MINUS                  32807
 #define IDC_ZOOM_NORMAL                 32808
-#define IDC_OPENFILE                    32809
-#define IDC_ZOOM                        32810
-#define IDC_TASKMANAGER                 32812
-#define IDC_CLOSEPOPUPS                 32813
+#define IDC_OPEN_FILE                   32809
+#define IDC_ZOOM_MENU                   32810
+#define IDC_TASK_MANAGER                32812
+#define IDC_CLOSE_POPUPS                32813
 #define IDC_ALWAYS_ON_TOP               32814
 #define IDC_COPY_URL                    32815
-#define IDC_SHOW_JS_CONSOLE             32816
-#define IDC_DUPLICATE                   32817
-#define IDC_GOOFFTHERECORD              32818
+#define IDC_JS_CONSOLE                  32816
+#define IDC_DUPLICATE_TAB               32817
+#define IDC_NEW_INCOGNITO_WINDOW        32818
 #define IDC_VIEW_PASSWORDS              32819
 #define IDC_SHOW_APPLICATIONS           32820
 #define IDC_SHOW_DOWNLOADS              32821
@@ -90,8 +90,9 @@
 #define IDC_ABOUT                       32829
 #define IDC_IMPORT_SETTINGS             32830
 #define IDC_OPTIONS                     32831
-// Free space 32832 - 32890
-#define IDC_ENCODING                    32891
+#define IDC_REPORT_BUG                  32832
+// Free space 32833 - 32890
+#define IDC_ENCODING_MENU               32891
 #define IDC_ENCODING_AUTO_DETECT        32892
 #define IDC_ENCODING_UTF8               32893
 #define IDC_ENCODING_UTF16LE            32894
@@ -133,48 +134,47 @@
 // Spell-check suggestions.
 // If more suggestions have to be inserted, insert them before the _LAST
 // These have to be consecutive.
-#define IDC_USESPELLCHECKSUGGESTION_0     32930
-#define IDC_USESPELLCHECKSUGGESTION_1     32931
-#define IDC_USESPELLCHECKSUGGESTION_2     32932
-#define IDC_USESPELLCHECKSUGGESTION_3     32933
-#define IDC_USESPELLCHECKSUGGESTION_4     32934
+#define IDC_SPELLCHECK_SUGGESTION_0     32930
+#define IDC_SPELLCHECK_SUGGESTION_1     32931
+#define IDC_SPELLCHECK_SUGGESTION_2     32932
+#define IDC_SPELLCHECK_SUGGESTION_3     32933
+#define IDC_SPELLCHECK_SUGGESTION_4     32934
 // We leave some empty room here (35-39) in case we need to grow.
-#define IDC_USESPELLCHECKSUGGESTION_LAST  IDC_USESPELLCHECKSUGGESTION_4
+#define IDC_SPELLCHECK_SUGGESTION_LAST  IDC_SPELLCHECK_SUGGESTION_4
 #define IDC_RESTORE_TAB                 32940
 #define IDC_SHOW_AS_TAB                 32941
 #define IDC_EXIT                        32942
 #define IDC_DEBUGGER                    32943
-#define IDC_DEVELOPER                   32944
-#define IDC_HELPMENU                    32945
-#define IDC_SHOW_BOOKMARKS_BAR          32946
+#define IDC_DEVELOPER_MENU              32944
+#define IDC_HELP_PAGE                   32945
+#define IDC_SHOW_BOOKMARK_BAR           32946
 // Free space 32947 - 32950
-#define IDR_CRASHED_PLUGIN              32951
+#define IDR_SAD_PLUGIN                  32951
 #define IDC_SHOW_BOOKMARK_MANAGER       32952
-#define IDC_SHOW_SPELLCHECKER_SUBMENU   32953
+#define IDC_SPELLCHECK_MENU             32953
 // Reserve space for 100 Spell Check languages - currently we have 30.
-#define IDC_SPELLCHECKER_LANGUAGE_FIRST 32954
-#define IDC_SPELLCHECKER_LANGUAGE_LAST  33054
+#define IDC_SPELLCHECK_LANGUAGES_FIRST  32954
+#define IDC_SPELLCHECK_LANGUAGES_LAST   33054
 // We have a menu item for opening a new window in a specific profile, and it
 // has dynamic number of sub menu items. The number of sub menu items depends on
 // the number of existing profiles. But we only show menu items for nine
 // different profiles, plus a menu item for other than the nine profiles (if
 // there are more than nine profiles), plus a menu item for new profile.
-#define IDC_NEWPROFILEWINDOW            33055
+#define IDC_PROFILE_MENU                33055
 #define IDC_SELECT_PROFILE              33056
 #define IDC_NEW_PROFILE                 33057
 // Define menu IDs for nine profiles to provide accelarators like CTRL +
 // SHIFT + 1, CTRL + SHIFT + 2, etc. for them.
-#define IDC_NEWPROFILEWINDOW_PROFILE1   33058
-#define IDC_NEWPROFILEWINDOW_PROFILE2   33059
-#define IDC_NEWPROFILEWINDOW_PROFILE3   33060
-#define IDC_NEWPROFILEWINDOW_PROFILE4   33061
-#define IDC_NEWPROFILEWINDOW_PROFILE5   33062
-#define IDC_NEWPROFILEWINDOW_PROFILE6   33063
-#define IDC_NEWPROFILEWINDOW_PROFILE7   33064
-#define IDC_NEWPROFILEWINDOW_PROFILE8   33065
-#define IDC_NEWPROFILEWINDOW_PROFILE9   33066
-#define IDC_NEWPROFILEWINDOW_MIN_ID     IDC_NEWPROFILEWINDOW_PROFILE1
-#define IDC_NEWPROFILEWINDOW_MAX_ID     IDC_NEWPROFILEWINDOW_PROFILE9
+#define IDC_NEW_WINDOW_PROFILE_0        33058
+#define IDC_NEW_WINDOW_PROFILE_1        33059
+#define IDC_NEW_WINDOW_PROFILE_2        33060
+#define IDC_NEW_WINDOW_PROFILE_3        33061
+#define IDC_NEW_WINDOW_PROFILE_4        33062
+#define IDC_NEW_WINDOW_PROFILE_5        33063
+#define IDC_NEW_WINDOW_PROFILE_6        33064
+#define IDC_NEW_WINDOW_PROFILE_7        33065
+#define IDC_NEW_WINDOW_PROFILE_8        33066
+#define IDC_NEW_WINDOW_PROFILE_LAST     IDC_NEW_WINDOW_PROFILE_8
 
 // Next default values for new objects
 //

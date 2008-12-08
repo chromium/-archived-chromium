@@ -82,22 +82,22 @@ static const int kLoadingAnimationFrameTimeMs = 30;
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
-  { false, IDC_TASKMANAGER, IDS_TASKMANAGER },
+  { false, IDC_TASK_MANAGER, IDS_TASK_MANAGER },
   { true, 0, 0 },
-  { false, IDC_ENCODING, IDS_ENCODING },
-  { false, IDC_ZOOM, IDS_ZOOM },
+  { false, IDC_ENCODING_MENU, IDS_ENCODING_MENU },
+  { false, IDC_ZOOM_MENU, IDS_ZOOM_MENU },
   { false, IDC_PRINT, IDS_PRINT },
-  { false, IDC_SAVEPAGE, IDS_SAVEPAGEAS },
-  { false, IDC_FIND, IDS_FIND_IN_PAGE },
+  { false, IDC_SAVE_PAGE, IDS_SAVE_PAGE },
+  { false, IDC_FIND, IDS_FIND },
   { true, 0, 0 },
   { false, IDC_PASTE, IDS_PASTE },
   { false, IDC_COPY, IDS_COPY },
   { false, IDC_CUT, IDS_CUT },
   { true, 0, 0 },
-  { false, IDC_NEWTAB, IDS_APP_MENU_NEW_WEB_PAGE },
+  { false, IDC_NEW_TAB, IDS_APP_MENU_NEW_WEB_PAGE },
   { false, IDC_SHOW_AS_TAB, IDS_SHOW_AS_TAB },
   { false, IDC_COPY_URL, IDS_APP_MENU_COPY_URL },
-  { false, IDC_DUPLICATE, IDS_APP_MENU_DUPLICATE },
+  { false, IDC_DUPLICATE_TAB, IDS_APP_MENU_DUPLICATE_APP_WINDOW },
   { true, 0, 0 },
   { false, IDC_RELOAD, IDS_APP_MENU_RELOAD },
   { false, IDC_FORWARD, IDS_CONTENT_CONTEXT_FORWARD },
@@ -991,8 +991,8 @@ void BrowserView::InitSystemMenu() {
   // to change.
   if (browser_->type() == Browser::TYPE_NORMAL) {
     system_menu_->AddSeparator(insertion_index);
-    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASKMANAGER,
-                                       l10n_util::GetString(IDS_TASKMANAGER));
+    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASK_MANAGER,
+                                       l10n_util::GetString(IDS_TASK_MANAGER));
     // If it's a regular browser window with tabs, we don't add any more items,
     // since it already has menus (Page, Chrome).
   } else {
@@ -1250,17 +1250,17 @@ void BrowserView::BuildMenuForTabStriplessWindow(Menu* menu,
       menu->AddSeparator(insertion_index);
     } else {
       int command = kMenuLayout[i].command;
-      if (command == IDC_ENCODING) {
+      if (command == IDC_ENCODING_MENU) {
         Menu* encoding_menu = menu->AddSubMenu(
             insertion_index,
-            IDC_ENCODING,
-            l10n_util::GetString(IDS_ENCODING));
+            IDC_ENCODING_MENU,
+            l10n_util::GetString(IDS_ENCODING_MENU));
         encoding_menu->set_delegate(encoding_menu_delegate_.get());
         EncodingMenuControllerDelegate::BuildEncodingMenu(browser_->profile(),
                                                           encoding_menu);
-      } else if (command == IDC_ZOOM) {
-        Menu* zoom_menu = menu->AddSubMenu(insertion_index, IDC_ZOOM,
-                                           l10n_util::GetString(IDS_ZOOM));
+      } else if (command == IDC_ZOOM_MENU) {
+        Menu* zoom_menu = menu->AddSubMenu(insertion_index, IDC_ZOOM_MENU,
+                                           l10n_util::GetString(IDS_ZOOM_MENU));
         zoom_menu->AppendMenuItemWithLabel(
             IDC_ZOOM_PLUS,
             l10n_util::GetString(IDS_ZOOM_PLUS));
@@ -1293,11 +1293,11 @@ int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
     case APPCOMMAND_BROWSER_SEARCH:
       return IDC_FOCUS_SEARCH;
     case APPCOMMAND_CLOSE:
-      return IDC_CLOSETAB;
+      return IDC_CLOSE_TAB;
     case APPCOMMAND_NEW:
-      return IDC_NEWTAB;
+      return IDC_NEW_TAB;
     case APPCOMMAND_OPEN:
-      return IDC_OPENFILE;
+      return IDC_OPEN_FILE;
     case APPCOMMAND_PRINT:
       return IDC_PRINT;
 

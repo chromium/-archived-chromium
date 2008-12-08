@@ -470,8 +470,8 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
   Menu menu(this, anchor, hwnd);
   // The install menu may be dynamically generated with a contextual label.
   // See browser_commands.cc.
-  menu.AppendMenuItemWithLabel(IDC_CREATE_SHORTCUT,
-      l10n_util::GetString(IDS_DEFAULT_INSTALL_SITE_LABEL));
+  menu.AppendMenuItemWithLabel(IDC_CREATE_SHORTCUTS,
+      l10n_util::GetString(IDS_CREATE_SHORTCUTS));
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_CUT, l10n_util::GetString(IDS_CUT));
   menu.AppendMenuItemWithLabel(IDC_COPY, l10n_util::GetString(IDS_COPY));
@@ -479,14 +479,14 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
   menu.AppendSeparator();
 
   menu.AppendMenuItemWithLabel(IDC_FIND,
-                               l10n_util::GetString(IDS_FIND_IN_PAGE));
-  menu.AppendMenuItemWithLabel(IDC_SAVEPAGE,
-                               l10n_util::GetString(IDS_SAVEPAGEAS));
+                               l10n_util::GetString(IDS_FIND));
+  menu.AppendMenuItemWithLabel(IDC_SAVE_PAGE,
+                               l10n_util::GetString(IDS_SAVE_PAGE));
   menu.AppendMenuItemWithLabel(IDC_PRINT, l10n_util::GetString(IDS_PRINT));
   menu.AppendSeparator();
 
-  Menu* zoom_menu = menu.AppendSubMenu(IDC_ZOOM,
-                                       l10n_util::GetString(IDS_ZOOM));
+  Menu* zoom_menu = menu.AppendSubMenu(IDC_ZOOM_MENU,
+                                       l10n_util::GetString(IDS_ZOOM_MENU));
   zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_PLUS,
                                      l10n_util::GetString(IDS_ZOOM_PLUS));
   zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_NORMAL,
@@ -495,8 +495,8 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
                                      l10n_util::GetString(IDS_ZOOM_MINUS));
 
   // Create encoding menu.
-  Menu* encoding_menu = menu.AppendSubMenu(IDC_ENCODING,
-                                           l10n_util::GetString(IDS_ENCODING));
+  Menu* encoding_menu = menu.AppendSubMenu(
+      IDC_ENCODING_MENU, l10n_util::GetString(IDS_ENCODING_MENU));
 
   EncodingMenuControllerDelegate::BuildEncodingMenu(profile_, encoding_menu);
 
@@ -505,15 +505,15 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
     unsigned int menu_label_id;
   };
   struct MenuCreateMaterial developer_menu_materials[] = {
-    { IDC_VIEWSOURCE, IDS_VIEWPAGESOURCE },
+    { IDC_VIEW_SOURCE, IDS_VIEW_SOURCE },
     { IDC_DEBUGGER, IDS_DEBUGGER },
-    { IDC_SHOW_JS_CONSOLE, IDS_VIEWJSCONSOLE },
-    { IDC_TASKMANAGER, IDS_TASKMANAGER }
+    { IDC_JS_CONSOLE, IDS_JS_CONSOLE },
+    { IDC_TASK_MANAGER, IDS_TASK_MANAGER }
   };
   // Append developer menu.
   menu.AppendSeparator();
-  Menu* developer_menu =
-    menu.AppendSubMenu(IDC_DEVELOPER, l10n_util::GetString(IDS_DEVELOPER));
+  Menu* developer_menu = menu.AppendSubMenu(IDC_DEVELOPER_MENU,
+      l10n_util::GetString(IDS_DEVELOPER_MENU));
   for (int i = 0; i < arraysize(developer_menu_materials); ++i) {
     if (developer_menu_materials[i].menu_id) {
       developer_menu->AppendMenuItemWithLabel(
@@ -526,8 +526,8 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
 
   menu.AppendSeparator();
 
-  menu.AppendMenuItemWithLabel(IDS_COMMANDS_REPORTBUG,
-                               l10n_util::GetString(IDS_COMMANDS_REPORTBUG));
+  menu.AppendMenuItemWithLabel(IDC_REPORT_BUG,
+                               l10n_util::GetString(IDS_REPORT_BUG));
   menu.RunMenuAt(pt.x, pt.y);
 }
 
@@ -537,23 +537,23 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
     anchor = Menu::TOPLEFT;
 
   Menu menu(this, anchor, hwnd);
-  menu.AppendMenuItemWithLabel(IDC_NEWTAB, l10n_util::GetString(IDS_NEWTAB));
-  menu.AppendMenuItemWithLabel(IDC_NEWWINDOW,
-                               l10n_util::GetString(IDS_NEWWINDOW));
-  menu.AppendMenuItemWithLabel(IDC_GOOFFTHERECORD,
-                               l10n_util::GetString(IDS_GOOFFTHERECORD));
+  menu.AppendMenuItemWithLabel(IDC_NEW_TAB, l10n_util::GetString(IDS_NEW_TAB));
+  menu.AppendMenuItemWithLabel(IDC_NEW_WINDOW,
+                               l10n_util::GetString(IDS_NEW_WINDOW));
+  menu.AppendMenuItemWithLabel(IDC_NEW_INCOGNITO_WINDOW,
+                               l10n_util::GetString(IDS_NEW_INCOGNITO_WINDOW));
 
   // Enumerate profiles asynchronously and then create the parent menu item
   // "Open new window in profile...". We will create the child menu items for
   // this once the asynchronous call is done. See OnGetProfilesDone.
   profiles_helper_->GetProfiles(NULL);
   Menu* profiles_menu = menu.AppendSubMenu(
-      IDC_NEWPROFILEWINDOW,
-      l10n_util::GetString(IDS_NEWPROFILEWINDOW));
+      IDC_PROFILE_MENU,
+      l10n_util::GetString(IDS_PROFILE_MENU));
   profiles_menu_ = profiles_menu;
 
   menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARKS_BAR,
+  menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,
                                l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_HISTORY,
@@ -568,13 +568,12 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   menu.AppendMenuItemWithLabel(IDC_IMPORT_SETTINGS,
                                l10n_util::GetString(IDS_IMPORT_SETTINGS));
   menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_OPTIONS,
-      l10n_util::GetStringF(IDS_OPTIONS,
-      l10n_util::GetString(IDS_PRODUCT_NAME)));
-  menu.AppendMenuItemWithLabel(IDC_ABOUT,
-      l10n_util::GetStringF(IDS_ABOUT,
-      l10n_util::GetString(IDS_PRODUCT_NAME)));
-  menu.AppendMenuItemWithLabel(IDC_HELPMENU, l10n_util::GetString(IDS_HELP));
+  menu.AppendMenuItemWithLabel(IDC_OPTIONS, l10n_util::GetStringF(IDS_OPTIONS,
+                               l10n_util::GetString(IDS_PRODUCT_NAME)));
+  menu.AppendMenuItemWithLabel(IDC_ABOUT, l10n_util::GetStringF(IDS_ABOUT,
+                               l10n_util::GetString(IDS_PRODUCT_NAME)));
+  menu.AppendMenuItemWithLabel(IDC_HELP_PAGE,
+                               l10n_util::GetString(IDS_HELP_PAGE));
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_EXIT, l10n_util::GetString(IDS_EXIT));
 
@@ -587,7 +586,7 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
 bool BrowserToolbarView::IsItemChecked(int id) const {
   if (!profile_)
     return false;
-  if (id == IDC_SHOW_BOOKMARKS_BAR)
+  if (id == IDC_SHOW_BOOKMARK_BAR)
     return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
   else
     return EncodingMenuControllerDelegate::IsItemChecked(id);
@@ -617,12 +616,12 @@ void BrowserToolbarView::OnGetProfilesDone(
   browser_->set_user_data_dir_profiles(profiles);
 
   // Number of sub menu items that we can show directly.
-  const int sub_items_count = IDC_NEWPROFILEWINDOW_MAX_ID -
-                              IDC_NEWPROFILEWINDOW_MIN_ID + 1;
+  const int sub_items_count = IDC_NEW_WINDOW_PROFILE_0 -
+                              IDC_NEW_WINDOW_PROFILE_LAST + 1;
   std::vector<std::wstring>::const_iterator iter = profiles.begin();
   // Add direct sub menu items for profiles.
-  for (int i = IDC_NEWPROFILEWINDOW_MIN_ID;
-       i <= IDC_NEWPROFILEWINDOW_MAX_ID && iter != profiles.end();
+  for (int i = IDC_NEW_WINDOW_PROFILE_0;
+       i <= IDC_NEW_WINDOW_PROFILE_LAST && iter != profiles.end();
        ++i, ++iter) {
     profiles_menu_->AppendMenuItemWithLabel(i, *iter);
   }
@@ -630,8 +629,7 @@ void BrowserToolbarView::OnGetProfilesDone(
   if (iter != profiles.end()) {
     profiles_menu_->AppendSeparator();
     profiles_menu_->AppendMenuItemWithLabel(
-        IDC_SELECT_PROFILE,
-        l10n_util::GetString(IDS_NEWPROFILEWINDOW_OTHERPROFILE));
+        IDC_SELECT_PROFILE, l10n_util::GetString(IDS_SELECT_PROFILE));
   }
   // Always show a link to select a new profile.
   profiles_menu_->AppendSeparator();
@@ -752,8 +750,8 @@ void BrowserToolbarView::ExecuteCommand(int id) {
   // If the command id is for one of the sub-menu-items of the new profile
   // window menu then we need to get the name of the profile from the menu
   // item id and then pass on that to the browser to take action.
-  if (id >= IDC_NEWPROFILEWINDOW_MIN_ID && id <= IDC_NEWPROFILEWINDOW_MAX_ID) {
-    browser_->NewProfileWindowByIndex(id - IDC_NEWPROFILEWINDOW_MIN_ID);
+  if (id >= IDC_NEW_WINDOW_PROFILE_0 && id <= IDC_NEW_WINDOW_PROFILE_LAST) {
+    browser_->NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);
     return;
   }
 

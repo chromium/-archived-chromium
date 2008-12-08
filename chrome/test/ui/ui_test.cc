@@ -292,7 +292,7 @@ void UITest::QuitBrowser() {
     for (BrowserVector::iterator iter = browsers.begin();
       iter != browsers.end(); ++iter) {
       // Use ApplyAccelerator since it doesn't wait
-      (*iter)->ApplyAccelerator(IDC_CLOSEWINDOW);
+      (*iter)->ApplyAccelerator(IDC_CLOSE_WINDOW);
       delete (*iter);
     }
 

@@ -360,7 +360,7 @@ each locale. -->
       <message name="IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS" desc="The name of the No Spelling Suggestions display in the content area context menu">
         &amp;No spelling suggestions
       </message>
-      <message name="IDS_CONTENT_CONTEXT_SPELLCHECK_OPTIONS" desc="The name of the Spellcheck Options display in the content area context menu">
+      <message name="IDS_CONTENT_CONTEXT_SPELLCHECK_MENU" desc="The name of the Spellcheck Options submenu in the content area context menu">
         &amp;Spell-checker options
       </message>
       <message name="IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS" desc="The name of the Language Settings command in the content area context menu">
@@ -383,22 +383,22 @@ each locale. -->
       </message>
 
       <!-- Page menu -->
-      <message name="IDS_NEWTAB" desc="The text label of the New Tab menu item">
+      <message name="IDS_NEW_TAB" desc="The text label of the New Tab menu item">
         New &amp;tab
       </message>
       <message name="IDS_SHOW_AS_TAB" desc="The text label for the Show As tab menu item">
         &amp;Show as tab
       </message>
-      <message name="IDS_NEWWINDOW" desc="The text label of the New Window menu item" >
+      <message name="IDS_NEW_WINDOW" desc="The text label of the New Window menu item" >
         &amp;New window
       </message>
-      <message name="IDS_NEWPROFILEWINDOW" desc="The text label of the New profile Window menu item" >
+      <message name="IDS_PROFILE_MENU" desc="The text label of the New profile Window menu item" >
         New window in &amp;profile
       </message>
-      <message name="IDS_NEWPROFILEWINDOW_OTHERPROFILE" desc="The text label of the sub menu item of New profile Window menu item to select a profile other than the ones displayed in the sub-menu items." >
+      <message name="IDS_SELECT_PROFILE" desc="The text label of the menu item to select a profile other than the ones displayed directly in the Profile submenu." >
         Other...
       </message>
-      <message name="IDS_GOOFFTHERECORD" desc="The text label of the New incognito window menu item">
+      <message name="IDS_NEW_INCOGNITO_WINDOW" desc="The text label of the New incognito window menu item">
         New &amp;incognito window
       </message>
       <message name="IDS_UNDO" desc="The text label of the Undo menu item" >
@@ -413,19 +413,19 @@ each locale. -->
       <message name="IDS_PASTE" desc="The text label of the Paste menu item" >
         &amp;Paste
       </message>
-      <message name="IDS_SELECTALL" desc="The text label of the Select All menu item" >
+      <message name="IDS_SELECT_ALL" desc="The text label of the Select All menu item" >
         Select &amp;all
       </message>
-      <message name="IDS_FIND_IN_PAGE" desc="The text label of the Find in Page menu item" >
+      <message name="IDS_FIND" desc="The text label of the Find in Page menu item" >
         &amp;Find in page
       </message>
-      <message name="IDS_SAVEPAGEAS" desc="The text label of the Save Page As menu item" >
+      <message name="IDS_SAVE_PAGE" desc="The text label of the Save Page As menu item" >
         Save page &amp;as...
       </message>
       <message name="IDS_PRINT" desc="The text label of the Print... menu item. Opens a dialog box to select print settings" >
         &amp;Print...
       </message>
-      <message name="IDS_ZOOM" desc="The text label of the Zoom submenu" >
+      <message name="IDS_ZOOM_MENU" desc="The text label of the Zoom submenu" >
         &amp;Zoom
       </message>
       <message name="IDS_ZOOM_PLUS" desc="The text label of the Make Text Larger menu item" >
@@ -437,7 +437,7 @@ each locale. -->
       <message name="IDS_ZOOM_MINUS" desc="The text label of the Make Text Smaller menu item" >
         &amp;Smaller
       </message>
-      <message name="IDS_ENCODING" desc="The text label of the Encoding submenu" >
+      <message name="IDS_ENCODING_MENU" desc="The text label of the Encoding submenu" >
         &amp;Encoding
       </message>
       <message name="IDS_ENCODING_AUTO_DETECT" desc="The text label of the Auto Dectect submenu" >
@@ -503,10 +503,10 @@ each locale. -->
       <message name="IDS_ENCODING_VIETNAMESE" desc="The text label of Vietnamese encoding" >
         Vietnamese
       </message>
-      <message name="IDS_DEVELOPER" desc="The text label of the Developer submenu">
+      <message name="IDS_DEVELOPER_MENU" desc="The text label of the Developer submenu">
         Developer
       </message>
-      <message name="IDS_VIEWPAGESOURCE" desc="The text label of the View Page Source menu item" >
+      <message name="IDS_VIEW_SOURCE" desc="The text label of the View Page Source menu item" >
         View s&amp;ource
       </message>
       <message name="IDS_VIEWPAGEINFO" desc="The text label of the View Page Info menu item" >
@@ -515,13 +515,13 @@ each locale. -->
       <message name="IDS_DEBUGGER" desc="The text label of the JavaScript debugger menu item">
         Debug JavaScript
       </message>
-      <message name="IDS_COMMANDS_REPORTBUG" desc="The text label of the Report Bug menu item">
+      <message name="IDS_REPORT_BUG" desc="The text label of the Report Bug menu item">
         &amp;Report bug or broken website...
       </message>
-      <message name="IDS_VIEWJSCONSOLE" desc="The text the menu to show the JS console">
+      <message name="IDS_JS_CONSOLE" desc="The text the menu to show the JS console">
         &amp;JavaScript console
       </message>
-      <message name="IDS_TASKMANAGER" desc="The text label of the Task Manager menu item" >
+      <message name="IDS_TASK_MANAGER" desc="The text label of the Task Manager menu item" >
         &amp;Task manager
       </message>
       <message name="IDS_CLOSE" desc="The close menu">
@@ -561,7 +561,7 @@ each locale. -->
       <message name="IDS_OPTIONS" desc="The text label of the Options menu item">
         &amp;Options
       </message>
-      <message name="IDS_HELP" desc="The text label of the Help menu item">
+      <message name="IDS_HELP_PAGE" desc="The text label of the Help menu item">
         Help
       </message>
       <message name="IDS_ABOUT" desc="The text label of the About Chrome menu item">
@@ -1283,7 +1283,7 @@ each locale. -->
       </message>
 
       <!-- Gears shortcut strings -->
-      <message name="IDS_DEFAULT_INSTALL_SITE_LABEL" desc="Default installation menu label">
+      <message name="IDS_CREATE_SHORTCUTS" desc="Default installation menu label">
         Create application &amp;shortcuts...
       </message>
 
@@ -2158,7 +2158,7 @@ each locale. -->
       <message name="IDS_APP_MENU_RELOAD" desc="The reload menu in application windows">
         Reload
       </message>
-      <message name="IDS_APP_MENU_DUPLICATE" meaning="Duplicate application window" desc="The duplicate / start new instance menu">
+      <message name="IDS_APP_MENU_DUPLICATE_APP_WINDOW" meaning="Duplicate application window" desc="The duplicate / start new instance menu">
         Duplicate
       </message>
       <message name="IDS_APP_MENU_COPY_URL" desc="The copy url menu in application windows">
