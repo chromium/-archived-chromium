@@ -1740,8 +1740,6 @@ MAC : LayoutTests/fast/js/postfix-syntax.html = FAIL
 MAC : LayoutTests/fast/js/prefix-syntax.html = FAIL
 MAC : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
 MAC : LayoutTests/fast/js/recursion-limit-equal.html = FAIL
-MAC : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL
-LINUX : LayoutTests/fast/js/regexp-charclass-crash.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/js/regexp-compile-crash.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile.html = FAIL
 MAC : LayoutTests/fast/js/regexp-no-extensions.html = FAIL
@@ -1988,7 +1986,6 @@ MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = C
 MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH
 MAC : LayoutTests/fast/events/option-tab.html = CRASH FAIL
 MAC : LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH PASS
-MAC : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH PASS
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
 MAC : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH
 
