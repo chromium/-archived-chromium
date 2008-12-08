@@ -204,7 +204,10 @@ static bool FillNonBMPGlyphs(UChar* buffer,
     state.Init();
 
     for (unsigned i = 0; i < GlyphPage::size; i++) {
-        WORD glyph = state.FirstGlyphForCharacter(i);
+        // Each character in this input buffer is a surrogate pair, which
+        // consists of two UChars. So, the offset for its i-th character is
+        // (i * 2).
+        WORD glyph = state.FirstGlyphForCharacter(i * 2);
         if (glyph) {
             have_glyphs = true;
             page->setGlyphDataForIndex(i, glyph, fontData);
