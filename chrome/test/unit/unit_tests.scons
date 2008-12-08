@@ -229,7 +229,6 @@ if env['PLATFORM'] == 'win32':
       '$CHROME_DIR/views/focus_manager_unittest.cc',
       '$CHROME_DIR/views/grid_layout_unittest.cc',
       '$CHROME_DIR/views/table_view_unittest.cc',
-      '$CHROME_DIR/views/tree_node_iterator_unittest.cc',
       '$CHROME_DIR/views/view_unittest.cc',
 
       # Commented out for now because googleurl_tests doesn't build with
