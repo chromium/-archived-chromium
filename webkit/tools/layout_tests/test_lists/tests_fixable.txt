@@ -797,8 +797,6 @@ LINUX MAC : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 // Missing a Georgian font for Linux
 LINUX : LayoutTests/css2.1/t1202-counter-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
-// Linux pixeltest failure: Font mismatch
-LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
 
 // It's not clear that the test isn't wrong here. It believes that middle
 // aligning 15px Ahem should end up in a certain spot. But we have the
