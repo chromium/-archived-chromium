@@ -77,6 +77,7 @@
 		4D2A644B0EBBC16700B55603 /* V8HTMLSourceElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A64470EBBC16700B55603 /* V8HTMLSourceElement.cpp */; };
 		4D329F8C0EB908A40041FB7E /* V8MessageChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D329F8A0EB908A40041FB7E /* V8MessageChannel.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
+		4D64AC520EEE271C0021761F /* CSSSelectorList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
 		4DB044230EB161D600A5633C /* IconMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB044220EB161D600A5633C /* IconMac.cpp */; };
@@ -3982,7 +3983,7 @@
 		93BF8E650EA6AED30030F05C /* ResourceRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ResourceRequest.h; path = chromium/ResourceRequest.h; sourceTree = "<group>"; };
 		93BF8E660EA6AED30030F05C /* ResourceResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ResourceResponse.h; path = chromium/ResourceResponse.h; sourceTree = "<group>"; };
 		93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObjectChromium.cpp; sourceTree = "<group>"; };
-		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CSSSelectorList.cpp; path = ../third_party/WebKit/WebCore/css/CSSSelectorList.cpp; sourceTree = SOURCE_ROOT; };
+		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSSelectorList.cpp; sourceTree = "<group>"; };
 		A80DD9160EE4A85900728DDE /* PurgeableBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PurgeableBuffer.h; sourceTree = "<group>"; };
 		A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PurgeableBufferMac.cpp; sourceTree = "<group>"; };
 		AB332F4B0E95497E0020F882 /* AnimationController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationController.cpp; path = animation/AnimationController.cpp; sourceTree = "<group>"; };
@@ -4606,7 +4607,6 @@
 		7B5E77540D7F22D8001ECF42 = {
 			isa = PBXGroup;
 			children = (
-				A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */,
 				7BF8842B0E71C100000BAF8A /* Configuration */,
 				7BF889C10E71CEA6000BAF8A /* generated */,
 				825404E50D92E3BB0006B936 /* glue */,
@@ -4817,6 +4817,7 @@
 				7B5E890A0D7F3A08001ECF42 /* CSSSegmentedFontFace.h */,
 				7B5E890B0D7F3A08001ECF42 /* CSSSelector.cpp */,
 				7B5E890C0D7F3A08001ECF42 /* CSSSelector.h */,
+				A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */,
 				7B5E890D0D7F3A08001ECF42 /* CSSStyleDeclaration.cpp */,
 				7B5E890E0D7F3A08001ECF42 /* CSSStyleDeclaration.h */,
 				7B5E89100D7F3A08001ECF42 /* CSSStyleRule.cpp */,
@@ -8533,8 +8534,8 @@
 				E45623B60E268E87005E4685 /* ClipboardEvent.cpp in Sources */,
 				E45624C20E268E87005E4685 /* Color.cpp in Sources */,
 				E45626820E268E87005E4685 /* ColorCG.cpp in Sources */,
-				AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */,
 				E456259C0E268E87005E4685 /* ColorDistance.cpp in Sources */,
+				AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */,
 				E45623B70E268E87005E4685 /* Comment.cpp in Sources */,
 				4DB7EFE60E9BA1E400C66CE0 /* CompositeAnimation.cpp in Sources */,
 				E45623EF0E268E87005E4685 /* CompositeEditCommand.cpp in Sources */,
@@ -8579,6 +8580,7 @@
 				E45623920E268E87005E4685 /* CSSRuleList.cpp in Sources */,
 				E45623930E268E87005E4685 /* CSSSegmentedFontFace.cpp in Sources */,
 				E45623940E268E87005E4685 /* CSSSelector.cpp in Sources */,
+				4D64AC520EEE271C0021761F /* CSSSelectorList.cpp in Sources */,
 				E45623950E268E87005E4685 /* CSSStyleDeclaration.cpp in Sources */,
 				E45623960E268E87005E4685 /* CSSStyleRule.cpp in Sources */,
 				E45623970E268E87005E4685 /* CSSStyleSelector.cpp in Sources */,
@@ -8871,6 +8873,7 @@
 				E45623DB0E268E87005E4685 /* ProgressEvent.cpp in Sources */,
 				E45624940E268E87005E4685 /* ProgressTracker.cpp in Sources */,
 				E45625230E268E87005E4685 /* ProtectionSpace.cpp in Sources */,
+				A80DD9190EE4A87900728DDE /* PurgeableBufferMac.cpp in Sources */,
 				E45623DC0E268E87005E4685 /* QualifiedName.cpp in Sources */,
 				E45623DD0E268E87005E4685 /* Range.cpp in Sources */,
 				E45623DE0E268E87005E4685 /* RegisteredEventListener.cpp in Sources */,
@@ -9293,7 +9296,6 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
-				A80DD9190EE4A87900728DDE /* PurgeableBufferMac.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
