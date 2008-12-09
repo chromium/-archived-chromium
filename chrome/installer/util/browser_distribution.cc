@@ -43,6 +43,10 @@ int BrowserDistribution::GetInstallReturnCode(
   return install_status;
 }
 
+std::wstring BrowserDistribution::GetStateKey() {
+  return L"Software\\Chromium";
+}
+
 std::wstring BrowserDistribution::GetUninstallLinkName() {
   return L"Uninstall Chromium";
 }

@@ -125,6 +125,13 @@ int GoogleChromeDistribution::GetInstallReturnCode(
   }
 }
 
+std::wstring GoogleChromeDistribution::GetStateKey() {
+  std::wstring key(google_update::kRegPathClientState);
+  key.append(L"\\");
+  key.append(google_update::kChromeGuid);
+  return key;
+}
+
 std::wstring GoogleChromeDistribution::GetUninstallLinkName() {
   const std::wstring& link_name =
       installer_util::GetLocalizedString(IDS_UNINSTALL_CHROME_BASE);

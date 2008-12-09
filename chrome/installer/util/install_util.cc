@@ -92,7 +92,7 @@ void InstallUtil::WriteInstallerResult(bool system_install,
                                        const std::wstring* const launch_cmd) {
   HKEY root = system_install ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-  std::wstring key = dist->GetVersionKey();
+  std::wstring key = dist->GetStateKey();
   int installer_result = (dist->GetInstallReturnCode(status) == 0) ? 0 : 1;
   scoped_ptr<WorkItemList> install_list(WorkItem::CreateWorkItemList());
   install_list->AddCreateRegKeyWorkItem(root, key);
