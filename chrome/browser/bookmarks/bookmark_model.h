@@ -190,7 +190,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
  public:
   explicit BookmarkModel(Profile* profile);
   virtual ~BookmarkModel();
-  
+
   // Loads the bookmarks. This is called by Profile upon creation of the
   // BookmarkModel. You need not invoke this directly.
   void Load();
@@ -208,34 +208,6 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // Returns the parent the last node was added to. This never returns NULL
   // (as long as the model is loaded).
   BookmarkNode* GetParentForNewNodes();
-
-  // Returns a vector containing up to |max_count| of the most recently
-  // modified groups. This never returns an empty vector.
-  std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(size_t max_count);
-
-  // Returns the most recently added bookmarks. This does not return groups,
-  // only nodes of type url.
-  void GetMostRecentlyAddedEntries(size_t count,
-                                   std::vector<BookmarkNode*>* nodes);
-
-  // Used by GetBookmarksMatchingText to return a matching node and the location
-  // of the match in the title.
-  struct TitleMatch {
-    BookmarkNode* node;
-
-    // Location of the matching words in the title of the node.
-    Snippet::MatchPositions match_positions;
-  };
-
-  // Returns the bookmarks whose title contains text. At most |max_count|
-  // matches are returned in |matches|.
-  void GetBookmarksMatchingText(const std::wstring& text,
-                                size_t max_count,
-                                std::vector<TitleMatch>* matches);
-
-  // Returns true if the specified bookmark's title matches the specified
-  // text.
-  bool DoesBookmarkMatchText(const std::wstring& text, BookmarkNode* node);
 
   void AddObserver(BookmarkModelObserver* observer) {
     observers_.AddObserver(observer);
@@ -404,12 +376,6 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // If we're waiting on a favicon for node, the load request is canceled.
   void CancelPendingFavIconLoadRequests(BookmarkNode* node);
-
-  // Returns up to count of the most recently modified groups. This may not
-  // add anything.
-  void GetMostRecentlyModifiedGroupNodes(BookmarkNode* parent,
-                                         size_t count,
-                                         std::vector<BookmarkNode*>* nodes);
 
   // NotificationObserver.
   virtual void Observe(NotificationType type,

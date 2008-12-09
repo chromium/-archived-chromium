@@ -7,6 +7,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
@@ -53,7 +54,8 @@ static SkBitmap* kCloseImage = NULL;
 BookmarkBubbleView::RecentlyUsedFoldersModel::RecentlyUsedFoldersModel(
     BookmarkModel* bb_model, BookmarkNode* node)
       // Use + 2 to account for bookmark bar and other node.
-    : nodes_(bb_model->GetMostRecentlyModifiedGroups(kMaxMRUFolders + 2)),
+      : nodes_(bookmark_utils::GetMostRecentlyModifiedGroups(
+            bb_model, kMaxMRUFolders + 2)),
       node_parent_index_(0) {
   // TODO(sky): bug 1173415 add a separator in the combobox here.
 

@@ -5,6 +5,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/notification_registrar.h"
@@ -303,14 +304,15 @@ TEST_F(BookmarkModelTest, MostRecentlyModifiedGroups) {
 
   // Make sure group is in the most recently modified.
   std::vector<BookmarkNode*> most_recent_groups =
-      model.GetMostRecentlyModifiedGroups(1);
+      bookmark_utils::GetMostRecentlyModifiedGroups(&model, 1);
   ASSERT_EQ(1, most_recent_groups.size());
   ASSERT_EQ(group, most_recent_groups[0]);
 
   // Nuke the group and do another fetch, making sure group isn't in the
   // returned list.
   model.Remove(group->GetParent(), 0);
-  most_recent_groups = model.GetMostRecentlyModifiedGroups(1);
+  most_recent_groups =
+      bookmark_utils::GetMostRecentlyModifiedGroups(&model, 1);
   ASSERT_EQ(1, most_recent_groups.size());
   ASSERT_TRUE(most_recent_groups[0] != group);
 }
@@ -335,7 +337,7 @@ TEST_F(BookmarkModelTest, MostRecentlyAddedEntries) {
 
   // Make sure order is honored.
   std::vector<BookmarkNode*> recently_added;
-  model.GetMostRecentlyAddedEntries(2, &recently_added);
+  bookmark_utils::GetMostRecentlyAddedEntries(&model, 2, &recently_added);
   ASSERT_EQ(2, recently_added.size());
   ASSERT_TRUE(n1 == recently_added[0]);
   ASSERT_TRUE(n2 == recently_added[1]);
@@ -343,7 +345,7 @@ TEST_F(BookmarkModelTest, MostRecentlyAddedEntries) {
   // swap 1 and 2, then check again.
   recently_added.clear();
   std::swap(n1->date_added_, n2->date_added_);
-  model.GetMostRecentlyAddedEntries(4, &recently_added);
+  bookmark_utils::GetMostRecentlyAddedEntries(&model, 4, &recently_added);
   ASSERT_EQ(4, recently_added.size());
   ASSERT_TRUE(n2 == recently_added[0]);
   ASSERT_TRUE(n1 == recently_added[1]);
@@ -362,13 +364,13 @@ TEST_F(BookmarkModelTest, GetBookmarksMatchingText) {
   model.AddGroup(model.GetBookmarkBarNode(), 2, L"blah");
 
   // Make sure we don't get back the folder.
-  std::vector<BookmarkModel::TitleMatch> results;
-  model.GetBookmarksMatchingText(L"blah", 2, &results);
+  std::vector<bookmark_utils::TitleMatch> results;
+  bookmark_utils::GetBookmarksMatchingText(&model, L"blah", 2, &results);
   ASSERT_EQ(1U, results.size());
   EXPECT_EQ(n1, results[0].node);
   results.clear();
 
-  model.GetBookmarksMatchingText(L"x", 2, &results);
+  bookmark_utils::GetBookmarksMatchingText(&model, L"x", 2, &results);
   ASSERT_EQ(1U, results.size());
   EXPECT_EQ(n2, results[0].node);
 }

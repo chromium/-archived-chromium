@@ -8,8 +8,10 @@
 #include <vector>
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/history/snippet.h"
 #include "webkit/glue/window_open_disposition.h"
 
+class BookmarkModel;
 class BookmarkNode;
 class PageNavigator;
 class Profile;
@@ -74,6 +76,40 @@ void PasteFromClipboard(BookmarkModel* model,
 
 // Returns true if the user can copy from the pasteboard.
 bool CanPasteFromClipboard(BookmarkNode* node);
+
+// Returns a vector containing up to |max_count| of the most recently modified
+// groups. This never returns an empty vector.
+std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
+                                                         size_t max_count);
+
+// Returns the most recently added bookmarks. This does not return groups,
+// only nodes of type url.
+void GetMostRecentlyAddedEntries(BookmarkModel* model,
+                                 size_t count,
+                                 std::vector<BookmarkNode*>* nodes);
+
+// Used by GetBookmarksMatchingText to return a matching node and the location
+// of the match in the title.
+struct TitleMatch {
+  BookmarkNode* node;
+
+  // Location of the matching words in the title of the node.
+  Snippet::MatchPositions match_positions;
+};
+
+// Returns the bookmarks whose title contains text. At most |max_count|
+// matches are returned in |matches|.
+void GetBookmarksMatchingText(BookmarkModel* model,
+                              const std::wstring& text,
+                              size_t max_count,
+                              std::vector<TitleMatch>* matches);
+
+// Returns true if the specified bookmark's title matches the specified
+// text.
+bool DoesBookmarkMatchText(const std::wstring& text, BookmarkNode* node);
+
+// Returns true if |n1| was added more recently than |n2|.
+bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2);
 
 // Number of bookmarks we'll open before prompting the user to see if they
 // really want to open all.

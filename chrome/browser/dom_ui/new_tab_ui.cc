@@ -7,6 +7,7 @@
 #include "base/histogram.h"
 #include "base/string_piece.h"
 #include "chrome/app/locales/locale_settings.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_resources.h"
@@ -490,7 +491,8 @@ void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
 
 void RecentlyBookmarkedHandler::SendBookmarksToPage() {
   std::vector<BookmarkNode*> recently_bookmarked;
-  model_->GetMostRecentlyAddedEntries(kRecentBookmarks, &recently_bookmarked);
+  bookmark_utils::GetMostRecentlyAddedEntries(
+      model_, kRecentBookmarks, &recently_bookmarked);
   ListValue list_value;
   for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
     BookmarkNode* node = recently_bookmarked[i];

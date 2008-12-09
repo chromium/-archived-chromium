@@ -6,6 +6,7 @@
 
 #include "base/histogram.h"
 #include "base/string_util.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
 #include "net/base/net_util.h"
@@ -272,9 +273,9 @@ void HistoryContentsProvider::QueryBookmarks(const AutocompleteInput& input) {
                                  // empty.
 
   TimeTicks start_time = TimeTicks::Now();
-  std::vector<BookmarkModel::TitleMatch> matches;
-  bookmark_model->GetBookmarksMatchingText(input.text(), kMaxMatchCount,
-                                           &matches);
+  std::vector<bookmark_utils::TitleMatch> matches;
+  bookmark_utils::GetBookmarksMatchingText(bookmark_model, input.text(),
+                                           kMaxMatchCount, &matches);
   for (size_t i = 0; i < matches.size(); ++i)
     AddBookmarkTitleMatchToResults(matches[i]);
   UMA_HISTOGRAM_TIMES(L"Omnibox.QueryBookmarksTime",
@@ -282,7 +283,7 @@ void HistoryContentsProvider::QueryBookmarks(const AutocompleteInput& input) {
 }
 
 void HistoryContentsProvider::AddBookmarkTitleMatchToResults(
-    const BookmarkModel::TitleMatch& match) {
+    const bookmark_utils::TitleMatch& match) {
   history::URLResult url_result(match.node->GetURL(), match.match_positions);
   url_result.set_title(match.node->GetTitle());
   results_.AppendURLBySwapping(&url_result);
