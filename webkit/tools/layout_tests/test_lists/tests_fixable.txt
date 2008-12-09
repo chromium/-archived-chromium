@@ -2037,3 +2037,6 @@ LINUX : LayoutTests/fast/text/justified-selection.html = FAIL
 LINUX : LayoutTests/fast/text/word-space.html = FAIL
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
+
+// TODO(tc): flaky.
+LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
