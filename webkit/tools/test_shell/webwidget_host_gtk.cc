@@ -50,7 +50,6 @@ gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
 }
 
 gboolean WindowDestroyed(GtkWidget* widget, WebWidgetHost* host) {
-  LOG(INFO) << "Destroy Evented";
   host->WindowDestroyed();
   return FALSE;
 }
@@ -201,10 +200,8 @@ WebWidgetHost::WebWidgetHost()
 }
 
 WebWidgetHost::~WebWidgetHost() {
-  LOG(INFO) << "shutting down webwidgethost";
   webwidget_->Close();
   webwidget_->Release();
-  webwidget_ = NULL;
 }
 
 void WebWidgetHost::Resize(const gfx::Size &newsize) {
@@ -215,16 +212,8 @@ void WebWidgetHost::Resize(const gfx::Size &newsize) {
 }
 
 void WebWidgetHost::Paint() {
-  if (!webwidget_)
-    return;
-
   int width = view_->allocation.width;
   int height = view_->allocation.height;
-
-  // Avert a segfault during shutdown.
-//  if (width < 0 || height < 0)
-//    return;
-
   gfx::Rect client_rect(width, height);
 
   // Allocate a canvas if necessary
