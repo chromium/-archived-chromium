@@ -15,6 +15,7 @@
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/multiprocess_func_list.h"
 
 TEST(IPCMessageIntegrity, ReadBeyondBufferStr) {
   //This was BUG 984408.
@@ -264,18 +265,24 @@ class FuzzerClientListener : public SimpleListener {
   IPC::Message* last_msg_;
 };
 
-bool RunFuzzServer() {
+// Runs the fuzzing server child mode. Returns when the preset number
+// of messages have been received.
+MULTIPROCESS_TEST_MAIN(RunFuzzServer) {
+  MessageLoopForIO main_message_loop;
   FuzzerServerListener listener;
   IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_SERVER, &listener);
   chan.Connect();
   listener.Init(&chan);
   MessageLoop::current()->Run();
-  return true;
+  return 0;
 }
+
+class IPCFuzzingTest : public IPCChannelTest {
+};
 
 // This test makes sure that the FuzzerClientListener and FuzzerServerListener
 // are working properly by generating two well formed IPC calls.
-TEST(IPCFuzzingTest, SanityTest) {
+TEST_F(IPCFuzzingTest, SanityTest) {
   base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
   ASSERT_TRUE(server_process);
   PlatformThread::Sleep(1000);
@@ -304,7 +311,7 @@ TEST(IPCFuzzingTest, SanityTest) {
 // after we generate another valid IPC to make sure framing is working
 // properly.
 #ifdef NDEBUG
-TEST(IPCFuzzingTest, MsgBadPayloadShort) {
+TEST_F(IPCFuzzingTest, MsgBadPayloadShort) {
   base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
   ASSERT_TRUE(server_process);
   ::Sleep(1000);
@@ -328,12 +335,12 @@ TEST(IPCFuzzingTest, MsgBadPayloadShort) {
 }
 #endif  // NDEBUG
 
-// This test uses a payload that has the wrong arguments, but so the payload
+// This test uses a payload that has too many arguments, but so the payload
 // size is big enough so the unpacking routine does not generate an error as
 // in the case of MsgBadPayloadShort test.
 // This test does not pinpoint a flaw (per se) as by design we don't carry
 // type information on the IPC message.
-TEST(IPCFuzzingTest, MsgBadPayloadArgs) {
+TEST_F(IPCFuzzingTest, MsgBadPayloadArgs) {
   base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
   ASSERT_TRUE(server_process);
   PlatformThread::Sleep(1000);
@@ -345,13 +352,15 @@ TEST(IPCFuzzingTest, MsgBadPayloadArgs) {
 
   IPC::Message* msg = new IPC::Message(MSG_ROUTING_CONTROL, MsgClassSI::ID,
                                        IPC::Message::PRIORITY_NORMAL);
-  msg->WriteInt(2);
-  msg->WriteInt(0x64);
+  msg->WriteWString(L"d");
   msg->WriteInt(0);
-  msg->WriteInt(0x65);
+  msg->WriteInt(0x65);  // Extra argument.
+
   chan.Send(msg);
   EXPECT_TRUE(listener.ExpectMessage(0, MsgClassSI::ID));
 
+  // Now send a well formed message to make sure the receiver wasn't
+  // thrown out of sync by the extra argument.
   msg = new MsgClassIS(3, L"expect three");
   chan.Send(msg);
   EXPECT_TRUE(listener.ExpectMessage(3, MsgClassIS::ID));
@@ -387,7 +396,7 @@ class ServerMacroExTest {
   int unhandled_msgs_;
 };
 
-TEST(IPCFuzzingTest, MsgMapExMacro) {
+TEST_F(IPCFuzzingTest, MsgMapExMacro) {
   IPC::Message* msg = NULL;
   ServerMacroExTest server;
 

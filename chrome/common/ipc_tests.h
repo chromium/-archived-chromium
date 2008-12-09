@@ -5,6 +5,7 @@
 #ifndef CHROME_COMMON_IPC_TESTS_H__
 #define CHROME_COMMON_IPC_TESTS_H__
 
+#include "base/multiprocess_test.h"
 #include "base/process.h"
 
 // This unit test uses 3 types of child processes, a regular pipe client,
@@ -20,13 +21,21 @@ extern const wchar_t kTestClientChannel[];
 extern const wchar_t kReflectorChannel[];
 extern const wchar_t kFuzzerChannel[];
 
-// Spawns a child process and then runs the code for one of the 3 possible
-// child modes.
-base::ProcessHandle SpawnChild(ChildType child_type);
+class MessageLoopForIO;
 
-// Runs the fuzzing server child mode. Returns true when the preset number
-// of messages have been received.
-bool RunFuzzServer();
+//Base class to facilitate Spawning IPC Client processes.
+class IPCChannelTest : public MultiProcessTest {
+ protected:
+
+  // Create a new MessageLoopForIO For each test.
+  virtual void SetUp();
+  virtual void TearDown();
+
+  // Spawns a child process of the specified type
+  base::ProcessHandle SpawnChild(ChildType child_type);
+
+  // Created around each test instantiation.
+  MessageLoopForIO *message_loop_;
+};
 
 #endif  // CHROME_COMMON_IPC_TESTS_H__
-

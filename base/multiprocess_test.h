@@ -5,6 +5,7 @@
 #ifndef BASE_MULTIPROCESS_TEST_H__
 #define BASE_MULTIPROCESS_TEST_H__
 
+#include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
@@ -52,18 +53,32 @@ class MultiProcessTest : public PlatformTest {
   // TODO(darin): re-enable this once we have base/debug_util.h
   // ProcessDebugFlags(&cl, DebugUtil::UNKNOWN, false);
   base::ProcessHandle SpawnChild(const std::wstring& procname) {
+    return SpawnChild(procname, false);
+  }
+
+  base::ProcessHandle SpawnChild(const std::wstring& procname,
+                                 bool debug_on_start) {
     CommandLine cl;
     base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
 
 #if defined(OS_WIN)
     std::wstring clstr = cl.command_line_string();
     CommandLine::AppendSwitchWithValue(&clstr, kRunClientProcess, procname);
+
+    if (debug_on_start) {
+      CommandLine::AppendSwitch(&clstr, switches::kDebugOnStart);
+    }
+
     base::LaunchApp(clstr, false, true, &handle);
 #elif defined(OS_POSIX)
     std::vector<std::string> clvec(cl.argv());
     std::wstring wswitchstr =
         CommandLine::PrefixedSwitchStringWithValue(kRunClientProcess,
                                                    procname);
+    if (debug_on_start) {
+      CommandLine::AppendSwitch(&wswitchstr, switches::kDebugOnStart);
+    }
+
     std::string switchstr = WideToUTF8(wswitchstr);
     clvec.push_back(switchstr.c_str());
     base::LaunchApp(clvec, false, &handle);
