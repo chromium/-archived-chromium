@@ -1074,7 +1074,6 @@ LINUX WIN : LayoutTests/fast/css/variables/shorthand-test.html = FAIL
 LayoutTests/fast/css/variables/variable-iteration-test.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/8250.html = FAIL
 LayoutTests/fast/forms/input-disabled-color.html = FAIL
-LayoutTests/fast/forms/password-placeholder.html = FAIL
 LayoutTests/fast/forms/selection-functions.html = FAIL
 LayoutTests/fast/js/number-toString.html = FAIL
 LayoutTests/fast/js/numeric-conversion.html = FAIL
