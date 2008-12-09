@@ -379,6 +379,8 @@ DefaultNonClientView::DefaultNonClientView(
   minimize_button_->SetListener(this, -1);
   AddChildView(minimize_button_);
 
+  should_show_minmax_buttons_ = container->window_delegate()->CanMaximize();
+
   AddChildView(system_menu_button_);
 }
 
