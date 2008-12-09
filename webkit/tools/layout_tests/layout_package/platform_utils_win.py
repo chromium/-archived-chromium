@@ -80,8 +80,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
 
   def KillAllTestShells(self):
     """Kills all instances of the test_shell binary currently running."""
-    subprocess.Popen(('taskkill.exe', '/f', '/im',
-                      layout_package_path_utils.TestShellBinary()),
+    subprocess.Popen(['taskkill.exe', '/f', '/im', self.TestShellBinary()],
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE).wait()
 
