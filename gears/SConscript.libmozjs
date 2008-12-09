@@ -7,31 +7,49 @@ Import('env')
 env = env.Clone(
 )
 
-env.Append(
-      CPPDEFINES = [
-        'JS_THREADSAFE',
-        'XP_UNIX',
-        'DARWIN',
-        'HAVE_BSD_FLOCK',
-        'XP_MACOSX',
-        'HAVE_LCHOWN',
-        'HAVE_STRERROR',
-        'FORCE_PR_LOG',
-        '_PR_PTHREADS',
-        'UHAVE_CVAR_BUILT_ON_SEM',
-        '_NSPR_BUILD_',
-        'OSARCH=Darwin',
-        'STATIC_JS_API',
-        'JS_USE_SAFE_ARENA',
-        'TRIMMED',
-        'JS_HAS_EXPORT_IMPORT'
-      ],
-      CPPPATH = '$MOZJS_INCLUDE_PATHS',
-)
+if env['OS'] == 'osx':
+  env.Append(
+        CPPDEFINES = [
+          'JS_THREADSAFE',
+          'XP_UNIX',
+          'DARWIN',
+          'HAVE_BSD_FLOCK',
+          'XP_MACOSX',
+          'HAVE_LCHOWN',
+          'HAVE_STRERROR',
+          'FORCE_PR_LOG',
+          '_PR_PTHREADS',
+          'UHAVE_CVAR_BUILT_ON_SEM',
+          '_NSPR_BUILD_',
+          'OSARCH=Darwin',
+          'STATIC_JS_API',
+          'JS_USE_SAFE_ARENA',
+          'TRIMMED',
+          'JS_HAS_EXPORT_IMPORT'
+        ],
+        CPPPATH = '$MOZJS_INCLUDE_PATHS',
+  )
+elif env['OS'] == 'android':
+  env.Append(
+        CPPDEFINES = [
+          'JS_THREADSAFE',
+          'XP_UNIX',
+          'HAVE_STRERROR',
+          'FORCE_PR_LOG',
+          '_PR_PTHREADS',
+          'UHAVE_CVAR_BUILT_ON_SEM',
+          '_NSPR_BUILD_',
+          'OSARCH=Android',
+          'STATIC_JS_API',
+          'JS_USE_SAFE_ARENA',
+          'TRIMMED',
+          'JS_HAS_EXPORT_IMPORT',
+        ],
+        CPPPATH = '$MOZJS_INCLUDE_PATHS',
+  )
 
 input_files = [
     # Common Files
-    '$MOZJS_DIR/nspr/pr/src/md/unix/darwin.c', 
     '$MOZJS_DIR/js/src/jsapi.c', 
     '$MOZJS_DIR/js/src/jsarena.c', 
     '$MOZJS_DIR/js/src/jsarray.c', 
@@ -106,8 +124,6 @@ input_files = [
     '$MOZJS_DIR/nspr/pr/src/md/unix/unix.c', 
     '$MOZJS_DIR/nspr/pr/src/md/unix/unix_errors.c', 
     '$MOZJS_DIR/nspr/pr/src/md/unix/uxproces.c',
-    '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_ppc.s',
-    '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_x86.s',
 ]
 
 if env['OS'] == 'osx':

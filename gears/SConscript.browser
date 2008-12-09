@@ -218,6 +218,20 @@ if not env['OFFICIAL_BUILD']:
       'jpeg-gears',
     ])
 
+if env['OS'] == 'android':
+  env.Append(LIBS = [
+    'mozjs-gears',
+  ])
+  env.FilterOut(LIBS = [
+    'googleurl-gears',
+    'sqlite-gears',
+    'portaudio',
+    'png-gears',
+    'zlib-gears',
+    'jpeg-gears',
+    'gd',
+  ])
+
 if env['BROWSER'] == 'IE':
   if env['OS'] == 'win32':
     env.Append(
@@ -308,15 +322,16 @@ elif env['BROWSER'] in ['FF2', 'FF3']:
         FF3_LIBS = ['xpcomglue_s'],
     )
 elif env['BROWSER'] == 'NPAPI':
-  env.Append(
-      LIBS = [
-          'delayimp.lib',
-          'comdlg32.lib',
-      ],
-      SHLINKFLAGS = [
-          '/DELAYLOAD:"comdlg32.dll"',
-      ],
-  )
+  if env['OS'] == 'win32':
+    env.Append(
+        LIBS = [
+            'delayimp.lib',
+            'comdlg32.lib',
+        ],
+        SHLINKFLAGS = [
+            '/DELAYLOAD:"comdlg32.dll"',
+        ],
+    )
 
 
 # Building resources.
@@ -429,12 +444,13 @@ for src in GetInputs('$BROWSER_IDLSRCS'):
 if env['BROWSER'] in ['FF2', 'FF3']:
   outputs['MODULE_TYPELIB'] = env.XptLink('gears.xpt', xptsrcs)
 
-# genfiles/%.res: %.rc
-env.Append(BROWSER_SHLINKSRCS = [
-    [env_res.RES(
-         *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.res', src))
-     for src in GetInputs('$BROWSER_RESSRCS')]
-])
+if env_res:
+  # genfiles/%.res: %.rc
+  env.Append(BROWSER_SHLINKSRCS = [
+      [env_res.RES(
+           *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.res', src))
+       for src in GetInputs('$BROWSER_RESSRCS')]
+  ])
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
 if env['OS'] in ['win32', 'wince'] and env['BROWSER'] in ['NPAPI', 'IE']:

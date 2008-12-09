@@ -765,6 +765,149 @@ elif env['OS'] == 'osx':
             '-O2',
         ],
     )
+#--------------------------- ANDROID ---------------------------
+elif env['OS'] == 'android':
+  if not os.environ['ANDROID_BUILD_TOP']:
+    print ("Please set ANDROID_BUILD_TOP to the top"
+           " level of your Android source.")
+    Return()
+
+  if not os.environ['ANDROID_TOOLCHAIN']:
+    print ("Cannot determine location of the target toolchain."
+           " Please set ANDROID_TOOLCHAIN manually.")
+    Return()
+
+  env['ANDROID_BUILD_TOP'] = os.environ['ANDROID_BUILD_TOP']
+
+  # Figure out the cross-compile prefix by finding the *-gcc executable
+  # and taking the '*' as the prefix for the rest.
+  cross_prefix_command = os.popen(
+    r"ls %s/*-gcc | sed 's|\(.*/.*\-\)gcc|\1|g'" %
+    os.environ['ANDROID_TOOLCHAIN'])
+  cross_prefix = cross_prefix_command.read().strip()
+  if cross_prefix_command.close() != None:
+    Return()
+
+  # Find the output directory. Assume the only target output directory.
+  product_out_command = os.popen("ls %s/out/target/product/*" %
+                                 os.environ['ANDROID_BUILD_TOP'])
+  product_out = product_out_command.read().strip()
+  if product_out_command.close() != None:
+    Return()
+
+  env['CC'] = cross_prefix + 'gcc'
+  env['CXX'] = cross_prefix + 'g++'
+
+  env.Append(
+      CPPPATH = [
+          '$OPEN_DIR/base/android',
+          '$THIRD_PARTY_DIR/stlport/stlport',
+          '$THIRD_PARTY_DIR/stlport/stlport/stl',
+          '$THIRD_PARTY_DIR/stlport/stlport/stl/config',
+          '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include',
+          '$ANDROID_BUILD_TOP/include',
+          '$ANDROID_BUILD_TOP/include/nativehelper',
+          '$ANDROID_BUILD_TOP/system',
+          '$ANDROID_BUILD_TOP/system/bionic/include',
+          '$ANDROID_BUILD_TOP/system/bionic/arch-arm/include',
+          '$ANDROID_BUILD_TOP/system/kernel_headers',
+          '$ANDROID_BUILD_TOP/system/bionic/kernel/arch-arm',
+          '$ANDROID_BUILD_TOP/system/bionic/kernel/common',
+          '$ANDROID_BUILD_TOP/system/libm/include ',
+          '$ANDROID_BUILD_TOP/bionic',
+          '$ANDROID_BUILD_TOP/bionic/libc/include',
+          '$ANDROID_BUILD_TOP/bionic/libc/arch-arm',
+          '$ANDROID_BUILD_TOP/bionic/libc/arch-arm/include',
+          '$ANDROID_BUILD_TOP/bionic/libc/kernel/arch-arm',
+          '$ANDROID_BUILD_TOP/bionic/libc/kernel/common',
+          '$ANDROID_BUILD_TOP/bionic/libm/include',
+          '$ANDROID_BUILD_TOP/dalvik/libnativehelper/include',
+          '$ANDROID_BUILD_TOP/extlibs',
+          '$ANDROID_BUILD_TOP/extlibs/icu4c-3.8/common',
+          '$ANDROID_BUILD_TOP/extlibs/icu4c-3.8/i18n',
+          '$ANDROID_BUILD_TOP/extlibs/jpeg-6b',
+          '$ANDROID_BUILD_TOP/extlibs/sqlite',
+          '$ANDROID_BUILD_TOP/extlibs/zlib-1.2.3',
+          '$ANDROID_BUILD_TOP/external',
+          '$ANDROID_BUILD_TOP/external/icu4c/common',
+          '$ANDROID_BUILD_TOP/external/icu4c/i18n',
+          '$ANDROID_BUILD_TOP/external/jpeg',
+          '$ANDROID_BUILD_TOP/external/sqlite/dist',
+          '$ANDROID_BUILD_TOP/external/zlib',
+          '$ANDROID_BUILD_TOP/frameworks/base/include',
+          '$ANDROID_BUILD_TOP/system/core/include',
+      ],
+      CPPFLAGS = [
+          '-g',
+          '-c',
+          '-fPIC',
+          '-fmessage-length=0',
+          '-Wall',
+          '-fvisibility=hidden',
+# NS_LITERAL_STRING does not work properly without this compiler option
+          '-fshort-wchar',
+          '-funsigned-char',
+          '-march=armv5te',
+          '-mtune=xscale',
+          '-mthumb-interwork',
+          '-ffunction-sections',
+          '-fdata-sections',
+          '-fno-exceptions',
+      ],
+      CXXFLAGS = [
+          '-fno-rtti',
+          '-fvisibility-inlines-hidden',
+          '-Wno-non-virtual-dtor',
+          '-Wno-ctor-dtor-privacy',
+      ],
+      CPPDEFINES = [
+          'OS_ANDROID',
+          'ANDROID',
+          'TARGET_OS=android',
+          'BUILD_OSNAME=android',
+          'OSNAME=android',
+          'COMPILER_NAME=gcc',
+          '__SGI_STL_INTERNAL_PAIR_H',
+          '_CPP_UTILITY',
+          '_LITTLE_ENDIAN=1234',
+          '_BIG_ENDIAN=4321',
+          '_PDP_ENDIAN=3412',
+          '_BYTE_ORDER=_LITTLE_ENDIAN',
+      ],
+      COMMON_LINKFLAGS = [
+          '-g',
+          '-fPIC',
+          '-Bsymbolic',
+          '-nostdlib',
+      ],
+      SHLINKFLAGS = [
+          '-shared',
+          '-Wl,--gc-sections',
+          '-L$ANDROID_PRODUCT_OUT/system/lib',
+# Workaround for the Android C library not implementing
+# __aeabi_atexit, which is used to destruct static C++ objects.  This
+# causes all calls to be rewritten by the linker to
+# __wrap___aeabi_atexit, which we then implement.
+          '-Wl,--wrap,__aeabi_atexit',
+      ],
+  )
+  if env['MODE'] == 'dbg':
+    env.Append(
+      CPPFLAGS = [
+          '-g',
+          '-O',
+          '-funwind-tables',
+          '-mapcs-frame',
+      ],
+    )
+  else:  # MODE=opt
+    env.Append(
+      CPPFLAGS = [
+          '-O2',
+          '-mthumb',
+          '-fomit-frame-pointer',
+      ],
+    )
 
 # Custom builder to work around a scons and/or hammer bug.  ComponentLibrary
 # tries to install the library to COMPONENT_LIBRARY_DIR, but since we overrode
@@ -789,10 +932,6 @@ sconscripts = [
     'SConscript.libgd',
     'SConscript.portaudio',
 ]
-
-#if os.path.exists(env.Entry('#/$PRIVATE_DIR/SConscript').abspath):
-#  env = env.SConscript('#/$PRIVATE_DIR/SConscript',
-#      exports=['env', 'env_res'])
 
 for each in sconscripts:
   env.SConscript(each,

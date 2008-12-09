@@ -196,13 +196,14 @@ env.Append(SF_CPPSRCS = [
 #-----------------------------------------------------------------------------
 # third_party/v8/bindings
 
-env.Append(NPAPI_CPPSRCS = [
-    '$THIRD_PARTY_DIR/v8/bindings_local/npruntime.cc',
-    '$THIRD_PARTY_DIR/v8/bindings_local/np_v8object.cc',
-    '$THIRD_PARTY_DIR/v8/bindings_local/v8_helpers.cc',
-    '$THIRD_PARTY_DIR/v8/bindings_local/v8_np_utils.cc',
-    '$THIRD_PARTY_DIR/v8/bindings_local/v8_npobject.cc',
-])
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$THIRD_PARTY_DIR/v8/bindings_local/npruntime.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/np_v8object.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/v8_helpers.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/v8_np_utils.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/v8_npobject.cc',
+  ])
 
 #-----------------------------------------------------------------------------
 # third_party/convert_utf
@@ -394,8 +395,6 @@ elif env['OS'] == 'wince':
 # base/chrome + npapi
 
 env.Append(NPAPI_CPPSRCS = [
-    '$OPEN_DIR/base/chrome/module_cr.cc',
-    '$OPEN_DIR/base/common/js_runner_cr.cc',
     '$OPEN_DIR/base/common/html_event_monitor_np.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
@@ -403,7 +402,6 @@ env.Append(NPAPI_CPPSRCS = [
     '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
     '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
-    '$OPEN_DIR/base/common/paths_cr.cc',
     '$OPEN_DIR/base/npapi/browser_utils.cc',
     '$OPEN_DIR/base/npapi/module.cc',
     '$OPEN_DIR/base/npapi/np_utils.cc',
@@ -414,6 +412,9 @@ env.Append(NPAPI_CPPSRCS = [
 
 if env['OS'] == 'win32':
   env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/base/chrome/module_cr.cc',
+      '$OPEN_DIR/base/common/js_runner_cr.cc',
+      '$OPEN_DIR/base/common/paths_cr.cc',
       '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
       '$OPEN_DIR/base/common/message_queue_cr.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
@@ -509,9 +510,10 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
 ])
 
-env.Append(NPAPI_CPPSRCS = [
-    '$OPEN_DIR/desktop/desktop_cr.cc',
-])
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/desktop/desktop_cr.cc',
+  ])
 
 env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/desktop/file_dialog.cc',
@@ -588,13 +590,17 @@ env.Append(SF_CPPSRCS = [
 # localserver/chrome + npapi
 
 env.Append(NPAPI_CPPSRCS = [
-    '$OPEN_DIR/localserver/chrome/gears_protocol_handler.cc',
-    '$OPEN_DIR/localserver/chrome/network_intercept_cr.cc',
-    '$OPEN_DIR/localserver/chrome/http_cookies_cr.cc',
-    '$OPEN_DIR/localserver/chrome/http_request_cr.cc',
-    '$OPEN_DIR/localserver/chrome/update_task_cr.cc',
     '$OPEN_DIR/localserver/npapi/async_task_np.cc',
 ])
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/localserver/chrome/gears_protocol_handler.cc',
+      '$OPEN_DIR/localserver/chrome/network_intercept_cr.cc',
+      '$OPEN_DIR/localserver/chrome/http_cookies_cr.cc',
+      '$OPEN_DIR/localserver/chrome/http_request_cr.cc',
+      '$OPEN_DIR/localserver/chrome/update_task_cr.cc',
+  ])
 
 #-----------------------------------------------------------------------------
 # localserver/safari
@@ -710,10 +716,11 @@ env.Append(NPAPI_M4SRCS = [
 #-----------------------------------------------------------------------------
 # ui/chrome
 
-env.Append(NPAPI_CPPSRCS = [
-    '$OPEN_DIR/ui/chrome/settings_dialog_cr.cc',
-    '$OPEN_DIR/ui/chrome/html_dialog_cr.cc',
-])
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/ui/chrome/settings_dialog_cr.cc',
+      '$OPEN_DIR/ui/chrome/html_dialog_cr.cc',
+  ])
 
 #-----------------------------------------------------------------------------
 # ui/safari
