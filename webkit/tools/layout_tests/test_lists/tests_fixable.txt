@@ -253,6 +253,9 @@ LayoutTests/plugins/bindings-test.html = FAIL CRASH
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
 LayoutTests/fast/encoding/char-encoding.html = FAIL
+
+// This test should pass once we merge with r39021 or later. After the merge, 
+// fast/encoding/char-decoding-mac.html should be added to tests_ignored.txt.
 LayoutTests/fast/encoding/char-decoding.html = FAIL
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the

@@ -18,11 +18,6 @@ SKIP : LayoutTests/dom/xhtml = PASS
 // to decide whether we ever expect to pass this.  Now also timing out.
 SKIP : LayoutTests/fast/dom/open-and-close-by-DOM.html = FAIL
 
-// Fails because we use MIME names for charset while webkit uses IANA names.
-// Instead of this, we added the corresponding test in chrome with the 
-// MIME name (EUC-JP) in the expected result.
-SKIP : LayoutTests/fast/encoding/hanarei-blog32-fc2-com.html = FAIL
-
 // Skip because of WebKit bug 18512. These bugs "poison" future tests, causing
 // all SVG objects with fill="red" to be rendered in green.
 SKIP : LayoutTests/svg/custom/fill-SVGPaint-interface.svg = PASS
