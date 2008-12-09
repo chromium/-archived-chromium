@@ -1202,7 +1202,7 @@ chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // Linux pixeltest failure: Large areas of the page are missing
-MAC WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
+LINUX MAC WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
 LayoutTests/editing/deleting/smart-editing-disabled.html = FAIL
@@ -1616,11 +1616,11 @@ MAC : LayoutTests/fast/forms/input-type-change2.html = FAIL
 MAC : LayoutTests/fast/forms/input-value.html = FAIL
 MAC : LayoutTests/fast/forms/input-width.html = FAIL
 // Linux pixeltest failure: Form control incorrect size
-MAC : LayoutTests/fast/forms/listbox-clip.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/listbox-clip.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-clip.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-deselect-update.html = FAIL
 // Linux pixeltest failure: Based on the text, we may be failing to clip
-MAC : LayoutTests/fast/forms/menulist-narrow-width.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/menulist-narrow-width.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-option-wrap.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-restrict-line-height.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-separator-painting.html = FAIL
@@ -1644,7 +1644,7 @@ MAC : LayoutTests/fast/forms/select-namedItem.html = FAIL
 MAC : LayoutTests/fast/forms/select-selected.html = FAIL
 MAC : LayoutTests/fast/forms/select-size.html = FAIL
 // Linux pixeltest failure: Failing to apply style
-MAC : LayoutTests/fast/forms/select-style.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/select-style.html = FAIL
 MAC : LayoutTests/fast/forms/stuff-on-my-optgroup.html = FAIL
 MAC : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
 MAC : LayoutTests/fast/forms/targeted-frame-submission.html = FAIL CRASH
@@ -1710,7 +1710,7 @@ MAC : LayoutTests/fast/loader/window-clearing.html = FAIL
 MAC : LayoutTests/fast/loader/xmlhttprequest-missing-file-exception.html = FAIL
 MAC : LayoutTests/fast/overflow/scroll-nested-positioned-layer-in-overflow.html = FAIL
 // Linux pixeltest failure: Failed to clip the scrollbars
-MAC : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
+LINUX MAC : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
 MAC : LayoutTests/fast/parser/bad-xml-slash.html = FAIL
 MAC : LayoutTests/fast/parser/document-write-option.html = FAIL
 MAC : LayoutTests/fast/parser/entities-in-attributes.xhtml = FAIL
@@ -1728,10 +1728,10 @@ MAC : LayoutTests/fast/replaced/three-selects-break.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-button.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-checkbox.html = FAIL
 // Linux pixeltest failure: It appears that the form controls are overlapping
-MAC : LayoutTests/fast/replaced/width100percent-menulist.html = FAIL
+LINUX MAC : LayoutTests/fast/replaced/width100percent-menulist.html = FAIL
 // Linux pixeltest failure: The text suggests that the radios should not
 // overlap, but it's very close and quite different from the Windows version
-MAC : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
+LINUX MAC : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-textfield.html = FAIL
 MAC : LayoutTests/fast/selectors/064.html = FAIL
 MAC : LayoutTests/fast/table/003.html = FAIL
