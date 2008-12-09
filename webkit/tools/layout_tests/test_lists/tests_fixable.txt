@@ -1995,3 +1995,15 @@ LayoutTests/fast/dom/dom-constructors.html = FAIL
 
 // The test passes on a local build, but fail on buildbot in DEBUG mode only.
 DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
+
+// WebKit Merge 38950:39000 failures:
+LayoutTests/svg/custom/fill-fallback.svg = FAIL
+LayoutTests/svg/custom/invalid-css.svg = FAIL
+LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+LayoutTests/svg/custom/resource-client-removal.svg = FAIL
+LayoutTests/svg/custom/stroke-fallback.svg = FAIL
+LayoutTests/wml/variable-reference-invalid-character.html = FAIL
+LayoutTests/wml/variable-reference-valid.html = FAIL
+LayoutTests/fast/encoding/char-decoding.html = CRASH
+LayoutTests/fast/encoding/char-encoding.html = CRASH
+
