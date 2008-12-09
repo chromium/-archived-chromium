@@ -603,7 +603,7 @@ void EditorClientImpl::handleKeyboardEvent(WebCore::KeyboardEvent* evt) {
 }
 
 void EditorClientImpl::handleInputMethodKeydown(WebCore::KeyboardEvent* keyEvent) {
-  NOTIMPLEMENTED();
+  // We handle IME within chrome.
 }
 
 void EditorClientImpl::textFieldDidBeginEditing(WebCore::Element*) {
