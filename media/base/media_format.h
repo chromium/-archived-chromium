@@ -11,15 +11,15 @@ namespace media {
 
 // Common MIME types.
 namespace mime_type {
-extern const std::wstring kURI;
-extern const std::wstring kApplicationOctetStream;
-extern const std::wstring kMPEGAudio;
-extern const std::wstring kAACAudio;
-extern const std::wstring kH264AnnexB;
-extern const std::wstring kUncompressedAudio;
-extern const std::wstring kUncompressedVideo;
-extern const std::wstring kFFmpegAudio;
-extern const std::wstring kFFmpegVideo;
+extern const wchar_t kURI[];
+extern const wchar_t kApplicationOctetStream[];
+extern const wchar_t kMPEGAudio[];
+extern const wchar_t kAACAudio[];
+extern const wchar_t kH264AnnexB[];
+extern const wchar_t kUncompressedAudio[];
+extern const wchar_t kUncompressedVideo[];
+extern const wchar_t kFFmpegAudio[];
+extern const wchar_t kFFmpegVideo[];
 }  // namespace mime_type
 
 // MediaFormat is used to describe the output of a MediaFilterInterface to
@@ -41,15 +41,15 @@ extern const std::wstring kFFmpegVideo;
 class MediaFormat {
  public:
   // Common keys.
-  static const std::wstring kMimeType;
-  static const std::wstring kURI;
-  static const std::wstring kSurfaceFormat;
-  static const std::wstring kSampleRate;
-  static const std::wstring kSampleBits;
-  static const std::wstring kChannels;
-  static const std::wstring kWidth;
-  static const std::wstring kHeight;
-  static const std::wstring kFfmpegCodecId;
+  static const char kMimeType[];
+  static const char kURI[];
+  static const char kSurfaceFormat[];
+  static const char kSampleRate[];
+  static const char kSampleBits[];
+  static const char kChannels[];
+  static const char kWidth[];
+  static const char kHeight[];
+  static const char kFfmpegCodecId[];
 
   MediaFormat();
   ~MediaFormat();
@@ -57,25 +57,26 @@ class MediaFormat {
   // Basic map operations.
   bool empty() const { return value_map_.empty(); }
 
-  bool Contains(const std::wstring& key) const;
+  bool Contains(const std::string& key) const;
 
   void Clear();
 
   // Value accessors.
-  void SetAsBoolean(const std::wstring& key, bool in_value);
-  void SetAsInteger(const std::wstring& key, int in_value);
-  void SetAsReal(const std::wstring& key, double in_value);
-  void SetAsString(const std::wstring& key, const std::wstring& in_value);
+  void SetAsBoolean(const std::string& key, bool in_value);
+  void SetAsInteger(const std::string& key, int in_value);
+  void SetAsReal(const std::string& key, double in_value);
+  void SetAsString(const std::string& key, const std::wstring& in_value);
 
-  bool GetAsBoolean(const std::wstring& key, bool* out_value) const;
-  bool GetAsInteger(const std::wstring& key, int* out_value) const;
-  bool GetAsReal(const std::wstring& key, double* out_value) const;
-  bool GetAsString(const std::wstring& key, std::wstring* out_value) const;
+  bool GetAsBoolean(const std::string& key, bool* out_value) const;
+  bool GetAsInteger(const std::string& key, int* out_value) const;
+  bool GetAsReal(const std::string& key, double* out_value) const;
+  bool GetAsString(const std::string& key, std::wstring* out_value) const;
 
  private:
   // Helper to return a value.
-  Value* GetValue(const std::wstring& key) const;
+  Value* GetValue(const std::string& key) const;
 
+  typedef std::map<std::string, Value*> ValueMap;
   ValueMap value_map_;
 
   DISALLOW_COPY_AND_ASSIGN(MediaFormat);

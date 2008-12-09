@@ -11,30 +11,30 @@ namespace mime_type {
 // Represents a URI, typically used to create a DataSourceInterface.
 // Expected keys:
 //   kUri             String          The URI
-const std::wstring kURI(L"text/x-uri");
+const wchar_t kURI[]                        = L"text/x-uri";
 
 // Represents a generic byte stream, typically from a DataSourceInterface.
 // Expected keys:
 //   None
-const std::wstring kApplicationOctetStream(L"application/octet-stream");
+const wchar_t kApplicationOctetStream[]     = L"application/octet-stream";
 
 // Represents encoded audio data, typically from an DemuxerStreamInterface.
 // Expected keys:
 //   None
-const std::wstring kMPEGAudio(L"audio/mpeg");
-const std::wstring kAACAudio(L"audio/aac");
+const wchar_t kMPEGAudio[]                  = L"audio/mpeg";
+const wchar_t kAACAudio[]                   = L"audio/aac";
 
 // Represents encoded video data, typically from a DemuxerStreamInterface.
 // Expected keys:
 //   None
-const std::wstring kH264AnnexB(L"video/x-h264-annex-b");
+const wchar_t kH264AnnexB[]                 = L"video/x-h264-annex-b";
 
 // Represents decoded audio data, typically from an AudioDecoderInterface.
 // Expected keys:
 //   kChannels        Integer         Number of audio channels
 //   kSampleRate      Integer         Audio sample rate (i.e., 44100)
 //   kSampleBits      Integer         Audio bits-per-sample (i.e., 16)
-const std::wstring kRawAudio(L"audio/x-uncompressed");
+const wchar_t kRawAudio[]                   = L"audio/x-uncompressed";
 
 // Represents decoded video data, typically from a VideoDecoderInterface.
 // Other information, such as surface format (i.e., YV12), stride and planes are
@@ -42,26 +42,26 @@ const std::wstring kRawAudio(L"audio/x-uncompressed");
 // Expected keys:
 //   kWidth           Integer         Display width of the surface
 //   kHeight          Integer         Display height of the surface
-const std::wstring kRawVideo(L"video/x-uncompressed");
+const wchar_t kRawVideo[]                   = L"video/x-uncompressed";
 
 // Represents FFmpeg encoded packets, typically from an DemuxerStreamInterface.
 // Expected keys:
 //   kFfmpegCodecId   Integer         The FFmpeg CodecID identifying the decoder
-const std::wstring kFFmpegAudio(L"audio/x-ffmpeg");
-const std::wstring kFFmpegVideo(L"video/x-ffmpeg");
+const wchar_t kFFmpegAudio[]                = L"audio/x-ffmpeg";
+const wchar_t kFFmpegVideo[]                = L"video/x-ffmpeg";
 
 }  // namespace mime_type
 
 // Common keys.
-const std::wstring MediaFormat::kMimeType(L"MimeType");
-const std::wstring MediaFormat::kURI(L"Uri");
-const std::wstring MediaFormat::kSurfaceFormat(L"SurfaceFormat");
-const std::wstring MediaFormat::kSampleRate(L"SampleRate");
-const std::wstring MediaFormat::kSampleBits(L"SampleBits");
-const std::wstring MediaFormat::kChannels(L"Channels");
-const std::wstring MediaFormat::kWidth(L"Width");
-const std::wstring MediaFormat::kHeight(L"Height");
-const std::wstring MediaFormat::kFfmpegCodecId(L"FfmpegCodecId");
+const char MediaFormat::kMimeType[]         = "MimeType";
+const char MediaFormat::kURI[]              = "Uri";
+const char MediaFormat::kSurfaceFormat[]    = "SurfaceFormat";
+const char MediaFormat::kSampleRate[]       = "SampleRate";
+const char MediaFormat::kSampleBits[]       = "SampleBits";
+const char MediaFormat::kChannels[]         = "Channels";
+const char MediaFormat::kWidth[]            = "Width";
+const char MediaFormat::kHeight[]           = "Height";
+const char MediaFormat::kFfmpegCodecId[]    = "FfmpegCodecId";
 
 MediaFormat::MediaFormat() {
 }
@@ -70,58 +70,56 @@ MediaFormat::~MediaFormat() {
   Clear();
 }
 
-bool MediaFormat::Contains(const std::wstring& key) const {
+bool MediaFormat::Contains(const std::string& key) const {
   return value_map_.find(key) != value_map_.end();
 }
 
 void MediaFormat::Clear() {
-  ValueMap::iterator iter(value_map_.begin());
-  while (iter != value_map_.end()) {
+  for (ValueMap::iterator iter(value_map_.begin());
+       iter != value_map_.end(); ++iter)
     delete iter->second;
-    value_map_.erase(iter);
-    iter = value_map_.begin();
-  }
+  value_map_.clear();
 }
 
-void MediaFormat::SetAsBoolean(const std::wstring& key, bool in_value) {
+void MediaFormat::SetAsBoolean(const std::string& key, bool in_value) {
   value_map_[key] = Value::CreateBooleanValue(in_value);
 }
 
-void MediaFormat::SetAsInteger(const std::wstring& key, int in_value) {
+void MediaFormat::SetAsInteger(const std::string& key, int in_value) {
   value_map_[key] = Value::CreateIntegerValue(in_value);
 }
 
-void MediaFormat::SetAsReal(const std::wstring& key, double in_value) {
+void MediaFormat::SetAsReal(const std::string& key, double in_value) {
   value_map_[key] = Value::CreateRealValue(in_value);
 }
 
-void MediaFormat::SetAsString(const std::wstring& key,
+void MediaFormat::SetAsString(const std::string& key,
                               const std::wstring& in_value) {
   value_map_[key] = Value::CreateStringValue(in_value);
 }
 
-bool MediaFormat::GetAsBoolean(const std::wstring& key, bool* out_value) const {
+bool MediaFormat::GetAsBoolean(const std::string& key, bool* out_value) const {
   Value* value = GetValue(key);
   return value != NULL && value->GetAsBoolean(out_value);
 }
 
-bool MediaFormat::GetAsInteger(const std::wstring& key, int* out_value) const {
+bool MediaFormat::GetAsInteger(const std::string& key, int* out_value) const {
   Value* value = GetValue(key);
   return value != NULL && value->GetAsInteger(out_value);
 }
 
-bool MediaFormat::GetAsReal(const std::wstring& key, double* out_value) const {
+bool MediaFormat::GetAsReal(const std::string& key, double* out_value) const {
   Value* value = GetValue(key);
   return value != NULL && value->GetAsReal(out_value);
 }
 
-bool MediaFormat::GetAsString(const std::wstring& key,
+bool MediaFormat::GetAsString(const std::string& key,
                               std::wstring* out_value) const {
   Value* value = GetValue(key);
   return value != NULL && value->GetAsString(out_value);
 }
 
-Value* MediaFormat::GetValue(const std::wstring& key) const {
+Value* MediaFormat::GetValue(const std::string& key) const {
   ValueMap::const_iterator value_iter = value_map_.find(key);
   return (value_iter == value_map_.end()) ? NULL : value_iter->second;
 }
