@@ -14,18 +14,21 @@
 // with Keychain prompts unless we sign the application. That shouldn't be
 // too hard, we just need infrastructure support to do it.
 
+extern "C" {
+int ChromeMain(int argc, const char** argv);
+}
+
 int main(int argc, const char** argv) {
   base::EnableTerminationOnHeapCorruption();
 
   // The exit manager is in charge of calling the dtors of singletons.
-  base::AtExitManager exit_manager;
+  // Win has one here, but we assert with multiples from BrowserMain() if we
+  // keep it. 
+  // base::AtExitManager exit_manager;
   
+#if defined(GOOGLE_CHROME_BUILD)
   // TODO(pinkerton): init crash reporter
+#endif
 
-  // TODO(pinkerton): factor out chrome_dll_main so we can call ChromeMain
-  // to determine if we're a browser or a renderer. To bootstrap, assume we're
-  // a browser. There's actually very little in chrome_exe_main.cc that's
-  // worth saving, it's almost entirely windows-specific.
-  
-  return NSApplicationMain(argc, argv);
+  return ChromeMain(argc, argv);
 }

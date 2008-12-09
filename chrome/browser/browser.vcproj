@@ -230,6 +230,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\browser_main_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\browser_prefs.cc"
 				>
 			</File>

@@ -2,12 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#include "base/command_line.h"
+#include "sandbox/src/sandbox.h"
+
+// TODO(port): several win-only methods have been pulled out of this, but 
+// BrowserMain() as a whole needs to be broken apart so that it's usable by
+// other platforms. For now, it's just a stub. This is a serious work in 
+// progress and should not be taken as an indication of a real refactoring.
+
+#if defined(OS_WIN)
+
 #include <windows.h>
 #include <shellapi.h>
 
 #include <algorithm>
 
-#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/lazy_instance.h"
@@ -23,6 +34,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_main_win.h"
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/browser_shutdown.h"
@@ -122,157 +134,6 @@ StringPiece NetResourceProvider(int key) {
     return StringPiece(lazy_dir_lister.Pointer()->html_data);
 
   return ResourceBundle::GetSharedInstance().GetRawDataResource(key);
-}
-
-// Displays a warning message if the user is running chrome on windows 2000.
-// Returns true if the OS is win2000, false otherwise.
-bool CheckForWin2000() {
-  if (win_util::GetWinVersion() == win_util::WINVERSION_2000) {
-    const std::wstring text = l10n_util::GetString(IDS_UNSUPPORTED_OS_WIN2000);
-    const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
-    win_util::MessageBox(NULL, text, caption,
-                         MB_OK | MB_ICONWARNING | MB_TOPMOST);
-    return true;
-  }
-  return false;
-}
-
-bool AskForUninstallConfirmation() {
-  const std::wstring text = l10n_util::GetString(IDS_UNINSTALL_VERIFY);
-  const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
-  const UINT flags = MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST;
-  return (IDOK == win_util::MessageBox(NULL, text, caption, flags));
-}
-
-// Prepares the localized strings that are going to be displayed to
-// the user if the browser process dies. These strings are stored in the
-// environment block so they are accessible in the early stages of the
-// chrome executable's lifetime.
-void PrepareRestartOnCrashEnviroment(const CommandLine &parsed_command_line) {
-  // Clear this var so child processes don't show the dialog by default.
-  ::SetEnvironmentVariableW(env_vars::kShowRestart, NULL);
-
-  // For non-interactive tests we don't restart on crash.
-  if (::GetEnvironmentVariableW(env_vars::kHeadless, NULL, 0))
-    return;
-
-  // If the known command-line test options are used we don't create the
-  // environment block which means we don't get the restart dialog.
-  if (parsed_command_line.HasSwitch(switches::kBrowserCrashTest) ||
-      parsed_command_line.HasSwitch(switches::kBrowserAssertTest) ||
-      parsed_command_line.HasSwitch(switches::kNoErrorDialogs))
-    return;
-
-  // The encoding we use for the info is "title|context|direction" where
-  // direction is either env_vars::kRtlLocale or env_vars::kLtrLocale depending
-  // on the current locale.
-  std::wstring dlg_strings;
-  dlg_strings.append(l10n_util::GetString(IDS_CRASH_RECOVERY_TITLE));
-  dlg_strings.append(L"|");
-  dlg_strings.append(l10n_util::GetString(IDS_CRASH_RECOVERY_CONTENT));
-  dlg_strings.append(L"|");
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-    dlg_strings.append(env_vars::kRtlLocale);
-  else
-    dlg_strings.append(env_vars::kLtrLocale);
-
-  ::SetEnvironmentVariableW(env_vars::kRestartInfo, dlg_strings.c_str());
-}
-
-int DoUninstallTasks() {
-  if (!AskForUninstallConfirmation())
-    return ResultCodes::UNINSTALL_USER_CANCEL;
-  // The following actions are just best effort.
-  LOG(INFO) << "Executing uninstall actions";
-  ResultCodes::ExitCode ret = ResultCodes::NORMAL_EXIT;
-  if (!FirstRun::RemoveSentinel())
-    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  // We only want to modify user level shortcuts so pass false for system_level.
-  if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER))
-    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  if (!ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER))
-    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  return ret;
-}
-
-// This method handles the --hide-icons and --show-icons command line options
-// for chrome that get triggered by Windows from registry entries
-// HideIconsCommand & ShowIconsCommand. Chrome doesn't support hide icons
-// functionality so we just ask the users if they want to uninstall Chrome.
-int HandleIconsCommands(const CommandLine &parsed_command_line) {
-  if (parsed_command_line.HasSwitch(switches::kHideIcons)) {
-    std::wstring cp_applet;
-    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
-      cp_applet.assign(L"Programs and Features");  // Windows Vista and later.
-    } else if (win_util::GetWinVersion() == win_util::WINVERSION_XP) {
-      cp_applet.assign(L"Add/Remove Programs");  // Windows XP.
-    } else {
-      return ResultCodes::UNSUPPORTED_PARAM;  // Not supported
-    }
-
-    const std::wstring msg = l10n_util::GetStringF(IDS_HIDE_ICONS_NOT_SUPPORTED,
-                                                   cp_applet);
-    const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
-    const UINT flags = MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST;
-    if (IDOK == win_util::MessageBox(NULL, msg, caption, flags))
-      ShellExecute(NULL, NULL, L"appwiz.cpl", NULL, NULL, SW_SHOWNORMAL);
-    return ResultCodes::NORMAL_EXIT;  // Exit as we are not launching browser.
-  }
-  // We don't hide icons so we shouldn't do anything special to show them
-  return ResultCodes::UNSUPPORTED_PARAM;
-}
-
-bool DoUpgradeTasks(const CommandLine& command_line) {
-  if (!Upgrade::SwapNewChromeExeIfPresent())
-    return false;
-  // At this point the chrome.exe has been swapped with the new one.
-  if (!Upgrade::RelaunchChromeBrowser(command_line)) {
-    // The re-launch fails. Feel free to panic now.
-    NOTREACHED();
-  }
-  return true;
-}
-
-// Check if there is any machine level Chrome installed on the current
-// machine. If yes and the current Chrome process is user level, we do not
-// allow the user level Chrome to run. So we notify the user and uninstall
-// user level Chrome.
-bool CheckMachineLevelInstall() {
-  scoped_ptr<installer::Version> version(InstallUtil::GetChromeVersion(true));
-  if (version.get()) {
-    std::wstring exe;
-    PathService::Get(base::DIR_EXE, &exe);
-    std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
-    std::wstring user_exe_path = installer::GetChromeInstallPath(false);
-    std::transform(user_exe_path.begin(), user_exe_path.end(),
-                   user_exe_path.begin(), tolower);
-    if (exe == user_exe_path) {
-      const std::wstring text =
-          l10n_util::GetString(IDS_MACHINE_LEVEL_INSTALL_CONFLICT);
-      const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
-      const UINT flags = MB_OK | MB_ICONERROR | MB_TOPMOST;
-      win_util::MessageBox(NULL, text, caption, flags);
-      std::wstring uninstall_cmd = InstallUtil::GetChromeUninstallCmd(false);
-      if (!uninstall_cmd.empty()) {
-        uninstall_cmd.append(L" --");
-        uninstall_cmd.append(installer_util::switches::kForceUninstall);
-        uninstall_cmd.append(L" --");
-        uninstall_cmd.append(installer_util::switches::kDoNotRemoveSharedItems);
-        base::LaunchApp(uninstall_cmd, false, false, NULL);
-      }
-      return true;
-    }
-  }
-  return false;
-}
-
-// We record in UMA the conditions that can prevent breakpad from generating
-// and sending crash reports. Namely that the crash reporting registration
-// failed and that the process is being debugged.
-void RecordBreakpadStatusUMA(MetricsService* metrics) {
-  DWORD len = ::GetEnvironmentVariableW(env_vars::kNoOOBreakpad, NULL, 0);
-  metrics->RecordBreakpadRegistration((len == 0));
-  metrics->RecordBreakpadHasDebugger(TRUE == ::IsDebuggerPresent());
 }
 
 }  // namespace
@@ -636,3 +497,26 @@ int BrowserMain(CommandLine &parsed_command_line,
 
   return result_code;
 }
+
+#elif defined(OS_POSIX)
+
+// Call to kick off the main message loop. The implementation for this on Mac
+// must reside in another file because it has to call Cocoa functions and thus
+// cannot live in a .cc file.
+int StartPlatformMessageLoop();
+
+// TODO(port): merge this with above. Just a stub for now, not meant as a place
+// to duplicate code.
+// Main routine for running as the Browser process.
+int BrowserMain(CommandLine &parsed_command_line,
+                sandbox::BrokerServices* broker_services) {
+  return StartPlatformMessageLoop();
+}
+
+#if defined(OS_LINUX)
+void StartPlatformMessageLoop() {
+  return 0;
+}
+#endif
+
+#endif

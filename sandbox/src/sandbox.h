@@ -19,7 +19,13 @@
 #ifndef SANDBOX_SRC_SANDBOX_H__
 #define SANDBOX_SRC_SANDBOX_H__
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_POSIX)
+typedef struct PROCESS_INFORMATION;
+#endif
 
 #include "base/basictypes.h"
 #include "sandbox/src/sandbox_policy.h"
