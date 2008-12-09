@@ -326,10 +326,9 @@ LINUX WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 // to fork to add support for @font-face for Beta.
 // upstream: http://trac.webkit.org/projects/webkit/changeset/31507
 
-// Linux pixeltest failure: Check if Windows baseline is wrong
-LINUX WIN : LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
+WIN : LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
 LINUX WIN : LayoutTests/fast/css/font-face-remote.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
+WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // Bug: 1007391
 // These hit a not-implemented code-path in @font-face code
@@ -1203,7 +1202,7 @@ LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
 LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-// Linux pixeltest failure: Appears that Windows baseline is wrong
+// Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
