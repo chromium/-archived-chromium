@@ -91,16 +91,23 @@ std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
       return language;
   }
 
-  // Find match for the language. For example, for "hi", the corresponding
-  // Spell Check language is "hi-IN". The input language has to be 2 letter.
-  if (language.length() == 2) {
-    for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-      std::wstring spellcheck_language(g_supported_spellchecker_languages[i]);
-      std::wstring spellcheck_country(spellcheck_language.substr(0, 2));
-      if (spellcheck_country == language)
-        return spellcheck_language;
-    } 
-  }
+  // Look for a match by comparing only language parts. All the 'en-RR'
+  // except for 'en-GB' exactly matched in the above loop, will match 
+  // 'en-US'. This is not ideal because 'en-AU', 'en-ZA', 'en-NZ' had 
+  // better be matched with 'en-GB'. This does not handle cases like
+  // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
+  // locale ids with a script code in the middle, yet.
+  // TODO(jungshik): Add a better fallback.
+  std::wstring::size_type hyphen_pos = language.find(L'-');
+  std::wstring language_part(language, 0, hyphen_pos);
+  for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
+    std::wstring spellchecker_language_name =
+      g_supported_spellchecker_languages[i];
+    std::wstring::size_type hyphen_pos = spellchecker_language_name.find(L'-');
+    std::wstring spellcheck_language(spellchecker_language_name, 0, hyphen_pos);
+    if (spellcheck_language == language_part)
+      return spellchecker_language_name;
+  } 
 
   // No match found - return blank.
   return std::wstring();
