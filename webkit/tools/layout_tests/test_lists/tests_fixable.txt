@@ -815,6 +815,9 @@ LINUX MAC : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
 // This needs to be rebased on Windows since the baseline was incorrect.
 WIN : LayoutTests/css2.1/t1601-c547-indent-00-b-a.html = FAIL
 
+// Font metrics problems on Windows
+WIN : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
+
 // Uncharacterized tests that fail on linux but pass on windows.
 // TODO(port): figure out what's wrong with these and annotate appropriately.
 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
@@ -824,7 +827,6 @@ LINUX : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t1508-c527-font-00-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1508-c527-font-09-b.html = FAIL
-LINUX : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
 LINUX : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
 LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 LINUX MAC : LayoutTests/editing/deleting/5729680.html = FAIL
