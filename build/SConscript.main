@@ -405,7 +405,6 @@ excluded_warnings = [
   # TODO: Clean up uses of ext/hash_map and remove this.
   # (see unordered_map and base/hash_tables.h)
   '-Wno-deprecated',  # Needed for using ext/hash_map on GCC 4.3
-  '-Wno-unknown-pragmas',  # In wtf's ref counting system
 ]
 linux_env.Append(
     BUILD_SCONSCRIPTS = [
