@@ -800,11 +800,18 @@ LINUX MAC : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 // Missing a Georgian font for Linux
 LINUX : LayoutTests/css2.1/t1202-counter-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
 
 // It's not clear that the test isn't wrong here. It believes that middle
 // aligning 15px Ahem should end up in a certain spot. But we have the
 // x-height correct and we're still one px off.
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
+
+// This test fails at least partly due to font sizing issues.
+LINUX MAC : LayoutTests/fast/forms/button-sizes.html = FAIL
+
+// Form sizing issue.
+LINUX MAC : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
 
 // Uncharacterized tests that fail on linux but pass on windows.
 // TODO(port): figure out what's wrong with these and annotate appropriately.
@@ -856,16 +863,14 @@ LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/HTMLOptionElement_label05.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/access-key.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/button-enter-click.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/button-sizes.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/check-box-enter-key.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/focus-selection-input.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/hidden-listbox.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/input-text-double-click.html = FAIL
+MAC : LayoutTests/fast/forms/input-text-double-click.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/legend-access-key.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
@@ -960,7 +965,6 @@ LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug16252.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
-LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug4093.html = FAIL
 LINUX : LayoutTests/tables/mozilla/core/bloomberg.html = FAIL
 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
