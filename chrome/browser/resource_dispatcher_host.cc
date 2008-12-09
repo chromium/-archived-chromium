@@ -1429,11 +1429,13 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       request_id_(-1),
       plugin_service_(PluginService::GetInstance()),
       method_runner_(this),
-      is_shutdown_(false) {
+      is_shutdown_(false),
+      removing_pending_request_(0) {
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {
   AsyncEventHandler::GlobalCleanup();
+  CHECK(!removing_pending_request_);
   STLDeleteValues(&pending_requests_);
 }
 
@@ -1466,6 +1468,7 @@ void ResourceDispatcherHost::Shutdown() {
 void ResourceDispatcherHost::OnShutdown() {
   DCHECK(MessageLoop::current() == io_loop_);
   is_shutdown_ = true;
+  CHECK(!removing_pending_request_);
   STLDeleteValues(&pending_requests_);
   // Make sure we shutdown the timer now, otherwise by the time our destructor
   // runs if the timer is still running the Task is deleted twice (once by
@@ -1933,6 +1936,8 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 
 void ResourceDispatcherHost::RemovePendingRequest(
     const PendingRequestList::iterator& iter) {
+  CHECK(!removing_pending_request_);
+  removing_pending_request_ = 1;
   size_t num_requests_before = pending_requests_.size();
 
   // Notify the login handler that this request object is going away.
@@ -1951,6 +1956,7 @@ void ResourceDispatcherHost::RemovePendingRequest(
     update_load_states_timer_.Stop();
 
   CHECK(pending_requests_.size() == num_requests_before - 1);
+  removing_pending_request_ = 0;
 }
 
 // URLRequest::Delegate -------------------------------------------------------

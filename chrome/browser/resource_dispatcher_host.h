@@ -495,6 +495,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // True if the resource dispatcher host has been shut down.
   bool is_shutdown_;
 
+  // A member added temporarily for debugging issue 4749.  Used as a bool.
+  // Initialized to 0.  Set to 1 upon entering RemovePendingRequest(iter) and
+  // reset to 0 right before returning from RemovePendingRequest(iter).
+  int removing_pending_request_;
+
   DISALLOW_EVIL_CONSTRUCTORS(ResourceDispatcherHost);
 };
 
