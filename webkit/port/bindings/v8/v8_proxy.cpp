@@ -1387,6 +1387,30 @@ v8::Local<v8::Function> V8Proxy::GetConstructor(V8ClassIndex::V8WrapperType t)
 }
 
 
+// Get the string 'toString'.
+static v8::Persistent<v8::String> GetToStringName() {
+  static v8::Persistent<v8::String> value;
+  if (value.IsEmpty())
+    value = v8::Persistent<v8::String>::New(v8::String::New("toString"));
+  return value;
+}
+
+
+static v8::Handle<v8::Value> ConstructorToString(const v8::Arguments& args) {
+  // The DOM constructors' toString functions grab the current toString
+  // for Functions by taking the toString function of itself and then
+  // calling it with the constructor as its receiver.  This means that
+  // changes to the Function prototype chain or toString function are
+  // reflected when printing DOM constructors.  The only wart is that
+  // changes to a DOM constructor's toString's toString will cause the
+  // toString of the DOM constructor itself to change.  This is extremely
+  // obscure and unlikely to be a problem.
+  v8::Handle<v8::Value> val = args.Callee()->Get(GetToStringName());
+  if (!val->IsFunction()) return v8::String::New("");
+  return v8::Handle<v8::Function>::Cast(val)->Call(args.This(), 0, NULL);
+}
+
+
 v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     V8ClassIndex::V8WrapperType type)
 {
@@ -1398,6 +1422,18 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
   // not found
   FunctionTemplateFactory factory = V8ClassIndex::GetFactory(type);
   v8::Persistent<v8::FunctionTemplate> desc = factory();
+  // DOM constructors are functions and should print themselves as such.
+  // However, we will later replace their prototypes with Object
+  // prototypes so we need to explicitly override toString on the
+  // instance itself.  If we later make DOM constructors full objects
+  // we can give them class names instead and Object.prototype.toString
+  // will work so we can remove this code.
+  static v8::Persistent<v8::FunctionTemplate> to_string_template;
+  if (to_string_template.IsEmpty()) {
+    to_string_template = v8::Persistent<v8::FunctionTemplate>::New(
+        v8::FunctionTemplate::New(ConstructorToString));
+  }
+  desc->Set(GetToStringName(), to_string_template);
   switch (type) {
     case V8ClassIndex::CSSSTYLEDECLARATION:
       // The named property handler for style declarations has a
