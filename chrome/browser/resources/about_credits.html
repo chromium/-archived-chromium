@@ -55,12 +55,12 @@ body {
 function $(o) {return document.getElementById(o);}
 function toggle(o) {
   var licence = o.nextSibling;
-  
+
   while (licence.className != 'licence') {
     if (!licence) return false;
     licence = licence.nextSibling;
   }
-  
+
   if (licence.style && licence.style.display == 'block') {
     licence.style.display = 'none';
     o.innerHTML = 'show license';
@@ -619,13 +619,18 @@ Computing Services Inc., Stefan Schimanski, Symantec Corporation, The
 Dojo Foundation, The Karbon Developers, Thomas Boyer, Tim Copperfield,
 Tobias Anton, Torben Weis, Trolltech, University of Cambridge, Vaclav
 Slavik, Waldo Bastian, Xan Lopez, Zack Rusin</p>
-<p>Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
+<p>The terms and conditions vary from file to file, but are one of:
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
 <ol>
   <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
-  <li>Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+  <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+</ol>
+<p>*OR*</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<ol>
+  <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+  <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+  <li>Neither the name of Apple Computer, Inc. ("Apple") nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
 </ol>
 <p>THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
   EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
