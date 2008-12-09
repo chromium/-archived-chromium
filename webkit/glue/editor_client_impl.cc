@@ -603,7 +603,6 @@ void EditorClientImpl::handleKeyboardEvent(WebCore::KeyboardEvent* evt) {
 }
 
 void EditorClientImpl::handleInputMethodKeydown(WebCore::KeyboardEvent* keyEvent) {
-  NOTIMPLEMENTED();
 }
 
 void EditorClientImpl::textFieldDidBeginEditing(WebCore::Element*) {
