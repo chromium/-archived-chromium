@@ -126,7 +126,8 @@ bool DOMUIContentsCanHandleURL(GURL* url,
     return false;
 
   // TODO: remove once the debugger is using DOMContentsUI
-  if (url->host().compare("debugger") == 0)
+  if (url->host().compare("inspector") == 0 && 
+      url->path().compare("/debugger.html") == 0)
     return false;
 
   *result_type = TAB_CONTENTS_DOM_UI;
