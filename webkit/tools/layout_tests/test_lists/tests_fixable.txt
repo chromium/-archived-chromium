@@ -1032,7 +1032,6 @@ LINUX WIN : LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.
 LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
 LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
 LayoutTests/fast/dom/constructors-cached.html = FAIL
-LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
 LayoutTests/fast/js/arguments.html = FAIL
 LayoutTests/fast/js/construct-global-object.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
