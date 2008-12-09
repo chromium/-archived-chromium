@@ -205,6 +205,12 @@ bool FirstRun::ProcessMasterPreferences(
   // required state given that FirstRunView is not going to be called.
   FirstRun::SetShowFirstRunBubblePref();
 
+  // We need to be able to create the first run sentinel or else we cannot
+  // proceed because ImportSettings will launch the importer process which
+  // would end up here if the sentinel is not present.
+  if (!FirstRun::CreateSentinel())
+    return false;
+
   if (parse_result & installer_util::MASTER_PROFILE_SHOW_WELCOME)
     FirstRun::SetShowWelcomePagePref();
 
@@ -222,7 +228,6 @@ bool FirstRun::ProcessMasterPreferences(
     }
   }
 
-  FirstRun::CreateSentinel();
   return false;
 }
 
