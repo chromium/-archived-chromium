@@ -36,27 +36,22 @@ void Font::drawGlyphs(GraphicsContext* gc, const SimpleFontData* font,
     SkScalar x = SkFloatToScalar(point.x());
     SkScalar y = SkFloatToScalar(point.y());
 
-    // TODO(port): Android WebCore has patches for PLATFORM(SGL) which involves
-    // this, however we don't have these patches and it's unclear when Android
-    // may upstream them.
-#if 0
-    if (glyphBuffer.hasAdjustedWidths()) {
-        const GlyphBufferAdvance*   adv = glyphBuffer.advances(from);
-        SkAutoSTMalloc<32, SkPoint> storage(numGlyphs);
-        SkPoint*                    pos = storage.get();
+    // TODO(port): text rendering speed:
+    // Android has code in their WebCore fork to special case when the
+    // GlyphBuffer has no advances other than the defaults. In that case the
+    // text drawing can proceed faster. However, it's unclear when those
+    // patches may be upstreamed to WebKit so we always use the slower path
+    // here.
+    const GlyphBufferAdvance*   adv = glyphBuffer.advances(from);
+    SkAutoSTMalloc<32, SkPoint> storage(numGlyphs);
+    SkPoint*                    pos = storage.get();
 
-        for (int i = 0; i < numGlyphs; i++) {
-            pos[i].set(x, y);
-            x += SkFloatToScalar(adv[i].width());
-            y += SkFloatToScalar(adv[i].height());
-        }
-        canvas->drawPosText(glyphs, numGlyphs << 1, pos, paint);
-    } else {
-        canvas->drawText(glyphs, numGlyphs << 1, x, y, paint);
+    for (int i = 0; i < numGlyphs; i++) {
+        pos[i].set(x, y);
+        x += SkFloatToScalar(adv[i].width());
+        y += SkFloatToScalar(adv[i].height());
     }
-#endif
-
-    canvas->drawText(glyphs, numGlyphs << 1, x, y, paint);
+    canvas->drawPosText(glyphs, numGlyphs << 1, pos, paint);
 }
 
 void Font::drawComplexText(GraphicsContext* context, const TextRun& run,
