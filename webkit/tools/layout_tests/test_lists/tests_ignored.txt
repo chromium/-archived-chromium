@@ -194,3 +194,7 @@ LINUX : chrome/fonts/impact.html = FAIL
 // repeatedly creates big regular expressions.  All the test is trying
 // to verify is that we don't crash on this page.
 LayoutTests/fast/js/regexp-charclass-crash.html = PASS TIMEOUT
+
+// This tests that CSS counters are renumbered when an element is deleted.
+// WebKit doesn't handle this yet.
+LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL

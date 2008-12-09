@@ -28,8 +28,8 @@ layer at (0,0) size 800x300
         RenderText {#text} at (24,0) size 24x24
           text run at (24,0) width 24: "x"
       RenderBlock {DIV} at (0,204) size 432x24 [color=#0000FF]
-        RenderText {#text} at (30,0) size 24x24
-          text run at (30,0) width 24: "x"
+        RenderText {#text} at (24,0) size 24x24
+          text run at (24,0) width 24: "x"
       RenderBlock {DIV} at (0,228) size 432x24 [color=#0000FF]
         RenderText {#text} at (24,0) size 24x24
           text run at (24,0) width 24: "x"
