@@ -93,12 +93,15 @@ TEST_F(QueryParserTest, ParseQueryNodesAndMatch) {
     const int m2_start;
     const int m2_end;
   } data[] = {
+    { L"foo foo",       L"foo",              true,  0, 3, 0, 0 },
+    { L"foo fooey",     L"fooey",            true,  0, 5, 0, 0 },
+    { L"foo fooey bar", L"bar fooey",        true,  0, 3, 4, 9 },
     { L"blah",          L"blah",             true,  0, 4, 0, 0 },
     { L"blah",          L"foo",              false, 0, 0, 0, 0 },
     { L"blah",          L"blahblah",         true,  0, 4, 0, 0 },
     { L"blah",          L"foo blah",         true,  4, 8, 0, 0 },
     { L"foo blah",      L"blah",             false, 0, 0, 0, 0 },
-    { L"foo blah",      L"blahx foobar",     true,  6, 9, 0, 4 },
+    { L"foo blah",      L"blahx foobar",     true,  0, 4, 6, 9 },
     { L"\"foo blah\"",  L"foo blah",         true,  0, 8, 0, 0 },
     { L"\"foo blah\"",  L"foox blahx",       false, 0, 0, 0, 0 },
     { L"\"foo blah\"",  L"foo blah",         true,  0, 8, 0, 0 },
