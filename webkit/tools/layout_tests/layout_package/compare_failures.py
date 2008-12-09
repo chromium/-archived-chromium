@@ -14,13 +14,14 @@ import test_failures
 import test_expectations
 
 
-def PrintFilesFromSet(filenames, header_text, output):
+def PrintFilesFromSet(filenames, header_text, output, opt_expectations=None):
   """A helper method to print a list of files to output.
   
   Args:
   filenames: a list of absolute filenames
   header_text: a string to display before the list of filenames
   output: file descriptor to write the results to.
+  opt_expectations: expecations that failed for this test
   """
   if not len(filenames):
     return
@@ -29,8 +30,13 @@ def PrintFilesFromSet(filenames, header_text, output):
   filenames.sort()
   output.write("\n")
   output.write("%s (%d):\n" % (header_text, len(filenames)))
+  output_string = "%s"
+  if opt_expectations:
+    output_string += " = %s" % opt_expectations
+  output_string += "\n"
   for filename in filenames:
-    output.write("  %s\n" % path_utils.RelativeTestFilename(filename))
+    output.write(output_string % path_utils.RelativeTestFilename(filename))
+    
 
 
 class CompareFailures:
@@ -84,13 +90,16 @@ class CompareFailures:
     # Print real regressions.
     PrintFilesFromSet(self._regressed_failures,
                       "Regressions: Unexpected failures",
-                      output)
+                      output,
+                      'FAIL')
     PrintFilesFromSet(self._regressed_hangs,
                       "Regressions: Unexpected timeouts",
-                      output)
+                      output,
+                      'TIMEOUT')
     PrintFilesFromSet(self._regressed_crashes,
                       "Regressions: Unexpected crashes",
-                      output)
+                      output,
+                      'CRASH')
     PrintFilesFromSet(self._missing,
                       "Missing expected results",
                       output)
