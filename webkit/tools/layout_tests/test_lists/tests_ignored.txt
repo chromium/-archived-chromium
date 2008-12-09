@@ -146,9 +146,6 @@ LayoutTests/fast/js/function-names.html = FAIL PASS
 // We will pass the new one after we merge
 LayoutTests/http/tests/incremental/slow-utf8-css.pl = FAIL
 
-// This test relies on the x-mac-cyrillic encoding which we don't ship.
-LayoutTests/fast/encoding/frame-default-enc.html = FAIL
-
 // These tests expect a tiff decoder, which we don't have.
 LayoutTests/fast/images/embed-image.html = FAIL
 LayoutTests/fast/images/object-image.html = FAIL

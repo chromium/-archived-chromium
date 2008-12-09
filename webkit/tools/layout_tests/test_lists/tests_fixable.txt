@@ -328,8 +328,6 @@ LINUX WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 // GDI @font-face support has been implemented upstream, but we don't plan
 // to fork to add support for @font-face for Beta.
 // upstream: http://trac.webkit.org/projects/webkit/changeset/31507
-
-WIN : LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
 LINUX WIN : LayoutTests/fast/css/font-face-remote.html = FAIL
 WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
@@ -1334,9 +1332,7 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
 LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
 // MERGE 38760:38800: New tests
 LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
@@ -1968,9 +1964,6 @@ LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
 LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
 LayoutTests/fast/dom/dom-constructors.html = FAIL
 
-// The test passes on a local build, but fail on buildbot in DEBUG mode only.
-DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
-
 // WebKit Merge 38950:39000 failures:
 LayoutTests/svg/custom/fill-fallback.svg = FAIL
 LayoutTests/svg/custom/invalid-css.svg = FAIL
@@ -2039,6 +2032,9 @@ LINUX : LayoutTests/fast/text/justified-selection.html = FAIL
 LINUX : LayoutTests/fast/text/word-space.html = FAIL
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
+
+// http://crbug.com/5294 and http://crbug.com/4618
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRASH
 
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
