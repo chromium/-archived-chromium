@@ -1208,7 +1208,6 @@
 		E45626770E268E87005E4685 /* CgSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96CE0D7F3EDA001ECF42 /* CgSupport.cpp */; };
 		E45626780E268E87005E4685 /* RenderPathCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */; };
 		E45626790E268E87005E4685 /* SVGPaintServerCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */; };
-		E456267A0E268E87005E4685 /* SVGPaintServerGradientCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D20D7F3EDA001ECF42 /* SVGPaintServerGradientCg.cpp */; };
 		E456267B0E268E87005E4685 /* SVGPaintServerPatternCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */; };
 		E456267E0E268E87005E4685 /* SVGResourceFilterCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */; };
 		E456267F0E268E87005E4685 /* SVGResourceFilterCg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */; };
@@ -3400,7 +3399,6 @@
 		7B5E96CF0D7F3EDA001ECF42 /* CgSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CgSupport.h; sourceTree = "<group>"; };
 		7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderPathCg.cpp; sourceTree = "<group>"; };
 		7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerCg.cpp; sourceTree = "<group>"; };
-		7B5E96D20D7F3EDA001ECF42 /* SVGPaintServerGradientCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerGradientCg.cpp; sourceTree = "<group>"; };
 		7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerPatternCg.cpp; sourceTree = "<group>"; };
 		7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceFilterCg.cpp; sourceTree = "<group>"; };
 		7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGResourceFilterCg.mm; sourceTree = "<group>"; };
@@ -6515,7 +6513,6 @@
 				7B5E96CF0D7F3EDA001ECF42 /* CgSupport.h */,
 				7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */,
 				7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */,
-				7B5E96D20D7F3EDA001ECF42 /* SVGPaintServerGradientCg.cpp */,
 				7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */,
 				7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */,
 				7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */,
@@ -9135,7 +9132,6 @@
 				E45625CD0E268E87005E4685 /* SVGPaintServer.cpp in Sources */,
 				E45626790E268E87005E4685 /* SVGPaintServerCg.cpp in Sources */,
 				E45625CE0E268E87005E4685 /* SVGPaintServerGradient.cpp in Sources */,
-				E456267A0E268E87005E4685 /* SVGPaintServerGradientCg.cpp in Sources */,
 				E45625CF0E268E87005E4685 /* SVGPaintServerLinearGradient.cpp in Sources */,
 				E45625D00E268E87005E4685 /* SVGPaintServerPattern.cpp in Sources */,
 				E456267B0E268E87005E4685 /* SVGPaintServerPatternCg.cpp in Sources */,
