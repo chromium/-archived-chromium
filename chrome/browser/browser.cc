@@ -397,7 +397,11 @@ std::wstring Browser::GetCurrentPageTitle() const {
 }
 
 bool Browser::IsCurrentPageLoading() const {
-  return GetSelectedTabContents()->is_loading();
+  // GetSelectedTabContents can return NULL for example under Purify when
+  // the animations are running slowly and this function is called on a timer
+  // through LoadingAnimationCallback.
+  TabContents* tab_contents = GetSelectedTabContents();
+  return tab_contents && tab_contents->is_loading();
 }
 
 // static
@@ -1235,7 +1239,7 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
                                          const gfx::Rect& window_bounds,
                                          const DockInfo& dock_info) {
   DCHECK(type_ == TYPE_NORMAL);
-  
+
   gfx::Rect new_window_bounds = window_bounds;
   bool maximize = false;
   if (dock_info.GetNewWindowBounds(&new_window_bounds, &maximize))
@@ -1394,7 +1398,7 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
   RemoveScheduledUpdatesFor(contents);
 
   NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED, 
+      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
                      Source<TabContents>(contents));
 }
 
@@ -1549,7 +1553,7 @@ void Browser::OpenURLFromTab(TabContents* source,
       //             object is unit-testable.
       int current_tab_index =
           tabstrip_model_.GetIndexOfTabContents(current_tab);
-      bool forget_openers = 
+      bool forget_openers =
           !(current_tab->type() == TAB_CONTENTS_NEW_TAB_UI &&
           current_tab_index == (tab_count() - 1) &&
           current_tab->controller()->GetEntryCount() == 1);
@@ -1621,12 +1625,11 @@ void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
   // TabContents, since we only care to fire onbeforeunload handlers on active
   // Tabs. Make sure an observer is added for the replacement TabContents.
   NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED, 
+      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
                      Source<TabContents>(source));
   NotificationService::current()->
       AddObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
                   Source<TabContents>(new_contents));
-  
 }
 
 void Browser::AddNewContents(TabContents* source,
@@ -1693,7 +1696,7 @@ void Browser::LoadingStateChanged(TabContents* source) {
 void Browser::CloseContents(TabContents* source) {
   if (is_attempting_to_close_browser_) {
     // If we're trying to close the browser, just clear the state related to
-    // waiting for unload to fire. Don't actually try to close the tab as it 
+    // waiting for unload to fire. Don't actually try to close the tab as it
     // will go down the slow shutdown path instead of the fast path of killing
     // all the renderer processes.
     ClearUnloadState(source);
@@ -1809,7 +1812,7 @@ void Browser::BeforeUnloadFired(TabContents* tab,
     // unload.
     tabs_needing_unload_fired_.insert(tab);
     ProcessPendingTabs();
-    // We want to handle firing the unload event ourselves since we want to 
+    // We want to handle firing the unload event ourselves since we want to
     // fire all the beforeunload events before attempting to fire the unload
     // events should the user cancel closing the browser.
     *proceed_to_fire_unload = false;
