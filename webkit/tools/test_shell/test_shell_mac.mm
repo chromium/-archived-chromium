@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <ApplicationServices/ApplicationServices.h>
 #import <Cocoa/Cocoa.h>
 #include <sys/stat.h>
 
@@ -13,6 +14,7 @@
 #include "base/file_util.h"
 #include "base/gfx/size.h"
 #include "base/icu_util.h"
+#include "base/mac_util.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -134,6 +136,27 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   web_prefs_ = new WebPreferences;
   
   ResetWebPreferences();
+
+  // Load the Ahem font, which is used by layout tests.
+  NSString* ahem_path = [[[NSBundle mainBundle] resourcePath]
+      stringByAppendingPathComponent:@"AHEM____.TTF"];
+  const char* ahem_path_c = [ahem_path fileSystemRepresentation];
+  FSRef ahem_fsref;
+  if (!mac_util::FSRefFromPath(ahem_path_c, &ahem_fsref)) {
+    DCHECK(false) << "FSRefFromPath " << ahem_path_c;
+  } else {
+    // The last argument is an ATSFontContainerRef that can be passed to
+    // ATSFontDeactivate to unload the font.  Since the font is only loaded
+    // for this process, and it's always wanted, don't keep track of it.
+    if (ATSFontActivateFromFileReference(&ahem_fsref,
+                                         kATSFontContextLocal,
+                                         kATSFontFormatUnspecified,
+                                         NULL,
+                                         kATSOptionFlagsDefault,
+                                         NULL) != noErr) {
+      DCHECK(false) << "ATSFontActivateFromFileReference " << ahem_path_c;
+    }
+  }
 }
 
 NSButton* MakeTestButton(NSRect* rect, NSString* title, NSView* parent) {
