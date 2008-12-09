@@ -20,7 +20,7 @@ LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
 LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
 LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
 LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
-LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
+WIN MAC : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
