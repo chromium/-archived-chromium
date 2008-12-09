@@ -164,6 +164,20 @@ bool SaveFileAsWithFilter(HWND owner,
                           unsigned* index,
                           std::wstring* final_name);
 
+// This function takes the output of a SaveAs dialog: a filename, a filter and
+// the extension originally suggested to the user (shown in the dialog box) and
+// returns back the filename with the appropriate extension tacked on. For
+// example, if you pass in 'foo' as filename with filter '*.jpg' this function
+// will return 'foo.jpg'. It respects MIME types, so if you pass in 'foo.jpeg'
+// with filer '*.jpg' it will return 'foo.jpeg' (will not append .jpg).
+// |filename| should contain the filename selected in the SaveAs dialog box and
+// may include the path, |filter_selected| should be '*.something', for example
+// '*.*' or it can be blank (which is treated as *.*). |suggested_ext| should
+// contain the extension without the dot (.) in front, for example 'jpg'.
+std::wstring AppendExtensionIfNeeded(const std::wstring& filename,
+                                     const std::wstring& filter_selected,
+                                     const std::wstring& suggested_ext);
+
 // If the window does not fit on the default monitor, it is moved and possibly
 // resized appropriately.
 void AdjustWindowToFit(HWND hwnd);
@@ -203,7 +217,7 @@ void SetChildBounds(HWND child_window, HWND parent_window,
 gfx::Rect GetMonitorBoundsForRect(const gfx::Rect& rect);
 
 // Returns true if the virtual key code is a digit coming from the numeric
-// keypad (with or without Num Lock on).  |extended_key| should be set to the
+// keypad (with or without NumLock on).  |extended_key| should be set to the
 // extended key flag specified in the WM_KEYDOWN/UP where the |key_code|
 // originated.
 bool IsNumPadDigit(int key_code, bool extended_key);

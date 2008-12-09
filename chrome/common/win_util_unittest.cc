@@ -50,3 +50,45 @@ TEST(WinUtilTest, EnsureRectIsVisibleInRect) {
     EXPECT_EQ(gfx::Rect(20, 20, 100, 380), child_rect);
   }
 }
+
+static const struct filename_case {
+  const wchar_t* filename;
+  const wchar_t* filter_selected;
+  const wchar_t* suggested_ext;
+  const wchar_t* result;
+} filename_cases[] = {
+  // Test a specific filter (*.jpg).
+  {L"f",         L"*.jpg", L"jpg", L"f.jpg"},
+  {L"f.",        L"*.jpg", L"jpg", L"f..jpg"},
+  {L"f..",       L"*.jpg", L"jpg", L"f...jpg"},
+  {L"f.jpeg",    L"*.jpg", L"jpg", L"f.jpeg"},
+  // Further guarantees.
+  {L"f.jpg.jpg", L"*.jpg", L"jpg", L"f.jpg.jpg"},
+  {L"f.exe.jpg", L"*.jpg", L"jpg", L"f.exe.jpg"},
+  {L"f.jpg.exe", L"*.jpg", L"jpg", L"f.jpg.exe.jpg"},
+  {L"f.exe..",   L"*.jpg", L"jpg", L"f.exe...jpg"},
+  {L"f.jpg..",   L"*.jpg", L"jpg", L"f.jpg...jpg"},
+  // Test the All Files filter (*.jpg).
+  {L"f",         L"*.*",   L"jpg", L"f"},
+  {L"f.",        L"*.*",   L"jpg", L"f"},
+  {L"f..",       L"*.*",   L"jpg", L"f"},
+  {L"f.jpg",     L"*.*",   L"jpg", L"f.jpg"},
+  {L"f.jpeg",    L"*.*",   L"jpg", L"f.jpeg"},  // Same MIME type (diff. ext).
+  // Test the empty filter, which should behave identically to the
+  // All Files filter.
+  {L"f",         L"",      L"jpg", L"f"},
+  {L"f.",        L"",      L"jpg", L"f"},
+  {L"f..",       L"",      L"jpg", L"f"},
+  {L"f.jpg",     L"",      L"jpg", L"f.jpg"},
+  {L"f.jpeg",    L"",      L"jpg", L"f.jpeg"},
+};
+
+TEST(WinUtilTest, AppendingExtensions) {
+  for (unsigned int i = 0; i < arraysize(filename_cases); ++i) {
+    const filename_case& value = filename_cases[i];
+    std::wstring result =
+        win_util::AppendExtensionIfNeeded(value.filename, value.filter_selected,
+                                          value.suggested_ext);
+    EXPECT_EQ(value.result, result);
+  }
+}

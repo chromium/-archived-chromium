@@ -449,11 +449,9 @@ bool SaveFileAsWithFilter(HWND owner,
     filter_selected = filters[(2 * (save_as.nFilterIndex - 1)) + 1];
 
   // Get the extension that was suggested to the user (when the Save As dialog
-  // was opened) and the extension the user ended up selecting (|final_ext|).
+  // was opened).
   std::wstring suggested_ext =
       file_util::GetFileExtensionFromPath(suggested_name);
-  std::wstring final_ext =
-      file_util::GetFileExtensionFromPath(*final_name);
   // If we can't get the extension from the suggested_name, we use the default
   // extension passed in. This is to cover cases like when saving a web page,
   // where we get passed in a name without an extension and a default extension
@@ -461,30 +459,43 @@ bool SaveFileAsWithFilter(HWND owner,
   if (suggested_ext.empty())
     suggested_ext = def_ext;
 
+  *final_name =
+      AppendExtensionIfNeeded(*final_name, filter_selected, suggested_ext);
+  return true;
+}
+
+std::wstring AppendExtensionIfNeeded(const std::wstring& filename,
+                                     const std::wstring& filter_selected,
+                                     const std::wstring& suggested_ext) {
+  std::wstring return_value = filename;
+
+  // Get the extension the user ended up selecting.
+  std::wstring selected_ext = file_util::GetFileExtensionFromPath(filename);
+
   if (filter_selected.empty() || filter_selected == L"*.*") {
     // If the user selects 'All files' we respect any extension given to us from
     // the File Save dialog. We also strip any trailing dots, which matches
     // Windows Explorer and is needed because Windows doesn't allow filenames
     // to have trailing dots. The GetSaveFileName dialog will not return a
     // string with only one or more dots.
-    size_t index = final_name->find_last_not_of(L'.');
-    if (index < final_name->size() - 1)
-      *final_name = final_name->substr(0, index + 1);
+    size_t index = return_value.find_last_not_of(L'.');
+    if (index < return_value.size() - 1)
+      return_value.resize(index + 1);
   } else {
     // User selected a specific filter (not *.*) so we need to check if the
     // extension provided has the same mime type. If it doesn't we append the
     // extension.
     std::string suggested_mime_type, selected_mime_type;
-    if (suggested_ext != final_ext &&
+    if (suggested_ext != selected_ext &&
         (!net::GetMimeTypeFromExtension(suggested_ext, &suggested_mime_type) ||
-         !net::GetMimeTypeFromExtension(final_ext, &selected_mime_type) ||
+         !net::GetMimeTypeFromExtension(selected_ext, &selected_mime_type) ||
          suggested_mime_type != selected_mime_type)) {
-      final_name->append(L".");
-      final_name->append(suggested_ext);
+      return_value.append(L".");
+      return_value.append(suggested_ext);
     }
   }
 
-  return true;
+  return return_value;
 }
 
 // Adjust the window to fit, returning true if the window was resized or moved.
@@ -701,11 +712,11 @@ bool IsNumPadDigit(int key_code, bool extended_key) {
   if (key_code >= VK_NUMPAD0 && key_code <= VK_NUMPAD9)
     return true;
 
-  // Check for num pad keys without Num Lock.
+  // Check for num pad keys without NumLock.
   // Note: there is no easy way to know if a the key that was pressed comes from
   //       the num pad or the rest of the keyboard.  Investigating how
   //       TranslateMessage() generates the WM_KEYCHAR from an
-  //       ALT + <numpad sequences> it appears it looks at the extended key flag
+  //       ALT + <NumPad sequences> it appears it looks at the extended key flag
   //       (which is on if the key pressed comes from one of the 3 clusters to
   //       the left of the numeric keypad).  So we use it as well.
   return !extended_key &&
