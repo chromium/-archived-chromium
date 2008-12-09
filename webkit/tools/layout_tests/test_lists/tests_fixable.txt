@@ -325,6 +325,8 @@ LINUX WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 // GDI @font-face support has been implemented upstream, but we don't plan
 // to fork to add support for @font-face for Beta.
 // upstream: http://trac.webkit.org/projects/webkit/changeset/31507
+
+// Linux pixeltest failure: Check if Windows baseline is wrong
 LINUX WIN : LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
 LINUX WIN : LayoutTests/fast/css/font-face-remote.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
@@ -614,12 +616,16 @@ LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 
 LayoutTests/accessibility = FAIL
 LINUX WIN : LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
+// Linux pixeltest failure: Image scaling is terrible
 LINUX WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 LINUX WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
+// Linux pixeltest failure: We can't do gradient filled text
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
+// Linux pixeltest failure: Missing gradients
 LINUX WIN : LayoutTests/fast/gradients/border-image-gradient-sides-and-corners.html = FAIL
+// Linux pixeltest failure: Missing gradients
 LINUX WIN : LayoutTests/fast/gradients/border-image-gradient.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/list-item-gradient.html = FAIL
@@ -630,6 +636,7 @@ LINUX WIN : LayoutTests/fast/table/border-collapsing/equal-precedence-resolution
 LINUX WIN : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
 LINUX WIN : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 LINUX WIN : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
+// Linux pixeltest failure: Failing to render shadows
 LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
@@ -651,10 +658,12 @@ LayoutTests/fast/block/float/float-avoidance.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/drawImage.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
+// Linux pixeltest failure: We fail to draw the second gradient
 LINUX WIN : LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
 WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
 LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
+// Linux pixeltest failure: Background image appears to be off by one
 LINUX WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 LINUX WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
@@ -1159,7 +1168,9 @@ WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+// Linux pixeltest failure: We fail to draw anything
 LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
+// Linux pixeltest failure: We fail to draw anything
 LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
 LINUX WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LayoutTests/fast/events/mouse-click-events.html = FAIL
@@ -1170,18 +1181,25 @@ LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 LayoutTests/fast/forms/select-item-background-clip.html = FAIL
 LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
+// Linux pixeltest failure: Small scrollbar error
 LINUX WIN : LayoutTests/fast/frames/invalid.html = FAIL
+// Linux pixeltest failure: Looks like we're screwing up the scollbar
 LINUX WIN : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
+// Linux pixeltest failure: Looks like we're screwing up the scollbar
 LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
 LayoutTests/fast/html/keygen.html = FAIL
+// Linux pixeltest failure: Box is the wrong colour
 LINUX WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
+// Linux pixeltest failure: Box is the wrong colour
 LINUX WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
+// Linux pixeltest failure: Box is the wrong colour
 LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
 LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
+// Linux pixeltest failure: Appears that Windows baseline is wrong
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
@@ -1227,6 +1245,7 @@ LINUX WIN : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 
 // MERGE 38305:38376 REGRESSION (new test)
 // Bug 5032: The image is flipped horizontally from the reference.
+// Linux pixeltest failure: Not clear who is correct here
 LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
 
 // MERGE 38389:38450
@@ -1605,9 +1624,11 @@ MAC : LayoutTests/fast/forms/input-text-word-wrap.html = FAIL
 MAC : LayoutTests/fast/forms/input-type-change2.html = FAIL
 MAC : LayoutTests/fast/forms/input-value.html = FAIL
 MAC : LayoutTests/fast/forms/input-width.html = FAIL
+// Linux pixeltest failure: Form control incorrect size
 MAC : LayoutTests/fast/forms/listbox-clip.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-clip.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-deselect-update.html = FAIL
+// Linux pixeltest failure: Based on the text, we may be failing to clip
 MAC : LayoutTests/fast/forms/menulist-narrow-width.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-option-wrap.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-restrict-line-height.html = FAIL
@@ -1631,6 +1652,7 @@ MAC : LayoutTests/fast/forms/select-empty-option-height.html = FAIL
 MAC : LayoutTests/fast/forms/select-namedItem.html = FAIL
 MAC : LayoutTests/fast/forms/select-selected.html = FAIL
 MAC : LayoutTests/fast/forms/select-size.html = FAIL
+// Linux pixeltest failure: Failing to apply style
 MAC : LayoutTests/fast/forms/select-style.html = FAIL
 MAC : LayoutTests/fast/forms/stuff-on-my-optgroup.html = FAIL
 MAC : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
@@ -1696,6 +1718,7 @@ MAC : LayoutTests/fast/loader/start-load-in-unload.html = FAIL
 MAC : LayoutTests/fast/loader/window-clearing.html = FAIL
 MAC : LayoutTests/fast/loader/xmlhttprequest-missing-file-exception.html = FAIL
 MAC : LayoutTests/fast/overflow/scroll-nested-positioned-layer-in-overflow.html = FAIL
+// Linux pixeltest failure: Failed to clip the scrollbars
 MAC : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
 MAC : LayoutTests/fast/parser/bad-xml-slash.html = FAIL
 MAC : LayoutTests/fast/parser/document-write-option.html = FAIL
@@ -1713,7 +1736,10 @@ MAC : LayoutTests/fast/replaced/replaced-breaking-mixture.html = FAIL
 MAC : LayoutTests/fast/replaced/three-selects-break.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-button.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-checkbox.html = FAIL
+// Linux pixeltest failure: It appears that the form controls are overlapping
 MAC : LayoutTests/fast/replaced/width100percent-menulist.html = FAIL
+// Linux pixeltest failure: The text suggests that the radios should not
+// overlap, but it's very close and quite different from the Windows version
 MAC : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-textfield.html = FAIL
 MAC : LayoutTests/fast/selectors/064.html = FAIL
@@ -1959,3 +1985,62 @@ LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 LayoutTests/wml/variable-reference-invalid-character.html = FAIL
 LayoutTests/wml/variable-reference-valid.html = FAIL
 
+// Linux pixeltest failure: Seafoam green showing
+LINUX : LayoutTests/fast/block/margin-collapse/055.html = FAIL
+// Linux pixeltest failure: We aren't clipping the scrollbar
+LINUX : LayoutTests/fast/clip/014.html = FAIL
+// Linux pixeltest failure: Need to check that the alpha channels are correct,
+// otherwise may be ok
+LINUX : LayoutTests/fast/css/hsla-color.html = FAIL
+// Linux pixeltest failure: Looks like we might be drawing this wrong, Windows has a different colour
+LINUX : LayoutTests/fast/css/imageTileOpacity.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/css/word-space-extra.html = FAIL
+// Linux pixeltest failure: Missing red bars, not clear who is at fault
+LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
+// Linux pixeltest failure: Word spacing
+LINUX : LayoutTests/fast/multicol/float-avoidance.html = FAIL
+// Linux pixeltest failure: Indent is incorrect
+LINUX : LayoutTests/fast/overflow/clip-rects-fixed-ancestor.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-1.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-10.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-2.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-3.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-4.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-5.html = FAIL
+// Linux pixeltest failure: Word spacing very wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-6.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-7.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-8.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-9.html = FAIL
+// Linux pixeltest failure: Misdrawing probably
+LINUX : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
+// Linux pixeltest failure: Check that we are respecting the CSS highlight colour
+LINUX : LayoutTests/fast/repaint/text-selection-rect-in-overflow-2.html = FAIL
+// Linux pixeltest failure: Indentation incorrect
+LINUX : LayoutTests/fast/table/border-collapsing/004.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/text/basic/002.html = FAIL
+// Linux pixeltest failure: Letting spacing wrong
+LINUX : LayoutTests/fast/text/basic/003.html = FAIL
+// Linux pixeltest failure: Word spacing wrong
+LINUX : LayoutTests/fast/text/basic/005.html = FAIL
+// Linux pixeltest failure: Font metrics incorrect with arabic script
+LINUX : LayoutTests/fast/text/international/bidi-neutral-directionality-paragraph-start.html = FAIL
+// Linux pixeltest failure: Word spacing incorrect
+LINUX : LayoutTests/fast/text/justified-selection-at-edge.html = FAIL
+// Linux pixeltest failure: Letter spacing wrong
+LINUX : LayoutTests/fast/text/justified-selection.html = FAIL
+// Linux pixeltest failure: Letter spacing wrong
+LINUX : LayoutTests/fast/text/word-space.html = FAIL
+// Linux pixeltest failure: Failing to rotate the form control
+LINUX : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
