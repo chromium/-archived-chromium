@@ -82,6 +82,16 @@ public:
         return *this;
     }
 
+    bool operator==(const ScriptValue value) const
+    {
+      return m_value == value.m_value;
+    }
+
+    bool operator!=(const ScriptValue value) const
+    {
+      return !operator==(value);
+    }
+
     void clear() {
         if (!m_value.IsEmpty()) {
 #ifndef NDEBUG
@@ -97,6 +107,7 @@ public:
         clear();
     }
 
+    v8::Handle<v8::Value> v8Value() const { return m_value; }
     bool getString(String& result) const;
 
 private:

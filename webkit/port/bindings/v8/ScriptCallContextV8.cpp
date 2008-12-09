@@ -29,6 +29,7 @@
 
 #include "config.h"
 #include "ScriptCallContext.h"
+#include "ScriptValue.h"
 
 #include "PlatformString.h"
 #include "KURL.h"
@@ -44,6 +45,14 @@ ScriptCallContext::ScriptCallContext(const v8::Arguments& args)
   // Line numbers in V8 are starting from zero.
   m_lineNumber = V8Proxy::GetSourceLineNumber() + 1;
   m_sourceURL = KURL(V8Proxy::GetSourceName());
+}
+
+ScriptValue ScriptCallContext::argumentAt(unsigned index)
+{
+    if (index >= argumentCount())
+        return ScriptValue(v8::Handle<v8::Value>());
+
+    return ScriptValue(m_args[index]);
 }
 
 String ScriptCallContext::argumentStringAt(unsigned index,

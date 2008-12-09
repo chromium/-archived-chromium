@@ -140,6 +140,8 @@ struct ConsoleMessage {
         , level(l)
 #if USE(JSC)
         , wrappedArguments(args.size())
+#elif USE(V8)
+        , arguments(context->argumentCount())
 #endif
         , line(context->lineNumber())
         , url(context->sourceURL())
@@ -151,13 +153,8 @@ struct ConsoleMessage {
         for (unsigned i = 0; i < context->argumentCount(); ++i)
             wrappedArguments[i] = JSInspectedObjectWrapper::wrap(context->argumentAt(i));
 #elif USE(V8)
-        // FIXME: This is not correct. The objects are being converted to
-        // string and appended to one big message. But it's better than only
-        // supporting one string argument that we had previously.
         for (unsigned i = 0; i < context->argumentCount(); ++i) {
-            if (i)
-                message.append(", ");
-            message.append(context->argumentStringAt(i));
+            arguments[i] = context->argumentAt(i);
         }
 #endif
     }
@@ -170,7 +167,7 @@ struct ConsoleMessage {
 #if USE(JSC)
             && msg.wrappedArguments == this->wrappedArguments
 #elif USE(V8)
-            && msg.message == this->message
+            && msg.arguments == this->arguments
 #endif
             && msg.line == this->line
             && msg.url == this->url
@@ -182,6 +179,8 @@ struct ConsoleMessage {
     String message;	
 #if USE(JSC)
     Vector<ProtectedPtr<JSValue> > wrappedArguments;
+#elif USE(V8)
+    Vector<ScriptValue> arguments;
 #endif
     unsigned line;	
     String url;	
@@ -1346,18 +1345,28 @@ void InspectorController::addScriptConsoleMessage(const ConsoleMessage* message)
     if (addMessageToConsole.IsEmpty() || !addMessageToConsole->IsFunction())
         return;
 
-    v8::Handle<v8::Value> args[] = {
-        v8::Number::New(message->source),
-        v8::Number::New(message->level),
-        v8::Number::New(message->line),
-        v8StringOrNull(message->url),
-        v8::Number::New(message->groupLevel),
-        v8::Number::New(message->repeatCount),
-        v8StringOrNull(message->message),
-    };
+    // Create an instance of WebInspector.ConsoleMessage passing the variable
+    // number of arguments available.
+    static unsigned kArgcFixed = 6;
+    unsigned argc = kArgcFixed + message->arguments.size();
+    v8::Handle<v8::Value> *args = new v8::Handle<v8::Value>[argc];
+    if (args == 0)
+        return;
+    unsigned i = 0;
+    args[i++] = v8::Number::New(message->source);
+    args[i++] = v8::Number::New(message->level);
+    args[i++] = v8::Number::New(message->line);
+    args[i++] = v8StringOrNull(message->url);
+    args[i++] = v8::Number::New(message->groupLevel);
+    args[i++] = v8::Number::New(message->repeatCount);
+    ASSERT(kArgcFixed == i);
+    for (unsigned i = 0; i < message->arguments.size(); ++i) {
+      args[kArgcFixed + i] = message->arguments[i].v8Value();
+    }
 
     v8::Handle<v8::Object> consoleMessage = 
-        SafeAllocation::NewInstance(consoleMessageConstructor, 7, args);
+        SafeAllocation::NewInstance(consoleMessageConstructor, argc, args);
+    delete[] args;
     if (consoleMessage.IsEmpty())
         return;
 
