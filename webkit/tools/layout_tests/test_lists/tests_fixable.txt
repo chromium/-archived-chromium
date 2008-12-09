@@ -753,7 +753,9 @@ LINUX WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
 LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+// Linux pixeltest failure: Font mismatch
 LINUX WIN : LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
+// Linux pixeltest failure: Font mismatch
 LINUX WIN : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
 chrome/fast/dom/domListEnumeration.html = FAIL
 chrome/fast/forms/basic-textareas-quirks.html = FAIL
@@ -799,6 +801,7 @@ LINUX MAC : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 // Missing a Georgian font for Linux
 LINUX : LayoutTests/css2.1/t1202-counter-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
+// Linux pixeltest failure: Font mismatch
 LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
 
 // It's not clear that the test isn't wrong here. It believes that middle
@@ -962,11 +965,15 @@ LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
 LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
+// Linux pixeltest failure: Font metrics mismatch
 LINUX : LayoutTests/tables/mozilla/bugs/bug16252.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
+// Linux pixeltest failure: Font metrics mismatch
 LINUX : LayoutTests/tables/mozilla/bugs/bug4093.html = FAIL
+// Linux pixeltest failure: Font mismatch for "Stocks on the Move"
 LINUX : LayoutTests/tables/mozilla/core/bloomberg.html = FAIL
 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
+// Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
 LINUX : LayoutTests/css2.1/t0805-c5518-brdr-t-01-e.html = FAIL
@@ -1195,6 +1202,7 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.htm
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
+// Linux pixeltest failure: Large areas of the page are missing
 MAC WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
