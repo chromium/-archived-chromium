@@ -237,7 +237,7 @@ void StatusBubble::StatusView::StartFade(double start,
   opacity_start_ = start;
   opacity_end_ = end;
 
-  // This will also reset the currently-occuring animation.
+  // This will also reset the currently-occurring animation.
   SetDuration(duration);
   Start();
 }
@@ -337,7 +337,7 @@ void StatusBubble::StatusView::Paint(ChromeCanvas* canvas) {
   // Top Edges - if the bubble is in its bottom position (sticking downwards),
   // then we square the top edges. Otherwise, we square the edges based on the
   // position of the bubble within the window (the bubble is positioned in the
-  // southeast corner in RTL and in the southwest conver in LTR).
+  // southeast corner in RTL and in the southwest corner in LTR).
   if (style_ == STYLE_BOTTOM) {
     // Top Left corner.
     rad[0] = 0;
@@ -454,23 +454,20 @@ StatusBubble::StatusBubble(views::Widget* frame)
 }
 
 StatusBubble::~StatusBubble() {
-  if (popup_) {
+  if (popup_.get())
     popup_->CloseNow();
-  }
 
-  popup_ = NULL;
   position_ = NULL;
   size_ = NULL;
 }
 
 void StatusBubble::Init() {
-  if (!popup_) {
-    popup_ = new views::WidgetWin();
+  if (!popup_.get()) {
+    popup_.reset(new views::WidgetWin());
     popup_->set_delete_on_destroy(false);
 
-    if (!view_) {
-      view_ = new StatusView(this, popup_);
-    }
+    if (!view_)
+      view_ = new StatusView(this, popup_.get());
 
     gfx::Rect rc(0, 0, 0, 0);
 
@@ -513,7 +510,7 @@ void StatusBubble::SetURL(const GURL& url, const std::wstring& languages) {
     return;
   }
 
-  // Set Elided Text correspoding to the GURL object.
+  // Set Elided Text corresponding to the GURL object.
   RECT parent_rect;
   ::GetWindowRect(popup_->GetHWND(), &parent_rect);
   int text_width = static_cast<int>(parent_rect.right -
@@ -540,9 +537,8 @@ void StatusBubble::ClearURL() {
 void StatusBubble::Hide() {
   status_text_ = std::wstring();
   url_text_ = std::wstring();
-  if (view_) {
+  if (view_)
     view_->Hide();
-  }
 }
 
 void StatusBubble::MouseMoved() {
@@ -618,7 +614,7 @@ void StatusBubble::AvoidMouse() {
 }
 
 void StatusBubble::Reposition() {
-  if (popup_) {
+  if (popup_.get()) {
     gfx::Point top_left;
     views::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
 
@@ -644,4 +640,3 @@ void StatusBubble::SetBounds(int x, int y, int w, int h) {
   size_.SetSize(w, h);
   Reposition();
 }
-

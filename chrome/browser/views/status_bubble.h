@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H__
-#define CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H__
+#ifndef CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H_
+#define CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H_
 
 #include "base/gfx/rect.h"
 #include "chrome/views/widget.h"
@@ -74,14 +74,14 @@ class StatusBubble {
 
   // We use a HWND for the popup so that it may float above any HWNDs in our
   // UI (the location bar, for example).
-  views::WidgetWin* popup_;
+  scoped_ptr<views::WidgetWin> popup_;
   double opacity_;
 
   views::Widget* frame_;
   StatusView* view_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(StatusBubble);
+  DISALLOW_COPY_AND_ASSIGN(StatusBubble);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H__
+#endif  // CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H_
 
