@@ -138,6 +138,7 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'darwin':
   # Mac-specific tests.
   input_files.extend([
+      'mac_util_unittest.cc',
       'platform_test_mac.mm',
   ])
 

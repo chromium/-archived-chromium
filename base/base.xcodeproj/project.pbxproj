@@ -114,6 +114,8 @@
 		820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F90E3A6178009668FC /* string_util_icu.cc */; };
 		820EB5020E3A618B009668FC /* tracked.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4FE0E3A618B009668FC /* tracked.cc */; };
 		820EB5480E3A64D2009668FC /* tracked_objects.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4FB0E3A618B009668FC /* tracked_objects.cc */; };
+		8216794D0EEDC1D8004E561E /* mac_util.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8216794B0EEDC1D8004E561E /* mac_util.mm */; };
+		8216795B0EEDC5EB004E561E /* mac_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8216795A0EEDC5EB004E561E /* mac_util_unittest.cc */; };
 		8216A5060E34DBDD00EE374C /* icu_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403110D92D1E80006B936 /* icu_util.cc */; };
 		824653450DC1230B007C2BAA /* lock.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403250D92D2090006B936 /* lock.cc */; };
 		824653680DC12CEC007C2BAA /* condition_variable_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824653670DC12CEC007C2BAA /* condition_variable_posix.cc */; };
@@ -464,6 +466,9 @@
 		820EB4FE0E3A618B009668FC /* tracked.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracked.cc; sourceTree = "<group>"; };
 		820EB5030E3A61A1009668FC /* watchdog.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = watchdog.cc; sourceTree = "<group>"; };
 		820EB5040E3A61A1009668FC /* watchdog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = watchdog.h; sourceTree = "<group>"; };
+		8216794B0EEDC1D8004E561E /* mac_util.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mac_util.mm; sourceTree = "<group>"; };
+		8216794C0EEDC1D8004E561E /* mac_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mac_util.h; sourceTree = "<group>"; };
+		8216795A0EEDC5EB004E561E /* mac_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mac_util_unittest.cc; sourceTree = "<group>"; };
 		821B91680DAABD7F00F350D7 /* string16.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string16.h; sourceTree = "<group>"; };
 		824652C00DC12044007C2BAA /* hash_tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash_tables.h; sourceTree = "<group>"; };
 		824653670DC12CEC007C2BAA /* condition_variable_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = condition_variable_posix.cc; sourceTree = "<group>"; };
@@ -886,6 +891,9 @@
 				7BEFC29D0D99832D000829AD /* lock_impl_posix.cc */,
 				825403270D92D2090006B936 /* logging.cc */,
 				7BAF4F7B0E50A3BD00CA8A07 /* logging.h */,
+				8216794C0EEDC1D8004E561E /* mac_util.h */,
+				8216794B0EEDC1D8004E561E /* mac_util.mm */,
+				8216795A0EEDC5EB004E561E /* mac_util_unittest.cc */,
 				825403290D92D2090006B936 /* md5.cc */,
 				8254032A0D92D2090006B936 /* md5.h */,
 				8254032B0D92D2090006B936 /* memory_debug.cc */,
@@ -1349,6 +1357,7 @@
 				824653450DC1230B007C2BAA /* lock.cc in Sources */,
 				829E35DA0DC0DD0400819EBF /* lock_impl_posix.cc in Sources */,
 				829E35D50DC0DC9400819EBF /* logging.cc in Sources */,
+				8216794D0EEDC1D8004E561E /* mac_util.mm in Sources */,
 				ABFBD3E60DC793C600E164CB /* md5.cc in Sources */,
 				ABF4B9B20DC2BC8300A6E319 /* memory_debug.cc in Sources */,
 				93611AE10E5A7FE200F9405D /* message_loop.cc in Sources */,
@@ -1434,6 +1443,7 @@
 				7B78D3930E54FE0100609465 /* json_writer_unittest.cc in Sources */,
 				7BF892E00E758883000BAF8A /* lazy_instance_unittest.cc in Sources */,
 				7B78D3940E54FE0100609465 /* linked_ptr_unittest.cc in Sources */,
+				8216795B0EEDC5EB004E561E /* mac_util_unittest.cc in Sources */,
 				93611AE80E5A803700F9405D /* message_loop_unittest.cc in Sources */,
 				7B78D3950E54FE0100609465 /* observer_list_unittest.cc in Sources */,
 				7B78D3960E54FE0100609465 /* path_service_unittest.cc in Sources */,

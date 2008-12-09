@@ -186,6 +186,7 @@ if env['PLATFORM'] == 'darwin':
       'file_util_mac.mm',
       'file_version_info_mac.mm',
       'hmac_mac.cc',
+      'mac_util.mm',
       'message_pump_mac.mm',
       'platform_thread_mac.mm',
       'scoped_nsautorelease_pool.mm',
