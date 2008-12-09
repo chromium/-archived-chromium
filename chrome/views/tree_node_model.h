@@ -5,6 +5,7 @@
 #ifndef CHROME_VIEWS_TREE_NODE_MODEL_H__
 #define CHROME_VIEWS_TREE_NODE_MODEL_H__
 
+#include <algorithm>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -116,7 +117,7 @@ class TreeNode : public TreeModelNode {
   int IndexOfChild(const NodeType* node) {
     DCHECK(node);
     typename std::vector<NodeType*>::iterator i =
-        find(children_->begin(), children_->end(), node);
+        std::find(children_->begin(), children_->end(), node);
     if (i != children_->end())
       return static_cast<int>(i - children_->begin());
     return -1;
