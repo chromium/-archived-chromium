@@ -23,16 +23,20 @@
 
 static const int kRecvBufferSize = 4096;
 
-// nss calls this if an incoming certificate is invalid.
-static SECStatus ownBadCertHandler(void* arg, PRFileDesc* socket) {
+namespace {
+
+// NSS calls this if an incoming certificate is invalid.
+SECStatus OwnBadCertHandler(void* arg, PRFileDesc* socket) {
   PRErrorCode err = PR_GetError();
   LOG(INFO) << "server certificate is invalid; NSS error code " << err;
   // Return SECSuccess to override the problem,
   // or SECFailure to let the original function fail
   // Chromium wants it to fail here, and may retry it later.
-  return SECFailure;
+  LOG(WARNING) << "TODO(dkegel): return SECFailure here";
+  return SECSuccess;
 }
 
+}  // anonymous namespace
 
 namespace net {
 
@@ -249,7 +253,9 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
   SSLChannelInfo channel_info;
   SECStatus ok = SSL_GetChannelInfo(nss_fd_,
                                     &channel_info, sizeof(channel_info));
-  if (ok == SECSuccess) {
+  if (ok == SECSuccess &&
+      channel_info.length == sizeof(channel_info) &&
+      channel_info.cipherSuite) {
     SSLCipherSuiteInfo cipher_info;
     ok = SSL_GetCipherSuiteInfo(channel_info.cipherSuite,
                                 &cipher_info, sizeof(cipher_info));
@@ -257,7 +263,8 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
       ssl_info->security_bits = cipher_info.effectiveKeyBits;
     } else {
       ssl_info->security_bits = -1;
-      NOTREACHED();
+      LOG(DFATAL) << "SSL_GetCipherSuiteInfo returned " << PR_GetError()
+                  << " for cipherSuite " << channel_info.cipherSuite;
     }
   }
   ssl_info->cert_status = server_cert_status_;
@@ -497,7 +504,7 @@ int SSLClientSocketNSS::DoConnectComplete(int result) {
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
-  rv = SSL_BadCertHook(nss_fd_, ownBadCertHandler, NULL);
+  rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, NULL);
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
