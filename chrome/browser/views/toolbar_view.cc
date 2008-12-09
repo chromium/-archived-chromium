@@ -468,8 +468,6 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
     anchor = Menu::TOPLEFT;
 
   Menu menu(this, anchor, hwnd);
-  // The install menu may be dynamically generated with a contextual label.
-  // See browser_commands.cc.
   menu.AppendMenuItemWithLabel(IDC_CREATE_SHORTCUTS,
       l10n_util::GetString(IDS_CREATE_SHORTCUTS));
   menu.AppendSeparator();
@@ -543,14 +541,12 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   menu.AppendMenuItemWithLabel(IDC_NEW_INCOGNITO_WINDOW,
                                l10n_util::GetString(IDS_NEW_INCOGNITO_WINDOW));
 
-  // Enumerate profiles asynchronously and then create the parent menu item
-  // "Open new window in profile...". We will create the child menu items for
-  // this once the asynchronous call is done. See OnGetProfilesDone.
+  // Enumerate profiles asynchronously and then create the parent menu item.
+  // We will create the child menu items for this once the asynchronous call is
+  // done.  See OnGetProfilesDone().
   profiles_helper_->GetProfiles(NULL);
-  Menu* profiles_menu = menu.AppendSubMenu(
-      IDC_PROFILE_MENU,
-      l10n_util::GetString(IDS_PROFILE_MENU));
-  profiles_menu_ = profiles_menu;
+  profiles_menu_ = menu.AppendSubMenu(IDC_PROFILE_MENU,
+                                      l10n_util::GetString(IDS_PROFILE_MENU));
 
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,
@@ -588,8 +584,7 @@ bool BrowserToolbarView::IsItemChecked(int id) const {
     return false;
   if (id == IDC_SHOW_BOOKMARK_BAR)
     return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
-  else
-    return EncodingMenuControllerDelegate::IsItemChecked(id);
+  return EncodingMenuControllerDelegate::IsItemChecked(id);
 }
 
 void BrowserToolbarView::RunMenu(views::View* source, const CPoint& pt,
@@ -615,16 +610,12 @@ void BrowserToolbarView::OnGetProfilesDone(
   // Store the latest list of profiles in the browser.
   browser_->set_user_data_dir_profiles(profiles);
 
-  // Number of sub menu items that we can show directly.
-  const int sub_items_count = IDC_NEW_WINDOW_PROFILE_0 -
-                              IDC_NEW_WINDOW_PROFILE_LAST + 1;
   std::vector<std::wstring>::const_iterator iter = profiles.begin();
   // Add direct sub menu items for profiles.
   for (int i = IDC_NEW_WINDOW_PROFILE_0;
        i <= IDC_NEW_WINDOW_PROFILE_LAST && iter != profiles.end();
-       ++i, ++iter) {
+       ++i, ++iter)
     profiles_menu_->AppendMenuItemWithLabel(i, *iter);
-  }
   // If there are more profiles then show "Other" link.
   if (iter != profiles.end()) {
     profiles_menu_->AppendSeparator();
@@ -744,19 +735,6 @@ void BrowserToolbarView::Observe(NotificationType type,
       SchedulePaint();
     }
   }
-}
-
-void BrowserToolbarView::ExecuteCommand(int id) {
-  // If the command id is for one of the sub-menu-items of the new profile
-  // window menu then we need to get the name of the profile from the menu
-  // item id and then pass on that to the browser to take action.
-  if (id >= IDC_NEW_WINDOW_PROFILE_0 && id <= IDC_NEW_WINDOW_PROFILE_LAST) {
-    browser_->NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);
-    return;
-  }
-
-  // For all other menu items, use the method in the base class.
-  EncodingMenuControllerDelegate::ExecuteCommand(id);
 }
 
 bool BrowserToolbarView::GetAcceleratorInfo(int id,

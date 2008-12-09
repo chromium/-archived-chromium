@@ -298,19 +298,20 @@ bool Browser::SupportsCommand(int id) const {
 
 bool Browser::IsCommandEnabled(int id) const {
   // No commands are enabled if there is not yet any selected tab.
+  // TODO(pkasting): It seems like we should not need this, because either
+  // most/all commands should not have been enabled yet anyway or the ones that
+  // are enabled should be global, or safe themselves against having no selected
+  // tab.  However, Ben says he tried removing this before and got lots of
+  // crashes, e.g. from Windows sending WM_COMMANDs at random times during
+  // window construction.  This probably could use closer examination someday.
   if (!GetSelectedTabContents())
     return false;
 
-  switch (id) {
-    case IDC_BACK:
-      return GetSelectedTabContents()->controller()->CanGoBack();
-    case IDC_FORWARD:
-      return GetSelectedTabContents()->controller()->CanGoForward();
-    case IDC_STOP:
-      return IsCurrentPageLoading();
-    default:
-      break;
-  }
+  // TODO(pkasting): Should maybe enable/disable this in
+  // NavigationStateChanged()?
+  if (id == IDC_STOP)
+    return IsCurrentPageLoading();
+
   return controller_.IsCommandEnabled(id);
 }
 
@@ -631,8 +632,6 @@ void Browser::OpenCurrentURL() {
   if (lbv) {
     OpenURL(GURL(lbv->location_input()), GURL(), lbv->disposition(),
             lbv->transition());
-  } else {
-    OpenURL(GURL(), GURL(), CURRENT_TAB, PageTransition::TYPED);
   }
 }
 
@@ -652,11 +651,6 @@ void Browser::CloseTab() {
   tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
 }
 
-void Browser::CloseApp() {
-  UserMetrics::RecordAction(L"CloseWebApp", profile_);
-  tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
-}
-
 void Browser::NewWindow() {
   UserMetrics::RecordAction(L"NewWindow", profile_);
   Browser::OpenEmptyWindow(profile_->GetOriginalProfile());
@@ -670,11 +664,6 @@ void Browser::OpenSelectProfileDialog() {
 void Browser::OpenNewProfileDialog() {
   UserMetrics::RecordAction(L"CreateProfile", profile_);
   NewProfileDialog::RunDialog();
-}
-
-void Browser::NewProfileWindowByName(const std::wstring& profile) {
-  UserMetrics::RecordAction(L"NewProfileWindowByName", profile_);
-  UserDataManager::Get()->LaunchChromeForProfile(profile);
 }
 
 void Browser::NewProfileWindowByIndex(int index) {
@@ -1113,7 +1102,6 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_NEW_TAB:               NewTab();                      break;
     case IDC_CLOSE_TAB:             CloseTab();                    break;
-    case IDC_CLOSE_WEB_APP:         CloseApp();                    break;
     case IDC_NEW_WINDOW:            NewWindow();                   break;
     case IDC_NEW_INCOGNITO_WINDOW:  NewIncognitoWindow();          break;
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
@@ -1211,7 +1199,6 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
     case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
     case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
-    case IDC_PROFILE_MENU:
     case IDC_SELECT_PROFILE:        OpenSelectProfileDialog();     break;
     case IDC_NEW_PROFILE:           OpenNewProfileDialog();        break;
 
@@ -1424,12 +1411,9 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   UpdateToolbar(true);
 
   // Force the go/stop button to change.
-  if (new_contents->AsWebContents()) {
-    GetGoButton()->ChangeMode(
-        new_contents->is_loading() ? GoButton::MODE_STOP : GoButton::MODE_GO);
-  } else {
-    GetGoButton()->ChangeMode(GoButton::MODE_GO);
-  }
+  GetGoButton()->ChangeMode(
+      (new_contents->AsWebContents() && new_contents->is_loading()) ?
+      GoButton::MODE_STOP : GoButton::MODE_GO);
 
   // Update other parts of the toolbar.
   UpdateNavigationCommands();
@@ -1879,7 +1863,6 @@ void Browser::InitCommandState() {
   // (like Back & Forward with initial page load) must have their state
   // initialized here, otherwise they will be forever disabled.
 
-  controller_.UpdateCommandEnabled(IDC_STOP, true);
   controller_.UpdateCommandEnabled(IDC_RELOAD, true);
   controller_.UpdateCommandEnabled(IDC_HOME, type() == TYPE_NORMAL);
   controller_.UpdateCommandEnabled(IDC_GO, true);
@@ -1890,19 +1873,11 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, true);
   controller_.UpdateCommandEnabled(IDC_FOCUS_SEARCH, true);
   controller_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, true);
-  controller_.UpdateCommandEnabled(IDC_STAR, true);
   controller_.UpdateCommandEnabled(IDC_OPEN_CURRENT_URL, true);
-  controller_.UpdateCommandEnabled(IDC_SHOWALLTABS_NEXT, true);
-  controller_.UpdateCommandEnabled(IDC_SHOWALLTABS_PREV, true);
-  controller_.UpdateCommandEnabled(IDC_SHOWALLTABS, true);
   controller_.UpdateCommandEnabled(IDC_CUT, true);
   controller_.UpdateCommandEnabled(IDC_COPY, true);
   controller_.UpdateCommandEnabled(IDC_PASTE, true);
-  controller_.UpdateCommandEnabled(IDC_FIND, true);
-  controller_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
-  controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
   controller_.UpdateCommandEnabled(IDC_REPORT_BUG, true);
-  controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_NEXT_TAB, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_PREVIOUS_TAB, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_0, true);
@@ -1914,16 +1889,11 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_6, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_7, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE, true);
   controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
   controller_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, true);
-  controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
-  controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
-  controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
   controller_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
   controller_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
   controller_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
-  controller_.UpdateCommandEnabled(IDC_PRINT, true);
   controller_.UpdateCommandEnabled(IDC_COPY_URL, true);
   controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB, true);
   controller_.UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
@@ -1935,7 +1905,6 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_MENU, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
@@ -1974,7 +1943,6 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1255, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
   controller_.UpdateCommandEnabled(IDC_OPTIONS, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSE_WEB_APP, type() != TYPE_NORMAL);
   controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB, type() == TYPE_POPUP);
   controller_.UpdateCommandEnabled(
       IDC_RESTORE_TAB, (!profile_->IsOffTheRecord() &&
@@ -1999,7 +1967,6 @@ void Browser::UpdateNavigationCommands() {
   controller_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());
 
   WebContents* web_contents = current_tab->AsWebContents();
-
   if (web_contents) {
     controller_.UpdateCommandEnabled(IDC_STAR, true);
     SetStarredButtonToggled(web_contents->is_starred());
@@ -2024,8 +1991,6 @@ void Browser::UpdateNavigationCommands() {
     controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
     controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
     controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
-    controller_.UpdateCommandEnabled(IDC_STOP, true);
-    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
     controller_.UpdateCommandEnabled(IDC_PRINT, true);
   } else {
     controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE, false);
@@ -2044,8 +2009,6 @@ void Browser::UpdateNavigationCommands() {
     controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, false);
     controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, false);
     controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, false);
-    controller_.UpdateCommandEnabled(IDC_STOP, false);
-    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, false);
     controller_.UpdateCommandEnabled(IDC_PRINT, false);
   }
 

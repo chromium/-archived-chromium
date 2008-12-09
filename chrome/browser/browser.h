@@ -227,11 +227,7 @@ class Browser : public TabStripModelDelegate,
   // Window management commands
   void NewTab();
   void CloseTab();
-  void CloseApp();
   void NewWindow();
-  // Commands to create a new window in a specific profile.
-  void NewProfileWindowByName(const std::wstring& profile);
-  // The index starts with 0, and specifies the index in the profiles vector.
   void NewProfileWindowByIndex(int index);
   void NewIncognitoWindow();
   void CloseWindow();

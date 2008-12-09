@@ -152,8 +152,8 @@ void RenderViewContextMenu::AppendEditableItems() {
 
   // Add Spell Check languages to sub menu.
   std::vector<std::wstring> language_vector; 
-  int current_language_index = SpellChecker::
-      GetSpellCheckLanguagesToDisplayInContextMenu(profile_, &language_vector);
+  SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(profile_,
+      &language_vector);
   // Add the spell check languages.
   DCHECK(language_vector.size() <
          IDC_SPELLCHECK_LANGUAGES_LAST - IDC_SPELLCHECK_LANGUAGES_FIRST);

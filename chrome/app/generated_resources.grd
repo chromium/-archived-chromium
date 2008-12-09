@@ -509,9 +509,6 @@ each locale. -->
       <message name="IDS_VIEW_SOURCE" desc="The text label of the View Page Source menu item" >
         View s&amp;ource
       </message>
-      <message name="IDS_VIEWPAGEINFO" desc="The text label of the View Page Info menu item" >
-        Page &amp;info
-      </message>
       <message name="IDS_DEBUGGER" desc="The text label of the JavaScript debugger menu item">
         Debug JavaScript
       </message>

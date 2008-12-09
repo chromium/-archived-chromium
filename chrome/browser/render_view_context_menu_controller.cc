@@ -249,9 +249,8 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
   if (id >= IDC_SPELLCHECK_LANGUAGES_FIRST &&
       id < IDC_SPELLCHECK_LANGUAGES_LAST) {
     std::vector<std::wstring> display_language_vector; 
-    int current_language = SpellChecker::
-        GetSpellCheckLanguagesToDisplayInContextMenu(
-            source_web_contents_->profile(), &display_language_vector);
+    SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
+        source_web_contents_->profile(), &display_language_vector);
     if (id - IDC_SPELLCHECK_LANGUAGES_FIRST < 
         static_cast<int>(display_language_vector.size())) {
       StringPrefMember dictionary_language;

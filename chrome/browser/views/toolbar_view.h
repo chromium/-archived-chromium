@@ -60,7 +60,6 @@ class BrowserToolbarView : public views::View,
   virtual bool IsItemChecked(int id) const;
 
   // Overridden from Menu::BaseControllerDelegate:
-  virtual void ExecuteCommand(int id);
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
   // views::MenuDelegate

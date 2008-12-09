@@ -7,7 +7,6 @@
 // Values around 300 are used by common/common_resources.h
 // Values around 400 are used by common/net/net_resources.h
 // Values around 500 are used by renderer/renderer_resources.h
-#define IDB_SADTABBROWSER               1000
 // Values around 1600 are used by installer/setup/build/
 // Values around 2000 are used by webkit/glue/webkit_resources.h
 #define IDD_IPC_SETTINGS                3000
@@ -62,9 +61,7 @@
 #define IDC_SELECT_TAB_7                32799
 #define IDC_SELECT_LAST_TAB             32800
 #define IDC_CREATE_SHORTCUTS            32801
-#define IDC_SHOWALLTABS_NEXT            32802
-#define IDC_SHOWALLTABS_PREV            32803
-#define IDC_SHOWALLTABS                 32804
+// Free space 32802 - 32804
 #define IDC_EDIT_SEARCH_ENGINES         32805
 #define IDC_ZOOM_PLUS                   32806
 #define IDC_ZOOM_MINUS                  32807
@@ -79,13 +76,13 @@
 #define IDC_DUPLICATE_TAB               32817
 #define IDC_NEW_INCOGNITO_WINDOW        32818
 #define IDC_VIEW_PASSWORDS              32819
-#define IDC_SHOW_APPLICATIONS           32820
+// Free space 32820
 #define IDC_SHOW_DOWNLOADS              32821
 #define IDC_HOME                        32822
 #define IDC_SHOW_HISTORY                32823
 #define IDC_FOCUS_TOOLBAR               32825
 #define IDC_CLEAR_BROWSING_DATA         32826
-#define IDC_CLOSE_WEB_APP               32827
+// Free space 32827
 #define IDC_APPMENU                     32828
 #define IDC_ABOUT                       32829
 #define IDC_IMPORT_SETTINGS             32830
