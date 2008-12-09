@@ -853,7 +853,11 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
         if (new_response->headers->response_code() == 304) {
           // Update cached response based on headers in new_response
           response_.headers->Update(*new_response->headers);
-          WriteResponseInfoToEntry();
+          if (response_.headers->HasHeaderValue("cache-control", "no-store")) {
+            cache_->DoomEntry(cache_key_);
+          } else {
+            WriteResponseInfoToEntry();
+          }
 
           if (entry_) {
             cache_->ConvertWriterToReader(entry_);

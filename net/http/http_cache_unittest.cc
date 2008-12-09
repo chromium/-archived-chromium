@@ -668,6 +668,50 @@ TEST(HttpCache, ETagGET_ConditionalRequest_304) {
   EXPECT_EQ(1, cache.disk_cache()->create_count());
 }
 
+static void ETagGet_ConditionalRequest_NoStore_Handler(
+    const net::HttpRequestInfo* request,
+    std::string* response_status,
+    std::string* response_headers,
+    std::string* response_data) {
+  EXPECT_TRUE(request->extra_headers.find("If-None-Match") !=
+              std::string::npos);
+  response_status->assign("HTTP/1.1 304 Not Modified");
+  response_headers->assign("Cache-Control: no-store\n");
+  response_data->clear();
+}
+
+TEST(HttpCache, ETagGET_ConditionalRequest_304_NoStore) {
+  MockHttpCache cache;
+
+  ScopedMockTransaction transaction(kETagGET_Transaction);
+
+  // Write to the cache.
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Get the same URL again, but this time we expect it to result
+  // in a conditional request.
+  transaction.load_flags = net::LOAD_VALIDATE_CACHE;
+  transaction.handler = ETagGet_ConditionalRequest_NoStore_Handler;
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(2, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  ScopedMockTransaction transaction2(kETagGET_Transaction);
+
+  // Write to the cache again. This should create a new entry.
+  RunTransactionTest(cache.http_cache(), transaction2);
+
+  EXPECT_EQ(3, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
+  EXPECT_EQ(2, cache.disk_cache()->create_count());
+}
+
 TEST(HttpCache, SimplePOST_SkipsCache) {
   MockHttpCache cache;
 
