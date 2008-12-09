@@ -1066,24 +1066,6 @@ SKIP LayoutTests/fast/table/table-display-types-strict.html = FAIL
 SKIP LayoutTests/fast/table/table-display-types.html = FAIL
 
 // CHANGED OR REBASELINED IN WEBKIT 36102:37604
-LINUX WIN : LayoutTests/fast/css/variables/block-cycle-test.html = FAIL
-LayoutTests/fast/css/variables/color-hex-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/colors-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/declaration-block-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/font-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/image-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/import-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/inline-style-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/invalid-variable-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/margin-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/misplaced-import-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/multiple-term-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/override-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/print-test.html = FAIL
-LayoutTests/fast/css/variables/remove-variable-test.html = FAIL
-LayoutTests/fast/css/variables/set-variable-test.html = FAIL
-LINUX WIN : LayoutTests/fast/css/variables/shorthand-test.html = FAIL
-LayoutTests/fast/css/variables/variable-iteration-test.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/8250.html = FAIL
 LayoutTests/fast/forms/input-disabled-color.html = FAIL
 LayoutTests/fast/forms/selection-functions.html = FAIL
