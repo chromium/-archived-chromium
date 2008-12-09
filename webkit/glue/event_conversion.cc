@@ -283,8 +283,10 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
         m_text = "\x9";
         m_unmodifiedText = "\x9";
     }
-#elif defined(OS_WIN) || defined(OS_LINUX)
+#elif defined(OS_WIN)
     m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
+#elif defined(OS_LINUX)
+    m_text = m_unmodifiedText = ToSingleCharacterString(e.text);
 #endif
   }
 #if defined(OS_WIN) || defined(OS_LINUX)
@@ -305,13 +307,10 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
 #if defined(OS_WIN)
   m_isSystemKey = e.system_key;
-// TODO(port): set this field properly for linux and mac.
-#elif defined(OS_LINUX)
-  m_isSystemKey = m_altKey;
 #else
-  m_isSystemKey = false;
+  m_isSystemKey = false;  // TODO(port): make this proper.
 #endif
-}
+} 
 
 void MakePlatformKeyboardEvent::SetKeyType(Type type) {
   // According to the behavior of Webkit in Windows platform,

@@ -436,7 +436,10 @@ static void
 gdk_skia_real_get_size(GdkDrawable     *drawable,
                        gint            *width,
                        gint            *height) {
-  NOTIMPLEMENTED;
+  GdkSkiaObject *const skia = (GdkSkiaObject *) drawable;
+  SkDevice *const dev = skia->canvas->getDevice();
+  *width = dev->width();
+  *height = dev->height();
 }
 
 static GdkImage*

@@ -513,12 +513,12 @@ bool WebViewImpl::CharEvent(const WebKeyboardEvent& event) {
   if (!evt.IsCharacterKey())
     return true;
 
-  // Safari 3.1 does not pass off windows system key messages (WM_SYSCHAR) to
-  // the eventHandler::keyEvent. We mimic this behavior on all platforms since
-  // for now we are converting other platform's key events to windows key
-  // events.
+#if defined(OS_WIN)
+  // Safari 3.1 does not pass off WM_SYSCHAR messages to the
+  // eventHandler::keyEvent. We mimic this behavior.
   if (evt.isSystemKey())
     return handler->handleAccessKey(evt);
+#endif
 
   if (!handler->keyEvent(evt))
     return KeyEventDefault(event);
