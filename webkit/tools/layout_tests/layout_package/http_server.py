@@ -30,11 +30,19 @@ class HttpdNotStarted(Exception):
 
 class Lighttpd:
   # Webkit tests
-  _webkit_tests = PathFromBase('webkit', 'data', 'layout_tests',
-                               'LayoutTests', 'http', 'tests')
+  try:
+    _webkit_tests = PathFromBase('webkit', 'data', 'layout_tests',
+                                 'LayoutTests', 'http', 'tests')
+  except google.path_utils.PathNotFound:
+    _webkit_tests = None
+
   # New tests for Chrome
-  _pending_tests = PathFromBase('webkit', 'data', 'layout_tests',
-                                'pending', 'http', 'tests')
+  try:
+    _pending_tests = PathFromBase('webkit', 'data', 'layout_tests',
+                                  'pending', 'http', 'tests')
+  except google.path_utils.PathNotFound:
+    _pending_tests = None
+
   # Path where we can access all of the tests
   _all_tests = PathFromBase('webkit', 'data', 'layout_tests')
   # Self generated certificate for SSL server (for client cert get
@@ -42,17 +50,25 @@ class Lighttpd:
   _pem_file = PathFromBase('tools', 'python', 'google', 'httpd_config',
                            'httpd2.pem')
   VIRTUALCONFIG = [
-    # Three mappings (one with SSL enabled) for LayoutTests http tests
-    {'port': 8000, 'docroot': _webkit_tests},
-    {'port': 8080, 'docroot': _webkit_tests},
-    {'port': 8443, 'docroot': _webkit_tests, 'sslcert': _pem_file},
-    # Three similar mappings (one with SSL enabled) for pending http tests
-    {'port': 9000, 'docroot': _pending_tests},
-    {'port': 9080, 'docroot': _pending_tests},
-    {'port': 9443, 'docroot': _pending_tests, 'sslcert': _pem_file},
     # One mapping where we can get to everything
     {'port': 8081, 'docroot': _all_tests}
   ]
+
+  if _webkit_tests:
+    VIRTUALCONFIG.extend(
+      # Three mappings (one with SSL enabled) for LayoutTests http tests
+      [{'port': 8000, 'docroot': _webkit_tests},
+       {'port': 8080, 'docroot': _webkit_tests},
+       {'port': 8443, 'docroot': _webkit_tests, 'sslcert': _pem_file}]
+    )
+  if _pending_tests:
+    VIRTUALCONFIG.extend(
+      # Three similar mappings (one with SSL enabled) for pending http tests
+      [{'port': 9000, 'docroot': _pending_tests},
+       {'port': 9080, 'docroot': _pending_tests},
+       {'port': 9443, 'docroot': _pending_tests, 'sslcert': _pem_file}]
+    )
+
 
   def __init__(self, output_dir, background=False, port=None, root=None):
     """Args:
