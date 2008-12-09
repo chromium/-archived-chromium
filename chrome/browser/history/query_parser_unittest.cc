@@ -131,3 +131,29 @@ TEST_F(QueryParserTest, ParseQueryNodesAndMatch) {
     }
   }
 }
+
+TEST_F(QueryParserTest, ExtractQueryWords) {
+  struct TestData2 {
+    const std::wstring text;
+    const std::wstring w1;
+    const std::wstring w2;
+    const std::wstring w3;
+    const size_t word_count;
+  } data[] = {
+    { L"foo",           L"foo", L"",    L"",  1 },
+    { L"foo bar",       L"foo", L"bar", L"",  2 },
+    { L"\"foo bar\"",   L"foo", L"bar", L"",  2 },
+    { L"\"foo bar\" a", L"foo", L"bar", L"a", 3 },
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
+    std::vector<std::wstring> results;
+    QueryParser parser;
+    parser.ExtractQueryWords(data[i].text, &results);
+    ASSERT_EQ(data[i].word_count, results.size());
+    EXPECT_EQ(data[i].w1, results[0]);
+    if (results.size() == 2)
+      EXPECT_EQ(data[i].w2, results[1]);
+    if (results.size() == 3)
+      EXPECT_EQ(data[i].w3, results[2]);
+  }
+}

@@ -97,6 +97,7 @@ class QueryNodeWord : public QueryNode {
                           Snippet::MatchPositions* match_positions) const;
 
   virtual bool Matches(const std::wstring& word, bool exact) const;
+  virtual void AppendWords(std::vector<std::wstring>* words) const;
 
  private:
   std::wstring word_;
@@ -122,6 +123,10 @@ bool QueryNodeWord::Matches(const std::wstring& word, bool exact) const {
     return word == word_;
   return word.size() >= word_.size() &&
          (word_.compare(0, word_.size(), word, 0, word_.size()) == 0);
+}
+
+void QueryNodeWord::AppendWords(std::vector<std::wstring>* words) const {
+  words->push_back(word_);
 }
 
 int QueryNodeWord::AppendToSQLiteQuery(std::wstring* query) const {
@@ -162,6 +167,7 @@ class QueryNodeList : public QueryNode {
     NOTREACHED();
     return false;
   }
+  virtual void AppendWords(std::vector<std::wstring>* words) const;
 
  protected:
   int AppendChildrenToString(std::wstring* query) const;
@@ -173,6 +179,26 @@ QueryNodeList::~QueryNodeList() {
   for (QueryNodeVector::iterator node = children_.begin();
        node != children_.end(); ++node)
     delete *node;
+}
+
+void QueryNodeList::RemoveEmptySubnodes() {
+  for (size_t i = 0; i < children_.size(); ++i) {
+    if (children_[i]->IsWord())
+      continue;
+
+    QueryNodeList* list_node = static_cast<QueryNodeList*>(children_[i]);
+    list_node->RemoveEmptySubnodes();
+    if (list_node->children()->empty()) {
+      children_.erase(children_.begin() + i);
+      --i;
+      delete list_node;
+    }
+  }
+}
+
+void QueryNodeList::AppendWords(std::vector<std::wstring>* words) const {
+  for (size_t i = 0; i < children_.size(); ++i)
+    children_[i]->AppendWords(words);
 }
 
 int QueryNodeList::AppendChildrenToString(std::wstring* query) const {
@@ -259,6 +285,15 @@ void QueryParser::ParseQuery(const std::wstring& query,
     nodes->swap(*root.children());
 }
 
+
+void QueryParser::ExtractQueryWords(const std::wstring& query,
+                                    std::vector<std::wstring>* words) {
+  QueryNodeList root;
+  if (!ParseQueryImpl(query, &root))
+    return;
+  root.AppendWords(words);  
+}
+
 bool QueryParser::DoesQueryMatch(const std::wstring& text,
                                  const std::vector<QueryNode*>& query_nodes,
                                  Snippet::MatchPositions* match_positions) {
@@ -342,21 +377,6 @@ void QueryParser::ExtractQueryWords(const std::wstring& text,
         words->back().word = word;
         words->back().position = iter.prev();
       }
-    }
-  }
-}
-
-void QueryNodeList::RemoveEmptySubnodes() {
-  for (size_t i = 0; i < children_.size(); ++i) {
-    if (children_[i]->IsWord())
-      continue;
-
-    QueryNodeList* list_node = static_cast<QueryNodeList*>(children_[i]);
-    list_node->RemoveEmptySubnodes();
-    if (list_node->children()->empty()) {
-      children_.erase(children_.begin() + i);
-      --i;
-      delete list_node;
     }
   }
 }

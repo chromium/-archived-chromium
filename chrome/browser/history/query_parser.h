@@ -48,6 +48,9 @@ class QueryNode {
   // giving the matching region.
   virtual bool HasMatchIn(const std::vector<QueryWord>& words,
                           Snippet::MatchPositions* match_positions) const = 0;
+
+  // Appends the words that make up this node in |words|.
+  virtual void AppendWords(std::vector<std::wstring>* words) const = 0;
 };
 
 
@@ -66,6 +69,13 @@ class QueryParser {
   // Ownership of the nodes passes to the caller.
   void ParseQuery(const std::wstring& query,
                   std::vector<QueryNode*>* nodes);
+
+  // Parses a query returning the words that make up the query. Any words in
+  // quotes are put in |words| without the quotes. For example, the query text
+  // "foo bar" results in two entries being added to words, one for foo and one
+  // for bar.
+  void ExtractQueryWords(const std::wstring& query,
+                         std::vector<std::wstring>* words);
 
   // Returns true if the string text matches the query nodes created by a call
   // to ParseQuery. If the query does match each of the matching positions in
