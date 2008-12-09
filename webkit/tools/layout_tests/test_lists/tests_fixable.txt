@@ -1233,7 +1233,7 @@ LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL
 LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
 LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
 
-LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
+MAC WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
 // Bug 5051: several steps of this test fail for an unknown reason.
