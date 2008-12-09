@@ -1035,7 +1035,7 @@ LINUX MAC : pending/plugins/iframe-shims.html = FAIL
 
 // Depends on event_sending_controller fixes.
 LINUX MAC : pending/fast/events/special-key-events-in-input-text.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT
+LINUX MAC : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT PASS
 
 
 // NEW FOR MERGE 36102:37604
@@ -1326,6 +1326,7 @@ LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH
+LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
 DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
 // MERGE 38760:38800: New tests
@@ -1786,6 +1787,7 @@ MAC : LayoutTests/http/tests/security/cross-frame-access-history-get.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-location-get-override.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-location-put.html = FAIL
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = FAIL
+LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = FAIL
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-2-level.html = FAIL
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame.html = FAIL
