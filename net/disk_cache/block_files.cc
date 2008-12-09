@@ -135,8 +135,21 @@ void FixAllocationCounters(disk_cache::BlockFileHeader* header) {
   }
 }
 
+// Returns true if the current block file should not be used as-is to store more
+// records. |block_count| is the number of blocks to allocate, and
+// |use_next_file| is set to true on return if we should use the next file in
+// the chain, even though we could find empty space on the current file.
 bool NeedToGrowBlockFile(const disk_cache::BlockFileHeader* header,
-                         int block_count) {
+                         int block_count, bool* use_next_file) {
+  if ((header->max_entries > disk_cache::kMaxBlocks * 9 / 10) &&
+      header->next_file) {
+    // This file is almost full but we already created another one, don't use
+    // this file yet so that it is easier to find empty blocks when we start
+    // using this file again.
+    *use_next_file = true;
+    return true;
+  }
+  *use_next_file = false;
   for (int i = block_count; i <= disk_cache::kMaxNumBlocks; i++) {
     if (header->empty[i - 1])
       return false;
@@ -296,8 +309,9 @@ MappedFile* BlockFiles::FileForNewBlock(FileType block_type, int block_count) {
   BlockFileHeader* header = reinterpret_cast<BlockFileHeader*>(file->buffer());
 
   Time start = Time::Now();
-  while (NeedToGrowBlockFile(header, block_count)) {
-    if (kMaxBlocks == header->max_entries) {
+  bool use_next_file;
+  while (NeedToGrowBlockFile(header, block_count, &use_next_file)) {
+    if (use_next_file || kMaxBlocks == header->max_entries) {
       file = NextFile(file);
       if (!file)
         return NULL;
