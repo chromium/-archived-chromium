@@ -2042,6 +2042,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\css\CSSSelectorList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\css\CSSSelectorList.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\css\CSSStyleDeclaration.cpp"
 				>
 			</File>
@@ -3703,6 +3711,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\DOMImplementation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\DOMTimer.h"
 				>
 			</File>
 			<File

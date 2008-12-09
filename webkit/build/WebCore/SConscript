@@ -67,6 +67,7 @@ input_files = [
     '$WEBCORE_DIR/css/CSSRuleList.cpp',
     '$WEBCORE_DIR/css/CSSSegmentedFontFace.cpp',
     '$WEBCORE_DIR/css/CSSSelector.cpp',
+    '$WEBCORE_DIR/css/CSSSelectorList.cpp',
     '$WEBCORE_DIR/css/CSSStyleDeclaration.cpp',
     '$WEBCORE_DIR/css/CSSStyleRule.cpp',
     '$WEBCORE_DIR/css/CSSStyleSelector.cpp',
