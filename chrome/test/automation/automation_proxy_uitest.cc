@@ -821,7 +821,8 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
   EXPECT_FALSE(matches.empty());
 }
 
-TEST_F(AutomationProxyTest, AppModalDialogTest) {
+// Disabled because flacky see bug #5314.
+TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
   scoped_ptr<TabProxy> tab(browser->GetTab(0));
