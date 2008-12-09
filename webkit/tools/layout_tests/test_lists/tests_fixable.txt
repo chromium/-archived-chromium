@@ -2004,6 +2004,4 @@ LayoutTests/svg/custom/resource-client-removal.svg = FAIL
 LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 LayoutTests/wml/variable-reference-invalid-character.html = FAIL
 LayoutTests/wml/variable-reference-valid.html = FAIL
-LayoutTests/fast/encoding/char-decoding.html = CRASH
-LayoutTests/fast/encoding/char-encoding.html = CRASH
 
