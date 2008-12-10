@@ -403,9 +403,9 @@ void IconUtil::CreateResizedBitmapSet(const SkBitmap& bitmap_to_resize,
         inserted_original_bitmap = true;
       }
     }
-    bitmaps->push_back(skia::ImageOperations::Resize(
-        bitmap_to_resize, skia::ImageOperations::RESIZE_LANCZOS3,
-        icon_dimensions_[i], icon_dimensions_[i]));
+    bitmaps->push_back(gfx::ImageOperations::Resize(
+        bitmap_to_resize, gfx::ImageOperations::RESIZE_LANCZOS3,
+        gfx::Size(icon_dimensions_[i], icon_dimensions_[i])));
   }
 
   if (!inserted_original_bitmap) {

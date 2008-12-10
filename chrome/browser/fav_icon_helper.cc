@@ -257,9 +257,9 @@ SkBitmap FavIconHelper::ConvertToFavIconSize(const SkBitmap& image) {
   int height = image.height();
   if (width > 0 && height > 0) {
     calc_favicon_target_size(&width, &height);
-    return skia::ImageOperations::Resize(image,
-                                         skia::ImageOperations::RESIZE_LANCZOS3,
-                                         width, height);
+    return gfx::ImageOperations::Resize(
+          image, gfx::ImageOperations::RESIZE_LANCZOS3,
+          gfx::Size(width, height));
   }
   return image;
 }

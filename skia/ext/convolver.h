@@ -7,12 +7,14 @@
 
 #include <vector>
 
+#include "base/basictypes.h"
+
 // avoid confusion with Mac OS X's math library (Carbon)
-#if defined(__APPLE__)
+#if defined(OS_MACOSX)
 #undef FloatToFixed
 #endif
 
-namespace skia {
+namespace gfx {
 
 // Represents a filter in one dimension. Each output pixel has one entry in this
 // object for the filter values contributing to it. You build up the filter
@@ -31,10 +33,10 @@ class ConvolusionFilter1D {
   }
 
   // Convert between floating point and our fixed point representation.
-  static short FloatToFixed(float f) {
-    return static_cast<short>(f * (1 << kShiftBits));
+  static inline int16 FloatToFixed(float f) {
+    return static_cast<int16>(f * (1 << kShiftBits));
   }
-  static unsigned char FixedToChar(short x) {
+  static inline unsigned char FixedToChar(int16 x) {
     return static_cast<unsigned char>(x >> kShiftBits);
   }
 
@@ -63,7 +65,7 @@ class ConvolusionFilter1D {
 
   // Same as the above version, but the input is already fixed point.
   void AddFilter(int filter_offset,
-                 const short* filter_values,
+                 const int16* filter_values,
                  int filter_length);
 
   // Retrieves a filter for the given |value_offset|, a position in the output
@@ -71,7 +73,7 @@ class ConvolusionFilter1D {
   // filter values are put into the corresponding out arguments (see AddFilter
   // above for what these mean), and a pointer to the first scaling factor is
   // returned. There will be |filter_length| values in this array.
-  inline const short* FilterForValue(int value_offset,
+  inline const int16* FilterForValue(int value_offset,
                                      int* filter_offset,
                                      int* filter_length) const {
     const FilterInstance& filter = filters_[value_offset];
@@ -98,7 +100,7 @@ class ConvolusionFilter1D {
   // We store all the filter values in this flat list, indexed by
   // |FilterInstance.data_location| to avoid the mallocs required for storing
   // each one separately.
-  std::vector<short> filter_values_;
+  std::vector<int16> filter_values_;
 
   // The maximum size of any filter we've added.
   int max_filter_;
@@ -122,14 +124,14 @@ class ConvolusionFilter1D {
 //
 // The layout in memory is assumed to be 4-bytes per pixel in B-G-R-A order
 // (this is ARGB when loaded into 32-bit words on a little-endian machine).
-void BGRAConvolve2D(const unsigned char* source_data,
+void BGRAConvolve2D(const uint8* source_data,
                     int source_byte_row_stride,
                     bool source_has_alpha,
                     const ConvolusionFilter1D& xfilter,
                     const ConvolusionFilter1D& yfilter,
-                    unsigned char* output);
+                    uint8* output);
 
-}  // namespace skia
+}  // namespace gfx
 
 #endif  // SKIA_EXT_CONVOLVER_H_
 

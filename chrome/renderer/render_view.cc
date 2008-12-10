@@ -798,8 +798,8 @@ bool RenderView::CaptureThumbnail(WebFrame* frame,
   device->accessBitmap(false).extractSubset(&subset, src_rect);
 
   // Resample the subset that we want to get it the right size.
-  *thumbnail = skia::ImageOperations::Resize(
-      subset, skia::ImageOperations::RESIZE_LANCZOS3, w, h);
+  *thumbnail = gfx::ImageOperations::Resize(
+      subset, gfx::ImageOperations::RESIZE_LANCZOS3, gfx::Size(w, h));
 
   score->boring_score = CalculateBoringScore(thumbnail);
 

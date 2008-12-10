@@ -61,8 +61,8 @@ bool NativeImageSkia::hasResizedBitmap(int w, int h) const {
 
 SkBitmap NativeImageSkia::resizedBitmap(int w, int h) const {
     if (m_resizedImage.width() != w || m_resizedImage.height() != h) {
-        m_resizedImage = skia::ImageOperations::Resize(*this,
-            skia::ImageOperations::RESIZE_LANCZOS3, w, h);
+        m_resizedImage = gfx::ImageOperations::Resize(*this,
+            gfx::ImageOperations::RESIZE_LANCZOS3, gfx::Size(w, h));
     }
     return m_resizedImage;
 }

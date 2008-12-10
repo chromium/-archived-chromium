@@ -105,7 +105,7 @@ SkBitmap Button::GetImageToPaint() {
   SkBitmap img;
 
   if (!images_[BS_HOT].isNull() && hover_animation_->IsAnimating()) {
-    img = skia::ImageOperations::CreateBlendedBitmap(images_[BS_NORMAL],
+    img = gfx::ImageOperations::CreateBlendedBitmap(images_[BS_NORMAL],
               images_[BS_HOT], hover_animation_->GetCurrentValue());
   } else {
     img = images_[GetState()];
