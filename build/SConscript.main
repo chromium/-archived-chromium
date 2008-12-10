@@ -468,6 +468,15 @@ if ARGUMENTS.get('COVERAGE') == '1':
   linux_env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
   linux_env.Append(LINKFLAGS=['-fprofile-arcs'])
 
+# Build with support for gprof when PROFILE=1.
+if ARGUMENTS.get('PROFILE') == '1':
+  linux_env.Append(CCFLAGS=['-pg', '-g'])
+  linux_env.Append(LINKFLAGS=['-pg'])
+
+# Build with symbols (useful for opt builds, for example) when SYMBOLS=1.
+if ARGUMENTS.get('SYMBOLS') == '1':
+  linux_env.Append(CCFLAGS=['-g'])
+
 # Build with system-provided NSS and GTK.
 if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
   try:
