@@ -14,6 +14,9 @@ namespace mac_util {
 std::string PathFromFSRef(const FSRef& ref);
 bool FSRefFromPath(const std::string& path, FSRef* ref);
 
+// Returns true if the application is running from a bundle
+bool AmIBundled();
+
 }  // namespace mac_util
 
 #endif  // BASE_MAC_UTIL_H_
