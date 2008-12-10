@@ -215,22 +215,25 @@ class Browser : public TabStripModelDelegate,
 
   // Assorted browser commands ////////////////////////////////////////////////
 
+  // NOTE: Within each of the following sections, the IDs are ordered roughly by
+  // how they appear in the GUI/menus (left to right, top to bottom, etc.).
+
   // Navigation commands
   void GoBack();
   void GoForward();
   void Reload();
-  void Stop();
   void Home();
-  void Go();
   void OpenCurrentURL();
+  void Go();
+  void Stop();
 
   // Window management commands
+  void NewWindow();
+  void NewIncognitoWindow();
+  void NewProfileWindowByIndex(int index);
+  void CloseWindow();
   void NewTab();
   void CloseTab();
-  void NewWindow();
-  void NewProfileWindowByIndex(int index);
-  void NewIncognitoWindow();
-  void CloseWindow();
   void SelectNextTab();
   void SelectPreviousTab();
   void SelectNumberedTab(int index);
@@ -240,28 +243,7 @@ class Browser : public TabStripModelDelegate,
   void ConvertPopupToTabbedBrowser();
   void Exit();
 
-  // Clipboard commands
-  void Cut();
-  void Copy();
-  void CopyCurrentPageURL();
-  void Paste();
-
-  // Opens the FindInPage window for the currently open tab.
-  void Find();
-  void FindNext();
-  void FindPrevious();
-
-  // Zoom
-  void ZoomIn();
-  void ZoomOut();
-  void ZoomReset();
-
-  // Sets focus to various bits of UI.
-  void FocusLocationBar();
-  void FocusSearch();
-  void FocusToolbar();
-
-  // Page-related commands.
+  // Page-related commands
   void BookmarkCurrentPage();
   void ViewSource();
   void ClosePopups();
@@ -270,26 +252,47 @@ class Browser : public TabStripModelDelegate,
   void ToggleEncodingAutoDetect();
   void OverrideEncoding(int encoding_id);
 
-  // Show various bits of UI.
-  void OpenKeywordEditor();
-  void OpenClearBrowsingDataDialog();
-  void OpenImportSettingsDialog();
-  void OpenBugReportDialog();
+  // Clipboard commands
+  void Cut();
+  void Copy();
+  void CopyCurrentPageURL();
+  void Paste();
+
+  // Find-in-page
+  void Find();
+  void FindNext();
+  void FindPrevious();
+
+  // Zoom
+  void ZoomIn();
+  void ZoomReset();
+  void ZoomOut();
+
+  // Focus various bits of UI
+  void FocusToolbar();
+  void FocusLocationBar();
+  void FocusSearch();
+
+  // Show various bits of UI
+  void OpenFile();
+  void OpenCreateShortcutsDialog();
   void OpenDebuggerWindow();
   void OpenJavaScriptConsole();
-  void OpenCreateShortcutsDialog();
-  void OpenPasswordManager();
-  void OpenAboutChromeDialog();
-  void OpenFile();
   void OpenTaskManager();
-  void OpenOptionsDialog();
-  void OpenHelpTab();
-  void ShowHistoryTab();
-  void ShowDownloadsTab();
-  void OpenBookmarkManager();
-  void ToggleBookmarkBar();
   void OpenSelectProfileDialog();
   void OpenNewProfileDialog();
+  void OpenBugReportDialog();
+  void ToggleBookmarkBar();
+  void ShowHistoryTab();
+  void OpenBookmarkManager();
+  void ShowDownloadsTab();
+  void OpenClearBrowsingDataDialog();
+  void OpenImportSettingsDialog();
+  void OpenOptionsDialog();
+  void OpenKeywordEditor();
+  void OpenPasswordManager();
+  void OpenAboutChromeDialog();
+  void OpenHelpTab();
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -395,9 +398,9 @@ class Browser : public TabStripModelDelegate,
   // Initialize state for all browser commands.
   void InitCommandState();
 
-  // Update commands that drive the NavigationController to reflect changes in
-  // the NavigationController's state (Back, Forward, etc).
-  void UpdateNavigationCommands();
+  // Update commands which may be enabled or disabled depending on the tab's
+  // state.
+  void UpdateCommandsForTabState();
 
   // Change the "starred" button display to starred/unstarred.
   // TODO(evanm): migrate this to the commands framework.

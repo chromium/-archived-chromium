@@ -607,23 +607,11 @@ void Browser::Reload() {
   }
 }
 
-void Browser::Stop() {
-  UserMetrics::RecordAction(L"Stop", profile_);
-  GetSelectedTabContents()->AsWebContents()->Stop();
-}
-
 void Browser::Home() {
   UserMetrics::RecordAction(L"Home", profile_);
   GURL homepage_url = GetHomePage();
   GetSelectedTabContents()->controller()->LoadURL(
       homepage_url, GURL(), PageTransition::AUTO_BOOKMARK);
-}
-
-void Browser::Go() {
-  UserMetrics::RecordAction(L"Go", profile_);
-  LocationBarView* lbv = GetLocationBarView();
-  if (lbv)
-    lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
 }
 
 void Browser::OpenCurrentURL() {
@@ -633,6 +621,38 @@ void Browser::OpenCurrentURL() {
     OpenURL(GURL(lbv->location_input()), GURL(), lbv->disposition(),
             lbv->transition());
   }
+}
+
+void Browser::Go() {
+  UserMetrics::RecordAction(L"Go", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv)
+    lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
+}
+
+void Browser::Stop() {
+  UserMetrics::RecordAction(L"Stop", profile_);
+  GetSelectedTabContents()->AsWebContents()->Stop();
+}
+
+void Browser::NewWindow() {
+  UserMetrics::RecordAction(L"NewWindow", profile_);
+  Browser::OpenEmptyWindow(profile_->GetOriginalProfile());
+}
+
+void Browser::NewIncognitoWindow() {
+  UserMetrics::RecordAction(L"NewIncognitoWindow", profile_);
+  Browser::OpenEmptyWindow(profile_->GetOffTheRecordProfile());
+}
+
+void Browser::NewProfileWindowByIndex(int index) {
+  UserMetrics::RecordAction(L"NewProfileWindowByIndex", profile_);
+  UserDataManager::Get()->LaunchChromeForProfile(index);
+}
+
+void Browser::CloseWindow() {
+  UserMetrics::RecordAction(L"CloseWindow", profile_);
+  window_->Close();
 }
 
 void Browser::NewTab() {
@@ -649,36 +669,6 @@ void Browser::NewTab() {
 void Browser::CloseTab() {
   UserMetrics::RecordAction(L"CloseTab_Accelerator", profile_);
   tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
-}
-
-void Browser::NewWindow() {
-  UserMetrics::RecordAction(L"NewWindow", profile_);
-  Browser::OpenEmptyWindow(profile_->GetOriginalProfile());
-}
-
-void Browser::OpenSelectProfileDialog() {
-  UserMetrics::RecordAction(L"SelectProfile", profile_);
-  SelectProfileDialog::RunDialog();
-}
-
-void Browser::OpenNewProfileDialog() {
-  UserMetrics::RecordAction(L"CreateProfile", profile_);
-  NewProfileDialog::RunDialog();
-}
-
-void Browser::NewProfileWindowByIndex(int index) {
-  UserMetrics::RecordAction(L"NewProfileWindowByIndex", profile_);
-  UserDataManager::Get()->LaunchChromeForProfile(index);
-}
-
-void Browser::NewIncognitoWindow() {
-  UserMetrics::RecordAction(L"NewIncognitoWindow", profile_);
-  Browser::OpenEmptyWindow(profile_->GetOffTheRecordProfile());
-}
-
-void Browser::CloseWindow() {
-  UserMetrics::RecordAction(L"CloseWindow", profile_);
-  window_->Close();
 }
 
 void Browser::SelectNextTab() {
@@ -735,113 +725,6 @@ void Browser::ConvertPopupToTabbedBrowser() {
 void Browser::Exit() {
   UserMetrics::RecordAction(L"Exit", profile_);
   BrowserList::CloseAllBrowsers(true);
-}
-
-// TODO(devint): http://b/issue?id=1117225 Cut, Copy, and Paste are always
-// enabled in the page menu regardless of whether the command will do
-// anything. When someone selects the menu item, we just act as if they hit
-// the keyboard shortcut for the command by sending the associated key press
-// to windows. The real fix to this bug is to disable the commands when they
-// won't do anything. We'll need something like an overall clipboard command
-// manager to do that.
-
-void Browser::Cut() {
-  UserMetrics::RecordAction(L"Cut", profile_);
-  ui_controls::SendKeyPress(L'X', true, false, false);
-}
-
-void Browser::Copy() {
-  UserMetrics::RecordAction(L"Copy", profile_);
-  ui_controls::SendKeyPress(L'C', true, false, false);
-}
-
-void Browser::CopyCurrentPageURL() {
-  UserMetrics::RecordAction(L"CopyURLToClipBoard", profile_);
-  std::string url = GetSelectedTabContents()->GetURL().spec();
-
-  if (!::OpenClipboard(NULL)) {
-    NOTREACHED();
-    return;
-  }
-
-  if (::EmptyClipboard()) {
-    HGLOBAL text = ::GlobalAlloc(GMEM_MOVEABLE, url.size() + 1);
-    LPSTR ptr = static_cast<LPSTR>(::GlobalLock(text));
-    memcpy(ptr, url.c_str(), url.size());
-    ptr[url.size()] = '\0';
-    ::GlobalUnlock(text);
-
-    ::SetClipboardData(CF_TEXT, text);
-  }
-
-  if (!::CloseClipboard()) {
-    NOTREACHED();
-  }
-}
-
-void Browser::Paste() {
-  UserMetrics::RecordAction(L"Paste", profile_);
-  ui_controls::SendKeyPress(L'V', true, false, false);
-}
-
-void Browser::Find() {
-  UserMetrics::RecordAction(L"Find", profile_);
-  GetSelectedTabContents()->AsWebContents()->view()->FindInPage(*this, false,
-                                                                false);
-}
-
-void Browser::FindNext() {
-  UserMetrics::RecordAction(L"FindNext", profile_);
-  AdvanceFindSelection(true);
-}
-
-void Browser::FindPrevious() {
-  UserMetrics::RecordAction(L"FindPrevious", profile_);
-  AdvanceFindSelection(false);
-}
-
-void Browser::ZoomIn() {
-  UserMetrics::RecordAction(L"ZoomPlus", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
-      PageZoom::LARGER);
-}
-
-void Browser::ZoomOut() {
-  UserMetrics::RecordAction(L"ZoomMinus", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
-      PageZoom::SMALLER);
-}
-
-void Browser::ZoomReset() {
-  UserMetrics::RecordAction(L"ZoomNormal", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
-      PageZoom::STANDARD);
-}
-
-void Browser::FocusLocationBar() {
-  UserMetrics::RecordAction(L"FocusLocation", profile_);
-  LocationBarView* lbv = GetLocationBarView();
-  if (lbv) {
-    AutocompleteEditView* aev = lbv->location_entry();
-    aev->SetFocus();
-    aev->SelectAll(true);
-  }
-}
-
-void Browser::FocusSearch() {
-  // TODO(beng): replace this with FocusLocationBar
-  UserMetrics::RecordAction(L"FocusSearch", profile_);
-  LocationBarView* lbv = GetLocationBarView();
-  if (lbv) {
-    AutocompleteEditView* aev = lbv->location_entry();
-    aev->SetUserText(L"?");
-    aev->SetFocus();
-  }
-}
-
-void Browser::FocusToolbar() {
-  UserMetrics::RecordAction(L"FocusToolbar", profile_);
-  window_->FocusToolbar();
 }
 
 void Browser::BookmarkCurrentPage() {
@@ -934,24 +817,129 @@ void Browser::OverrideEncoding(int encoding_id) {
   }
 }
 
-void Browser::OpenKeywordEditor() {
-  UserMetrics::RecordAction(L"EditSearchEngines", profile_);
-  window_->ShowSearchEnginesDialog();
+// TODO(devint): http://b/issue?id=1117225 Cut, Copy, and Paste are always
+// enabled in the page menu regardless of whether the command will do
+// anything. When someone selects the menu item, we just act as if they hit
+// the keyboard shortcut for the command by sending the associated key press
+// to windows. The real fix to this bug is to disable the commands when they
+// won't do anything. We'll need something like an overall clipboard command
+// manager to do that.
+
+void Browser::Cut() {
+  UserMetrics::RecordAction(L"Cut", profile_);
+  ui_controls::SendKeyPress(L'X', true, false, false);
 }
 
-void Browser::OpenClearBrowsingDataDialog() {
-  UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
-  window_->ShowClearBrowsingDataDialog();
+void Browser::Copy() {
+  UserMetrics::RecordAction(L"Copy", profile_);
+  ui_controls::SendKeyPress(L'C', true, false, false);
 }
 
-void Browser::OpenImportSettingsDialog() {
-  UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
-  window_->ShowImportDialog();
+void Browser::CopyCurrentPageURL() {
+  UserMetrics::RecordAction(L"CopyURLToClipBoard", profile_);
+  std::string url = GetSelectedTabContents()->GetURL().spec();
+
+  if (!::OpenClipboard(NULL)) {
+    NOTREACHED();
+    return;
+  }
+
+  if (::EmptyClipboard()) {
+    HGLOBAL text = ::GlobalAlloc(GMEM_MOVEABLE, url.size() + 1);
+    LPSTR ptr = static_cast<LPSTR>(::GlobalLock(text));
+    memcpy(ptr, url.c_str(), url.size());
+    ptr[url.size()] = '\0';
+    ::GlobalUnlock(text);
+
+    ::SetClipboardData(CF_TEXT, text);
+  }
+
+  if (!::CloseClipboard()) {
+    NOTREACHED();
+  }
 }
 
-void Browser::OpenBugReportDialog() {
-  UserMetrics::RecordAction(L"ReportBug", profile_);
-  window_->ShowReportBugDialog();
+void Browser::Paste() {
+  UserMetrics::RecordAction(L"Paste", profile_);
+  ui_controls::SendKeyPress(L'V', true, false, false);
+}
+
+void Browser::Find() {
+  UserMetrics::RecordAction(L"Find", profile_);
+  GetSelectedTabContents()->AsWebContents()->view()->FindInPage(*this, false,
+                                                                false);
+}
+
+void Browser::FindNext() {
+  UserMetrics::RecordAction(L"FindNext", profile_);
+  AdvanceFindSelection(true);
+}
+
+void Browser::FindPrevious() {
+  UserMetrics::RecordAction(L"FindPrevious", profile_);
+  AdvanceFindSelection(false);
+}
+
+void Browser::ZoomIn() {
+  UserMetrics::RecordAction(L"ZoomPlus", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
+      PageZoom::LARGER);
+}
+
+void Browser::ZoomReset() {
+  UserMetrics::RecordAction(L"ZoomNormal", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
+      PageZoom::STANDARD);
+}
+
+void Browser::ZoomOut() {
+  UserMetrics::RecordAction(L"ZoomMinus", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
+      PageZoom::SMALLER);
+}
+
+void Browser::FocusToolbar() {
+  UserMetrics::RecordAction(L"FocusToolbar", profile_);
+  window_->FocusToolbar();
+}
+
+void Browser::FocusLocationBar() {
+  UserMetrics::RecordAction(L"FocusLocation", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    AutocompleteEditView* aev = lbv->location_entry();
+    aev->SetFocus();
+    aev->SelectAll(true);
+  }
+}
+
+void Browser::FocusSearch() {
+  // TODO(beng): replace this with FocusLocationBar
+  UserMetrics::RecordAction(L"FocusSearch", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    AutocompleteEditView* aev = lbv->location_entry();
+    aev->SetUserText(L"?");
+    aev->SetFocus();
+  }
+}
+
+void Browser::OpenFile() {
+  UserMetrics::RecordAction(L"OpenFile", profile_);
+  if (!select_file_dialog_.get())
+    select_file_dialog_ = SelectFileDialog::Create(this);
+
+  // TODO(beng): figure out how to juggle this.
+  HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
+  select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
+                                  std::wstring(), std::wstring(),
+                                  std::wstring(), std::wstring(),
+                                  parent_hwnd, NULL);
+}
+
+void Browser::OpenCreateShortcutsDialog() {
+  UserMetrics::RecordAction(L"CreateShortcut", profile_);
+  GetSelectedTabContents()->AsWebContents()->CreateShortcut();
 }
 
 void Browser::OpenDebuggerWindow() {
@@ -976,9 +964,64 @@ void Browser::OpenJavaScriptConsole() {
       ShowJavaScriptConsole();
 }
 
-void Browser::OpenCreateShortcutsDialog() {
-  UserMetrics::RecordAction(L"CreateShortcut", profile_);
-  GetSelectedTabContents()->AsWebContents()->CreateShortcut();
+void Browser::OpenTaskManager() {
+  UserMetrics::RecordAction(L"TaskManager", profile_);
+  TaskManager::Open();
+}
+
+void Browser::OpenSelectProfileDialog() {
+  UserMetrics::RecordAction(L"SelectProfile", profile_);
+  SelectProfileDialog::RunDialog();
+}
+
+void Browser::OpenNewProfileDialog() {
+  UserMetrics::RecordAction(L"CreateProfile", profile_);
+  NewProfileDialog::RunDialog();
+}
+
+void Browser::OpenBugReportDialog() {
+  UserMetrics::RecordAction(L"ReportBug", profile_);
+  window_->ShowReportBugDialog();
+}
+
+void Browser::ToggleBookmarkBar() {
+  UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
+  window_->ToggleBookmarkBar();
+}
+
+void Browser::ShowHistoryTab() {
+  UserMetrics::RecordAction(L"ShowHistory", profile_);
+  ShowNativeUITab(HistoryTabUI::GetURL());
+}
+
+void Browser::OpenBookmarkManager() {
+  UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
+  window_->ShowBookmarkManager();
+}
+
+void Browser::ShowDownloadsTab() {
+  UserMetrics::RecordAction(L"ShowDownloads", profile_);
+  ShowNativeUITab(DownloadTabUI::GetURL());
+}
+
+void Browser::OpenClearBrowsingDataDialog() {
+  UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
+  window_->ShowClearBrowsingDataDialog();
+}
+
+void Browser::OpenImportSettingsDialog() {
+  UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
+  window_->ShowImportDialog();
+}
+
+void Browser::OpenOptionsDialog() {
+  UserMetrics::RecordAction(L"ShowOptions", profile_);
+  ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
+}
+
+void Browser::OpenKeywordEditor() {
+  UserMetrics::RecordAction(L"EditSearchEngines", profile_);
+  window_->ShowSearchEnginesDialog();
 }
 
 void Browser::OpenPasswordManager() {
@@ -990,53 +1033,10 @@ void Browser::OpenAboutChromeDialog() {
   window_->ShowAboutChromeDialog();
 }
 
-void Browser::OpenFile() {
-  UserMetrics::RecordAction(L"OpenFile", profile_);
-  if (!select_file_dialog_.get())
-    select_file_dialog_ = SelectFileDialog::Create(this);
-
-  // TODO(beng): figure out how to juggle this.
-  HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
-  select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
-                                  std::wstring(), std::wstring(),
-                                  std::wstring(), std::wstring(),
-                                  parent_hwnd, NULL);
-}
-
-void Browser::OpenTaskManager() {
-  UserMetrics::RecordAction(L"TaskManager", profile_);
-  TaskManager::Open();
-}
-
-void Browser::OpenOptionsDialog() {
-  UserMetrics::RecordAction(L"ShowOptions", profile_);
-  ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
-}
-
 void Browser::OpenHelpTab() {
   GURL help_url(l10n_util::GetString(IDS_HELP_CONTENT_URL));
   AddTabWithURL(help_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
                 NULL);
-}
-
-void Browser::ShowHistoryTab() {
-  UserMetrics::RecordAction(L"ShowHistory", profile_);
-  ShowNativeUITab(HistoryTabUI::GetURL());
-}
-
-void Browser::ShowDownloadsTab() {
-  UserMetrics::RecordAction(L"ShowDownloads", profile_);
-  ShowNativeUITab(DownloadTabUI::GetURL());
-}
-
-void Browser::OpenBookmarkManager() {
-  UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
-  window_->ShowBookmarkManager();
-}
-
-void Browser::ToggleBookmarkBar() {
-  UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
-  window_->ToggleBookmarkBar();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1092,19 +1092,31 @@ void Browser::ExecuteCommand(int id) {
   // The order of commands in this switch statement must match the function
   // declaration order in browser.h!
   switch (id) {
+    // Navigation commands
     case IDC_BACK:                  GoBack();                      break;
     case IDC_FORWARD:               GoForward();                   break;
     case IDC_RELOAD:                Reload();                      break;
-    case IDC_STOP:                  Stop();                        break;
     case IDC_HOME:                  Home();                        break;
-    case IDC_GO:                    Go();                          break;
     case IDC_OPEN_CURRENT_URL:      OpenCurrentURL();              break;
+    case IDC_GO:                    Go();                          break;
+    case IDC_STOP:                  Stop();                        break;
 
-    case IDC_NEW_TAB:               NewTab();                      break;
-    case IDC_CLOSE_TAB:             CloseTab();                    break;
+     // Window management commands
     case IDC_NEW_WINDOW:            NewWindow();                   break;
     case IDC_NEW_INCOGNITO_WINDOW:  NewIncognitoWindow();          break;
+    case IDC_NEW_WINDOW_PROFILE_0:
+    case IDC_NEW_WINDOW_PROFILE_1:
+    case IDC_NEW_WINDOW_PROFILE_2:
+    case IDC_NEW_WINDOW_PROFILE_3:
+    case IDC_NEW_WINDOW_PROFILE_4:
+    case IDC_NEW_WINDOW_PROFILE_5:
+    case IDC_NEW_WINDOW_PROFILE_6:
+    case IDC_NEW_WINDOW_PROFILE_7:
+    case IDC_NEW_WINDOW_PROFILE_8: 
+        NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);    break;
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
+    case IDC_NEW_TAB:               NewTab();                      break;
+    case IDC_CLOSE_TAB:             CloseTab();                    break;
     case IDC_SELECT_NEXT_TAB:       SelectNextTab();               break;
     case IDC_SELECT_PREVIOUS_TAB:   SelectPreviousTab();           break;
     case IDC_SELECT_TAB_0:
@@ -1122,23 +1134,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SHOW_AS_TAB:           ConvertPopupToTabbedBrowser(); break;
     case IDC_EXIT:                  Exit();                        break;
 
-    case IDC_CUT:                   Cut();                         break;
-    case IDC_COPY:                  Copy();                        break;
-    case IDC_COPY_URL:              CopyCurrentPageURL();          break;
-    case IDC_PASTE:                 Paste();                       break;
-
-    case IDC_FIND:                  Find();                        break;
-    case IDC_FIND_NEXT:             FindNext();                    break;
-    case IDC_FIND_PREVIOUS:         FindPrevious();                break;
-
-    case IDC_ZOOM_PLUS:             ZoomIn();                      break;
-    case IDC_ZOOM_MINUS:            ZoomOut();                     break;
-    case IDC_ZOOM_NORMAL:           ZoomReset();                   break;
-
-    case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
-    case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
-    case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
-
+    // Page-related commands
     case IDC_STAR:                  BookmarkCurrentPage();         break;
     case IDC_VIEW_SOURCE:           ViewSource();                  break;
     case IDC_CLOSE_POPUPS:          ClosePopups();                 break;
@@ -1182,35 +1178,50 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_WINDOWS1255:
     case IDC_ENCODING_WINDOWS1258:  OverrideEncoding(id);          break;
 
-    case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
-    case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
-    case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
-    case IDC_REPORT_BUG:            OpenBugReportDialog();         break;
+    // Clipboard commands
+    case IDC_CUT:                   Cut();                         break;
+    case IDC_COPY:                  Copy();                        break;
+    case IDC_COPY_URL:              CopyCurrentPageURL();          break;
+    case IDC_PASTE:                 Paste();                       break;
+
+    // Find-in-page
+    case IDC_FIND:                  Find();                        break;
+    case IDC_FIND_NEXT:             FindNext();                    break;
+    case IDC_FIND_PREVIOUS:         FindPrevious();                break;
+
+    // Zoom
+    case IDC_ZOOM_PLUS:             ZoomIn();                      break;
+    case IDC_ZOOM_NORMAL:           ZoomReset();                   break;
+    case IDC_ZOOM_MINUS:            ZoomOut();                     break;
+
+    // Focus various bits of UI
+    case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
+    case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
+    case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
+
+    // Show various bits of UI
+    case IDC_OPEN_FILE:             OpenFile();                    break;
+    case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
     case IDC_DEBUGGER:              OpenDebuggerWindow();          break;
     case IDC_JS_CONSOLE:            OpenJavaScriptConsole();       break;
-    case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
-    case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
-    case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
-    case IDC_OPEN_FILE:             OpenFile();                    break;
     case IDC_TASK_MANAGER:          OpenTaskManager();             break;
-    case IDC_OPTIONS:               OpenOptionsDialog();           break;
-    case IDC_HELP_PAGE:             OpenHelpTab();                 break;
-    case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
-    case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
-    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
-    case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
     case IDC_SELECT_PROFILE:        OpenSelectProfileDialog();     break;
     case IDC_NEW_PROFILE:           OpenNewProfileDialog();        break;
+    case IDC_REPORT_BUG:            OpenBugReportDialog();         break;
+    case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
+    case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
+    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
+    case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
+    case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
+    case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
+    case IDC_OPTIONS:               OpenOptionsDialog();           break;
+    case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
+    case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
+    case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
+    case IDC_HELP_PAGE:             OpenHelpTab();                 break;
 
     default:
-      // Handle the user action for creating a new window in a specific profile.
-      if (id >= IDC_NEW_WINDOW_PROFILE_0 &&
-          id <= IDC_NEW_WINDOW_PROFILE_LAST) {
-        int index = id - IDC_NEW_WINDOW_PROFILE_0;
-        NewProfileWindowByIndex(index);
-      } else {
-        LOG(WARNING) << "Received Unimplemented Command: " << id;
-      }
+      LOG(WARNING) << "Received Unimplemented Command: " << id;
       break;
   }
 }
@@ -1415,8 +1426,8 @@ void Browser::TabSelectedAt(TabContents* old_contents,
       (new_contents->AsWebContents() && new_contents->is_loading()) ?
       GoButton::MODE_STOP : GoButton::MODE_GO);
 
-  // Update other parts of the toolbar.
-  UpdateNavigationCommands();
+  // Update commands to reflect current state.
+  UpdateCommandsForTabState();
 
   // Reset the status bubble.
   GetStatusBubble()->Hide();
@@ -1583,10 +1594,10 @@ void Browser::NavigationStateChanged(const TabContents* source,
   if (changed_flags)
     ScheduleUIUpdate(source, changed_flags);
 
-  // We don't schedule updates to the navigation commands since they will only
-  // change once per navigation, so we don't have to worry about flickering.
+  // We don't schedule updates to commands since they will only change once per
+  // navigation, so we don't have to worry about flickering.
   if (changed_flags & TabContents::INVALIDATE_URL)
-    UpdateNavigationCommands();
+    UpdateCommandsForTabState();
 }
 
 void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
@@ -1863,21 +1874,30 @@ void Browser::InitCommandState() {
   // (like Back & Forward with initial page load) must have their state
   // initialized here, otherwise they will be forever disabled.
 
+  // Navigation commands
   controller_.UpdateCommandEnabled(IDC_RELOAD, true);
   controller_.UpdateCommandEnabled(IDC_HOME, type() == TYPE_NORMAL);
+  controller_.UpdateCommandEnabled(IDC_OPEN_CURRENT_URL, true);
   controller_.UpdateCommandEnabled(IDC_GO, true);
+
+  // Window management commands
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
+  controller_.UpdateCommandEnabled(IDC_PROFILE_MENU, true);
+  // TODO(pkasting): Perhaps the code that populates this submenu should do
+  // this?
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_0, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_1, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_2, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_3, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_4, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_5, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_6, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_7, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_8, true);
+  controller_.UpdateCommandEnabled(IDC_CLOSE_WINDOW, true);
   controller_.UpdateCommandEnabled(IDC_NEW_TAB, true);
   controller_.UpdateCommandEnabled(IDC_CLOSE_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSE_WINDOW, true);
-  controller_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, true);
-  controller_.UpdateCommandEnabled(IDC_FOCUS_SEARCH, true);
-  controller_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, true);
-  controller_.UpdateCommandEnabled(IDC_OPEN_CURRENT_URL, true);
-  controller_.UpdateCommandEnabled(IDC_CUT, true);
-  controller_.UpdateCommandEnabled(IDC_COPY, true);
-  controller_.UpdateCommandEnabled(IDC_PASTE, true);
-  controller_.UpdateCommandEnabled(IDC_REPORT_BUG, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_NEXT_TAB, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_PREVIOUS_TAB, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_0, true);
@@ -1889,22 +1909,14 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_6, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_TAB_7, true);
   controller_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
-  controller_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, true);
-  controller_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
-  controller_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
-  controller_.UpdateCommandEnabled(IDC_COPY_URL, true);
   controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
-  controller_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, true);
-  controller_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, true);
-  controller_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
-  controller_.UpdateCommandEnabled(IDC_ABOUT, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
+  controller_.UpdateCommandEnabled(IDC_RESTORE_TAB,
+      (!profile_->IsOffTheRecord() && type() == TYPE_NORMAL));
+  controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB, type() == TYPE_POPUP);
+  controller_.UpdateCommandEnabled(IDC_EXIT, true);
+
+  // Page-related commands
+  controller_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
@@ -1942,90 +1954,115 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88598, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1255, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
-  controller_.UpdateCommandEnabled(IDC_OPTIONS, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB, type() == TYPE_POPUP);
-  controller_.UpdateCommandEnabled(
-      IDC_RESTORE_TAB, (!profile_->IsOffTheRecord() &&
-                        type() == TYPE_NORMAL));
-  controller_.UpdateCommandEnabled(IDC_EXIT, true);
-  // the debugger doesn't work in single process mode
+
+  // Clipboard commands
+  controller_.UpdateCommandEnabled(IDC_CUT, true);
+  controller_.UpdateCommandEnabled(IDC_COPY, true);
+  controller_.UpdateCommandEnabled(IDC_COPY_URL, true);
+  controller_.UpdateCommandEnabled(IDC_PASTE, true);
+
+  // Focus various bits of UI
+  controller_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, true);
+  controller_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, true);
+  controller_.UpdateCommandEnabled(IDC_FOCUS_SEARCH, true);
+
+  // Show various bits of UI
+  controller_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
+  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
+  controller_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, true);
+  // The debugger doesn't work in single process mode.
   controller_.UpdateCommandEnabled(IDC_DEBUGGER,
       !RenderProcessHost::run_renderer_in_process());
-  controller_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, true);
+  controller_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
+  controller_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
+  controller_.UpdateCommandEnabled(IDC_NEW_PROFILE, true);
+  controller_.UpdateCommandEnabled(IDC_REPORT_BUG, true);
+  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, true);
+  controller_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
+  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
+  controller_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
+  controller_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
+  controller_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, true);
+  controller_.UpdateCommandEnabled(IDC_OPTIONS, true);
+  controller_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, true);
+  controller_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, true);
+  controller_.UpdateCommandEnabled(IDC_ABOUT, true);
   controller_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
 }
 
-void Browser::UpdateNavigationCommands() {
+void Browser::UpdateCommandsForTabState() {
   TabContents* current_tab = GetSelectedTabContents();
   if (!current_tab) {
     // It's possible for this to be null during tab restore.
     return;
   }
 
+  // Navigation commands
   NavigationController* nc = current_tab->controller();
   controller_.UpdateCommandEnabled(IDC_BACK, nc->CanGoBack());
   controller_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());
 
+  // Window management commands
+  controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
+                                   CanDuplicateContentsAt(selected_index()));
+
+  // Show various bits of UI
+  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
+      current_tab->type() == TAB_CONTENTS_WEB &&
+      !current_tab->GetFavIcon().isNull());
+
   WebContents* web_contents = current_tab->AsWebContents();
   if (web_contents) {
+    // Page-related commands
     controller_.UpdateCommandEnabled(IDC_STAR, true);
     SetStarredButtonToggled(web_contents->is_starred());
-
     // View-source should not be enabled if already in view-source mode.
     controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
         current_tab->type() != TAB_CONTENTS_VIEW_SOURCE &&
         current_tab->controller()->GetActiveEntry());
-
-    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
-    bool enable_encoding =
-        SavePackage::IsSavableContents(web_contents->contents_mime_type()) &&
-        SavePackage::IsSavableURL(current_tab->GetURL());
-    controller_.UpdateCommandEnabled(IDC_ENCODING_MENU, enable_encoding);
-
+    controller_.UpdateCommandEnabled(IDC_PRINT, true);
     controller_.UpdateCommandEnabled(IDC_SAVE_PAGE,
         SavePackage::IsSavableURL(current_tab->GetURL()));
-    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
+    controller_.UpdateCommandEnabled(IDC_ENCODING_MENU,
+        SavePackage::IsSavableContents(web_contents->contents_mime_type()) &&
+        SavePackage::IsSavableURL(current_tab->GetURL()));
+
+    // Find-in-page
     controller_.UpdateCommandEnabled(IDC_FIND, true);
     controller_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
     controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
-    controller_.UpdateCommandEnabled(IDC_PRINT, true);
-  } else {
-    controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE, false);
-    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, false);
 
+    // Zoom
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
+
+    // Show various bits of UI
+    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
+  } else {
+    // Page-related commands
     // Both disable the starring button and ensure it doesn't show a star.
     controller_.UpdateCommandEnabled(IDC_STAR, false);
     SetStarredButtonToggled(false);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, false);
+    controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE, false);
+    controller_.UpdateCommandEnabled(IDC_PRINT, false);
+    controller_.UpdateCommandEnabled(IDC_SAVE_PAGE, false);
     controller_.UpdateCommandEnabled(IDC_ENCODING_MENU, false);
 
-    controller_.UpdateCommandEnabled(IDC_SAVE_PAGE, false);
+    // Find-in-page
     controller_.UpdateCommandEnabled(IDC_FIND, false);
     controller_.UpdateCommandEnabled(IDC_FIND_NEXT, false);
     controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, false);
+
+    // Zoom
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, false);
     controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, false);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, false);
     controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, false);
-    controller_.UpdateCommandEnabled(IDC_PRINT, false);
-  }
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, false);
 
-  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
-                                   current_tab->type() == TAB_CONTENTS_WEB &&
-                                       !current_tab->GetFavIcon().isNull());
-  controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
-                                   CanDuplicateContentsAt(selected_index()));
-
-  // Enable various IDC_NEWPROFILEWINDOW* commands.
-  controller_.UpdateCommandEnabled(IDC_PROFILE_MENU, true);
-  controller_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_PROFILE, true);
-  for (int i = IDC_NEW_WINDOW_PROFILE_0;
-       i <= IDC_NEW_WINDOW_PROFILE_LAST;
-       ++i) {
-    controller_.UpdateCommandEnabled(i, true);
+    // Show various bits of UI
+    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, false);
   }
 }
 
