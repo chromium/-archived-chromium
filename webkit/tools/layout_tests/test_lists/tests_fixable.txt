@@ -1325,7 +1325,7 @@ LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
 // MERGE 38729:38760: New tests
 LayoutTests/editing/selection/doubleclick-whitespace.html = FAIL
 LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
-LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT
+LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
 
 // MERGE 38729:38760: Regressions
 LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
@@ -2037,12 +2037,12 @@ LINUX : LayoutTests/fast/text/word-space.html = FAIL
 LINUX : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 
 // http://crbug.com/5294 and http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRASH
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRASH PASS
 
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 
 // Started failing with r6667 I think. (darin)
 // Weirdly, this only crash on the release webkit builder.
-RELEASE : LayoutTests/fast/dom/javascript-url-crash-function.html = CRASH
+RELEASE : LayoutTests/fast/dom/javascript-url-crash-function.html = CRASH PASS
 RELEASE WIN : LayoutTests/http/tests/misc/font-face-in-multiple-segmented-faces.html = CRASH
