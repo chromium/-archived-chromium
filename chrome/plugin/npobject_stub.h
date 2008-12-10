@@ -8,6 +8,8 @@
 #ifndef CHROME_PLUGIN_NPOBJECT_STUB_H_
 #define CHROME_PLUGIN_NPOBJECT_STUB_H_
 
+#include <vector>
+
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 
