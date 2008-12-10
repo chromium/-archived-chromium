@@ -1430,12 +1430,12 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       plugin_service_(PluginService::GetInstance()),
       method_runner_(this),
       is_shutdown_(false),
-      removing_pending_request_(0) {
+      removing_pending_request_(0),
+      request_to_remove_(NULL) {
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {
   AsyncEventHandler::GlobalCleanup();
-  CHECK(!removing_pending_request_);
   STLDeleteValues(&pending_requests_);
 }
 
@@ -1468,7 +1468,6 @@ void ResourceDispatcherHost::Shutdown() {
 void ResourceDispatcherHost::OnShutdown() {
   DCHECK(MessageLoop::current() == io_loop_);
   is_shutdown_ = true;
-  CHECK(!removing_pending_request_);
   STLDeleteValues(&pending_requests_);
   // Make sure we shutdown the timer now, otherwise by the time our destructor
   // runs if the timer is still running the Task is deleted twice (once by
@@ -1936,27 +1935,28 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 
 void ResourceDispatcherHost::RemovePendingRequest(
     const PendingRequestList::iterator& iter) {
-  CHECK(!removing_pending_request_);
-  removing_pending_request_ = 1;
-  size_t num_requests_before = pending_requests_.size();
+  if (request_to_remove_) {
+    CHECK(iter->second == request_to_remove_);
+  }
 
   // Notify the login handler that this request object is going away.
   ExtraRequestInfo* info = ExtraInfoForRequest(iter->second);
   if (info && info->login_handler)
     info->login_handler->OnRequestCancelled();
 
-  CHECK(pending_requests_.size() == num_requests_before);
+  CHECK(!removing_pending_request_);
+  removing_pending_request_ = 1;
+  request_to_remove_ = iter->second;
+
   delete iter->second;
-  CHECK(pending_requests_.size() == num_requests_before);
   pending_requests_.erase(iter);
-  CHECK(pending_requests_.size() == num_requests_before - 1);
 
   // If we have no more pending requests, then stop the load state monitor
   if (pending_requests_.empty())
     update_load_states_timer_.Stop();
 
-  CHECK(pending_requests_.size() == num_requests_before - 1);
   removing_pending_request_ = 0;
+  request_to_remove_ = NULL;
 }
 
 // URLRequest::Delegate -------------------------------------------------------

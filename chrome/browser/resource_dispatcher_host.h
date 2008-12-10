@@ -500,6 +500,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // reset to 0 right before returning from RemovePendingRequest(iter).
   int removing_pending_request_;
 
+  // A member added temporarily for debugging issue 4749.  Initialized to NULL.
+  // Set to iter->second upon entering RemovePendingRequest(iter) and reset to
+  // NULL right before returning from RemovePendingRequest(iter).
+  URLRequest* request_to_remove_;
+
   DISALLOW_EVIL_CONSTRUCTORS(ResourceDispatcherHost);
 };
 
