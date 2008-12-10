@@ -144,7 +144,6 @@ class PropertyAccessor : public PropertyAccessorBase {
   // See also DeleteProperty on thn PropertyAccessorBase.
 
  private:
-  template<class T>
   class Container : public PropertyBag::Prop {
    public:
     Container(const T& data) : data_(data) {}
