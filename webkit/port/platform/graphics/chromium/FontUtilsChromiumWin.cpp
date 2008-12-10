@@ -68,8 +68,7 @@ void InitializeScriptFontMap(ScriptToFontMap& scriptFontMap)
         // For USCRIPT_COMMON, we map blocks to scripts when
         // that makes sense.
     };
-
-    // Cannot recover from OOM so that there's no need to check.
+    
     for (int i = 0; i < sizeof(fontMap) / sizeof(fontMap[0]); ++i)
         scriptFontMap[fontMap[i].script] = fontMap[i].family;
 
@@ -143,11 +142,13 @@ typedef HashMap<String, FontData*> FontDataCache;
 const UChar* GetFontFamilyForScript(UScriptCode script,
                                     GenericFamilyType generic) {
     static ScriptToFontMap scriptFontMap;
-    bool initialized = false;
+    static bool initialized = false;
     if (!initialized) {
         InitializeScriptFontMap(scriptFontMap);
         initialized = true;
     }
+    if (script == USCRIPT_INVALID_CODE)
+        return NULL;
     ASSERT(script < USCRIPT_CODE_LIMIT);
     return scriptFontMap[script];
 }
