@@ -962,8 +962,6 @@ LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
 LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
-// Linux pixeltest failure: Font metrics mismatch
-LINUX : LayoutTests/tables/mozilla/bugs/bug16252.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
 // Linux pixeltest failure: Font metrics mismatch
 LINUX : LayoutTests/tables/mozilla/bugs/bug4093.html = FAIL
