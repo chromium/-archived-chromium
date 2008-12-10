@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "base/values.h"
 
 ///////////////////// Value ////////////////////
@@ -31,8 +32,13 @@ Value* Value::CreateRealValue(double in_value) {
 }
 
 // static
-Value* Value::CreateStringValue(const std::wstring& in_value) {
+Value* Value::CreateStringValue(const std::string& in_value) {
   return new StringValue(in_value);
+}
+
+// static
+Value* Value::CreateStringValue(const std::wstring& in_value) {
+  return new StringValue(WideToUTF8(in_value));
 }
 
 // static
@@ -49,6 +55,10 @@ bool Value::GetAsInteger(int* in_value) const {
 }
 
 bool Value::GetAsReal(double* in_value) const {
+  return false;
+}
+
+bool Value::GetAsString(std::string* in_value) const {
   return false;
 }
 
@@ -135,12 +145,24 @@ bool FundamentalValue::Equals(const Value* other) const {
 
 ///////////////////// StringValue ////////////////////
 
+StringValue::StringValue(const std::string& in_value)
+    : Value(TYPE_STRING),
+      value_(in_value) {
+  DCHECK(IsStringUTF8(in_value));
+}
+
 StringValue::~StringValue() {
+}
+
+bool StringValue::GetAsString(std::string* out_value) const {
+  if (out_value)
+    *out_value = value_;
+  return true;
 }
 
 bool StringValue::GetAsString(std::wstring* out_value) const {
   if (out_value)
-    *out_value = value_;
+    *out_value = UTF8ToWide(value_);
   return true;
 }
 
@@ -151,7 +173,7 @@ Value* StringValue::DeepCopy() const {
 bool StringValue::Equals(const Value* other) const {
   if (other->GetType() != GetType())
     return false;
-  std::wstring lhs, rhs;
+  std::string lhs, rhs;
   return GetAsString(&lhs) && other->GetAsString(&rhs) && lhs == rhs;
 }
 
@@ -276,6 +298,11 @@ bool DictionaryValue::SetReal(const std::wstring& path, double in_value) {
 }
 
 bool DictionaryValue::SetString(const std::wstring& path,
+                                const std::string& in_value) {
+  return Set(path, CreateStringValue(in_value));
+}
+
+bool DictionaryValue::SetString(const std::wstring& path,
                                 const std::wstring& in_value) {
   return Set(path, CreateStringValue(in_value));
 }
@@ -332,6 +359,15 @@ bool DictionaryValue::GetReal(const std::wstring& path,
     return false;
 
   return value->GetAsReal(out_value);
+}
+
+bool DictionaryValue::GetString(const std::wstring& path,
+                                std::string* out_value) const {
+  Value* value;
+  if (!Get(path, &value))
+    return false;
+
+  return value->GetAsString(out_value);
 }
 
 bool DictionaryValue::GetString(const std::wstring& path,
