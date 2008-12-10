@@ -81,8 +81,9 @@ void SimpleFontData::platformDestroy()
 SimpleFontData* SimpleFontData::smallCapsFontData(const FontDescription& fontDescription) const
 {
     if (!m_smallCapsFontData) {
+        const float smallCapsSize = lroundf(fontDescription.computedSize() * kSmallCapsFraction);
         m_smallCapsFontData =
-            new SimpleFontData(FontPlatformData(m_font, fontDescription.computedSize() * kSmallCapsFraction));
+            new SimpleFontData(FontPlatformData(m_font, smallCapsSize));
     }
     return m_smallCapsFontData;
 }
