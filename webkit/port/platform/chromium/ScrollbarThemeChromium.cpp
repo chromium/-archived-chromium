@@ -28,9 +28,8 @@
 
 #include "ChromiumBridge.h"
 #include "PlatformMouseEvent.h"
-#include "Frame.h"
-#include "FrameView.h"
 #include "Scrollbar.h"
+#include "ScrollbarClient.h"
 #include "ScrollbarThemeComposite.h"
 
 // -----------------------------------------------------------------------------
@@ -122,16 +121,10 @@ void ScrollbarThemeChromium::paintTickmarks(GraphicsContext* context, Scrollbar*
     if (rect.height() <= 0 || rect.width() <= 0)
         return;  // nothing to draw on.
 
-    // Get the frameview.
-    // FIXME: Stop relying on high-level WebCore types such as Frame and FrameView.
-    if (!scrollbar->parent()->isFrameView())
-        return;
-    FrameView* frameView = static_cast<FrameView*>(scrollbar->parent());
-    Document* doc = frameView->frame()->document();
-
-    // Get the text markers for the frameview.
-    Vector<IntRect> markers = doc->renderedRectsForMarkers(DocumentMarker::TextMatch);
-    if (!markers.size())
+    // Get the tickmarks for the frameview.
+    Vector<IntRect> tickmarks;
+    scrollbar->client()->getTickmarks(tickmarks);
+    if (!tickmarks.size())
         return;
 
     // Get the image for the tickmarks.
@@ -143,7 +136,7 @@ void ScrollbarThemeChromium::paintTickmarks(GraphicsContext* context, Scrollbar*
 
     context->save();
 
-    for (Vector<IntRect>::const_iterator i = markers.begin(); i != markers.end(); ++i) {
+    for (Vector<IntRect>::const_iterator i = tickmarks.begin(); i != tickmarks.end(); ++i) {
         // Calculate how far down (in %) the tick-mark should appear.
         const float percent = static_cast<float>(i->y()) / scrollbar->totalSize();
 
