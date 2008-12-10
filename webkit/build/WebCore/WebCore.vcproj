@@ -252,14 +252,6 @@
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Console.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Console.h"
@@ -6740,20 +6732,6 @@
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\Configurations\Version.xcconfig"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="WebKitVersion"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="WebKitVersion"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<File
