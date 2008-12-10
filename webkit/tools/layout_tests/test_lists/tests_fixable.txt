@@ -101,6 +101,8 @@ LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
 LINUX WIN : LayoutTests/svg/custom/font-face-simple.svg = FAIL
 
+LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element = FAIL
+
 // -----------------------------------------------------------------
 // URL
 // -----------------------------------------------------------------
@@ -381,14 +383,21 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 // These test fail full text diff (but not simplified diff) most likely due 
 // to differing implementations of SVG fonts. They may or may not represent real 
 // bugs which need fixin'
+
+// pixeltest failure: font baseline should be on the path, not the centerline
 LayoutTests/svg/batik/text/smallFonts.svg = FAIL
 LayoutTests/svg/batik/text/textBiDi.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+
+// pixeltest failure: font baseline should be on the path, not the centerline
 LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
+
+// pixeltest failure: font baseline should be on the path, not the centerline
 LINUX WIN : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
+// pixeltest failure: font baseline should be on the path, not the centerline
 LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
 LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
@@ -428,6 +437,8 @@ LINUX WIN : LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by
 LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
 LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
+LINUX WIN : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
+
 // This is an interesting one.
 // The test has an error which causes it to output a message to the console.
 // Apple's expected results include this error. Actually, Apple's expected
@@ -447,12 +458,15 @@ LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL PASS
 // Note that the "expected" images checked in are not necessarily correct.
 LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
 LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
+// pixeltest failure: font baseline should be on the path, not the centerline
 LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
 LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
 LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
 // These consistently fail with image diffs.
 LayoutTests/svg/text/text-deco-01-b.svg = FAIL
+
+LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 
 //
 // -----------------------------------------------------------------
@@ -751,6 +765,15 @@ LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
+
+// Windows fails to draw anything here
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1 = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2 = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3 = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4 = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5 = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6 = FAIL
+
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
 LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
@@ -2041,3 +2064,127 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
+// Linux pixeltest failure: Probably flakey
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.html = PASS FAIL
+// Linux pixeltest failure: Text off by one
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.html = FAIL
+// Linux pixeltest failure: Probably flakey
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.html = FAIL
+// Linux pixeltest failure: Clip failure
+LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.html = FAIL
+// Linux pixeltest failure: Gradient fail
+LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.html = FAIL
+// Linux pixeltest failure: Gradient missing
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.html = FAIL
+// Linux pixeltest failure: Skew missing, gradients missing
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.html = FAIL
+// Linux pixeltest failure: Missing
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.html = FAIL
+// Linux pixeltest failure: Missing gradients
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.html = FAIL
+// Linux pixeltest failure: Missing gradient
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.html = FAIL
+// Linux pixeltest failure: lines missing
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.html = FAIL
+// Linux pixeltest failure: Gradient failure
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.html = FAIL
+// Linux pixeltest failure: Missing gradients
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.html = FAIL
+// Linux pixeltest failure: Pattern offset
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.html = FAIL
+// Linux pixeltest failure: Missing image
+LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.html = FAIL
+// Linux pixeltest failure: Boxes missing
+LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.html = FAIL
+// Linux pixeltest failure: Missing image
+LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.html = FAIL
+// Linux pixeltest failure: Missing image
+LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.html = FAIL
+// Linux pixeltest failure: Fail to draw gradients
+LINUX : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.html = FAIL
+// Linux pixeltest failure: Missing chinese glyphs
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.html = FAIL
+// Linux pixeltest failure: Missing arabic glyphs
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.html = FAIL
+// Linux pixeltest failure: Failing to clip gradients
+LINUX : LayoutTests/svg/batik/masking/maskRegions.html = FAIL
+// Linux pixeltest failure: Gradient paint fail
+LINUX : LayoutTests/svg/batik/paints/gradientLimit.html = FAIL
+// Linux pixeltest failure: Pattern offsets wrong
+LINUX : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.html = FAIL
+// Linux pixeltest failure: Pattern offsets wrong
+LINUX : LayoutTests/svg/batik/paints/patternRegionA.html = FAIL
+// Linux pixeltest failure: Pattern offsets look wrong, also junk lines appearing
+LINUX : LayoutTests/svg/batik/paints/patternRegions.html = FAIL
+// Linux pixeltest failure: We fail on the gradient text
+LINUX : LayoutTests/svg/batik/text/textEffect.html = FAIL
+// Linux pixeltest failure: can't draw gradient filled text
+LINUX : LayoutTests/svg/batik/text/textEffect3.html = FAIL
+// Linux pixeltest failure: The text is pretty badly drawn and the 'k' at the bottom is grossly incorrect
+LINUX : LayoutTests/svg/batik/text/textLength.html = FAIL
+// Linux pixeltest failure: Missing Chinese font
+LINUX : LayoutTests/svg/batik/text/verticalText.html = FAIL
+// Linux pixeltest failure: Failed to draw gradients
+LINUX : LayoutTests/svg/carto.net/colourpicker.html = FAIL
+// Linux pixeltest failure: Pattern offset, junk lines
+LINUX : LayoutTests/svg/custom/deep-dynamic-updates.html = FAIL
+// Linux pixeltest failure: Failing to draw gradients
+LINUX : LayoutTests/svg/custom/dominant-baseline-hanging.html = FAIL
+// Linux pixeltest failure: Missing second green box
+LINUX : LayoutTests/svg/custom/fill-fallback.html = FAIL
+// Linux pixeltest failure: Failing to clip
+LINUX : LayoutTests/svg/custom/gradient-add-stops.html = FAIL
+// Linux pixeltest failure: Failing to draw gradients
+LINUX : LayoutTests/svg/custom/gradient-rotated-bbox.html = FAIL
+// Linux pixeltest failure: Fail to draw gradients
+LINUX : LayoutTests/svg/custom/gradient-stop-corner-cases.html = FAIL
+// Linux pixeltest failure: Clip failure
+LINUX : LayoutTests/svg/custom/gradient-stop-style-change.html = FAIL
+// Linux pixeltest failure: Fail to draw gradients
+LINUX : LayoutTests/svg/custom/gradient-stroke-width.html = FAIL
+// Linux pixeltest failure: Failing to draw gradients
+LINUX : LayoutTests/svg/custom/group-opacity.html = FAIL
+// Linux pixeltest failure: Failing to clip
+LINUX : LayoutTests/svg/custom/image-small-width-height.html = FAIL
+// Linux pixeltest failure: Failing to draw gradients
+LINUX : LayoutTests/svg/custom/inline-svg-in-xhtml.html = FAIL
+// Linux pixeltest failure: Circle isn't green
+LINUX : LayoutTests/svg/custom/invalid-css.html = FAIL
+// Linux pixeltest failure: Text should be green
+LINUX : LayoutTests/svg/custom/js-late-gradient-and-object-creation.html = FAIL
+// Linux pixeltest failure: Failing to clip
+LINUX : LayoutTests/svg/custom/large-bounding-box-percents.html = FAIL
+// Linux pixeltest failure: Pattern offset
+LINUX : LayoutTests/svg/custom/pattern-deep-referencing.html = FAIL
+// Linux pixeltest failure: Dots not within rectangle
+LINUX : LayoutTests/svg/custom/pattern-rotate.html = FAIL
+// Linux pixeltest failure: Pattern offset
+LINUX : LayoutTests/svg/custom/pattern-y-offset.html = FAIL
+// Linux pixeltest failure: Failing to clip
+LINUX : LayoutTests/svg/custom/resource-client-removal.html = FAIL
+// Linux pixeltest failure: Not clear what's wrong, but it's very different on Linux
+LINUX : LayoutTests/svg/custom/stroked-pattern.html = FAIL
+// Linux pixeltest failure: windows baseline incorrect
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.html = FAIL
+// Linux pixeltest failure: Fail to draw anything
+LINUX : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.html = FAIL
+// Linux pixeltest failure: Missing Chinese glyphs
+LINUX : LayoutTests/svg/text/text-fonts-01-t.html = FAIL
+// Linux pixeltest failure: Failing to draw arabic
+LINUX : LayoutTests/svg/text/text-intro-05-t.html = FAIL
