@@ -18,7 +18,6 @@
 // (or rather ContentView) insets the content view for you, so that the
 // content typically shouldn't have any additional margins around the view.
 
-class BrowserWindow;
 class InfoBubble;
 namespace views {
 class Window;
@@ -147,9 +146,6 @@ class InfoBubble : public views::WidgetWin,
 
   // Creates and return a new ContentView containing content.
   virtual ContentView* CreateContentView(views::View* content);
-
-  // Returns the BrowserWindow that owns this InfoBubble.
-  BrowserWindow* GetHostingWindow();
 
  private:
   // The delegate notified when the InfoBubble is closed.

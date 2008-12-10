@@ -86,8 +86,13 @@ InfoBubble::~InfoBubble() {
 void InfoBubble::Init(HWND parent_hwnd,
                       const gfx::Rect& position_relative_to,
                       views::View* content) {
+  HWND owning_frame_hwnd = GetAncestor(parent_hwnd, GA_ROOTOWNER);
+  // We should always have a frame, but there was a bug elsewhere that
+  // made it possible for the frame to be NULL, so we have the check. If
+  // you hit this, file a bug.
+  DCHECK(BrowserView::GetBrowserWindowForHWND(owning_frame_hwnd));
   parent_ = reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
-      parent_hwnd));
+      owning_frame_hwnd));
   parent_->DisableInactiveRendering(true);
 
   if (kInfoBubbleCornerTopLeft == NULL) {
@@ -185,19 +190,6 @@ void InfoBubble::OnActivate(UINT action, BOOL minimized, HWND window) {
 
 InfoBubble::ContentView* InfoBubble::CreateContentView(View* content) {
   return new ContentView(content, this);
-}
-
-BrowserWindow* InfoBubble::GetHostingWindow() {
-  HWND owning_frame_hwnd = GetAncestor(GetHWND(), GA_ROOTOWNER);
-  BrowserWindow* frame =
-      BrowserView::GetBrowserWindowForHWND(owning_frame_hwnd);
-  if (!frame) {
-    // We should always have a frame, but there was a bug else where that
-    // made it possible for the frame to be NULL, so we have the check. If
-    // you hit this, file a bug.
-    NOTREACHED();
-  }
-  return frame;
 }
 
 // ContentView ----------------------------------------------------------------
