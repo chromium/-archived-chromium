@@ -32,6 +32,7 @@ class ChromeTests:
                        "ipc": self.TestIpc,
                        "base": self.TestBase,
                        "layout": self.TestLayout,
+                       "layout_all": self.TestLayoutAll,
                        "ui": self.TestUI}
 
     if test not in self._test_list:
@@ -132,7 +133,8 @@ class ChromeTests:
     self._ReadGtestFilterFile(name, cmd)
     return common.RunSubprocess(cmd, 0)
 
-  def ScriptedTest(self, module, exe, name, script, multi=False, cmd_args=None):
+  def ScriptedTest(self, module, exe, name, script, multi=False, cmd_args=None,
+                   out_dir_extra=None):
     '''Purify a target exe, which will be executed one or more times via a 
        script or driver program.
     Args:
@@ -153,7 +155,11 @@ class ChromeTests:
     cmd.append("--name=%s" % name)
     if multi:
       out = os.path.join(google.path_utils.ScriptDir(),
-                         "latest", "%s%%5d.txt" % name)
+                         "latest")
+      if out_dir_extra:
+        out = os.path.join(out, out_dir_extra)
+        os.makedirs(out)
+      out = os.path.join(out, "%s%%5d.txt" % name)
       cmd.append("--out_file=%s" % out)
     if cmd_args:
       cmd.extend(cmd_args)
@@ -178,22 +184,79 @@ class ChromeTests:
   def TestUnit(self):
     return self.SimpleTest("chrome", "unit_tests.exe")
 
-  def TestLayout(self):
+  def TestLayoutAll(self):
+    return self.TestLayout(run_all=True)
+
+  def TestLayout(self, run_all=False):
+    # A "chunk file" is maintained in the local directory so that each test
+    # runs a slice of the layout tests of size chunk_size that increments with
+    # each run.  Since tests can be added and removed from the layout tests at
+    # any time, this is not going to give exact coverage, but it will allow us
+    # to continuously run small slices of the layout tests under purify rather 
+    # than having to run all of them in one shot.    
+    chunk_num = 0
+    # Tests currently seem to take about 20-30s each, so aim for a chunk that
+    # takes around 10 minutes.
+    chunk_size = 25
+    chunk_file = "purify_layout_chunk.txt"
+    if not run_all:
+      try:
+        f = open(chunk_file)
+        if f:
+          str = f.read()
+          if len(str):
+            chunk_num = int(str)
+          # This should be enough so that we have a couple of complete runs
+          # of test data stored in the archive (although note that when we loop
+          # that we almost guaranteed won't be at the end of the test list)
+          if chunk_num > 10000:
+            chunk_num = 0
+          f.close()
+      except IOError, (errno, strerror):
+        logging.error("error reading from file %s (%d, %s)" % (chunk_file, 
+                      errno, strerror))
+
     script = os.path.join(self._source_dir, "webkit", "tools", "layout_tests",
                           "run_webkit_tests.py")
     script_cmd = ["python.exe", script, "--run-singly", "-v",
-                  "--noshow-results", "--time-out-ms=200000"]
+                  "--noshow-results", "--time-out-ms=200000",
+                  "--nocheck-sys-deps"]
+    if not run_all:
+      script_cmd.append("--run-chunk=%d:%d" % (chunk_num, chunk_size))
+
     if len(self._args):
       # if the arg is a txt file, then treat it as a list of tests
       if os.path.isfile(self._args[0]) and self._args[0][-4:] == ".txt":
         script_cmd.append("--test-list=%s" % self._args[0])
       else:
         script_cmd.extend(self._args)
-    self.ScriptedTest("webkit", "test_shell.exe", "layout",
-        script_cmd, multi=True, cmd_args=["--timeout=0"])
-    # since layout tests take so long to run, having the test red on buildbot
-    # isn't very useful
-    return 0
+    
+    if run_all:
+      ret = self.ScriptedTest("webkit", "test_shell.exe", "layout",
+                              script_cmd, multi=True, cmd_args=["--timeout=0"])
+      return ret
+
+    # store each chunk in its own directory so that we can find the data later
+    chunk_dir = os.path.join("layout", "chunk_%05d" % chunk_num)
+    ret = self.ScriptedTest("webkit", "test_shell.exe", "layout",
+                            script_cmd, multi=True, cmd_args=["--timeout=0"],
+                            out_dir_extra=chunk_dir)
+
+    # Wait until after the test runs to completion to write out the new chunk
+    # number.  This way, if the bot is killed, we'll start running again from
+    # the current chunk rather than skipping it.
+    try:
+      f = open(chunk_file, "w")
+      chunk_num += 1
+      f.write("%d" % chunk_num)
+      f.close()
+    except IOError, (errno, strerror):
+      logging.error("error writing to file %s (%d, %s)" % (chunk_file, errno,
+                    strerror))
+    # Since we're running small chunks of the layout tests, it's important to
+    # mark the ones that have errors in them.  These won't be visible in the
+    # summary list for long, but will be useful for someone reviewing this bot.
+    return ret
 
   def TestUI(self):
     return self.ScriptedTest("chrome", "chrome.exe", "ui_tests", 
