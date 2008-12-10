@@ -674,6 +674,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Fails in release and debug. Sometimes crashes in debug.
+// Linux pixeltest failure: background is all blue instead of white.
 WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
@@ -819,14 +820,22 @@ WIN : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
 // We should be able to pass this -- not sure what's wrong.
 LINUX WIN : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 
+// Render tree off by a pixel -- margins wrong?  All sizes are correct.
+LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
+
+// Some tests that we had baselined improperly on Windows.
+WIN : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
+WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
+WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
+
+// Font metrics for italics small-caps Helvetica are different.
+LINUX : LayoutTests/css2.1/t1508-c527-font-00-b.html = FAIL
+
+// Font size for arrows are different.  Should we rebaseline?
+LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
+
 // Uncharacterized tests that fail on linux but pass on windows.
 // TODO(port): figure out what's wrong with these and annotate appropriately.
-LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
-LINUX : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
-WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
-LINUX : LayoutTests/css2.1/t1508-c527-font-00-b.html = FAIL
-LINUX : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
-LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 MAC : LayoutTests/editing/deleting/5729680.html = FAIL
 LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 // No focus ring on Linux?
