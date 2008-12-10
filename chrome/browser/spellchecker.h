@@ -78,13 +78,13 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // This function computes a vector of strings which are to be displayed in 
   // the context menu over a text area for changing spell check languages. It
   // returns the index of the current spell check language in the vector.
-  static int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
-      Profile* profile, std::vector<std::wstring>* display_language_list);
+  static int GetSpellCheckLanguagesToDisplayInContextMenu(
+      Profile* profile,
+      std::vector<std::wstring>* display_language_list);
 
+ private:
   // Download dictionary files when required.
   class DictionaryDownloadController;
-
-  SpellChecker::SpellChecker();
 
   // Initializes the Hunspell Dictionary.
   bool Initialize();
@@ -124,7 +124,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   const unsigned char* bdict_mapped_data_;
 
   // The hunspell dictionary in use.
-  Hunspell *hunspell_;
+  Hunspell* hunspell_;
 
   // Represents character attributes used for filtering out characters which
   // are not supported by this SpellChecker object.
@@ -168,7 +168,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // using NewRunableMethod on these objects.
   ScopedRunnableMethodFactory<SpellChecker> dic_download_state_changer_factory_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SpellChecker);
+  DISALLOW_COPY_AND_ASSIGN(SpellChecker);
 };
 
 #endif  // #ifndef CHROME_BROWSER_SPELLCHECKER_H__

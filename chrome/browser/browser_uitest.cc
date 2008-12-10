@@ -256,7 +256,7 @@ TEST_F(BrowserTest, DuplicateTab) {
   ASSERT_TRUE(window_count == initial_window_count);
 
   tab_proxy.reset(browser_proxy->GetTab(1));
-
+  ASSERT_TRUE(tab_proxy != NULL);
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
 
   // Verify the stack of urls.

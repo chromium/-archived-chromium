@@ -115,12 +115,12 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
 
     case IDS_CONTENT_CONTEXT_FORWARD:
       return source_web_contents_->controller()->CanGoForward();
-    case IDS_CONTENT_CONTEXT_RELOAD:
-      return true;
+
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
     case IDS_CONTENT_CONTEXT_INSPECTELEMENT:
       return IsDevCommandEnabled(id);
+
     case IDS_CONTENT_CONTEXT_OPENLINKNEWTAB:
     case IDS_CONTENT_CONTEXT_OPENLINKNEWWINDOW:
     case IDS_CONTENT_CONTEXT_COPYLINKLOCATION:
@@ -137,8 +137,10 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDS_CONTENT_CONTEXT_OPENIMAGENEWTAB:
     case IDS_CONTENT_CONTEXT_COPYIMAGELOCATION:
       return params_.image_url.is_valid();
+
     case IDS_CONTENT_CONTEXT_SAVEPAGEAS:
       return SavePackage::IsSavableURL(source_web_contents_->GetURL());
+
     case IDS_CONTENT_CONTEXT_OPENFRAMENEWTAB:
     case IDS_CONTENT_CONTEXT_OPENFRAMENEWWINDOW:
       return params_.frame_url.is_valid();
@@ -172,6 +174,13 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
       return !source_web_contents_->profile()->IsOffTheRecord() &&
              params_.frame_url.is_valid();
 
+    case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
+      return !params_.misspelled_word.empty();
+
+    case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
+      return (source_web_contents_->controller()->GetActiveEntry() != NULL);
+
+    case IDS_CONTENT_CONTEXT_RELOAD:
     case IDS_CONTENT_CONTEXT_COPYIMAGE:
     case IDS_CONTENT_CONTEXT_PRINT:
     case IDS_CONTENT_CONTEXT_SEARCHWEBFOR:
@@ -180,17 +189,11 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDC_SPELLCHECK_SUGGESTION_2:
     case IDC_SPELLCHECK_SUGGESTION_3:
     case IDC_SPELLCHECK_SUGGESTION_4:
-      return true;
     case IDC_SPELLCHECK_MENU:
-      return true;
-    case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
-      return !params_.misspelled_word.empty();
     case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
-      return true;
-    case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
-      return (source_web_contents_->controller()->GetActiveEntry() != NULL);
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
       return true;
+
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.
@@ -200,14 +203,16 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
 }
 
 bool RenderViewContextMenuController::IsItemChecked(int id) const {
-  std::vector<std::wstring> display_language_vector;
-  int spellcheck_language_index = SpellChecker::
-      GetSpellCheckLanguagesToDisplayInContextMenu(
-          source_web_contents_->profile(), &display_language_vector);
-  if (id - IDC_SPELLCHECK_LANGUAGES_FIRST == spellcheck_language_index)
-    return true;
+  // Don't bother getting the display language vector if this isn't a spellcheck
+  // language.
+  if ((id < IDC_SPELLCHECK_LANGUAGES_FIRST) ||
+      (id >= IDC_SPELLCHECK_LANGUAGES_LAST))
+    return false;
 
-  return false;
+  std::vector<std::wstring> display_language_vector;
+  return SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
+      source_web_contents_->profile(), &display_language_vector) ==
+      (id - IDC_SPELLCHECK_LANGUAGES_FIRST);
 }
 
 bool RenderViewContextMenuController::GetAcceleratorInfo(
@@ -248,20 +253,20 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
   // Check to see if one of the spell check language ids have been clicked.
   if (id >= IDC_SPELLCHECK_LANGUAGES_FIRST &&
       id < IDC_SPELLCHECK_LANGUAGES_LAST) {
+    const size_t language_number = id - IDC_SPELLCHECK_LANGUAGES_FIRST;
     std::vector<std::wstring> display_language_vector; 
     SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
         source_web_contents_->profile(), &display_language_vector);
-    if (id - IDC_SPELLCHECK_LANGUAGES_FIRST < 
-        static_cast<int>(display_language_vector.size())) {
+    if (language_number < display_language_vector.size()) {
       StringPrefMember dictionary_language;
       dictionary_language.Init(prefs::kSpellCheckDictionary,
           source_web_contents_->profile()->GetPrefs(), NULL);
-      dictionary_language.SetValue(display_language_vector.at(
-          id - IDC_SPELLCHECK_LANGUAGES_FIRST));
+      dictionary_language.SetValue(display_language_vector[language_number]);
     }
       
     return;
   }
+
   switch (id) {
     case IDS_CONTENT_CONTEXT_OPENLINKNEWTAB:
       OpenURL(params_.link_url, NEW_BACKGROUND_TAB, PageTransition::LINK);

@@ -610,18 +610,20 @@ void BrowserToolbarView::OnGetProfilesDone(
   // Store the latest list of profiles in the browser.
   browser_->set_user_data_dir_profiles(profiles);
 
-  std::vector<std::wstring>::const_iterator iter = profiles.begin();
   // Add direct sub menu items for profiles.
+  std::vector<std::wstring>::const_iterator iter = profiles.begin();
   for (int i = IDC_NEW_WINDOW_PROFILE_0;
-       i <= IDC_NEW_WINDOW_PROFILE_LAST && iter != profiles.end();
+       (i <= IDC_NEW_WINDOW_PROFILE_LAST) && (iter != profiles.end());
        ++i, ++iter)
     profiles_menu_->AppendMenuItemWithLabel(i, *iter);
+
   // If there are more profiles then show "Other" link.
   if (iter != profiles.end()) {
     profiles_menu_->AppendSeparator();
     profiles_menu_->AppendMenuItemWithLabel(
         IDC_SELECT_PROFILE, l10n_util::GetString(IDS_SELECT_PROFILE));
   }
+
   // Always show a link to select a new profile.
   profiles_menu_->AppendSeparator();
   profiles_menu_->AppendMenuItemWithLabel(

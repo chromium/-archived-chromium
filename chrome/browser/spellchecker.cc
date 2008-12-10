@@ -75,11 +75,8 @@ const wchar_t* const g_supported_spellchecker_languages[] = {
 }
 
 void SpellChecker::SpellCheckLanguages(std::vector<std::wstring>* languages) {
-  for (size_t i = 0;
-       i < arraysize(g_supported_spellchecker_languages);
-       i++) {
+  for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i)
     languages->push_back(g_supported_spellchecker_languages[i]);
-  }
 }
 
 std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
@@ -98,15 +95,12 @@ std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
   // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
   // locale ids with a script code in the middle, yet.
   // TODO(jungshik): Add a better fallback.
-  std::wstring::size_type hyphen_pos = language.find(L'-');
-  std::wstring language_part(language, 0, hyphen_pos);
+  std::wstring language_part(language, 0, language.find(L'-'));
   for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-    std::wstring spellchecker_language_name =
-      g_supported_spellchecker_languages[i];
-    std::wstring::size_type hyphen_pos = spellchecker_language_name.find(L'-');
-    std::wstring spellcheck_language(spellchecker_language_name, 0, hyphen_pos);
-    if (spellcheck_language == language_part)
-      return spellchecker_language_name;
+    std::wstring spellcheck_language(g_supported_spellchecker_languages[i]);
+    if (spellcheck_language.substr(0, spellcheck_language.find(L'-')) ==
+        language_part)
+      return spellcheck_language;
   } 
 
   // No match found - return blank.
@@ -114,35 +108,32 @@ std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
 }
 
 int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
-    Profile* profile, std::vector<std::wstring>* display_language_list) {
-  std::vector<std::wstring> language_list;
-  StringPrefMember accept_languages;
-  StringPrefMember dictionary_language;
-  accept_languages.Init(prefs::kAcceptLanguages, 
-      profile->GetPrefs(), NULL);
-  dictionary_language.Init(prefs::kSpellCheckDictionary,
-      profile->GetPrefs(), NULL);
+    Profile* profile,
+    std::vector<std::wstring>* display_language_list) {
+  StringPrefMember accept_languages_pref;
+  StringPrefMember dictionary_language_pref;
+  accept_languages_pref.Init(prefs::kAcceptLanguages, profile->GetPrefs(),
+                             NULL);
+  dictionary_language_pref.Init(prefs::kSpellCheckDictionary,
+                                profile->GetPrefs(), NULL);
+  std::wstring dictionary_language(dictionary_language_pref.GetValue());
 
   // The current dictionary language should be there.
-  display_language_list->push_back(dictionary_language.GetValue().c_str());
+  display_language_list->push_back(dictionary_language);
 
   // Now scan through the list of accept languages, and find possible mappings
   // from this list to the existing list of spell check languages.
   std::vector<std::wstring> accept_language_vector;
-  SplitString(accept_languages.GetValue(), L',', &accept_language_vector);
-  for (size_t i = 0; i < accept_language_vector.size(); i++) {
+  SplitString(accept_languages_pref.GetValue(), L',', &accept_language_vector);
+  for (size_t i = 0; i < accept_language_vector.size(); ++i) {
     std::wstring language = GetCorrespondingSpellCheckLanguage(
-        accept_language_vector.at(i));
+        accept_language_vector[i]);
     if (!language.empty()) {
       // Check for duplication.
-      bool duplicate = false;
-      for (size_t j = 0; j < display_language_list->size(); j++) {
-        if (display_language_list->at(j) == language)
-          duplicate = true;
-      }
-
-      if (!duplicate)
-        display_language_list->push_back(language.c_str());
+      if (std::find(display_language_list->begin(),
+                    display_language_list->end(), language) ==
+          display_language_list->end())
+        display_language_list->push_back(language);
     }
   }
 
@@ -150,13 +141,12 @@ int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
   l10n_util::SortStrings(g_browser_process->GetApplicationLocale(),
                          display_language_list);
 
-  int current_spell_check_language_index = -1;
-  for (size_t i = 0; i < display_language_list->size(); i++) {
-    if (dictionary_language.GetValue() == display_language_list->at(i))
-      current_spell_check_language_index = i;
+  for (size_t i = 0; i < display_language_list->size(); ++i) {
+    if ((*display_language_list)[i] == dictionary_language)
+      return i;
   }
 
-  return current_spell_check_language_index;
+  return -1;
 }
 
 // This is a helper class which acts as a proxy for invoking a task from the
@@ -341,8 +331,8 @@ std::wstring SpellChecker::GetVersionedFileName(const std::wstring& language,
   std::wstring versioned_bdict_file_name(language + kDefaultVersionString +
                                          L".bdic");
   std::string language_string(WideToUTF8(language));
-  for (int i = 0; i < arraysize(special_version_string); i++ ) {
-    if (language_string.compare(special_version_string[i].language) == 0) {
+  for (int i = 0; i < arraysize(special_version_string); ++i) {
+    if (language_string == special_version_string[i].language) {
       versioned_bdict_file_name = 
           language + UTF8ToWide(special_version_string[i].version) + L".bdic";
       break;
@@ -430,7 +420,7 @@ bool SpellChecker::Initialize() {
   // Return false if tried to init and failed - don't try multiple times in
   // this session.
   if (tried_to_init_)
-    return hunspell_ != NULL ? true : false;
+    return hunspell_ != NULL;
 
   StatsScope<StatsCounterTimer> timer(chrome::Counters::spellcheck_init());
 
@@ -439,13 +429,10 @@ bool SpellChecker::Initialize() {
     if (file_loop_ && !tried_to_download_ && url_request_context_) {
       Task* dic_task = dic_download_state_changer_factory_.NewRunnableMethod(
           &SpellChecker::set_file_is_downloading, false);
-      ddc_dic_ = new DictionaryDownloadController(dic_task,
-                                                  bdict_file_name_,
-                                                  url_request_context_,
-                                                  ui_loop_);
+      ddc_dic_ = new DictionaryDownloadController(dic_task, bdict_file_name_,
+          url_request_context_, ui_loop_);
       set_file_is_downloading(true);
-      file_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-          ddc_dic_.get(),
+      file_loop_->PostTask(FROM_HERE, NewRunnableMethod(ddc_dic_.get(),
           &DictionaryDownloadController::StartDownload));
     }
   }
@@ -457,16 +444,13 @@ bool SpellChecker::Initialize() {
 
   // Control has come so far - both files probably exist.
   TimeTicks begin_time = TimeTicks::Now();
-
   const unsigned char* bdict_data;
   size_t bdict_length;
   if (MapBdictFile(&bdict_data, &bdict_length)) {
     hunspell_ = new Hunspell(bdict_data, bdict_length);
     AddCustomWordsToHunspell();
   }
-
-  TimeTicks end_time = TimeTicks::Now();
-  DHISTOGRAM_TIMES(L"Spellcheck.InitTime", end_time - begin_time);
+  DHISTOGRAM_TIMES(L"Spellcheck.InitTime", TimeTicks::Now() - begin_time);
 
   tried_to_init_ = true;
   return false;
@@ -483,8 +467,8 @@ void SpellChecker::AddCustomWordsToHunspell() {
   SplitString(contents, '\n', &list_of_words);
   if (hunspell_) {
     for (std::vector<std::string>::iterator it = list_of_words.begin();
-         it < list_of_words.end(); ++it) {
-      hunspell_->put_word((*it).c_str());
+         it != list_of_words.end(); ++it) {
+      hunspell_->put_word(it->c_str());
     }
   }
 }
@@ -494,10 +478,10 @@ bool SpellChecker::MapBdictFile(const unsigned char** data, size_t* length) {
       FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if (bdict_file_ == INVALID_HANDLE_VALUE)
     return false;
-  DWORD size = GetFileSize(bdict_file_, NULL);
 
-  bdict_mapping_ = CreateFileMapping(bdict_file_, NULL, PAGE_READONLY, 0,
-                                     size, NULL);
+  DWORD size = GetFileSize(bdict_file_, NULL);
+  bdict_mapping_ =
+      CreateFileMapping(bdict_file_, NULL, PAGE_READONLY, 0, size, NULL);
   if (!bdict_mapping_) {
     CloseHandle(bdict_file_);
     bdict_file_ = NULL;
@@ -525,11 +509,12 @@ bool SpellChecker::MapBdictFile(const unsigned char** data, size_t* length) {
 // (e.g. "in'n'out") but each word is valid.
 bool SpellChecker::IsValidContraction(const std::wstring& contraction) {
   SpellcheckWordIterator word_iterator;
+  word_iterator.Initialize(&character_attributes_, contraction.c_str(),
+                           contraction.length(), false);
+
   std::wstring word;
   int word_start;
   int word_length;
-  word_iterator.Initialize(&character_attributes_, contraction.c_str(),
-                           contraction.length(), false);
   while (word_iterator.GetNextWord(&word, &word_start, &word_length)) {
     if (!hunspell_->spell(WideToUTF8(word).c_str()))
       return false;
@@ -570,18 +555,18 @@ bool SpellChecker::SpellCheckWord(
   std::wstring word;
   int word_start;
   int word_length;
-  word_iterator.Initialize(&character_attributes_, in_word, in_word_len,
-                           true);
+  word_iterator.Initialize(&character_attributes_, in_word, in_word_len, true);
   while (word_iterator.GetNextWord(&word, &word_start, &word_length)) {
     // Found a word (or a contraction) that hunspell can check its spelling.
     std::string encoded_word = WideToUTF8(word);
 
-    TimeTicks begin_time = TimeTicks::Now();
-    bool word_ok = !!hunspell_->spell(encoded_word.c_str());
-    DHISTOGRAM_TIMES(L"Spellcheck.CheckTime", TimeTicks::Now() - begin_time);
-
-    if (word_ok)
-      continue;
+    {
+      TimeTicks begin_time = TimeTicks::Now();
+      bool word_ok = !!hunspell_->spell(encoded_word.c_str());
+      DHISTOGRAM_TIMES(L"Spellcheck.CheckTime", TimeTicks::Now() - begin_time);
+      if (word_ok)
+        continue;
+    }
 
     // If the given word is a concatenated word of two or more valid words
     // (e.g. "hello:hello"), we should treat it as a valid word.
@@ -593,7 +578,7 @@ bool SpellChecker::SpellCheckWord(
 
     // Get the list of suggested words.
     if (optional_suggestions) {
-      char **suggestions;
+      char** suggestions;
       TimeTicks begin_time = TimeTicks::Now();
       int number_of_suggestions = hunspell_->suggest(&suggestions,
                                                      encoded_word.c_str());
@@ -610,6 +595,7 @@ bool SpellChecker::SpellCheckWord(
     }
     return false;
   }
+
   return true;
 }
 
@@ -649,13 +635,11 @@ void SpellChecker::AddWord(const std::wstring& word) {
   if (!word_to_add.empty())
     hunspell_->put_word(word_to_add.c_str());
 
-  // Now add the word to the custom dictionary file in the file loop.
-  if (file_loop_) {
-    file_loop_->PostTask(FROM_HERE, new AddWordToCustomDictionaryTask(
-        custom_dictionary_file_name_, word));
-  } else {  // just run it in this thread.
-    Task* write_word_task = new AddWordToCustomDictionaryTask(
-        custom_dictionary_file_name_, word);
+  // Now add the word to the custom dictionary file.
+  Task* write_word_task =
+      new AddWordToCustomDictionaryTask(custom_dictionary_file_name_, word);
+  if (file_loop_)
+    file_loop_->PostTask(FROM_HERE, write_word_task);
+  else
     write_word_task->Run();
-  }
 }
