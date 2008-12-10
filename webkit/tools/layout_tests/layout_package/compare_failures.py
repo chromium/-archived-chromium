@@ -30,7 +30,7 @@ def PrintFilesFromSet(filenames, header_text, output, opt_expectations=None):
   filenames.sort()
   output.write("\n")
   output.write("%s (%d):\n" % (header_text, len(filenames)))
-  output_string = "%s"
+  output_string = "  %s"
   if opt_expectations:
     output_string += " = %s" % opt_expectations
   output_string += "\n"
