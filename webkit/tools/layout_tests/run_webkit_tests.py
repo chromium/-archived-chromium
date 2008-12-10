@@ -37,6 +37,7 @@ from layout_package import compare_failures
 from layout_package import test_expectations
 from layout_package import http_server
 from layout_package import path_utils
+from layout_package import platform_utils
 from layout_package import test_failures
 from layout_package import test_shell_thread
 from test_types import fuzzy_image_diff
@@ -75,10 +76,27 @@ class TestRunner:
     self._http_server = http_server.Lighttpd(options.results_directory)
     # a list of TestType objects
     self._test_types = []
+
     # a set of test files
     self._test_files = set()
-
+    self._file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
+    self._file_dir = path_utils.GetAbsolutePath(self._file_dir)
     self._GatherTestFiles(paths)
+
+    if options.lint_test_files:
+      # Creating the expecations for each platform/target pair does all the
+      # test list parsing and ensures it's correct syntax(e.g. no dupes).
+      self._ParseExpectations('win', is_debug_mode=True)
+      self._ParseExpectations('win', is_debug_mode=False)
+      self._ParseExpectations('mac', is_debug_mode=True)
+      self._ParseExpectations('mac', is_debug_mode=False)
+      self._ParseExpectations('linux', is_debug_mode=True)
+      self._ParseExpectations('linux', is_debug_mode=False)
+    else:
+      self._expectations = self._ParseExpectations(
+          platform_utils.GetTestListPlatformName().lower(),
+          options.target == 'Debug')
+      self._GenerateExpecationsAndPrintOutput()
 
   def __del__(self):
     sys.stdout.flush()
@@ -87,9 +105,7 @@ class TestRunner:
     self._http_server.Stop()
 
   def _GatherTestFiles(self, paths):
-    """Generate a set of test files and place them in self._test_files, with
-    appropriate subsets in self._ignored_failures, self._fixable_failures,
-    and self._fixable_crashes.
+    """Generate a set of test files and place them in self._test_files
 
     Args:
       paths: a list of command line paths relative to the webkit/tests
@@ -123,6 +139,20 @@ class TestRunner:
             filename = os.path.normpath(filename)
             self._test_files.add(filename)
 
+  def _ParseExpectations(self, platform, is_debug_mode):
+    """Parse the expectations from the test_list files and return a data
+    structure holding them. Throws an error if the test_list files have invalid
+    syntax.
+    """
+    return test_expectations.TestExpectations(self._test_files,
+                                              self._file_dir,
+                                              platform,
+                                              is_debug_mode)
+
+  def _GenerateExpecationsAndPrintOutput(self):
+    """Create appropriate subsets of self._tests_files in 
+    self._ignored_failures, self._fixable_failures, and self._fixable_crashes.
+    """
     # Filter and sort out files from the skipped, ignored, and fixable file
     # lists.
     saved_test_files = set()
@@ -131,27 +161,10 @@ class TestRunner:
       # to sort it.  So we save it to add back to the list later.
       saved_test_files = self._test_files
 
-    # We first check the platform specific sub directory for the test lists.
-    # If the platform specific sub dir doesn't exist, we fall back to the
-    # TEST_FILE_DIR directory.  Once we're all using the same test list, we
-    # can remove this fallback.
-    file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
-    file_dir = os.path.join(file_dir, path_utils.TestListPlatformDir())
-    file_dir = path_utils.GetAbsolutePath(file_dir)
-    if not os.path.exists(os.path.join(file_dir,
-        test_expectations.TestExpectations.FIXABLE)):
-      file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
-      file_dir = path_utils.GetAbsolutePath(file_dir)
-
-    is_debug_mode = self._options.target == 'Debug'
-    expectations = test_expectations.TestExpectations(self._test_files,
-                                                      file_dir,
-                                                      is_debug_mode)
-
     # Remove skipped - both fixable and ignored - files from the
     # top-level list of files to test.
-    skipped = (expectations.GetFixableSkipped() |
-               expectations.GetIgnoredSkipped())
+    skipped = (self._expectations.GetFixableSkipped() |
+               self._expectations.GetIgnoredSkipped())
 
     self._test_files -= skipped
 
@@ -164,20 +177,16 @@ class TestRunner:
     logging.info('Skipped tests do not appear in any of the below numbers\n')
     logging.info('Expected passes: %d tests' %
                  len(self._test_files -
-                     expectations.GetFixable() -
-                     expectations.GetIgnored()))
+                     self._expectations.GetFixable() -
+                     self._expectations.GetIgnored()))
     logging.info(('Expected failures: %d fixable, %d ignored') %
-                 (len(expectations.GetFixableFailures()),
-                  len(expectations.GetIgnoredFailures())))
+                 (len(self._expectations.GetFixableFailures()),
+                  len(self._expectations.GetIgnoredFailures())))
     logging.info(('Expected timeouts: %d fixable, %d ignored') %
-                 (len(expectations.GetFixableTimeouts()),
-                  len(expectations.GetIgnoredTimeouts())))
+                 (len(self._expectations.GetFixableTimeouts()),
+                  len(self._expectations.GetIgnoredTimeouts())))
     logging.info('Expected crashes: %d fixable tests' %
-                 len(expectations.GetFixableCrashes()))
-
-    # Store the expectations in this object to allow it to be used to
-    # track regressions and print results.
-    self._expectations = expectations
+                 len(self._expectations.GetFixableCrashes()))
 
   def _HasSupportedExtension(self, filename):
     """Return true if filename is one of the file extensions we want to run a
@@ -513,7 +522,6 @@ def ReadTestFiles(files):
       if line: tests.append(line)
   return tests
 
-
 def main(options, args):
   """Run the tests.  Will call sys.exit when complete.
 
@@ -521,9 +529,6 @@ def main(options, args):
     options: a dictionary of command line options
     args: a list of sub directories or files to test
   """
-  if options.sources:
-    options.verbose = True
-
   # Set up our logging format.
   log_level = logging.INFO
   if options.verbose:
@@ -538,6 +543,25 @@ def main(options, args):
       options.target = "Debug"
     else:
       options.target = "Release"
+
+  # Include all tests if none are specified.
+  paths = args
+  if not paths:
+    paths = []
+  if options.test_list:
+    paths += ReadTestFiles(options.test_list)
+  if not paths:
+    paths = ['.']
+
+  test_runner = TestRunner(options, paths)
+
+  if options.lint_test_files:
+    # Just creating the TestRunner checks the syntax of the test lists.
+    logging.info("SUCCESS")
+    return
+
+  if options.sources:
+    options.verbose = True
 
   if options.platform is None:
     options.platform = path_utils.PlatformDir()
@@ -593,15 +617,6 @@ def main(options, args):
   # layout test results, so just use 1 test_shell for now.
   options.num_test_shells = 1
 
-  # Include all tests if none are specified.
-  paths = []
-  if args:
-    paths += args
-  if options.test_list:
-    paths += ReadTestFiles(options.test_list)
-  if not paths:
-    paths = ['.']
-  test_runner = TestRunner(options, paths)
   test_runner.AddTestType(text_diff.TestTextDiff)
   test_runner.AddTestType(simplified_text_diff.SimplifiedTextDiff)
   if not options.no_pixel_tests:
@@ -636,6 +651,10 @@ if '__main__' == __name__:
   option_parser.add_option("", "--full-results-html", action="store_true",
                            default=False, help="show all failures in"
                            "results.html, rather than only regressions")
+  option_parser.add_option("", "--lint-test-files", action="store_true",
+                           default=False, help="Makes sure the test files"
+                           "parse for all configurations. Does not run any"
+                           "tests.")
   option_parser.add_option("", "--nocompare-failures", action="store_true",
                            default=False,
                            help="Disable comparison to the last test run. "
