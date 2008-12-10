@@ -104,12 +104,18 @@ void GetBookmarksMatchingText(BookmarkModel* model,
                               size_t max_count,
                               std::vector<TitleMatch>* matches);
 
-// Returns true if the specified bookmark's title matches the specified
-// text.
-bool DoesBookmarkMatchText(const std::wstring& text, BookmarkNode* node);
-
 // Returns true if |n1| was added more recently than |n2|.
 bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2);
+
+// Returns up to |max_count| bookmarks from |model| whose url or title contains
+// the text |text|.
+void GetBookmarksContainingText(BookmarkModel* model,
+                                const std::wstring& text,
+                                size_t max_count,
+                                std::vector<BookmarkNode*>* nodes);
+
+// Returns true if |node|'s url or title contains the string |text|.
+bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text);
 
 // Number of bookmarks we'll open before prompting the user to see if they
 // really want to open all.

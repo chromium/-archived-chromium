@@ -204,18 +204,15 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
                            const std::wstring& search_text)
       : VectorBackedBookmarkTableModel(model),
         search_text_(search_text) {
-    std::vector<bookmark_utils::TitleMatch> matches;
-    bookmark_utils::GetBookmarksMatchingText(
-        model, search_text, std::numeric_limits<int>::max(), &matches);
-    for (size_t i = 0; i < matches.size(); ++i)
-      nodes().push_back(matches[i].node);
+    bookmark_utils::GetBookmarksContainingText(
+        model, search_text, std::numeric_limits<int>::max(), &nodes());
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
                                  BookmarkNode* parent,
                                  int index) {
     BookmarkNode* node = parent->GetChild(index);
-    if (bookmark_utils::DoesBookmarkMatchText(search_text_, node)) {
+    if (bookmark_utils::DoesBookmarkContainText(node, search_text_)) {
       nodes().push_back(node);
       if (observer())
         observer()->OnItemsAdded(static_cast<int>(nodes().size() - 1), 1);

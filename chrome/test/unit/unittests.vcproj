@@ -239,6 +239,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestBookmarkUtils"
+			>
+			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_utils_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestGoogleURLTracker"
 			>
 			<File

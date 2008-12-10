@@ -4,6 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 
+#include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -144,6 +145,26 @@ bool ShouldOpenAll(HWND parent, const std::vector<BookmarkNode*>& nodes) {
 // Comparison function that compares based on date modified of the two nodes.
 bool MoreRecentlyModified(BookmarkNode* n1, BookmarkNode* n2) {
   return n1->date_group_modified() > n2->date_group_modified();
+}
+
+// Returns true if |text| contains each string in |words|. This is used when
+// searching for bookmarks.
+bool DoesBookmarkTextContainWords(const std::wstring& text,
+                                  const std::vector<std::wstring>& words) {
+  for (size_t i = 0; i < words.size(); ++i) {
+    if (text.find(words[i]) == std::wstring::npos)
+      return false;
+  }
+  return true;
+}
+
+// Returns true if |node|s title or url contains the strings in |words|.
+bool DoesBookmarkContainWords(BookmarkNode* node,
+                              const std::vector<std::wstring>& words) {
+  return
+      DoesBookmarkTextContainWords(
+          l10n_util::ToLower(node->GetTitle()), words) ||
+      DoesBookmarkTextContainWords(UTF8ToWide(node->GetURL().spec()), words);
 }
 
 }  // namespace
@@ -369,9 +390,6 @@ void GetBookmarksMatchingText(BookmarkModel* model,
   Snippet::MatchPositions match_position;
   while (iterator.has_next()) {
     BookmarkNode* node = iterator.Next();
-    if (node->GetURL().spec() == "http://www.google.com/") {
-      DLOG(INFO) << "BLAH";
-    }
     if (node->is_url() &&
         parser.DoesQueryMatch(node->GetTitle(), query_nodes.get(),
                               &match_position)) {
@@ -384,23 +402,39 @@ void GetBookmarksMatchingText(BookmarkModel* model,
   }
 }
 
-bool DoesBookmarkMatchText(const std::wstring& text, BookmarkNode* node) {
-  if (!node->is_url())
-    return false;
-
-  QueryParser parser;
-  ScopedVector<QueryNode> query_nodes;
-  parser.ParseQuery(text, &query_nodes.get());
-  if (query_nodes.empty())
-    return false;
-
-  Snippet::MatchPositions match_position;
-  return parser.DoesQueryMatch(node->GetTitle(), query_nodes.get(),
-                               &match_position);
-}
-
 bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
   return n1->date_added() > n2->date_added();
+}
+
+void GetBookmarksContainingText(BookmarkModel* model,
+                                const std::wstring& text,
+                                size_t max_count,
+                                std::vector<BookmarkNode*>* nodes) {
+  std::vector<std::wstring> words;
+  QueryParser parser;
+  parser.ExtractQueryWords(l10n_util::ToLower(text), &words);
+  if (words.empty())
+    return;
+
+  views::TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  while (iterator.has_next()) {
+    BookmarkNode* node = iterator.Next();
+    if (node->is_url() && DoesBookmarkContainWords(node, words)) {
+      nodes->push_back(node);
+      if (nodes->size() == max_count)
+        return;
+    }
+  }
+}
+
+bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text) {
+  std::vector<std::wstring> words;
+  QueryParser parser;
+  parser.ExtractQueryWords(l10n_util::ToLower(text), &words);
+  if (words.empty())
+    return false;
+
+  return (node->is_url() && DoesBookmarkContainWords(node, words));
 }
 
 }  // namespace bookmark_utils
