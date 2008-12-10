@@ -837,7 +837,6 @@ MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 LINUX MAC : LayoutTests/fast/block/basic/011.html = FAIL
 LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
-LINUX : LayoutTests/fast/css/acid2-pixel.html = FAIL
 LINUX : LayoutTests/fast/css/acid2.html = FAIL
 LINUX : LayoutTests/fast/css/css2-system-fonts.html = FAIL
 LINUX : LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
@@ -1193,7 +1192,7 @@ chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // Linux pixeltest failure: Large areas of the page are missing
-LINUX MAC WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
+MAC WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
 LayoutTests/editing/deleting/smart-editing-disabled.html = FAIL
