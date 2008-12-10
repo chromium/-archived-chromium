@@ -42,11 +42,14 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
     return result;
   }
 
-  net::ProxyResolverWinHttp proxy_resolver;
-  net::ProxyService proxy_service(&proxy_resolver);
-  net::ProxyInfo proxy_info;
+  scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::Create(NULL));
+  if (!proxy_service.get()) {
+    NOTREACHED();
+    return result;
+  }
 
-  if (proxy_service.ResolveProxy(GURL(std::string(url)),
+  net::ProxyInfo proxy_info;
+  if (proxy_service->ResolveProxy(GURL(std::string(url)),
                                  &proxy_info,
                                  NULL,
                                  NULL) == net::OK) {
