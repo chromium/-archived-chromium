@@ -8,7 +8,7 @@
 #include <vector>
 
 // avoid confusion with Mac OS X's math library (Carbon)
-#if defined(OS_MACOSX)
+#if defined(__APPLE__)
 #undef FloatToFixed
 #endif
 
