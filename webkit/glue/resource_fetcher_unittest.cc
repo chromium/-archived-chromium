@@ -79,6 +79,15 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
                            &FetcherDelegate::TimerCallback);
 #elif defined(OS_LINUX)
     timer_id_ = g_timeout_add(interval, &FetcherDelegate::TimerCallback, NULL);
+#elif defined(OS_MACOSX)
+    // CFAbsoluteTime is in seconds and |interval| is in ms, so make sure we
+    // keep the units correct.
+    CFTimeInterval interval_in_seconds = static_cast<double>(interval) / 1000.0;
+    CFAbsoluteTime fire_date = 
+        CFAbsoluteTimeGetCurrent() + interval_in_seconds;
+    timer_id_ = CFRunLoopTimerCreate(NULL, fire_date, interval_in_seconds, 0, 
+                                     0, FetcherDelegate::TimerCallback, NULL);
+    CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer_id_, kCFRunLoopCommonModes);
 #endif
   }
 
@@ -87,6 +96,10 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
     ::KillTimer(NULL, timer_id_);
 #elif defined(OS_LINUX)
     g_source_remove(timer_id_);
+#elif defined(OS_MACOSX)
+    CFRunLoopRemoveTimer(CFRunLoopGetCurrent(), timer_id_, 
+                         kCFRunLoopCommonModes);
+    CFRelease(timer_id_);
 #endif
   }
 
@@ -100,6 +113,10 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
   static gboolean TimerCallback(gpointer data) {
     instance_->TimerFired();
     return true;
+  }
+#elif defined(OS_MACOSX)
+  static void TimerCallback(CFRunLoopTimerRef timer, void* info) {
+    instance_->TimerFired();
   }
 #endif
 
@@ -123,6 +140,8 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
   UINT_PTR timer_id_;
 #elif defined(OS_LINUX)
   guint timer_id_;
+#elif defined(OS_MACOSX)
+  CFRunLoopTimerRef timer_id_;
 #endif
   bool completed_;
   int time_elapsed_ms_;
@@ -131,8 +150,6 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
 };
 
 FetcherDelegate* FetcherDelegate::instance_ = NULL;
-
-}  // namespace
 
 // Test a fetch from the test server.
 TEST_F(ResourceFetcherTests, ResourceFetcherDownload) {
@@ -215,3 +232,4 @@ TEST_F(ResourceFetcherTests, ResourceFetcherTimeout) {
   EXPECT_TRUE(delegate->time_elapsed_ms() < kMaxWaitTimeMs);
 }
 
+}  // namespace

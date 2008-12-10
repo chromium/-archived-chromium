@@ -234,8 +234,6 @@ bool IsMetaElement(const WebCore::Node* node, WebCore::String* charset_info) {
   return true;
 }
 
-}  // namespace
-
 // If original contents have document type, the serialized contents also have
 // document type.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
@@ -682,3 +680,5 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
     WideToUTF8(webkit_glue::StringToStdWString(doc->baseURL())));
   ASSERT_EQ(new_base_url, path_dir_url);
 }
+
+}  // namespace

@@ -117,7 +117,6 @@ class PasswordManagerAutocompleteTests : public testing::Test {
   std::wstring password2_;
   PasswordFormDomManager::FillData data_;
 };
-}  // namespace
 
 TEST_F(PasswordManagerAutocompleteTests, OnBlur) {
   TestHTMLInputDelegate* username_delegate = new TestHTMLInputDelegate();
@@ -242,3 +241,5 @@ TEST_F(PasswordManagerAutocompleteTests, TestWaitUsername) {
   EXPECT_EQ(empty, username_delegate->value());
   EXPECT_EQ(password1_, password_delegate->value());
 }
+
+}  // namespace

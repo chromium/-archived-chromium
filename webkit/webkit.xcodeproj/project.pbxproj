@@ -562,6 +562,9 @@
 		E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
 		E45063BA0E4104700025A81A /* localized_strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051A0D92E3DA0006B936 /* localized_strings.cc */; };
+		E4506C0C0EF039DE003BE099 /* dom_serializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506C0A0EF039DE003BE099 /* dom_serializer.cc */; };
+		E4506C100EF03A2F003BE099 /* entity_map.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506C0F0EF03A2F003BE099 /* entity_map.cc */; };
+		E4506C170EF03AB5003BE099 /* cpp_binding_example.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404F70D92E3DA0006B936 /* cpp_binding_example.cc */; };
 		E45623790E268E87005E4685 /* AXObjectCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88AF0D7F39E1001ECF42 /* AXObjectCache.cpp */; };
 		E456237D0E268E87005E4685 /* CSSBorderImageValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88CE0D7F3A08001ECF42 /* CSSBorderImageValue.cpp */; };
 		E456237E0E268E87005E4685 /* CSSCharsetRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88D00D7F3A08001ECF42 /* CSSCharsetRule.cpp */; };
@@ -4218,6 +4221,10 @@
 		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = "<group>"; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
 		E45062E00E40B5420025A81A /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkiaUtils.h; sourceTree = "<group>"; };
+		E4506C0A0EF039DE003BE099 /* dom_serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_serializer.cc; sourceTree = "<group>"; };
+		E4506C0B0EF039DE003BE099 /* dom_serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_serializer.h; sourceTree = "<group>"; };
+		E4506C0E0EF03A2F003BE099 /* entity_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = entity_map.h; sourceTree = "<group>"; };
+		E4506C0F0EF03A2F003BE099 /* entity_map.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = entity_map.cc; sourceTree = "<group>"; };
 		E45626950E268E87005E4685 /* libwebcore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45627150E268F03005E4685 /* libglue.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libglue.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45627F40E2694B8005E4685 /* libport.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libport.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -7463,10 +7470,14 @@
 				825405050D92E3DA0006B936 /* dom_operations.cc */,
 				825405060D92E3DA0006B936 /* dom_operations.h */,
 				825405040D92E3DA0006B936 /* dom_operations_unittest.cc */,
+				E4506C0A0EF039DE003BE099 /* dom_serializer.cc */,
+				E4506C0B0EF039DE003BE099 /* dom_serializer.h */,
 				825405070D92E3DA0006B936 /* dragclient_impl.cc */,
 				825405080D92E3DA0006B936 /* dragclient_impl.h */,
 				825405090D92E3DA0006B936 /* editor_client_impl.cc */,
 				8254050A0D92E3DA0006B936 /* editor_client_impl.h */,
+				E4506C0E0EF03A2F003BE099 /* entity_map.h */,
+				E4506C0F0EF03A2F003BE099 /* entity_map.cc */,
 				8254050B0D92E3DA0006B936 /* event_conversion.cc */,
 				8254050C0D92E3DA0006B936 /* event_conversion.h */,
 				8254050F0D92E3DA0006B936 /* feed_preview.cc */,
@@ -9310,11 +9321,14 @@
 				934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */,
 				535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */,
 				E45626FD0E268F03005E4685 /* context_menu_client_impl.cc in Sources */,
+				E4506C170EF03AB5003BE099 /* cpp_binding_example.cc in Sources */,
 				E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */,
 				E45627060E268F03005E4685 /* cpp_variant.cc in Sources */,
 				53E8BE100EC36A4E00B3F8B0 /* dom_operations.cc in Sources */,
+				E4506C0C0EF039DE003BE099 /* dom_serializer.cc in Sources */,
 				E45626FC0E268F03005E4685 /* dragclient_impl.cc in Sources */,
 				E45626FE0E268F03005E4685 /* editor_client_impl.cc in Sources */,
+				E4506C100EF03A2F003BE099 /* entity_map.cc in Sources */,
 				E456270A0E268F03005E4685 /* event_conversion.cc in Sources */,
 				E45628370E269DBB005E4685 /* feed_preview.cc in Sources */,
 				E45626FA0E268F03005E4685 /* glue_serialize.cc in Sources */,

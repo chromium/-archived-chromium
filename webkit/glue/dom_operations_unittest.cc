@@ -34,8 +34,6 @@ class DomOperationsTests : public TestShellTest {
   }
 };
 
-}  // namespace
-
 
 void DomOperationsTests::GetSavableResourceLinksForPage(
     const std::wstring& page_file_path,
@@ -181,3 +179,4 @@ TEST_F(DomOperationsTests, ParseIconSizes) {
   }
 }
 
+}  // namespace

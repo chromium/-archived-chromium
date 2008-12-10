@@ -79,13 +79,11 @@ class NodeLeakTest : public TestShellTest {
   }
 };
 
-}  // namespace
-
 TEST_F(NodeLeakTest, TestURL) {
   CommandLine parsed_command_line;
-
   if (parsed_command_line.HasSwitch(kTestUrlSwitch)) {
     NavigateToURL(parsed_command_line.GetSwitchValue(kTestUrlSwitch).c_str());
   }
 }
 
+}  // namespace

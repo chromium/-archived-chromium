@@ -19,6 +19,7 @@
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
@@ -35,6 +36,7 @@ const char* TestShellTest::kJavascriptDelayExitScript =
   "</script>";
 
 int main(int argc, char* argv[]) {
+  base::ScopedNSAutoreleasePool autorelease_pool;
   base::EnableTerminationOnHeapCorruption();
   // Some unittests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.

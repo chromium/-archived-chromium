@@ -24,8 +24,6 @@ class BookmarkletTest : public TestShellTest {
   }
 };
 
-}
-
 TEST_F(BookmarkletTest, Redirect) {
   test_shell_->LoadURL(L"javascript:location.href='data:text/plain,SUCCESS'");
   test_shell_->WaitTestFinished();
@@ -64,3 +62,4 @@ TEST_F(BookmarkletTest, DocumentWrite) {
   EXPECT_EQ(L"hello world", text);
 }
 
+}  // namespace
