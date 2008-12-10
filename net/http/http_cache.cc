@@ -916,20 +916,20 @@ void HttpCache::Transaction::OnCacheReadCompleted(int result) {
 
 //-----------------------------------------------------------------------------
 
-HttpCache::HttpCache(const ProxyInfo* proxy_info,
+HttpCache::HttpCache(ProxyService* proxy_service,
                      const std::wstring& cache_dir,
                      int cache_size)
     : disk_cache_dir_(cache_dir),
       mode_(NORMAL),
-      network_layer_(HttpNetworkLayer::CreateFactory(proxy_info)),
+      network_layer_(HttpNetworkLayer::CreateFactory(proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
       cache_size_(cache_size) {
 }
 
-HttpCache::HttpCache(const ProxyInfo* proxy_info, int cache_size)
+HttpCache::HttpCache(ProxyService* proxy_service, int cache_size)
     : mode_(NORMAL),
-      network_layer_(HttpNetworkLayer::CreateFactory(proxy_info)),
+      network_layer_(HttpNetworkLayer::CreateFactory(proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(true),
       cache_size_(cache_size) {

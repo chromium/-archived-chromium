@@ -28,13 +28,9 @@ class HttpTransactionWinHttp : public HttpTransaction {
   // Instantiate this class, and use it to create HttpTransaction objects.
   class Factory : public HttpTransactionFactory {
    public:
-    Factory() : session_(NULL), proxy_info_(NULL), is_suspended_(false) {}
-    explicit Factory(const ProxyInfo* info)
-        : session_(NULL), proxy_info_(NULL), is_suspended_(false) {
-      if (info) {
-        proxy_info_.reset(new ProxyInfo());
-        proxy_info_->Use(*info);
-      }
+    explicit Factory(ProxyService* proxy_service)
+        : session_(NULL), proxy_service_(proxy_service), is_suspended_(false) {
+      DCHECK(proxy_service);
     }
     ~Factory();
 
@@ -44,7 +40,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
 
    private:
     Session* session_;
-    scoped_ptr<ProxyInfo> proxy_info_;
+    ProxyService* proxy_service_;
     bool is_suspended_;
     DISALLOW_EVIL_CONSTRUCTORS(Factory);
   };

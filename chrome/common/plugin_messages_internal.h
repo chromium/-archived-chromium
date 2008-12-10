@@ -74,6 +74,13 @@ IPC_BEGIN_MESSAGES(PluginProcessHost, 4)
                               GURL /* url */,
                               std::string /* cookies */)
 
+  // Get the list of proxies to use for |url|, as a semicolon delimited list
+  // of "<TYPE> <HOST>:<PORT>" | "DIRECT".
+  IPC_SYNC_MESSAGE_CONTROL1_2(PluginProcessHostMsg_ResolveProxy,
+                              GURL /* url */,
+                              int /* network error */,
+                              std::string /* proxy list */)
+
 IPC_END_MESSAGES(PluginProcessHost)
 
 

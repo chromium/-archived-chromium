@@ -13,16 +13,17 @@ namespace net {
 
 class HttpNetworkSession;
 class ProxyInfo;
-class ProxyResolver;
+class ProxyService;
 
 class HttpNetworkLayer : public HttpTransactionFactory {
  public:
-  explicit HttpNetworkLayer(const ProxyInfo* pi);
+  // |proxy_service| must remain valid for the lifetime of HttpNetworkLayer.
+  explicit HttpNetworkLayer(ProxyService* proxy_service);
   ~HttpNetworkLayer();
 
   // This function hides the details of how a network layer gets instantiated
   // and allows other implementations to be substituted.
-  static HttpTransactionFactory* CreateFactory(const ProxyInfo* pi);
+  static HttpTransactionFactory* CreateFactory(ProxyService* proxy_service);
 
 #if defined(OS_WIN)
   // If value is true, then WinHTTP will be used.
@@ -39,9 +40,8 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   static bool use_winhttp_;
 #endif
 
-  // The pending proxy resolver to use when lazily creating session_.
-  // NULL afterwards.
-  scoped_ptr<ProxyResolver> proxy_resolver_;
+  // The proxy service being used for the session.
+  ProxyService* proxy_service_;
 
   scoped_refptr<HttpNetworkSession> session_;
   bool suspended_;

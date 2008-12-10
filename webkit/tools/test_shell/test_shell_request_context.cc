@@ -33,12 +33,13 @@ void TestShellRequestContext::Init(
 
   net::ProxyInfo proxy_info;
   proxy_info.UseDirect();
+  proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_info : NULL);
 
   net::HttpCache *cache;
   if (cache_path.empty()) {
-    cache = new net::HttpCache(no_proxy ? &proxy_info : NULL, 0);
+    cache = new net::HttpCache(proxy_service_, 0);
   } else {
-    cache = new net::HttpCache(no_proxy ? &proxy_info : NULL, cache_path, 0);
+    cache = new net::HttpCache(proxy_service_, cache_path, 0);
   }
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;
@@ -47,5 +48,6 @@ void TestShellRequestContext::Init(
 TestShellRequestContext::~TestShellRequestContext() {
   delete cookie_store_;
   delete http_transaction_factory_;
+  delete proxy_service_;
 }
 

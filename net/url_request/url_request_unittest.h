@@ -20,6 +20,8 @@
 #include "net/base/net_errors.h"
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request.h"
+#include "net/proxy/proxy_resolver_null.h"
+#include "net/proxy/proxy_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "googleurl/src/url_util.h"
 
@@ -30,11 +32,14 @@ const std::string kDefaultHostName("localhost");
 class TestURLRequestContext : public URLRequestContext {
  public:
   TestURLRequestContext() {
-    http_transaction_factory_ = net::HttpNetworkLayer::CreateFactory(NULL);
+    proxy_service_ = new net::ProxyService(new net::ProxyResolverNull);
+    http_transaction_factory_ =
+        net::HttpNetworkLayer::CreateFactory(proxy_service_);
   }
 
   virtual ~TestURLRequestContext() {
     delete http_transaction_factory_;
+    delete proxy_service_;
   }
 };
 

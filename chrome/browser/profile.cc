@@ -124,8 +124,10 @@ class ProfileImpl::RequestContext : public URLRequestContext,
     CommandLine command_line;
 
     scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
+    proxy_service_ = net::ProxyService::Create(proxy_info.get());
+
     net::HttpCache* cache =
-        new net::HttpCache(proxy_info.get(), disk_cache_path, 0);
+        new net::HttpCache(proxy_service_, disk_cache_path, 0);
 
     bool record_mode = chrome::kRecordModeEnabled &&
                        CommandLine().HasSwitch(switches::kRecordMode);
@@ -216,6 +218,7 @@ class ProfileImpl::RequestContext : public URLRequestContext,
     DCHECK(NULL == prefs_);
     delete cookie_store_;
     delete http_transaction_factory_;
+    delete proxy_service_;
 
     if (default_request_context_ == this)
       default_request_context_ = NULL;
@@ -251,10 +254,12 @@ class OffTheRecordRequestContext : public URLRequestContext,
     // context to make sure it doesn't go away when we delete the object graph.
     original_context_ = profile->GetRequestContext();
 
-    CommandLine command_line;
-    scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
+    // Share the same proxy service as the original profile. This proxy
+    // service's lifespan is dependent on the lifespan of the original profile,
+    // which we reference (see above).
+    proxy_service_ = original_context_->proxy_service();
 
-    http_transaction_factory_ = new net::HttpCache(NULL, 0);
+    http_transaction_factory_ = new net::HttpCache(proxy_service_, 0);
     cookie_store_ = new net::CookieMonster;
     cookie_policy_.SetType(net::CookiePolicy::FromInt(
         prefs_->GetInteger(prefs::kCookieBehavior)));
@@ -323,6 +328,8 @@ class OffTheRecordRequestContext : public URLRequestContext,
     DCHECK(NULL == prefs_);
     delete cookie_store_;
     delete http_transaction_factory_;
+    // NOTE: do not delete |proxy_service_| as is owned by the original profile.
+   
     // The OffTheRecordRequestContext simply act as a proxy to the real context.
     // There is nothing else to delete.
   }

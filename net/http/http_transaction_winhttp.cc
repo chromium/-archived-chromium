@@ -172,7 +172,7 @@ class HttpTransactionWinHttp::Session
                                  WINHTTP_FLAG_SECURE_PROTOCOL_TLS1
   };
 
-  Session();
+  Session(ProxyService* proxy_service);
 
   // Opens the primary WinHttp session handle.
   bool Init(const std::string& user_agent);
@@ -195,7 +195,7 @@ class HttpTransactionWinHttp::Session
   // The message loop of the thread where the session was created.
   MessageLoop* message_loop() { return message_loop_; }
 
-  ProxyService* proxy_service() { return proxy_service_.get(); }
+  ProxyService* proxy_service() { return proxy_service_; }
 
   // Gets the HTTP authentication cache for the session.
   AuthCache* auth_cache() { return &auth_cache_; }
@@ -240,8 +240,7 @@ class HttpTransactionWinHttp::Session
   HINTERNET internet_;
   HINTERNET internet_no_tls_;
   MessageLoop* message_loop_;
-  scoped_ptr<ProxyService> proxy_service_;
-  scoped_ptr<ProxyResolver> proxy_resolver_;
+  ProxyService* proxy_service_;
   AuthCache auth_cache_;
 
   // This event object is used when destroying a transaction.  It is given
@@ -296,14 +295,12 @@ class HttpTransactionWinHttp::Session
   WinHttpRequestThrottle request_throttle_;
 };
 
-HttpTransactionWinHttp::Session::Session()
+HttpTransactionWinHttp::Session::Session(ProxyService* proxy_service)
     : internet_(NULL),
       internet_no_tls_(NULL),
+      proxy_service_(proxy_service),
       session_callback_ref_count_(0),
       quitting_(false) {
-  proxy_resolver_.reset(new ProxyResolverWinHttp());
-  proxy_service_.reset(new ProxyService(proxy_resolver_.get()));
-
   GetSSLConfig();
 
   // Save the current message loop for callback notifications.
@@ -321,13 +318,6 @@ HttpTransactionWinHttp::Session::Session()
 }
 
 HttpTransactionWinHttp::Session::~Session() {
-  // It is important to shutdown the proxy service before closing the WinHTTP
-  // session handle since the proxy service uses the WinHTTP session handle.
-  proxy_service_.reset();
-
-  // Next, the resolver which also references our session handle.
-  proxy_resolver_.reset();
-
   if (internet_) {
     WinHttpCloseHandle(internet_);
     if (internet_no_tls_)
@@ -745,10 +735,10 @@ HttpTransaction* HttpTransactionWinHttp::Factory::CreateTransaction() {
     return NULL;
 
   if (!session_) {
-    session_ = new Session();
+    session_ = new Session(proxy_service_);
     session_->AddRef();
   }
-  return new HttpTransactionWinHttp(session_, proxy_info_.get());
+  return new HttpTransactionWinHttp(session_, proxy_service_->proxy_info());
 }
 
 HttpCache* HttpTransactionWinHttp::Factory::GetCache() {

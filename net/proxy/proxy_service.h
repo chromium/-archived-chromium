@@ -36,7 +36,7 @@ class ProxyConfig {
   enum { INVALID_ID = 0 };
 
   ProxyConfig();
-  // Default copy-constructor an assignment operator are OK!
+  // Default copy-constructor and assignment operator are OK!
 
   // Used to numerically identify this configuration.
   ID id() const { return id_; }
@@ -55,7 +55,7 @@ class ProxyConfig {
   // Indicates a list of hosts that should bypass any proxy configuration.  For
   // these hosts, a direct connection should always be used.
   std::vector<std::string> proxy_bypass;
-  
+
   // Indicates whether local names (no dots) bypass proxies.
   bool proxy_bypass_local_names;
 
@@ -81,12 +81,11 @@ struct ProxyRetryInfo {
 typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 
 // This class can be used to resolve the proxy server to use when loading a
-// HTTP(S) URL.  It uses to the given ProxyResolver to handle the actual proxy
-// resolution.  See ProxyResolverWinHttp for example.  The consumer of this
-// class is responsible for ensuring that the ProxyResolver instance remains
-// valid for the lifetime of the ProxyService.
+// HTTP(S) URL.  It uses the given ProxyResolver to handle the actual proxy
+// resolution.  See ProxyResolverWinHttp for example.
 class ProxyService {
  public:
+  // The instance takes ownership of |resolver|.
   explicit ProxyService(ProxyResolver* resolver);
 
   // Used internally to handle PAC queries.
@@ -100,7 +99,8 @@ class ProxyService {
   // The caller is responsible for ensuring that |results| and |callback|
   // remain valid until the callback is run or until |pac_request| is cancelled
   // via CancelPacRequest.  |pac_request| is only valid while the completion
-  // callback is still pending.
+  // callback is still pending. NULL can be passed for |pac_request| if
+  // the caller will not need to cancel the request.
   //
   // We use the three possible proxy access types in the following order, and
   // we only use one of them (no falling back to other access types if the
@@ -120,6 +120,9 @@ class ProxyService {
   // to ResolveProxy.  The semantics of this call are otherwise similar to
   // ResolveProxy.
   //
+  // NULL can be passed for |pac_request| if the caller will not need to
+  // cancel the request.
+  //
   // Returns ERR_FAILED if there is not another proxy config to try.
   //
   int ReconsiderProxyAfterError(const GURL& url,
@@ -130,10 +133,21 @@ class ProxyService {
   // Call this method with a non-null |pac_request| to cancel the PAC request.
   void CancelPacRequest(PacRequest* pac_request);
 
+  // Create a proxy service using the specified settings. If |pi| is NULL then
+  // the system's default proxy settings will be used (on Windows this will
+  // use IE's settings).
+  static ProxyService* Create(const ProxyInfo* pi);
+
+  // TODO(eroman): remove once WinHTTP is gone.
+  // Get the ProxyInfo used to create this proxy service (only used by WinHTTP).
+  const ProxyInfo* proxy_info() const {
+    return proxy_info_.get();
+  }
+
  private:
   friend class PacRequest;
 
-  ProxyResolver* resolver() { return resolver_; }
+  ProxyResolver* resolver() { return resolver_.get(); }
   base::Thread* pac_thread() { return pac_thread_.get(); }
 
   // Identifies the proxy configuration.
@@ -155,15 +169,21 @@ class ProxyService {
   // 2. The URL matches one of the entities in the proxy bypass list.
   bool ShouldBypassProxyForURL(const GURL& url);
 
-  ProxyResolver* resolver_;
+  scoped_ptr<ProxyResolver> resolver_;
   scoped_ptr<base::Thread> pac_thread_;
 
-  // We store the IE proxy config and a counter that is incremented each time
+  // We store the proxy config and a counter that is incremented each time
   // the config changes.
   ProxyConfig config_;
 
+  // TODO(eroman): remove this once WinHTTP stack is gone.
+  scoped_ptr<ProxyInfo> proxy_info_;
+
   // Indicates that the configuration is bad and should be ignored.
   bool config_is_bad_;
+
+  // false if the ProxyService has not been initialized yet.
+  bool config_has_been_updated_;
 
   // The time when the proxy configuration was last read from the system.
   base::TimeTicks config_last_update_time_;
@@ -177,6 +197,8 @@ class ProxyService {
 // This class is used to hold a list of proxies returned by GetProxyForUrl or
 // manually configured. It handles proxy fallback if multiple servers are
 // specified.
+// TODO(eroman): The proxy list should work for multiple proxy types.
+// See http://crbug.com/469.
 class ProxyList {
  public:
   // Initializes the proxy list to a string containing one or more proxy servers
@@ -193,8 +215,11 @@ class ProxyList {
   // Returns the first valid proxy server in the list.
   std::string Get() const;
 
-  // Returns all the valid proxies, delimited by a semicolon.
-  std::string GetList() const;
+  // Returns a PAC-style semicolon-separated list of valid proxy servers.
+  // For example: "PROXY xxx.xxx.xxx.xxx:xx; SOCKS yyy.yyy.yyy:yy".
+  // Since ProxyList is currently just used for HTTP, this will return only
+  // entries of type "PROXY" or "DIRECT".
+  std::string GetAnnotatedList() const;
 
   // Marks the current proxy server as bad and deletes it from the list.  The
   // list of known bad proxies is given by proxy_retry_info.  Returns true if
@@ -210,6 +235,7 @@ class ProxyList {
 class ProxyInfo {
  public:
   ProxyInfo();
+  // Default copy-constructor and assignment operator are OK!
 
   // Use the same proxy server as the given |proxy_info|.
   void Use(const ProxyInfo& proxy_info);
@@ -231,6 +257,9 @@ class ProxyInfo {
 
   // Returns the first valid proxy server.
   std::string proxy_server() const { return proxy_list_.Get(); }
+
+  // See description in ProxyList::GetAnnotatedList().
+  std::string GetAnnotatedProxyList();
 
   // Marks the current proxy as bad. Returns true if there is another proxy
   // available to try in proxy list_.
@@ -257,8 +286,6 @@ class ProxyInfo {
   // proxy info does not yield a connection that we might want to reconsider
   // the proxy config given by config_id_.
   bool config_was_tried_;
-
-  DISALLOW_COPY_AND_ASSIGN(ProxyInfo);
 };
 
 // This interface provides the low-level functions to access the proxy

@@ -21,6 +21,7 @@
 
 namespace net {
 class CookieMonster;
+class ProxyService;
 }
 
 // Subclass to provide application-specific context for URLRequest instances.
@@ -28,9 +29,15 @@ class URLRequestContext :
     public base::RefCountedThreadSafe<URLRequestContext> {
  public:
   URLRequestContext()
-      : http_transaction_factory_(NULL),
+      : proxy_service_(NULL),
+        http_transaction_factory_(NULL),
         cookie_store_(NULL),
         is_off_the_record_(false) {
+  }
+
+  // Get the proxy service for this context.
+  net::ProxyService* proxy_service() const {
+    return proxy_service_;
   }
 
   // Gets the http transaction factory for this context.
@@ -66,6 +73,7 @@ class URLRequestContext :
  protected:
   // The following members are expected to be initialized and owned by
   // subclasses.
+  net::ProxyService* proxy_service_;
   net::HttpTransactionFactory* http_transaction_factory_;
   net::CookieMonster* cookie_store_;
   net::CookiePolicy cookie_policy_;

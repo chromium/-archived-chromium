@@ -87,6 +87,8 @@ class PluginProcessHost : public IPC::Channel::Listener,
   void Shutdown();
 
  private:
+  friend class PluginResolveProxyHelper;
+
   // Sends a message to the plugin process to request creation of a new channel
   // for the given mime type.
   void RequestPluginChannel(ResourceMessageFilter* renderer_message_filter,
@@ -108,6 +110,7 @@ class PluginProcessHost : public IPC::Channel::Listener,
                   IPC::Message* sync_result);
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);
+  void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
 
   void OnPluginShutdownRequest();
   void OnPluginMessage(const std::vector<uint8>& data);
@@ -153,6 +156,11 @@ class PluginProcessHost : public IPC::Channel::Listener,
   PluginService* plugin_service_;
 
   ResourceDispatcherHost* resource_dispatcher_host_;
+
+  // This RevocableStore prevents ResolveProxy completion callbacks from
+  // accessing a deleted PluginProcessHost (since we do not cancel the
+  // in-progress resolve requests during destruction).
+  RevocableStore revocable_store_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginProcessHost);
 };

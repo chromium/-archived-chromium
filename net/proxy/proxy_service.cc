@@ -17,6 +17,14 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
+#include "net/proxy/proxy_resolver_fixed.h"
+#include "net/proxy/proxy_resolver_null.h"
+#if defined(OS_WIN)
+#include "net/http/http_transaction_winhttp.h"
+#include "net/proxy/proxy_resolver_winhttp.h"
+#elif defined(OS_MACOSX)
+#include "net/proxy/proxy_resolver_mac.h"
+#endif
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -88,13 +96,14 @@ std::string ProxyList::Get() const {
   return std::string();
 }
 
-std::string ProxyList::GetList() const {
+std::string ProxyList::GetAnnotatedList() const {
   std::string proxy_list;
   std::vector<std::string>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
     if (!proxy_list.empty())
-      proxy_list += L';';
-
+      proxy_list += ";";
+    // Assume every proxy is an HTTP proxy, as that is all we currently support.
+    proxy_list += "PROXY ";
     proxy_list += *iter;
   }
 
@@ -167,6 +176,10 @@ void ProxyInfo::Apply(HINTERNET request_handle) {
   WinHttpSetOption(request_handle, WINHTTP_OPTION_PROXY, &pi, sizeof(pi));
 }
 #endif
+
+std::string ProxyInfo::GetAnnotatedProxyList() {
+  return is_direct() ? "DIRECT" : proxy_list_.GetAnnotatedList();
+}
 
 // ProxyService::PacRequest ---------------------------------------------------
 
@@ -261,8 +274,35 @@ class ProxyService::PacRequest :
 
 ProxyService::ProxyService(ProxyResolver* resolver)
     : resolver_(resolver),
-      config_is_bad_(false) {
-  UpdateConfig();
+      config_is_bad_(false),
+      config_has_been_updated_(false) {
+}
+
+// static
+ProxyService* ProxyService::Create(const ProxyInfo* pi) {
+  if (pi) {
+    ProxyService* proxy_service =
+        new ProxyService(new ProxyResolverFixed(*pi));
+
+    // TODO(eroman): remove this WinHTTP hack once it is no more.
+    // We keep a copy of the ProxyInfo that was used to create the
+    // proxy service, so we can pass it to WinHTTP.
+    proxy_service->proxy_info_.reset(new ProxyInfo(*pi));
+
+    return proxy_service;
+  }
+#if defined(OS_WIN)
+  return new ProxyService(new ProxyResolverWinHttp());
+#elif defined(OS_MACOSX)
+  return new ProxyService(new ProxyResolverMac());
+#else
+  // This used to be a NOTIMPLEMENTED(), but that logs as an error,
+  // screwing up layout tests.
+  LOG(WARNING) << "Proxies are not implemented; remove me once that's fixed.";
+  // http://code.google.com/p/chromium/issues/detail?id=4523 is the bug
+  // to implement this.
+  return new ProxyService(new ProxyResolverNull());
+#endif
 }
 
 int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
@@ -272,7 +312,8 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
   const TimeDelta kProxyConfigMaxAge = TimeDelta::FromSeconds(5);
 
   // Periodically check for a new config.
-  if ((TimeTicks::Now() - config_last_update_time_) > kProxyConfigMaxAge)
+  if (!config_has_been_updated_ ||
+      (TimeTicks::Now() - config_last_update_time_) > kProxyConfigMaxAge)
     UpdateConfig();
   result->config_id_ = config_.id();
 
@@ -437,6 +478,8 @@ void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
 }
 
 void ProxyService::UpdateConfig() {
+  config_has_been_updated_ = true;
+
   ProxyConfig latest;
   if (resolver_->GetProxyConfig(&latest) != OK)
     return;

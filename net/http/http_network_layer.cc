@@ -8,13 +8,8 @@
 #include "net/base/client_socket_factory.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_network_transaction.h"
-#include "net/proxy/proxy_resolver_fixed.h"
-#include "net/proxy/proxy_resolver_null.h"
 #if defined(OS_WIN)
 #include "net/http/http_transaction_winhttp.h"
-#include "net/proxy/proxy_resolver_winhttp.h"
-#elif defined(OS_MACOSX)
-#include "net/proxy/proxy_resolver_mac.h"
 #endif
 
 namespace net {
@@ -28,13 +23,14 @@ bool HttpNetworkLayer::use_winhttp_ = false;
 
 // static
 HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
-    const ProxyInfo* pi) {
+    ProxyService* proxy_service) {
+  DCHECK(proxy_service);
 #if defined(OS_WIN)
   if (use_winhttp_)
-    return new HttpTransactionWinHttp::Factory(pi);
+    return new HttpTransactionWinHttp::Factory(proxy_service);
 #endif
 
-  return new HttpNetworkLayer(pi);
+  return new HttpNetworkLayer(proxy_service);
 }
 
 #if defined(OS_WIN)
@@ -46,24 +42,9 @@ void HttpNetworkLayer::UseWinHttp(bool value) {
 
 //-----------------------------------------------------------------------------
 
-HttpNetworkLayer::HttpNetworkLayer(const ProxyInfo* pi)
-    : suspended_(false) {
-  if (pi) {
-    proxy_resolver_.reset(new ProxyResolverFixed(*pi));
-  } else {
-#if defined(OS_WIN)
-    proxy_resolver_.reset(new ProxyResolverWinHttp());
-#elif defined(OS_MACOSX)
-    proxy_resolver_.reset(new ProxyResolverMac());
-#else
-    // This used to be a NOTIMPLEMENTED(), but that logs as an error,
-    // screwing up layout tests.
-    LOG(WARNING) << "Proxies are not implemented; remove me once that's fixed.";
-    // http://code.google.com/p/chromium/issues/detail?id=4523 is the bug
-    // to implement this.
-    proxy_resolver_.reset(new ProxyResolverNull());
-#endif
-  }
+HttpNetworkLayer::HttpNetworkLayer(ProxyService* proxy_service)
+    : proxy_service_(proxy_service), suspended_(false) {
+  DCHECK(proxy_service_);
 }
 
 HttpNetworkLayer::~HttpNetworkLayer() {
@@ -74,7 +55,7 @@ HttpTransaction* HttpNetworkLayer::CreateTransaction() {
     return NULL;
 
   if (!session_)
-    session_ = new HttpNetworkSession(proxy_resolver_.release());
+    session_ = new HttpNetworkSession(proxy_service_);
 
   return new HttpNetworkTransaction(
       session_, ClientSocketFactory::GetDefaultFactory());
