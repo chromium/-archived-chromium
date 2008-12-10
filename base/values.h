@@ -52,7 +52,6 @@ class Value {
   static Value* CreateBooleanValue(bool in_value);
   static Value* CreateIntegerValue(int in_value);
   static Value* CreateRealValue(double in_value);
-  static Value* CreateStringValue(const std::string& in_value);
   static Value* CreateStringValue(const std::wstring& in_value);
 
   // This one can return NULL if the input isn't valid.  If the return value
@@ -87,7 +86,6 @@ class Value {
   virtual bool GetAsBoolean(bool* out_value) const;
   virtual bool GetAsInteger(int* out_value) const;
   virtual bool GetAsReal(double* out_value) const;
-  virtual bool GetAsString(std::string* out_value) const;
   virtual bool GetAsString(std::wstring* out_value) const;
 
   // This creates a deep copy of the entire Value tree, and returns a pointer
@@ -139,12 +137,11 @@ class FundamentalValue : public Value {
 
 class StringValue : public Value {
  public:
-  // Initializes a StringValue with a UTF-8 narrow character string.
-  StringValue(const std::string& in_value);
+  StringValue(const std::wstring& in_value)
+    : Value(TYPE_STRING), value_(in_value) {}
   ~StringValue();
 
   // Subclassed methods
-  bool GetAsString(std::string* out_value) const;
   bool GetAsString(std::wstring* out_value) const;
   Value* DeepCopy() const;
   virtual bool Equals(const Value* other) const;
@@ -152,7 +149,7 @@ class StringValue : public Value {
  private:
   DISALLOW_EVIL_CONSTRUCTORS(StringValue);
 
-  std::string value_;
+  std::wstring value_;
 };
 
 class BinaryValue: public Value {
@@ -219,7 +216,6 @@ class DictionaryValue : public Value {
   bool SetBoolean(const std::wstring& path, bool in_value);
   bool SetInteger(const std::wstring& path, int in_value);
   bool SetReal(const std::wstring& path, double in_value);
-  bool SetString(const std::wstring& path, const std::string& in_value);
   bool SetString(const std::wstring& path, const std::wstring& in_value);
 
   // Gets the Value associated with the given path starting from this object.
@@ -237,7 +233,6 @@ class DictionaryValue : public Value {
   bool GetBoolean(const std::wstring& path, bool* out_value) const;
   bool GetInteger(const std::wstring& path, int* out_value) const;
   bool GetReal(const std::wstring& path, double* out_value) const;
-  bool GetString(const std::wstring& path, std::string* out_value) const;
   bool GetString(const std::wstring& path, std::wstring* out_value) const;
   bool GetBinary(const std::wstring& path, BinaryValue** out_value) const;
   bool GetDictionary(const std::wstring& path,

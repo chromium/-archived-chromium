@@ -93,30 +93,6 @@ TEST(ValuesTest, BinaryValue) {
   delete binary;
 }
 
-TEST(ValuesTest, StringValue) {
-  // Test overloaded CreateStringValue.
-  Value* narrow_value = Value::CreateStringValue("narrow");
-  ASSERT_TRUE(narrow_value);
-  ASSERT_TRUE(narrow_value->IsType(Value::TYPE_STRING));
-  Value* wide_value = Value::CreateStringValue(L"wide");
-  ASSERT_TRUE(wide_value);
-  ASSERT_TRUE(wide_value->IsType(Value::TYPE_STRING));
-
-  // Test overloaded GetString.
-  std::string narrow = "http://google.com";
-  std::wstring wide = L"http://google.com";
-  ASSERT_TRUE(narrow_value->GetAsString(&narrow));
-  ASSERT_TRUE(narrow_value->GetAsString(&wide));
-  ASSERT_EQ(std::string("narrow"), narrow);
-  ASSERT_EQ(std::wstring(L"narrow"), wide);
-  ASSERT_TRUE(wide_value->GetAsString(&narrow));
-  ASSERT_TRUE(wide_value->GetAsString(&wide));
-  ASSERT_EQ(std::string("wide"), narrow);
-  ASSERT_EQ(std::wstring(L"wide"), wide);
-  delete narrow_value;
-  delete wide_value;
-}
-
 // This is a Value object that allows us to tell if it's been
 // properly deleted by modifying the value of external flag on destruction.
 class DeletionTestValue : public Value {
@@ -266,10 +242,8 @@ TEST(ValuesTest, DeepCopy) {
   original_dict.Set(L"int", original_int);
   Value* original_real = Value::CreateRealValue(3.14);
   original_dict.Set(L"real", original_real);
-  Value* original_string = Value::CreateStringValue("hello");
+  Value* original_string = Value::CreateStringValue(L"peek-a-boo");
   original_dict.Set(L"string", original_string);
-  Value* original_wstring = Value::CreateStringValue(L"peek-a-boo");
-  original_dict.Set(L"wstring", original_wstring);
 
   char* original_buffer = new char[42];
   memset(original_buffer, '!', 42);
@@ -326,22 +300,9 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_TRUE(copy_string);
   ASSERT_NE(copy_string, original_string);
   ASSERT_TRUE(copy_string->IsType(Value::TYPE_STRING));
-  std::string copy_string_value;
-  std::wstring copy_wstring_value;
+  std::wstring copy_string_value;
   ASSERT_TRUE(copy_string->GetAsString(&copy_string_value));
-  ASSERT_TRUE(copy_string->GetAsString(&copy_wstring_value));
-  ASSERT_EQ(std::string("hello"), copy_string_value);
-  ASSERT_EQ(std::wstring(L"hello"), copy_wstring_value);
-
-  Value* copy_wstring = NULL;
-  ASSERT_TRUE(copy_dict->Get(L"wstring", &copy_wstring));
-  ASSERT_TRUE(copy_wstring);
-  ASSERT_NE(copy_wstring, original_wstring);
-  ASSERT_TRUE(copy_wstring->IsType(Value::TYPE_STRING));  
-  ASSERT_TRUE(copy_wstring->GetAsString(&copy_string_value));
-  ASSERT_TRUE(copy_wstring->GetAsString(&copy_wstring_value));
-  ASSERT_EQ(std::string("peek-a-boo"), copy_string_value);
-  ASSERT_EQ(std::wstring(L"peek-a-boo"), copy_wstring_value);
+  ASSERT_EQ(std::wstring(L"peek-a-boo"), copy_string_value);
 
   Value* copy_binary = NULL;
   ASSERT_TRUE(copy_dict->Get(L"binary", &copy_binary));
@@ -399,8 +360,7 @@ TEST(ValuesTest, Equals) {
   dv.SetBoolean(L"a", false);
   dv.SetInteger(L"b", 2);
   dv.SetReal(L"c", 2.5);
-  dv.SetString(L"d1", "string");
-  dv.SetString(L"d2", L"string");
+  dv.SetString(L"d", L"string");
   dv.Set(L"e", Value::CreateNullValue());
 
   DictionaryValue* copy = static_cast<DictionaryValue*>(dv.DeepCopy());
