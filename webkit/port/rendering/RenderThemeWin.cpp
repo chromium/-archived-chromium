@@ -32,11 +32,11 @@
 #include "CSSValueKeywords.h"
 #include "Document.h"
 #include "FontSelector.h"
-#include "FontUtilsWin.h"
+#include "FontUtilsChromiumWin.h"
 #include "GraphicsContext.h"
 #include "ScrollbarTheme.h"
 #include "SkiaUtils.h"
-#include "ThemeHelperWin.h"
+#include "ThemeHelperChromiumWin.h"
 #include "UserAgentStyleSheets.h"
 
 // TODO(brettw) all of these dependencies should eventually be removed.
