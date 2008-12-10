@@ -47,6 +47,10 @@ void SelectionClipboardGetContents(GtkClipboard* clipboard,
 
   WebView* webview = static_cast<WebView*>(data);
   WebFrame* frame = webview->GetFocusedFrame();
+  if (!frame)
+    frame = webview->GetMainFrame();
+  DCHECK(frame);
+
   std::string selection = frame->GetSelection(TEXT_HTML == info);
   if (TEXT_HTML == info) {
     gtk_selection_data_set(selection_data,

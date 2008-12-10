@@ -1351,6 +1351,9 @@ void WebFrameImpl::ClearSelection() {
 
 std::string WebFrameImpl::GetSelection(bool as_html) {
   RefPtr<Range> range = frame()->selection()->toRange();
+  if (!range.get())
+    return std::string();
+
   if (as_html) {
     String markup = WebCore::createMarkup(range.get(), 0);
     return webkit_glue::StringToStdString(markup);
