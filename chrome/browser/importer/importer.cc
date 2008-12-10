@@ -384,9 +384,9 @@ bool Importer::ReencodeFavicon(const unsigned char* src_data, size_t src_len,
     int new_width = decoded.width();
     int new_height = decoded.height();
     calc_favicon_target_size(&new_width, &new_height);
-    decoded = gfx::ImageOperations::Resize(
-        decoded, gfx::ImageOperations::RESIZE_LANCZOS3,
-        gfx::Size(new_width, new_height));
+    decoded = skia::ImageOperations::Resize(
+        decoded, skia::ImageOperations::RESIZE_LANCZOS3,
+        new_width, new_height);
   }
 
   // Encode our bitmap as a PNG.

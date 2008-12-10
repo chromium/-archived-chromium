@@ -6,7 +6,9 @@
 
 #include "skia/ext/image_operations.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
 #include "SkBitmap.h"
+#include "SkRect.h"
 
 namespace {
 
@@ -67,8 +69,8 @@ TEST(ImageOperations, Halve) {
   FillDataToBitmap(src_w, src_h, &src);
 
   // Do a halving of the full bitmap.
-  SkBitmap actual_results = gfx::ImageOperations::Resize(
-      src, gfx::ImageOperations::RESIZE_BOX, gfx::Size(src_w / 2, src_h / 2));
+  SkBitmap actual_results = skia::ImageOperations::Resize(
+      src, skia::ImageOperations::RESIZE_BOX, src_w / 2, src_h / 2);
   ASSERT_EQ(src_w / 2, actual_results.width());
   ASSERT_EQ(src_h / 2, actual_results.height());
 
@@ -96,17 +98,17 @@ TEST(ImageOperations, HalveSubset) {
   FillDataToBitmap(src_w, src_h, &src);
 
   // Do a halving of the full bitmap.
-  SkBitmap full_results = gfx::ImageOperations::Resize(
-      src, gfx::ImageOperations::RESIZE_BOX, gfx::Size(src_w / 2, src_h / 2));
+  SkBitmap full_results = skia::ImageOperations::Resize(
+      src, skia::ImageOperations::RESIZE_BOX, src_w / 2, src_h / 2);
   ASSERT_EQ(src_w / 2, full_results.width());
   ASSERT_EQ(src_h / 2, full_results.height());
 
   // Now do a halving of a a subset, recall the destination subset is in the
   // destination coordinate system (max = half of the original image size).
-  gfx::Rect subset_rect(2, 3, 3, 6);
-  SkBitmap subset_results = gfx::ImageOperations::Resize(
-      src, gfx::ImageOperations::RESIZE_BOX,
-      gfx::Size(src_w / 2, src_h / 2), subset_rect);
+  SkIRect subset_rect = {2, 3, 5, 9};
+  SkBitmap subset_results = skia::ImageOperations::Resize(
+      src, skia::ImageOperations::RESIZE_BOX,
+      src_w / 2, src_h / 2, subset_rect);
   ASSERT_EQ(subset_rect.width(), subset_results.width());
   ASSERT_EQ(subset_rect.height(), subset_results.height());
 
@@ -117,7 +119,7 @@ TEST(ImageOperations, HalveSubset) {
   for (int y = 0; y < subset_rect.height(); y++) {
     for (int x = 0; x < subset_rect.width(); x++) {
       ASSERT_EQ(
-          *full_results.getAddr32(x + subset_rect.x(), y + subset_rect.y()),
+          *full_results.getAddr32(x + subset_rect.fLeft, y + subset_rect.fTop),
           *subset_results.getAddr32(x, y));
     }
   }
@@ -132,8 +134,8 @@ TEST(ImageOperations, ResampleToSame) {
 
   // Do a resize of the full bitmap to the same size. The lanczos filter is good
   // enough that we should get exactly the same image for output.
-  SkBitmap results = gfx::ImageOperations::Resize(
-      src, gfx::ImageOperations::RESIZE_LANCZOS3, gfx::Size(src_w, src_h));
+  SkBitmap results = skia::ImageOperations::Resize(
+      src, skia::ImageOperations::RESIZE_LANCZOS3, src_w, src_h);
   ASSERT_EQ(src_w, results.width());
   ASSERT_EQ(src_h, results.height());
 

@@ -307,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\skia\ext\convolver_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\cpp_bound_class_unittest.cc"
 				>
 			</File>
@@ -336,6 +340,10 @@
 			</File>
 			<File
 				RelativePath="..\..\glue\iframe_redirect_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\skia\ext\image_operations_unittest.cc"
 				>
 			</File>
 			<File
