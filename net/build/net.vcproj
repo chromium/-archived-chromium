@@ -1029,14 +1029,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\proxy\proxy_script_fetcher.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\proxy\proxy_script_fetcher.h"
-				>
-			</File>
-			<File
 				RelativePath="..\proxy\proxy_service.cc"
 				>
 			</File>
