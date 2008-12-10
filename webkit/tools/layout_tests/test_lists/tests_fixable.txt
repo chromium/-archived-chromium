@@ -1750,7 +1750,8 @@ MAC : LayoutTests/http/tests/loading/bad-scheme-subframe.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
 MAC : LayoutTests/http/tests/misc/refresh-headers.php = FAIL CRASH
 MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
-MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
+// Windows is missing the green box
+WIN MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
