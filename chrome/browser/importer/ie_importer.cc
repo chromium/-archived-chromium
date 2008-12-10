@@ -128,8 +128,14 @@ void IEImporter::ImportPasswordsIE6() {
   // and GetProcAddress() functions.
   typedef HRESULT (WINAPI *PStoreCreateFunc)(IPStore**, DWORD, DWORD, DWORD);
   HMODULE pstorec_dll = LoadLibrary(L"pstorec.dll");
+  if (!pstorec_dll)
+    return;
   PStoreCreateFunc PStoreCreateInstance =
       (PStoreCreateFunc)GetProcAddress(pstorec_dll, "PStoreCreateInstance");
+  if (!PStoreCreateInstance) {
+    FreeLibrary(pstorec_dll);
+    return;
+  }
 
   CComPtr<IPStore> pstore;
   HRESULT result = PStoreCreateInstance(&pstore, 0, 0, 0);
