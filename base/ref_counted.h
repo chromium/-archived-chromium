@@ -106,6 +106,7 @@ class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
     }
   }
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafe<T>);
 };
 
