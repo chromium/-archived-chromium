@@ -2030,8 +2030,6 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 
 // Started failing with r6667 I think. (darin)
-LayoutTests/fast/dom/javascript-url-crash-function.html = CRASH
-WIN : LayoutTests/http/tests/misc/font-face-in-multiple-segmented-faces.html = CRASH
-
-// Webkit merge 39000:39050 failures:
-LayoutTests/fast/css/acid2-pixel.html = TIMEOUT
+// Weirdly, this only crash on the release webkit builder.
+RELEASE : LayoutTests/fast/dom/javascript-url-crash-function.html = CRASH
+RELEASE WIN : LayoutTests/http/tests/misc/font-face-in-multiple-segmented-faces.html = CRASH
