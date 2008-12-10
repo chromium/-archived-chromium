@@ -430,13 +430,13 @@ class V8Proxy {
   static String GetSourceName();
 
  private:
-  void initContextIfNeeded();
+  void InitContextIfNeeded();
   void DisconnectEventListeners();
   void SetSecurityToken();
   void ClearDocumentWrapper();
   void UpdateDocumentWrapper(v8::Handle<v8::Value> wrapper);
   // Dispose global handles of m_contexts and friends.
-  void DisposeContext();
+  void DisposeContextHandles();
 
   static bool CanAccessPrivate(DOMWindow* target);
 

@@ -1720,6 +1720,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
 
 bool V8Proxy::ContextInitialized()
 {
+    // m_context, m_global, m_object_prototype, and
+    // m_dom_constructor_cache should all be non-empty if m_context is
+    // non-empty.
+    ASSERT(m_context.IsEmpty() || !m_global.IsEmpty());
+    ASSERT(m_context.IsEmpty() || !m_object_prototype.IsEmpty());
+    ASSERT(m_context.IsEmpty() || !m_dom_constructor_cache.IsEmpty());
     return !m_context.IsEmpty();
 }
 
@@ -1873,23 +1879,27 @@ void V8Proxy::ClearDocumentWrapper()
 }
 
 
-void V8Proxy::DisposeContext() {
-    ASSERT(!m_context.IsEmpty());
-    m_context.Dispose();
-    m_context.Clear();
+void V8Proxy::DisposeContextHandles() {
+    if (!m_context.IsEmpty()) {
+        m_context.Dispose();
+        m_context.Clear();
+    }
 
+    if (!m_dom_constructor_cache.IsEmpty()) {
 #ifndef NDEBUG
-    UnregisterGlobalHandle(this, m_object_prototype);
-    UnregisterGlobalHandle(this, m_dom_constructor_cache);
+        UnregisterGlobalHandle(this, m_dom_constructor_cache);
 #endif
+        m_dom_constructor_cache.Dispose();
+        m_dom_constructor_cache.Clear();
+    }
 
-    ASSERT(!m_dom_constructor_cache.IsEmpty());
-    m_dom_constructor_cache.Dispose();
-    m_dom_constructor_cache.Clear();
-
-    ASSERT(!m_object_prototype.IsEmpty());
-    m_object_prototype.Dispose();
-    m_object_prototype.Clear();
+    if (!m_object_prototype.IsEmpty()) {
+#ifndef NDEBUG
+        UnregisterGlobalHandle(this, m_object_prototype);
+#endif
+        m_object_prototype.Dispose();
+        m_object_prototype.Clear();
+    }
 }
 
 void V8Proxy::clearForClose()
@@ -1898,7 +1908,7 @@ void V8Proxy::clearForClose()
         v8::HandleScope handle_scope;
 
         ClearDocumentWrapper();
-        DisposeContext();
+        DisposeContextHandles();
     }
 }
 
@@ -1928,11 +1938,11 @@ void V8Proxy::clearForNavigation()
         // Separate the context from its global object.
         m_context->DetachGlobal();
 
-        DisposeContext();
+        DisposeContextHandles();
 
         // Reinitialize the context so the global object points to
         // the new DOM window.
-        initContextIfNeeded();
+        InitContextIfNeeded();
     }
 }
 
@@ -2104,8 +2114,7 @@ bool V8Proxy::CheckNodeSecurity(Node* node)
 // the frame. However, a new inner window is created for the new page.
 // If there are JS code holds a closure to the old inner window,
 // it won't be able to reach the outer window via its global object. 
-
-void V8Proxy::initContextIfNeeded()
+void V8Proxy::InitContextIfNeeded()
 {
   // Bail out if the context has already been initialized.
   if (!m_context.IsEmpty())
@@ -2122,8 +2131,6 @@ void V8Proxy::initContextIfNeeded()
   // to be done once.
   static bool v8_initialized = false;
   if (!v8_initialized) {
-    v8_initialized = true;
-
     // Tells V8 not to call the default OOM handler, binding code
     // will handle it.
     v8::V8::IgnoreOutOfMemoryException();
@@ -2135,6 +2142,8 @@ void V8Proxy::initContextIfNeeded()
     v8::V8::AddMessageListener(HandleConsoleMessage);
 
     v8::V8::SetFailedAccessCheckCallbackFunction(ReportUnsafeJavaScriptAccess);
+
+    v8_initialized = true;
   }
 
   // Create a new environment using an empty template for the shadow
@@ -2177,17 +2186,40 @@ void V8Proxy::initContextIfNeeded()
   // Store the first global object created so we can reuse it.
   if (m_global.IsEmpty()) {
     m_global = v8::Persistent<v8::Object>::New(context->Global());
+    // Bail out if allocation of the first global objects fails.
+    if (m_global.IsEmpty()) {
+      DisposeContextHandles();
+      return;
+    }
 #ifndef NDEBUG
     RegisterGlobalHandle(PROXY, this, m_global);
 #endif
   }
 
+  // Allocate strings used during initialization.
+  v8::Handle<v8::String> object_string = v8::String::New("Object");
+  v8::Handle<v8::String> prototype_string = v8::String::New("prototype");
+  v8::Handle<v8::String> implicit_proto_string = v8::String::New("__proto__");
+  // Bail out if allocation failed.
+  if (object_string.IsEmpty() ||
+      prototype_string.IsEmpty() ||
+      implicit_proto_string.IsEmpty()) {
+    DisposeContextHandles();
+    return;
+  }
+
+  // Allocate DOM constructor cache.
   v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(
-      m_global->Get(v8::String::New("Object")));
+      m_global->Get(object_string));
   m_object_prototype = v8::Persistent<v8::Value>::New(
-      object->Get(v8::String::New("prototype")));
+      object->Get(prototype_string));
   m_dom_constructor_cache = v8::Persistent<v8::Array>::New(
       v8::Array::New(V8ClassIndex::WRAPPER_TYPE_COUNT));
+  // Bail out if allocation failed.
+  if (m_object_prototype.IsEmpty() || m_dom_constructor_cache.IsEmpty()) {
+    DisposeContextHandles();
+    return;
+  }
 #ifndef NDEBUG
   RegisterGlobalHandle(PROXY, this, m_object_prototype);
   RegisterGlobalHandle(PROXY, this, m_dom_constructor_cache);
@@ -2199,8 +2231,11 @@ void V8Proxy::initContextIfNeeded()
       GetConstructor(V8ClassIndex::DOMWINDOW);
   v8::Local<v8::Object> js_window =
       SafeAllocation::NewInstance(window_constructor);
-  if (js_window.IsEmpty())
+  // Bail out if allocation failed.
+  if (js_window.IsEmpty()) {
+    DisposeContextHandles();
     return;
+  }
 
   DOMWindow* window = m_frame->domWindow();
 
@@ -2215,7 +2250,7 @@ void V8Proxy::initContextIfNeeded()
 
   // Insert the window instance as the prototype of the shadow object.
   v8::Handle<v8::Object> v8_global = context->Global();
-  v8_global->Set(v8::String::New("__proto__"), js_window);
+  v8_global->Set(implicit_proto_string, js_window);
 
   SetSecurityToken();
 
@@ -2314,7 +2349,7 @@ v8::Local<v8::Context> V8Proxy::GetContext(Frame* frame)
     if (!proxy)
         return v8::Local<v8::Context>();
 
-    proxy->initContextIfNeeded();
+    proxy->InitContextIfNeeded();
     return proxy->GetContext();
 }
 
