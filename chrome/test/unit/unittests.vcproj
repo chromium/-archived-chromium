@@ -1054,6 +1054,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestPropertBag"
+			>
+			<File
+				RelativePath="..\..\common\property_bag_unittest.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

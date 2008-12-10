@@ -63,6 +63,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'pref_member.cc',
       'pref_names.cc',
       'pref_service.cc',
+      'property_bag.cc',
       'slide_animation.cc',
       'sqlite_compiled_statement.cc',
       'sqlite_utils.cc',

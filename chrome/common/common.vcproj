@@ -590,6 +590,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\property_bag.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\property_bag.h"
+			>
+		</File>
+		<File
 			RelativePath=".\ref_counted_util.h"
 			>
 		</File>
