@@ -202,9 +202,9 @@ class TestRunner:
         files.extend(test_files[0:extra])
       self._test_files = set(files)
       # update expectations so that the stats are calculated correctly
-      expectations = test_expectations.TestExpectations(self._test_files,
-                                                        file_dir,
-                                                        is_debug_mode)
+      self._expectations = self._ParseExpectations(
+          platform_utils.GetTestListPlatformName().lower(),
+          options.target == 'Debug')
     else:
       logging.info('Run: %d tests' % len(self._test_files))
 
