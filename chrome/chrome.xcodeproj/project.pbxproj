@@ -29,6 +29,7 @@
 				4D7BFB080E9D4B98009A6919 /* PBXTargetDependency */,
 				4D7BFC200E9D4CD4009A6919 /* PBXTargetDependency */,
 				4D640CF20EAE86D800EBCFC0 /* PBXTargetDependency */,
+				4DCE999B0EF060D100682526 /* PBXTargetDependency */,
 				4D7BFB320E9D4BFB009A6919 /* PBXTargetDependency */,
 			);
 			name = All;
@@ -542,6 +543,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7BA018350E5A28DB00044150;
 			remoteInfo = googleurl;
+		};
+		4DCE999A0EF060D100682526 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5FDBFAD0EE4623000BEC6E6;
+			remoteInfo = ipc_tests;
 		};
 		4DDC64490EAE38F500FB5EBE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1662,8 +1670,8 @@
 				4D7BF3060E9D477E009A6919 /* libbrowser.a */,
 				4D7BFC1A0E9D4CB9009A6919 /* libcommon.a */,
 				4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */,
-				4D7BFB2D0E9D4BE5009A6919 /* unit_tests */,
 				B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */,
+				4D7BFB2D0E9D4BE5009A6919 /* unit_tests */,
 				E45060E40EE87B86003BE099 /* Chromium.app */,
 			);
 			name = Products;
@@ -2716,6 +2724,7 @@
 			buildPhases = (
 				B5FDBFAB0EE4623000BEC6E6 /* Sources */,
 				B5FDBFAC0EE4623000BEC6E6 /* Frameworks */,
+				4DCE999E0EF0611100682526 /* Strip If Needed */,
 			);
 			buildRules = (
 			);
@@ -2831,10 +2840,10 @@
 				4D7BF3050E9D477E009A6919 /* browser */,
 				4D7BFC190E9D4CB9009A6919 /* common */,
 				4D640CEA0EAE86BD00EBCFC0 /* renderer */,
-				4D7BFB2C0E9D4BE5009A6919 /* unit_tests */,
-				4D7B014C0E9D572C009A6919 /* run_unit_tests */,
 				B5FDBFAD0EE4623000BEC6E6 /* ipc_tests */,
 				E4F325930EE837BF002533CE /* run_ipc_tests */,
+				4D7BFB2C0E9D4BE5009A6919 /* unit_tests */,
+				4D7B014C0E9D572C009A6919 /* run_unit_tests */,
 			);
 		};
 /* End PBXProject section */
@@ -3057,6 +3066,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4DCE999E0EF0611100682526 /* Strip If Needed */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip If Needed";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"";
 			showEnvVarsInLog = 0;
 		};
 		E4F325960EE837BF002533CE /* ShellScript */ = {
@@ -3351,6 +3375,11 @@
 			isa = PBXTargetDependency;
 			name = googleurl;
 			targetProxy = 4D7BFF710E9D5416009A6919 /* PBXContainerItemProxy */;
+		};
+		4DCE999B0EF060D100682526 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5FDBFAD0EE4623000BEC6E6 /* ipc_tests */;
+			targetProxy = 4DCE999A0EF060D100682526 /* PBXContainerItemProxy */;
 		};
 		4DDC644A0EAE38F500FB5EBE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

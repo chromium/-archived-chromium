@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		4DCE98940EF0600700682526 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4DCE98AF0EF0602400682526 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				4DCE98A20EF0601E00682526 /* PBXTargetDependency */,
+				4DCE98A40EF0601E00682526 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
 		E4506A340EF020E4003BE099 /* run_test_shell_tests */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = E4506A390EF02118003BE099 /* Build configuration list for PBXAggregateTarget "run_test_shell_tests" */;
@@ -224,6 +236,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4DB7FE6E0E9BF6AC00C66CE0;
 			remoteInfo = webcoresysteminterface;
+		};
+		4DCE98A10EF0601E00682526 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45628C30E26B4FE005E4685;
+			remoteInfo = TestShell;
+		};
+		4DCE98A30EF0601E00682526 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45067A70EEF2776003BE099;
+			remoteInfo = test_shell_tests;
 		};
 		7B779D3B0E82FF2200C2971E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1281,6 +1307,7 @@
 			buildPhases = (
 				E45067A50EEF2776003BE099 /* Sources */,
 				E45067A60EEF2776003BE099 /* Frameworks */,
+				4DCE99A60EF0612C00682526 /* Strip If Needed */,
 			);
 			buildRules = (
 			);
@@ -1424,6 +1451,7 @@
 			);
 			projectRoot = "";
 			targets = (
+				4DCE98940EF0600700682526 /* All */,
 				E45628C30E26B4FE005E4685 /* TestShell */,
 				E45067A70EEF2776003BE099 /* test_shell_tests */,
 				E4506A340EF020E4003BE099 /* run_test_shell_tests */,
@@ -1773,6 +1801,21 @@
 			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"\n";
 			showEnvVarsInLog = 0;
 		};
+		4DCE99A60EF0612C00682526 /* Strip If Needed */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip If Needed";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"";
+			showEnvVarsInLog = 0;
+		};
 		E4506A3B0EF02137003BE099 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1876,6 +1919,16 @@
 			isa = PBXTargetDependency;
 			name = webcoresysteminterface;
 			targetProxy = 4DB7FEA20E9BF90A00C66CE0 /* PBXContainerItemProxy */;
+		};
+		4DCE98A20EF0601E00682526 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45628C30E26B4FE005E4685 /* TestShell */;
+			targetProxy = 4DCE98A10EF0601E00682526 /* PBXContainerItemProxy */;
+		};
+		4DCE98A40EF0601E00682526 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45067A70EEF2776003BE099 /* test_shell_tests */;
+			targetProxy = 4DCE98A30EF0601E00682526 /* PBXContainerItemProxy */;
 		};
 		7B779D530E83002A00C2971E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2029,6 +2082,20 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4DCE98950EF0600700682526 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		4DCE98960EF0600700682526 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B8200960E76FDA1008F45CF /* debug.xcconfig */;
@@ -2262,6 +2329,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4DCE98AF0EF0602400682526 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DCE98950EF0600700682526 /* Debug */,
+				4DCE98960EF0600700682526 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "TestShell" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
