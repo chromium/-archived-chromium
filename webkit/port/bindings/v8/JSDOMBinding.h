@@ -34,9 +34,7 @@
 #ifndef JSDOMBinding_h
 #define JSDOMBinding_h
 
-namespace JSC {
-    class ExecState;
-}
+#include "ScriptState.h"
 
 namespace WebCore {
     class Node;
@@ -45,7 +43,8 @@ namespace WebCore {
     void updateDOMNodeDocument(Node*, Document* oldDocument,
                                Document* newDocument);
 
-    JSC::ExecState* execStateFromNode(Node*);
+    ScriptState* scriptStateFromNode(Node*);
+
 }
 
 

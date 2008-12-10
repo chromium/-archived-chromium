@@ -27,27 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "config.h"
-#include "JSDOMBinding.h"
+#ifndef ScriptState_h
+#define ScriptState_h
 
-#include <interpreter/CallFrame.h>
-#include "Document.h"
-#include "Node.h"
+#include "interpreter/CallFrame.h"
 
 namespace WebCore {
-
-void updateDOMNodeDocument(Node* node, Document* oldDocument,
-                           Document* newDocument)
-{
-    // We don't do anything here in V8 bindings
+    typedef JSC::ExecState ScriptState;
 }
-
-ScriptState* scriptStateFromNode(Node* node)
-{
-    // This should be never reached with V8 bindings (WebKit only uses it
-    // for non-JS bindings)
-    ASSERT_NOT_REACHED();
-    return 0;
-}
-
-} // namespace WebCore
+#endif // ScriptState_h

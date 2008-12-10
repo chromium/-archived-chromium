@@ -257,10 +257,6 @@ LayoutTests/plugins/bindings-test.html = FAIL CRASH
 // subframes are not data URLs (probably we want files in the resources dir.).
 LayoutTests/fast/encoding/char-encoding.html = FAIL
 
-// This test should pass once we merge with r39021 or later. After the merge, 
-// fast/encoding/char-decoding-mac.html should be added to tests_ignored.txt.
-LayoutTests/fast/encoding/char-decoding.html = FAIL
-
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
 // controls are rare on the web, defer this fix.
@@ -2035,4 +2031,8 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 
 // Started failing with r6667 I think. (darin)
+LayoutTests/fast/dom/javascript-url-crash-function.html = CRASH
 WIN : LayoutTests/http/tests/misc/font-face-in-multiple-segmented-faces.html = CRASH
+
+// Webkit merge 39000:39050 failures:
+LayoutTests/fast/css/acid2-pixel.html = TIMEOUT

@@ -191,3 +191,6 @@ LINUX : chrome/fonts/impact.html = FAIL
 // repeatedly creates big regular expressions.  All the test is trying
 // to verify is that we don't crash on this page.
 LayoutTests/fast/js/regexp-charclass-crash.html = PASS TIMEOUT
+
+// Test to verify legacy MAC encodings.
+LayoutTests/fast/encoding/char-decoding-mac.html = FAIL
