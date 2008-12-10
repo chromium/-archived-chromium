@@ -194,6 +194,9 @@ static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderOb
     gdkClipRect.width = SkScalarRound(clip_region.width());
     gdkClipRect.height = SkScalarRound(clip_region.height());
 
+    // moz_gtk_widget_paint will paint outside the bounds of gdkRect unless we further restrict |gdkClipRect|.
+    gdk_rectangle_intersect(&gdkRect, &gdkClipRect, &gdkClipRect);
+
     GtkTextDirection direction = gtkTextDirection(o->style()->direction());
 
     return moz_gtk_widget_paint(type, pcs->gdk_skia(), &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
