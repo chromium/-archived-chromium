@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import path_utils
+import platform_utils
 import compare_failures
 
 
@@ -24,11 +25,10 @@ class TestExpectations:
   FIXABLE = "tests_fixable.txt"
   IGNORED = "tests_ignored.txt"
 
-  def __init__(self, tests, directory, platform, is_debug_mode):
+  def __init__(self, tests, directory, is_debug_mode):
     """Reads the test expectations files from the given directory."""
     self._tests = tests
     self._directory = directory
-    self._platform = platform
     self._is_debug_mode = is_debug_mode
     self._ReadFiles()
     self._ValidateLists()
@@ -90,8 +90,7 @@ class TestExpectations:
     """
     
     path = os.path.join(self._directory, filename)
-    return TestExpectationsFile(path, self._tests, self._platform,
-        self._is_debug_mode)
+    return TestExpectationsFile(path, self._tests, self._is_debug_mode)
 
   def _ValidateLists(self):
     # Make sure there's no overlap between the tests in the two files.
@@ -152,14 +151,13 @@ class TestExpectationsFile:
   
   PLATFORMS = [ 'mac', 'linux', 'win' ]
 
-  def __init__(self, path, full_test_list, platform, is_debug_mode):
-    """
-    path: The path to the expectation file. An error is thrown if a test is
-        listed more than once. 
-    full_test_list: The list of all tests to be run pending processing of the
-        expections for those tests.
-    platform: Which platform from self.PLATFORMS to filter tests for.
-    is_debug_mode: Whether we testing a test_shell built debug mode.
+  def __init__(self, path, full_test_list, is_debug_mode):
+    """path is the path to the expectation file. An error is thrown if a test
+    is listed more than once. 
+    full_test_list is the list of all tests to be run pending processing of the
+    expections for those tests.
+    is_debug_mode whether we testing a test_shell built debug mode
+    
     """
     
     self._full_test_list = full_test_list
@@ -167,11 +165,9 @@ class TestExpectationsFile:
     self._expectations = {}
     self._test_list_paths = {}
     self._tests = {}
-    self._platform = platform
-    self._is_debug_mode = is_debug_mode
     for expectation in self.EXPECTATIONS.itervalues():
       self._tests[expectation] = set()
-    self._Read(path)
+    self._Read(path, is_debug_mode)
 
   def GetSkipped(self):
     return self._skipped
@@ -209,9 +205,9 @@ class TestExpectationsFile:
     if not has_any_platforms:
       return True
 
-    return self._platform in options
+    return platform_utils.GetTestListPlatformName().lower() in options
 
-  def _Read(self, path):
+  def _Read(self, path, is_debug_mode):
     """For each test in an expectations file, generate the expectations for it.
 
     """
@@ -231,9 +227,9 @@ class TestExpectationsFile:
         options = self._GetOptionsList(parts[0])
         is_skipped = 'skip' in options
         if 'release' in options or 'debug' in options:
-          if self._is_debug_mode and 'debug' not in options:
+          if is_debug_mode and 'debug' not in options:
             continue
-          if not self._is_debug_mode and 'release' not in options:
+          if not is_debug_mode and 'release' not in options:
             continue
         if not self._HasCurrentPlatform(options):
           continue
@@ -293,12 +289,8 @@ class TestExpectationsFile:
     for test in tests:
       if test in self._test_list_paths:
         prev_base_path = self._test_list_paths[test]
-        # TODO: Save errors and raise a single error in order to catch more
-        # problems in a single lint run.
         if (prev_base_path == os.path.normpath(test_list_path)):
-          raise SyntaxError('Already seen expectations for path %s, in '
-                            'platform %s, and is_debug_mode is %s' % 
-                            (test, self._platform, self._is_debug_mode))
+          raise SyntaxError('Already seen expectations for path ' + test)
         if prev_base_path.startswith(test_list_path):
           # already seen a more precise path
           continue
