@@ -35,7 +35,7 @@
 
 #include "PlatformContextSkia.h"
 
-#include "base/gfx/platform_canvas.h"
+#include "skia/ext/platform_canvas.h"
 
 namespace WebCore {
 

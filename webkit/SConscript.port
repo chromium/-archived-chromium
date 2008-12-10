@@ -74,7 +74,6 @@ input_files = [
     '$PORT_DIR/platform/graphics/ColorSkia.cpp',
     '$PORT_DIR/platform/graphics/FloatPointSkia.cpp',
     '$PORT_DIR/platform/graphics/FloatRectSkia.cpp',
-    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/GradientSkia.cpp',
     '$PORT_DIR/platform/graphics/GraphicsContextSkia.cpp',
     '$PORT_DIR/platform/graphics/ImageBufferSkia.cpp',
@@ -87,6 +86,7 @@ input_files = [
     '$PORT_DIR/platform/graphics/PatternSkia.cpp',
     '$PORT_DIR/platform/graphics/PlatformContextSkia.cpp',
     '$PORT_DIR/platform/graphics/SkiaUtils.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
 
     '$PORT_DIR/platform/graphics/svg/RenderPathSkia.cpp',
     '$PORT_DIR/platform/graphics/svg/SkiaSupport.cpp',
@@ -121,16 +121,16 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/win/BString.cpp',
     '$PORT_DIR/platform/win/SoundWin.cpp',
 
-    '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
-    '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',
-    '$PORT_DIR/platform/graphics/FontUtilsWin.cpp',
-    '$PORT_DIR/platform/graphics/FontWin.cpp',
-    '$PORT_DIR/platform/graphics/GlyphPageTreeNodeWin.cpp',
-    '$PORT_DIR/platform/graphics/IconWin.cpp',
-    '$PORT_DIR/platform/graphics/SimpleFontDataWin.cpp',
-    '$PORT_DIR/platform/graphics/ThemeHelperWin.cpp',
-    '$PORT_DIR/platform/graphics/UniscribeHelper.cpp',
-    '$PORT_DIR/platform/graphics/UniscribeHelperTextRun.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontCacheChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontPlatformDataChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontUtilsChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/IconChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/SimpleFontDataChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/ThemeHelperChromiumWin.cpp',
+    '$PORT_DIR/platform/graphics/chromium/UniscribeHelper.cpp',
+    '$PORT_DIR/platform/graphics/chromium/UniscribeHelperTextRun.cpp',
 
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
@@ -157,7 +157,7 @@ if env['PLATFORM'] == 'posix':
 
   # Remove from the list files that haven't yet been made portable to Linux.
   to_be_ported_files = [
-    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
   ]
   input_files = list(set(input_files) - set(to_be_ported_files))
 
@@ -184,7 +184,7 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
     '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
-    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
   ]
   input_files = list(set(input_files) - set(to_be_ported_files))

@@ -1040,42 +1040,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\FontCacheWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontCustomPlatformData.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontCustomPlatformData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontPlatformData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontPlatformDataWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontUtilsWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontUtilsWin.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\FontWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\GlyphPageTreeNodeWin.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\graphics\GradientSkia.cpp"
 					>
 				</File>
@@ -1085,10 +1049,6 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\graphics\GraphicsContextSkia.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\IconWin.cpp"
 					>
 				</File>
 				<File
@@ -1140,39 +1100,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\SimpleFontDataWin.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\graphics\SkiaUtils.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\port\platform\graphics\SkiaUtils.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\ThemeHelperWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\ThemeHelperWin.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\UniscribeHelper.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\UniscribeHelper.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\UniscribeHelperTextRun.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\UniscribeHelperTextRun.h"
 					>
 				</File>
 				<Filter
@@ -1215,6 +1147,50 @@
 					Name="chromium"
 					>
 					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontCacheChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontCustomPlatformData.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontCustomPlatformData.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontPlatformData.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontPlatformDataChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontPlatformDataChromiumWin.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontUtilsChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\FontUtilsChromiumWin.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\GlyphPageTreeNodeChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\IconChromiumWin.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\port\platform\graphics\chromium\ImageBufferData.h"
 						>
 					</File>
@@ -1228,6 +1204,34 @@
 					</File>
 					<File
 						RelativePath="..\..\port\platform\graphics\chromium\PlatformIcon.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\SimpleFontDataChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\ThemeHelperChromiumWin.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\ThemeHelperChromiumWin.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\UniscribeHelper.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\UniscribeHelper.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\UniscribeHelperTextRun.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\UniscribeHelperTextRun.h"
 						>
 					</File>
 				</Filter>

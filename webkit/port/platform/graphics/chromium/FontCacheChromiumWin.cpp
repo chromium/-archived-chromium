@@ -30,7 +30,7 @@
 #include "ChromiumBridge.h"
 #include "FontCache.h"
 #include "Font.h"
-#include "FontUtilsWin.h"
+#include "FontUtilsChromiumWin.h"
 #include "HashMap.h"
 #include "HashSet.h"
 #include "SimpleFontData.h"

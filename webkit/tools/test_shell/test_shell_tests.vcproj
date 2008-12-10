@@ -383,7 +383,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\graphics\UniscribeHelper_unittest.cpp"
+				RelativePath="..\..\port\platform\graphics\chromium\UniscribeHelper_unittest.cpp"
 				>
 			</File>
 			<File

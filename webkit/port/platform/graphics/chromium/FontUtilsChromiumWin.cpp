@@ -3,115 +3,103 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include "FontUtilsWin.h"
-
-#include "UniscribeHelper.h"
+#include "FontUtilsChromiumWin.h"
 
 #include <limits>
-#include <map>
 
-
-#include "base/logging.h"
-#include "base/singleton.h"
-#include "base/string_util.h"
-#include "unicode/locid.h"
-#include "unicode/uchar.h"
+#include "PlatformString.h"
+#include "StringHash.h"
+#include "UniscribeHelper.h"
+#include <unicode/locid.h>
+#include <unicode/uchar.h>
+#include <wtf/HashMap.h>
 
 namespace WebCore {
 
 namespace {
 
-// hash_map has extra cost with no sizable gain for a small number of integer
-// key items. When the map size becomes much bigger (which will be later as
-// more scripts are added) and this turns out to be prominent in the profile, we
-// may consider switching to hash_map (or just an array if we support all the
-// scripts)
-typedef std::map<UScriptCode, const UChar*> ScriptToFontMap;
+// A simple mapping from UScriptCode to family name.  This is a sparse array,
+// which works well since the range of UScriptCode values is small.
+typedef const UChar* ScriptToFontMap[USCRIPT_CODE_LIMIT];
 
-struct ScriptToFontMapSingletonTraits
-    : public DefaultSingletonTraits<ScriptToFontMap> {
-    static ScriptToFontMap* New() {
-        struct FontMap {
-            UScriptCode script;
-            const UChar* family;
-        };
+void InitializeScriptFontMap(ScriptToFontMap& scriptFontMap)
+{
+    struct FontMap {
+        UScriptCode script;
+        const UChar* family;
+    };
 
-        const static FontMap font_map[] = {
-            {USCRIPT_LATIN, L"times new roman"},
-            {USCRIPT_GREEK, L"times new roman"},
-            {USCRIPT_CYRILLIC, L"times new roman"},
-            {USCRIPT_SIMPLIFIED_HAN, L"simsun"},
-            //{USCRIPT_TRADITIONAL_HAN, L"pmingliu"},
-            {USCRIPT_HIRAGANA, L"ms pgothic"},
-            {USCRIPT_KATAKANA, L"ms pgothic"},
-            {USCRIPT_KATAKANA_OR_HIRAGANA, L"ms pgothic"},
-            {USCRIPT_HANGUL, L"gulim"},
-            {USCRIPT_THAI, L"tahoma"},
-            {USCRIPT_HEBREW, L"david"},
-            {USCRIPT_ARABIC, L"tahoma"},
-            {USCRIPT_DEVANAGARI, L"mangal"},
-            {USCRIPT_BENGALI, L"vrinda"},
-            {USCRIPT_GURMUKHI, L"raavi"},
-            {USCRIPT_GUJARATI, L"shruti"},
-            {USCRIPT_ORIYA, L"kalinga"},
-            {USCRIPT_TAMIL, L"latha"},
-            {USCRIPT_TELUGU, L"gautami"},
-            {USCRIPT_KANNADA, L"tunga"},
-            {USCRIPT_MALAYALAM, L"kartika"},
-            {USCRIPT_LAO, L"dokchampa"},
-            {USCRIPT_TIBETAN, L"microsoft himalaya"},
-            {USCRIPT_GEORGIAN, L"sylfaen"},
-            {USCRIPT_ARMENIAN, L"sylfaen"},
-            {USCRIPT_ETHIOPIC, L"nyala"},
-            {USCRIPT_CANADIAN_ABORIGINAL, L"euphemia"},
-            {USCRIPT_CHEROKEE, L"plantagenet cherokee"},
-            {USCRIPT_YI, L"microsoft yi balti"},
-            {USCRIPT_SINHALA, L"iskoola pota"},
-            {USCRIPT_SYRIAC, L"estrangelo edessa"},
-            {USCRIPT_KHMER, L"daunpenh"},
-            {USCRIPT_THAANA, L"mv boli"},
-            {USCRIPT_MONGOLIAN, L"mongolian balti"},
-            {USCRIPT_MYANMAR, L"padauk"},
-            // For USCRIPT_COMMON, we map blocks to scripts when
-            // that makes sense.
-        };
+    const static FontMap fontMap[] = {
+        {USCRIPT_LATIN, L"times new roman"},
+        {USCRIPT_GREEK, L"times new roman"},
+        {USCRIPT_CYRILLIC, L"times new roman"},
+        {USCRIPT_SIMPLIFIED_HAN, L"simsun"},
+        //{USCRIPT_TRADITIONAL_HAN, L"pmingliu"},
+        {USCRIPT_HIRAGANA, L"ms pgothic"},
+        {USCRIPT_KATAKANA, L"ms pgothic"},
+        {USCRIPT_KATAKANA_OR_HIRAGANA, L"ms pgothic"},
+        {USCRIPT_HANGUL, L"gulim"},
+        {USCRIPT_THAI, L"tahoma"},
+        {USCRIPT_HEBREW, L"david"},
+        {USCRIPT_ARABIC, L"tahoma"},
+        {USCRIPT_DEVANAGARI, L"mangal"},
+        {USCRIPT_BENGALI, L"vrinda"},
+        {USCRIPT_GURMUKHI, L"raavi"},
+        {USCRIPT_GUJARATI, L"shruti"},
+        {USCRIPT_ORIYA, L"kalinga"},
+        {USCRIPT_TAMIL, L"latha"},
+        {USCRIPT_TELUGU, L"gautami"},
+        {USCRIPT_KANNADA, L"tunga"},
+        {USCRIPT_MALAYALAM, L"kartika"},
+        {USCRIPT_LAO, L"dokchampa"},
+        {USCRIPT_TIBETAN, L"microsoft himalaya"},
+        {USCRIPT_GEORGIAN, L"sylfaen"},
+        {USCRIPT_ARMENIAN, L"sylfaen"},
+        {USCRIPT_ETHIOPIC, L"nyala"},
+        {USCRIPT_CANADIAN_ABORIGINAL, L"euphemia"},
+        {USCRIPT_CHEROKEE, L"plantagenet cherokee"},
+        {USCRIPT_YI, L"microsoft yi balti"},
+        {USCRIPT_SINHALA, L"iskoola pota"},
+        {USCRIPT_SYRIAC, L"estrangelo edessa"},
+        {USCRIPT_KHMER, L"daunpenh"},
+        {USCRIPT_THAANA, L"mv boli"},
+        {USCRIPT_MONGOLIAN, L"mongolian balti"},
+        {USCRIPT_MYANMAR, L"padauk"},
+        // For USCRIPT_COMMON, we map blocks to scripts when
+        // that makes sense.
+    };
 
-        ScriptToFontMap* new_instance = new ScriptToFontMap;
-        // Cannot recover from OOM so that there's no need to check.
-        for (int i = 0; i < arraysize(font_map); ++i)
-            (*new_instance)[font_map[i].script] = font_map[i].family;
+    // Cannot recover from OOM so that there's no need to check.
+    for (int i = 0; i < sizeof(fontMap) / sizeof(fontMap[0]); ++i)
+        scriptFontMap[fontMap[i].script] = fontMap[i].family;
 
-        // Initialize the locale-dependent mapping.
-        // Since Chrome synchronizes the ICU default locale with its UI locale,
-        // this ICU locale tells the current UI locale of Chrome.
-        Locale locale = Locale::getDefault();
-        ScriptToFontMap::const_iterator iter;
-        if (locale == Locale::getJapanese()) {
-            iter = new_instance->find(USCRIPT_HIRAGANA);
-        } else if (locale == Locale::getKorean()) {
-            iter = new_instance->find(USCRIPT_HANGUL);
-        } else {
-            // Use Simplified Chinese font for all other locales including
-            // Traditional Chinese because Simsun (SC font) has a wider
-            // coverage (covering both SC and TC) than PMingLiu (TC font).
-            // This also speeds up the TC version of Chrome when rendering SC
-            // pages.
-            iter = new_instance->find(USCRIPT_SIMPLIFIED_HAN);
-        }
-        if (iter != new_instance->end())
-            (*new_instance)[USCRIPT_HAN] = iter->second;
-
-        return new_instance;
+    // Initialize the locale-dependent mapping.
+    // Since Chrome synchronizes the ICU default locale with its UI locale,
+    // this ICU locale tells the current UI locale of Chrome.
+    Locale locale = Locale::getDefault();
+    const UChar* localeFamily = NULL;
+    if (locale == Locale::getJapanese()) {
+        localeFamily = scriptFontMap[USCRIPT_HIRAGANA];
+    } else if (locale == Locale::getKorean()) {
+        localeFamily = scriptFontMap[USCRIPT_HANGUL];
+    } else {
+        // Use Simplified Chinese font for all other locales including
+        // Traditional Chinese because Simsun (SC font) has a wider
+        // coverage (covering both SC and TC) than PMingLiu (TC font).
+        // This also speeds up the TC version of Chrome when rendering SC
+        // pages.
+        localeFamily = scriptFontMap[USCRIPT_SIMPLIFIED_HAN];
     }
-};
-
-Singleton<ScriptToFontMap, ScriptToFontMapSingletonTraits> script_font_map;
+    if (localeFamily)
+        scriptFontMap[USCRIPT_HAN] = localeFamily;
+}
 
 const int kUndefinedAscent = std::numeric_limits<int>::min();
 
 // Given an HFONT, return the ascent. If GetTextMetrics fails,
 // kUndefinedAscent is returned, instead.
-int GetAscent(HFONT hfont) {
+int GetAscent(HFONT hfont)
+{
     HDC dc = GetDC(NULL);
     HGDIOBJ oldFont = SelectObject(dc, hfont);
     TEXTMETRIC tm;
@@ -122,32 +110,18 @@ int GetAscent(HFONT hfont) {
 }
 
 struct FontData {
-    FontData() : hfont(NULL), ascent(kUndefinedAscent), script_cache(NULL) {}
+    FontData() : hfont(NULL), ascent(kUndefinedAscent), scriptCache(NULL) {}
     HFONT hfont;
     int ascent;
-    mutable SCRIPT_CACHE script_cache;
+    mutable SCRIPT_CACHE scriptCache;
 };
 
-// Again, using hash_map does not earn us much here.
-// page_cycler_test intl2 gave us a 'better' result with map than with hash_map
-// even though they're well-within 1-sigma of each other so that the difference
-// is not significant. On the other hand, some pages in intl2 seem to
-// take longer to load with map in the 1st pass. Need to experiment further.
-typedef std::map<std::wstring, FontData*> FontDataCache;
-struct FontDataCacheSingletonTraits
-    : public DefaultSingletonTraits<FontDataCache> {
-    static void Delete(FontDataCache* cache) {
-        FontDataCache::iterator iter = cache->begin();
-        while (iter != cache->end()) {
-            SCRIPT_CACHE script_cache = iter->second->script_cache;
-            if (script_cache)
-              ScriptFreeCache(&script_cache);
-            delete iter->second;
-            ++iter;
-        }
-        delete cache;
-    }
-};
+// Again, using hash_map does not earn us much here.  page_cycler_test intl2
+// gave us a 'better' result with map than with hash_map even though they're
+// well-within 1-sigma of each other so that the difference is not significant.
+// On the other hand, some pages in intl2 seem to take longer to load with map
+// in the 1st pass. Need to experiment further.
+typedef HashMap<String, FontData*> FontDataCache;
 
 }  // namespace
 
@@ -168,11 +142,14 @@ struct FontDataCacheSingletonTraits
 
 const UChar* GetFontFamilyForScript(UScriptCode script,
                                     GenericFamilyType generic) {
-    ScriptToFontMap::const_iterator iter = script_font_map->find(script);
-    const UChar* family = NULL;
-    if (iter != script_font_map->end())
-        family = iter->second;
-    return family;
+    static ScriptToFontMap scriptFontMap;
+    bool initialized = false;
+    if (!initialized) {
+        InitializeScriptFontMap(scriptFontMap);
+        initialized = true;
+    }
+    ASSERT(script < USCRIPT_CODE_LIMIT);
+    return scriptFontMap[script];
 }
 
 // TODO(jungshik)
@@ -186,9 +163,10 @@ const UChar* GetFontFamilyForScript(UScriptCode script,
 const UChar* GetFallbackFamily(const UChar *characters,
                                int length,
                                GenericFamilyType generic,
-                               UChar32 *char_checked,
-                               UScriptCode *script_checked) {
-    DCHECK(characters && characters[0] && length > 0);
+                               UChar32 *charChecked,
+                               UScriptCode *scriptChecked)
+{
+    ASSERT(characters && characters[0] && length > 0);
     UScriptCode script = USCRIPT_COMMON;
 
     // Sometimes characters common to script (e.g. space) is at
@@ -266,12 +244,12 @@ const UChar* GetFallbackFamily(const UChar *characters,
         }
     }
 
-    if (char_checked) *char_checked = ucs4;
-    if (script_checked) *script_checked = script;
+    if (charChecked)
+        *charChecked = ucs4;
+    if (scriptChecked)
+        *scriptChecked = script;
     return family;
 }
-
-
 
 // Be aware that this is not thread-safe.
 bool GetDerivedFontData(const UChar *family,
@@ -279,25 +257,20 @@ bool GetDerivedFontData(const UChar *family,
                         LOGFONT *logfont,
                         int *ascent,
                         HFONT *hfont,
-                        SCRIPT_CACHE **script_cache) {
-    DCHECK(logfont && family && *family);
-    // Using |Singleton| here is not free, but the intl2 page cycler test
-    // does not show any noticeable difference with and without it. Leaking
-    // the contents of FontDataCache (especially SCRIPT_CACHE) at the end
-    // of a renderer process may not be a good idea. We may use
-    // atexit(). However, with no noticeable performance difference, |Singleton|
-    // is cleaner, I believe.
-    FontDataCache* font_data_cache =
-        Singleton<FontDataCache, FontDataCacheSingletonTraits>::get();
+                        SCRIPT_CACHE **scriptCache) {
+    ASSERT(logfont && family && *family);
+
+    // It does not matter that we leak font data when we exit.
+    static FontDataCache fontDataCache;
+
     // TODO(jungshik) : This comes up pretty high in the profile so that
     // we need to measure whether using SHA256 (after coercing all the
-    // fields to char*) is faster than StringPrintf.
-    std::wstring font_key = StringPrintf(L"%1d:%d:%ls", style,
-                                         logfont->lfHeight, family);
-    FontDataCache::const_iterator iter = font_data_cache->find(font_key);
+    // fields to char*) is faster than String::format.
+    String fontKey = String::format("%1d:%d:%ls", style, logfont->lfHeight, family);
+    FontDataCache::iterator iter = fontDataCache.find(fontKey);
     FontData *derived;
-    if (iter == font_data_cache->end()) {
-        DCHECK(wcslen(family) < LF_FACESIZE);
+    if (iter == fontDataCache.end()) {
+        ASSERT(wcslen(family) < LF_FACESIZE);
         wcscpy_s(logfont->lfFaceName, LF_FACESIZE, family);
         // TODO(jungshik): CreateFontIndirect always comes up with
         // a font even if there's no font matching the name. Need to
@@ -309,7 +282,7 @@ bool GetDerivedFontData(const UChar *family,
         // cache it so that we won't have to call CreateFontIndirect once
         // more for HFONT next time.
         derived->ascent = GetAscent(derived->hfont);
-        (*font_data_cache)[font_key] = derived;
+        fontDataCache.add(fontKey, derived);
     } else {
         derived = iter->second;
         // Last time, GetAscent failed so that only HFONT was
@@ -320,7 +293,7 @@ bool GetDerivedFontData(const UChar *family,
     }
     *hfont = derived->hfont;
     *ascent = derived->ascent;
-    *script_cache = &(derived->script_cache);
+    *scriptCache = &(derived->scriptCache);
     return *ascent != kUndefinedAscent;
 }
 
@@ -328,7 +301,7 @@ int GetStyleFromLogfont(const LOGFONT* logfont) {
     // TODO(jungshik) : consider defining UNDEFINED or INVALID for style and
     //                  returning it when logfont is NULL
     if (!logfont) {
-        NOTREACHED();
+        ASSERT_NOT_REACHED();
         return FONT_STYLE_NORMAL;
     }
     return (logfont->lfItalic ? FONT_STYLE_ITALIC : FONT_STYLE_NORMAL) |

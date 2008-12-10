@@ -7,8 +7,8 @@
 
 #include <windows.h>
 
-#include "FontUtilsWin.h"
-#include "wtf/Assertions.h"
+#include "FontUtilsChromiumWin.h"
+#include <wtf/Assertions.h>
 
 namespace WebCore {
 

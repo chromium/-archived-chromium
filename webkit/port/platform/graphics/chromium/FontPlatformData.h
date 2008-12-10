@@ -9,7 +9,7 @@
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
-#include "FontPlatformDataWin.h"
+#include "FontPlatformDataChromiumWin.h"
 #elif defined(OS_LINUX)
 #include "FontPlatformDataLinux.h"
 #elif defined(OS_MACOSX)

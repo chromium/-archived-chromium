@@ -26,7 +26,7 @@
 #include "config.h"
 #include "FloatRect.h"
 #include "GraphicsContext.h"
-#include "ThemeHelperWin.h"
+#include "ThemeHelperChromiumWin.h"
 
 namespace WebCore {
 
