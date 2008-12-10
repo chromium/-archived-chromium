@@ -150,6 +150,7 @@ LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html =
 
 // Bug 865472, this should just need proper pixel test rebaselining.
 // Also skipped by Apple on Windows (rdar://5723191).
+// Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
 // Bug: 1143492
@@ -486,6 +487,7 @@ LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
 LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // Bug: 1344760
+// Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 
 // The test may require a proper version of Java 6 RC 10 plugin
@@ -666,6 +668,7 @@ LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
+// Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
