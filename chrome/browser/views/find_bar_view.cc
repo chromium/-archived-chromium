@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/views/find_bar_win.h"
+#include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
@@ -93,6 +94,7 @@ FindBarView::FindBarView(FindBarWin* container)
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   find_text_ = new views::TextField();
+  find_text_->SetID(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD);
   find_text_->SetFont(rb.GetFont(ResourceBundle::BaseFont));
   find_text_->set_default_width_in_chars(kDefaultCharWidth);
   AddChildView(find_text_);

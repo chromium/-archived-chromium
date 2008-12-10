@@ -195,11 +195,11 @@ void WebContentsViewWin::SizeContents(const gfx::Size& size) {
 
 void WebContentsViewWin::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
- if (!find_bar_.get()) {
+  if (!find_bar_.get()) {
     // We want the Chrome top-level (Frame) window.
     HWND hwnd = reinterpret_cast<HWND>(browser.window()->GetNativeHandle());
     find_bar_.reset(new FindBarWin(this, hwnd));
-  } else if (!find_bar_->IsVisible()) {
+  } else {
     find_bar_->Show();
   }
 
@@ -369,7 +369,7 @@ RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
 
   return widget_view;
 }
-  
+
 void WebContentsViewWin::ShowCreatedWindowInternal(
     WebContents* new_web_contents,
     WindowOpenDisposition disposition,

@@ -245,7 +245,7 @@ TEST_F(BrowserFocusTest, LocationBarLockFocus) {
       automation()->GetBrowserForWindow(window.get()));
   ASSERT_TRUE(browser.get() != NULL);
 
- // Click on the location bar.
+  // Click on the location bar.
   gfx::Rect bounds;
   EXPECT_TRUE(window->GetViewBounds(VIEW_ID_LOCATION_BAR, &bounds, true));
   POINT click(bounds.CenterPoint().ToPOINT());
@@ -335,4 +335,58 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
   }
 }
 
+// Make sure Find box can request focus, even when it is already open.
+TEST_F(BrowserFocusTest, FindFocusTest) {
+  TestServer server(kDocRoot);
 
+  // Open some page (any page that doesn't steal focus).
+  GURL url = server.TestServerPageW(kTypicalPage);
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  tab->NavigateToURL(url);
+
+  scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
+  ASSERT_TRUE(window.get() != NULL);
+  scoped_ptr<BrowserProxy> browser(
+      automation()->GetBrowserForWindow(window.get()));
+  ASSERT_TRUE(browser.get() != NULL);
+
+  // Press Ctrl+F, which will make the Find box open and request focus.
+  static const int VK_F = 0x46;
+  EXPECT_TRUE(window->SimulateOSKeyPress(VK_F, views::Event::EF_CONTROL_DOWN));
+  ::Sleep(kActionDelayMs);
+  int focused_view_id;
+  EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
+  EXPECT_EQ(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD, focused_view_id);
+
+  // Click on the location bar.
+  gfx::Rect bounds;
+  EXPECT_TRUE(window->GetViewBounds(VIEW_ID_LOCATION_BAR, &bounds, true));
+  POINT click(bounds.CenterPoint().ToPOINT());
+  EXPECT_TRUE(window->SimulateOSClick(click,
+              views::Event::EF_LEFT_BUTTON_DOWN));
+  ::Sleep(kActionDelayMs);
+  // Make sure the location bar is focused.
+  EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
+  EXPECT_EQ(VIEW_ID_LOCATION_BAR, focused_view_id);
+
+  // Now press Ctrl+F again and focus should move to the Find box.
+  EXPECT_TRUE(window->SimulateOSKeyPress(VK_F, views::Event::EF_CONTROL_DOWN));
+  ::Sleep(kActionDelayMs);
+  EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
+  EXPECT_EQ(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD, focused_view_id);
+
+  // Set focus to the page.
+  EXPECT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER, &bounds, true));
+  click = bounds.CenterPoint().ToPOINT();
+  EXPECT_TRUE(window->SimulateOSClick(click,
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
+  ::Sleep(kActionDelayMs);
+  EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
+  EXPECT_EQ(VIEW_ID_TAB_CONTAINER, focused_view_id);
+
+  // Now press Ctrl+F again and focus should move to the Find box.
+  EXPECT_TRUE(window->SimulateOSKeyPress(VK_F, views::Event::EF_CONTROL_DOWN));
+  ::Sleep(kActionDelayMs);
+  EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
+  EXPECT_EQ(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD, focused_view_id);
+}
