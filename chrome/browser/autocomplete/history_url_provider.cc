@@ -149,8 +149,7 @@ void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
                               max_matches() * 2, &url_matches);
     for (URLRowVector::const_iterator j(url_matches.begin());
          j != url_matches.end(); ++j) {
-      const Prefix* best_prefix = BestPrefix(UTF8ToWide(j->url().spec()),
-                                             std::wstring());
+      const Prefix* best_prefix = BestPrefix(j->url(), std::wstring());
       DCHECK(best_prefix != NULL);
       history_matches.push_back(HistoryMatch(*j, i->prefix.length(),
           !i->num_components,
@@ -232,7 +231,7 @@ void HistoryURLProvider::SuggestExactInput(const AutocompleteInput& input,
       (canonicalized_url.IsStandard() &&
        !canonicalized_url.SchemeIsFile() && canonicalized_url.host().empty()))
     return;
-  match.destination_url = UTF8ToWide(canonicalized_url.spec());
+  match.destination_url = canonicalized_url;
   match.fill_into_edit = StringForURLDisplay(canonicalized_url, false);
   // NOTE: Don't set match.input_location (to allow inline autocompletion)
   // here, it's surprising and annoying.
@@ -283,7 +282,7 @@ bool HistoryURLProvider::FixupExactSuggestion(history::URLDatabase* db,
   // * and the input _without_ the TLD _is_ in the history DB,
   // * ...then just before pressing "ctrl" the best match we supplied was the
   //   what-you-typed match, so stick with it by promoting this.
-  if (!db->GetRowForURL(GURL(match.destination_url), &info)) {
+  if (!db->GetRowForURL(match.destination_url, &info)) {
     if (params->input.desired_tld().empty())
       return false;
     // This code should match what SuggestExactInput() would do with no
@@ -517,9 +516,8 @@ void HistoryURLProvider::PromoteOrCreateShorterSuggestion(
     search_base = GURL(new_match);
 
   } else if (!can_add_search_base_to_matches) {
-    // TODO(brettw) this extra GURL conversion should be unnecessary.
     can_add_search_base_to_matches =
-        (search_base != GURL(params.matches.front().destination_url));
+        (search_base != params.matches.front().destination_url);
   }
   if (search_base == match.url_info.url())
     return;  // Couldn't shorten |match|, so no range of URLs to search over.
@@ -662,9 +660,10 @@ void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
 }
 
 const HistoryURLProvider::Prefix* HistoryURLProvider::BestPrefix(
-    const std::wstring& text,
+    const GURL& url,
     const std::wstring& prefix_suffix) const {
   const Prefix* best_prefix = NULL;
+  const std::wstring text(UTF8ToWide(url.spec()));
   for (Prefixes::const_iterator i(prefixes_.begin()); i != prefixes_.end();
        ++i) {
     if ((best_prefix == NULL) ||
@@ -798,7 +797,7 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
   AutocompleteMatch match(this,
       CalculateRelevance(params->input.type(), match_type, match_number),
       !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
-  match.destination_url = UTF8ToWide(info.url().possibly_invalid_spec());
+  match.destination_url = info.url();
   match.fill_into_edit = gfx::ElideUrl(info.url(), ChromeFont(), 0,
       match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages);
   if (!params->input.prevent_inline_autocomplete()) {

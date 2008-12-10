@@ -20,6 +20,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon_ip.h"
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
@@ -442,7 +443,7 @@ void AutocompleteProvider::UpdateStarredStateOfMatches() {
 size_t AutocompleteResult::max_matches_ = 6;
 
 void AutocompleteResult::Selection::Clear() {
-  destination_url.clear();
+  destination_url = GURL();
   provider_affinity = NULL;
   is_history_what_you_typed_match = false;
 }
@@ -516,7 +517,7 @@ void AutocompleteResult::SortAndCull() {
   default_match_ = begin();
 }
 
-std::wstring AutocompleteResult::GetAlternateNavURL(
+GURL AutocompleteResult::GetAlternateNavURL(
     const AutocompleteInput& input,
     const_iterator match) const {
   if (((input.type() == AutocompleteInput::UNKNOWN) ||
@@ -525,11 +526,11 @@ std::wstring AutocompleteResult::GetAlternateNavURL(
     for (const_iterator i(begin()); i != end(); ++i) {
       if (i->is_history_what_you_typed_match) {
         return (i->destination_url == match->destination_url) ?
-            std::wstring() : i->destination_url;
+            GURL() : i->destination_url;
       }
     }
   }
-  return std::wstring();
+  return GURL();
 }
 
 #ifndef NDEBUG
@@ -727,7 +728,7 @@ ACMatches AutocompleteController::GetMatchesNotInLatestResult(
   DCHECK(provider);
 
   // Determine the set of destination URLs.
-  std::set<std::wstring> destination_urls;
+  std::set<GURL> destination_urls;
   for (AutocompleteResult::const_iterator i(latest_result_.begin());
        i != latest_result_.end(); ++i)
     destination_urls.insert(i->destination_url);
@@ -814,8 +815,7 @@ void AutocompleteController::AddHistoryContentsShortcut() {
                               ACMatchClassification::NONE));
   }
   match.destination_url =
-      UTF8ToWide(HistoryTabUI::GetHistoryURLWithSearchText(
-          input_.text()).spec());
+      HistoryTabUI::GetHistoryURLWithSearchText(input_.text());
   match.transition = PageTransition::AUTO_BOOKMARK;
   match.provider = history_contents_provider_;
   latest_result_.AddMatch(match);

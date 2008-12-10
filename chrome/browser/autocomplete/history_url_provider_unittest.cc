@@ -5,6 +5,7 @@
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"
@@ -98,7 +99,7 @@ class HistoryURLProviderTest : public testing::Test,
   void RunTest(const std::wstring text,
                const std::wstring& desired_tld,
                bool prevent_inline_autocomplete,
-               const std::wstring* expected_urls,
+               const std::string* expected_urls,
                int num_results);
 
   MessageLoopForUI message_loop_;
@@ -156,7 +157,7 @@ void HistoryURLProviderTest::FillData() {
 void HistoryURLProviderTest::RunTest(const std::wstring text,
                                      const std::wstring& desired_tld,
                                      bool prevent_inline_autocomplete,
-                                     const std::wstring* expected_urls,
+                                     const std::string* expected_urls,
                                      int num_results) {
   AutocompleteInput input(text, desired_tld, prevent_inline_autocomplete,
                           false, false);
@@ -167,41 +168,41 @@ void HistoryURLProviderTest::RunTest(const std::wstring text,
   matches_ = autocomplete_->matches();
   ASSERT_EQ(num_results, matches_.size());
   for (int i = 0; i < num_results; ++i)
-    EXPECT_EQ(expected_urls[i], matches_[i].destination_url);
+    EXPECT_EQ(expected_urls[i], matches_[i].destination_url.spec());
 }
 
 TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
   // Test that hosts get synthesized below popular pages.
-  const std::wstring expected_nonsynth[] = {
-    L"http://slash/",
-    L"http://slashdot.org/favorite_page.html",
-    L"http://slashdot.org/",
+  const std::string expected_nonsynth[] = {
+    "http://slash/",
+    "http://slashdot.org/favorite_page.html",
+    "http://slashdot.org/",
   };
   RunTest(L"slash", std::wstring(), true, expected_nonsynth,
           arraysize(expected_nonsynth));
 
   // Test that hosts get synthesized above less popular pages.
-  const std::wstring expected_synth[] = {
-    L"http://kernel/",
-    L"http://kerneltrap.org/",
-    L"http://kerneltrap.org/not_very_popular.html",
+  const std::string expected_synth[] = {
+    "http://kernel/",
+    "http://kerneltrap.org/",
+    "http://kerneltrap.org/not_very_popular.html",
   };
   RunTest(L"kernel", std::wstring(), true, expected_synth,
           arraysize(expected_synth));
 
   // Test that unpopular pages are ignored completely.
-  const std::wstring expected_what_you_typed_only[] = {
-    L"http://fresh/",
+  const std::string expected_what_you_typed_only[] = {
+    "http://fresh/",
   };
   RunTest(L"fresh", std::wstring(), true, expected_what_you_typed_only,
           arraysize(expected_what_you_typed_only));
 
   // Test that if we have a synthesized host that matches a suggestion, they
   // get combined into one.
-  const std::wstring expected_combine[] = {
-    L"http://news/",
-    L"http://news.google.com/",
-    L"http://news.google.com/?ned=us&topic=n",
+  const std::string expected_combine[] = {
+    "http://news/",
+    "http://news.google.com/",
+    "http://news.google.com/?ned=us&topic=n",
   };
   RunTest(L"news", std::wstring(), true, expected_combine,
           arraysize(expected_combine));
@@ -212,21 +213,21 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
   // Test that short URL matching works correctly as the user types more
   // (several tests):
   // The entry for foo.com is the best of all five foo.com* entries.
-  const std::wstring short_1[] = {
-    L"http://foo/",
-    L"http://foo.com/",
-    L"http://foo.com/dir/another/again/myfile.html",
-    L"http://foo.com/dir/",
+  const std::string short_1[] = {
+    "http://foo/",
+    "http://foo.com/",
+    "http://foo.com/dir/another/again/myfile.html",
+    "http://foo.com/dir/",
   };
   RunTest(L"foo", std::wstring(), true, short_1, arraysize(short_1));
 
   // When the user types the whole host, make sure we don't get two results for
   // it.
-  const std::wstring short_2[] = {
-    L"http://foo.com/",
-    L"http://foo.com/dir/another/again/myfile.html",
-    L"http://foo.com/dir/",
-    L"http://foo.com/dir/another/",
+  const std::string short_2[] = {
+    "http://foo.com/",
+    "http://foo.com/dir/another/again/myfile.html",
+    "http://foo.com/dir/",
+    "http://foo.com/dir/another/",
   };
   RunTest(L"foo.com", std::wstring(), true, short_2, arraysize(short_2));
   RunTest(L"foo.com/", std::wstring(), true, short_2, arraysize(short_2));
@@ -234,20 +235,20 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
   // The filename is the second best of the foo.com* entries, but there is a
   // shorter URL that's "good enough".  The host doesn't match the user input
   // and so should not appear.
-  const std::wstring short_3[] = {
-    L"http://foo.com/d",
-    L"http://foo.com/dir/another/",
-    L"http://foo.com/dir/another/again/myfile.html",
-    L"http://foo.com/dir/",
+  const std::string short_3[] = {
+    "http://foo.com/d",
+    "http://foo.com/dir/another/",
+    "http://foo.com/dir/another/again/myfile.html",
+    "http://foo.com/dir/",
   };
   RunTest(L"foo.com/d", std::wstring(), true, short_3, arraysize(short_3));
 
   // We shouldn't promote shorter URLs than the best if they're not good
   // enough.
-  const std::wstring short_4[] = {
-    L"http://foo.com/dir/another/a",
-    L"http://foo.com/dir/another/again/myfile.html",
-    L"http://foo.com/dir/another/again/",
+  const std::string short_4[] = {
+    "http://foo.com/dir/another/a",
+    "http://foo.com/dir/another/again/myfile.html",
+    "http://foo.com/dir/another/again/",
   };
   RunTest(L"foo.com/dir/another/a", std::wstring(), true, short_4,
           arraysize(short_4));
@@ -257,18 +258,18 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
 // working. See TODO in URLDatabase::AutocompleteForPrefix.
 TEST_F(HistoryURLProviderTest, DISABLED_Starred) {
   // Test that starred pages sort properly.
-  const std::wstring star_1[] = {
-    L"http://startest/",
-    L"http://startest.com/x/d",
-    L"http://startest.com/x/c",
-    L"http://startest.com/y/a",
+  const std::string star_1[] = {
+    "http://startest/",
+    "http://startest.com/x/d",
+    "http://startest.com/x/c",
+    "http://startest.com/y/a",
   };
   RunTest(L"startest", std::wstring(), true, star_1, arraysize(star_1));
-  const std::wstring star_2[] = {
-    L"http://startest.com/y",
-    L"http://startest.com/y/a",
-    L"http://startest.com/y/b",
-    L"http://startest.com/y/e",
+  const std::string star_2[] = {
+    "http://startest.com/y",
+    "http://startest.com/y/a",
+    "http://startest.com/y/b",
+    "http://startest.com/y/e",
   };
   RunTest(L"startest.com/y", std::wstring(), true, star_2, arraysize(star_2));
 }
@@ -279,13 +280,13 @@ TEST_F(HistoryURLProviderTest, CullRedirects) {
   // the results to be in A,B,C order. Note also that our visit counts are
   // all high enough so that domain synthesizing won't get triggered.
   struct RedirectCase {
-    const wchar_t* url;
+    const char* url;
     int count;
   };
   static const RedirectCase redirect[] = {
-    {L"http://redirects/A", 30},
-    {L"http://redirects/B", 20},
-    {L"http://redirects/C", 10}
+    {"http://redirects/A", 30},
+    {"http://redirects/B", 20},
+    {"http://redirects/C", 10}
   };
   for (int i = 0; i < arraysize(redirect); i++) {
     history_service_->AddPageWithDetails(GURL(redirect[i].url), L"Title",
@@ -308,8 +309,8 @@ TEST_F(HistoryURLProviderTest, CullRedirects) {
   // all but the first one (A) should be culled. We should get the default
   // "what you typed" result, plus this one.
   const std::wstring typing(L"http://redirects/");
-  const std::wstring expected_results[] = {
-    typing,
+  const std::string expected_results[] = {
+    WideToUTF8(typing),
     redirect[0].url};
   RunTest(typing, std::wstring(), true, expected_results,
           arraysize(expected_results));
@@ -321,29 +322,29 @@ TEST_F(HistoryURLProviderTest, Fixup) {
 
   RunTest(L"#", std::wstring(), false, NULL, 0);
 
-  const std::wstring crash_1[] = {L"http://%20/"};
+  const std::string crash_1[] = {"http://%20/"};
   RunTest(L"%20", std::wstring(), false, crash_1, arraysize(crash_1));
 
   // Fixing up "file:" should result in an inline autocomplete offset of just
   // after "file:", not just after "file://".
   const std::wstring input_1(L"file:");
-  const std::wstring fixup_1[] = {L"file:///", L"file:///C:/foo.txt"};
+  const std::string fixup_1[] = {"file:///", "file:///C:/foo.txt"};
   RunTest(input_1, std::wstring(), false, fixup_1, arraysize(fixup_1));
   EXPECT_EQ(input_1.length(), matches_[1].inline_autocomplete_offset);
 
   // Fixing up "http:/" should result in an inline autocomplete offset of just
   // after "http:/", not just after "http:".
   const std::wstring input_2(L"http:/");
-  const std::wstring fixup_2[] = {
-    L"http://bogussite.com/a",
-    L"http://bogussite.com/b",
-    L"http://bogussite.com/c",
+  const std::string fixup_2[] = {
+    "http://bogussite.com/a",
+    "http://bogussite.com/b",
+    "http://bogussite.com/c",
   };
   RunTest(input_2, std::wstring(), false, fixup_2, arraysize(fixup_2));
   EXPECT_EQ(input_2.length(), matches_[0].inline_autocomplete_offset);
 
   // Adding a TLD to a small number like "56" should result in "www.56.com"
   // rather than "0.0.0.56.com".
-  std::wstring fixup_3[] = {L"http://www.56.com/"};
+  std::string fixup_3[] = {"http://www.56.com/"};
   RunTest(L"56", L"com", true, fixup_3, arraysize(fixup_3));
 }

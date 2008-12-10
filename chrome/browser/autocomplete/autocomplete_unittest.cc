@@ -4,6 +4,7 @@
 
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
+#include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/common/notification_registrar.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -75,12 +76,12 @@ void TestProvider::AddResults(int start_at, int num) {
     wchar_t str[16];
     swprintf_s(str, L"%d", i);
     match.fill_into_edit = prefix_ + str;
-    match.destination_url = match.fill_into_edit;
+    match.destination_url = GURL(WideToUTF8(match.fill_into_edit));
 
-    match.contents = match.destination_url;
+    match.contents = match.fill_into_edit;
     match.contents_class.push_back(
         ACMatchClassification(0, ACMatchClassification::NONE));
-    match.description = match.destination_url;
+    match.description = match.fill_into_edit;
     match.description_class.push_back(
         ACMatchClassification(0, ACMatchClassification::NONE));
 
@@ -131,12 +132,13 @@ void AutocompleteProviderTest::ResetController(bool same_destinations) {
   providers_.clear();
 
   // Construct two new providers, with either the same or different prefixes.
-  TestProvider* providerA = new TestProvider(num_results_per_provider, L"a");
+  TestProvider* providerA = new TestProvider(num_results_per_provider,
+                                             L"http://a");
   providerA->AddRef();
   providers_.push_back(providerA);
 
   TestProvider* providerB = new TestProvider(num_results_per_provider * 2,
-                                             same_destinations ? L"a" : L"b");
+      same_destinations ? L"http://a" : L"http://b");
   providerB->AddRef();
   providers_.push_back(providerB);
 

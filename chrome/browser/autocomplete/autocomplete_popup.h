@@ -274,10 +274,10 @@ class AutocompletePopupModel : public NotificationObserver {
   // If |alternate_nav_url| is non-NULL, it will be set to the alternate
   // navigation URL for |url| if one exists, or left unchanged otherwise.  See
   // comments on AutocompleteResult::GetAlternateNavURL().
-  std::wstring URLsForCurrentSelection(
+  GURL URLsForCurrentSelection(
       PageTransition::Type* transition,
       bool* is_history_what_you_typed_match,
-      std::wstring* alternate_nav_url) const;
+      GURL* alternate_nav_url) const;
 
   // This is sort of a hybrid between StartAutocomplete() and
   // URLForCurrentSelection().  When the popup isn't open and the user hits
@@ -292,11 +292,11 @@ class AutocompletePopupModel : public NotificationObserver {
   //
   // If there are no matches for |text|, leaves the outparams unset and returns
   // the empty string.
-  std::wstring URLsForDefaultMatch(const std::wstring& text,
-                                   const std::wstring& desired_tld,
-                                   PageTransition::Type* transition,
-                                   bool* is_history_what_you_typed_match,
-                                   std::wstring* alternate_nav_url);
+  GURL URLsForDefaultMatch(const std::wstring& text,
+                           const std::wstring& desired_tld,
+                           PageTransition::Type* transition,
+                           bool* is_history_what_you_typed_match,
+                           GURL* alternate_nav_url);
 
   // Gets the selected keyword or keyword hint for the given match.  Returns
   // true if |keyword| represents a keyword hint, or false if |keyword|

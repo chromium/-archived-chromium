@@ -401,13 +401,12 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
     NOTREACHED();
     return;
   }
-  std::wstring url = url_ref->ReplaceSearchTerms(*template_url, search,
+  GURL url = url_ref->ReplaceSearchTerms(*template_url, search,
       TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
 
-  if (!url.empty()) {
-  // Load the URL.
-    dom_ui_host_->OpenURL(GURL(WideToUTF8(url)), GURL(), CURRENT_TAB,
-                          PageTransition::LINK);
+  if (url.is_valid()) {
+    // Load the URL.
+    dom_ui_host_->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::LINK);
 
     // Record the user action
     std::vector<const TemplateURL*> urls =

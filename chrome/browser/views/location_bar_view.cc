@@ -308,19 +308,19 @@ void LocationBarView::OnMouseReleased(const views::MouseEvent& event,
 }
 
 void LocationBarView::OnAutocompleteAccept(
-    const std::wstring& url,
+    const GURL& url,
     WindowOpenDisposition disposition,
     PageTransition::Type transition,
-    const std::wstring& alternate_nav_url) {
-  if (url.empty())
+    const GURL& alternate_nav_url) {
+  if (!url.is_valid())
     return;
 
-  location_input_ = url;
+  location_input_ = UTF8ToWide(url.spec());
   disposition_ = disposition;
   transition_ = transition;
 
   if (controller_) {
-    if (alternate_nav_url.empty()) {
+    if (!alternate_nav_url.is_valid()) {
       controller_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
       return;
     }

@@ -630,6 +630,6 @@ TEST_F(TemplateURLModelTest, ChangeGoogleBaseValue) {
   EXPECT_TRUE(model_->GetTemplateURLForHost("google.com") == NULL);
   EXPECT_EQ("foo.com", t_url->url()->GetHost());
   EXPECT_EQ(L"foo.com", t_url->keyword());
-  EXPECT_EQ(L"http://foo.com/?q=x", t_url->url()->ReplaceSearchTerms(*t_url,
-      L"x", TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()));
+  EXPECT_EQ("http://foo.com/?q=x", t_url->url()->ReplaceSearchTerms(*t_url,
+      L"x", TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()).spec());
 }

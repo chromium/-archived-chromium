@@ -235,17 +235,17 @@ void TemplateURLRef::ParseHostAndSearchTermKey() const {
   }
 }
 
-std::wstring TemplateURLRef::ReplaceSearchTerms(
+GURL TemplateURLRef::ReplaceSearchTerms(
     const TemplateURL& host,
     const std::wstring& terms,
     int accepted_suggestion,
     const std::wstring& original_query_for_suggestion) const {
   ParseIfNecessary();
   if (!valid_)
-    return std::wstring();
+    return GURL();
 
   if (replacements_.empty())
-    return parsed_url_;
+    return GURL(WideToUTF8(parsed_url_));
 
   // Encode the search terms so that we know the encoding.
   const std::vector<std::string>& encodings = host.input_encodings();
@@ -335,7 +335,7 @@ std::wstring TemplateURLRef::ReplaceSearchTerms(
     }
   }
 
-  return url;
+  return GURL(WideToUTF8(url));
 }
 
 bool TemplateURLRef::SupportsReplacement() const {

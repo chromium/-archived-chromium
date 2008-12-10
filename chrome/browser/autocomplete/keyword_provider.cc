@@ -168,7 +168,7 @@ void KeywordProvider::FillInURLAndContents(
           ACMatchClassification(0, ACMatchClassification::DIM));
     } else {
       // Keyword that has no replacement text (aka a shorthand for a URL).
-      match->destination_url.assign(element->url()->url());
+      match->destination_url = GURL(WideToUTF8(element->url()->url()));
       match->contents.assign(element->short_name());
       AutocompleteMatch::ClassifyLocationInString(0, match->contents.length(),
           match->contents.length(), ACMatchClassification::NONE,
@@ -180,9 +180,9 @@ void KeywordProvider::FillInURLAndContents(
     // input, but we rely on later canonicalization functions to do more
     // fixup to make the URL valid if necessary.
     DCHECK(element->url()->SupportsReplacement());
-    match->destination_url.assign(element->url()->ReplaceSearchTerms(
+    match->destination_url = element->url()->ReplaceSearchTerms(
       *element, remaining_input, TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
-      std::wstring()));
+      std::wstring());
     std::vector<size_t> content_param_offsets;
     match->contents.assign(l10n_util::GetStringF(IDS_KEYWORD_SEARCH,
                                                  element->short_name(),

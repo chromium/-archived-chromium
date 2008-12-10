@@ -88,14 +88,12 @@ static void DnsPrefetchMotivatedList(
     dns_master->ResolveList(hostnames, motivation);
 }
 
-// This API is used by the autocomplete popup box (wher URLs are typed).
-void DnsPrefetchUrlString(const url_canon::UTF16String& url_string) {
+// This API is used by the autocomplete popup box (where URLs are typed).
+void DnsPrefetchUrl(const GURL& url) {
   if (!dns_prefetch_enabled  || NULL == dns_master)
     return;
-  GURL gurl(url_string);
-  if (gurl.is_valid()) {
-    DnsMotivatedPrefetch(gurl.host(), DnsHostInfo::OMNIBOX_MOTIVATED);
-  }
+  if (url.is_valid())
+    DnsMotivatedPrefetch(url.host(), DnsHostInfo::OMNIBOX_MOTIVATED);
 }
 
 static void DnsMotivatedPrefetch(const std::string& hostname,

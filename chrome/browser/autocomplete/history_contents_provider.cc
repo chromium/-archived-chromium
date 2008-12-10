@@ -196,7 +196,7 @@ AutocompleteMatch HistoryContentsProvider::ResultToMatch(
   AutocompleteMatch match(this, score, false, MatchInTitle(result) ?
       AutocompleteMatch::HISTORY_TITLE : AutocompleteMatch::HISTORY_BODY);
   match.fill_into_edit = StringForURLDisplay(result.url(), true);
-  match.destination_url = UTF8ToWide(result.url().spec());
+  match.destination_url = result.url();
   match.contents = match.fill_into_edit;
   match.contents_class.push_back(
       ACMatchClassification(0, ACMatchClassification::URL));

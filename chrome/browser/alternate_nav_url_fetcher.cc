@@ -13,7 +13,7 @@
 #include "generated_resources.h"
 
 AlternateNavURLFetcher::AlternateNavURLFetcher(
-    const std::wstring& alternate_nav_url)
+    const GURL& alternate_nav_url)
     : LinkInfoBarDelegate(NULL),
       alternate_nav_url_(alternate_nav_url),
       controller_(NULL), 
@@ -97,7 +97,7 @@ std::wstring AlternateNavURLFetcher::GetMessageTextWithOffset(
 }
 
 std::wstring AlternateNavURLFetcher::GetLinkText() const {
-  return alternate_nav_url_;
+  return UTF8ToWide(alternate_nav_url_.spec());
 }
 
 SkBitmap* AlternateNavURLFetcher::GetIcon() const {
@@ -107,7 +107,7 @@ SkBitmap* AlternateNavURLFetcher::GetIcon() const {
 
 bool AlternateNavURLFetcher::LinkClicked(WindowOpenDisposition disposition) {
   infobar_contents_->OpenURL(
-      GURL(alternate_nav_url_), GURL(), disposition,
+      alternate_nav_url_, GURL(), disposition,
       // Pretend the user typed this URL, so that navigating to
       // it will be the default action when it's typed again in
       // the future.

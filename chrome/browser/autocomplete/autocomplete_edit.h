@@ -46,10 +46,10 @@ class AutocompleteEditController {
   // |alternate_nav_url|, if non-empty, contains the alternate navigation URL
   // for |url|, which the controller can check for existence.  See comments on
   // AutocompleteResult::GetAlternateNavURL().
-  virtual void OnAutocompleteAccept(const std::wstring& url,
+  virtual void OnAutocompleteAccept(const GURL& url,
       WindowOpenDisposition disposition,
       PageTransition::Type transition,
-      const std::wstring& alternate_nav_url) = 0;
+      const GURL& alternate_nav_url) = 0;
 
   // Called when anything has changed that might affect the layout or contents
   // of the views around the edit, including the text of the edit and the
@@ -325,9 +325,9 @@ class AutocompleteEditModel {
   //
   // See AutocompleteEdit for a description of the args (they may be null if
   // not needed).
-  std::wstring GetURLForCurrentText(PageTransition::Type* transition,
-                                    bool* is_history_what_you_typed_match,
-                                    std::wstring* alternate_nav_url);
+  GURL GetURLForCurrentText(PageTransition::Type* transition,
+                            bool* is_history_what_you_typed_match,
+                            GURL* alternate_nav_url);
 
   AutocompleteEditView* view_;
 
@@ -394,7 +394,7 @@ class AutocompleteEditModel {
   // arrows to a different item with the same text, we can still distinguish
   // them and not revert all the way to the permanent_text_.
   bool has_temporary_text_;
-  std::wstring original_url_;
+  GURL original_url_;
   KeywordUIState original_keyword_ui_state_;
 
   // When the user's last action was to paste and replace all the text, we
@@ -427,9 +427,9 @@ class AutocompleteEditModel {
   bool show_search_hint_;
 
   // Paste And Go-related state.  See CanPasteAndGo().
-  mutable std::wstring paste_and_go_url_;
+  mutable GURL paste_and_go_url_;
   mutable PageTransition::Type paste_and_go_transition_;
-  mutable std::wstring paste_and_go_alternate_nav_url_;
+  mutable GURL paste_and_go_alternate_nav_url_;
 
   Profile* profile_;
 
@@ -494,10 +494,10 @@ class AutocompleteEditView
   // If the URL was expanded from a keyword, |keyword| is that keyword.
   //
   // This may close the popup.
-  void OpenURL(const std::wstring& url,
+  void OpenURL(const GURL& url,
                WindowOpenDisposition disposition,
                PageTransition::Type transition,
-               const std::wstring& alternate_nav_url,
+               const GURL& alternate_nav_url,
                size_t selected_line,
                const std::wstring& keyword);
 

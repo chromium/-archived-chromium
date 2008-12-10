@@ -296,14 +296,14 @@ bool EditKeywordController::IsURLValid() const {
   if (!template_ref.IsValid())
     return false;
 
-  if (template_ref.SupportsReplacement()) {
-    // If the url has a search term, replace it with a random string and make
-    // sure the resulting URL is valid. We don't check the validity of the url
-    // with the search term as that is not necessarily valid.
-    url = template_ref.ReplaceSearchTerms(TemplateURL(), L"a",
-        TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
-  }
-  return GURL(url).is_valid();
+  if (!template_ref.SupportsReplacement())
+    return GURL(url).is_valid();
+
+  // If the url has a search term, replace it with a random string and make
+  // sure the resulting URL is valid. We don't check the validity of the url
+  // with the search term as that is not necessarily valid.
+  return template_ref.ReplaceSearchTerms(TemplateURL(), L"a",
+      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()).is_valid();
 }
 
 std::wstring EditKeywordController::GetURL() const {

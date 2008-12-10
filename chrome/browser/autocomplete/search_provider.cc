@@ -88,9 +88,9 @@ void SearchProvider::Run() {
   const TemplateURLRef* const suggestions_url =
       default_provider_.suggestions_url();
   DCHECK(suggestions_url->SupportsReplacement());
-  fetcher_.reset(new URLFetcher(GURL(suggestions_url->ReplaceSearchTerms(
+  fetcher_.reset(new URLFetcher(suggestions_url->ReplaceSearchTerms(
       default_provider_, input_.text(),
-      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring())),
+      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()),
       URLFetcher::GET, this));
   fetcher_->set_request_context(profile_->GetRequestContext());
   fetcher_->Start();
@@ -320,7 +320,7 @@ bool SearchProvider::ParseSuggestResults(Value* root_val) {
           description_list && description_list->Get(i, &site_val) &&
           site_val->IsType(Value::TYPE_STRING) &&
           site_val->GetAsString(&site_name)) {
-        navigation_results_.push_back(NavigationResult(suggestion_str,
+        navigation_results_.push_back(NavigationResult(GURL(suggestion_str),
                                                        site_name));
       }
     } else {
@@ -566,7 +566,7 @@ AutocompleteMatch SearchProvider::NavigationToMatch(
   AutocompleteMatch match(this, relevance, false,
                           AutocompleteMatch::NAVSUGGEST);
   match.destination_url = navigation.url;
-  match.contents = StringForURLDisplay(GURL(navigation.url), true);
+  match.contents = StringForURLDisplay(navigation.url, true);
   // TODO(kochi): Consider moving HistoryURLProvider::TrimHttpPrefix() to some
   // public utility function.
   if (!url_util::FindAndCompareScheme(input_.text(), "http", NULL))

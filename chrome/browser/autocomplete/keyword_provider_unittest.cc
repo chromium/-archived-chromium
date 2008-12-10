@@ -11,10 +11,11 @@
 
 class KeywordProviderTest : public testing::Test {
  protected:
+  template<class ResultType>
   struct test_data {
     const std::wstring input;
     const size_t num_results;
-    const std::wstring output[3];
+    const ResultType output[3];
   };
 
   KeywordProviderTest() : kw_provider_(NULL) { }
@@ -23,9 +24,10 @@ class KeywordProviderTest : public testing::Test {
   virtual void SetUp();
   virtual void TearDown();
 
-  void RunTest(test_data* keyword_cases,
+  template<class ResultType>
+  void RunTest(test_data<ResultType>* keyword_cases,
                int num_cases,
-               std::wstring AutocompleteMatch::* member);
+               ResultType AutocompleteMatch::* member);
 
  protected:
   scoped_refptr<KeywordProvider> kw_provider_;
@@ -52,10 +54,11 @@ void KeywordProviderTest::TearDown() {
   kw_provider_ = NULL;
 }
 
+template<class ResultType>
 void KeywordProviderTest::RunTest(
-    test_data* keyword_cases,
+    test_data<ResultType>* keyword_cases,
     int num_cases,
-    std::wstring AutocompleteMatch::* member) {
+    ResultType AutocompleteMatch::* member) {
   ACMatches matches;
   for (int i = 0; i < num_cases; ++i) {
     AutocompleteInput input(keyword_cases[i].input, std::wstring(), true,
@@ -74,7 +77,7 @@ void KeywordProviderTest::RunTest(
 }
 
 TEST_F(KeywordProviderTest, Edit) {
-  test_data edit_cases[] = {
+  test_data<std::wstring> edit_cases[] = {
     // Searching for a nonexistent prefix should give nothing.
     {L"Not Found",       0, {}},
     {L"aaaaaNot Found",  0, {}},
@@ -105,34 +108,35 @@ TEST_F(KeywordProviderTest, Edit) {
     {L"mailto:z",        1, {L"z "}},
   };
 
-  RunTest(edit_cases, arraysize(edit_cases),
-          &AutocompleteMatch::fill_into_edit);
+  RunTest<std::wstring>(edit_cases, arraysize(edit_cases),
+                        &AutocompleteMatch::fill_into_edit);
 }
 
 TEST_F(KeywordProviderTest, URL) {
-  test_data url_cases[] = {
+  test_data<GURL> url_cases[] = {
     // No query input -> empty destination URL.
-    {L"z",               1, {L""}},
-    {L"z    \t",         1, {L""}},
+    {L"z",               1, {GURL("")}},
+    {L"z    \t",         1, {GURL("")}},
 
     // Check that tokenization only collapses whitespace between first tokens
     // and query input, but not rest of URL, is escaped.
-    {L"z   a   b   c++", 1, {L"a+++b+++c%2B%2B=z"}},
-    {L"www.www www",     1, {L" +%2B?=wwwfoo "}},
+    {L"z   a   b   c++", 1, {GURL("a+++b+++c%2B%2B=z")}},
+    {L"www.www www",     1, {GURL(" +%2B?=wwwfoo ")}},
 
     // Substitution should work with various locations of the "%s".
-    {L"aaa 1a2b",        2, {L"http://aaaa/?aaaa=1&b=1a2b&c", L"1a2b"}},
-    {L"a 1 2 3",         3, {L"aa.com?foo=1+2+3", L"bogus URL 1+2+3",
-                             L"http://aaaa/?aaaa=1&b=1+2+3&c"}},
-    {L"www.w w",         2, {L" +%2B?=wfoo ", L"weaselwweasel"}},
+    {L"aaa 1a2b",        2, {GURL("http://aaaa/?aaaa=1&b=1a2b&c"),
+                             GURL("1a2b")}},
+    {L"a 1 2 3",         3, {GURL("aa.com?foo=1+2+3"), GURL("bogus URL 1+2+3"),
+                             GURL("http://aaaa/?aaaa=1&b=1+2+3&c")}},
+    {L"www.w w",         2, {GURL(" +%2B?=wfoo "), GURL("weaselwweasel")}},
   };
 
-  RunTest(url_cases, arraysize(url_cases),
-          &AutocompleteMatch::destination_url);
+  RunTest<GURL>(url_cases, arraysize(url_cases),
+                &AutocompleteMatch::destination_url);
 }
 
 TEST_F(KeywordProviderTest, Contents) {
-  test_data contents_cases[] = {
+  test_data<std::wstring> contents_cases[] = {
     // No query input -> substitute "<enter query>" into contents.
     {L"z",               1, {L"Search z for <enter query>"}},
     {L"z    \t",         1, {L"Search z for <enter query>"}},
@@ -150,12 +154,12 @@ TEST_F(KeywordProviderTest, Contents) {
     {L"www.w w",         2, {L"Search www for w", L"Search weasel for w"}},
   };
 
-  RunTest(contents_cases, arraysize(contents_cases),
-          &AutocompleteMatch::contents);
+  RunTest<std::wstring>(contents_cases, arraysize(contents_cases),
+                        &AutocompleteMatch::contents);
 }
 
 TEST_F(KeywordProviderTest, Description) {
-  test_data description_cases[] = {
+  test_data<std::wstring> description_cases[] = {
     // Whole keyword should be returned for both exact and inexact matches.
     {L"z foo",           1, {L"(Keyword: z)"}},
     {L"a foo",           3, {L"(Keyword: aa)", L"(Keyword: ab)",
@@ -168,8 +172,8 @@ TEST_F(KeywordProviderTest, Description) {
     {L"z   a   b   c++", 1, {L"(Keyword: z)"}},
   };
 
-  RunTest(description_cases, arraysize(description_cases),
-          &AutocompleteMatch::description);
+  RunTest<std::wstring>(description_cases, arraysize(description_cases),
+                        &AutocompleteMatch::description);
 }
 
 TEST_F(KeywordProviderTest, AddKeyword) {

@@ -137,9 +137,8 @@ void AutocompleteEditModel::SetUserText(const std::wstring& text) {
 void AutocompleteEditModel::GetDataForURLExport(GURL* url,
                                                 std::wstring* title,
                                                 SkBitmap* favicon) {
-  const std::wstring url_str(GetURLForCurrentText(NULL, NULL, NULL));
-  *url = GURL(url_str);
-  if (url_str == permanent_text_) {
+  *url = GetURLForCurrentText(NULL, NULL, NULL);
+  if (UTF8ToWide(url->possibly_invalid_spec()) == permanent_text_) {
     *title = controller_->GetTitle();
     *favicon = controller_->GetFavIcon();
   }
@@ -205,9 +204,9 @@ void AutocompleteEditModel::StartAutocomplete(
 
 bool AutocompleteEditModel::CanPasteAndGo(const std::wstring& text) const {
   // Reset local state.
-  paste_and_go_url_.clear();
+  paste_and_go_url_ = GURL();
   paste_and_go_transition_ = PageTransition::TYPED;
-  paste_and_go_alternate_nav_url_.clear();
+  paste_and_go_alternate_nav_url_ = GURL();
 
   // Ask the controller what do do with this input.
   paste_and_go_controller->SetProfile(profile_);
@@ -229,7 +228,7 @@ bool AutocompleteEditModel::CanPasteAndGo(const std::wstring& text) const {
   paste_and_go_alternate_nav_url_ =
       result.GetAlternateNavURL(paste_and_go_controller->input(), match);
 
-  return !paste_and_go_url_.empty();
+  return paste_and_go_url_.is_valid();
 }
 
 void AutocompleteEditModel::PasteAndGo() {
@@ -247,14 +246,14 @@ void AutocompleteEditModel::AcceptInput(WindowOpenDisposition disposition,
   // Get the URL and transition type for the selected entry.
   PageTransition::Type transition;
   bool is_history_what_you_typed_match;
-  std::wstring alternate_nav_url;
-  const std::wstring url(GetURLForCurrentText(&transition,
-                                              &is_history_what_you_typed_match,
-                                              &alternate_nav_url));
-  if (url.empty())
+  GURL alternate_nav_url;
+  const GURL url(GetURLForCurrentText(&transition,
+                                      &is_history_what_you_typed_match,
+                                      &alternate_nav_url));
+  if (!url.is_valid())
     return;
 
-  if (url == permanent_text_) {
+  if (UTF8ToWide(url.spec()) == permanent_text_) {
     // When the user hit enter on the existing permanent URL, treat it like a
     // reload for scoring purposes.  We could detect this by just checking
     // user_input_in_progress_, but it seems better to treat "edits" that end
@@ -565,10 +564,10 @@ std::wstring AutocompleteEditModel::UserTextFromDisplayText(
       text : (keyword_ + L" " + text);
 }
 
-std::wstring AutocompleteEditModel::GetURLForCurrentText(
+GURL AutocompleteEditModel::GetURLForCurrentText(
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
-    std::wstring* alternate_nav_url) {
+    GURL* alternate_nav_url) {
   return (popup_->is_open() || !popup_->autocomplete_controller()->done()) ?
       popup_->URLsForCurrentSelection(transition,
                                       is_history_what_you_typed_match,
@@ -868,13 +867,13 @@ void AutocompleteEditView::Update(const TabContents* tab_for_state_restoring) {
   }
 }
 
-void AutocompleteEditView::OpenURL(const std::wstring& url,
+void AutocompleteEditView::OpenURL(const GURL& url,
                                    WindowOpenDisposition disposition,
                                    PageTransition::Type transition,
-                                   const std::wstring& alternate_nav_url,
+                                   const GURL& alternate_nav_url,
                                    size_t selected_line,
                                    const std::wstring& keyword) {
-  if (url.empty())
+  if (!url.is_valid())
     return;
 
   model_->SendOpenNotification(selected_line, keyword);

@@ -37,7 +37,7 @@ class AlternateNavURLFetcher : public NotificationObserver,
     FAILED,
   };
 
-  explicit AlternateNavURLFetcher(const std::wstring& alternate_nav_url);
+  explicit AlternateNavURLFetcher(const GURL& alternate_nav_url);
 
   State state() const { return state_; }
 
@@ -66,7 +66,7 @@ class AlternateNavURLFetcher : public NotificationObserver,
   // the fetch of the alternate URL succeeded).
   void ShowInfobarIfPossible();
 
-  std::wstring alternate_nav_url_;
+  GURL alternate_nav_url_;
   scoped_ptr<URLFetcher> fetcher_;
   NavigationController* controller_;
   State state_;

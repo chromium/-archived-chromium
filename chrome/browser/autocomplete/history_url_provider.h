@@ -321,7 +321,7 @@ class HistoryURLProvider : public AutocompleteProvider {
   // |prefix_suffix| (which may be empty) is appended to every attempted
   // prefix.  This is useful when you need to figure out the innermost match
   // for some user input in a URL.
-  const Prefix* BestPrefix(const std::wstring& text,
+  const Prefix* BestPrefix(const GURL& text,
                            const std::wstring& prefix_suffix) const;
 
   // Adds the exact input for what the user has typed as input. This is

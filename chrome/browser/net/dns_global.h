@@ -31,7 +31,7 @@ void RegisterUserPrefs(PrefService* user_prefs);
 // Renderer bundles up list and sends to this browser API via IPC.
 void DnsPrefetchList(const NameList& hostnames);
 // This API is used by the autocomplete popup box (as user types).
-void DnsPrefetchUrlString(const url_canon::UTF16String& url_string);
+void DnsPrefetchUrl(const GURL& url);
 void DnsPrefetchGetHtmlInfo(std::string* output);
 
 //------------------------------------------------------------------------------

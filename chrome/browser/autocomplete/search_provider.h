@@ -61,13 +61,13 @@ class SearchProvider : public AutocompleteProvider,
 
  private:
   struct NavigationResult {
-    NavigationResult(const std::wstring& url, const std::wstring& site_name)
+    NavigationResult(const GURL& url, const std::wstring& site_name)
         : url(url),
           site_name(site_name) {
     }
 
     // The URL.
-    std::wstring url;
+    GURL url;
 
     // Name for the site.
     std::wstring site_name;
