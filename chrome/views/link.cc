@@ -104,15 +104,7 @@ void Link::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 bool Link::OnKeyPressed(const KeyEvent& e) {
-  if ((e.GetCharacter() == L' ') || (e.GetCharacter() == L'\n')) {
-    SetHighlighted(true);
-    return true;
-  }
-  return false;
-}
-
-bool Link::OnKeyReleased(const KeyEvent& e) {
-  if ((e.GetCharacter() == L' ') || (e.GetCharacter() == L'\n')) {
+  if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
     SetHighlighted(false);
 
     // Focus the link on key pressed.
@@ -124,6 +116,11 @@ bool Link::OnKeyReleased(const KeyEvent& e) {
     return true;
   }
   return false;
+}
+
+bool Link::OverrideAccelerator(const Accelerator& accelerator) {
+  return (accelerator.GetKeyCode() == VK_SPACE) ||
+         (accelerator.GetKeyCode() == VK_RETURN);
 }
 
 void Link::SetHighlighted(bool f) {

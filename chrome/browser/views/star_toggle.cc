@@ -63,7 +63,7 @@ void StarToggle::OnMouseReleased(const views::MouseEvent& e,
 }
 
 bool StarToggle::OnKeyPressed(const views::KeyEvent& e) {
-  if ((e.GetCharacter() == L' ') || (e.GetCharacter() == L'\n')) {
+  if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
     SwitchState();
     return true;
   }

@@ -47,7 +47,7 @@ class Link : public Label {
   virtual void OnMouseReleased(const MouseEvent& event,
                                bool canceled);
   virtual bool OnKeyPressed(const KeyEvent& e);
-  virtual bool OnKeyReleased(const KeyEvent& e);
+  virtual bool OverrideAccelerator(const Accelerator& accelerator);
 
   virtual void SetFont(const ChromeFont& font);
 
