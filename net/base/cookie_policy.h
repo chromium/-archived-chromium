@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_COOKIE_POLICY_H__
-#define NET_BASE_COOKIE_POLICY_H__
+#ifndef NET_BASE_COOKIE_POLICY_H_
+#define NET_BASE_COOKIE_POLICY_H_
 
 #include "base/basictypes.h"
 
@@ -45,10 +45,10 @@ class CookiePolicy {
  private:
   Type type_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CookiePolicy);
+  DISALLOW_COPY_AND_ASSIGN(CookiePolicy);
 };
 
 }  // namespace net
 
-#endif // NET_BASE_COOKIE_POLICY_H__
+#endif // NET_BASE_COOKIE_POLICY_H_
 
