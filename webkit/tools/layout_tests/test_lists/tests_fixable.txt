@@ -1999,19 +1999,30 @@ LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 LayoutTests/wml/variable-reference-invalid-character.html = FAIL
 LayoutTests/wml/variable-reference-valid.html = FAIL
 
-// Linux pixeltest failure: Seafoam green showing
+// Linux pixeltest failure: font metrics for Ahem(?).
+// evanm sent a reduction of this problem to agl.
 LINUX : LayoutTests/fast/block/margin-collapse/055.html = FAIL
+
 // Linux pixeltest failure: We aren't clipping the scrollbar
 LINUX : LayoutTests/fast/clip/014.html = FAIL
-// Linux pixeltest failure: Need to check that the alpha channels are correct,
-// otherwise may be ok
-LINUX : LayoutTests/fast/css/hsla-color.html = FAIL
-// Linux pixeltest failure: Looks like we might be drawing this wrong, Windows has a different colour
-LINUX : LayoutTests/fast/css/imageTileOpacity.html = FAIL
+
+// Windows pixeltest failure: alpha=0.5 red does not come out blended.
+// Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
+// coming out with with a slightly-less-than-100% red channel.
+// Looks like we need to investigate HSL color conversion.
+LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
+
+// Windows pixeltest failure: upstream baseline has the background of the
+// "Cancel" button in a slightly darker gray than the surrounding dark gray.
+WIN : LayoutTests/fast/css/imageTileOpacity.html = FAIL
+
 // Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/css/word-space-extra.html = FAIL
-// Linux pixeltest failure: Missing red bars, not clear who is at fault
+
+// Linux pixeltest failure: Appears identical -- needs a pass with a fuzzy
+// differ.
 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
+
 // Linux pixeltest failure: Word spacing
 LINUX : LayoutTests/fast/multicol/float-avoidance.html = FAIL
 // Linux pixeltest failure: Indent is incorrect
