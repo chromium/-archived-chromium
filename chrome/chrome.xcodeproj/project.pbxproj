@@ -3698,7 +3698,7 @@
 		E4F325990EE837BF002533CE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = run_unit_tests;
+				PRODUCT_NAME = run_ipc_tests;
 			};
 			name = Release;
 		};

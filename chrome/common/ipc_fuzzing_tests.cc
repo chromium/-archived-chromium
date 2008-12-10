@@ -314,7 +314,7 @@ TEST_F(IPCFuzzingTest, SanityTest) {
 TEST_F(IPCFuzzingTest, MsgBadPayloadShort) {
   base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
   ASSERT_TRUE(server_process);
-  ::Sleep(1000);
+  PlatformThread::Sleep(1000);
   FuzzerClientListener listener;
   IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_CLIENT,
                     &listener);
@@ -331,7 +331,7 @@ TEST_F(IPCFuzzingTest, MsgBadPayloadShort) {
   chan.Send(msg);
   EXPECT_TRUE(listener.ExpectMessage(1, MsgClassSI::ID));
 
-  ASSERT_EQ(WAIT_OBJECT_0, ::WaitForSingleObject(server_process, 5000));
+  EXPECT_TRUE(base::WaitForSingleProcess(server_process, 5000));
 }
 #endif  // NDEBUG
 
