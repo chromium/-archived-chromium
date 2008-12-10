@@ -79,7 +79,6 @@ input_files = [
     'http/http_vary_data.cc',
     'http/winhttp_request_throttle.cc',
     'proxy/proxy_resolver_fixed.cc',
-    'proxy/proxy_script_fetcher.cc',
     'proxy/proxy_service.cc',
     'url_request/mime_sniffer_proxy.cc',
     'url_request/url_request.cc',
