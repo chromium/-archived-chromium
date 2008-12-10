@@ -498,14 +498,14 @@ chrome/fast/dom/java-applet-calls.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
-LINUX WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
-LINUX WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
+WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
+WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
 
 // These tests don't work on the open source buildbot because there's no font
 // covering YinYang sign. See bug # 2304.
-LINUX WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
-LINUX WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
-LINUX WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 // No glyph for U+FFFD (Replacement Character : black diamond with question mark) in them
 LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 // Zero width chars
@@ -824,7 +824,6 @@ LINUX WIN : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
 LINUX : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
-LINUX : LayoutTests/css2.1/t1508-c527-font-00-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1508-c527-font-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
 LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
@@ -969,9 +968,6 @@ LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAI
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5518-brdr-t-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5520-brdr-b-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-00-c-g.html = FAIL
 LINUX : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
 LINUX : LayoutTests/fast/js/date-big-setdate.html = FAIL
 
