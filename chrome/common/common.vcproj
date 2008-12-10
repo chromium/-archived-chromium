@@ -221,7 +221,7 @@
 			Name="ipc"
 			>
 			<File
-				RelativePath=".\ipc_channel.cc"
+				RelativePath=".\ipc_channel_win.cc"
 				>
 			</File>
 			<File

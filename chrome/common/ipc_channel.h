@@ -5,22 +5,13 @@
 #ifndef CHROME_COMMON_IPC_CHANNEL_H_
 #define CHROME_COMMON_IPC_CHANNEL_H_
 
-#include <queue>
-
-#include "base/message_loop.h"
 #include "chrome/common/ipc_message.h"
 
 namespace IPC {
 
 //------------------------------------------------------------------------------
 
-class Channel : public Message::Sender,
-#if defined(OS_WIN)
-    public MessageLoopForIO::IOHandler
-#elif defined(OS_POSIX)
-    public MessageLoopForIO::FileWatcher
-#endif
-    {
+class Channel : public Message::Sender {
   // Security tests need access to the pipe handle.
   friend class ChannelTest;
 
@@ -47,10 +38,13 @@ class Channel : public Message::Sender,
     MODE_CLIENT
   };
 
-  // The maximum message size in bytes. Attempting to receive a
-  // message of this size or bigger results in a channel error.
   enum {
-    kMaximumMessageSize = 256 * 1024 * 1024
+    // The maximum message size in bytes. Attempting to receive a
+    // message of this size or bigger results in a channel error.
+    kMaximumMessageSize = 256 * 1024 * 1024,
+
+    // Ammount of data to read at once from the pipe.
+    kReadBufferSize = 4 * 1024
   };
 
   // Initialize a Channel.
@@ -65,7 +59,7 @@ class Channel : public Message::Sender,
   //
   Channel(const std::wstring& channel_id, Mode mode, Listener* listener);
 
-  ~Channel() { Close(); }
+  ~Channel();
 
   // Connect the pipe.  On the server side, this will initiate
   // waiting for connections.  On the client, it attempts to
@@ -78,7 +72,7 @@ class Channel : public Message::Sender,
   void Close();
 
   // Modify the Channel's listener.
-  void set_listener(Listener* listener) { listener_ = listener; }
+  void set_listener(Listener* listener);
 
   // Send a message over the Channel to the listener on the other end.
   //
@@ -92,87 +86,9 @@ class Channel : public Message::Sender,
   virtual bool Send(Message* message);
 
  private:
-  const std::wstring PipeName(const std::wstring& channel_id) const;
-  bool CreatePipe(const std::wstring& channel_id, Mode mode);
-#if defined(OS_WIN)
-  bool ProcessConnection();
-  bool ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
-                               DWORD bytes_read);
-  bool ProcessOutgoingMessages(MessageLoopForIO::IOContext* context,
-                               DWORD bytes_written);
-
-  // MessageLoop::IOHandler implementation.
-  virtual void OnIOCompleted(MessageLoopForIO::IOContext* context,
-                             DWORD bytes_transfered, DWORD error);
- private:
-  enum {
-    BUF_SIZE = 4096
-  };
-
-  struct State {
-    explicit State(Channel* channel);
-    ~State();
-    MessageLoopForIO::IOContext context;
-    bool is_pending;
-  };
-
-  State input_state_;
-  State output_state_;
-
-  HANDLE pipe_;
-#elif defined(OS_POSIX)
-  bool ProcessIncomingMessages();
-  bool ProcessOutgoingMessages();
-
-  void OnFileReadReady(int fd);
-  void OnFileWriteReady(int fd);
-
-
-  Mode mode_;
-
-  // TODO(playmobil): do we need to change BUF_SIZE ?
- private:
-  enum {
-    BUF_SIZE = 4096
-  };
-
-  // PIMPL to encapsulate libevent structures.
-  struct EventHolder;
-  EventHolder *server_listen_connection_event_;
-  EventHolder *read_event_;
-  EventHolder *write_event_;
-
-  // If sending a message blocks then we use this variable
-  // to keep track of where we are.
-  size_t message_send_bytes_written_;
-
-  int server_listen_pipe_;
-  int pipe_;
-  std::string pipe_name_;
-#endif  // defined(OS_POSIX)
-  Listener* listener_;
-
-  // Messages to be sent are queued here.
-  std::queue<Message*> output_queue_;
-
-  // We read from the pipe into this buffer
-  char input_buf_[BUF_SIZE];
-
-  // Large messages that span multiple pipe buffers, get built-up using
-  // this buffer.
-  std::string input_overflow_buf_;
-
-  // In server-mode, we have to wait for the client to connect before we
-  // can begin reading.  We make use of the input_state_ when performing
-  // the connect operation in overlapped mode.
-  bool waiting_connect_;
-
-  // This flag is set when processing incoming messages.  It is used to
-  // avoid recursing through ProcessIncomingMessages, which could cause
-  // problems.  TODO(darin): make this unnecessary
-  bool processing_incoming_;
-
-  ScopedRunnableMethodFactory<Channel> factory_;
+  // PIMPL to which all channel calls are delegated.
+  class ChannelImpl;
+  ChannelImpl *channel_impl_;
 
   // The Hello message is internal to the Channel class.  It is sent
   // by the peer when the channel is connected.  The message contains
@@ -186,7 +102,6 @@ class Channel : public Message::Sender,
   };
 };
 
-}
+}  // namespace IPC
 
 #endif  // CHROME_COMMON_IPC_CHANNEL_H_
-

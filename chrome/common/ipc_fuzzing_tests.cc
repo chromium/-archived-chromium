@@ -7,13 +7,13 @@
 #include <string>
 #include <sstream>
 
-#include "chrome/common/ipc_tests.h"
-
+#include "base/message_loop.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message_utils.h"
+#include "chrome/common/ipc_tests.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/multiprocess_func_list.h"
 

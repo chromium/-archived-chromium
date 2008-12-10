@@ -9,6 +9,8 @@
 
 #include <windows.h>
 
+#include <queue>
+
 #include "base/hash_tables.h"
 #include "base/task.h"
 #include "chrome/common/ipc_channel.h"

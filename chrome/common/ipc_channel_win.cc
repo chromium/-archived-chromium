@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/ipc_channel.h"
+#include "chrome/common/ipc_channel_win.h"
 
 #include <windows.h>
 #include <sstream>
@@ -14,24 +14,23 @@
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_message_utils.h"
 
-using namespace std;
-
 namespace IPC {
-
 //------------------------------------------------------------------------------
 
-Channel::State::State(Channel* channel) : is_pending(false) {
+Channel::ChannelImpl::State::State(ChannelImpl* channel) : is_pending(false) {
   memset(&context.overlapped, 0, sizeof(context.overlapped));
   context.handler = channel;
 }
 
-Channel::State::~State() {
-  COMPILE_ASSERT(!offsetof(Channel::State, context), starts_with_io_context);
+Channel::ChannelImpl::State::~State() {
+  COMPILE_ASSERT(!offsetof(Channel::ChannelImpl::State, context),
+                 starts_with_io_context);
 }
 
 //------------------------------------------------------------------------------
 
-Channel::Channel(const wstring& channel_id, Mode mode, Listener* listener)
+Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
+                              Listener* listener)
     : ALLOW_THIS_IN_INITIALIZER_LIST(input_state_(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(output_state_(this)),
       pipe_(INVALID_HANDLE_VALUE),
@@ -46,7 +45,7 @@ Channel::Channel(const wstring& channel_id, Mode mode, Listener* listener)
   }
 }
 
-void Channel::Close() {
+void Channel::ChannelImpl::Close() {
   bool waited = false;
   if (input_state_.is_pending || output_state_.is_pending) {
     CancelIo(pipe_);
@@ -77,7 +76,7 @@ void Channel::Close() {
   }
 }
 
-bool Channel::Send(Message* message) {
+bool Channel::ChannelImpl::Send(Message* message) {
   chrome::Counters::ipc_send_counter().Increment();
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
   DLOG(INFO) << "sending message @" << message << " on channel @" << this
@@ -101,16 +100,18 @@ bool Channel::Send(Message* message) {
   return true;
 }
 
-const wstring Channel::PipeName(const wstring& channel_id) const {
-  wostringstream ss;
+const std::wstring Channel::ChannelImpl::PipeName(const std::wstring& channel_id)
+    const {
+  std::wostringstream ss;
   // XXX(darin): get application name from somewhere else
   ss << L"\\\\.\\pipe\\chrome." << channel_id;
   return ss.str();
 }
 
-bool Channel::CreatePipe(const wstring& channel_id, Mode mode) {
+bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
+                                      Mode mode) {
   DCHECK(pipe_ == INVALID_HANDLE_VALUE);
-  const wstring pipe_name = PipeName(channel_id);
+  const std::wstring pipe_name = PipeName(channel_id);
   if (mode == MODE_SERVER) {
     SECURITY_ATTRIBUTES security_attributes = {0};
     security_attributes.bInheritHandle = FALSE;
@@ -126,8 +127,10 @@ bool Channel::CreatePipe(const wstring& channel_id, Mode mode) {
                                 FILE_FLAG_FIRST_PIPE_INSTANCE,
                              PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
                              1,         // number of pipe instances
-                             BUF_SIZE,  // output buffer size (XXX tune)
-                             BUF_SIZE,  // input buffer size (XXX tune)
+                             // output buffer size (XXX tune)
+                             Channel::kReadBufferSize,
+                             // input buffer size (XXX tune)
+                             Channel::kReadBufferSize,
                              5000,      // timeout in milliseconds (XXX tune)
                              &security_attributes);
     LocalFree(security_attributes.lpSecurityDescriptor);
@@ -161,7 +164,7 @@ bool Channel::CreatePipe(const wstring& channel_id, Mode mode) {
   return true;
 }
 
-bool Channel::Connect() {
+bool Channel::ChannelImpl::Connect() {
   DLOG(WARNING) << "Connect called twice";
 
   if (pipe_ == INVALID_HANDLE_VALUE)
@@ -178,7 +181,7 @@ bool Channel::Connect() {
     // to true, we indicate to OnIOCompleted that this is the special
     // initialization signal.
     MessageLoopForIO::current()->PostTask(FROM_HERE, factory_.NewRunnableMethod(
-        &Channel::OnIOCompleted, &input_state_.context, 0, 0));
+        &Channel::ChannelImpl::OnIOCompleted, &input_state_.context, 0, 0));
   }
 
   if (!waiting_connect_)
@@ -186,7 +189,7 @@ bool Channel::Connect() {
   return true;
 }
 
-bool Channel::ProcessConnection() {
+bool Channel::ChannelImpl::ProcessConnection() {
   if (input_state_.is_pending)
     input_state_.is_pending = false;
 
@@ -219,8 +222,9 @@ bool Channel::ProcessConnection() {
   return true;
 }
 
-bool Channel::ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
-                                      DWORD bytes_read) {
+bool Channel::ChannelImpl::ProcessIncomingMessages(
+    MessageLoopForIO::IOContext* context,
+    DWORD bytes_read) {
   if (input_state_.is_pending) {
     input_state_.is_pending = false;
     DCHECK(context);
@@ -240,7 +244,7 @@ bool Channel::ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
       // Read from pipe...
       BOOL ok = ReadFile(pipe_,
                          input_buf_,
-                         BUF_SIZE,
+                         Channel::kReadBufferSize,
                          &bytes_read,
                          &input_state_.context.overlapped);
       if (!ok) {
@@ -304,8 +308,9 @@ bool Channel::ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
   return true;
 }
 
-bool Channel::ProcessOutgoingMessages(MessageLoopForIO::IOContext* context,
-                                      DWORD bytes_written) {
+bool Channel::ChannelImpl::ProcessOutgoingMessages(
+    MessageLoopForIO::IOContext* context,
+    DWORD bytes_written) {
   DCHECK(!waiting_connect_);  // Why are we trying to send messages if there's
                               // no connection?
 
@@ -362,7 +367,7 @@ bool Channel::ProcessOutgoingMessages(MessageLoopForIO::IOContext* context,
   return true;
 }
 
-void Channel::OnIOCompleted(MessageLoopForIO::IOContext* context,
+void Channel::ChannelImpl::OnIOCompleted(MessageLoopForIO::IOContext* context,
                             DWORD bytes_transfered, DWORD error) {
   bool ok;
   if (context == &input_state_.context) {
@@ -392,4 +397,31 @@ void Channel::OnIOCompleted(MessageLoopForIO::IOContext* context,
   }
 }
 
+//------------------------------------------------------------------------------
+// Channel's methods simply call through to ChannelImpl.
+Channel::Channel(const std::wstring& channel_id, Mode mode,
+                 Listener* listener)
+    : channel_impl_(new ChannelImpl(channel_id, mode, listener)) {
 }
+
+Channel::~Channel() {
+  delete channel_impl_;
+}
+
+bool Channel::Connect() {
+  return channel_impl_->Connect();
+}
+
+void Channel::Close() {
+  channel_impl_->Close();
+}
+
+void Channel::set_listener(Listener* listener) {
+  channel_impl_->set_listener(listener);
+}
+
+bool Channel::Send(Message* message) {
+  return channel_impl_->Send(message);
+}
+
+}  // namespace IPC

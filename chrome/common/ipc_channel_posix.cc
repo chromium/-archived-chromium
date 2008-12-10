@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/ipc_channel.h"
+#include "chrome/common/ipc_channel_posix.h"
 
 #include <fcntl.h>
 #include <sys/types.h>
@@ -17,7 +17,6 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/ipc_message_utils.h"
-#include "third_party/libevent/event.h"
 
 namespace IPC {
 
@@ -140,25 +139,10 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
 }
 
 }  // namespace
-
 //------------------------------------------------------------------------------
 
-// PIMPL wrapper for libevent event.
-// TODO(playmobil): MessageLoopForIO needs to better encapsulate libevent.
-struct Channel::EventHolder {
-  EventHolder() : is_active(false) {}
-  ~EventHolder() {}
-
-  bool is_active;
-
-  // libevent's set functions set all the needed members of this struct, so no
-  // need to initialize before use.
-  struct event event;
-};
-
-//------------------------------------------------------------------------------
-
-Channel::Channel(const std::wstring& channel_id, Mode mode, Listener* listener)
+Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
+                                  Listener* listener)
     : mode_(mode),
     server_listen_connection_event_(new EventHolder()),
     read_event_(new EventHolder()),
@@ -178,7 +162,8 @@ Channel::Channel(const std::wstring& channel_id, Mode mode, Listener* listener)
   }
 }
 
-const std::wstring Channel::PipeName(const std::wstring& channel_id) const {
+const std::wstring Channel::ChannelImpl::PipeName(
+    const std::wstring& channel_id) const {
   std::wostringstream ss;
   // TODO(playmobil): This should live in the Chrome user data directory.
   // TODO(playmobil): Cleanup any stale fifos.
@@ -186,7 +171,8 @@ const std::wstring Channel::PipeName(const std::wstring& channel_id) const {
   return ss.str();
 }
 
-bool Channel::CreatePipe(const std::wstring& channel_id, Mode mode) {
+bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
+                                      Mode mode) {
   DCHECK(server_listen_pipe_ == -1 && pipe_ == -1);
 
   // TODO(playmobil): Should we just change pipe_name to be a normal string
@@ -217,7 +203,7 @@ bool Channel::CreatePipe(const std::wstring& channel_id, Mode mode) {
   return true;
 }
 
-bool Channel::Connect() {
+bool Channel::ChannelImpl::Connect() {
   if (mode_ == MODE_SERVER) {
     if (server_listen_pipe_ == -1) {
       return false;
@@ -245,7 +231,7 @@ bool Channel::Connect() {
   return true;
 }
 
-bool Channel::ProcessIncomingMessages() {
+bool Channel::ChannelImpl::ProcessIncomingMessages() {
   ssize_t bytes_read = 0;
 
   for (;;) {
@@ -257,7 +243,7 @@ bool Channel::ProcessIncomingMessages() {
       // recv() returns 0 if the connection has closed or EAGAIN if no data is
       // waiting on the pipe.
       do {
-        bytes_read = read(pipe_, input_buf_, BUF_SIZE);
+        bytes_read = read(pipe_, input_buf_, Channel::kReadBufferSize);
       } while (bytes_read == -1 && errno == EINTR);
       if (bytes_read < 0) {
         if (errno == EAGAIN) {
@@ -322,7 +308,7 @@ bool Channel::ProcessIncomingMessages() {
   return true;
 }
 
-bool Channel::ProcessOutgoingMessages() {
+bool Channel::ChannelImpl::ProcessOutgoingMessages() {
   DCHECK(!waiting_connect_);  // Why are we trying to send messages if there's
                               // no connection?
 
@@ -384,7 +370,7 @@ bool Channel::ProcessOutgoingMessages() {
   return true;
 }
 
-bool Channel::Send(Message* message) {
+bool Channel::ChannelImpl::Send(Message* message) {
   chrome::Counters::ipc_send_counter().Increment();
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
   DLOG(INFO) << "sending message @" << message << " on channel @" << this
@@ -409,7 +395,7 @@ bool Channel::Send(Message* message) {
 }
 
 // Called by libevent when we can read from th pipe without blocking.
-void Channel::OnFileReadReady(int fd) {
+void Channel::ChannelImpl::OnFileReadReady(int fd) {
   bool send_server_hello_msg = false;
   if (waiting_connect_ && mode_ == MODE_SERVER) {
     if (!ServerAcceptFifoConnection(server_listen_pipe_, &pipe_)) {
@@ -449,14 +435,14 @@ void Channel::OnFileReadReady(int fd) {
 }
 
 // Called by libevent when we can write to the pipe without blocking.
-void Channel::OnFileWriteReady(int fd) {
+void Channel::ChannelImpl::OnFileWriteReady(int fd) {
   if (!ProcessOutgoingMessages()) {
     Close();
     listener_->OnChannelError();
   }
 }
 
-void Channel::Close() {
+void Channel::ChannelImpl::Close() {
   // Close can be called multiple time, so we need to make sure we're
   // idempotent.
 
@@ -499,6 +485,33 @@ void Channel::Close() {
     output_queue_.pop();
     delete m;
   }
+}
+
+//------------------------------------------------------------------------------
+// Channel's methods simply call through to ChannelImpl.
+Channel::Channel(const std::wstring& channel_id, Mode mode,
+                 Listener* listener)
+    : channel_impl_(new ChannelImpl(channel_id, mode, listener)) {
+}
+
+Channel::~Channel() {
+  delete channel_impl_;
+}
+
+bool Channel::Connect() {
+  return channel_impl_->Connect();
+}
+
+void Channel::Close() {
+  channel_impl_->Close();
+}
+
+void Channel::set_listener(Listener* listener) {
+  channel_impl_->set_listener(listener);
+}
+
+bool Channel::Send(Message* message) {
+  return channel_impl_->Send(message);
 }
 
 }  // namespace IPC

@@ -1272,7 +1272,6 @@
 		4D7BFBA60E9D4C9F009A6919 /* env_vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = env_vars.h; sourceTree = "<group>"; };
 		4D7BFBA70E9D4C9F009A6919 /* filter_policy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_policy.h; sourceTree = "<group>"; };
 		4D7BFBA80E9D4C9F009A6919 /* gears_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gears_api.h; sourceTree = "<group>"; };
-		4D7BFBA90E9D4C9F009A6919 /* ipc_channel.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_channel.cc; sourceTree = "<group>"; };
 		4D7BFBAA0E9D4C9F009A6919 /* ipc_channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_channel.h; sourceTree = "<group>"; };
 		4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_channel_proxy.cc; sourceTree = "<group>"; };
 		4D7BFBAC0E9D4C9F009A6919 /* ipc_channel_proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_channel_proxy.h; sourceTree = "<group>"; };
@@ -1423,6 +1422,7 @@
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
 		B562C8410ED49C830077A23F /* mach_ipc_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_ipc_mac.h; sourceTree = "<group>"; };
 		B562C8420ED49C830077A23F /* mach_ipc_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mach_ipc_mac.mm; sourceTree = "<group>"; };
+		B5D7CD350EF0702F00EE645F /* ipc_channel_posix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_channel_posix.h; sourceTree = "<group>"; };
 		B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ipc_tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_channel_posix.cc; sourceTree = "<group>"; };
 		E45060E40EE87B86003BE099 /* Chromium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chromium.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2294,9 +2294,9 @@
 				4D7BFBA60E9D4C9F009A6919 /* env_vars.h */,
 				4D7BFBA70E9D4C9F009A6919 /* filter_policy.h */,
 				4D7BFBA80E9D4C9F009A6919 /* gears_api.h */,
-				4D7BFBA90E9D4C9F009A6919 /* ipc_channel.cc */,
 				4D7BFBAA0E9D4C9F009A6919 /* ipc_channel.h */,
 				B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */,
+				B5D7CD350EF0702F00EE645F /* ipc_channel_posix.h */,
 				4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */,
 				4D7BFBAC0E9D4C9F009A6919 /* ipc_channel_proxy.h */,
 				4D7BFBAD0E9D4C9F009A6919 /* ipc_fuzzing_tests.cc */,

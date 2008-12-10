@@ -10,6 +10,8 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 
+class MessageLoop;
+
 namespace IPC {
 
 //-----------------------------------------------------------------------------
