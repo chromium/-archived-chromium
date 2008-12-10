@@ -123,6 +123,8 @@ class TestRunner:
             filename = os.path.normpath(filename)
             self._test_files.add(filename)
 
+    logging.info('Found: %d tests' % len(self._test_files))
+
     # Filter and sort out files from the skipped, ignored, and fixable file
     # lists.
     saved_test_files = set()
@@ -159,9 +161,40 @@ class TestRunner:
     if len(saved_test_files):
       self._test_files = saved_test_files
 
-    logging.info('Run: %d tests' % len(self._test_files))
     logging.info('Skipped: %d tests' % len(skipped))
     logging.info('Skipped tests do not appear in any of the below numbers\n')
+
+    # If the user specifies they just want to run a subset chunk of the tests,
+    # just grab a subset of the non-skipped tests.
+    if self._options.run_chunk:
+      test_files = list(self._test_files)
+      try:
+        (chunk_num, chunk_len) = self._options.run_chunk.split(":")
+        chunk_num = int(chunk_num)
+        assert(chunk_num >= 0)
+        chunk_len = int(chunk_len)
+        assert(chunk_len > 0)
+      except:
+        logging.critical("invalid chunk '%s'" % self._options.run_chunk)
+        sys.exit(1)
+      num_tests = len(test_files)
+      slice_start = (chunk_num * chunk_len) % num_tests
+      slice_end = min(num_tests + 1, slice_start + chunk_len)
+      files = test_files[slice_start:slice_end]
+      logging.info('Run: %d tests (chunk slice [%d:%d] of %d)' % (
+          chunk_len, slice_start, slice_end, num_tests))
+      if slice_end - slice_start < chunk_len:
+        extra = 1 + chunk_len - (slice_end - slice_start)
+        logging.info('   last chunk is partial, appending [0:%d]' % extra)
+        files.extend(test_files[0:extra])
+      self._test_files = set(files)
+      # update expectations so that the stats are calculated correctly
+      expectations = test_expectations.TestExpectations(self._test_files,
+                                                        file_dir,
+                                                        is_debug_mode)
+    else:
+      logging.info('Run: %d tests' % len(self._test_files))
+
     logging.info('Expected passes: %d tests' %
                  len(self._test_files -
                      expectations.GetFixable() -
@@ -241,6 +274,7 @@ class TestRunner:
       random.shuffle(test_files)
     else:
       test_files.sort(self.TestFilesSort)
+
     # Create the thread safe queue of (test filenames, test URIs) tuples. Each
     # TestShellThread pulls values from this queue.
     filename_queue = Queue.Queue()
@@ -685,5 +719,9 @@ if '__main__' == __name__:
                            default=False,
                            help=("Run tests in random order (useful for "
                                  "tracking down corruption)"))
+  option_parser.add_option("", "--run-chunk",
+                           default=None,
+                           help=("Run a specified chunk (n:l), the nth of len l"
+                                 ", of the layout tests"))
   options, args = option_parser.parse_args()
   main(options, args)
