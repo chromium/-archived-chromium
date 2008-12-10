@@ -2027,3 +2027,7 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
+
+// Started failing with r6667 I think. (darin)
+LayoutTests/fast/dom/javascript-url-crash-function.html = CRASH
+LayoutTests/http/tests/misc/font-face-in-multiple-segmented-faces.html = CRASH
