@@ -7,6 +7,8 @@
 
 #include <windows.h>
 
+#include <vector>
+
 #include "base/gfx/size.h"
 #include "base/timer.h"
 #include "chrome/common/ipc_channel.h"
