@@ -17,8 +17,8 @@
 // BZip2Filter is also a subclass of Filter. See the latter's header file filter.h
 // for sample usage.
 
-#ifndef NET_BASE_BZIP2_FILTER_H__
-#define NET_BASE_BZIP2_FILTER_H__
+#ifndef NET_BASE_BZIP2_FILTER_H_
+#define NET_BASE_BZIP2_FILTER_H_
 
 #include "base/scoped_ptr.h"
 #include "net/base/filter.h"
@@ -77,8 +77,8 @@ class BZip2Filter : public Filter {
   // ReadFilteredData.
   scoped_ptr<bz_stream> bzip2_data_stream_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BZip2Filter);
+  DISALLOW_COPY_AND_ASSIGN(BZip2Filter);
 };
 
-#endif  // NET_BASE_BZIP2_FILTER_H__
+#endif  // NET_BASE_BZIP2_FILTER_H_
 
