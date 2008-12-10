@@ -138,7 +138,7 @@ class PropertyAccessor : public PropertyAccessorBase {
     PropertyBag::Prop* prop = GetPropertyInternal(bag);
     if (!prop)
       return NULL;
-    return static_cast< Container* >(prop)->get();
+    return static_cast<Container*>(prop)->get();
   }
 
   // See also DeleteProperty on thn PropertyAccessorBase.
