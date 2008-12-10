@@ -64,6 +64,10 @@ enum {
   // An SDCH dictionary was advertised, and an SDCH encoded response is
   // possible.
   LOAD_SDCH_DICTIONARY_ADVERTISED = 1 << 14,
+
+  // Do not resolve proxies. This override is used when downloading PAC files
+  // to avoid having a circular dependency.
+  LOAD_BYPASS_PROXY = 1 << 15,
 };
 
 }  // namespace net

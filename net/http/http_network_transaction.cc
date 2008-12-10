@@ -390,6 +390,11 @@ int HttpNetworkTransaction::DoResolveProxy() {
 
   next_state_ = STATE_RESOLVE_PROXY_COMPLETE;
 
+  if (request_->load_flags & LOAD_BYPASS_PROXY) {
+    proxy_info_.UseDirect();
+    return OK;
+  }
+
   return session_->proxy_service()->ResolveProxy(
       request_->url, &proxy_info_, &io_callback_, &pac_request_);
 }
@@ -1026,6 +1031,10 @@ int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
       break;
     default:
       return error;
+  }
+
+  if (request_->load_flags & LOAD_BYPASS_PROXY) {
+    return error;
   }
 
   int rv = session_->proxy_service()->ReconsiderProxyAfterError(
