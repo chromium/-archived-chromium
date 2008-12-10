@@ -129,7 +129,7 @@ class PropertyAccessor : public PropertyAccessorBase {
 
   // Takes ownership of the |prop| pointer.
   void SetProperty(PropertyBag* bag, const T& prop) {
-    SetPropertyInternal(bag, new Container<T>(prop));
+    SetPropertyInternal(bag, new Container(prop));
   }
 
   // Returns our property in the given bag or NULL if there is no match. The
@@ -138,7 +138,7 @@ class PropertyAccessor : public PropertyAccessorBase {
     PropertyBag::Prop* prop = GetPropertyInternal(bag);
     if (!prop)
       return NULL;
-    return static_cast< Container<T>* >(prop)->get();
+    return static_cast< Container* >(prop)->get();
   }
 
   // See also DeleteProperty on thn PropertyAccessorBase.
@@ -152,7 +152,7 @@ class PropertyAccessor : public PropertyAccessorBase {
 
    private:
     virtual Prop* copy() {
-      return new Container<T>(data_);
+      return new Container(data_);
     }
 
     T data_;
