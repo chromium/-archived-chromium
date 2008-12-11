@@ -93,8 +93,7 @@ base::LazyInstance <std::map<gfx::WindowHandle, TestShell *> >
 // does the work of removing the window from our various bookkeeping lists
 // and gets rid of the shell.
 - (void)cleanup:(id)window {
-  BOOL found = TestShell::RemoveWindowFromList(window);
-  DCHECK(found);
+  TestShell::RemoveWindowFromList(window);
   TestShell::DestroyAssociatedShell(window);
 
   [self release];
@@ -130,6 +129,10 @@ void TestShell::PlatformShutdown() {
 
 // static
 void TestShell::InitializeTestShell(bool layout_test_mode) {
+  // This should move to a per-process platform-specific initialization function
+  // when one exists.
+  [NSApplication sharedApplication];
+
   window_list_ = new WindowList;
   layout_test_mode_ = layout_test_mode;
   
@@ -405,8 +408,8 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 
 // static
 void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
-  // Do we want to tear down some of the machinery behind the scenes too?
-  [windowHandle performClose:nil];
+  TestShell::RemoveWindowFromList(windowHandle);
+  [windowHandle close];
 }
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {

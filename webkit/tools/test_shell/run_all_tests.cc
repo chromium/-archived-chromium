@@ -26,6 +26,10 @@
 #include "webkit/tools/test_shell/test_shell_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#if defined(OS_MACOSX)
+#include "WebSystemInterface.h"
+#endif
+
 const char* TestShellTest::kJavascriptDelayExitScript = 
   "<script>"
     "window.layoutTestController.waitUntilDone();"
@@ -36,6 +40,10 @@ const char* TestShellTest::kJavascriptDelayExitScript =
   "</script>";
 
 int main(int argc, char* argv[]) {
+#if defined(OS_MACOSX)
+  InitWebCoreSystemInterface();
+#endif
+
   base::ScopedNSAutoreleasePool autorelease_pool;
   base::EnableTerminationOnHeapCorruption();
   // Some unittests may use base::Singleton<>, thus we need to instanciate
