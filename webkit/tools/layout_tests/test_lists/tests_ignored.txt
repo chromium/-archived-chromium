@@ -192,5 +192,6 @@ LINUX : chrome/fonts/impact.html = FAIL
 // to verify is that we don't crash on this page.
 LayoutTests/fast/js/regexp-charclass-crash.html = PASS TIMEOUT
 
-// Test to verify legacy MAC encodings.
-LayoutTests/fast/encoding/char-decoding-mac.html = FAIL
+// Test to verify legacy MAC encodings. We don't want to support them and
+// have to skip this test.
+SKIP : LayoutTests/fast/encoding/char-decoding-mac.html = FAIL
