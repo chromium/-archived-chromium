@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 45;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4DCE9E680EF0BAAC00682526 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DCE9E670EF0BAAC00682526 /* Carbon.framework */; };
 		825522200EE70F9800329CC8 /* Info.r in Rez */ = {isa = PBXBuildFile; fileRef = 8255220A0EE70E7B00329CC8 /* Info.r */; };
 		826F17010EE5DFC000D973C7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 826F16FB0EE5DFC000D973C7 /* main.cpp */; };
 		826F17020EE5DFC000D973C7 /* PluginObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 826F16FC0EE5DFC000D973C7 /* PluginObject.cpp */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4DCE9E670EF0BAAC00682526 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
 		8255220A0EE70E7B00329CC8 /* Info.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = Info.r; sourceTree = "<group>"; };
 		825CC90F0EE5F3FC00037AEA /* dynamiclib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = dynamiclib.xcconfig; sourceTree = "<group>"; };
 		826F16CB0EE5DD8400D973C7 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
@@ -35,23 +37,33 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DCE9E680EF0BAAC00682526 /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4DCE9E660EF0BA8100682526 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4DCE9E670EF0BAAC00682526 /* Carbon.framework */,
+			);
+			name = Frameworks;
+			sourceTree = SDKROOT;
+		};
 		826F16B80EE5DD4800D973C7 = {
 			isa = PBXGroup;
 			children = (
-				826F16CA0EE5DD8400D973C7 /* build */,
+				826F16CA0EE5DD8400D973C7 /* Configuration */,
 				826F16E90EE5DFA300D973C7 /* Source */,
 				826F16E80EE5DF9100D973C7 /* Resources */,
+				4DCE9E660EF0BA8100682526 /* Frameworks */,
 				826F16DD0EE5DE3800D973C7 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		826F16CA0EE5DD8400D973C7 /* build */ = {
+		826F16CA0EE5DD8400D973C7 /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
 				826F16CB0EE5DD8400D973C7 /* common.xcconfig */,
@@ -61,7 +73,7 @@
 				826F16CE0EE5DD8400D973C7 /* release.xcconfig */,
 				826F16CF0EE5DD8400D973C7 /* staticlib.xcconfig */,
 			);
-			name = build;
+			name = Configuration;
 			path = ../../../build;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -101,7 +113,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 826F16E20EE5DE3900D973C7 /* Build configuration list for PBXNativeTarget "NPAPILayoutTestPlugin" */;
 			buildPhases = (
-				826F16D80EE5DE3800D973C7 /* Resources */,
 				826F16D90EE5DE3800D973C7 /* Sources */,
 				826F16DA0EE5DE3800D973C7 /* Frameworks */,
 				8255221D0EE70F6800329CC8 /* Rez */,
@@ -121,7 +132,7 @@
 		826F16BA0EE5DD4800D973C7 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 826F16BD0EE5DD4800D973C7 /* Build configuration list for PBXProject "npapi_layout_test_plugin" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 0;
 			mainGroup = 826F16B80EE5DD4800D973C7;
 			productRefGroup = 826F16DD0EE5DE3800D973C7 /* Products */;
@@ -132,16 +143,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		826F16D80EE5DE3800D973C7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXRezBuildPhase section */
 		8255221D0EE70F6800329CC8 /* Rez */ = {
@@ -190,19 +191,18 @@
 			buildSettings = {
 				DIR_THIRD_PARTY = "$(XCODEPROJ_DEPTH)/third_party";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				GCC_PREPROCESSOR_DEFINITIONS = "XP_MACOSX=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"XP_MACOSX=1",
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
 					"$(XCODEPROJ_DEPTH)",
 					"$(DIR_THIRD_PARTY)/npapi",
 					"$(DIR_WEBKIT)/JavaScriptCore",
 				);
 				INFOPLIST_FILE = Info.plist;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
 				PRODUCT_NAME = NPAPILayoutTestPlugin;
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -214,22 +214,18 @@
 			buildSettings = {
 				DIR_THIRD_PARTY = "$(XCODEPROJ_DEPTH)/third_party";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 					"XP_MACOSX=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
 					"$(XCODEPROJ_DEPTH)",
 					"$(DIR_THIRD_PARTY)/npapi",
 					"$(DIR_WEBKIT)/JavaScriptCore",
 				);
 				INFOPLIST_FILE = Info.plist;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
 				PRODUCT_NAME = NPAPILayoutTestPlugin;
 				WRAPPER_EXTENSION = bundle;
 			};
