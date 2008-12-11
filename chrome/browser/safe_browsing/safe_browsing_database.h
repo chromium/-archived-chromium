@@ -89,6 +89,9 @@ class SafeBrowsingDatabase {
   virtual std::wstring filename() const { return filename_; }
 
  protected:
+  friend class SafeBrowsingDatabaseTest;
+  FRIEND_TEST(SafeBrowsingDatabase, HashCaching);
+
   static std::wstring BloomFilterFilename(const std::wstring& db_filename);
 
   // Load the bloom filter off disk, or generates one if it doesn't exist.
@@ -105,9 +108,6 @@ class SafeBrowsingDatabase {
 
   // Measuring false positive rate. Call this each time we look in the filter.
   virtual void IncrementBloomFilterReadCount() {}
-
-  // Full hash cache support.
-  FRIEND_TEST(SafeBrowsingDatabase, HashCaching);
 
   typedef struct HashCacheEntry {
     SBFullHash full_hash;
