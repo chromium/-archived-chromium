@@ -12,6 +12,7 @@
 #include "base/ref_counted.h"
 #include "base/timer.h"
 #include "chrome/common/page_transition_types.h"
+#include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 
 // The AutocompleteController is the center of the autocomplete system.  A
@@ -125,7 +126,6 @@ struct AutocompleteMatch;
 class AutocompleteProvider;
 class AutocompleteResult;
 class AutocompleteController;
-class GURL;
 class HistoryContentsProvider;
 class KeywordProvider;
 class Profile;
@@ -367,7 +367,7 @@ struct AutocompleteMatch {
   // The URL to actually load when the autocomplete item is selected. This URL
   // should be canonical so we can compare URLs with strcmp to avoid dupes.
   // It may be empty if there is no possible navigation.
-  std::wstring destination_url;
+  GURL destination_url;
 
   // The text displayed on the left in the search results
   std::wstring contents;
@@ -553,12 +553,12 @@ class AutocompleteResult {
 
     // True when the selection is empty.
     bool empty() const {
-      return destination_url.empty() && !provider_affinity &&
+      return destination_url.is_empty() && !provider_affinity &&
           !is_history_what_you_typed_match;
     }
 
     // The desired destination URL.
-    std::wstring destination_url;
+    GURL destination_url;
 
     // The desired provider.  If we can't find a match with the specified
     // |destination_url|, we'll use the best match from this provider.
@@ -619,8 +619,8 @@ class AutocompleteResult {
   // "foo" when the user may have meant to navigate there.  In cases like this,
   // |match| will point to the "search for 'foo'" result, and this function will
   // return "http://foo/".
-  std::wstring GetAlternateNavURL(const AutocompleteInput& input,
-                                  const_iterator match) const;
+  GURL GetAlternateNavURL(const AutocompleteInput& input,
+                          const_iterator match) const;
 
   // Releases the resources associated with this object. Some callers may
   // want to perform several searches without creating new results each time.

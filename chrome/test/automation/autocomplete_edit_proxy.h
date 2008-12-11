@@ -12,6 +12,7 @@
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
+#include "googleurl/src/gurl.h"
 
 // The purpose of this class is to act as a serializable version of
 // AutocompleteMatch. The reason for this class is because we don't want to
@@ -39,7 +40,7 @@ struct AutocompleteMatchData {
   bool deletable;
   std::wstring fill_into_edit;
   size_t inline_autocomplete_offset;
-  std::wstring destination_url;
+  GURL destination_url;
   std::wstring contents;
   std::wstring description;
   bool is_history_what_you_typed_match;
@@ -59,7 +60,7 @@ struct ParamTraits<AutocompleteMatchData> {
     m->WriteBool(p.deletable);
     m->WriteWString(p.fill_into_edit);
     m->WriteSize(p.inline_autocomplete_offset);
-    m->WriteWString(p.destination_url);
+    m->WriteString(p.destination_url.possibly_invalid_spec());
     m->WriteWString(p.contents);
     m->WriteWString(p.description);
     m->WriteBool(p.is_history_what_you_typed_match);
@@ -68,17 +69,21 @@ struct ParamTraits<AutocompleteMatchData> {
   }
 
   static bool Read(const Message* m, void** iter, param_type* r) {
-    return m->ReadString(iter, &r->provider_name) &&
-           m->ReadInt(iter, &r->relevance) &&
-           m->ReadBool(iter, &r->deletable) &&
-           m->ReadWString(iter, &r->fill_into_edit) &&
-           m->ReadSize(iter, &r->inline_autocomplete_offset) &&
-           m->ReadWString(iter, &r->destination_url) &&
-           m->ReadWString(iter, &r->contents) &&
-           m->ReadWString(iter, &r->description) &&
-           m->ReadBool(iter, &r->is_history_what_you_typed_match) &&
-           m->ReadString(iter, &r->type) &&
-           m->ReadBool(iter, &r->starred);
+    std::string destination_url;
+    if (!m->ReadString(iter, &r->provider_name) ||
+        !m->ReadInt(iter, &r->relevance) ||
+        !m->ReadBool(iter, &r->deletable) ||
+        !m->ReadWString(iter, &r->fill_into_edit) ||
+        !m->ReadSize(iter, &r->inline_autocomplete_offset) ||
+        !m->ReadString(iter, &destination_url) ||
+        !m->ReadWString(iter, &r->contents) ||
+        !m->ReadWString(iter, &r->description) ||
+        !m->ReadBool(iter, &r->is_history_what_you_typed_match) ||
+        !m->ReadString(iter, &r->type) ||
+        !m->ReadBool(iter, &r->starred))
+      return false;
+    r->destination_url = GURL(destination_url);
+    return true;
   }
 
   static void Log(const param_type& p, std::wstring* l) {

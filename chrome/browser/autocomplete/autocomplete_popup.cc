@@ -277,10 +277,10 @@ void AutocompletePopupView::OnButtonUp(const CPoint& point,
   // OpenURL() may close the popup, which will clear the result set and, by
   // extension, |match| and its contents.  So copy the relevant strings out to
   // make sure they stay alive until the call completes.
-  const std::wstring url(match.destination_url);
+  const GURL url(match.destination_url);
   std::wstring keyword;
   const bool is_keyword_hint = model_->GetKeywordForMatch(match, &keyword);
-  edit_view_->OpenURL(url, disposition, match.transition, std::wstring(), line,
+  edit_view_->OpenURL(url, disposition, match.transition, GURL(), line,
                       is_keyword_hint ? std::wstring() : keyword);
 }
 
@@ -771,10 +771,10 @@ void AutocompletePopupModel::ResetToDefaultMatch() {
   SetSelectedLine(result.default_match() - result.begin(), true);
 }
 
-std::wstring AutocompletePopupModel::URLsForCurrentSelection(
+GURL AutocompletePopupModel::URLsForCurrentSelection(
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
-    std::wstring* alternate_nav_url) const {
+    GURL* alternate_nav_url) const {
   // We need to use the result on the controller, because if the popup is open,
   // the user changes the contents of the edit, and then presses enter before
   // any results have been displayed, results_ will be nonempty but wrong.  (In
@@ -782,7 +782,7 @@ std::wstring AutocompletePopupModel::URLsForCurrentSelection(
   // TODO(pkasting): If manually_selected_match_ moves to the controller, this
   // can move to the edit.
   if (controller_->result().empty())
-    return std::wstring();
+    return GURL();
 
   const AutocompleteResult& result = controller_->result();
   AutocompleteResult::const_iterator match;
@@ -804,12 +804,12 @@ std::wstring AutocompletePopupModel::URLsForCurrentSelection(
   return match->destination_url;
 }
 
-std::wstring AutocompletePopupModel::URLsForDefaultMatch(
+GURL AutocompletePopupModel::URLsForDefaultMatch(
     const std::wstring& text,
     const std::wstring& desired_tld,
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
-    std::wstring* alternate_nav_url) {
+    GURL* alternate_nav_url) {
   // We had better not already be doing anything, or this call will blow it
   // away.
   DCHECK(!is_open());
@@ -823,7 +823,7 @@ std::wstring AutocompletePopupModel::URLsForDefaultMatch(
   DCHECK(controller_->done());
   const AutocompleteResult& result = controller_->result();
   if (result.empty())
-    return std::wstring();
+    return GURL();
 
   // Get the URLs for the default match.
   const AutocompleteResult::const_iterator match = result.default_match();
@@ -961,7 +961,7 @@ void AutocompletePopupModel::Observe(NotificationType type,
               match->fill_into_edit.substr(match->inline_autocomplete_offset);
         }
         // Warm up DNS Prefetch Cache.
-        chrome_browser_net::DnsPrefetchUrlString(match->destination_url);
+        chrome_browser_net::DnsPrefetchUrl(match->destination_url);
         // We could prefetch the alternate nav URL, if any, but because there
         // can be many of these as a user types an initial series of characters,
         // the OS DNS cache could suffer eviction problems for minimal gain.

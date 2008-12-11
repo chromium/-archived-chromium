@@ -18,7 +18,6 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/views/menu.h"
-#include "googleurl/src/gurl.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompletePopupModel;
