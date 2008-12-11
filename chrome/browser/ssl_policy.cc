@@ -187,7 +187,7 @@ class UnableToCheckRevocationPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    // We keep the style as secure and we display an info-bar.
+    // We ignore this error and display an info-bar.
     error->ContinueRequest();
     error->manager()->ShowMessage(l10n_util::GetString(
         IDS_CERT_ERROR_UNABLE_TO_CHECK_REVOCATION_INFO_BAR));
