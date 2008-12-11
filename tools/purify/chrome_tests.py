@@ -20,7 +20,9 @@ import google.platform_utils
 
 import common
 
+
 class TestNotFound(Exception): pass
+
 
 class ChromeTests:
 
@@ -32,6 +34,7 @@ class ChromeTests:
                        "ipc": self.TestIpc,
                        "base": self.TestBase,
                        "layout": self.TestLayout,
+                       "dll": self.TestDll,
                        "layout_all": self.TestLayoutAll,
                        "ui": self.TestUI}
 
@@ -88,7 +91,7 @@ class ChromeTests:
         else:
           self._options.build_dir = dir_chrome
 
-    cmd = self._command_preamble
+    cmd = list(self._command_preamble)
     cmd.append("--data_dir=%s" % self._data_dir)
     if self._options.baseline:
       cmd.append("--baseline")
@@ -168,6 +171,20 @@ class ChromeTests:
     cmd.extend(script)
     self._ReadGtestFilterFile(name, cmd)
     return common.RunSubprocess(cmd, 0)
+
+  def InstrumentDll(self):
+    '''Does a blocking Purify instrumentation of chrome.dll.'''
+    # TODO(paulg): Make this code support any DLL.
+    cmd = self._DefaultCommand("chrome")
+    cmd.append("--instrument_only")
+    cmd.append(os.path.join(self._options.build_dir, "chrome.dll"))
+    result = common.RunSubprocess(cmd, 0)
+    if result:
+      logging.error("Instrumentation error: %d" % result)
+    return result
+
+  def TestDll(self):
+    return self.InstrumentDll()
 
   def TestBase(self):
     return self.SimpleTest("base", "base_unittests.exe")
@@ -259,8 +276,12 @@ class ChromeTests:
     return ret
 
   def TestUI(self):
+    instrumentation_error = self.InstrumentDll()
+    if instrumentation_error:
+      return instrumentation_error
     return self.ScriptedTest("chrome", "chrome.exe", "ui_tests", 
         ["ui_tests.exe", "--single-process", "--test-timeout=100000000"], multi=True)
+
 
 def _main(argv):
   parser = optparse.OptionParser("usage: %prog -b <dir> -t <test> "
@@ -276,7 +297,7 @@ def _main(argv):
                     help="additional arguments to --gtest_filter")
   parser.add_option("-v", "--verbose", action="store_true", default=False,
                     help="verbose output - enable debug log messages")
-  (options, args) = parser.parse_args()
+  options, args = parser.parse_args()
 
   if options.verbose:
     google.logging_utils.config_root(logging.DEBUG)
@@ -291,6 +312,7 @@ def _main(argv):
     ret = tests.Run()
     if ret: return ret
   return 0
+
 
 if __name__ == "__main__":
   ret = _main(sys.argv)

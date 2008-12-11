@@ -92,6 +92,8 @@ class Purify(common.Rational):
     script_dir = google.path_utils.ScriptDir()
     self._latest_dir = os.path.join(script_dir, "latest")
     if common.Rational.Setup(self):
+      if self._instrument_only:
+        return True
       pft_file = os.path.join(script_dir, "data", "filters.pft")
       shutil.copyfile(pft_file, self._exe.replace(".exe", "_exe.pft"))
       string_list = [
@@ -126,8 +128,11 @@ class Purify(common.Rational):
       logging.error("file doesn't exist " + self._exe)
       return False
     cmd = self._PurifyCommand()
-    # /Run=no means instrument only, /Replace=yes means replace the exe in place
-    cmd.extend(["/Run=no", "/Replace=yes"])
+    # /Run=no means instrument
+    cmd.extend(["/Run=no"])
+    if not self._instrument_only:
+      # /Replace=yes means replace the exe in place
+      cmd.extend(["/Replace=yes"])
     cmd.append(os.path.abspath(self._exe))
     return common.Rational.Instrument(self, cmd)
 
@@ -198,6 +203,8 @@ class Purify(common.Rational):
 
   def Cleanup(self):
     common.Rational.Cleanup(self);
+    if self._instrument_only:
+      return
     cmd = self._PurifyCommand()
     # undo the /Replace=yes that was done in Instrument(), which means to 
     # remove the instrumented exe, and then rename exe.Original back to exe.

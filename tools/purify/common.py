@@ -48,6 +48,7 @@ QUANTIFYW_PATH = os.path.join(PPLUS_PATH, "quantifyw.exe")
 
 class TimeoutError(Exception): pass
 
+
 def RunSubprocess(proc, timeout=0, detach=False):
   """ Runs a subprocess, polling every .2 seconds until it finishes or until
   timeout is reached.  Then kills the process with taskkill.  A timeout <= 0
@@ -77,15 +78,16 @@ def RunSubprocess(proc, timeout=0, detach=False):
   result = p.poll()
   if result is None:
     subprocess.call(["taskkill", "/T", "/F", "/PID", str(p.pid)])
-    logging.error("KILLED %d" % (p.pid))
+    logging.error("KILLED %d" % p.pid)
     # give the process a chance to actually die before continuing
     # so that cleanup can happen safely
     time.sleep(1.0)
-    logging.error("TIMEOUT waiting for %s" % (proc[0]))
+    logging.error("TIMEOUT waiting for %s" % proc[0])
     raise TimeoutError(proc[0])
   if result:
     logging.error("%s exited with non-zero result code %d" % (proc[0], result))
   return result
+
 
 def FixPath(path):
   """We pass computed paths to Rational as arguments, so these paths must be
@@ -97,6 +99,7 @@ def FixPath(path):
     return path
   p = subprocess.Popen(["cygpath", "-a", "-m", path], stdout=subprocess.PIPE)
   return p.communicate()[0].rstrip()
+
 
 class Rational(object):
   ''' Common superclass for Purify and Quantify automation objects.  Handles
@@ -114,17 +117,7 @@ class Rational(object):
     start = datetime.datetime.now()
     retcode = -1
     if self.Setup():
-      if self.Instrument():
-        if self.Execute():
-          retcode = self.Analyze()
-          if not retcode:
-            logging.info("instrumentation and execution completed successfully.")
-          else:
-            logging.error("Analyze failed")
-        else:
-          logging.error("Execute failed")
-      else:
-        logging.error("Instrument failed")
+      retcode = self._Run()
       self.Cleanup()
     else:
       logging.error("Setup failed")
@@ -136,6 +129,24 @@ class Rational(object):
     seconds = seconds % 60
     logging.info("elapsed time: %02d:%02d:%02d" % (hours, minutes, seconds))
     return retcode
+
+  def _Run(self):
+    retcode = -1
+    if not self.Instrument():
+      logging.error("Instrumentation failed.")
+      return retcode
+    if self._instrument_only:
+      logging.info("Instrumentation completed successfully.")
+      return 0
+    if not self.Execute():
+      logging.error("Execute failed.")
+      return
+    retcode = self.Analyze()
+    if recode:
+      logging.error("Analyze failed.")
+      return retcode
+    logging.info("Instrumentation and execution completed successfully.")
+    return 0
 
   def CreateOptionParser(self):
     '''Creates OptionParser with shared arguments.  Overridden by subclassers
@@ -161,6 +172,9 @@ class Rational(object):
                       help="timeout in seconds for the run (default 10000)")
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="verbose output - enable debug log messages")
+    parser.add_option("", "--instrument_only", action="store_true",
+                      default=False,
+                      help="Only instrument the target without running")
     self._parser = parser
 
   def Setup(self):
@@ -185,6 +199,9 @@ class Rational(object):
       if "/Replace=yes" in proc:
         if os.path.exists(self._exe + ".Original"):
           return True
+      elif self._instrument_only:
+        # TODO(paulg): Catch instrumentation errors and clean up properly.
+        return True
       elif os.path.isdir(self._cache_dir):
         for cfile in os.listdir(self._cache_dir):
           # TODO(erikkay): look for the actual munged purify filename
@@ -216,7 +233,7 @@ class Rational(object):
     '''Parses arguments according to CreateOptionParser
     Subclassers must override if they have extra arguments.'''
     self.CreateOptionParser()
-    (self._options, self._args) = self._parser.parse_args()
+    self._options, self._args = self._parser.parse_args()
     if self._options.verbose:
       google.logging_utils.config_root(logging.DEBUG)
     self._save_cache = self._options.save_cache
@@ -245,6 +262,7 @@ class Rational(object):
       return False
     self._exe = self._args[0]
     self._exe_dir = FixPath(os.path.abspath(os.path.dirname(self._exe)))
+    self._instrument_only = self._options.instrument_only
     return True
 
   def Cleanup(self):
