@@ -31,15 +31,6 @@ install_hardy() {
        bison flex gperf libnss3-dev libglib2.0-dev libgtk2.0-dev \
        libnspr4-0d libnspr4-dev wdiff lighttpd php5-cgi msttcorefonts \
        sun-java6-fonts
-
-  wget -c http://www.trevp.com/tlslite/tlslite-0.3.8.tar.gz
-  tar xvfz tlslite-0.3.8.tar.gz
-  cd tlslite-0.3.8/
-    patch -p1 < ../../third_party/tlslite/google.patch
-    python setup.py build
-    sudo python setup.py install
-  cd ..
-  rm -rf tlslite-0.3.8
 }
 
 install_hardy_64() {
