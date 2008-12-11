@@ -84,7 +84,9 @@ struct IndexHeader {
   int32       this_id;       // Id for all entries being changed (dirty flag).
   CacheAddr   stats;         // Storage for usage data.
   int32       table_len;     // Actual size of the table (0 == kIndexTablesize).
-  int32       pad[64];
+  int32       crash;         // Signals a previous crash.
+  int32       experiment;    // Id of an ongoing test.
+  int32       pad[62];
   LruData     lru;           // Eviction control data.
   IndexHeader() {
     memset(this, 0, sizeof(*this));

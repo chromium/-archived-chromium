@@ -61,6 +61,8 @@ void DumpIndexHeader(const std::wstring name) {
   printf("last file number: %d\n", header.last_file);
   printf("current id: %d\n", header.this_id);
   printf("table length: %d\n", header.table_len);
+  printf("last crash: %d\n", header.crash);
+  printf("experiment: %d\n", header.experiment);
   for (int i = 0; i < 5; i++) {
     printf("head %d: 0x%x\n", i, header.lru.heads[i]);
     printf("tail %d: 0x%x\n", i, header.lru.tails[i]);

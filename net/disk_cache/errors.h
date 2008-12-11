@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Error codes reported by self tests.
+// Error codes reported by self tests or to UMA.
 
 #ifndef NET_DISK_CACHE_ERRORS_H__
 #define NET_DISK_CACHE_ERRORS_H__
@@ -19,7 +19,9 @@ enum {
   ERR_INVALID_ADDRESS = -7,
   ERR_INVALID_LINKS = -8,
   ERR_NUM_ENTRIES_MISMATCH = -9,
-  ERR_READ_FAILURE = -10
+  ERR_READ_FAILURE = -10,
+  ERR_PREVIOUS_CRASH = -11,
+  ERR_STORAGE_ERROR = -12
 };
 
 }  // namespace disk_cache

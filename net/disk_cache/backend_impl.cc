@@ -26,8 +26,8 @@ const wchar_t* kIndexName = L"index";
 const int kCleanUpMargin = 1024 * 1024;
 const int kMaxOldFolders = 100;
 
-// Seems like ~160 MB correspond to ~50k entries.
-const int k64kEntriesStore = 160 * 1000 * 1000;
+// Seems like ~240 MB correspond to less than 50k entries for 99% of the people.
+const int k64kEntriesStore = 240 * 1000 * 1000;
 const int kBaseTableLen = 64 * 1024;
 const int kDefaultCacheSize = 80 * 1024 * 1024;
 
@@ -136,6 +136,23 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
   return true;
 }
 
+// Sets |stored_value| for the current experiment.
+void InitExperiment(int* stored_value) {
+  if (*stored_value)
+    return;
+
+  srand(static_cast<int>(Time::Now().ToInternalValue()));
+  int option = rand() % 10;
+
+  // Values used by the current experiment are 1 through 4.
+  if (option > 2) {
+    // 70% will be here.
+    *stored_value = 1;
+  } else {
+    *stored_value = option + 2;
+  }
+}
+
 }  // namespace
 
 // ------------------------------------------------------------------------
@@ -184,8 +201,10 @@ bool BackendImpl::Init() {
     return false;
 
   bool create_files = false;
-  if (!InitBackingStore(&create_files))
+  if (!InitBackingStore(&create_files)) {
+    ReportError(ERR_STORAGE_ERROR);
     return false;
+  }
 
   num_refs_ = num_pending_io_ = max_refs_ = 0;
 
@@ -197,9 +216,13 @@ bool BackendImpl::Init() {
   }
 
   init_ = true;
+  if (data_)
+    InitExperiment(&data_->header.experiment);
 
-  if (!CheckIndex())
+  if (!CheckIndex()) {
+    ReportError(ERR_INIT_FAILED);
     return false;
+  }
 
   // We don't care if the value overflows. The only thing we care about is that
   // the id cannot be zero, because that value is used as "not dirty".
@@ -208,6 +231,13 @@ bool BackendImpl::Init() {
   data_->header.this_id++;
   if (!data_->header.this_id)
     data_->header.this_id++;
+
+  if (data_->header.crash) {
+    ReportError(ERR_PREVIOUS_CRASH);
+  } else {
+    ReportError(0);
+    data_->header.crash = 1;
+  }
 
   if (!block_files_.Init(create_files))
     return false;
@@ -226,6 +256,9 @@ BackendImpl::~BackendImpl() {
   Trace("Backend destructor");
   if (!init_)
     return;
+
+  if (data_)
+    data_->header.crash = 0;
 
   timer_.Stop();
 
@@ -354,12 +387,8 @@ bool BackendImpl::DoomEntry(const std::string& key) {
 
 bool BackendImpl::DoomAllEntries() {
   if (!num_refs_) {
-    index_ = NULL;
-    block_files_.CloseFiles();
-    rankings_.Reset();
+    PrepareForRestart();
     DeleteCache(path_.c_str(), false);
-    init_ = false;
-    restarted_ = true;
     return Init();
   } else {
     if (disabled_)
@@ -624,6 +653,7 @@ void BackendImpl::CriticalError(int error) {
     return;
 
   LogStats();
+  ReportError(error);
 
   // Setting the index table length to an invalid value will force re-creation
   // of the cache files.
@@ -632,6 +662,15 @@ void BackendImpl::CriticalError(int error) {
 
   if (!num_refs_)
     RestartCache();
+}
+
+void BackendImpl::ReportError(int error) {
+  static LinearHistogram counter(L"DiskCache.Error", 0, 49, 50);
+  counter.SetFlags(kUmaTargetedHistogramFlag);
+
+  // We transmit positive numbers, instead of direct error codes.
+  DCHECK(error <= 0);
+  counter.Add(error * -1);
 }
 
 void BackendImpl::OnEvent(Stats::Counters an_event) {
@@ -651,10 +690,13 @@ void BackendImpl::OnStatsTimer() {
   static bool first_time = true;
   if (first_time) {
     first_time = false;
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.Entries", data_->header.num_entries);
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.Size",
-                         data_->header.num_bytes / (1024 * 1024));
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.MaxSize", max_size_ / (1024 * 1024));
+    int experiment = data_ ? data_->header.experiment : 1;
+    std::wstring entries(StringPrintf(L"DiskCache.Entries_%d", experiment));
+    std::wstring size(StringPrintf(L"DiskCache.Size_%d", experiment));
+    std::wstring max_size(StringPrintf(L"DiskCache.MaxSize_%d", experiment));
+    UMA_HISTOGRAM_COUNTS(entries.c_str(), data_->header.num_entries);
+    UMA_HISTOGRAM_COUNTS(size.c_str(), data_->header.num_bytes / (1024 * 1024));
+    UMA_HISTOGRAM_COUNTS(max_size.c_str(), max_size_ / (1024 * 1024));
   }
 }
 
@@ -770,8 +812,10 @@ void BackendImpl::AdjustMaxCacheSize(int table_len) {
 
   // Let's not use more than the default size while we tune-up the performance
   // of bigger caches. TODO(rvargas): remove this limit.
-  if (max_size_ > kDefaultCacheSize)
-    max_size_ = kDefaultCacheSize;
+  int multiplier = table_len ? data_->header.experiment : 1;
+  DCHECK(multiplier > 0 && multiplier < 5);
+  if (max_size_ > kDefaultCacheSize * multiplier)
+    max_size_ = kDefaultCacheSize * multiplier;
 
   if (!table_len)
     return;
@@ -783,14 +827,9 @@ void BackendImpl::AdjustMaxCacheSize(int table_len) {
 }
 
 void BackendImpl::RestartCache() {
-  index_ = NULL;
-  block_files_.CloseFiles();
-  rankings_.Reset();
-
+  PrepareForRestart();
   DelayedCacheCleanup(path_);
 
-  init_ = false;
-  restarted_ = true;
   int64 errors = stats_.GetCounter(Stats::FATAL_ERROR);
 
   // Don't call Init() if directed by the unit test: we are simulating a failure
@@ -799,6 +838,16 @@ void BackendImpl::RestartCache() {
     init_ = true;  // Let the destructor do proper cleanup.
   else if (Init())
     stats_.SetCounter(Stats::FATAL_ERROR, errors + 1);
+}
+
+void BackendImpl::PrepareForRestart() {
+  data_->header.crash = 0;
+  index_ = NULL;
+  data_ = NULL;
+  block_files_.CloseFiles();
+  rankings_.Reset();
+  init_ = false;
+  restarted_ = true;
 }
 
 int BackendImpl::NewEntry(Addr address, EntryImpl** entry, bool* dirty) {
@@ -1005,9 +1054,7 @@ void BackendImpl::TrimCache(bool empty) {
       if (node->Data()->pointer) {
         entry = EntryImpl::Update(entry);
       }
-      static Histogram counter(L"DiskCache.TrimAge", 1, 10000, 50);
-      counter.SetFlags(kUmaTargetedHistogramFlag);
-      counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
+      ReportTrimTimes(entry);
       entry->Doom();
       entry->Release();
       if (!empty)
@@ -1025,6 +1072,14 @@ void BackendImpl::TrimCache(bool empty) {
   UMA_HISTOGRAM_TIMES(L"DiskCache.TotalTrimTime", Time::Now() - start);
   Trace("*** Trim Cache end ***");
   return;
+}
+
+void BackendImpl::ReportTrimTimes(EntryImpl* entry) {
+  std::wstring name(StringPrintf(L"DiskCache.TrimAge_%d",
+                                 data_->header.experiment));
+  static Histogram counter(name.c_str(), 1, 10000, 50);
+  counter.SetFlags(kUmaTargetedHistogramFlag);
+  counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
 }
 
 void BackendImpl::AddStorageSize(int32 bytes) {
@@ -1093,8 +1148,10 @@ bool BackendImpl::CheckIndex() {
     max_size_ = kDefaultCacheSize;
   }
 
+  // We need to avoid integer overflows.
+  DCHECK(max_size_ < kint32max - kint32max / 10);
   if (data_->header.num_bytes < 0 ||
-      data_->header.num_bytes > max_size_ * 11 / 10) {
+      data_->header.num_bytes > max_size_ + max_size_ / 10) {
     LOG(ERROR) << "Invalid cache (current) size";
     return false;
   }

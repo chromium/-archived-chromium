@@ -99,6 +99,9 @@ class BackendImpl : public Backend {
   // Reports a critical error (and disables the cache).
   void CriticalError(int error);
 
+  // Reports an uncommon, recoverable error.
+  void ReportError(int error);
+
   // Called when an interesting event should be logged (counted).
   void OnEvent(Stats::Counters an_event);
 
@@ -133,6 +136,7 @@ class BackendImpl : public Backend {
 
   // Deletes the cache and starts again.
   void RestartCache();
+  void PrepareForRestart();
 
   // Creates a new entry object and checks to see if it is dirty. Returns zero
   // on success, or a disk_cache error on failure.
@@ -153,6 +157,7 @@ class BackendImpl : public Backend {
   // If empty is true, the whole cache will be trimmed, regardless of being in
   // use.
   void TrimCache(bool empty);
+  void ReportTrimTimes(EntryImpl* entry);
   
   // Handles the used storage count.
   void AddStorageSize(int32 bytes);
