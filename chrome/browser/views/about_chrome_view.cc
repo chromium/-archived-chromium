@@ -716,6 +716,12 @@ void AboutChromeView::OnReportResults(GoogleUpdateUpgradeResult result,
 
 void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
                                    GoogleUpdateErrorCode error_code) {
+#if !defined(GOOGLE_CHROME_BUILD)
+  // For Chromium builds it would show an error message.
+  // But it looks weird because in fact there is no error,
+  // just the update server is not available for non-official builds.
+  return;
+#endif
   bool show_success_indicator = false;
   bool show_update_available_indicator = false;
   bool show_timeout_indicator = false;
