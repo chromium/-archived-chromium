@@ -53,7 +53,24 @@ class KeyboardTest : public testing::Test {
     keyboard_event->type = WebInputEvent::KEY_DOWN;
 #if defined(OS_LINUX)
     keyboard_event->text = key_code;
+#elif defined(OS_MACOSX)
+    keyboard_event->text.clear();
+    keyboard_event->text.push_back(key_code);
 #endif
+  }
+
+  // Like InterpretKeyEvent, but with pressing down OSModifier+|key_code|.
+  // OSModifier is the platform's standard modifier key: control on most
+  // platforms, but meta (command) on Mac.
+  const char* InterpretOSModifierKeyPress(char key_code) {
+    WebKeyboardEvent keyboard_event;
+#if defined(OS_WIN) || defined(OS_LINUX)
+    WebInputEvent::Modifiers os_modifier = WebInputEvent::CTRL_KEY;
+#elif defined(OS_MACOSX)
+    WebInputEvent::Modifiers os_modifier = WebInputEvent::META_KEY;
+#endif
+    SetupKeyDownEvent(&keyboard_event, key_code, os_modifier);
+    return InterpretKeyEvent(keyboard_event, PlatformKeyboardEvent::RawKeyDown);
   }
 
   // Like InterpretKeyEvent, but with pressing down ctrl+|key_code|.
@@ -85,24 +102,28 @@ TEST_F(KeyboardTest, TestCtrlReturn) {
   EXPECT_STREQ("InsertNewline", InterpretCtrlKeyPress(0xD));
 }
 
-TEST_F(KeyboardTest, TestCtrlZ) {
-  EXPECT_STREQ("Undo", InterpretCtrlKeyPress('Z'));
+TEST_F(KeyboardTest, TestOSModifierZ) {
+  EXPECT_STREQ("Undo", InterpretOSModifierKeyPress('Z'));
 }
 
-TEST_F(KeyboardTest, TestCtrlA) {
-  EXPECT_STREQ("SelectAll", InterpretCtrlKeyPress('A'));
+TEST_F(KeyboardTest, TestOSModifierY) {
+  EXPECT_STREQ("Redo", InterpretOSModifierKeyPress('Y'));
 }
 
-TEST_F(KeyboardTest, TestCtrlX) {
-  EXPECT_STREQ("Cut", InterpretCtrlKeyPress('X'));
+TEST_F(KeyboardTest, TestOSModifierA) {
+  EXPECT_STREQ("SelectAll", InterpretOSModifierKeyPress('A'));
 }
 
-TEST_F(KeyboardTest, TestCtrlC) {
-  EXPECT_STREQ("Copy", InterpretCtrlKeyPress('C'));
+TEST_F(KeyboardTest, TestOSModifierX) {
+  EXPECT_STREQ("Cut", InterpretOSModifierKeyPress('X'));
 }
 
-TEST_F(KeyboardTest, TestCtrlV) {
-  EXPECT_STREQ("Paste", InterpretCtrlKeyPress('V'));
+TEST_F(KeyboardTest, TestOSModifierC) {
+  EXPECT_STREQ("Copy", InterpretOSModifierKeyPress('C'));
+}
+
+TEST_F(KeyboardTest, TestOSModifierV) {
+  EXPECT_STREQ("Paste", InterpretOSModifierKeyPress('V'));
 }
 
 TEST_F(KeyboardTest, TestEscape) {
@@ -112,10 +133,6 @@ TEST_F(KeyboardTest, TestEscape) {
   const char* result = InterpretKeyEvent(keyboard_event,
                                          PlatformKeyboardEvent::RawKeyDown);
   EXPECT_STREQ("Cancel", result);
-}
-
-TEST_F(KeyboardTest, TestRedo) {
-  EXPECT_STREQ(InterpretCtrlKeyPress('Y'), "Redo");
 }
 
 TEST_F(KeyboardTest, TestInsertTab) {
@@ -134,7 +151,7 @@ TEST_F(KeyboardTest, TestInsertNewline2) {
   EXPECT_STREQ("InsertNewline", InterpretNewLine(WebInputEvent::CTRL_KEY));
 }
 
-TEST_F(KeyboardTest, TestInsertlinebreak) {
+TEST_F(KeyboardTest, TestInsertLineBreak) {
   EXPECT_STREQ("InsertLineBreak", InterpretNewLine(WebInputEvent::SHIFT_KEY));
 }
 
@@ -145,5 +162,5 @@ TEST_F(KeyboardTest, TestInsertNewline3) {
 TEST_F(KeyboardTest, TestInsertNewline4) {
   int modifiers = WebInputEvent::ALT_KEY | WebInputEvent::SHIFT_KEY;
   const char* result = InterpretNewLine(modifiers);
-  EXPECT_STREQ(result, "InsertNewline");
+  EXPECT_STREQ("InsertNewline", result);
 }
