@@ -90,7 +90,6 @@ if env['PLATFORM'] == 'win32':
       'gfx/icon_util.cc',
       'gfx/path.cc',
       'gfx/text_elider.cc',
-      'ipc_channel_win.cc',
       'ipc_channel_proxy.cc',
       'ipc_logging.cc',
       'ipc_message_utils.cc',
@@ -111,6 +110,18 @@ if env['PLATFORM'] == 'win32':
       'win_util.cc',
       'worker_thread_ticker.cc',
   ])
+
+
+if env['PLATFORM'] == 'win32':
+  # Windows specific files
+  input_files.extend([
+      'ipc_channel_win.cc',
+  ])
+else:
+  input_files.extend([
+      'ipc_channel_posix.cc',
+  ])
+
 
 if env['PLATFORM'] in ('posix', 'win32'):
   # TODO(port): This should be enabled for all platforms.

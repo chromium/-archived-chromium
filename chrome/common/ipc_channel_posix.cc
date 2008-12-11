@@ -4,12 +4,12 @@
 
 #include "chrome/common/ipc_channel_posix.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <stddef.h>
-#include <sys/un.h>
 
 #include "base/logging.h"
 #include "base/process_util.h"
@@ -17,6 +17,12 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/ipc_message_utils.h"
+
+#if defined(OS_LINUX)
+#include <linux/un.h>
+#elif defined(OS_MACOSX)
+#include <sys/un.h>
+#endif
 
 namespace IPC {
 

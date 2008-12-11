@@ -20,6 +20,11 @@ env.SConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
 
+if env['PLATFORM'] in ('posix', 'darwin'):
+  env.SConscript([
+      '$LIBEVENT_DIR/using_libevent.scons',
+  ], {'env':env})
+
 # TODO(sgk):  convert into a using_*.scons pattern when we update WebKit.
 env.Append(
     CPPPATH = [
@@ -69,15 +74,17 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'win32':
-  # TODO(port): Port this.
-  input_files = [
-      'ipc_fuzzing_tests.cc',
-      'ipc_tests.cc',
+input_files = [
+    'ipc_fuzzing_tests.cc',
+    'ipc_tests.cc',
 
-      '$BASE_DIR/perftimer$OBJSUFFIX',
-  ]
+    '$BASE_DIR/perftimer$OBJSUFFIX',
+]
 
-  ipc_tests = env.ChromeTestProgram('ipc_tests', input_files)
-  i = env.Install('$TARGET_ROOT', ipc_tests)
-  Alias('chrome', i)
+if env['PLATFORM'] == 'posix':
+  # TODO(port): These tests don't work yet.
+  input_files.remove('ipc_fuzzing_tests.cc')
+
+ipc_tests = env.ChromeTestProgram('ipc_tests', input_files)
+i = env.Install('$TARGET_ROOT', ipc_tests)
+Alias('chrome', i)
