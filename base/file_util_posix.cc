@@ -378,7 +378,7 @@ bool SetCurrentDirectory(const FilePath& path) {
   return !ret;
 }
 
-FileEnumerator::FileEnumerator(const std::wstring& root_path,
+FileEnumerator::FileEnumerator(const FilePath& root_path,
                                bool recursive,
                                FileEnumerator::FILE_TYPE file_type)
     : recursive_(recursive),
@@ -388,19 +388,19 @@ FileEnumerator::FileEnumerator(const std::wstring& root_path,
   pending_paths_.push(root_path);
 }
 
-FileEnumerator::FileEnumerator(const std::wstring& root_path,
+FileEnumerator::FileEnumerator(const FilePath& root_path,
                                bool recursive,
                                FileEnumerator::FILE_TYPE file_type,
-                               const std::wstring& pattern)
+                               const FilePath::StringType& pattern)
     : recursive_(recursive),
       file_type_(file_type),
-      pattern_(root_path),
+      pattern_(root_path.value()),
       is_in_find_op_(false),
       fts_(NULL) {
   // The Windows version of this code only matches against items in the top-most
   // directory, and we're comparing fnmatch against full paths, so this is the
   // easiest way to get the right pattern.
-  AppendToPath(&pattern_, pattern);
+  pattern_ = pattern_.Append(pattern);
   pending_paths_.push(root_path);
 }
 
@@ -423,20 +423,20 @@ void FileEnumerator::GetFindInfo(FindInfo* info) {
 // the fts enumeration doesn't match (type, pattern, etc.).  In the case of
 // large directories with many files this can be quite deep.
 // TODO(erikkay) - get rid of this recursive pattern
-std::wstring FileEnumerator::Next() {
+FilePath FileEnumerator::Next() {
   if (!is_in_find_op_) {
     if (pending_paths_.empty())
-      return std::wstring();
+      return FilePath();
 
     // The last find FindFirstFile operation is done, prepare a new one.
     root_path_ = pending_paths_.top();
-    TrimTrailingSeparator(&root_path_);
+    root_path_ = root_path_.StripTrailingSeparators();
     pending_paths_.pop();
 
     // Start a new find operation.
     int ftsflags = FTS_LOGICAL;
     char top_dir[PATH_MAX];
-    base::strlcpy(top_dir, WideToUTF8(root_path_).c_str(), sizeof(top_dir));
+    base::strlcpy(top_dir, root_path_.value().c_str(), sizeof(top_dir));
     char* dir_list[2] = { top_dir, NULL };
     fts_ = fts_open(dir_list, ftsflags, NULL);
     if (!fts_)
@@ -458,15 +458,15 @@ std::wstring FileEnumerator::Next() {
 
   // Patterns are only matched on the items in the top-most directory.
   // (see Windows implementation)
-  if (fts_ent_->fts_level == 1 && pattern_.length() > 0) {
-    if (fnmatch(WideToUTF8(pattern_).c_str(), fts_ent_->fts_path, 0) != 0) {
+  if (fts_ent_->fts_level == 1 && pattern_.value().length() > 0) {
+    if (fnmatch(pattern_.value().c_str(), fts_ent_->fts_path, 0) != 0) {
       if (fts_ent_->fts_info == FTS_D)
         fts_set(fts_, fts_ent_, FTS_SKIP);
       return Next();
     }
   }
 
-  std::wstring cur_file(UTF8ToWide(fts_ent_->fts_path));
+  FilePath cur_file(fts_ent_->fts_path);
   if (fts_ent_->fts_info == FTS_D) {
     // If not recursive, then prune children.
     if (!recursive_)

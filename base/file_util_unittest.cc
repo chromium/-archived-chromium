@@ -55,9 +55,9 @@ class FileUtilTest : public PlatformTest {
 class FindResultCollector {
  public:
   FindResultCollector(file_util::FileEnumerator& enumerator) {
-    std::wstring cur_file;
-    while (!(cur_file = enumerator.Next()).empty()) {
-      FilePath::StringType path = FilePath::FromWStringHack(cur_file).value();
+    FilePath cur_file;
+    while (!(cur_file = enumerator.Next()).value().empty()) {
+      FilePath::StringType path = cur_file.value();
       // The file should not be returned twice.
       EXPECT_TRUE(files_.end() == files_.find(path))
           << "Same file returned twice";
@@ -830,10 +830,10 @@ TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
 
 TEST_F(FileUtilTest, FileEnumeratorTest) {
   // Test an empty directory.
-  file_util::FileEnumerator f0(test_dir_.ToWStringHack(), true,
+  file_util::FileEnumerator f0(test_dir_, true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
-  EXPECT_EQ(f0.Next(), L"");
-  EXPECT_EQ(f0.Next(), L"");
+  EXPECT_EQ(f0.Next().value(), FILE_PATH_LITERAL(""));
+  EXPECT_EQ(f0.Next().value(), FILE_PATH_LITERAL(""));
 
   // create the directories
   FilePath dir1 = test_dir_.Append(FILE_PATH_LITERAL("dir1"));
@@ -857,7 +857,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   FilePath file2_abs = test_dir_.Append(FILE_PATH_LITERAL("file2.txt"));
 
   // Only enumerate files.
-  file_util::FileEnumerator f1(test_dir_.ToWStringHack(), true,
+  file_util::FileEnumerator f1(test_dir_, true,
                                file_util::FileEnumerator::FILES);
   FindResultCollector c1(f1);
   EXPECT_TRUE(c1.HasFile(file1));
@@ -867,7 +867,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c1.size(), 4);
 
   // Only enumerate directories.
-  file_util::FileEnumerator f2(test_dir_.ToWStringHack(), true,
+  file_util::FileEnumerator f2(test_dir_, true,
                                file_util::FileEnumerator::DIRECTORIES);
   FindResultCollector c2(f2);
   EXPECT_TRUE(c2.HasFile(dir1));
@@ -877,14 +877,14 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
 
   // Only enumerate directories non-recursively.
   file_util::FileEnumerator f2_non_recursive(
-      test_dir_.ToWStringHack(), false, file_util::FileEnumerator::DIRECTORIES);
+      test_dir_, false, file_util::FileEnumerator::DIRECTORIES);
   FindResultCollector c2_non_recursive(f2_non_recursive);
   EXPECT_TRUE(c2_non_recursive.HasFile(dir1));
   EXPECT_TRUE(c2_non_recursive.HasFile(dir2));
   EXPECT_EQ(c2_non_recursive.size(), 2);
 
   // Enumerate files and directories.
-  file_util::FileEnumerator f3(test_dir_.ToWStringHack(), true,
+  file_util::FileEnumerator f3(test_dir_, true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   FindResultCollector c3(f3);
   EXPECT_TRUE(c3.HasFile(dir1));
@@ -897,7 +897,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c3.size(), 7);
 
   // Non-recursive operation.
-  file_util::FileEnumerator f4(test_dir_.ToWStringHack(), false,
+  file_util::FileEnumerator f4(test_dir_, false,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   FindResultCollector c4(f4);
   EXPECT_TRUE(c4.HasFile(dir2));
@@ -907,8 +907,9 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c4.size(), 4);
 
   // Enumerate with a pattern.
-  file_util::FileEnumerator f5(test_dir_.ToWStringHack(), true,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES, L"dir*");
+  file_util::FileEnumerator f5(test_dir_, true,
+      file_util::FileEnumerator::FILES_AND_DIRECTORIES,
+      FILE_PATH_LITERAL("dir*"));
   FindResultCollector c5(f5);
   EXPECT_TRUE(c5.HasFile(dir1));
   EXPECT_TRUE(c5.HasFile(dir2));
@@ -919,10 +920,10 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
 
   // Make sure the destructor closes the find handle while in the middle of a
   // query to allow TearDown to delete the directory.
-  file_util::FileEnumerator f6(test_dir_.ToWStringHack(), true,
+  file_util::FileEnumerator f6(test_dir_, true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
-  EXPECT_FALSE(f6.Next().empty());  // Should have found something
-                                    // (we don't care what).
+  EXPECT_FALSE(f6.Next().value().empty());  // Should have found something
+                                            // (we don't care what).
 }
 
 

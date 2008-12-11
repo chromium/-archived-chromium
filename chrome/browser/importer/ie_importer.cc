@@ -469,12 +469,13 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
                                       BookmarkVector* bookmarks) {
   std::wstring ie_folder = l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_IE);
   BookmarkVector toolbar_bookmarks;
-  std::wstring file;
+  FilePath file;
   std::vector<std::wstring> file_list;
-  file_util::FileEnumerator file_enumerator(info.path, true,
+  file_util::FileEnumerator file_enumerator(
+      FilePath::FromWStringHack(info.path), true,
       file_util::FileEnumerator::FILES);
-  while (!(file = file_enumerator.Next()).empty() && !cancelled())
-    file_list.push_back(file);
+  while (!(file = file_enumerator.Next()).value().empty() && !cancelled())
+    file_list.push_back(file.ToWStringHack());
 
   // Keep the bookmarks in alphabetical order.
   std::sort(file_list.begin(), file_list.end());

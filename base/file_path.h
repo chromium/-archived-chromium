@@ -67,8 +67,8 @@
 
 #include <string>
 
-#include "base/compiler_specific.h"
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid testing.  These #defines are
@@ -121,6 +121,11 @@ class FilePath {
     return path_ == that.path_;
   }
 
+  // Required for some STL containers and operations
+  bool operator<(const FilePath& that) const {
+    return path_ < that.path_;
+  }
+
   const StringType& value() const { return path_; }
 
   // Returns true if |character| is in kSeparators.
@@ -154,6 +159,10 @@ class FilePath {
   // platforms, an absolute path begins with a separator character.
   bool IsAbsolute() const;
 
+  // Returns a copy of this FilePath that does not end with a trailing
+  // separator.
+  FilePath StripTrailingSeparators() const;
+
   // Older Chromium code assumes that paths are always wstrings.
   // This function converts a wstring to a FilePath, and is useful to smooth
   // porting that old code to the FilePath API.
@@ -174,7 +183,7 @@ class FilePath {
   // directory, so "////" will become "/", not "".  A leading pair of
   // separators is never stripped, to support alternate roots.  This is used to
   // support UNC paths on Windows.
-  void StripTrailingSeparators();
+  void StripTrailingSeparatorsInternal();
 
   StringType path_;
 };

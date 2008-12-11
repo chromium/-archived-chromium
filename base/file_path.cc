@@ -77,7 +77,7 @@ bool FilePath::IsSeparator(CharType character) {
 // adhere to their behavior.
 FilePath FilePath::DirName() const {
   FilePath new_path(path_);
-  new_path.StripTrailingSeparators();
+  new_path.StripTrailingSeparatorsInternal();
 
   // The drive letter, if any, always needs to remain in the output.  If there
   // is no drive letter, as will always be the case on platforms which do not
@@ -104,7 +104,7 @@ FilePath FilePath::DirName() const {
     new_path.path_.resize(last_separator);
   }
 
-  new_path.StripTrailingSeparators();
+  new_path.StripTrailingSeparatorsInternal();
   if (!new_path.path_.length())
     new_path.path_ = kCurrentDirectory;
 
@@ -113,7 +113,7 @@ FilePath FilePath::DirName() const {
 
 FilePath FilePath::BaseName() const {
   FilePath new_path(path_);
-  new_path.StripTrailingSeparators();
+  new_path.StripTrailingSeparatorsInternal();
 
   // The drive letter, if any, is always stripped.
   StringType::size_type letter = FindDriveLetter(new_path.path_);
@@ -148,7 +148,7 @@ FilePath FilePath::Append(const FilePath::StringType& component) const {
   }
 
   FilePath new_path(path_);
-  new_path.StripTrailingSeparators();
+  new_path.StripTrailingSeparatorsInternal();
 
   // Don't append a separator if the path is empty (indicating the current
   // directory) or if the path component is empty (indicating nothing to
@@ -201,7 +201,14 @@ std::wstring FilePath::ToWStringHack() const {
 }
 #endif
 
-void FilePath::StripTrailingSeparators() {
+FilePath FilePath::StripTrailingSeparators() const {
+  FilePath new_path(path_);
+  new_path.StripTrailingSeparatorsInternal();
+  
+  return new_path;
+}
+
+void FilePath::StripTrailingSeparatorsInternal() {
   // If there is no drive letter, start will be 1, which will prevent stripping
   // the leading separator if there is only one separator.  If there is a drive
   // letter, start will be set appropriately to prevent stripping the first

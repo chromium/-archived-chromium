@@ -71,15 +71,14 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
   // Find all child directories in the install directory and load their
   // manifests. Post errors and results to the frontend.
   scoped_ptr<ExtensionList> extensions(new ExtensionList);
-  file_util::FileEnumerator enumerator(path.ToWStringHack(),
+  file_util::FileEnumerator enumerator(path,
                                        false, // not recursive
                                        file_util::FileEnumerator::DIRECTORIES);
-  for (std::wstring child_path = enumerator.Next(); !child_path.empty();
+  for (FilePath child_path = enumerator.Next(); !child_path.value().empty();
        child_path = enumerator.Next()) {
-     FilePath manifest_path = FilePath::FromWStringHack(child_path).Append(
-         Extension::kManifestFilename);
+    FilePath manifest_path = child_path.Append(Extension::kManifestFilename);
     if (!file_util::PathExists(manifest_path)) {
-      ReportExtensionLoadError(frontend.get(), child_path,
+      ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
                                Extension::kInvalidManifestError);
       continue;
     }
@@ -88,13 +87,14 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
     Value* root = NULL;
     std::string error;
     if (!serializer.Deserialize(&root, &error)) {
-      ReportExtensionLoadError(frontend.get(), child_path, error);
+      ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
+                               error);
       continue;
     }
 
     scoped_ptr<Value> scoped_root(root);
     if (!root->IsType(Value::TYPE_DICTIONARY)) {
-      ReportExtensionLoadError(frontend.get(), child_path,
+      ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
                                Extension::kInvalidManifestError);
       continue;
     }
@@ -102,7 +102,8 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
     scoped_ptr<Extension> extension(new Extension());
     if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root),
                                   &error)) {
-      ReportExtensionLoadError(frontend.get(), child_path, error);
+      ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
+                               error);
       continue;
     }
 

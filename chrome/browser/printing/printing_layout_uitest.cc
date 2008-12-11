@@ -332,14 +332,15 @@ class PrintingLayoutTest : public PrintingTest<UITest> {
     bool found_emf = false;
     bool found_prn = false;
     for (int i = 0; i < 100; ++i) {
-      file_util::FileEnumerator enumerator(emf_path(), false,
-                                           file_util::FileEnumerator::FILES);
+      file_util::FileEnumerator enumerator(
+          FilePath::FromWStringHack(emf_path()), false,
+          file_util::FileEnumerator::FILES);
       emf_file.clear();
       prn_file.clear();
       found_emf = false;
       found_prn = false;
       std::wstring file;
-      while (!(file = enumerator.Next()).empty()) {
+      while (!(file = enumerator.Next().ToWStringHack()).empty()) {
         std::wstring ext = file_util::GetFileExtensionFromPath(file);
         if (!_wcsicmp(ext.c_str(), L"emf")) {
           EXPECT_FALSE(found_emf) << "Found a leftover .EMF file: \"" <<

@@ -51,6 +51,8 @@ bool EndsWithSeparator(const std::wstring& path);
 bool EnsureEndsWithSeparator(FilePath* path);
 
 // Modifies a string by trimming all trailing separators from the end.
+// Deprecated. FilePath does this automatically, and if it's constructed from a
+// path with a trailing separator, StripTrailingSeparators() may be used.
 void TrimTrailingSeparator(std::wstring* dir);
 
 // Strips the topmost directory from the end of 'dir'.  Assumes 'dir' does not
@@ -373,26 +375,26 @@ class FileEnumerator {
   // NOTE: the pattern only matches the contents of root_path, not files in
   // recursive subdirectories.
   // TODO(erikkay): Fix the pattern matching to work at all levels.
-  FileEnumerator(const std::wstring& root_path,
+  FileEnumerator(const FilePath& root_path,
                  bool recursive,
                  FileEnumerator::FILE_TYPE file_type);
-  FileEnumerator(const std::wstring& root_path,
+  FileEnumerator(const FilePath& root_path,
                  bool recursive,
                  FileEnumerator::FILE_TYPE file_type,
-                 const std::wstring& pattern);
+                 const FilePath::StringType& pattern);
   ~FileEnumerator();
 
   // Returns an empty string if there are no more results.
-  std::wstring Next();
+  FilePath Next();
 
   // Write the file info into |info|.
   void GetFindInfo(FindInfo* info);
 
  private:
-  std::wstring root_path_;
+  FilePath root_path_;
   bool recursive_;
   FILE_TYPE file_type_;
-  std::wstring pattern_;  // Empty when we want to find everything.
+  FilePath pattern_;  // Empty when we want to find everything.
 
   // Set to true when there is a find operation open. This way, we can lazily
   // start the operations when the caller calls Next().
@@ -400,7 +402,7 @@ class FileEnumerator {
 
   // A stack that keeps track of which subdirectories we still need to
   // enumerate in the breadth-first search.
-  std::stack<std::wstring> pending_paths_;
+  std::stack<FilePath> pending_paths_;
 
 #if defined(OS_WIN)
   WIN32_FIND_DATA find_data_;

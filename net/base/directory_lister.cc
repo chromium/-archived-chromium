@@ -84,10 +84,10 @@ void DirectoryLister::ThreadMain() {
     return;
   }
 
-  file_util::FileEnumerator file_enum(dir_.ToWStringHack(), false,
+  file_util::FileEnumerator file_enum(dir_, false,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
 
-  while (!canceled_ && !(file_enum.Next().empty())) {
+  while (!canceled_ && !(file_enum.Next().value().empty())) {
     file_enum.GetFindInfo(&e->data[e->count]);
 
     if (++e->count == kFilesPerEvent) {

@@ -205,11 +205,11 @@ void UserDataManager::GetProfiles(std::vector<std::wstring>* profiles) const {
   // This function should be called on the file thread.
   DCHECK(MessageLoop::current() ==
       ChromeThread::GetMessageLoop(ChromeThread::FILE));
-  file_util::FileEnumerator file_enum(user_data_root_,
-                                      false,
-                                      file_util::FileEnumerator::DIRECTORIES);
+  file_util::FileEnumerator file_enum(
+      FilePath::FromWStringHack(user_data_root_),
+      false, file_util::FileEnumerator::DIRECTORIES);
   std::wstring folder_name;
-  while (!(folder_name = file_enum.Next()).empty()) {
+  while (!(folder_name = file_enum.Next().ToWStringHack()).empty()) {
     folder_name = file_util::GetFilenameFromPath(folder_name);
     std::wstring profile_name;
     if (GetProfileNameFromFolderName(folder_name, &profile_name))

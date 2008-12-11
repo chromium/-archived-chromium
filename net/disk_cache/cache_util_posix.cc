@@ -16,9 +16,10 @@ bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
 }
 
 void DeleteCache(const std::wstring& path, bool remove_folder) {
-  file_util::FileEnumerator iter(path, /* recursive */ false,
+  file_util::FileEnumerator iter(FilePath::FromWStringHack(path),
+                                 /* recursive */ false,
                                  file_util::FileEnumerator::FILES);
-  for (std::wstring file = iter.Next(); !file.empty(); file = iter.Next()) {
+  for (FilePath file = iter.Next(); !file.value().empty(); file = iter.Next()) {
     if (!file_util::Delete(file, /* recursive */ false))
       NOTREACHED();
   }

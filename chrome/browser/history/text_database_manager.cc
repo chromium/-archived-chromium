@@ -147,11 +147,12 @@ void TextDatabaseManager::InitDBList() {
   present_databases_loaded_ = true;
 
   // Find files on disk matching our pattern so we can quickly test for them.
-  file_util::FileEnumerator enumerator(dir_, false,
+  file_util::FileEnumerator enumerator(FilePath::FromWStringHack(dir_), false,
       file_util::FileEnumerator::FILES,
-      std::wstring(TextDatabase::file_base()) + L"*");
+      FilePath::FromWStringHack(
+          std::wstring(TextDatabase::file_base()) + L"*").value());
   std::wstring cur_file;
-  while (!(cur_file = enumerator.Next()).empty()) {
+  while (!(cur_file = enumerator.Next().ToWStringHack()).empty()) {
     // Convert to the number representing this file.
     TextDatabase::DBIdent id = TextDatabase::FileNameToID(cur_file);
     if (id)  // Will be 0 on error.

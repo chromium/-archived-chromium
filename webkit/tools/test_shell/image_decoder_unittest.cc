@@ -88,12 +88,13 @@ void ImageDecoderTest::SetUp() {
 std::vector<std::wstring> ImageDecoderTest::GetImageFiles() const {
   std::wstring pattern = L"*." + format_;
 
-  file_util::FileEnumerator enumerator(data_dir_, false,
+  file_util::FileEnumerator enumerator(FilePath::FromWStringHack(data_dir_),
+                                       false,
                                        file_util::FileEnumerator::FILES);
 
   std::vector<std::wstring> image_files;
   std::wstring next_file_name;
-  while ((next_file_name = enumerator.Next()) != L"") {
+  while ((next_file_name = enumerator.Next().ToWStringHack()) != L"") {
     if (!MatchPattern(next_file_name, pattern)) {
       continue;
     }

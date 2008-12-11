@@ -113,12 +113,12 @@ base::SharedMemory* GreasemonkeyMaster::ScriptReloader::GetNewScripts(
     const FilePath& script_dir) {
   std::vector<std::wstring> scripts;
 
-  file_util::FileEnumerator enumerator(script_dir.value(), false,
+  file_util::FileEnumerator enumerator(script_dir, false,
                                        file_util::FileEnumerator::FILES,
-                                       L"*.user.js");
-  for (std::wstring file = enumerator.Next(); !file.empty();
+                                       FILE_PATH_LITERAL("*.user.js"));
+  for (FilePath file = enumerator.Next(); !file.value().empty();
        file = enumerator.Next()) {
-    scripts.push_back(file);
+    scripts.push_back(file.ToWStringHack());
   }
 
   if (scripts.empty())

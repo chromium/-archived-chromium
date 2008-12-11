@@ -508,13 +508,13 @@ void Firefox2Importer::HTMLUnescape(std::wstring *text) {
 void Firefox2Importer::FindXMLFilesInDir(
     const std::wstring& dir,
     std::vector<std::wstring>* xml_files) {
-  file_util::FileEnumerator file_enum(dir, false,
+  file_util::FileEnumerator file_enum(FilePath::FromWStringHack(dir), false,
                                       file_util::FileEnumerator::FILES,
-                                      L"*.xml");
-  std::wstring file(file_enum.Next());
+                                      FILE_PATH_LITERAL("*.xml"));
+  std::wstring file(file_enum.Next().ToWStringHack());
   while (!file.empty()) {
     xml_files->push_back(file);
-    file = file_enum.Next();
+    file = file_enum.Next().ToWStringHack();
   }
 }
 

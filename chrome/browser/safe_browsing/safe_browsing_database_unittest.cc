@@ -1114,9 +1114,10 @@ void UpdateDatabase(const std::wstring& initial_db,
   if (!updates_path.empty()) {
     std::wstring data_dir = GetFullSBDataPath(updates_path);
     file_util::FileEnumerator file_enum(
-        data_dir, false, file_util::FileEnumerator::FILES);
+        FilePath::FromWStringHack(data_dir), false,
+        file_util::FileEnumerator::FILES);
     while (true) {
-      std::wstring file = file_enum.Next();
+      std::wstring file = file_enum.Next().ToWStringHack();
       if (file.empty())
         break;
 

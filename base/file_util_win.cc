@@ -371,8 +371,9 @@ bool UpdateShortcutLink(const wchar_t *source, const wchar_t *destination,
 }
 
 bool IsDirectoryEmpty(const std::wstring& dir_path) {
-  FileEnumerator files(dir_path, false, FileEnumerator::FILES_AND_DIRECTORIES);
-  if (files.Next().empty())
+  FileEnumerator files(FilePath(dir_path),
+                       false, FileEnumerator::FILES_AND_DIRECTORIES);
+  if (files.Next().value().empty())
     return true;
   return false;
 }
@@ -596,7 +597,7 @@ bool SetCurrentDirectory(const FilePath& directory) {
 ///////////////////////////////////////////////
 
 
-FileEnumerator::FileEnumerator(const std::wstring& root_path,
+FileEnumerator::FileEnumerator(const FilePath& root_path,
                                bool recursive,
                                FileEnumerator::FILE_TYPE file_type)
     : recursive_(recursive),
@@ -606,10 +607,10 @@ FileEnumerator::FileEnumerator(const std::wstring& root_path,
   pending_paths_.push(root_path);
 }
 
-FileEnumerator::FileEnumerator(const std::wstring& root_path,
+FileEnumerator::FileEnumerator(const FilePath& root_path,
                                bool recursive,
                                FileEnumerator::FILE_TYPE file_type,
-                               const std::wstring& pattern)
+                               const FilePath::StringType& pattern)
     : recursive_(recursive),
       file_type_(file_type),
       is_in_find_op_(false),
@@ -632,26 +633,24 @@ void FileEnumerator::GetFindInfo(FindInfo* info) {
   memcpy(info, &find_data_, sizeof(*info));
 }
 
-std::wstring FileEnumerator::Next() {
+FilePath FileEnumerator::Next() {
   if (!is_in_find_op_) {
     if (pending_paths_.empty())
-      return std::wstring();
+      return FilePath();
 
     // The last find FindFirstFile operation is done, prepare a new one.
-    // root_path_ must have the trailing directory character.
     root_path_ = pending_paths_.top();
-    file_util::AppendToPath(&root_path_, std::wstring());
     pending_paths_.pop();
 
     // Start a new find operation.
-    std::wstring src(root_path_);
+    FilePath src = root_path_;
 
-    if (pattern_.empty())
-      file_util::AppendToPath(&src, L"*");  // No pattern = match everything.
+    if (pattern_.value().empty())
+      src = src.Append(L"*");  // No pattern = match everything.
     else
-      file_util::AppendToPath(&src, pattern_);
+      src = src.Append(pattern_);
 
-    find_handle_ = FindFirstFile(src.c_str(), &find_data_);
+    find_handle_ = FindFirstFile(src.value().c_str(), &find_data_);
     is_in_find_op_ = true;
 
   } else {
@@ -670,18 +669,18 @@ std::wstring FileEnumerator::Next() {
     // in the root search directory, but for those directories which were
     // matched, we want to enumerate all files inside them. This will happen
     // when the handle is empty.
-    pattern_.clear();
+    pattern_ = FilePath();
 
     return Next();
   }
 
-  std::wstring cur_file(find_data_.cFileName);
+  FilePath cur_file(find_data_.cFileName);
   // Skip over . and ..
-  if (L"." == cur_file || L".." == cur_file)
+  if (L"." == cur_file.value() || L".." == cur_file.value())
     return Next();
 
   // Construct the absolute filename.
-  cur_file.insert(0, root_path_);
+  cur_file = root_path_.Append(cur_file);
 
   if (find_data_.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
     if (recursive_) {
