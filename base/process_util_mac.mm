@@ -12,6 +12,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+extern "C" {
+extern char** environ;
+}
+
 namespace base {
 
 bool LaunchApp(const std::vector<std::string>& argv,
@@ -30,7 +34,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
                                       NULL, 
                                       NULL, 
                                       argv_copy, 
-                                      NULL) == 0);
+                                      environ) == 0);
   
   bool process_handle_valid = pid > 0;  
   if (!spawn_succeeded || !process_handle_valid) {

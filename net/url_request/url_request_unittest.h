@@ -5,9 +5,12 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_UNITTEST_H_
 #define NET_URL_REQUEST_URL_REQUEST_UNITTEST_H_
 
+#include <stdlib.h>
+
 #include <sstream>
 #include <string>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -306,9 +309,25 @@ class TestServer : public base::ProcessFilter {
         base::LaunchApp(command_line, false, true, &process_handle_)) <<
         "Failed to launch " << command_line;
 #elif defined(OS_POSIX)
-    bool tlslite_installed = !access("/usr/bin/tls.py", X_OK) ||
-                             !access("/usr/local/bin/tls.py", X_OK);
-    ASSERT_TRUE(tlslite_installed) << "tlslite not installed?  Please run 'python setup.py install' in third_party/tlslite.";
+    // Set up PYTHONPATH so that Python is able to find the in-tree copy of
+    // tlslite.
+
+    FilePath tlslite_path;
+    ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &tlslite_path));
+    tlslite_path = tlslite_path.Append("third_party");
+    tlslite_path = tlslite_path.Append("tlslite");
+
+    const char kPythonPath[] = "PYTHONPATH";
+    char* python_path_c = getenv(kPythonPath);
+    if (python_path_c) {
+      // PYTHONPATH is already set, append to it.
+      std::string python_path(python_path_c);
+      python_path.append(":");
+      python_path.append(tlslite_path.value());
+      setenv(kPythonPath, python_path.c_str(), 1);
+    } else {
+      setenv(kPythonPath, tlslite_path.value().c_str(), 1);
+    }
 
     std::vector<std::string> command_line;
     command_line.push_back("python");
@@ -331,7 +350,7 @@ class TestServer : public base::ProcessFilter {
       retries--;
       PlatformThread::Sleep(500);
     }
-    ASSERT_TRUE(success) << "Webserver not starting properly.  (On Linux, you need to install third_party/tlslite.)";
+    ASSERT_TRUE(success) << "Webserver not starting properly.";
 
     init_successful_ = true;
     is_shutdown_ = false;
