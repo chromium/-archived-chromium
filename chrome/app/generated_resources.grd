@@ -2932,9 +2932,9 @@ each locale. -->
                desc="The label for the field that searches the user's history on the new tab page">
         Search your history
       </message>
-      <message name="IDS_NEW_TAB_CLOSED_TABS"
-               desc="The 'Recently Closed Tabs' heading on the new tab page">
-        Recently closed tabs
+      <message name="IDS_NEW_TAB_RECENTLY_CLOSED"
+               desc="The 'Recently Closed' heading on the new tab page">
+        Recently closed
       </message>
       <message name="IDS_NEW_TAB_FOOTER_HELP"
                desc="The help footer on the new tab page">
@@ -2958,7 +2958,11 @@ each locale. -->
         <ph name="END_LIST">&lt;/ul&gt;</ph>
         <ph name="BEGIN_LINK">&lt;a href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph> about incognito browsing.
       </message>
-      
+      <message name="IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW"
+               desc="Title of recently closed windows in the recently closed section of the new tab page">
+        Window
+      </message>
+
       <!-- SafeBrowsing -->
       <message name="IDS_SAFE_BROWSING_MALWARE_TITLE" desc="SafeBrowsing Malware HTML title">
         Malware Detected!

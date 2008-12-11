@@ -33,6 +33,51 @@ var unprocessedData = {
 
 var renderFunctionsDefined = false;
 
+// TODO(glen): Merge into common file used by this and history.
+var localStrings;
+
+///////////////////////////////////////////////////////////////////////////////
+// localStrings:
+/**
+ * We get strings into the page by using JSTemplate to populate some elements
+ * with localized content, then reading the content of those elements into
+ * this global strings object.
+ * @param {Node} node The DOM node containing all our strings.
+ */
+function LocalStrings(node) {
+  this.strings_ = {};
+  
+  var children = node.childNodes;
+  for (var i = 0, child; child = children[i]; i++) {
+    var id = child.id;
+    if (id) {
+      this.strings_[id] = child.innerHTML;
+    }
+  }
+}
+
+/**
+ * Gets a localized string by its id.
+ * @param {string} s The id of the string we want
+ * @return {string} The localized string
+ */
+LocalStrings.prototype.getString = function(s) {
+  return (s in this.strings_) ? this.strings_[s] : '';
+}
+
+/**
+ * Returns a formatted localized string (where all %s contents are replaced 
+ * by the second argument).
+ * @param {string} s The id of the string we want
+ * @param {string} d The string to include in the formatted string
+ * @return {string} The formatted string.
+ */
+LocalStrings.prototype.formatString = function(s, d) {
+  return (s in this.strings_) ? this.strings_[s].replace(/\%s/, d) : '';
+}
+
+function $(o) {return document.getElementById(o);}
+
 /**
  * If the functions that can render content are defined, render
  * the content for any data we've received so far.
@@ -235,6 +280,14 @@ a.thumbnail {
   text-overflow: ellipsis;
   text-decoration:underline;
 }
+.recent-window-container {
+  line-height:16px;
+  display:block;
+  margin:3px 0px 3px 22px;
+}
+.recent-window-container img {
+  margin:0 3px -2px 3px;
+}
 html[dir='rtl'] .recent-bookmark {
   background-position:right;
   padding-left:0px;
@@ -293,6 +346,9 @@ html[dir='rtl'] #searches input {
 </style>
 </head>
 <body onload="logEvent('body onload fired');">
+<div id="l10n" style="display:none;">
+  <span id="closedwindow" jscontent="closedwindow">Window</span>
+</div>
 <script>
 // We apply the size class here so that we don't trigger layout animations onload.
 handleWindowResize();
@@ -373,7 +429,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
     </div>
 
     <div id="recentlyClosedTabs" class="sidebar" style="display:none">
-      <div class="section-title" jscontent="closedtabs"></div>
+      <div class="section-title" jscontent="recentlyclosed"></div>
       <div id="recentlyClosedContainer"></div>
     </div>
   </td>
@@ -581,7 +637,33 @@ function renderRecentlyClosedTabs(entries) {
     section.style.display = 'block';
 
     for (var i = 0; entry = entries[i]; ++i) {
-      var link = DOM('a', {href:entry.url, className:'recent-bookmark', title:entry.title});
+      var link;
+      
+      if (entry.type == "tab") {
+        // Closed tab.
+        link = DOM('a', {href:entry.url, className:'recent-bookmark', title:entry.title});
+        link.style.backgroundImage = 'url("chrome://favicon/' + entry.url + '")';
+        link.appendChild(document.createTextNode(entry.title));
+        container.appendChild(link);
+      } else {
+        // Closed window.
+        var linkSpanContainer = DOM('div', { className: 'recent-window-container'});
+        var linkSpan = DOM('span');
+        link = DOM('a', { href: "window",
+                          title: localStrings.getString('closedWindow') } );
+        link.appendChild(
+            document.createTextNode(localStrings.getString('closedwindow')));
+        linkSpan.appendChild(link);
+        linkSpan.appendChild(document.createTextNode(" ("));
+        for (var windowIndex = 0; windowIndex < entry.tabs.length; windowIndex++) {
+          var tab = entry.tabs[windowIndex];
+          var tabImg = DOM('img', {src:'url("chrome://favicon/' + tab.url + '")', width:16, height:16, });
+          linkSpan.appendChild(tabImg);
+        }
+        linkSpan.appendChild(document.createTextNode(")"));
+        linkSpanContainer.appendChild(linkSpan);
+        container.appendChild(linkSpanContainer);
+      }
 
       link.onclick = function(sessionId) {
         return function() {
@@ -592,10 +674,6 @@ function renderRecentlyClosedTabs(entries) {
           return false;
         }
       }(entry.sessionId);
-
-      link.style.backgroundImage = 'url("chrome://favicon/' + entry.url + '")';
-      link.appendChild(document.createTextNode(entry.title));
-      container.appendChild(link);
     }
   }
 
@@ -616,6 +694,8 @@ function viewLog() {
 }
 
 logEvent('end of second script block');
+
+localStrings = new LocalStrings($('l10n'));
 
 // We've got all the JS we need, render any unprocessed data.
 renderFunctionsDefined = true;
