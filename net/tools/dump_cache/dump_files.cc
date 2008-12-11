@@ -280,7 +280,7 @@ int DumpHeaders(const std::wstring input_path) {
   file_util::FileEnumerator iter(FilePath::FromWStringHack(input_path), false,
                                  file_util::FileEnumerator::FILES, pattern);
   for (std::wstring file = iter.Next().ToWStringHack(); !file.empty();
-       file = iter.Next()) {
+       file = iter.Next().ToWStringHack()) {
     DumpBlockHeader(file);
   }
 
