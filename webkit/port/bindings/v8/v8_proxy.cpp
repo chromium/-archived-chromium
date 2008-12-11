@@ -211,7 +211,7 @@ namespace WebCore {
 // DOM objects are ref-counted, and JS objects are traced from
 // a set of root objects. They can create a cycle. To break
 // cycles, we do following:
-//   Peer from DOM objects to JS wrappers are always weak,
+//   Handles from DOM objects to JS wrappers are always weak,
 // so JS wrappers of non-node object cannot create a cycle.
 //   Before starting a global GC, we create a virtual connection
 // between nodes in the same tree in the JS heap. If the wrapper
@@ -1996,6 +1996,28 @@ void V8Proxy::updateDocument()
     }
 }
 
+
+// Same origin policy implementation:
+//
+// Same origin policy prevents JS code from domain A access JS & DOM objects
+// in a different domain B. There are exceptions and several objects are
+// accessible by cross-domain code. For example, the window.frames object is
+// accessible by code from a different domain, but window.document is not.
+//
+// The binding code sets security check callbacks on a function template,
+// and accessing instances of the template calls the callback function.
+// The callback function checks same origin policy.
+//
+// Callback functions are expensive. V8 uses a security token string to do
+// fast access checks for the common case where source and target are in the
+// same domain. A security token is a string object that represents
+// the protocol/url/port of a domain.
+//
+// There are special cases where a security token matching is not enough.
+// For example, JavaScript can set its domain to a super domain by calling
+// document.setDomain(...). In these cases, the binding code can reset
+// a context's security token to its global object so that the fast access
+// check will always fail.
 
 // Check if the current execution context can access a target frame.
 // First it checks same domain policy using the lexical context
