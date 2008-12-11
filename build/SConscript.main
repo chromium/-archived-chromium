@@ -565,6 +565,9 @@ mac_env.FilterOut(
         'build/SConscript.v8',
     ],
 )
+# TODO(bradnelson): this is needed for now because target_platform_mac has
+# OS_MACOSX defined in a weird way.
+mac_env.FilterOut(CPPDEFINES = ['OS_MACOSX=OS_MACOSX'])
 
 if not root_env.WantSystemLib('libevent'):
   mac_env.Append(
