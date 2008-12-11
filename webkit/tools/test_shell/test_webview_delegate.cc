@@ -548,7 +548,25 @@ bool TestWebViewDelegate::ShouldApplyStyle(WebView* webview,
 }
 
 bool TestWebViewDelegate::SmartInsertDeleteEnabled() {
-  return true;
+  return smart_insert_delete_enabled_;
+}
+
+void TestWebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {
+  smart_insert_delete_enabled_ = enabled;
+  // In upstream WebKit, smart insert/delete is mutually exclusive with select
+  // trailing whitespace, however, we allow both because Chromium on Windows
+  // allows both.
+}
+
+bool TestWebViewDelegate::IsSelectTrailingWhitespaceEnabled() {
+  return select_trailing_whitespace_enabled_;
+}
+
+void TestWebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
+  select_trailing_whitespace_enabled_ = enabled;
+  // In upstream WebKit, smart insert/delete is mutually exclusive with select
+  // trailing whitespace, however, we allow both because Chromium on Windows
+  // allows both.
 }
 
 void TestWebViewDelegate::DidBeginEditing() { 

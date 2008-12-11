@@ -122,6 +122,14 @@ class LayoutTestController : public CppBoundClass {
   void setStopProvisionalFrameLoads(const CppArgumentList& args,
                                     CppVariant* result);
 
+  // Enable or disable smart insert/delete.  This is enabled by default.
+  void setSmartInsertDeleteEnabled(const CppArgumentList& args,
+                                   CppVariant* result);
+
+  // Enable or disable trailing whitespace selection on double click.
+  void setSelectTrailingWhitespaceEnabled(const CppArgumentList& args,
+                                          CppVariant* result);
+
   // The following are only stubs.  TODO(pamg): Implement any of these that
   // are needed to pass the layout tests.
   void dumpAsWebArchive(const CppArgumentList& args, CppVariant* result);

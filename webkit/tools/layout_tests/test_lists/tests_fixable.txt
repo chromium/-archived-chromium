@@ -1227,7 +1227,6 @@ LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 MAC WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 // NEW FOR MERGE 37604:38097
-LayoutTests/editing/deleting/smart-editing-disabled.html = FAIL
 LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
@@ -1346,7 +1345,6 @@ LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
 
 // MERGE 38729:38760: New tests
-LayoutTests/editing/selection/doubleclick-whitespace.html = FAIL
 LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
 LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
 

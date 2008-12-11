@@ -119,6 +119,14 @@ public:
     void ResetTestController() {
       layout_test_controller_->Reset();
       event_sending_controller_->Reset();
+
+      // Reset state in the test webview delegate.
+      delegate()->SetSmartInsertDeleteEnabled(true);
+#if defined(OS_WIN)
+      delegate()->SetSelectTrailingWhitespaceEnabled(true);
+#else
+      delegate()->SetSelectTrailingWhitespaceEnabled(false);
+#endif
     }
 
     // Passes options from LayoutTestController through to the delegate (or

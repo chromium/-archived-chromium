@@ -59,7 +59,13 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
       shell_(shell),
       top_loading_frame_(NULL),
       page_id_(-1),
-      last_page_id_updated_(-1)
+      last_page_id_updated_(-1),
+      smart_insert_delete_enabled_(true)
+#if defined(OS_WIN)
+      , select_trailing_whitespace_enabled_(true)
+#else
+      , select_trailing_whitespace_enabled_(false)
+#endif
 #if defined(OS_WIN)
       , custom_cursor_(NULL)
 #elif defined(OS_LINUX)
@@ -175,6 +181,9 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                 std::wstring style,
                                 std::wstring range);
   virtual bool SmartInsertDeleteEnabled();
+  virtual void SetSmartInsertDeleteEnabled(bool enabled);
+  virtual bool IsSelectTrailingWhitespaceEnabled();
+  virtual void SetSelectTrailingWhitespaceEnabled(bool enabled);
   virtual void DidBeginEditing();
   virtual void DidChangeSelection(bool is_empty_selection);
   virtual void DidChangeContents();
@@ -294,6 +303,12 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   typedef std::map<uint32, std::string> ResourceMap;
   ResourceMap resource_identifier_map_;
   std::string GetResourceDescription(uint32 identifier);
+
+  // true if we want to enable smart insert/delete.
+  bool smart_insert_delete_enabled_;
+
+  // true if we want to enable selection of trailing whitespaces
+  bool select_trailing_whitespace_enabled_;
 
 #if defined(OS_WIN)
   HCURSOR custom_cursor_;

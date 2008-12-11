@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/logging.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/context_node_types.h"
 #include "webkit/glue/webwidget_delegate.h"
@@ -631,7 +632,13 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   }
 
   virtual bool SmartInsertDeleteEnabled() {
-    return false;
+    return true;
+  }
+
+  virtual void SetSmartInsertDeleteEnabled(bool enabled) {
+    // This method is only used in test shell, which overrides this
+    // method.
+    NOTREACHED();
   }
 
   virtual bool IsSelectTrailingWhitespaceEnabled() {
@@ -640,6 +647,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 #else
     return false;
 #endif
+  }
+
+  virtual void SetSelectTrailingWhitespaceEnabled(bool enabled) {
+    // This method is only used in test shell, which overrides this
+    // method.
+    NOTREACHED();
   }
 
   virtual void DidBeginEditing() { }
