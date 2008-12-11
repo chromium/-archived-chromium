@@ -74,16 +74,16 @@ const wchar_t* const g_supported_spellchecker_languages[] = {
 
 }
 
-void SpellChecker::SpellCheckLanguages(std::vector<std::wstring>* languages) {
+void SpellChecker::SpellCheckLanguages(Languages* languages) {
   for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i)
     languages->push_back(g_supported_spellchecker_languages[i]);
 }
 
-std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
-    const std::wstring& language) {
+SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
+    const Language& language) {
   // Look for exact match in the Spell Check language list.
   for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-    std::wstring spellcheck_language(g_supported_spellchecker_languages[i]);
+    Language spellcheck_language(g_supported_spellchecker_languages[i]);
     if (spellcheck_language == language)
       return language;
   }
@@ -95,57 +95,55 @@ std::wstring SpellChecker::GetCorrespondingSpellCheckLanguage(
   // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
   // locale ids with a script code in the middle, yet.
   // TODO(jungshik): Add a better fallback.
-  std::wstring language_part(language, 0, language.find(L'-'));
+  Language language_part(language, 0, language.find(L'-'));
   for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-    std::wstring spellcheck_language(g_supported_spellchecker_languages[i]);
+    Language spellcheck_language(g_supported_spellchecker_languages[i]);
     if (spellcheck_language.substr(0, spellcheck_language.find(L'-')) ==
         language_part)
       return spellcheck_language;
   } 
 
   // No match found - return blank.
-  return std::wstring();
+  return Language();
 }
 
 int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
     Profile* profile,
-    std::vector<std::wstring>* display_language_list) {
+    Languages* display_languages) {
   StringPrefMember accept_languages_pref;
   StringPrefMember dictionary_language_pref;
   accept_languages_pref.Init(prefs::kAcceptLanguages, profile->GetPrefs(),
                              NULL);
   dictionary_language_pref.Init(prefs::kSpellCheckDictionary,
                                 profile->GetPrefs(), NULL);
-  std::wstring dictionary_language(dictionary_language_pref.GetValue());
+  Language dictionary_language(dictionary_language_pref.GetValue());
 
   // The current dictionary language should be there.
-  display_language_list->push_back(dictionary_language);
+  display_languages->push_back(dictionary_language);
 
   // Now scan through the list of accept languages, and find possible mappings
   // from this list to the existing list of spell check languages.
-  std::vector<std::wstring> accept_language_vector;
-  SplitString(accept_languages_pref.GetValue(), L',', &accept_language_vector);
-  for (size_t i = 0; i < accept_language_vector.size(); ++i) {
-    std::wstring language = GetCorrespondingSpellCheckLanguage(
-        accept_language_vector[i]);
+  Languages accept_languages;
+  SplitString(accept_languages_pref.GetValue(), L',', &accept_languages);
+  for (Languages::const_iterator i(accept_languages.begin());
+       i != accept_languages.end(); ++i) {
+    Language language(GetCorrespondingSpellCheckLanguage(*i));
     if (!language.empty()) {
       // Check for duplication.
-      if (std::find(display_language_list->begin(),
-                    display_language_list->end(), language) ==
-          display_language_list->end())
-        display_language_list->push_back(language);
+      if (std::find(display_languages->begin(), display_languages->end(),
+                    language) == display_languages->end())
+        display_languages->push_back(language);
     }
   }
 
   // Sort using locale specific sorter.
   l10n_util::SortStrings(g_browser_process->GetApplicationLocale(),
-                         display_language_list);
+                         display_languages);
 
-  for (size_t i = 0; i < display_language_list->size(); ++i) {
-    if ((*display_language_list)[i] == dictionary_language)
+  for (size_t i = 0; i < display_languages->size(); ++i) {
+    if ((*display_languages)[i] == dictionary_language)
       return i;
   }
-
   return -1;
 }
 
@@ -184,7 +182,7 @@ class UIProxyForIOTask : public Task {
 // dictionary if required. This code is included in this file since dictionary
 // is an integral part of spellchecker.
 
-// Design: The spellchecker initializes hunspell_ in the |Initialize()| method.
+// Design: The spellchecker initializes hunspell_ in the Initialize() method.
 // This is done using the dictionary file on disk, for example, "en-US.bdic".
 // If this file is missing, a |DictionaryDownloadController| object is used to
 // download the missing files asynchronously (using URLFetcher) in the file
@@ -240,12 +238,11 @@ class SpellChecker::DictionaryDownloadController
  private:
   // The file has been downloaded in memory - need to write it down to file.
   bool SaveBufferToFile(const std::string& data) {
-    const char *file_char = data.c_str();
     std::wstring file_to_write = dic_zip_file_path_;
     file_util::AppendToPath(&file_to_write, file_name_);
-    int save_file = file_util::WriteFile(file_to_write, file_char,
-                                         static_cast<int>(data.length()));
-    return (save_file > 0 ? true : false);
+    int num_bytes = data.length();
+    return file_util::WriteFile(file_to_write, data.data(), num_bytes) ==
+        num_bytes;
   }
 
   // URLFetcher::Delegate interface.
@@ -262,7 +259,7 @@ class SpellChecker::DictionaryDownloadController
         response_code == 401 ||
         response_code == 407) {
       save_success = SaveBufferToFile(data);
-    }  // Unsuccessful save is taken care of spellchecker |Initialize|.
+    }  // Unsuccessful save is taken care of in SpellChecker::Initialize().
 
     // Set Flag that dictionary is not downloading anymore.
     ui_loop_->PostTask(FROM_HERE,
@@ -305,7 +302,7 @@ void SpellChecker::set_file_is_downloading(bool value) {
 // This part of the code is used for spell checking.
 // ################################################################
 
-std::wstring SpellChecker::GetVersionedFileName(const std::wstring& language,
+std::wstring SpellChecker::GetVersionedFileName(const Language& language,
                                                 const std::wstring& dict_dir) {
   // The default version string currently in use.
   static const wchar_t kDefaultVersionString[] = L"-1-1";

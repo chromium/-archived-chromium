@@ -615,7 +615,7 @@ void LanguagesPageView::InitControlLayout() {
   enable_spellchecking_checkbox_->SetMultiLine(true);
 
   // Determine Locale Codes.
-  std::vector<std::wstring> spell_check_languages;
+  SpellChecker::Languages spell_check_languages;
   SpellChecker::SpellCheckLanguages(&spell_check_languages);
   dictionary_language_model_.reset(new LanguageComboboxModel(profile(),
       spell_check_languages));

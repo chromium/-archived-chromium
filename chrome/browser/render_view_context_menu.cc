@@ -151,15 +151,15 @@ void RenderViewContextMenu::AppendEditableItems() {
       l10n_util::GetString(IDS_CONTENT_CONTEXT_SPELLCHECK_MENU));
 
   // Add Spell Check languages to sub menu.
-  std::vector<std::wstring> language_vector;
+  SpellChecker::Languages display_languages;
   SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(profile_,
-      &language_vector);
-  DCHECK(language_vector.size() <
+      &display_languages);
+  DCHECK(display_languages.size() <
          IDC_SPELLCHECK_LANGUAGES_LAST - IDC_SPELLCHECK_LANGUAGES_FIRST);
   const std::wstring app_locale = g_browser_process->GetApplicationLocale();
-  for (size_t i = 0; i < language_vector.size(); ++i) {
+  for (size_t i = 0; i < display_languages.size(); ++i) {
     std::wstring local_language(l10n_util::GetLocalName(
-        language_vector[i], app_locale, true));
+        display_languages[i], app_locale, true));
     spellchecker_sub_menu_->AppendMenuItem(
         IDC_SPELLCHECK_LANGUAGES_FIRST + i, local_language, RADIO);
   }

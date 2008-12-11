@@ -37,6 +37,9 @@ class URLRequestContext;
 // deleted on the I/O thread itself.
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
  public:
+   typedef std::wstring Language;
+   typedef std::vector<Language> Languages;
+
   // Creates the spellchecker by reading dictionaries from the given directory,
   // and defaulting to the given language. Both strings must be provided.
   //
@@ -46,7 +49,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // can figure out the custom dictionary file. It is non empty only for unit
   // testing.
   SpellChecker(const std::wstring& dict_dir,
-               const std::wstring& language,
+               const Language& language,
                URLRequestContext* request_context,
                const std::wstring& custom_dictionary_file_name);
 
@@ -73,14 +76,14 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   void AddWord(const std::wstring& word);
 
   // Get SpellChecker supported languages.
-  static void SpellCheckLanguages(std::vector<std::wstring>* languages);
+  static void SpellCheckLanguages(Languages* languages);
 
   // This function computes a vector of strings which are to be displayed in 
   // the context menu over a text area for changing spell check languages. It
   // returns the index of the current spell check language in the vector.
   static int GetSpellCheckLanguagesToDisplayInContextMenu(
       Profile* profile,
-      std::vector<std::wstring>* display_language_list);
+      Languages* display_languages);
 
  private:
   // Download dictionary files when required.
@@ -101,15 +104,14 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
 
   // Returns whether or not the given word is a contraction of valid words
   // (e.g. "word:word").
-  bool IsValidContraction(const std::wstring& word);
+  bool IsValidContraction(const Language& word);
 
   // Return the file name of the dictionary, including the path and the version
   // numbers.
-  std::wstring GetVersionedFileName(const std::wstring& language,
+  std::wstring GetVersionedFileName(const Language& language,
                                     const std::wstring& dict_dir);
 
-  static std::wstring GetCorrespondingSpellCheckLanguage(
-      const std::wstring& language);
+  static Language GetCorrespondingSpellCheckLanguage(const Language& language);
   
   // Path to the spellchecker file.
   std::wstring bdict_file_name_;
