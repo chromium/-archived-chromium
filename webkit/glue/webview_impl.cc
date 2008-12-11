@@ -1127,7 +1127,7 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
   const FrameView* view = node->document()->view();
   if (!view)
     return false;
-  const IntRect rect(view->contentsToWindow(controller->caretRect()));
+  const IntRect rect(view->contentsToWindow(controller->localCaretRect()));
   caret_rect->SetRect(rect.x(), rect.y(), rect.width(), rect.height());
   return true;
 }

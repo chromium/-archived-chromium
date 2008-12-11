@@ -42,7 +42,6 @@
 #include "NotImplemented.h"
 #include "npruntime_priv.h"
 #include "np_v8object.h"
-#include "PausedTimeouts.h"
 #include "ScriptSourceCode.h"
 #include "Widget.h"
 
@@ -137,26 +136,6 @@ void ScriptController::unentangleMessagePort(MessagePort *port)
         v8::Handle<v8::Object>::Cast(wrapper)->SetInternalField(
             V8Custom::kMessagePortEntangledPortIndex, v8::Undefined());
     }
-}
-
-void ScriptController::pauseTimeouts(OwnPtr<PausedTimeouts>& result)
-{
-    DOMWindow* window = m_frame->domWindow();
-    if (!window) {
-        result.clear();
-        return;
-    }
-    window->pauseTimeouts(result);
-}
-
-void ScriptController::resumeTimeouts(OwnPtr<PausedTimeouts>& timeouts)
-{
-    DOMWindow* window = m_frame->domWindow();
-    if (!window) {
-        timeouts.clear();
-        return;
-    }
-    window->resumeTimeouts(timeouts);
 }
 
 ScriptController::ScriptController(Frame* frame)

@@ -37,8 +37,6 @@ else:
   )
 
 inputs = [
-    '$SHARED_DIR/PausedTimeouts.cpp',
-
     '$DERIVED_DIR/CSSGrammar.cpp',
     '$DERIVED_DIR/HTMLNames.cpp',
     '$DERIVED_DIR/SVGElementFactory.cpp',

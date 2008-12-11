@@ -32,6 +32,7 @@
 
 #include "config.h"
 
+#include "LinkHash.h"
 #include "PasteboardPrivate.h"
 #include "PassRefPtr.h"
 #include "PlatformString.h"
@@ -147,6 +148,9 @@ namespace WebCore {
         // Widget -------------------------------------------------------------
         static void widgetSetCursor(Widget*, const Cursor&);
         static void widgetSetFocus(Widget*);
+
+        // Link history -------------------------------------------------------
+        static bool isLinkVisited(LinkHash);
     };
 }
 

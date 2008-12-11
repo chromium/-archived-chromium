@@ -2379,14 +2379,6 @@
 		<Filter
 			Name="SharedSources"
 			>
-			<File
-				RelativePath="$(IntDir)\SharedSources\PausedTimeouts.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\SharedSources\PausedTimeouts.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="c_binding"

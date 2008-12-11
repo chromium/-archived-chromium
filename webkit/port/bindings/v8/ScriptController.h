@@ -127,7 +127,6 @@ class Event;
 class Frame;
 class HTMLPlugInElement;
 class Node;
-class PausedTimeouts;
 class ScriptSourceCode;
 class String;
 class Widget;
@@ -247,9 +246,6 @@ public:
 
     void clearWindowShell();
     void updateDocument();
-
-    void pauseTimeouts(OwnPtr<PausedTimeouts>&);
-    void resumeTimeouts(OwnPtr<PausedTimeouts>&);
 
     void clearScriptObjects();
     void cleanupScriptObjectsForPlugin(void*);

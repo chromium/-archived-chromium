@@ -559,7 +559,6 @@
 		E40064540EA90AA10055B38E /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3D0D7F3C48001ECF42 /* Console.cpp */; };
 		E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */; };
 		E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */; };
-		E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
 		E45063BA0E4104700025A81A /* localized_strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051A0D92E3DA0006B936 /* localized_strings.cc */; };
 		E4506C0C0EF039DE003BE099 /* dom_serializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506C0A0EF039DE003BE099 /* dom_serializer.cc */; };
@@ -4217,8 +4216,6 @@
 		E40063760EA908220055B38E /* ScriptCallContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScriptCallContext.cpp; path = ../third_party/WebKit/WebCore/bindings/js/ScriptCallContext.cpp; sourceTree = SOURCE_ROOT; };
 		E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCacheChromium.cpp; sourceTree = "<group>"; };
 		E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatformScreenMac.mm; path = mac/PlatformScreenMac.mm; sourceTree = "<group>"; };
-		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = WebCore/bindings/js/PausedTimeouts.h; sourceTree = "<group>"; };
-		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = "<group>"; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
 		E45062E00E40B5420025A81A /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkiaUtils.h; sourceTree = "<group>"; };
 		E4506C0A0EF039DE003BE099 /* dom_serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_serializer.cc; sourceTree = "<group>"; };
@@ -4495,8 +4492,6 @@
 		7B00912A0DAFEF2000F72082 /* bindings */ = {
 			isa = PBXGroup;
 			children = (
-				E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */,
-				E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */,
 				E40063760EA908220055B38E /* ScriptCallContext.cpp */,
 			);
 			name = bindings;
@@ -8870,7 +8865,6 @@
 				E45624E50E268E87005E4685 /* PathTraversalState.cpp in Sources */,
 				4DB7F00B0E9BA3A100C66CE0 /* Pattern.cpp in Sources */,
 				B5442A7B0E9BDCF30098766D /* PatternCG.cpp in Sources */,
-				E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */,
 				E456268D0E268E87005E4685 /* PDFDocumentImage.cpp in Sources */,
 				E45624E60E268E87005E4685 /* Pen.cpp in Sources */,
 				4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */,

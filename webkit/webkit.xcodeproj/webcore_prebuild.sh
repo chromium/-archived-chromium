@@ -27,18 +27,6 @@ fi
 
 rmdir "${GENERATED_DIR}/include/v8/new"
 
-# WebCore/bindings/js/PausedTimeouts.cpp depends on PausedTimeouts.h, which
-# depends on ScheduledAction.h, all in the same directory.  PausedTimeouts is
-# not JSC-specific and should be built here, but ScheduledAction.h is
-# JSC-specific.  Our own V8-compatible ScheduledAction.h is in webkit/port/dom
-# and would normally not be the one chosen by the preprocessor, which finds
-# the JSC one first instead.  Copy PausedTimeouts.cpp out to another location
-# so that the proper ScheduledAction.h can be included.
-mkdir -p "${GENERATED_DIR}/bindings/v8/WebCore/bindings/js"
-cp -p "../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.cpp" \
-      "../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.h" \
-      "${GENERATED_DIR}/bindings/v8/WebCore/bindings/js"
-
 # TODO(mmentovai): If I'm still needed, can I move to jsbindings_prebuild.sh?
 cd "${GENERATED_DIR}/DerivedSources/v8"
 mkdir -p ForwardingHeaders/loader

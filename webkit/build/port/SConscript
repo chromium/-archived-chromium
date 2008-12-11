@@ -479,9 +479,8 @@ for name in idl_files:
 
 
 # copy over some files
-i = env.Install('$SHARED_DIR',
-                ['$PORT_DIR/bindings/js/PausedTimeouts.h',
-                 '$PORT_DIR/bindings/js/PausedTimeouts.cpp'])
+# TODO(eroman): can probably get rid of this.
+i = env.Install('$SHARED_DIR', [])
 env.Alias('webkit', i)
 
 # HTML tag and attribute names

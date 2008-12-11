@@ -3286,14 +3286,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\PausedTimeouts.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\PausedTimeouts.h"
-			>
-		</File>
-		<File
 			RelativePath="..\precompiled_webkit.cc"
 			>
 			<FileConfiguration

@@ -535,4 +535,12 @@ void ChromiumBridge::widgetSetFocus(Widget* widget) {
     chrome_client->focus();
 }
 
+// Link history ---------------------------------------------------------------
+
+bool ChromiumBridge::isLinkVisited(LinkHash) {
+  // NOT IMPLEMENTED
+  // http://code.google.com/p/chromium/issues/detail?id=5401
+  return false;
+}
+
 }  // namespace WebCore

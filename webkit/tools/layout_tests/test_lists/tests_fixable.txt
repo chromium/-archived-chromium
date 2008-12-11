@@ -1994,6 +1994,13 @@ MAC WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 LayoutTests/wml/variable-reference-invalid-character.html = FAIL
 LayoutTests/wml/variable-reference-valid.html = FAIL
 
+// WebKit Merge 39050:39100 failures:
+LayoutTests/editing/pasteboard/5780697-2.html = FAIL
+LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
+LayoutTests/fast/dom/java-applet-calls.html = FAIL
+LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
+LayoutTests/http/tests/loading/simple-subframe.html = FAIL
+
 // Linux pixeltest failure: font metrics for Ahem(?).
 // evanm sent a reduction of this problem to agl.
 LINUX : LayoutTests/fast/block/margin-collapse/055.html = FAIL

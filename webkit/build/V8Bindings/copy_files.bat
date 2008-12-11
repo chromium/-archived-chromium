@@ -11,8 +11,6 @@ set KJS_BINDINGS_DIR="..\..\..\third_party\WebKit\WebCore\bindings\js"
 setlocal
 
 mkdir 2>NUL %DIR%
-xcopy /y /d "%KJS_BINDINGS_DIR%\PausedTimeouts.h" %DIR%
-xcopy /y /d "%KJS_BINDINGS_DIR%\PausedTimeouts.cpp" %DIR%
 
 endlocal
 
