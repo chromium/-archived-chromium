@@ -143,10 +143,14 @@ void Path::addArc(const FloatPoint& p, float r, float sa, float ea,
         SkScalar startDegrees = WebCoreFloatToSkScalar(sa * 180 / gPI);
         SkScalar sweepDegrees = WebCoreFloatToSkScalar(sweep * 180 / gPI);
 
+        // Counterclockwise arcs should be drawn with negative sweeps, while
+        // clockwise arcs should be drawn with positive sweeps. Check to see
+        // if the situation is reversed and correct it by adding or subtracting
+        // a full circle
         if (anticlockwise && sweepDegrees > 0) {
             sweepDegrees -= SkIntToScalar(360);
         } else if (!anticlockwise && sweepDegrees < 0) {
-            sweepDegrees = SkIntToScalar(360) - sweepDegrees;
+            sweepDegrees += SkIntToScalar(360);
         }
 
 //        SkDebugf("addArc sa=%g ea=%g cw=%d start=%g sweep=%g\n", sa, ea, clockwise,
