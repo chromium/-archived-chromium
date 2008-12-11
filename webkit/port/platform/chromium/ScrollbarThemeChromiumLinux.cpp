@@ -30,6 +30,7 @@
 #include "config.h"
 #include "ScrollbarThemeChromium.h"
 
+#include "AffineTransform.h"
 #include "NotImplemented.h"
 #include "PlatformContextSkia.h"
 #include "PlatformMouseEvent.h"
@@ -82,23 +83,33 @@ static void initMozState(GtkWidgetState* mozState)
 //   rect: the area of the widget
 //   widget_type: the type of widget to draw
 //   flags: widget dependent flags (e.g. direction of scrollbar arrows etc)
+//
+// See paintMozWiget in RenderThemeGtk.cpp for an explanation of the clipping.
 // -----------------------------------------------------------------------------
 static void paintScrollbarWidget(GraphicsContext* gc, const IntRect& rect,
                                  GtkThemeWidgetType widget_type, gint flags)
 {
     PlatformContextSkia* pcs = gc->platformContext();
 
-    GdkRectangle sbrect;
-    sbrect.x = rect.x();
-    sbrect.y = rect.y();
-    sbrect.width = rect.width();
-    sbrect.height = rect.height();
+    GdkRectangle gdkRect = { rect.x(), rect.y(), rect.width(), rect.height() };
+
+    const SkIRect clip_region = pcs->canvas()->getTotalClip().getBounds();
+    AffineTransform ctm = gc->getCTM().inverse();
+    IntPoint pos = ctm.mapPoint(
+        IntPoint(SkScalarRound(clip_region.fLeft), SkScalarRound(clip_region.fTop)));
+    GdkRectangle gdkClipRect;
+    gdkClipRect.x = pos.x();
+    gdkClipRect.y = pos.y();
+    gdkClipRect.width = clip_region.width();
+    gdkClipRect.height = clip_region.height();
+
+    gdk_rectangle_intersect(&gdkRect, &gdkClipRect, &gdkClipRect);
 
     GtkWidgetState mozState;
     initMozState(&mozState);
 
-    moz_gtk_widget_paint(widget_type, pcs->gdk_skia(), &sbrect, &sbrect, &mozState,
-                         flags, GTK_TEXT_DIR_LTR);
+    moz_gtk_widget_paint(widget_type, pcs->gdk_skia(), &gdkRect, &gdkClipRect,
+                         &mozState, flags, GTK_TEXT_DIR_LTR);
 }
 
 void ScrollbarThemeChromium::paintTrackPiece(GraphicsContext* gc, Scrollbar* scrollbar,

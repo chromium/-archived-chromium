@@ -1059,9 +1059,8 @@ LINUX MAC : pending/plugins/destroy-stream-twice.html = TIMEOUT
 LINUX MAC : pending/plugins/iframe-shims.html = FAIL
 
 // Depends on event_sending_controller fixes.
-LINUX MAC : pending/fast/events/special-key-events-in-input-text.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT PASS
-
+MAC : pending/fast/events/special-key-events-in-input-text.html = FAIL
+MAC : LayoutTests/fast/forms/search-event-delay.html = TIMEOUT PASS
 
 // NEW FOR MERGE 36102:37604
 
@@ -2001,9 +2000,6 @@ LayoutTests/wml/variable-reference-valid.html = FAIL
 // Linux pixeltest failure: font metrics for Ahem(?).
 // evanm sent a reduction of this problem to agl.
 LINUX : LayoutTests/fast/block/margin-collapse/055.html = FAIL
-
-// Linux pixeltest failure: We aren't clipping the scrollbar
-LINUX : LayoutTests/fast/clip/014.html = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
