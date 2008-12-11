@@ -254,7 +254,7 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, L""));
+      hunspell_directory, L"en-US", NULL, std::wstring()));
 
   for (int i = 0; i < arraysize(kTestCases); i++) {
     size_t input_length = 0;
@@ -308,7 +308,7 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, L""));
+      hunspell_directory, L"en-US", NULL, std::wstring()));
 
   for (int i = 0; i < arraysize(kTestCases); i++) {
     std::vector<std::wstring> suggestions;
