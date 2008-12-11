@@ -10,9 +10,12 @@
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/drag_drop_types.h"
+#include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/views/view_constants.h"
 
 #include "generated_resources.h"
@@ -128,6 +131,18 @@ void BookmarkTableView::SaveColumnConfiguration() {
   }
 }
 
+void BookmarkTableView::SetAltText(const std::wstring& alt_text) {
+  if (alt_text == alt_text_)
+    return;
+
+  alt_text_ = alt_text;
+  if (!GetNativeControlHWND())
+    return;
+
+  RECT alt_text_bounds = GetAltTextBounds().ToRECT();
+  InvalidateRect(GetNativeControlHWND(), &alt_text_bounds, FALSE);
+}
+
 void BookmarkTableView::SetShowPathColumn(bool show_path_column) {
   if (show_path_column == show_path_column_)
     return;
@@ -139,6 +154,8 @@ void BookmarkTableView::SetShowPathColumn(bool show_path_column) {
 }
 
 void BookmarkTableView::PostPaint() {
+  PaintAltText();
+
   if (!drop_info_.get() || drop_info_->position().index == -1 ||
       drop_info_->position().on) {
     return;
@@ -402,4 +419,32 @@ void BookmarkTableView::UpdateColumns() {
   for (size_t i = 0; i < columns.size(); ++i)
     SetColumnVisibility(columns[i].id, true);
   OnModelChanged();
+}
+
+void BookmarkTableView::PaintAltText() {
+  if (alt_text_.empty())
+    return;
+
+  HDC dc = GetDC(GetNativeControlHWND());
+  ChromeFont font = GetAltTextFont();
+  gfx::Rect bounds = GetAltTextBounds();
+  ChromeCanvas canvas(bounds.width(), bounds.height(), false);
+  canvas.DrawStringInt(alt_text_, font, SK_ColorDKGRAY, 0, 0, bounds.width(),
+                       bounds.height());
+  canvas.getTopPlatformDevice().drawToHDC(dc, bounds.x(), bounds.y(), NULL);
+  ReleaseDC(GetNativeControlHWND(), dc);  
+}
+
+gfx::Rect BookmarkTableView::GetAltTextBounds() {
+  static const int kXOffset = 16;
+  DCHECK(GetNativeControlHWND());
+  CRect client_rect;
+  GetClientRect(GetNativeControlHWND(), client_rect);
+  ChromeFont font = GetAltTextFont();
+  return gfx::Rect(kXOffset, content_offset(), client_rect.Width() - kXOffset,
+                   std::max(kImageSize, font.height()));
+}
+
+ChromeFont BookmarkTableView::GetAltTextFont() {
+  return ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
 }

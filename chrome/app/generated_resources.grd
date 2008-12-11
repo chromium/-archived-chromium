@@ -2212,6 +2212,10 @@ each locale. -->
                desc="Title of the bookmark context menu item that brings up the bookmark editor">
         Edit...
       </message>
+      <message name="IDS_BOOKMARK_BAR_RENAME_FOLDER"
+               desc="Title of the bookmark context menu item that brings up a dialog to rename a folder">
+        Rename...
+      </message>
       <message name="IDS_BOOKMARK_BAR_SHOULD_OPEN_ALL"
                desc="Message in the message box shown if user asks to open a lot of bookmarks in a folder">
         Are you sure you want to open <ph name="tab_count">$1<ex>20</ex></ph> tabs?
@@ -3335,6 +3339,15 @@ each locale. -->
       </message>
       <message name="IDS_BOOKMARK_MANAGER_EXPORT_MENU" desc="Title of the export menu item in the bookmark manager.">
         Export bookmarks...
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_NO_SEARCH_TEXT" desc="Text shown in the bookmark table if the user clicks on the search folder without typing in any text in the search text field.">
+        Enter a query in the text field above to search your bookmarks.
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_NO_RESULTS" desc="Text shown in the bookmark table when the search didn't find anything.">
+        No bookmarks match the query '<ph name="search text">$1</ph>'.
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_SEARCH_TITLE" desc="Text shown before the search text field.">
+        Search:
       </message>
 
     </messages>

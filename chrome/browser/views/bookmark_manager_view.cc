@@ -137,7 +137,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
       tree_view_(NULL),
       search_factory_(this) {
   search_tf_ = new views::TextField();
-  search_tf_->set_default_width_in_chars(40);
+  search_tf_->set_default_width_in_chars(30);
 
   table_view_ = new BookmarkTableView(profile_, NULL);
   table_view_->SetObserver(this);
@@ -172,8 +172,11 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
                         0, views::GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(1, kUnrelatedControlHorizontalSpacing);
+  column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
+                        0, views::GridLayout::USE_PREF, 0, 0);
+  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(views::GridLayout::TRAILING, views::GridLayout::CENTER,
-                        1, views::GridLayout::USE_PREF, 0, 0);
+                        0, views::GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, 3); // 3px padding at end of row.
 
   column_set = layout->AddColumnSet(split_cs_id);
@@ -183,6 +186,8 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   layout->StartRow(0, top_id);
   layout->AddView(organize_menu_button);
   layout->AddView(tools_menu_button);
+  layout->AddView(new views::Label(
+      l10n_util::GetString(IDS_BOOKMARK_MANAGER_SEARCH_TITLE)));
   layout->AddView(search_tf_);
 
   layout->AddPaddingRow(0, 3); // 3px padding between rows.
@@ -385,6 +390,7 @@ void BookmarkManagerView::OnTreeViewSelectionChanged(
 
   BookmarkTableModel* new_table_model = NULL;
   BookmarkNode* table_parent_node = NULL;
+  bool is_search = false;
 
   if (node) {
     switch (tree_model_->GetNodeType(node)) {
@@ -402,6 +408,7 @@ void BookmarkManagerView::OnTreeViewSelectionChanged(
         break;
 
       case BookmarkFolderTreeModel::SEARCH:
+        is_search = true;
         search_factory_.RevokeAll();
         new_table_model = CreateSearchTableModel();
         break;
@@ -412,7 +419,7 @@ void BookmarkManagerView::OnTreeViewSelectionChanged(
     }
   }
 
-  SetTableModel(new_table_model, table_parent_node);
+  SetTableModel(new_table_model, table_parent_node, is_search);
 }
 
 void BookmarkManagerView::OnTreeViewKeyDown(unsigned short virtual_keycode) {
@@ -540,7 +547,8 @@ BookmarkTableModel* BookmarkManagerView::CreateSearchTableModel() {
 }
 
 void BookmarkManagerView::SetTableModel(BookmarkTableModel* new_table_model,
-                                        BookmarkNode* parent_node) {
+                                        BookmarkNode* parent_node,
+                                        bool is_search) {
   // Be sure and reset the model on the view before updating table_model_.
   // Otherwise the view will attempt to use the deleted model when we set the
   // new one.
@@ -549,6 +557,16 @@ void BookmarkManagerView::SetTableModel(BookmarkTableModel* new_table_model,
   table_view_->SetModel(new_table_model);
   table_view_->set_parent_node(parent_node);
   table_model_.reset(new_table_model);
+  if (!is_search || (new_table_model && new_table_model->RowCount() > 0)) {
+    table_view_->SetAltText(std::wstring());
+  } else if (search_tf_->GetText().empty()) {
+    table_view_->SetAltText(
+        l10n_util::GetString(IDS_BOOKMARK_MANAGER_NO_SEARCH_TEXT));
+  } else {
+    table_view_->SetAltText(
+        l10n_util::GetStringF(IDS_BOOKMARK_MANAGER_NO_RESULTS,
+                              search_tf_->GetText()));
+  }
 }
 
 void BookmarkManagerView::PerformSearch() {
@@ -558,7 +576,7 @@ void BookmarkManagerView::PerformSearch() {
   tree_view_->SetController(NULL);
   tree_view_->SetSelectedNode(tree_model_->search_node());
   tree_view_->SetController(this);
-  SetTableModel(CreateSearchTableModel(), NULL);
+  SetTableModel(CreateSearchTableModel(), NULL, true);
 }
 
 void BookmarkManagerView::PrepareForShow() {

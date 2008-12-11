@@ -13,6 +13,7 @@
 class BookmarkModel;
 class BookmarkNode;
 class BookmarkTableModel;
+class ChromeFont;
 class OSExchangeData;
 class PrefService;
 class Profile;
@@ -46,6 +47,10 @@ class BookmarkTableView : public views::TableView {
 
   // Saves the widths of the table columns.
   void SaveColumnConfiguration();
+
+  // Sets the text to display on top of the table. This is useful if the table
+  // is empty and you want to inform the user why.
+  void SetAltText(const std::wstring& alt_text);
 
  protected:
   // Overriden to draw a drop indicator when dropping between rows.
@@ -134,6 +139,15 @@ class BookmarkTableView : public views::TableView {
   // See ShowPathColumn for details.
   void UpdateColumns();
 
+  // Draws the alt_text_. Does nothing if there is no alt_text_.
+  void PaintAltText();
+
+  // Returns the bounds of the alt text.
+  gfx::Rect GetAltTextBounds();
+
+  // Returns the font used for alt text.
+  ChromeFont GetAltTextFont();
+
   Profile* profile_;
 
   BookmarkNode* parent_node_;
@@ -141,6 +155,8 @@ class BookmarkTableView : public views::TableView {
   scoped_ptr<DropInfo> drop_info_;
 
   bool show_path_column_;
+
+  std::wstring alt_text_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkTableView);
 };
