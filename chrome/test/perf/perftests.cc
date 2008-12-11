@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/at_exit.h"
-#include "base/command_line.h"
-#include "base/debug_util.h"
 #include "base/message_loop.h"
 #include "base/perftimer.h"
 #include "base/process_util.h"
@@ -14,9 +11,7 @@
 // TODO(darin): share code with base/run_all_perftests.cc
 
 int main(int argc, char **argv) {
-  base::AtExitManager exit_manager;
   base::EnableTerminationOnHeapCorruption();
-  CommandLine::SetArgcArgv(argc, argv);
   chrome::RegisterPathProvider();
   MessageLoop main_message_loop;
 
@@ -48,8 +43,8 @@ int main(int argc, char **argv) {
 
   // Raise to high priority to have more precise measurements. Since we don't
   // aim at 1% precision, it is not necessary to run at realtime level.
-  if (!DebugUtil::BeingDebugged()) {
-    base::RaiseProcessToHighPriority();
+    if (!IsDebuggerPresent()) {
+    SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
   }
 
   int result = RUN_ALL_TESTS();

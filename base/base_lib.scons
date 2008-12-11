@@ -191,7 +191,6 @@ if env['PLATFORM'] == 'darwin':
       'platform_thread_mac.mm',
       'scoped_nsautorelease_pool.mm',
       'sys_string_conversions_mac.mm',
-      'test_file_util_mac.cc',
       'worker_pool_mac.mm',
   ])
 
@@ -208,7 +207,6 @@ if env['PLATFORM'] == 'posix':
       'process_posix.cc',
       'process_util_linux.cc',
       'sys_string_conversions_linux.cc',
-      'test_file_util_linux.cc',
       'worker_pool.cc',
   ])
 

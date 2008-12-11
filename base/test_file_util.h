@@ -9,13 +9,11 @@
 
 #include <string>
 
-class FilePath;
-
 namespace file_util {
 
 // Clear a specific file from the system cache. After this call, trying
 // to access this file will result in a cold load from the hard drive.
-bool EvictFileFromSystemCache(const FilePath& file);
+bool EvictFileFromSystemCache(const wchar_t* file);
 
 // Like CopyFileNoCache but recursively copies all files and subdirectories
 // in the given input directory to the output directory. Any files in the

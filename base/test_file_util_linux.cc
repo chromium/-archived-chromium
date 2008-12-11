@@ -12,8 +12,9 @@
 
 namespace file_util {
 
-bool EvictFileFromSystemCache(const FilePath& file) {
-  int fd = open(file.value().c_str(), O_RDONLY);
+bool EvictFileFromSystemCache(const wchar_t* file) {
+  FilePath fpath = FilePath::FromWStringHack(file);
+  int fd = open(fpath.value().c_str(), O_RDONLY);
   if (fd < 0)
     return false;
   if (fdatasync(fd) != 0)

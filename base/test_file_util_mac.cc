@@ -8,7 +8,7 @@
 
 namespace file_util {
 
-bool EvictFileFromSystemCache(const FilePath& file) {
+bool EvictFileFromSystemCache(const wchar_t* file) {
   // TODO(port): Implement.
   NOTIMPLEMENTED();
   return false;
