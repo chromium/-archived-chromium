@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+#include <utility>
+
 #include <v8.h>
 #include <v8-debug.h>
 
@@ -674,7 +676,13 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
   }
 
   // Create object groups.
+  typedef std::pair<uintptr_t, Node*> GrouperPair;
+  typedef Vector<GrouperPair> GrouperList;
+
   DOMNodeMap node_map = dom_node_map().impl();
+  GrouperList grouper;
+  grouper.reserveCapacity(node_map.size());
+
   for (DOMNodeMap::iterator it = node_map.begin(), end = node_map.end();
     it != end; ++it) {
     Node* node = it->first;
@@ -688,22 +696,61 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     //
     // Otherwise, the node is put in an object group identified by the root
     // elment of the tree to which it belongs.
-    void* group_id;
+    uintptr_t group_id;
     if (node->inDocument() ||
         (node->hasTagName(HTMLNames::imgTag) &&
          !static_cast<HTMLImageElement*>(node)->haveFiredLoadEvent()) ) {
-      group_id = node->document();
+      group_id = reinterpret_cast<uintptr_t>(node->document());
 
     } else {
       Node* root = node;
       while (root->parent()) {
         root = root->parent();
       }
-      group_id = root;
+      group_id = reinterpret_cast<uintptr_t>(root);
     }
-    v8::Persistent<v8::Object> wrapper = dom_node_map().get(node);
-    if (!wrapper.IsEmpty())
-      v8::V8::AddObjectToGroup(group_id, wrapper);
+    grouper.append(GrouperPair(group_id, node));
+  }
+
+  // Group by sorting by the group id.  This will use the builtin pair sorter,
+  // which will really sort by both the group id and the Node*.  However the
+  // Node* is only involved to sort within a group id, so it will be fine.
+  sort(grouper.begin(), grouper.end());
+
+  // TODO(deanm): Should probably work in iterators here, but indexes were
+  // easier for my simple mind.
+  for (size_t i = 0; i < grouper.size(); ) {
+    // Seek to the next key (or the end of the list).
+    size_t next_key_index = grouper.size();
+    for (size_t j = i; j < grouper.size(); ++j) {
+      if (grouper[i].first != grouper[j].first) {
+        next_key_index = j;
+        break;
+      }
+    }
+
+    ASSERT(next_key_index > i);
+
+    // We only care about a group if it has more than one object.  If it only
+    // has one object, it has nothing else that needs to be kept alive.
+    if (next_key_index - i <= 1) {
+      i = next_key_index;
+      continue;
+    }
+
+    Vector<v8::Persistent<v8::Value> > group;
+    group.reserveCapacity(next_key_index - i);
+    for (; i < next_key_index; ++i) {
+      v8::Persistent<v8::Value> wrapper =
+          dom_node_map().get(grouper[i].second);
+      if (!wrapper.IsEmpty())
+        group.append(wrapper);
+    }
+
+    if (group.size() > 1)
+      v8::V8::AddObjectGroup(&group[0], group.size());
+
+    ASSERT(i == next_key_index);
   }
 }
 
