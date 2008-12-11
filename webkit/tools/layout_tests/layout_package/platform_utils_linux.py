@@ -102,6 +102,12 @@ class PlatformUtility(object):
     return PlatformUtility._FilenameToUri(self, full_path, use_http=False,
                                           use_ssl=False, port=0)
 
+  def KillAllTestShells(self):
+    """Kills all instances of the test_shell binary currently running."""
+    subprocess.Popen(('killall', '-TERM', self.TestShellBinary()),
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE).wait()
+
   def MissingLigHTTPd(self):
     print 'Please install using: "sudo apt-get install lighttpd php5-cgi"'
     print 'For complete Linux build requirements, please see:'
