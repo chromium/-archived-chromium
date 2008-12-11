@@ -28,6 +28,9 @@ if env.Bit('windows'):
           '/GT',    # VCCLCompilerTool.EnableFiberSafeOptimizations="true"
           '/GL',    # VCCLCompilerTool.WholeProgramOptimization="true"
       ],
+      CPPDEFINES = [
+          'OFFICIAL_BUILD',
+      ],
       LINKFLAGS = [
           '/LTCG',  # VCLinkerTool.LinkTimeCodeGeneration="1"
       ],
