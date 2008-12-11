@@ -19,9 +19,9 @@ if env['PLATFORM'] == 'win32':
       ],)
 elif env['PLATFORM'] == 'posix':
   env.Append(
-    # For the image readers and decoders:
-    CXXFLAGS = "-Wno-sign-compare",
-    LIBS = 'png'
+      # For the image readers and decoders:
+      CXXFLAGS = ["-Wno-sign-compare"],
+      LIBS = ['png'],
   )
 
 input_files = [
