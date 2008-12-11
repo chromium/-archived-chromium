@@ -2020,28 +2020,22 @@ LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
 
 // Linux pixeltest failure: Word spacing
 LINUX : LayoutTests/fast/multicol/float-avoidance.html = FAIL
+
 // Linux pixeltest failure: Indent is incorrect
 LINUX : LayoutTests/fast/overflow/clip-rects-fixed-ancestor.html = FAIL
+
 // Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-1.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-10.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-2.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-3.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-4.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-5.html = FAIL
-// Linux pixeltest failure: Word spacing very wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-6.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-7.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-8.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
 LINUX : LayoutTests/fast/repaint/line-flow-with-floats-9.html = FAIL
+LINUX : LayoutTests/fast/repaint/line-flow-with-floats-10.html = FAIL
+
 // Linux pixeltest failure: Misdrawing probably
 LINUX : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
 // Linux pixeltest failure: Check that we are respecting the CSS highlight colour
