@@ -385,7 +385,8 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 // bugs which need fixin'
 
 // pixeltest failure: font baseline should be on the path, not the centerline
-LayoutTests/svg/batik/text/smallFonts.svg = FAIL
+// There's no baseline at all for this!
+SKIP : LayoutTests/svg/batik/text/smallFonts.svg = FAIL
 LayoutTests/svg/batik/text/textBiDi.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
 
