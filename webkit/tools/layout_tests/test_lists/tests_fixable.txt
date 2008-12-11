@@ -1544,7 +1544,6 @@ MAC : LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
 MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 MAC : LayoutTests/fast/dom/Window/atob-btoa.html = FAIL
 MAC : LayoutTests/fast/dom/Window/element-constructors-on-window.html = FAIL CRASH
-MAC : LayoutTests/fast/dom/Window/get-set-properties.html = FAIL CRASH
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
 MAC : LayoutTests/fast/dom/Window/window-property-shadowing.html = FAIL CRASH
 MAC : LayoutTests/fast/dom/documenturi-assigned-junk-implies-relative-urls-do-not-resolve.html = FAIL
