@@ -23,6 +23,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4D4C55000EF16581002CA805 /* debug-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D4C54FE0EF16571002CA805 /* debug-arm.cc */; };
+		4D4C55010EF16584002CA805 /* debug-ia32.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D4C54FF0EF16571002CA805 /* debug-ia32.cc */; };
 		8900116C0E71CA2300F91F35 /* libraries.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8900116B0E71CA2300F91F35 /* libraries.cc */; };
 		893CCE640E71D83700357A03 /* code-stubs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1110E719B8F00D62E90 /* code-stubs.cc */; };
 		89495E480E79FC23001F68C3 /* compilation-cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 89495E460E79FC23001F68C3 /* compilation-cache.cc */; };
@@ -233,6 +235,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4D4C54FA0EF164F0002CA805 /* d8-readline.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "d8-readline.cc"; path = "../v8/src/d8-readline.cc"; sourceTree = SOURCE_ROOT; };
+		4D4C54FB0EF164F0002CA805 /* d8.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = d8.cc; path = ../v8/src/d8.cc; sourceTree = SOURCE_ROOT; };
+		4D4C54FC0EF164F0002CA805 /* d8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = d8.h; path = ../v8/src/d8.h; sourceTree = SOURCE_ROOT; };
+		4D4C54FD0EF164F0002CA805 /* d8.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = d8.js; path = ../v8/src/d8.js; sourceTree = SOURCE_ROOT; };
+		4D4C54FE0EF16571002CA805 /* debug-arm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "debug-arm.cc"; sourceTree = "<group>"; };
+		4D4C54FF0EF16571002CA805 /* debug-ia32.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "debug-ia32.cc"; sourceTree = "<group>"; };
 		7BF8918E0E73084F000BAF8A /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7BF8918F0E73084F000BAF8A /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7BF891900E73084F000BAF8A /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -629,6 +637,8 @@
 				897FF1250E719B8F00D62E90 /* cpu.h */,
 				897FF1260E719B8F00D62E90 /* dateparser.cc */,
 				897FF1270E719B8F00D62E90 /* dateparser.h */,
+				4D4C54FE0EF16571002CA805 /* debug-arm.cc */,
+				4D4C54FF0EF16571002CA805 /* debug-ia32.cc */,
 				897FF1280E719B8F00D62E90 /* debug.cc */,
 				897FF1290E719B8F00D62E90 /* debug.h */,
 				897FF12A0E719B8F00D62E90 /* disasm-arm.cc */,
@@ -834,6 +844,10 @@
 		897FF1B30E719BCE00D62E90 /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				4D4C54FA0EF164F0002CA805 /* d8-readline.cc */,
+				4D4C54FB0EF164F0002CA805 /* d8.cc */,
+				4D4C54FC0EF164F0002CA805 /* d8.h */,
+				4D4C54FD0EF164F0002CA805 /* d8.js */,
 				897FF1B50E719C0900D62E90 /* shell.cc */,
 			);
 			path = samples;
@@ -1070,6 +1084,7 @@
 				89A88DFC0E71A6460043BA31 /* counters.cc in Sources */,
 				89A88DFD0E71A6470043BA31 /* cpu-ia32.cc in Sources */,
 				89A88DFE0E71A6480043BA31 /* dateparser.cc in Sources */,
+				4D4C55010EF16584002CA805 /* debug-ia32.cc in Sources */,
 				89A88DFF0E71A6530043BA31 /* debug.cc in Sources */,
 				89A88E000E71A6540043BA31 /* disasm-ia32.cc in Sources */,
 				89A88E010E71A6550043BA31 /* disassembler.cc in Sources */,
@@ -1171,6 +1186,7 @@
 				89F23C4F0E78D5B2006B2466 /* counters.cc in Sources */,
 				89F23C9A0E78D5EC006B2466 /* cpu-arm.cc in Sources */,
 				89F23C510E78D5B2006B2466 /* dateparser.cc in Sources */,
+				4D4C55000EF16581002CA805 /* debug-arm.cc in Sources */,
 				89F23C520E78D5B2006B2466 /* debug.cc in Sources */,
 				89F23C9B0E78D5EE006B2466 /* disasm-arm.cc in Sources */,
 				89F23C540E78D5B2006B2466 /* disassembler.cc in Sources */,
