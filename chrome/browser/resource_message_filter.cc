@@ -386,7 +386,7 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
 }
 
 void ResourceMessageFilter::OnGetScreenInfo(
-	gfx::ViewHandle window, webkit_glue::ScreenInfo* results) {
+	gfx::NativeView window, webkit_glue::ScreenInfo* results) {
   *results = webkit_glue::GetScreenInfoHelper(window);
 }
 

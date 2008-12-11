@@ -308,7 +308,7 @@ void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
   }
 }
 
-void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
+void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
   RemoveWindowFromList(windowHandle);
   gtk_widget_destroy(windowHandle);
 }
@@ -719,7 +719,7 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return false;
 }
 
-ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+ScreenInfo GetScreenInfo(gfx::NativeView window) {
   return GetScreenInfoHelper(window);
 }
 

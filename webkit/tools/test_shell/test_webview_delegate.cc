@@ -634,7 +634,7 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebWidgetDelegate ---------------------------------------------------------
 
-gfx::ViewHandle TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
+gfx::NativeView TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     return host->view_handle();
 

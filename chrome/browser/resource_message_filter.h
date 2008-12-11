@@ -101,7 +101,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
   // implementation for more details
   void OnLoadFont(LOGFONT font);
-  void OnGetScreenInfo(gfx::ViewHandle window,
+  void OnGetScreenInfo(gfx::NativeView window,
                        webkit_glue::ScreenInfo* results);
   void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
   void OnGetPluginPath(const GURL& url,

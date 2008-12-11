@@ -374,7 +374,7 @@ void LayoutTestController::Reset() {
     // shell.  We don't want to delete elements as we're iterating, so we copy
     // to a temp vector first.
     WindowList* windows = TestShell::windowList();
-    std::vector<gfx::WindowHandle> windows_to_delete;
+    std::vector<gfx::NativeWindow> windows_to_delete;
     for (WindowList::iterator i = windows->begin(); i != windows->end(); ++i) {
       if (*i != shell_->mainWnd())
         windows_to_delete.push_back(*i);

@@ -59,7 +59,7 @@ const int kTestWindowXLocation = -14000;
 const int kTestWindowYLocation = -14000;
 
 // Define static member variables
-base::LazyInstance <std::map<gfx::WindowHandle, TestShell *> >
+base::LazyInstance <std::map<gfx::NativeWindow, TestShell *> >
     TestShell::window_map_(base::LINKER_INITIALIZED);
 
 // Receives notification that the window is closing so that it can start the
@@ -107,7 +107,7 @@ void TestShell::PlatformCleanUp() {
 }
 
 // static
-void TestShell::DestroyAssociatedShell(gfx::WindowHandle handle) {
+void TestShell::DestroyAssociatedShell(gfx::NativeWindow handle) {
   TestShell* shell = window_map_.Get()[handle];
   if (shell)
     window_map_.Get().erase(handle);
@@ -407,7 +407,7 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 }
 
 // static
-void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
+void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
   TestShell::RemoveWindowFromList(windowHandle);
   [windowHandle close];
 }
@@ -690,7 +690,7 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return false; // NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
-ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+ScreenInfo GetScreenInfo(gfx::NativeView window) {
   // This should call GetScreenInfoHelper, which should be implemented in
   // webkit_glue_mac.mm
   NOTIMPLEMENTED();

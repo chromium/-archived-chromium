@@ -6,7 +6,7 @@
 
 namespace webkit_glue {
 
-ScreenInfo GetScreenInfoHelper(gfx::ViewHandle window) {
+ScreenInfo GetScreenInfoHelper(gfx::NativeView window) {
   HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY);
 
   MONITORINFOEX monitor_info;

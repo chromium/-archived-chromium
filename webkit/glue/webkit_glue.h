@@ -74,7 +74,7 @@ void EnableWebCoreNotImplementedLogging();
 
 // Returns screen information corresponding to the given window.  This is the
 // default implementation.
-ScreenInfo GetScreenInfoHelper(gfx::ViewHandle window);
+ScreenInfo GetScreenInfoHelper(gfx::NativeView window);
 
 // Returns the text of the document element.
 std::wstring DumpDocumentText(WebFrame* web_frame);
@@ -237,7 +237,7 @@ bool EnsureFontLoaded(HFONT font);
 #endif
 
 // Returns screen information corresponding to the given window.
-ScreenInfo GetScreenInfo(gfx::ViewHandle window);
+ScreenInfo GetScreenInfo(gfx::NativeView window);
 
 // Functions implemented by webkit_glue for WebKit ----------------------------
 

@@ -245,7 +245,7 @@ bool webkit_glue::EnsureFontLoaded(HFONT font) {
   return RenderThread::current()->Send(new ViewHostMsg_LoadFont(logfont));
 }
 
-webkit_glue::ScreenInfo webkit_glue::GetScreenInfo(gfx::ViewHandle window) {
+webkit_glue::ScreenInfo webkit_glue::GetScreenInfo(gfx::NativeView window) {
   webkit_glue::ScreenInfo results;
   RenderThread::current()->Send(
       new ViewHostMsg_GetScreenInfo(window, &results));

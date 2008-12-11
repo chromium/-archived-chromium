@@ -167,7 +167,7 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
   return rv;
 }
 
-void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
+void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
   // Do we want to tear down some of the machinery behind the scenes too?
   RemoveWindowFromList(windowHandle);
   ::DestroyWindow(windowHandle);
@@ -768,7 +768,7 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
 }
 
-ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+ScreenInfo GetScreenInfo(gfx::NativeView window) {
   return GetScreenInfoHelper(window);
 }
 

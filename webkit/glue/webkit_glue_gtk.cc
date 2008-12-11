@@ -8,7 +8,7 @@
 
 namespace webkit_glue {
 
-ScreenInfo GetScreenInfoHelper(gfx::ViewHandle window) {
+ScreenInfo GetScreenInfoHelper(gfx::NativeView window) {
   GdkScreen* screen = gtk_widget_get_screen(GTK_WIDGET(window));
   GdkVisual* visual = gdk_screen_get_system_visual(screen);
 

@@ -32,6 +32,6 @@
 
 #include "base/gfx/native_widget_types.h"
 
-typedef gfx::ViewHandle PlatformWidget;
+typedef gfx::NativeView PlatformWidget;
 
 #endif

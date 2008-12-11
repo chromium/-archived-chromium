@@ -7,6 +7,17 @@
 
 #include "build/build_config.h"
 
+// This file provides cross platform typedefs for native widget types.
+//   NativeWindow: this is a handle to a native, top-level window
+//   NativeView: this is a handle to a native UI element. It may be the
+//     same type as a NativeWindow on some platforms.
+//   NativeEditView: a handle to a native edit-box. The Mac folks wanted
+//     this specific typedef.
+//
+// The name 'View' here meshes with OS X where the UI elements are called
+// 'views' and with our Chrome UI code where the elements are also called
+// 'views'.
+
 #if defined(OS_WIN)
 #include <windows.h>
 #elif defined(OS_MACOSX)
@@ -26,21 +37,19 @@ typedef struct _GtkWidget GtkWidget;
 namespace gfx {
 
 #if defined(OS_WIN)
-typedef HWND ViewHandle;
-typedef HWND WindowHandle;
-typedef HWND EditViewHandle;
+typedef HWND NativeView;
+typedef HWND NativeWindow;
+typedef HWND NativeEditView;
 #elif defined(OS_MACOSX)
-typedef NSView *ViewHandle;
-typedef NSWindow *WindowHandle;
-typedef NSTextField *EditViewHandle;
+typedef NSView* NativeView;
+typedef NSWindow* NativeWindow;
+typedef NSTextField* NativeEditView;
 #elif defined(OS_LINUX)
-typedef GtkWidget* ViewHandle;
-typedef GtkWidget* WindowHandle;
-typedef GtkWidget* EditViewHandle;
+typedef GtkWidget* NativeView;
+typedef GtkWidget* NativeWindow;
+typedef GtkWidget* NativeEditView;
 #else  // null port.
-typedef void* ViewHandle;
-typedef void* WindowHandle;
-typedef void* EditViewHandle;
+#error No known OS defined
 #endif
 
 }  // namespace gfx

@@ -14,7 +14,7 @@
 static const wchar_t kWindowClassName[] = L"WebViewHost";
 
 /*static*/
-WebViewHost* WebViewHost::Create(gfx::WindowHandle parent_window,
+WebViewHost* WebViewHost::Create(gfx::NativeWindow parent_window,
                                  WebViewDelegate* delegate,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();

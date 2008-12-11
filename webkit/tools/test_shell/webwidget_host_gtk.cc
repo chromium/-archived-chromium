@@ -118,7 +118,7 @@ gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
 
 // -----------------------------------------------------------------------------
 
-gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
+gfx::NativeWindow WebWidgetHost::CreateWindow(gfx::NativeWindow box,
                                               void* host) {
   GtkWidget* widget = gtk_drawing_area_new();
   gtk_box_pack_start(GTK_BOX(box), widget, TRUE, TRUE, 0);
@@ -152,7 +152,7 @@ gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
   return widget;
 }
 
-WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle box,
+WebWidgetHost* WebWidgetHost::Create(gfx::NativeWindow box,
                                      WebWidgetDelegate* delegate) {
   WebWidgetHost* host = new WebWidgetHost();
   host->view_ = CreateWindow(box, host);
@@ -185,7 +185,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DidInvalidateRect(clip_rect);
 }
 
-WebWidgetHost* FromWindow(gfx::WindowHandle view) {
+WebWidgetHost* FromWindow(gfx::NativeWindow view) {
   const gpointer p = g_object_get_data(G_OBJECT(view), "webwidgethost");
   return (WebWidgetHost* ) p;
 }

@@ -300,7 +300,7 @@ void TestShell::ResetWebPreferences() {
 }
 
 // static
-bool TestShell::RemoveWindowFromList(gfx::WindowHandle window) {
+bool TestShell::RemoveWindowFromList(gfx::NativeWindow window) {
   WindowList::iterator entry =
       std::find(TestShell::windowList()->begin(),
                 TestShell::windowList()->end(),

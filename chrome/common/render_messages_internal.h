@@ -826,7 +826,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   // Returns ScreenInfo corresponding to the given window.
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetScreenInfo,
-                              gfx::ViewHandle /* window */,
+                              gfx::NativeView /* window */,
                               webkit_glue::ScreenInfo /* results */)
 
   // Send the tooltip text for the current mouse position to the browser.

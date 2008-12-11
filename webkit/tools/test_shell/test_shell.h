@@ -45,7 +45,7 @@
 #include "webkit/tools/test_shell/webview_host.h"
 #include "webkit/tools/test_shell/webwidget_host.h"
 
-typedef std::list<gfx::WindowHandle> WindowList;
+typedef std::list<gfx::NativeWindow> WindowList;
 
 struct WebPreferences;
 class TestNavigationEntry;
@@ -162,10 +162,10 @@ public:
     void DumpDocumentText();
     void DumpRenderTree();
 
-    gfx::WindowHandle mainWnd() const { return m_mainWnd; }
-    gfx::ViewHandle webViewWnd() const { return m_webViewHost->view_handle(); }
-    gfx::EditViewHandle editWnd() const { return m_editWnd; }
-    gfx::ViewHandle popupWnd() const { return m_popupHost->view_handle(); }
+    gfx::NativeWindow mainWnd() const { return m_mainWnd; }
+    gfx::NativeView webViewWnd() const { return m_webViewHost->view_handle(); }
+    gfx::NativeEditView editWnd() const { return m_editWnd; }
+    gfx::NativeView popupWnd() const { return m_popupHost->view_handle(); }
 
     static WindowList* windowList() { return window_list_; }
 
@@ -173,11 +173,11 @@ public:
     static bool CreateNewWindow(const std::wstring& startingURL,
                                 TestShell** shell = NULL);
 
-    static void DestroyWindow(gfx::WindowHandle windowHandle);
+    static void DestroyWindow(gfx::NativeWindow windowHandle);
 
     // Remove the given window from window_list_, return true if it was in the
     // list and was removed and false otherwise.
-    static bool RemoveWindowFromList(gfx::WindowHandle window);
+    static bool RemoveWindowFromList(gfx::NativeWindow window);
 
     // Implements CreateWebView for TestWebViewDelegate, which in turn
     // is called as a WebViewDelegate.
@@ -246,7 +246,7 @@ public:
 
 #if defined(OS_MACOSX)
     // handle cleaning up a shell given the associated window
-    static void DestroyAssociatedShell(gfx::WindowHandle handle);
+    static void DestroyAssociatedShell(gfx::NativeWindow handle);
 #endif
 
     // Show the "attach to me" dialog, for debugging test shell startup.
@@ -272,8 +272,8 @@ protected:
 #endif
 
 protected:
-    gfx::WindowHandle       m_mainWnd;
-    gfx::EditViewHandle     m_editWnd;
+    gfx::NativeWindow       m_mainWnd;
+    gfx::NativeEditView     m_editWnd;
     scoped_ptr<WebViewHost> m_webViewHost;
     WebWidgetHost*          m_popupHost;
 #if defined(OS_WIN)
@@ -287,7 +287,7 @@ private:
     // A set of all our windows.
     static WindowList* window_list_;
 #if defined(OS_MACOSX)
-    static base::LazyInstance<std::map<gfx::WindowHandle, TestShell *> >
+    static base::LazyInstance<std::map<gfx::NativeWindow, TestShell *> >
         window_map_;
 #endif
 
