@@ -102,7 +102,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
 #include "webkit/port/platform/chromium/PopupMenuChromium.h"
-#include "webkit/port/platform/graphics/PlatformContextSkia.h"
+#include "webkit/port/platform/graphics/skia/PlatformContextSkia.h"
 
 // Get rid of WTF's pow define so we can use std::pow.
 #undef pow

@@ -1020,91 +1020,91 @@
 				Name="graphics"
 				>
 				<File
-					RelativePath="..\..\port\platform\graphics\AffineTransformSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\AffineTransformSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\BitmapImageSingleFrameSkia.h"
+					RelativePath="..\..\port\platform\graphics\skia\BitmapImageSingleFrameSkia.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\ColorSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\ColorSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\FloatPointSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\FloatPointSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\FloatRectSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\FloatRectSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\GradientSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\GradientSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\GraphicsContextPlatformPrivate.h"
+					RelativePath="..\..\port\platform\graphics\skia\GraphicsContextPlatformPrivate.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\GraphicsContextSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\GraphicsContextSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\ImageBufferSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\ImageBufferSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\ImageSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\ImageSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\ImageSourceSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\ImageSourceSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\ImageSourceSkia.h"
+					RelativePath="..\..\port\platform\graphics\skia\ImageSourceSkia.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\IntPointSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\IntPointSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\IntRectSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\IntRectSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\NativeImageSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\NativeImageSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\NativeImageSkia.h"
+					RelativePath="..\..\port\platform\graphics\skia\NativeImageSkia.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\PathSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\PathSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\PatternSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\PatternSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\PlatformContextSkia.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\PlatformContextSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\PlatformContextSkia.h"
+					RelativePath="..\..\port\platform\graphics\skia\PlatformContextSkia.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\SkiaUtils.cpp"
+					RelativePath="..\..\port\platform\graphics\skia\SkiaUtils.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\SkiaUtils.h"
+					RelativePath="..\..\port\platform\graphics\skia\SkiaUtils.h"
 					>
 				</File>
 				<Filter
