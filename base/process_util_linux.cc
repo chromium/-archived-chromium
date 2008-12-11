@@ -12,6 +12,7 @@
 
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/platform_thread.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -257,8 +258,7 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
       result = true;
       break;
     }
-    // TODO(port): Improve resolution
-    sleep(1);
+    PlatformThread::Sleep(100);
   } while ((base::Time::Now() - end_time) > base::TimeDelta());
 
   return result;
