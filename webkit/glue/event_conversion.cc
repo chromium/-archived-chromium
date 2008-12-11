@@ -283,8 +283,10 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
         m_text = "\x9";
         m_unmodifiedText = "\x9";
     }
-#elif defined(OS_WIN) || defined(OS_LINUX)
+#elif defined(OS_WIN)
     m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
+#elif defined(OS_LINUX)
+    m_text = m_unmodifiedText = ToSingleCharacterString(e.text);
 #endif
   }
 #if defined(OS_WIN) || defined(OS_LINUX)
