@@ -417,8 +417,13 @@ static void Restore(Profile* profile,
                     bool always_create_tabbed_browser,
                     const std::vector<GURL>& urls_to_open) {
   DCHECK(profile);
-  if (!profile->GetSessionService())
+  // Always restore from the original profile (incognito profiles have no
+  // session service).
+  profile = profile->GetOriginalProfile();
+  if (!profile->GetSessionService()) {
+    NOTREACHED();
     return;
+  }
   // SessionRestoreImpl takes care of deleting itself when done.
   SessionRestoreImpl* restorer =
       new SessionRestoreImpl(profile, browser, synchronous,

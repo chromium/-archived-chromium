@@ -115,6 +115,13 @@ SessionStartupPref GetSessionStartupPref(Profile* profile,
   SessionStartupPref pref = SessionStartupPref::GetStartupPref(profile);
   if (command_line.HasSwitch(switches::kRestoreLastSession))
     pref.type = SessionStartupPref::LAST;
+  if (command_line.HasSwitch(switches::kIncognito) &&
+      pref.type == SessionStartupPref::LAST) {
+    // We don't store session information when incognito. If the user has
+    // chosen to restore last session and launched incognito, fallback to
+    // default launch behavior.
+    pref.type = SessionStartupPref::DEFAULT;
+  }
   return pref;
 }
 
@@ -546,7 +553,10 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
 
 void BrowserInit::LaunchWithProfile::AddCrashedInfoBarIfNecessary(
     TabContents* tab) {
-  if (!profile_->DidLastSessionExitCleanly()) {
+  // Assume that if the user is launching incognito they were previously
+  // running incognito so that we have nothing to restore from.
+  if (!profile_->DidLastSessionExitCleanly() &&
+      !profile_->IsOffTheRecord()) {
     // The last session didn't exit cleanly. Show an infobar to the user
     // so that they can restore if they want. The delegate deletes itself when
     // it is closed.
