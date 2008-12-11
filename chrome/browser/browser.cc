@@ -728,6 +728,13 @@ void Browser::Exit() {
 }
 
 void Browser::BookmarkCurrentPage() {
+  if (type() != TYPE_NORMAL) {
+    // We disable bookmarking for types other than normal and shouldn't get
+    // here.
+    NOTREACHED();
+    return;
+  }
+
   UserMetrics::RecordAction(L"Star", profile_);
 
   TabContents* tab = GetSelectedTabContents();
@@ -2014,7 +2021,8 @@ void Browser::UpdateCommandsForTabState() {
   WebContents* web_contents = current_tab->AsWebContents();
   if (web_contents) {
     // Page-related commands
-    controller_.UpdateCommandEnabled(IDC_STAR, true);
+    // Only allow bookmarking for tabbed browsers.
+    controller_.UpdateCommandEnabled(IDC_STAR, type() == TYPE_NORMAL);
     SetStarredButtonToggled(web_contents->is_starred());
     // View-source should not be enabled if already in view-source mode.
     controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
