@@ -4,6 +4,7 @@
 
 #include "base/shared_memory.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 
@@ -163,12 +164,15 @@ void SharedMemory::Close() {
 
 void SharedMemory::Lock() {
   DCHECK(lock_ != NULL);
-  sem_wait(lock_);
+  while(sem_wait(lock_) < 0) {
+    DCHECK(errno == EAGAIN || errno == EINTR);
+  }
 }
 
 void SharedMemory::Unlock() {
   DCHECK(lock_ != NULL);
-  sem_post(lock_);
+  int result = sem_post(lock_);
+  DCHECK(result == 0);
 }
 
 }  // namespace base
