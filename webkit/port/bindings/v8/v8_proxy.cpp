@@ -29,6 +29,7 @@
 
 #include "config.h"
 
+#include <algorithm>
 #include <utility>
 
 #include <v8.h>
@@ -687,8 +688,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     it != end; ++it) {
     Node* node = it->first;
 
-    // If the node is in document, put it in the ownerDocument's
-    // object group. Otherwise, skip it.
+    // If the node is in document, put it in the ownerDocument's object group.
     //
     // If an image element was created by JavaScript "new Image",
     // it is not in a document. However, if the load event has not
@@ -699,23 +699,27 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     uintptr_t group_id;
     if (node->inDocument() ||
         (node->hasTagName(HTMLNames::imgTag) &&
-         !static_cast<HTMLImageElement*>(node)->haveFiredLoadEvent()) ) {
+         !static_cast<HTMLImageElement*>(node)->haveFiredLoadEvent())) {
       group_id = reinterpret_cast<uintptr_t>(node->document());
-
     } else {
       Node* root = node;
-      while (root->parent()) {
+      while (root->parent())
         root = root->parent();
-      }
+
+      // If the node is alone in its DOM tree (doesn't have a parent or any
+      // children) then the group will be filtered out later anyway.
+      if (root == node && !node->hasChildNodes())
+        continue;
+
       group_id = reinterpret_cast<uintptr_t>(root);
     }
     grouper.append(GrouperPair(group_id, node));
   }
 
-  // Group by sorting by the group id.  This will use the builtin pair sorter,
+  // Group by sorting by the group id.  This will use the std::pair operator<,
   // which will really sort by both the group id and the Node*.  However the
   // Node* is only involved to sort within a group id, so it will be fine.
-  sort(grouper.begin(), grouper.end());
+  std::sort(grouper.begin(), grouper.end());
 
   // TODO(deanm): Should probably work in iterators here, but indexes were
   // easier for my simple mind.
