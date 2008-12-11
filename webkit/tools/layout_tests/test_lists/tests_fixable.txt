@@ -54,7 +54,6 @@ LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
-// The under-lines are a cosmetic error which is not necessary to fix for Beta. (eseidel)
 LayoutTests/fast/forms/input-text-maxlength.html = FAIL CRASH
 LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
@@ -680,7 +679,7 @@ LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 // Linux pixeltest failure: Background image appears to be off by one
 LINUX WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
+LINUX : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
@@ -1090,8 +1089,8 @@ SKIP LayoutTests/fast/table/table-display-types-strict.html = FAIL
 SKIP LayoutTests/fast/table/table-display-types.html = FAIL
 
 // CHANGED OR REBASELINED IN WEBKIT 36102:37604
-LINUX WIN : LayoutTests/fast/forms/8250.html = FAIL
-LayoutTests/fast/forms/input-disabled-color.html = FAIL
+LINUX : LayoutTests/fast/forms/8250.html = FAIL
+// Extra output at the end of the test.
 LayoutTests/fast/forms/selection-functions.html = FAIL
 LayoutTests/fast/js/number-toString.html = FAIL
 LayoutTests/fast/js/numeric-conversion.html = FAIL
@@ -1186,11 +1185,18 @@ LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
 LINUX WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LayoutTests/fast/events/mouse-click-events.html = FAIL
 WIN : LayoutTests/fast/flexbox/009.html = FAIL
+// The thumb in the scrollbar looks wrong.  It looks too narrow.
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
+// The list box selection is wrong, the focus ring is wrong, and the thumb in
+// the scrollbar looks too narrow.
 LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
+// The thumb in the scrollbar looks too narrow.
 LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 LayoutTests/fast/forms/listbox-selection-2.html = FAIL
+// Thumb is the wrong size and this test doesn't work on Windows due to font
+// sizes.
 LayoutTests/fast/forms/select-item-background-clip.html = FAIL
+// The pixel diff looks ok, but the render trees are pretty different.
 LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 // Linux pixeltest failure: Small scrollbar error
 LINUX WIN : LayoutTests/fast/frames/invalid.html = FAIL
