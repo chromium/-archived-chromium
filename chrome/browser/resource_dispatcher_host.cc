@@ -1936,7 +1936,7 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 void ResourceDispatcherHost::RemovePendingRequest(
     const PendingRequestList::iterator& iter) {
   if (request_to_remove_) {
-    CHECK(iter->second == request_to_remove_);
+    CHECK(iter->second != request_to_remove_);
   }
 
   // Notify the login handler that this request object is going away.
