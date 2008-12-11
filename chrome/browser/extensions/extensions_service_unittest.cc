@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
 #include <vector>
 
 #include "base/file_path.h"
@@ -10,22 +9,12 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/json_value_serializer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
-namespace {
-
-struct ExtensionsOrder {
-  bool operator()(const Extension* a, const Extension* b) {
-    return a->name() < b->name();
-  }
-};
-
-}  // namespace
 
 // A mock implementation of ExtensionsServiceFrontendInterface for testing the
 // backend.
@@ -60,9 +49,6 @@ class ExtensionsServiceTestFrontend
     extensions_.insert(extensions_.end(), new_extensions->begin(),
                        new_extensions->end());
     delete new_extensions;
-    // In the tests we rely on extensions being in particular order,
-    // which is not always the case (and is not guaranteed by used APIs).
-    std::stable_sort(extensions_.begin(), extensions_.end(), ExtensionsOrder());
   }
 
  private:
@@ -93,7 +79,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   // Note: There can be more errors if there are extra directories, like .svn
   // directories.
   EXPECT_TRUE(frontend->errors()->size() >= 2u);
-  ASSERT_EQ(2u, frontend->extensions()->size());
+  EXPECT_EQ(2u, frontend->extensions()->size());
 
   EXPECT_EQ(std::wstring(L"com.google.myextension1"),
             frontend->extensions()->at(0)->id());
@@ -101,7 +87,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
             frontend->extensions()->at(0)->name());
   EXPECT_EQ(std::wstring(L"The first extension that I made."),
             frontend->extensions()->at(0)->description());
-  ASSERT_EQ(2u, frontend->extensions()->at(0)->content_scripts().size());
+  EXPECT_EQ(2u, frontend->extensions()->at(0)->content_scripts().size());
   EXPECT_EQ(std::wstring(L"script1.user.js"),
             frontend->extensions()->at(0)->content_scripts().at(0));
   EXPECT_EQ(std::wstring(L"script2.user.js"),
@@ -113,5 +99,5 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
             frontend->extensions()->at(1)->name());
   EXPECT_EQ(std::wstring(L""),
             frontend->extensions()->at(1)->description());
-  ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
+  EXPECT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 };
