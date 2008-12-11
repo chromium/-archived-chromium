@@ -95,7 +95,7 @@
 #define IDC_ENCODING_UTF16LE            35008
 #define IDC_ENCODING_ISO88591           35009
 #define IDC_ENCODING_WINDOWS1252        35010
-#define IDC_ENCODING_GB2312             35011
+#define IDC_ENCODING_GBK                35011
 #define IDC_ENCODING_GB18030            35012
 #define IDC_ENCODING_BIG5               35013
 #define IDC_ENCODING_BIG5HKSCS          35014

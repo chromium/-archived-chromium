@@ -55,7 +55,7 @@ BEGIN
   IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES "12"
   IDS_HELP_CONTENT_URL "http://www.google.com/support/chrome/?hl=zh-CN"
   IDS_BUGREPORT_POST_URL "http://web-bug.appspot.com/bugreport"
-  IDS_STATIC_ENCODING_LIST "GB2312,gb18030"
+  IDS_STATIC_ENCODING_LIST "GBK,gb18030"
   IDS_WELCOME_PAGE_URL "http://tools.google.com/chrome/intl/zh-CN/welcome.html"
   IDS_LEARN_MORE_INCOGNITO_URL "http://www.google.com/support/chrome/bin/answer.py?answer=95464&hl=zh-CN"
   IDS_LEARN_MORE_PRIVACY_URL "http://www.google.com/support/chrome/bin/answer.py?answer=114836&hl=zh-CN"
