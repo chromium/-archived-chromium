@@ -43,8 +43,6 @@ BackForwardList::BackForwardList(Page* page)
     , m_capacity(DefaultCapacity)
     , m_closed(true)
     , m_enabled(true)
-    , m_currentItemFake(false)
-    , m_previousItemFake(false)
 {
 }
 
@@ -63,8 +61,7 @@ void BackForwardList::addItem(PassRefPtr<HistoryItem> prpItem)
     ASSERT(prpItem);
     if (m_capacity == 0 || !m_enabled)
         return;
-    
-    updateFakeState();
+
     m_previousItem = m_currentItem;
     m_currentItem = prpItem;
 
@@ -73,8 +70,6 @@ void BackForwardList::addItem(PassRefPtr<HistoryItem> prpItem)
 
 void BackForwardList::goToItem(HistoryItem* item)
 {
-    updateFakeState();
-
     m_previousItem = m_currentItem;
     m_currentItem = item;
 
@@ -105,7 +100,6 @@ HistoryItem* BackForwardList::previousItem()
 
 void BackForwardList::setCurrentItem(HistoryItem* item) {
     m_currentItem = item;
-    m_currentItemFake = false;
 }
 
 void BackForwardList::backListWithLimit(int limit, HistoryItemVector& list)
@@ -170,12 +164,6 @@ void BackForwardList::close()
 bool BackForwardList::closed()
 {
     return m_closed;
-}
-
-void BackForwardList::updateFakeState()
-{
-    m_previousItemFake = m_currentItemFake;
-    m_currentItemFake = false;
 }
 
 }; // namespace WebCore

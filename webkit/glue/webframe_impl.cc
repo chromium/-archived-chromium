@@ -395,12 +395,9 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
     // work.
     if (!current_item) {
       current_item = HistoryItem::create();
+      current_item->setLastVisitWasFailure(true);
       frame_->loader()->setCurrentHistoryItem(current_item);
       frame_->page()->backForwardList()->setCurrentItem(current_item.get());
-
-      // Mark the item as fake, so that we don't attempt to save its state and
-      // end up with about:blank in the navigation history.
-      frame_->page()->backForwardList()->setCurrentItemFake(true);
     }
 
     frame_->loader()->goToItem(request_impl->history_item().get(),
@@ -482,11 +479,8 @@ bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
   // only get saved to history when it becomes the previous item.  The caller
   // is expected to query the history state after a navigation occurs, after
   // the desired history item has become the previous entry.
-  if (frame_->page()->backForwardList()->isPreviousItemFake())
-    return false;
-
   RefPtr<HistoryItem> item = frame_->page()->backForwardList()->previousItem();
-  if (!item)
+  if (!item || item->lastVisitWasFailure())
     return false;
 
   static StatsCounterTimer history_timer("GetHistoryTimer");

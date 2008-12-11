@@ -113,20 +113,8 @@ public:
     void close();
     bool closed();
 
-    // Is the current/previous item fake? Webkit requires a previous item when
-    // navigating to a specific HistoryItem. In certain situations we end up
-    // creating a HistoryItem to satisfy webkit and mark it as fake. See
-    // WebFrameImpl::InternalLoadRequest for more details.
-    void setCurrentItemFake(bool value) { m_currentItemFake = value; }
-    bool isPreviousItemFake() const { return m_previousItemFake; }
-    
 private:
     BackForwardList(Page*);
-
-    // Sets m_previousItemFake to the value of m_currentItemFake and
-    // m_currentItemFake to false. This is called internally at various points
-    // when m_currenItem is being updated.
-    void updateFakeState();
 
     Page* m_page;
     BackForwardListClient* m_client;
@@ -137,10 +125,6 @@ private:
     unsigned m_capacity;
     bool m_closed;
     bool m_enabled;
-
-    // See comment above setCurrentItemFake.
-    bool m_currentItemFake;
-    bool m_previousItemFake;
 
     // Settings.cpp requires an entries() method that returns a
     // HistoryItemVector reference, but we don't actually use it.
