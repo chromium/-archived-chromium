@@ -828,10 +828,6 @@
 				RelativePath="..\..\port\platform\GKURL.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\platform\StateTrackingString.h"
-				>
-			</File>
 			<Filter
 				Name="win"
 				>
