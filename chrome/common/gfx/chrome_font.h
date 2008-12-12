@@ -6,7 +6,6 @@
 #define CHROME_COMMON_GFX_CHROME_FONT_H_
 
 #include "build/build_config.h"
-#include "base/gfx/native_widget_types.h"
 
 #include <string>
 
@@ -16,6 +15,17 @@ typedef struct HFONT__* HFONT;
 #include "skia/include/SkRefCnt.h"
 class SkPaint;
 class SkTypeface;
+#endif
+
+#if defined(OS_WIN)
+typedef struct HFONT__* NativeFont;
+#elif defined(OS_MACOSX)
+typedef void* NativeFont;  // TODO(port): set the correct type here
+#elif defined(OS_LINUX)
+class SkTypeface;
+typedef SkTypeface* NativeFont;
+#else  // null port.
+#error No known OS defined
 #endif
 
 #include "base/basictypes.h"
@@ -31,7 +41,7 @@ class ChromeFont {
     BOLD = 1,
     ITALIC = 2,
     UNDERLINED = 4,
-    WEB = 8,  // TODO: what does this mean?
+    WEB = 8,  // TODO(agl): what does this mean?
   };
 
   // Creates a ChromeFont given font name (e.g. arial), font size (e.g. 12).
@@ -81,7 +91,7 @@ class ChromeFont {
   // Font Size.
   int FontSize();
 
-  gfx::NativeFont nativeFont() const;
+  NativeFont nativeFont() const;
 
 #if defined(OS_WIN)
   // Creates a font with the default name and style.
@@ -104,7 +114,7 @@ class ChromeFont {
     return dlus * font_ref_->height() / 8;
   }
 #elif defined(OS_LINUX)
-  // We need a copy constructor to deal with the Skia reference counting
+  // We need a copy constructor to deal with the Skia reference counting.
   ChromeFont(const ChromeFont& other);
 #endif
 
@@ -172,7 +182,7 @@ class ChromeFont {
   explicit ChromeFont(SkTypeface* typeface, const std::wstring& name,
                       int size, int style);
   // Setup a Skia context to use the current typeface
-  void setupPaint(SkPaint* paint) const;
+  void PaintSetup(SkPaint* paint) const;
   // Calculate and cache the font metrics
   void calculateMetrics();
 

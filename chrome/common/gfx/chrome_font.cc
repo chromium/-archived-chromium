@@ -51,7 +51,7 @@ int ChromeFont::style() const {
   return font_ref_->style();
 }
 
-gfx::NativeFont ChromeFont::nativeFont() const {
+NativeFont ChromeFont::nativeFont() const {
   return hfont();
 }
 

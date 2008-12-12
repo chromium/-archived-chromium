@@ -110,17 +110,18 @@ if env['PLATFORM'] == 'win32':
       'win_util.cc',
       'worker_thread_ticker.cc',
   ])
-elif env['PLATFORM'] == 'posix':
-  input_files.extend([
-      'gfx/chrome_font_skia.cc',
-  ])
 
 if env['PLATFORM'] == 'win32':
   # Windows specific files
   input_files.extend([
       'ipc_channel_win.cc',
   ])
-else:
+elif env['PLATFORM'] == 'posix':
+  input_files.extend([
+      'gfx/chrome_font_skia.cc',
+  ])
+
+if env['PLATFORM'] in ['posix', 'mac']:
   input_files.extend([
       'ipc_channel_posix.cc',
   ])

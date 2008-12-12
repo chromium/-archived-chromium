@@ -31,7 +31,6 @@ class NSWindow;
 class NSTextField;
 #endif  // __OBJC__
 #elif defined(OS_LINUX)
-class SkTypeface;
 typedef struct _GtkWidget GtkWidget;
 #endif
 
@@ -41,17 +40,14 @@ namespace gfx {
 typedef HWND NativeView;
 typedef HWND NativeWindow;
 typedef HWND NativeEditView;
-typedef struct HFONT__* NativeFont;
 #elif defined(OS_MACOSX)
 typedef NSView* NativeView;
 typedef NSWindow* NativeWindow;
 typedef NSTextField* NativeEditView;
-typedef void* NativeFont;  // TODO(port): set the correct type here
 #elif defined(OS_LINUX)
 typedef GtkWidget* NativeView;
 typedef GtkWidget* NativeWindow;
 typedef GtkWidget* NativeEditView;
-typedef SkTypeface* NativeFont;
 #else  // null port.
 #error No known OS defined
 #endif

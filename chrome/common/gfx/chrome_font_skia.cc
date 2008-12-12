@@ -35,7 +35,7 @@ void ChromeFont::calculateMetrics() {
   SkPaint paint;
   SkPaint::FontMetrics metrics;
 
-  setupPaint(&paint);
+  PaintSetup(&paint);
   paint.getFontMetrics(&metrics);
 
   if (metrics.fVDMXMetricsValid) {
@@ -47,7 +47,7 @@ void ChromeFont::calculateMetrics() {
   }
 
   if (metrics.fAvgCharWidth) {
-      avg_width_ = SkScalarRound(metrics.fAvgCharWidth);
+    avg_width_ = SkScalarRound(metrics.fAvgCharWidth);
   } else {
     static const char x_char = 'x';
     paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
@@ -104,7 +104,7 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
   return ChromeFont(tf, font_name_, font_size_ + size_delta, skstyle);
 }
 
-void ChromeFont::setupPaint(SkPaint* paint) const {
+void ChromeFont::PaintSetup(SkPaint* paint) const {
   paint->setAntiAlias(false);
   paint->setSubpixelText(false);
   paint->setTextSize(SkFloatToScalar(font_size_));
@@ -118,7 +118,7 @@ int ChromeFont::GetStringWidth(const std::wstring& text) const {
   const std::string utf8(base::SysWideToUTF8(text));
 
   SkPaint paint;
-  setupPaint(&paint);
+  PaintSetup(&paint);
   paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
   SkScalar width = paint.measureText(utf8.data(), utf8.size());
 
@@ -142,6 +142,6 @@ int ChromeFont::FontSize() {
   return font_size_;
 }
 
-gfx::NativeFont ChromeFont::nativeFont() const {
+NativeFont ChromeFont::nativeFont() const {
   return typeface_;
 }
