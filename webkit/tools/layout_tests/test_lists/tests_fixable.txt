@@ -671,8 +671,6 @@ LINUX WIN : LayoutTests/fast/block/float/float-avoidance.html = FAIL
 WIN : LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 WIN : LayoutTests/fast/canvas/drawImage.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
-// Linux pixeltest failure: We fail to draw the second gradient
-LINUX WIN : LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
 WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
 LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
