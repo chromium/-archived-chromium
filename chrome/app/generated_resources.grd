@@ -2218,7 +2218,7 @@ each locale. -->
       </message>
       <message name="IDS_BOOKMARK_BAR_SHOULD_OPEN_ALL"
                desc="Message in the message box shown if user asks to open a lot of bookmarks in a folder">
-        Are you sure you want to open <ph name="tab_count">$1<ex>20</ex></ph> tabs?
+        Are you sure you want to open <ph name="TAB_COUNT">$1<ex>20</ex></ph> tabs?
       </message>
 
       <!-- error page messages -->
@@ -3280,7 +3280,7 @@ each locale. -->
         Pop-ups Blocked: <ph name="COUNT">$1<ex>2</ex></ph>
       </message>
       <message name="IDS_POPUP_TITLE_FORMAT" desc="Order of URL - Title on the popup">
-        <ph name="URL">$1</ph> - <ph name="Window Title">$2</ph>
+        <ph name="URL">$1</ph> - <ph name="WINDOW_TITLE">$2</ph>
       </message>
 
       <!-- Multiple download warning-->
@@ -3348,7 +3348,7 @@ each locale. -->
         Enter a query in the text field above to search your bookmarks.
       </message>
       <message name="IDS_BOOKMARK_MANAGER_NO_RESULTS" desc="Text shown in the bookmark table when the search didn't find anything.">
-        No bookmarks match the query '<ph name="search text">$1</ph>'.
+        No bookmarks match the query '<ph name="SEARCH_TEXT">$1</ph>'.
       </message>
       <message name="IDS_BOOKMARK_MANAGER_SEARCH_TITLE" desc="Text shown before the search text field.">
         Search:
