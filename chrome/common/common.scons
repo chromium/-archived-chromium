@@ -85,7 +85,6 @@ if env['PLATFORM'] == 'win32':
       'common_glue.cc',
       'drag_drop_types.cc',
       'gfx/chrome_canvas.cc',
-      'gfx/chrome_font.cc',
       'gfx/emf.cc',
       'gfx/icon_util.cc',
       'gfx/path.cc',
@@ -114,6 +113,7 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'win32':
   # Windows specific files
   input_files.extend([
+      'gfx/chrome_font_win.cc',
       'ipc_channel_win.cc',
   ])
 elif env['PLATFORM'] == 'posix':
