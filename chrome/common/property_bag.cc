@@ -35,6 +35,13 @@ PropertyBag::Prop* PropertyBag::GetProperty(PropID id) {
   return found->second.get();
 }
 
+const PropertyBag::Prop* PropertyBag::GetProperty(PropID id) const {
+  PropertyMap::const_iterator found = props_.find(id);
+  if (found == props_.end())
+    return NULL;
+  return found->second.get();
+}
+
 void PropertyBag::DeleteProperty(PropID id) {
   PropertyMap::iterator found = props_.find(id);
   if (found == props_.end())

@@ -42,7 +42,6 @@ TabContents::TabContents(TabContentsType type)
       is_active_(true),
       is_crashed_(false),
       waiting_for_response_(false),
-      saved_location_bar_state_(NULL),
       shelf_visible_(false),
       max_page_id_(-1),
       blocked_popups_(NULL),

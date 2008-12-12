@@ -645,6 +645,13 @@ static const SkColor kSchemeSelectedStrikeoutColor =
 static HWND edit_hwnd = NULL;
 static PAINTSTRUCT paint_struct;
 
+// Returns a lazily initialized property bag accessor for saving our state in a
+// TabContents.
+static PropertyAccessor<AutocompleteEditState>* GetStateAccessor() {
+  static PropertyAccessor<AutocompleteEditState> state;
+  return &state;
+}
+
 AutocompleteEditView::AutocompleteEditView(
     const ChromeFont& font,
     AutocompleteEditController* controller,
@@ -787,8 +794,10 @@ void AutocompleteEditView::SaveStateToTab(TabContents* tab) {
 
   CHARRANGE selection;
   GetSelection(selection);
-  tab->set_saved_location_bar_state(new AutocompleteEditState(model_state,
-      State(selection, saved_selection_for_focus_change_)));
+  GetStateAccessor()->SetProperty(tab->property_bag(),
+      AutocompleteEditState(
+          model_state,
+          State(selection, saved_selection_for_focus_change_)));
 }
 
 void AutocompleteEditView::Update(const TabContents* tab_for_state_restoring) {
@@ -825,8 +834,8 @@ void AutocompleteEditView::Update(const TabContents* tab_for_state_restoring) {
     // won't overwrite all our local state.
     RevertAll();
 
-    const AutocompleteEditState* const state =
-        tab_for_state_restoring->saved_location_bar_state();
+    const AutocompleteEditState* state = GetStateAccessor()->GetProperty(
+        tab_for_state_restoring->property_bag());
     if (state) {
       model_->RestoreState(state->model_state);
 

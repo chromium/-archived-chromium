@@ -77,6 +77,7 @@ class PropertyBag {
   // The returned pointer will be NULL if there is no match. Ownership of the
   // pointer will stay with the property bag.
   Prop* GetProperty(PropID id);
+  const Prop* GetProperty(PropID id) const;
 
   // Deletes the property with the given ID from the bag if it exists.
   void DeleteProperty(PropID id);
@@ -105,6 +106,9 @@ class PropertyAccessorBase {
     bag->SetProperty(prop_id_, prop);
   }
   PropertyBag::Prop* GetPropertyInternal(PropertyBag* bag) {
+    return bag->GetProperty(prop_id_);
+  }
+  const PropertyBag::Prop* GetPropertyInternal(const PropertyBag* bag) const {
     return bag->GetProperty(prop_id_);
   }
 
@@ -140,6 +144,12 @@ class PropertyAccessor : public PropertyAccessorBase {
       return NULL;
     return static_cast<Container*>(prop)->get();
   }
+  const T* GetProperty(const PropertyBag* bag) const {
+    const PropertyBag::Prop* prop = GetPropertyInternal(bag);
+    if (!prop)
+      return NULL;
+    return static_cast<const Container*>(prop)->get();
+  }
 
   // See also DeleteProperty on thn PropertyAccessorBase.
 
@@ -149,6 +159,7 @@ class PropertyAccessor : public PropertyAccessorBase {
     Container(const T& data) : data_(data) {}
 
     T* get() { return &data_; }
+    const T* get() const { return &data_; }
 
    private:
     virtual Prop* copy() {

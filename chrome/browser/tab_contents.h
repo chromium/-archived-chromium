@@ -15,6 +15,7 @@
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
+#include "chrome/common/property_bag.h"
 
 namespace gfx {
 class Rect;
@@ -111,6 +112,12 @@ class TabContents : public PageNavigator,
 
   // Returns the type of tab this is. See also the As* functions following.
   TabContentsType type() const { return type_; }
+
+  // Returns the property bag for this tab contents, where callers can add
+  // extra data they may wish to associate with the tab. Returns a pointer
+  // rather than a reference since the PropertyAccessors expect this.
+  const PropertyBag* property_bag() const { return &property_bag_; }
+  PropertyBag* property_bag() { return &property_bag_; }
 
   // Returns this object as a WebContents if it is one, and NULL otherwise.
   virtual WebContents* AsWebContents() { return NULL; }
@@ -219,16 +226,6 @@ class TabContents : public PageNavigator,
   bool waiting_for_response() const { return waiting_for_response_; }
 
   // Internal state ------------------------------------------------------------
-
-  // For use when switching tabs, these functions allow the tab contents to
-  // hold the per-tab state of the location bar.  The tab contents takes
-  // ownership of the pointer.
-  void set_saved_location_bar_state(const AutocompleteEditState* state) {
-    saved_location_bar_state_.reset(state);
-  }
-  const AutocompleteEditState* saved_location_bar_state() const {
-    return saved_location_bar_state_.get();
-  }
 
   // This flag indicates whether the tab contents is currently being
   // screenshotted by the DraggedTabController.
@@ -512,6 +509,8 @@ class TabContents : public PageNavigator,
   TabContentsDelegate* delegate_;
   NavigationController* controller_;
 
+  PropertyBag property_bag_;
+
   // Indicates whether we're currently loading a resource.
   bool is_loading_;
 
@@ -522,8 +521,6 @@ class TabContents : public PageNavigator,
 
   // See waiting_for_response() above.
   bool waiting_for_response_;
-
-  scoped_ptr<const AutocompleteEditState> saved_location_bar_state_;
 
   // The download shelf view (view at the bottom of the page).
   scoped_ptr<DownloadShelfView> download_shelf_view_;
