@@ -14,7 +14,7 @@
 struct event;  // From libevent
 #include <sys/socket.h>  // for struct sockaddr
 #define SOCKET int
-#include "base/message_pump_libevent.h"
+#include "base/message_loop.h"
 #endif
 
 #include "base/scoped_ptr.h"
@@ -26,7 +26,7 @@ namespace net {
 
 // A client socket that uses TCP as the transport layer.
 //
-// NOTE: The windows implementation supports half duplex only.  
+// NOTE: The windows implementation supports half duplex only.
 // Read and Write calls must not be in progress at the same time.
 // The libevent implementation supports full duplex because that
 // made it slightly easier to implement ssl.
@@ -34,7 +34,7 @@ class TCPClientSocket : public ClientSocket,
 #if defined(OS_WIN)
                         public base::ObjectWatcher::Delegate
 #elif defined(OS_POSIX)
-                        public base::MessagePumpLibevent::Watcher
+                        public MessageLoopForIO::Watcher
 #endif
 {
  public:
@@ -52,7 +52,7 @@ class TCPClientSocket : public ClientSocket,
   virtual bool IsConnected() const;
 
   // Socket methods:
-  // Multiple outstanding requests are not supported.  
+  // Multiple outstanding requests are not supported.
   // Full duplex mode (reading and writing at the same time) is not supported
   // on Windows (but is supported on Linux and Mac for ease of implementation
   // of SSLClientSocket)
@@ -97,10 +97,11 @@ class TCPClientSocket : public ClientSocket,
   bool waiting_connect_;
 
   // The socket's libevent wrapper
-  scoped_ptr<event> event_;
+  MessageLoopForIO::FileDescriptorWatcher socket_watcher_;
 
   // Called by MessagePumpLibevent when the socket is ready to do I/O
-  void OnSocketReady(short flags);
+  void OnFileCanReadWithoutBlocking(int fd);
+  void OnFileCanWriteWithoutBlocking(int fd);
 
   // The buffer used by OnSocketReady to retry Read requests
   char* buf_;
