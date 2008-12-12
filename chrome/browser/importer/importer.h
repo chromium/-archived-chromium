@@ -8,15 +8,18 @@
 #include <set>
 #include <vector>
 
+#include "build/build_config.h"
+
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_types.h"
+#if defined(OS_WIN)
 #include "chrome/browser/ie7_password.h"
+#endif
 #include "chrome/browser/profile.h"
 #include "chrome/browser/template_url.h"
-#include "chrome/browser/views/importer_lock_view.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/password_form.h"
@@ -97,7 +100,9 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
 
   // Helper methods for adding data to local stores.
   virtual void AddPasswordForm(const PasswordForm& form);
+#if defined(OS_WIN)
   virtual void AddIE7PasswordInfo(const IE7PasswordInfo& info);
+#endif
   virtual void AddHistoryPage(const std::vector<history::URLRow>& page);
   virtual void AddHomepage(const GURL& homepage);
   // Adds the bookmarks to the BookmarkModel.  
@@ -407,6 +412,9 @@ class ImportObserver {
 };
 
 
+#if defined(OS_WIN)
+// TODO(port): Make StartImportingWithUI portable.
+
 // Shows a UI for importing and begins importing the specified items from
 // source_profile to target_profile. observer is notified when the process is
 // complete, can be NULL. parent is the window to parent the UI to, can be NULL
@@ -419,5 +427,6 @@ void StartImportingWithUI(HWND parent_window,
                           Profile* target_profile,
                           ImportObserver* observer,
                           bool first_run);
+#endif
 
 #endif  // CHROME_BROWSER_IMPORTER_IMPORTER_H_

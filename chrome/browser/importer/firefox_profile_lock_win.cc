@@ -1,27 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
-#define CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
+#include "chrome/browser/importer/firefox_profile_lock.h"
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
 #include <windows.h>
-#endif
 
-#include <string>
-
-#include "base/basictypes.h"
-#include "base/file_path.h"
-#include "testing/gtest/include/gtest/gtest_prod.h"
-
-// Firefox is designed to allow only one application to access its
-// profile at the same time.
-// Reference:
-//   http://kb.mozillazine.org/Profile_in_use
-//
 // This class is based on Firefox code in:
 //   profile/dirserviceprovider/src/nsProfileLock.cpp
 // The license block is:
@@ -67,38 +51,27 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-class FirefoxProfileLock {
- public:
-  explicit FirefoxProfileLock(const std::wstring& path);
-  ~FirefoxProfileLock();
+void FirefoxProfileLock::Init() {
+  lock_handle_ = INVALID_HANDLE_VALUE;
+}
 
-  // Locks and releases the profile.
-  void Lock();
-  void Unlock();
+void FirefoxProfileLock::Lock() {
+  if (HasAcquired())
+    return;
+  lock_handle_ = CreateFile(lock_file_.value().c_str(),
+                            GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+                            FILE_FLAG_DELETE_ON_CLOSE, NULL);
+}
 
-  // Returns true if we lock the profile successfully.
-  bool HasAcquired();
+void FirefoxProfileLock::Unlock() {
+  if (!HasAcquired())
+    return;
+  CloseHandle(lock_handle_);
+  lock_handle_ = INVALID_HANDLE_VALUE;
+}
 
- private:
-  FRIEND_TEST(FirefoxImporterTest, ProfileLock);
-  FRIEND_TEST(FirefoxImporterTest, ProfileLockOrphaned);
+bool FirefoxProfileLock::HasAcquired() {
+  return (lock_handle_ != INVALID_HANDLE_VALUE);
+}
 
-  static const FilePath::CharType* kLockFileName;
-
-  void Init();
-
-  // Full path of the lock file in the profile folder.
-  FilePath lock_file_;
-
-  // The handle of the lock file.
-#if defined(OS_WIN)
-  HANDLE lock_handle_;
-#elif defined(OS_POSIX)
-  int lock_fd_;
-#endif
-
-  DISALLOW_COPY_AND_ASSIGN(FirefoxProfileLock);
-};
-
-#endif  // CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
 
