@@ -1910,7 +1910,6 @@ MAC : pending/fast/repaint/bugzilla-6473.html = FAIL
 MAC : LayoutTests/fast/profiler/document-dot-write.html = FAIL
 MAC : LayoutTests/fast/profiler/stop-then-function-call.html = FAIL
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
-MAC : LayoutTests/http/tests/navigation/error404-goback.html = FAIL PASS
 MAC : LayoutTests/editing/deleting/5408255.html = FAIL
 MAC : LayoutTests/editing/pasteboard/5006779.html = FAIL
 MAC : LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
