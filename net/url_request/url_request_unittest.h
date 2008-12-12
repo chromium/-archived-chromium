@@ -312,21 +312,26 @@ class TestServer : public base::ProcessFilter {
     // Set up PYTHONPATH so that Python is able to find the in-tree copy of
     // tlslite.
 
-    FilePath tlslite_path;
-    ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &tlslite_path));
-    tlslite_path = tlslite_path.Append("third_party");
-    tlslite_path = tlslite_path.Append("tlslite");
+    static bool set_python_path = false;
+    if (!set_python_path) {
+      FilePath tlslite_path;
+      ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &tlslite_path));
+      tlslite_path = tlslite_path.Append("third_party");
+      tlslite_path = tlslite_path.Append("tlslite");
 
-    const char kPythonPath[] = "PYTHONPATH";
-    char* python_path_c = getenv(kPythonPath);
-    if (python_path_c) {
-      // PYTHONPATH is already set, append to it.
-      std::string python_path(python_path_c);
-      python_path.append(":");
-      python_path.append(tlslite_path.value());
-      setenv(kPythonPath, python_path.c_str(), 1);
-    } else {
-      setenv(kPythonPath, tlslite_path.value().c_str(), 1);
+      const char kPythonPath[] = "PYTHONPATH";
+      char* python_path_c = getenv(kPythonPath);
+      if (python_path_c) {
+        // PYTHONPATH is already set, append to it.
+        std::string python_path(python_path_c);
+        python_path.append(":");
+        python_path.append(tlslite_path.value());
+        setenv(kPythonPath, python_path.c_str(), 1);
+      } else {
+        setenv(kPythonPath, tlslite_path.value().c_str(), 1);
+      }
+
+      set_python_path = true;
     }
 
     std::vector<std::string> command_line;
