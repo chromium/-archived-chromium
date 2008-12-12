@@ -24,6 +24,9 @@ class Profile;
 class MessageLoop;
 class URLRequestContext;
 
+namespace file_util {
+class MemoryMappedFile;
+}
 
 // The Browser's Spell Checker. It checks and suggests corrections.
 //
@@ -119,14 +122,11 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // Path to the custom dictionary file.
   std::wstring custom_dictionary_file_name_;
 
-  // We memory-map the BDict file for spellchecking. These are the handles
-  // necessary for that.
-  HANDLE bdict_file_;
-  HANDLE bdict_mapping_;
-  const unsigned char* bdict_mapped_data_;
+  // We memory-map the BDict file.
+  scoped_ptr<file_util::MemoryMappedFile> bdict_file_;
 
   // The hunspell dictionary in use.
-  Hunspell* hunspell_;
+  scoped_ptr<Hunspell> hunspell_;
 
   // Represents character attributes used for filtering out characters which
   // are not supported by this SpellChecker object.

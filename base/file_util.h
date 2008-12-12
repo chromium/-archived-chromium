@@ -305,7 +305,6 @@ bool GetFileInfo(const FilePath& file_path, FileInfo* info);
 // Deprecated temporary compatibility function.
 bool GetFileInfo(const std::wstring& file_path, FileInfo* info);
 
-
 // Wrapper for fopen-like calls. Returns non-NULL FILE* on success.
 FILE* OpenFile(const FilePath& filename, const char* mode);
 // Deprecated temporary compatibility functions.
@@ -414,6 +413,44 @@ class FileEnumerator {
 
   DISALLOW_EVIL_CONSTRUCTORS(FileEnumerator);
 };
+
+// TODO(port): port this class to posix.
+#if defined(OS_WIN)
+class MemoryMappedFile {
+ public:
+  // The default constructor sets all members to invalid/null values.
+  MemoryMappedFile();
+  ~MemoryMappedFile();
+
+  // Opens an existing file and maps it into memory. Access is restricted to
+  // read only. If this object already points to a valid memory mapped file
+  // then this method will fail and return false. If it cannot open the file,
+  // the file does not exist, or the memory mapping fails, it will return false.
+  // Later we may want to allow the user to specify access.
+  bool Initialize(const FilePath& file_name);
+
+  const uint8* Data() const { return data_; }
+  size_t Length() const { return length_; }
+
+  // Is file_ a valid file handle that points to an open, memory mapped file?
+  bool IsValid();
+
+ private:
+  // Map the file to memory, set data_ to that memory address. Return true on
+  // success, false on any kind of failure. This is a helper for Initialize().
+  bool MapFileToMemory(const FilePath& file_name);
+
+  // Closes all open handles. Later we may want to make this public.
+  void CloseHandles();
+
+  HANDLE file_;
+  HANDLE file_mapping_;
+  const uint8* data_;
+  size_t length_;
+
+  DISALLOW_COPY_AND_ASSIGN(MemoryMappedFile);
+};
+#endif  // defined(OS_WIN)
 
 // Renames a file using the SHFileOperation API to ensure that the target file
 // gets the correct default security descriptor in the new path.

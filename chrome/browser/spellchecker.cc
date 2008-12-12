@@ -346,10 +346,6 @@ SpellChecker::SpellChecker(const std::wstring& dict_dir,
                            URLRequestContext* request_context,
                            const std::wstring& custom_dictionary_file_name)
     : custom_dictionary_file_name_(custom_dictionary_file_name),
-      bdict_file_(NULL),
-      bdict_mapping_(NULL),
-      bdict_mapped_data_(NULL),
-      hunspell_(NULL),
       tried_to_init_(false),
 #ifndef NDEBUG
       worker_loop_(NULL),
@@ -393,15 +389,6 @@ SpellChecker::~SpellChecker() {
   if (worker_loop_)
     DCHECK(MessageLoop::current() == worker_loop_);
 #endif
-
-  delete hunspell_;
-
-  if (bdict_mapped_data_)
-    UnmapViewOfFile(bdict_mapped_data_);
-  if (bdict_mapping_)
-    CloseHandle(bdict_mapping_);
-  if (bdict_file_)
-    CloseHandle(bdict_file_);
 }
 
 // Initialize SpellChecker. In this method, if the dicitonary is not present
@@ -417,7 +404,7 @@ bool SpellChecker::Initialize() {
   // Return false if tried to init and failed - don't try multiple times in
   // this session.
   if (tried_to_init_)
-    return hunspell_ != NULL;
+    return hunspell_.get() != NULL;
 
   StatsScope<StatsCounterTimer> timer(chrome::Counters::spellcheck_init());
 
@@ -441,10 +428,9 @@ bool SpellChecker::Initialize() {
 
   // Control has come so far - both files probably exist.
   TimeTicks begin_time = TimeTicks::Now();
-  const unsigned char* bdict_data;
-  size_t bdict_length;
-  if (MapBdictFile(&bdict_data, &bdict_length)) {
-    hunspell_ = new Hunspell(bdict_data, bdict_length);
+  bdict_file_.reset(new file_util::MemoryMappedFile());
+  if (bdict_file_->Initialize(FilePath::FromWStringHack(bdict_file_name_))) {
+    hunspell_.reset(new Hunspell(bdict_file_->Data(), bdict_file_->Length()));
     AddCustomWordsToHunspell();
   }
   DHISTOGRAM_TIMES(L"Spellcheck.InitTime", TimeTicks::Now() - begin_time);
@@ -462,42 +448,12 @@ void SpellChecker::AddCustomWordsToHunspell() {
   file_util::ReadFileToString(custom_dictionary_file_name_, &contents);
   std::vector<std::string> list_of_words;
   SplitString(contents, '\n', &list_of_words);
-  if (hunspell_) {
+  if (hunspell_.get()) {
     for (std::vector<std::string>::iterator it = list_of_words.begin();
          it != list_of_words.end(); ++it) {
       hunspell_->put_word(it->c_str());
     }
   }
-}
-
-bool SpellChecker::MapBdictFile(const unsigned char** data, size_t* length) {
-  bdict_file_ = CreateFile(bdict_file_name_.c_str(), GENERIC_READ,
-      FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  if (bdict_file_ == INVALID_HANDLE_VALUE)
-    return false;
-
-  DWORD size = GetFileSize(bdict_file_, NULL);
-  bdict_mapping_ =
-      CreateFileMapping(bdict_file_, NULL, PAGE_READONLY, 0, size, NULL);
-  if (!bdict_mapping_) {
-    CloseHandle(bdict_file_);
-    bdict_file_ = NULL;
-    return false;
-  }
-
-  bdict_mapped_data_ = reinterpret_cast<const unsigned char*>(
-      MapViewOfFile(bdict_mapping_, FILE_MAP_READ, 0, 0, size));
-  if (!data) {
-    CloseHandle(bdict_mapping_);
-    bdict_mapping_ = NULL;
-    CloseHandle(bdict_file_);
-    bdict_file_ = NULL;
-    return false;
-  }
-
-  *data = bdict_mapped_data_;
-  *length = size;
-  return true;
 }
 
 // Returns whether or not the given string is a valid contraction.
@@ -545,7 +501,7 @@ bool SpellChecker::SpellCheckWord(
   if (in_word_len == 0)
     return true;  // no input means always spelled correctly
 
-  if (!hunspell_)
+  if (!hunspell_.get())
     return true;  // unable to spellcheck, return word is OK
 
   SpellcheckWordIterator word_iterator;

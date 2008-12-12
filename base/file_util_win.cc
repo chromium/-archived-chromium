@@ -595,7 +595,7 @@ bool SetCurrentDirectory(const FilePath& directory) {
 }
 
 ///////////////////////////////////////////////
-
+// FileEnumerator
 
 FileEnumerator::FileEnumerator(const FilePath& root_path,
                                bool recursive,
@@ -692,6 +692,70 @@ FilePath FileEnumerator::Next() {
     return (file_type_ & FileEnumerator::DIRECTORIES) ? cur_file : Next();
   }
   return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
+}
+
+///////////////////////////////////////////////
+// MemoryMappedFile
+
+MemoryMappedFile::MemoryMappedFile()
+    : file_(INVALID_HANDLE_VALUE),
+      file_mapping_(INVALID_HANDLE_VALUE),
+      data_(NULL),
+      length_(INVALID_FILE_SIZE) {
+}
+
+MemoryMappedFile::~MemoryMappedFile() {
+  CloseHandles();
+}
+
+bool MemoryMappedFile::Initialize(const FilePath& file_name) {
+  if (IsValid())
+    return false;
+
+  if (!MapFileToMemory(file_name)) {
+    CloseHandles();
+    return false;
+  }
+
+  return true;
+}
+
+bool MemoryMappedFile::MapFileToMemory(const FilePath& file_name) {
+  file_ = ::CreateFile(file_name.value().c_str(), GENERIC_READ,
+                       FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+  if (file_ == INVALID_HANDLE_VALUE)
+    return false;
+
+  length_ = ::GetFileSize(file_, NULL);
+  if (length_ == INVALID_FILE_SIZE)
+    return false;
+
+  file_mapping_ = ::CreateFileMapping(file_, NULL, PAGE_READONLY,
+                                      0, length_, NULL);
+  if (file_mapping_ == INVALID_HANDLE_VALUE)
+    return false;
+
+  data_ = reinterpret_cast<const uint8*>(
+      ::MapViewOfFile(file_mapping_, FILE_MAP_READ, 0, 0, length_));
+  return data_ != NULL;
+}
+
+bool MemoryMappedFile::IsValid() {
+  return data_ != NULL;
+}
+
+void MemoryMappedFile::CloseHandles() {
+  if (data_)
+    ::UnmapViewOfFile(data_);
+  if (file_mapping_ != INVALID_HANDLE_VALUE)
+    ::CloseHandle(file_mapping_);
+  if (file_ != INVALID_HANDLE_VALUE)
+    ::CloseHandle(file_);
+
+  data_ = NULL;
+  file_mapping_ = file_ = INVALID_HANDLE_VALUE;
+  length_ = INVALID_FILE_SIZE;
 }
 
 // Deprecated functions ----------------------------------------------------
