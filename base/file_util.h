@@ -414,8 +414,6 @@ class FileEnumerator {
   DISALLOW_EVIL_CONSTRUCTORS(FileEnumerator);
 };
 
-// TODO(port): port this class to posix.
-#if defined(OS_WIN)
 class MemoryMappedFile {
  public:
   // The default constructor sets all members to invalid/null values.
@@ -429,8 +427,8 @@ class MemoryMappedFile {
   // Later we may want to allow the user to specify access.
   bool Initialize(const FilePath& file_name);
 
-  const uint8* Data() const { return data_; }
-  size_t Length() const { return length_; }
+  const uint8* data() const { return data_; }
+  size_t length() const { return length_; }
 
   // Is file_ a valid file handle that points to an open, memory mapped file?
   bool IsValid();
@@ -443,14 +441,18 @@ class MemoryMappedFile {
   // Closes all open handles. Later we may want to make this public.
   void CloseHandles();
 
+#if defined(OS_WIN)
   HANDLE file_;
   HANDLE file_mapping_;
-  const uint8* data_;
+#elif defined(OS_POSIX)
+  // The file descriptor.
+  int file_;
+#endif
+  uint8* data_;
   size_t length_;
 
   DISALLOW_COPY_AND_ASSIGN(MemoryMappedFile);
 };
-#endif  // defined(OS_WIN)
 
 // Renames a file using the SHFileOperation API to ensure that the target file
 // gets the correct default security descriptor in the new path.
