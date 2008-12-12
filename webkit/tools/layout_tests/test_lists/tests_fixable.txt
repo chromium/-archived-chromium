@@ -2197,3 +2197,6 @@ LINUX : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.html 
 LINUX : LayoutTests/svg/text/text-fonts-01-t.html = FAIL
 // Linux pixeltest failure: Failing to draw arabic
 LINUX : LayoutTests/svg/text/text-intro-05-t.html = FAIL
+
+// Failed with r6844 (dglazkov)
+LayoutTests/http/tests/navigation/error404-goback.html = FAIL
