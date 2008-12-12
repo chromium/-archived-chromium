@@ -36,9 +36,7 @@
 #include "base/compiler_specific.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "CSSStyleSelector.h"
-#if defined(OS_WIN)
 #include "Cursor.h"
-#endif
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "DragController.h"
@@ -61,10 +59,12 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "MIMETypeRegistry.h"
 #include "NodeRenderStyle.h"
 #include "Page.h"
+#include "PlatformContextSkia.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
 #include "PluginInfoStore.h"
+#include "PopupMenuChromium.h"
 #include "PopupMenuClient.h"
 #if defined(OS_WIN)
 #include "RenderThemeWin.h"
@@ -74,7 +74,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "SelectionController.h"
 #include "Settings.h"
 #include "TypingCommand.h"
-#include "event_conversion.h"
 MSVC_POP_WARNING();
 #undef LOG
 
@@ -101,8 +100,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
-#include "webkit/port/platform/chromium/PopupMenuChromium.h"
-#include "webkit/port/platform/graphics/skia/PlatformContextSkia.h"
 
 // Get rid of WTF's pow define so we can use std::pow.
 #undef pow
