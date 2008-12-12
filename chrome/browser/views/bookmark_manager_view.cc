@@ -483,11 +483,14 @@ void BookmarkManagerView::RunMenu(views::View* source,
   if (!GetBookmarkModel()->IsLoaded())
     return;
 
+  int menu_x = pt.x;
+  menu_x += UILayoutIsRightToLeft() ? (source->width() - 5) :
+                                      (-source->width() + 5);
   if (source->GetID() == kOrganizeMenuButtonID) {
-    ShowMenu(hwnd, pt.x - source->width() + 5, pt.y + 2,
+    ShowMenu(hwnd, menu_x, pt.y + 2,
              BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU);
   } else if (source->GetID() == kToolsMenuButtonID) {
-    ShowToolsMenu(hwnd, pt.x - source->width() + 5, pt.y + 2);
+    ShowToolsMenu(hwnd, menu_x, pt.y + 2);
   } else {
     NOTREACHED();
   }
@@ -696,8 +699,10 @@ void BookmarkManagerView::ShowToolsMenu(HWND host, int x, int y) {
   menu.AppendMenuItemWithLabel(
           IDS_BOOKMARK_MANAGER_EXPORT_MENU,
           l10n_util::GetString(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
-  menu.RunMenuAt(GetWidget()->GetHWND(), gfx::Rect(x, y, 0, 0),
-                 views::MenuItemView::TOPLEFT, true);
+  views::MenuItemView::AnchorPosition anchor =
+      UILayoutIsRightToLeft() ? views::MenuItemView::TOPRIGHT :
+                                views::MenuItemView::TOPLEFT;
+  menu.RunMenuAt(GetWidget()->GetHWND(), gfx::Rect(x, y, 0, 0), anchor, true);
 }
 
 void BookmarkManagerView::ShowImportBookmarksFileChooser() {
