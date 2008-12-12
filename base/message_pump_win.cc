@@ -380,13 +380,19 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
          msg.hwnd != message_hwnd_);
 
   // Since we discarded a kMsgHaveWork message, we must update the flag.
-  InterlockedExchange(&have_work_, 0);
+  int old_have_work = InterlockedExchange(&have_work_, 0);
+  DCHECK(old_have_work);
 
-  // TODO(darin,jar): There is risk of being lost in a sub-pump within the call
-  // to ProcessMessageHelper, which could result in no longer getting a
-  // kMsgHaveWork message until the next out-of-band call to ScheduleWork.
+  // We don't need a special time slice if we didn't have_message to process. 
+  if (!have_message)
+    return false;
 
-  return have_message && ProcessMessageHelper(msg);
+  // Guarantee we'll get another time slice in the case where we go into native
+  // windows code.   This ScheduleWork() may hurt performance a tiny bit when
+  // tasks appear very infrequently, but when the event queue is busy, the
+  // kMsgHaveWork events get (percentage wise) rarer and rarer.
+  ScheduleWork();
+  return ProcessMessageHelper(msg);
 }
 
 //-----------------------------------------------------------------------------
