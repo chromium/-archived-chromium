@@ -30,9 +30,6 @@ input_files = [
     '$PORT_DIR/history/BackForwardList.cpp',
     '$PORT_DIR/history/CachedPage.cpp',
 
-    '$PORT_DIR/loader/IconLoader.cpp',
-    '$PORT_DIR/loader/IconDatabaseNone.cpp',
-
     '$PORT_DIR/page/Location.cpp',
     '$PORT_DIR/page/chromium/AccessibilityObjectChromium.cpp',
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',

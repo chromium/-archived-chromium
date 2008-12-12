@@ -833,6 +833,26 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="icon"
+				>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\loader\icon\IconDatabase.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\loader\icon\IconDatabaseNone.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\loader\icon\IconLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\loader\icon\IconLoader.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="platform"

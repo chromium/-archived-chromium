@@ -822,18 +822,6 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="loader"
-			>
-			<File
-				RelativePath="..\..\port\loader\IconDatabaseNone.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\loader\IconLoader.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="platform"
 			>
 			<File

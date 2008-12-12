@@ -349,6 +349,9 @@ input_files = [
     '$WEBCORE_DIR/loader/archive/ArchiveResource.cpp',
     '$WEBCORE_DIR/loader/archive/ArchiveResourceCollection.cpp',
 
+    '$WEBCORE_DIR/loader/icon/IconLoader.cpp',
+    '$WEBCORE_DIR/loader/icon/IconDatabaseNone.cpp',
+
     '$WEBCORE_DIR/page/AccessibilityImageMapLink.cpp',
     '$WEBCORE_DIR/page/AccessibilityList.cpp',
     '$WEBCORE_DIR/page/AccessibilityListBox.cpp',
