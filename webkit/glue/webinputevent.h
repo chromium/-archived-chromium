@@ -149,11 +149,11 @@ class WebKeyboardEvent : public WebInputEvent {
   bool system_key;  // Set if we receive a SYSKEYDOWN/WM_SYSKEYUP message.
   MSG actual_message; // Set to the current keyboard message.
 #elif defined(OS_LINUX)
-  // The ASCII character, if available, corresponding to this key event.
+  // The unicode character, if available, corresponding to this key event.
   // TODO(evanm): temporary hack for test_shell.  Ideally we'd either manage
   // to stuff everything into key_code, or make this field shared by all
   // implementations, but this will have to do for now.
-  char text;
+  wchar_t text;
 #endif
 
   WebKeyboardEvent() 

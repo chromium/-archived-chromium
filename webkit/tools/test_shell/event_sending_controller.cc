@@ -420,6 +420,11 @@ int EventSendingController::GetButtonNumberFromSingleArg(
         }
       }
       event_char.type = WebInputEvent::CHAR;
+#if defined(OS_LINUX)
+      // |key_code| may have changed, so update |text|.
+      // (See deanm comment above.)
+      event_char.text = event_char.key_code;
+#endif
       webview()->HandleInputEvent(&event_char);
     }
 
