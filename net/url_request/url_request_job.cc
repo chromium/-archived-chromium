@@ -407,15 +407,6 @@ void URLRequestJob::NotifyDone(const URLRequestStatus &status) {
   // the response before getting here.
   DCHECK(has_handled_response_ || !status.is_success());
 
-  // In the success case, we cannot send the NotifyDone now.  It can only be
-  // sent after the request is completed, because otherwise we can get the
-  // NotifyDone() called while the delegate is still accessing the request.
-  // In the case of an error, we are fre
-  if (status.is_success()) {
-    // If there is data left in the filter, then something is probably wrong.
-    DCHECK(!FilterHasData());
-  }
-
   // As with NotifyReadComplete, we need to take care to notice if we were
   // destroyed during a delegate callback.
   if (request_) {
