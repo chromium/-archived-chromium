@@ -26,10 +26,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 VPATH = \
-    $(PORTROOT)/../pending \
-    $(PORTROOT)/css \
-    $(PORTROOT)/html \
-    $(PORTROOT)/page \
+    $(PORTROOT)/bindings/v8 \
     $(PORTROOT)/page/inspector \
     $(WebCore) \
     $(WebCore)/bindings/js \
