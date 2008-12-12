@@ -63,7 +63,7 @@
 #include "Range.h"
 #include "ResourceRequest.h"
 #include "ResourceResponse.h"
-#include "ScriptCallContext.h"
+#include "ScriptCallStack.h"
 #include "ScriptController.h"
 #include "Settings.h"
 #include "SharedBuffer.h"
@@ -135,26 +135,28 @@ struct ConsoleMessage {
     {	
     }
 
-    ConsoleMessage(MessageSource s, MessageLevel l, ScriptCallContext* context, unsigned g)
+    ConsoleMessage(MessageSource s, MessageLevel l, ScriptCallStack* callStack, unsigned g)
         : source(s)
         , level(l)
 #if USE(JSC)
-        , wrappedArguments(args.size())
+        , wrappedArguments(callStack->at(0).argumentCount())
 #elif USE(V8)
-        , arguments(context->argumentCount())
+        , arguments(callStack->at(0).argumentCount())
 #endif
-        , line(context->lineNumber())
-        , url(context->sourceURL())
         , groupLevel(g)
         , repeatCount(1)
     {
+        const ScriptCallFrame& lastCaller = callStack->at(0);
+        line = lastCaller.lineNumber();
+        url = lastCaller.sourceURL().string();
+
 #if USE(JSC)
         JSLock lock(false);
-        for (unsigned i = 0; i < context->argumentCount(); ++i)
-            wrappedArguments[i] = JSInspectedObjectWrapper::wrap(context->argumentAt(i));
+        for (unsigned i = 0; i < lastCaller.argumentCount(); ++i)
+            wrappedArguments[i] = JSInspectedObjectWrapper::wrap(callStack->state(), lastCaller.argumentAt(i).jsValue());
 #elif USE(V8)
-        for (unsigned i = 0; i < context->argumentCount(); ++i) {
-            arguments[i] = context->argumentAt(i);
+        for (unsigned i = 0; i < lastCaller.argumentCount(); ++i) {
+            arguments[i] = lastCaller.argumentAt(i);
         }
 #endif
     }
@@ -810,12 +812,12 @@ void InspectorController::addDatabaseScriptResource(InspectorDatabaseResource*)
     // TODO(aa): Implement database support for inspector.
 }
 
-void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, ScriptCallContext* context)
+void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, ScriptCallStack* callStack)
 {
     if (!enabled())
         return;
 
-    addConsoleMessage(context, new ConsoleMessage(source, level, context, m_groupLevel));
+    addConsoleMessage(0, new ConsoleMessage(source, level, callStack, m_groupLevel));
 }
 
 void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, const String& message, unsigned lineNumber, const String& sourceID)
@@ -826,7 +828,7 @@ void InspectorController::addMessageToConsole(MessageSource source, MessageLevel
     addConsoleMessage(0, new ConsoleMessage(source, level, message, lineNumber, sourceID, m_groupLevel));
 }
 
-void InspectorController::addConsoleMessage(ScriptCallContext* context, ConsoleMessage* consoleMessage)
+void InspectorController::addConsoleMessage(ScriptState*, ConsoleMessage* consoleMessage)
 {
     ASSERT(enabled());
     ASSERT_ARG(consoleMessage, consoleMessage);
@@ -860,11 +862,11 @@ void InspectorController::clearConsoleMessages()
     m_previousMessage = 0;
 }
 
-void InspectorController::startGroup(MessageSource source, ScriptCallContext* context)
+void InspectorController::startGroup(MessageSource source, ScriptCallStack* callStack)
 {    
     ++m_groupLevel;
 
-    addConsoleMessage(context, new ConsoleMessage(source, StartGroupMessageLevel, context, m_groupLevel));
+    addConsoleMessage(0, new ConsoleMessage(source, StartGroupMessageLevel, callStack, m_groupLevel));
 }
 
 void InspectorController::endGroup(MessageSource source, unsigned lineNumber, const String& sourceURL)
@@ -1801,6 +1803,26 @@ void InspectorController::drawNodeHighlight(GraphicsContext& context) const
     context.translate(-overlayRect.x(), -overlayRect.y());
 
     drawHighlightForBoxes(context, lineBoxRects, contentBox, paddingBox, borderBox, marginBox);
+}
+
+// TODO(dglazkov): These next three methods  should be easy to implement or gain
+// for free when we unfork inspector
+
+void InspectorController::count(const String& title, unsigned lineNumber, const String& sourceID)
+{
+    notImplemented();
+}
+
+void InspectorController::startTiming(const String& title)
+{
+    notImplemented();
+}
+
+bool InspectorController::stopTiming(const String& title, double& elapsed)
+{
+    elapsed = 0;
+    notImplemented();
+    return false;
 }
 
 } // namespace WebCore

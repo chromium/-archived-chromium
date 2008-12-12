@@ -793,6 +793,11 @@ END
     push(@implContentDecls, "    ExceptionCode ec = 0;\n");
   }
 
+  if ($function->signature->extendedAttributes->{"CustomArgumentHandling"}) {
+    push(@implContentDecls, "    ScriptCallStack callStack(args, $numParameters);\n");
+    $implIncludes{"ScriptCallStack.h"} = 1;
+  }
+  
   my $paramIndex = 0;
   foreach my $parameter (@{$function->parameters}) {
     my $parameterName = $parameter->name;
@@ -1340,6 +1345,10 @@ sub GenerateFunctionCallString()
   if ($function->signature->extendedAttributes->{"v8implname"}) {
     $name = $function->signature->extendedAttributes->{"v8implname"};
   }
+  
+  if ($function->signature->extendedAttributes->{"ImplementationFunction"}) {
+    $name = $function->signature->extendedAttributes->{"ImplementationFunction"};
+  }
 
   my $functionString = "imp->${name}(";
   
@@ -1384,6 +1393,12 @@ sub GenerateFunctionCallString()
       $nodeToReturn = $parameter->name;
     }
     $index++;
+  }
+  
+  if ($function->signature->extendedAttributes->{"CustomArgumentHandling"}) {
+    $functionString .= ", " if not $first;
+    $functionString .= "&callStack";
+    if ($first) { $first = 0; }
   }
 
   if (@{$function->raisesExceptions}) {

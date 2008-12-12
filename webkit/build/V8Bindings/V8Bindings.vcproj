@@ -2485,7 +2485,19 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\ScriptCallContextV8.cpp"
+			RelativePath="..\..\port\bindings\v8\ScriptCallFrame.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\ScriptCallFrame.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\ScriptCallStack.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\ScriptCallStack.h"
 			>
 		</File>
 		<File

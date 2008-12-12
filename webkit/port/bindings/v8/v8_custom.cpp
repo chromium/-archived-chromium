@@ -100,7 +100,6 @@
 #include "RenderPartObject.h"
 #include "RenderWidget.h"
 #include "ScheduledAction.h"
-#include "ScriptCallContext.h"
 #include "ScriptState.h"
 #include "ScriptController.h"
 #include "SecurityOrigin.h"
@@ -2292,108 +2291,6 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DPutImageData) {
     return v8::Handle<v8::Value>();
   }
 
-  return v8::Undefined();
-}
-
-
-// Console ---------------------------------------------------------------------
-
-CALLBACK_FUNC_DECL(ConsoleAssert) {
-  INC_STATS("DOM.Console.assert()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleCount) {
-  INC_STATS("DOM.Console.count()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleDebug) {
-  INC_STATS("DOM.Console.debug()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleDir) {
-  INC_STATS("DOM.Console.dir()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleError) {
-  INC_STATS("DOM.Console.error()");
-  v8::Handle<v8::Value> holder = args.Holder();
-  Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->error(&context);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleGroup) {
-  INC_STATS("DOM.Console.group()");
-  v8::Handle<v8::Value> holder = args.Holder();
-  Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->group(&context);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleInfo) {
-  INC_STATS("DOM.Console.info()");
-  v8::Handle<v8::Value> holder = args.Holder();
-  Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->info(&context);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleLog) {
-  INC_STATS("DOM.Console.log()");
-  v8::Handle<v8::Value> holder = args.Holder();
-  Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->log(&context);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleProfile) {
-  INC_STATS("DOM.Console.profile()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleProfileEnd) {
-  INC_STATS("DOM.Console.profileEnd()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleTimeEnd) {
-  INC_STATS("DOM.Console.timeEnd()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleWarn) {
-  INC_STATS("DOM.Console.warn()");
-  v8::Handle<v8::Value> holder = args.Holder();
-  Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->warn(&context);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleDirxml) {
-  INC_STATS("DOM.Console.dirxml()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ConsoleTrace) {
-  INC_STATS("DOM.Console.trace()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
   return v8::Undefined();
 }
 

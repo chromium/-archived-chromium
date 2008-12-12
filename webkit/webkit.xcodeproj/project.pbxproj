@@ -41,6 +41,8 @@
 		04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */; };
 		04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */; };
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
+		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
+		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
@@ -563,7 +565,6 @@
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
 		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
 		E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40060DA0EA69E0B0055B38E /* ScriptController.cpp */; };
-		E40063610EA907510055B38E /* ScriptCallContextV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40063600EA907510055B38E /* ScriptCallContextV8.cpp */; };
 		E40064540EA90AA10055B38E /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3D0D7F3C48001ECF42 /* Console.cpp */; };
 		E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */; };
 		E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */; };
@@ -1445,6 +1446,10 @@
 		04C3AFC70EF1E4650046D578 /* WorkerNavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerNavigator.h; sourceTree = "<group>"; };
 		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
 		419106470EF2D6D500BFDCC5 /* ScriptState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptState.h; sourceTree = "<group>"; };
+		419107540EF319C300BFDCC5 /* ScriptCallFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallFrame.h; sourceTree = "<group>"; };
+		419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallFrame.cpp; sourceTree = "<group>"; };
+		4191075D0EF319FC00BFDCC5 /* ScriptCallStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallStack.h; sourceTree = "<group>"; };
+		4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallStack.cpp; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
 		4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteAuthorizer.cpp; sourceTree = "<group>"; };
@@ -1520,7 +1525,6 @@
 		4D1640E10EC29BB4008F024E /* PositionOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionOptions.h; sourceTree = "<group>"; };
 		4D1640E20EC29BB4008F024E /* PrintContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PrintContext.cpp; sourceTree = "<group>"; };
 		4D1640E30EC29BB4008F024E /* PrintContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintContext.h; sourceTree = "<group>"; };
-		4D1640E40EC29BB4008F024E /* ScriptCallContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallContext.h; sourceTree = "<group>"; };
 		4D1641140EC29D01008F024E /* GeolocationService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeolocationService.cpp; sourceTree = "<group>"; };
 		4D1641150EC29D01008F024E /* GeolocationService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeolocationService.h; sourceTree = "<group>"; };
 		4D1641160EC29D01008F024E /* HostWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HostWindow.h; sourceTree = "<group>"; };
@@ -4217,7 +4221,6 @@
 		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Collator.h; sourceTree = "<group>"; };
 		E40060D90EA69E0B0055B38E /* ScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptController.h; sourceTree = "<group>"; };
 		E40060DA0EA69E0B0055B38E /* ScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptController.cpp; sourceTree = "<group>"; };
-		E40063600EA907510055B38E /* ScriptCallContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallContextV8.cpp; sourceTree = "<group>"; };
 		E40063760EA908220055B38E /* ScriptCallContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScriptCallContext.cpp; path = ../third_party/WebKit/WebCore/bindings/js/ScriptCallContext.cpp; sourceTree = SOURCE_ROOT; };
 		E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCacheChromium.cpp; sourceTree = "<group>"; };
 		E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatformScreenMac.mm; path = mac/PlatformScreenMac.mm; sourceTree = "<group>"; };
@@ -4508,7 +4511,10 @@
 				7B0095DA0DAFF0DC00F72082 /* npruntime_priv.h */,
 				934CC2270EDCC37600A658F2 /* RGBColor.cpp */,
 				934CC2290EDCC38400A658F2 /* RGBColor.h */,
-				E40063600EA907510055B38E /* ScriptCallContextV8.cpp */,
+				419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */,
+				419107540EF319C300BFDCC5 /* ScriptCallFrame.h */,
+				4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */,
+				4191075D0EF319FC00BFDCC5 /* ScriptCallStack.h */,
 				E40060D90EA69E0B0055B38E /* ScriptController.h */,
 				E40060DA0EA69E0B0055B38E /* ScriptController.cpp */,
 				41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */,
@@ -5566,7 +5572,6 @@
 				4D1640E30EC29BB4008F024E /* PrintContext.h */,
 				7B5E8F130D7F3C49001ECF42 /* Screen.cpp */,
 				7B5E8F140D7F3C49001ECF42 /* Screen.h */,
-				4D1640E40EC29BB4008F024E /* ScriptCallContext.h */,
 				7B5E918C0D7F3CC2001ECF42 /* SecurityOrigin.cpp */,
 				7B5E918D0D7F3CC2001ECF42 /* SecurityOrigin.h */,
 				7B5E918E0D7F3CC2001ECF42 /* SecurityOriginHash.h */,
@@ -8143,6 +8148,8 @@
 				7B0095F30DAFF0DD00F72082 /* np_v8object.cpp in Sources */,
 				7B0095F50DAFF0DD00F72082 /* npruntime.cpp in Sources */,
 				934CC2280EDCC37600A658F2 /* RGBColor.cpp in Sources */,
+				419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */,
+				4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */,
 				41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */,
 				934CC3590EDCCEFE00A658F2 /* ScriptValue.cpp in Sources */,
 				7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */,
@@ -9385,7 +9392,6 @@
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E473F6600EAE00A6006C2098 /* PopupMenuChromium.cpp in Sources */,
 				4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */,
-				E40063610EA907510055B38E /* ScriptCallContextV8.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				E473F6620EAE00D5006C2098 /* ScrollView.cpp in Sources */,
 				E473F6640EAE00E4006C2098 /* SearchPopupMenuChromium.cpp in Sources */,

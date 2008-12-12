@@ -267,22 +267,6 @@ DECLARE_CALLBACK(CanvasRenderingContext2DFillText)
 DECLARE_CALLBACK(CanvasRenderingContext2DStrokeText)
 DECLARE_CALLBACK(CanvasRenderingContext2DPutImageData)
 
-// Console customized functions
-DECLARE_CALLBACK(ConsoleAssert)
-DECLARE_CALLBACK(ConsoleCount)
-DECLARE_CALLBACK(ConsoleDebug)
-DECLARE_CALLBACK(ConsoleDir)
-DECLARE_CALLBACK(ConsoleError)
-DECLARE_CALLBACK(ConsoleGroup)
-DECLARE_CALLBACK(ConsoleInfo)
-DECLARE_CALLBACK(ConsoleLog)
-DECLARE_CALLBACK(ConsoleProfile)
-DECLARE_CALLBACK(ConsoleProfileEnd)
-DECLARE_CALLBACK(ConsoleTimeEnd)
-DECLARE_CALLBACK(ConsoleWarn)
-DECLARE_CALLBACK(ConsoleDirxml)
-DECLARE_CALLBACK(ConsoleTrace)
-
 // Implementation of Clipboard attributes and methods.
 DECLARE_PROPERTY_ACCESSOR_GETTER(ClipboardTypes)
 DECLARE_CALLBACK(ClipboardClearData)

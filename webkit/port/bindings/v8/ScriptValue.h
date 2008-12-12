@@ -92,6 +92,16 @@ public:
       return !operator==(value);
     }
 
+    bool isNull() const
+    {
+        return m_value->IsNull();
+    }
+
+    bool isUndefined() const
+    {
+        return m_value->IsUndefined();
+    }
+
     void clear() {
         if (!m_value.IsEmpty()) {
 #ifndef NDEBUG

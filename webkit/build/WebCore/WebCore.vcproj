@@ -446,10 +446,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\ScriptCallContext.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\SecurityOrigin.cpp"
 				>
 			</File>
