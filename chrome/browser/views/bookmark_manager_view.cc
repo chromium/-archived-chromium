@@ -700,16 +700,12 @@ void BookmarkManagerView::ShowToolsMenu(HWND host, int x, int y) {
                  views::MenuItemView::TOPLEFT, true);
 }
 
-// The filter used when opening a file.
-// TODO(sky): need a textual description here once we can add new
-// strings.
-static const wchar_t KFilterString[] = L"*.html\0*.html;*.htm\0";
-
 void BookmarkManagerView::ShowImportBookmarksFileChooser() {
   if (select_file_dialog_.get())
     select_file_dialog_->ListenerDestroyed();
 
-  std::wstring filter_string(KFilterString, arraysize(KFilterString));
+  std::wstring filter_string =
+      win_util::GetFileFilterFromExtensions(L"*.html;*.htm", true);
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
       SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), L"bookmarks.html",

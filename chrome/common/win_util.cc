@@ -281,11 +281,11 @@ static bool GetRegistryDescriptionFromExtension(const std::wstring& file_ext,
   return false;
 }
 
-// Set up a filter for a "Save As" dialog, which will consist of 'file_ext' file
-// extension, 'ext_desc' as the text description of the 'file_ext' type, and
-// (optionally) the default 'All Files' view. The purpose of the filter is to
-// show only files of a particular type in a Windows "Save As" dialog box. The
-// resulting filter is stored in 'buffer', which is a vector since multiple
+// Set up a filter for a Save/Open dialog, which will consist of 'file_ext'
+// file extension, 'ext_desc' as the text description of the 'file_ext' type,
+// and (optionally) the default 'All Files' view. The purpose of the filter is
+// to show only files of a particular type in a Windows Save/Open dialog box.
+// The resulting filter is stored in 'buffer', which is a vector since multiple
 // NULLs are embedded. The  filters created here are:
 //   1. only files that have 'file_ext' as their extension
 //   2. all files (only added if 'include_all_files' is true)
@@ -294,10 +294,10 @@ static bool GetRegistryDescriptionFromExtension(const std::wstring& file_ext,
 //   ext_desc: "Text Document"
 //   returned (in buffer): "Text Document\0*.txt\0All Files\0*.*\0\0"
 // This is painful to build, as you will soon see.
-static void FormatSaveAsFilterForExtension(const std::wstring& file_ext,
-                                           const std::wstring& ext_desc,
-                                           bool include_all_files,
-                                           std::vector<wchar_t>* buffer) {
+static void FormatFilterForExtension(const std::wstring& file_ext,
+                                     const std::wstring& ext_desc,
+                                     bool include_all_files,
+                                     std::vector<wchar_t>* buffer) {
   DCHECK(buffer);
 
   // Force something reasonable to appear in the dialog box if there is no
@@ -356,7 +356,25 @@ std::wstring GetFileFilterFromPath(const std::wstring& file_name) {
   }
 
   std::vector<wchar_t> filter;
-  FormatSaveAsFilterForExtension(file_ext, reg_description, true, &filter);
+  FormatFilterForExtension(file_ext, reg_description, true, &filter);
+  return std::wstring(&filter[0], filter.size());
+}
+
+std::wstring GetFileFilterFromExtensions(const std::wstring& extensions,
+                                         bool include_all_files) {
+  DCHECK(extensions.find(L'.') != std::wstring::npos);
+  std::wstring first_extension = extensions.substr(extensions.find(L'.'));
+  size_t first_separator_index = first_extension.find(L';');
+  if (first_separator_index != std::wstring::npos)
+    first_extension = first_extension.substr(0, first_separator_index);
+
+  std::wstring description;
+  GetRegistryDescriptionFromExtension(first_extension, &description);
+  if (description.empty())
+    description = L"*." + first_extension;
+
+  std::vector<wchar_t> filter;
+  FormatFilterForExtension(extensions, description, true, &filter);
   return std::wstring(&filter[0], filter.size());
 }
 

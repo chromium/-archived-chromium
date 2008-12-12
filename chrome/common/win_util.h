@@ -127,6 +127,13 @@ bool OpenItemWithExternalApp(const std::wstring& full_path);
 
 std::wstring GetFileFilterFromPath(const std::wstring& file_name);
 
+// Returns a file filter whose description comes from the OS for the first file
+// extension in |extensions|. |extensions| is a semicolon separated list of
+// extensions. Each extension is specified as '*.foo' where foo is the
+// extension.
+std::wstring GetFileFilterFromExtensions(const std::wstring& extensions,
+                                         bool include_all_files);
+
 // Prompt the user for location to save a file. 'suggested_name' is a full path
 // that gives the dialog box a hint as to how to initialize itself.
 // For example, a 'suggested_name' of:
