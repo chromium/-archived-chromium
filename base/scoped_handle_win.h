@@ -10,7 +10,12 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 
-// Used so we always remember to close the handle. Example:
+// Used so we always remember to close the handle.
+// The class interface matches that of ScopedStdioHandle in  addition to an
+// IsValid() method since invalid handles on windows can be either NULL or
+// INVALID_HANDLE_VALUE (-1).
+//
+// Example:
 //   ScopedHandle hfile(CreateFile(...));
 //   if (!hfile.Get())
 //     ...process error
@@ -20,7 +25,7 @@
 //   secret_handle_ = hfile.Take();
 //
 // To explicitly close the handle:
-//   CloseHandle(hfile.Take());
+//   hfile.Close();
 class ScopedHandle {
  public:
   ScopedHandle() : handle_(NULL) {
@@ -61,7 +66,6 @@ class ScopedHandle {
     return h;
   }
 
- private:
   void Close() {
     if (handle_) {
       if (!::CloseHandle(handle_)) {
@@ -71,6 +75,7 @@ class ScopedHandle {
     }
   }
 
+ private:
   HANDLE handle_;
   DISALLOW_EVIL_CONSTRUCTORS(ScopedHandle);
 };
