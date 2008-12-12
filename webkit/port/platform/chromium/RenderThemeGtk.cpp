@@ -446,38 +446,6 @@ void RenderThemeGtk::adjustButtonInnerStyle(RenderStyle* style) const
     style->setPaddingLeft(Length(3, Fixed));
 }
 
-void RenderThemeGtk::adjustSearchFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    adjustTextFieldStyle(selector, style, e);
-}
-
-void RenderThemeGtk::adjustSearchFieldCancelButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-
-    // FIXME: This should not be hard-coded.
-    IntSize size = IntSize(14, 14);
-    style->setWidth(Length(size.width(), Fixed));
-    style->setHeight(Length(size.height(), Fixed));
-}
-
-void RenderThemeGtk::adjustSearchFieldResultsDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    style->resetBorder();
-    style->resetPadding();
-
-    // FIXME: This should not be hard-coded.
-    IntSize size = IntSize(14, 14);
-    style->setWidth(Length(size.width(), Fixed));
-    style->setHeight(Length(size.height(), Fixed));
-}
-
-void RenderThemeGtk::adjustSearchFieldResultsButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
-{
-    adjustSearchFieldCancelButtonStyle(selector, style, e);
-}
-
 bool RenderThemeGtk::controlSupportsTints(const RenderObject* o) const
 {
     return isEnabled(o);
