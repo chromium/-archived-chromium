@@ -217,9 +217,9 @@ void drawResampledBitmap(SkCanvas& canvas,
                                    destBitmapSubsetSkI.height());
 
         // Resample the needed part of the image.
-        SkBitmap resampled = gfx::ImageOperations::Resize(subset,
-            gfx::ImageOperations::RESIZE_LANCZOS3,
-            gfx::Size(destRectRounded.width(), destRectRounded.height()),
+        SkBitmap resampled = skia::ImageOperations::Resize(subset,
+            skia::ImageOperations::RESIZE_LANCZOS3,
+            destRectRounded.width(), destRectRounded.height(),
             destBitmapSubset);
 
         // Compute where the new bitmap should be drawn. Since our new bitmap
@@ -350,10 +350,10 @@ void Image::drawPattern(GraphicsContext* context,
 
     if (resampling == RESAMPLE_AWESOME) {
         // Do nice resampling.
-        SkBitmap resampled = gfx::ImageOperations::Resize(src_subset,
-            gfx::ImageOperations::RESIZE_LANCZOS3,
-            gfx::Size(static_cast<int>(dest_bitmap_width),
-                      static_cast<int>(dest_bitmap_height)));
+        SkBitmap resampled = skia::ImageOperations::Resize(src_subset,
+            skia::ImageOperations::RESIZE_LANCZOS3,
+            static_cast<int>(dest_bitmap_width),
+            static_cast<int>(dest_bitmap_height));
         shader = SkShader::CreateBitmapShader(
             resampled, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 

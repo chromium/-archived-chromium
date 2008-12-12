@@ -586,13 +586,13 @@ void TabRenderer::PaintActiveTabBackground(ChromeCanvas* canvas) {
 void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
                                           double opacity) {
   bool is_otr = data_.off_the_record;
-  SkBitmap left = gfx::ImageOperations::CreateBlendedBitmap(
+  SkBitmap left = skia::ImageOperations::CreateBlendedBitmap(
                   (is_otr ? *tab_inactive_otr_l : *tab_inactive_l),
                   *tab_hover_l, opacity);
-  SkBitmap center = gfx::ImageOperations::CreateBlendedBitmap(
+  SkBitmap center = skia::ImageOperations::CreateBlendedBitmap(
                    (is_otr ? *tab_inactive_otr_c : *tab_inactive_c),
                     *tab_hover_c, opacity);
-  SkBitmap right = gfx::ImageOperations::CreateBlendedBitmap(
+  SkBitmap right = skia::ImageOperations::CreateBlendedBitmap(
                    (is_otr ? *tab_inactive_otr_r : *tab_inactive_r),
                    *tab_hover_r, opacity);
 

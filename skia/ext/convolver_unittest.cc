@@ -9,12 +9,12 @@
 #include "skia/ext/convolver.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace gfx {
+namespace skia {
 
 namespace {
 
 // Fills the given filter with impulse functions for the range 0->num_entries.
-  void FillImpulseFilter(int num_entries, ConvolusionFilter1D* filter) {
+void FillImpulseFilter(int num_entries, ConvolusionFilter1D* filter) {
   float one = 1.0f;
   for (int i = 0; i < num_entries; i++)
     filter->AddFilter(i, &one, 1);

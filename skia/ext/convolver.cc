@@ -4,18 +4,17 @@
 
 #include <algorithm>
 
-#include "base/basictypes.h"
-#include "base/logging.h"
 #include "skia/ext/convolver.h"
+#include "SkTypes.h"
 
-namespace gfx {
+namespace skia {
 
 namespace {
 
 // Converts the argument to an 8-bit unsigned value by clamping to the range
 // 0-255.
-inline uint8 ClampTo8(int32 a) {
-  if (static_cast<uint32>(a) < 256)
+inline unsigned char ClampTo8(int a) {
+  if (static_cast<unsigned>(a) < 256)
     return a;  // Avoid the extra check in the common case.
   if (a < 0)
     return 0;
@@ -45,8 +44,8 @@ class CircularRowBuffer {
 
   // Moves to the next row in the buffer, returning a pointer to the beginning
   // of it.
-  uint8* AdvanceRow() {
-    uint8* row = &buffer_[next_row_ * row_byte_width_];
+  unsigned char* AdvanceRow() {
+    unsigned char* row = &buffer_[next_row_ * row_byte_width_];
     next_row_coordinate_++;
 
     // Set the pointer to the next row to use, wrapping around if necessary.
@@ -62,7 +61,7 @@ class CircularRowBuffer {
   //
   // The |first_row_index_| may be negative. This means the circular buffer
   // starts before the top of the image (it hasn't been filled yet).
-  uint8* const* GetRowAddresses(int* first_row_index) {
+  unsigned char* const* GetRowAddresses(int* first_row_index) {
     // Example for a 4-element circular buffer holding coords 6-9.
     //   Row 0   Coord 8
     //   Row 1   Coord 9
@@ -89,7 +88,7 @@ class CircularRowBuffer {
 
  private:
   // The buffer storing the rows. They are packed, each one row_byte_width_.
-  std::vector<uint8> buffer_;
+  std::vector<unsigned char> buffer_;
 
   // Number of bytes per row in the |buffer_|.
   int row_byte_width_;
@@ -106,13 +105,13 @@ class CircularRowBuffer {
   int next_row_coordinate_;
 
   // Buffer used by GetRowAddresses().
-  std::vector<uint8*> row_addresses_;
+  std::vector<unsigned char*> row_addresses_;
 };
 
 // Convolves horizontally along a single row. The row data is given in
 // |src_data| and continues for the num_values() of the filter.
 template<bool has_alpha>
-void ConvolveHorizontally(const uint8* src_data,
+void ConvolveHorizontally(const unsigned char* src_data,
                           const ConvolusionFilter1D& filter,
                           unsigned char* out_row) {
   // Loop over each pixel on this row in the output image.
@@ -120,17 +119,17 @@ void ConvolveHorizontally(const uint8* src_data,
   for (int out_x = 0; out_x < num_values; out_x++) {
     // Get the filter that determines the current output pixel.
     int filter_offset, filter_length;
-    const int16* filter_values =
+    const ConvolusionFilter1D::Fixed* filter_values =
         filter.FilterForValue(out_x, &filter_offset, &filter_length);
 
     // Compute the first pixel in this row that the filter affects. It will
     // touch |filter_length| pixels (4 bytes each) after this.
-    const uint8* row_to_filter = &src_data[filter_offset * 4];
+    const unsigned char* row_to_filter = &src_data[filter_offset * 4];
 
     // Apply the filter to the row to get the destination pixel in |accum|.
     int32 accum[4] = {0};
     for (int filter_x = 0; filter_x < filter_length; filter_x++) {
-      int16 cur_filter = filter_values[filter_x];
+      ConvolusionFilter1D::Fixed cur_filter = filter_values[filter_x];
       accum[0] += cur_filter * row_to_filter[filter_x * 4 + 0];
       accum[1] += cur_filter * row_to_filter[filter_x * 4 + 1];
       accum[2] += cur_filter * row_to_filter[filter_x * 4 + 2];
@@ -162,11 +161,11 @@ void ConvolveHorizontally(const uint8* src_data,
 //
 // The output must have room for |pixel_width * 4| bytes.
 template<bool has_alpha>
-void ConvolveVertically(const int16* filter_values,
+void ConvolveVertically(const ConvolusionFilter1D::Fixed* filter_values,
                         int filter_length,
-                        uint8* const* source_data_rows,
+                        unsigned char* const* source_data_rows,
                         int pixel_width,
-                        uint8* out_row) {
+                        unsigned char* out_row) {
   // We go through each column in the output and do a vertical convolusion,
   // generating one output pixel each time.
   for (int out_x = 0; out_x < pixel_width; out_x++) {
@@ -177,7 +176,7 @@ void ConvolveVertically(const int16* filter_values,
     // Apply the filter to one column of pixels.
     int32 accum[4] = {0};
     for (int filter_y = 0; filter_y < filter_length; filter_y++) {
-      int16 cur_filter = filter_values[filter_y];
+      ConvolusionFilter1D::Fixed cur_filter = filter_values[filter_y];
       accum[0] += cur_filter * source_data_rows[filter_y][byte_offset + 0];
       accum[1] += cur_filter * source_data_rows[filter_y][byte_offset + 1];
       accum[2] += cur_filter * source_data_rows[filter_y][byte_offset + 2];
@@ -198,7 +197,7 @@ void ConvolveVertically(const int16* filter_values,
     out_row[byte_offset + 1] = ClampTo8(accum[1]);
     out_row[byte_offset + 2] = ClampTo8(accum[2]);
     if (has_alpha) {
-      uint8 alpha = ClampTo8(accum[3]);
+      unsigned char alpha = ClampTo8(accum[3]);
 
       // Make sure the alpha channel doesn't come out larger than any of the
       // color channels. We use premultipled alpha channels, so this should
@@ -233,7 +232,7 @@ void ConvolusionFilter1D::AddFilter(int filter_offset,
   instance.length = filter_length;
   filters_.push_back(instance);
 
-  DCHECK(filter_length > 0);
+  SkASSERT(filter_length > 0);
   for (int i = 0; i < filter_length; i++)
     filter_values_.push_back(FloatToFixed(filter_values[i]));
 
@@ -241,7 +240,7 @@ void ConvolusionFilter1D::AddFilter(int filter_offset,
 }
 
 void ConvolusionFilter1D::AddFilter(int filter_offset,
-                                    const int16* filter_values,
+                                    const Fixed* filter_values,
                                     int filter_length) {
   FilterInstance instance;
   instance.data_location = static_cast<int>(filter_values_.size());
@@ -249,7 +248,7 @@ void ConvolusionFilter1D::AddFilter(int filter_offset,
   instance.length = filter_length;
   filters_.push_back(instance);
 
-  DCHECK(filter_length > 0);
+  SkASSERT(filter_length > 0);
   for (int i = 0; i < filter_length; i++)
     filter_values_.push_back(filter_values[i]);
 
@@ -258,12 +257,12 @@ void ConvolusionFilter1D::AddFilter(int filter_offset,
 
 // BGRAConvolve2D -------------------------------------------------------------
 
-void BGRAConvolve2D(const uint8* source_data,
+void BGRAConvolve2D(const unsigned char* source_data,
                     int source_byte_row_stride,
                     bool source_has_alpha,
                     const ConvolusionFilter1D& filter_x,
                     const ConvolusionFilter1D& filter_y,
-                    uint8* output) {
+                    unsigned char* output) {
   int max_y_filter_size = filter_y.max_filter();
 
   // The next row in the input that we will generate a horizontally
@@ -272,7 +271,7 @@ void BGRAConvolve2D(const uint8* source_data,
   // don't want to generate any output rows before that. Compute the starting
   // row for convolusion as the first pixel for the first vertical filter.
   int filter_offset, filter_length;
-  const int16* filter_values =
+  const ConvolusionFilter1D::Fixed* filter_values =
       filter_y.FilterForValue(0, &filter_offset, &filter_length);
   int next_x_row = filter_offset;
 
@@ -307,16 +306,16 @@ void BGRAConvolve2D(const uint8* source_data,
     }
 
     // Compute where in the output image this row of final data will go.
-    uint8* cur_output_row = &output[out_y * output_row_byte_width];
+    unsigned char* cur_output_row = &output[out_y * output_row_byte_width];
 
     // Get the list of rows that the circular buffer has, in order.
     int first_row_in_circular_buffer;
-    uint8* const* rows_to_convolve =
+    unsigned char* const* rows_to_convolve =
         row_buffer.GetRowAddresses(&first_row_in_circular_buffer);
 
     // Now compute the start of the subset of those rows that the filter
     // needs.
-    uint8* const* first_row_for_filter =
+    unsigned char* const* first_row_for_filter =
         &rows_to_convolve[filter_offset - first_row_in_circular_buffer];
 
     if (source_has_alpha) {
@@ -331,5 +330,5 @@ void BGRAConvolve2D(const uint8* source_data,
   }
 }
 
-}  // namespace gfx
+}  // namespace skia
 

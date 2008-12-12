@@ -10,7 +10,7 @@
 
 class SkBitmap;
 
-namespace gfx {
+namespace skia {
 
 class ImageOperations {
  public:
@@ -37,14 +37,14 @@ class ImageOperations {
   // The destination subset must be smaller than the destination image.
   static SkBitmap Resize(const SkBitmap& source,
                          ResizeMethod method,
-                         const Size& dest_size,
-                         const Rect& dest_subset);
+                         int dest_width, int dest_height,
+                         const gfx::Rect& dest_subset);
 
   // Alternate version for resizing and returning the entire bitmap rather than
   // a subset.
   static SkBitmap Resize(const SkBitmap& source,
                          ResizeMethod method,
-                         const Size& dest_size);
+                         int dest_width, int dest_height);
 
 
   // Create a bitmap that is a blend of two others. The alpha argument
@@ -57,7 +57,7 @@ class ImageOperations {
   ImageOperations();  // Class for scoping only.
 };
 
-}  // namespace gfx
+}  // namespace skia
 
-#endif  // SKIA_EXT_IMAGE_OPERATIONS_H__
+#endif  // SKIA_EXT_IMAGE_OPERATIONS_H_
 

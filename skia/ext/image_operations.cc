@@ -16,7 +16,10 @@
 #include "SkBitmap.h"
 #include "skia/ext/convolver.h"
 
-namespace gfx {
+namespace skia {
+
+// TODO(brettw) remove this and put this file in the skia namespace.
+using namespace gfx;
 
 namespace {
 
@@ -62,13 +65,13 @@ float EvalLanczos(int filter_size, float x) {
 class ResizeFilter {
  public:
   ResizeFilter(ImageOperations::ResizeMethod method,
-               const Size& src_full_size,
-               const Size& dest_size,
-               const Rect& dest_subset);
+               int src_full_width, int src_full_height,
+               int dest_width, int dest_height,
+               const gfx::Rect& dest_subset);
 
   // Returns the bounds in the input bitmap of data that is used in the output.
   // The filter offsets are within this rectangle.
-  const Rect& src_depend() { return src_depend_; }
+  const gfx::Rect& src_depend() { return src_depend_; }
 
   // Returns the filled filter values.
   const ConvolusionFilter1D& x_filter() { return x_filter_; }
@@ -123,7 +126,7 @@ class ResizeFilter {
   ImageOperations::ResizeMethod method_;
 
   // Subset of source the filters will touch.
-  Rect src_depend_;
+  gfx::Rect src_depend_;
 
   // Size of the filter support on one side only in the destination space.
   // See GetFilterSupport.
@@ -131,7 +134,7 @@ class ResizeFilter {
   float y_filter_support_;
 
   // Subset of scaled destination bitmap to compute.
-  Rect out_bounds_;
+  gfx::Rect out_bounds_;
 
   ConvolusionFilter1D x_filter_;
   ConvolusionFilter1D y_filter_;
@@ -140,31 +143,31 @@ class ResizeFilter {
 };
 
 ResizeFilter::ResizeFilter(ImageOperations::ResizeMethod method,
-                           const Size& src_full_size,
-                           const Size& dest_size,
-                           const Rect& dest_subset)
+                           int src_full_width, int src_full_height,
+                           int dest_width, int dest_height,
+                           const gfx::Rect& dest_subset)
     : method_(method),
       out_bounds_(dest_subset) {
-  float scale_x = static_cast<float>(dest_size.width()) /
-                  static_cast<float>(src_full_size.width());
-  float scale_y = static_cast<float>(dest_size.height()) /
-                  static_cast<float>(src_full_size.height());
+  float scale_x = static_cast<float>(dest_width) /
+                  static_cast<float>(src_full_width);
+  float scale_y = static_cast<float>(dest_height) /
+                  static_cast<float>(src_full_height);
 
   x_filter_support_ = GetFilterSupport(scale_x);
   y_filter_support_ = GetFilterSupport(scale_y);
 
-  gfx::Rect src_full(0, 0, src_full_size.width(), src_full_size.height());
+  gfx::Rect src_full(0, 0, src_full_width, src_full_height);
   gfx::Rect dest_full(0, 0,
-                      static_cast<int>(src_full_size.width() * scale_x + 0.5),
-                      static_cast<int>(src_full_size.height() * scale_y + 0.5));
+                      static_cast<int>(src_full_width * scale_x + 0.5),
+                      static_cast<int>(src_full_height * scale_y + 0.5));
 
   // Support of the filter in source space.
   float src_x_support = x_filter_support_ / scale_x;
   float src_y_support = y_filter_support_ / scale_y;
 
-  ComputeFilters(src_full_size.width(), dest_subset.x(), dest_subset.width(),
+  ComputeFilters(src_full_width, dest_subset.x(), dest_subset.width(),
                  scale_x, src_x_support, &x_filter_);
-  ComputeFilters(src_full_size.height(), dest_subset.y(), dest_subset.height(),
+  ComputeFilters(src_full_height, dest_subset.y(), dest_subset.height(),
                  scale_y, src_y_support, &y_filter_);
 }
 
@@ -254,21 +257,21 @@ void ResizeFilter::ComputeFilters(int src_size,
 // static
 SkBitmap ImageOperations::Resize(const SkBitmap& source,
                                  ResizeMethod method,
-                                 const Size& dest_size,
-                                 const Rect& dest_subset) {
-  DCHECK(Rect(dest_size.width(), dest_size.height()).Contains(dest_subset)) <<
+                                 int dest_width, int dest_height,
+                                 const gfx::Rect& dest_subset) {
+  DCHECK(gfx::Rect(dest_width, dest_height).Contains(dest_subset)) <<
       "The supplied subset does not fall within the destination image.";
 
   // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
   // return empty
   if (source.width() < 1 || source.height() < 1 ||
-      dest_size.width() < 1 || dest_size.height() < 1)
-      return SkBitmap();
+      dest_width < 1 || dest_height < 1)
+    return SkBitmap();
 
   SkAutoLockPixels locker(source);
 
-  ResizeFilter filter(method, Size(source.width(), source.height()),
-                      dest_size, dest_subset);
+  ResizeFilter filter(method, source.width(), source.height(),
+                      dest_width, dest_height, dest_subset);
 
   // Get a source bitmap encompassing this touched area. We construct the
   // offsets and row strides such that it looks like a new bitmap, while
@@ -294,9 +297,9 @@ SkBitmap ImageOperations::Resize(const SkBitmap& source,
 // static
 SkBitmap ImageOperations::Resize(const SkBitmap& source,
                                  ResizeMethod method,
-                                 const Size& dest_size) {
-  Rect dest_subset(0, 0, dest_size.width(), dest_size.height());
-  return Resize(source, method, dest_size, dest_subset);
+                                 int dest_width, int dest_height) {
+  gfx::Rect dest_subset(0, 0, dest_width, dest_height);
+  return Resize(source, method, dest_width, dest_height, dest_subset);
 }
 
 // static
@@ -358,5 +361,5 @@ SkBitmap ImageOperations::CreateBlendedBitmap(const SkBitmap& first,
   return blended;
 }
 
-}  // namespace gfx
+}  // namespace skia
 
