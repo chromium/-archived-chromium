@@ -51,6 +51,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'chrome_switches.cc',
       'debug_flags.cc',
       'env_vars.cc',
+      'gfx/chrome_canvas.cc',
       'gfx/color_utils.cc',
       'ipc_message.cc',
       'jpeg_codec.cc',
@@ -84,7 +85,7 @@ if env['PLATFORM'] == 'win32':
       'classfactory.cc',
       'common_glue.cc',
       'drag_drop_types.cc',
-      'gfx/chrome_canvas.cc',
+      'gfx/chrome_canvas_win.cc',
       'gfx/emf.cc',
       'gfx/icon_util.cc',
       'gfx/path.cc',
@@ -118,6 +119,7 @@ if env['PLATFORM'] == 'win32':
   ])
 elif env['PLATFORM'] == 'posix':
   input_files.extend([
+      'gfx/chrome_canvas_skia.cc',
       'gfx/chrome_font_skia.cc',
   ])
 

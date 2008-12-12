@@ -5,10 +5,14 @@
 #ifndef CHROME_COMMON_GFX_CHROME_CANVAS_H_
 #define CHROME_COMMON_GFX_CHROME_CANVAS_H_
 
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
+
 #include <string>
 
 #include "base/basictypes.h"
-#include "skia/ext/platform_canvas_win.h"
+#include "skia/ext/platform_canvas.h"
 
 class ChromeFont;
 namespace gfx {
@@ -31,29 +35,31 @@ class Rect;
 // source and destination colors are combined. Unless otherwise specified,
 // the variant that does not take a SkPorterDuff::Mode uses a transfer mode
 // of kSrcOver_Mode.
-class ChromeCanvas : public gfx::PlatformCanvasWin {
+class ChromeCanvas : public gfx::PlatformCanvas {
  public:
   // Specifies the alignment for text rendered with the DrawStringInt method.
-  static const int TEXT_ALIGN_LEFT = 1;
-  static const int TEXT_ALIGN_CENTER = 2;
-  static const int TEXT_ALIGN_RIGHT = 4;
-  static const int TEXT_VALIGN_TOP = 8;
-  static const int TEXT_VALIGN_MIDDLE = 16;
-  static const int TEXT_VALIGN_BOTTOM = 32;
+  enum {
+    TEXT_ALIGN_LEFT = 1,
+    TEXT_ALIGN_CENTER = 2,
+    TEXT_ALIGN_RIGHT = 4,
+    TEXT_VALIGN_TOP = 8,
+    TEXT_VALIGN_MIDDLE = 16,
+    TEXT_VALIGN_BOTTOM = 32,
 
-  // Specifies the text consists of multiple lines.
-  static const int MULTI_LINE = 64;
+    // Specifies the text consists of multiple lines.
+    MULTI_LINE = 64,
 
-  // By default DrawStringInt does not process the prefix ('&') character
-  // specially. That is, the string "&foo" is rendered as "&foo". When
-  // rendering text from a resource that uses the prefix character for
-  // mnemonics, the prefix should be processed and can be rendered as an
-  // underline (SHOW_PREFIX), or not rendered at all (HIDE_PREFIX).
-  static const int SHOW_PREFIX = 128;
-  static const int HIDE_PREFIX = 256;
+    // By default DrawStringInt does not process the prefix ('&') character
+    // specially. That is, the string "&foo" is rendered as "&foo". When
+    // rendering text from a resource that uses the prefix character for
+    // mnemonics, the prefix should be processed and can be rendered as an
+    // underline (SHOW_PREFIX), or not rendered at all (HIDE_PREFIX).
+    SHOW_PREFIX = 128,
+    HIDE_PREFIX = 256,
 
-  // Prevent ellipsizing
-  static const int NO_ELLIPSIS = 512;
+    // Prevent ellipsizing
+    NO_ELLIPSIS = 512,
+  };
 
   // Creates an empty ChromeCanvas. Callers must use initialize before using
   // the canvas.
@@ -163,17 +169,21 @@ class ChromeCanvas : public gfx::PlatformCanvasWin {
                             int *width, int* height, int flags);
 
  private:
+#if defined(OS_WIN)
   // Draws text with the specified color, font and location. The text is
   // aligned to the left, vertically centered, clipped to the region. If the
   // text is too big, it is truncated and '...' is added to the end.
   void DrawStringInt(const std::wstring& text, HFONT font,
                      const SkColor& color, int x, int y, int w, int h,
                      int flags);
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(ChromeCanvas);
 };
 
+#if defined(OS_WIN)
 typedef gfx::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
+#endif
 
 #endif  // CHROME_COMMON_GFX_CHROME_CANVAS_H_
 

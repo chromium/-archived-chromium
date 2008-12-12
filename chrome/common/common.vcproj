@@ -153,6 +153,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\chrome_canvas_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\chrome_canvas.h"
 				>
 			</File>

@@ -116,6 +116,8 @@ class ChromeFont {
 #elif defined(OS_LINUX)
   // We need a copy constructor to deal with the Skia reference counting.
   ChromeFont(const ChromeFont& other);
+  // Setup a Skia context to use the current typeface
+  void PaintSetup(SkPaint* paint) const;
 #endif
 
  private:
@@ -181,8 +183,6 @@ class ChromeFont {
 #elif defined(OS_LINUX)
   explicit ChromeFont(SkTypeface* typeface, const std::wstring& name,
                       int size, int style);
-  // Setup a Skia context to use the current typeface
-  void PaintSetup(SkPaint* paint) const;
   // Calculate and cache the font metrics
   void calculateMetrics();
 
