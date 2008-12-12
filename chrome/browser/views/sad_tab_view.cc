@@ -37,9 +37,9 @@ SadTabView::SadTabView() {
 
 void SadTabView::Paint(ChromeCanvas* canvas) {
   SkPaint paint;
-  paint.setShader(gfx::CreateGradientShader(0, height(),
-                                            kBackgroundColor,
-                                            kBackgroundEndColor))->safeUnref();
+  paint.setShader(skia::CreateGradientShader(0, height(),
+                                             kBackgroundColor,
+                                             kBackgroundEndColor))->safeUnref();
   paint.setStyle(SkPaint::kFill_Style);
   canvas->drawRectCoords(0, 0,
                          SkIntToScalar(width()), SkIntToScalar(height()),

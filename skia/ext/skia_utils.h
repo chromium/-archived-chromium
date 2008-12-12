@@ -8,7 +8,7 @@
 #include "SkColor.h"
 #include "SkShader.h"
 
-namespace gfx {
+namespace skia {
 
 // Creates a vertical gradient shader. The caller owns the shader.
 // Example usage to avoid leaks:
@@ -21,7 +21,7 @@ SkShader* CreateGradientShader(int start_point,
                                SkColor start_color,
                                SkColor end_color);
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_SKIA_UTILS_H_
 

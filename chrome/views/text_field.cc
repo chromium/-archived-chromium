@@ -1087,7 +1087,7 @@ void TextField::UpdateEditBackgroundColor() {
 
   COLORREF bg_color;
   if (!use_default_background_color_)
-    bg_color = gfx::SkColorToCOLORREF(background_color_);
+    bg_color = skia::SkColorToCOLORREF(background_color_);
   else
     bg_color = GetSysColor(read_only_ ? COLOR_3DFACE : COLOR_WINDOW);
   edit_->SetBackgroundColor(bg_color);

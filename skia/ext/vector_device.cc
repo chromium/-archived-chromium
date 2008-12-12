@@ -13,6 +13,9 @@
 
 namespace gfx {
 
+// TODO(brettw) remove this when all the namespaces are moved to skia.
+using namespace skia;
+
 VectorDevice* VectorDevice::create(HDC dc, int width, int height) {
   InitializeDC(dc);
 

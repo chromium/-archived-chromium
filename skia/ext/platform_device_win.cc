@@ -13,6 +13,9 @@
 
 namespace gfx {
 
+// TODO(brettw) remove this when this file is moved into the Skia namespace.
+using namespace skia;
+
 PlatformDeviceWin::PlatformDeviceWin(const SkBitmap& bitmap)
     : SkDevice(bitmap) {
 }

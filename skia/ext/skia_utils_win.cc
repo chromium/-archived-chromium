@@ -22,7 +22,7 @@ COMPILE_ASSERT(sizeof(RECT) == sizeof(SkIRect), o9);
 
 }  // namespace
 
-namespace gfx {
+namespace skia {
 
 POINT SkPointToPOINT(const SkPoint& point) {
   POINT win_point = { SkScalarRound(point.fX), SkScalarRound(point.fY) };
@@ -57,5 +57,5 @@ COLORREF SkColorToCOLORREF(SkColor color) {
 #endif
 }
 
-}  // namespace gfx
+}  // namespace skia
 

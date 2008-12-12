@@ -68,7 +68,7 @@ Background::~Background() {
 
 void Background::SetNativeControlColor(SkColor color) {
   DeleteObject(native_control_brush_);
-  native_control_brush_ = CreateSolidBrush(gfx::SkColorToCOLORREF(color));
+  native_control_brush_ = CreateSolidBrush(skia::SkColorToCOLORREF(color));
 }
 
 //static

@@ -259,7 +259,7 @@ class BookmarkButton : public views::TextButton {
     // the parent's actual bounds because they differ from what is painted.
     SkPaint paint;
     paint.setAlpha(static_cast<int>((1.0 - animation_value) * 255));
-    paint.setShader(gfx::CreateGradientShader(0,
+    paint.setShader(skia::CreateGradientShader(0,
         view->height() + kTopMargin + kBottomMargin,
         kTopBorderColor,
         kBackgroundColor))->safeUnref();
@@ -607,16 +607,16 @@ class ButtonSeparatorView : public views::View {
 
   virtual void Paint(ChromeCanvas* canvas) {
     SkPaint paint;
-    paint.setShader(gfx::CreateGradientShader(0,
-                                              height() / 2,
-                                              kTopBorderColor,
-                                              kSeparatorColor))->safeUnref();
+    paint.setShader(skia::CreateGradientShader(0,
+                                               height() / 2,
+                                               kTopBorderColor,
+                                               kSeparatorColor))->safeUnref();
     SkRect rc = {SkIntToScalar(kSeparatorStartX),  SkIntToScalar(0),
                  SkIntToScalar(1), SkIntToScalar(height() / 2) };
     canvas->drawRect(rc, paint);
 
     SkPaint paint_down;
-    paint_down.setShader(gfx::CreateGradientShader(height() / 2,
+    paint_down.setShader(skia::CreateGradientShader(height() / 2,
         height(),
         kSeparatorColor,
         kBackgroundColor))->safeUnref();
@@ -908,10 +908,10 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
     // Draw our background.
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setShader(gfx::CreateGradientShader(0,
-                                              height(),
-                                              kTopBorderColor,
-                                              kBackgroundColor))->safeUnref();
+    paint.setShader(skia::CreateGradientShader(0,
+                                               height(),
+                                               kTopBorderColor,
+                                               kBackgroundColor))->safeUnref();
 
     canvas->drawRoundRect(rect,
                           SkDoubleToScalar(roundness),
@@ -928,10 +928,10 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
                           SkDoubleToScalar(roundness), border_paint);
   } else {
     SkPaint paint;
-    paint.setShader(gfx::CreateGradientShader(0,
-                                              height(),
-                                              kTopBorderColor,
-                                              kBackgroundColor))->safeUnref();
+    paint.setShader(skia::CreateGradientShader(0,
+                                               height(),
+                                               kTopBorderColor,
+                                               kBackgroundColor))->safeUnref();
     canvas->FillRectInt(0, 0, width(), height(), paint);
 
     canvas->FillRectInt(kTopBorderColor, 0, 0, width(), 1);

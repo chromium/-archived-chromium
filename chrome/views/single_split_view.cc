@@ -19,7 +19,7 @@ SingleSplitView::SingleSplitView(View* leading, View* trailing)
   AddChildView(trailing);
   set_background(
       views::Background::CreateSolidBackground(
-          gfx::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
+          skia::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
 }
 
 void SingleSplitView::Layout() {

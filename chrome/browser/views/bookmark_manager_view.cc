@@ -304,7 +304,7 @@ void BookmarkManagerView::PaintBackground(ChromeCanvas* canvas) {
   canvas->drawColor(kBackgroundColorBottom, SkPorterDuff::kSrc_Mode);
 
   SkPaint paint;
-  paint.setShader(gfx::CreateGradientShader(0, kBackgroundGradientHeight,
+  paint.setShader(skia::CreateGradientShader(0, kBackgroundGradientHeight,
       kBackgroundColorTop,
       kBackgroundColorBottom))->safeUnref();
   canvas->FillRectInt(0, 0, width(), kBackgroundGradientHeight, paint);

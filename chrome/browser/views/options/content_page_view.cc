@@ -102,7 +102,7 @@ void FileDisplayArea::Paint(ChromeCanvas* canvas) {
   RECT rect = { 0, 0, width(), height() };
   gfx::NativeTheme::instance()->PaintTextField(
       dc, EP_EDITTEXT, ETS_READONLY, 0, &rect,
-      gfx::SkColorToCOLORREF(text_field_background_color_), true, true);
+      skia::SkColorToCOLORREF(text_field_background_color_), true, true);
   canvas->endPlatformPaint();
   canvas->DrawBitmapInt(default_folder_icon_, icon_bounds_.x(),
                         icon_bounds_.y());

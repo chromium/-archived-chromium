@@ -6,7 +6,7 @@
 
 #include "SkGradientShader.h"
 
-namespace gfx {
+namespace skia {
 
 SkShader* CreateGradientShader(int start_point,
                                int end_point,
@@ -21,5 +21,5 @@ SkShader* CreateGradientShader(int start_point,
       grad_points, grad_colors, NULL, 2, SkShader::kRepeat_TileMode);
 }
 
-}  // namespace gfx
+}  // namespace skia
 

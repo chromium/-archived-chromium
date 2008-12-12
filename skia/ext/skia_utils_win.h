@@ -15,7 +15,7 @@ typedef DWORD COLORREF;
 typedef struct tagPOINT POINT;
 typedef struct tagRECT RECT;
 
-namespace gfx {
+namespace skia {
 
 // Converts a Skia point to a Windows POINT.
 POINT SkPointToPOINT(const SkPoint& point);
@@ -43,7 +43,7 @@ SkColor COLORREFToSkColor(COLORREF color);
 // Converts ARGB to COLORREFs (0BGR).
 COLORREF SkColorToCOLORREF(SkColor color);
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_SKIA_UTILS_WIN_H_
 

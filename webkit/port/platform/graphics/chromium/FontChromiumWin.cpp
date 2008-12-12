@@ -69,7 +69,7 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
     color = SkColorSetRGB(SkColorGetR(color),
                           SkColorGetG(color),
                           SkColorGetB(color));
-    SetTextColor(hdc, gfx::SkColorToCOLORREF(color));
+    SetTextColor(hdc, skia::SkColorToCOLORREF(color));
     SetBkMode(hdc, TRANSPARENT);
 
     // Windows needs the characters and the advances in nice contiguous
@@ -168,7 +168,7 @@ void Font::drawComplexText(GraphicsContext* graphicsContext,
     color = SkColorSetRGB(SkColorGetR(color),
                           SkColorGetG(color),
                           SkColorGetB(color));
-    SetTextColor(hdc, gfx::SkColorToCOLORREF(color));
+    SetTextColor(hdc, skia::SkColorToCOLORREF(color));
     SetBkMode(hdc, TRANSPARENT);
 
     // Uniscribe counts the coordinates from the upper left, while WebKit uses

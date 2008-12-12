@@ -255,7 +255,7 @@ SkColor SetColorAlpha(SkColor c, SkAlpha alpha) {
 
 SkColor GetSysSkColor(int which) {
 #if defined(OS_WIN)
-  return gfx::COLORREFToSkColor(::GetSysColor(which));
+  return skia::COLORREFToSkColor(::GetSysColor(which));
 #else
   NOTIMPLEMENTED();
   return SK_ColorLTGRAY;

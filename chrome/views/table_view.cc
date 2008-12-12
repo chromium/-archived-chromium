@@ -1206,10 +1206,10 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
           custom_cell_font_ = CreateFontIndirect(&logfont);
           SelectObject(draw_info->nmcd.hdc, custom_cell_font_);
           draw_info->clrText = foreground.color_is_set
-                               ? gfx::SkColorToCOLORREF(foreground.color)
+                               ? skia::SkColorToCOLORREF(foreground.color)
                                : CLR_DEFAULT;
           draw_info->clrTextBk = background.color_is_set
-                                 ? gfx::SkColorToCOLORREF(background.color)
+                                 ? skia::SkColorToCOLORREF(background.color)
                                  : CLR_DEFAULT;
           return CDRF_NEWFONT;
         }
@@ -1259,7 +1259,7 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
               // background (or rather windows paints background, then invokes
               // this twice). As such, we always fill in the background.
               canvas.drawColor(
-                  gfx::COLORREFToSkColor(GetSysColor(bg_color_index)),
+                  skia::COLORREFToSkColor(GetSysColor(bg_color_index)),
                   SkPorterDuff::kSrc_Mode);
               // + 1 for padding (we declared the image as 18x18 in the list-
               // view when they are 16x16 so we get an extra pixel of padding).
