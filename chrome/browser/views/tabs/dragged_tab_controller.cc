@@ -29,6 +29,9 @@ namespace {
 // be sure and update the constants in DockInfo (kEnableDeltaX/kEnableDeltaY).
 const int kDropWindowSize = 100;
 
+// Delay, in ms, during dragging before we bring a window to front.
+const int kBringToFrontDelay = 750;
+
 // TODO (glen): nuke this class in favor of something pretty. Consider this
 // class a placeholder for the real thing.
 class DockView : public views::View {
@@ -339,6 +342,8 @@ void DraggedTabController::CaptureDragInfo(const gfx::Point& mouse_offset) {
 }
 
 void DraggedTabController::Drag() {
+  bring_to_front_timer_.Stop();
+
   // Before we get to dragging anywhere, ensure that we consider ourselves
   // attached to the source tabstrip.
   if (source_tab_->IsVisible() && CanStartDrag())
@@ -611,6 +616,11 @@ void DraggedTabController::ContinueDragging() {
       Detach();
     if (target_tabstrip)
       Attach(target_tabstrip, screen_point);
+  }
+  if (!target_tabstrip) {
+    bring_to_front_timer_.Start(
+        base::TimeDelta::FromMilliseconds(kBringToFrontDelay), this,
+        &DraggedTabController::BringWindowUnderMouseToFront);
   }
 
   UpdateDockInfo(screen_point);
@@ -912,6 +922,8 @@ Tab* DraggedTabController::GetTabMatchingDraggedContents(
 }
 
 void DraggedTabController::EndDragImpl(EndDragType type) {
+  bring_to_front_timer_.Stop();
+
   // Hide the current dock controllers.
   for (size_t i = 0; i < dock_controllers_.size(); ++i) {
     // Be sure and clear the controller first, that way if Hide ends up
@@ -1163,4 +1175,26 @@ void DraggedTabController::DockDisplayerDestroyed(
     dock_controllers_.erase(i);
   else
     NOTREACHED();
+}
+
+void DraggedTabController::BringWindowUnderMouseToFront() {
+  // If we're going to dock to another window, bring it to the front.
+  HWND hwnd = dock_info_.hwnd();
+  if (!hwnd) {
+    HWND dragged_hwnd = view_->GetWidget()->GetHWND();
+    dock_windows_.insert(dragged_hwnd);
+    hwnd = DockInfo::GetLocalProcessWindowAtPoint(GetCursorScreenPoint(),
+                                                  dock_windows_);
+    dock_windows_.erase(dragged_hwnd);
+  }
+  if (hwnd) {
+    // Move the window to the front.
+    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0,
+                 SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
+    // The previous call made the window appear on top of the dragged window,
+    // move the dragged window to the front.
+    SetWindowPos(view_->GetWidget()->GetHWND(), HWND_TOP, 0, 0, 0, 0,
+                 SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+  }
 }

@@ -7,6 +7,7 @@
 
 #include "base/gfx/rect.h"
 #include "base/message_loop.h"
+#include "base/timer.h"
 #include "chrome/browser/dock_info.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -225,6 +226,8 @@ class DraggedTabController : public TabContentsDelegate,
 
   void DockDisplayerDestroyed(DockDisplayer* controller);
 
+  void BringWindowUnderMouseToFront();
+
   // The TabContents being dragged. This can get replaced during the drag if
   // the associated NavigationController is navigated to a different
   // TabContentsType.
@@ -295,6 +298,11 @@ class DraggedTabController : public TabContentsDelegate,
 
   std::set<HWND> dock_windows_;
   std::vector<DockDisplayer*> dock_controllers_;
+
+  // Timer used to bring the window under the cursor to front. If the user
+  // stops moving the mouse for a brief time over a browser window, it is
+  // brought to front.
+  base::OneShotTimer<DraggedTabController> bring_to_front_timer_;
 
   DISALLOW_COPY_AND_ASSIGN(DraggedTabController);
 };

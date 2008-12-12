@@ -465,7 +465,7 @@ void DockInfo::AdjustOtherWindowBounds() const {
   ::SetWindowPos(hwnd_, HWND_TOP, other_window_bounds.x(),
                  other_window_bounds.y(), other_window_bounds.width(),
                  other_window_bounds.height(),
-                 SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+                 SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 }
 
 bool DockInfo::CheckMonitorPoint(const gfx::Point& screen_loc,
