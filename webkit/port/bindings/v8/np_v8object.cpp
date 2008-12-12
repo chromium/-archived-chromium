@@ -38,12 +38,14 @@
 #include "npruntime_priv.h"
 #include "PlatformString.h"
 #include "ScriptController.h"
+#include "v8_custom.h"
 #include "v8_helpers.h"
 #include "v8_np_utils.h"
 #include "v8_proxy.h"
 #include "DOMWindow.h"
 
 using WebCore::V8ClassIndex;
+using WebCore::V8Custom;
 using WebCore::V8Proxy;
 
 namespace {
@@ -100,9 +102,10 @@ NPClass* NPScriptObjectClass = &V8NPObjectClass;
 NPObject* NPN_CreateScriptObject(NPP npp, v8::Handle<v8::Object> object,
                                  WebCore::DOMWindow* root) {
   // Check to see if this object is already wrapped.
-  if (object->InternalFieldCount() == 3 &&
-      object->GetInternalField(1)->IsNumber() &&
-      object->GetInternalField(1)->Uint32Value() == V8ClassIndex::NPOBJECT) {
+  if (object->InternalFieldCount() == V8Custom::kNPObjectInternalFieldCount &&
+      object->GetInternalField(V8Custom::kDOMWrapperTypeIndex)->IsNumber() &&
+      object->GetInternalField(V8Custom::kDOMWrapperTypeIndex)->Uint32Value() ==
+          V8ClassIndex::NPOBJECT) {
     NPObject* rv = V8Proxy::ToNativeObject<NPObject>(V8ClassIndex::NPOBJECT,
                                                      object);
     NPN_RetainObject(rv);

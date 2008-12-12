@@ -29,6 +29,7 @@
 
 #include "config.h"
 
+#include "v8_custom.h"
 #include "v8_helpers.h"
 #include "v8_npobject.h"
 #include "v8_np_utils.h"
@@ -72,7 +73,8 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(
   } else {
     // The holder object is not a subtype of HTMLPlugInElement, it
     // must be an NPObject which has three internal fields.
-    if (args.Holder()->InternalFieldCount() != 3) {
+    if (args.Holder()->InternalFieldCount() !=
+            V8Custom::kNPObjectInternalFieldCount) {
       V8Proxy::ThrowError(V8Proxy::REFERENCE_ERROR,
                           "NPMethod called on non-NPObject");
       return v8::Undefined();
@@ -329,7 +331,8 @@ v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object,
   if (np_object_desc.IsEmpty()) {
     np_object_desc =
         v8::Persistent<v8::FunctionTemplate>::New(v8::FunctionTemplate::New());
-    np_object_desc->InstanceTemplate()->SetInternalFieldCount(3);
+    np_object_desc->InstanceTemplate()->SetInternalFieldCount(
+        V8Custom::kNPObjectInternalFieldCount);
     np_object_desc->InstanceTemplate()->SetNamedPropertyHandler(
         NPObjectNamedPropertyGetter, NPObjectNamedPropertySetter);
     np_object_desc->InstanceTemplate()->SetIndexedPropertyHandler(

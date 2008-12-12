@@ -38,13 +38,10 @@
 
 #include "DOMWindow.h"
 
+using WebCore::V8Custom;
+
 void WrapNPObject(v8::Handle<v8::Object> obj, NPObject* npobj) {
-  ASSERT(obj->InternalFieldCount() >= 3);
-
   WebCore::V8Proxy::SetDOMWrapper(obj, WebCore::V8ClassIndex::NPOBJECT, npobj);
-
-  // Create a JS object as a hash map for functions
-  obj->SetInternalField(2, v8::Object::New());
 }
 
 v8::Local<v8::Context> GetV8Context(NPP npp, NPObject* npobj) {

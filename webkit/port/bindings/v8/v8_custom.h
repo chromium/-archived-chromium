@@ -37,6 +37,9 @@ class V8Custom {
   static const int kDOMWrapperObjectIndex = 1;
   static const int kDefaultWrapperInternalFieldCount = 2;
 
+  static const int kNPObjectInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 0;
+
   static const int kDocumentImplementationIndex =
                       kDefaultWrapperInternalFieldCount + 0;
   static const int kDocumentMinimumInternalFieldCount =
