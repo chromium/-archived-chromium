@@ -936,20 +936,17 @@ void GraphicsContext::setPlatformShadow(const IntSize& size,
     if (paintingDisabled())
         return;
 
-    if (blur > 0) {
-        SkColor c;
-        if (color.isValid())
-            c = color.rgb();
-        else
-            c = SkColorSetARGB(0xFF/3, 0, 0, 0);    // "std" apple shadow color.
-        SkDrawLooper* dl = new SkBlurDrawLooper(SkIntToScalar(blur),
-                                                SkIntToScalar(size.width()),
-                                                SkIntToScalar(size.height()),
-                                                c);
-        platformContext()->setDrawLooper(dl);
-        dl->unref();
-    } else
-        platformContext()->setDrawLooper(0);
+    SkColor c;
+    if (color.isValid())
+        c = color.rgb();
+    else
+        c = SkColorSetARGB(0xFF/3, 0, 0, 0);    // "std" apple shadow color.
+    SkDrawLooper* dl = new SkBlurDrawLooper(SkIntToScalar(blur),
+                                            SkIntToScalar(size.width()),
+                                            SkIntToScalar(-size.height()),
+                                            c);
+    platformContext()->setDrawLooper(dl);
+    dl->unref();
 }
 
 void GraphicsContext::setPlatformStrokeColor(const Color& strokecolor)
