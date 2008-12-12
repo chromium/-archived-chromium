@@ -409,7 +409,7 @@ class TestRunner:
 
     # Print breakdown of tests we need to fix and want to pass.
     # Include skipped fixable tests in the statistics.
-    skipped = self._expectations.GetFixableSkipped()
+    skipped = self._expectations.GetFixableSkipped().copy()
 
     self._PrintResultSummary("=> Tests to be fixed",
                              self._expectations.GetFixable(),
