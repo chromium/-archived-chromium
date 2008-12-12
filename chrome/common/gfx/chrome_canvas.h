@@ -5,7 +5,6 @@
 #ifndef CHROME_COMMON_GFX_CHROME_CANVAS_H_
 #define CHROME_COMMON_GFX_CHROME_CANVAS_H_
 
-#include <windows.h>
 #include <string>
 
 #include "base/basictypes.h"

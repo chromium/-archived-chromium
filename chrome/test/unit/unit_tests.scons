@@ -135,6 +135,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       '$CHROME_DIR/common/bzip2_unittest.cc',
       '$CHROME_DIR/common/jpeg_codec_unittest.cc',
       '$CHROME_DIR/common/json_value_serializer_unittest.cc',
+      '$CHROME_DIR/common/gfx/chrome_font_unittest.cc',
   ])
 
 if env['PLATFORM'] == 'win32':

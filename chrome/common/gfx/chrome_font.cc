@@ -27,6 +27,34 @@ static const int kTextMetricWeightBold = 700;
 // ChromeFont
 //
 
+ChromeFont::ChromeFont()
+    : font_ref_(GetBaseFontRef()) {
+}
+
+int ChromeFont::height() const {
+  return font_ref_->height();
+}
+
+int ChromeFont::baseline() const {
+  return font_ref_->baseline();
+}
+
+int ChromeFont::ave_char_width() const {
+  return font_ref_->ave_char_width();
+}
+
+int ChromeFont::GetExpectedTextWidth(int length) const {
+  return length * font_ref_->dlu_base_x();
+}
+
+int ChromeFont::style() const {
+  return font_ref_->style();
+}
+
+gfx::NativeFont ChromeFont::nativeFont() const {
+  return hfont();
+}
+
 // static
 ChromeFont ChromeFont::CreateFont(HFONT font) {
   DCHECK(font);
