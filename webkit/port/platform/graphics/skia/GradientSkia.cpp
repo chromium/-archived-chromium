@@ -103,6 +103,11 @@ static void fill_stops(const Gradient::ColorStop* stopData,
     }
 }
 
+static inline bool compareStops(const Gradient::ColorStop& a, const Gradient::ColorStop& b)
+{
+    return a.stop < b.stop;
+}
+
 SkShader* Gradient::platformGradient()
 {
     if (m_gradient)
@@ -116,7 +121,14 @@ SkShader* Gradient::platformGradient()
     SkAutoMalloc storage(count_used * (sizeof(SkColor) + sizeof(SkScalar)));
     SkColor* colors = (SkColor*)storage.get();
     SkScalar* pos = (SkScalar*)(colors + count_used);
-    
+
+    // TODO: This and compareStops() are also in Gradient.cpp and
+    // CSSGradientValue.cpp; probably should refactor in WebKit.
+    if (!m_stopsSorted) {
+        if (m_stops.size())
+            std::stable_sort(m_stops.begin(), m_stops.end(), compareStops);
+        m_stopsSorted = true;
+    }
     fill_stops(m_stops.data(), m_stops.size(), pos, colors);
 
     if (m_radial) {
