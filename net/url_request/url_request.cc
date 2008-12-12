@@ -327,10 +327,6 @@ std::string URLRequest::StripPostSpecificHeaders(const std::string& headers) {
 }
 
 int URLRequest::Redirect(const GURL& location, int http_status_code) {
-  // TODO(darin): treat 307 redirects of POST requests very carefully.  we
-  // should prompt the user before re-submitting the POST body.
-  DCHECK(!(method_ == "POST" && http_status_code == 307)) << "implement me!";
-
   if (redirect_limit_ <= 0) {
     DLOG(INFO) << "disallowing redirect: exceeds limit";
     return net::ERR_TOO_MANY_REDIRECTS;
@@ -341,17 +337,23 @@ int URLRequest::Redirect(const GURL& location, int http_status_code) {
     return net::ERR_UNSAFE_REDIRECT;
   }
 
-  // NOTE: even though RFC 2616 says to preserve the request method when
-  // following a 302 redirect, normal browsers don't do that.  instead, they
-  // all convert a POST into a GET in response to a 302, and so shall we.
-  bool was_post = method_ == "POST";
+  bool strip_post_specific_headers = false;
+  if (http_status_code != 307) {
+    // NOTE: Even though RFC 2616 says to preserve the request method when
+    // following a 302 redirect, normal browsers don't do that.  Instead, they
+    // all convert a POST into a GET in response to a 302 and so shall we.  For
+    // 307 redirects, browsers preserve the method.  The RFC says to prompt the
+    // user to confirm the generation of a new POST request, but IE omits this
+    // prompt and so shall we.
+    strip_post_specific_headers = method_ == "POST";
+    method_ = "GET";
+  }
   url_ = location;
-  method_ = "GET";
   upload_ = 0;
   status_ = URLRequestStatus();
   --redirect_limit_;
 
-  if (was_post) {
+  if (strip_post_specific_headers) {
     // If being switched from POST to GET, must remove headers that were
     // specific to the POST and don't have meaning in GET. For example
     // the inclusion of a multipart Content-Type header in GET can cause

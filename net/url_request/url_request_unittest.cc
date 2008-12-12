@@ -885,3 +885,12 @@ TEST_F(URLRequestTest, Post302RedirectGet) {
   EXPECT_TRUE(ContainsString(data, "Accept-Charset:"));
 }
 
+TEST_F(URLRequestTest, Post307RedirectPost) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  TestURLRequest req(server.TestServerPage("files/redirect307-to-echoall"), &d);
+  req.set_method("POST");
+  req.Start();
+  MessageLoop::current()->Run();
+  EXPECT_EQ(req.method(), "POST");
+}
