@@ -430,7 +430,7 @@ bool SpellChecker::Initialize() {
   TimeTicks begin_time = TimeTicks::Now();
   bdict_file_.reset(new file_util::MemoryMappedFile());
   if (bdict_file_->Initialize(FilePath::FromWStringHack(bdict_file_name_))) {
-    hunspell_.reset(new Hunspell(bdict_file_->data(), bdict_file_->length()));
+    hunspell_.reset(new Hunspell(bdict_file_->Data(), bdict_file_->Length()));
     AddCustomWordsToHunspell();
   }
   DHISTOGRAM_TIMES(L"Spellcheck.InitTime", TimeTicks::Now() - begin_time);

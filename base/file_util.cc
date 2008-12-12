@@ -275,29 +275,6 @@ bool CloseFile(FILE* file) {
   return fclose(file) == 0;
 }
 
-///////////////////////////////////////////////
-// MemoryMappedFile
-
-MemoryMappedFile::~MemoryMappedFile() {
-  CloseHandles();
-}
-
-bool MemoryMappedFile::Initialize(const FilePath& file_name) {
-  if (IsValid())
-    return false;
-
-  if (!MapFileToMemory(file_name)) {
-    CloseHandles();
-    return false;
-  }
-
-  return true;
-}
-
-bool MemoryMappedFile::IsValid() {
-  return data_ != NULL;
-}
-
 // Deprecated functions ----------------------------------------------------
 
 bool AbsolutePath(std::wstring* path_str) {
