@@ -6,16 +6,10 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <stddef.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#if defined(OS_LINUX)
-#include <linux/un.h>
-#elif defined(OS_MACOSX)
-#include <sys/un.h>
-#endif
-
+#include <stddef.h>
 
 #include "base/logging.h"
 #include "base/process_util.h"
@@ -23,6 +17,12 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/ipc_message_utils.h"
+
+#if defined(OS_LINUX)
+#include <linux/un.h>
+#elif defined(OS_MACOSX)
+#include <sys/un.h>
+#endif
 
 namespace IPC {
 
@@ -150,7 +150,9 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
 Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
                                   Listener* listener)
     : mode_(mode),
-    is_blocked_on_write_(false),
+    server_listen_connection_event_(new EventHolder()),
+    read_event_(new EventHolder()),
+    write_event_(new EventHolder()),
     message_send_bytes_written_(0),
     server_listen_pipe_(-1),
     pipe_(-1),
@@ -212,22 +214,21 @@ bool Channel::ChannelImpl::Connect() {
     if (server_listen_pipe_ == -1) {
       return false;
     }
-    MessageLoopForIO::current()->WatchFileDescriptor(
-        server_listen_pipe_,
-        true,
-        MessageLoopForIO::WATCH_READ,
-        &server_listen_connection_watcher_,
-        this);
+    event *ev = &(server_listen_connection_event_->event);
+    MessageLoopForIO::current()->WatchFileHandle(server_listen_pipe_,
+                                                 EV_READ | EV_PERSIST,
+                                                 ev,
+                                                 this);
+    server_listen_connection_event_->is_active = true;
   } else {
     if (pipe_ == -1) {
       return false;
     }
-    MessageLoopForIO::current()->WatchFileDescriptor(
-        pipe_,
-        true,
-        MessageLoopForIO::WATCH_READ,
-        &read_watcher_,
-        this);
+    MessageLoopForIO::current()->WatchFileHandle(pipe_,
+                                                 EV_READ | EV_PERSIST,
+                                                 &(read_event_->event),
+                                                 this);
+    read_event_->is_active = true;
     waiting_connect_ = false;
   }
 
@@ -316,13 +317,21 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
 bool Channel::ChannelImpl::ProcessOutgoingMessages() {
   DCHECK(!waiting_connect_);  // Why are we trying to send messages if there's
                               // no connection?
-  is_blocked_on_write_ = false;
 
   if (output_queue_.empty())
     return true;
 
   if (pipe_ == -1)
     return false;
+
+  // If libevent was monitoring the socket for us (we blocked when trying to
+  // write a message last time), then delete the underlying libevent structure.
+  if (write_event_->is_active) {
+    // TODO(playmobil): This calls event_del(), but we can probably
+    // do with just calling event_add here.
+    MessageLoopForIO::current()->UnwatchFileHandle(&(write_event_->event));
+    write_event_->is_active = false;
+  }
 
   // Write out all the messages we can till the write blocks or there are no
   // more outgoing messages.
@@ -346,13 +355,12 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
       message_send_bytes_written_ += bytes_written;
 
       // Tell libevent to call us back once things are unblocked.
-      is_blocked_on_write_ = true;
-      MessageLoopForIO::current()->WatchFileDescriptor(
-          pipe_,
-          false,  // One shot
-          MessageLoopForIO::WATCH_WRITE,
-          &write_watcher_,
-          this);
+      MessageLoopForIO::current()->WatchFileHandle(server_listen_pipe_,
+                                                   EV_WRITE,
+                                                   &(write_event_->event),
+                                                   this);
+      write_event_->is_active = true;
+
     } else {
       message_send_bytes_written_ = 0;
 
@@ -383,7 +391,7 @@ bool Channel::ChannelImpl::Send(Message* message) {
 
   output_queue_.push(message);
   if (!waiting_connect_) {
-    if (!is_blocked_on_write_) {
+    if (!write_event_->is_active) {
       if (!ProcessOutgoingMessages())
         return false;
     }
@@ -393,7 +401,7 @@ bool Channel::ChannelImpl::Send(Message* message) {
 }
 
 // Called by libevent when we can read from th pipe without blocking.
-void Channel::ChannelImpl::OnFileCanReadWithoutBlocking(int fd) {
+void Channel::ChannelImpl::OnFileReadReady(int fd) {
   bool send_server_hello_msg = false;
   if (waiting_connect_ && mode_ == MODE_SERVER) {
     if (!ServerAcceptFifoConnection(server_listen_pipe_, &pipe_)) {
@@ -402,16 +410,16 @@ void Channel::ChannelImpl::OnFileCanReadWithoutBlocking(int fd) {
 
     // No need to watch the listening socket any longer since only one client
     // can connect.  So unregister with libevent.
-    server_listen_connection_watcher_.StopWatchingFileDescriptor();
+    event *ev = &(server_listen_connection_event_->event);
+    MessageLoopForIO::current()->UnwatchFileHandle(ev);
+    server_listen_connection_event_->is_active = false;
 
     // Start watching our end of the socket.
-    MessageLoopForIO::current()->WatchFileDescriptor(
-        pipe_,
-        true,
-        MessageLoopForIO::WATCH_READ,
-        &read_watcher_,
-        this);
-
+    MessageLoopForIO::current()->WatchFileHandle(pipe_,
+                                                 EV_READ | EV_PERSIST,
+                                                 &(read_event_->event),
+                                                 this);
+    read_event_->is_active = true;
     waiting_connect_ = false;
     send_server_hello_msg = true;
   }
@@ -428,14 +436,12 @@ void Channel::ChannelImpl::OnFileCanReadWithoutBlocking(int fd) {
   // This gives us a chance to kill the client if the incoming handshake
   // is invalid.
   if (send_server_hello_msg) {
-    // This should be our first write so there' sno chance we can block here...
-    DCHECK(is_blocked_on_write_ == false);
     ProcessOutgoingMessages();
   }
 }
 
 // Called by libevent when we can write to the pipe without blocking.
-void Channel::ChannelImpl::OnFileCanWriteWithoutBlocking(int fd) {
+void Channel::ChannelImpl::OnFileWriteReady(int fd) {
   if (!ProcessOutgoingMessages()) {
     Close();
     listener_->OnChannelError();
@@ -447,7 +453,11 @@ void Channel::ChannelImpl::Close() {
   // idempotent.
 
   // Unregister libevent for the listening socket and close it.
-  server_listen_connection_watcher_.StopWatchingFileDescriptor();
+  if (server_listen_connection_event_ &&
+      server_listen_connection_event_->is_active) {
+    MessageLoopForIO::current()->UnwatchFileHandle(
+          &(server_listen_connection_event_->event));
+  }
 
   if (server_listen_pipe_ != -1) {
     close(server_listen_pipe_);
@@ -455,12 +465,23 @@ void Channel::ChannelImpl::Close() {
   }
 
   // Unregister libevent for the FIFO and close it.
-  read_watcher_.StopWatchingFileDescriptor();
-  write_watcher_.StopWatchingFileDescriptor();
+  if (read_event_ && read_event_->is_active) {
+    MessageLoopForIO::current()->UnwatchFileHandle(&(read_event_->event));
+  }
+  if (write_event_ && write_event_->is_active) {
+    MessageLoopForIO::current()->UnwatchFileHandle(&(write_event_->event));
+  }
   if (pipe_ != -1) {
     close(pipe_);
     pipe_ = -1;
   }
+
+  delete server_listen_connection_event_;
+  server_listen_connection_event_ = NULL;
+  delete read_event_;
+  read_event_ = NULL;
+  delete write_event_;
+  write_event_ = NULL;
 
   // Unlink the FIFO
   unlink(pipe_name_.c_str());

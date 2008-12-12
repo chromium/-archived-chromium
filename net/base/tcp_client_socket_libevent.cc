@@ -68,6 +68,7 @@ TCPClientSocket::TCPClientSocket(const AddressList& addresses)
     addresses_(addresses),
     current_ai_(addresses_.head()),
     waiting_connect_(false),
+    event_(new event),
     write_callback_(NULL),
     callback_(NULL) {
 }
@@ -109,8 +110,8 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   // POLLOUT is set if the connection is established.
   // POLLIN is set if the connection fails,
   // so select for both read and write.
-  MessageLoopForIO::current()->WatchFileDescriptor(
-     socket_, true, MessageLoopForIO::WATCH_READ_WRITE, &socket_watcher_, this);
+  MessageLoopForIO::current()->WatchSocket(
+     socket_, EV_READ|EV_WRITE|EV_PERSIST, event_.get(), this);
 
   waiting_connect_ = true;
   callback_ = callback;
@@ -126,7 +127,7 @@ void TCPClientSocket::Disconnect() {
   if (socket_ == kInvalidSocket)
     return;
 
-  socket_watcher_.StopWatchingFileDescriptor();
+  MessageLoopForIO::current()->UnwatchSocket(event_.get());
   close(socket_);
   socket_ = kInvalidSocket;
   waiting_connect_ = false;
@@ -169,8 +170,8 @@ int TCPClientSocket::Read(char* buf,
     return MapPosixError(errno);
   }
 
-  MessageLoopForIO::current()->WatchFileDescriptor(
-     socket_, true, MessageLoopForIO::WATCH_READ, &socket_watcher_, this);
+  MessageLoopForIO::current()->WatchSocket(
+     socket_, EV_READ|EV_PERSIST, event_.get(), this);
 
   buf_ = buf;
   buf_len_ = buf_len;
@@ -195,9 +196,8 @@ int TCPClientSocket::Write(const char* buf,
   if (errno != EAGAIN && errno != EWOULDBLOCK)
     return MapPosixError(errno);
 
-  MessageLoopForIO::current()->WatchFileDescriptor(
-     socket_, true, MessageLoopForIO::WATCH_WRITE, &socket_watcher_, this);
-
+  MessageLoopForIO::current()->WatchSocket(
+     socket_, EV_WRITE|EV_PERSIST, event_.get(), this);
 
   write_buf_ = buf;
   write_buf_len_ = buf_len;
@@ -263,7 +263,7 @@ void TCPClientSocket::DidCompleteConnect() {
     result = Connect(callback_);
   } else {
     result = MapPosixError(error_code);
-    socket_watcher_.StopWatchingFileDescriptor();
+    MessageLoopForIO::current()->UnwatchSocket(event_.get());
     waiting_connect_ = false;
   }
 
@@ -285,7 +285,7 @@ void TCPClientSocket::DidCompleteRead() {
   if (result != ERR_IO_PENDING) {
     buf_ = NULL;
     buf_len_ = 0;
-    socket_watcher_.StopWatchingFileDescriptor();
+    MessageLoopForIO::current()->UnwatchSocket(event_.get());
     DoCallback(result);
   }
 }
@@ -304,24 +304,21 @@ void TCPClientSocket::DidCompleteWrite() {
   if (result != ERR_IO_PENDING) {
     write_buf_ = NULL;
     write_buf_len_ = 0;
-    socket_watcher_.StopWatchingFileDescriptor();
+    MessageLoopForIO::current()->UnwatchSocket(event_.get());
     DoWriteCallback(result);
   }
 }
 
-void TCPClientSocket::OnFileCanReadWithoutBlocking(int fd) {
-  if (waiting_connect_) {
-    DidCompleteConnect();
-  } else if (callback_) {
-    DidCompleteRead();
-  }
-}
+void TCPClientSocket::OnSocketReady(short flags) {
+  // the only used bits of flags are EV_READ and EV_WRITE
 
-void TCPClientSocket::OnFileCanWriteWithoutBlocking(int fd) {
   if (waiting_connect_) {
     DidCompleteConnect();
-  } else if (write_callback_) {
-    DidCompleteWrite();
+  } else {
+    if ((flags & EV_WRITE) && write_callback_)
+      DidCompleteWrite();
+    if ((flags & EV_READ) && callback_)
+      DidCompleteRead();
   }
 }
 

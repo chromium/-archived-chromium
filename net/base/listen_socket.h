@@ -11,7 +11,6 @@
 #ifndef NET_BASE_SOCKET_H_
 #define NET_BASE_SOCKET_H_
 
-#include <string>
 #if defined(OS_WIN)
 #include <winsock2.h>
 #include "base/object_watcher.h"
@@ -19,6 +18,8 @@
 #include "base/message_loop.h"
 #include "net/base/net_util.h"
 #include "net/base/net_errors.h"
+#include "third_party/libevent/event.h"
+#include "base/message_pump_libevent.h"
 #endif
 
 #include "base/basictypes.h"
@@ -34,7 +35,7 @@ class ListenSocket : public base::RefCountedThreadSafe<ListenSocket>,
 #if defined(OS_WIN)
                      public base::ObjectWatcher::Delegate
 #elif defined(OS_POSIX)
-                     public MessageLoopForIO::Watcher
+                     public base::MessagePumpLibevent::Watcher
 #endif
 {
  public:
@@ -79,11 +80,11 @@ class ListenSocket : public base::RefCountedThreadSafe<ListenSocket>,
     NOT_WAITING      = 0,
     WAITING_ACCEPT   = 1,
     WAITING_READ     = 3,
-    WAITING_CLOSE    = 4
+    WAITING_CLOSE    = 4	
   };
-  // Pass any value in case of Windows, because in Windows
-  // we are not using state.
-  void WatchSocket(WaitState state);
+  // Pass any value in case of Windows, because in Windows 
+  // we are not using state. 
+  void WatchSocket(WaitState state); 
   void UnwatchSocket();
 
 #if defined(OS_WIN)
@@ -94,17 +95,17 @@ class ListenSocket : public base::RefCountedThreadSafe<ListenSocket>,
 #elif defined(OS_POSIX)
   WaitState wait_state_;
   // The socket's libevent wrapper
-  MessageLoopForIO::FileDescriptorWatcher watcher_;
+  scoped_ptr<event> event_;
   // Called by MessagePumpLibevent when the socket is ready to do I/O
-  void OnFileCanReadWithoutBlocking(int fd);
-  void OnFileCanWriteWithoutBlocking(int fd);
+  void OnSocketReady(short flags);
 #endif
 
-  SOCKET socket_;
+  SOCKET socket_; 
   ListenSocketDelegate *socket_delegate_;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(ListenSocket);
 };
 
-#endif  // NET_BASE_SOCKET_H_
+#endif // NET_BASE_SOCKET_H_
+
