@@ -161,6 +161,11 @@ void ShowItemInFolder(const std::wstring& full_path) {
   if (dir == L"" || !file_util::PathExists(full_path))
     return;
 
+  // ParseDisplayName will fail if the directory is "C:", it must be "C:\\".
+  FilePath dir_path(dir);
+  file_util::EnsureEndsWithSeparator(&dir_path);
+  dir = dir_path.value();
+
   typedef HRESULT (WINAPI *SHOpenFolderAndSelectItemsFuncPtr)(
               PCIDLIST_ABSOLUTE pidl_Folder,
               UINT cidl,
