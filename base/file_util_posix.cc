@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/errno.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <time.h>
 
@@ -378,6 +379,9 @@ bool SetCurrentDirectory(const FilePath& path) {
   return !ret;
 }
 
+///////////////////////////////////////////////
+// FileEnumerator
+
 FileEnumerator::FileEnumerator(const FilePath& root_path,
                                bool recursive,
                                FileEnumerator::FILE_TYPE file_type)
@@ -479,5 +483,41 @@ FilePath FileEnumerator::Next() {
   return Next();
 }
 
+///////////////////////////////////////////////
+// MemoryMappedFile
+
+MemoryMappedFile::MemoryMappedFile()
+    : file_(-1),
+      data_(NULL),
+      length_(0) {
+}
+
+bool MemoryMappedFile::MapFileToMemory(const FilePath& file_name) {
+  file_ = open(file_name.value().c_str(), O_RDONLY);
+  if (file_ == -1)
+    return false;
+
+  struct stat file_stat;
+  if (fstat(file_, &file_stat) == -1)
+    return false;
+  length_ = file_stat.st_size;
+
+  data_ = static_cast<uint8*>(
+      mmap(NULL, length_, PROT_READ, MAP_SHARED, file_, 0));
+  if (data_ == MAP_FAILED)
+    data_ = NULL;
+  return data_ != NULL;
+}
+
+void MemoryMappedFile::CloseHandles() {
+  if (data_ != NULL)
+    munmap(data_, length_);
+  if (file_ != -1)
+    close(file_);
+
+  data_ = NULL;
+  length_ = 0;
+  file_ = -1;
+}
 
 } // namespace file_util
