@@ -15,7 +15,7 @@ env.SConscript([
 
 env.Prepend(
     CPPPATH = [
-        '$CHROME_DIR/app/resources',
+        '$TARGET_ROOT/grit_derived_sources',
         '$CHROME_SRC_DIR',
     ],
 )

@@ -138,7 +138,7 @@ if env['PLATFORM'] == 'win32':
   resources = [
       env_res.RES('resources/test_shell.rc'),
       '$NET_DIR/net_resources.res',
-      '$WEBKIT_DIR/build/localized_strings/webkit_strings_en-US.res',
+      '$TARGET_ROOT/grit_derived_sources/webkit_strings_en-US.res',
   ]
 
   exe_input_files += [

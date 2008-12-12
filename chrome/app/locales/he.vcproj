@@ -140,11 +140,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="$(IntDir)\..\generated_resources\generated_resources_he.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\generated_resources_he.rc"
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\..\localized_strings\webkit_strings_he.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_he.rc"
 			>
 		</File>
 		<File

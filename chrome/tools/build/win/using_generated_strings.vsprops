@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(OutDir)\obj\generated_resources&quot;;&quot;$(OutDir)\obj\localized_strings&quot;"
+		AdditionalIncludeDirectories="&quot;$(OutDir)\grit_derived_sources&quot;"
 	/>
 </VisualStudioPropertySheet>

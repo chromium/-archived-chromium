@@ -205,7 +205,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\..\localized_strings\webkit_strings_en-US.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_en-US.rc"
 				>
 			</File>
 		</Filter>

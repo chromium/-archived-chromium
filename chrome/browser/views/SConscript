@@ -9,7 +9,7 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '$CHROME_DIR/app/resources',
+        '$TARGET_ROOT/grit_derived_sources',
         #'$OBJ_ROOT/google_update',
         '$OBJ_ROOT/chrome/tools/build/win',
         '$CHROME_SRC_DIR',

@@ -69,7 +69,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\webkit_strings.h"
+			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings.h"
 			>
 		</File>
 	</Files>

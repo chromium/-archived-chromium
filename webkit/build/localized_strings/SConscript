@@ -30,8 +30,9 @@ env_grd = env.Clone()
 env_grd.Tool('scons', toolpath=[env_grd.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
 # This dummy target (webkit_strings) is used to tell the emitter where
 # to put the target files.
-generated = env_grd.GRIT('webkit_strings',
-                         '$CHROME_SRC_DIR/webkit/glue/webkit_strings.grd')
+generated = env_grd.GRIT(
+    '$TARGET_ROOT/grit_derived_sources/fake_generated_target',
+    '$CHROME_SRC_DIR/webkit/glue/webkit_strings.grd')
 
 if env_res['PLATFORM'] == 'win32':
   for g in [g for g in generated if str(g).endswith('.rc')]:

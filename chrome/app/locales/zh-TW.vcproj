@@ -140,11 +140,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="$(IntDir)\..\generated_resources\generated_resources_zh-TW.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\generated_resources_zh-TW.rc"
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\..\localized_strings\webkit_strings_zh-TW.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_zh-TW.rc"
 			>
 		</File>
 		<File

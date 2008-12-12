@@ -140,7 +140,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="$(IntDir)\..\generated_resources\generated_resources_nb.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\generated_resources_nb.rc"
 			>
 		</File>
 		<File
@@ -148,7 +148,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\..\localized_strings\webkit_strings_nb.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_nb.rc"
 			>
 		</File>
 	</Files>

@@ -74,7 +74,10 @@ env.Append(
 
 env.Prepend(
     CPPPATH = [env.subst(x) for x in [
-        '$WEBKIT_DIR/build/localized_strings',
+
+        # We put our grit generated headers in a common place.  This matches
+        # what we do in Visual Studios.
+        '$TARGET_ROOT/grit_derived_sources',
         '$WEBKIT_DIR/build/JSConfig/WebCore',
 
         # TODO(sgk):  This directory was at this point in the /I list

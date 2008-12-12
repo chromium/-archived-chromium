@@ -15,6 +15,7 @@ env_res.Append(
     ],
     RCFLAGS = [
         ['/l', '0x409'],
+        ['/I', '$TARGET_ROOT/grit_derived_sources'],
     ],
 )
 
@@ -77,7 +78,10 @@ for rc in rc_files:
   res = env_res.RES(rc)
   resources.extend(res)
   # TODO(sgk):  find out why this implicit dependency isn't discovered
-  env.Depends(res, rc.replace('locale_settings', 'google_chrome_strings'))
+  env.Depends(res, rc.replace('locale_settings',
+      '$TARGET_ROOT/grit_derived_sources/google_chrome_strings'))
+  env.Depends(res, rc.replace('locale_settings',
+      '$TARGET_ROOT/grit_derived_sources/chromium_strings'))
 
 
 env.Append(
@@ -113,9 +117,11 @@ for locale_settings_res in resources:
   s = str(locale_settings_res)
   #lang = '$CHROME_DIR/locales/' + extract_lang.match(s).group(1)
   lang = extract_lang.match(s).group(1)
-  g_r_res = s.replace('locale_settings', 'generated_resources')
+  g_r_res = s.replace('locale_settings',
+                      '$TARGET_ROOT/grit_derived_sources/generated_resources')
   w_s_res = s.replace('locale_settings',
-                      '$WEBKIT_DIR/build/localized_strings/webkit_strings')
+                      '$TARGET_ROOT/grit_derived_sources/webkit_strings')
+
   dll = env_lang.ChromeSharedLibrary(
       lang,
       [

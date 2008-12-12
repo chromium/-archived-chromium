@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="..\..\glue;&quot;$(OutDir)&quot;;&quot;$(IntDir)\..\localized_strings&quot;;&quot;$(IntDir)\..\generated_resources&quot;"
+		AdditionalIncludeDirectories="..\..\glue;&quot;$(OutDir)&quot;;&quot;$(OutDir)\grit_derived_sources&quot;;"
 		PreprocessorDefinitions="_SCL_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=1"
 		WarnAsError="true"
 	/>
