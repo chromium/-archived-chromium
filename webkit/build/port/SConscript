@@ -146,6 +146,8 @@ else:
 
 
 idl_files = [
+    'bindings/v8/UndetectableHTMLCollection.idl',
+
     'css/Counter.idl',
     'css/CSSCharsetRule.idl',
     'css/CSSFontFaceRule.idl',
@@ -289,7 +291,6 @@ idl_files = [
     'html/MediaError.idl',
     'html/TextMetrics.idl',
     'html/TimeRanges.idl',
-    'html/UndetectableHTMLCollection.idl',
     'html/VoidCallback.idl',
 
     # 'loader/appcache/DOMApplicationCache.idl',
