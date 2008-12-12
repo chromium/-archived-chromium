@@ -142,7 +142,7 @@ class Rational(object):
       logging.error("Execute failed.")
       return
     retcode = self.Analyze()
-    if recode:
+    if retcode:
       logging.error("Analyze failed.")
       return retcode
     logging.info("Instrumentation and execution completed successfully.")
