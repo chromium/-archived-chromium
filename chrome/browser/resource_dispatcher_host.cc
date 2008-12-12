@@ -1916,8 +1916,16 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(
   for (size_t i = 0; i < matching_requests.size(); ++i) {
     PendingRequestList::iterator iter =
         pending_requests_.find(matching_requests[i]);
-    CHECK(iter != pending_requests_.end());
-    RemovePendingRequest(iter);
+    // Although every matching request was in pending_requests_ when we built
+    // matching_requests, it is normal for a matching request to be not found
+    // in pending_requests_ after we have removed some matching requests from
+    // pending_requests_.  For example, deleting a URLRequest that has
+    // exclusive (write) access to an HTTP cache entry may unblock another
+    // URLRequest that needs exclusive access to the same cache entry, and
+    // that URLRequest may complete and remove itself from pending_requests_.
+    // So we need to check that iter is not equal to pending_requests_.end().
+    if (iter != pending_requests_.end())
+      RemovePendingRequest(iter);
   }
 }
 
