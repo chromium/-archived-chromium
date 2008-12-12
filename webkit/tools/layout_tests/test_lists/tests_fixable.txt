@@ -2089,3 +2089,7 @@ LINUX : LayoutTests/svg/text/text-intro-05-t.html = FAIL
 
 // Failed with r6844 (dglazkov)
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
+
+// Failed with r6893 (mmoss) - the current baseline actually has a failure;
+// this change didn't fix that, but now it fails in a different way.
+LINUX WIN : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
