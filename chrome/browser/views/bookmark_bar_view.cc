@@ -1470,6 +1470,7 @@ void BookmarkBarView::ShowContextMenu(View* source,
     parent = node->GetParent();
   } else {
     parent = model_->GetBookmarkBarNode();
+    nodes.push_back(parent);
   }
   BookmarkContextMenu controller(GetWidget()->GetHWND(),
                                  GetProfile(), browser(), GetPageNavigator(),
