@@ -506,7 +506,7 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
 
     // If we're not in the New Tab page style, align ourselves with
     // the bookmarks bar (this works even if the bar is hidden).
-    if (!bookmark_bar->IsNewTabPage() ||
+    if (!bookmark_bar->OnNewTabPage() ||
         bookmark_bar->IsAlwaysShown()) {
       bookmark_bar_bounds = bookmark_bar->bounds();
     }
@@ -526,8 +526,10 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
     y_pos_offset = toolbar_bounds.bottom() - 1;
     // If there is a bookmark bar attached to the toolbar we should appear
     // attached to it instead of the toolbar.
-    if (!bookmark_bar_bounds.IsEmpty())
-      y_pos_offset += bookmark_bar_bounds.height() - 1;
+    if (!bookmark_bar_bounds.IsEmpty()) {
+      y_pos_offset += bookmark_bar_bounds.height() - 1 - 
+          bookmark_bar->GetToolbarOverlap();
+    }
   } else {
     // There is no toolbar, so this is probably a constrained window or a Chrome
     // Application. This means we draw the Find window at the top of the page

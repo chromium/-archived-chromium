@@ -52,9 +52,13 @@ using views::MenuButton;
 using views::MenuItemView;
 using views::View;
 
+// How much we want the bookmark bar to overlap the toolbar when in its
+// 'always shown' mode.
+static const double kToolbarOverlap = 4.0;
+
 // Margins around the content.
-static const int kTopMargin = 2;
-static const int kBottomMargin = 3;
+static const int kTopMargin = 1;
+static const int kBottomMargin = 2;
 static const int kLeftMargin = 1;
 static const int kRightMargin = 1;
 
@@ -757,7 +761,7 @@ gfx::Size BookmarkBarView::GetPreferredSize() {
   }
 
   gfx::Size prefsize;
-  if (IsNewTabPage()) {
+  if (OnNewTabPage()) {
     prefsize.set_height(kBarHeight + static_cast<int>(static_cast<double>
                         (kNewtabBarHeight - kBarHeight) *
                         (1 - size_animation_->GetCurrentValue())));
@@ -786,7 +790,7 @@ void BookmarkBarView::Layout() {
   int height = View::height() - kTopMargin - kBottomMargin;
   int separator_margin = kSeparatorMargin;
 
-  if (IsNewTabPage()) {
+  if (OnNewTabPage()) {
     double current_state = 1 - size_animation_->GetCurrentValue();
     x += static_cast<int>(static_cast<double>
         (kNewtabHorizontalPadding) * current_state);
@@ -874,7 +878,7 @@ void BookmarkBarView::ViewHierarchyChanged(bool is_add,
 }
 
 void BookmarkBarView::Paint(ChromeCanvas* canvas) {
-  if (IsNewTabPage() && (!IsAlwaysShown() || size_animation_->IsAnimating())) {
+  if (OnNewTabPage() && (!IsAlwaysShown() || size_animation_->IsAnimating())) {
     // Draw the background to match the new tab page.
     canvas->FillRectInt(kNewtabBackgroundColor, 0, 0, width(), height());
 
@@ -1106,9 +1110,13 @@ bool BookmarkBarView::IsAlwaysShown() {
   return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
 }
 
-bool BookmarkBarView::IsNewTabPage() {
+bool BookmarkBarView::OnNewTabPage() {
   return (browser_ && browser_->GetSelectedTabContents() &&
           browser_->GetSelectedTabContents()->IsBookmarkBarAlwaysVisible());
+}
+
+int BookmarkBarView::GetToolbarOverlap() {
+  return static_cast<int>(size_animation_->GetCurrentValue() * kToolbarOverlap);
 }
 
 void BookmarkBarView::AnimationProgressed(const Animation* animation) {
@@ -1368,7 +1376,7 @@ void BookmarkBarView::RunMenu(views::View* view,
   int x = view->GetX(APPLY_MIRRORING_TRANSFORMATION);
   int bar_height = height() - kMenuOffset;
 
-  if (IsNewTabPage() && !IsAlwaysShown())
+  if (OnNewTabPage() && !IsAlwaysShown())
     bar_height -= kNewtabVerticalPadding;
 
   int start_index = 0;

@@ -516,7 +516,7 @@ bool BrowserView::IsBookmarkBarVisible() const {
   if (!bookmark_bar_view_.get())
     return false;
 
-  if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
+  if (bookmark_bar_view_->OnNewTabPage() || bookmark_bar_view_->IsAnimating())
     return true;
 
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
@@ -1068,11 +1068,17 @@ int BrowserView::LayoutBookmarkAndInfoBars(int top) {
     // Info bar _above_ the Bookmark bar, since the Bookmark bar is styled to
     // look like it's part of the New Tab Page...
     if (active_bookmark_bar_ &&
-        bookmark_bar_view_->IsNewTabPage() &&
+        bookmark_bar_view_->OnNewTabPage() &&
         !bookmark_bar_view_->IsAlwaysShown()) {
       top = LayoutInfoBar(top);
       return LayoutBookmarkBar(top);
     }
+
+    // If we're showing a regular bookmark bar and it's not below an infobar, 
+    // make it overlap the toolbar so that the bar items can be drawn higher.
+    if (active_bookmark_bar_)
+      top -= bookmark_bar_view_->GetToolbarOverlap();
+
     // Otherwise, Bookmark bar first, Info bar second.
     top = LayoutBookmarkBar(top);
   }
@@ -1089,6 +1095,7 @@ int BrowserView::LayoutBookmarkBar(int top) {
   }
   return top;
 }
+
 int BrowserView::LayoutInfoBar(int top) {
   if (SupportsWindowFeature(FEATURE_INFOBAR)) {
     // Layout the InfoBar container.
