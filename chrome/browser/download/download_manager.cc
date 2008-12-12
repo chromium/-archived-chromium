@@ -398,17 +398,6 @@ void DownloadManager::Shutdown() {
   shutdown_needed_ = false;
 }
 
-// Determines whether the "save as" dialog should be displayed to the user
-// when downloading a file.
-bool DownloadManager::ShouldDisplaySaveAsDialog(
-    const DownloadCreateInfo* info) {
-  return
-      *prompt_for_download_ ||      // User always wants a prompt.
-      info->save_as ||              // "Save as ..." operation.
-      info->path_uniquifier == -1;  // Last attempt to generate a unique file
-                                    // name failed.
-}
-
 // Issue a history query for downloads matching 'search_text'. If 'search_text'
 // is empty, return all downloads that we know about.
 void DownloadManager::GetDownloads(Observer* observer,
@@ -530,18 +519,24 @@ void DownloadManager::StartDownload(DownloadCreateInfo* info) {
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
+  // Freeze the user's preference for showing a Save As dialog.  We're going to
+  // bounce around a bunch of threads and we don't want to worry about race
+  // conditions where the user changes this pref out from under us.
+  if (*prompt_for_download_)
+    info->save_as = true;
+
   // Determine the proper path for a download, by choosing either the default
   // download directory, or prompting the user.
   std::wstring generated_name;
   GenerateFilename(info, &generated_name);
-  if (ShouldDisplaySaveAsDialog(info) && !last_download_path_.empty())
+  if (info->save_as && !last_download_path_.empty())
     info->suggested_path = last_download_path_;
   else
     info->suggested_path = *download_path_;
   file_util::AppendToPath(&info->suggested_path, generated_name);
 
-  // Let's check if this download is dangerous, based on its name.
-  if (!ShouldDisplaySaveAsDialog(info)) {
+  if (!info->save_as) {
+    // Let's check if this download is dangerous, based on its name.
     const std::wstring filename =
         file_util::GetFilenameFromPath(info->suggested_path);
     info->is_dangerous = IsDangerous(filename);
@@ -581,10 +576,10 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
     while (path.empty()) {
       SStringPrintf(&file_name, L"unconfirmed %d.download",
                     base::RandInt(0, 100000));
-       path = dir;
-       file_util::AppendToPath(&path, file_name);
-       if (file_util::PathExists(path))
-         path.clear();
+      path = dir;
+      file_util::AppendToPath(&path, file_name);
+      if (file_util::PathExists(path))
+        path.clear();
     }
     info->suggested_path = path;
   } else {
@@ -594,7 +589,17 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
       // Setting path_uniquifier to 0 to make sure we don't try to unique it
       // later on.
       info->path_uniquifier = 0;
+    } else if (info->path_uniquifier == -1) {
+      // We failed to find a unique path.  We have to prompt the user.
+      info->save_as = true;
     }
+  }
+
+  if (!info->save_as) {
+    // Create an empty file at the suggested path so that we don't allocate the
+    // same "non-existant" path to multiple downloads.
+    // See: http://code.google.com/p/chromium/issues/detail?id=3662
+    file_util::WriteFile(info->suggested_path, "", 0);
   }
 
   // Now we return to the UI thread.
@@ -608,7 +613,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
-  if (ShouldDisplaySaveAsDialog(info)) {
+  if (info->save_as) {
     // We must ask the user for the place to put the download.
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
@@ -1226,7 +1231,7 @@ void DownloadManager::SaveAutoOpens() {
 
 void DownloadManager::FileSelected(const std::wstring& path, void* params) {
   DownloadCreateInfo* info = reinterpret_cast<DownloadCreateInfo*>(params);
-  if (ShouldDisplaySaveAsDialog(info))
+  if (info->save_as)
     last_download_path_ = file_util::GetDirectoryFromPath(path);
   ContinueStartDownload(info, path);
 }

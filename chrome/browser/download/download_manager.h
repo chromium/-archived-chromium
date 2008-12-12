@@ -411,10 +411,6 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // Shutdown the download manager.  This call is needed only after Init.
   void Shutdown();
 
-  // Determines whether the "save as" dialog should be displayed to the user
-  // when downloading a file.
-  bool ShouldDisplaySaveAsDialog(const DownloadCreateInfo* info);
-
   // Called on the download thread to check whether the suggested file path
   // exists.  We don't check if the file exists on the UI thread to avoid UI
   // stalls from interacting with the file system.
