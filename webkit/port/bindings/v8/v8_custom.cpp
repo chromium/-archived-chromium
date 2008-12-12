@@ -25,7 +25,6 @@
 
 #include <Assertions.h>
 #include <wtf/ASCIICType.h>
-#include <interpreter/CallFrame.h>
 
 #include "v8_proxy.h"
 #include "v8_events.h"
@@ -88,6 +87,7 @@
 #include "HTMLSelectElement.h"
 #include "History.h"
 #include "JSXPathNSResolver.h"
+#include "JSDOMBinding.h"
 #include "KURL.h"
 #include "Location.h"
 #include "MessageChannel.h"
@@ -101,6 +101,7 @@
 #include "RenderWidget.h"
 #include "ScheduledAction.h"
 #include "ScriptCallContext.h"
+#include "ScriptState.h"
 #include "ScriptController.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
@@ -3040,10 +3041,10 @@ CALLBACK_FUNC_DECL(TreeWalkerParentNode) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->parentNode(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->parentNode(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3055,10 +3056,10 @@ CALLBACK_FUNC_DECL(TreeWalkerFirstChild) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->firstChild(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->firstChild(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3070,10 +3071,10 @@ CALLBACK_FUNC_DECL(TreeWalkerLastChild) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->lastChild(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->lastChild(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3085,10 +3086,10 @@ CALLBACK_FUNC_DECL(TreeWalkerNextNode) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->nextNode(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->nextNode(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3100,10 +3101,10 @@ CALLBACK_FUNC_DECL(TreeWalkerPreviousNode) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->previousNode(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->previousNode(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3115,10 +3116,10 @@ CALLBACK_FUNC_DECL(TreeWalkerNextSibling) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->nextSibling(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->nextSibling(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3130,10 +3131,10 @@ CALLBACK_FUNC_DECL(TreeWalkerPreviousSibling) {
   TreeWalker* treeWalker = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
 
-  JSC::ExecState exec;
-  RefPtr<Node> result = treeWalker->previousSibling(&exec);
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  ScriptState state;
+  RefPtr<Node> result = treeWalker->previousSibling(&state);
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3146,14 +3147,14 @@ CALLBACK_FUNC_DECL(NodeIteratorNextNode) {
       V8ClassIndex::NODEITERATOR, args.Holder());
 
   ExceptionCode ec = 0;
-  JSC::ExecState exec;
-  RefPtr<Node> result = nodeIterator->nextNode(&exec, ec);
+  ScriptState state;
+  RefPtr<Node> result = nodeIterator->nextNode(&state, ec);
   if (ec != 0) {
       V8Proxy::SetDOMException(ec);
       return v8::Null();
   }
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();
@@ -3166,14 +3167,14 @@ CALLBACK_FUNC_DECL(NodeIteratorPreviousNode) {
       V8ClassIndex::NODEITERATOR, args.Holder());
 
   ExceptionCode ec = 0;
-  JSC::ExecState exec;
-  RefPtr<Node> result = nodeIterator->previousNode(&exec, ec);
+  ScriptState state;
+  RefPtr<Node> result = nodeIterator->previousNode(&state, ec);
   if (ec != 0) {
       V8Proxy::SetDOMException(ec);
       return v8::Null();
   }
-  if (exec.hadException()) {
-    v8::ThrowException(exec.exception());
+  if (state.hadException()) {
+    v8::ThrowException(state.exception());
     return v8::Undefined();
   }
   if (!result) return v8::Null();

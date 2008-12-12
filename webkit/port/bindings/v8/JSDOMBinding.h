@@ -34,11 +34,10 @@
 #ifndef JSDOMBinding_h
 #define JSDOMBinding_h
 
-#include "ScriptState.h"
-
 namespace WebCore {
     class Node;
     class Document;
+    class ScriptState;
 
     void updateDOMNodeDocument(Node*, Document* oldDocument,
                                Document* newDocument);

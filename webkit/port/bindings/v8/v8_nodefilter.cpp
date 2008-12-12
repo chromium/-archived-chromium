@@ -33,7 +33,7 @@
 #include "v8_proxy.h"
 #include "NodeFilter.h"
 #include "Node.h"
-#include <interpreter/CallFrame.h>
+#include "ScriptState.h"
 
 namespace WebCore {
 
@@ -52,7 +52,7 @@ V8NodeFilterCondition::~V8NodeFilterCondition() {
   m_filter.Clear();
 }
 
-short V8NodeFilterCondition::acceptNode(JSC::ExecState* exec,
+short V8NodeFilterCondition::acceptNode(ScriptState* state,
                                         Node* node) const {
   ASSERT(v8::Context::InContext());
 
@@ -74,7 +74,7 @@ short V8NodeFilterCondition::acceptNode(JSC::ExecState* exec,
   delete[] args;
 
   if (exception_catcher.HasCaught()) {
-    exec->setException(exception_catcher.Exception());
+    state->setException(exception_catcher.Exception());
     return NodeFilter::FILTER_REJECT;
   }
 

@@ -30,9 +30,21 @@
 #ifndef ScriptState_h
 #define ScriptState_h
 
-#include "interpreter/CallFrame.h"
+#include <v8.h>
 
 namespace WebCore {
-    typedef JSC::ExecState ScriptState;
+    class ScriptState {
+    public:
+        bool hadException() { return !m_exception.IsEmpty(); }
+        void setException(v8::Local<v8::Value> exception)
+        {
+            m_exception = exception;
+        }
+        v8::Local<v8::Value> exception() { return m_exception; }
+
+    private:
+        v8::Local<v8::Value> m_exception;
+    };
 }
+
 #endif // ScriptState_h
