@@ -178,9 +178,15 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
   // Encode image.
   std::vector<unsigned char> png;
   SkAutoLockPixels src_bmp_lock(src_bmp);
+  PNGEncoder::ColorFormat color_format =
+#if defined(OS_WIN) || defined(OS_LINUX)
+      PNGEncoder::FORMAT_BGRA;
+#elif defined(OS_MACOSX)
+      PNGEncoder::FORMAT_RGBA;
+#endif
   PNGEncoder::Encode(
       reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
-      PNGEncoder::FORMAT_BGRA, src_bmp.width(), src_bmp.height(),
+      color_format, src_bmp.width(), src_bmp.height(),
       static_cast<int>(src_bmp.rowBytes()), true, &png);
 
   // Write to disk.
