@@ -246,3 +246,16 @@ TEST_F(InteractiveConstrainedWindowTest, ShowAlertFromNormalPopup) {
   // Wait for there to be an app modal dialog.
   ASSERT_TRUE(automation()->WaitForAppModalDialog(5000));
 }
+
+// Make sure that window focus works while creating a popup window so that we
+// don't
+TEST_F(InteractiveConstrainedWindowTest, DontBreakOnBlur) {
+  NavigateMainTabTo(L"window_blur_test.html");
+  SimulateClickInCenterOf(window_);
+
+  // Wait for the popup window to open.
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
+
+  // We popup shouldn't be closed by the onblur handler.
+  ASSERT_FALSE(automation()->WaitForWindowCountToBecome(1, 1500));
+}
