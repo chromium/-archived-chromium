@@ -94,9 +94,9 @@ SKIP : LayoutTests/plugins/undefined-property-crash.html = FAIL
 SKIP : LayoutTests/plugins/call-as-function-test.html = FAIL
 
 // Ignore test because it tries to load .pdf files in <img> tags.
-LayoutTests/fast/images/pdf-as-image-landscape.html = FAIL
-LayoutTests/fast/images/pdf-as-image.html = FAIL
-LayoutTests/fast/replaced/pdf-as-image.html = FAIL
+LINUX WIN : LayoutTests/fast/images/pdf-as-image-landscape.html = FAIL
+LINUX WIN : LayoutTests/fast/images/pdf-as-image.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/pdf-as-image.html = FAIL
 
 // This test tries to print a PDF file as the expected result.  I don't think
 // we plan on supporting this anytime soon.
@@ -147,8 +147,8 @@ LayoutTests/fast/js/function-names.html = FAIL PASS
 LayoutTests/http/tests/incremental/slow-utf8-css.pl = FAIL
 
 // These tests expect a tiff decoder, which we don't have.
-LayoutTests/fast/images/embed-image.html = FAIL
-LayoutTests/fast/images/object-image.html = FAIL
+LINUX WIN : LayoutTests/fast/images/embed-image.html = FAIL
+LINUX WIN : LayoutTests/fast/images/object-image.html = FAIL
 
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS

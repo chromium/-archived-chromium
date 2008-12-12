@@ -9,7 +9,7 @@ LayoutTests/editing/execCommand/copy-without-selection.html = FAIL
 // Works fine when run stand-alone.  Not needed for Beta.
 // Also skipped by Apple on Windows, due to intermittent failure 
 // (rdar://5313536)
-LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL TIMEOUT
+LINUX WIN : LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL TIMEOUT
 
 // Bug 877986.
 // WebKit's CSS counters are somewhat broken, thus expected results are failures
@@ -806,7 +806,7 @@ DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH PASS
 LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
 
 // Crash in DEBUG only
-DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
+DEBUG LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 
 // This test is timing sensitive and sometimes fails.  However, other tests
 // in the LayoutTests/animations/ directory are timing sensitive in the same
@@ -1097,6 +1097,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+// MAC: these two seem to pass in release, but not debug
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
@@ -1599,12 +1600,10 @@ MAC : LayoutTests/fast/forms/input-width.html = FAIL
 LINUX : LayoutTests/fast/forms/listbox-clip.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-narrow-width.html = FAIL
 MAC : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
-MAC : LayoutTests/fast/forms/search-hidden-cancel-button.html = FAIL CRASH
 MAC : LayoutTests/fast/forms/select-namedItem.html = FAIL
 // Linux pixeltest failure: Failing to apply style
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
 MAC : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
-MAC : LayoutTests/fast/forms/targeted-frame-submission.html = FAIL CRASH
 MAC : LayoutTests/fast/forms/textarea-align.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
@@ -1692,7 +1691,6 @@ MAC : LayoutTests/fast/xsl/mozilla-tests.xml = FAIL
 MAC : LayoutTests/fast/xsl/xslt-extra-content-at-end.xml = FAIL
 MAC : LayoutTests/http/tests/loading/bad-scheme-subframe.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
-MAC : LayoutTests/http/tests/misc/refresh-headers.php = FAIL CRASH
 MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
 // Windows is missing the green box
 WIN MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
@@ -1833,37 +1831,24 @@ MAC : LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.html 
 MAC : LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
 MAC : LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
 MAC : LayoutTests/http/tests/security/xss-eval.html = FAIL
-MAC : LayoutTests/transforms/2d/zoom-menulist.htm = FAIL
 
 // These crash
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
-MAC : LayoutTests/fast/forms/input-text-enter.html = CRASH FAIL
-MAC : LayoutTests/fast/forms/tabs-with-modifiers.html = CRASH
-MAC : LayoutTests/fast/html/tab-order.html = CRASH
-MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = CRASH FAIL
-MAC : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = CRASH
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH
 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH TIMEOUT PASS
-MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH
 MAC : LayoutTests/fast/events/option-tab.html = CRASH FAIL
 MAC : LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH PASS
-MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
-MAC : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH
 
 // These time out
-MAC : LayoutTests/fast/events/anchor-image-scrolled-x-y.html = TIMEOUT
 MAC : LayoutTests/fast/events/event-view-toString.html = FAIL TIMEOUT
-MAC : LayoutTests/fast/events/open-window-from-another-frame.html = TIMEOUT
 MAC : LayoutTests/fast/history/history_reload.html = TIMEOUT PASS FAIL
-MAC : LayoutTests/http/tests/misc/referrer.html = TIMEOUT
-MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT
 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug2479-5.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
-MAC : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
-MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT
+// MAC: This seems to be passing in release but crash in debug
+MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT
 
 // WebKit Merge 38800:38850 regressions
 LayoutTests/fast/dom/HTMLDocument/document-open-return-value.html = FAIL
