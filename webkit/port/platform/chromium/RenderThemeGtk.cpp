@@ -278,6 +278,11 @@ Color RenderThemeGtk::platformInactiveSelectionForegroundColor() const
     return makeColor(widget->style->text[GTK_STATE_ACTIVE]);
 }
 
+Color RenderThemeGtk::platformTextSearchHighlightColor() const
+{
+    return Color(255, 255, 150);
+}
+
 double RenderThemeGtk::caretBlinkInterval() const
 {
     // Disable the blinking caret in layout test mode, as it introduces
@@ -368,11 +373,6 @@ bool RenderThemeGtk::paintButton(RenderObject* o, const RenderObject::PaintInfo&
 bool RenderThemeGtk::paintTextField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
 {
     return paintMozWidget(this, MOZ_GTK_ENTRY, o, i, rect);
-}
-
-bool RenderThemeGtk::paintTextArea(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
-{
-    return paintTextField(o, i, r);
 }
 
 bool RenderThemeGtk::paintSearchField(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
