@@ -38,6 +38,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */; };
+		04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */; };
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
@@ -1437,6 +1439,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavigatorBase.cpp; sourceTree = "<group>"; };
+		04C3AFC40EF1E4430046D578 /* NavigatorBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigatorBase.h; sourceTree = "<group>"; };
+		04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerNavigator.cpp; sourceTree = "<group>"; };
+		04C3AFC70EF1E4650046D578 /* WorkerNavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerNavigator.h; sourceTree = "<group>"; };
 		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
@@ -5547,6 +5553,8 @@
 				7B5E8F0A0D7F3C49001ECF42 /* MouseEventWithHitTestResults.h */,
 				ABA23E6B0E9FC43700C96905 /* Navigator.cpp */,
 				4DDC62A20EAD13EF00FB5EBE /* Navigator.h */,
+				04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */,
+				04C3AFC40EF1E4430046D578 /* NavigatorBase.h */,
 				7B5E8F0B0D7F3C49001ECF42 /* Page.cpp */,
 				7B5E8F0C0D7F3C49001ECF42 /* Page.h */,
 				4DB7F1FB0E9BAE2900C66CE0 /* PageGroup.cpp */,
@@ -5567,6 +5575,8 @@
 				7B5E8F170D7F3C49001ECF42 /* Settings.h */,
 				7B5E8F1C0D7F3C49001ECF42 /* WindowFeatures.cpp */,
 				7B5E8F1D0D7F3C49001ECF42 /* WindowFeatures.h */,
+				04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */,
+				04C3AFC70EF1E4650046D578 /* WorkerNavigator.h */,
 			);
 			path = page;
 			sourceTree = "<group>";
@@ -9274,6 +9284,8 @@
 				93817B930EF1CD9600993F02 /* NativeImageSkia.cpp in Sources */,
 				93817B940EF1CD9600993F02 /* PlatformContextSkia.cpp in Sources */,
 				93817B950EF1CD9600993F02 /* SkiaUtils.cpp in Sources */,
+				04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */,
+				04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

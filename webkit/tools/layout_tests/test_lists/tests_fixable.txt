@@ -1702,7 +1702,6 @@ MAC : LayoutTests/fast/js/kde/lval-exceptions.html = FAIL
 MAC : LayoutTests/fast/js/kde/parse.html = FAIL
 MAC : LayoutTests/fast/js/kde/string-1-n.html = FAIL
 MAC : LayoutTests/fast/js/kde/string-2-n.html = FAIL
-MAC : LayoutTests/fast/js/modify-non-references.html = FAIL
 MAC : LayoutTests/fast/js/number-toExponential.html = FAIL
 MAC : LayoutTests/fast/js/number-tofixed.html = FAIL
 MAC : LayoutTests/fast/js/number-toprecision.html = FAIL
@@ -1714,7 +1713,6 @@ MAC : LayoutTests/fast/js/recursion-limit-equal.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile-crash.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile.html = FAIL
 MAC : LayoutTests/fast/js/regexp-no-extensions.html = FAIL
-MAC : LayoutTests/fast/js/regexp-overflow.html = FAIL
 MAC : LayoutTests/fast/js/regexp-range-out-of-order.html = FAIL
 MAC : LayoutTests/fast/js/reserved-words.html = FAIL
 MAC : LayoutTests/fast/js/string-capitalization.html = FAIL
@@ -2004,6 +2002,23 @@ LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 LayoutTests/http/tests/loading/simple-subframe.html = FAIL
+
+// WebKit Merge 39100:39141 new tests:
+LayoutTests/editing/execCommand/enabling-and-selection-2.html = FAIL
+SKIP : LayoutTests/fast/dom/Window/timeout-released-on-close.html = FAIL
+LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
+LayoutTests/fast/regex/non-pattern-characters.html = FAIL
+SKIP : LayoutTests/fast/workers/worker-navigator.html = FAIL
+SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
+LayoutTests/wml/go-task-get-method-external-deck.html = FAIL
+LayoutTests/wml/go-task-get-method-same-deck.html = FAIL
+LayoutTests/wml/go-task-get-method-external-deck-with-href.html = FAIL
+
+// WebKit Merge 39100:39141 regressions:
+LayoutTests/fast/css/font-face-descriptor-multiple-values-parsing.html = FAIL
+LayoutTests/fast/js/large-expressions.html = FAIL
+LayoutTests/fast/js/modify-non-references.html = FAIL
+LayoutTests/fast/js/regexp-overflow.html = FAIL
 
 // Linux pixeltest failure: font metrics for Ahem(?).
 // evanm sent a reduction of this problem to agl.
