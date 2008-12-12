@@ -157,7 +157,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\chrome_font.cc"
+				RelativePath=".\gfx\chrome_font_win.cc"
 				>
 			</File>
 			<File
