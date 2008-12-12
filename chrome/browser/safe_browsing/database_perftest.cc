@@ -5,24 +5,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <limits>
 #include <set>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
+#include "base/rand_util.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/test_file_util.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
+#include "chrome/browser/safe_browsing/safe_browsing_database_impl.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
+#include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-// These tests are slow, especially the ones that create databases.  So disable
-// them by default.
-//#define SAFE_BROWSING_DATABASE_TESTS_ENABLED
-#ifdef SAFE_BROWSING_DATABASE_TESTS_ENABLED
 
 namespace {
 
@@ -35,28 +36,27 @@ class Database {
 
   ~Database() {
     if (db_) {
-      statement_cache_.Cleanup();
       sqlite3_close(db_);
       db_ = NULL;
     }
   }
 
-  bool Init(const std::string& name, bool create) {
+  bool Init(const FilePath& name, bool create) {
     // get an empty file for the test DB
-    std::wstring filename;
+    FilePath filename;
     PathService::Get(base::DIR_TEMP, &filename);
-    filename.push_back(FilePath::kSeparators[0]);
-    filename.append(ASCIIToWide(name));
+    filename = filename.Append(name);
 
     if (create) {
-      DeleteFile(filename.c_str());
+      file_util::Delete(filename, false);
     } else {
-      DLOG(INFO) << "evicting " << name << " ...";
-      file_util::EvictFileFromSystemCache(filename.c_str());
+      DLOG(INFO) << "evicting " << name.value() << " ...";
+      file_util::EvictFileFromSystemCache(filename);
       DLOG(INFO) << "... evicted";
     }
 
-    if (sqlite3_open(WideToUTF8(filename).c_str(), &db_) != SQLITE_OK)
+    const std::string sqlite_path = WideToUTF8(filename.ToWStringHack());
+    if (sqlite3_open(sqlite_path.c_str(), &db_) != SQLITE_OK)
       return false;
 
     statement_cache_.set_db(db_);
@@ -197,7 +197,7 @@ class IndexedWithIDDatabase : public SimpleDatabase {
   }
 };
 
-}
+}  // namespace
 
 class SafeBrowsing: public testing::Test {
  protected:
@@ -253,7 +253,8 @@ class SafeBrowsing: public testing::Test {
     db_name_.append(count_start);
     db_name_.append(db_->GetDBSuffix());
 
-    ASSERT_TRUE(db_->Init(db_name_, type == WRITE));
+    FilePath path = FilePath::FromWStringHack(ASCIIToWide(db_name_));
+    ASSERT_TRUE(db_->Init(path, type == WRITE));
 
     if (type == WRITE) {
       WriteEntries(size);
@@ -275,10 +276,9 @@ class SafeBrowsing: public testing::Test {
     SQLTransaction transaction(db_->db());
     transaction.Begin();
 
-    int inc = kint32max / count;
     for (int i = 0; i < count; i++) {
-      int hostkey;
-      rand_s((unsigned int*)&hostkey);
+      int hostkey = base::RandInt(std::numeric_limits<int>::min(),
+                                  std::numeric_limits<int>::max());
       ASSERT_TRUE(db_->Add(hostkey, prefixes, 1));
     }
 
@@ -292,8 +292,8 @@ class SafeBrowsing: public testing::Test {
     int64 total_ms = 0;
 
     for (int i = 0; i < count; ++i) {
-      int key;
-      rand_s((unsigned int*)&key);
+      int key = base::RandInt(std::numeric_limits<int>::min(),
+                              std::numeric_limits<int>::max());
 
       PerfTimer timer;
 
@@ -332,74 +332,75 @@ class SafeBrowsing: public testing::Test {
   std::string db_name_;
 };
 
-TEST_F(SafeBrowsing, Write_100K) {
+TEST_F(SafeBrowsing, DISABLED_Write_100K) {
 }
 
-TEST_F(SafeBrowsing, Read_100K) {
+TEST_F(SafeBrowsing, DISABLED_Read_100K) {
 }
 
-TEST_F(SafeBrowsing, WriteIndexed_100K) {
+TEST_F(SafeBrowsing, DISABLED_WriteIndexed_100K) {
 }
 
-TEST_F(SafeBrowsing, ReadIndexed_100K) {
+TEST_F(SafeBrowsing, DISABLED_ReadIndexed_100K) {
 }
 
-TEST_F(SafeBrowsing, WriteIndexed_250K) {
+TEST_F(SafeBrowsing, DISABLED_WriteIndexed_250K) {
 }
 
-TEST_F(SafeBrowsing, ReadIndexed_250K) {
+TEST_F(SafeBrowsing, DISABLED_ReadIndexed_250K) {
 }
 
-TEST_F(SafeBrowsing, WriteIndexed_500K) {
+TEST_F(SafeBrowsing, DISABLED_WriteIndexed_500K) {
 }
 
-TEST_F(SafeBrowsing, ReadIndexed_500K) {
+TEST_F(SafeBrowsing, DISABLED_ReadIndexed_500K) {
 }
 
-TEST_F(SafeBrowsing, ReadIndexedWithID_250K) {
+TEST_F(SafeBrowsing, DISABLED_WriteIndexedWithID_250K) {
 }
 
-TEST_F(SafeBrowsing, WriteIndexedWithID_250K) {
+TEST_F(SafeBrowsing, DISABLED_ReadIndexedWithID_250K) {
 }
 
-TEST_F(SafeBrowsing, ReadIndexedWithID_500K) {
+TEST_F(SafeBrowsing, DISABLED_WriteIndexedWithID_500K) {
 }
 
-TEST_F(SafeBrowsing, WriteIndexedWithID_500K) {
+TEST_F(SafeBrowsing, DISABLED_ReadIndexedWithID_500K) {
 }
 
-TEST_F(SafeBrowsing, CountIndexed_250K) {
+TEST_F(SafeBrowsing, DISABLED_CountIndexed_250K) {
 }
 
-TEST_F(SafeBrowsing, CountIndexed_500K) {
+TEST_F(SafeBrowsing, DISABLED_CountIndexed_500K) {
 }
 
-TEST_F(SafeBrowsing, CountIndexedWithID_250K) {
+TEST_F(SafeBrowsing, DISABLED_CountIndexedWithID_250K) {
 }
 
-TEST_F(SafeBrowsing, CountIndexedWithID_500K) {
+TEST_F(SafeBrowsing, DISABLED_CountIndexedWithID_500K) {
 }
 
 
 class SafeBrowsingDatabaseTest {
  public:
-  SafeBrowsingDatabaseTest(const std::wstring& name) {
+  SafeBrowsingDatabaseTest(const FilePath& filename) {
     logging::InitLogging(
         NULL, logging::LOG_ONLY_TO_SYSTEM_DEBUG_LOG,
         logging::LOCK_LOG_FILE,
         logging::DELETE_OLD_LOG_FILE);
 
-    PathService::Get(base::DIR_TEMP, &filename_);
-    filename_.push_back(FilePath::kSeparators[0]);
-    filename_.append(name);
+    std::wstring tmp_path;
+    PathService::Get(base::DIR_TEMP, &tmp_path);
+    path_ = FilePath::FromWStringHack(tmp_path);
+    path_ = path_.Append(filename);
   }
 
   void Create(int size) {
-    DeleteFile(filename_.c_str());
+    file_util::Delete(path_, false);
 
-    SafeBrowsingDatabase database;
-    database.set_synchronous();
-    EXPECT_TRUE(database.Init(filename_));
+    scoped_ptr<SafeBrowsingDatabase> database(SafeBrowsingDatabase::Create());
+    database->SetSynchronous();
+    EXPECT_TRUE(database->Init(path_.ToWStringHack(), NULL));
 
     int chunk_id = 0;
     int total_host_keys = size;
@@ -413,7 +414,8 @@ class SafeBrowsingDatabaseTest {
 
       for (int j = 0; j < host_keys_per_chunk; ++j) {
         SBChunkHost host;
-        rand_s((unsigned int*)&host.host);
+        host.host = base::RandInt(std::numeric_limits<int>::min(),
+                                  std::numeric_limits<int>::max());
         host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 2);
         host.entry->SetPrefixAt(0, 0x2425525);
         host.entry->SetPrefixAt(1, 0x1536366);
@@ -422,32 +424,37 @@ class SafeBrowsingDatabaseTest {
       }
     }
 
-    database.InsertChunks("goog-malware", chunks);
+    database->InsertChunks("goog-malware", chunks);
   }
 
   void Read(bool use_bloom_filter) {
     int keys_to_read = 500;
-    file_util::EvictFileFromSystemCache(filename_.c_str());
+    file_util::EvictFileFromSystemCache(path_);
 
-    SafeBrowsingDatabase database;
-    database.set_synchronous();
-    EXPECT_TRUE(database.Init(filename_));
+    scoped_ptr<SafeBrowsingDatabase> database(SafeBrowsingDatabase::Create());
+    database->SetSynchronous();
+    EXPECT_TRUE(database->Init(path_.ToWStringHack(), NULL));
 
     PerfTimer total_timer;
     int64 db_ms = 0;
     int keys_from_db = 0;
     for (int i = 0; i < keys_to_read; ++i) {
-      int key;
-      rand_s((unsigned int*)&key);
+      int key = base::RandInt(std::numeric_limits<int>::min(),
+                              std::numeric_limits<int>::max());
 
       std::string url = StringPrintf("http://www.%d.com/blah.html", key);
 
       std::string matching_list;
       std::vector<SBPrefix> prefix_hits;
+      std::vector<SBFullHashResult> full_hits;
       GURL gurl(url);
-      if (!use_bloom_filter || database.NeedToCheckUrl(gurl)) {
+      if (!use_bloom_filter || database->NeedToCheckUrl(gurl)) {
         PerfTimer timer;
-        database.ContainsUrl(gurl, &matching_list, &prefix_hits);
+        database->ContainsUrl(gurl,
+                              &matching_list,
+                              &prefix_hits,
+                              &full_hits,
+                              base::Time::Now());
 
         int64 time_ms = timer.Elapsed().InMilliseconds();
 
@@ -460,81 +467,80 @@ class SafeBrowsingDatabaseTest {
 
     int64 total_ms = total_timer.Elapsed().InMilliseconds();
 
-    DLOG(INFO) << WideToASCII(file_util::GetFilenameFromPath(filename_)) <<
-        " read " << keys_to_read << " entries in " << total_ms << " ms.  "  <<
-        keys_from_db << " keys were read from the db, with average read taking " <<
+    DLOG(INFO) << path_.BaseName().value() << " read " << keys_to_read <<
+        " entries in " << total_ms << " ms.  "  << keys_from_db <<
+        " keys were read from the db, with average read taking " <<
         db_ms / keys_from_db << " ms";
   }
 
   void BuildBloomFilter() {
-    file_util::EvictFileFromSystemCache(filename_.c_str());
-    file_util::Delete(SafeBrowsingDatabase::BloomFilterFilename(filename_), false);
+    file_util::EvictFileFromSystemCache(path_);
+    file_util::Delete(SafeBrowsingDatabase::BloomFilterFilename(
+          path_.ToWStringHack()), false);
 
     PerfTimer total_timer;
 
-    SafeBrowsingDatabase database;
-    database.set_synchronous();
-    EXPECT_TRUE(database.Init(filename_));
+    scoped_ptr<SafeBrowsingDatabase> database(SafeBrowsingDatabase::Create());
+    database->SetSynchronous();
+    EXPECT_TRUE(database->Init(path_.ToWStringHack(), NULL));
 
     int64 total_ms = total_timer.Elapsed().InMilliseconds();
 
-    DLOG(INFO) << WideToASCII(file_util::GetFilenameFromPath(filename_)) <<
+    DLOG(INFO) << path_.BaseName().value() <<
         " built bloom filter in " << total_ms << " ms.";
   }
 
  private:
-  std::wstring filename_;
+  FilePath path_;
 };
 
 // Adds 100K host records.
-TEST(SafeBrowsingDatabase, FillUp100K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing100K");
+TEST(SafeBrowsingDatabase, DISABLED_FillUp100K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing100K")));
   db.Create(100000);
 }
 
 // Adds 250K host records.
-TEST(SafeBrowsingDatabase, FillUp250K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing250K");
+TEST(SafeBrowsingDatabase, DISABLED_FillUp250K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing250K")));
   db.Create(250000);
 }
 
 // Adds 500K host records.
-TEST(SafeBrowsingDatabase, FillUp500K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing500K");
+TEST(SafeBrowsingDatabase, DISABLED_FillUp500K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing500K")));
   db.Create(500000);
 }
 
 // Reads 500 entries and prints the timing.
-TEST(SafeBrowsingDatabase, ReadFrom250K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing250K");
+TEST(SafeBrowsingDatabase, DISABLED_ReadFrom250K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing250K")));
   db.Read(false);
 }
 
-TEST(SafeBrowsingDatabase, ReadFrom500K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing500K");
+TEST(SafeBrowsingDatabase, DISABLED_ReadFrom500K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing500K")));
   db.Read(false);
 }
 
 // Read 500 entries with a bloom filter and print the timing.
-TEST(SafeBrowsingDatabase, BloomReadFrom250K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing250K");
+TEST(SafeBrowsingDatabase, DISABLED_BloomReadFrom250K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing250K")));
   db.Read(true);
 }
 
-TEST(SafeBrowsingDatabase, BloomReadFrom500K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing500K");
+TEST(SafeBrowsingDatabase, DISABLED_BloomReadFrom500K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing500K")));
   db.Read(true);
 }
 
 // Test how long bloom filter creation takes.
-TEST(SafeBrowsingDatabase, BuildBloomFilter250K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing250K");
+TEST(SafeBrowsingDatabase, DISABLED_BuildBloomFilter250K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing250K")));
   db.BuildBloomFilter();
 }
 
-TEST(SafeBrowsingDatabase, BuildBloomFilter500K) {
-  SafeBrowsingDatabaseTest db(L"SafeBrowsing500K");
+TEST(SafeBrowsingDatabase, DISABLED_BuildBloomFilter500K) {
+  SafeBrowsingDatabaseTest db(FilePath(FILE_PATH_LITERAL("SafeBrowsing500K")));
   db.BuildBloomFilter();
 }
-
-#endif

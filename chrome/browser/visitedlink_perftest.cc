@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/perftimer.h"
 #include "base/shared_memory.h"
@@ -143,7 +144,8 @@ TEST_F(VisitedLink, TestLoad) {
   for (int i = 0; i < load_count; i++)
   {
     // make sure the file has to be re-loaded
-    file_util::EvictFileFromSystemCache(db_name_.c_str());
+    file_util::EvictFileFromSystemCache(
+        FilePath::FromWStringHack(std::wstring(db_name_)));
 
     // cold load (no OS cache, hopefully)
     {

@@ -8,6 +8,7 @@
 
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/scoped_handle.h"
 
@@ -17,10 +18,10 @@ namespace file_util {
 // our purpose fine since 4K is the page size on x86 as well as x64.
 static const ptrdiff_t kPageSize = 4096;
 
-bool EvictFileFromSystemCache(const wchar_t* file) {
+bool EvictFileFromSystemCache(const FilePath& file) {
   // Request exclusive access to the file and overwrite it with no buffering.
   ScopedHandle file_handle(
-      CreateFile(file, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+      CreateFile(file.value().c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
                  OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL));
   if (!file_handle)
     return false;
@@ -85,8 +86,8 @@ bool EvictFileFromSystemCache(const wchar_t* file) {
     // to open the file again, this time without the FILE_FLAG_NO_BUFFERING
     // flag and use SetEndOfFile to mark EOF.
     file_handle.Set(NULL);
-    file_handle.Set(CreateFile(file, GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
-                               0, NULL));
+    file_handle.Set(CreateFile(file.value().c_str(), GENERIC_WRITE, 0, NULL,
+                               OPEN_EXISTING, 0, NULL));
     CHECK(SetFilePointer(file_handle, total_bytes, NULL, FILE_BEGIN) !=
           INVALID_SET_FILE_POINTER);
     CHECK(::SetEndOfFile(file_handle));
@@ -147,7 +148,7 @@ bool CopyRecursiveDirNoCache(const std::wstring& source_dir,
       // files that are in the repository, and they will have read-only set.
       // This will prevent us from evicting from the cache, but these don't
       // matter anyway.
-      EvictFileFromSystemCache(cur_dest_path.c_str());
+      EvictFileFromSystemCache(FilePath::FromWStringHack(cur_dest_path));
     }
   } while (FindNextFile(fh, &fd));
 
