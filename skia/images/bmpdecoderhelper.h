@@ -1,5 +1,5 @@
 /*
- * Copyright 2007, Google Inc.
+ * Copyright 2007, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -18,7 +18,8 @@
 #define IMAGE_CODEC_BMPDECODERHELPER_H__
 
 ///////////////////////////////////////////////////////////////////////////////
-// Some glue code that should be removed soon.
+// this section is my current "glue" between google3 code and android.
+// will be fixed soon
 
 #include "SkTypes.h"
 #include <limits.h>

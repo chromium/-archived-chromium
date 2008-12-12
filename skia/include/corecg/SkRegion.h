@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2007 Google Inc.
+ * Copyright (C) 2005 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +108,16 @@ public:
         drawn by the path (with no antialiasing) with the specified clip.
     */
     bool    setPath(const SkPath&, const SkRegion& clip);
+    
+    /** Returns true if the specified rectangle has a non-empty intersection
+        with this region.
+    */
+    bool    intersects(const SkIRect&) const;
+    
+    /** Returns true if the specified region has a non-empty intersection
+        with this region.
+    */
+    bool    intersects(const SkRegion&) const;
 
     /** Return true if the specified x,y coordinate is inside the region.
     */

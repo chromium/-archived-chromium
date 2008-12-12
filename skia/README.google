@@ -21,3 +21,4 @@ also pick up any important changes they make.
 
 Patches we are tracking locally (until Skia is fixed upstream):
 fix_for_1186198.diff -- eseidel, 6/4/08, BUG=1186198
+linux_patch.diff

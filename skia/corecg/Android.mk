@@ -10,11 +10,12 @@ LOCAL_SRC_FILES:= \
 	SkCordic.cpp \
 	SkDebug.cpp \
 	SkDebug_stdio.cpp \
-	SkFloat.cpp \
+	SkFloatBits.cpp \
 	SkInterpolator.cpp \
 	SkMath.cpp \
 	SkMatrix.cpp \
 	SkMemory_stdlib.cpp \
+	SkPageFlipper.cpp \
 	SkPoint.cpp \
 	SkRect.cpp \
 	SkRegion.cpp

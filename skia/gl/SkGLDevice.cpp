@@ -21,11 +21,8 @@ public:
         glTexCoordPointer(2, SK_TextGLType, 0, fTexs);
         glDisableClientState(GL_COLOR_ARRAY);
         glVertexPointer(2, SK_TextGLType, 0, fVerts);
-        
-        fCtx = SkGetGLContext();
     }
 
-    void* ctx() const { return fCtx; }
     GLenum texture() const { return fCurrTexture; }
 
     void flush() {
@@ -68,7 +65,6 @@ private:
     int             fCurrQuad;
     int             fViewportHeight;
     const SkRegion* fClip;
-    void*           fCtx;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -177,7 +173,7 @@ SkGLDevice::TexCache* SkGLDevice::setupGLPaintShader(const SkPaint& paint) {
     }
     
     bitmap.lockPixels();
-    if (bitmap.getPixels() == NULL) {
+    if (!bitmap.readyToDraw()) {
         return NULL;
     }
     
@@ -327,7 +323,7 @@ void SkGLDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
     TRACE_DRAW("coreDrawBitmap", this, draw);
     
     SkAutoLockPixels alp(bitmap);
-    if (bitmap.getPixels() == NULL) {
+    if (!bitmap.readyToDraw()) {
         return;
     }
     
@@ -396,7 +392,7 @@ void SkGLDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     TRACE_DRAW("coreDrawSprite", this, draw);
     
     SkAutoLockPixels alp(bitmap);
-    if (bitmap.getPixels() == NULL) {
+    if (!bitmap.readyToDraw()) {
         return;
     }
     
@@ -539,11 +535,8 @@ DONE:
 #include "SkGlyphCache.h"
 #include "SkGLTextCache.h"
 
-static void SkGL_GlyphCacheAuxProc(void* data) {
-    SkGLTextCache* cache = (SkGLTextCache*)data;
-
-    SkDebugf("-------------- delete text texture cache, ctx=%p\n",
-             cache->getCtx());
+void SkGLDevice::GlyphCacheAuxProc(void* data) {
+    SkDebugf("-------------- delete text texture cache\n");
     SkDELETE((SkGLTextCache*)data);
 }
 
@@ -576,19 +569,13 @@ static void SkGL_Draw1Glyph(const SkDraw1Glyph& state, const SkGlyph& glyph,
     void* auxData;
     SkGLTextCache* textCache = NULL;
     
-    if (gcache->getAuxProcData(SkGL_GlyphCacheAuxProc, &auxData)) {
-        textCache = (SkGLTextCache*)auxData;
-        if (textCache->getCtx() != procs->ctx()) {
-            SkDebugf("------- textcache: old ctx %p new ctx %p\n",
-                     textCache->getCtx(), procs->ctx());
-            SkDELETE(textCache);
-            textCache = NULL;
-        }
+    if (gcache->getAuxProcData(SkGLDevice::GlyphCacheAuxProc, &auxData)) {
+        textCache = (SkGLTextCache*)auxData;            
     }
     if (NULL == textCache) {
         // need to create one
         textCache = SkNEW(SkGLTextCache);
-        gcache->setAuxProc(SkGL_GlyphCacheAuxProc, textCache);
+        gcache->setAuxProc(SkGLDevice::GlyphCacheAuxProc, textCache);
     }
     
     int offset;

@@ -1,9 +1,25 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
 
 #include "SkFlattenable.h"
 
-////////////////// EXPERIMENTAL <reed> //////////////////////////
+////////////////// EXPERIMENTAL //////////////////////////
 
 class SkCanvas;
 class SkPaint;
@@ -30,12 +46,19 @@ public:
     virtual bool next() { return false; }
     /** Called after the looper has finally returned false from next(), allowing
         the looper to restore the canvas/paint to their original states.
-        <reed> is this required, since the subclass knows when it is done???
-        <reed> should we pass the canvas/paint here, and/or to the next call
+        is this required, since the subclass knows when it is done???
+        should we pass the canvas/paint here, and/or to the next call
         so that subclasses don't need to retain pointers to them during the 
         loop?
     */
     virtual void restore() {}
+    
+protected:
+    SkDrawLooper() {}
+    SkDrawLooper(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+
+private:
+    typedef SkFlattenable INHERITED;
 };
 
 #endif

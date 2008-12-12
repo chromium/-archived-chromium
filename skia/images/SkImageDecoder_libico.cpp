@@ -1,6 +1,6 @@
 /* libs/graphics/images/SkImageDecoder_libico.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -82,6 +82,20 @@ static void editPixelBit32(const int pixelNo, const unsigned char* buf,
             const int xorOffset, int& x, int y, const int w, 
             SkBitmap* bm, int alphaByte, int m, int shift, SkPMColor* colors);
             
+            
+static int calculateRowBytesFor8888(int w, int bitCount)
+{
+    //  Default rowBytes is w << 2 for kARGB_8888
+    //  In the case of a 4 bit image with an odd width, we need to add some
+    //  so we can go off the end of the drawn bitmap.
+    //  Add 4 to ensure that it is still a multiple of 4.
+    if (4 == bitCount && (w & 0x1)) {
+        return (w + 1) << 2;
+    }
+    //  Otherwise return 0, which will allow it to be calculated automatically.
+    return 0;
+}
+
 bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
                                  SkBitmap::Config pref, Mode mode)
 {
@@ -241,11 +255,8 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
     //FIXME: what is the tradeoff in size?
     //if the andbitmap (mask) is all zeroes, then we can easily do an index bitmap
     //however, with small images with large colortables, maybe it's better to still do argb_8888
-    //default rowBytes is w << 2 for kARGB_8888
-    //i'm adding one - it's only truly necessary in the case that w is odd and we are four bit
-    //so we can go off the end of the drawn bitmap
-    //FIXME: need to test with an odd width bitmap that is 4bit
-    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h, (w << 2) + (0x1 & w & (bitCount >> 2)));
+
+    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h, calculateRowBytesFor8888(w, bitCount));
     
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         delete[] colors;
@@ -298,7 +309,12 @@ static void editPixelBit1(const int pixelNo, const unsigned char* buf,
     int byte = readByte(buf, xorOffset + (pixelNo >> 3));
     int colorBit;
     int alphaBit;
+    // Read all of the bits in this byte.  
     int i = x + 8;
+    // Pin to the width so we do not write outside the bounds of 
+    // our color table.
+    i = i > w ? w : i;
+    // While loop to check all 8 bits individually.
     while (x < i)
     {
         

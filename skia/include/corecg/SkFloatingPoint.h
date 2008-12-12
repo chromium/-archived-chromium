@@ -1,19 +1,18 @@
-/* include/corecg/SkFloatingPoint.h
-**
-** Copyright 2006, Google Inc.
-**
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
-**
-**     http://www.apache.org/licenses/LICENSE-2.0 
-**
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
-** limitations under the License.
-*/
+/*
+ * Copyright (C) 2006 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef SkFloatingPoint_DEFINED
 #define SkFloatingPoint_DEFINED
@@ -24,6 +23,7 @@
 
 #include <math.h>
 #include <float.h>
+#include "SkFloatBits.h"
 
 #ifdef SK_BUILD_FOR_WINCE
     #define sk_float_sqrt(x)        (float)::sqrt(x)
@@ -59,6 +59,16 @@
     #define sk_float_exp(x)         expf(x)
     #define sk_float_log(x)         logf(x)
     #define sk_float_isNaN(x)       _isnan(x)
+#endif
+
+#ifdef SK_USE_FLOATBITS
+    #define sk_float_floor2int(x)   SkFloatToIntFloor(x)
+    #define sk_float_round2int(x)   SkFloatToIntRound(x)
+    #define sk_float_ceil2int(x)    SkFloatToIntCeil(x)
+#else
+    #define sk_float_floor2int(x)   (int)sk_float_floor(x)
+    #define sk_float_round2int(x)   (int)sk_float_floor((x) + 0.5f)
+    #define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
 #endif
 
 #endif

@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkColor.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -66,7 +66,9 @@ void SkRGBToHSV(U8CPU r, U8CPU g, U8CPU b, SkScalar hsv[3]) {
     SkASSERT(v >= 0 && v <= SK_Scalar1);
 
     if (0 == delta) { // we're a shade of gray
-        hsv[0] = hsv[1] = hsv[2] = v;
+        hsv[0] = 0;
+        hsv[1] = 0;
+        hsv[2] = v;
         return;
     }
 

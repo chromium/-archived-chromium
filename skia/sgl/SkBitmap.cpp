@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 Google Inc.
+ * Copyright (C) 2006-2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkFlattenable.h"
+#include "SkMallocPixelRef.h"
 #include "SkMask.h"
 #include "SkPixelRef.h"
 #include "SkThread.h"
@@ -33,8 +34,8 @@ struct MipLevel {
 };
 
 struct SkBitmap::MipMap : SkNoncopyable {
-    int fRefCnt;
-    int fLevelCount;
+    int32_t fRefCnt;
+    int     fLevelCount;
 //  MipLevel    fLevel[fLevelCount];
 //  Pixels[]
     
@@ -203,6 +204,20 @@ int SkBitmap::ComputeRowBytes(Config c, int width) {
     return rowBytes;
 }
 
+Sk64 SkBitmap::ComputeSize64(Config c, int width, int height) {
+    Sk64 size;
+    size.setMul(SkBitmap::ComputeRowBytes(c, width), height);
+    return size;
+}
+
+size_t SkBitmap::ComputeSize(Config c, int width, int height) {
+    Sk64 size = SkBitmap::ComputeSize64(c, width, height);
+    if (size.isNeg() || !size.is32()) {
+        return 0;
+    }
+    return size.get32();
+}
+
 void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     this->freePixels();
 
@@ -334,40 +349,6 @@ void SkBitmap::notifyPixelsChanged() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** We explicitly use the same allocator for our pixels that SkMask does,
- so that we can freely assign memory allocated by one class to the other.
- */
-class SkMallocPixelRef : public SkPixelRef {
-public:
-    /** Allocate the specified buffer for pixels. The memory is freed when the
-     last owner of this pixelref is gone.
-     */
-    SkMallocPixelRef(void* addr, size_t size, SkColorTable* ctable);
-    virtual ~SkMallocPixelRef();
-
-    virtual void flatten(SkFlattenableWriteBuffer&) const;
-    virtual Factory getFactory() const {
-        return Create;
-    }
-    static SkPixelRef* Create(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkMallocPixelRef, (buffer));
-    }
-
-protected:
-    // overrides from SkPixelRef
-    virtual void* onLockPixels(SkColorTable**);
-    virtual void onUnlockPixels();
-
-    SkMallocPixelRef(SkFlattenableReadBuffer& buffer);
-
-private:
-    void*           fStorage;
-    size_t          fSize;
-    SkColorTable*   fCTable;
-
-    typedef SkPixelRef INHERITED;
-};
-
 SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,
                                    SkColorTable* ctable) {
     SkASSERT(storage);
@@ -416,7 +397,7 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer) : INHERITED(
 }
 
 static SkPixelRef::Registrar reg("SkMallocPixelRef",
-                                            SkMallocPixelRef::Create);
+                                 SkMallocPixelRef::Create);
 
 /** We explicitly use the same allocator for our pixels that SkMask does,
  so that we can freely assign memory allocated by one class to the other.
@@ -534,7 +515,7 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
 
     SkAutoLockPixels alp(*this);
     // perform this check after the lock call
-    if (NULL == fPixels) {
+    if (!this->readyToDraw()) {
         return;
     }
 
@@ -648,6 +629,8 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
     if (kRLE_Index8_Config == fConfig) {
         SkAutoLockPixels alp(*this);
+        // don't call readyToDraw(), since we can operate w/o a colortable
+        // at this stage
         if (this->getPixels() == NULL) {
             return false;
         }
@@ -725,7 +708,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     SkAutoLockPixels srclock(*this);
     SkAutoLockPixels dstlock(tmp);
     
-    if (NULL == this->getPixels() || NULL == tmp.getPixels()) {
+    if (!this->readyToDraw() || !tmp.readyToDraw()) {
         // allocator/lock failed
         return false;
     }
@@ -1257,6 +1240,7 @@ void SkBitmap::validate() const {
     SkASSERT(NULL == fColorTable || (unsigned)fColorTable->getRefCnt() < 10000);
     SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);
 
+#if 0   // these asserts are not thread-correct, so disable for now
     if (fPixelRef) {
         if (fPixelLockCount > 0) {
             SkASSERT(fPixelRef->getLockCount() > 0);
@@ -1265,6 +1249,7 @@ void SkBitmap::validate() const {
             SkASSERT(NULL == fColorTable);
         }
     }
+#endif
 }
 #endif
 

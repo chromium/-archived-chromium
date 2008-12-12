@@ -1,6 +1,6 @@
 /* libs/graphics/images/SkStream.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -248,7 +248,7 @@ size_t SkFILEStream::read(void* buffer, size_t size)
     return 0;
 }
 
-////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 SkMemoryStream::SkMemoryStream()
 {
@@ -343,19 +343,20 @@ size_t SkMemoryStream::seek(size_t offset)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBufferStream::SkBufferStream(SkStream& proxy, size_t bufferSize)
+SkBufferStream::SkBufferStream(SkStream* proxy, size_t bufferSize)
     : fProxy(proxy)
 {
-    SkASSERT(&proxy != NULL);
+    SkASSERT(proxy != NULL);
+    proxy->ref();
     this->init(NULL, bufferSize);
 }
 
-SkBufferStream::SkBufferStream(SkStream& proxy, void* buffer, size_t bufferSize)
+SkBufferStream::SkBufferStream(SkStream* proxy, void* buffer, size_t bufferSize)
     : fProxy(proxy)
 {
-    SkASSERT(&proxy != NULL);
+    SkASSERT(proxy != NULL);
     SkASSERT(buffer == NULL || bufferSize != 0);    // init(addr, 0) makes no sense, we must know how big their buffer is
-
+    proxy->ref();
     this->init(buffer, bufferSize);
 }
 
@@ -382,6 +383,7 @@ void SkBufferStream::init(void* buffer, size_t bufferSize)
 
 SkBufferStream::~SkBufferStream()
 {
+    fProxy->unref();
     if (fWeOwnTheBuffer)
         sk_free(fBuffer);
 }
@@ -389,31 +391,43 @@ SkBufferStream::~SkBufferStream()
 bool SkBufferStream::rewind()
 {
     fBufferOffset = fBufferSize = fOrigBufferSize;
-    return fProxy.rewind();
+    return fProxy->rewind();
 }
 
 const char* SkBufferStream::getFileName()
 {
-    return fProxy.getFileName();
+    return fProxy->getFileName();
 }
 
 #ifdef SK_DEBUG
 //  #define SK_TRACE_BUFFERSTREAM
 #endif
 
-size_t SkBufferStream::read(void* buffer, size_t size)
-{
+size_t SkBufferStream::read(void* buffer, size_t size) {
 #ifdef SK_TRACE_BUFFERSTREAM
     SkDebugf("Request %d", size);
 #endif
 
-    if (buffer == NULL && size == 0)
-        return fProxy.read(buffer, size);    // requesting total size
+    if (buffer == NULL && size == 0) {
+        return fProxy->read(buffer, size);    // requesting total size
+    }
 
-    if (buffer == NULL || size == 0)
-    {
-        fBufferOffset += size;
-        return fProxy.read(buffer, size);
+    if (0 == size) {
+        return 0;
+    }
+
+    // skip size bytes
+    if (NULL == buffer) {
+        size_t remaining = fBufferSize - fBufferOffset;
+        if (remaining >= size) {
+            fBufferOffset += size;
+            return size;
+        }
+        // if we get here, we are being asked to skip beyond our current buffer
+        // so reset our offset to force a read next time, and skip the diff
+        // in our proxy
+        fBufferOffset = fOrigBufferSize;
+        return remaining + fProxy->read(NULL, size - remaining);
     }
 
     size_t s = size;
@@ -441,7 +455,7 @@ size_t SkBufferStream::read(void* buffer, size_t size)
 
         if (size < fBufferSize) // lets try to read more than the request
         {
-            s = fProxy.read(fBuffer, fBufferSize);
+            s = fProxy->read(fBuffer, fBufferSize);
 #ifdef SK_TRACE_BUFFERSTREAM
             SkDebugf(" read %d into fBuffer", s);
 #endif
@@ -461,7 +475,7 @@ size_t SkBufferStream::read(void* buffer, size_t size)
         }
         else    // just do a direct read
         {
-            actuallyRead += fProxy.read(buffer, size);
+            actuallyRead += fProxy->read(buffer, size);
 #ifdef SK_TRACE_BUFFERSTREAM
             SkDebugf(" direct read %d", size);
 #endif
@@ -475,7 +489,7 @@ size_t SkBufferStream::read(void* buffer, size_t size)
 
 const void* SkBufferStream::getMemoryBase()
 {
-    return fProxy.getMemoryBase();
+    return fProxy->getMemoryBase();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -729,20 +743,63 @@ bool SkDebugWStream::write(const void* buffer, size_t size)
 
 #include "SkRandom.h"
 
-void SkWStream::UnitTest()
-{
+#ifdef SK_SUPPORT_UNITTEST
+#define MAX_SIZE    (256 * 1024)
+
+static void random_fill(SkRandom& rand, void* buffer, size_t size) {
+    char* p = (char*)buffer;
+    char* stop = p + size;
+    while (p < stop) {
+        *p++ = (char)(rand.nextU() >> 8);
+    }
+}
+
+static void test_buffer() {
+    SkRandom rand;
+    SkAutoMalloc am(MAX_SIZE * 2);
+    char* storage = (char*)am.get();
+    char* storage2 = storage + MAX_SIZE;
+
+    random_fill(rand, storage, MAX_SIZE);
+
+    for (int sizeTimes = 0; sizeTimes < 100; sizeTimes++) {
+        int size = rand.nextU() % MAX_SIZE;
+        if (size == 0) {
+            size = MAX_SIZE;
+        }
+        for (int times = 0; times < 100; times++) {
+            int bufferSize = 1 + (rand.nextU() & 0xFFFF);
+            SkMemoryStream mstream(storage, size);
+            SkBufferStream bstream(&mstream, bufferSize);
+            
+            int bytesRead = 0;
+            while (bytesRead < size) {
+                int s = 17 + (rand.nextU() & 0xFFFF);
+                int ss = bstream.read(storage2, s);
+                SkASSERT(ss > 0 && ss <= s);
+                SkASSERT(bytesRead + ss <= size);
+                SkASSERT(memcmp(storage + bytesRead, storage2, ss) == 0);
+                bytesRead += ss;
+            }
+            SkASSERT(bytesRead == size);
+        }
+    }
+}
+#endif
+
+void SkStream::UnitTest() {
 #ifdef SK_SUPPORT_UNITTEST
     {
         static const char s[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         char            copy[sizeof(s)];
         SkRandom        rand;
-
+        
         for (int i = 0; i < 65; i++)
         {
             char*           copyPtr = copy;
             SkMemoryStream  mem(s, sizeof(s));
-            SkBufferStream  buff(mem, i);
-
+            SkBufferStream  buff(&mem, i);
+            
             do {
                 copyPtr += buff.read(copyPtr, rand.nextU() & 15);
             } while (copyPtr < copy + sizeof(s));
@@ -750,6 +807,13 @@ void SkWStream::UnitTest()
             SkASSERT(memcmp(s, copy, sizeof(s)) == 0);
         }
     }
+    test_buffer();
+#endif
+}
+
+void SkWStream::UnitTest()
+{
+#ifdef SK_SUPPORT_UNITTEST
     {
         SkDebugWStream  s;
 

@@ -17,11 +17,12 @@ public:
     void setMaxCount(size_t count);
     void setMaxSize(size_t size);
     
-    /** Call this if the context has changed behind our backs, and the cache
-        needs to abandon all of its existing textures. This saves us from using
-        or deleting a texture created from a different context
+    /** Deletes all the caches. Pass true if the texture IDs are still valid,
+        and if so, it will call glDeleteTextures. Pass false if the texture IDs
+        are invalid (e.g. the gl-context has changed), in which case they will
+        just be abandoned.
     */
-    void zapAllTextures();
+    void deleteAllCaches(bool texturesAreValid);
     
     static int HashMask() { return kHashMask; }
     
@@ -90,7 +91,7 @@ public:
 
         // call this to clear the texture name, in case the context has changed
         // in which case we should't reference or delete this texture in GL
-        void zapName() { fName = 0; }
+        void abandonTexture() { fName = 0; }
 
     private:
         Entry(const SkBitmap& bitmap);

@@ -102,16 +102,8 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
         }
     }
 
-    const SkTDArray<const SkFlatPath* >& paths = record.getPaths();
-    fPathCount = paths.count();
-    if (fPathCount > 0) {
-        fPaths = SkNEW_ARRAY(SkPath, fPathCount);
-        for (const SkFlatPath** flatPathPtr = paths.begin(); 
-             flatPathPtr != paths.end(); flatPathPtr++) {
-            const SkFlatPath* flatPath = *flatPathPtr;
-            flatPath->unflatten(&fPaths[flatPath->index() - 1]);
-        }
-    }
+    fPathHeap = record.fPathHeap;
+    fPathHeap->safeRef();
 
     const SkTDArray<SkPicture* >& pictures = record.getPictureRefs();
     fPictureCount = pictures.count();
@@ -185,11 +177,8 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
         fPaints[i] = src.fPaints[i];
     }
 
-    fPathCount = src.fPathCount;
-    fPaths = SkNEW_ARRAY(SkPath, fPathCount);
-    for (i = 0; i < fPathCount; i++) {
-        fPaths[i] = src.fPaths[i];
-    }
+    fPathHeap = src.fPathHeap;
+    fPathHeap->safeRef();
 
     fPictureCount = src.fPictureCount;
     fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
@@ -209,10 +198,10 @@ void SkPicturePlayback::init() {
     fBitmaps = NULL;
     fMatrices = NULL;
     fPaints = NULL;
-    fPaths = NULL;
+    fPathHeap = NULL;
     fPictureRefs = NULL;
     fRegions = NULL;
-    fBitmapCount = fMatrixCount = fPaintCount = fPathCount = fPictureCount = 
+    fBitmapCount = fMatrixCount = fPaintCount = fPictureCount = 
     fRegionCount = 0;
     
     fFactoryPlayback = NULL;
@@ -224,8 +213,9 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkDELETE_ARRAY(fBitmaps);
     SkDELETE_ARRAY(fMatrices);
     SkDELETE_ARRAY(fPaints);
-    SkDELETE_ARRAY(fPaths);
     SkDELETE_ARRAY(fRegions);
+    
+    fPathHeap->safeUnref();
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -241,7 +231,7 @@ void SkPicturePlayback::dumpSize() const {
              fBitmapCount, fBitmapCount * sizeof(SkBitmap),
              fMatrixCount, fMatrixCount * sizeof(SkMatrix),
              fPaintCount, fPaintCount * sizeof(SkPaint),
-             fPathCount,
+             fPathHeap ? fPathHeap->count() : 0,
              fRegionCount);
 }
 
@@ -341,9 +331,12 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
         fPaints[i].flatten(buffer);
     }
     
-    writeTagSize(buffer, PICT_PATH_TAG, fPathCount);
-    for (i = 0; i < fPathCount; i++) {
-        fPaths[i].flatten(buffer);
+    {
+        int count = fPathHeap ? fPathHeap->count() : 0;
+        writeTagSize(buffer, PICT_PATH_TAG, count);
+        if (count > 0) {
+            fPathHeap->flatten(buffer);
+        }
     }
     
     writeTagSize(buffer, PICT_REGION_TAG, fRegionCount);
@@ -449,10 +442,11 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
         fPaints[i].unflatten(buffer);
     }
     
-    fPathCount = readTagSize(buffer, PICT_PATH_TAG);
-    fPaths = SkNEW_ARRAY(SkPath, fPathCount);
-    for (i = 0; i < fPathCount; i++) {
-        fPaths[i].unflatten(buffer);
+    {
+        int count = readTagSize(buffer, PICT_PATH_TAG);
+        if (count > 0) {
+            fPathHeap = SkNEW_ARGS(SkPathHeap, (buffer));
+        }
     }
     
     fRegionCount = readTagSize(buffer, PICT_REGION_TAG);
@@ -474,8 +468,6 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
     TextContainer text;
     fReader.rewind();
-    bool clipBoundsDirty = true;
-    SkRect  clipBounds;
 
     while (!fReader.eof()) {
         switch (fReader.readInt()) {
@@ -483,12 +475,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPath& path = getPath();
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
-                // HACK (false) until I can handle op==kReplace <reed>
+                // HACK (false) until I can handle op==kReplace 
                 if (!canvas.clipPath(path, op) && false) {
                     //SkDebugf("---- skip clipPath for %d bytes\n", offsetToRestore - fReader.offset());
                     fReader.setOffset(offsetToRestore);
                 }
-                clipBoundsDirty = true;
             } break;
             case CLIP_REGION: {
                 const SkRegion& region = getRegion();
@@ -498,7 +489,6 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                     //SkDebugf("---- skip clipDeviceRgn for %d bytes\n", offsetToRestore - fReader.offset());
                     fReader.setOffset(offsetToRestore);
                 }
-                clipBoundsDirty = true;
             } break;
             case CLIP_RECT: {
                 const SkRect* rect = fReader.skipRect();
@@ -508,11 +498,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                     //SkDebugf("---- skip clipRect for %d bytes\n", offsetToRestore - fReader.offset());
                     fReader.setOffset(offsetToRestore);
                 }
-                clipBoundsDirty = true;
             } break;
             case CONCAT:
                 canvas.concat(*getMatrix());
-                clipBoundsDirty = true;
                 break;
             case DRAW_BITMAP: {
                 const SkPaint* paint = getPaint();
@@ -538,8 +526,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 break;
             case DRAW_PATH: {
                 const SkPaint& paint = *getPaint();
-                const SkPath& path = getPath();
-                canvas.drawPath(path, paint);
+                canvas.drawPath(getPath(), paint);
             } break;
             case DRAW_PICTURE:
                 canvas.drawPicture(getPicture());
@@ -561,42 +548,28 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case DRAW_POS_TEXT_H: {
                 const SkPaint& paint = *getPaint();
                 getText(&text);
-                size_t points = getInt();
-                size_t byteLength = text.length();
-                const SkScalar* xpos = (const SkScalar*)fReader.skip((3 + points) * sizeof(SkScalar));
+                size_t xCount = getInt();
+                const SkScalar constY = getScalar();
+                const SkScalar* xpos = (const SkScalar*)fReader.skip(xCount * sizeof(SkScalar));
+                canvas.drawPosTextH(text.text(), text.length(), xpos, constY,
+                                    paint);
+            } break;
+            case DRAW_POS_TEXT_H_TOP_BOTTOM: {
+                const SkPaint& paint = *getPaint();
+                getText(&text);
+                size_t xCount = getInt();
+                const SkScalar* xpos = (const SkScalar*)fReader.skip((3 + xCount) * sizeof(SkScalar));
                 const SkScalar top = *xpos++;
                 const SkScalar bottom = *xpos++;
                 const SkScalar constY = *xpos++;
-                // would be nice to do this before we load the other fields
-                // (especially the text block). To do that we'd need to record
-                // the number of bytes to skip...
-                if (clipBoundsDirty) {
-                    if (!canvas.getClipBounds(&clipBounds)) {
-                        clipBounds.setEmpty();
-                    }
-                    clipBoundsDirty = false;
-                }
-                if (top < clipBounds.fBottom && bottom > clipBounds.fTop) {
-                    canvas.drawPosTextH(text.text(), byteLength, xpos, constY,
-                                        paint);
+                if (!canvas.quickRejectY(top, bottom, SkCanvas::kAA_EdgeType)) {
+                    canvas.drawPosTextH(text.text(), text.length(), xpos,
+                                        constY, paint);
                 }
             } break;
-            case DRAW_RECT_GENERAL: {
+            case DRAW_RECT: {
                 const SkPaint& paint = *getPaint();
                 canvas.drawRect(*fReader.skipRect(), paint); 
-            } break;
-            case DRAW_RECT_SIMPLE: {
-                const SkPaint& paint = *getPaint();
-                const SkRect* rect = fReader.skipRect();
-                if (clipBoundsDirty) {
-                    if (!canvas.getClipBounds(&clipBounds)) {
-                        clipBounds.setEmpty();
-                    }
-                    clipBoundsDirty = false;
-                }
-                if (SkRect::Intersects(clipBounds, *rect)) {
-                    canvas.drawRect(*rect, paint);
-                }
             } break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint();
@@ -608,18 +581,20 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case DRAW_TEXT: {
                 const SkPaint& paint = *getPaint();
                 getText(&text);
+                SkScalar x = getScalar();
+                SkScalar y = getScalar();
+                canvas.drawText(text.text(), text.length(), x, y, paint);
+            } break;
+            case DRAW_TEXT_TOP_BOTTOM: {
+                const SkPaint& paint = *getPaint();
+                getText(&text);
                 const SkScalar* ptr = (const SkScalar*)fReader.skip(4 * sizeof(SkScalar));
                 // ptr[0] == x
                 // ptr[1] == y
                 // ptr[2] == top
                 // ptr[3] == bottom
-                if (clipBoundsDirty) {
-                    if (!canvas.getClipBounds(&clipBounds)) {
-                        clipBounds.setEmpty();
-                    }
-                    clipBoundsDirty = false;
-                }
-                if (ptr[2] < clipBounds.fBottom && ptr[3] > clipBounds.fTop) {
+                if (!canvas.quickRejectY(ptr[2], ptr[3],
+                                         SkCanvas::kAA_EdgeType)) {
                     canvas.drawText(text.text(), text.length(), ptr[0], ptr[1],
                                     paint);
                 }
@@ -661,11 +636,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             case RESTORE:
                 canvas.restore();
-                clipBoundsDirty = true;
                 break;
             case ROTATE:
                 canvas.rotate(getScalar());
-                clipBoundsDirty = true;
                 break;
             case SAVE:
                 canvas.save((SkCanvas::SaveFlags) getInt());
@@ -679,19 +652,16 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkScalar sx = getScalar();
                 SkScalar sy = getScalar();
                 canvas.scale(sx, sy);
-                clipBoundsDirty = true;
             } break;
             case SKEW: {
                 SkScalar sx = getScalar();
                 SkScalar sy = getScalar();
                 canvas.skew(sx, sy);
-                clipBoundsDirty = true;
             } break;
             case TRANSLATE: {
                 SkScalar dx = getScalar();
                 SkScalar dy = getScalar();
                 canvas.translate(dx, dy);
-                clipBoundsDirty = true;
             } break;
             default:
                 SkASSERT(0);
@@ -699,6 +669,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     }
     
 //    this->dumpSize();
+}
+
+void SkPicturePlayback::abort() {
+    fReader.skip(fReader.size() - fReader.offset());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1212,8 +1186,7 @@ void SkPicturePlayback::dumpStream() {
                 DUMP_SCALAR(constY);
                 DUMP_POINT_ARRAY(points);
                 } break;
-            case DRAW_RECT_GENERAL:
-            case DRAW_RECT_SIMPLE: {
+            case DRAW_RECT: {
                 DUMP_PTR(SkPaint, getPaint());
                 DUMP_RECT(rect);
                 } break;
@@ -1363,4 +1336,3 @@ void SkPicturePlayback::dump() const {
 }
 
 #endif
-

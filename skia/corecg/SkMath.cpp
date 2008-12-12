@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 Google Inc.
+ * Copyright (C) 2006-2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include "SkMath.h"
 #include "SkCordic.h"
+#include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "Sk64.h"
 #include "SkScalar.h"
@@ -214,7 +215,7 @@ int SkFixedMulCommon(SkFixed a, int b, int bias) {
 #endif
 
 SkFixed SkFixedFastInvert(SkFixed x) {
-/*  Adapted (stolen) from Mathias' gglRecip()
+/*  Adapted (stolen) from gglRecip()
 */
 
     if (x == SK_Fixed1) {
@@ -585,6 +586,116 @@ static void check_length(const SkPoint& p, SkScalar targetLen) {
 }
 #endif
 
+#ifdef SK_CAN_USE_FLOAT
+
+static float nextFloat(SkRandom& rand) {
+    SkFloatIntUnion data;
+    data.fSignBitInt = rand.nextU();
+    return data.fFloat;
+}
+
+/*  returns true if a == b as resulting from (int)x. Since it is undefined
+    what to do if the float exceeds 2^32-1, we check for that explicitly.
+*/
+static bool equal_float_native_skia(float x, uint32_t ni, uint32_t si) {
+    if (!(x == x)) {    // NAN
+        return si == SK_MaxS32 || si == SK_MinS32;
+    }
+    // for out of range, C is undefined, but skia always should return NaN32
+    if (x > SK_MaxS32) {
+        return si == SK_MaxS32;
+    }
+    if (x < -SK_MaxS32) {
+        return si == SK_MinS32;
+    }
+    return si == ni;
+}
+
+static void assert_float_equal(const char op[], float x, uint32_t ni,
+                               uint32_t si) {
+    if (!equal_float_native_skia(x, ni, si)) {
+        SkDebugf("-- %s float %g bits %x native %x skia %x\n", op, x, ni, si);
+        SkASSERT(!"oops");
+    }
+}
+
+static void test_float_cast(float x) {
+    int ix = (int)x;
+    int iix = SkFloatToIntCast(x);
+    assert_float_equal("cast", x, ix, iix);
+}
+
+static void test_float_floor(float x) {
+    int ix = (int)floor(x);
+    int iix = SkFloatToIntFloor(x);
+    assert_float_equal("floor", x, ix, iix);
+}
+
+static void test_float_round(float x) {
+    double xx = x + 0.5;    // need intermediate double to avoid temp loss
+    int ix = (int)floor(xx);
+    int iix = SkFloatToIntRound(x);
+    assert_float_equal("round", x, ix, iix);
+}
+
+static void test_float_ceil(float x) {
+    int ix = (int)ceil(x);
+    int iix = SkFloatToIntCeil(x);
+    assert_float_equal("ceil", x, ix, iix);
+}
+
+static void test_float_conversions(float x) {
+    test_float_cast(x);
+    test_float_floor(x);
+    test_float_round(x);
+    test_float_ceil(x);
+}
+
+static void test_int2float(int ival) {
+    float x0 = (float)ival;
+    float x1 = SkIntToFloatCast(ival);
+    float x2 = SkIntToFloatCast_NoOverflowCheck(ival);
+    SkASSERT(x0 == x1);
+    SkASSERT(x0 == x2);
+}
+
+static void unittest_fastfloat() {
+    SkRandom rand;
+    size_t i;
+
+    static const float gFloats[] = {
+        0.f, 1.f, 0.5f, 0.499999f, 0.5000001f, 1.f/3,
+        0.000000001f, 1000000000.f,     // doesn't overflow
+        0.0000000001f, 10000000000.f    // does overflow
+    };
+    for (i = 0; i < SK_ARRAY_COUNT(gFloats); i++) {
+//        SkDebugf("---- test floats %g %d\n", gFloats[i], (int)gFloats[i]);
+        test_float_conversions(gFloats[i]);
+        test_float_conversions(-gFloats[i]);
+    }
+    
+    for (int outer = 0; outer < 100; outer++) {
+        rand.setSeed(outer);
+        for (i = 0; i < 100000; i++) {
+            float x = nextFloat(rand);
+            test_float_conversions(x);
+        }
+        
+        test_int2float(0);
+        test_int2float(1);
+        test_int2float(-1);
+        for (i = 0; i < 100000; i++) {
+            // for now only test ints that are 24bits or less, since we don't
+            // round (down) large ints the same as IEEE...
+            int ival = rand.nextU() & 0xFFFFFF;
+            test_int2float(ival);
+            test_int2float(-ival);
+        }
+    }
+}
+
+#endif
+
 static void test_muldiv255() {
     for (int a = 0; a <= 255; a++) {
         for (int b = 0; b <= 255; b++) {
@@ -606,7 +717,7 @@ static void test_muldiv255() {
     }
 }
 
-void SkMath::UnitTest() {
+void SkMath::UnitTest() {    
 #ifdef SK_SUPPORT_UNITTEST
     int         i;
     int32_t     x;
@@ -696,8 +807,10 @@ void SkMath::UnitTest() {
         SkASSERT(result == 1);
     }
     
+#ifdef SK_CAN_USE_FLOAT
+    unittest_fastfloat();
+#endif
     
-        
 #ifdef SkLONGLONG
     for (i = 0; i < 100000; i++) {
         SkFixed numer = rand.nextS();
@@ -817,4 +930,3 @@ void SkMath::UnitTest() {
 }
 
 #endif
-

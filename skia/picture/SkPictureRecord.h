@@ -3,6 +3,7 @@
 
 #include "SkCanvas.h"
 #include "SkFlattenable.h"
+#include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureFlat.h"
 #include "SkTemplates.h"
@@ -65,9 +66,6 @@ public:
     const SkTDArray<const SkFlatPaint* >& getPaints() const {
         return fPaints;
     }
-    const SkTDArray<const SkFlatPath* >& getPaths() const {
-        return fPaths;
-    }
     const SkTDArray<SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
     }
@@ -117,7 +115,6 @@ private:
     int find(SkTDArray<const SkFlatMatrix* >& matrices,
                    const SkMatrix* matrix);
     int find(SkTDArray<const SkFlatPaint* >& paints, const SkPaint* paint);
-    int find(SkTDArray<const SkFlatPath* >& paths, const SkPath& path);
     int find(SkTDArray<const SkFlatRegion* >& regions, const SkRegion& region);
 
 #ifdef SK_DEBUG_DUMP
@@ -162,10 +159,9 @@ private:
     SkTDArray<const SkFlatMatrix* > fMatrices;
     int fPaintIndex;
     SkTDArray<const SkFlatPaint* > fPaints;
-    int fPathIndex;
-    SkTDArray<const SkFlatPath* > fPaths;
     int fRegionIndex;
     SkTDArray<const SkFlatRegion* > fRegions;
+    SkPathHeap* fPathHeap;  // reference counted
     SkWriter32 fWriter;
 
     // we ref each item in this array

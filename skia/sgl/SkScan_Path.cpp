@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkScan_Path.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -23,15 +23,15 @@
 #include "SkRegion.h"
 #include "SkTemplates.h"
 
-#define kEDGE_HEAD_Y    SK_MinS16
-#define kEDGE_TAIL_Y    SK_MaxS16
+#define kEDGE_HEAD_Y    SK_MinS32
+#define kEDGE_TAIL_Y    SK_MaxS32
 
 #ifdef SK_DEBUG
     static void validate_sort(const SkEdge* edge)
     {
         int y = kEDGE_HEAD_Y;
 
-        while (edge->fFirstY != SK_MaxS16)
+        while (edge->fFirstY != SK_MaxS32)
         {
             edge->validate();
             SkASSERT(y <= edge->fFirstY);
@@ -368,7 +368,7 @@ extern "C" {
             valuea = edgea->fX;
             valueb = edgeb->fX;
         }
-        return valuea > valueb ? 1 : valuea < valueb ? -1 : 0;
+        return valuea - valueb;
     }
 }
 
@@ -387,7 +387,6 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last)
     return list[0];
 }
 
-#ifdef SK_DEBUG
 /* 'quick' computation of the max sized needed to allocated for
     our edgelist.
 */
@@ -423,7 +422,6 @@ static int worst_case_edge_count(const SkPath& path, size_t* storage)
     *storage = size;
     return edgeCount;
 }
-#endif
 
 /* Much faster than worst_case_edge_count, but over estimates even more
 */

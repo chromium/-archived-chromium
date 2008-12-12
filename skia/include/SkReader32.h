@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef SkReader32_DEFINED
 #define SkReader32_DEFINED
 
@@ -22,8 +38,8 @@ public:
         fStop = (const char*)data + size;
     }
     
-    uint32_t size() const { return static_cast<uint32_t>(fStop - fBase); }
-    uint32_t offset() const { return static_cast<uint32_t>(fCurr - fBase); }
+    uint32_t size() const { return fStop - fBase; }
+    uint32_t offset() const { return fCurr - fBase; }
     bool eof() const { return fCurr >= fStop; }
     const void* base() const { return fBase; }
     const void* peek() const { return fCurr; }

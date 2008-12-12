@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkSpriteBlitter_RGB16.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -24,12 +24,7 @@
 #define D16_S32A_Opaque_Pixel(dst, sc)                                        \
 do {                                                                          \
     if (sc) {                                                                 \
-        unsigned sa = SkGetPackedA32(sc);                                     \
-        unsigned result = SkPixel32ToPixel16(sc);                             \
-        if (sa != 0xFF) {                                                     \
-            result += SkAlphaMulRGB16_ToU16(*dst, SkAlpha255To256(255 - sa)); \
-        }                                                                     \
-        *dst = SkToU16(result);                                               \
+        *dst = SkSrcOver32To16(sc, *dst);                                     \
     }                                                                         \
 } while (0)
 

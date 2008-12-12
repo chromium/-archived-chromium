@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 Google Inc.
+ * Copyright (C) 2006-2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -528,15 +528,61 @@ void SkStroke::setJoin(SkPaint::Join join) {
     fJoin = SkToU8(join);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_SCALAR_IS_FIXED
+    /*  return non-zero if the path is too big, and should be shrunk to avoid
+        overflows during intermediate calculations. Note that we compute the
+        bounds for this. If we had a custom callback/walker for paths, we could
+        perhaps go faster by using that, and just perform the abs | in that
+        routine
+    */
+    static int needs_to_shrink(const SkPath& path) {
+        SkRect r;
+        path.computeBounds(&r, SkPath::kFast_BoundsType);
+        SkFixed mask = SkAbs32(r.fLeft);
+        mask |= SkAbs32(r.fTop);
+        mask |= SkAbs32(r.fRight);
+        mask |= SkAbs32(r.fBottom);
+        // we need the top 3 bits clear (after abs) to avoid overflow
+        return mask >> 29;
+    }
+
+    static void identity_proc(SkPoint pts[], int count) {}
+    static void shift_down_2_proc(SkPoint pts[], int count) {
+        for (int i = 0; i < count; i++) {
+            pts->fX >>= 2;
+            pts->fY >>= 2;
+            pts += 1;
+        }
+    }
+    #define APPLY_PROC(proc, pts, count)    proc(pts, count)
+#else   // float does need any of this
+    #define APPLY_PROC(proc, pts, count)
+#endif
+
 void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     SkASSERT(&src != NULL && dst != NULL);
 
+    SkScalar radius = SkScalarHalf(fWidth);
+
     dst->reset();
-    if (SkScalarHalf(fWidth) <= 0) {
+    if (radius <= 0) {
         return;
     }
+    
+#ifdef SK_SCALAR_IS_FIXED
+    void (*proc)(SkPoint pts[], int count) = identity_proc;
+    if (needs_to_shrink(src)) {
+        proc = shift_down_2_proc;
+        radius >>= 2;
+        if (radius == 0) {
+            return;
+        }
+    }
+#endif
 
-    SkPathStroker   stroker(SkScalarHalf(fWidth), fMiterLimit, this->getCap(),
+    SkPathStroker   stroker(radius, fMiterLimit, this->getCap(),
                             this->getJoin());
 
     SkPath::Iter    iter(src, false);
@@ -546,17 +592,21 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
+                APPLY_PROC(proc, &pts[0], 1);
                 stroker.moveTo(pts[0]);
                 break;
             case SkPath::kLine_Verb:
+                APPLY_PROC(proc, &pts[1], 1);
                 stroker.lineTo(pts[1]);
                 lastSegment = verb;
                 break;
             case SkPath::kQuad_Verb:
+                APPLY_PROC(proc, &pts[1], 2);
                 stroker.quadTo(pts[1], pts[2]);
                 lastSegment = verb;
                 break;
             case SkPath::kCubic_Verb:
+                APPLY_PROC(proc, &pts[1], 3);
                 stroker.cubicTo(pts[1], pts[2], pts[3]);
                 lastSegment = verb;
                 break;
@@ -568,6 +618,16 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
         }
     }
     stroker.done(dst, lastSegment == SkPath::kLine_Verb);
+
+#ifdef SK_SCALAR_IS_FIXED
+    // undo our previous down_shift
+    if (shift_down_2_proc == proc) {
+        // need a real shift methid on path. antialias paths could use this too
+        SkMatrix matrix;
+        matrix.setScale(SkIntToScalar(4), SkIntToScalar(4));
+        dst->transform(matrix);
+    }
+#endif
 
     if (fDoFill) {
         dst->addPath(src);

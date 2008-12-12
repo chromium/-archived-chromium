@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkScan.h
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -83,7 +83,7 @@ public:
     from int to SkFixed. Does not check for overflow if the src coordinates
     exceed 32K
 */
-static inline void XRect_set(SkXRect* xr, const SkIRect& src) {
+static void XRect_set(SkXRect* xr, const SkIRect& src) {
     xr->fLeft = SkIntToFixed(src.fLeft);
     xr->fTop = SkIntToFixed(src.fTop);
     xr->fRight = SkIntToFixed(src.fRight);
@@ -94,7 +94,7 @@ static inline void XRect_set(SkXRect* xr, const SkIRect& src) {
     from SkScalar to SkFixed. Does not check for overflow if the src coordinates
     exceed 32K
 */
-static inline void XRect_set(SkXRect* xr, const SkRect& src) {
+static void XRect_set(SkXRect* xr, const SkRect& src) {
     xr->fLeft = SkScalarToFixed(src.fLeft);
     xr->fTop = SkScalarToFixed(src.fTop);
     xr->fRight = SkScalarToFixed(src.fRight);
@@ -103,7 +103,7 @@ static inline void XRect_set(SkXRect* xr, const SkRect& src) {
 
 /** Round the SkXRect coordinates, and store the result in the SkIRect.
 */
-static inline void XRect_round(const SkXRect& xr, SkIRect* dst) {
+static void XRect_round(const SkXRect& xr, SkIRect* dst) {
     dst->fLeft = SkFixedRound(xr.fLeft);
     dst->fTop = SkFixedRound(xr.fTop);
     dst->fRight = SkFixedRound(xr.fRight);
@@ -113,7 +113,7 @@ static inline void XRect_round(const SkXRect& xr, SkIRect* dst) {
 /** Round the SkXRect coordinates out (i.e. use floor for left/top, and ceiling
     for right/bottom), and store the result in the SkIRect.
 */
-static inline void XRect_roundOut(const SkXRect& xr, SkIRect* dst) {
+static void XRect_roundOut(const SkXRect& xr, SkIRect* dst) {
     dst->fLeft = SkFixedFloor(xr.fLeft);
     dst->fTop = SkFixedFloor(xr.fTop);
     dst->fRight = SkFixedCeil(xr.fRight);

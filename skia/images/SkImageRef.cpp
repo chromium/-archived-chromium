@@ -58,7 +58,7 @@ bool SkImageRef::getInfo(SkBitmap* bitmap) {
 bool SkImageRef::onDecode(SkImageDecoder* codec, SkStream* stream,
                           SkBitmap* bitmap, SkBitmap::Config config,
                           SkImageDecoder::Mode mode) {
-    return codec->onDecode(stream, bitmap, config, mode);
+    return codec->decode(stream, bitmap, config, mode);
 }
 
 bool SkImageRef::prepareBitmap(SkImageDecoder::Mode mode) {
@@ -66,6 +66,14 @@ bool SkImageRef::prepareBitmap(SkImageDecoder::Mode mode) {
 
     if (fErrorInDecoding) {
         return false;
+    }
+    
+    /*  As soon as we really know our config, we record it, so that on
+        subsequent calls to the codec, we are sure we will always get the same
+        result.
+    */
+    if (SkBitmap::kNo_Config != fBitmap.config()) {
+        fConfig = fBitmap.config();
     }
     
     if (NULL != fBitmap.getPixels() ||

@@ -1,6 +1,6 @@
 /*
 **
-** Copyright 2007, Google Inc.
+** Copyright 2007, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -235,4 +235,12 @@ void SkPicture::serialize(SkWStream* stream) const {
         stream->writeBool(false);
     }
 }
+
+void SkPicture::abortPlayback() {
+    if (NULL == fPlayback) {
+        return;
+    }
+    fPlayback->abort();
+}
+
 

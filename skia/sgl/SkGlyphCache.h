@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkGlyphCache.h
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -66,6 +66,12 @@ public:
     const SkGlyph& getUnicharMetrics(SkUnichar, SkFixed x, SkFixed y);
     const SkGlyph& getGlyphIDMetrics(uint16_t, SkFixed x, SkFixed y);
     
+    /** Return the glyphID for the specified Unichar. If the char has already
+        been seen, use the existing cache entry. If not, ask the scalercontext
+        to compute it for us.
+    */
+    uint16_t unicharToGlyph(SkUnichar);
+    
     /** Return the image associated with the glyph. If it has not been generated
         this will trigger that.
     */
@@ -98,6 +104,12 @@ public:
     //  call the proc)
     void removeAuxProc(void (*auxProc)(void*));
 
+    /** Call proc on all cache entries, stopping early if proc returns true.
+        The proc should not create or delete caches, since it could produce
+        deadlock.
+    */
+    static void VisitAllCaches(bool (*proc)(SkGlyphCache*, void*), void* ctx);
+    
     /** Find a matching cache entry, and call proc() with it. If none is found
         create a new one. If the proc() returns true, detach the cache and
         return it, otherwise leave it and return NULL.
@@ -176,7 +188,7 @@ private:
     SkPaint::FontMetrics fFontMetricsY;
 
     enum {
-        kHashBits   = 6,
+        kHashBits   = 8,
         kHashCount  = 1 << kHashBits,
         kHashMask   = kHashCount - 1
     };

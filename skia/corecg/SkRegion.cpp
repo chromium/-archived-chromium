@@ -1,6 +1,6 @@
 /* libs/corecg/SkRegion.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -426,6 +426,46 @@ const SkRegion::RunType* SkRegion::getRuns(RunType tmpStorage[], int* count) con
         runs = fRunHead->readonly_runs();
     }
     return runs;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+bool SkRegion::intersects(const SkIRect& r) const {
+    if (this->isEmpty() || r.isEmpty()) {
+        return false;
+    }
+    
+    if (!SkIRect::Intersects(fBounds, r)) {
+        return false;
+    }
+
+    if (this->isRect()) {
+        return true;
+    }
+    
+    // we are complex
+    SkRegion tmp;
+    return tmp.op(*this, r, kIntersect_Op);
+}
+
+bool SkRegion::intersects(const SkRegion& rgn) const {
+    if (this->isEmpty() || rgn.isEmpty()) {
+        return false;
+    }
+    
+    if (!SkIRect::Intersects(fBounds, rgn.fBounds)) {
+        return false;
+    }
+    
+    if (this->isRect() && rgn.isRect()) {
+        return true;
+    }
+    
+    // one or both of us is complex
+    // TODO: write a faster version that aborts as soon as we write the first
+    //       non-empty span, to avoid build the entire result
+    SkRegion tmp;
+    return tmp.op(*this, rgn, kIntersect_Op);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

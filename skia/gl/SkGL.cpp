@@ -151,9 +151,14 @@ static bool canBeTexture(const SkBitmap& bm, GLenum* format, GLenum* type) {
             *type = GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case SkBitmap::kIndex8_Config:
+#ifdef SK_GL_SUPPORT_COMPRESSEDTEXIMAGE2D
+            *format = GL_PALETTE8_RGBA8_OES;
+            *type = GL_UNSIGNED_BYTE;   // unused I think
+#else
             // we promote index to argb32
             *format = GL_RGBA;
             *type = GL_UNSIGNED_BYTE;
+#endif
             break;
         case SkBitmap::kA8_Config:
             *format = GL_ALPHA;
@@ -165,8 +170,11 @@ static bool canBeTexture(const SkBitmap& bm, GLenum* format, GLenum* type) {
     return true;
 }
 
+#define SK_GL_SIZE_OF_PALETTE   (256 * sizeof(SkPMColor))
+
 size_t SkGL::ComputeTextureMemorySize(const SkBitmap& bitmap) {
     int shift = 0;
+    size_t adder = 0;
     switch (bitmap.config()) {
         case SkBitmap::kARGB_8888_Config:
         case SkBitmap::kRGB_565_Config:
@@ -175,22 +183,74 @@ size_t SkGL::ComputeTextureMemorySize(const SkBitmap& bitmap) {
             // we're good as is
             break;
         case SkBitmap::kIndex8_Config:
+#ifdef SK_GL_SUPPORT_COMPRESSEDTEXIMAGE2D
+            // account for the colortable
+            adder = SK_GL_SIZE_OF_PALETTE;
+#else
             // we promote index to argb32
             shift = 2;
+#endif
             break;
         default:
             return 0;
     }
-    return bitmap.getSize() << shift;
+    return (bitmap.getSize() << shift) + adder;
+}
+
+#ifdef SK_GL_SUPPORT_COMPRESSEDTEXIMAGE2D
+/*  Fill out buffer with the compressed format GL expects from a colortable
+    based bitmap. [palette (colortable) + indices].
+
+    At the moment I always take the 8bit version, since that's what my data
+    is. I could detect that the colortable.count is <= 16, and then repack the
+    indices as nibbles to save RAM, but it would take more time (i.e. a lot
+    slower than memcpy), so I'm skipping that for now.
+ 
+    GL wants a full 256 palette entry, even though my ctable is only as big
+    as the colortable.count says it is. I presume it is OK to leave any
+    trailing entries uninitialized, since none of my indices should exceed
+    ctable->count().
+*/
+static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
+    SkASSERT(SkBitmap::kIndex8_Config == bitmap.config());
+
+    SkColorTable* ctable = bitmap.getColorTable();
+    uint8_t* dst = (uint8_t*)buffer;
+
+    memcpy(dst, ctable->lockColors(), ctable->count() * sizeof(SkPMColor));
+    ctable->unlockColors(false);
+
+    // always skip a full 256 number of entries, even if we memcpy'd fewer
+    dst += SK_GL_SIZE_OF_PALETTE;
+    memcpy(dst, bitmap.getPixels(), bitmap.getSize());
+}
+#endif
+
+/*  Return true if the bitmap cannot be supported in its current config as a
+    texture, and it needs to be promoted to ARGB32.
+ */
+static bool needToPromoteTo32bit(const SkBitmap& bitmap) {
+    if (bitmap.config() == SkBitmap::kIndex8_Config) {
+#ifdef SK_GL_SUPPORT_COMPRESSEDTEXIMAGE2D
+        const int w = bitmap.width();
+        const int h = bitmap.height();
+        if (SkNextPow2(w) == w && SkNextPow2(h) == h) {
+            // we can handle Indx8 if we're a POW2
+            return false;
+        }
+#endif
+        return true;    // must promote to ARGB32
+    }
+    return false;
 }
 
 GLuint SkGL::BindNewTexture(const SkBitmap& origBitmap, SkPoint* max) {
     SkBitmap tmpBitmap;
     const SkBitmap* bitmap = &origBitmap;
 
-    if (origBitmap.config() == SkBitmap::kIndex8_Config) {
-        // we promote index to argb32
+    if (needToPromoteTo32bit(origBitmap)) {
         origBitmap.copyTo(&tmpBitmap, SkBitmap::kARGB_8888_Config);
+        // now bitmap points to our temp, which has been promoted to 32bits
         bitmap = &tmpBitmap;
     }
     
@@ -200,7 +260,7 @@ GLuint SkGL::BindNewTexture(const SkBitmap& origBitmap, SkPoint* max) {
     }
     
     SkAutoLockPixels alp(*bitmap);
-    if (bitmap->getPixels() == NULL) {
+    if (!bitmap->readyToDraw()) {
         return 0;
     }
     
@@ -218,15 +278,30 @@ GLuint SkGL::BindNewTexture(const SkBitmap& origBitmap, SkPoint* max) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, bitmap->bytesPerPixel());
     
     // check if we need to scale to create power-of-2 dimensions
-    if (ow != nw || oh != nh) {
-        glTexImage2D(GL_TEXTURE_2D, 0, format, nw, nh, 0,
-                     format, type, NULL);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ow, oh,
-                        format, type, bitmap->getPixels());
-    } else {
-        // easy case, the bitmap is already pow2
-        glTexImage2D(GL_TEXTURE_2D, 0, format, ow, oh, 0,
-                     format, type, bitmap->getPixels());
+#ifdef SK_GL_SUPPORT_COMPRESSEDTEXIMAGE2D
+    if (SkBitmap::kIndex8_Config == bitmap->config()) {
+        size_t imagesize = bitmap->getSize() + SK_GL_SIZE_OF_PALETTE;
+        SkAutoMalloc storage(imagesize);
+
+        build_compressed_data(storage.get(), *bitmap);
+        // we only support POW2 here (GLES 1.0 restriction)
+        SkASSERT(ow == nw);
+        SkASSERT(oh == nh);
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, ow, oh, 0,
+                               imagesize, storage.get());
+    } else  // fall through to non-compressed logic
+#endif
+    {
+        if (ow != nw || oh != nh) {
+            glTexImage2D(GL_TEXTURE_2D, 0, format, nw, nh, 0,
+                         format, type, NULL);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ow, oh,
+                            format, type, bitmap->getPixels());
+        } else {
+            // easy case, the bitmap is already pow2
+            glTexImage2D(GL_TEXTURE_2D, 0, format, ow, oh, 0,
+                         format, type, bitmap->getPixels());
+        }
     }
     
 #ifdef TRACE_TEXTURE_CREATION

@@ -24,6 +24,8 @@ protected:
     virtual void onUnlockPixels();
     
 private:
+    void closeFD();
+
     SkColorTable* fCT;
     SkAshmemRec fRec;
 

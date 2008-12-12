@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkScalerContext.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -181,6 +181,17 @@ SkScalerContext* SkScalerContext::getGlyphContext(const SkGlyph& glyph) const {
     }
     return ctx;
 }
+
+static int plus_minus_pin(int value, int max) {
+    SkASSERT(max >= 0);
+    
+    if (value > max) {
+        value = max;
+    } else if (value < -max) {
+        value = -max;
+    }
+    return value;
+}    
 
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
     // mark us as just having a valid advance
@@ -384,18 +395,19 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     
     // check to see if we should filter the alpha channel
 
-    if (fRec.fMaskFormat != SkMask::kBW_Format &&
+    if (NULL == fMaskFilter &&
+        fRec.fMaskFormat != SkMask::kBW_Format &&
         (fRec.fFlags & (kGammaForBlack_Flag | kGammaForWhite_Flag)) != 0)
     {
         const uint8_t* table = (fRec.fFlags & kGammaForBlack_Flag) ? gBlackGammaTable : gWhiteGammaTable;
         if (NULL != table)
         {
-            uint8_t* dst = (uint8_t*)glyph->fImage;
-            unsigned rowBytes = glyph->rowBytes();
+            uint8_t* dst = (uint8_t*)origGlyph.fImage;
+            unsigned rowBytes = origGlyph.rowBytes();
             
-            for (int y = glyph->fHeight - 1; y >= 0; --y)
+            for (int y = origGlyph.fHeight - 1; y >= 0; --y)
             {
-                for (int x = glyph->fWidth - 1; x >= 0; --x)
+                for (int x = origGlyph.fWidth - 1; x >= 0; --x)
                     dst[x] = table[dst[x]];
                 dst += rowBytes;
             }

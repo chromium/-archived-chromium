@@ -1,5 +1,5 @@
 /*
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -90,10 +90,10 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         return;
     }
     
-    // should try a quick-reject test before calling lockPixels <reed>
+    // should try a quick-reject test before calling lockPixels
     SkAutoLockPixels alp(bitmap);
-    // after the lock, it is valid to check getPixels()
-    if (bitmap.getPixels() == NULL) {
+    // after the lock, it is valid to check
+    if (!bitmap.readyToDraw()) {
         return;
     }
     
@@ -224,17 +224,64 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
                          mesh.fIndices, indexCount, p);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static void drawNineViaRects(SkCanvas* canvas, const SkRect& dst,
+                             const SkBitmap& bitmap, const SkIRect& margins,
+                             const SkPaint* paint) {
+    const int32_t srcX[4] = {
+        0, margins.fLeft, bitmap.width() - margins.fRight, bitmap.width()
+    };
+    const int32_t srcY[4] = {
+        0, margins.fTop, bitmap.height() - margins.fBottom, bitmap.height()
+    };
+    const SkScalar dstX[4] = {
+        dst.fLeft, dst.fLeft + SkIntToScalar(margins.fLeft),
+        dst.fRight - SkIntToScalar(margins.fRight), dst.fRight
+    };
+    const SkScalar dstY[4] = {
+        dst.fTop, dst.fTop + SkIntToScalar(margins.fTop),
+        dst.fBottom - SkIntToScalar(margins.fBottom), dst.fBottom
+    };
+    
+    SkIRect s;
+    SkRect  d;
+    for (int y = 0; y < 3; y++) {
+        s.fTop = srcY[y];
+        s.fBottom = srcY[y+1];
+        d.fTop = dstY[y];
+        d.fBottom = dstY[y+1];
+        for (int x = 0; x < 3; x++) {
+            s.fLeft = srcX[x];
+            s.fRight = srcX[x+1];
+            d.fLeft = dstX[x];
+            d.fRight = dstX[x+1];
+            canvas->drawBitmapRect(bitmap, &s, d, paint);
+        }
+    }
+}
+
 void SkNinePatch::DrawNine(SkCanvas* canvas, const SkRect& bounds,
                            const SkBitmap& bitmap, const SkIRect& margins,
                            const SkPaint* paint) {
-    int32_t xDivs[2];
-    int32_t yDivs[2];
-    
-    xDivs[0] = margins.fLeft;
-    xDivs[1] = bitmap.width() - margins.fRight;
-    yDivs[0] = margins.fTop;
-    yDivs[1] = bitmap.height() - margins.fBottom;
-
-    SkNinePatch::DrawMesh(canvas, bounds, bitmap, xDivs, 2, yDivs, 2, paint);
+    /** Our vertices code has numerical precision problems if the transformed
+     coordinates land directly on a 1/2 pixel boundary. To work around that
+     for now, we only take the vertices case if we are in opengl. Also,
+     when not in GL, the vertices impl is slower (more math) than calling
+     the viaRects code.
+     */
+    if (canvas->getViewport(NULL)) {    // returns true for OpenGL
+        int32_t xDivs[2];
+        int32_t yDivs[2];
+        
+        xDivs[0] = margins.fLeft;
+        xDivs[1] = bitmap.width() - margins.fRight;
+        yDivs[0] = margins.fTop;
+        yDivs[1] = bitmap.height() - margins.fBottom;
+        
+        SkNinePatch::DrawMesh(canvas, bounds, bitmap,
+                              xDivs, 2, yDivs, 2, paint);
+    } else {
+        drawNineViaRects(canvas, bounds, bitmap, margins, paint);
+    }
 }
-

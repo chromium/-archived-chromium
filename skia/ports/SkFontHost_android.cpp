@@ -1,6 +1,6 @@
 /* libs/graphics/ports/SkFontHost_android.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -276,6 +276,7 @@ public:
     
     virtual SkStream* openStream() = 0;
     virtual void closeStream(SkStream*) = 0;
+    virtual const char* getUniqueString() const = 0;
     
 private:
     bool    fIsSysFont;
@@ -301,7 +302,8 @@ public:
     // overrides
     virtual SkStream* openStream() { return fStream; }
     virtual void closeStream(SkStream*) {}
-    
+    virtual const char* getUniqueString() const { return NULL; }
+
 private:
     SkStream* fStream;
     
@@ -344,7 +346,14 @@ public:
     {
         SkDELETE(stream);
     }
-    
+    virtual const char* getUniqueString() const {
+        const char* str = strrchr(fPath.c_str(), '/');
+        if (str) {
+            str += 1;   // skip the '/'
+        }
+        return str;
+    }
+
 private:
     SkString fPath;
     
@@ -387,8 +396,8 @@ static const char* gSansNames[] = {
 };
 
 static const char* gSerifNames[] = {
-    "serif", "times", "times new roman", "palatino", "goudy",
-    "fantasy", "cursive", NULL
+    "serif", "times", "times new roman", "palatino", "georgia", "baskerville",
+    "goudy", "fantasy", "cursive", "ITC Stone Serif", NULL
 };
 
 static const char* gMonoNames[] = {
@@ -479,6 +488,51 @@ static void load_system_fonts()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
+    const char* name = ((FamilyTypeface*)face)->getUniqueString();
+
+    stream->write8((uint8_t)face->getStyle());
+
+    if (NULL == name || 0 == *name) {
+        stream->writePackedUInt(0);
+//        SkDebugf("--- fonthost serialize null\n");
+    } else {
+        uint32_t len = strlen(name);
+        stream->writePackedUInt(len);
+        stream->write(name, len);
+//      SkDebugf("--- fonthost serialize <%s> %d\n", name, face->getStyle());
+    }
+}
+
+SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
+    load_system_fonts();
+
+    int style = stream->readU8();
+
+    int len = stream->readPackedUInt();
+    if (len > 0) {
+        SkString str;
+        str.resize(len);
+        stream->read(str.writable_str(), len);
+        
+        const FontInitRec* rec = gSystemFonts;
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gSystemFonts); i++) {
+            if (strcmp(rec[i].fFileName, str.c_str()) == 0) {
+                // backup until we hit the fNames
+                for (int j = i; j >= 0; --j) {
+                    if (rec[j].fNames != NULL) {
+                        return SkFontHost::FindTypeface(NULL, rec[j].fNames[0],
+                                                    (SkTypeface::Style)style);
+                    }
+                }
+            }
+        }
+    }
+    return SkFontHost::FindTypeface(NULL, NULL, (SkTypeface::Style)style);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
                                      const char familyName[],
                                      SkTypeface::Style style)
@@ -495,6 +549,7 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
     if (NULL != familyFace) {
         tf = find_typeface(familyFace, style);
     } else if (NULL != familyName) {
+//        SkDebugf("======= familyName <%s>\n", familyName);
         tf = find_typeface(familyName, style);
     }
 

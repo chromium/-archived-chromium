@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 Google Inc.
+ * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include "SkRefCnt.h"
 
 #if defined(SK_BUILD_FOR_MAC)
-#include <Carbon/Carbon.h>
+#include <carbon/carbon.h>
 #endif
 
 struct SkIRect;
@@ -172,6 +172,9 @@ public:
     static int ComputeShiftPerPixel(Config c) {
         return ComputeBytesPerPixel(c) >> 1;
     }
+    
+    static Sk64 ComputeSize64(Config, int width, int height);
+    static size_t ComputeSize(Config, int width, int height);
 
     /** Set the bitmap's config and dimensions. If rowBytes is 0, then
         ComputeRowBytes() is called to compute the optimal value. This resets
@@ -181,6 +184,10 @@ public:
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call
         this if you are handling ownership/lifetime of the pixel memory.
+     
+        If the bitmap retains a reference to the colortable (assuming it is
+        not null) it will take care of incrementing the reference count.
+
         @param pixels   Address for the pixels, managed by the caller.
         @param ctable   ColorTable (or null) that matches the specified pixels
     */
@@ -191,6 +198,9 @@ public:
         If this is called multiple times, a new pixelref object will be created
         each time.
         
+        If the bitmap retains a reference to the colortable (assuming it is
+        not null) it will take care of incrementing the reference count.
+
         @param ctable   ColorTable (or null) to use with the pixels that will
                         be allocated. Only used if config == Index8_Config
         @return true if the allocation succeeds. If not the pixelref field of
@@ -205,6 +215,9 @@ public:
         If this is called multiple times, a new pixelref object will be created
         each time.
         
+        If the bitmap retains a reference to the colortable (assuming it is
+        not null) it will take care of incrementing the reference count.
+     
         @param allocator The Allocator to use to create a pixelref that can
                          manage the pixel memory for the current
                          width/height/config. If allocator is NULL, the standard
@@ -243,6 +256,16 @@ public:
     */
     void unlockPixels() const;
     
+    /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
+        it has non-null pixels, and if required by its config, it has a
+        non-null colortable. Returns true if all of the above are met.
+    */
+    bool readyToDraw() const {
+        return this->getPixels() != NULL &&
+               ((this->config() != kIndex8_Config && this->config() != kRLE_Index8_Config) ||
+                       fColorTable != NULL);
+    }
+
     /** Return the bitmap's colortable (if any). Does not affect the colortable's
         reference count.
     */
@@ -566,6 +589,56 @@ public:
 
 private:
     const SkBitmap& fBitmap;
+};
+
+/** Helper class that performs the lock/unlockColors calls on a colortable.
+    The destructor will call unlockColors(false) if it has a bitmap's colortable
+*/
+class SkAutoLockColors : public SkNoncopyable {
+public:
+    /** Initialize with no bitmap. Call lockColors(bitmap) to lock bitmap's
+        colortable
+     */
+    SkAutoLockColors() : fCTable(NULL), fColors(NULL) {}
+    /** Initialize with bitmap, locking its colortable if present
+     */
+    explicit SkAutoLockColors(const SkBitmap& bm) {
+        fCTable = bm.getColorTable();
+        fColors = fCTable ? fCTable->lockColors() : NULL;
+    }
+    /** Initialize with a colortable (may be null)
+     */
+    explicit SkAutoLockColors(SkColorTable* ctable) {
+        fCTable = ctable;
+        fColors = ctable ? ctable->lockColors() : NULL;
+    }
+    ~SkAutoLockColors() {
+        if (fCTable) {
+            fCTable->unlockColors(false);
+        }
+    }
+    
+    /** Return the currently locked colors, or NULL if no bitmap's colortable
+        is currently locked.
+    */
+    const SkPMColor* colors() const { return fColors; }
+    
+    /** If a previous bitmap has been locked by this object, unlock its colors
+        first. If the specified bitmap has a colortable, lock its colors and
+        return them.
+    */
+    const SkPMColor* lockColors(const SkBitmap& bm) {
+        if (fCTable) {
+            fCTable->unlockColors(false);
+        }
+        fCTable = bm.getColorTable();
+        fColors = fCTable ? fCTable->lockColors() : NULL;
+        return fColors;
+    }
+
+private:
+    SkColorTable*    fCTable;
+    const SkPMColor* fColors;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkPaint.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -301,40 +301,26 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper)
     return looper;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
 
-class SkAutoRestoreFlags {
-public:
-    SkAutoRestoreFlags(SkPaint* paint) : fPaint(paint)
-    {
-        fFlags = paint->getFlags();
-    }
-    ~SkAutoRestoreFlags()
-    {
-        fPaint->setFlags(fFlags);
-    }
-private:
-    SkPaint*    fPaint;
-    uint32_t    fFlags;
-};
-
-int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const
-{
-    if (byteLength == 0)
+int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
+                          uint16_t glyphs[]) const {
+    if (byteLength == 0) {
         return 0;
+    }
     
     SkASSERT(textData != NULL);
 
-    if (NULL == glyphs)
-    {
+    if (NULL == glyphs) {
         switch (this->getTextEncoding()) {
         case kUTF8_TextEncoding:
             return SkUTF8_CountUnichars((const char*)textData, byteLength);
         case kUTF16_TextEncoding:
-            return SkUTF16_CountUnichars((const uint16_t*)textData, byteLength >> 1);
+            return SkUTF16_CountUnichars((const uint16_t*)textData,
+                                         byteLength >> 1);
         case kGlyphID_TextEncoding:
             return byteLength >> 1;
         default:
@@ -345,31 +331,58 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
     
     // if we get here, we have a valid glyphs[] array, so time to fill it in
     
-    if (this->getTextEncoding() == kGlyphID_TextEncoding)
-    {
+    // handle this encoding before the setup for the glyphcache
+    if (this->getTextEncoding() == kGlyphID_TextEncoding) {
         // we want to ignore the low bit of byteLength
         memcpy(glyphs, textData, byteLength >> 1 << 1);
         return byteLength >> 1;
     }
     
-    SkAutoRestoreFlags  autoRestore((SkPaint*)this);
-    ((SkPaint*)this)->fFlags &= ~kSubpixelText_Flag;
+    SkAutoGlyphCache autoCache(*this, NULL);
+    SkGlyphCache*    cache = autoCache.getCache();
 
-    SkAutoGlyphCache    autoCache(*this, NULL);
-    SkGlyphCache*       cache = autoCache.getCache();
-    SkMeasureCacheProc  proc;
-    proc = this->getMeasureCacheProc(kForward_TextBufferDirection, false);
+    const char* text = (const char*)textData;
+    const char* stop = text + byteLength;
+    uint16_t*   gptr = glyphs;
 
-    const char*         text = (const char*)textData;
-    const char*         stop = text + byteLength;
-    uint16_t*           gptr = glyphs;
-
-    while (text < stop)
-    {
-        // no need to provide x, y
-        *gptr++ = proc(cache, &text).getGlyphID();
+    switch (this->getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding:
+            while (text < stop) {
+                *gptr++ = cache->unicharToGlyph(SkUTF8_NextUnichar(&text));
+            }
+            break;
+        case SkPaint::kUTF16_TextEncoding: {
+            const uint16_t* text16 = (const uint16_t*)text;
+            const uint16_t* stop16 = (const uint16_t*)stop;
+            while (text16 < stop16) {
+                *gptr++ = cache->unicharToGlyph(SkUTF16_NextUnichar(&text16));
+            }
+            break;
+        }
+        default:
+            SkASSERT(!"unknown text encoding");
     }
     return gptr - glyphs;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static uint32_t sk_glyphID_next(const char** text)
+{
+    const uint16_t* glyph = (const uint16_t*)text;
+    int32_t value = *glyph;
+    glyph += 1;
+    *text = (const char*)glyph;
+    return value;
+}
+
+static uint32_t sk_glyphID_prev(const char** text)
+{
+    const uint16_t* glyph = (const uint16_t*)text;
+    glyph -= 1;
+    int32_t value = *glyph;
+    *text = (const char*)glyph;
+    return value;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1231,7 +1244,7 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
         descSize += peBuffer.size();
         entryCount += 1;
         rec.fMaskFormat = SkMask::kA8_Format;   // force antialiasing when we do the scan conversion
-        // seems like we could support kLCD as well at this point <reed>...
+        // seems like we could support kLCD as well at this point...
     }
     if (mf) {
         mfBuffer.writeFlattenable(mf);
@@ -1431,6 +1444,38 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const
     return width != 0;  // return true if we're filled, or false if we're hairline (width == 0)
 }
 
+bool SkPaint::canComputeFastBounds() const {
+    // use bit-or since no need for early exit
+    return (reinterpret_cast<uintptr_t>(this->getMaskFilter()) |
+            reinterpret_cast<uintptr_t>(this->getLooper()) |
+            reinterpret_cast<uintptr_t>(this->getRasterizer()) |
+            reinterpret_cast<uintptr_t>(this->getPathEffect())) == 0;
+}
+
+const SkRect& SkPaint::computeFastBounds(const SkRect& src,
+                                         SkRect* storage) const {
+    SkASSERT(storage);
+    
+    if (this->getStyle() != SkPaint::kFill_Style) {
+        // if we're stroked, outset the rect by the radius (and join type)
+        SkScalar radius = SkScalarHalf(this->getStrokeWidth());
+        
+        if (0 == radius) {  // hairline
+            radius = SK_Scalar1;
+        } else if (this->getStrokeJoin() == SkPaint::kMiter_Join) {
+            SkScalar scale = this->getStrokeMiter();
+            if (scale > SK_Scalar1) {
+                radius = SkScalarMul(radius, scale);
+            }
+        }
+        storage->set(src.fLeft - radius, src.fTop - radius,
+                     src.fRight + radius, src.fBottom + radius);
+        return *storage;
+    }
+    // no adjustments needed, just return the original rect
+    return src;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 static bool has_thick_frame(const SkPaint& paint)
@@ -1524,4 +1569,3 @@ const SkPath* SkTextToPathIter::next(SkScalar* xpos)
     }
     return NULL;
 }
-

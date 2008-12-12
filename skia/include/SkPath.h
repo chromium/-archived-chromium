@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 Google Inc.
+ * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
+class SkAutoPathBoundsUpdate;
 class SkString;
 
 /** \class SkPath
@@ -296,11 +297,12 @@ public:
         the path is different from the path's current last point, then an
         automatic lineTo() is added to connect the current contour to the start
         of the arc. However, if the path is empty, then we call moveTo() with
-        the first point of the arc.
+        the first point of the arc. The sweep angle is treated mod 360.
      
         @param oval The bounding oval defining the shape and size of the arc
         @param startAngle Starting angle (in degrees) where the arc begins
-        @param sweepAngle Sweep angle (in degrees) measured clockwise
+        @param sweepAngle Sweep angle (in degrees) measured clockwise. This is
+                          treated mod 360.
         @param forceMoveTo If true, always begin a new contour with the arc
     */
     void    arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
@@ -579,6 +581,7 @@ private:
     void reversePathTo(const SkPath&);
 
     friend const SkPoint* sk_get_path_points(const SkPath&, int index);
+    friend class SkAutoPathBoundsUpdate;
 };
 
 #endif

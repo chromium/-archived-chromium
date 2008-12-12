@@ -1,19 +1,18 @@
-/* libs/corecg/SkRect.cpp
-**
-** Copyright 2006, Google Inc.
-**
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
-**
-**     http://www.apache.org/licenses/LICENSE-2.0 
-**
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
-** limitations under the License.
-*/
+/*
+ * Copyright (C) 2006 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "SkRect.h"
 
@@ -67,17 +66,33 @@ void SkRect::set(const SkPoint pts[], int count)
 {
     SkASSERT((pts && count > 0) || count == 0);
 
-    if (count <= 0)
-        memset(this, 0, sizeof(SkRect));
-    else
-    {
+    if (count <= 0) {
+        bzero(this, sizeof(SkRect));
+    } else {
+#ifdef SK_SCALAR_SLOW_COMPARES
+        int32_t    l, t, r, b;
+        
+        l = r = SkScalarAs2sCompliment(pts[0].fX);
+        t = b = SkScalarAs2sCompliment(pts[0].fY);
+        
+        for (int i = 1; i < count; i++) {
+            int32_t x = SkScalarAs2sCompliment(pts[i].fX);
+            int32_t y = SkScalarAs2sCompliment(pts[i].fY);
+            
+            if (x < l) l = x; else if (x > r) r = x;
+            if (y < t) t = y; else if (y > b) b = y;
+        }
+        this->set(Sk2sComplimentAsScalar(l),
+                  Sk2sComplimentAsScalar(t),
+                  Sk2sComplimentAsScalar(r),
+                  Sk2sComplimentAsScalar(b));
+#else
         SkScalar    l, t, r, b;
 
         l = r = pts[0].fX;
         t = b = pts[0].fY;
 
-        for (int i = 1; i < count; i++)
-        {
+        for (int i = 1; i < count; i++) {
             SkScalar x = pts[i].fX;
             SkScalar y = pts[i].fY;
 
@@ -85,6 +100,7 @@ void SkRect::set(const SkPoint pts[], int count)
             if (y < t) t = y; else if (y > b) b = y;
         }
         this->set(l, t, r, b);
+#endif
     }
 }
 

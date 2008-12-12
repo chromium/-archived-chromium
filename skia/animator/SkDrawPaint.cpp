@@ -1,6 +1,6 @@
 /* libs/graphics/animator/SkDrawPaint.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -195,7 +195,7 @@ bool SkDrawPaint::getProperty(int index, SkScriptValue* value) const {
         case SK_PROPERTY(descent):
             value->fOperand.fScalar = metrics.fDescent;
             break;
-        // should consider returning fLeading as well (or roll it into ascent/descent somehow <reed>
+        // should consider returning fLeading as well (or roll it into ascent/descent somehow 
         default:
             SkASSERT(0);
             return false;
@@ -275,4 +275,3 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (xfermode != (SkPorterDuff::Mode) -1) 
         paint->setPorterDuffXfermode((SkPorterDuff::Mode) xfermode);
 }
-

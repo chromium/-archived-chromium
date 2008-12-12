@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkScan_Hairline.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -95,7 +95,7 @@ void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* cl
             return;
 
         SkFixed slope = SkFixedDiv(dy, dx);
-        SkFixed startY = SkFDot6ToFixed(y0 + SkFixedMul(slope, (32 - x0) & 63));
+        SkFixed startY = SkFDot6ToFixed(y0) + (slope * ((32 - x0) & 63) >> 6);
 
         horiline(ix0, ix1, startY, slope, blitter);
     }
@@ -112,7 +112,7 @@ void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* cl
             return;
 
         SkFixed slope = SkFixedDiv(dx, dy);
-        SkFixed startX = SkFDot6ToFixed(x0 + SkFixedMul(slope, (32 - y0) & 63));
+        SkFixed startX = SkFDot6ToFixed(x0) + (slope * ((32 - y0) & 63) >> 6);
 
         vertline(iy0, iy1, startX, slope, blitter);
     }
@@ -165,6 +165,25 @@ static bool quad_too_curvy(const SkPoint pts[3])
     return true;
 }
 
+static int compute_int_quad_dist(const SkPoint pts[3]) {
+    // compute the vector between the control point ([1]) and the middle of the
+    // line connecting the start and end ([0] and [2])
+    SkScalar dx = SkScalarHalf(pts[0].fX + pts[2].fX) - pts[1].fX;
+    SkScalar dy = SkScalarHalf(pts[0].fY + pts[2].fY) - pts[1].fY;
+    // we want everyone to be positive
+    dx = SkScalarAbs(dx);
+    dy = SkScalarAbs(dy);
+    // convert to whole pixel values (use ceiling to be conservative)
+    int idx = SkScalarCeil(dx);
+    int idy = SkScalarCeil(dy);
+    // use the cheap approx for distance
+    if (idx > idy) {
+        return idx + (idy >> 1);
+    } else {
+        return idy + (idx >> 1);
+    }
+}
+
 static void hairquad(const SkPoint pts[3], const SkRegion* clip, SkBlitter* blitter, int level,
                      void (*lineproc)(const SkPoint&, const SkPoint&, const SkRegion* clip, SkBlitter*))
 {
@@ -180,8 +199,19 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip, SkBlitter* blit
     else
         lineproc(pts[0], pts[2], clip, blitter);
 #else
-    lineproc(pts[0], pts[1], clip, blitter);
-    lineproc(pts[1], pts[2], clip, blitter);
+    int count = 1 << level;
+    const SkScalar dt = SkFixedToScalar(SK_Fixed1 >> level);
+    SkScalar t = dt;
+    SkPoint prevPt = pts[0];
+    for (int i = 1; i < count; i++) {
+        SkPoint nextPt;
+        SkEvalQuadAt(pts, t, &nextPt);
+        lineproc(prevPt, nextPt, clip, blitter);
+        t += dt;
+        prevPt = nextPt;
+    }
+    // draw the last line explicitly to 1.0, in case t didn't match that exactly
+    lineproc(prevPt, pts[2], clip, blitter);
 #endif
 }
 
@@ -244,9 +274,22 @@ static void hair_path(const SkPath& path, const SkRegion* clip, SkBlitter* blitt
         case SkPath::kLine_Verb:
             lineproc(pts[0], pts[1], clip, blitter);
             break;
-        case SkPath::kQuad_Verb:
-            hairquad(pts, clip, blitter, kMaxQuadSubdivideLevel, lineproc);
+        case SkPath::kQuad_Verb: {
+            int d = compute_int_quad_dist(pts);
+            /*  quadratics approach the line connecting their start and end points
+             4x closer with each subdivision, so we compute the number of
+             subdivisions to be the minimum need to get that distance to be less
+             than a pixel.
+             */
+            int level = (33 - SkCLZ(d)) >> 1;
+//          SkDebugf("----- distance %d computedLevel %d\n", d, computedLevel);
+            // sanity check on level (from the previous version)
+            if (level > kMaxQuadSubdivideLevel) {
+                level = kMaxQuadSubdivideLevel;
+            }
+            hairquad(pts, clip, blitter, level, lineproc);
             break;
+        }
         case SkPath::kCubic_Verb:
             haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
             break;

@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkGraphics.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -149,10 +149,132 @@ static void test_drawText(SkBitmap::Config config, SkColor color)
 
 #endif
 
+#include "SkFloatBits.h"
+
+static inline float fast_inc(float x) {
+    SkFloatIntUnion data;
+    data.fFloat = x;
+    data.fSignBitInt += 1;
+    return data.fFloat;
+}
+
+extern float dummy();
+int time_math() {
+    SkMSec now;
+    int i;
+    int sum = 0;
+    const int repeat = 1000000;
+    float f;
+
+    f = dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += (int)f; f = fast_inc(f);
+        sum += (int)f; f = fast_inc(f);
+        sum += (int)f; f = fast_inc(f);
+        sum += (int)f; f = fast_inc(f);
+    }
+    SkDebugf("---- native cast %d\n", SkTime::GetMSecs() - now);
+
+    f = dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += SkFloatToIntCast(f); f = fast_inc(f);
+        sum += SkFloatToIntCast(f); f = fast_inc(f);
+        sum += SkFloatToIntCast(f); f = fast_inc(f);
+        sum += SkFloatToIntCast(f); f = fast_inc(f);
+    }
+    SkDebugf("---- hack cast %d\n", SkTime::GetMSecs() - now);
+
+    f = dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
+        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
+        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
+        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
+    }
+    SkDebugf("---- native round %d\n", SkTime::GetMSecs() - now);
+    
+    f = dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += SkFloatToIntRound(f); f = fast_inc(f);
+        sum += SkFloatToIntRound(f); f = fast_inc(f);
+        sum += SkFloatToIntRound(f); f = fast_inc(f);
+        sum += SkFloatToIntRound(f); f = fast_inc(f);
+    }
+    SkDebugf("---- hack round %d\n", SkTime::GetMSecs() - now);
+    
+    f = dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += SkFloat2Bits(floorf(f)); f = fast_inc(f);
+        sum += SkFloat2Bits(floorf(f)); f = fast_inc(f);
+        sum += SkFloat2Bits(floorf(f)); f = fast_inc(f);
+        sum += SkFloat2Bits(floorf(f)); f = fast_inc(f);
+    }
+    SkDebugf("---- native floor %d\n", SkTime::GetMSecs() - now);
+    
+    f = dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += SkFloatToIntFloor(f); f = fast_inc(f);
+        sum += SkFloatToIntFloor(f); f = fast_inc(f);
+        sum += SkFloatToIntFloor(f); f = fast_inc(f);
+        sum += SkFloatToIntFloor(f); f = fast_inc(f);
+    }
+    SkDebugf("---- hack floor %d\n", SkTime::GetMSecs() - now);
+    
+    return sum;
+}
+
+static float time_intToFloat() {
+    const int repeat = 1000000;
+    int i, n;
+    SkMSec now;
+    float sum = 0;
+    
+    n = (int)dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += (float)n; n += 1;
+        sum += (float)n; n += 1;
+        sum += (float)n; n += 1;
+        sum += (float)n; n += 1;
+    }
+    SkDebugf("---- native i2f %d\n", SkTime::GetMSecs() - now);
+    
+    n = (int)dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += SkIntToFloatCast(n); n += 1;
+        sum += SkIntToFloatCast(n); n += 1;
+        sum += SkIntToFloatCast(n); n += 1;
+        sum += SkIntToFloatCast(n); n += 1;
+    }
+    SkDebugf("---- check i2f %d\n", SkTime::GetMSecs() - now);
+
+    n = (int)dummy();
+    now = SkTime::GetMSecs();
+    for (i = repeat - 1; i >= 0; --i) {
+        sum += SkIntToFloatCast_NoOverflowCheck(n); n += 1;
+        sum += SkIntToFloatCast_NoOverflowCheck(n); n += 1;
+        sum += SkIntToFloatCast_NoOverflowCheck(n); n += 1;
+        sum += SkIntToFloatCast_NoOverflowCheck(n); n += 1;
+    }
+    SkDebugf("---- nocheck i2f %d\n", SkTime::GetMSecs() - now);
+
+    return sum;
+}
+
 void SkGraphics::Init(bool runUnitTests)
 {
     SkGlobals::Init();
 
+//    time_math();
+//    time_intToFloat();
+    
 #ifdef BUILD_EMBOSS_TABLE
     SkEmbossMask_BuildTable();
 #endif
@@ -221,11 +343,12 @@ void SkGraphics::Init(bool runUnitTests)
         unittestline(SkMath),
         unittestline(SkUtils),
         unittestline(SkString),
-        unittestline(SkFloat),
         unittestline(SkMatrix),
         unittestline(SkGeometry),
         unittestline(SkPath),
-        unittestline(SkPathMeasure)
+        unittestline(SkPathMeasure),
+        unittestline(SkStream),
+        unittestline(SkWStream),
     };
 
     for (i = 0; i < (int)SK_ARRAY_COUNT(gUnitTests); i++)
@@ -402,3 +525,4 @@ bool SkGraphics::SetFontCacheUsed(size_t usageInBytes) {
     return SkGlyphCache::SetCacheUsed(usageInBytes);
 }
 
+float dummy() { return 1.25f; }

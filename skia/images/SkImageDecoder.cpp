@@ -1,6 +1,6 @@
 /* libs/graphics/images/SkImageDecoder.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -89,6 +89,29 @@ bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
+                            SkBitmap::Config pref, Mode mode) {
+    SkBitmap    tmp;
+
+    // we reset this to false before calling onDecode
+    fShouldCancelDecode = false;
+
+    // pass a temporary bitmap, so that if we return false, we are assured of
+    // leaving the caller's bitmap untouched.
+    if (this->onDecode(stream, &tmp, pref, mode)) {
+        /*  We operate on a tmp bitmap until we know we succeed. This way
+         we're sure we don't change the caller's bitmap and then later
+         return false. Returning false must mean that their parameter
+         is unchanged.
+         */
+        bm->swap(tmp);
+        return true;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm,
                                 SkBitmap::Config pref,  Mode mode) {
     SkASSERT(file);
@@ -115,23 +138,14 @@ bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
     SkASSERT(stream);
     SkASSERT(bm);
 
+    bool success = false;
     SkImageDecoder* codec = SkImageDecoder::Factory(stream);
-    if (NULL != codec) {
-        SkBitmap tmp;
 
-        SkAutoTDelete<SkImageDecoder>   ad(codec);
-        
-        if (codec->onDecode(stream, &tmp, pref, mode)) {
-            /*  We operate on a tmp bitmap until we know we succeed. This way
-                we're sure we don't change the caller's bitmap and then later
-                return false. Returning false must mean that their parameter
-                is unchanged.
-            */
-            bm->swap(tmp);
-            return true;
-        }
+    if (NULL != codec) {
+        success = codec->decode(stream, bm, pref, mode);
+        delete codec;
     }
-    return false;
+    return success;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

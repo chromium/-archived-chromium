@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Google Inc.
+ * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,19 @@ static SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, U8CPU alpha) {
     unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
 
     return SkPackARGB32(a, r, g, b);
+}
+
+// idea for higher precision blends in xfer procs (and slightly faster)
+// see DstATop as a probable caller
+static U8CPU mulmuldiv255round(U8CPU a, U8CPU b, U8CPU c, U8CPU d) {
+    SkASSERT(a <= 255);
+    SkASSERT(b <= 255);
+    SkASSERT(c <= 255);
+    SkASSERT(d <= 255);
+    unsigned prod = SkMulS16(a, b) + SkMulS16(c, d) + 128;
+    unsigned result = (prod + (prod >> 8)) >> 8;
+    SkASSERT(result <= 255);
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

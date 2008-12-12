@@ -1,6 +1,6 @@
 /* libs/graphics/animator/SkDrawShader.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -78,9 +78,9 @@ SkShader* SkDrawBitmapShader::getShader() {
     // note: bitmap shader now supports independent tile modes for X and Y
     // we pass the same to both, but later we should extend this flexibility
     // to the xml (e.g. tileModeX="repeat" tileModeY="clmap")
-    // <reed>
+    // 
     // oops, bitmapshader no longer takes filterBitmap, but deduces it at
-    // draw-time from the paint <reed>
+    // draw-time from the paint 
     SkShader* shader  = SkShader::CreateBitmapShader(image->fBitmap, 
                                                     (SkShader::TileMode) tileMode,
                                                     (SkShader::TileMode) tileMode);
@@ -89,4 +89,3 @@ SkShader* SkDrawBitmapShader::getShader() {
     (void)autoDel.detach();
     return shader;
 }
-

@@ -49,10 +49,12 @@ input_files = [
   'corecg/SkDebug.cpp',
   'corecg/SkDebug_stdio.cpp',
   'corecg/SkFloat.cpp',
+  'corecg/SkFloatBits.cpp',
   'corecg/SkInterpolator.cpp',
   'corecg/SkMath.cpp',
   'corecg/SkMatrix.cpp',
   'corecg/SkMemory_stdlib.cpp',
+  'corecg/SkPageFlipper.cpp',
   'corecg/SkPoint.cpp',
   'corecg/SkRect.cpp',
   'corecg/SkRegion.cpp',
@@ -86,6 +88,8 @@ input_files = [
   'images/SkImageDecoder.cpp',
   'images/SkImageRef.cpp',
   'images/SkStream.cpp',
+  'picture/SkPathHeap.cpp',
+  'picture/SkPicture.cpp',
   'picture/SkPictureFlat.cpp',
   'picture/SkPicturePlayback.cpp',
   'picture/SkPictureRecord.cpp',
@@ -131,7 +135,6 @@ input_files = [
   'sgl/SkPath.cpp',
   'sgl/SkPathEffect.cpp',
   'sgl/SkPathMeasure.cpp',
-  'sgl/SkPicture.cpp',
   'sgl/SkPixelRef.cpp',
   'sgl/SkProcSpriteBlitter.cpp',
   'sgl/SkPtrRecorder.cpp',
@@ -171,6 +174,8 @@ if env['PLATFORM'] == 'posix':
   input_files.append('ports/SkFontHost_gamma_none.cpp')
   input_files.append('ports/SkFontHost_fontconfig.cpp')
   input_files.append('images/SkMMapStream.cpp')
+
+  env.Append(CCFLAGS = ['-Wno-unused-function'])
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.append('ports/SkThread_pthread.cpp')

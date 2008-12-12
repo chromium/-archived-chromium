@@ -65,9 +65,10 @@ static void ScaleAdd(SkColorMatrixFilter::State* state,
     const int shift = state->fShift;
     int32_t* SK_RESTRICT result = state->fResult;
     
-    result[0] = (array[0] * r + array[4]) >> shift;
-    result[1] = (array[6] * g + array[9]) >> shift;
-    result[2] = (array[12] * b + array[14]) >> shift;
+    // cast to (int) to keep the expression signed for the shift
+    result[0] = (array[0] * (int)r + array[4]) >> shift;
+    result[1] = (array[6] * (int)g + array[9]) >> shift;
+    result[2] = (array[12] * (int)b + array[14]) >> shift;
     result[3] = a;
 }
 
@@ -76,9 +77,10 @@ static void ScaleAdd16(SkColorMatrixFilter::State* state,
     const int32_t* SK_RESTRICT array = state->fArray;
     int32_t* SK_RESTRICT result = state->fResult;
     
-    result[0] = (array[0] * r + array[4]) >> 16;
-    result[1] = (array[6] * g + array[9]) >> 16;
-    result[2] = (array[12] * b + array[14]) >> 16;
+    // cast to (int) to keep the expression signed for the shift
+    result[0] = (array[0] * (int)r + array[4]) >> 16;
+    result[1] = (array[6] * (int)g + array[9]) >> 16;
+    result[2] = (array[12] * (int)b + array[14]) >> 16;
     result[3] = a;
 }
 
@@ -137,7 +139,7 @@ void SkColorMatrixFilter::setup(const SkScalar SK_RESTRICT src[20]) {
 
     fState.fShift = 16; // we are starting out as fixed 16.16
     if (bits < 9) {
-        bits = 8 - bits;
+        bits = 9 - bits;
         fState.fShift -= bits;
         for (i = 0; i < 20; i++) {
             array[i] >>= bits;
@@ -269,9 +271,6 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
     }
 }
 
-#define SK_RG_BITS_DIFF (SK_G16_BITS - SK_R16_BITS)
-#define SK_BG_BITS_DIFF (SK_G16_BITS - SK_B16_BITS)
-
 void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
                                        uint16_t dst[]) {
     SkASSERT(fFlags & SkColorFilter::kHasFilter16_Flag);
@@ -290,18 +289,19 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
     for (int i = 0; i < count; i++) {
         uint16_t c = src[i];
         
-        unsigned r = SkGetPackedR16(c);
-        unsigned g = SkGetPackedG16(c);
-        unsigned b = SkGetPackedB16(c);
+        // expand to 8bit components (since our matrix translate is 8bit biased
+        unsigned r = SkPacked16ToR32(c);
+        unsigned g = SkPacked16ToG32(c);
+        unsigned b = SkPacked16ToB32(c);
         
-        r = (r << SK_RG_BITS_DIFF) | (r >> (SK_R16_BITS - 1));
-        b = (b << SK_BG_BITS_DIFF) | (b >> (SK_B16_BITS - 1));
         proc(state, r, g, b, 0);
         
-        r = pin(result[0], SK_G16_MASK) >> SK_RG_BITS_DIFF;
-        g = pin(result[1], SK_G16_MASK);
-        b = pin(result[2], SK_G16_MASK) >> SK_BG_BITS_DIFF;
-        dst[i] = SkPackRGB16(r, g, b);
+        r = pin(result[0], SK_R32_MASK);
+        g = pin(result[1], SK_G32_MASK);
+        b = pin(result[2], SK_B32_MASK);
+        
+        // now packed it back down to 16bits (hmmm, could dither...)
+        dst[i] = SkPack888ToRGB16(r, g, b);
     }
 }
 

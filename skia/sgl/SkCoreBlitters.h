@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkCoreBlitters.h
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -162,6 +162,7 @@ public:
     virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
 
 private:
+    SkPMColor   fSrcColor32;
     unsigned    fScale;
     uint16_t    fColor16;       // already scaled by fScale
     uint16_t    fRawColor16;    // unscaled

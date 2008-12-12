@@ -301,6 +301,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\SkFlipPixelRef.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\corecg\SkFloatBits.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\corecg\SkFloatingPoint.h"
 				>
 			</File>
@@ -353,7 +361,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\SkLayerDrawLooper.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\SkLayerRasterizer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\SkMallocPixelRef.h"
 				>
 			</File>
 			<File
@@ -418,6 +434,10 @@
 			</File>
 			<File
 				RelativePath=".\include\SkPackBits.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\corecg\SkPageFlipper.h"
 				>
 			</File>
 			<File
@@ -514,6 +534,10 @@
 			</File>
 			<File
 				RelativePath=".\include\corecg\SkScalar.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\corecg\SkScalarCompare.h"
 				>
 			</File>
 			<File
@@ -721,6 +745,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\corecg\SkFloatBits.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\corecg\SkInterpolator.cpp"
 				>
 			</File>
@@ -734,6 +762,10 @@
 			</File>
 			<File
 				RelativePath=".\corecg\SkMemory_stdlib.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\corecg\SkPageFlipper.cpp"
 				>
 			</File>
 			<File
@@ -997,10 +1029,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sgl\SkPicture.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\sgl\SkPixelRef.cpp"
 				>
 			</File>
@@ -1124,6 +1152,10 @@
 		<Filter
 			Name="ports"
 			>
+			<File
+				RelativePath=".\ports\sk_predefined_gamma.h"
+				>
+			</File>
 			<File
 				RelativePath=".\ports\SkFontHost_none.cpp"
 				>
@@ -1280,6 +1312,18 @@
 		<Filter
 			Name="picture"
 			>
+			<File
+				RelativePath=".\picture\SkPathHeap.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\picture\SkPathHeap.h"
+				>
+			</File>
+			<File
+				RelativePath=".\picture\SkPicture.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\picture\SkPictureFlat.cpp"
 				>

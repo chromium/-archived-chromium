@@ -1,19 +1,18 @@
-/* include/graphics/SkStream.h
-**
-** Copyright 2006, Google Inc.
-**
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
-**
-**     http://www.apache.org/licenses/LICENSE-2.0 
-**
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
-** limitations under the License.
-*/
+/*
+ * Copyright (C) 2006 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
@@ -69,6 +68,8 @@ public:
     bool     readBool() { return this->readU8() != 0; }
     SkScalar readScalar();
     size_t   readPackedUInt();
+
+    static void UnitTest();
 };
 
 class SkWStream : SkNoncopyable {
@@ -101,7 +102,7 @@ public:
     
     bool writeStream(SkStream* input, size_t length);
 
-    SkDEBUGCODE(static void UnitTest();)
+    static void UnitTest();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -110,9 +111,15 @@ public:
 
 struct SkFILE;
 
+/** A stream that reads from a FILE*, which is opened in the constructor and
+    closed in the destructor
+ */
 class SkFILEStream : public SkStream {
 public:
-    SkFILEStream(const char path[] = NULL);
+    /** Initialize the stream by calling fopen on the specified path. Will be
+        closed in the destructor.
+     */
+    explicit SkFILEStream(const char path[] = NULL);
     virtual ~SkFILEStream();
 
     /** Returns true if the current path could be opened.
@@ -122,8 +129,6 @@ public:
         path. If path is NULL, just close the current file.
     */
     void setPath(const char path[]);
-    
-    SkFILE* getSkFILE() const { return fFILE; }
 
     virtual bool rewind();
     virtual size_t read(void* buffer, size_t size);
@@ -132,6 +137,30 @@ public:
 private:
     SkFILE*     fFILE;
     SkString    fName;
+};
+
+/** A stream that reads from a file descriptor
+ */
+class SkFDStream : public SkStream {
+public:
+    /** Initialize the stream with a dup() of the specified file descriptor.
+        If closeWhenDone is true, then the descriptor will be closed in the
+        destructor.
+     */
+    SkFDStream(int fileDesc, bool closeWhenDone);
+    virtual ~SkFDStream();
+    
+    /** Returns true if the current path could be opened.
+     */
+    bool isValid() const { return fFD >= 0; }
+    
+    virtual bool rewind();
+    virtual size_t read(void* buffer, size_t size);
+    virtual const char* getFileName() { return NULL; }
+    
+private:
+    int     fFD;
+    bool    fCloseWhenDone;
 };
 
 class SkMemoryStream : public SkStream {
@@ -175,14 +204,18 @@ public:
     /** Provide the stream to be buffered (proxy), and the size of the buffer that
         should be used. This will be allocated and freed automatically. If bufferSize is 0,
         a default buffer size will be used.
+        The proxy stream is referenced, and will be unreferenced in when the
+        bufferstream is destroyed.
     */
-    SkBufferStream(SkStream& proxy, size_t bufferSize = 0);
+    SkBufferStream(SkStream* proxy, size_t bufferSize = 0);
     /** Provide the stream to be buffered (proxy), and a buffer and size to be used.
         This buffer is owned by the caller, and must be at least bufferSize bytes big.
         Passing NULL for buffer will cause the buffer to be allocated/freed automatically.
         If buffer is not NULL, it is an error for bufferSize to be 0.
+     The proxy stream is referenced, and will be unreferenced in when the
+     bufferstream is destroyed.
     */
-    SkBufferStream(SkStream& proxy, void* buffer, size_t bufferSize);
+    SkBufferStream(SkStream* proxy, void* buffer, size_t bufferSize);
     virtual ~SkBufferStream();
 
     virtual bool        rewind();
@@ -198,7 +231,7 @@ private:
     SkBufferStream(const SkBufferStream&);
     SkBufferStream& operator=(const SkBufferStream&);
 
-    SkStream&   fProxy;
+    SkStream*   fProxy;
     char*       fBuffer;
     size_t      fOrigBufferSize, fBufferSize, fBufferOffset;
     bool        fWeOwnTheBuffer;

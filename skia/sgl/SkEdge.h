@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkEdge.h
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -32,10 +32,11 @@ struct SkEdge {
 
     SkFixed fX;
     SkFixed fDX;
-    int16_t fFirstY;
-    int16_t fLastY;
-    int16_t fCurveCount;    // only used by kQuad(+) and kCubic(-)
-    uint8_t fCurveShift;
+    int32_t fFirstY;
+    int32_t fLastY;
+    int8_t fCurveCount;    // only used by kQuad(+) and kCubic(-)
+    uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
+    uint8_t fCubicDShift;   // applied to fCDx and fCDy only in cubic
     int8_t  fWinding;       // 1 or -1
 
     int setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,

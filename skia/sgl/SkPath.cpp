@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkPath.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -18,6 +18,63 @@
 #include "SkPath.h"
 #include "SkFlattenable.h"
 #include "SkMath.h"
+
+////////////////////////////////////////////////////////////////////////////
+
+/*  This guy's constructor/destructor bracket a path editing operation. It is
+    used when we know the bounds of the amount we are going to add to the path
+    (usually a new contour, but not required).
+ 
+    It captures some state about the path up front (i.e. if it already has a
+    cached bounds), and the if it can, it updates the cache bounds explicitly,
+    avoiding the need to revisit all of the points in computeBounds().
+ */
+class SkAutoPathBoundsUpdate {
+public:
+    SkAutoPathBoundsUpdate(SkPath* path, const SkRect& r) : fRect(r) {
+        this->init(path);
+    }
+
+    SkAutoPathBoundsUpdate(SkPath* path, SkScalar left, SkScalar top,
+                           SkScalar right, SkScalar bottom) {
+        fRect.set(left, top, right, bottom);
+        this->init(path);
+    }
+    
+    ~SkAutoPathBoundsUpdate() {
+        if (fEmpty) {
+            fPath->fFastBounds = fRect;
+            fPath->fFastBoundsIsDirty = false;
+        } else if (!fDirty) {
+            fPath->fFastBounds.join(fRect);
+            fPath->fFastBoundsIsDirty = false;
+        }
+    }
+    
+private:
+    const SkPath*   fPath;
+    SkRect          fRect;
+    bool            fDirty;
+    bool            fEmpty;
+    
+    // returns true if we should proceed
+    void init(const SkPath* path) {
+        fPath = path;
+        fDirty = path->fFastBoundsIsDirty;
+        fEmpty = path->isEmpty();
+    }
+};
+
+static void compute_fast_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
+    if (pts.count() <= 1) {  // we ignore just 1 point (moveto)
+        bounds->set(0, 0, 0, 0);
+    } else {
+        bounds->set(pts.begin(), pts.count());
+//        SkDebugf("------- compute bounds %p %d", &pts, pts.count());
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 /*
     Stores the verbs and points as they are given to us, with exceptions:
@@ -145,24 +202,8 @@ void SkPath::computeBounds(SkRect* bounds, BoundsType bt) const {
 
     if (fFastBoundsIsDirty) {
         fFastBoundsIsDirty = false;
-        if (fPts.count() <= 1) {  // we ignore just 1 point (moveto)
-            fFastBounds.set(0, 0, 0, 0);
-        } else {
-            fFastBounds.set(fPts.begin(), fPts.count());
-        }
+        compute_fast_bounds(&fFastBounds, fPts);
     }
-#ifdef SK_DEBUG
-    else {    // check that our cache is correct
-        SkRect r;
-        if (fPts.count() <= 1) {  // we ignore just 1 point (moveto)
-            r.set(0, 0, 0, 0);
-        } else {
-            r.set(fPts.begin(), fPts.count());
-        }
-        SkASSERT(r == fFastBounds);
-    }
-#endif
-
     *bounds = fFastBounds;
 }
 
@@ -286,13 +327,15 @@ void SkPath::close() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
+    
 void SkPath::addRect(const SkRect& rect, Direction dir) {
     this->addRect(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, dir);
 }
 
 void SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
                      SkScalar bottom, Direction dir) {
+    SkAutoPathBoundsUpdate apbu(this, left, top, right, bottom);
+
     this->incReserve(5);
 
     this->moveTo(left, top);
@@ -312,6 +355,8 @@ void SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
 
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
+    SkAutoPathBoundsUpdate apbu(this, rect);
+
     SkScalar    w = rect.width();
     SkScalar    halfW = SkScalarHalf(w);
     SkScalar    h = rect.height();
@@ -395,7 +440,7 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
 
 static void add_corner_arc(SkPath* path, const SkRect& rect,
                            SkScalar rx, SkScalar ry, int startAngle,
-                           bool ccw, bool forceMoveTo = false) {
+                           SkPath::Direction dir, bool forceMoveTo) {
     rx = SkMinScalar(SkScalarHalf(rect.width()), rx);
     ry = SkMinScalar(SkScalarHalf(rect.height()), ry);
     
@@ -416,7 +461,7 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
     
     SkScalar start = SkIntToScalar(startAngle);
     SkScalar sweep = SkIntToScalar(90);
-    if (ccw) {
+    if (SkPath::kCCW_Direction == dir) {
         start += sweep;
         sweep = -sweep;
     }
@@ -426,26 +471,30 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar rad[],
                           Direction dir) {
+    SkAutoPathBoundsUpdate apbu(this, rect);
 
     if (kCW_Direction == dir) {
-        add_corner_arc(this, rect, rad[0], rad[1], 180, false, true);
-        add_corner_arc(this, rect, rad[2], rad[3], 270, false);
-        add_corner_arc(this, rect, rad[4], rad[5],   0, false);
-        add_corner_arc(this, rect, rad[6], rad[7],  90, false);
+        add_corner_arc(this, rect, rad[0], rad[1], 180, dir, true);
+        add_corner_arc(this, rect, rad[2], rad[3], 270, dir, false);
+        add_corner_arc(this, rect, rad[4], rad[5],   0, dir, false);
+        add_corner_arc(this, rect, rad[6], rad[7],  90, dir, false);
     } else {
-        add_corner_arc(this, rect, rad[0], rad[1], 180, true, true);
-        add_corner_arc(this, rect, rad[6], rad[7],  90, true);
-        add_corner_arc(this, rect, rad[4], rad[5],   0, true);
-        add_corner_arc(this, rect, rad[2], rad[3], 270, true);
+        add_corner_arc(this, rect, rad[0], rad[1], 180, dir, true);
+        add_corner_arc(this, rect, rad[6], rad[7],  90, dir, false);
+        add_corner_arc(this, rect, rad[4], rad[5],   0, dir, false);
+        add_corner_arc(this, rect, rad[2], rad[3], 270, dir, false);
     }
+    this->close();
 }
 
 void SkPath::addOval(const SkRect& oval, Direction dir) {
+    SkAutoPathBoundsUpdate apbu(this, oval);
+
     SkScalar    cx = oval.centerX();
     SkScalar    cy = oval.centerY();
     SkScalar    rx = SkScalarHalf(oval.width());
     SkScalar    ry = SkScalarHalf(oval.height());
-#if 1   // these seem faster than using quads (1/2 the number of edges)
+#if 0   // these seem faster than using quads (1/2 the number of edges)
     SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
     SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
 
@@ -468,7 +517,7 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
     SkScalar    mx = SkScalarMul(rx, SK_ScalarRoot2Over2);
     SkScalar    my = SkScalarMul(ry, SK_ScalarRoot2Over2);
 
-    this->incReserve(16);
+    this->incReserve(17);   // 8 quads + close
     this->moveTo(cx + rx, cy);
     if (dir == kCCW_Direction) {
         this->quadTo(cx + rx, cy - sy, cx + mx, cy - my);
@@ -547,7 +596,7 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle,
     if (oval.isEmpty() || 0 == sweepAngle) {
         return;
     }
-    
+
     const SkScalar kFullCircleAngle = SkIntToScalar(360);
 
     if (sweepAngle >= kFullCircleAngle || sweepAngle <= -kFullCircleAngle) {
@@ -792,6 +841,7 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
 }
 
 void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
+    SkDEBUGCODE(this->validate();)
     if (dst == NULL) {
         dst = (SkPath*)this;
     }
@@ -846,6 +896,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fFillType = fFillType;
         }
         matrix.mapPoints(dst->fPts.begin(), fPts.begin(), fPts.count());
+        SkDEBUGCODE(dst->validate();)
     }
 }
 
@@ -1211,11 +1262,18 @@ void SkPath::toString(SkString* str) const {
 void SkPath::validate() const {
     SkASSERT(this != NULL);
     SkASSERT((fFillType & ~3) == 0);
-    if (!fFastBoundsIsDirty) {
-        SkASSERT(fFastBounds.width() >= 0 && fFastBounds.height() >= 0);
-    }
     fPts.validate();
     fVerbs.validate();
+
+    if (!fFastBoundsIsDirty) {
+        SkRect bounds;
+        compute_fast_bounds(&bounds, fPts);
+        // can't call contains(), since it returns false if the rect is empty
+        SkASSERT(fFastBounds.fLeft <= bounds.fLeft);
+        SkASSERT(fFastBounds.fTop <= bounds.fTop);
+        SkASSERT(fFastBounds.fRight >= bounds.fRight);
+        SkASSERT(fFastBounds.fBottom >= bounds.fBottom);
+    }
 }
 
 #if 0   // test to ensure that the iterator returns the same data as the path

@@ -64,6 +64,7 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
     
     SkAutoLockPixels    alp(*this);
     // if we have no pixels, just return (inval is already updated)
+    // don't call readyToDraw(), since we don't require a colortable per se
     if (this->getPixels() == NULL) {
         return true;
     }

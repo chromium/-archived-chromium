@@ -84,3 +84,8 @@ void SkBlurDrawLooper::restore()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static SkFlattenable::Registrar gReg("SkBlurDrawLooper",
+                                     SkBlurDrawLooper::CreateProc);
+

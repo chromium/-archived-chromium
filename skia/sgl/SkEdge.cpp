@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkEdge.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -77,7 +77,12 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
 
     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, (32 - y0) & 63));   // + SK_Fixed1/2
     fDX         = slope;
-    fFirstY     = (int16_t)(top);       // inlined skToS16()
+#if 0
+    // CHANGED FOR CHROME
+    fFirstY     = top;
+    fLastY      = bot - 1;
+#else
+    fFirstY     = top;
     if (top != (long)fFirstY) {
         if (fFirstY < top) {
             fFirstY = std::numeric_limits<int16_t>::max();
@@ -86,7 +91,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
         }
         fX -= fDX * (top - (long)fFirstY);
     }
-    fLastY      = (int16_t)(bot - 1);   // inlined SkToS16()
+    fLastY      = bot - 1;
     if (bot-1 != (long)fLastY) {
         if (fLastY < bot-1) {
             fLastY = std::numeric_limits<int16_t>::max();
@@ -94,6 +99,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
             fLastY = std::numeric_limits<int16_t>::min();
         }
     }
+#endif
     fCurveCount = 0;
     fWinding    = SkToS8(winding);
     fCurveShift = 0;
@@ -109,7 +115,7 @@ int SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1)
 {
     SkASSERT(fWinding == 1 || fWinding == -1);
     SkASSERT(fCurveCount != 0);
-    SkASSERT(fCurveShift != 0);
+//    SkASSERT(fCurveShift != 0);
 
     y0 >>= 10;
     y1 >>= 10;
@@ -132,8 +138,8 @@ int SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1)
 
     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, (32 - y0) & 63));   // + SK_Fixed1/2
     fDX         = slope;
-    fFirstY     = SkToS16(top);
-    fLastY      = SkToS16(bot - 1);
+    fFirstY     = top;
+    fLastY      = bot - 1;
 
     return 1;
 }
@@ -153,7 +159,14 @@ void SkEdge::chopLineWithClip(const SkIRect& clip)
     }
 }
 
-/////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/*  We store 1<<shift in a (signed) byte, so its maximum value is 1<<6 == 64.
+    Note that this limits the number of lines we use to approximate a curve.
+    If we need to increase this, we need to store fCurveCount in something
+    larger than int8_t.
+*/
+#define MAX_COEFF_SHIFT     6
 
 static inline SkFDot6 cheap_distance(SkFDot6 dx, SkFDot6 dy)
 {
@@ -176,7 +189,7 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy)
     // down by 5 should give us 1/2 pixel accuracy (assuming our dist is accurate...)
     // this is chosen by heuristic: make it as big as possible (to minimize segments)
     // ... but small enough so that our curves still look smooth
-    dist >>= 5;
+    dist = (dist + (1 << 4)) >> 5;
 
     // each subdivision (shift value) cuts this dist (error) by 1/4
     return (32 - SkCLZ(dist)) >> 1;
@@ -230,14 +243,19 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], const SkIRect* clip, int
         SkFDot6 dx = ((x1 << 1) - x0 - x2) >> 2;
         SkFDot6 dy = ((y1 << 1) - y0 - y2) >> 2;
         shift = diff_to_shift(dx, dy);
+        SkASSERT(shift >= 0);
     }
     // need at least 1 subdivision for our bias trick
-    if (shift == 0)
+    if (shift == 0) {
         shift = 1;
-
+    } else if (shift > MAX_COEFF_SHIFT) {
+        shift = MAX_COEFF_SHIFT;
+    }
+    
     fWinding    = SkToS8(winding);
     fCurveShift = SkToU8(shift);
-    fCurveCount = SkToS16(1 << shift);
+    //fCubicDShift only set for cubics
+    fCurveCount = SkToS8(1 << shift);
 
     SkFixed A = SkFDot6ToFixed(x0 - x1 - x1 + x2);
     SkFixed B = SkFDot6ToFixed(x1 - x0 + x1 - x0);
@@ -308,6 +326,11 @@ int SkQuadraticEdge::updateQuadratic()
 }
 
 /////////////////////////////////////////////////////////////////////////
+
+static inline int SkFDot6UpShift(SkFDot6 x, int upShift) {
+    SkASSERT((x << upShift >> upShift) == x);
+    return x << upShift;
+}
 
 /*  f(1/3) = (8a + 12b + 6c + d) / 27
     f(2/3) = (a + 6b + 12c + 8d) / 27
@@ -386,23 +409,38 @@ int SkCubicEdge::setCubic(const SkPoint pts[4], const SkIRect* clip, int shift)
     }
     // need at least 1 subdivision for our bias trick
     SkASSERT(shift > 0);
+    if (shift > MAX_COEFF_SHIFT) {
+        shift = MAX_COEFF_SHIFT;
+    }
+
+    /*  Since our in coming data is initially shifted down by 10 (or 8 in
+        antialias). That means the most we can shift up is 8. However, we
+        compute coefficients with a 3*, so the safest upshift is really 6
+    */
+    int upShift = 6;    // largest safe value
+    int downShift = shift + upShift - 10;
+    if (downShift < 0) {
+        downShift = 0;
+        upShift = 10 - shift;
+    }
 
     fWinding    = SkToS8(winding);
+    fCurveCount = SkToS8(-1 << shift);
     fCurveShift = SkToU8(shift);
-    fCurveCount = SkToS16(-1 << shift);
+    fCubicDShift = SkToU8(downShift);
 
-    SkFixed B = SkFDot6ToFixed(3 * (x1 - x0));
-    SkFixed C = SkFDot6ToFixed(3 * (x0 - x1 - x1 + x2));
-    SkFixed D = SkFDot6ToFixed(x3 + 3 * (x1 - x2) - x0);
+    SkFixed B = SkFDot6UpShift(3 * (x1 - x0), upShift);
+    SkFixed C = SkFDot6UpShift(3 * (x0 - x1 - x1 + x2), upShift);
+    SkFixed D = SkFDot6UpShift(x3 + 3 * (x1 - x2) - x0, upShift);
 
     fCx     = SkFDot6ToFixed(x0);
     fCDx    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
     fCDDx   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
     fCDDDx  = 3*D >> (shift - 1);                   // biased by 2*shift
 
-    B = SkFDot6ToFixed(3 * (y1 - y0));
-    C = SkFDot6ToFixed(3 * (y0 - y1 - y1 + y2));
-    D = SkFDot6ToFixed(y3 + 3 * (y1 - y2) - y0);
+    B = SkFDot6UpShift(3 * (y1 - y0), upShift);
+    C = SkFDot6UpShift(3 * (y0 - y1 - y1 + y2), upShift);
+    D = SkFDot6UpShift(y3 + 3 * (y1 - y2) - y0, upShift);
 
     fCy     = SkFDot6ToFixed(y0);
     fCDy    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
@@ -431,19 +469,20 @@ int SkCubicEdge::updateCubic()
     SkFixed oldx = fCx;
     SkFixed oldy = fCy;
     SkFixed newx, newy;
-    int     shift = fCurveShift;
+    const int ddshift = fCurveShift;
+    const int dshift = fCubicDShift;
 
     SkASSERT(count < 0);
 
     do {
         if (++count < 0)
         {
-            newx    = oldx + (fCDx >> shift);
-            fCDx    += fCDDx >> shift;
+            newx    = oldx + (fCDx >> dshift);
+            fCDx    += fCDDx >> ddshift;
             fCDDx   += fCDDDx;
 
-            newy    = oldy + (fCDy >> shift);
-            fCDy    += fCDDy >> shift;
+            newy    = oldy + (fCDy >> dshift);
+            fCDy    += fCDDy >> ddshift;
             fCDDy   += fCDDDy;
         }
         else    // last segment

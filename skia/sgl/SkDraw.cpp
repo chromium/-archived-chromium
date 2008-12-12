@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkDraw.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -36,6 +36,27 @@
 #include "SkDrawProcs.h"
 
 //#define TRACE_BITMAP_DRAWS
+
+class SkAutoRestoreBounder : SkNoncopyable {
+public:
+    // note: initializing fBounder is done only to fix a warning
+    SkAutoRestoreBounder() : fDraw(NULL), fBounder(NULL) {}
+    ~SkAutoRestoreBounder() {
+        if (fDraw) {
+            fDraw->fBounder = fBounder;
+        }
+    }
+    
+    void clearBounder(const SkDraw* draw) {
+        fDraw = const_cast<SkDraw*>(draw);
+        fBounder = draw->fBounder;
+        fDraw->fBounder = NULL;
+    }
+    
+private:
+    SkDraw*     fDraw;
+    SkBounder*  fBounder;
+};
 
 static SkPoint* rect_points(SkRect& r, int index) {
     SkASSERT((unsigned)index < 2);
@@ -182,7 +203,7 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
             return D_Dst_BitmapXferProc;    // ignore data
         case SkPorterDuff::kSrc_Mode: {
             /*
-                should I worry about dithering for the lower depths? <reed>
+                should I worry about dithering for the lower depths? 
             */
             SkPMColor pmc = SkPreMultiplyColor(color);
             switch (bitmap.config()) {
@@ -496,6 +517,21 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter* blitter) {
     return proc;
 }
 
+static bool bounder_points(SkBounder* bounder, SkCanvas::PointMode mode,
+                           size_t count, const SkPoint pts[],
+                           const SkPaint& paint, const SkMatrix& matrix) {
+    SkIRect ibounds;
+    SkRect bounds;
+    SkScalar inset = paint.getStrokeWidth();
+
+    bounds.set(pts, count);
+    bounds.inset(-inset, -inset);
+    matrix.mapRect(&bounds);
+
+    bounds.roundOut(&ibounds);
+    return bounder->doIRect(ibounds);
+}
+
 // each of these costs 8-bytes of stack space, so don't make it too large
 // must be even for lines/polygon to work
 #define MAX_DEV_PTS     32
@@ -509,6 +545,18 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
     if ((long)count <= 0) {
         return;
+    }
+    
+    SkAutoRestoreBounder arb;
+
+    if (fBounder) {
+        if (!bounder_points(fBounder, mode, count, pts, paint, *fMatrix)) {
+            return;
+        }
+        // clear the bounder for the rest of this function, so we don't call it
+        // again later if we happen to call ourselves for drawRect, drawPath,
+        // etc.
+        arb.clearBounder(this);
     }
 
     SkASSERT(pts != NULL);
@@ -749,7 +797,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
         
     /*
-        If the device thickness <= 1.0, then make it a hairline, and
+        If the device thickness < 1.0, then make it a hairline, and
         modulate alpha if the thickness is even smaller (e.g. thickness == 0.5
         should modulate the alpha by 1/2)
     */
@@ -762,7 +810,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
         SkScalar width = paint.getStrokeWidth();
         if (width > 0) {
             width = matrix->mapRadius(paint.getStrokeWidth());
-            if (width <= SK_Scalar1) {
+            if (width < SK_Scalar1) {
                 int scale = (int)SkScalarMul(width, 256);
                 int alpha = paint.getAlpha() * scale >> 8;
                 
@@ -931,15 +979,15 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    // do I need to call the bounder first??? <reed>
+    // do I need to call the bounder first??? 
     if (clipped_out(matrix, *fClip, bitmap.width(), bitmap.height())) {
         return;
     }
 
     // only lock the pixels if we passed the clip test
     SkAutoLockPixels alp(bitmap);
-    // after the lock, check if we have valid pixels
-    if (bitmap.getPixels() == NULL) {
+    // after the lock, check if we are valid
+    if (!bitmap.readyToDraw()) {
         return;
     }
 
@@ -988,7 +1036,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         SkRect  r;
         r.set(0, 0, SkIntToScalar(bitmap.width()),
               SkIntToScalar(bitmap.height()));
-        // is this ok if paint has a rasterizer? <reed>
+        // is this ok if paint has a rasterizer? 
         draw.drawRect(r, paint);
     }
 }
@@ -1053,7 +1101,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
     matrix.reset();
     draw.fMatrix = &matrix;
     // call ourself with a rect
-    // is this OK if paint has a rasterizer? <reed>
+    // is this OK if paint has a rasterizer? 
     draw.drawRect(r, paint);
 }
 
@@ -2298,4 +2346,3 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
     
     return true;
 }
-

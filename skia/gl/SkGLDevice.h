@@ -12,6 +12,9 @@ public:
     SkGLDevice(const SkBitmap& bitmap, bool offscreen);
     virtual ~SkGLDevice();
 
+    // used to identify GLTextCache data in the glyphcache
+    static void GlyphCacheAuxProc(void* data);    
+    
     enum TexOrientation {
         kNo_TexOrientation,
         kTopToBottom_TexOrientation,

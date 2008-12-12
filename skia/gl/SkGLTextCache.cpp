@@ -84,7 +84,7 @@ SkGLTextCache::Strike::addGlyphAndBind(const SkGlyph& glyph,
     if (fGlyphCount == kMaxGlyphCount ||
             fNextFreeOffsetX + rowBytes >= fStrikeWidth) {
         // this will bind the next texture for us
-        SkDebugf("--- extend strike %p\n", this);
+//        SkDebugf("--- extend strike %p\n", this);
         strike = SkNEW_ARGS(Strike, (this, rowBytes, glyph.fHeight));
     } else {
         glBindTexture(GL_TEXTURE_2D, fTexName);
@@ -127,36 +127,30 @@ SkGLTextCache::Strike::addGlyphAndBind(const SkGlyph& glyph,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGLTextCache::SkGLTextCache() {
-    fCtx = SkGetGLContext();
     bzero(fStrikeList, sizeof(fStrikeList));
 }
 
 SkGLTextCache::~SkGLTextCache() {
-    SkDebugf("--- delete textcache %p\n", this);
+    this->deleteAllStrikes(true);
+}
 
-    // if true, we need to not call glDeleteTexture, since they will have
-    // already gone out of scope
-    bool zap = SkGetGLContext() != fCtx;
-
+void SkGLTextCache::deleteAllStrikes(bool texturesAreValid) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fStrikeList); i++) {
         Strike* strike = fStrikeList[i];
         while (strike != NULL) {
             Strike* next = strike->fNext;
-            if (zap) {
-                strike->zapTexture();
+            if (!texturesAreValid) {
+                strike->abandonTexture();
             }
             SkDELETE(strike);
             strike = next;
         }
     }
+    bzero(fStrikeList, sizeof(fStrikeList));
 }
 
 SkGLTextCache::Strike* SkGLTextCache::findGlyph(const SkGlyph& glyph,
                                                 int* offset) {
-    if (SkGetGLContext() != fCtx) {
-        SkDebugf("====== stale context for text texture\n");
-    }
-
     SkASSERT(glyph.fWidth != 0);
     SkASSERT(glyph.fHeight != 0);
 
@@ -175,10 +169,6 @@ SkGLTextCache::Strike* SkGLTextCache::findGlyph(const SkGlyph& glyph,
 
 SkGLTextCache::Strike* SkGLTextCache::addGlyphAndBind(const SkGlyph& glyph,
                                         const uint8_t image[], int* offset) {
-    if (SkGetGLContext() != fCtx) {
-        SkDebugf("====== stale context for text texture\n");
-    }
-
     SkASSERT(image != NULL);
     SkASSERT(glyph.fWidth != 0);
     SkASSERT(glyph.fHeight != 0);

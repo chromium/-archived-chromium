@@ -1,6 +1,7 @@
 #include "SkTextureCache.h"
 
 //#define TRACE_HASH_HITS
+//#define TRACE_TEXTURE_CACHE_PURGE
 
 SkTextureCache::Entry::Entry(const SkBitmap& bitmap)
         : fName(0), fKey(bitmap), fPrev(NULL), fNext(NULL) {
@@ -34,6 +35,30 @@ SkTextureCache::~SkTextureCache() {
         entry = entry->fNext;
     }
 #endif
+    this->validate();
+}
+
+void SkTextureCache::deleteAllCaches(bool texturesAreValid) {
+    this->validate();
+    
+    Entry* entry = fHead;
+    while (entry) {
+        Entry* next = entry->fNext;
+        if (!texturesAreValid) {
+            entry->abandonTexture();
+        }
+        SkDELETE(entry);
+        entry = next;
+    }
+    
+    fSorted.reset();
+    bzero(fHash, sizeof(fHash));
+    
+    fTexCount = 0;
+    fTexSize = 0;
+    
+    fTail = fHead = NULL;
+    
     this->validate();
 }
 
@@ -237,8 +262,10 @@ void SkTextureCache::purgeIfNecessary(size_t extraSize) {
         }
         
         // now delete it
+#ifdef TRACE_TEXTURE_CACHE_PURGE
         SkDebugf("---- purge texture cache %d size=%d\n",
                  entry->name(), entry->memSize());
+#endif
         SkDELETE(entry);
         
         // keep going
@@ -260,32 +287,6 @@ void SkTextureCache::setMaxSize(size_t size) {
         fTexSizeMax = size;
         this->purgeIfNecessary(0);
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkTextureCache::zapAllTextures() {
-    SkDebugf("---- zapAllTextures\n");
-
-    this->validate();
-    
-    Entry* entry = fHead;
-    while (entry) {
-        Entry* next = entry->fNext;
-        entry->zapName();
-        SkDELETE(entry);
-        entry = next;
-    }
-    
-    fSorted.reset();
-    bzero(fHash, sizeof(fHash));
-    
-    fTexCount = 0;
-    fTexSize = 0;
-
-    fTail = fHead = NULL;
-
-    this->validate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

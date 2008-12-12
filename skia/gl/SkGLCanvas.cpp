@@ -90,17 +90,10 @@ SkDevice* SkGLCanvas::createDevice(SkBitmap::Config, int width, int height,
 
 static SkMutex gTextureCacheMutex;
 static SkTextureCache gTextureCache(kTexCountMax_Default, kTexSizeMax_Default);
-static void* gTextureGLContext;
 
 SkGLDevice::TexCache* SkGLDevice::LockTexCache(const SkBitmap& bitmap,
                                                  GLuint* name, SkPoint* size) {
     SkAutoMutexAcquire amc(gTextureCacheMutex);
-    
-    void* ctx = SkGetGLContext();
-    if (gTextureGLContext != ctx) {
-        gTextureGLContext = ctx;
-        gTextureCache.zapAllTextures();
-    }
     
     SkTextureCache::Entry* entry = gTextureCache.lock(bitmap);
     if (NULL != entry) {
@@ -139,5 +132,48 @@ void SkGLCanvas::SetTextureCacheMaxCount(size_t count) {
 void SkGLCanvas::SetTextureCacheMaxSize(size_t size) {
     SkAutoMutexAcquire amc(gTextureCacheMutex);
     gTextureCache.setMaxSize(size);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkGLTextCache.h"
+
+static bool deleteCachesProc(SkGlyphCache* cache, void* texturesAreValid) {
+    void* auxData;
+    if (cache->getAuxProcData(SkGLDevice::GlyphCacheAuxProc, &auxData)) {
+        bool valid = texturesAreValid != NULL;
+        SkGLTextCache* textCache = static_cast<SkGLTextCache*>(auxData);
+        // call this before delete, in case valid is false
+        textCache->deleteAllStrikes(valid);
+        // now free the memory for the cache itself
+        SkDELETE(textCache);
+        // now remove the entry in the glyphcache (does not call the proc)
+        cache->removeAuxProc(SkGLDevice::GlyphCacheAuxProc);
+    }
+    return false;   // keep going
+}
+
+void SkGLCanvas::DeleteAllTextures() {
+    // free the textures in our cache
+
+    gTextureCacheMutex.acquire();
+    gTextureCache.deleteAllCaches(true);
+    gTextureCacheMutex.release();
+    
+    // now free the textures in the font cache
+    
+    SkGlyphCache::VisitAllCaches(deleteCachesProc, reinterpret_cast<void*>(true));
+}
+
+void SkGLCanvas::AbandonAllTextures() {
+    // abandon the textures in our cache
+
+    gTextureCacheMutex.acquire();
+    gTextureCache.deleteAllCaches(false);
+    gTextureCacheMutex.release();
+
+    // abandon the textures in the font cache
+    
+    SkGlyphCache::VisitAllCaches(deleteCachesProc, reinterpret_cast<void*>(false));
 }
 

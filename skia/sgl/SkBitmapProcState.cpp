@@ -296,9 +296,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
     const SkMatrix* m;
     
-    if (inv.getType() <= SkMatrix::kTranslate_Mask ||
-        (SkShader::kClamp_TileMode == fTileModeX &&
-         SkShader::kClamp_TileMode == fTileModeY)) {
+    if (SkShader::kClamp_TileMode == fTileModeX &&
+            SkShader::kClamp_TileMode == fTileModeY) {
         m = &inv;
     } else {
         fUnitInvMatrix = inv;
@@ -331,16 +330,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix      = m;
     fInvProc        = m->getMapXYProc();
     fInvType        = m->getType();
-    if (fInvType <= SkMatrix::kTranslate_Mask &&
-        inv.getType() > SkMatrix::kTranslate_Mask) {
-      SkASSERT(inv.getType() <=
-               (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-      // It is possible that by the calculation of fUnitInvMatrix, we have
-      // eliminated the scale transformation of the matrix (e.g., if inv^(-1)
-      // scales fOrigBitmap into an 1X1 rect). We add the scale flag back so
-      // that we don't make wrong choice in chooseMatrixProc().
-      fInvType |= SkMatrix::kScale_Mask;
-    }
     fInvSx          = SkScalarToFixed(m->getScaleX());
     fInvSy          = SkScalarToFixed(m->getScaleY());
     fInvKy          = SkScalarToFixed(m->getSkewY());

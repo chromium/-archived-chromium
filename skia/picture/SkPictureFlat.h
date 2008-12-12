@@ -24,11 +24,12 @@ enum DrawType {
     DRAW_POINTS,
     DRAW_POS_TEXT,
     DRAW_POS_TEXT_H,
-    DRAW_RECT_GENERAL,
-    DRAW_RECT_SIMPLE,
+    DRAW_POS_TEXT_H_TOP_BOTTOM, // fast variant of DRAW_POS_TEXT_H
+    DRAW_RECT,
     DRAW_SPRITE,
     DRAW_TEXT,
     DRAW_TEXT_ON_PATH,
+    DRAW_TEXT_TOP_BOTTOM,   // fast variant of DRAW_TEXT
     DRAW_VERTICES,
     RESTORE,
     ROTATE,
@@ -48,7 +49,7 @@ enum DrawVertexFlags {
 class SkRefCntPlayback {
 public:
     SkRefCntPlayback();
-    virtual ~SkRefCntPlayback();
+    ~SkRefCntPlayback();
     
     int count() const { return fCount; }
     
@@ -180,26 +181,6 @@ public:
     
 private:
     char fPaintData[1];
-    typedef SkFlatData INHERITED;
-};
-
-class SkFlatPath : public SkFlatData {
-public:
-    static SkFlatPath* Flatten(SkChunkAlloc* heap, const SkPath& path, int index);
-    
-    void unflatten(SkPath* path) const {
-        SkFlattenableReadBuffer buffer(fPathData);
-        path->unflatten(buffer);
-    }
-    
-#ifdef SK_DEBUG_VALIDATE
-    void validate() const {
-        // to be written
-    }
-#endif
-
-private:
-    char fPathData[1];
     typedef SkFlatData INHERITED;
 };
 

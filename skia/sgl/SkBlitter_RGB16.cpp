@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkBlitter_RGB16.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -161,6 +161,7 @@ SkRGB16_Blitter::SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint)
     : INHERITED(device) {
     SkColor color = paint.getColor();
 
+    fSrcColor32 = SkPreMultiplyColor(color);
     fScale = SkAlpha255To256(SkColorGetA(color));
 
     int r = SkColorGetR(color);
@@ -210,9 +211,9 @@ void SkRGB16_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
         }
     } else {
         // TODO: respect fDoDither
-        unsigned scale = 256 - fScale;
+        SkPMColor src32 = fSrcColor32;
         do {
-            *device = srcColor + SkAlphaMulRGB16(*device, scale);
+            *device = SkSrcOver32To16(src32, *device);
             device += 1;
         } while (--width != 0);
     }
@@ -467,11 +468,10 @@ void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
             }
         }
     } else {
-        unsigned dst_scale = 256 - fScale;  // apply it to the dst
-
+        SkPMColor src32 = fSrcColor32;
         while (--height >= 0) {
             for (int i = width - 1; i >= 0; --i) {
-                device[i] = color16 + SkAlphaMulRGB16(device[i], dst_scale);
+                device[i] = SkSrcOver32To16(src32, device[i]);
             }
             device = (uint16_t*)((char*)device + deviceRB);
         }

@@ -206,15 +206,6 @@ void SkFlatPaint::dump() const {
 }
 #endif
 
-SkFlatPath* SkFlatPath::Flatten(SkChunkAlloc* heap, const SkPath& path, int index) {
-    SkFlattenableWriteBuffer buffer(1024);
-    path.flatten(buffer);
-    uint32_t size = buffer.size();
-    SkFlatPath* result = (SkFlatPath*) INHERITED::Alloc(heap, size, index);
-    buffer.flatten(&result->fPathData);
-    return result;
-}
-
 SkFlatRegion* SkFlatRegion::Flatten(SkChunkAlloc* heap, const SkRegion& region, int index) {
     uint32_t size = region.flatten(NULL);
     SkFlatRegion* result = (SkFlatRegion*) INHERITED::Alloc(heap, size, index);

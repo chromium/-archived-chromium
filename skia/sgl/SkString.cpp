@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkString.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -107,7 +107,10 @@ char* SkStrAppendScalar(char string[], SkScalar value)
         const uint16_t*         tens = gTens;
 
         x = SkFixedRound(frac * 10000);
-        SkASSERT(x < 10000);
+        SkASSERT(x <= 10000);
+        if (x == 10000) {
+            x -= 1;
+        }
         *string++ = '.';
         do {
             unsigned powerOfTen = *tens++;

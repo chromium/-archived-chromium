@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkGeometry.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -258,6 +258,14 @@ int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValue[1])
 static void flatten_double_quad_extrema(SkScalar coords[14])
 {
     coords[2] = coords[6] = coords[4];
+}
+
+static void force_quad_monotonic_in_y(SkPoint pts[3])
+{
+    // zap pts[1].fY to the nearest value
+    SkScalar ab = SkScalarAbs(pts[0].fY - pts[1].fY);
+    SkScalar bc = SkScalarAbs(pts[1].fY - pts[2].fY);
+    pts[1].fY = ab < bc ? pts[0].fY : pts[2].fY;
 }
 
 /*  Returns 0 for 1 quad, and 1 for two quads, either way the answer is

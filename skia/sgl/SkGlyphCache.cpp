@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkGlyphCache.cpp
 **
-** Copyright 2006, Google Inc.
+** Copyright 2006, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -21,7 +21,33 @@
 #include "SkTemplates.h"
 
 #define SPEW_PURGE_STATUS
-#define USE_CACHE_HASHxxxxx
+//#define USE_CACHE_HASH
+//#define RECORD_HASH_EFFICIENCY
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef RECORD_HASH_EFFICIENCY
+    static uint32_t gHashSuccess;
+    static uint32_t gHashCollision;
+
+    static void RecordHashSuccess() {
+        gHashSuccess += 1;
+    }
+
+    static void RecordHashCollisionIf(bool pred) {
+        if (pred) {
+            gHashCollision += 1;
+            
+            uint32_t total = gHashSuccess + gHashCollision;
+            SkDebugf("Font Cache Hash success rate: %d%%\n",
+                     100 * gHashSuccess / total);
+        }
+    }
+#else
+    #define RecordHashSuccess() (void)0
+    #define RecordHashCollisionIf(pred) (void)0
+#endif
+#define RecordHashCollision() RecordHashCollisionIf(true)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -70,25 +96,39 @@ SkGlyphCache::~SkGlyphCache() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-    class AutoCheckForNull {
-    public:
-        AutoCheckForNull(const SkTDArray<SkGlyph*>& array) : fArray(array) {
-            for (int i = 0; i < array.count(); i++)
-                SkASSERT(array[i]);
+class AutoCheckForNull {
+public:
+    AutoCheckForNull(const SkTDArray<SkGlyph*>& array) : fArray(array) {
+        for (int i = 0; i < array.count(); i++)
+            SkASSERT(array[i]);
+    }
+    ~AutoCheckForNull() {
+        const SkTDArray<SkGlyph*>& array = fArray;
+        for (int i = 0; i < array.count(); i++) {
+            SkASSERT(array[i]);
         }
-        ~AutoCheckForNull() {
-            const SkTDArray<SkGlyph*>& array = fArray;
-            for (int i = 0; i < array.count(); i++) {
-                SkASSERT(array[i]);
-            }
-        }
-    private:
-        const SkTDArray<SkGlyph*>& fArray;
-    };
-    #define VALIDATE()  AutoCheckForNull acfn(fGlyphArray)
+    }
+private:
+    const SkTDArray<SkGlyph*>& fArray;
+};
+#define VALIDATE()  AutoCheckForNull acfn(fGlyphArray)
 #else
-    #define VALIDATE()
+#define VALIDATE()
 #endif
+
+uint16_t SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
+    VALIDATE();
+    uint32_t id = SkGlyph::MakeID(charCode);
+    const CharGlyphRec& rec = fCharToGlyphHash[ID2HashIndex(id)];
+    
+    if (rec.fID == id) {
+        return rec.fGlyph->getGlyphID();
+    } else {
+        return fScalerContext->charToGlyphID(charCode);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
@@ -126,12 +166,14 @@ const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode) {
     CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
     
     if (rec->fID != id) {
+        RecordHashCollisionIf(rec->fGlyph != NULL);
         // this ID is based on the UniChar
         rec->fID = id;
         // this ID is based on the glyph index
         id = SkGlyph::MakeID(fScalerContext->charToGlyphID(charCode));
         rec->fGlyph = this->lookupMetrics(id, kFull_MetricsType);
     } else {
+        RecordHashSuccess();
         if (rec->fGlyph->isJustAdvance()) {
             fScalerContext->getMetrics(rec->fGlyph);
         }
@@ -147,12 +189,14 @@ const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode,
     CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
     
     if (rec->fID != id) {
+        RecordHashCollisionIf(rec->fGlyph != NULL);
         // this ID is based on the UniChar
         rec->fID = id;
         // this ID is based on the glyph index
         id = SkGlyph::MakeID(fScalerContext->charToGlyphID(charCode), x, y);
         rec->fGlyph = this->lookupMetrics(id, kFull_MetricsType);
     } else {
+        RecordHashSuccess();
         if (rec->fGlyph->isJustAdvance()) {
             fScalerContext->getMetrics(rec->fGlyph);
         }
@@ -168,9 +212,11 @@ const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID) {
     SkGlyph* glyph = fGlyphHash[index];
     
     if (NULL == glyph || glyph->fID != id) {
+        RecordHashCollisionIf(glyph != NULL);
         glyph = this->lookupMetrics(glyphID, kFull_MetricsType);
         fGlyphHash[index] = glyph;
     } else {
+        RecordHashSuccess();
         if (glyph->isJustAdvance()) {
             fScalerContext->getMetrics(glyph);
         }
@@ -185,11 +231,13 @@ const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID,
     uint32_t id = SkGlyph::MakeID(glyphID, x, y);
     unsigned index = ID2HashIndex(id);
     SkGlyph* glyph = fGlyphHash[index];
-    
+
     if (NULL == glyph || glyph->fID != id) {
+        RecordHashCollisionIf(glyph != NULL);
         glyph = this->lookupMetrics(id, kFull_MetricsType);
         fGlyphHash[index] = glyph;
     } else {
+        RecordHashSuccess();
         if (glyph->isJustAdvance()) {
             fScalerContext->getMetrics(glyph);
         }
@@ -406,6 +454,23 @@ public:
     #define GET_GC_GLOBALS()    gGCGlobals
 #endif
 
+void SkGlyphCache::VisitAllCaches(bool (*proc)(SkGlyphCache*, void*),
+                                  void* context) {
+    SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
+    SkAutoMutexAcquire    ac(globals.fMutex);
+    SkGlyphCache*         cache;
+    
+    globals.validate();
+    
+    for (cache = globals.fHead; cache != NULL; cache = cache->fNext) {
+        if (proc(cache, context)) {
+            break;
+        }
+    }
+
+    globals.validate();
+}
+
 /*  This guy calls the visitor from within the mutext lock, so the visitor
     cannot:
     - take too much time
@@ -434,7 +499,6 @@ SkGlyphCache* SkGlyphCache::VisitCache(const SkDescriptor* desc,
     }
 #endif
 
-    cache = globals.fHead;
     for (cache = globals.fHead; cache != NULL; cache = cache->fNext) {
         if (cache->fDesc->equals(*desc)) {
             cache->detach(&globals.fHead);

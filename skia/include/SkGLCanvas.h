@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 Google Inc.
+ * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,24 @@ public:
     // settings for the global texture cache
 
     static size_t GetTextureCacheMaxCount();
-    static size_t GetTextureCacheMaxSize();
     static void SetTextureCacheMaxCount(size_t count);
+
+    static size_t GetTextureCacheMaxSize();
     static void SetTextureCacheMaxSize(size_t size);
-        
+
+    /** Call glDeleteTextures for all textures (including those for text)
+        This should be called while the gl-context is still valid. Its purpose
+        is to free up gl resources. Note that if a bitmap or text is drawn after
+        this call, new caches will be created.
+    */
+    static void DeleteAllTextures();
+
+    /** Forget all textures without calling delete (including those for text).
+        This should be called if the gl-context has changed, and the texture
+        IDs that have been cached are no longer valid.
+    */
+    static void AbandonAllTextures();
+
 private:
     SkIPoint fViewportSize;
 
