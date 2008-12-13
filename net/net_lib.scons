@@ -84,7 +84,6 @@ input_files = [
     'url_request/mime_sniffer_proxy.cc',
     'url_request/url_request.cc',
     'url_request/url_request_about_job.cc',
-    'url_request/url_request_context.cc',
     'url_request/url_request_error_job.cc',
     'url_request/url_request_file_dir_job.cc',
     'url_request/url_request_file_job.cc',

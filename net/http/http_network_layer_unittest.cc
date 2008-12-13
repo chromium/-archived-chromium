@@ -5,6 +5,7 @@
 #include "net/base/scoped_host_mapper.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_transaction_unittest.h"
+#include "net/proxy/proxy_resolver_null.h"
 #include "net/proxy/proxy_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
@@ -21,12 +22,15 @@ class HttpNetworkLayerTest : public PlatformTest {
 };
 
 TEST_F(HttpNetworkLayerTest, CreateAndDestroy) {
-  net::HttpNetworkLayer factory(net::ProxyService::CreateNull());
+  net::ProxyService proxy_service(new net::ProxyResolverNull);
+  net::HttpNetworkLayer factory(&proxy_service);
+
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
 }
 
 TEST_F(HttpNetworkLayerTest, Suspend) {
-  net::HttpNetworkLayer factory(net::ProxyService::CreateNull());
+  net::ProxyService proxy_service(new net::ProxyResolverNull);
+  net::HttpNetworkLayer factory(&proxy_service);
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
   trans.reset();
@@ -42,7 +46,8 @@ TEST_F(HttpNetworkLayerTest, Suspend) {
 }
 
 TEST_F(HttpNetworkLayerTest, GoogleGET) {
-  net::HttpNetworkLayer factory(net::ProxyService::CreateNull());
+  net::ProxyService proxy_service(new net::ProxyResolverNull);
+  net::HttpNetworkLayer factory(&proxy_service);
 
   TestCompletionCallback callback;
 

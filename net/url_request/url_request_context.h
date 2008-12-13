@@ -28,8 +28,13 @@ class ProxyService;
 class URLRequestContext :
     public base::RefCountedThreadSafe<URLRequestContext> {
  public:
-  URLRequestContext();
-    
+  URLRequestContext()
+      : proxy_service_(NULL),
+        http_transaction_factory_(NULL),
+        cookie_store_(NULL),
+        is_off_the_record_(false) {
+  }
+
   // Get the proxy service for this context.
   net::ProxyService* proxy_service() const {
     return proxy_service_;
@@ -37,11 +42,11 @@ class URLRequestContext :
 
   // Gets the http transaction factory for this context.
   net::HttpTransactionFactory* http_transaction_factory() {
-    return http_transaction_factory_.get();
+    return http_transaction_factory_;
   }
 
   // Gets the cookie store for this context.
-  net::CookieMonster* cookie_store() { return cookie_store_.get(); }
+  net::CookieMonster* cookie_store() { return cookie_store_; }
 
   // Gets the cookie policy for this context.
   net::CookiePolicy* cookie_policy() { return &cookie_policy_; }
@@ -63,13 +68,14 @@ class URLRequestContext :
 
   // Do not call this directly.  TODO(darin): extending from RefCounted* should
   // not require a public destructor!
-  virtual ~URLRequestContext();
+  virtual ~URLRequestContext() {}
 
  protected:
-  // The following members are expected to be initialized by subclasses.
-  scoped_refptr<net::ProxyService> proxy_service_;
-  scoped_ptr<net::HttpTransactionFactory> http_transaction_factory_;
-  scoped_ptr<net::CookieMonster> cookie_store_;
+  // The following members are expected to be initialized and owned by
+  // subclasses.
+  net::ProxyService* proxy_service_;
+  net::HttpTransactionFactory* http_transaction_factory_;
+  net::CookieMonster* cookie_store_;
   net::CookiePolicy cookie_policy_;
   net::AuthCache ftp_auth_cache_;
   std::string user_agent_;

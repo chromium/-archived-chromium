@@ -42,8 +42,7 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
     return result;
   }
 
-  scoped_refptr<net::ProxyService> proxy_service(
-      net::ProxyService::Create(NULL));
+  scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::Create(NULL));
   if (!proxy_service.get()) {
     NOTREACHED();
     return result;

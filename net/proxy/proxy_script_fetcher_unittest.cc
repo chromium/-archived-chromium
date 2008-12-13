@@ -28,8 +28,12 @@ class RequestContext : public URLRequestContext {
   RequestContext() {
     net::ProxyInfo no_proxy;
     proxy_service_ = net::ProxyService::Create(&no_proxy);
-    http_transaction_factory_.reset(net::HttpNetworkLayer::CreateFactory(
-        proxy_service_));
+    http_transaction_factory_ = net::HttpNetworkLayer::CreateFactory(
+        proxy_service_);
+  }
+  ~RequestContext() {
+    delete http_transaction_factory_;
+    delete proxy_service_;
   }
 };
 

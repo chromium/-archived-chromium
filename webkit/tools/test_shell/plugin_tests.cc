@@ -29,7 +29,11 @@ class PluginTest : public TestShellTest {
   class RequestContext : public TestURLRequestContext {
    public:
     RequestContext() {
-      cookie_store_.reset(new net::CookieMonster());
+      cookie_store_ = new net::CookieMonster();
+    }
+
+    virtual ~RequestContext() {
+      delete cookie_store_;
     }
   };
 

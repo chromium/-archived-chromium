@@ -40,7 +40,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
 
    private:
     Session* session_;
-    scoped_refptr<ProxyService> proxy_service_;
+    ProxyService* proxy_service_;
     bool is_suspended_;
     DISALLOW_EVIL_CONSTRUCTORS(Factory);
   };
