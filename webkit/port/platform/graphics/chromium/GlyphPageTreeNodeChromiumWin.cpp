@@ -37,16 +37,30 @@
 #include "SimpleFontData.h"
 #include "UniscribeHelperTextRun.h"
 
-#include "base/win_util.h"
-
 namespace WebCore
 {
+
+static bool IsVistaOrGreater()
+{
+    // Cache the result to avoid asking every time.
+    static bool checkedVersion = false;
+    static bool isVistaOrGreater = false;
+    if (!checkedVersion) {
+        OSVERSIONINFO versionInfo;
+        versionInfo.dwOSVersionInfoSize = sizeof(versionInfo);
+        GetVersionEx(&versionInfo);
+
+        checkedVersion = true;
+        isVistaOrGreater = versionInfo.dwMajorVersion >= 6;
+    }
+    return isVistaOrGreater;
+}
 
 // Fills one page of font data pointers with NULL to indicate that there
 // are no glyphs for the characters.
 static void FillEmptyGlyphs(GlyphPage* page) {
   for (int i = 0; i < GlyphPage::size; ++i)
-    page->setGlyphDataForIndex(i, NULL, NULL);
+      page->setGlyphDataForIndex(i, NULL, NULL);
 }
 
 // Lazily initializes space glyph
@@ -57,7 +71,6 @@ static Glyph InitSpaceGlyph(HDC dc, Glyph* space_glyph) {
     GetGlyphIndices(dc, &space, 1, space_glyph, 0);
     return *space_glyph;
 }
-
 
 // Fills a page of glyphs in the Basic Multilingual Plane (<= U+FFFF). We
 // can use the standard Windows GDI functions here. The input buffer size is
@@ -132,8 +145,7 @@ static bool FillBMPGlyphs(UChar* buffer,
     // Copy the output to the GlyphPage
     bool have_glyphs = false;
     int invalid_glyph = 0xFFFF;
-    if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA &&
-        !(tm.tmPitchAndFamily & TMPF_TRUETYPE))
+    if (!IsVistaOrGreater() && !(tm.tmPitchAndFamily & TMPF_TRUETYPE))
       invalid_glyph = 0x1F;
 
     Glyph space_glyph = 0;  // Glyph for a space. Lazily filled.
@@ -195,7 +207,7 @@ static bool FillNonBMPGlyphs(UChar* buffer,
                              const SimpleFontData* fontData)
 {
     bool have_glyphs = false;
-    
+
     UniscribeHelperTextRun state(buffer, GlyphPage::size * 2, false,
                                  fontData->m_font.hfont(),
                                  fontData->m_font.scriptCache(),
@@ -240,4 +252,4 @@ bool GlyphPage::fill(unsigned offset, unsigned length, UChar* characterBuffer, u
     }
 }
 
-}
+}  // namespace WebCore

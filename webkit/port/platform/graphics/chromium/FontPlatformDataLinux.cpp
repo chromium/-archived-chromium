@@ -91,8 +91,8 @@ unsigned FontPlatformData::hash() const
     h ^= 0x01010101 * (((int)m_fakeBold << 1) | (int)m_fakeItalic);
 
     // This memcpy is to avoid a reinterpret_cast that breaks strict-aliasing
-    // rules.  See base/basictypes.h and its discussion of bit_cast for
-    // performance implications (briefly: doesn't matter).
+    // rules. Memcpy is generally optimized enough so that performance doesn't
+    // matter here.
     uint32_t textsize_bytes;
     memcpy(&textsize_bytes, &m_textSize, sizeof(uint32_t));
     h ^= textsize_bytes;

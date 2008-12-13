@@ -331,9 +331,8 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
                                                     const UChar* characters,
                                                     int length)
 {
-    // TODO(jungshik) : Consider passing fontDescription.dominantScript() 
-    // to GetFallbackFamily here along with the corresponding change
-    // in base/gfx.
+    // TODO(jungshik) : Consider passing fontDescription.dominantScript()
+    // to GetFallbackFamily here.
     FontDescription fontDescription = font.fontDescription();
     UChar32 c;
     UScriptCode script;
@@ -349,8 +348,7 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
 
     // Last resort font list : PanUnicode. CJK fonts have a pretty
     // large repertoire. Eventually, we need to scan all the fonts
-    // on the system to have a Firefox-like coverage and this needs 
-    // to move to base/gfx. 
+    // on the system to have a Firefox-like coverage.
     // Make sure that all of them are lowercased.
     const static wchar_t* const cjkFonts[] = {
         L"arial unicode ms",
@@ -367,7 +365,6 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
         // CJK Ext. B fonts are not listed here because it's of no use
         // with our current non-BMP character handling because we use
         // Uniscribe for it and that code path does not go through here.
-        // This will be fixed when we move a bulk of this to base/gfx.
     };
 
     const static wchar_t* const commonFonts[] = {
