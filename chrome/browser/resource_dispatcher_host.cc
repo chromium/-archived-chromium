@@ -1429,9 +1429,7 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       request_id_(-1),
       plugin_service_(PluginService::GetInstance()),
       method_runner_(this),
-      is_shutdown_(false),
-      removing_pending_request_(0),
-      request_to_remove_(NULL) {
+      is_shutdown_(false) {
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {
@@ -1943,18 +1941,10 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 
 void ResourceDispatcherHost::RemovePendingRequest(
     const PendingRequestList::iterator& iter) {
-  if (request_to_remove_) {
-    CHECK(iter->second != request_to_remove_);
-  }
-
   // Notify the login handler that this request object is going away.
   ExtraRequestInfo* info = ExtraInfoForRequest(iter->second);
   if (info && info->login_handler)
     info->login_handler->OnRequestCancelled();
-
-  CHECK(!removing_pending_request_);
-  removing_pending_request_ = 1;
-  request_to_remove_ = iter->second;
 
   delete iter->second;
   pending_requests_.erase(iter);
@@ -1962,9 +1952,6 @@ void ResourceDispatcherHost::RemovePendingRequest(
   // If we have no more pending requests, then stop the load state monitor
   if (pending_requests_.empty())
     update_load_states_timer_.Stop();
-
-  removing_pending_request_ = 0;
-  request_to_remove_ = NULL;
 }
 
 // URLRequest::Delegate -------------------------------------------------------
