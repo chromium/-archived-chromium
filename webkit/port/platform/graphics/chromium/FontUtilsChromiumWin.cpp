@@ -120,7 +120,7 @@ struct FontData {
 // well-within 1-sigma of each other so that the difference is not significant.
 // On the other hand, some pages in intl2 seem to take longer to load with map
 // in the 1st pass. Need to experiment further.
-typedef HashMap<String, FontData*> FontDataCache;
+typedef HashMap<String, FontData> FontDataCache;
 
 }  // namespace
 
@@ -277,15 +277,15 @@ bool GetDerivedFontData(const UChar *family,
         // a font even if there's no font matching the name. Need to
         // check it against what we actually want (as is done in
         // FontCacheWin.cpp)
-        derived = new FontData;
+        pair<FontDataCache::iterator, bool> entry = fontDataCache.add(fontKey, FontData());
+        derived = &entry.first->second;
         derived->hfont = CreateFontIndirect(logfont);
         // GetAscent may return kUndefinedAscent, but we still want to
         // cache it so that we won't have to call CreateFontIndirect once
         // more for HFONT next time.
         derived->ascent = GetAscent(derived->hfont);
-        fontDataCache.add(fontKey, derived);
     } else {
-        derived = iter->second;
+        derived = &iter->second;
         // Last time, GetAscent failed so that only HFONT was
         // cached. Try once more assuming that TryPreloadFont
         // was called by a caller between calls.
