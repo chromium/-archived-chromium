@@ -166,15 +166,6 @@ else:
 SetOption('num_jobs', cpus + 1)
 
 
-if ARGUMENTS.get('VERBOSE') in (None, '0'):
-  root_env['CCCOMSTR'] = 'Compiling $TARGET ...'
-  root_env['CXXCOMSTR'] = 'Compiling $TARGET ...'
-  root_env['SHCCCOMSTR'] = 'Compiling $TARGET ...'
-  root_env['SHCXXCOMSTR'] = 'Compiling $TARGET ...'
-  root_env['ARCOMSTR'] = 'Archiving $TARGET ...'
-  root_env['LINKCOMSTR'] = 'Linking $TARGET ...'
-  root_env['BINDINGSCOMSTR'] = 'Building bindings in $TARGET ...'
-
 # Use timestamps change, followed by MD5 for speed
 root_env.Decider('MD5-timestamp')
 
@@ -648,7 +639,6 @@ Supported build variables:
   PROGRESS=type             Display a progress indicator:
                               name:  print each evaluated target name
                               spinner:  print a spinner every 5 targets
-  VERBOSE=1                 Display full command lines
 """
 
 if GetOption('help'):
