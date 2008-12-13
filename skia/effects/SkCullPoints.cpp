@@ -36,10 +36,10 @@ bool SkCullPoints::sect_test(int x0, int y0, int x1, int y1) const
 {
     const SkIRect& r = fR;
 
-    if (x0 < r.fLeft    && x1 < r.fLeft ||
-        x0 > r.fRight   && x1 > r.fRight ||
-        y0 < r.fTop     && y1 < r.fTop ||
-        y0 > r.fBottom  && y1 > r.fBottom)
+    if ((x0 < r.fLeft    && x1 < r.fLeft) ||
+        (x0 > r.fRight   && x1 > r.fRight) ||
+        (y0 < r.fTop     && y1 < r.fTop) ||
+        (y0 > r.fBottom  && y1 > r.fBottom))
         return false;
 
     // since the crossprod test is a little expensive, check for easy-in cases first    
