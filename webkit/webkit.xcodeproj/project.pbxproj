@@ -474,6 +474,8 @@
 		93817B980EF1CD9600993F02 /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93817B8E0EF1CD9600993F02 /* PlatformContextSkia.cpp */; };
 		93817B990EF1CD9600993F02 /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93817B900EF1CD9600993F02 /* SkiaUtils.cpp */; };
 		93817C990EF1D0C400993F02 /* ColorSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93817C980EF1D0C400993F02 /* ColorSkia.cpp */; };
+		938180480EF3392100993F02 /* BackForwardList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938180460EF3392100993F02 /* BackForwardList.cpp */; };
+		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
@@ -1268,7 +1270,6 @@
 		E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */; };
 		E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */; };
 		E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B14AA450DE323CD00F4E646 /* CachedPage.cpp */; };
-		E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8BCA0D7F3B39001ECF42 /* BackForwardList.cpp */; };
 		E45628370E269DBB005E4685 /* feed_preview.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254050F0D92E3DA0006B936 /* feed_preview.cc */; };
 		E456283A0E269DCB005E4685 /* multipart_response_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051D0D92E3DA0006B936 /* multipart_response_delegate.cc */; };
 		E473F6340EADFF61006C2098 /* ContextMenuItemChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6320EADFF61006C2098 /* ContextMenuItemChromium.cpp */; };
@@ -2707,8 +2708,6 @@
 		7B5E8B5E0D7F3AFA001ECF42 /* VisiblePosition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisiblePosition.h; sourceTree = "<group>"; };
 		7B5E8B5F0D7F3AFA001ECF42 /* WrapContentsInDummySpanCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WrapContentsInDummySpanCommand.cpp; sourceTree = "<group>"; };
 		7B5E8B600D7F3AFA001ECF42 /* WrapContentsInDummySpanCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WrapContentsInDummySpanCommand.h; sourceTree = "<group>"; };
-		7B5E8BCA0D7F3B39001ECF42 /* BackForwardList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardList.cpp; sourceTree = "<group>"; };
-		7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackForwardList.h; sourceTree = "<group>"; };
 		7B5E8BD00D7F3B39001ECF42 /* CachedPagePlatformData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPagePlatformData.h; sourceTree = "<group>"; };
 		7B5E8BD10D7F3B39001ECF42 /* HistoryItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HistoryItem.cpp; sourceTree = "<group>"; };
 		7B5E8BD20D7F3B39001ECF42 /* HistoryItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistoryItem.h; sourceTree = "<group>"; };
@@ -3987,6 +3986,10 @@
 		93817B900EF1CD9600993F02 /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
 		93817B910EF1CD9600993F02 /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkiaUtils.h; sourceTree = "<group>"; };
 		93817C980EF1D0C400993F02 /* ColorSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColorSkia.cpp; sourceTree = "<group>"; };
+		938180460EF3392100993F02 /* BackForwardList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardList.cpp; sourceTree = "<group>"; };
+		938180470EF3392100993F02 /* BackForwardList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackForwardList.h; sourceTree = "<group>"; };
+		9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = back_forward_list_client_impl.cc; sourceTree = "<group>"; };
+		9381804F0EF3394A00993F02 /* back_forward_list_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = back_forward_list_client_impl.h; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
 		93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CookieJarChromium.cpp; path = chromium/CookieJarChromium.cpp; sourceTree = "<group>"; };
@@ -4570,8 +4573,6 @@
 		7B14AA440DE323A000F4E646 /* history */ = {
 			isa = PBXGroup;
 			children = (
-				7B5E8BCA0D7F3B39001ECF42 /* BackForwardList.cpp */,
-				7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */,
 				7B14AA450DE323CD00F4E646 /* CachedPage.cpp */,
 			);
 			path = history;
@@ -5168,6 +5169,8 @@
 			isa = PBXGroup;
 			children = (
 				7B5E8BD30D7F3B39001ECF42 /* mac */,
+				938180460EF3392100993F02 /* BackForwardList.cpp */,
+				938180470EF3392100993F02 /* BackForwardList.h */,
 				7B5E8BD00D7F3B39001ECF42 /* CachedPagePlatformData.h */,
 				7B5E8BD10D7F3B39001ECF42 /* HistoryItem.cpp */,
 				7B5E8BD20D7F3B39001ECF42 /* HistoryItem.h */,
@@ -7434,6 +7437,8 @@
 				53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */,
 				B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */,
 				B5B0D6870EC91D3D00EA3314 /* autofill_form.h */,
+				9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */,
+				9381804F0EF3394A00993F02 /* back_forward_list_client_impl.h */,
 				825404EF0D92E3DA0006B936 /* cache_manager.cc */,
 				825404F00D92E3DA0006B936 /* cache_manager.h */,
 				825404F10D92E3DA0006B936 /* chrome_client_impl.cc */,
@@ -8480,6 +8485,7 @@
 				4DB7F9DC0E9BEC9500C66CE0 /* AuthenticationChallengeBase.cpp in Sources */,
 				E456254A0E268E87005E4685 /* AutoTableLayout.cpp in Sources */,
 				E45623790E268E87005E4685 /* AXObjectCache.cpp in Sources */,
+				938180480EF3392100993F02 /* BackForwardList.cpp in Sources */,
 				E456249B0E268E87005E4685 /* BarInfo.cpp in Sources */,
 				E456252E0E268E87005E4685 /* Base64.cpp in Sources */,
 				E45623AE0E268E87005E4685 /* BeforeTextInsertedEvent.cpp in Sources */,
@@ -9293,6 +9299,7 @@
 				E45627000E268F03005E4685 /* alt_404_page_resource_fetcher.cc in Sources */,
 				E45626F70E268F03005E4685 /* alt_error_page_resource_fetcher.cc in Sources */,
 				B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */,
+				938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */,
 				E456270D0E268F03005E4685 /* chrome_client_impl.cc in Sources */,
 				934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */,
 				535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */,
@@ -9344,7 +9351,6 @@
 				93BF8F520EA6BD870030F05C /* AccessibilityObjectChromium.cpp in Sources */,
 				93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */,
 				E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */,
-				E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
 				E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */,
