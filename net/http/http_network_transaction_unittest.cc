@@ -12,7 +12,6 @@
 #include "net/http/http_network_transaction.h"
 #include "net/http/http_transaction_unittest.h"
 #include "net/proxy/proxy_resolver_fixed.h"
-#include "net/proxy/proxy_resolver_null.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -200,13 +199,15 @@ class MockClientSocketFactory : public net::ClientSocketFactory {
 
 MockClientSocketFactory mock_socket_factory;
 
-// Create a proxy service which fails on all requests (falls back to direct).
-net::ProxyService* CreateNullProxyService() {
-  return new net::ProxyService(new net::ProxyResolverNull);
+net::HttpNetworkSession* CreateSessionWithProxy(const std::string& proxy) {
+  net::ProxyInfo proxy_info;
+  proxy_info.UseNamedProxy(proxy);
+  return new net::HttpNetworkSession(
+      new net::ProxyService(new net::ProxyResolverFixed(proxy_info)));
 }
 
-net::HttpNetworkSession* CreateSession(net::ProxyService* proxy_service) {
-  return new net::HttpNetworkSession(proxy_service);
+net::HttpNetworkSession* CreateSession() {
+  return new net::HttpNetworkSession(net::ProxyService::CreateNull());
 }
 
 class HttpNetworkTransactionTest : public PlatformTest {
@@ -236,9 +237,8 @@ struct SimpleGetHelperResult {
 SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   SimpleGetHelperResult out;
 
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -289,9 +289,8 @@ void FillLargeHeadersString(std::string* str, int size) {
 //-----------------------------------------------------------------------------
 
 TEST_F(HttpNetworkTransactionTest, Basic) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 }
 
 TEST_F(HttpNetworkTransactionTest, SimpleGET) {
@@ -398,9 +397,7 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
 }
 
 TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
-      CreateSession(proxy_service.get());
+  scoped_refptr<net::HttpNetworkSession> session = CreateSession();
 
   MockRead data_reads[] = {
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
@@ -449,9 +446,8 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
 }
 
 TEST_F(HttpNetworkTransactionTest, Ignores100) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "POST";
@@ -495,9 +491,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
 // transaction to resend the request.
 void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     const MockRead& read_failure) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
-      CreateSession(proxy_service.get());
+  scoped_refptr<net::HttpNetworkSession> session = CreateSession();
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -562,9 +556,8 @@ TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionEOF) {
 }
 
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -617,9 +610,8 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
 // Test the request-challenge-retry sequence for basic auth.
 // (basic auth is the easiest to mock, because it has no randomness).
 TEST_F(HttpNetworkTransactionTest, BasicAuth) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -709,14 +701,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
 // authentication. Again, this uses basic auth for both since that is
 // the simplest to mock.
 TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
-  net::ProxyInfo proxy_info;
-  proxy_info.UseNamedProxy("myproxy:70");
-  net::ProxyService proxy_service(new net::ProxyResolverFixed(proxy_info));
-
   // Configure against proxy server "myproxy:70".
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(&proxy_service),
-      &mock_socket_factory));
+      CreateSessionWithProxy("myproxy:70"), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -848,9 +835,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
 // After some maximum number of bytes is consumed, the transaction should
 // fail with ERR_RESPONSE_HEADERS_TOO_BIG.
 TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -889,12 +875,8 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
 // http://code.google.com/p/chromium/issues/detail?id=3772
 TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   // Configure against proxy server "myproxy:70".
-  net::ProxyInfo proxy_info;
-  proxy_info.UseNamedProxy("myproxy:70");
-  net::ProxyService proxy_service(new net::ProxyResolverFixed(proxy_info));
-
   scoped_refptr<net::HttpNetworkSession> session(
-      CreateSession(&proxy_service));
+      CreateSessionWithProxy("myproxy:70"));
 
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
@@ -971,9 +953,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
   request[1].upload_data->AppendBytes("foo", 3);
   request[1].load_flags = 0;
 
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
-      CreateSession(proxy_service.get());
+  scoped_refptr<net::HttpNetworkSession> session = CreateSession();
 
   // The first socket is used for transaction 1 and the first attempt of
   // transaction 2.
@@ -1049,9 +1029,8 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 // an identity in the URL. The request should be sent as normal, but when
 // it fails the identity from the URL is used to answer the challenge.
 TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -1119,9 +1098,7 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
 
 // Test that previously tried username/passwords for a realm get re-used.
 TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
-      CreateSession(proxy_service.get());
+  scoped_refptr<net::HttpNetworkSession> session = CreateSession();
 
   // Transaction 1: authenticate (foo, bar) on MyRealm1
   {

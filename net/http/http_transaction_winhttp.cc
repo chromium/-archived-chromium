@@ -240,7 +240,7 @@ class HttpTransactionWinHttp::Session
   HINTERNET internet_;
   HINTERNET internet_no_tls_;
   MessageLoop* message_loop_;
-  ProxyService* proxy_service_;
+  scoped_refptr<ProxyService> proxy_service_;
   AuthCache auth_cache_;
 
   // This event object is used when destroying a transaction.  It is given

@@ -553,6 +553,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\url_request\url_request_context.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\url_request\url_request_context.h"
 				>
 			</File>

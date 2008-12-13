@@ -23,7 +23,7 @@ void TestShellRequestContext::Init(
     const std::wstring& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy) {
-  cookie_store_ = new net::CookieMonster();
+  cookie_store_.reset(new net::CookieMonster());
 
   user_agent_ = webkit_glue::GetUserAgent();
 
@@ -42,12 +42,9 @@ void TestShellRequestContext::Init(
     cache = new net::HttpCache(proxy_service_, cache_path, 0);
   }
   cache->set_mode(cache_mode);
-  http_transaction_factory_ = cache;
+  http_transaction_factory_.reset(cache);
 }
 
 TestShellRequestContext::~TestShellRequestContext() {
-  delete cookie_store_;
-  delete http_transaction_factory_;
-  delete proxy_service_;
 }
 

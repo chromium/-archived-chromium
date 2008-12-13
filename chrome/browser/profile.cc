@@ -110,7 +110,6 @@ class ProfileImpl::RequestContext : public URLRequestContext,
                  const std::wstring& disk_cache_path,
                  PrefService* prefs)
       : prefs_(prefs) {
-    cookie_store_ = NULL;
 
     // setup user agent
     user_agent_ = webkit_glue::GetUserAgent();
@@ -135,18 +134,18 @@ class ProfileImpl::RequestContext : public URLRequestContext,
 
     if (record_mode || playback_mode) {
       // Don't use existing cookies and use an in-memory store.
-      cookie_store_ = new net::CookieMonster();
+      cookie_store_.reset(new net::CookieMonster());
       cache->set_mode(
           record_mode ? net::HttpCache::RECORD : net::HttpCache::PLAYBACK);
     }
-    http_transaction_factory_ = cache;
+    http_transaction_factory_.reset(cache);
 
     // setup cookie store
-    if (!cookie_store_) {
+    if (!cookie_store_.get()) {
       DCHECK(!cookie_store_path.empty());
       cookie_db_.reset(new SQLitePersistentCookieStore(
           cookie_store_path, g_browser_process->db_thread()->message_loop()));
-      cookie_store_ = new net::CookieMonster(cookie_db_.get());
+      cookie_store_.reset(new net::CookieMonster(cookie_db_.get()));
     }
 
     cookie_policy_.SetType(net::CookiePolicy::FromInt(
@@ -216,10 +215,6 @@ class ProfileImpl::RequestContext : public URLRequestContext,
 
   virtual ~RequestContext() {
     DCHECK(NULL == prefs_);
-    delete cookie_store_;
-    delete http_transaction_factory_;
-    delete proxy_service_;
-
     if (default_request_context_ == this)
       default_request_context_ = NULL;
   }
@@ -254,13 +249,12 @@ class OffTheRecordRequestContext : public URLRequestContext,
     // context to make sure it doesn't go away when we delete the object graph.
     original_context_ = profile->GetRequestContext();
 
-    // Share the same proxy service as the original profile. This proxy
-    // service's lifespan is dependent on the lifespan of the original profile,
-    // which we reference (see above).
+    // Share the same proxy service as the original profile (adds a reference).
     proxy_service_ = original_context_->proxy_service();
 
-    http_transaction_factory_ = new net::HttpCache(proxy_service_, 0);
-    cookie_store_ = new net::CookieMonster;
+    http_transaction_factory_.reset(
+        new net::HttpCache(proxy_service_, 0));
+    cookie_store_.reset(new net::CookieMonster);
     cookie_policy_.SetType(net::CookiePolicy::FromInt(
         prefs_->GetInteger(prefs::kCookieBehavior)));
     user_agent_ = original_context_->user_agent();
@@ -326,10 +320,6 @@ class OffTheRecordRequestContext : public URLRequestContext,
 
   virtual ~OffTheRecordRequestContext() {
     DCHECK(NULL == prefs_);
-    delete cookie_store_;
-    delete http_transaction_factory_;
-    // NOTE: do not delete |proxy_service_| as is owned by the original profile.
-   
     // The OffTheRecordRequestContext simply act as a proxy to the real context.
     // There is nothing else to delete.
   }

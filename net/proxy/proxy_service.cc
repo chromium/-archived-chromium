@@ -305,6 +305,11 @@ ProxyService* ProxyService::Create(const ProxyInfo* pi) {
 #endif
 }
 
+// static
+ProxyService* ProxyService::CreateNull() {
+  return new ProxyService(new ProxyResolverNull());
+}
+
 int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
                                CompletionCallback* callback,
                                PacRequest** pac_request) {

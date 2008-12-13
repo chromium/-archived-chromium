@@ -17,7 +17,6 @@ class ProxyService;
 
 class HttpNetworkLayer : public HttpTransactionFactory {
  public:
-  // |proxy_service| must remain valid for the lifetime of HttpNetworkLayer.
   explicit HttpNetworkLayer(ProxyService* proxy_service);
   ~HttpNetworkLayer();
 
@@ -41,7 +40,7 @@ class HttpNetworkLayer : public HttpTransactionFactory {
 #endif
 
   // The proxy service being used for the session.
-  ProxyService* proxy_service_;
+  scoped_refptr<ProxyService> proxy_service_;
 
   scoped_refptr<HttpNetworkSession> session_;
   bool suspended_;

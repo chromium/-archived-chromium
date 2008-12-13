@@ -34,6 +34,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		0408F92F0EF31FCC00F73396 /* url_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0408F92E0EF31FCC00F73396 /* url_request_context.cc */; };
 		042A4AB20ED4F02D0001DBED /* url_request_file_dir_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33970E5A198600A747DB /* url_request_file_dir_job.cc */; };
 		042A4AB90ED4F0540001DBED /* directory_lister.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325C0E5A181C00A747DB /* directory_lister.cc */; };
 		042A4D480EC4F4500083281F /* http_auth_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 042A4D470EC4F4500083281F /* http_auth_cache_unittest.cc */; };
@@ -419,6 +420,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0408F92E0EF31FCC00F73396 /* url_request_context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_request_context.cc; sourceTree = "<group>"; };
 		042A4D470EC4F4500083281F /* http_auth_cache_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_cache_unittest.cc; sourceTree = "<group>"; };
 		0435A4650E8DD69C00E4DF08 /* http_auth.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth.cc; sourceTree = "<group>"; };
 		0435A4670E8DD6B300E4DF08 /* http_auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth.h; sourceTree = "<group>"; };
@@ -1116,6 +1118,7 @@
 				7BED33AE0E5A198600A747DB /* url_request.h */,
 				7BED33A20E5A198600A747DB /* url_request_about_job.cc */,
 				7BED33B80E5A198600A747DB /* url_request_about_job.h */,
+				0408F92E0EF31FCC00F73396 /* url_request_context.cc */,
 				7BED33B50E5A198600A747DB /* url_request_context.h */,
 				7BED33B20E5A198600A747DB /* url_request_error_job.cc */,
 				7BED33A50E5A198600A747DB /* url_request_error_job.h */,
@@ -1538,6 +1541,7 @@
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
+				0408F92F0EF31FCC00F73396 /* url_request_context.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

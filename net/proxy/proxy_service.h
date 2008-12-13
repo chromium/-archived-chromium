@@ -83,7 +83,7 @@ typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 // This class can be used to resolve the proxy server to use when loading a
 // HTTP(S) URL.  It uses the given ProxyResolver to handle the actual proxy
 // resolution.  See ProxyResolverWinHttp for example.
-class ProxyService {
+class ProxyService : public base::RefCounted<ProxyService> {
  public:
   // The instance takes ownership of |resolver|.
   explicit ProxyService(ProxyResolver* resolver);
@@ -137,6 +137,10 @@ class ProxyService {
   // the system's default proxy settings will be used (on Windows this will
   // use IE's settings).
   static ProxyService* Create(const ProxyInfo* pi);
+
+  // Create a ProxyService which fails every request, causing fallback to a
+  // direct connection. Convenience function used by unit tests.
+  static ProxyService* CreateNull();
 
   // TODO(eroman): remove once WinHTTP is gone.
   // Get the ProxyInfo used to create this proxy service (only used by WinHTTP).
