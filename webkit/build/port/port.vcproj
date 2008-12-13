@@ -1397,14 +1397,6 @@
 			Name="history"
 			>
 			<File
-				RelativePath="..\..\port\history\BackForwardList.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\history\BackForwardList.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\history\CachedPage.cpp"
 				>
 			</File>

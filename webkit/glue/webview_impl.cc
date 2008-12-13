@@ -266,7 +266,8 @@ WebView* WebView::Create(WebViewDelegate* delegate,
 }
 
 WebViewImpl::WebViewImpl()
-    : observed_new_navigation_(false),
+    : ALLOW_THIS_IN_INITIALIZER_LIST(back_forward_list_client_impl_(this)),
+      observed_new_navigation_(false),
 #ifndef NDEBUG
       new_navigation_loader_(NULL),
 #endif
@@ -291,7 +292,7 @@ WebViewImpl::WebViewImpl()
                        new DragClientImpl(this),
                        new WebInspectorClient(this)));
 
-  page_->backForwardList()->setClient(this);
+  page_->backForwardList()->setClient(&back_forward_list_client_impl_);
 
   // The group name identifies a namespace of pages.  I'm not sure how it's
   // intended to be used, but keeping all pages in the same group works for us.
@@ -1584,56 +1585,19 @@ bool WebViewImpl::isHidden() {
 }
 #endif
 
-//-----------------------------------------------------------------------------
-// WebCore::BackForwardListClient
+void WebViewImpl::SetCurrentHistoryItem(WebCore::HistoryItem* item) {
+  back_forward_list_client_impl_.SetCurrentHistoryItem(item);
+}
 
-void WebViewImpl::didAddHistoryItem(WebCore::HistoryItem* item) {
-  // If WebCore adds a new HistoryItem, it means this is a new navigation
-  // (ie, not a reload or back/forward).
+WebCore::HistoryItem* WebViewImpl::GetPreviousHistoryItem() {
+  return back_forward_list_client_impl_.GetPreviousHistoryItem();
+}
+
+void WebViewImpl::ObserveNewNavigation() {
   observed_new_navigation_ = true;
 #ifndef NDEBUG
   new_navigation_loader_ = page_->mainFrame()->loader()->documentLoader();
 #endif
-  delegate_->DidAddHistoryItem();
-}
-
-void WebViewImpl::willGoToHistoryItem(WebCore::HistoryItem* item) {
-  if (pending_history_item_) {
-    if (item == pending_history_item_->GetHistoryItem()) {
-      // Let the main frame know this HistoryItem is loading, so it can cache
-      // any ExtraData when the DataSource is created.
-      main_frame()->set_currently_loading_history_item(pending_history_item_);
-      pending_history_item_ = 0;
-    }
-  }
-}
-
-WebCore::HistoryItem* WebViewImpl::itemAtIndex(int index) {
-  if (!delegate_)
-    return NULL;
-
-  WebHistoryItem* item = delegate_->GetHistoryEntryAtOffset(index);
-  if (!item)
-    return NULL;
-
-  // If someone has asked for a history item, we probably want to navigate to
-  // it soon.  Keep track of it until willGoToHistoryItem is called.
-  pending_history_item_ = static_cast<WebHistoryItemImpl*>(item);
-  return pending_history_item_->GetHistoryItem();
-}
-
-int WebViewImpl::backListCount() {
-  if (!delegate_)
-    return 0;
-
-  return delegate_->GetHistoryBackListCount();
-}
-
-int WebViewImpl::forwardListCount() {
-  if (!delegate_)
-    return 0;
-
-  return delegate_->GetHistoryForwardListCount();
 }
 
 void WebViewImpl::DeleteImageResourceFetcher(ImageResourceFetcher* fetcher) {

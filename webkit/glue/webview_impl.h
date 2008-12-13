@@ -12,13 +12,13 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "skia/ext/platform_canvas.h"
+#include "webkit/glue/back_forward_list_client_impl.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "BackForwardList.h"
 #include "Page.h"
 MSVC_POP_WARNING();
 
@@ -44,7 +44,7 @@ class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebViewDelegate;
 
-class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
+class WebViewImpl : public WebView {
  public:
   // WebView
   virtual bool ShouldClose();
@@ -135,10 +135,12 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
     return page_.get() ? WebFrameImpl::FromFrame(page_->mainFrame()) : NULL;
   }
 
-  WebHistoryItemImpl* pending_history_item() const {
-    return pending_history_item_;
-  }
+  // History related methods:
+  void SetCurrentHistoryItem(WebCore::HistoryItem* item);
+  WebCore::HistoryItem* GetPreviousHistoryItem();
+  void ObserveNewNavigation();
 
+  // Event related methods:
   void MouseMove(const WebMouseEvent& mouse_event);
   void MouseLeave(const WebMouseEvent& mouse_event);
   void MouseDown(const WebMouseEvent& mouse_event);
@@ -209,13 +211,6 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   virtual bool isHidden();
 #endif
 
-  // WebCore::BackForwardListClient
-  virtual void didAddHistoryItem(WebCore::HistoryItem* item);
-  virtual void willGoToHistoryItem(WebCore::HistoryItem* item);
-  virtual WebCore::HistoryItem* itemAtIndex(int index);
-  virtual int backListCount();
-  virtual int forwardListCount();
-
   // Creates and returns a new SearchableFormData for the focused node.
   // It's up to the caller to free the returned SearchableFormData.
   // This returns NULL if the focused node is NULL, or not in a valid form.
@@ -233,10 +228,7 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   RefPtr<WebCore::Node> last_focused_node_;
   scoped_ptr<WebCore::Page> page_;
 
-  // The last history item that was accessed via itemAtIndex().  We keep track
-  // of this until willGoToHistoryItem() is called, so we can track the
-  // navigation.
-  scoped_refptr<WebHistoryItemImpl> pending_history_item_;
+  webkit_glue::BackForwardListClientImpl back_forward_list_client_impl_;
 
   // This flag is set when a new navigation is detected.  It is used to satisfy
   // the corresponding argument to WebViewDelegate::DidCommitLoadForFrame.

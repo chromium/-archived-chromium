@@ -218,6 +218,7 @@ input_files = [
     '$WEBCORE_DIR/editing/VisiblePosition.cpp',
     '$WEBCORE_DIR/editing/WrapContentsInDummySpanCommand.cpp',
 
+    '$WEBCORE_DIR/history/BackForwardList.cpp',
     '$WEBCORE_DIR/history/PageCache.cpp',
     '$WEBCORE_DIR/history/HistoryItem.cpp',
 

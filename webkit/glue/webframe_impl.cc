@@ -397,7 +397,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
       current_item = HistoryItem::create();
       current_item->setLastVisitWasFailure(true);
       frame_->loader()->setCurrentHistoryItem(current_item);
-      frame_->page()->backForwardList()->setCurrentItem(current_item.get());
+      webview_impl_->SetCurrentHistoryItem(current_item.get());
     }
 
     frame_->loader()->goToItem(request_impl->history_item().get(),
@@ -479,7 +479,7 @@ bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
   // only get saved to history when it becomes the previous item.  The caller
   // is expected to query the history state after a navigation occurs, after
   // the desired history item has become the previous entry.
-  RefPtr<HistoryItem> item = frame_->page()->backForwardList()->previousItem();
+  RefPtr<HistoryItem> item = webview_impl_->GetPreviousHistoryItem();
   if (!item || item->lastVisitWasFailure())
     return false;
 
@@ -530,12 +530,6 @@ void WebFrameImpl::LoadDocumentData(const KURL& base_url,
   frame_->loader()->write(data);
   frame_->loader()->end();
 }
-
-void WebFrameImpl::set_currently_loading_history_item(
-    WebHistoryItemImpl* item) {
-  currently_loading_history_item_ = item;
-}
-
 
 static WebDataSource* DataSourceForDocLoader(DocumentLoader* loader) {
   return (loader ?
