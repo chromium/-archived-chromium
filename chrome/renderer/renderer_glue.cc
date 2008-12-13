@@ -252,6 +252,15 @@ webkit_glue::ScreenInfo webkit_glue::GetScreenInfo(gfx::NativeView window) {
   return results;
 }
 
+uint64 webkit_glue::VisitedLinkHash(const char* canonical_url, size_t length) {
+  return RenderThread::current()->visited_link_slave()->ComputeURLFingerprint(
+      canonical_url, length);
+}
+
+bool webkit_glue::IsLinkVisited(uint64 link_hash) {
+  return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
+}
+
 #ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE
 
 // Each RenderView has a ResourceDispatcher.  In unit tests, this function may

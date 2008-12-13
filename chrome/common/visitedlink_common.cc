@@ -29,7 +29,7 @@ bool VisitedLinkCommon::IsVisited(const char* canonical_url,
     NOTREACHED();
     return false;
   }
-  return IsVisited(ComputeURLFingerprint(canonical_url, url_len, salt_));
+  return IsVisited(ComputeURLFingerprint(canonical_url, url_len));
 }
 
 bool VisitedLinkCommon::IsVisited(Fingerprint fingerprint) const {

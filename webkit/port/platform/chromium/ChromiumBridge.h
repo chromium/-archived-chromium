@@ -85,7 +85,7 @@ namespace WebCore {
 #if PLATFORM(WIN_OS)
         static bool ensureFontLoaded(HFONT font);
 #endif
-        
+
         // Forms --------------------------------------------------------------
         static void notifyFormStateChanged(const Document* doc);
 
@@ -145,12 +145,15 @@ namespace WebCore {
         // URL ----------------------------------------------------------------
         static KURL inspectorURL();
 
+        // Visited links ------------------------------------------------------
+        static LinkHash visitedLinkHash(const UChar* url, unsigned length);
+        static LinkHash visitedLinkHash(const KURL& base,
+                                        const AtomicString& attributeURL);
+        static bool isLinkVisited(LinkHash);
+
         // Widget -------------------------------------------------------------
         static void widgetSetCursor(Widget*, const Cursor&);
         static void widgetSetFocus(Widget*);
-
-        // Link history -------------------------------------------------------
-        static bool isLinkVisited(LinkHash);
     };
 }
 

@@ -928,6 +928,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\LinkHashChromium.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\MimeTypeRegistryChromium.cpp"
 					>
 				</File>

@@ -33,6 +33,7 @@
 #include "base/time.h"
 #include "base/trace_event.h"
 #include "build/build_config.h"
+#include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
 #if USE(V8)
 #include <v8.h>
@@ -521,6 +522,41 @@ KURL ChromiumBridge::inspectorURL() {
   return webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
 }
 
+// Visited links --------------------------------------------------------------
+
+WebCore::LinkHash ChromiumBridge::visitedLinkHash(const UChar* url,
+                                                  unsigned length) {
+  url_canon::RawCanonOutput<2048> buffer;
+  url_parse::Parsed parsed;
+  if (!url_util::Canonicalize(url, length, NULL, &buffer, &parsed))
+    return false;  // Invalid URLs are unvisited.
+  return webkit_glue::VisitedLinkHash(buffer.data(), buffer.length());
+}
+
+WebCore::LinkHash ChromiumBridge::visitedLinkHash(
+    const WebCore::KURL& base,
+    const WebCore::AtomicString& attributeURL) {
+  // Resolve the relative URL using googleurl and pass the absolute URL up to
+  // the embedder. We could create a GURL object from the base and resolve the
+  // relative URL that way, but calling the lower-level functions directly
+  // saves us the std::string allocation in most cases.
+  url_canon::RawCanonOutput<2048> buffer;
+  url_parse::Parsed parsed;
+
+  WebCore::CString cstr = base.utf8String();
+  if (!url_util::ResolveRelative(cstr.data(), cstr.length(), base.parsed(),
+                                 attributeURL.characters(),
+                                 attributeURL.length(), NULL,
+                                 &buffer, &parsed))
+    return false;  // Invalid resolved URL.
+
+  return webkit_glue::VisitedLinkHash(buffer.data(), buffer.length());
+}
+
+bool ChromiumBridge::isLinkVisited(WebCore::LinkHash visitedLinkHash) {
+  return webkit_glue::IsLinkVisited(visitedLinkHash);
+}
+
 // Widget ---------------------------------------------------------------------
 
 void ChromiumBridge::widgetSetCursor(Widget* widget, const Cursor& cursor) {
@@ -533,14 +569,6 @@ void ChromiumBridge::widgetSetFocus(Widget* widget) {
   ChromeClientImpl* chrome_client = ToChromeClient(widget);
   if (chrome_client)
     chrome_client->focus();
-}
-
-// Link history ---------------------------------------------------------------
-
-bool ChromiumBridge::isLinkVisited(LinkHash) {
-  // NOT IMPLEMENTED
-  // http://code.google.com/p/chromium/issues/detail?id=5401
-  return false;
 }
 
 }  // namespace WebCore

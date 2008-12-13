@@ -55,13 +55,20 @@ class VisitedLinkCommon {
   VisitedLinkCommon();
   virtual ~VisitedLinkCommon();
 
-  // Computes the fingerprint of the key and looks it up in the table. We
-  // return true if found. Does not modify the hastable. The input should be
-  // the canonical 16-bit URL.
+  // Returns the fingerprint for the given URL.
+  Fingerprint ComputeURLFingerprint(const char* canonical_url,
+                                    size_t url_len) const {
+    return ComputeURLFingerprint(canonical_url, url_len, salt_);
+  }
+
+  // Looks up the given key in the table. The fingerprint for the URL is
+  // computed if you call one with the string argument. Returns true if found.
+  // Does not modify the hastable.
   bool IsVisited(const char* canonical_url, size_t url_len) const;
   bool IsVisited(const GURL& url) const {
     return IsVisited(url.spec().data(), url.spec().size());
   }
+  bool IsVisited(Fingerprint fingerprint) const;
 
 #ifdef UNIT_TEST
   // Returns statistics about DB usage
@@ -93,12 +100,10 @@ class VisitedLinkCommon {
     return hash_table_[table_offset];
   }
 
-  // Returns true if the given fingerprint is in the table.
-  bool IsVisited(Fingerprint fingerprint) const;
-
   // Computes the fingerprint of the given canonical URL. It is static so the
   // same algorithm can be re-used by the table rebuilder, so you will have to
-  // pass the salt as a parameter.
+  // pass the salt as a parameter. See the non-static version above if you
+  // want to use the current class' salt.
   static Fingerprint ComputeURLFingerprint(const char* canonical_url,
                                            size_t url_len,
                                            const uint8 salt[LINK_SALT_LENGTH]);
