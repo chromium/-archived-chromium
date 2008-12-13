@@ -4,6 +4,7 @@
 
 #include "base/command_line.h"
 #include "base/message_loop.h"
+#include "base/system_monitor.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
@@ -19,6 +20,9 @@ int PluginMain(CommandLine &parsed_command_line,
   MessageLoopForIO main_message_loop;
   std::wstring app_name = chrome::kBrowserAppName;
   PlatformThread::SetName(WideToASCII(app_name + L"_PluginMain").c_str());
+
+  // Initialize the SystemMonitor
+  base::SystemMonitor::Start();
 
   CoInitialize(NULL);
   DLOG(INFO) << "Started plugin with " <<

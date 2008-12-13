@@ -17,11 +17,15 @@ class SystemMonitor {
  public:
   // Access to the Singleton
   static SystemMonitor* Get() {
-    return Singleton<SystemMonitor>::get();
+    // Uses the LeakySingletonTrait because cleanup is optional.
+    return 
+        Singleton<SystemMonitor, LeakySingletonTraits<SystemMonitor> >::get();
   }
 
-  // To start the System Monitor within an application
-  // use this call.
+  // Start the System Monitor within a process.  This method
+  // is provided so that the battery check can be deferred.
+  // The MessageLoop must be started before calling this
+  // method.
   static void Start();
 
   //
