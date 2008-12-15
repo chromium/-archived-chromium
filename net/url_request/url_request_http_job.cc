@@ -4,6 +4,8 @@
 
 #include "net/url_request/url_request_http_job.h"
 
+#include "base/base_switches.h"
+#include "base/command_line.h"
 #include "base/compiler_specific.h"
 #include "base/file_util.h"
 #include "base/file_version_info.h"
@@ -36,6 +38,13 @@ URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
     NOTREACHED() << "requires a valid context";
     return new URLRequestErrorJob(request, net::ERR_INVALID_ARGUMENT);
   }
+
+  // We cache the value of the switch because this code path is hit on every
+  // network request.
+  static const bool kForceHTTPS =
+        CommandLine().HasSwitch(switches::kForceHTTPS);
+  if (kForceHTTPS && scheme != "https")
+    return new URLRequestErrorJob(request, net::ERR_DISALLOWED_URL_SCHEME);
 
   return new URLRequestHttpJob(request);
 }
@@ -375,7 +384,8 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
 
   if (result == net::OK) {
     NotifyHeadersComplete();
-  } else if (net::IsCertificateError(result)) {
+  } else if (net::IsCertificateError(result) &&
+             !CommandLine().HasSwitch(switches::kForceHTTPS)) {
     // We encountered an SSL certificate error.  Ask our delegate to decide
     // what we should do.
     // TODO(wtc): also pass ssl_info.cert_status, or just pass the whole

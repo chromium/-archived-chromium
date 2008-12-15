@@ -30,5 +30,8 @@ const wchar_t kProcessType[]                   = L"type";
 // Enable DCHECKs in release mode.
 const wchar_t kEnableDCHECK[]                  = L"enable-dcheck";
 
+// Refuse to make HTTP connections and refuse to accept certificate errors.
+const wchar_t kForceHTTPS[]                    = L"force-https";
+
 }  // namespace switches
 
