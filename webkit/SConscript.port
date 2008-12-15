@@ -136,16 +136,16 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
     '$PORT_DIR/platform/chromium/gtk2drawing.c',
-    '$PORT_DIR/platform/chromium/IconLinux.cpp',
     '$PORT_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
     '$PORT_DIR/platform/chromium/RenderThemeGtk.cpp',
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
-    '$PORT_DIR/platform/chromium/SoundPosix.cpp',
+    '$PORT_DIR/platform/chromium/SoundChromiumPosix.cpp',
 
     '$PORT_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/FontLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/IconChromiumLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
 
     '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',

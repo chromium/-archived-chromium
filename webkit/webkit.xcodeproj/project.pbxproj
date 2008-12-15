@@ -84,7 +84,6 @@
 		4D64AC520EEE271C0021761F /* CSSSelectorList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
-		4DB044230EB161D600A5633C /* IconMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB044220EB161D600A5633C /* IconMac.cpp */; };
 		4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
 		4DB044430EB1639E00A5633C /* ImageMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB044420EB1639E00A5633C /* ImageMac.cpp */; };
 		4DB299C50EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */; };
@@ -479,6 +478,8 @@
 		938181440EF6D27600993F02 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938181430EF6D27600993F02 /* PluginDataChromium.cpp */; };
 		938181480EF6D29000993F02 /* PluginData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938181460EF6D29000993F02 /* PluginData.cpp */; };
 		93AF4BAB0EF6D4FB0073C62D /* PluginsChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */; };
+		93AF4BDA0EF6FB960073C62D /* IconChromiumMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4BD90EF6FB960073C62D /* IconChromiumMac.cpp */; };
+		93AF4BF30EF6FCD20073C62D /* SoundChromiumPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4BF20EF6FCD20073C62D /* SoundChromiumPosix.cpp */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
@@ -1288,7 +1289,6 @@
 		E473F6620EAE00D5006C2098 /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6610EAE00D5006C2098 /* ScrollView.cpp */; };
 		E473F6640EAE00E4006C2098 /* SearchPopupMenuChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6630EAE00E4006C2098 /* SearchPopupMenuChromium.cpp */; };
 		E473F6660EAE00F4006C2098 /* SharedTimerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6650EAE00F4006C2098 /* SharedTimerChromium.cpp */; };
-		E473F6680EAE0109006C2098 /* SoundPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6670EAE0109006C2098 /* SoundPosix.cpp */; };
 		E473F66E0EAE012D006C2098 /* SSLKeyGeneratorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F66D0EAE012D006C2098 /* SSLKeyGeneratorChromium.cpp */; };
 		E473F6700EAE016A006C2098 /* SystemTimeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F66F0EAE016A006C2098 /* SystemTimeChromium.cpp */; };
 		E473F6750EAE0199006C2098 /* TemporaryLinkStubs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6740EAE0199006C2098 /* TemporaryLinkStubs.cpp */; };
@@ -1570,7 +1570,6 @@
 		4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dtoa.cpp; sourceTree = "<group>"; };
 		4D35557C0ED4ACF600FB28B1 /* dtoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dtoa.h; sourceTree = "<group>"; };
 		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsContextStub.cpp; sourceTree = "<group>"; };
-		4DB044220EB161D600A5633C /* IconMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IconMac.cpp; sourceTree = "<group>"; };
 		4DB044420EB1639E00A5633C /* ImageMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageMac.cpp; sourceTree = "<group>"; };
 		4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitAnimationEvent.cpp; sourceTree = "<group>"; };
 		4DB299BE0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitAnimationEvent.h; sourceTree = "<group>"; };
@@ -3995,6 +3994,8 @@
 		938181460EF6D29000993F02 /* PluginData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginData.cpp; sourceTree = "<group>"; };
 		938181470EF6D29000993F02 /* PluginData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginData.h; sourceTree = "<group>"; };
 		93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginsChromium.cpp; path = chromium/PluginsChromium.cpp; sourceTree = "<group>"; };
+		93AF4BD90EF6FB960073C62D /* IconChromiumMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IconChromiumMac.cpp; sourceTree = "<group>"; };
+		93AF4BF20EF6FCD20073C62D /* SoundChromiumPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SoundChromiumPosix.cpp; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
 		93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CookieJarChromium.cpp; path = chromium/CookieJarChromium.cpp; sourceTree = "<group>"; };
@@ -4259,7 +4260,6 @@
 		E473F6610EAE00D5006C2098 /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScrollView.cpp; path = ../../../third_party/WebKit/WebCore/platform/ScrollView.cpp; sourceTree = "<group>"; };
 		E473F6630EAE00E4006C2098 /* SearchPopupMenuChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SearchPopupMenuChromium.cpp; sourceTree = "<group>"; };
 		E473F6650EAE00F4006C2098 /* SharedTimerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SharedTimerChromium.cpp; sourceTree = "<group>"; };
-		E473F6670EAE0109006C2098 /* SoundPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SoundPosix.cpp; sourceTree = "<group>"; };
 		E473F66D0EAE012D006C2098 /* SSLKeyGeneratorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSLKeyGeneratorChromium.cpp; path = chromium/SSLKeyGeneratorChromium.cpp; sourceTree = "<group>"; };
 		E473F66F0EAE016A006C2098 /* SystemTimeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SystemTimeChromium.cpp; path = chromium/SystemTimeChromium.cpp; sourceTree = "<group>"; };
 		E473F6740EAE0199006C2098 /* TemporaryLinkStubs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TemporaryLinkStubs.cpp; path = chromium/TemporaryLinkStubs.cpp; sourceTree = "<group>"; };
@@ -4409,6 +4409,7 @@
 		4D2A63E80EBBBEC700B55603 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
+				93AF4BD90EF6FB960073C62D /* IconChromiumMac.cpp */,
 				4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */,
 				4D2A63EA0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.h */,
 			);
@@ -4436,7 +4437,6 @@
 			children = (
 				E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */,
 				4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */,
-				4DB044220EB161D600A5633C /* IconMac.cpp */,
 				4DB044420EB1639E00A5633C /* ImageMac.cpp */,
 			);
 			path = mac;
@@ -7851,7 +7851,7 @@
 				E473F65F0EAE00A6006C2098 /* PopupMenuPrivate.h */,
 				E473F6630EAE00E4006C2098 /* SearchPopupMenuChromium.cpp */,
 				E473F6650EAE00F4006C2098 /* SharedTimerChromium.cpp */,
-				E473F6670EAE0109006C2098 /* SoundPosix.cpp */,
+				93AF4BF20EF6FCD20073C62D /* SoundChromiumPosix.cpp */,
 				E473F67F0EAE01BE006C2098 /* WidgetChromium.cpp */,
 			);
 			path = chromium;
@@ -9409,7 +9409,7 @@
 				AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */,
 				4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */,
 				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
-				4DB044230EB161D600A5633C /* IconMac.cpp in Sources */,
+				93AF4BDA0EF6FB960073C62D /* IconChromiumMac.cpp in Sources */,
 				4DB044430EB1639E00A5633C /* ImageMac.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
@@ -9433,7 +9433,7 @@
 				E473F6640EAE00E4006C2098 /* SearchPopupMenuChromium.cpp in Sources */,
 				E473F6660EAE00F4006C2098 /* SharedTimerChromium.cpp in Sources */,
 				93817B990EF1CD9600993F02 /* SkiaUtils.cpp in Sources */,
-				E473F6680EAE0109006C2098 /* SoundPosix.cpp in Sources */,
+				93AF4BF30EF6FCD20073C62D /* SoundChromiumPosix.cpp in Sources */,
 				E473F66E0EAE012D006C2098 /* SSLKeyGeneratorChromium.cpp in Sources */,
 				E473F6700EAE016A006C2098 /* SystemTimeChromium.cpp in Sources */,
 				E473F6750EAE0199006C2098 /* TemporaryLinkStubs.cpp in Sources */,
