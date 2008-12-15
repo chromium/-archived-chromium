@@ -37,7 +37,7 @@ BEGIN
     VK_F4,          IDC_CLOSE_TAB,              VIRTKEY, CONTROL
     "W",            IDC_CLOSE_TAB,              VIRTKEY, CONTROL
     "W",            IDC_CLOSE_POPUPS,           VIRTKEY, SHIFT, ALT
-    VK_OEM_3,       IDC_DEBUGGER,               VIRTKEY, ALT
+    "L",            IDC_DEBUGGER,               VIRTKEY, CONTROL, SHIFT
     "F",            IDC_FIND,                   VIRTKEY, CONTROL
     "G",            IDC_FIND_NEXT,              VIRTKEY, CONTROL
     VK_F3,          IDC_FIND_NEXT,              VIRTKEY
