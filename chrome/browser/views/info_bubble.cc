@@ -71,13 +71,14 @@ InfoBubble* InfoBubble::Show(HWND parent_hwnd,
                              views::View* content,
                              InfoBubbleDelegate* delegate) {
   InfoBubble* window = new InfoBubble();
+  DLOG(WARNING) << "new bubble=" << window;
   window->Init(parent_hwnd, position_relative_to, content);
   window->ShowWindow(SW_SHOW);
   window->delegate_ = delegate;
   return window;
 }
 
-InfoBubble::InfoBubble() : content_view_(NULL) {
+InfoBubble::InfoBubble() : content_view_(NULL), closed_(false) {
 }
 
 InfoBubble::~InfoBubble() {
@@ -146,11 +147,7 @@ void InfoBubble::Init(HWND parent_hwnd,
 }
 
 void InfoBubble::Close() {
-  // We don't fade out because it looks terrible.
-  if (delegate_)
-    delegate_->InfoBubbleClosing(this);
-  parent_->DisableInactiveRendering(false);
-  WidgetWin::Close();
+  Close(false);
 }
 
 void InfoBubble::AnimationProgressed(const Animation* animation) {
@@ -168,7 +165,7 @@ void InfoBubble::AnimationProgressed(const Animation* animation) {
 bool InfoBubble::AcceleratorPressed(const views::Accelerator& accelerator) {
   DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);
   if (!delegate_ || delegate_->CloseOnEscape()) {
-    Close();
+    Close(true);
     return true;
   }
   return false;
@@ -180,7 +177,7 @@ void InfoBubble::OnSize(UINT param, const CSize& size) {
 
 void InfoBubble::OnActivate(UINT action, BOOL minimized, HWND window) {
   // The popup should close when it is deactivated.
-  if (action == WA_INACTIVE) {
+  if (action == WA_INACTIVE && !closed_) {
     Close();
   } else if (action == WA_ACTIVE) {
     DCHECK(GetRootView()->GetChildViewCount() > 0);
@@ -190,6 +187,18 @@ void InfoBubble::OnActivate(UINT action, BOOL minimized, HWND window) {
 
 InfoBubble::ContentView* InfoBubble::CreateContentView(View* content) {
   return new ContentView(content, this);
+}
+
+void InfoBubble::Close(bool closed_by_escape) {
+  if (closed_)
+    return;
+
+  // We don't fade out because it looks terrible.
+  if (delegate_)
+    delegate_->InfoBubbleClosing(this, closed_by_escape);
+  parent_->DisableInactiveRendering(false);
+  closed_ = true;
+  WidgetWin::Close();
 }
 
 // ContentView ----------------------------------------------------------------
@@ -410,4 +419,3 @@ gfx::Rect InfoBubble::ContentView::CalculateWindowBounds(
   }
   return gfx::Rect(x, y, pref.width(), pref.height());
 }
-

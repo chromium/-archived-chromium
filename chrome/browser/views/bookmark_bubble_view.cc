@@ -129,7 +129,14 @@ void BookmarkBubbleView::Show(HWND parent,
 }
 
 BookmarkBubbleView::~BookmarkBubbleView() {
-  SetNodeTitleFromTextField();
+  if (apply_edits_) {
+    ApplyEdits();
+  } else if (remove_bookmark_) {
+    BookmarkModel* model = profile_->GetBookmarkModel();
+    BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
+    if (node)
+      model->Remove(node->GetParent(), node->GetParent()->IndexOfChild(node));
+  }
 }
 
 void BookmarkBubbleView::DidChangeBounds(const gfx::Rect& previous,
@@ -169,7 +176,9 @@ BookmarkBubbleView::BookmarkBubbleView(InfoBubbleDelegate* delegate,
       newly_bookmarked_(newly_bookmarked),
       parent_model_(
           profile_->GetBookmarkModel(),
-          profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url)) {
+          profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url)),
+      remove_bookmark_(false),
+      apply_edits_(true) {
   Init();
 }
 
@@ -281,7 +290,13 @@ void BookmarkBubbleView::ButtonPressed(views::NativeButton* sender) {
 
 void BookmarkBubbleView::LinkActivated(Link* source, int event_flags) {
   DCHECK(source == remove_link_);
-  RemoveBookmark();
+  UserMetrics::RecordAction(L"BookmarkBubble_Unstar", profile_);
+
+  // Set this so we remove the bookmark after the window closes.
+  remove_bookmark_ = true;
+  apply_edits_ = false;
+
+  Close();
 }
 
 void BookmarkBubbleView::ItemChanged(ComboBox* combo_box,
@@ -293,20 +308,17 @@ void BookmarkBubbleView::ItemChanged(ComboBox* combo_box,
     ShowEditor();
     return;
   }
-  BookmarkModel* model = profile_->GetBookmarkModel();
-  BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
-  if (node) {
-    BookmarkNode* new_parent = parent_model_.GetNodeAt(new_index);
-    if (new_parent != node->GetParent()) {
-      UserMetrics::RecordAction(L"BookmarkBubble_ChangeParent", profile_);
-      model->Move(node, new_parent, new_parent->GetChildCount());
-    }
-  }
 }
 
-void BookmarkBubbleView::InfoBubbleClosing(InfoBubble* info_bubble) {
+void BookmarkBubbleView::InfoBubbleClosing(InfoBubble* info_bubble,
+                                           bool closed_by_escape) {
+  if (closed_by_escape) {
+    remove_bookmark_ = newly_bookmarked_;
+    apply_edits_ = false;
+  }
+
   if (delegate_)
-    delegate_->InfoBubbleClosing(info_bubble);
+    delegate_->InfoBubbleClosing(info_bubble, closed_by_escape);
   NotificationService::current()->Notify(
       NOTIFY_BOOKMARK_BUBBLE_HIDDEN,
       Source<Profile>(profile_->GetOriginalProfile()),
@@ -321,26 +333,12 @@ void BookmarkBubbleView::Close() {
   static_cast<InfoBubble*>(GetWidget())->Close();
 }
 
-void BookmarkBubbleView::RemoveBookmark() {
-  UserMetrics::RecordAction(L"BookmarkBubble_Unstar", profile_);
-
-  GURL url = url_;
-  BookmarkModel* model = profile_->GetBookmarkModel();
-  // Close first, then notify the service. That way we know we won't be
-  // visible and don't have to worry about some other window becoming
-  // activated and deleting us before we invoke Close.
-  Close();
-  // WARNING: we've likely been deleted.
-  if (model)
-    model->SetURLStarred(url, std::wstring(), false);
-}
-
 void BookmarkBubbleView::ShowEditor() {
   BookmarkNode* node =
       profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url_);
 
-  // The user may have edited the title, commit it now.
-  SetNodeTitleFromTextField();
+  // Commit any edits now.
+  ApplyEdits();
 
   // Parent the editor to our root ancestor (not the root we're in, as that
   // is the info bubble and will close shortly).
@@ -364,7 +362,10 @@ void BookmarkBubbleView::ShowEditor() {
                              BookmarkEditorView::SHOW_TREE, NULL);
 }
 
-void BookmarkBubbleView::SetNodeTitleFromTextField() {
+void BookmarkBubbleView::ApplyEdits() {
+  // Set this to make sure we don't attempt to apply edits again.
+  apply_edits_ = false;
+
   BookmarkModel* model = profile_->GetBookmarkModel();
   BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
   if (node) {
@@ -373,6 +374,16 @@ void BookmarkBubbleView::SetNodeTitleFromTextField() {
       model->SetTitle(node, new_title);
       UserMetrics::RecordAction(L"BookmarkBubble_ChangeTitleInBubble",
                                 profile_);
+    }
+    // Last index means 'Choose another folder...'
+    if (parent_combobox_->GetSelectedItem() <
+        parent_model_.GetItemCount(parent_combobox_) - 1) {
+      BookmarkNode* new_parent =
+          parent_model_.GetNodeAt(parent_combobox_->GetSelectedItem());
+      if (new_parent != node->GetParent()) {
+        UserMetrics::RecordAction(L"BookmarkBubble_ChangeParent", profile_);
+        model->Move(node, new_parent, new_parent->GetChildCount());
+      }
     }
   }
 }

@@ -83,7 +83,8 @@ SkBitmap ToolbarStarToggle::GetImageToPaint() {
   return Button::GetImageToPaint();
 }
 
-void ToolbarStarToggle::InfoBubbleClosing(InfoBubble* info_bubble) {
+void ToolbarStarToggle::InfoBubbleClosing(InfoBubble* info_bubble,
+                                          bool closed_by_escape) {
   is_bubble_showing_ = false;
   SchedulePaint();
   bubble_closed_time_ = TimeTicks::Now();

@@ -253,7 +253,7 @@ class LocationBarView : public views::View,
     virtual bool OnMousePressed(const views::MouseEvent& event);
 
     // InfoBubbleDelegate
-    void InfoBubbleClosing(InfoBubble* info_bubble);
+    void InfoBubbleClosing(InfoBubble* info_bubble, bool closed_by_escape);
     bool CloseOnEscape() { return true; }
 
     void set_profile(Profile* profile) { profile_ = profile; }

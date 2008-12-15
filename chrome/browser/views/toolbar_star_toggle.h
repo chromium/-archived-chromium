@@ -43,7 +43,8 @@ class ToolbarStarToggle : public views::ToggleButton,
 
  private:
   // InfoBubbleDelegate.
-  virtual void InfoBubbleClosing(InfoBubble* info_bubble);
+  virtual void InfoBubbleClosing(InfoBubble* info_bubble,
+                                 bool closed_by_escape);
   virtual bool CloseOnEscape();
 
   // Contains us.

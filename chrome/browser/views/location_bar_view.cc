@@ -994,7 +994,8 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
 }
 
 void LocationBarView::SecurityImageView::InfoBubbleClosing(
-    InfoBubble* info_bubble) {
+    InfoBubble* info_bubble,
+    bool closed_by_escape) {
   info_bubble_ = NULL;
 }
 

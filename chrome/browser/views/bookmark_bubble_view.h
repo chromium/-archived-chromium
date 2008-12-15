@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BUBBLE_VIEW_H__
-#define CHROME_BROWSER_VIEWS_BOOKMARK_BUBBLE_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BUBBLE_VIEW_H_
+#define CHROME_BROWSER_VIEWS_BOOKMARK_BUBBLE_VIEW_H_
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/views/info_bubble.h"
@@ -77,7 +77,7 @@ class BookmarkBubbleView : public views::View,
     std::vector<BookmarkNode*> nodes_;
     int node_parent_index_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(RecentlyUsedFoldersModel);
+    DISALLOW_COPY_AND_ASSIGN(RecentlyUsedFoldersModel);
   };
 
   // Creates a BookmarkBubbleView.
@@ -108,20 +108,18 @@ class BookmarkBubbleView : public views::View,
   // InfoBubbleDelegate methods. These forward to the InfoBubbleDelegate
   // supplied in the constructor as well as sending out the necessary
   // notification.
-  virtual void InfoBubbleClosing(InfoBubble* info_bubble);
+  virtual void InfoBubbleClosing(InfoBubble* info_bubble,
+                                 bool closed_by_escape);
   virtual bool CloseOnEscape();
 
   // Closes the bubble.
   void Close();
 
-  // Removes the bookmark and closes the view.
-  void RemoveBookmark();
-
   // Shows the BookmarkEditor.
   void ShowEditor();
 
-  // Sets the title of the bookmark from the editor
-  void SetNodeTitleFromTextField();
+  // Sets the title and parent of the node.
+  void ApplyEdits();
 
   // Delegate for the bubble, may be null.
   InfoBubbleDelegate* delegate_;
@@ -157,8 +155,13 @@ class BookmarkBubbleView : public views::View,
   // the current parent.
   views::ComboBox* parent_combobox_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkBubbleView);
+  // When the destructor is invoked should the bookmark be removed?
+  bool remove_bookmark_;
+
+  // When the destructor is invoked should edits be applied?
+  bool apply_edits_;
+
+  DISALLOW_COPY_AND_ASSIGN(BookmarkBubbleView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_BUBBLE_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_BUBBLE_VIEW_H_

@@ -26,7 +26,10 @@ class Window;
 class InfoBubbleDelegate {
  public:
   // Called when the InfoBubble is closing and is about to be deleted.
-  virtual void InfoBubbleClosing(InfoBubble* info_bubble) = 0;
+  // |closed_by_escape| is true if the close is the result of the user pressing
+  // escape.
+  virtual void InfoBubbleClosing(InfoBubble* info_bubble,
+                                 bool closed_by_escape) = 0;
 
   // Whether the InfoBubble should be closed when the Esc key is pressed.
   virtual bool CloseOnEscape() = 0;
@@ -148,6 +151,10 @@ class InfoBubble : public views::WidgetWin,
   virtual ContentView* CreateContentView(views::View* content);
 
  private:
+  // Closes the window notifying the delegate. |closed_by_escape| is true if
+  // the close is the result of pressing escape.
+  void Close(bool closed_by_escape);
+
   // The delegate notified when the InfoBubble is closed.
   InfoBubbleDelegate* delegate_;
 
@@ -160,8 +167,10 @@ class InfoBubble : public views::WidgetWin,
   // The fade-in animation.
   scoped_ptr<SlideAnimation> fade_animation_;
 
+  // Have we been closed?
+  bool closed_;
+
   DISALLOW_COPY_AND_ASSIGN(InfoBubble);
 };
 
 #endif  // CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
-

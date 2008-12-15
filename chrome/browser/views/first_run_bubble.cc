@@ -194,7 +194,8 @@ void FirstRunBubble::OnActivate(UINT action, BOOL minimized, HWND window) {
   InfoBubble::OnActivate(action, minimized, window);
 }
 
-void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble) {
+void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble,
+                                       bool closed_by_escape) {
   // Make sure our parent window is re-enabled.
   if (!IsWindowEnabled(GetParent()))
     ::EnableWindow(GetParent(), true);
