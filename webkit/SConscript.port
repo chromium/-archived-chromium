@@ -115,8 +115,7 @@ if env['PLATFORM'] == 'win32':
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemChromiumWin.cpp',
     '$PORT_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
-    '$PORT_DIR/platform/win/BString.cpp',
-    '$PORT_DIR/platform/win/SoundWin.cpp',
+    '$PORT_DIR/platform/chromium/SoundChromiumWin.cpp',
 
     '$PORT_DIR/platform/graphics/chromium/FontCacheChromiumWin.cpp',
     '$PORT_DIR/platform/graphics/chromium/FontPlatformDataChromiumWin.cpp',

@@ -9,7 +9,6 @@
 #pragma warning(push, 0)
 #include "AccessibleDocument.h"
 #include "AXObjectCache.h"
-#include "COMPtr.h"
 #include "Document.h"
 #include "Frame.h"
 #pragma warning(pop)
@@ -17,16 +16,19 @@
 
 #include "webkit/glue/glue_accessibility.h"
 
-#include "chrome/browser/iaccessible_function_ids.h"
+#include "base/ref_counted.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_impl.h"
+
+// TODO: Remove this evil dependency on Chrome!
+#include "chrome/browser/iaccessible_function_ids.h"
 
 // struct GlueAccessibility::GlueAccessibilityRoot
 struct GlueAccessibility::GlueAccessibilityRoot {
   GlueAccessibilityRoot() {}
 
   // Root of the WebKit IAccessible tree.
-  COMPtr<AccessibleDocument> accessibility_root_;
+  scoped_refptr<AccessibleDocument> accessibility_root_;
 };
 
 // class GlueAccessibility
@@ -51,7 +53,7 @@ bool GlueAccessibility::GetAccessibilityInfo(WebView* view,
   }
 
   // Temporary storing for the currently active IAccessible.
-  COMPtr<IAccessible> active_iaccessible;
+  scoped_refptr<IAccessible> active_iaccessible;
   IntToIAccessibleMap::iterator it =
       int_to_iaccessible_map_.find(in_params.iaccessible_id);
 

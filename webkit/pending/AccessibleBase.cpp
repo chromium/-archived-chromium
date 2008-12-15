@@ -29,7 +29,6 @@
 #include <oleacc.h>
 #include "AccessibilityObject.h"
 #include "AXObjectCache.h"
-#include "BString.h"
 #include "Element.h"
 #include "EventHandler.h"
 #include "FrameView.h"
@@ -45,6 +44,25 @@
 #include "RefPtr.h"
 
 using namespace WebCore;
+
+namespace {
+
+// TODO(darin): Eliminate use of COM in this file, and then this class can die.
+class BString {
+public:
+    BString(const String& s)
+    {
+        if (s.isNull())
+            m_bstr = 0;
+        else
+            m_bstr = SysAllocStringLen(s.characters(), s.length());
+    }
+    BSTR release() { BSTR s = m_bstr; m_bstr = 0; return s; }
+private:
+    BSTR m_bstr;
+};
+
+}
 
 AccessibleBase::AccessibleBase(AccessibilityObject* obj)
     : AccessibilityObjectWrapper(obj)

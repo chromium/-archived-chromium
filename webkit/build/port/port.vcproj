@@ -829,26 +829,6 @@
 				>
 			</File>
 			<Filter
-				Name="win"
-				>
-				<File
-					RelativePath="..\..\port\platform\win\BString.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\BString.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\COMPtr.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\SoundWin.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="chromium"
 				>
 				<File
@@ -973,6 +953,10 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\SharedTimerChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\SoundChromiumWin.cpp"
 					>
 				</File>
 				<File
