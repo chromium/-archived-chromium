@@ -1280,7 +1280,6 @@
 		E473F63C0EADFF8E006C2098 /* DragDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6390EADFF8E006C2098 /* DragDataChromium.cpp */; };
 		E473F63D0EADFF8E006C2098 /* DragImageChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F63B0EADFF8E006C2098 /* DragImageChromium.cpp */; };
 		E473F63F0EADFFB5006C2098 /* FileChooserChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F63E0EADFFB5006C2098 /* FileChooserChromium.cpp */; };
-		E473F6430EADFFC6006C2098 /* FileSystemPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6400EADFFC6006C2098 /* FileSystemPosix.cpp */; };
 		E473F6440EADFFC6006C2098 /* FramelessScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6410EADFFC6006C2098 /* FramelessScrollView.cpp */; };
 		E473F64B0EADFFF8006C2098 /* Language.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F64A0EADFFF8006C2098 /* Language.cpp */; };
 		E473F64E0EAE0005006C2098 /* MimeTypeRegistryChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F64D0EAE0005006C2098 /* MimeTypeRegistryChromium.cpp */; };
@@ -4247,7 +4246,6 @@
 		E473F63A0EADFF8E006C2098 /* DragDataRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragDataRef.h; sourceTree = "<group>"; };
 		E473F63B0EADFF8E006C2098 /* DragImageChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragImageChromium.cpp; sourceTree = "<group>"; };
 		E473F63E0EADFFB5006C2098 /* FileChooserChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileChooserChromium.cpp; sourceTree = "<group>"; };
-		E473F6400EADFFC6006C2098 /* FileSystemPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystemPosix.cpp; sourceTree = "<group>"; };
 		E473F6410EADFFC6006C2098 /* FramelessScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FramelessScrollView.cpp; sourceTree = "<group>"; };
 		E473F6420EADFFC6006C2098 /* FramelessScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FramelessScrollView.h; sourceTree = "<group>"; };
 		E473F64A0EADFFF8006C2098 /* Language.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Language.cpp; sourceTree = "<group>"; };
@@ -7839,7 +7837,6 @@
 				E473F63E0EADFFB5006C2098 /* FileChooserChromium.cpp */,
 				B556C33C0EB9035B00418C57 /* FileSystemChromium.cpp */,
 				B556C24E0EB8FCD800418C57 /* FileSystemChromiumMac.mm */,
-				E473F6400EADFFC6006C2098 /* FileSystemPosix.cpp */,
 				E473F6410EADFFC6006C2098 /* FramelessScrollView.cpp */,
 				E473F6420EADFFC6006C2098 /* FramelessScrollView.h */,
 				E473F64A0EADFFF8006C2098 /* Language.cpp */,
@@ -9404,7 +9401,6 @@
 				E473F63F0EADFFB5006C2098 /* FileChooserChromium.cpp in Sources */,
 				B556C33D0EB9035B00418C57 /* FileSystemChromium.cpp in Sources */,
 				B556C24F0EB8FCD800418C57 /* FileSystemChromiumMac.mm in Sources */,
-				E473F6430EADFFC6006C2098 /* FileSystemPosix.cpp in Sources */,
 				4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */,
 				E473F6880EAE021B006C2098 /* FrameChromium.cpp in Sources */,
 				E473F6440EADFFC6006C2098 /* FramelessScrollView.cpp in Sources */,
