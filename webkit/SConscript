@@ -44,14 +44,30 @@ if env['PLATFORM'] == 'win32':
   env['WEBKIT_PLATFORM_SUBDIR'] = 'win'
 elif env['PLATFORM'] == 'darwin':
   env['WEBKIT_PLATFORM_SUBDIR'] = 'mac'
-elif env['PLATFORM'] == 'posix':
   env.Append(
       CCFLAGS = [
-          '-Wno-parentheses',
+          '-Wno-reorder',
+          '-Wno-unused',
       ],
+  )
+  env.Prepend(
+      CPPPATH = [env.subst(x) for x in [
+          '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/graphics/cg',
+          '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader/archive/cf',
+      ]]
+  )
+elif env['PLATFORM'] == 'posix':
+  env.Append(
       CPPDEFINES = [
         # We want webkit to use pthreads rather than gthread.
         'WTF_USE_PTHREADS=1',
+      ],
+  )
+
+if env['PLATFORM'] in ('darwin', 'posix'):
+  env.Append(
+      CCFLAGS = [
+          '-Wno-parentheses',
       ],
   )
 

@@ -167,7 +167,6 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/GKURLMac.mm',
     '$PORT_DIR/platform/PluginStubsMac.cpp',
     '$PORT_DIR/platform/mac/DragDataMac.mm',
-    '$PORT_DIR/platform/mac/IntRectMac.mm',
     '$PORT_DIR/platform/graphics/mac/FontCacheMacPending.cpp',
     '$PORT_DIR/rendering/RenderThemeMac.mm',
   ])

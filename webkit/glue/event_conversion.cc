@@ -151,6 +151,8 @@ static inline String ToSingleCharacterString(UChar c) {
   return String(&c, 1);
 }
 
+#if !defined(OS_MACOSX)
+// This function is not used on Mac OS X, and gcc complains.
 static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
   switch (keyCode) {
     case VKEY_MENU:
@@ -253,6 +255,7 @@ static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
       return String::format("U+%04X", toupper(keyCode));
   }
 }
+#endif  // !defined(OS_MACOSX)
 
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   {

@@ -539,6 +539,8 @@ mac_env.Replace(
     CXX = 'g++-4.2',
     LINK = '$CXX',
 )
+mac_env.FilterOut(SHCCFLAGS = ['-fPIC'])
+mac_env.FilterOut(SHLINKFLAGS = ['-fPIC'])
 
 mac_env.FilterOut(
     BUILD_SCONSCRIPTS = [

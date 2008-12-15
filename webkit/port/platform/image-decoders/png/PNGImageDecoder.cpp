@@ -48,7 +48,7 @@ const double cDefaultGamma = 2.2;
 const double cInverseGamma = 0.45455;
 
 // Protect against large PNGs. See Mozilla's bug #251381 for more info.
-const long cMaxPNGSize = 1000000L;
+const unsigned long cMaxPNGSize = 1000000UL;
 
 // Called if the decoding of the image fails.
 static void PNGAPI decodingFailed(png_structp png_ptr, png_const_charp error_msg);

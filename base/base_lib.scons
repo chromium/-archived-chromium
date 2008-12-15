@@ -92,9 +92,11 @@ if env_dmg_fp['PLATFORM'] == 'win32':
           '/wd4554',
       ],
   )
-elif env_dmg_fp['PLATFORM'] == 'posix':
-  env_dmg_fp['CXXFLAGS'].remove('-Wall')
-  env_dmg_fp['CXXFLAGS'].append('-Wno-write-strings')
+elif env_dmg_fp['PLATFORM'] in ('darwin', 'posix'):
+  for var in ['CCFLAGS', 'CXXFLAGS']:
+    if '-Wall' in env_dmg_fp[var]:
+      env_dmg_fp[var].remove('-Wall')
+      env_dmg_fp[var].append('-Wno-write-strings')
 
 input_files.extend([
     env_dmg_fp.Object('third_party/dmg_fp/dtoa.cc'),

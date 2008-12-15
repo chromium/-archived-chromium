@@ -97,6 +97,13 @@ elif env['PLATFORM'] in ('posix', 'darwin'):
       ]
   )
 
+if env['PLATFORM'] == 'darwin':
+  env.Append(
+      CPPPATH = [
+          '$THIRD_PARTY_DIR/WebKit/WebKit/mac/WebCoreSupport',
+      ],
+  )
+
 input_files = [
     'event_sending_controller.cc',
     'layout_test_controller.cc',

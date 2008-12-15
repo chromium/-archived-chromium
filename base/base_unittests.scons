@@ -139,7 +139,6 @@ if env['PLATFORM'] == 'darwin':
   # Mac-specific tests.
   input_files.extend([
       'mac_util_unittest.cc',
-      'platform_test_mac.mm',
   ])
 
 env.ChromeTestProgram('base_unittests', input_files)

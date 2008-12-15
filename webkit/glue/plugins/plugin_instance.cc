@@ -282,7 +282,7 @@ void PluginInstance::NPP_StreamAsFile(NPStream *stream, const char *fname) {
   // Creating a temporary FilePath instance on the stack as the explicit
   // FilePath constructor with StringType as an argument causes a compiler
   // error when invoked via vector push back.
-  FilePath file_name(UTF8ToWide(fname));
+  FilePath file_name = FilePath::FromWStringHack(UTF8ToWide(fname));
   files_created_.push_back(file_name);
 }
 
