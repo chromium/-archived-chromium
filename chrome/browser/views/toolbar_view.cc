@@ -116,6 +116,8 @@ void BrowserToolbarView::CreateLeftSideControls() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   back_ = new views::ButtonDropDown(back_menu_model_.get());
+  back_->SetImageAlignment(views::Button::ALIGN_RIGHT,
+                           views::Button::ALIGN_TOP);
   back_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_BACK));
   back_->SetImage(views::Button::BS_HOT, rb.GetBitmapNamed(IDR_BACK_H));
   back_->SetImage(views::Button::BS_PUSHED, rb.GetBitmapNamed(IDR_BACK_P));
@@ -261,8 +263,20 @@ void BrowserToolbarView::Layout() {
   int right_side_width = 0;
   if (IsDisplayModeNormal()) {
     sz = back_->GetPreferredSize();
-    back_->SetBounds(kControlIndent, kControlVertOffset, sz.width(),
-                     sz.height());
+    // TODO(abarth):  If the window becomes maximized but is not resized,
+    //                then Layout() might not be called and the back button
+    //                will be slightly the wrong size.  We should force a
+    //                Layout() in this case.
+    //                http://crbug.com/5540
+    if (browser_->window() && browser_->window()->IsMaximized()) {
+      // If the window is maximized, we extend the back button to the left so
+      // that clicking on the left-most pixel will activate the back button.
+      back_->SetBounds(0, kControlVertOffset, sz.width() + kControlIndent,
+                       sz.height());
+    } else {
+      back_->SetBounds(kControlIndent, kControlVertOffset, sz.width(),
+                       sz.height());
+    }
 
     sz = forward_->GetPreferredSize();
     forward_->SetBounds(back_->x() + back_->width(), kControlVertOffset,
