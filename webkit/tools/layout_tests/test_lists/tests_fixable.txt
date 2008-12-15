@@ -620,7 +620,6 @@ LINUX WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 // ----------------------------------------------------------------------------
 
 LayoutTests/accessibility = FAIL
-WIN : LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
 // Linux pixeltest failure: Image scaling is terrible
 LINUX WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
