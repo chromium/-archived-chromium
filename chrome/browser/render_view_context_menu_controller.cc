@@ -190,6 +190,7 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDC_SPELLCHECK_SUGGESTION_3:
     case IDC_SPELLCHECK_SUGGESTION_4:
     case IDC_SPELLCHECK_MENU:
+    case IDC_CHECK_SPELLING_OF_THIS_FIELD:
     case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
       return true;
@@ -203,6 +204,10 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
 }
 
 bool RenderViewContextMenuController::IsItemChecked(int id) const {
+  // Check box for 'Check the Spelling of this field'.
+  if (id == IDC_CHECK_SPELLING_OF_THIS_FIELD)
+    return params_.spellcheck_enabled;
+  
   // Don't bother getting the display language vector if this isn't a spellcheck
   // language.
   if ((id < IDC_SPELLCHECK_LANGUAGES_FIRST) ||
@@ -446,6 +451,9 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
           params_.dictionary_suggestions[id - IDC_SPELLCHECK_SUGGESTION_0]);
       break;
 
+    case IDC_CHECK_SPELLING_OF_THIS_FIELD:
+      source_web_contents_->render_view_host()->ToggleSpellCheck();
+      break;
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       source_web_contents_->render_view_host()->AddToDictionary(
           params_.misspelled_word);

@@ -262,6 +262,12 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // Replace the selection text by a given text.
   virtual void Replace(const std::wstring& text) = 0;
 
+  // Toggle spell check on and off.
+  virtual void ToggleSpellCheck() = 0;
+
+  // Return whether spell check is enabled or not in this frame.
+  virtual bool SpellCheckEnabled() = 0;
+
   //
   //  - (void)delete:(id)sender;
   // Delete as in similar to Cut, not as in teardown

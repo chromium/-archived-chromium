@@ -197,7 +197,7 @@ void ResourceMessageFilter::OnReceiveContextMenuMsg(const IPC::Message& msg) {
 
   // Fill in the dictionary suggestions if required.
   if (!params.misspelled_word.empty() &&
-      spellchecker_ != NULL) {
+      spellchecker_ != NULL && params.spellcheck_enabled) {
     int misspell_location, misspell_length;
     bool is_misspelled = !spellchecker_->SpellCheckWord(
         params.misspelled_word.c_str(),

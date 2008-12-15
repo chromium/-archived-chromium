@@ -396,6 +396,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   void OnCopy();
   void OnPaste();
   void OnReplace(const std::wstring& text);
+  void OnToggleSpellCheck();
   void OnDelete();
   void OnSelectAll();
   void OnCopyImageAt(int x, int y);

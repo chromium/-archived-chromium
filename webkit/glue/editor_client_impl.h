@@ -135,8 +135,26 @@ class EditorClientImpl : public WebCore::EditorClient {
   EditCommandStack redo_stack_;
 
  private:
+  // Returns whether or not the focused control needs spell-checking.
+  // Currently, this function just retrieves the focused node and determines
+  // whether or not it is a <textarea> element or an element whose
+  // contenteditable attribute is true.
+  // TODO(hbono): Bug 740540: This code just implements the default behavior
+  // proposed in this issue. We should also retrieve "spellcheck" attributes 
+  // for text fields and create a flag to over-write the default behavior.
+  bool ShouldSpellcheckByDefault();
+
   // Whether the last entered key was a backspace.
   bool backspace_pressed_;
+
+  // This flag is set to false if spell check for this editor is manually 
+  // turned off. The default setting is SPELLCHECK_AUTOMATIC.
+  enum {
+    SPELLCHECK_AUTOMATIC,
+    SPELLCHECK_FORCED_ON,
+    SPELLCHECK_FORCED_OFF
+  };
+  int spell_check_this_field_status_;
 
   // The method factory used to post autofill related tasks.
   ScopedRunnableMethodFactory<EditorClientImpl> autofill_factory_;

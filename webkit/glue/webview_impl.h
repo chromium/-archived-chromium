@@ -78,7 +78,6 @@ class WebViewImpl : public WebView {
   virtual void SetBackForwardListSize(int size);
   virtual void RestoreFocus();
   virtual void SetInitialFocus(bool reverse);
-  virtual bool FocusedFrameNeedsSpellchecking();
   virtual bool DownloadImage(int id, const GURL& image_url, int image_size);
   virtual void SetPreferences(const WebPreferences& preferences);
   virtual const WebPreferences& GetPreferences();

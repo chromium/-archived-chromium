@@ -158,6 +158,9 @@ struct ViewHostMsg_ContextMenu_Params {
   // and the misspelled_word is not empty.
   std::vector<std::wstring> dictionary_suggestions;
 
+  // If editable, flag for whether spell check is enabled or not.
+  bool spellcheck_enabled;
+
   // These flags indicate to the browser whether the renderer believes it is
   // able to perform the corresponding action.
   int edit_flags;
@@ -945,6 +948,7 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
     WriteParam(m, p.selection_text);
     WriteParam(m, p.misspelled_word);
     WriteParam(m, p.dictionary_suggestions);
+    WriteParam(m, p.spellcheck_enabled);
     WriteParam(m, p.edit_flags);
     WriteParam(m, p.security_info);
   }
@@ -960,6 +964,7 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
       ReadParam(m, iter, &p->selection_text) &&
       ReadParam(m, iter, &p->misspelled_word) &&
       ReadParam(m, iter, &p->dictionary_suggestions) &&
+      ReadParam(m, iter, &p->spellcheck_enabled) &&
       ReadParam(m, iter, &p->edit_flags) &&
       ReadParam(m, iter, &p->security_info);
   }

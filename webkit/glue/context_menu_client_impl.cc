@@ -184,7 +184,8 @@ WebCore::PlatformMenuDescription
   if (type == ContextNode::NONE) {
     if (r.isContentEditable()) {
       type = ContextNode::EDITABLE;
-      if (webview_->FocusedFrameNeedsSpellchecking()) {
+      if (webview_->GetFocusedWebCoreFrame()->editor()->
+          isContinuousSpellCheckingEnabled()) {
         misspelled_word_string = GetMisspelledWord(default_menu,
                                                    selected_frame);
       }

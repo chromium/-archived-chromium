@@ -144,6 +144,7 @@ IPC_BEGIN_MESSAGES(View, 1)
   IPC_MESSAGE_ROUTED0(ViewMsg_Copy)
   IPC_MESSAGE_ROUTED0(ViewMsg_Paste)
   IPC_MESSAGE_ROUTED1(ViewMsg_Replace, std::wstring)
+  IPC_MESSAGE_ROUTED0(ViewMsg_ToggleSpellCheck)
   IPC_MESSAGE_ROUTED0(ViewMsg_Delete)
   IPC_MESSAGE_ROUTED0(ViewMsg_SelectAll)
 

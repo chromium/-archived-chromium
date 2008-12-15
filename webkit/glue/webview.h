@@ -121,15 +121,6 @@ class WebView : public WebWidget {
   // bug is fixed.
   virtual void StoreFocusForFrame(WebFrame* frame) = 0;
 
-  // Returns whether or not the focused control needs spell-checking.
-  // Currently, this function just retrieves the focused node and determines
-  // whether or not it is a <textarea> element or an element whose
-  // contenteditable attribute is true.
-  // TODO(hbono): Bug 740540: This code just implements the default behavior
-  // proposed in this issue. We should also retrieve "spellcheck" attributes 
-  // for text fields and create a flag to over-write the default behavior.
-  virtual bool FocusedFrameNeedsSpellchecking() = 0;
-
   // Requests the webview to download an image. When done, the delegate is
   // notified by way of DidDownloadImage. Returns true if the request was
   // successfully started, false otherwise. id is used to uniquely identify the

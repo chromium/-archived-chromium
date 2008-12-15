@@ -1309,6 +1309,14 @@ void WebFrameImpl::Replace(const std::wstring& wtext) {
       frame()->document(), fragment.get(), false, true, true));
 }
 
+void WebFrameImpl::ToggleSpellCheck() {
+  frame()->editor()->toggleContinuousSpellChecking();
+}
+
+bool WebFrameImpl::SpellCheckEnabled() {
+  return frame()->editor()->isContinuousSpellCheckingEnabled();
+}
+
 void WebFrameImpl::Delete() {
   frame()->editor()->command("Delete").execute();
 

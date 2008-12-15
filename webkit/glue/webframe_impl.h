@@ -134,6 +134,8 @@ class WebFrameImpl : public WebFrame {
   virtual void Cut();
   virtual void Paste();
   virtual void Replace(const std::wstring& text);
+  virtual void ToggleSpellCheck();
+  virtual bool SpellCheckEnabled();
   virtual void Delete();
   virtual void Undo();
   virtual void Redo();

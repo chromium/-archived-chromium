@@ -73,7 +73,8 @@ EditorClientImpl::EditorClientImpl(WebView* web_view)
       backspace_pressed_(false),
 // Don't complain about using "this" in initializer list.
 MSVC_PUSH_DISABLE_WARNING(4355)
-      autofill_factory_(this) {
+      autofill_factory_(this),
+      spell_check_this_field_status_(SPELLCHECK_AUTOMATIC) {
 MSVC_POP_WARNING()
 }
 
@@ -113,16 +114,44 @@ bool EditorClientImpl::isSelectTrailingWhitespaceEnabled() {
   return true;
 }
 
+bool EditorClientImpl::ShouldSpellcheckByDefault() {
+  const WebCore::Frame* frame = web_view_->GetFocusedWebCoreFrame();
+  if (!frame)
+    return false;
+  const WebCore::Editor* editor = frame->editor();
+  if (!editor)
+    return false;
+  const WebCore::Document* document = frame->document();
+  if (!document)
+    return false;
+  const WebCore::Node* node = document->focusedNode();
+  if (!node)
+    return false;
+  const WebCore::RenderObject* renderer = node->renderer();
+  if (!renderer)
+    return false;
+  // We should also retrieve the contenteditable attribute of this element to
+  // determine if this element needs spell-checking.
+  const WebCore::EUserModify user_modify = renderer->style()->userModify();
+  return (renderer->isTextArea() && editor->canEdit()) ||
+         user_modify == WebCore::READ_WRITE ||
+         user_modify == WebCore::READ_WRITE_PLAINTEXT_ONLY;
+}
+
 bool EditorClientImpl::isContinuousSpellCheckingEnabled() {
-  // Spell check everything if possible.
-  // FIXME(brettw) This should be modified to do reasonable defaults depending
-  // on input type, and probably also allow the user to turn spellchecking on
-  // for individual fields.
-  return true;
+  if (spell_check_this_field_status_ == SPELLCHECK_FORCED_OFF)
+    return false;
+  else if (spell_check_this_field_status_ == SPELLCHECK_FORCED_ON)
+    return true;
+  else 
+    return ShouldSpellcheckByDefault();
 }
 
 void EditorClientImpl::toggleContinuousSpellChecking() {
-  NOTIMPLEMENTED();
+  if (isContinuousSpellCheckingEnabled())
+    spell_check_this_field_status_ = SPELLCHECK_FORCED_OFF;
+  else
+    spell_check_this_field_status_ = SPELLCHECK_FORCED_ON;
 }
 
 bool EditorClientImpl::isGrammarCheckingEnabled() {
@@ -718,7 +747,7 @@ void EditorClientImpl::checkSpellingOfString(const UChar* str, int length,
   int spell_location = -1;
   int spell_length = 0;
   WebViewDelegate* d = web_view_->delegate();
-  if (web_view_->FocusedFrameNeedsSpellchecking() && d) {
+  if (isContinuousSpellCheckingEnabled() && d) {
     std::wstring word = 
         webkit_glue::StringToStdWString(WebCore::String(str, length));
     d->SpellCheck(word, spell_location, spell_length);

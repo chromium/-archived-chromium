@@ -168,6 +168,13 @@ void RenderViewContextMenu::AppendEditableItems() {
   spellchecker_sub_menu_->AppendSeparator();
   spellchecker_sub_menu_->AppendDelegateMenuItem(
       IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS);
+
+  // Add 'Check the spelling of this field' item in the sub menu.
+  spellchecker_sub_menu_->AppendMenuItem(
+      IDC_CHECK_SPELLING_OF_THIS_FIELD,
+      l10n_util::GetString(IDS_CONTENT_CONTEXT_CHECK_SPELLING_OF_THIS_FIELD),
+      CHECKBOX);
+
   AppendSeparator();
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_SELECTALL);
 }

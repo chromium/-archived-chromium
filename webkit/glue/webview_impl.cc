@@ -1173,30 +1173,6 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
   }
 }
 
-bool WebViewImpl::FocusedFrameNeedsSpellchecking() {
-  const WebCore::Frame* frame = GetFocusedWebCoreFrame();
-  if (!frame)
-    return false;
-  const WebCore::Editor* editor = frame->editor();
-  if (!editor)
-    return false;
-  const WebCore::Document* document = frame->document();
-  if (!document)
-    return false;
-  const WebCore::Node* node = document->focusedNode();
-  if (!node)
-    return false;
-  const WebCore::RenderObject* renderer = node->renderer();
-  if (!renderer)
-    return false;
-  // We should also retrieve the contenteditable attribute of this element to
-  // determine if this element needs spell-checking.
-  const WebCore::EUserModify user_modify = renderer->style()->userModify();
-  return (renderer->isTextArea() && editor->canEdit()) ||
-         user_modify == WebCore::READ_WRITE ||
-         user_modify == WebCore::READ_WRITE_PLAINTEXT_ONLY;
-}
-
 // Releases references used to restore focus.
 void WebViewImpl::ReleaseFocusReferences() {
   if (last_focused_frame_.get()) {

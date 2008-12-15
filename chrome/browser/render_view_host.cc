@@ -450,6 +450,10 @@ void RenderViewHost::Replace(const std::wstring& text_to_replace) {
   Send(new ViewMsg_Replace(routing_id_, text_to_replace));
 }
 
+void RenderViewHost::ToggleSpellCheck() {
+  Send(new ViewMsg_ToggleSpellCheck(routing_id_));
+}
+
 void RenderViewHost::AddToDictionary(const std::wstring& word) {
   process_->AddWord(word);
 }

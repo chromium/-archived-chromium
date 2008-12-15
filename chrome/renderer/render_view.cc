@@ -329,6 +329,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_Copy, OnCopy)
     IPC_MESSAGE_HANDLER(ViewMsg_Paste, OnPaste)
     IPC_MESSAGE_HANDLER(ViewMsg_Replace, OnReplace)
+    IPC_MESSAGE_HANDLER(ViewMsg_ToggleSpellCheck, OnToggleSpellCheck)
     IPC_MESSAGE_HANDLER(ViewMsg_Delete, OnDelete)
     IPC_MESSAGE_HANDLER(ViewMsg_SelectAll, OnSelectAll)
     IPC_MESSAGE_HANDLER(ViewMsg_CopyImageAt, OnCopyImageAt)
@@ -974,6 +975,13 @@ void RenderView::OnReplace(const std::wstring& text) {
     return;
 
   webview()->GetFocusedFrame()->Replace(text);
+}
+
+void RenderView::OnToggleSpellCheck() {
+  if (!webview())
+    return;
+
+  webview()->GetFocusedFrame()->ToggleSpellCheck();
 }
 
 void RenderView::OnDelete() {
@@ -1951,6 +1959,8 @@ void RenderView::ShowContextMenu(WebView* webview,
   params.frame_url = frame_url;
   params.selection_text = selection_text;
   params.misspelled_word = misspelled_word;
+  params.spellcheck_enabled = 
+      webview->GetFocusedFrame()->SpellCheckEnabled();
   params.edit_flags = edit_flags;
   params.security_info = security_info;
   Send(new ViewHostMsg_ContextMenu(routing_id_, params));
