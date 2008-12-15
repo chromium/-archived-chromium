@@ -628,12 +628,11 @@ WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
-// Linux pixeltest failure: Missing gradients
-LINUX WIN : LayoutTests/fast/gradients/border-image-gradient-sides-and-corners.html = FAIL
-// Linux pixeltest failure: Missing gradients
+// Linux pixeltest failure: border gradients are improperly offset
 LINUX WIN : LayoutTests/fast/gradients/border-image-gradient.html = FAIL
+// Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
-LINUX WIN : LayoutTests/fast/gradients/list-item-gradient.html = FAIL
+// Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
 LINUX WIN : LayoutTests/fast/media/viewport-media-query.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
