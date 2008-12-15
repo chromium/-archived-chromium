@@ -50,8 +50,8 @@ class ProxyScriptFetcher {
   // Testing helpers (only available to unit-tests).
   // --------------------------------------------------------------------------
  private:
-  FRIEND_TEST(ProxyScriptFetcherTest, Hang);
-  FRIEND_TEST(ProxyScriptFetcherTest, TooLarge);
+  FRIEND_TEST(ProxyScriptFetcherTest, DISABLED_Hang);
+  FRIEND_TEST(ProxyScriptFetcherTest, DISABLED_TooLarge);
 
   // Sets the maximum duration for a fetch to |timeout_ms|. Returns the previous
   // bound.
