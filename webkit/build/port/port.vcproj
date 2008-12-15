@@ -1343,35 +1343,35 @@
 					Name="skia"
 					>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\RenderPathSkia.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\RenderPathSkia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SkiaSupport.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\SkiaSupport.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SkiaSupport.h"
+						RelativePath="..\..\port\svg\graphics\skia\SkiaSupport.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerGradientSkia.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\SVGPaintServerGradientSkia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerPatternSkia.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\SVGPaintServerPatternSkia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerSkia.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\SVGPaintServerSkia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGResourceFilterSkia.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\SVGResourceFilterSkia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGResourceMaskerSkia.cpp"
+						RelativePath="..\..\port\svg\graphics\skia\SVGResourceMaskerSkia.cpp"
 						>
 					</File>
 				</Filter>
