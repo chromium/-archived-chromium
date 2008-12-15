@@ -184,7 +184,6 @@
 		E45629170E26B4FE005E4685 /* layout_test_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.cc */; };
 		E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */; };
 		E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */; };
-		E456291B0E26B4FE005E4685 /* test_shell_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78560DC553C7005C27B8 /* test_shell_test.cc */; };
 		E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */; };
 		E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */; };
 		E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */; };
@@ -1899,7 +1898,6 @@
 				E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */,
 				E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */,
 				E456290C0E26B4FE005E4685 /* test_shell_switches.cc in Sources */,
-				E456291B0E26B4FE005E4685 /* test_shell_test.cc in Sources */,
 				E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */,
 				E44662070ECCD652000B9316 /* test_webview_delegate.cc in Sources */,
 				E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */,
