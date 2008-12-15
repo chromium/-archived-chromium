@@ -823,11 +823,6 @@ if env['PLATFORM'] in ('darwin'):
   for remove in remove_files:
     input_files.remove(remove)
 
-if env['PLATFORM'] == 'posix':
-  input_files.extend([
-    '$WEBCORE_DIR/platform/posix/FileSystemPOSIX.cpp',
-  ])
-
 # Precompiled headers only work under MSVC in scons.
 if env['PLATFORM'] == 'win32':
   env_p = env.Clone()

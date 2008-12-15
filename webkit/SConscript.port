@@ -134,7 +134,7 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'posix':
   # Linux specific implementations.
   input_files.extend([
-    '$PORT_DIR/platform/chromium/FileSystemPosix.cpp',
+    '$PORT_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
     '$PORT_DIR/platform/chromium/gtk2drawing.c',
     '$PORT_DIR/platform/chromium/IconLinux.cpp',
     '$PORT_DIR/platform/chromium/KeyCodeConversionGtk.cpp',

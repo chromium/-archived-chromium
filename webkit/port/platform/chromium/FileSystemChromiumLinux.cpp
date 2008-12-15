@@ -29,14 +29,11 @@
 #include "config.h"
 #include "FileSystem.h"
 
-#import <Foundation/NSFileManager.h>
-#include "PlatformString.h"
-
 namespace WebCore {
 
 String pathGetFileName(const String& path)
 {
-    return [[NSFileManager defaultManager] displayNameAtPath:path];
+    return path.substring(path.reverseFind('/') + 1);
 }
 
 }
