@@ -113,6 +113,13 @@ SkShader* Gradient::platformGradient()
     if (m_gradient)
         return m_gradient;
 
+    // TODO: This and compareStops() are also in Gradient.cpp and
+    // CSSGradientValue.cpp; probably should refactor in WebKit.
+    if (!m_stopsSorted) {
+        if (m_stops.size())
+            std::stable_sort(m_stops.begin(), m_stops.end(), compareStops);
+        m_stopsSorted = true;
+    }
     size_t count_used = total_stops_needed(m_stops.data(), m_stops.size());
     ASSERT(count_used >= 2);
     ASSERT(count_used >= m_stops.size());
@@ -122,13 +129,6 @@ SkShader* Gradient::platformGradient()
     SkColor* colors = (SkColor*)storage.get();
     SkScalar* pos = (SkScalar*)(colors + count_used);
 
-    // TODO: This and compareStops() are also in Gradient.cpp and
-    // CSSGradientValue.cpp; probably should refactor in WebKit.
-    if (!m_stopsSorted) {
-        if (m_stops.size())
-            std::stable_sort(m_stops.begin(), m_stops.end(), compareStops);
-        m_stopsSorted = true;
-    }
     fill_stops(m_stops.data(), m_stops.size(), pos, colors);
 
     if (m_radial) {
