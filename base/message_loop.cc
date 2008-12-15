@@ -593,22 +593,17 @@ bool MessageLoopForIO::WaitForIOCompletion(DWORD timeout, IOHandler* filter) {
 
 #elif defined(OS_POSIX)
 
-void MessageLoopForIO::WatchSocket(int socket, short interest_mask,
-                                   struct event* e, Watcher* watcher) {
-  pump_libevent()->WatchSocket(socket, interest_mask, e, watcher);
+bool MessageLoopForIO::WatchFileDescriptor(int fd,
+                                           bool persistent,
+                                           Mode mode,
+                                           FileDescriptorWatcher *controller,
+                                           Watcher *delegate) {
+  return pump_libevent()->WatchFileDescriptor(
+      fd,
+      persistent,
+      static_cast<base::MessagePumpLibevent::Mode>(mode),
+      controller,
+      delegate);
 }
 
-void MessageLoopForIO::WatchFileHandle(int fd, short interest_mask,
-                                       struct event* e, FileWatcher* watcher) {
-  pump_libevent()->WatchFileHandle(fd, interest_mask, e, watcher);
-}
-
-
-void MessageLoopForIO::UnwatchSocket(struct event* e) {
-  pump_libevent()->UnwatchSocket(e);
-}
-
-void MessageLoopForIO::UnwatchFileHandle(struct event* e) {
-  pump_libevent()->UnwatchFileHandle(e);
-}
 #endif

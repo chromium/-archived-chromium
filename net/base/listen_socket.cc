@@ -12,7 +12,6 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "base/message_loop.h"
 #include "net/base/net_errors.h"
 #include "third_party/libevent/event.h"
 #endif
@@ -30,12 +29,7 @@ const int SOCKET_ERROR = -1;
 const int kReadBufSize = 200;
 
 ListenSocket::ListenSocket(SOCKET s, ListenSocketDelegate *del)
-#if defined(OS_WIN)
     : socket_(s),
-#elif defined(OS_POSIX)
-    : event_(new event), 
-      socket_(s),
-#endif
       socket_delegate_(del) {
 #if defined(OS_WIN)
   socket_event_ = WSACreateEvent();
@@ -177,8 +171,7 @@ void ListenSocket::UnwatchSocket() {
 #if defined(OS_WIN)
   watcher_.StopWatching();
 #elif defined(OS_POSIX)
-  MessageLoopForIO::current()->UnwatchSocket(event_.get());
-  wait_state_ = NOT_WAITING;
+  watcher_.StopWatchingFileDescriptor();
 #endif
 }
 
@@ -187,8 +180,9 @@ void ListenSocket::WatchSocket(WaitState state) {
   WSAEventSelect(socket_, socket_event_, FD_ACCEPT | FD_CLOSE | FD_READ);
   watcher_.StartWatching(socket_event_, this);
 #elif defined(OS_POSIX)
-  MessageLoopForIO::current()->WatchSocket(
-      socket_, EV_READ|EV_PERSIST, event_.get(),this);
+  // Implicitly calls StartWatchingFileDescriptor().
+  MessageLoopForIO::current()->WatchFileDescriptor(
+      socket_, true, MessageLoopForIO::WATCH_READ, &watcher_, this);
   wait_state_ = state;
 #endif
 }
@@ -250,7 +244,7 @@ void ListenSocket::OnObjectSignaled(HANDLE object) {
   }
 }
 #elif defined(OS_POSIX)
-void ListenSocket::OnSocketReady(short flags) {
+void ListenSocket::OnFileCanReadWithoutBlocking(int fd) {
   if (wait_state_ == WAITING_ACCEPT) {
     Accept();
   }
@@ -262,4 +256,11 @@ void ListenSocket::OnSocketReady(short flags) {
     // TODO(erikkay): this seems to get hit multiple times after the close
   }
 }
+
+void ListenSocket::OnFileCanWriteWithoutBlocking(int fd) {
+  // MessagePumpLibevent callback, we don't listen for write events
+  // so we shouldn't ever reach here.
+  NOTREACHED();
+}
+
 #endif

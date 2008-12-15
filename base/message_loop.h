@@ -473,14 +473,21 @@ class MessageLoopForIO : public MessageLoop {
 
 #elif defined(OS_POSIX)
   typedef base::MessagePumpLibevent::Watcher Watcher;
-  typedef base::MessagePumpLibevent::FileWatcher FileWatcher;
+  typedef base::MessagePumpLibevent::FileDescriptorWatcher
+      FileDescriptorWatcher;
 
-  // Please see MessagePumpLibevent for definitions of these methods.
-  void WatchSocket(int socket, short interest_mask,
-                   struct event* e, Watcher* watcher);
-  void WatchFileHandle(int fd, short interest_mask, event* e, FileWatcher*);
-  void UnwatchSocket(struct event* e);
-  void UnwatchFileHandle(event* e);
+  enum Mode {
+    WATCH_READ = base::MessagePumpLibevent::WATCH_READ,
+    WATCH_WRITE = base::MessagePumpLibevent::WATCH_WRITE,
+    WATCH_READ_WRITE = base::MessagePumpLibevent::WATCH_READ_WRITE
+  };
+
+  // Please see MessagePumpLibevent for definition.
+  bool WatchFileDescriptor(int fd,
+                           bool persistent,
+                           Mode mode,
+                           FileDescriptorWatcher *controller,
+                           Watcher *delegate);
 #endif  // defined(OS_POSIX)
 };
 
