@@ -249,10 +249,6 @@ class CookiesTableView : public views::TableView {
   // Removes the cookies associated with the selected rows in the TableView.
   void RemoveSelectedCookies();
 
- protected:
-  // views::TableView implementation:
-  virtual void OnKeyDown(unsigned short virtual_keycode);
-
  private:
   // Our model, as a CookiesTableModel.
   CookiesTableModel* cookies_model_;
@@ -298,11 +294,6 @@ void CookiesTableView::RemoveSelectedCookies() {
   DCHECK(RowCount() > 0 && last_selected_view_row != -1);
   Select(view_to_model(std::min(RowCount() - 1, 
       last_selected_view_row - remove_count + 1)));
-}
-
-void CookiesTableView::OnKeyDown(unsigned short virtual_keycode) {
-  if (virtual_keycode == VK_DELETE)
-    RemoveSelectedCookies();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -601,6 +592,10 @@ void CookiesView::OnSelectionChanged() {
   remove_button_->SetEnabled(selected_row_count != 0);
   if (cookies_table_->RowCount() == 0)
     UpdateForEmptyState();
+}
+
+void CookiesView::OnTableViewDelete(views::TableView* table_view) {
+  cookies_table_->RemoveSelectedCookies();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

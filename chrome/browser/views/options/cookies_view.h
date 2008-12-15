@@ -41,6 +41,10 @@ class CookiesView : public views::View,
   // views::TableViewObserver implementation:
   virtual void OnSelectionChanged();
 
+  // Invoked when the user presses the delete key. Deletes the selected
+  // cookies.
+  virtual void OnTableViewDelete(views::TableView* table_view);
+
   // views::TextField::Controller implementation:
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
@@ -110,4 +114,3 @@ class CookiesView : public views::View,
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_GENERAL_PAGE_VIEW_H__
-
