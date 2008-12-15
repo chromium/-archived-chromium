@@ -167,7 +167,6 @@ void WebInspectorClient::hideHighlight() {
 
 void WebInspectorClient::inspectedURLChanged(const String& newURL) {
   // TODO(jackson): Implement this
-  NOTIMPLEMENTED();
 }
 
 String WebInspectorClient::localizedStringsURL() {
