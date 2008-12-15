@@ -1080,42 +1080,6 @@
 					>
 				</File>
 				<Filter
-					Name="svg"
-					>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\RenderPathSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SkiaSupport.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SkiaSupport.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerGradientSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerPatternSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGResourceFilterSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGResourceMaskerSkia.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="chromium"
 					>
 					<File
@@ -1368,6 +1332,50 @@
 				RelativePath="..\..\port\rendering\RenderThemeWin.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="svg"
+			>
+			<Filter
+				Name="graphics"
+				>
+				<Filter
+					Name="skia"
+					>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\RenderPathSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SkiaSupport.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SkiaSupport.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerGradientSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerPatternSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SVGPaintServerSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SVGResourceFilterSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\graphics\svg\SVGResourceMaskerSkia.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="bridge"
