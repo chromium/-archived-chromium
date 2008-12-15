@@ -1177,29 +1177,33 @@ bool DownloadManager::ShouldOpenFileExtension(const std::wstring& extension) {
   return false;
 }
 
-// static
-bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
+static const char* kExecutableWhiteList[] = {
   // JavaScript is just as powerful as EXE.
-  if (net::MatchesMimeType("text/javascript", mime_type))
-    return true;
-  if (net::MatchesMimeType("text/javascript;version=*", mime_type))
-    return true;
+  "text/javascript",
+  "text/javascript;version=*",
   // Some sites use binary/octet-stream to mean application/octet-stream.
   // See http://code.google.com/p/chromium/issues/detail?id=1573
-  if (net::MatchesMimeType("binary/octet-stream", mime_type))
-    return true;
+  "binary/octet-stream"
+};
 
-  // We don't consider other non-application types to be executable.
-  if (!net::MatchesMimeType("application/*", mime_type))
-    return false;
-
+static const char* kExecutableBlackList[] = {
   // These application types are not executable.
-  if (net::MatchesMimeType("application/*+xml", mime_type))
-    return false;
-  if (net::MatchesMimeType("application/xml", mime_type))
-    return false;
+  "application/*+xml",
+  "application/xml"
+};
 
-  return true;
+// static
+bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
+  for (int i=0; i < arraysize(kExecutableWhiteList); ++i) {
+    if (net::MatchesMimeType(kExecutableWhiteList[i], mime_type))
+      return true;
+  }
+  for (int i=0; i < arraysize(kExecutableBlackList); ++i) {
+    if (net::MatchesMimeType(kExecutableBlackList[i], mime_type))
+      return false;
+  }
+  // We consider only other application types to be executable.
+  return net::MatchesMimeType("application/*", mime_type);
 }
 
 bool DownloadManager::IsExecutable(const std::wstring& extension) {
