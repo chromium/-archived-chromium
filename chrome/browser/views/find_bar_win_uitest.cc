@@ -260,7 +260,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
   // Open the Find window and wait for it to animate.
   EXPECT_TRUE(tabA->OpenFindInPage());
-  EXPECT_TRUE(WaitForFindWindowFullyVisible(tabA.get()));
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tabA.get(), true));
 
   // Find its location.
   int x = -1, y = -1;
@@ -299,4 +299,29 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
   EXPECT_EQ(x, new_x);
   EXPECT_EQ(y, new_y);
+}
+
+// Make sure Find box disappears on Navigate but not on Refresh.
+TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
+  TestServer server(L"chrome/test/data");
+
+  GURL url = server.TestServerPageW(kUserSelectPage);
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
+
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get() != NULL);
+
+  // Open the Find window and wait for it to animate.
+  EXPECT_TRUE(tab->OpenFindInPage());
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tab.get(), true));
+
+  // Reload the tab and make sure Find box doesn't go away.
+  EXPECT_TRUE(tab->Reload());
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tab.get(), true));
+
+  // Navigate and make sure the Find box goes away.
+  EXPECT_TRUE(tab->NavigateToURL(url));
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tab.get(), false));
 }

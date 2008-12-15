@@ -130,10 +130,11 @@ class UITest : public testing::Test {
   // as possible.
   bool WaitForDownloadShelfVisible(TabProxy* tab);
 
-  // Waits until the Find window has become fully visible (and stopped
-  // animating) in the specified tab. This function can time out (return false)
-  // if the window doesn't appear within a specific time.
-  bool WaitForFindWindowFullyVisible(TabProxy* tab);
+  // Waits until the Find window has become fully visible (if |wait_for_open| is
+  // true) or fully hidden (if |wait_for_open| is false). This function can time
+  // out (return false) if the window doesn't appear within a specific time.
+  bool WaitForFindWindowVisibilityChange(TabProxy* tab,
+                                         bool wait_for_open);
 
   // Waits until the Bookmark bar has stopped animating and become fully visible
   // (if |wait_for_open| is true) or fully hidden (if |wait_for_open| is false).

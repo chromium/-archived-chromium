@@ -389,14 +389,15 @@ bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   return false;
 }
 
-bool UITest::WaitForFindWindowFullyVisible(TabProxy* tab) {
+bool UITest::WaitForFindWindowVisibilityChange(TabProxy* tab,
+                                               bool wait_for_open) {
   const int kCycles = 20;
   for (int i = 0; i < kCycles; i++) {
     bool visible = false;
     if (!tab->IsFindWindowFullyVisible(&visible))
       return false;  // Some error.
-    if (visible)
-      return true;  // Find window is visible.
+    if (visible == wait_for_open)
+      return true;  // Find window visibility change complete.
 
     // Give it a chance to catch up.
     Sleep(kWaitForActionMaxMsec / kCycles);
