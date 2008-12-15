@@ -24,7 +24,7 @@ protected:
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(test_dir_, true);
-    CreateDirectory(test_dir_.c_str(), NULL);
+    file_util::CreateDirectory(test_dir_);
 
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_dir_));
     file_util::AppendToPath(&data_dir_, L"pref_service");
@@ -167,33 +167,15 @@ TEST_F(PrefServiceTest, Overlay) {
   prefs.transient()->Set(L"both", both_transient_value);
 
   // Register test prefs
-  const wchar_t* kTypes[] =
+  static const std::wstring kTypes[] =
       { L"neither.", L"persistent.", L"transient.", L"both." };
   for (size_t i = 0; i < arraysize(kTypes); ++i) {
-    wchar_t temp[1024];
-    wcscpy_s(temp, kTypes[i]);
-    wcscat_s(temp, L"bool");
-    prefs.RegisterBooleanPref(temp, false);
-
-    wcscpy_s(temp, kTypes[i]);
-    wcscat_s(temp, L"int");
-    prefs.RegisterIntegerPref(temp, 0);
-
-    wcscpy_s(temp, kTypes[i]);
-    wcscat_s(temp, L"real");
-    prefs.RegisterRealPref(temp, 0.0);
-
-    wcscpy_s(temp, kTypes[i]);
-    wcscat_s(temp, L"string");
-    prefs.RegisterStringPref(temp, L"");
-
-    wcscpy_s(temp, kTypes[i]);
-    wcscat_s(temp, L"list");
-    prefs.RegisterListPref(temp);
-
-    wcscpy_s(temp, kTypes[i]);
-    wcscat_s(temp, L"dictionary");
-    prefs.RegisterDictionaryPref(temp);
+    prefs.RegisterBooleanPref((kTypes[i] + L"bool").c_str(), false);
+    prefs.RegisterIntegerPref((kTypes[i] + L"int").c_str(), 0);
+    prefs.RegisterRealPref((kTypes[i] + L"real").c_str(), 0.0);
+    prefs.RegisterStringPref((kTypes[i] + L"string").c_str(), L"");
+    prefs.RegisterListPref((kTypes[i] + L"list").c_str());
+    prefs.RegisterDictionaryPref((kTypes[i] + L"dictionary").c_str());
   }
 
   ASSERT_FALSE(prefs.GetBoolean(L"neither.bool"));

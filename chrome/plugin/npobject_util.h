@@ -7,7 +7,11 @@
 #ifndef CHROME_PLUGIN_NPOBJECT_UTIL_H__
 #define CHROME_PLUGIN_NPOBJECT_UTIL_H__
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 #include "chrome/plugin/npobject_stub.h"
 
 struct _NPVariant;
@@ -43,6 +47,7 @@ void CreateNPVariantParam(const NPVariant& variant,
                           NPVariant_Param* param,
                           bool release);
 
+#if defined(OS_WIN)
 // Creates an NPVariant from the marshalled object.
 void CreateNPVariant(const NPVariant_Param& param,
                      PluginChannelBase* channel,
@@ -55,6 +60,7 @@ void CreateNPVariant(const NPVariant_Param& param,
 // in-process).  This avoids deadlocks when a plugin invokes javascript that
 // causes a message box to come up.
 HANDLE GetMessageBoxEvent(HWND hwnd);
+#endif  // defined(OS_WIN)
 
 #endif  // CHROME_PLUGIN_NPOBJECT_UTIL_H__
 
