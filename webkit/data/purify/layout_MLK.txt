@@ -1,36 +1,4 @@
-WebCore::CSSParser::createFloatingSelector(void) [test_shell_tests.exe]
-Alloc Location
-   ...  
-   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::createFloatingSelector(void)
-   webkit/build/v8bindings/cssgrammar.cpp  cssyyparse(void *)
-   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::parseSheet(CSSStyleSheet::WebCore *,String::WebCore const&)
-   third_party/webkit/webcore/css/cssstylesheet.cpp  WebCore::CSSStyleSheet::parseString(String::WebCore const&,bool)
-   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::parseUASheet
-   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::loadFullDefaultStyle
-   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::CSSStyleSelector::styleForElement(Element::WebCore *,RenderStyle::WebCore *,bool,bool)
-   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::styleForRenderer(void)
-   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::createRendererIfNeeded(void)
-   third_party/webkit/webcore/dom/element.cpp  WebCore::Element::attach(void)
-   third_party/webkit/webcore/dom/containernode.cpp  WebCore::ContainerNode::appendChild(PassRefPtr::WTF,int&,bool)
-   third_party/webkit/webcore/loader/textdocument.cpp  WebCore::TextTokenizer::write(SegmentedString::WebCore const&,bool)
-   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::write(char const*,int,bool)
-   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::addData(char const*,int)
-   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
-   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
-   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
-   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
-   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
-   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
-   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
-   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
-   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
-   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
-   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
-   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::HandleDataUrl(void)
-   base/tuple.h  ?DispatchToMethod@VResourceHandleInternal@WebCore@@P812@AEXXZ@@YAXPAVResourceHandleInternal@WebCore@@P801@AEXXZABUTuple0@@@Z
-   ^^^  
-
-WebCore::CSSParser::createFloatingSelector(void) [test_shell_tests.exe]
+WebCore::CSSParser::createFloatingSelector(void) [test_shell.exe]
 Alloc Location
    ...  
    third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::createFloatingSelector(void)
@@ -51,9 +19,106 @@ Alloc Location
    webkit/tools/test_shell/webview_host_win.cc  WebViewHost::Create(HWND__ *,WebViewDelegate *,WebPreferences const&)
    webkit/tools/test_shell/test_shell_win.cc  TestShell::Initialize(class std::basic_string const &)
    webkit/tools/test_shell/test_shell_win.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
-   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
-   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
-   webkit/glue/bookmarklet_unittest.cc  BookmarkletTest::SetUp(void)
-   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   webkit/tools/test_shell/test_shell_main.cc  main
+   ...  
+
+WebCore::CSSParser::createFloatingSelector(void) [test_shell.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::createFloatingSelector(void)
+   webkit/build/v8bindings/cssgrammar.cpp  cssyyparse(void *)
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::parseSheet(CSSStyleSheet::WebCore *,String::WebCore const&)
+   third_party/webkit/webcore/css/cssstylesheet.cpp  WebCore::CSSStyleSheet::parseString(String::WebCore const&,bool)
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::parseUASheet
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::loadFullDefaultStyle
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::CSSStyleSelector::styleForElement(Element::WebCore *,RenderStyle::WebCore *,bool,bool)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::styleForRenderer(void)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::createRendererIfNeeded(void)
+   third_party/webkit/webcore/dom/element.cpp  WebCore::Element::attach(void)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::insertNode(Node::WebCore *,bool)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::handleError(Node::WebCore *,bool,AtomicString::WebCore const&,int)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::insertNode(Node::WebCore *,bool)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::handleError(Node::WebCore *,bool,AtomicString::WebCore const&,int)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::insertNode(Node::WebCore *,bool)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::parseToken(Token::WebCore *)
+   third_party/webkit/webcore/html/htmltokenizer.cpp  WebCore::HTMLTokenizer::processToken(void)
+   third_party/webkit/webcore/html/htmltokenizer.cpp  WebCore::HTMLTokenizer::parseTag(SegmentedString::WebCore&,State::HTMLTokenizer::WebCore)
+   third_party/webkit/webcore/html/htmltokenizer.cpp  WebCore::HTMLTokenizer::write(SegmentedString::WebCore const&,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::write(char const*,int,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::endIfNotLoadingMainResource(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::end(void)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::finishedLoading(void)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::finishedLoading(void)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didFinishLoading(void)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didFinishLoading(ResourceHandle::WebCore *)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnCompletedRequest(URLRequestStatus const&)
+   webkit/tools/test_shell/simple_resource_loader_bridge.cc  RequestProxy::NotifyCompletedRequest(URLRequestStatus const&)
+   base/tuple.h  ?DispatchToMethod@VRequestProxy@?A0xdd235a19@@P812@AEXABVURLRequestStatus@@@ZV3@@@YAXPAVRequestProxy@?A0xdd235a19@@P801@AEXABVURLRequestStatus@@@ZABU?$Tuple1@VURLRequestStatus@@@@@Z
    ^^^  
+
+WebCore::CSSParser::createFloatingSelector(void) [test_shell.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::createFloatingSelector(void)
+   webkit/build/v8bindings/cssgrammar.cpp  cssyyparse(void *)
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::parseSheet(CSSStyleSheet::WebCore *,String::WebCore const&)
+   third_party/webkit/webcore/css/cssstylesheet.cpp  WebCore::CSSStyleSheet::parseString(String::WebCore const&,bool)
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::parseUASheet
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::loadFullDefaultStyle
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::CSSStyleSelector::styleForElement(Element::WebCore *,RenderStyle::WebCore *,bool,bool)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::styleForRenderer(void)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::createRendererIfNeeded(void)
+   third_party/webkit/webcore/dom/element.cpp  WebCore::Element::attach(void)
+   third_party/webkit/webcore/dom/xmltokenizerlibxml2.cpp  WebCore::XMLTokenizer::startElementNs(BYTE const*,BYTE const*,BYTE const*,int,BYTE const* *,int,int,BYTE const* *)
+   third_party/webkit/webcore/dom/xmltokenizerlibxml2.cpp  WebCore::startElementNsHandler
+   third_party/libxml/parser.c  xmlParseStartTag2
+   third_party/libxml/parser.c  xmlParseTryOrFinish
+   third_party/libxml/parser.c  xmlParseChunk
+   third_party/webkit/webcore/dom/xmltokenizerlibxml2.cpp  WebCore::XMLTokenizer::doWrite(String::WebCore const&)
+   third_party/webkit/webcore/dom/xmltokenizer.cpp  WebCore::XMLTokenizer::write(SegmentedString::WebCore const&,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::write(char const*,int,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::addData(char const*,int)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+
+WebCore::CSSParser::createFloatingSelector(void) [test_shell.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::createFloatingSelector(void)
+   webkit/build/v8bindings/cssgrammar.cpp  cssyyparse(void *)
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::parseSheet(CSSStyleSheet::WebCore *,String::WebCore const&)
+   third_party/webkit/webcore/css/cssstylesheet.cpp  WebCore::CSSStyleSheet::parseString(String::WebCore const&,bool)
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::parseUASheet
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::loadFullDefaultStyle
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::CSSStyleSelector::styleForElement(Element::WebCore *,RenderStyle::WebCore *,bool,bool)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::styleForRenderer(void)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::createRendererIfNeeded(void)
+   third_party/webkit/webcore/dom/element.cpp  WebCore::Element::attach(void)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::insertNode(Node::WebCore *,bool)
+   third_party/webkit/webcore/html/htmlparser.cpp  WebCore::HTMLParser::parseToken(Token::WebCore *)
+   third_party/webkit/webcore/html/htmltokenizer.cpp  WebCore::HTMLTokenizer::processToken(void)
+   third_party/webkit/webcore/html/htmltokenizer.cpp  WebCore::HTMLTokenizer::parseTag(SegmentedString::WebCore&,State::HTMLTokenizer::WebCore)
+   third_party/webkit/webcore/html/htmltokenizer.cpp  WebCore::HTMLTokenizer::write(SegmentedString::WebCore const&,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::write(char const*,int,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::addData(char const*,int)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::receivedData(char const*,int)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::addData(char const*,int,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/mainresourceloader.cpp  WebCore::MainResourceLoader::didReceiveData(char const*,int,long long,bool)
+   third_party/webkit/webcore/loader/resourceloader.cpp  WebCore::ResourceLoader::didReceiveData(ResourceHandle::WebCore *,char const*,int,int)
+   webkit/glue/resource_handle_impl.cc  WebCore::ResourceHandleInternal::OnReceivedData(char const*,int)
+   webkit/tools/test_shell/simple_resource_loader_bridge.cc  RequestProxy::NotifyReceivedData(int)
 

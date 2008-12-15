@@ -1,0 +1,57 @@
+Freeing mismatched memory in free
+Alloc Location
+   ...  
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::createFloatingSelector(void)
+   webkit/build/v8bindings/cssgrammar.cpp  cssyyparse(void *)
+   third_party/webkit/webcore/css/cssparser.cpp  WebCore::CSSParser::parseSheet(CSSStyleSheet::WebCore *,String::WebCore const&)
+   third_party/webkit/webcore/css/cssstylesheet.cpp  WebCore::CSSStyleSheet::parseString(String::WebCore const&,bool)
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::parseUASheet
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::parseUASheet
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::loadSimpleDefaultStyle
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::CSSStyleSelector::CSSStyleSelector(Document::WebCore *,String::WebCore const&,StyleSheetList::WebCore *,CSSStyleSheet::WebCore *,bool,bool)
+   third_party/webkit/webcore/dom/document.cpp  WebCore::Document::attach(void)
+   third_party/webkit/webcore/page/frame.cpp  WebCore::Frame::setDocument(PassRefPtr::WTF)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::init(void)
+   third_party/webkit/webcore/page/frame.cpp  WebCore::Frame::init(void)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::InitMainFrame(WebViewImpl *)
+   webkit/glue/webview_impl.cc  WebView::Create(WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/webview_host_win.cc  WebViewHost::Create(HWND__ *,WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/test_shell_win.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell_win.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
+   webkit/glue/bookmarklet_unittest.cc  BookmarkletTest::SetUp(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Free Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/fastmalloc.cpp  WTF::fastFree(void *)
+   third_party/webkit/webcore/css/cssselectorlist.cpp  WebCore::CSSSelectorList::deleteSelectors(void)
+   third_party/webkit/webcore/css/cssselectorlist.cpp  WebCore::CSSSelectorList::~CSSSelectorList(void)
+   third_party/webkit/webcore/css/cssstylerule.cpp  WebCore::CSSStyleRule::~CSSStyleRule(void)
+   webkit/release/test_shell_tests.exe  WebCore::CSSStyleRule::`vector deleting destructor'(UINT)
+   third_party/webkit/javascriptcore/wtf/refcounted.h  WTF::RefCounted::deref(void)
+   third_party/webkit/javascriptcore/wtf/refptr.h  WTF::RefPtr::~RefPtr(void)
+   webkit/release/test_shell_tests.exe  WTF::RefPtr::`scalar deleting destructor'(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::VectorDestructor::destruct(RefPtr::WTF *,RefPtr::WTF *)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::VectorTypeOperations::destruct(RefPtr::WTF *,RefPtr::WTF *)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::shrink(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::~Vector(void)
+   webkit/release/test_shell_tests.exe  WebCore::StyleList::~StyleList(void)
+   third_party/webkit/webcore/css/stylesheet.cpp  WebCore::StyleSheet::~StyleSheet(void)
+   third_party/webkit/webcore/css/cssstylesheet.cpp  WebCore::CSSStyleSheet::~CSSStyleSheet(void)
+   webkit/release/test_shell_tests.exe  WebCore::CSSStyleSheet::`vector deleting destructor'(UINT)
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::loadFullDefaultStyle
+   third_party/webkit/webcore/css/cssstyleselector.cpp  WebCore::CSSStyleSelector::styleForElement(Element::WebCore *,RenderStyle::WebCore *,bool,bool)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::styleForRenderer(void)
+   third_party/webkit/webcore/dom/node.cpp  WebCore::Node::createRendererIfNeeded(void)
+   third_party/webkit/webcore/dom/element.cpp  WebCore::Element::attach(void)
+   third_party/webkit/webcore/dom/containernode.cpp  WebCore::ContainerNode::appendChild(PassRefPtr::WTF,int&,bool)
+   third_party/webkit/webcore/loader/textdocument.cpp  WebCore::TextTokenizer::write(SegmentedString::WebCore const&,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::write(char const*,int,bool)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::addData(char const*,int)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::DidReceiveData(DocumentLoader::WebCore *,char const*,int)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/frameloader.cpp  WebCore::FrameLoader::committedLoad(DocumentLoader::WebCore *,char const*,int)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitLoad(char const*,int)
