@@ -71,10 +71,10 @@ EditorClientImpl::EditorClientImpl(WebView* web_view)
       use_editor_delegate_(false),
       in_redo_(false),
       backspace_pressed_(false),
+      spell_check_this_field_status_(SPELLCHECK_AUTOMATIC),
 // Don't complain about using "this" in initializer list.
 MSVC_PUSH_DISABLE_WARNING(4355)
-      autofill_factory_(this),
-      spell_check_this_field_status_(SPELLCHECK_AUTOMATIC) {
+      autofill_factory_(this) {
 MSVC_POP_WARNING()
 }
 
