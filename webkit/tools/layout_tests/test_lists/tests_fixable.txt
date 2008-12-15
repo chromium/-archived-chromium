@@ -2129,5 +2129,5 @@ LayoutTests/fast/repaint/box-shadow-v.html = FAIL
 
 // 2008/12/13 - Turning off some Friday night test regressions until they can be looked at.
 WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
-WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
+DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
 
