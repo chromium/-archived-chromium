@@ -2110,10 +2110,6 @@ MAC RELEASE : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEO
 // Items timing out on the Mac as of 2008/12/12
 MAC : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
 
-// Failed with r6893 (mmoss) - the current baseline actually has a failure;
-// this change didn't fix that, but now it fails in a different way.
-LINUX WIN : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
-
 // Started failing when landing the new skia r6925.
 WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
 WIN : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
