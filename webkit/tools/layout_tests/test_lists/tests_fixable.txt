@@ -2120,14 +2120,6 @@ WIN : LayoutTests/fast/text/international/002.html = FAIL
 WIN : LayoutTests/fast/text/international/003.html = FAIL
 WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
-// TODO(tc): Regression due to shadow changes.
-LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
-LayoutTests/fast/box-shadow/border-radius-big.html = FAIL
-LayoutTests/fast/repaint/box-shadow-dynamic.html = FAIL
-LayoutTests/fast/repaint/box-shadow-h.html = FAIL
-LayoutTests/fast/repaint/box-shadow-v.html = FAIL
-
 // 2008/12/13 - Turning off some Friday night test regressions until they can be looked at.
 WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
 DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
-

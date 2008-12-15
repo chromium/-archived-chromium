@@ -930,21 +930,42 @@ void GraphicsContext::setPlatformFillColor(const Color& color)
 }
 
 void GraphicsContext::setPlatformShadow(const IntSize& size,
-                                        int blur,
+                                        int blur_int,
                                         const Color& color)
 {
     if (paintingDisabled())
         return;
+
+    double width = size.width();
+    double height = size.height();
+    double blur = blur_int;
+
+    if (!m_common->state.shadowsIgnoreTransforms)  {
+        AffineTransform transform = getCTM();
+        transform.map(width, height, &width, &height);
+
+        // Transform for the blur
+        double a = transform.a() * transform.a() + transform.b() * transform.b();
+        double b = transform.a() * transform.c() + transform.b() * transform.d();
+        double c = b;
+        double d = transform.c() * transform.c() + transform.d() * transform.d();
+        double eigenvalue = sqrt(0.5 * ((a + d) - sqrt(4 * b * c + (a - d) * (a - d))));
+        blur *= eigenvalue;
+    } else {
+        // This is weird, but shadows get dropped in the wrong direction for
+        // canvas elements without this.
+        height = -height;
+    }
 
     SkColor c;
     if (color.isValid())
         c = color.rgb();
     else
         c = SkColorSetARGB(0xFF/3, 0, 0, 0);    // "std" apple shadow color.
-    SkDrawLooper* dl = new SkBlurDrawLooper(SkIntToScalar(blur),
-                                            SkIntToScalar(size.width()),
-                                            SkIntToScalar(-size.height()),
-                                            c);
+
+    // TODO(tc): Should we have a max value for the blur?  CG clamps at 1000.0
+    // for perf reasons.
+    SkDrawLooper* dl = new SkBlurDrawLooper(blur, width, height, c);
     platformContext()->setDrawLooper(dl);
     dl->unref();
 }
