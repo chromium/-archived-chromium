@@ -166,6 +166,7 @@
 		4DB7FA470E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FA430E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp */; };
 		4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */; };
 		4DBB28F70EA611B200A0A427 /* V8SVGAltGlyphElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */; };
+		4DD221D00EF75391005C5196 /* ImageSourceCGMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4DD221CF0EF75391005C5196 /* ImageSourceCGMac.mm */; };
 		4DDC62A30EAD140400FB5EBE /* Navigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABA23E6B0E9FC43700C96905 /* Navigator.cpp */; };
 		4DDC62B60EAD142D00FB5EBE /* MimeType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62AE0EAD142D00FB5EBE /* MimeType.cpp */; };
 		4DDC62B70EAD142D00FB5EBE /* MimeTypeArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */; };
@@ -1746,6 +1747,7 @@
 		4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcoresysteminterface.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAltGlyphElement.cpp; sourceTree = "<group>"; };
 		4DBB28F60EA611B200A0A427 /* V8SVGAltGlyphElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAltGlyphElement.h; sourceTree = "<group>"; };
+		4DD221CF0EF75391005C5196 /* ImageSourceCGMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageSourceCGMac.mm; sourceTree = "<group>"; };
 		4DDC62A20EAD13EF00FB5EBE /* Navigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Navigator.h; sourceTree = "<group>"; };
 		4DDC62AE0EAD142D00FB5EBE /* MimeType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MimeType.cpp; sourceTree = "<group>"; };
 		4DDC62AF0EAD142D00FB5EBE /* MimeType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MimeType.h; sourceTree = "<group>"; };
@@ -5698,8 +5700,6 @@
 		7B5E8FA20D7F3CC1001ECF42 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
-				AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */,
-				AB59A1610ECCBD560059F5F3 /* FloatQuad.h */,
 				7B5E8FB30D7F3CC1001ECF42 /* cg */,
 				7B5E90030D7F3CC1001ECF42 /* mac */,
 				7B5E8FA30D7F3CC1001ECF42 /* AffineTransform.cpp */,
@@ -5712,6 +5712,8 @@
 				7B5E8FC70D7F3CC1001ECF42 /* FloatPoint.h */,
 				7B5E8FC80D7F3CC1001ECF42 /* FloatPoint3D.cpp */,
 				7B5E8FC90D7F3CC1001ECF42 /* FloatPoint3D.h */,
+				AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */,
+				AB59A1610ECCBD560059F5F3 /* FloatQuad.h */,
 				7B5E8FCA0D7F3CC1001ECF42 /* FloatRect.cpp */,
 				7B5E8FCB0D7F3CC1001ECF42 /* FloatRect.h */,
 				7B5E8FCC0D7F3CC1001ECF42 /* FloatSize.cpp */,
@@ -5796,6 +5798,7 @@
 				7B5E8FBB0D7F3CC1001ECF42 /* ImageBufferCG.cpp */,
 				7B5E8FBC0D7F3CC1001ECF42 /* ImageCG.cpp */,
 				7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */,
+				4DD221CF0EF75391005C5196 /* ImageSourceCGMac.mm */,
 				7B5E8FBE0D7F3CC1001ECF42 /* IntPointCG.cpp */,
 				7B5E8FBF0D7F3CC1001ECF42 /* IntRectCG.cpp */,
 				7B5E8FC00D7F3CC1001ECF42 /* IntSizeCG.cpp */,
@@ -8792,6 +8795,7 @@
 				4DB7F05E0E9BA86A00C66CE0 /* ImageData.cpp in Sources */,
 				E456248A0E268E87005E4685 /* ImageDocument.cpp in Sources */,
 				ABBD248B0EB7BEA400BEC658 /* ImageLoader.cpp in Sources */,
+				4DD221D00EF75391005C5196 /* ImageSourceCGMac.mm in Sources */,
 				4DB7EFE70E9BA1E400C66CE0 /* ImplicitAnimation.cpp in Sources */,
 				E45623FB0E268E87005E4685 /* IndentOutdentCommand.cpp in Sources */,
 				E45625510E268E87005E4685 /* InlineBox.cpp in Sources */,
@@ -8850,9 +8854,11 @@
 				E45623CF0E268E87005E4685 /* NamedAttrMap.cpp in Sources */,
 				E45623D00E268E87005E4685 /* NamedMappedAttrMap.cpp in Sources */,
 				E45623D10E268E87005E4685 /* NameNodeList.cpp in Sources */,
+				93817B930EF1CD9600993F02 /* NativeImageSkia.cpp in Sources */,
 				E456265B0E268E87005E4685 /* NativeXPathNSResolver.cpp in Sources */,
 				E45624910E268E87005E4685 /* NavigationAction.cpp in Sources */,
 				4DDC62A30EAD140400FB5EBE /* Navigator.cpp in Sources */,
+				04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */,
 				E45624920E268E87005E4685 /* NetscapePlugInStreamLoader.cpp in Sources */,
 				4DB7F9DD0E9BEC9500C66CE0 /* NetworkStateNotifier.cpp in Sources */,
 				B51C76DB0E9BC9F400D9DFC4 /* NinePieceImage.cpp in Sources */,
@@ -8875,6 +8881,7 @@
 				B5442A7B0E9BDCF30098766D /* PatternCG.cpp in Sources */,
 				E456268D0E268E87005E4685 /* PDFDocumentImage.cpp in Sources */,
 				E45624E60E268E87005E4685 /* Pen.cpp in Sources */,
+				93817B940EF1CD9600993F02 /* PlatformContextSkia.cpp in Sources */,
 				4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */,
 				4DDC62B90EAD142D00FB5EBE /* PluginArray.cpp in Sources */,
 				938181480EF6D29000993F02 /* PluginData.cpp in Sources */,
@@ -8995,6 +9002,7 @@
 				E45624E80E268E87005E4685 /* SimpleFontData.cpp in Sources */,
 				E45624E20E268E87005E4685 /* SimpleFontDataMac.mm in Sources */,
 				ABBD23ED0EB7ACA600BEC658 /* SkewTransformOperation.cpp in Sources */,
+				93817B950EF1CD9600993F02 /* SkiaUtils.cpp in Sources */,
 				E45624120E268E87005E4685 /* SmartReplace.cpp in Sources */,
 				E45624130E268E87005E4685 /* SmartReplaceCF.cpp in Sources */,
 				E45624140E268E87005E4685 /* SmartReplaceICU.cpp in Sources */,
@@ -9284,6 +9292,7 @@
 				E45625B70E268E87005E4685 /* WKSpecularLightingFilter.m in Sources */,
 				E45625B80E268E87005E4685 /* WKSpotLightFilter.m in Sources */,
 				E45625B90E268E87005E4685 /* WKTableTransferFilter.m in Sources */,
+				04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */,
 				E456241D0E268E87005E4685 /* WrapContentsInDummySpanCommand.cpp in Sources */,
 				E456265C0E268E87005E4685 /* XMLHttpRequest.cpp in Sources */,
 				4DB7EFF50E9BA2C700C66CE0 /* XMLHttpRequestUpload.cpp in Sources */,
@@ -9310,11 +9319,6 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
-				93817B930EF1CD9600993F02 /* NativeImageSkia.cpp in Sources */,
-				93817B940EF1CD9600993F02 /* PlatformContextSkia.cpp in Sources */,
-				93817B950EF1CD9600993F02 /* SkiaUtils.cpp in Sources */,
-				04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */,
-				04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
