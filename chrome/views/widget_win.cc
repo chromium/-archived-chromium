@@ -120,7 +120,7 @@ WidgetWin::WidgetWin()
       toplevel_(false),
       window_style_(0),
       window_ex_style_(kWindowDefaultExStyle),
-      layered_(false),
+      use_layered_buffer_(true),
       layered_alpha_(255),
       delete_on_destroy_(true),
       can_update_layered_window_(true),
@@ -144,7 +144,8 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
 
   // See if the style has been overridden.
   opaque_ = !(window_ex_style_ & WS_EX_TRANSPARENT);
-  layered_ = !!(window_ex_style_ & WS_EX_LAYERED);
+  use_layered_buffer_ = (use_layered_buffer_ &&
+                         !!(window_ex_style_ & WS_EX_LAYERED));
 
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
@@ -246,7 +247,7 @@ HWND WidgetWin::GetHWND() const {
 }
 
 void WidgetWin::PaintNow(const gfx::Rect& update_rect) {
-  if (layered_) {
+  if (use_layered_buffer_) {
     PaintLayeredWindow();
   } else if (root_view_->NeedsPainting(false) && IsWindow()) {
     if (!opaque_ && GetParent()) {
@@ -300,6 +301,24 @@ void WidgetWin::SetLayeredAlpha(BYTE layered_alpha) {
 
 //  if (hwnd_)
 //    UpdateWindowFromContents(contents_->getTopPlatformDevice().getBitmapDC());
+}
+
+void WidgetWin::SetUseLayeredBuffer(bool use_layered_buffer) {
+  if (use_layered_buffer_ == use_layered_buffer)
+    return;
+
+  use_layered_buffer_ = use_layered_buffer;
+  if (!hwnd_)
+    return;
+
+  if (use_layered_buffer_) {
+    // Force creation of the buffer at the right size.
+    RECT wr;
+    GetWindowRect(&wr);
+    ChangeSize(0, CSize(wr.right - wr.left, wr.bottom - wr.top));
+  } else {
+    contents_.reset(NULL);
+  }
 }
 
 static BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM l_param) {
@@ -799,7 +818,7 @@ void WidgetWin::AdjustWindowToFitScreenSize() {
 
 void WidgetWin::ChangeSize(UINT size_param, const CSize& size) {
   CRect rect;
-  if (layered_) {
+  if (use_layered_buffer_) {
     GetWindowRect(&rect);
     SizeContents(rect);
   } else {
@@ -812,7 +831,7 @@ void WidgetWin::ChangeSize(UINT size_param, const CSize& size) {
   root_view_->Layout();
   root_view_->SchedulePaint();
 
-  if (layered_)
+  if (use_layered_buffer_)
     PaintNow(gfx::Rect(rect));
 }
 
@@ -844,7 +863,7 @@ void WidgetWin::PaintLayeredWindow() {
 }
 
 void WidgetWin::UpdateWindowFromContents(HDC dib_dc) {
-  DCHECK(layered_);
+  DCHECK(use_layered_buffer_);
   if (can_update_layered_window_) {
     CRect wr;
     GetWindowRect(&wr);

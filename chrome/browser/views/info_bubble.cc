@@ -108,6 +108,9 @@ void InfoBubble::Init(HWND parent_hwnd,
   }
   set_window_style(WS_POPUP | WS_CLIPCHILDREN);
   set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW);
+  // Because we're going to change the alpha value of the layered window we
+  // don't want to use the offscreen buffer provided by WidgetWin.
+  SetUseLayeredBuffer(false);
   content_view_ = CreateContentView(content);
   gfx::Rect bounds = content_view_->
       CalculateWindowBounds(parent_hwnd, position_relative_to);
@@ -121,11 +124,6 @@ void InfoBubble::Init(HWND parent_hwnd,
   // and if they differ reset the bounds.
   gfx::Rect parented_bounds = content_view_->
       CalculateWindowBounds(parent_hwnd, position_relative_to);
-
-  // Set our initial alpha to zero so we don't flicker at the user. This
-  // doesn't trigger UpdateLayeredWindow, which would explode our native
-  // controls.
-  SetLayeredAlpha(kMinimumAlpha);
 
   if (bounds != parented_bounds) {
     SetWindowPos(NULL, parented_bounds.x(), parented_bounds.y(),
@@ -141,6 +139,12 @@ void InfoBubble::Init(HWND parent_hwnd,
   focus_manager->RegisterAccelerator(views::Accelerator(VK_ESCAPE, false,
                                                         false, false),
                                      this);
+
+  // Set initial alpha value of the layered window.
+  SetLayeredWindowAttributes(GetHWND(),
+                             RGB(0xFF, 0xFF, 0xFF),
+                             kMinimumAlpha,
+                             LWA_ALPHA);
 
   fade_animation_.reset(new SlideAnimation(this));
   fade_animation_->Show();
@@ -159,7 +163,8 @@ void InfoBubble::AnimationProgressed(const Animation* animation) {
                              RGB(0xFF, 0xFF, 0xFF),
                              alpha,
                              LWA_ALPHA);
-  content_view_->SchedulePaint();
+  // Don't need to invoke paint as SetLayeredWindowAttributes handles that for
+  // us.
 }
 
 bool InfoBubble::AcceleratorPressed(const views::Accelerator& accelerator) {

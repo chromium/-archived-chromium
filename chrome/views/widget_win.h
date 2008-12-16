@@ -132,6 +132,9 @@ class WidgetWin : public Widget,
   // opacity if it is on the screen.
   void SetLayeredAlpha(BYTE layered_alpha);
 
+  // See description of use_layered_buffer_ for details.
+  void SetUseLayeredBuffer(bool use_layered_buffer);
+
   // Disable Layered Window updates by setting to false.
   void set_can_update_layered_window(bool can_update_layered_window) {
     can_update_layered_window_ = can_update_layered_window;
@@ -547,8 +550,19 @@ class WidgetWin : public Widget,
   // Style of the class to use.
   UINT class_style_;
 
-  // Whether or not this is a layered window.
-  bool layered_;
+  // Should we keep an offscreen buffer? This is initially true and if the
+  // window has WS_EX_LAYERED then it remains true. You can set this to false
+  // at any time to ditch the buffer, and similarly set back to true to force
+  // creation of the buffer.
+  //
+  // NOTE: this is intended to be used with a layered window (a window with an
+  // extended window style of WS_EX_LAYERED). If you are using a layered window
+  // and NOT changing the layered alpha or anything else, then leave this value
+  // alone. OTOH if you are invoking SetLayeredWindowAttributes then you'll
+  // must likely want to set this to false, or after changing the alpha toggle
+  // the extended style bit to false than back to true. See MSDN for more
+  // details.
+  bool use_layered_buffer_;
 
   // The default alpha to be applied to the layered window.
   BYTE layered_alpha_;
