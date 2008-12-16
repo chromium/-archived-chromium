@@ -132,10 +132,7 @@ class AutocompletePopupMenuClient
       : text_field_(text_field),
         selected_index_(default_suggestion_index),
         webview_(webview) {
-    for (std::vector<std::wstring>::const_iterator iter = suggestions.begin();
-         iter != suggestions.end(); ++iter) {
-      suggestions_.push_back(webkit_glue::StdWStringToString(*iter));
-    }
+    SetSuggestions(suggestions);
   }
   virtual ~AutocompletePopupMenuClient() {
   }
@@ -231,6 +228,21 @@ class AutocompletePopupMenuClient
                                                                 orientation,
                                                                 size);
     return widget.release();
+  }
+
+  void SetSuggestions(const std::vector<std::wstring>& suggestions) {
+    suggestions_.clear();
+    for (std::vector<std::wstring>::const_iterator iter = suggestions.begin();
+         iter != suggestions.end(); ++iter) {
+      suggestions_.push_back(webkit_glue::StdWStringToString(*iter));
+    }
+    // Try to preserve selection if possible.
+    if (selected_index_ >= static_cast<int>(suggestions.size()))
+      selected_index_ = -1;
+  }
+
+  WebCore::HTMLInputElement* text_field() const {
+    return text_field_.get();
   }
 
  private:
@@ -430,10 +442,6 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
       return true;
     }
   }
-
-  // A new key being pressed should hide the popup.
-  if (event.type == WebInputEvent::KEY_DOWN)
-    HideAutoCompletePopup();
 
   Frame* frame = GetFocusedWebCoreFrame();
   if (!frame)
@@ -1449,15 +1457,19 @@ void WebViewImpl::AutofillSuggestionsForNode(
       int64 node_id,
       const std::vector<std::wstring>& suggestions,
       int default_suggestion_index) {
-  if (!page_.get() || suggestions.empty())
+  if (!page_.get() || suggestions.empty()) {
+    HideAutoCompletePopup();
     return;
+  }
 
   DCHECK(default_suggestion_index < static_cast<int>(suggestions.size()));
 
   if (RefPtr<Frame> focused = page_->focusController()->focusedFrame()) {
     RefPtr<Document> document = focused->document();
-    if (!document.get())
+    if (!document.get()) {
+      HideAutoCompletePopup();
       return;
+    }
 
     RefPtr<Node> focused_node = document->focusedNode();
     // If the node for which we queried the autofill suggestions is not the
@@ -1465,8 +1477,10 @@ void WebViewImpl::AutofillSuggestionsForNode(
     // TODO(jcampan): also check the carret is at the end and that the text has
     // not changed.
     if (!focused_node.get() ||
-        reinterpret_cast<int64>(focused_node.get()) != node_id)
+        reinterpret_cast<int64>(focused_node.get()) != node_id) {
+      HideAutoCompletePopup();
       return;
+    }
 
     if (!focused_node->hasTagName(WebCore::HTMLNames::inputTag)) {
       NOTREACHED();
@@ -1475,10 +1489,8 @@ void WebViewImpl::AutofillSuggestionsForNode(
 
     WebCore::HTMLInputElement* input_elem =
         static_cast<WebCore::HTMLInputElement*>(focused_node.get());
-    // Hide any current autocomplete popup.
-    HideAutoCompletePopup();
-
-    if (suggestions.size() > 0) {
+    if (!autocomplete_popup_client_.get() ||
+        autocomplete_popup_client_->text_field() != input_elem) {
       autocomplete_popup_client_ =
           adoptRef(new AutocompletePopupMenuClient(this, input_elem,
                                                    suggestions,
@@ -1492,6 +1504,19 @@ void WebViewImpl::AutofillSuggestionsForNode(
       autocomplete_popup_->setAcceptOnAbandon(false);
       autocomplete_popup_->show(focused_node->getRect(), 
                                 page_->mainFrame()->view(), 0);
+    } else {
+      // There is already a popup, reuse it.
+      autocomplete_popup_client_->SetSuggestions(suggestions);
+      IntRect old_bounds = autocomplete_popup_->boundsRect();
+      autocomplete_popup_->refresh();
+      IntRect new_bounds = autocomplete_popup_->boundsRect();
+      // Let's resize the backing window if necessary.
+      if (old_bounds != new_bounds) {
+        WebWidgetImpl* web_widget =
+            static_cast<WebWidgetImpl*>(autocomplete_popup_->client());
+        web_widget->delegate()->SetWindowRect(
+            web_widget, webkit_glue::FromIntRect(new_bounds));
+      }
     }
   }
 }

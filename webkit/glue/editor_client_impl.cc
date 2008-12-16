@@ -644,6 +644,9 @@ void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
 
   // Cancel any pending DoAutofill calls.
   autofill_factory_.RevokeAll();
+
+  // Hide any showing popup.
+  web_view_->HideAutoCompletePopup();
 }
 
 void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
@@ -687,8 +690,10 @@ void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
   bool caret_at_end =
       input_element->selectionStart() == input_element->selectionEnd() &&
       input_element->selectionEnd() == static_cast<int>(value.length());
-  if (value.empty() || !caret_at_end)
+  if (value.empty() || !caret_at_end) {
+    web_view_->HideAutoCompletePopup();
     return;
+  }
 
   // First let's see if there is a password listener for that element.
   WebFrameImpl* webframe =

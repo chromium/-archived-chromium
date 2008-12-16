@@ -131,9 +131,10 @@ void RenderWidgetHostViewWin::SetSize(const gfx::Size& size) {
   if (is_hidden_)
     return;
 
+  // No SWP_NOREDRAW as autofill popups can resize and the underneath window
+  // should redraw in that case.
   UINT swp_flags = SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOCOPYBITS |
-      SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE |
-      SWP_DEFERERASE;
+      SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_DEFERERASE;
   SetWindowPos(NULL, 0, 0, size.width(), size.height(), swp_flags);
   render_widget_host_->WasResized();
   EnsureTooltip();

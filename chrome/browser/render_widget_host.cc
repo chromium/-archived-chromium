@@ -340,8 +340,8 @@ void RenderWidgetHost::OnMsgClose() {
 }
 
 void RenderWidgetHost::OnMsgRequestMove(const gfx::Rect& pos) {
-  // Don't allow renderer widgets to move themselves by default.  Maybe this
-  // policy will change if we add more types of widgets.
+  // Note that we ignore the position.
+  view_->SetSize(pos.size());
 }
 
 void RenderWidgetHost::OnMsgPaintRect(

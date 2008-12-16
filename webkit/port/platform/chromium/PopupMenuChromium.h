@@ -79,6 +79,9 @@ public:
 
     PopupListBox* listBox() const { return m_listBox.get(); }
 
+    // Refresh the popup values from the PopupMenuClient.
+    void refresh();
+
 private:
     friend class WTF::RefCounted<PopupContainer>;
 

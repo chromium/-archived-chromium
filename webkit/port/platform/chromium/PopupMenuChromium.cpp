@@ -494,6 +494,11 @@ void PopupContainer::setAcceptOnAbandon(bool value) {
   listBox()->setAcceptOnAbandon(value);
 }
 
+void PopupContainer::refresh() {
+  listBox()->updateFromElement();
+  layout();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // PopupListBox implementation
 
