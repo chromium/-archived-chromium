@@ -271,13 +271,6 @@ LayoutTests/fast/forms/box-shadow-override.html = FAIL
 // I'm marking them as deferred for now, but we should do something with them.
 SKIP : chrome/http/mime = PASS
 
-// Bug: 916857: These tests fail because of <audio> and <video>?
-// Removed from the skip-list since they consistently fail quickly.
-LayoutTests/http/tests/media/video-play-stall.html = FAIL
-LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
-LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
-LayoutTests/http/tests/media/remove-while-loading.html = FAIL
-
 // We don't support the storage APIs.  Some of the them hang.
 SKIP : LayoutTests/storage = PASS
 SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
@@ -285,6 +278,13 @@ SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
 // Fails due to storage APIs not implemented.  See bug 1124568. Might be worth
 // re-baselining temporarily so the rest of the conditions are still tested.
 LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
+
+// Bug: 916857: These tests fail because of <audio> and <video>?
+// Removed from the skip-list since they consistently fail quickly.
+LayoutTests/http/tests/media/video-play-stall.html = FAIL
+LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
+LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
+LayoutTests/http/tests/media/remove-while-loading.html = FAIL
 
 // These tests all time out, which makes running the suite take too long if
 // they're included.  See bug 916857 to investigate <audio> and <video>.
@@ -632,7 +632,6 @@ WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 // It looks like the text is the wrong color.
 WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
-LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
@@ -651,11 +650,6 @@ LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
-LayoutTests/media/progress-event-total.html = FAIL
-LayoutTests/media/video-click-dlbclick-standalone.html = FAIL
-LayoutTests/media/video-layer-crash.html = FAIL
-LayoutTests/media/video-source-type-params.html = FAIL
-LayoutTests/printing = FAIL
 LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
 LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
