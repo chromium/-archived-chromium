@@ -840,7 +840,9 @@ LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
 WIN : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
 WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
-WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
+
+// Possibily due to removing the search field hacks from the render themes?
+LINUX WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
 
 // Font size for arrows are different.  Should we rebaseline?
 LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
