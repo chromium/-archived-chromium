@@ -107,7 +107,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
 
   // Returns whether or not the given word is a contraction of valid words
   // (e.g. "word:word").
-  bool IsValidContraction(const Language& word);
+  bool IsValidContraction(const string16& word);
 
   // Return the file name of the dictionary, including the path and the version
   // numbers.

@@ -2,17 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <io.h>
-
 #include "chrome/browser/spellchecker.h"
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
@@ -23,8 +21,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/render_messages.h"
-#include "chrome/common/win_util.h"
 #include "chrome/third_party/hunspell/src/hunspell/hunspell.hxx"
 #include "net/url_request/url_request.h"
 
@@ -82,7 +78,7 @@ void SpellChecker::SpellCheckLanguages(Languages* languages) {
 SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
     const Language& language) {
   // Look for exact match in the Spell Check language list.
-  for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
+  for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
     Language spellcheck_language(g_supported_spellchecker_languages[i]);
     if (spellcheck_language == language)
       return language;
@@ -96,7 +92,7 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   // locale ids with a script code in the middle, yet.
   // TODO(jungshik): Add a better fallback.
   Language language_part(language, 0, language.find(L'-'));
-  for (int i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
+  for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
     Language spellcheck_language(g_supported_spellchecker_languages[i]);
     if (spellcheck_language.substr(0, spellcheck_language.find(L'-')) ==
         language_part)
@@ -212,11 +208,11 @@ class SpellChecker::DictionaryDownloadController
       const std::wstring& dic_file_path,
       URLRequestContext* url_request_context,
       MessageLoop* ui_loop)
-      : url_request_context_(url_request_context),
+      : spellchecker_flag_set_task_(spellchecker_flag_set_task),
+        url_request_context_(url_request_context),
         download_server_url_(
             L"http://cache.pack.google.com/chrome/dict/"),
-        ui_loop_(ui_loop),
-        spellchecker_flag_set_task_(spellchecker_flag_set_task) {
+        ui_loop_(ui_loop) {
     // Determine dictionary file path and name.
     fetcher_.reset(NULL);
     dic_zip_file_path_ = file_util::GetDirectoryFromPath(dic_file_path);
@@ -306,7 +302,7 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& language,
                                                 const std::wstring& dict_dir) {
   // The default version string currently in use.
   static const wchar_t kDefaultVersionString[] = L"-1-1";
-  
+
   // Use this struct to insert version strings for dictionary files which have
   // special version strings, other than the default version string.
   // For de-DE, we are currently using de-DE-1-1-1 for versioning, because
@@ -320,15 +316,15 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& language,
     // The corresponding version.
     const char* version;
   } special_version_string[] = {
-    "de-DE", "-1-1-1",
+    {"de-DE", "-1-1-1"},
   };
-  
+
   // Generate the bdict file name using default version string or special 
   // version string, depending on the language.
   std::wstring versioned_bdict_file_name(language + kDefaultVersionString +
                                          L".bdic");
   std::string language_string(WideToUTF8(language));
-  for (int i = 0; i < arraysize(special_version_string); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(special_version_string); ++i) {
     if (language_string == special_version_string[i].language) {
       versioned_bdict_file_name = 
           language + UTF8ToWide(special_version_string[i].version) + L".bdic";
@@ -351,11 +347,10 @@ SpellChecker::SpellChecker(const std::wstring& dict_dir,
       worker_loop_(NULL),
 #endif
       tried_to_download_(false),
-      url_request_context_(request_context),
       file_loop_(NULL),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      dic_download_state_changer_factory_(this),
-      dic_is_downloading_(false) {
+      url_request_context_(request_context),
+      dic_is_downloading_(false),
+      ALLOW_THIS_IN_INTIALIZER_LIST(dic_download_state_changer_factory_(this)) {
   // Remember UI loop to later use this as a proxy to get IO loop.
   ui_loop_ = MessageLoop::current();
 
@@ -460,16 +455,16 @@ void SpellChecker::AddCustomWordsToHunspell() {
 // This function is a fall-back when the SpellcheckWordIterator class
 // returns a concatenated word which is not in the selected dictionary
 // (e.g. "in'n'out") but each word is valid.
-bool SpellChecker::IsValidContraction(const std::wstring& contraction) {
+bool SpellChecker::IsValidContraction(const string16& contraction) {
   SpellcheckWordIterator word_iterator;
   word_iterator.Initialize(&character_attributes_, contraction.c_str(),
                            contraction.length(), false);
 
-  std::wstring word;
+  string16 word;
   int word_start;
   int word_length;
   while (word_iterator.GetNextWord(&word, &word_start, &word_length)) {
-    if (!hunspell_->spell(WideToUTF8(word).c_str()))
+    if (!hunspell_->spell(UTF16ToUTF8(word).c_str()))
       return false;
   }
   return true;
@@ -505,13 +500,16 @@ bool SpellChecker::SpellCheckWord(
     return true;  // unable to spellcheck, return word is OK
 
   SpellcheckWordIterator word_iterator;
-  std::wstring word;
+  string16 word;
+  string16 in_word_utf16;
+  WideToUTF16(in_word, in_word_len, &in_word_utf16);
   int word_start;
   int word_length;
-  word_iterator.Initialize(&character_attributes_, in_word, in_word_len, true);
+  word_iterator.Initialize(&character_attributes_, in_word_utf16.c_str(),
+                           in_word_len, true);
   while (word_iterator.GetNextWord(&word, &word_start, &word_length)) {
     // Found a word (or a contraction) that hunspell can check its spelling.
-    std::string encoded_word = WideToUTF8(word);
+    std::string encoded_word = UTF16ToUTF8(word);
 
     {
       TimeTicks begin_time = TimeTicks::Now();

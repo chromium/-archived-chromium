@@ -48,7 +48,7 @@ SpellcheckCharAttribute::SpellcheckCharAttribute() {
       L'\xFF07',  // MidNumLet # FULLWIDTH APOSTROPHE
       L'\xFF0E',  // MidNumLet # FULLWIDTH FULL STOP
   };
-  for (int i = 0; i < arraysize(kMidLetters); i++)
+  for (size_t i = 0; i < arraysize(kMidLetters); ++i)
     middle_letters_[kMidLetters[i]] = true;
 }
 
@@ -76,7 +76,7 @@ void SpellcheckCharAttribute::SetDefaultLanguage(const std::wstring& language) {
   ulocdata_close(locale_data);
   if (U_SUCCESS(status)) {
     int length = uset_size(exemplar_set);
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length; ++i) {
       UChar32 character = uset_charAt(exemplar_set, i);
       SetWordScript(GetScriptCode(character), true);
     }
@@ -102,7 +102,7 @@ bool SpellcheckCharAttribute::IsContractionChar(UChar32 character) const {
 
 // Initializes the mapping table.
 void SpellcheckCharAttribute::InitializeScriptTable() {
-  for (int i = 0; i < arraysize(script_attributes_); i++)
+  for (size_t i = 0; i < arraysize(script_attributes_); ++i)
     script_attributes_[i] = false;
 }
 
@@ -117,7 +117,8 @@ UScriptCode SpellcheckCharAttribute::GetScriptCode(UChar32 character) const {
 // whether not a script is used by the selected dictionary.
 void SpellcheckCharAttribute::SetWordScript(const int script_code,
                                             bool in_use) {
-  if (script_code < 0 || script_code >= arraysize(script_attributes_))
+  if (script_code < 0 ||
+      static_cast<size_t>(script_code) >= arraysize(script_attributes_))
     return;
   script_attributes_[script_code] = in_use;
 }
@@ -126,15 +127,16 @@ void SpellcheckCharAttribute::SetWordScript(const int script_code,
 // dictionary.
 bool SpellcheckCharAttribute::IsWordScript(
     const UScriptCode script_code) const {
-  if (script_code < 0 || script_code >= arraysize(script_attributes_))
+  if (script_code < 0 ||
+      static_cast<size_t>(script_code) >= arraysize(script_attributes_))
     return false;
   return script_attributes_[script_code];
 }
 
 SpellcheckWordIterator::SpellcheckWordIterator()
     : word_(NULL),
-      position_(0),
       length_(0),
+      position_(0),
       allow_contraction_(false),
       attribute_(NULL) {
 }
@@ -145,7 +147,7 @@ SpellcheckWordIterator::~SpellcheckWordIterator() {
 // Initialize a word-iterator object.
 void SpellcheckWordIterator::Initialize(
     const SpellcheckCharAttribute* attribute,
-    const wchar_t* word,
+    const char16* word,
     size_t length,
     bool allow_contraction) {
   word_ = word;
@@ -162,7 +164,7 @@ void SpellcheckWordIterator::Initialize(
 // To handle this case easily, we should firstly extract a segment consisting
 // of word characters and contraction characters, and discard contraction
 // characters at the beginning and the end of the extracted segment.
-bool SpellcheckWordIterator::GetNextWord(std::wstring* word_string,
+bool SpellcheckWordIterator::GetNextWord(string16* word_string,
                                          int* word_start,
                                          int* word_length) {
   word_string->empty();
@@ -239,7 +241,7 @@ void SpellcheckWordIterator::TrimSegment(int segment_start,
 // "http://www.unicode.org/Public/UNIDATA/Scripts.txt".
 bool SpellcheckWordIterator::Normalize(int input_start,
                                        int input_length,
-                                       std::wstring* output_string) const {
+                                       string16* output_string) const {
   // Unicode Standard Annex #15 "http://www.unicode.org/unicode/reports/tr15/"
   // does not only write NFKD and NFKC can compose ligatures into their ASCII
   // alternatives, but also write NFKC keeps accents of characters.
@@ -251,10 +253,10 @@ bool SpellcheckWordIterator::Normalize(int input_start,
   // and call the function with it. We re-allocate the output string
   // only if it cannot store the normalized string, i.e. the output string is
   // longer than the input one.
-  const wchar_t* input_string = &word_[input_start];
+  const char16* input_string = &word_[input_start];
   UErrorCode error_code = U_ZERO_ERROR;
   int output_length = input_length + 1;
-  wchar_t *output_buffer = WriteInto(output_string, output_length);
+  char16* output_buffer = WriteInto(output_string, output_length);
   output_length = unorm_normalize(input_string, input_length, UNORM_NFKC, 0,
                                   output_buffer, output_length, &error_code);
   if (error_code == U_BUFFER_OVERFLOW_ERROR) {

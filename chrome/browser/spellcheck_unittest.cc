@@ -256,7 +256,7 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, std::wstring()));
 
-  for (int i = 0; i < arraysize(kTestCases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     size_t input_length = 0;
     if (kTestCases[i].input != NULL) {
       input_length = wcslen(kTestCases[i].input);
@@ -310,7 +310,7 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, std::wstring()));
 
-  for (int i = 0; i < arraysize(kTestCases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     std::vector<std::wstring> suggestions;
     size_t input_length = 0;
     if (kTestCases[i].input != NULL) {
@@ -358,7 +358,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
 
-  for (int i = 0; i < arraysize(kTestCases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Add the word to spellchecker.
     spell_checker->AddWord(std::wstring(kTestCases[i].word_to_add));
 
@@ -384,7 +384,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
   scoped_refptr<SpellChecker> spell_checker_new(new SpellChecker(
       hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
 
-  for (int i = 0; i < arraysize(kTestCases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Now check whether it is added to Spellchecker.
     std::vector<std::wstring> suggestions;
     size_t input_length = 0;
@@ -426,7 +426,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
 
-  for (int i = 0; i < arraysize(kTestCases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Add the word to spellchecker.
     spell_checker->AddWord(std::wstring(kTestCases[i].word_to_add));
   }
@@ -452,7 +452,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
     {L"oogleplex", false, 0, 0, L"Googleplex"},
   };
 
-  for (int i = 0; i < arraysize(kTestCasesToBeTested); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCasesToBeTested); ++i) {
     std::vector<std::wstring> suggestions;
     size_t input_length = 0;
     if (kTestCasesToBeTested[i].input != NULL) {
