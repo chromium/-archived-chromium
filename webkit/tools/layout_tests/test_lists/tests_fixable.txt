@@ -984,11 +984,6 @@ LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
 LINUX MAC : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
 LINUX MAC : LayoutTests/fast/js/date-big-setdate.html = FAIL
 
-// https://bugs.webkit.org/show_bug.cgi?id=22733
-LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = FAIL
-LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = FAIL
-LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache.html = FAIL
-
 // Internationalization / complex characters / etc
 LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 
