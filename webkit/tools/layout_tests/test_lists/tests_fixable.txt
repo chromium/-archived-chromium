@@ -2100,3 +2100,15 @@ LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html
 MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Missing expected results.
 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
+
+// Merge 39309:39335 Regressions
+LayoutTests/fast/box-sizing/percentage-height.html = FAIL
+LayoutTests/fast/forms/001.html = FAIL
+LayoutTests/fast/forms/button-default-title.html = FAIL
+LayoutTests/fast/forms/control-clip.html = FAIL
+LayoutTests/fast/forms/input-first-letter.html = FAIL
+LayoutTests/fast/forms/select-baseline.html = FAIL
+LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
+
+// Merge 39309:39335 New Test
+LayoutTests/fast/dom/Window/window-custom-prototype.html = FAIL
