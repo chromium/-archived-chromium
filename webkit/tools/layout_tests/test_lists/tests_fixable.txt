@@ -1336,17 +1336,33 @@ SKIP MAC : LayoutTests/fast/regex/ = TIMEOUT
 // ***** BUCKETS
 
 // text fields wrong width
+MAC : LayoutTests/editing/deleting/5168598.html = FAIL
+MAC : LayoutTests/editing/inserting/5607069-2.html = FAIL
+MAC : LayoutTests/editing/inserting/5607069-3.html = FAIL
 MAC : LayoutTests/editing/inserting/typing-tab-designmode-forms.html = FAIL
 MAC : LayoutTests/fast/forms/input-text-double-click.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
-MAC : LayoutTests/editing/deleting/5168598.html = FAIL
+MAC : LayoutTests/editing/inserting/before-after-input-element.html = FAIL
+MAC : LayoutTests/editing/pasteboard/4806874.html = FAIL
+MAC : LayoutTests/editing/pasteboard/drop-text-without-selection.html = FAIL
+MAC : LayoutTests/editing/pasteboard/input-field-1.html = FAIL
+MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-field.html = FAIL
+MAC : LayoutTests/editing/selection/3690703-2.html = FAIL
+MAC : LayoutTests/editing/selection/3690703.html = FAIL
+MAC : LayoutTests/editing/selection/3690719.html = FAIL
+MAC : LayoutTests/editing/selection/4895428-3.html = FAIL
+MAC : LayoutTests/editing/selection/4975120.html = FAIL
 
 // we're waiting on upstreaming a change to how textarea padding works. rather
-// than rebasing, we'll wait for the upstream.
+// than rebasing, we'll wait for the upstream (which ojan said should happen
+// early in Jan 09).
 MAC : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
 MAC : LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-width.html = FAIL
 MAC : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
+MAC : LayoutTests/editing/inserting/4960120-1.html = FAIL
+MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
+MAC : LayoutTests/editing/pasteboard/pasting-tabs.html = FAIL
 
 // text input garbage
 MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
@@ -1383,28 +1399,13 @@ MAC : LayoutTests/fast/forms/textfield-to-password-on-focus.html = FAIL
 // selection
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
 MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
+MAC : LayoutTests/editing/selection/5109817.html = FAIL
+
+// missing resources
+MAC : LayoutTests/editing/execCommand/insertImage.html = FAIL
 
 // ***** END BUCKETS
 
-MAC : LayoutTests/editing/execCommand/insertImage.html = FAIL
-MAC : LayoutTests/editing/inserting/4960120-1.html = FAIL
-MAC : LayoutTests/editing/inserting/5607069-2.html = FAIL
-MAC : LayoutTests/editing/inserting/5607069-3.html = FAIL
-MAC : LayoutTests/editing/inserting/before-after-input-element.html = FAIL
-MAC : LayoutTests/editing/pasteboard/4806874.html = FAIL
-MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
-
-MAC : LayoutTests/editing/pasteboard/drop-text-without-selection.html = FAIL
-MAC : LayoutTests/editing/pasteboard/input-field-1.html = FAIL
-MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
-MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-field.html = FAIL
-MAC : LayoutTests/editing/pasteboard/pasting-tabs.html = FAIL
-MAC : LayoutTests/editing/selection/3690703-2.html = FAIL
-MAC : LayoutTests/editing/selection/3690703.html = FAIL
-MAC : LayoutTests/editing/selection/3690719.html = FAIL
-MAC : LayoutTests/editing/selection/4895428-3.html = FAIL
-MAC : LayoutTests/editing/selection/4975120.html = FAIL
-MAC : LayoutTests/editing/selection/5109817.html = FAIL
 MAC : LayoutTests/editing/selection/5136696.html = FAIL
 MAC : LayoutTests/editing/selection/5213963.html = FAIL
 MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
