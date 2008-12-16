@@ -869,8 +869,8 @@ bool AutocompletePopupModel::GetKeywordForMatch(const AutocompleteMatch& match,
 }
 
 AutocompleteLog* AutocompletePopupModel::GetAutocompleteLog() {
-  return new AutocompleteLog(controller_->input().text(), selected_line_, 0,
-                             controller_->result());
+  return new AutocompleteLog(controller_->input().text(),
+      controller_->input().type(), selected_line_, 0, controller_->result());
 }
 
 void AutocompletePopupModel::Move(int count) {

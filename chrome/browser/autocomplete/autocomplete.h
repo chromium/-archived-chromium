@@ -788,16 +788,20 @@ class AutocompleteController : public ACProviderListener {
 // from the omnibox popup.
 struct AutocompleteLog {
   AutocompleteLog(std::wstring text,
+                  AutocompleteInput::Type input_type,
                   size_t selected_index,
                   size_t inline_autocompleted_length,
                   const AutocompleteResult& result)
       : text(text),
+        input_type(input_type),
         selected_index(selected_index),
         inline_autocompleted_length(inline_autocompleted_length),
         result(result) {
   }
   // The user's input text in the omnibox.
   std::wstring text;
+  // The detected type of the user's input.
+  AutocompleteInput::Type input_type;
   // Selected index (if selected) or -1 (AutocompletePopupModel::kNoMatch).
   size_t selected_index;
   // Inline autocompleted length (if displayed).

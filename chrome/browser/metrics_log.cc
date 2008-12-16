@@ -593,12 +593,19 @@ void MetricsLog::RecordOmniboxOpenedURL(const AutocompleteLog& log) {
     WriteIntAttribute("selectedindex", static_cast<int>(log.selected_index));
     WriteIntAttribute("completedlength",
                       static_cast<int>(log.inline_autocompleted_length));
+    const std::string input_type(
+        AutocompleteInput::TypeToString(log.input_type));
+    if (!input_type.empty())
+      WriteAttribute("inputtype", input_type);
 
     for (AutocompleteResult::const_iterator i(log.result.begin());
          i != log.result.end(); ++i) {
       OPEN_ELEMENT_FOR_SCOPE("autocompleteitem");
       if (i->provider)
         WriteAttribute("provider", i->provider->name());
+      const std::string result_type(AutocompleteMatch::TypeToString(i->type));
+      if (!result_type.empty())
+        WriteAttribute("resulttype", result_type);
       WriteIntAttribute("relevance", i->relevance);
       WriteIntAttribute("isstarred", i->starred ? 1 : 0);
     }
