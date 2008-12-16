@@ -265,6 +265,7 @@ String Path::debugString() const
             numPoints -= 3;
             break;
         case SkPath::kClose_Verb:
+            result += "Z ";
             break;
         case SkPath::kDone_Verb:
             break;
