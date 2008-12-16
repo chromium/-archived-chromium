@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <algorithm>
+#include <windows.h>
 
 #include "chrome/browser/url_fixer_upper.h"
 
@@ -31,8 +32,8 @@ static void PrepareStringForFileOps(const wstring& text, wstring* output) {
 // file exists, returns true and sets |full_path| to the result.  Otherwise,
 // returns false and leaves |full_path| unchanged.
 static bool ValidPathForFile(const wstring& text, wstring* full_path) {
-  wstring file_path(text);
-  if (!file_util::AbsolutePath(&file_path))
+  wchar_t file_path[MAX_PATH];
+  if (!_wfullpath(file_path, text.c_str(), MAX_PATH))
     return false;
 
   if (!file_util::PathExists(file_path))
@@ -254,7 +255,6 @@ wstring URLFixerUpper::SegmentURL(const wstring& text,
   // Initialize the result.
   *parts = url_parse::Parsed();
 
-#if defined(OS_WIN)
   wstring trimmed;
   TrimWhitespace(text, TRIM_ALL, &trimmed);
   if (trimmed.empty())
@@ -264,13 +264,11 @@ wstring URLFixerUpper::SegmentURL(const wstring& text,
   if (url_parse::DoesBeginWindowsDriveSpec(trimmed.data(), 0, trimmed_length)
       || url_parse::DoesBeginUNCPath(trimmed.data(), 0, trimmed_length, false))
     return L"file";
-#endif
 
   // Otherwise, we need to look at things carefully.
   wstring scheme;
-  string text_utf8 = WideToUTF8(text);
-  if (url_parse::ExtractScheme(text_utf8.c_str(),
-                               static_cast<int>(text_utf8.length()),
+  if (url_parse::ExtractScheme(text.data(),
+                               static_cast<int>(text.length()),
                                &parts->scheme)) {
     // We were able to extract a scheme.  Remember what we have, but we may
     // decide to change our minds later.
@@ -304,18 +302,14 @@ wstring URLFixerUpper::SegmentURL(const wstring& text,
   StringToLowerASCII(&scheme);
 
   // Not segmenting file schemes or nonstandard schemes.
-  string scheme_utf8 = WideToUTF8(scheme);
   if ((scheme == L"file") ||
-      !url_util::IsStandard(scheme_utf8.c_str(),
-          static_cast<int>(scheme_utf8.length()),
-          url_parse::Component(0, static_cast<int>(scheme_utf8.length()))))
+      !url_util::IsStandard(scheme.c_str(), static_cast<int>(scheme.length()),
+          url_parse::Component(0, static_cast<int>(scheme.length()))))
     return scheme;
 
   if (parts->scheme.is_valid()) {
     // Have the GURL parser do the heavy lifting for us.
-    string text_utf8 = WideToUTF8(text);
-    url_parse::ParseStandardURL(text_utf8.c_str(),
-                                static_cast<int>(text_utf8.length()),
+    url_parse::ParseStandardURL(text.data(), static_cast<int>(text.length()),
                                 parts);
     return scheme;
   }
@@ -334,9 +328,8 @@ wstring URLFixerUpper::SegmentURL(const wstring& text,
   text_to_parse.append(first_nonwhite, text.end());
 
   // Have the GURL parser do the heavy lifting for us.
-  string text_to_parse_utf8 = WideToUTF8(text_to_parse);
-  url_parse::ParseStandardURL(text_to_parse_utf8.c_str(),
-                              static_cast<int>(text_to_parse_utf8.length()),
+  url_parse::ParseStandardURL(text_to_parse.data(),
+                              static_cast<int>(text_to_parse.length()),
                               parts);
 
   // Offset the results of the parse to match the original text.
@@ -369,9 +362,8 @@ std::wstring URLFixerUpper::FixupURL(const wstring& text,
     return (parts.scheme.is_valid() ? text : FixupPath(text));
 
   // For some schemes whose layouts we understand, we rebuild it.
-  if (url_util::IsStandard(
-      WideToUTF8(scheme).c_str(), static_cast<int>(scheme.length()),
-      url_parse::Component(0, static_cast<int>(scheme.length())))) {
+  if (url_util::IsStandard(scheme.c_str(), static_cast<int>(scheme.length()),
+          url_parse::Component(0, static_cast<int>(scheme.length())))) {
     wstring url(scheme);
     url.append(L"://");
 
@@ -410,11 +402,12 @@ std::wstring URLFixerUpper::FixupURL(const wstring& text,
 // regular fixup.
 wstring URLFixerUpper::FixupRelativeFile(const wstring& base_dir,
                                          const wstring& text) {
-  wstring old_cur_directory;
+  wchar_t old_cur_directory[MAX_PATH];
   if (!base_dir.empty()) {
     // save the old current directory before we move to the new one
-    file_util::GetCurrentDirectory(&old_cur_directory);
-    file_util::SetCurrentDirectory(base_dir);
+    // TODO: in the future, we may want to handle paths longer than MAX_PATH
+    GetCurrentDirectory(MAX_PATH, old_cur_directory);
+    SetCurrentDirectory(base_dir.c_str());
   }
 
   // allow funny input with extra whitespace and the wrong kind of slashes
@@ -436,7 +429,7 @@ wstring URLFixerUpper::FixupRelativeFile(const wstring& base_dir,
 
   // Put back the current directory if we saved it.
   if (!base_dir.empty())
-    file_util::SetCurrentDirectory(old_cur_directory);
+    SetCurrentDirectory(old_cur_directory);
 
   if (is_file) {
     GURL file_url = net::FilePathToFileURL(full_path);

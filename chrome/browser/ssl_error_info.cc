@@ -7,6 +7,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/time_format.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
@@ -234,7 +235,7 @@ int SSLErrorInfo::GetErrorsForCertStatus(int cert_id,
 
   scoped_refptr<net::X509Certificate> cert = NULL;
   int count = 0;
-  for (size_t i = 0; i < arraysize(kErrorFlags); ++i) {
+  for (int i = 0; i < arraysize(kErrorFlags); ++i) {
     if (cert_status & kErrorFlags[i]) {
       count++;
       if (!cert.get()) {

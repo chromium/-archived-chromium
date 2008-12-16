@@ -57,7 +57,7 @@ class HistoryBackendTest : public testing::Test {
   scoped_refptr<HistoryBackend> backend_;  // Will be NULL on init failure.
   scoped_ptr<InMemoryHistoryBackend> mem_backend_;
 
-  void AddRedirectChain(const char* sequence[], int page_id) {
+  void AddRedirectChain(const wchar_t* sequence[], int page_id) {
     HistoryService::RedirectList redirects;
     for (int i = 0; sequence[i] != NULL; ++i)
       redirects.push_back(GURL(sequence[i]));
@@ -78,7 +78,7 @@ class HistoryBackendTest : public testing::Test {
   bool loaded_;
 
  private:
-  friend class HistoryBackendTestDelegate;
+  friend HistoryBackendTestDelegate;
 
   // testing::Test
   virtual void SetUp() {
@@ -104,7 +104,7 @@ class HistoryBackendTest : public testing::Test {
                                       HistoryDetails* details) {
     // Send the notifications directly to the in-memory database.
     Details<HistoryDetails> det(details);
-    mem_backend_->Observe(type, Source<HistoryBackendTest>(NULL), det);
+    mem_backend_->Observe(type, Source<HistoryTest>(NULL), det);
 
     // The backend passes ownership of the details pointer to us.
     delete details;
@@ -178,12 +178,12 @@ TEST_F(HistoryBackendTest, DeleteAll) {
   // Get the two visits for the URLs we just added.
   VisitVector visits;
   backend_->db_->GetVisitsForURL(row1_id, &visits);
-  ASSERT_EQ(1U, visits.size());
+  ASSERT_EQ(1, visits.size());
   VisitID visit1_id = visits[0].visit_id;
 
   visits.clear();
   backend_->db_->GetVisitsForURL(row2_id, &visits);
-  ASSERT_EQ(1U, visits.size());
+  ASSERT_EQ(1, visits.size());
   VisitID visit2_id = visits[0].visit_id;
 
   // The in-memory backend should have been set and it should have gotten the
@@ -234,7 +234,7 @@ TEST_F(HistoryBackendTest, DeleteAll) {
   // All visits should be deleted for both URLs.
   VisitVector all_visits;
   backend_->db_->GetAllVisitsInRange(Time(), Time(), 0, &all_visits);
-  ASSERT_EQ(0U, all_visits.size());
+  ASSERT_EQ(0, all_visits.size());
 
   // All thumbnails should be deleted.
   std::vector<unsigned char> out_data;
@@ -264,7 +264,7 @@ TEST_F(HistoryBackendTest, DeleteAll) {
   backend_->text_database_->GetTextMatches(L"Body", QueryOptions(),
                                            &text_matches,
                                            &first_time_searched);
-  EXPECT_EQ(0U, text_matches.size());
+  EXPECT_EQ(0, text_matches.size());
 }
 
 TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
@@ -315,7 +315,7 @@ TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
   EXPECT_EQ(row2_id, backend_->db_->GetRowForURL(row2.url(), NULL));
   VisitVector visits;
   backend_->db_->GetVisitsForURL(row2_id, &visits);
-  EXPECT_EQ(0U, visits.size());
+  EXPECT_EQ(0, visits.size());
   // The favicon should still be valid.
   EXPECT_EQ(favicon2,
       backend_->thumbnail_db_->GetFavIconIDForFavIconURL(favicon_url2));
@@ -348,7 +348,7 @@ TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
   // There should still be visits.
   visits.clear();
   backend_->db_->GetVisitsForURL(row1_id, &visits);
-  EXPECT_EQ(1U, visits.size());
+  EXPECT_EQ(1, visits.size());
 
   // The favicon should still be valid.
   EXPECT_EQ(favicon1,
@@ -358,9 +358,9 @@ TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
 TEST_F(HistoryBackendTest, GetPageThumbnailAfterRedirects) {
   ASSERT_TRUE(backend_.get());
 
-  const char* base_url = "http://mail";
-  const char* thumbnail_url = "http://mail.google.com";
-  const char* first_chain[] = {
+  const wchar_t* base_url = L"http://mail";
+  const wchar_t* thumbnail_url = L"http://mail.google.com";
+  const wchar_t* first_chain[] = {
     base_url,
     thumbnail_url,
     NULL
@@ -376,9 +376,9 @@ TEST_F(HistoryBackendTest, GetPageThumbnailAfterRedirects) {
   // Write a second URL chain so that if you were to simply check what
   // "http://mail" redirects to, you wouldn't see the URL that has
   // contains the thumbnail.
-  const char* second_chain[] = {
+  const wchar_t* second_chain[] = {
     base_url,
-    "http://mail.google.com/somewhere/else",
+    L"http://mail.google.com/somewhere/else",
     NULL
   };
   AddRedirectChain(second_chain, 1);
