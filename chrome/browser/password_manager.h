@@ -70,6 +70,17 @@ class PasswordManager : public views::LoginModel,
   virtual bool Accept();
   virtual bool Cancel();
   
+  // Note about how a PasswordFormManager can transition from
+  // pending_login_managers_ to {provisional_save, pending_decision_}manager_.
+  // 
+  // 1. form "seen"
+  //       |                                             new
+  //       |                                               ___ pending_decision
+  // pending_login -- form submit --> provisional_save ___/
+  //             ^                            |           \___ (update DB)
+  //             |                           fail
+  //             |-----------<------<---------|          !new
+  //
   // When a form is "seen" on a page, a PasswordFormManager is created
   // and stored in this collection until user navigates away from page.
   typedef std::vector<PasswordFormManager*> LoginManagers;
@@ -79,11 +90,21 @@ class PasswordManager : public views::LoginModel,
   // tab closes) on a page with a password form, thus containing login managers.
   STLElementDeleter<LoginManagers> login_managers_deleter_;
 
-  // When the user opts to save a password, this contains the
-  // PasswordFormManager for the form in question.
-  // Scoped incase PasswordManager gets deleted (e.g tab closes) between the
+  // When the user submits a password/credential, this contains the
+  // PasswordFormManager for the form in question until we deem the login
+  // attempt to have succeeded (as in valid credentials). If it fails, we
+  // send the PasswordFormManager back to the pending_login_managers_ set.
+  // Scoped in case PasswordManager gets deleted (e.g tab closes) between the
   // time a user submits a login form and gets to the next page.
-  scoped_ptr<PasswordFormManager> pending_save_manager_;
+  scoped_ptr<PasswordFormManager> provisional_save_manager_;
+
+  // After a successful *new* login attempt, we take the PasswordFormManager in
+  // provisional_save_manager_ and move it here while the user makes up their
+  // mind with the "save password" infobar. Note if the login is one we already
+  // know about, the end of the line is provisional_save_manager_ because we
+  // just update it on success and so such forms never end up in
+  // pending_decision_manager_.
+  scoped_ptr<PasswordFormManager> pending_decision_manager_;
 
   // The containing WebContents
   WebContents* web_contents_;
