@@ -1349,6 +1349,9 @@ LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = 
 LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
 LayoutTests/animations/transform-animation-event-destroy-element.html = CRASH
 
+// MERGE 38760:38800: Expectations changed upstream
+WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
+
 // -----------------------------------------------------------------
 // MAC PORT TESTS
 // -----------------------------------------------------------------
