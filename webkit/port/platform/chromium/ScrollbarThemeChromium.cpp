@@ -172,6 +172,9 @@ IntSize ScrollbarThemeChromium::buttonSize(Scrollbar* scrollbar)
     // times thickness pixels left.  This allows the scrollbar to scale down
     // and function even at tiny sizes.
 
+    int thickness = scrollbarThickness();
+
+#if !defined(__linux__)
     // In layout test mode, we force the button "girth" (i.e., the length of
     // the button along the axis of the scrollbar) to be a fixed size.
     // FIXME: This is retarded!  scrollbarThickness is already fixed in layout
@@ -179,8 +182,11 @@ IntSize ScrollbarThemeChromium::buttonSize(Scrollbar* scrollbar)
     // preserving this hack avoids having to rebaseline pixel tests.
     const int kLayoutTestModeGirth = 17;
 
-    int thickness = scrollbarThickness();
     int girth = ChromiumBridge::layoutTestMode() ? kLayoutTestModeGirth : thickness;
+#else
+    int girth = thickness;
+#endif
+
     if (scrollbar->orientation() == HorizontalScrollbar) {
         int width = scrollbar->width() < 2 * girth ? scrollbar->width() / 2 : girth;
         return IntSize(width, thickness);
