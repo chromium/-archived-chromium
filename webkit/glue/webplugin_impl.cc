@@ -196,7 +196,7 @@ void WebPluginContainer::handleEvent(WebCore::Event* event) {
   impl_->handleEvent(event);
 }
 
-void WebPluginContainer::frameRectsChanged() const {
+void WebPluginContainer::frameRectsChanged() {
   WebCore::Widget::frameRectsChanged();
   // This is a hack to tickle re-positioning of the plugin in the case where
   // our parent view was scrolled.

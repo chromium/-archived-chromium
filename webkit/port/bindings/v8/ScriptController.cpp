@@ -169,6 +169,16 @@ void ScriptController::clearScriptObjects()
 #endif
 }
 
+void ScriptController::updateSecurityOrigin()
+{
+    // TODO(dglazkov): Determine whether we need to do something here.
+}
+
+void ScriptController::updatePlatformScriptObjects()
+{
+    notImplemented();
+}
+
 void ScriptController::clearPluginObjects()
 {
     PluginObjectMap::iterator it = m_pluginObjects.begin();

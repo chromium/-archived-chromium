@@ -64,7 +64,7 @@ class WebPluginContainer : public WebCore::Widget {
   virtual void show();
   virtual void hide();
   virtual void handleEvent(WebCore::Event* event);
-  virtual void frameRectsChanged() const;
+  virtual void frameRectsChanged();
   virtual void setParentVisible(bool visible);
 
 #if USE(JSC)

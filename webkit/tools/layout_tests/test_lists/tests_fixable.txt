@@ -657,7 +657,6 @@ LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Linux pixeltest failure: caret is in the wrong place
 LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
-LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL PASS
 LINUX WIN : LayoutTests/fast/block/float/float-avoidance.html = FAIL
 WIN : LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 WIN : LayoutTests/fast/canvas/drawImage.html = FAIL
@@ -2025,4 +2024,46 @@ LINUX WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
-WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL 
+WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL s
+
+// Merge 39143:39309
+LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
+LayoutTests/animations/combo-transform-translate+scale.html = FAIL
+LayoutTests/animations/keyframes-from-missing.html = FAIL
+LayoutTests/animations/keyframes-rule.html = FAIL
+LayoutTests/animations/keyframes-to-missing.html = FAIL
+LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
+LayoutTests/fast/encoding/mailto-always-utf-8.html = FAIL
+LayoutTests/fast/forms/mailto/get-multiple-items-text-plain.html = FAIL
+LayoutTests/fast/forms/mailto/get-multiple-items-x-www-form-urlencoded.html = FAIL
+LayoutTests/fast/forms/mailto/get-multiple-items.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii-always-utf-8.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii-text-plain-latin-1.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii-text-plain.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii.html = FAIL
+LayoutTests/fast/forms/mailto/get-overwrite-query.html = FAIL
+LayoutTests/fast/forms/mailto/post-append-query.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items-multipart-form-data.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items-text-plain.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items-x-www-form-urlencoded.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items.html = FAIL
+LayoutTests/fast/forms/mailto/post-text-plain-with-accept-charset.html = FAIL
+LayoutTests/fast/forms/mailto/post-text-plain.html = FAIL
+LayoutTests/fast/js/regexp-no-extensions.html = FAIL
+LayoutTests/fast/regex/quantified-assertions.html = FAIL
+LayoutTests/http/tests/security/feed-urls-from-remote.html = FAIL
+LayoutTests/plugins/embed-attributes-setting.html = FAIL
+LayoutTests/transforms/2d/transform-value-types.html = FAIL
+LayoutTests/wml/go-task-animation.html = FAIL
+LayoutTests/animations/change-keyframes-name.html = TIMEOUT
+LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
+LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
+LayoutTests/fast/backgrounds/svg-as-background-5.html = CRASH FAIL PASS
+DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
+DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
+DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
+DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
+DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
+DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
+// Missing expected results.
+SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL

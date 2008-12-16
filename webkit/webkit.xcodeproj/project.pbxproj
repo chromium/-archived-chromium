@@ -44,6 +44,7 @@
 		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
+		41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
 		4D1637CD0EBFA49E008F024E /* SQLiteDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */; };
@@ -872,7 +873,6 @@
 		E45624B50E268E87005E4685 /* FileSystemCF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F830D7F3CC1001ECF42 /* FileSystemCF.cpp */; };
 		E45624B70E268E87005E4685 /* ContextMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F860D7F3CC1001ECF42 /* ContextMenu.cpp */; };
 		E45624B90E268E87005E4685 /* DeprecatedPtrListImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */; };
-		E45624BC0E268E87005E4685 /* DeprecatedValueListImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */; };
 		E45624BD0E268E87005E4685 /* DragData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9A0D7F3CC1001ECF42 /* DragData.cpp */; };
 		E45624BE0E268E87005E4685 /* DragImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9C0D7F3CC1001ECF42 /* DragImage.cpp */; };
 		E45624BF0E268E87005E4685 /* FileChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9E0D7F3CC1001ECF42 /* FileChooser.cpp */; };
@@ -1454,6 +1454,7 @@
 		4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallStack.cpp; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
+		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
 		4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteAuthorizer.cpp; sourceTree = "<group>"; };
 		4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteDatabase.cpp; sourceTree = "<group>"; };
 		4D1637C50EBFA49E008F024E /* SQLiteDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteDatabase.h; sourceTree = "<group>"; };
@@ -3009,10 +3010,6 @@
 		7B5E8F8F0D7F3CC1001ECF42 /* DeprecatedPtrList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedPtrList.h; sourceTree = "<group>"; };
 		7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeprecatedPtrListImpl.cpp; sourceTree = "<group>"; };
 		7B5E8F910D7F3CC1001ECF42 /* DeprecatedPtrListImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedPtrListImpl.h; sourceTree = "<group>"; };
-		7B5E8F920D7F3CC1001ECF42 /* DeprecatedPtrQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedPtrQueue.h; sourceTree = "<group>"; };
-		7B5E8F970D7F3CC1001ECF42 /* DeprecatedValueList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedValueList.h; sourceTree = "<group>"; };
-		7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeprecatedValueListImpl.cpp; sourceTree = "<group>"; };
-		7B5E8F990D7F3CC1001ECF42 /* DeprecatedValueListImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedValueListImpl.h; sourceTree = "<group>"; };
 		7B5E8F9A0D7F3CC1001ECF42 /* DragData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragData.cpp; sourceTree = "<group>"; };
 		7B5E8F9B0D7F3CC1001ECF42 /* DragData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragData.h; sourceTree = "<group>"; };
 		7B5E8F9C0D7F3CC1001ECF42 /* DragImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragImage.cpp; sourceTree = "<group>"; };
@@ -5624,10 +5621,6 @@
 				7B5E8F8F0D7F3CC1001ECF42 /* DeprecatedPtrList.h */,
 				7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */,
 				7B5E8F910D7F3CC1001ECF42 /* DeprecatedPtrListImpl.h */,
-				7B5E8F920D7F3CC1001ECF42 /* DeprecatedPtrQueue.h */,
-				7B5E8F970D7F3CC1001ECF42 /* DeprecatedValueList.h */,
-				7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */,
-				7B5E8F990D7F3CC1001ECF42 /* DeprecatedValueListImpl.h */,
 				7B5E8F9A0D7F3CC1001ECF42 /* DragData.cpp */,
 				7B5E8F9B0D7F3CC1001ECF42 /* DragData.h */,
 				7B5E8F9C0D7F3CC1001ECF42 /* DragImage.cpp */,
@@ -5735,6 +5728,7 @@
 				7B5E8FD60D7F3CC1001ECF42 /* FontFallbackList.h */,
 				7B5E8FD70D7F3CC1001ECF42 /* FontFamily.cpp */,
 				7B5E8FD80D7F3CC1001ECF42 /* FontFamily.h */,
+				41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */,
 				4DB7EFFC0E9BA3A100C66CE0 /* FontRenderingMode.h */,
 				7B5E8FD90D7F3CC1001ECF42 /* FontSelector.h */,
 				4DB7EFFD0E9BA3A100C66CE0 /* FontTraitsMask.h */,
@@ -8477,6 +8471,8 @@
 				7B0095C90DAFF00200F72082 /* XLinkNames.cpp in Sources */,
 				7B0095CB0DAFF00200F72082 /* XMLNames.cpp in Sources */,
 				7B0095CD0DAFF00200F72082 /* XPathGrammar.cpp in Sources */,
+				419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */,
+				4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8620,7 +8616,6 @@
 				E45623F30E268E87005E4685 /* DeleteFromTextNodeCommand.cpp in Sources */,
 				E45623F40E268E87005E4685 /* DeleteSelectionCommand.cpp in Sources */,
 				E45624B90E268E87005E4685 /* DeprecatedPtrListImpl.cpp in Sources */,
-				E45624BC0E268E87005E4685 /* DeprecatedValueListImpl.cpp in Sources */,
 				E45624840E268E87005E4685 /* DocLoader.cpp in Sources */,
 				E45623BA0E268E87005E4685 /* Document.cpp in Sources */,
 				E45623BB0E268E87005E4685 /* DocumentFragment.cpp in Sources */,
@@ -8673,6 +8668,7 @@
 				E45624CA0E268E87005E4685 /* FontFallbackList.cpp in Sources */,
 				E45624CB0E268E87005E4685 /* FontFamily.cpp in Sources */,
 				E456239D0E268E87005E4685 /* FontFamilyValue.cpp in Sources */,
+				41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */,
 				E45624D80E268E87005E4685 /* FontMac.mm in Sources */,
 				ABBD24DA0EB7C29F00BEC658 /* FontMacATSUI.mm in Sources */,
 				ABBD24DB0EB7C29F00BEC658 /* FontMacCoreText.cpp in Sources */,

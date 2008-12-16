@@ -32,6 +32,7 @@
 #include "CachedPage.h"
 #include "Document.h"
 #include "DocumentLoader.h"
+#include "DOMWindow.h"
 #include "FrameView.h"
 #include "CachedPagePlatformData.h"
 
@@ -70,5 +71,7 @@ void CachedPage::setDocumentLoader(PassRefPtr<DocumentLoader>) {
 DocumentLoader* CachedPage::documentLoader() {
   return 0;
 }
+
+DOMWindow* CachedPage::domWindow() const { return 0; }
 
 }

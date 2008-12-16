@@ -119,6 +119,14 @@ public:
         return *this;
     }
 
+    void clear() {
+      m_bitmapRef = RefCountedNativeImageSkia::create();
+      m_rect = IntRect();
+      m_status = FrameEmpty;
+      m_duration = 0;
+      m_disposalMethod = DisposeNotSpecified;
+    }
+
     // This function creates a new copy of the image data in |other|, so the
     // two images can be modified independently.
     void copyBitmapData(const RGBA32Buffer& other) {
@@ -256,6 +264,14 @@ public:
 
     bool failed() const { return m_failed; }
     void setFailed() { m_failed = true; }
+
+    // Wipe out frames in the frame buffer cache before |clearBeforeFrame|,
+    // assuming this can be done without breaking decoding.  Different decoders
+    // place different restrictions on what frames are safe to destroy, so this
+    // is left to them to implement.
+    // For convenience's sake, we provide a default (empty) implementation,
+    // since in practice only GIFs will ever use this.
+    virtual void clearFrameBufferCache(size_t clearBeforeFrame) { }
 
 protected:
     // Called by the image decoders to set their decoded size, this also check

@@ -398,8 +398,6 @@ input_files = [
 
     '$WEBCORE_DIR/platform/Arena.cpp',
     '$WEBCORE_DIR/platform/ContextMenu.cpp',
-    '$WEBCORE_DIR/platform/DeprecatedPtrListImpl.cpp',
-    '$WEBCORE_DIR/platform/DeprecatedValueListImpl.cpp',
     '$WEBCORE_DIR/platform/DragData.cpp',
     '$WEBCORE_DIR/platform/DragImage.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
@@ -424,6 +422,7 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/FloatQuad.cpp',
     '$WEBCORE_DIR/platform/graphics/FloatRect.cpp',
     '$WEBCORE_DIR/platform/graphics/FloatSize.cpp',
+    '$WEBCORE_DIR/platform/graphics/FontFastPath.cpp',
     '$WEBCORE_DIR/platform/graphics/Font.cpp',
     '$WEBCORE_DIR/platform/graphics/FontData.cpp',
     '$WEBCORE_DIR/platform/graphics/FontFallbackList.cpp',

@@ -33,7 +33,7 @@ public:
     }
 
     // Do nothing, as we only have the one representation of data (decoded).
-    virtual void destroyDecodedData(bool, bool preserveNearbyFrames = false) { }
+    virtual void destroyDecodedData(bool destroyAll = true) { }
 
     virtual unsigned decodedSize() const
     {

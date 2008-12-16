@@ -898,22 +898,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedPtrQueue.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedValueList.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedValueListImpl.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedValueListImpl.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DragData.cpp"
 				>
 			</File>
@@ -943,6 +927,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\FloatConversion.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontFastPath.cpp"
 				>
 			</File>
 			<File

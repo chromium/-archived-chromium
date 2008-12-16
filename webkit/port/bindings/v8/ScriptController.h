@@ -247,7 +247,9 @@ public:
     void clearWindowShell();
     void updateDocument();
 
+    void updateSecurityOrigin();
     void clearScriptObjects();
+    void updatePlatformScriptObjects();
     void cleanupScriptObjectsForPlugin(void*);
 
 #if ENABLE(NETSCAPE_PLUGIN_API)
