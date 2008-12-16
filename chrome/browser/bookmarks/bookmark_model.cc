@@ -321,6 +321,14 @@ void BookmarkModel::ResetDateGroupModified(BookmarkNode* node) {
   SetDateGroupModified(node, Time());
 }
 
+void BookmarkModel::ClearStore() {
+  if (profile_ && store_.get()) {
+    NotificationService::current()->RemoveObserver(
+        this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+  }
+  store_ = NULL;
+}
+
 bool BookmarkModel::IsBookmarkedNoLock(const GURL& url) {
   BookmarkNode tmp_node(this, url);
   return (nodes_ordered_by_url_set_.find(&tmp_node) !=

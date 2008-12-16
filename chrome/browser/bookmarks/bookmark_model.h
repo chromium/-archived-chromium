@@ -284,6 +284,11 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   Profile* profile() const { return profile_; }
 
+  // Sets the store to NULL, making it so the BookmarkModel does not persist
+  // any changes to disk. This is only useful during testing to speed up
+  // testing.
+  void ClearStore();
+
  private:
   // Used to order BookmarkNodes by URL.
   class NodeURLComparator {
