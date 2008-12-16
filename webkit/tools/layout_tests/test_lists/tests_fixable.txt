@@ -95,7 +95,7 @@ LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
 LayoutTests/fast/replaced/table-percent-height.html = FAIL
 
 // Bug 992930: Unable to load file:/// URLs from data: URLs.
-LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+RELEASE : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
 LINUX WIN : LayoutTests/svg/custom/font-face-simple.svg = FAIL
@@ -862,7 +862,6 @@ LINUX : LayoutTests/fast/css/font-weight-1.html = FAIL
 LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
 LINUX : LayoutTests/fast/css/rtl-ordering.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
-LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 MAC : LayoutTests/fast/events/access-key-self-destruct.html = FAIL
@@ -1378,7 +1377,7 @@ MAC : LayoutTests/editing/inserting/before-after-input-element.html = FAIL
 MAC : LayoutTests/editing/pasteboard/4806874.html = FAIL
 MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 
-MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
+MAC RELEASE : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 MAC : LayoutTests/editing/pasteboard/drop-text-without-selection.html = FAIL
 MAC : LayoutTests/editing/pasteboard/input-field-1.html = FAIL
 MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
@@ -1519,7 +1518,6 @@ MAC : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
 MAC : LayoutTests/fast/js/recursion-limit-equal.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile-crash.html = FAIL
 MAC : LayoutTests/fast/js/regexp-compile.html = FAIL
-MAC : LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 MAC : LayoutTests/fast/js/regexp-range-out-of-order.html = FAIL
 MAC : LayoutTests/fast/js/reserved-words.html = FAIL
 MAC : LayoutTests/fast/js/string-capitalization.html = FAIL
@@ -2024,7 +2022,7 @@ LINUX WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
-WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL s
+WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
 LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
@@ -2052,7 +2050,7 @@ LayoutTests/fast/forms/mailto/post-text-plain.html = FAIL
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 LayoutTests/fast/regex/quantified-assertions.html = FAIL
 LayoutTests/http/tests/security/feed-urls-from-remote.html = FAIL
-LayoutTests/plugins/embed-attributes-setting.html = FAIL
+WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 LayoutTests/transforms/2d/transform-value-types.html = FAIL
 LayoutTests/wml/go-task-animation.html = FAIL
 LayoutTests/animations/change-keyframes-name.html = TIMEOUT
