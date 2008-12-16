@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops"
+			InheritedPropertySheets=".\gcapi.vsprops;$(SolutionDir)..\build\debug.vsprops"
 			>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -29,7 +29,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops"
+			InheritedPropertySheets=".\gcapi.vsprops;$(SolutionDir)..\build\release.vsprops"
 			>
 			<Tool
 				Name="VCCLCompilerTool"

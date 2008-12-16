@@ -38,4 +38,5 @@ void call_dynamically() {
 int main(int argc, char* argv[]) {
   call_dynamically();
   call_statically();
+  printf("LaunchChrome returned %d.\n", LaunchGoogleChrome());
 }

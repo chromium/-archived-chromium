@@ -1925,11 +1925,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcapi_lib", "installer\gcap
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{4052059A-D72B-4183-B5C2-9D1B099E9E35} = {4052059A-D72B-4183-B5C2-9D1B099E9E35}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcapi_dll", "installer\gcapi\gcapi_dll.vcproj", "{B802A2FE-E4E2-4F5A-905A-D5128875C954}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{4052059A-D72B-4183-B5C2-9D1B099E9E35} = {4052059A-D72B-4183-B5C2-9D1B099E9E35}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gcapi_test", "installer\gcapi\gcapi_test.vcproj", "{B64B396B-8EF1-4B6B-A07E-48D40EB961AB}"

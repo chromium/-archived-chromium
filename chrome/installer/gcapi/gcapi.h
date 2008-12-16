@@ -23,10 +23,10 @@ extern "C" {
 // for the reason, you can pass NULL for reasons.
 DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(DWORD *reasons);
 
-// This function launches Google Chrome after a successful install. If
-// proc_handle is not NULL, the process handle of the newly created process
-// will be returned.
-DLLEXPORT BOOL __stdcall LaunchGoogleChrome(HANDLE* proc_handle);
+// This function launches Google Chrome after a successful install. Make
+// sure COM library is NOT initalized before you call this function (so if
+// you called CoInitialize, call CoUninitialize before calling this function).
+DLLEXPORT BOOL __stdcall LaunchGoogleChrome();
 
 // Funtion pointer type declarations to use with GetProcAddress.
 typedef BOOL (__stdcall * GCCC_CompatibilityCheck)(DWORD *);
