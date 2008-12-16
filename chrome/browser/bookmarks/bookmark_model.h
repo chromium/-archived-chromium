@@ -284,12 +284,6 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   Profile* profile() const { return profile_; }
 
-
-  // Sets the BookmarkStorage. This is intended for testing.
-  void set_store(BookmarkStorage* store) {
-    store_ = store;
-  }
-
  private:
   // Used to order BookmarkNodes by URL.
   class NodeURLComparator {

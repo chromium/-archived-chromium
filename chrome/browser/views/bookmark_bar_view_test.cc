@@ -78,7 +78,6 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
     profile_->GetPrefs()->SetBoolean(prefs::kShowBookmarkBar, true);
 
     model_ = profile_->GetBookmarkModel();
-    model_->set_store(NULL);
 
     bb_view_ = new BookmarkBarView(profile_.get(), NULL);
     bb_view_->SetPageNavigator(&navigator_);
