@@ -42,7 +42,7 @@ URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
   // We cache the value of the switch because this code path is hit on every
   // network request.
   static const bool kForceHTTPS =
-        CommandLine().HasSwitch(switches::kForceHTTPS);
+      CommandLine().HasSwitch(switches::kForceHTTPS);
   if (kForceHTTPS && scheme != "https")
     return new URLRequestErrorJob(request, net::ERR_DISALLOWED_URL_SCHEME);
 
@@ -385,7 +385,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
   if (result == net::OK) {
     NotifyHeadersComplete();
   } else if (net::IsCertificateError(result) &&
-      !CommandLine().HasSwitch(switches::kForceHTTPS)) {
+             !CommandLine().HasSwitch(switches::kForceHTTPS)) {
     // We encountered an SSL certificate error.  Ask our delegate to decide
     // what we should do.
     // TODO(wtc): also pass ssl_info.cert_status, or just pass the whole
