@@ -1609,6 +1609,9 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
   if (is_shutdown_)
     return;
 
+  if (!URLRequest::IsHandledURL(url))
+    return;
+
   // Check if the renderer is permitted to request the requested URL.
   //
   // TODO(mpcomplete): remove "render_process_host_id != -1"
@@ -1647,11 +1650,6 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
                                            ResourceType::MAIN_FRAME,
                                            safe_browsing_,
                                            this);
-  }
-
-  bool known_proto = URLRequest::IsHandledURL(url);
-  if (!known_proto) {
-    CHECK(false);
   }
 
   request->set_method("GET");
