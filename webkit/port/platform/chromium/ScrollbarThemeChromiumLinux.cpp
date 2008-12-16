@@ -134,7 +134,7 @@ void ScrollbarThemeChromium::paintButton(GraphicsContext* gc, Scrollbar* scrollb
     SkPaint paint;
     paint.setARGB(255, 0, 255, 128);
     SkRect skrect;
-    skrect.set(rect.x(), rect.y(), rect.x() + rect.width() - 1, rect.y() + rect.height() + 1);
+    skrect.set(rect.x(), rect.y(), rect.x() + rect.width() - 1, rect.y() + rect.height() - 1);
     gc->platformContext()->canvas()->drawRect(skrect, paint);
 
     const bool horz = scrollbar->orientation() == HorizontalScrollbar;
