@@ -263,9 +263,7 @@ class ResourceDispatcherHost::DownloadEventHandler
                        URLRequest* request,
                        bool save_as)
       : download_id_(-1),
-        global_id_(
-            ResourceDispatcherHost::GlobalRequestID(render_process_host_id,
-                                                    request_id)),
+        global_id_(render_process_host_id, request_id),
         render_view_id_(render_view_id),
         read_buffer_(NULL),
         url_(UTF8ToWide(url)),
@@ -1904,8 +1902,7 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(
       ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
       if (!info->is_download && (render_view_id == -1 ||
                                  render_view_id == info->render_view_id)) {
-        matching_requests.push_back(
-            GlobalRequestID(render_process_host_id, i->first.request_id));
+        matching_requests.push_back(i->first);
       }
     }
   }
