@@ -32,7 +32,7 @@
  * Otherwise the binary exists with code 0.
  *
  * This requires leptonica to be installed. On Ubuntu do
- *   # apt-get install libleptonica libleptonica-dev
+ *   # apt-get install libleptonica libleptonica-dev libtiff4-dev
  *
  * Build with:
  *   % gcc -o fuzzymatch fuzzymatch.c -llept -ljpeg -ltiff -lpng -lz -lm -Wall -O2
