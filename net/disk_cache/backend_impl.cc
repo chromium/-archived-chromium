@@ -1075,11 +1075,15 @@ void BackendImpl::TrimCache(bool empty) {
 }
 
 void BackendImpl::ReportTrimTimes(EntryImpl* entry) {
-  std::wstring name(StringPrintf(L"DiskCache.TrimAge_%d",
-                                 data_->header.experiment));
-  static Histogram counter(name.c_str(), 1, 10000, 50);
-  counter.SetFlags(kUmaTargetedHistogramFlag);
-  counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
+  static bool first_time = true;
+  if (first_time) {
+    first_time = false;
+    std::wstring name(StringPrintf(L"DiskCache.TrimAge_%d",
+                                   data_->header.experiment));
+    static Histogram counter(name.c_str(), 1, 10000, 50);
+    counter.SetFlags(kUmaTargetedHistogramFlag);
+    counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
+  }
 }
 
 void BackendImpl::AddStorageSize(int32 bytes) {
