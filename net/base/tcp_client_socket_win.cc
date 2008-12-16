@@ -4,6 +4,7 @@
 
 #include "net/base/tcp_client_socket.h"
 
+#include "base/memory_debug.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
@@ -175,6 +176,14 @@ int TCPClientSocket::Read(char* buf,
     BOOL ok = WSAResetEvent(overlapped_.hEvent);
     CHECK(ok);
     TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num));
+
+    // Because of how WSARecv fills memory when used asynchronously, Purify
+    // isn't able to detect that it's been initialized, so it scans for 0xcd
+    // in the buffer and reports UMRs (uninitialized memory reads) for those
+    // individual bytes. We override that in PURIFY builds to avoid the false
+    // error reports.
+    // See bug 5297.
+    base::MemoryDebug::MarkAsInitialized(buffer_.buf, num);
     return static_cast<int>(num);
   }
   int err = WSAGetLastError();
