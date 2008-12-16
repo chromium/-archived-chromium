@@ -398,6 +398,7 @@ input_files = [
 
     '$WEBCORE_DIR/platform/Arena.cpp',
     '$WEBCORE_DIR/platform/ContextMenu.cpp',
+    '$WEBCORE_DIR/platform/DeprecatedPtrListImpl.cpp',
     '$WEBCORE_DIR/platform/DragData.cpp',
     '$WEBCORE_DIR/platform/DragImage.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
