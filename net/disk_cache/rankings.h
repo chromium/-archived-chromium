@@ -48,6 +48,15 @@ enum RankCrashes {
 // This class handles the ranking information for the cache.
 class Rankings {
  public:
+  // Possible lists of entries.
+  enum List {
+    NO_USE = 0,   // List of entries that have not been reused.
+    LOW_USE,      // List of entries with low reuse.
+    HIGH_USE,     // List of entries with high reuse.
+    DELETED,      // List of recently deleted or doomed entries.
+    LAST_ELEMENT
+  };
+
   // This class provides a specialized version of scoped_ptr, that calls
   // Rankings whenever a CacheRankingsBlock is deleted, to keep track of cache
   // iterators that may go stale.
@@ -73,8 +82,7 @@ class Rankings {
     DISALLOW_EVIL_CONSTRUCTORS(ScopedRankingsBlock);
   };
 
-  Rankings()
-      : init_(false), head_(0), tail_(0) {}
+  Rankings() : init_(false) {}
   ~Rankings() {}
 
   bool Init(BackendImpl* backend);
@@ -83,20 +91,20 @@ class Rankings {
   void Reset();
 
   // Inserts a given entry at the head of the queue.
-  void Insert(CacheRankingsBlock* node, bool modified);
+  void Insert(CacheRankingsBlock* node, bool modified, List list);
 
   // Removes a given entry from the LRU list.
-  void Remove(CacheRankingsBlock* node);
+  void Remove(CacheRankingsBlock* node, List list);
 
   // Moves a given entry to the head.
-  void UpdateRank(CacheRankingsBlock* node, bool modified);
+  void UpdateRank(CacheRankingsBlock* node, bool modified, List list);
 
   // Iterates through the list.
-  CacheRankingsBlock* GetNext(CacheRankingsBlock* node);
-  CacheRankingsBlock* GetPrev(CacheRankingsBlock* node);
+  CacheRankingsBlock* GetNext(CacheRankingsBlock* node, List list);
+  CacheRankingsBlock* GetPrev(CacheRankingsBlock* node, List list);
   void FreeRankingsBlock(CacheRankingsBlock* node);
 
-  // Peforms a simple self-check of the list, and returns the number of items
+  // Peforms a simple self-check of the lists, and returns the number of items
   // or an error code (negative value).
   int SelfCheck();
 
@@ -108,10 +116,10 @@ class Rankings {
   typedef std::pair<CacheAddr, CacheRankingsBlock*> IteratorPair;
   typedef std::list<IteratorPair> IteratorList;
 
-  Addr ReadHead();
-  Addr ReadTail();
-  void WriteHead();
-  void WriteTail();
+  void ReadHeads();
+  void ReadTails();
+  void WriteHead(List list);
+  void WriteTail(List list);
 
   // Gets the rankings information for a given rankings node.
   bool GetRanking(CacheRankingsBlock* rankings);
@@ -127,10 +135,18 @@ class Rankings {
 
   // Returns false if node is not properly linked.
   bool CheckLinks(CacheRankingsBlock* node, CacheRankingsBlock* prev,
-                  CacheRankingsBlock* next);
+                  CacheRankingsBlock* next, List list);
 
   // Checks the links between two consecutive nodes.
   bool CheckSingleLink(CacheRankingsBlock* prev, CacheRankingsBlock* next);
+
+  // Peforms a simple check of the list, and returns the number of items or an
+  // error code (negative value).
+  int CheckList(List list);
+
+  // Returns true if addr is the head or tail of any list.
+  bool IsHead(CacheAddr addr);
+  bool IsTail(CacheAddr addr);
 
   // Controls tracking of nodes used for enumerations.
   void TrackRankingsBlock(CacheRankingsBlock* node, bool start_tracking);
@@ -139,8 +155,8 @@ class Rankings {
   void UpdateIterators(CacheRankingsBlock* node);
 
   bool init_;
-  Addr head_;
-  Addr tail_;
+  Addr heads_[LAST_ELEMENT];
+  Addr tails_[LAST_ELEMENT];
   BackendImpl* backend_;
   LruData* control_data_;  // Data related to the LRU lists.
   IteratorList iterators_;

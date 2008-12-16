@@ -562,7 +562,7 @@ void EntryImpl::DeleteData(Addr address, int index) {
 void EntryImpl::UpdateRank(bool modified) {
   if (!doomed_) {
     // Everything is handled by the backend.
-    backend_->UpdateRank(&node_, true);
+    backend_->UpdateRank(this, true);
     return;
   }
 

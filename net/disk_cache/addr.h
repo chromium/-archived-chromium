@@ -50,6 +50,7 @@ const int kFirstAdditionlBlockFile = 4;
 //   0000 0000 0000 0000 1111 1111 1111 1111 : block#  0 - 65,535 (2^16)
 class Addr {
  public:
+  Addr() : value_(0) {}
   explicit Addr(CacheAddr address) : value_(address) {}
   Addr(FileType file_type, int max_blocks, int block_file, int index) {
     value_ = ((file_type << kFileTypeOffset) & kFileTypeMask) |

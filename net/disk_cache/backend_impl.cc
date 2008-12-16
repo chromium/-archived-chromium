@@ -355,7 +355,7 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
 
   data_->header.num_entries++;
   DCHECK(data_->header.num_entries > 0);
-  rankings_.Insert(cache_entry->rankings(), true);
+  rankings_.Insert(cache_entry->rankings(), true, Rankings::NO_USE);
   if (!parent.get())
     data_->table[hash & mask_] = entry_address.value();
 
@@ -573,9 +573,10 @@ LruData* BackendImpl::GetLruData() {
   return &data_->header.lru;
 }
 
-void BackendImpl::UpdateRank(CacheRankingsBlock* node, bool modified) {
-  if (!read_only_)
-    rankings_.UpdateRank(node, modified);
+void BackendImpl::UpdateRank(EntryImpl* entry, bool modified) {
+  if (!read_only_) {
+    rankings_.UpdateRank(entry->rankings(), modified, Rankings::NO_USE);
+  }
 }
 
 void BackendImpl::RecoveredEntry(CacheRankingsBlock* rankings) {
@@ -603,7 +604,7 @@ void BackendImpl::InternalDoomEntry(EntryImpl* entry) {
 
   Trace("Doom entry 0x%p", entry);
 
-  rankings_.Remove(entry->rankings());
+  rankings_.Remove(entry->rankings(), Rankings::NO_USE);
 
   entry->InternalDoom();
 
@@ -971,8 +972,9 @@ bool BackendImpl::OpenFollowingEntry(bool forward, void** iter,
 
   Rankings::ScopedRankingsBlock rankings(&rankings_,
       reinterpret_cast<CacheRankingsBlock*>(*iter));
-  CacheRankingsBlock* next_block = forward ? rankings_.GetNext(rankings.get()) :
-                                             rankings_.GetPrev(rankings.get());
+  CacheRankingsBlock* next_block = forward ?
+      rankings_.GetNext(rankings.get(), Rankings::NO_USE) :
+      rankings_.GetPrev(rankings.get(), Rankings::NO_USE);
   Rankings::ScopedRankingsBlock next(&rankings_, next_block);
   *next_entry = NULL;
   *iter = NULL;
@@ -1018,7 +1020,7 @@ void BackendImpl::DestroyInvalidEntry(Addr address, EntryImpl* entry) {
   LOG(WARNING) << "Destroying invalid entry.";
   Trace("Destroying invalid entry 0x%p", entry);
 
-  rankings_.Remove(entry->rankings());
+  rankings_.Remove(entry->rankings(), Rankings::NO_USE);
   entry->SetPointerForInvalidEntry(GetCurrentEntryId());
 
   entry->InternalDoom();
@@ -1035,13 +1037,14 @@ void BackendImpl::TrimCache(bool empty) {
 
   Time start = Time::Now();
   Rankings::ScopedRankingsBlock node(&rankings_);
-  Rankings::ScopedRankingsBlock next(&rankings_, rankings_.GetPrev(node.get()));
+  Rankings::ScopedRankingsBlock next(&rankings_,
+      rankings_.GetPrev(node.get(), Rankings::NO_USE));
   DCHECK(next.get());
   int target_size = empty ? 0 : LowWaterAdjust(max_size_);
   int deleted = 0;
   while (data_->header.num_bytes > target_size && next.get()) {
     node.reset(next.release());
-    next.reset(rankings_.GetPrev(node.get()));
+    next.reset(rankings_.GetPrev(node.get(), Rankings::NO_USE));
     if (!node->Data()->pointer || empty) {
       // This entry is not being used by anybody.
       EntryImpl* entry;

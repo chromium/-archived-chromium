@@ -72,7 +72,7 @@ class BackendImpl : public Backend {
   LruData* GetLruData();
 
   // Updates the ranking information for an entry.
-  void UpdateRank(CacheRankingsBlock* node, bool modified);
+  void UpdateRank(EntryImpl* entry, bool modified);
 
   // A node was recovered from a crash, it may not be on the index, so this
   // method checks it and takes the appropriate action.
