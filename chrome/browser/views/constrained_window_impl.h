@@ -54,7 +54,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Windows message handlers:
   virtual void OnDestroy();
   virtual void OnFinalMessage(HWND window);
-  virtual void OnGetMinMaxInfo(LPMINMAXINFO mm_info);
   virtual LRESULT OnMouseActivate(HWND window, UINT hittest_code, UINT message);
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
 

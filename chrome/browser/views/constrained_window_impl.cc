@@ -712,18 +712,6 @@ void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
   WidgetWin::OnFinalMessage(window);
 }
 
-void ConstrainedWindowImpl::OnGetMinMaxInfo(LPMINMAXINFO mm_info) {
-  // Override this function to set the maximize area as the client area of the
-  // containing window.
-  CRect parent_rect;
-  ::GetClientRect(GetParent(), &parent_rect);
-
-  mm_info->ptMaxSize.x = parent_rect.Width();
-  mm_info->ptMaxSize.y = parent_rect.Height();
-  mm_info->ptMaxPosition.x = parent_rect.left;
-  mm_info->ptMaxPosition.y = parent_rect.top;
-}
-
 LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,
                                                UINT hittest_code,
                                                UINT message) {

@@ -187,7 +187,6 @@ class WidgetWin : public Widget,
     MSG_WM_ERASEBKGND(OnEraseBkgnd)
     MSG_WM_ENDSESSION(OnEndSession)
     MSG_WM_EXITMENULOOP(OnExitMenuLoop)
-    MSG_WM_GETMINMAXINFO(OnGetMinMaxInfo)
     MSG_WM_HSCROLL(OnHScroll)
     MSG_WM_INITMENU(OnInitMenu)
     MSG_WM_INITMENUPOPUP(OnInitMenuPopup)
@@ -359,7 +358,6 @@ class WidgetWin : public Widget,
   virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
   virtual void OnExitMenuLoop(BOOL is_track_popup_menu) { SetMsgHandled(FALSE); }
   virtual LRESULT OnEraseBkgnd(HDC dc);
-  virtual void OnGetMinMaxInfo(LPMINMAXINFO mm_info) { }
   virtual LRESULT OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual void OnHScroll(int scroll_type, short position, HWND scrollbar) {
     SetMsgHandled(FALSE);

@@ -981,42 +981,6 @@ void CustomFrameWindow::SizeWindowToDefault() {
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, WidgetWin overrides:
 
-void CustomFrameWindow::OnGetMinMaxInfo(MINMAXINFO* minmax_info) {
-  // We handle this message so that we can make sure we interact nicely with
-  // the taskbar on different edges of the screen and auto-hide taskbars.
-
-  HMONITOR primary_monitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-  MONITORINFO primary_info;
-  primary_info.cbSize = sizeof(primary_info);
-  GetMonitorInfo(primary_monitor, &primary_info);
-
-  minmax_info->ptMaxSize.x =
-      primary_info.rcWork.right - primary_info.rcWork.left;
-  minmax_info->ptMaxSize.y =
-      primary_info.rcWork.bottom - primary_info.rcWork.top;
-
-  HMONITOR target_monitor =
-      MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
-  MONITORINFO target_info;
-  target_info.cbSize = sizeof(target_info);
-  GetMonitorInfo(target_monitor, &target_info);
-
-  minmax_info->ptMaxPosition.x =
-      abs(target_info.rcWork.left - target_info.rcMonitor.left);
-  minmax_info->ptMaxPosition.y =
-      abs(target_info.rcWork.top - target_info.rcMonitor.top);
-
-  // Work around task bar auto-hiding. By default the window is sized over the
-  // top of the un-hide strip, so we adjust the size by a single pixel to make
-  // it work. Because of the way Windows adjusts the target size rect for non
-  // primary screens (it's quite daft), we only do this for the primary screen,
-  // which I think should cover at least 95% of use cases.
-  if ((target_monitor == primary_monitor) &&
-      EqualRect(&target_info.rcWork, &target_info.rcMonitor)) {
-    --minmax_info->ptMaxSize.y;
-  }
-}
-
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
   UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED);
   EnableMenuItem(menu, command, flags);
