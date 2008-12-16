@@ -1310,8 +1310,6 @@ LayoutTests/fast/forms/search-transformed.html = FAIL
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 
 // MERGE 38625:38653: Expectations changed upstream
-LINUX WIN : LayoutTests/editing/deleting/delete-by-word-001.html = FAIL
-LINUX WIN : LayoutTests/editing/deleting/delete-by-word-002.html = FAIL
 LINUX WIN : LayoutTests/editing/deleting/delete-to-end-of-paragraph.html = FAIL
 LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
