@@ -149,6 +149,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="tests"
+			>
+			<Filter
+				Name="base"
+				>
+				<File
+					RelativePath="..\base\data_buffer_unittest.cc"
+					>
+				</File>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

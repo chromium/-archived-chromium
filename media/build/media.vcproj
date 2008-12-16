@@ -129,11 +129,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\filters.h"
+				RelativePath="..\base\data_buffer.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\base\media.cc"
+				RelativePath="..\base\data_buffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\filters.h"
 				>
 			</File>
 			<File

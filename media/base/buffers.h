@@ -35,10 +35,10 @@ class StreamSampleInterface :
     public base::RefCountedThreadSafe<StreamSampleInterface> {
  public:
   // Returns the timestamp of this buffer in microseconds.
-  virtual int64 GetTimestamp() = 0;
+  virtual int64 GetTimestamp() const = 0;
 
   // Returns the duration of this buffer in microseconds.
-  virtual int64 GetDuration() = 0;
+  virtual int64 GetDuration() const = 0;
 
   // Sets the timestamp of this buffer in microseconds.
   virtual void SetTimestamp(int64 timestamp) = 0;
@@ -55,10 +55,10 @@ class StreamSampleInterface :
 class BufferInterface : public StreamSampleInterface {
  public:
   // Returns a read only pointer to the buffer data.
-  virtual const char* GetData() = 0;
+  virtual const char* GetData() const = 0;
 
   // Returns the size of valid data in bytes.
-  virtual size_t GetDataSize() = 0;
+  virtual size_t GetDataSize() const = 0;
 };
 
 
@@ -72,7 +72,7 @@ class WritableBufferInterface : public BufferInterface  {
   virtual void SetDataSize(size_t data_size) = 0;
 
   // Returns the maximum allocated size for this buffer.
-  virtual size_t GetBufferSize() = 0;
+  virtual size_t GetBufferSize() const = 0;
 };
 
 

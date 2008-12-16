@@ -14,6 +14,7 @@ env.SConscript([
     '$BASE_DIR/using_base.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
+    '$MEDIA_DIR/using_media.scons',
 ], {'env':env})
 
 env.Prepend(
@@ -46,6 +47,7 @@ if env['PLATFORM'] == 'win32':
   )
 
 input_files = [
+    'base/data_buffer_unittest.cc',
     'base/run_all_unittests.cc',
 ]
 
