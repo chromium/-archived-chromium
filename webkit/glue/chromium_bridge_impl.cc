@@ -543,7 +543,7 @@ WebCore::LinkHash ChromiumBridge::visitedLinkHash(
   url_canon::RawCanonOutput<2048> buffer;
   url_parse::Parsed parsed;
 
-  WebCore::CString cstr = base.utf8String();
+  const WebCore::CString& cstr = base.utf8String();
   if (!url_util::ResolveRelative(cstr.data(), cstr.length(), base.parsed(),
                                  attributeURL.characters(),
                                  attributeURL.length(), NULL,
