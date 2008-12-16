@@ -621,9 +621,11 @@ LINUX WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 LayoutTests/accessibility = FAIL
 // Linux pixeltest failure: Image scaling is terrible
 LINUX WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
+// Border radius not anti-aliased.
 WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
 // Linux pixeltest failure: We can't do gradient filled text
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
+// It looks like the text is the wrong color.
 WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
 // Linux pixeltest failure: border gradients are improperly offset
@@ -634,6 +636,7 @@ LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
 LINUX WIN : LayoutTests/fast/media/viewport-media-query.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
+// Our pixel results have a darker green color.
 WIN : LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL
 LINUX WIN : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
 LINUX WIN : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
@@ -658,8 +661,6 @@ LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 // Linux pixeltest failure: caret is in the wrong place
 LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 LINUX WIN : LayoutTests/fast/block/float/float-avoidance.html = FAIL
-WIN : LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
-WIN : LayoutTests/fast/canvas/drawImage.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 // Flaky
 WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
@@ -692,6 +693,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
+// Radial gradients are broken.
 WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
@@ -720,7 +722,6 @@ LINUX WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
@@ -739,6 +740,7 @@ LINUX WIN : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/group-opacity.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
+// Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/large-bounding-box-percents.svg = FAIL
 LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
@@ -747,6 +749,7 @@ LINUX WIN : LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
+// The pattern we generate appears to be scaled incorrectly.
 WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
@@ -2019,7 +2022,9 @@ LINUX WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
 // Same as above, but only regressed on win.
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
+// Our pixel results have darker red and green.
 WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+// The pattern we generate is wrong.
 WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
