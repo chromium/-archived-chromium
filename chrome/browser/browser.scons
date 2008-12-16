@@ -97,6 +97,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'template_url_parser.cc',
       'url_fetcher_protect.cc',
       'user_metrics.cc',
+      'webdata/web_database.cc',
   ])
 
 if env['PLATFORM'] == 'win32':
@@ -288,7 +289,6 @@ if env['PLATFORM'] == 'win32':
       'web_drag_source.cc',
       'web_drop_target.cc',
       'webdata/web_data_service.cc',
-      'webdata/web_database.cc',
       'window_sizer.cc',
   ])
 

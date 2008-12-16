@@ -32,7 +32,7 @@ using base::Time;
 static const wchar_t kSearchTermParameter[] = L"{searchTerms}";
 
 // String in Initializer that is replaced with kSearchTermParameter.
-static const wchar_t kTemplateParameter[](L"%s");
+static const wchar_t kTemplateParameter[] = L"%s";
 
 // Term used when generating a search url. Use something obscure so that on
 // the rare case the term replaces the URL it's unlikely another keyword would
@@ -173,7 +173,7 @@ std::wstring TemplateURLModel::CleanUserInputKeyword(
   // Remove the scheme.
   std::wstring result(l10n_util::ToLower(keyword));
   url_parse::Component scheme_component;
-  if (url_parse::ExtractScheme(keyword.c_str(),
+  if (url_parse::ExtractScheme(WideToUTF8(keyword).c_str(),
                                static_cast<int>(keyword.length()),
                                &scheme_component)) {
     // Include trailing ':'.
@@ -200,10 +200,12 @@ GURL TemplateURLModel::GenerateSearchURL(const TemplateURL* t_url) {
     return GURL();
 
   if (!search_ref->SupportsReplacement())
-    return GURL(search_ref->url());
+    return GURL(WideToUTF8(search_ref->url()));
 
-  return GURL(search_ref->ReplaceSearchTerms(*t_url, kReplacementTerm,
-      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()));
+  return search_ref->ReplaceSearchTerms(
+      *t_url,
+      kReplacementTerm,
+      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
 }
 
 bool TemplateURLModel::CanReplaceKeyword(
@@ -227,7 +229,7 @@ bool TemplateURLModel::CanReplaceKeyword(
   // be replaced. We do this to ensure that if the user assigns a different
   // keyword to a generated TemplateURL, we won't regenerate another keyword for
   // the same host.
-  GURL gurl(url);
+  GURL gurl(WideToUTF8(url));
   if (gurl.is_valid() && !gurl.host().empty())
     return CanReplaceKeywordForHost(gurl.host(), template_url_to_replace);
   return true;

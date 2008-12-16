@@ -19,7 +19,9 @@ namespace base {
   class Time;
 }
 struct PasswordForm;
+#if defined(OS_WIN)
 struct IE7PasswordInfo;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -79,17 +81,22 @@ class WebDatabase {
   // Adds |form| to the list of remembered password forms.
   bool AddLogin(const PasswordForm& form);
 
+#if defined(OS_WIN)
   // Adds |info| to the list of imported passwords from ie7/ie8.
   bool AddIE7Login(const IE7PasswordInfo& info);
+
+  // Removes |info| from the list of imported passwords from ie7/ie8.
+  bool RemoveIE7Login(const IE7PasswordInfo& info);
+
+  // Return the ie7/ie8 login matching |info|.
+  bool GetIE7Login(const IE7PasswordInfo& info, IE7PasswordInfo* result);
+#endif
 
   // Updates remembered password form.
   bool UpdateLogin(const PasswordForm& form);
 
   // Removes |form| from the list of remembered password forms.
   bool RemoveLogin(const PasswordForm& form);
-
-  // Removes |info| from the list of imported passwords from ie7/ie8.
-  bool RemoveIE7Login(const IE7PasswordInfo& info);
 
   // Removes all logins created from |delete_begin| onwards (inclusive) and
   // before |delete_end|. You may use a null Time value to do an unbounded
@@ -101,9 +108,6 @@ class WebDatabase {
   // The list will contain all possibly relevant entries to the observed |form|,
   // including blacklisted matches.
   bool GetLogins(const PasswordForm& form, std::vector<PasswordForm*>* forms);
-
-  // Return the ie7/ie8 login matching |info|.
-  bool GetIE7Login(const IE7PasswordInfo& info, IE7PasswordInfo* result);
 
   // Loads the complete list of password forms into the specified vector |forms|
   // if include_blacklisted is true, otherwise only loads those which are
@@ -205,7 +209,7 @@ class WebDatabase {
   int transaction_nesting_;
   MetaTableHelper meta_table_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebDatabase);
+  DISALLOW_COPY_AND_ASSIGN(WebDatabase);
 };
 
 #endif  // CHROME_BROWSER_WEBDATA_WEB_DATABASE_H__

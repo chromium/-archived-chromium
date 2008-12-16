@@ -1573,6 +1573,10 @@
 				RelativePath=".\webdata\web_database.h"
 				>
 			</File>
+			<File
+				RelativePath=".\webdata\web_database_win.cc"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Importer"

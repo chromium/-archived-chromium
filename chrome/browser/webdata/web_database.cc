@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/webdata/web_database.h"
+
 #include <algorithm>
 #include <limits>
 #include <vector>
-
-#include "chrome/browser/webdata/web_database.h"
 
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
@@ -14,7 +14,6 @@
 #include "base/time.h"
 #include "base/values.h"
 #include "chrome/browser/history/history_database.h"
-#include "chrome/browser/ie7_password.h"
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/encryptor.h"
 #include "chrome/common/l10n_util.h"
@@ -542,7 +541,7 @@ bool WebDatabase::GetKeywords(std::vector<TemplateURL*>* urls) {
 
     s.column_string16(3, &tmp);
     if (!tmp.empty())
-      template_url->SetFavIconURL(GURL(tmp));
+      template_url->SetFavIconURL(GURL(WideToUTF8(tmp)));
 
     s.column_string16(4, &tmp);
     template_url->SetURL(tmp, 0, 0);
@@ -551,7 +550,7 @@ bool WebDatabase::GetKeywords(std::vector<TemplateURL*>* urls) {
 
     s.column_string16(6, &tmp);
     if (!tmp.empty())
-      template_url->set_originating_url(GURL(tmp));
+      template_url->set_originating_url(GURL(WideToUTF8(tmp)));
 
     template_url->set_date_created(Time::FromTimeT(s.column_int64(7)));
 
@@ -614,40 +613,6 @@ int WebDatabase::GetBuitinKeywordVersion() {
   return version;
 }
 
-// Return a new GURL like url, but without any "#foo" bit on the end.
-static GURL GURLWithoutRef(const GURL& url) {
-  url_canon::Replacements<char> replacements;
-  replacements.ClearRef();
-  return url.ReplaceComponents(replacements);
-}
-
-// Convert a list of GUIDs from the in-memory form to the form we keep in
-// the database (tab-separated string).
-static std::string SerializeGUIDs(const std::vector<std::string>& guids) {
-  std::string result;
-  for (size_t i = 0; i < guids.size(); ++i) {
-    if (!result.empty())
-      result.push_back('\t');
-    const std::string& guid = guids[i];
-    for (size_t j = 0; j < guid.size(); ++j) {
-      char ch = guid[j];
-      // If we have any embedded tabs in the GUID (a pathological case),
-      // we normalize them to spaces.
-      if (ch == '\t')
-        ch = ' ';
-      result.push_back(ch);
-    }
-  }
-  return result;
-}
-
-// The partner of SerializeGUIDs.  Converts a serialized GUIDs string
-// back to a vector.
-static void DeserializeGUIDs(const std::string& str,
-                             std::vector<std::string>* guids) {
-  SplitString(str, '\t', guids);
-}
-
 bool WebDatabase::AddLogin(const PasswordForm& form) {
   SQLStatement s;
   std::string encrypted_password;
@@ -677,27 +642,6 @@ bool WebDatabase::AddLogin(const PasswordForm& form) {
   s.bind_int64(10, form.date_created.ToTimeT());
   s.bind_int(11, form.blacklisted_by_user);
   s.bind_int(12, form.scheme);
-  if (s.step() != SQLITE_DONE) {
-    NOTREACHED();
-    return false;
-  }
-  return true;
-}
-
-bool WebDatabase::AddIE7Login(const IE7PasswordInfo& info) {
-  SQLStatement s;
-  if (s.prepare(db_,
-                "INSERT OR REPLACE INTO ie7_logins "
-                "(url_hash, password_value, date_created) "
-                "VALUES (?, ?, ?)") != SQLITE_OK) {
-    NOTREACHED() << "Statement prepare failed";
-    return false;
-  }
-
-  s.bind_wstring(0, info.url_hash);
-  s.bind_blob(1, &info.encrypted_data.front(),
-              static_cast<int>(info.encrypted_data.size()));
-  s.bind_int64(2, info.date_created.ToTimeT());
   if (s.step() != SQLITE_DONE) {
     NOTREACHED();
     return false;
@@ -761,24 +705,6 @@ bool WebDatabase::RemoveLogin(const PasswordForm& form) {
   s.bind_wstring(3, form.password_element);
   s.bind_wstring(4, form.submit_element);
   s.bind_string(5, form.signon_realm);
-
-  if (s.step() != SQLITE_DONE) {
-    NOTREACHED();
-    return false;
-  }
-  return true;
-}
-
-bool WebDatabase::RemoveIE7Login(const IE7PasswordInfo& info) {
-  SQLStatement s;
-  // Remove a login by UNIQUE-constrained fields.
-  if (s.prepare(db_,
-                "DELETE FROM ie7_logins WHERE "
-                "url_hash = ?") != SQLITE_OK) {
-    NOTREACHED() << "Statement prepare failed";
-    return false;
-  }
-  s.bind_wstring(0, info.url_hash);
 
   if (s.step() != SQLITE_DONE) {
     NOTREACHED();
@@ -869,29 +795,6 @@ bool WebDatabase::GetLogins(const PasswordForm& form,
     forms->push_back(new_form);
   }
   return result == SQLITE_DONE;
-}
-
-bool WebDatabase::GetIE7Login(const IE7PasswordInfo& info,
-                              IE7PasswordInfo* result) {
-  DCHECK(result);
-  SQLStatement s;
-  if (s.prepare(db_,
-                "SELECT password_value, date_created FROM ie7_logins "
-                "WHERE url_hash == ? ") != SQLITE_OK) {
-    NOTREACHED() << "Statement prepare failed";
-    return false;
-  }
-
-  s.bind_wstring(0, info.url_hash);
-
-  int64 query_result = s.step();
-  if (query_result == SQLITE_ROW) {
-    s.column_blob_as_vector(0, &result->encrypted_data);
-    result->date_created = Time::FromTimeT(s.column_int64(1));
-    result->url_hash = info.url_hash;
-    s.step();
-  }
-  return query_result == SQLITE_DONE;
 }
 
 bool WebDatabase::GetAllLogins(std::vector<PasswordForm*>* forms,

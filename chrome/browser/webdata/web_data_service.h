@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_WEBDATA_WEB_DATA_SERVICE_H__
 #define CHROME_BROWSER_WEBDATA_WEB_DATA_SERVICE_H__
 
+#include <map>
+
 #include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/message_loop.h"
@@ -12,12 +14,10 @@
 #include "base/thread.h"
 #include "chrome/browser/webdata/web_database.h"
 #include "chrome/common/scoped_vector.h"
-#include <map>
+#include "webkit/glue/autofill_form.h"
 
-struct AutofillForm::Element;
 struct IE7PasswordInfo;
 struct PasswordForm;
-class AutofillForm;
 class GURL;
 class ShutdownTask;
 class TemplateURL;
@@ -383,7 +383,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   friend class WebDataRequest;
 
   // This is invoked by the unit test; path is the path of the Web Data file.
-  bool WebDataService::InitWithPath(const std::wstring& path);
+  bool InitWithPath(const std::wstring& path);
 
   // Invoked by request implementations when a request has been processed.
   void RequestCompleted(Handle h);
@@ -400,13 +400,13 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   friend class ShutdownTask;
 
   typedef GenericRequest2<std::vector<const TemplateURL*>,
-                          std::vector<TemplateURL*>> SetKeywordsRequest;
+                          std::vector<TemplateURL*> > SetKeywordsRequest;
 
   // Initialize the database with the provided path.
   void InitializeDatabase(const std::wstring& path);
 
   // Commit any pending transaction and deletes the database.
-  void WebDataService::ShutdownDatabase();
+  void ShutdownDatabase();
 
   // Commit the current transaction and creates a new one.
   void Commit();

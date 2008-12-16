@@ -102,17 +102,11 @@ bool TemplateURLRef::ParseParameter(size_t start,
       url->insert(start, kDefaultCount);
   } else if (parameter == kStartIndexParameter) {
     if (!optional) {
-      wchar_t start_string[12];
-      if (swprintf_s(start_string, L"%d", index_offset_) <= 0)
-        return false;
-      url->insert(start, start_string);
+      url->insert(start, IntToWString(index_offset_));
     }
   } else if (parameter == kStartPageParameter) {
     if (!optional) {
-      wchar_t start_string[12];
-      if (swprintf_s(start_string, L"%d", page_offset_) <= 0)
-        return false;
-      url->insert(start, start_string);
+      url->insert(start, IntToWString(page_offset_));
     }
   } else if (parameter == kLanguageParameter) {
     replacements->push_back(Replacement(LANGUAGE, static_cast<int>(start)));
@@ -207,7 +201,7 @@ void TemplateURLRef::ParseHostAndSearchTermKey() const {
                                kGoogleBaseSuggestURLParameterFull,
                                GoogleBaseSuggestURLValue());
 
-  GURL url(url_string);
+  GURL url(WideToUTF8(url_string));
   if (!url.is_valid())
     return;
 
@@ -453,7 +447,7 @@ std::wstring TemplateURLRef::GoogleBaseSuggestURLValue() {
 
   // Start with the Google base URL.
   const GURL base_url(google_base_url_ ?
-      GURL(*google_base_url_) : GoogleURLTracker::GoogleURL());
+      GURL(WideToUTF8(*google_base_url_)) : GoogleURLTracker::GoogleURL());
   DCHECK(base_url.is_valid());
 
   // Change "www." to "clients1." in the hostname.  If no "www." was found, just

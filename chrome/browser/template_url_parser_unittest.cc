@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -127,7 +125,7 @@ TEST_F(TemplateURLParserTest, TestWikipedia) {
   EXPECT_TRUE(template_url_.suggestions_url()->SupportsReplacement());
   EXPECT_EQ(template_url_.suggestions_url()->url(),
       L"http://en.wikipedia.org/w/api.php?action=opensearch&search={searchTerms}");
-  ASSERT_EQ(2, template_url_.input_encodings().size());
+  ASSERT_EQ(2U, template_url_.input_encodings().size());
   EXPECT_EQ("UTF-8", template_url_.input_encodings()[0]);
   EXPECT_EQ("Shift_JIS", template_url_.input_encodings()[1]);
 }
@@ -148,8 +146,8 @@ class ParamFilterImpl : public TemplateURLParser::ParameterFilter {
   }
 
   bool KeepParameter(const std::string& key, const std::string& value) {
-    return (name_str_.empty() || key.find(name_str_) == -1) &&
-           (value_str_.empty() || value.find(value_str_) == -1);
+    return (name_str_.empty() || key.find(name_str_) == std::string::npos) &&
+           (value_str_.empty() || value.find(value_str_) == std::string::npos);
   }
 
  private:
@@ -175,7 +173,7 @@ TEST_F(TemplateURLParserTest, TestFirefoxEbay) {
       L"MfcISAPICommand=GetResult&ht=1&srchdesc=n&maxRecordsReturned=300&"
       L"maxRecordsPerPage=50&SortProperty=MetaEndSort";
   EXPECT_EQ(exp_url, template_url_.url()->url());
-  ASSERT_EQ(1, template_url_.input_encodings().size());
+  ASSERT_EQ(1U, template_url_.input_encodings().size());
   EXPECT_EQ("ISO-8859-1", template_url_.input_encodings()[0]);
   EXPECT_EQ(GURL("http://search.ebay.com/favicon.ico"),
             template_url_.GetFavIconURL());
@@ -193,7 +191,7 @@ TEST_F(TemplateURLParserTest, TestFirefoxWebster) {
   EXPECT_TRUE(template_url_.url()->SupportsReplacement());
   EXPECT_EQ(L"http://www.webster.com/cgi-bin/dictionary?va={searchTerms}",
             template_url_.url()->url());
-  ASSERT_EQ(1, template_url_.input_encodings().size());
+  ASSERT_EQ(1U, template_url_.input_encodings().size());
   EXPECT_EQ("ISO-8859-1", template_url_.input_encodings()[0]);
   EXPECT_EQ(GURL("http://www.webster.com/favicon.ico"),
             template_url_.GetFavIconURL());
@@ -214,7 +212,7 @@ TEST_F(TemplateURLParserTest, TestFirefoxYahoo) {
             template_url_.suggestions_url()->url());
   EXPECT_EQ(L"http://search.yahoo.com/search?p={searchTerms}&ei=UTF-8",
             template_url_.url()->url());
-  ASSERT_EQ(1, template_url_.input_encodings().size());
+  ASSERT_EQ(1U, template_url_.input_encodings().size());
   EXPECT_EQ("UTF-8", template_url_.input_encodings()[0]);
   EXPECT_EQ(GURL("http://search.yahoo.com/favicon.ico"),
             template_url_.GetFavIconURL());
@@ -235,7 +233,7 @@ TEST_F(TemplateURLParserTest, TestPostSuggestion) {
   EXPECT_TRUE(template_url_.suggestions_url() == NULL);
   EXPECT_EQ(L"http://search.yahoo.com/search?p={searchTerms}&ei=UTF-8",
             template_url_.url()->url());
-  ASSERT_EQ(1, template_url_.input_encodings().size());
+  ASSERT_EQ(1U, template_url_.input_encodings().size());
   EXPECT_EQ("UTF-8", template_url_.input_encodings()[0]);
   EXPECT_EQ(GURL("http://search.yahoo.com/favicon.ico"),
             template_url_.GetFavIconURL());
