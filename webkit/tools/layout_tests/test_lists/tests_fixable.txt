@@ -722,6 +722,7 @@ LINUX WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
