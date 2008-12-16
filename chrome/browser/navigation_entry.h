@@ -220,7 +220,10 @@ class NavigationEntry {
   // the user.
   void set_url(const GURL& url) {
     url_ = url;
-    url_as_string_ = UTF8ToWide(url_.spec());
+    if (display_url_.is_empty()) {
+      // If there is no explicit display URL, then we'll display this URL.
+      display_url_as_string_ = UTF8ToWide(url_.spec());
+    }
   }
   const GURL& url() const {
     return url_;
@@ -243,6 +246,7 @@ class NavigationEntry {
   // if there is no overridden display URL, it will return the actual one.
   void set_display_url(const GURL& url) {
     display_url_ = (url == url_) ? GURL() : url;
+    display_url_as_string_ = UTF8ToWide(url.spec());
   }
   bool has_display_url() const {
     return !display_url_.is_empty();
@@ -373,8 +377,12 @@ class NavigationEntry {
   GURL url_;
   GURL referrer_;
 
-  std::wstring url_as_string_;
   GURL display_url_;
+
+  // We cache a copy of the display URL as a string so we don't have to
+  // convert the display URL to a wide string every time we paint.
+  std::wstring display_url_as_string_;
+
   std::wstring title_;
   FaviconStatus favicon_;
   std::string content_state_;
