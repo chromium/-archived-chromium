@@ -81,10 +81,6 @@ input_files = [
     '$BASE_DIR/perftimer$OBJSUFFIX',
 ]
 
-if env['PLATFORM'] == 'posix':
-  # TODO(port): These tests don't work yet.
-  input_files.remove('ipc_fuzzing_tests.cc')
-
 ipc_tests = env.ChromeTestProgram('ipc_tests', input_files)
 i = env.Install('$TARGET_ROOT', ipc_tests)
 Alias('chrome', i)

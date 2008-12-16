@@ -98,6 +98,10 @@ bool ServerAcceptFifoConnection(int server_listen_fd, int* server_socket) {
   int accept_fd = accept(server_listen_fd, NULL, 0);
   if (accept_fd < 0)
     return false;
+  if (fcntl(accept_fd, F_SETFL, O_NONBLOCK) == -1) {
+    close(accept_fd);
+    return false;
+  }
 
   *server_socket = accept_fd;
   return true;
