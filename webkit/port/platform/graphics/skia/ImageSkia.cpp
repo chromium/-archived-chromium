@@ -33,6 +33,7 @@
 #include "BitmapImage.h"
 #include "BitmapImageSingleFrameSkia.h"
 #include "ChromiumBridge.h"
+#include "FloatConversion.h"
 #include "FloatRect.h"
 #include "GraphicsContext.h"
 #include "Logging.h"
@@ -371,8 +372,12 @@ void Image::drawPattern(GraphicsContext* context,
     // origin of the destination rect, which is what WebKit expects. Skia uses
     // the coordinate system origin as the base for the patter. If WebKit wants
     // a shifted image, it will shift it from there using the patternTransform.
-    matrix.postTranslate(SkFloatToScalar(phase.x()),
-                         SkFloatToScalar(phase.y()));
+    float adjustedX = phase.x() + floatSrcRect.x() *
+                      narrowPrecisionToFloat(patternTransform.a());
+    float adjustedY = phase.y() + floatSrcRect.y() *
+                      narrowPrecisionToFloat(patternTransform.d());
+    matrix.postTranslate(SkFloatToScalar(adjustedX),
+                         SkFloatToScalar(adjustedY));
     shader->setLocalMatrix(matrix);
 
     SkPaint paint;

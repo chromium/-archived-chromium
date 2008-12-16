@@ -633,8 +633,6 @@ LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 // It looks like the text is the wrong color.
 WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
-// Linux pixeltest failure: border gradients are improperly offset
-LINUX WIN : LayoutTests/fast/gradients/border-image-gradient.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
