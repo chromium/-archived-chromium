@@ -39,7 +39,8 @@ class FuzzyImageDiff(test_type_base.TestTypeBase):
       failures.append(test_failures.FailureMissingImage(self))
 
     # Run the fuzzymatcher
-    r = subprocess.call(['fuzzymatch', test_args.png_path, expected_png_file])
+    r = subprocess.call([path_utils.GetPlatformUtil().FuzzyMatchBinaryPath(),
+                        test_args.png_path, expected_png_file])
     if r != 0:
       failures.append(test_failures.FailureFuzzyFailure(self))
 

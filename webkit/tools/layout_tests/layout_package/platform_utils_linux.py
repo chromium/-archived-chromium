@@ -179,6 +179,10 @@ class PlatformUtility(object):
     # multiple debug/release targets).
     return PathFromBase('chrome', 'Hammer', self.TestShellBinary())
 
+  def FuzzyMatchBinaryPath(self):
+    """Return the path to the fuzzy matcher binary."""
+    return PathFromBase('third_party', 'fuzzymatch', 'fuzzymatch')
+
   def TestListPlatformDir(self):
     """Return the platform-specific directory for where the test lists live"""
     return 'linux'
