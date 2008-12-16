@@ -4,19 +4,19 @@
 
 #include "chrome/browser/url_fetcher.h"
 
+#include "base/compiler_specific.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/net/dns_master.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
 
 URLFetcher::URLFetcher(const GURL& url,
                        RequestType request_type,
                        Delegate* d)
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-  : core_(new Core(this, url, request_type, d)) {
+    : ALLOW_THIS_IN_INITIALIZER_LIST(
+      core_(new Core(this, url, request_type, d))) {
 }
 
 URLFetcher::~URLFetcher() {
@@ -34,8 +34,8 @@ URLFetcher::Core::Core(URLFetcher* fetcher,
       delegate_loop_(MessageLoop::current()),
       io_loop_(ChromeThread::GetMessageLoop(ChromeThread::IO)),
       request_(NULL),
-      response_code_(-1),
       load_flags_(net::LOAD_NORMAL),
+      response_code_(-1),
       protect_entry_(URLFetcherProtectManager::GetInstance()->Register(
           original_url_.host())),
       num_retries_(0) {

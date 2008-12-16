@@ -24,7 +24,7 @@ TEST(GoogleURLTrackerTest, CheckAndConvertURL) {
     { "http://google/", false, "", },
   };
 
-  for (size_t i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     GURL base_url;
     const bool can_convert = GoogleURLTracker::CheckAndConvertToGoogleBaseURL(
         GURL(data[i].source_url), &base_url);
