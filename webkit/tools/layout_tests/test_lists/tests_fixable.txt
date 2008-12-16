@@ -545,10 +545,15 @@ SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
+
+// Failing because looking up a method on an object fails when the stack is
+// full because of recursion.
 LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
+// V8 completely fails to parse the JS at all; suspect it's because of the
+// Unicode BOM at the beginning of the file.
 LayoutTests/fast/js/removing-Cf-characters.html = FAIL
+// V8 is using the wrong global object (this could be serious)
 LayoutTests/fast/js/static-scope-object.html = FAIL
-LayoutTests/fast/js/delete-getters-setters.html = FAIL
 // http://b/issue?id=1344252
 LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 
