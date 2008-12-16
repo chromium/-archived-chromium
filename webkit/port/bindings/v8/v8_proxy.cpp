@@ -1935,15 +1935,6 @@ bool V8Proxy::isEnabled()
 }
 
 
-// static
-void V8Proxy::DomainChanged(Frame* frame)
-{
-    V8Proxy* proxy = retrieve(frame);
-    // Restore to default security token.
-    proxy->m_context->UseDefaultSecurityToken();
-}
-
-
 void V8Proxy::UpdateDocumentWrapper(v8::Handle<v8::Value> wrapper) {
     ClearDocumentWrapper();
 
@@ -2084,6 +2075,11 @@ void V8Proxy::updateDocument()
     }
 }
 
+void V8Proxy::updateSecurityOrigin()
+{
+    v8::HandleScope scope;
+    SetSecurityToken();
+}
 
 // Same origin policy implementation:
 //

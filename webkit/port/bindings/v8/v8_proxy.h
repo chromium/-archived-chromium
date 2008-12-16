@@ -171,6 +171,10 @@ class V8Proxy {
   // Update document object of the frame.
   void updateDocument();
 
+  // Update the security origin of a document
+  // (e.g., after setting docoument.domain).
+  void updateSecurityOrigin();
+
   // Destroy the global object.
   void DestroyGlobal();
 
@@ -404,9 +408,6 @@ class V8Proxy {
                                              v8::Persistent<v8::Object> wrapper);
   static void SetJSWrapperForDOMNode(Node* node,
                                      v8::Persistent<v8::Object> wrapper);
-
-  // Domain of a frame is changed, invalidate its security token.
-  static void DomainChanged(Frame* frame);
 
   // Process any pending JavaScript console messages.
   static void ProcessConsoleMessages();

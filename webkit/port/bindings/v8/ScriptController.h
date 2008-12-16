@@ -196,9 +196,6 @@ public:
     // Check whether it is safe to access a frame in another domain.
     static bool isSafeScript(Frame* target);
 
-    // Tell the proxy that document.domain is set.
-    static void setDomain(Frame* target, const String& newDomain);
-
     // Pass command-line flags to the JS engine
     static void setFlags(const char* str, int length);
 

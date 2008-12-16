@@ -82,11 +82,6 @@ void ScriptController::setFlags(const char* str, int length)
     v8::V8::SetFlagsFromString(str, length);
 }
 
-void ScriptController::setDomain(Frame* frame, const String&)
-{
-    V8Proxy::DomainChanged(frame);
-}
-
 Frame* ScriptController::retrieveActiveFrame()
 {
     return V8Proxy::retrieveActiveFrame();
@@ -140,7 +135,7 @@ void ScriptController::clearScriptObjects()
 
 void ScriptController::updateSecurityOrigin()
 {
-    // TODO(dglazkov): Determine whether we need to do something here.
+    m_proxy->updateSecurityOrigin();
 }
 
 void ScriptController::updatePlatformScriptObjects()
