@@ -20,7 +20,6 @@ void Clipboard::DispatchObject(ObjectType type, const ObjectMapParams& params) {
         WriteHTML(&(params[0].front()), params[0].size(), NULL, 0);
       break;
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
     case CBF_BOOKMARK:
       WriteBookmark(&(params[0].front()), params[0].size(),
                     &(params[1].front()), params[1].size());
@@ -34,20 +33,18 @@ void Clipboard::DispatchObject(ObjectType type, const ObjectMapParams& params) {
     case CBF_FILES:
       WriteFiles(&(params[0].front()), params[0].size());
       break;
-#endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
     case CBF_WEBKIT:
       WriteWebSmartPaste();
       break;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)  // This is just a stub on Linux
     case CBF_BITMAP:
       WriteBitmap(&(params[0].front()), &(params[1].front()));
       break;
-#endif  // defined(OS_WIN)
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
     default:
       NOTREACHED();
   }
 }
-

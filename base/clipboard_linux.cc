@@ -147,6 +147,24 @@ void Clipboard::WriteWebSmartPaste() {
   InsertMapping(kMimeWebkitSmartPaste, NULL, 0);
 }
 
+void Clipboard::WriteBitmap(const char* pixel_data, const char* size_data) {
+  NOTIMPLEMENTED();
+}
+
+void Clipboard::WriteBookmark(const char* title_data, size_t title_len,
+                              const char* url_data, size_t url_len) {
+  NOTIMPLEMENTED();
+}
+
+void Clipboard::WriteHyperlink(const char* title_data, size_t title_len,
+                               const char* url_data, size_t url_len) {
+  NOTIMPLEMENTED();
+}
+
+void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
+  NOTIMPLEMENTED();
+}
+
 // We do not use gtk_clipboard_wait_is_target_available because of
 // a bug with the gtk clipboard. It caches the available targets
 // and does not always refresh the cache when it is appropriate.

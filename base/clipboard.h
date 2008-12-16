@@ -155,9 +155,9 @@ class Clipboard {
   void WriteFiles(const char* file_data, size_t file_len);
 
   void DispatchObject(ObjectType type, const ObjectMapParams& params);
-#if defined(OS_WIN)
-  void WriteBitmap(const char* pixel_data, const char* size_data);
 
+  void WriteBitmap(const char* pixel_data, const char* size_data);
+#if defined(OS_WIN)
   void WriteBitmapFromSharedMemory(const char* bitmap_data,
                                    const char* size_data,
                                    base::ProcessHandle handle);
@@ -204,4 +204,3 @@ class Clipboard {
 };
 
 #endif  // BASE_CLIPBOARD_H_
-
