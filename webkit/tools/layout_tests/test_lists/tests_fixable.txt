@@ -1353,6 +1353,11 @@ MAC : LayoutTests/editing/selection/3690703.html = FAIL
 MAC : LayoutTests/editing/selection/3690719.html = FAIL
 MAC : LayoutTests/editing/selection/4895428-3.html = FAIL
 MAC : LayoutTests/editing/selection/4975120.html = FAIL
+MAC : LayoutTests/editing/selection/5136696.html = FAIL
+MAC : LayoutTests/editing/selection/5213963.html = FAIL
+MAC : LayoutTests/editing/selection/drag-select-1.html = FAIL
+MAC : LayoutTests/editing/selection/drag-text-delay.html = FAIL
+MAC : LayoutTests/fast/css/line-height.html = FAIL
 MAC : LayoutTests/fast/forms/input-disabled-color.html = FAIL
 MAC : LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
 MAC : LayoutTests/fast/forms/password-placeholder.html = FAIL
@@ -1367,6 +1372,8 @@ MAC : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 MAC : LayoutTests/editing/inserting/4960120-1.html = FAIL
 MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
 MAC : LayoutTests/editing/pasteboard/pasting-tabs.html = FAIL
+MAC : LayoutTests/fast/css/resize-corner-tracking.html = FAIL
+MAC : LayoutTests/fast/dom/HTMLTextAreaElement/reset-textarea.html = FAIL
 
 // text input garbage
 MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
@@ -1404,33 +1411,22 @@ MAC : LayoutTests/fast/forms/textfield-to-password-on-focus.html = FAIL
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
 MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
 MAC : LayoutTests/editing/selection/5109817.html = FAIL
+MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
 
 // missing resources
 MAC : LayoutTests/editing/execCommand/insertImage.html = FAIL
 
+// incorrect layout
+MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
+
+// unknown
+MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
+
+
 // ***** END BUCKETS
 
-MAC : LayoutTests/editing/selection/5136696.html = FAIL
-MAC : LayoutTests/editing/selection/5213963.html = FAIL
-MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
-MAC : LayoutTests/editing/selection/drag-select-1.html = FAIL
-MAC : LayoutTests/editing/selection/drag-text-delay.html = FAIL
-MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
-MAC : LayoutTests/fast/css/line-height.html = FAIL
-MAC : LayoutTests/fast/css/resize-corner-tracking.html = FAIL
-MAC : LayoutTests/fast/dom/DOMException/EventException.html = FAIL
-MAC : LayoutTests/fast/dom/DOMException/RangeException.html = FAIL
-MAC : LayoutTests/fast/dom/DOMException/XPathException.html = FAIL
-MAC : LayoutTests/fast/dom/DOMException/prototype-object.html = FAIL
-MAC : LayoutTests/fast/dom/HTMLTextAreaElement/reset-textarea.html = FAIL
-MAC : LayoutTests/fast/dom/NamedNodeMap-setNamedItem-crash.html = FAIL
-MAC : LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
-MAC : LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
-MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
-MAC : LayoutTests/fast/dom/Window/atob-btoa.html = FAIL
-MAC : LayoutTests/fast/dom/Window/element-constructors-on-window.html = FAIL CRASH
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
-MAC : LayoutTests/fast/dom/Window/window-property-shadowing.html = FAIL CRASH
+
 MAC : LayoutTests/fast/dom/documenturi-assigned-junk-implies-relative-urls-do-not-resolve.html = FAIL
 MAC : LayoutTests/fast/dom/getElementsByClassName/011.xml = FAIL
 MAC : LayoutTests/fast/dom/global-constructors.html = FAIL
