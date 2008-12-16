@@ -1374,7 +1374,6 @@ MAC : LayoutTests/editing/inserting/before-after-input-element.html = FAIL
 MAC : LayoutTests/editing/pasteboard/4806874.html = FAIL
 MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 
-MAC RELEASE : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 MAC : LayoutTests/editing/pasteboard/drop-text-without-selection.html = FAIL
 MAC : LayoutTests/editing/pasteboard/input-field-1.html = FAIL
 MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
@@ -2054,11 +2053,13 @@ LayoutTests/animations/change-keyframes-name.html = TIMEOUT
 LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 LayoutTests/fast/backgrounds/svg-as-background-5.html = CRASH FAIL PASS
-DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
-DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
-DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
-DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
-DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
-DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
+LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
+LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
+LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
+MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
+LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
+LINUX WIN DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
+LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
+MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Missing expected results.
 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
