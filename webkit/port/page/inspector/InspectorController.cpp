@@ -845,12 +845,8 @@ void InspectorController::addConsoleMessage(ScriptState*, ConsoleMessage* consol
         m_consoleMessages.remove(0);
         delete msg;
     }
-    if (m_previousMessage && *m_previousMessage == *consoleMessage) {
-        ++m_previousMessage->repeatCount;
-    } else {
-        m_previousMessage = consoleMessage;
-        m_consoleMessages.append(consoleMessage);
-    }
+    m_previousMessage = consoleMessage;
+    m_consoleMessages.append(consoleMessage);
     if (windowVisible())
         addScriptConsoleMessage(m_previousMessage);
 }
