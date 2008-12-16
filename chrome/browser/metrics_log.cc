@@ -41,12 +41,12 @@ void MetricsLog::RegisterPrefs(PrefService* local_state) {
 
 MetricsLog::MetricsLog(const std::string& client_id, int session_id)
     : start_time_(Time::Now()),
-      num_events_(0),
+      client_id_(client_id),
+      session_id_(IntToString(session_id)),
       locked_(false),
       buffer_(NULL),
       writer_(NULL),
-      client_id_(client_id),
-      session_id_(IntToString(session_id)) {
+      num_events_(0) {
 
   buffer_ = xmlBufferCreate();
   DCHECK(buffer_);
@@ -110,7 +110,7 @@ std::string MetricsLog::CreateHash(const std::string& value) {
 
   unsigned char reverse[8];  // UMA only uses first 8 chars of hash.
   DCHECK(arraysize(digest.a) >= arraysize(reverse));
-  for (int i = 0; i < arraysize(reverse); ++i)
+  for (size_t i = 0; i < arraysize(reverse); ++i)
     reverse[i] = digest.a[arraysize(reverse) - i - 1];
   LOG(INFO) << "Metrics: Hash numeric [" << value << "]=["
     << *reinterpret_cast<const uint64*>(&reverse[0]) << "]";
