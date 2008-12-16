@@ -854,8 +854,6 @@ LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 // TODO(port): figure out what's wrong with these and annotate appropriately.
 LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
-MAC : LayoutTests/editing/inserting/typing-tab-designmode-forms.html = FAIL
-MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 LINUX : LayoutTests/fast/block/basic/011.html = FAIL
 LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
@@ -869,61 +867,28 @@ LINUX : LayoutTests/fast/css/rtl-ordering.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
-MAC : LayoutTests/fast/events/access-key-self-destruct.html = FAIL
-MAC : LayoutTests/fast/events/arrow-keys-on-body.html = FAIL
-MAC : LayoutTests/fast/events/key-events-in-input-text.html = FAIL
-MAC : LayoutTests/fast/events/keypress-focus-change.html = FAIL
-MAC : LayoutTests/fast/events/keypress-insert-tab.html = FAIL
-MAC : LayoutTests/fast/events/onchange-passwordfield.html = FAIL
-MAC : LayoutTests/fast/events/onchange-searchfield.html = FAIL
-MAC : LayoutTests/fast/events/onchange-select-popup.html = FAIL
-MAC : LayoutTests/fast/events/onchange-textfield.html = FAIL
-MAC : LayoutTests/fast/events/onsearch-enter.html = FAIL
 LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 LINUX : LayoutTests/fast/forms/HTMLOptionElement_label05.html = FAIL
-MAC : LayoutTests/fast/forms/access-key.html = FAIL
-MAC : LayoutTests/fast/forms/button-enter-click.html = FAIL
-MAC : LayoutTests/fast/forms/check-box-enter-key.html = FAIL
-MAC : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
-MAC : LayoutTests/fast/forms/focus-selection-input.html = FAIL
-MAC : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
 LINUX : LayoutTests/fast/forms/hidden-listbox.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
-MAC : LayoutTests/fast/forms/input-text-double-click.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
-MAC : LayoutTests/fast/forms/legend-access-key.html = FAIL
-MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
-MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
-MAC : LayoutTests/fast/forms/listbox-typeahead-scroll.html = FAIL
 LINUX : LayoutTests/fast/forms/listbox-width-change.html = FAIL
-MAC : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
-MAC : LayoutTests/fast/forms/onchange-enter-submit.html = FAIL
 LINUX : LayoutTests/fast/forms/option-strip-whitespace.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/search-rtl.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-MAC : LayoutTests/fast/forms/select-accesskey.html = FAIL
 LINUX : LayoutTests/fast/forms/select-block-background.html = FAIL
 LINUX : LayoutTests/fast/forms/select-change-listbox-size.html = FAIL
 LINUX : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
-MAC : LayoutTests/fast/forms/select-double-onchange.html = FAIL
-MAC : LayoutTests/fast/forms/select-enter-key.html = FAIL
 LINUX : LayoutTests/fast/forms/select-initial-position.html = FAIL
 LINUX : LayoutTests/fast/forms/select-list-box-with-height.html = FAIL
-MAC : LayoutTests/fast/forms/select-type-ahead-non-latin.html = FAIL
 LINUX : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
-MAC : LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
-MAC : LayoutTests/fast/forms/textarea-type-spaces.html = FAIL
-MAC : LayoutTests/fast/forms/textarea-width.html = FAIL
-MAC : LayoutTests/fast/forms/textfield-onchange-deletion.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
-MAC : LayoutTests/fast/forms/textfield-to-password-on-focus.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
-MAC : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
 LINUX MAC : LayoutTests/fast/lists/001.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
@@ -945,7 +910,6 @@ LINUX : LayoutTests/fast/text/international/bidi-listbox-atsui.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
 LINUX : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
 LINUX : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
-MAC : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
 LINUX : LayoutTests/fast/text/letter-spacing-negative-opacity.html = FAIL
@@ -979,7 +943,6 @@ LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
 LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
@@ -1324,7 +1287,6 @@ LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT
 
 // MERGE 38653:38729: Expectations changed upstream
 LayoutTests/editing/execCommand/19653-4.html = FAIL
-MAC : LayoutTests/editing/deleting/5168598.html = FAIL
 LayoutTests/editing/deleting/delete-link-1.html = FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
 LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
@@ -1369,6 +1331,60 @@ SKIP MAC : LayoutTests/fast/regex/ = TIMEOUT
 //
 
 // These tests fail.
+
+
+// ***** BUCKETS
+
+// text fields wrong width
+MAC : LayoutTests/editing/inserting/typing-tab-designmode-forms.html = FAIL
+MAC : LayoutTests/fast/forms/input-text-double-click.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
+MAC : LayoutTests/editing/deleting/5168598.html = FAIL
+
+// we're waiting on upstreaming a change to how textarea padding works. rather
+// than rebasing, we'll wait for the upstream.
+MAC : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
+MAC : LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
+MAC : LayoutTests/fast/forms/textarea-width.html = FAIL
+MAC : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
+
+// text input garbage
+MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
+MAC : LayoutTests/fast/events/key-events-in-input-text.html = FAIL
+MAC : LayoutTests/fast/forms/focus-selection-input.html = FAIL
+MAC : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
+MAC : LayoutTests/fast/forms/textarea-type-spaces.html = FAIL
+MAC : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
+
+// bad key event handling
+MAC : LayoutTests/fast/events/access-key-self-destruct.html = FAIL
+MAC : LayoutTests/fast/events/arrow-keys-on-body.html = FAIL
+MAC : LayoutTests/fast/events/keypress-focus-change.html = FAIL
+MAC : LayoutTests/fast/events/keypress-insert-tab.html = FAIL
+MAC : LayoutTests/fast/events/onchange-passwordfield.html = FAIL
+MAC : LayoutTests/fast/events/onchange-searchfield.html = FAIL
+MAC : LayoutTests/fast/events/onchange-select-popup.html = FAIL
+MAC : LayoutTests/fast/events/onchange-textfield.html = FAIL
+MAC : LayoutTests/fast/events/onsearch-enter.html = FAIL
+MAC : LayoutTests/fast/forms/access-key.html = FAIL
+MAC : LayoutTests/fast/forms/button-enter-click.html = FAIL
+MAC : LayoutTests/fast/forms/check-box-enter-key.html = FAIL
+MAC : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
+MAC : LayoutTests/fast/forms/legend-access-key.html = FAIL
+MAC : LayoutTests/fast/forms/listbox-typeahead-scroll.html = FAIL
+MAC : LayoutTests/fast/forms/onchange-enter-submit.html = FAIL
+MAC : LayoutTests/fast/forms/select-accesskey.html = FAIL
+MAC : LayoutTests/fast/forms/select-double-onchange.html = FAIL
+MAC : LayoutTests/fast/forms/select-enter-key.html = FAIL
+MAC : LayoutTests/fast/forms/select-type-ahead-non-latin.html = FAIL
+MAC : LayoutTests/fast/forms/textfield-onchange-deletion.html = FAIL
+MAC : LayoutTests/fast/forms/textfield-to-password-on-focus.html = FAIL
+
+// selection
+MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
+MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
+
+// ***** END BUCKETS
 
 MAC : LayoutTests/editing/execCommand/insertImage.html = FAIL
 MAC : LayoutTests/editing/inserting/4960120-1.html = FAIL
@@ -1734,22 +1750,39 @@ MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
 MAC DEBUG : LayoutTests/svg/hixie/perf/007.xml = FAIL
 
 // Items crashing (sometimes) on the Mac as of 2008/12/12
+
+// window.open
 MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
+// window.open
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
+// window.open
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH
+// window.open and plugin
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
 
 // 2008/12/15 things crashing/timing out on the mac
+
+//  no html tags, bad html (unmatched tags)
 MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
+// window.open
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH
+// eventSender -- window.open
 MAC RELEASE : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
+// Script -- window.open
 MAC RELEASE : LayoutTests/fast/history/history_reload.html = CRASH
+// Script -- window.open
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT
+// Script -- window.open
 MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH
+// Script -- window.open
 MAC RELEASE : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
+// Script -- window.open
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH
+// Script+SVG -- window.open
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
+// Script doesn't seem to run full tests before crashing
 MAC DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-width-prop.html = CRASH
+// Script -- onload hooks
 MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
 
 // WebKit Merge 38800:38850 regressions
@@ -2062,10 +2095,12 @@ LayoutTests/fast/backgrounds/svg-as-background-5.html = CRASH FAIL PASS
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
+// eventSender to fake a drag
 MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
 LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
+// eventSender to fake a drag
 MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Missing expected results.
 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
