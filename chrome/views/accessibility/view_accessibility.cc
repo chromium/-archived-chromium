@@ -4,10 +4,8 @@
 
 #include "chrome/views/accessibility/view_accessibility.h"
 
-#include "base/logging.h"
-#include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/location_bar_view.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
+#include "chrome/views/widget.h"
 
 HRESULT ViewAccessibility::Initialize(views::View* view) {
   if (!view) {
@@ -19,11 +17,10 @@ HRESULT ViewAccessibility::Initialize(views::View* view) {
 }
 
 STDMETHODIMP ViewAccessibility::get_accChildCount(LONG* child_count) {
-  if (!child_count) {
+  if (!child_count || !view_) {
     return E_INVALIDARG;
   }
 
-  DCHECK(view_);
   *child_count = view_->GetChildViewCount();
   return S_OK;
 }
@@ -39,52 +36,33 @@ STDMETHODIMP ViewAccessibility::get_accChild(VARIANT var_child,
     return S_OK;
   }
 
-  views::View* child = NULL;
+  views::View* child_view = NULL;
   bool get_iaccessible = false;
 
   // Check to see if child is out-of-bounds.
   if (IsValidChild((var_child.lVal - 1), view_)) {
-    child = view_->GetChildViewAt(var_child.lVal - 1);
+    child_view = view_->GetChildViewAt(var_child.lVal - 1);
   } else {
-    // Child is further down the hierarchy, get ID and adjust for MSAA.
-    child = view_->GetViewByID(static_cast<int>(var_child.lVal));
+    // Child is located elsewhere in the hierarchy, get ID and adjust for MSAA.
+    child_view = view_->GetViewByID(static_cast<int>(var_child.lVal));
+
+    // Child view does not exist, or id is incorrect.
+    if (!child_view)
+      return E_INVALIDARG;
+
     get_iaccessible = true;
   }
-  // TODO(klink): Add bounds checking for View IDs and an else for OOB error.
 
-  if (!child) {
+  if (!child_view) {
     // No child found.
     *disp_child = NULL;
     return E_FAIL;
   }
 
-  // Sprecial case to handle the AutocompleteEdit MSAA.
-  if (child->GetID() == VIEW_ID_AUTOCOMPLETE) {
-    views::View* parent = child->GetParent();
-
-    // Paranoia check, to make sure we are making a correct cast.
-    if (parent->GetID() == VIEW_ID_LOCATION_BAR) {
-      LocationBarView* location_bar =
-          static_cast<LocationBarView*>(parent);
-
-      // Set the custom IAccessible for the HWNDView containing
-      // AutocompleteEdit.
-      IAccessible* location_entry_accessibility =
-          location_bar->location_entry()->GetIAccessible();
-      if (!location_entry_accessibility)
-        return E_NOINTERFACE;
-
-      GetAccessibleWrapper(child)->SetInstance(location_entry_accessibility);
-      // Setting bool to be true, as we have inserted an IAccessible on a
-      // leaf, and we need ref counting to happen properly.
-      get_iaccessible = true;
-    }
-  }
-
-  if (get_iaccessible || child->GetChildViewCount() != 0) {
+  if (get_iaccessible || child_view->GetChildViewCount() != 0) {
     // Retrieve the IUnknown interface for the requested child view, and
     // assign the IDispatch returned.
-    if ((GetAccessibleWrapper(child))->
+    if ((GetAccessibleWrapper(child_view))->
         GetInstance(IID_IAccessible,
                     reinterpret_cast<void**>(disp_child)) == S_OK) {
       // Increment the reference count for the retrieved interface.
@@ -106,9 +84,9 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
     return E_INVALIDARG;
   }
 
-  views::View* parent = view_->GetParent();
+  views::View* parent_view = view_->GetParent();
 
-  if (!parent) {
+  if (!parent_view) {
     // This function can get called during teardown of WidetWin so we
     // should bail out if we fail to get the HWND.
     if (!view_->GetWidget() || !view_->GetWidget()->GetHWND()) {
@@ -134,7 +112,7 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
 
   // Retrieve the IUnknown interface for the parent view, and assign the
   // IDispatch returned.
-  if ((GetAccessibleWrapper(parent))->
+  if ((GetAccessibleWrapper(parent_view))->
       GetInstance(IID_IAccessible,
                   reinterpret_cast<void**>(disp_parent)) == S_OK) {
     // Increment the reference count for the retrieved interface.
@@ -336,7 +314,6 @@ STDMETHODIMP ViewAccessibility::get_accName(VARIANT var_id, BSTR* name) {
     // If view has no name, return S_FALSE.
     return S_FALSE;
   }
-  DCHECK(*name);
 
   return S_OK;
 }
@@ -361,7 +338,6 @@ STDMETHODIMP ViewAccessibility::get_accDescription(VARIANT var_id, BSTR* desc) {
   } else {
     return S_FALSE;
   }
-  DCHECK(*desc);
 
   return S_OK;
 }
@@ -383,7 +359,10 @@ STDMETHODIMP ViewAccessibility::get_accState(VARIANT var_id, VARIANT* state) {
     // Retrieve all currently applicable states of the child.
     this->SetState(state, view_->GetChildViewAt(var_id.lVal - 1));
   }
-  DCHECK((*state).vt != VT_EMPTY);
+
+  // Make sure that state is not empty, and has the proper type.
+  if (state->vt == VT_EMPTY)
+    return E_FAIL;
 
   return S_OK;
 }
@@ -407,7 +386,10 @@ STDMETHODIMP ViewAccessibility::get_accRole(VARIANT var_id, VARIANT* role) {
       return E_FAIL;
     }
   }
-  DCHECK((*role).vt != VT_EMPTY);
+
+  // Make sure that role is not empty, and has the proper type.
+  if (role->vt == VT_EMPTY)
+    return E_FAIL;
 
   return S_OK;
 }
@@ -434,7 +416,6 @@ STDMETHODIMP ViewAccessibility::get_accDefaultAction(VARIANT var_id,
   } else {
     return S_FALSE;
   }
-  DCHECK(*def_action);
 
   return S_OK;
 }
@@ -566,7 +547,6 @@ STDMETHODIMP ViewAccessibility::get_accKeyboardShortcut(VARIANT var_id,
   } else {
     return S_FALSE;
   }
-  DCHECK(*acc_key);
 
   return S_OK;
 }

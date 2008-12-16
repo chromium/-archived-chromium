@@ -133,14 +133,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\accessibility\autocomplete_accessibility.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\accessibility\autocomplete_accessibility.h"
-				>
-			</File>
-			<File
 				RelativePath=".\accessibility\view_accessibility.cc"
 				>
 			</File>

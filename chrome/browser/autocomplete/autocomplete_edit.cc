@@ -13,6 +13,7 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/autocomplete/autocomplete_accessibility.h"
 #include "chrome/browser/autocomplete/autocomplete_popup.h"
 #include "chrome/browser/autocomplete/edit_drop_target.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
@@ -32,7 +33,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/accessibility/autocomplete_accessibility.h"
 #include "googleurl/src/url_util.h"
 #include "skia/ext/skia_utils_win.h"
 

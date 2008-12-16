@@ -4,7 +4,6 @@
 
 #include "chrome/views/accessibility/accessible_wrapper.h"
 
-#include "base/logging.h"
 #include "chrome/views/accessibility/view_accessibility.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,9 +12,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-AccessibleWrapper::AccessibleWrapper(views::View* view) :
-    accessibility_info_(NULL),
-    view_(view) {
+AccessibleWrapper::AccessibleWrapper(views::View* view)
+    : accessibility_info_(NULL),
+      view_(view) {
 }
 
 STDMETHODIMP AccessibleWrapper::CreateDefaultInstance(REFIID iid) {
@@ -26,9 +25,8 @@ STDMETHODIMP AccessibleWrapper::CreateDefaultInstance(REFIID iid) {
       CComObject<ViewAccessibility>* instance = NULL;
 
       HRESULT hr = CComObject<ViewAccessibility>::CreateInstance(&instance);
-      DCHECK(SUCCEEDED(hr));
 
-      if (!instance)
+      if (!SUCCEEDED(hr) || !instance)
         return E_FAIL;
 
       CComPtr<IAccessible> accessibility_instance(instance);

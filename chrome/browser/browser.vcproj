@@ -142,6 +142,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\autocomplete\autocomplete_accessibility.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_accessibility.h"
+				>
+			</File>
+			<File
 				RelativePath=".\autocomplete\autocomplete_edit.cc"
 				>
 			</File>
@@ -1490,19 +1498,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sessions\session_id.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\sessions\session_id.h"
-				>
-			</File>
-			<File
 				RelativePath=".\sessions\session_command.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\sessions\session_command.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_id.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\sessions\session_id.h"
 				>
 			</File>
 			<File

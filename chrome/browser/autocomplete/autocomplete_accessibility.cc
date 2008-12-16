@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/accessibility/autocomplete_accessibility.h"
+#include "chrome/browser/autocomplete/autocomplete_accessibility.h"
 
-#include "base/logging.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
+#include "chrome/views/view.h"
 
 #include "generated_resources.h"
 

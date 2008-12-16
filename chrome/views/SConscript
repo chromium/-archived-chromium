@@ -34,7 +34,6 @@ input_files = [
     'accelerator.cc',
     'accelerator_handler.cc',
     'accessibility/accessible_wrapper.cc',
-    'accessibility/autocomplete_accessibility.cc',
     'accessibility/view_accessibility.cc',
     'aero_tooltip_manager.cc',
     'background.cc',
