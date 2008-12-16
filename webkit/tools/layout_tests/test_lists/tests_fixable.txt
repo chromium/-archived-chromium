@@ -545,7 +545,6 @@ SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
-LINUX WIN : LayoutTests/fast/js/exception-try-finally-scope-error.html = FAIL
 LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 LayoutTests/fast/js/static-scope-object.html = FAIL
