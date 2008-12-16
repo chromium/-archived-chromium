@@ -13,20 +13,23 @@ enum Branch {
   UNKNOWN_BRANCH = 0,
   DEV_BRANCH,
   BETA_BRANCH,
+  STABLE_BRANCH,
 };
 
 // This vector of strings needs to be in sync with the Branch enum above.
 static const wchar_t* const kBranchStrings[] = {
   L"",
   L"1.1-dev",
-  L"1.1-beta"
+  L"1.1-beta",
+  L"",
 };
 
 // This vector of strings needs to be in sync with the Branch enum above.
 static const wchar_t* const kBranchStringsReadable[] = {
   L"",
   L"Dev",
-  L"Beta"
+  L"Beta",
+  L"Stable",
 };
 
 // The root key for Google Update.
@@ -51,7 +54,7 @@ static HICON dlg_icon = NULL;
 
 void SetMainLabel(HWND dialog, Branch branch) {
   std::wstring main_label = L"You are currently on ";
-  if (branch == DEV_BRANCH || branch == BETA_BRANCH)
+  if (branch == DEV_BRANCH || branch == BETA_BRANCH || branch == STABLE_BRANCH)
     main_label += std::wstring(L"the ") + kBranchStringsReadable[branch] +
                   std::wstring(L" channel");
   else
@@ -72,7 +75,7 @@ void OnInitDialog(HWND dialog) {
       !google_update.ReadValue(kBranchKey, &branch_string)) {
     // If the 'ap' value is missing, we create it, unless the key is missing.
     RegKey write_default(kGoogleUpdateRoot, kGoogleUpdateKey, KEY_WRITE);
-    branch_string = kBranchStrings[BETA_BRANCH];
+    branch_string = kBranchStrings[STABLE_BRANCH];
     if (!write_default.WriteValue(kBranchKey, branch_string.c_str()))
       branch_string = L"";  // Error, show disabled UI.
   }
@@ -90,7 +93,9 @@ void OnInitDialog(HWND dialog) {
   }
 
   Branch branch = UNKNOWN_BRANCH;
-  if (branch_string == kBranchStrings[DEV_BRANCH]) {
+  if (branch_string == kBranchStrings[STABLE_BRANCH]) {
+    branch = STABLE_BRANCH;
+  } else if (branch_string == kBranchStrings[DEV_BRANCH]) {
     branch = DEV_BRANCH;
   } else if (branch_string == kBranchStrings[BETA_BRANCH]) {
     branch = BETA_BRANCH;
@@ -98,6 +103,7 @@ void OnInitDialog(HWND dialog) {
     // Hide the controls we can't use.
     EnableWindow(GetDlgItem(dialog, IDOK), false);
     EnableWindow(GetDlgItem(dialog, IDC_STABLE), false);
+    EnableWindow(GetDlgItem(dialog, IDC_BETA), false);
     EnableWindow(GetDlgItem(dialog, IDC_CUTTING_EDGE), false);
 
     MessageBox(dialog, L"KEY NOT FOUND\n\nChrome is not installed, or is not "
@@ -109,9 +115,11 @@ void OnInitDialog(HWND dialog) {
   SetMainLabel(dialog, branch);
 
   CheckDlgButton(dialog, IDC_STABLE,
-                 branch == BETA_BRANCH ? BST_CHECKED : BST_UNCHECKED);
+                 branch == STABLE_BRANCH ? BST_CHECKED : BST_UNCHECKED);
   CheckDlgButton(dialog, IDC_CUTTING_EDGE,
                  branch == DEV_BRANCH ? BST_CHECKED : BST_UNCHECKED);
+  CheckDlgButton(dialog, IDC_BETA,
+                 branch == BETA_BRANCH ? BST_CHECKED : BST_UNCHECKED);
 }
 
 INT_PTR OnCtlColorStatic(HWND dialog, WPARAM wparam, LPARAM lparam) {
@@ -119,6 +127,7 @@ INT_PTR OnCtlColorStatic(HWND dialog, WPARAM wparam, LPARAM lparam) {
   HWND control_wnd = reinterpret_cast<HWND>(lparam);
 
   if (GetDlgItem(dialog, IDC_STABLE) == control_wnd ||
+      GetDlgItem(dialog, IDC_BETA) == control_wnd ||
       GetDlgItem(dialog, IDC_CUTTING_EDGE) == control_wnd ||
       GetDlgItem(dialog, IDC_LABEL_MAIN) == control_wnd ||
       GetDlgItem(dialog, IDC_SECONDARY_LABEL) == control_wnd) {
@@ -133,6 +142,8 @@ INT_PTR OnCtlColorStatic(HWND dialog, WPARAM wparam, LPARAM lparam) {
 void SaveChanges(HWND dialog) {
   Branch branch = UNKNOWN_BRANCH;
   if (IsDlgButtonChecked(dialog, IDC_STABLE))
+    branch = STABLE_BRANCH;
+  else if (IsDlgButtonChecked(dialog, IDC_BETA))
     branch = BETA_BRANCH;
   else if (IsDlgButtonChecked(dialog, IDC_CUTTING_EDGE))
     branch = DEV_BRANCH;
