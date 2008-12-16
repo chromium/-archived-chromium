@@ -27,12 +27,20 @@ static const wchar_t kRunClientProcess[] = L"client";
 //
 // To create a multiprocess test simply follow these steps:
 //
-// 1) Derive your test from MultiProcessTest.
+// 1) Derive your test from MultiProcessTest. Example:
+//
+//    class MyTest : public MultiProcessTest {
+//    };
+//
+//    TEST_F(MyTest, TestCaseName) {
+//      ...
+//    }
+//
 // 2) Create a mainline function for the child processes and include
 //    testing/multiprocess_func_list.h.
 //    See the declaration of the MULTIPROCESS_TEST_MAIN macro
 //    in that file for an example.
-// 3) Call SpawnChild("foo"), where "foo" is the name of
+// 3) Call SpawnChild(L"foo"), where "foo" is the name of
 //    the function you wish to run in the child processes.
 // That's it!
 //
