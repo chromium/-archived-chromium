@@ -1,8 +1,8 @@
 layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 800x600
-  RenderSVGRoot {svg} at (-781.64,-781.64) size 2344.53x2344.53
-    RenderPath {rect} at (-781.64,-781.64) size 2344.53x2344.53 [fill={[type=SOLID] [color=#FFFFFF]}] [data="M-1000.00,-1000.00 L2000.00,-1000.00 L2000.00,2000.00 L-1000.00,2000.00 Z"]
+  RenderSVGRoot {svg} at (-781.25,-781.25) size 2343.75x2343.75
+    RenderPath {rect} at (-781.25,-781.25) size 2343.75x2343.75 [fill={[type=SOLID] [color=#FFFFFF]}] [data="M-1000.00,-1000.00 L2000.00,-1000.00 L2000.00,2000.00 L-1000.00,2000.00 Z"]
     RenderSVGContainer {g} at (-3.52,6.17) size 238.48x95.98
       RenderSVGContainer {g} at (-3.52,6.17) size 238.48x95.98
         RenderPath {rect} at (77.54,77.54) size 157.42x24.61 [stroke={[type=SOLID] [color=#696969] [stroke width=1.50]}] [fill={[type=SOLID] [color=#FFFFFF]}] [data="M100.00,100.00 L300.00,100.00 L300.00,130.00 L100.00,130.00 Z"]

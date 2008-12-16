@@ -10,7 +10,7 @@ layer at (0,0) size 800x600
         RenderSVGText {text} at (0,0) size 72x19 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-15) size 72x19
             chunk 1 text run 1 at (0.00,0.00) startOffset 0 endOffset 13 width 72.00: "end text tref"
-        RenderPath {path} at (-5,259.50) size 225x1 [fill={[type=SOLID] [color=#000000]}] [data="M-5.00,260.00 L220.00,260.00"]
+        RenderPath {path} at (-5,260) size 225x0 [fill={[type=SOLID] [color=#000000]}] [data="M-5.00,260.00 L220.00,260.00"]
       RenderSVGText {text} at (20,80) size 215x35 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-28) size 215x35
           chunk 1 text run 1 at (20.00,80.00) startOffset 0 endOffset 17 width 215.00: "Tspan, tref, toap"

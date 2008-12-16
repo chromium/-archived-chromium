@@ -5,10 +5,10 @@ layer at (0,0) size 480x360
 layer at (0,0) size 480x360
   RenderSVGRoot {svg} at (0.50,0.50) size 479x359
     RenderSVGHiddenContainer {defs} at (0,0) size 0x0
-      RenderSVGViewportContainer {marker} at (-0.03,-0.03) size 5.05x5.05
-        RenderPath {rect} at (-0.03,-0.03) size 5.05x5.05 [fill={[type=SOLID] [color=#4169E1]}] [data="M0.00,0.00 L100.00,0.00 L100.00,100.00 L0.00,100.00 Z"]
-      RenderSVGViewportContainer {marker} at (-0.04,-0.04) size 15.08x15.08
-        RenderPath {rect} at (-0.04,-0.04) size 15.08x15.08 [fill={[type=SOLID] [color=#FF0000]}] [data="M0.00,0.00 L200.00,0.00 L200.00,200.00 L0.00,200.00 Z"]
+      RenderSVGViewportContainer {marker} at (0,0) size 5x5
+        RenderPath {rect} at (0,0) size 5x5 [fill={[type=SOLID] [color=#4169E1]}] [data="M0.00,0.00 L100.00,0.00 L100.00,100.00 L0.00,100.00 Z"]
+      RenderSVGViewportContainer {marker} at (0,0) size 15x15
+        RenderPath {rect} at (0,0) size 15x15 [fill={[type=SOLID] [color=#FF0000]}] [data="M0.00,0.00 L200.00,0.00 L200.00,200.00 L0.00,200.00 Z"]
     RenderSVGText {text} at (156,28) size 168x22 contains 1 chunk(s)
       RenderSVGInlineText {#text} at (0,-17) size 168x22
         chunk 1 (middle anchor) text run 1 at (156.50,28.00) startOffset 0 endOffset 22 width 167.00: "'marker' property test"

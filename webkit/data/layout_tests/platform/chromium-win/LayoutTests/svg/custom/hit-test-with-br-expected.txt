@@ -9,7 +9,7 @@ layer at (0,0) size 800x100
           text run at (408,0) width 214: "a containing block. See bug 13981."
       RenderBlock (anonymous) at (0,36) size 784x40
         RenderBR {br} at (0,0) size 0x19
-        RenderSVGRoot {svg} at (7.50,71.50) size 721x16
-          RenderPath {rect} at (7.50,71.50) size 721x16 [fill={[type=SOLID] [color=#000000]}] [data="M0.00,0.00 L720.00,0.00 L720.00,15.00 L0.00,15.00 Z"]
+        RenderSVGRoot {svg} at (8,72) size 720x15
+          RenderPath {rect} at (8,72) size 720x15 [fill={[type=SOLID] [color=#000000]}] [data="M0.00,0.00 L720.00,0.00 L720.00,15.00 L0.00,15.00 Z"]
         RenderText {#text} at (0,0) size 0x0
 caret: position 0 of child 3 {br} of child 3 {body} of child 0 {html} of document
