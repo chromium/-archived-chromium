@@ -206,10 +206,6 @@ public:
     static void gcProtectJSWrapper(void* object);
     static void gcUnprotectJSWrapper(void* object);
 
-    // Handle entangle/unentangle of message ports.
-    static void entangleMessagePorts(MessagePort *port1, MessagePort *port2);
-    static void unentangleMessagePort(MessagePort *port);
-
     // Get/Set RecordPlaybackMode flag.
     // This is a special mode where JS helps the browser implement
     // playback/record mode.  Generally, in this mode, some functions

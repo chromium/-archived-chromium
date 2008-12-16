@@ -107,37 +107,6 @@ void ScriptController::gcUnprotectJSWrapper(void* dom_object)
     V8Proxy::GCUnprotect(dom_object);
 }
 
-void ScriptController::entangleMessagePorts(MessagePort *port1,
-                                            MessagePort *port2)
-{
-    // When two message ports are entangled make sure that the two wrappers are
-    // also entangled. If one of the ports has pending activity it's wrapper
-    // will be protected from beeing GC'ed and by entangeling the wrappers the
-    // wrapper for the entangled port will also be protected.
-    v8::Handle<v8::Value> port1_wrapper =
-      V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port1);
-    v8::Handle<v8::Value> port2_wrapper =
-      V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port2);
-    ASSERT(port1_wrapper->IsObject());
-    v8::Handle<v8::Object>::Cast(port1_wrapper)->SetInternalField(
-        V8Custom::kMessagePortEntangledPortIndex, port2_wrapper);
-    ASSERT(port2_wrapper->IsObject());
-    v8::Handle<v8::Object>::Cast(port2_wrapper)->SetInternalField(
-        V8Custom::kMessagePortEntangledPortIndex, port1_wrapper);
-}
-
-void ScriptController::unentangleMessagePort(MessagePort *port)
-{
-    // Remove the wrapper entanglement when a port is unentangled.
-    if (V8Proxy::DOMObjectHasJSWrapper(port)) {
-        v8::Handle<v8::Value> wrapper =
-            V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port);
-        ASSERT(wrapper->IsObject());
-        v8::Handle<v8::Object>::Cast(wrapper)->SetInternalField(
-            V8Custom::kMessagePortEntangledPortIndex, v8::Undefined());
-    }
-}
-
 ScriptController::ScriptController(Frame* frame)
     : m_frame(frame)
     , m_sourceURL(0)

@@ -674,6 +674,43 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
         ASSERT(false);
 #undef MAKE_CASE
     }
+
+    // Additional handling of message port ensuring that entangled ports also
+    // have their wrappers entangled. This should ideally be handled when the
+    // ports are actually entangled in MessagePort::entangle, but to avoid
+    // forking MessagePort.* this is postponed to GC time. Having this postponed
+    // has the drawback that the wrappers are "entangled/unentangled" for each
+    // GC even though their entnaglement most likely is still the same.
+    if (type == V8ClassIndex::MESSAGEPORT) {
+      // Get the port and its entangled port.
+      MessagePort* port1 = static_cast<MessagePort*>(obj);
+      MessagePort* port2 = port1->entangledPort();
+      if (port2 != NULL) {
+        // As ports are always entangled in pairs only perform the entanglement
+        // once for each pair (see ASSERT in MessagePort::unentangle()).
+        if (port1 < port2) {
+          v8::Handle<v8::Value> port1_wrapper =
+              V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port1);
+          v8::Handle<v8::Value> port2_wrapper =
+              V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port2);
+          ASSERT(port1_wrapper->IsObject());
+          v8::Handle<v8::Object>::Cast(port1_wrapper)->SetInternalField(
+              V8Custom::kMessagePortEntangledPortIndex, port2_wrapper);
+          ASSERT(port2_wrapper->IsObject());
+          v8::Handle<v8::Object>::Cast(port2_wrapper)->SetInternalField(
+              V8Custom::kMessagePortEntangledPortIndex, port1_wrapper);
+        }
+      } else {
+        // Remove the wrapper entanglement when a port is not entangled.
+        if (V8Proxy::DOMObjectHasJSWrapper(port1)) {
+          v8::Handle<v8::Value> wrapper =
+            V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port1);
+          ASSERT(wrapper->IsObject());
+          v8::Handle<v8::Object>::Cast(wrapper)->SetInternalField(
+            V8Custom::kMessagePortEntangledPortIndex, v8::Undefined());
+        }
+      }
+    }
   }
 
   // Create object groups.
