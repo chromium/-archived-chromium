@@ -385,7 +385,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
   if (result == net::OK) {
     NotifyHeadersComplete();
   } else if (net::IsCertificateError(result) &&
-             !CommandLine().HasSwitch(switches::kForceHTTPS)) {
+      !CommandLine().HasSwitch(switches::kForceHTTPS)) {
     // We encountered an SSL certificate error.  Ask our delegate to decide
     // what we should do.
     // TODO(wtc): also pass ssl_info.cert_status, or just pass the whole
