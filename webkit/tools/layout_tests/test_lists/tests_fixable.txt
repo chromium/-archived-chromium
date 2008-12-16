@@ -2054,9 +2054,9 @@ LINUX WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
 // Same as above, but only regressed on win.
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 // Our pixel results have darker red and green.
-WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+LINUX WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 // The pattern we generate is wrong.
-WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
