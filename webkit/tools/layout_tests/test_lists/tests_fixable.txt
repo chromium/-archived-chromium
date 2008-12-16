@@ -1716,6 +1716,38 @@ MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug2479-5.html = FAIL TI
 MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT
 
+// Items failing on the Mac as of 2008/12/12
+MAC : LayoutTests/fast/css/variables/color-hex-test.html = FAIL
+MAC : LayoutTests/fast/css/variables/remove-variable-test.html = FAIL
+MAC : LayoutTests/fast/css/variables/set-variable-test.html = FAIL
+MAC : LayoutTests/fast/css/variables/variable-iteration-test.html = FAIL
+MAC : LayoutTests/fast/forms/input-disabled-color.html = FAIL
+MAC : LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
+MAC : LayoutTests/fast/forms/password-placeholder.html = FAIL
+MAC : LayoutTests/fast/js/regexp-test-null-string.html = FAIL
+MAC : LayoutTests/fast/js/uncaught-exception-line-number.html = FAIL
+MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
+MAC DEBUG : LayoutTests/svg/hixie/perf/007.xml = FAIL
+
+// Items crashing (sometimes) on the Mac as of 2008/12/12
+MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
+MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH
+MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
+
+// 2008/12/15 things crashing/timing out on the mac
+MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
+MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH
+MAC RELEASE : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
+MAC RELEASE : LayoutTests/fast/history/history_reload.html = CRASH
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT
+MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH
+MAC RELEASE : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH
+MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
+MAC DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-width-prop.html = CRASH
+MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
+
 // WebKit Merge 38800:38850 regressions
 LayoutTests/fast/dom/HTMLDocument/document-open-return-value.html = FAIL
 LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
@@ -1955,25 +1987,6 @@ LINUX : LayoutTests/svg/text/text-intro-05-t.html = FAIL
 // Failed with r6844 (dglazkov)
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
 
-// Items failing on the Mac as of 2008/12/12
-MAC : LayoutTests/fast/css/variables/color-hex-test.html = FAIL
-MAC : LayoutTests/fast/css/variables/remove-variable-test.html = FAIL
-MAC : LayoutTests/fast/css/variables/set-variable-test.html = FAIL
-MAC : LayoutTests/fast/css/variables/variable-iteration-test.html = FAIL
-MAC : LayoutTests/fast/forms/input-disabled-color.html = FAIL
-MAC : LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
-MAC : LayoutTests/fast/forms/password-placeholder.html = FAIL
-MAC : LayoutTests/fast/js/regexp-test-null-string.html = FAIL
-MAC : LayoutTests/fast/js/uncaught-exception-line-number.html = FAIL
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/hixie/perf/007.xml = FAIL
-
-// Items crashing (sometimes) on the Mac as of 2008/12/12
-MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
-MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH
-MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
-
 // Started failing when landing the new skia r6925.
 WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
 WIN : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
@@ -1988,19 +2001,6 @@ WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // 2008/12/13 - Turning off some Friday night test regressions until they can be looked at.
 WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
 DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
-
-// 2008/12/15 things crashing/timing out on the mac
-MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
-MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH
-MAC RELEASE : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
-MAC RELEASE : LayoutTests/fast/history/history_reload.html = CRASH
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT
-MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH
-MAC RELEASE : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH
-MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
-MAC DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-width-prop.html = CRASH
-MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
 
 // 2008/12/15 These fail the pixel tests.
 // The pixel tests regressed while the tests were marked FAIL for text diff reasons, which are now fixed.
