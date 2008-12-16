@@ -126,6 +126,17 @@ void ScrollbarThemeChromium::paintTrackPiece(GraphicsContext* gc, Scrollbar* scr
 void ScrollbarThemeChromium::paintButton(GraphicsContext* gc, Scrollbar* scrollbar,
                                     const IntRect& rect, ScrollbarPart part)
 {
+    // TODO(port): It appears the either we're upsetting GTK by forcing WebKit
+    // sizes on it, or the buttons expect the track to be drawn under them.
+    // Either way, we end up with unpainted pixels which are upsetting the
+    // pixel tests. Thus we paint green under the buttons to, at least, make
+    // the pixel output the same between debug and opt builds.
+    SkPaint paint;
+    paint.setARGB(255, 0, 255, 128);
+    SkRect skrect;
+    skrect.set(rect.x(), rect.y(), rect.x() + rect.width() - 1, rect.y() + rect.height() + 1);
+    gc->platformContext()->canvas()->drawRect(skrect, paint);
+
     const bool horz = scrollbar->orientation() == HorizontalScrollbar;
     gint flags = horz ? 0 : MOZ_GTK_STEPPER_VERTICAL;
     flags |= ForwardButtonEndPart == part ? MOZ_GTK_STEPPER_DOWN : 0;
