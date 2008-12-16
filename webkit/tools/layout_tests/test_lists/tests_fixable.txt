@@ -2104,3 +2104,7 @@ LayoutTests/fast/forms/select-baseline.html = FAIL
 
 // Merge 39309:39335 New Test
 LayoutTests/fast/dom/Window/window-custom-prototype.html = FAIL
+
+// Linux pixel: Option button rendering clipped.
+LINUX : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug4527.html = FAIL
