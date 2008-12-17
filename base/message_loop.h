@@ -269,8 +269,19 @@ class MessageLoop : public base::MessagePump::Delegate {
     bool operator<(const PendingTask& other) const;
   };
 
+  // TEMP HACK: This is the same as std::less, except it has a data member.
+  // This should cause its storage to be initialized, therefore avoiding a
+  // UMR in pop(). Experiment for crbug.com/5555.
+  template<class T>
+  struct LessComparatorHack {
+    LessComparatorHack() : junk(42) {}
+    bool operator()(const T& a, const T& b) const { return a < b; }
+    int junk;
+  };
+
   typedef std::queue<PendingTask> TaskQueue;
-  typedef std::priority_queue<PendingTask> DelayedTaskQueue;
+  typedef std::priority_queue<PendingTask, std::vector<PendingTask>,
+      LessComparatorHack<PendingTask> > DelayedTaskQueue;
 
 #if defined(OS_WIN)
   base::MessagePumpWin* pump_win() {

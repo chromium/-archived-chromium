@@ -160,7 +160,7 @@ GURL GetTestFileUrl(const std::string& relpath) {
   return GURL(base_url.spec() + "/" + relpath);
 }
 
-TEST(ProxyScriptFetcherTest, DISABLED_FileUrl) {
+TEST(ProxyScriptFetcherTest, FileUrl) {
   SynchFetcher pac_fetcher;
 
   { // Fetch a non-existent file.
@@ -177,7 +177,7 @@ TEST(ProxyScriptFetcherTest, DISABLED_FileUrl) {
 
 // Note that all mime types are allowed for PAC file, to be consistent
 // with other browsers.
-TEST(ProxyScriptFetcherTest, DISABLED_HttpMimeType) {
+TEST(ProxyScriptFetcherTest, HttpMimeType) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -201,7 +201,7 @@ TEST(ProxyScriptFetcherTest, DISABLED_HttpMimeType) {
   }
 }
 
-TEST(ProxyScriptFetcherTest, DISABLED_HttpStatusCode) {
+TEST(ProxyScriptFetcherTest, HttpStatusCode) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -219,7 +219,7 @@ TEST(ProxyScriptFetcherTest, DISABLED_HttpStatusCode) {
   }
 }
 
-TEST(ProxyScriptFetcherTest, DISABLED_ContentDisposition) {
+TEST(ProxyScriptFetcherTest, ContentDisposition) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -231,7 +231,7 @@ TEST(ProxyScriptFetcherTest, DISABLED_ContentDisposition) {
   EXPECT_EQ("-downloadable.pac-\n", result.bytes);
 }
 
-TEST(ProxyScriptFetcherTest, DISABLED_TooLarge) {
+TEST(ProxyScriptFetcherTest, TooLarge) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -264,7 +264,7 @@ TEST(ProxyScriptFetcherTest, DISABLED_TooLarge) {
   }
 }
 
-TEST(ProxyScriptFetcherTest, DISABLED_Hang) {
+TEST(ProxyScriptFetcherTest, Hang) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
