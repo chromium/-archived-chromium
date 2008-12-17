@@ -416,10 +416,9 @@ LRESULT Window::OnSetCursor(HWND window, UINT hittest_code, UINT message) {
 }
 
 void Window::OnSize(UINT size_param, const CSize& new_size) {
-  if (root_view_->width() == new_size.cx &&
-      root_view_->height() == new_size.cy)
-    return;
-
+  // Don't no-op if the new_size matches current size. If our normal bounds
+  // and maximized bounds are the same, then we need to layout (because we
+  // layout differently when maximized).
   SaveWindowPosition();
   ChangeSize(size_param, new_size);
   RedrawWindow(GetHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
@@ -512,7 +511,11 @@ void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
     }
 
     // "Show state" (maximized, minimized, etc) is handled by Show().
-    SetBounds(saved_bounds, NULL);
+    // Don't use SetBounds here. SetBounds constrains to the size of the
+    // monitor, but we don't want that when creating a new window as the result
+    // of dragging out a tab to create a new window.
+    SetWindowPos(NULL, saved_bounds.x(), saved_bounds.y(),
+                 saved_bounds.width(), saved_bounds.height(), 0);
   } else {
     if (create_bounds.IsEmpty()) {
       // No initial bounds supplied, so size the window to its content and
