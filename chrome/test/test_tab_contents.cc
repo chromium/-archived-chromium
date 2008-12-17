@@ -34,5 +34,5 @@ void TestTabContents::CompleteNavigationAsRenderer(int page_id,
   params.is_post = false;
 
   NavigationController::LoadCommittedDetails details;
-  controller()->RendererDidNavigate(params, false, &details);
+  controller()->RendererDidNavigate(params, &details);
 }

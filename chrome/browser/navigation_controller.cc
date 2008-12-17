@@ -212,13 +212,10 @@ void NavigationController::Reload(bool check_for_repost) {
   DiscardNonCommittedEntriesInternal();
   int current_index = GetCurrentEntryIndex();
   if (check_for_repost_ && check_for_repost && current_index != -1 &&
-      GetEntryAtIndex(current_index)->has_post_data() &&
-      active_contents_->AsWebContents() &&
-      !active_contents_->AsWebContents()->showing_repost_interstitial()) {
-    // The user is asking to reload a page with POST data and we're not showing
-    // the POST interstitial. Prompt to make sure they really want to do this.
-    // If they do, RepostFormWarningDialog calls us back with
-    // ReloadDontCheckForRepost.
+      GetEntryAtIndex(current_index)->has_post_data()) {
+    // The user is asking to reload a page with POST data. Prompt to make sure
+    // they really want to do this. If they do, RepostFormWarningDialog calls us
+    // back with ReloadDontCheckForRepost.
     active_contents_->Activate();
     RepostFormWarningDialog::RunRepostFormWarningDialog(this);
   } else {
@@ -538,7 +535,6 @@ const SkBitmap& NavigationController::GetLazyFavIcon() const {
 
 bool NavigationController::RendererDidNavigate(
     const ViewHostMsg_FrameNavigate_Params& params,
-    bool is_interstitial,
     LoadCommittedDetails* details) {
   // Save the previous state before we clobber it.
   if (GetLastCommittedEntry()) {
@@ -613,7 +609,6 @@ bool NavigationController::RendererDidNavigate(
   details->entry = GetActiveEntry();
   details->is_in_page = IsURLInPageNavigation(params.url);
   details->is_main_frame = PageTransition::IsMainFrame(params.transition);
-  details->is_interstitial = is_interstitial;
   details->serialized_security_info = params.security_info;
   details->is_content_filtered = params.is_content_filtered;
   NotifyNavigationEntryCommitted(details);

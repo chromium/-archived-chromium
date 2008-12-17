@@ -37,7 +37,7 @@ static const wchar_t* const kRenderWidgetHostHWNDClass =
     L"Chrome_RenderWidgetHostHWND";
 
 ///////////////////////////////////////////////////////////////////////////////
-// RenderWidgetHostHWND
+// RenderWidgetHostViewWin
 //
 //  An object representing the "View" of a rendered web page. This object is
 //  responsible for displaying the content of the web page, receiving windows
@@ -274,7 +274,7 @@ class RenderWidgetHostViewWin :
   // until that bug is fixed.
   bool renderer_accessible_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHostViewWin);
+  DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostViewWin);
 };
 
 #endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_

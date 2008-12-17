@@ -34,9 +34,9 @@ class PrefService;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
 class SSLErrorInfo;
-class TabContents;
 class Task;
 class URLRequest;
+class WebContents;
 
 // The SSLManager SSLManager controls the SSL UI elements in a TabContents.  It
 // listens for various events that influence when these elements should or
@@ -75,9 +75,9 @@ class SSLManager : public NotificationObserver {
     // Call on the UI thread.
     SSLManager* manager() const { return manager_; };
 
-    // Returns the TabContents this object is associated with.  Should be
+    // Returns the WebContents this object is associated with.  Should be
     // called from the UI thread.
-    TabContents* GetTabContents();
+    WebContents* GetWebContents();
 
     // Cancels the associated URLRequest.
     // This method can be called from OnDispatchFailed and OnDispatched.

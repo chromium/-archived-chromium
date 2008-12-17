@@ -558,8 +558,11 @@ void Browser::GoBack() {
   // If we are showing an interstitial, just hide it.
   TabContents* current_tab = GetSelectedTabContents();
   WebContents* web_contents = current_tab->AsWebContents();
-  if (web_contents && web_contents->showing_interstitial_page()) {
-    // Pressing back on an interstitial page means "don't proceed".
+  if (web_contents && web_contents->interstitial_page()) {
+    // The GoBack() case is a special case when an interstitial is shown because
+    // the "previous" page is still available, just hidden by the interstitial.
+    // We treat the back as a "Don't proceed", this hides the interstitial and
+    // reveals the previous page.
     web_contents->interstitial_page()->DontProceed();
     return;
   }

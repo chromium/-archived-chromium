@@ -259,10 +259,10 @@ SSLManager::ErrorHandler::ErrorHandler(ResourceDispatcherHost* rdh,
 void SSLManager::ErrorHandler::Dispatch() {
   DCHECK(MessageLoop::current() == ui_loop_);
 
-  TabContents* tab_contents =
-      tab_util::GetTabContentsByID(render_process_host_id_, tab_contents_id_);
+  TabContents* web_contents =
+      tab_util::GetWebContentsByID(render_process_host_id_, tab_contents_id_);
 
-  if (!tab_contents) {
+  if (!web_contents) {
     // We arrived on the UI thread, but the tab we're looking for is no longer
     // here.
     OnDispatchFailed();
@@ -270,12 +270,12 @@ void SSLManager::ErrorHandler::Dispatch() {
   }
 
   // Hand ourselves off to the SSLManager.
-  manager_ = tab_contents->controller()->ssl_manager();
+  manager_ = web_contents->controller()->ssl_manager();
   OnDispatched();
 }
 
-TabContents* SSLManager::ErrorHandler::GetTabContents() {
-  return tab_util::GetTabContentsByID(render_process_host_id_,
+WebContents* SSLManager::ErrorHandler::GetWebContents() {
+  return tab_util::GetWebContentsByID(render_process_host_id_,
                                       tab_contents_id_);
 }
 
@@ -570,11 +570,6 @@ void SSLManager::DidCommitProvisionalLoad(
       changed = true;
     }
 
-    if (details->is_interstitial) {
-      // We should not have any errors when loading an interstitial page, and as
-      // a consequence no messages.
-      DCHECK(pending_messages_.empty());
-    }
     ShowPendingMessages();
   }
 
@@ -615,14 +610,12 @@ void SSLManager::DidCommitProvisionalLoad(
 void SSLManager::DidFailProvisionalLoadWithError(
     ProvisionalLoadDetails* details) {
   DCHECK(details);
-  // A transitional page is not expected to fail.
-  DCHECK(!details->interstitial_page());
 
   // Ignore in-page navigations.
   if (details->in_page_navigation())
     return;
 
-  if (details->main_frame() && !details->interstitial_page())
+  if (details->main_frame())
     ClearPendingMessages();
 }
 

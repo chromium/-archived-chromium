@@ -25,8 +25,8 @@
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/resource_request_details.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_util.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/common/render_messages.h"
@@ -2319,14 +2319,14 @@ class NotificationTask : public Task {
 
   void Run() {
     // Find the tab associated with this request.
-    TabContents* tab_contents =
-        tab_util::GetTabContentsByID(render_process_host_id_, tab_contents_id_);
+    WebContents* web_contents =
+        tab_util::GetWebContentsByID(render_process_host_id_, tab_contents_id_);
 
-    if (tab_contents) {
+    if (web_contents) {
       // Issue the notification.
       NotificationService::current()->
           Notify(type_,
-                 Source<NavigationController>(tab_contents->controller()),
+                 Source<NavigationController>(web_contents->controller()),
                  Details<ResourceRequestDetails>(details_.get()));
     }
   }

@@ -38,7 +38,7 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
 
   // InterstitialPage method:
   virtual std::string GetHTMLContents();
-  virtual void InterstitialClosed();
+  virtual void DontProceed();
 
  protected:
   // InterstitialPage method:
@@ -76,6 +76,10 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
 
   // Whether the flagged resource is the main page (or a sub-resource is false).
   bool is_main_frame_;
+
+  // The index of a navigation entry that should be removed when DontProceed()
+  // is invoked, -1 if not entry should be removed.
+  int navigation_entry_index_to_remove_;
 
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingBlockingPage);
 };

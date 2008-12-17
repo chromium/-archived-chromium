@@ -19,7 +19,6 @@
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/google_util.h"
-#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/js_before_unload_handler.h"
 #include "chrome/browser/jsmessage_box_handler.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
@@ -590,7 +589,7 @@ void WebContents::SavePage(const std::wstring& main_file,
 
 void WebContents::PrintPreview() {
   // We can't print interstitial page for now.
-  if (render_manager_.showing_interstitial_page())
+  if (showing_interstitial_page())
     return;
 
   // If we have a find bar it needs to hide as well.
@@ -602,7 +601,7 @@ void WebContents::PrintPreview() {
 
 bool WebContents::PrintNow() {
   // We can't print interstitial page for now.
-  if (render_manager_.showing_interstitial_page())
+  if (showing_interstitial_page())
     return false;
 
   // If we have a find bar it needs to hide as well.
@@ -648,11 +647,7 @@ Profile* WebContents::GetProfile() const {
 }
 
 void WebContents::RendererReady(RenderViewHost* rvh) {
-  if (render_manager_.showing_interstitial_page() &&
-      rvh == render_view_host()) {
-    // We are showing an interstitial page, don't notify the world.
-    return;
-  } else if (rvh != render_view_host()) {
+  if (rvh != render_view_host()) {
     // Don't notify the world, since this came from a renderer in the
     // background.
     return;
@@ -667,10 +662,7 @@ void WebContents::RendererGone(RenderViewHost* rvh) {
   if (!printing_.OnRendererGone(rvh))
     return;
   if (rvh != render_view_host()) {
-    // The pending or interstitial page's RenderViewHost is gone.  If we are
-    // showing an interstitial, this may mean that the original RenderViewHost
-    // is gone.  If so, we will call RendererGone again if we try to swap that
-    // RenderViewHost back in, in SwapToRenderView.
+    // The pending page's RenderViewHost is gone.
     return;
   }
 
@@ -691,27 +683,12 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
   if (PageTransition::IsMainFrame(params.transition))
     render_manager_.DidNavigateMainFrame(rvh);
 
-  // In the case of interstitial, we don't mess with the navigation entries.
-  // TODO(brettw) this seems like a bug. What happens if the page goes and
-  // does something on its own (or something that just got delayed), then
-  // we won't have a navigation entry for that stuff when the interstitial
-  // is hidden.
-  if (render_manager_.showing_interstitial_page())
-    return;
-
   // We can't do anything about navigations when we're inactive.
   if (!controller() || !is_active())
     return;  
 
-  // Update the site of the SiteInstance if it doesn't have one yet, unless we
-  // are showing an interstitial page.  If we are, we should wait until the
-  // real page commits.
-  //
-  // TODO(brettw) the old code only checked for INTERSTIAL, this new code also
-  // checks for LEAVING_INTERSTITIAL mode in the manager. Is this difference
-  // important?
-  if (!GetSiteInstance()->has_site() &&
-      !render_manager_.showing_interstitial_page())
+  // Update the site of the SiteInstance if it doesn't have one yet.
+  if (!GetSiteInstance()->has_site())
     GetSiteInstance()->SetSite(params.url);
 
   // Need to update MIME type here because it's referred to in 
@@ -726,10 +703,7 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
     contents_mime_type_ = params.contents_mime_type;
 
   NavigationController::LoadCommittedDetails details;
-  if (!controller()->RendererDidNavigate(
-      params,
-      render_manager_.IsRenderViewInterstitial(rvh),
-      &details))
+  if (!controller()->RendererDidNavigate(params, &details))
     return;  // No navigation happened.
 
   // DO NOT ADD MORE STUFF TO THIS FUNCTION! Your component should either listen
@@ -746,18 +720,7 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
 void WebContents::UpdateState(RenderViewHost* rvh,
                               int32 page_id,
                               const std::string& state) {
-  if (rvh != render_view_host() ||
-      render_manager_.showing_interstitial_page()) {
-    // This UpdateState is either:
-    // - targeted not at the current RenderViewHost.  This could be that we are
-    // showing the interstitial page and getting an update for the regular page,
-    // or that we are navigating from the interstitial and getting an update
-    // for it.
-    // - targeted at the interstitial page. Ignore it as we don't want to update
-    // the fake navigation entry.
-    return;
-  }
-
+  DCHECK(rvh == render_view_host());
   if (!controller())
     return;
 
@@ -788,19 +751,10 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
   // getting useful data.
   SetNotWaitingForResponse();
 
-  NavigationEntry* entry;
-  if (render_manager_.showing_interstitial_page() &&
-      (rvh == render_view_host())) {
-    // We are showing an interstitial page in a different RenderViewHost, so
-    // the page_id is not sufficient to find the entry from the controller.
-    // (both RenderViewHost page_ids overlap).  We know it is the active entry,
-    // so just use that.
-    entry = controller()->GetActiveEntry();
-  } else {
-    entry = controller()->GetEntryWithPageID(type(), GetSiteInstance(),
-                                             page_id);
-  }
-
+  DCHECK(rvh == render_view_host());
+  NavigationEntry* entry = controller()->GetEntryWithPageID(type(),
+                                                            GetSiteInstance(),
+                                                            page_id);
   if (!entry || !UpdateTitleForEntry(entry, title))
     return;
 
@@ -882,11 +836,9 @@ void WebContents::DidStartProvisionalLoadForFrame(
     RenderViewHost* render_view_host,
     bool is_main_frame,
     const GURL& url) {
-  ProvisionalLoadDetails details(
-      is_main_frame,
-      render_manager_.IsRenderViewInterstitial(render_view_host),
-      controller()->IsURLInPageNavigation(url),
-      url, std::string(), false);
+  ProvisionalLoadDetails details(is_main_frame,
+                                 controller()->IsURLInPageNavigation(url),
+                                 url, std::string(), false);
   NotificationService::current()->
       Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_START,
              Source<NavigationController>(controller()),
@@ -931,8 +883,7 @@ void WebContents::DidFailProvisionalLoadWithError(
     RenderViewHost* render_view_host,
     bool is_main_frame,
     int error_code,
-    const GURL& url,
-    bool showing_repost_interstitial) {
+    const GURL& url) {
   if (!controller())
     return;
 
@@ -955,7 +906,7 @@ void WebContents::DidFailProvisionalLoadWithError(
     // in the previous tab type. If you navigate somewhere that activates the
     // tab with the interstitial again, you'll see a flash before the new load
     // commits of the interstitial page.
-    if (render_manager_.showing_interstitial_page()) {
+    if (showing_interstitial_page()) {
       LOG(WARNING) << "Discarding message during interstitial.";
       return;
     }
@@ -972,14 +923,10 @@ void WebContents::DidFailProvisionalLoadWithError(
   }
 
   // Send out a notification that we failed a provisional load with an error.
-  ProvisionalLoadDetails details(
-      is_main_frame,
-      render_manager_.IsRenderViewInterstitial(render_view_host),
-      controller()->IsURLInPageNavigation(url),
-      url, std::string(), false);
+  ProvisionalLoadDetails details(is_main_frame,
+                                 controller()->IsURLInPageNavigation(url),
+                                 url, std::string(), false);
   details.set_error_code(error_code);
-
-  render_manager_.set_showing_repost_interstitial(showing_repost_interstitial);
 
   NotificationService::current()->
       Notify(NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
