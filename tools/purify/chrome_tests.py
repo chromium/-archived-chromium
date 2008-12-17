@@ -212,9 +212,8 @@ class ChromeTests:
     # to continuously run small slices of the layout tests under purify rather 
     # than having to run all of them in one shot.    
     chunk_num = 0
-    # Tests currently seem to take about 20-30s each, so aim for a chunk that
-    # takes around 10 minutes.
-    chunk_size = 25
+    # Tests currently seem to take about 20-30s each.
+    chunk_size = 120  # so about 40-60 minutes per run
     chunk_file = "purify_layout_chunk.txt"
     if not run_all:
       try:
