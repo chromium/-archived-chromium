@@ -1319,7 +1319,11 @@ void BrowserView::LoadingAnimationCallback() {
     tabstrip_->UpdateLoadingAnimations();
   } else if (ShouldShowWindowIcon()) {
     // ... or in the window icon area for popups and app windows.
-    frame_->UpdateThrobber(browser_->IsCurrentPageLoading());
+    TabContents* tab_contents = browser_->GetSelectedTabContents();
+    // GetSelectedTabContents can return NULL for example under Purify when
+    // the animations are running slowly and this function is called on a timer
+    // through LoadingAnimationCallback.
+    frame_->UpdateThrobber(tab_contents && tab_contents->is_loading());
   }
 }
 

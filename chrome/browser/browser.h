@@ -128,9 +128,6 @@ class Browser : public TabStripModelDelegate,
   // Gets the title of the page in the selected tab.
   std::wstring GetCurrentPageTitle() const;
 
-  // Returns true if the current page is loading.
-  bool IsCurrentPageLoading() const;
-
   // Prepares a title string for display (removes embedded newlines, etc).
   static void FormatTitleForDisplay(std::wstring* title);
 
@@ -401,6 +398,10 @@ class Browser : public TabStripModelDelegate,
   // Update commands which may be enabled or disabled depending on the tab's
   // state.
   void UpdateCommandsForTabState();
+
+  // Set the correct stop/go icon and update the Go and Stop command states.
+  // |is_loading| is true if the current TabContents is loading.
+  void UpdateStopGoState(bool is_loading);
 
   // Change the "starred" button display to starred/unstarred.
   // TODO(evanm): migrate this to the commands framework.
