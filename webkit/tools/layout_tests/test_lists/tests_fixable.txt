@@ -655,18 +655,21 @@ LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 // Flaky
 WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
 LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
-// Windows pixeltest failure: Background image appears to be off by one.
-// It looks like it was wrong before and should be rebaselined now.
-WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
+// This test assumes we're using unix paths and looks for a file:///test
+// path.  We correctly return file:///C:/test on Windows.  We should fix
+// upstream
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-LayoutTests/fast/replaced/replaced-breaking.html = FAIL
-LayoutTests/fast/table/text-field-baseline.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
+// We don't seem to draw this as well as Mac.  The numbers have gaps at the
+// corners.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
+// We're missing rectangle outlines on the 6th and 7th example.  This may
+// just be the timing of when we take the pixel snapshot.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
+// We're missing a rainbow box below the word "stop-color".
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Fails in release and debug. Sometimes crashes in debug.
 // Linux pixeltest failure: background is all blue instead of white.
