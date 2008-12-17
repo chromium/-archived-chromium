@@ -100,7 +100,7 @@ RELEASE : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
 LINUX WIN : LayoutTests/svg/custom/font-face-simple.svg = FAIL
 
-LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
 
 // -----------------------------------------------------------------
 // URL
@@ -489,9 +489,6 @@ LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL PASS
 // Passes release. Fails debug.
 DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
 
-// Bug: 1166260
-LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
-
 // Bug: 1166644
 // Fails on webkit windows as well. 
 WIN LINUX : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
@@ -733,6 +730,7 @@ LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/group-opacity.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
+// Linux pixeltest failure: Failing to draw gradients
 LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 // Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
@@ -752,13 +750,13 @@ LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
 
 // Windows fails to draw anything here
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1 = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2 = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3 = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
 // This one passes even though nothing is drawn.
-// LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4 = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5 = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6 = FAIL
+// LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
 
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
@@ -767,7 +765,6 @@ LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 LINUX WIN : LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
 // Linux pixeltest failure: Font mismatch
 LINUX WIN : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
-chrome/fast/dom/domListEnumeration.html = FAIL
 chrome/fast/forms/basic-textareas-quirks.html = FAIL
 
 // This test seems to fail on the builders but not locally.
@@ -1023,12 +1020,6 @@ LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
 LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
-// missing expected results
-SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-SKIP LayoutTests/fast/frames/frame-length-fractional.html = FAIL
-SKIP LayoutTests/fast/table/floating-th.html = FAIL
-SKIP LayoutTests/fast/table/table-display-types-strict.html = FAIL
-SKIP LayoutTests/fast/table/table-display-types.html = FAIL
 
 // CHANGED OR REBASELINED IN WEBKIT 36102:37604
 LINUX : LayoutTests/fast/forms/8250.html = FAIL
@@ -1190,7 +1181,6 @@ LayoutTests/fast/profiler = FAIL TIMEOUT
 LINUX WIN : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 LINUX WIN : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
-LayoutTests/transforms/transform-value-types.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
 LINUX WIN : LayoutTests/svg/carto.net/combobox.svg = FAIL
@@ -1284,8 +1274,6 @@ LayoutTests/transitions/transition-drt-api-delay.html = TIMEOUT
 LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT
 
 // MERGE 38653:38729: Expectations changed upstream
-LayoutTests/editing/execCommand/19653-4.html = FAIL
-LayoutTests/editing/deleting/delete-link-1.html = FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
 LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
@@ -1308,7 +1296,6 @@ LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = 
 
 // MERGE 38760:38800: New tests
 LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
-LayoutTests/animations/transform-animation-event-destroy-element.html = CRASH
 
 // MERGE 38760:38800: Expectations changed upstream
 WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
@@ -1882,8 +1869,6 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 // Linux pixeltest failure: Gradient fail
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
-// Linux pixeltest failure: Failing to draw gradients
-LINUX : LayoutTests/svg/custom/inline-svg-in-xhtml.html = FAIL
 // Linux pixeltest failure: windows baseline incorrect
 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
 

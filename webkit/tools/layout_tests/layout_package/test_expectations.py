@@ -116,7 +116,6 @@ def StripComments(line):
   if line == '': return None
   else: return line
 
-
 class TestExpectationsFile:
   """Test expectation files consist of lines with specifications of what
   to expect from layout test cases. The test cases can be directories
@@ -167,6 +166,7 @@ class TestExpectationsFile:
     self._expectations = {}
     self._test_list_paths = {}
     self._tests = {}
+    self._errors = []
     self._platform = platform
     self._is_debug_mode = is_debug_mode
     for expectation in self.EXPECTATIONS.itervalues():
@@ -240,20 +240,40 @@ class TestExpectationsFile:
 
       tests_and_expecation_parts = test_and_expectations.split('=')
       if (len(tests_and_expecation_parts) is not 2):
-        self._ReportSyntaxError(path, lineno, "Test is missing expectations")
+        self._AddError(lineno, 'Missing expectations.', test_and_expectations)
+        continue
 
       test_list_path = tests_and_expecation_parts[0].strip()
-      tests = self._ExpandTests(test_list_path)
+      try:
+        expectations = self._ParseExpectations(tests_and_expecation_parts[1])
+      except SyntaxError, err:
+        self._AddError(lineno, err[0], test_list_path)
+        continue
+
+      full_path = os.path.join(path_utils.LayoutDataDir(), test_list_path)
+      full_path = os.path.normpath(full_path)
+      # WebKit's way of skipping tests is to add a -disabled suffix.
+      # So we should consider the path existing if the path or the -disabled
+      # version exists.
+      if not os.path.exists(full_path) and not \
+        os.path.exists(full_path + '-disabled'):
+        self._AddError(lineno, 'Path does not exist.', test_list_path)
+        continue
+
+      if not self._full_test_list:
+        tests = [test_list_path]
+      else:
+        tests = self._ExpandTests(test_list_path)
 
       if is_skipped:    
         self._AddSkippedTests(tests)
       else:
-        try:
-          self._AddTests(tests,
-                         self._ParseExpectations(tests_and_expecation_parts[1]), 
-                         test_list_path)
-        except SyntaxError, err:
-          self._ReportSyntaxError(path, lineno, str(err))
+        self._AddTests(tests, expectations, test_list_path, lineno)
+
+    if len(self._errors) is not 0:
+      print "\nFAILURES FOR PLATFORM: %s, IS_DEBUG_MODE: %s" \
+          % (self._platform.upper(), self._is_debug_mode)        
+      raise SyntaxError('\n'.join(map(str, self._errors)))
 
   def _GetOptionsList(self, listString):
     return [part.strip().lower() for part in listString.strip().split(' ')]
@@ -282,23 +302,13 @@ class TestExpectationsFile:
       if test.startswith(path): result.append(test)
     return result
 
-  def _AddTests(self, tests, expectations, test_list_path):
-    # Do not add tests that we expect only to pass to the lists.
-    # This makes it easier to account for tests that we expect to
-    # consistently pass, because they'll never be represented in 
-    # any of the lists.
-    if len(expectations) == 1 and PASS in expectations: return
-    # Traverse all tests and add them with the given expectations.
-
+  def _AddTests(self, tests, expectations, test_list_path, lineno):
     for test in tests:
       if test in self._test_list_paths:
         prev_base_path = self._test_list_paths[test]
-        # TODO: Save errors and raise a single error in order to catch more
-        # problems in a single lint run.
         if (prev_base_path == os.path.normpath(test_list_path)):
-          raise SyntaxError('Already seen expectations for path %s, in '
-                            'platform %s, and is_debug_mode is %s' % 
-                            (test, self._platform, self._is_debug_mode))
+          self._AddError(lineno, 'Duplicate expecations.', test)
+          continue
         if prev_base_path.startswith(test_list_path):
           # already seen a more precise path
           continue
@@ -320,6 +330,5 @@ class TestExpectationsFile:
     for test in tests:
       self._skipped.add(test)
 
-  def _ReportSyntaxError(self, path, lineno, message):
-    raise SyntaxError(path + ':' + str(lineno) + ': ' + message)
-
+  def _AddError(self, lineno, msg, path):
+    self._errors.append('\nLine:%s %s\n%s' % (lineno, msg, path))

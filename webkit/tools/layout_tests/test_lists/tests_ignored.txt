@@ -141,11 +141,6 @@ LayoutTests/fast/js/exception-expression-offset.html = FAIL
 // if the tests pass or fail. 
 LayoutTests/fast/js/function-names.html = FAIL PASS
 
-// WebKit has moved/changed this test upstream
-// https://bugs.webkit.org/show_bug.cgi?id=18681
-// We will pass the new one after we merge
-LayoutTests/http/tests/incremental/slow-utf8-css.pl = FAIL
-
 // These tests expect a tiff decoder, which we don't have.
 LINUX WIN : LayoutTests/fast/images/embed-image.html = FAIL
 LINUX WIN : LayoutTests/fast/images/object-image.html = FAIL

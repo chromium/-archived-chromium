@@ -81,7 +81,6 @@ class TestRunner:
     self._test_files = set()
     self._file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
     self._file_dir = path_utils.GetAbsolutePath(self._file_dir)
-    self._GatherTestFiles(paths)
 
     if options.lint_test_files:
       # Creating the expecations for each platform/target pair does all the
@@ -93,6 +92,7 @@ class TestRunner:
       self._ParseExpectations('linux', is_debug_mode=True)
       self._ParseExpectations('linux', is_debug_mode=False)
     else:
+      self._GatherTestFiles(paths)
       self._expectations = self._ParseExpectations(
           platform_utils.GetTestListPlatformName().lower(),
           options.target == 'Debug')
@@ -146,10 +146,17 @@ class TestRunner:
     structure holding them. Throws an error if the test_list files have invalid
     syntax.
     """
-    return test_expectations.TestExpectations(self._test_files,
-                                              self._file_dir,
-                                              platform,
-                                              is_debug_mode)
+    test_files = self._options.lint_test_files ? None : self._test_files
+    try:
+      return test_expectations.TestExpectations(test_files,
+                                                self._file_dir,
+                                                platform,
+                                                is_debug_mode)
+    except SyntaxError, err:
+      if self._options.lint_test_files:
+        print str(err)
+      else:
+        raise err
 
   def _GenerateExpecationsAndPrintOutput(self):
     """Create appropriate subsets of self._tests_files in 
@@ -611,7 +618,7 @@ def main(options, args):
 
   if options.lint_test_files:
     # Just creating the TestRunner checks the syntax of the test lists.
-    logging.info("SUCCESS")
+    print "If there are no fail messages, the lint succeeded."
     return
 
   try:
