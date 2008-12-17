@@ -410,9 +410,6 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
     // borders and then pass that to skia so we can avoid drawing any borders that are
     // set to 0. For non-zero borders, we draw the border, but webkit just draws
     // over it.
-    // TODO(ojan): layout-test-mode removes borders, so we end up never drawing
-    // edges in layout-test-mode. See adjustMenuListStyle, style->resetBorder().
-    // We really need to remove the layout-test-mode only hacks.
     bool drawEdges = !(borderRight == 0 && borderLeft == 0 && borderTop == 0 && borderBottom == 0);
 
     paintTextFieldInternal(o, i, r, drawEdges);

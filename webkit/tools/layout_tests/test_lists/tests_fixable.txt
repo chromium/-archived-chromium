@@ -571,6 +571,7 @@ LINUX WIN : LayoutTests/fast/canvas/drawImage-with-negative-source-destination.h
 // http://code.google.com/p/chromium/issues/detail?id=2974
 LayoutTests/fast/canvas/canvas-pattern-behaviour.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
+LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 
 // We don't implement toDataURL.
 // http://code.google.com/p/chromium/issues/detail?id=2972
@@ -646,19 +647,18 @@ LINUX WIN : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 // Linux pixeltest failure: Failing to render shadows
 LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
-LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
+// Times out because this uses dom storage which we don't implement.
 LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
+// Fails because we don't implement form autocomplete.
 LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
 
 // Linux pixeltest failure: caret is in the wrong place
 LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
-LINUX WIN : LayoutTests/fast/block/float/float-avoidance.html = FAIL
-LINUX WIN : LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 // Flaky
 WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
 LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
