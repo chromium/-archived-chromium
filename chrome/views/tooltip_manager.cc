@@ -351,10 +351,10 @@ void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
 
   if (u_msg >= WM_NCMOUSEMOVE && u_msg <= WM_NCXBUTTONDBLCLK) {
     // NC message coordinates are in screen coordinates.
-    CRect frame_bounds;
+    gfx::Rect frame_bounds;
     widget_->GetBounds(&frame_bounds, true);
-    x -= frame_bounds.left;
-    y -= frame_bounds.top;
+    x -= frame_bounds.x();
+    y -= frame_bounds.y();
   }
 
   if (u_msg != WM_MOUSEMOVE || last_mouse_x_ != x || last_mouse_y_ != y) {

@@ -527,12 +527,14 @@ enum ScrollBarContextMenuCommands {
   ScrollBarContextMenuCommand_ScrollNext
 };
 
-void BitmapScrollBar::ShowContextMenu(View* source, int x, int y,
+void BitmapScrollBar::ShowContextMenu(View* source,
+                                      int x,
+                                      int y,
                                       bool is_mouse_gesture) {
   Widget* widget = GetWidget();
-  CRect widget_bounds;
+  gfx::Rect widget_bounds;
   widget->GetBounds(&widget_bounds, true);
-  gfx::Point temp_pt(x - widget_bounds.left, y - widget_bounds.top);
+  gfx::Point temp_pt(x - widget_bounds.x(), y - widget_bounds.y());
   View::ConvertPointFromWidget(this, &temp_pt);
   context_menu_mouse_position_ = IsHorizontal() ? temp_pt.x() : temp_pt.y();
 

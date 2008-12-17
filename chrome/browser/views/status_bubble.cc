@@ -629,9 +629,9 @@ void StatusBubble::SetBounds(int x, int y, int w, int h) {
   // If the UI layout is RTL, we need to mirror the position of the bubble
   // relative to the parent.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    CRect frame_bounds;
+    gfx::Rect frame_bounds;
     frame_->GetBounds(&frame_bounds, false);
-    int mirrored_x = frame_bounds.Width() - x - w;
+    int mirrored_x = frame_bounds.width() - x - w;
     position_.SetPoint(mirrored_x, y);
   } else {
     position_.SetPoint(x, y);

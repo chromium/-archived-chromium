@@ -197,10 +197,8 @@ void NativeUIContents::OnWindowPosChanged(WINDOWPOS* position) {
   SetMsgHandled(FALSE);
 }
 
-void NativeUIContents::GetContainerBounds(gfx::Rect *out) const {
-  CRect r;
-  GetBounds(&r, false);
-  *out = r;
+void NativeUIContents::GetContainerBounds(gfx::Rect* out) const {
+  GetBounds(out, false);
 }
 
 void NativeUIContents::SetPageState(PageState* page_state) {

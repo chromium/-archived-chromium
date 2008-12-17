@@ -1289,9 +1289,9 @@ void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
     if (src == NULL) {
       Widget* widget = dst->GetWidget();
       if (widget) {
-        CRect b;
+        gfx::Rect b;
         widget->GetBounds(&b, false);
-        point->SetPoint(point->x() - b.left, point->y() - b.top);
+        point->SetPoint(point->x() - b.x(), point->y() - b.y());
       }
     }
   }
@@ -1327,9 +1327,9 @@ void View::ConvertPointToScreen(View* src, gfx::Point* p) {
   Widget* widget = src->GetWidget();
   if (widget) {
     ConvertPointToWidget(src, p);
-    CRect r;
+    gfx::Rect r;
     widget->GetBounds(&r, false);
-    p->SetPoint(p->x() + r.left, p->y() + r.top);
+    p->SetPoint(p->x() + r.x(), p->y() + r.y());
   }
 }
 

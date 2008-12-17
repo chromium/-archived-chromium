@@ -40,7 +40,7 @@ class NativeUIContents : public TabContents,
 
   virtual void CreateView();
   virtual HWND GetContainerHWND() const { return GetHWND(); }
-  virtual void GetContainerBounds(gfx::Rect *out) const;
+  virtual void GetContainerBounds(gfx::Rect* out) const;
 
   // Sets the page state. NativeUIContents takes ownership of the supplied
   // PageState. Use a value of NULL to set the state to empty.

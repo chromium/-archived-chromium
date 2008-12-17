@@ -12,12 +12,6 @@ namespace gfx {
 class Rect;
 }
 
-// TODO(maruel):  Remove once gfx::Rect is used instead.
-namespace WTL {
-class CRect;
-}
-using WTL::CRect;
-
 namespace views {
 
 class RootView;
@@ -48,7 +42,7 @@ class Widget {
   // this method returns the client area if including_frame is false and the
   // frame bounds otherwise. If the receiving Widget is not a frame,
   // including_frame is ignored.
-  virtual void GetBounds(CRect *out, bool including_frame) const = 0;
+  virtual void GetBounds(gfx::Rect* out, bool including_frame) const = 0;
 
   // Moves this Widget to the front of the Z-Order If should_activate is TRUE,
   // the window should also become the active window.

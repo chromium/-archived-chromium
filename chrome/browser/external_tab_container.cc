@@ -235,8 +235,11 @@ void ExternalTabContainer::Observe(NotificationType type,
   }
 }
 
-void ExternalTabContainer::GetBounds(CRect *out, bool including_frame) const {
-  GetWindowRect(out);
+void ExternalTabContainer::GetBounds(gfx::Rect* out,
+                                     bool including_frame) const {
+  CRect crect;
+  GetWindowRect(&crect);
+  *out = gfx::Rect(crect);
 }
 
 void ExternalTabContainer::MoveToFront(bool should_activate) {

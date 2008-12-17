@@ -106,7 +106,9 @@ class BitmapScrollBar : public ScrollBar,
   virtual int GetPosition() const;
 
   // ContextMenuController overrides.
-  virtual void ShowContextMenu(View* source, int x, int y,
+  virtual void ShowContextMenu(View* source,
+                               int x,
+                               int y,
                                bool is_mouse_gesture);
 
   // Menu::Delegate overrides:

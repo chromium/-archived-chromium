@@ -218,20 +218,19 @@ void WidgetWin::SetContentsView(View* view) {
 ///////////////////////////////////////////////////////////////////////////////
 // Widget implementation:
 
-void WidgetWin::GetBounds(CRect *out, bool including_frame) const {
+void WidgetWin::GetBounds(gfx::Rect* out, bool including_frame) const {
+  CRect crect;
   if (including_frame) {
-    GetWindowRect(out);
-  } else {
-    GetClientRect(out);
-
-    POINT p = {0, 0};
-    ::ClientToScreen(hwnd_, &p);
-
-    out->left += p.x;
-    out->top += p.y;
-    out->right += p.x;
-    out->bottom += p.y;
+    GetWindowRect(&crect);
+    *out = gfx::Rect(crect);
+    return;
   }
+
+  GetClientRect(&crect);
+  POINT p = {0, 0};
+  ::ClientToScreen(hwnd_, &p);
+  out->SetRect(crect.left + p.x, crect.top + p.y,
+               crect.Width(), crect.Height());
 }
 
 void WidgetWin::MoveToFront(bool should_activate) {

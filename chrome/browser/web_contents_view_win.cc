@@ -81,10 +81,8 @@ HWND WebContentsViewWin::GetContentHWND() const {
   return web_contents_->render_widget_host_view()->GetPluginHWND();
 }
 
-void WebContentsViewWin::GetContainerBounds(gfx::Rect *out) const {
-  CRect r;
-  GetBounds(&r, false);
-  *out = r;
+void WebContentsViewWin::GetContainerBounds(gfx::Rect* out) const {
+  GetBounds(out, false);
 }
 
 void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {

@@ -398,14 +398,14 @@ gfx::Rect HungRendererWarningView::GetDisplayBounds(
   CRect contents_bounds;
   GetWindowRect(contents_hwnd, &contents_bounds);
 
-  CRect window_bounds;
+  gfx::Rect window_bounds;
   window()->GetBounds(&window_bounds, true);
 
   int window_x = contents_bounds.left +
-      (contents_bounds.Width() - window_bounds.Width()) / 2;
+      (contents_bounds.Width() - window_bounds.width()) / 2;
   int window_y = contents_bounds.top + kOverlayContentsOffsetY;
-  return gfx::Rect(window_x, window_y, window_bounds.Width(),
-                   window_bounds.Height());
+  return gfx::Rect(window_x, window_y, window_bounds.width(),
+                   window_bounds.height());
 }
 
 // static
