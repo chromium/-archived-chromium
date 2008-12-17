@@ -70,7 +70,7 @@ class MultiProcessTest : public PlatformTest {
     return SpawnChildImpl(procname, debug_on_start);
 #elif defined(OS_POSIX)
     base::file_handle_mapping_vector empty_file_list;
-    return SpawnChildImpl(procname, empty_file_list, false);
+    return SpawnChildImpl(procname, empty_file_list, debug_on_start);
 #endif
   }
 
@@ -79,7 +79,7 @@ class MultiProcessTest : public PlatformTest {
       const std::wstring& procname,
       const base::file_handle_mapping_vector& fds_to_map,
       bool debug_on_start) {
-    return SpawnChildImpl(procname, fds_to_map, false);
+    return SpawnChildImpl(procname, fds_to_map, debug_on_start);
   }
 
 #endif
