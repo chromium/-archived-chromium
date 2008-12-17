@@ -36,6 +36,15 @@
 
 namespace {
 
+// WebNavigationType debugging strings taken from PolicyDelegate.mm.
+const char* kLinkClickedString = "link clicked";
+const char* kFormSubmittedString = "form submitted";
+const char* kBackForwardString = "back/forward";
+const char* kReloadString = "reload";
+const char* kFormResubmittedString = "form resubmitted";
+const char* kOtherString = "other";
+const char* kIllegalString = "illegal value";
+
 int next_page_id_ = 1;
 
 // Used to write a platform neutral file:/// URL by only taking the filename
@@ -54,6 +63,25 @@ std::wstring UrlSuitableForTestResult(const std::wstring& url) {
 // dragging a file.
 void AddDRTFakeFileToDataObject(WebDropData* drop_data) {
   drop_data->filenames.push_back(L"DRTFakeFile");
+}
+
+// Get a debugging string from a WebNavigationType.
+const char* WebNavigationTypeToString(WebNavigationType type) {
+  switch (type) {
+    case WebNavigationTypeLinkClicked:
+      return kLinkClickedString;
+    case WebNavigationTypeFormSubmitted:
+      return kFormSubmittedString;
+    case WebNavigationTypeBackForward:
+      return kBackForwardString;
+    case WebNavigationTypeReload:
+      return kReloadString;
+    case WebNavigationTypeFormResubmitted:
+      return kFormResubmittedString;
+    case WebNavigationTypeOther:
+      return kOtherString;
+  }
+  return kIllegalString;
 }
 
 }  // namespace
@@ -102,14 +130,15 @@ WindowOpenDisposition TestWebViewDelegate::DispositionForNavigationAction(
     bool is_redirect) {
   if (is_custom_policy_delegate_) {
     std::wstring frame_name = frame->GetName();
-    printf("Policy delegate: attempt to load %s\n",
-           request->GetURL().spec().c_str());
+    printf("Policy delegate: attempt to load %s with navigation type '%s'\n",
+           request->GetURL().spec().c_str(), WebNavigationTypeToString(type));
     return IGNORE_ACTION;
   } else {
     return WebViewDelegate::DispositionForNavigationAction(
       webview, frame, request, type, disposition, is_redirect);
   }
 }
+
 
 void TestWebViewDelegate::SetCustomPolicyDelegate(bool isCustom) {
   is_custom_policy_delegate_ = isCustom;
