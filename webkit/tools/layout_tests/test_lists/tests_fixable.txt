@@ -312,7 +312,7 @@ SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 // the fallback font to "times new roman" from "Times". Need to
 // verify if the current behavior is still correct.
 WIN : LayoutTests/fast/css/font-family-initial.html = FAIL
-LINUX WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
+WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
 WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 
 // ------------------------------------------------------------------------- //
@@ -659,7 +659,6 @@ LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 // It looks like it was wrong before and should be rebaselined now.
 WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-LINUX : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
@@ -862,13 +861,13 @@ LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 LINUX : LayoutTests/fast/forms/HTMLOptionElement_label05.html = FAIL
 LINUX : LayoutTests/fast/forms/hidden-listbox.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
+MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
+MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
 LINUX : LayoutTests/fast/forms/listbox-width-change.html = FAIL
 LINUX : LayoutTests/fast/forms/option-strip-whitespace.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
+MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
+LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/search-rtl.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
@@ -1028,8 +1027,6 @@ LINUX WIN : LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
 LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 
-// CHANGED OR REBASELINED IN WEBKIT 36102:37604
-LINUX : LayoutTests/fast/forms/8250.html = FAIL
 // The extra output may be legitimate; the extra setSelectionRange line is
 // printed if that property is on a button. This is either a small problem in
 // test shell or a big problem in V8.
@@ -1124,7 +1121,7 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
 // Linux pixeltest failure: We fail to draw anything
 LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-LINUX WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
+WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LINUX WIN : LayoutTests/fast/events/mouse-click-events.html = FAIL
 WIN : LayoutTests/fast/flexbox/009.html = FAIL
 // The thumb in the scrollbar looks wrong.  It looks too narrow.
@@ -1791,8 +1788,8 @@ LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
 // "Cancel" button in a slightly darker gray than the surrounding dark gray.
 WIN : LayoutTests/fast/css/imageTileOpacity.html = FAIL
 
-// Linux pixeltest failure: Word spacing wrong
-LINUX : LayoutTests/fast/css/word-space-extra.html = FAIL
+// Pixeltest failure: Word spacing wrong
+LINUX WIN : LayoutTests/fast/css/word-space-extra.html = FAIL
 
 // Linux pixeltest failure: Appears identical -- needs a pass with a fuzzy
 // differ.
