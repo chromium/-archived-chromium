@@ -157,6 +157,7 @@ void WebPluginDelegateStub::OnDidReceiveResponse(
                              params.headers,
                              params.expected_length,
                              params.last_modified,
+                             params.request_is_seekable,
                              cancel);
 }
 

@@ -283,9 +283,11 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
                                        WebCore::Element *element,
                                        WebFrameImpl *frame,
                                        WebPluginDelegate* delegate,
-                                       bool load_manually) {
+                                       bool load_manually,
+                                       const std::string& mime_type) {
   WebPluginImpl* webplugin = new WebPluginImpl(element, frame, delegate, url,
-                                               load_manually);
+                                               load_manually, mime_type, argc,
+                                               argn, argv);
 
   if (!delegate->Initialize(url, argn, argv, argc, webplugin, load_manually)) {
     delegate->PluginDestroyed();
@@ -303,7 +305,11 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
                              WebFrameImpl* webframe,
                              WebPluginDelegate* delegate,
                              const GURL& plugin_url,
-                             bool load_manually)
+                             bool load_manually,
+                             const std::string& mime_type,
+                             int arg_count,
+                             char** arg_names,
+                             char** arg_values)
     : windowless_(false),
       window_(NULL),
       element_(element),
@@ -315,7 +321,11 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
       widget_(NULL),
       plugin_url_(plugin_url),
       load_manually_(load_manually),
-      first_geometry_update_(true) {
+      first_geometry_update_(true),
+      mime_type_(mime_type) {
+
+  ArrayToVector(arg_count, arg_names, &arg_names_);
+  ArrayToVector(arg_count, arg_values, &arg_values_);
 }
 
 WebPluginImpl::~WebPluginImpl() {
@@ -976,6 +986,7 @@ std::wstring WebPluginImpl::GetAllHeaders(
 void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
     const WebCore::ResourceResponse& response) {
   static const int kHttpPartialResponseStatusCode = 206;
+  static const int kHttpResponseSuccessStatusCode = 200;
 
   WebPluginResourceClient* client = GetClientFromHandle(handle);
   if (!client)
@@ -985,17 +996,55 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
   WebPluginContainer::ReadHttpResponseInfo(response, &http_response_info);
 
   bool cancel = false;
+  bool request_is_seekable = true;
+  if (client->IsMultiByteResponseExpected()) {
+    if (response.httpStatusCode() == kHttpPartialResponseStatusCode) {
+      HandleHttpMultipartResponse(response, client);
+      return;
+    } else if (response.httpStatusCode() == kHttpResponseSuccessStatusCode) {
+      // If the client issued a byte range request and the server responds with
+      // HTTP 200 OK, it indicates that the server does not support byte range
+      // requests.
+      // We need to emulate Firefox behavior by doing the following:-
+      // 1. Destroy the plugin instance in the plugin process. Ensure that
+      //    existing resource requests initiated for the plugin instance
+      //    continue to remain valid.
+      // 2. Create a new plugin instance and notify it about the response
+      //    received here.
+      if (!ReinitializePluginForResponse(handle)) {
+        NOTREACHED();
+        return;
+      }
 
-  if (response.httpStatusCode() == kHttpPartialResponseStatusCode) {
-    HandleHttpMultipartResponse(response, client);
-    return;
+      // The server does not support byte range requests. No point in creating
+      // seekable streams.
+      request_is_seekable = false;
+
+      delete client;
+      client = NULL;
+
+      // Create a new resource client for this request.
+      for (size_t i = 0; i < clients_.size(); ++i) {
+        if (clients_[i].handle.get() == handle) {
+          WebPluginResourceClient* resource_client =
+              delegate_->CreateResourceClient(clients_[i].id, 
+                                              plugin_url_.spec().c_str(),
+                                              NULL, false, NULL);
+          clients_[i].client = resource_client;
+          client = resource_client;
+          break;
+        }
+      }
+
+      DCHECK(client != NULL);
+    }
   }
 
   client->DidReceiveResponse(
       base::SysWideToNativeMB(http_response_info.mime_type),
       base::SysWideToNativeMB(GetAllHeaders(response)),
       http_response_info.expected_length,
-      http_response_info.last_modified, &cancel);
+      http_response_info.last_modified, request_is_seekable, &cancel);
 
   if (cancel) {
     handle->cancel();
@@ -1078,35 +1127,7 @@ void WebPluginImpl::RemoveClient(WebCore::ResourceHandle* handle) {
 
 void WebPluginImpl::SetContainer(WebPluginContainer* container) {
   if (container == NULL) {
-    // The frame maintains a list of JSObjects which are related to this
-    // plugin.  Tell the frame we're gone so that it can invalidate all
-    // of those sub JSObjects.
-    if (frame()) {
-      ASSERT(widget_ != NULL);
-      frame()->script()->cleanupScriptObjectsForPlugin(widget_);
-    }
-
-    // Call PluginDestroyed() first to prevent the plugin from calling us back
-    // in the middle of tearing down the render tree.
-    delegate_->PluginDestroyed();
-    delegate_ = NULL;
-
-    // Cancel any pending requests because otherwise this deleted object will be
-    // called by the ResourceDispatcher.
-    int int_offset = 0;
-    while (!clients_.empty()) {
-      if (clients_[int_offset].handle)
-        clients_[int_offset].handle->cancel();
-      WebPluginResourceClient* resource_client = clients_[int_offset].client;
-      RemoveClient(int_offset);
-      if (resource_client)
-        resource_client->DidFail();
-    }
-
-    // This needs to be called now and not in the destructor since the
-    // webframe_ might not be valid anymore.
-    webframe_->set_plugin_delegate(NULL);
-    webframe_ = NULL;
+    TearDownPluginInstance(NULL);
   }
   widget_ = container;
 }
@@ -1314,4 +1335,110 @@ void WebPluginImpl::HandleHttpMultipartResponse(
                                     response,
                                     multipart_boundary);
   multi_part_response_map_[client] = multi_part_response_handler;
+}
+
+bool WebPluginImpl::ReinitializePluginForResponse(
+    WebCore::ResourceHandle* response_handle) {
+  WebFrameImpl* web_frame = WebFrameImpl::FromFrame(frame());
+  if (!web_frame)
+    return false;
+
+  WebViewImpl* web_view = web_frame->webview_impl();
+  if (!web_view)
+    return false;
+
+  WebPluginContainer* container_widget = widget_;
+
+  // Destroy the current plugin instance.
+  TearDownPluginInstance(response_handle);
+
+  widget_ = container_widget;
+  webframe_ = web_frame;
+  // Turn off the load_manually flag as we are going to hand data off to the
+  // plugin.
+  load_manually_ = false;
+
+  WebViewDelegate* webview_delegate = web_view->GetDelegate();
+  std::string actual_mime_type;
+  WebPluginDelegate* plugin_delegate =
+      webview_delegate->CreatePluginDelegate(web_view, plugin_url_,
+                                             mime_type_, std::string(),
+                                             &actual_mime_type);
+
+  char** arg_names = new char*[arg_names_.size()];
+  char** arg_values = new char*[arg_values_.size()];
+
+  for (unsigned int index = 0; index < arg_names_.size(); ++index) {
+    arg_names[index] = const_cast<char*>(arg_names_[index].c_str());
+    arg_values[index] = const_cast<char*>(arg_values_[index].c_str());
+  }
+
+  bool init_ok = plugin_delegate->Initialize(plugin_url_, arg_names,
+                                             arg_values, arg_names_.size(),
+                                             this, load_manually_);
+  delete[] arg_names;
+  delete[] arg_values;
+
+  if (!init_ok) {
+    SetContainer(NULL);
+    // TODO(iyengar) Should we delete the current plugin instance here?
+    return false;
+  }
+
+  mime_type_ = actual_mime_type;
+  delegate_ = plugin_delegate;
+  // Force a geometry update to occur to ensure that the plugin becomes
+  // visible.
+  widget_->frameRectsChanged();
+  delegate_->FlushGeometryUpdates();  
+  return true;
+}
+
+void WebPluginImpl::ArrayToVector(int total_values, char** values,
+                                  std::vector<std::string>* value_vector) {
+  DCHECK(value_vector != NULL);
+  for (int index = 0; index < total_values; ++index) {
+    value_vector->push_back(values[index]);
+  }
+}
+
+void WebPluginImpl::TearDownPluginInstance(
+    WebCore::ResourceHandle* response_handle_to_ignore) {
+  // The frame maintains a list of JSObjects which are related to this
+  // plugin.  Tell the frame we're gone so that it can invalidate all
+  // of those sub JSObjects.
+  if (frame()) {
+    ASSERT(widget_ != NULL);
+    frame()->script()->cleanupScriptObjectsForPlugin(widget_);
+  }
+
+  // Call PluginDestroyed() first to prevent the plugin from calling us back
+  // in the middle of tearing down the render tree.
+  delegate_->PluginDestroyed();
+  delegate_ = NULL;
+
+  // Cancel any pending requests because otherwise this deleted object will
+  // be called by the ResourceDispatcher.
+  std::vector<ClientInfo>::iterator client_index = clients_.begin();
+  while (client_index != clients_.end()) {
+    ClientInfo& client_info = *client_index;
+
+    if (response_handle_to_ignore == client_info.handle) {
+      client_index++;
+      continue;
+    }
+
+    if (client_info.handle)
+      client_info.handle->cancel();
+
+    WebPluginResourceClient* resource_client = client_info.client;
+    client_index = clients_.erase(client_index);
+    if (resource_client)
+      resource_client->DidFail();
+  }
+
+  // This needs to be called now and not in the destructor since the
+  // webframe_ might not be valid anymore.
+  webframe_->set_plugin_delegate(NULL);
+  webframe_ = NULL;
 }

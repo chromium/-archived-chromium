@@ -69,6 +69,7 @@ struct PluginMsg_DidReceiveResponseParams {
   std::string headers;
   uint32 expected_length;
   uint32 last_modified;
+  bool request_is_seekable;
 };
 
 struct NPIdentifier_Param {
@@ -266,6 +267,7 @@ struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
     WriteParam(m, p.headers);
     WriteParam(m, p.expected_length);
     WriteParam(m, p.last_modified);
+    WriteParam(m, p.request_is_seekable);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
@@ -273,7 +275,8 @@ struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
       ReadParam(m, iter, &r->mime_type) &&
       ReadParam(m, iter, &r->headers) &&
       ReadParam(m, iter, &r->expected_length) &&
-      ReadParam(m, iter, &r->last_modified);
+      ReadParam(m, iter, &r->last_modified) &&
+      ReadParam(m, iter, &r->request_is_seekable);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -286,6 +289,8 @@ struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
     LogParam(p.expected_length, l);
     l->append(L", ");
     LogParam(p.last_modified, l);
+    l->append(L", ");
+    LogParam(p.request_is_seekable, l);
     l->append(L")");
   }
 };

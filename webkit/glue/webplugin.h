@@ -148,15 +148,19 @@ class WebPluginResourceClient {
  public:
   virtual ~WebPluginResourceClient() {}
   virtual void WillSendRequest(const GURL& url) = 0;
+  // The request_is_seekable parameter indicates whether byte range requests
+  // can be issued for the underlying stream.
   virtual void DidReceiveResponse(const std::string& mime_type,
                                   const std::string& headers,
                                   uint32 expected_length,
                                   uint32 last_modified,
+                                  bool request_is_seekable,
                                   bool* cancel) = 0;
   virtual void DidReceiveData(const char* buffer, int length, 
                               int data_offset) = 0;
   virtual void DidFinishLoading() = 0;
   virtual void DidFail() = 0;
+  virtual bool IsMultiByteResponseExpected() = 0;
 };
 
 

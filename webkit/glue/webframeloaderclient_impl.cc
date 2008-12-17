@@ -1404,7 +1404,7 @@ Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay)
 
   Widget* result = WebPluginImpl::Create(gurl, argn, argv, argc, element,
                                          webframe_, plugin_delegate,
-                                         load_manually);
+                                         load_manually, actual_mime_type);
 
   DeleteToArray(argn);
   DeleteToArray(argv);

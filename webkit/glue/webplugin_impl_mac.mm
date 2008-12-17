@@ -50,7 +50,8 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
                                        WebCore::Element* element,
                                        WebFrameImpl* frame,
                                        WebPluginDelegate* delegate,
-                                       bool load_manually) {
+                                       bool load_manually,
+                                       const std::string& mime_type) {
   // TODO(pinkerton): delete delegate when stubbing out?
   NSLog(@"WebPluginImpl::Create");
   return NULL;

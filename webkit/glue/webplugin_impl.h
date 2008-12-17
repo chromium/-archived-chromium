@@ -124,7 +124,8 @@ class WebPluginImpl : public WebPlugin,
                                  WebCore::Element* element,
                                  WebFrameImpl* frame,
                                  WebPluginDelegate* delegate,
-                                 bool load_manually);
+                                 bool load_manually,
+                                 const std::string& mime_type);
   virtual ~WebPluginImpl();
 
   virtual NPObject* GetPluginScriptableObject();
@@ -139,7 +140,8 @@ class WebPluginImpl : public WebPlugin,
 
   WebPluginImpl(WebCore::Element *element, WebFrameImpl *frame,
                 WebPluginDelegate* delegate, const GURL& plugin_url,
-                bool load_manually);
+                bool load_manually, const std::string& mime_type,
+                int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
   void SetWindow(HWND window, HANDLE pump_messages_event);
@@ -231,6 +233,12 @@ class WebPluginImpl : public WebPlugin,
   // Sets the actual Widget for the plugin.
   void SetContainer(WebPluginContainer* container);
 
+  // Destroys the plugin instance.
+  // The response_handle_to_ignore parameter if not NULL indicates the
+  // resource handle to be left valid during plugin shutdown.
+  void TearDownPluginInstance(
+      WebCore::ResourceHandle* response_handle_to_ignore);
+
   WebCore::ScrollView* parent() const;
 
   // ResourceHandleClient implementation.  We implement this interface in the
@@ -294,6 +302,14 @@ class WebPluginImpl : public WebPlugin,
                                 void* notify_data, bool popups_allowed,
                                 bool use_plugin_src_as_referrer);
 
+  // Tears down the existing plugin instance and creates a new plugin instance
+  // to handle the response identified by the response_handle parameter.
+  bool ReinitializePluginForResponse(WebCore::ResourceHandle* response_handle);
+
+  // Helper functions to convert an array of names/values to a vector.
+  static void ArrayToVector(int total_values, char** values, 
+                            std::vector<std::string>* value_vector);
+
   struct ClientInfo {
     int id;
     WebPluginResourceClient* client;
@@ -331,6 +347,15 @@ class WebPluginImpl : public WebPlugin,
 
   // Indicates if this is the first geometry update received by the plugin.
   bool first_geometry_update_;
+
+  // The mime type of the plugin.
+  std::string mime_type_;
+
+  // Holds the list of argument names passed to the plugin.
+  std::vector<std::string> arg_names_;
+
+  // Holds the list of argument values passed to the plugin.
+  std::vector<std::string> arg_values_;
 
   DISALLOW_COPY_AND_ASSIGN(WebPluginImpl);
 };

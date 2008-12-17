@@ -37,7 +37,8 @@ class ResourceClientProxy : public WebPluginResourceClient {
  public:
   ResourceClientProxy(PluginChannelHost* channel, int instance_id)
     : channel_(channel), instance_id_(instance_id), resource_id_(0),
-      notify_needed_(false), notify_data_(NULL) {
+      notify_needed_(false), notify_data_(NULL),
+      multibyte_response_expected_(false) {
   }
 
   ~ResourceClientProxy() {
@@ -57,6 +58,8 @@ class ResourceClientProxy : public WebPluginResourceClient {
     params.notify_data = notify_data_;
     params.stream = existing_stream;
 
+    multibyte_response_expected_ = (existing_stream != NULL);
+
     channel_->Send(new PluginMsg_HandleURLRequestReply(instance_id_, params));
   }
 
@@ -71,6 +74,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
                           const std::string& headers,
                           uint32 expected_length,
                           uint32 last_modified,
+                          bool request_is_seekable,
                           bool* cancel) {
     DCHECK(channel_ != NULL);
     PluginMsg_DidReceiveResponseParams params;
@@ -79,6 +83,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
     params.headers = headers;
     params.expected_length = expected_length;
     params.last_modified = last_modified;
+    params.request_is_seekable = request_is_seekable;
     // Grab a reference on the underlying channel so it does not get
     // deleted from under us.
     scoped_refptr<PluginChannelHost> channel_ref(channel_);
@@ -113,6 +118,10 @@ class ResourceClientProxy : public WebPluginResourceClient {
     MessageLoop::current()->DeleteSoon(FROM_HERE, this);
   }
 
+  bool IsMultiByteResponseExpected() {
+    return multibyte_response_expected_;
+  }
+
 private:
   int resource_id_;
   int instance_id_;
@@ -120,6 +129,9 @@ private:
   std::string url_;
   bool notify_needed_;
   void* notify_data_;
+  // Set to true if the response expected is a multibyte response.
+  // For e.g. response for a HTTP byte range request.
+  bool multibyte_response_expected_;
 };
 
 WebPluginDelegateProxy* WebPluginDelegateProxy::Create(
