@@ -1210,11 +1210,6 @@ LayoutTests/fast/frames/cross-site-this.html = FAIL
 
 LINUX WIN : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 
-// MERGE 38305:38376 REGRESSION (new test)
-// Bug 5032: The image is flipped horizontally from the reference.
-// Linux pixeltest failure: Not clear who is correct here
-LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
-
 // MERGE 38389:38450
 LINUX WIN : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
 LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
@@ -1762,28 +1757,10 @@ LINUX WIN : LayoutTests/fast/css/word-space-extra.html = FAIL
 // differ.
 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
 
-// Linux pixeltest failure: Word spacing
-LINUX : LayoutTests/fast/multicol/float-avoidance.html = FAIL
-
-// Linux pixeltest failure: Indent is incorrect
-LINUX : LayoutTests/fast/overflow/clip-rects-fixed-ancestor.html = FAIL
-
-// Linux pixeltest failure: Word spacing wrong
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-1.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-2.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-3.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-4.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-5.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-6.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-7.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-8.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-9.html = FAIL
-LINUX : LayoutTests/fast/repaint/line-flow-with-floats-10.html = FAIL
-
-// Linux pixeltest failure: Misdrawing probably
-LINUX : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
-// Linux pixeltest failure: Check that we are respecting the CSS highlight colour
-LINUX : LayoutTests/fast/repaint/text-selection-rect-in-overflow-2.html = FAIL
+// Repaint tests, so the expected output should look like the
+// Mac where everything is dark gray.
+LINUX WIN : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
+LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
 // Linux pixeltest failure: Indentation incorrect
 LINUX : LayoutTests/fast/table/border-collapsing/004.html = FAIL
 // Linux pixeltest failure: Word spacing wrong
