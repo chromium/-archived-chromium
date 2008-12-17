@@ -2058,8 +2058,13 @@ void MenuController::SetActiveInstance(MenuController* controller) {
 bool MenuController::Dispatch(const MSG& msg) {
   DCHECK(blocking_run_);
 
-  if (exit_all_)
+  if (exit_all_) {
+    // We must translate/dispatch the message here, otherwise we would drop
+    // the message on the floor.
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
     return false;
+  }
 
   // NOTE: we don't get WM_ACTIVATE or anything else interesting in here.
   switch (msg.message) {
