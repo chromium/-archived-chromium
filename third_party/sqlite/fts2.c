@@ -3538,6 +3538,7 @@ static int tokenizeSegment(
   int firstIndex = pQuery->nTerms;
   int iCol;
   int nTerm = 1;
+  int iEndLast = -1;
   
   int rc = pModule->xOpen(pTokenizer, pSegment, nSegment, &pCursor);
   if( rc!=SQLITE_OK ) return rc;
@@ -3566,12 +3567,13 @@ static int tokenizeSegment(
     // If a tokenizer recognizes "*" as a separate word, we mark the word
     // before it as a prefix search.  The other isPrefix code below that tests
     // for a word that's tokenized with the star as its last character.
-    // TODO(evanm): this is incorrect in that "foo *" parses as "foo*".
-    if( pQuery->nTerms>0 && nToken==1 && pSegment[iBegin]=='*' ){
+    if( pQuery->nTerms>0 && nToken==1 && pSegment[iBegin]=='*' &&
+        iEndLast==iBegin){
       pQuery->pTerms[pQuery->nTerms-1].isPrefix = 1;
       continue;
     }
-    
+    iEndLast = iEnd;
+
     queryAdd(pQuery, pToken, nToken);
     if( !inPhrase && iBegin>0 && pSegment[iBegin-1]=='-' ){
       pQuery->pTerms[pQuery->nTerms-1].isNot = 1;
