@@ -63,6 +63,8 @@ input_files = [
     'disk_cache/stats.cc',
     'disk_cache/stats_histogram.cc',
     'disk_cache/trace.cc',
+    'ftp/ftp_network_layer.cc',
+    'ftp/ftp_network_transaction.cc',
     'http/cert_status_cache.cc',
     'http/http_auth.cc',
     'http/http_auth_cache.cc',

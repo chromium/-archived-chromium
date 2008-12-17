@@ -1045,6 +1045,46 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="ftp"
+			>
+			<File
+				RelativePath="..\ftp\ftp_network_layer.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_network_layer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_network_session.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_network_transaction.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_network_transaction.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_request_info.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_response_info.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_transaction.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_transaction_factory.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
