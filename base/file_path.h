@@ -71,8 +71,7 @@
 #include "base/compiler_specific.h"
 
 #if defined(COMPILER_GCC)
-#include <ext/hash_fun.h>
-#include <tr1/functional>
+#include "base/hash_tables.h"
 #endif
 
 // Windows-style drive letter support and pathname separator characters can be
