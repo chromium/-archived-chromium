@@ -305,6 +305,17 @@ std::string MetricsLog::GetInstallDate() const {
   }
 }
 
+void MetricsLog::RecordIncrementalStabilityElements() {
+  DCHECK(!locked_);
+
+  PrefService* pref = g_browser_process->local_state();
+  DCHECK(pref);
+
+  OPEN_ELEMENT_FOR_SCOPE("stability");
+  WriteRequiredStabilityElements(pref);
+  WriteRealtimeStabilityElements(pref);
+}
+
 void MetricsLog::WriteStabilityElement() {
   DCHECK(!locked_);
 
@@ -316,26 +327,17 @@ void MetricsLog::WriteStabilityElement() {
   //       sent, but that's true for all the metrics.
 
   OPEN_ELEMENT_FOR_SCOPE("stability");
+  WriteRequiredStabilityElements(pref);
+  WriteRealtimeStabilityElements(pref);
 
-  WriteIntAttribute("launchcount",
-                    pref->GetInteger(prefs::kStabilityLaunchCount));
-  pref->SetInteger(prefs::kStabilityLaunchCount, 0);
-  WriteIntAttribute("crashcount",
-                    pref->GetInteger(prefs::kStabilityCrashCount));
-  pref->SetInteger(prefs::kStabilityCrashCount, 0);
+  // TODO(jar): The following are all optional, so we *could* optimize them for
+  // values of zero (and not include them).
   WriteIntAttribute("incompleteshutdowncount",
                     pref->GetInteger(
                         prefs::kStabilityIncompleteSessionEndCount));
   pref->SetInteger(prefs::kStabilityIncompleteSessionEndCount, 0);
-  WriteIntAttribute("pageloadcount",
-                    pref->GetInteger(prefs::kStabilityPageLoadCount));
-  pref->SetInteger(prefs::kStabilityPageLoadCount, 0);
-  WriteIntAttribute("renderercrashcount",
-                    pref->GetInteger(prefs::kStabilityRendererCrashCount));
-  pref->SetInteger(prefs::kStabilityRendererCrashCount, 0);
-  WriteIntAttribute("rendererhangcount",
-                    pref->GetInteger(prefs::kStabilityRendererHangCount));
-  pref->SetInteger(prefs::kStabilityRendererHangCount, 0);
+
+
   WriteIntAttribute("breakpadregistrationok",
       pref->GetInteger(prefs::kStabilityBreakpadRegistrationSuccess));
   pref->SetInteger(prefs::kStabilityBreakpadRegistrationSuccess, 0);
@@ -392,6 +394,41 @@ void MetricsLog::WriteStabilityElement() {
     }
 
     pref->ClearPref(prefs::kStabilityPluginStats);
+  }
+}
+
+void MetricsLog::WriteRequiredStabilityElements(PrefService* pref) {
+  // The server refuses data that doesn't have certain values.  crashcount and
+  // launchcount are currently "required" in the "stability" group.
+  WriteIntAttribute("launchcount",
+                    pref->GetInteger(prefs::kStabilityLaunchCount));
+  pref->SetInteger(prefs::kStabilityLaunchCount, 0);
+  WriteIntAttribute("crashcount",
+                    pref->GetInteger(prefs::kStabilityCrashCount));
+  pref->SetInteger(prefs::kStabilityCrashCount, 0);
+}
+
+void MetricsLog::WriteRealtimeStabilityElements(PrefService* pref) {
+  // Update the stats which are critical for real-time stability monitoring.
+  // Since these are "optional," only list ones that are non-zero, as the counts
+  // are aggergated (summed) server side.
+
+  int count = pref->GetInteger(prefs::kStabilityPageLoadCount);
+  if (count) {
+    WriteIntAttribute("pageloadcount", count);
+    pref->SetInteger(prefs::kStabilityPageLoadCount, 0);
+  }
+
+  count = pref->GetInteger(prefs::kStabilityRendererCrashCount);
+  if (count) {
+    WriteIntAttribute("renderercrashcount", count);
+    pref->SetInteger(prefs::kStabilityRendererCrashCount, 0);
+  }
+
+  count = pref->GetInteger(prefs::kStabilityRendererHangCount);
+  if (count) {
+    WriteIntAttribute("rendererhangcount", count);
+    pref->SetInteger(prefs::kStabilityRendererHangCount, 0);
   }
 }
 

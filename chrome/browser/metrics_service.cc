@@ -38,7 +38,7 @@
 // the MS was first constructed.  Note that even though the initial log is
 // commonly sent a full minute after startup, the initial log does not include
 // much in the way of user stats.   The most common interlog period (delay)
-// is 5 minutes. That time period starts when the first user action causes a
+// is 20 minutes. That time period starts when the first user action causes a
 // logging event.  This means that if there is no user action, there may be long
 // periods without any (ongoing) log transmissions.  Ongoing log typically
 // contain very detailed records of user activities (ex: opened tab, closed
@@ -122,7 +122,7 @@
 // logs from the current session (see next state).
 //
 //    SENDING_CURRENT_LOGS,   // Sending standard current logs as they accrue.
-// Current logs are being accumulated.  Typically every 5 minutes a log is
+// Current logs are being accumulated.  Typically every 20 minutes a log is
 // closed and finalized for transmission, at the same time as a new log is
 // started.
 //
@@ -198,7 +198,7 @@ static const char kMetricsType[] = "application/vnd.mozilla.metrics.bz2";
 static const int kInitialInterlogDuration = 60;  // one minute
 
 // The default maximum number of events in a log uploaded to the UMA server.
-static const int kInitialEventLimit = 600;
+static const int kInitialEventLimit = 2400;
 
 // If an upload fails, and the transmission was over this byte count, then we
 // will discard the log, and not try to retransmit it.  We also don't persist
@@ -216,7 +216,7 @@ static const int kUnsentLogDelay = 15;  // 15 seconds
 // sending the next log.  If the channel is busy, such as when there is a
 // failure during an attempt to transmit a previous log, then a log may wait
 // (and continue to accrue now log entries) for a much greater period of time.
-static const int kMinSecondsPerLog = 5 * 60;  // five minutes
+static const int kMinSecondsPerLog = 20 * 60;  // twenty minutes
 
 // When we don't succeed at transmitting a log to a server, we progressively
 // wait longer and longer before sending the next log.  This backoff process
@@ -678,10 +678,13 @@ void MetricsService::StopRecording(MetricsLog** log) {
     StartRecording();  // Start trivial log to hold our histograms.
   }
 
-  // Put incremental histogram data at the end of every log transmission.
+  // Put incremental data (histogram deltas, and realtime stats deltas) at the
+  // end of every log transmission.
   // Don't bother if we're going to discard current_log_.
-  if (log)
+  if (log) {
+    current_log_->RecordIncrementalStabilityElements();
     RecordCurrentHistograms();
+  }
 
   current_log_->CloseLog();
   if (log)
@@ -1369,7 +1372,7 @@ bool MetricsService::NodeProbabilityTest(xmlNodePtr node,
   // If a probability is specified in the node, we use it instead.
   xmlChar* probability_value = xmlGetProp(node, BAD_CAST "probability");
   if (probability_value)
-      probability = atoi(reinterpret_cast<char*>(probability_value));
+    probability = atoi(reinterpret_cast<char*>(probability_value));
 
   return ProbabilityTest(probability, props.salt, props.denominator);
 }
@@ -1480,8 +1483,8 @@ void MetricsService::IncrementPrefValue(const wchar_t* path) {
 
 void MetricsService::LogLoadStarted() {
   IncrementPrefValue(prefs::kStabilityPageLoadCount);
-  // We need to save the prefs, as page load count is a critical stat, and
-  // it might be lost due to a crash :-(.
+  // We need to save the prefs, as page load count is a critical stat, and it
+  // might be lost due to a crash :-(.
 }
 
 void MetricsService::LogRendererInSandbox(bool on_sandbox_desktop) {
@@ -1677,10 +1680,9 @@ void MetricsService::RecordCurrentHistograms() {
        histograms.end() != it;
        ++it) {
     if ((*it)->flags() & kUmaTargetedHistogramFlag)
-      // TODO(petersont):
+      // TODO(petersont): Only record historgrams if they are not precluded by
+      // the UMA response data.
       // Bug http://code.google.com/p/chromium/issues/detail?id=2739.
-      // Only record historgrams if they are not
-      // precluded by the UMA response data.
       RecordHistogram(**it);
   }
 }
