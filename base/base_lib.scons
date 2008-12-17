@@ -69,6 +69,7 @@ input_files = [
     'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
     'thread.cc',
+    'thread_collision_warner.cc',
     'time.cc',
     'time_format.cc',
     'timer.cc',

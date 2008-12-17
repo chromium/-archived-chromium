@@ -29,6 +29,9 @@ PrintViewManager::PrintViewManager(WebContents& owner)
   memset(&print_params_, 0, sizeof(print_params_));
 }
 
+PrintViewManager::~PrintViewManager() {
+}
+
 void PrintViewManager::Destroy() {
   DisconnectFromCurrentPrintJob();
 }

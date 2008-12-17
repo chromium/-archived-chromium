@@ -13,6 +13,7 @@
 #include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
 #include "base/spin_wait.h"
+#include "base/thread_collision_warner.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -79,6 +80,9 @@ class WorkQueue : public PlatformThread::Delegate {
   int shutdown_task_count() const;
 
   void thread_shutting_down();
+
+  //----------------------------------------------------------------------------
+  // Worker threads can call them but not needed to acquire a lock
   Lock* lock();
 
   ConditionVariable* work_is_available();
@@ -120,6 +124,8 @@ class WorkQueue : public PlatformThread::Delegate {
   TimeDelta worker_delay_;  // Time each task takes to complete.
   bool allow_help_requests_;  // Workers can signal more workers.
   bool shutdown_;  // Set when threads need to terminate.
+
+  DFAKE_MUTEX(locked_methods_);
 };
 
 //------------------------------------------------------------------------------
@@ -477,15 +483,18 @@ WorkQueue::~WorkQueue() {
 }
 
 int WorkQueue::GetThreadId() {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   DCHECK(!EveryIdWasAllocated());
   return thread_started_counter_++;  // Give out Unique IDs.
 }
 
 bool WorkQueue::EveryIdWasAllocated() const {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   return thread_count_ == thread_started_counter_;
 }
 
 TimeDelta WorkQueue::GetAnAssignment(int thread_id) {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   DCHECK_LT(0, task_count_);
   assignment_history_[thread_id]++;
   if (0 == --task_count_) {
@@ -495,26 +504,32 @@ TimeDelta WorkQueue::GetAnAssignment(int thread_id) {
 }
 
 void WorkQueue::WorkIsCompleted(int thread_id) {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   completion_history_[thread_id]++;
 }
 
 int WorkQueue::task_count() const {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   return task_count_;
 }
 
 bool WorkQueue::allow_help_requests() const {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   return allow_help_requests_;
 }
 
 bool WorkQueue::shutdown() const {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   return shutdown_;
 }
 
 int WorkQueue::shutdown_task_count() const {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   return shutdown_task_count_;
 }
 
 void WorkQueue::thread_shutting_down() {
+  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   shutdown_task_count_++;
 }
 

@@ -24,6 +24,7 @@ class PrintViewManager : public NotificationObserver,
                          public PrintedPagesSource {
  public:
   PrintViewManager(WebContents& owner);
+  virtual ~PrintViewManager();
 
   // Destroys the "Print..." dialog, makes sure the pages are finished rendering
   // and release the print job.

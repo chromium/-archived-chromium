@@ -336,6 +336,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\thread_collision_warner_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\thread_local_storage_unittest.cc"
 				>
 			</File>

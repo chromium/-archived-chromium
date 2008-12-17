@@ -80,6 +80,7 @@ input_files = [
     'string_tokenizer_unittest.cc',
     'string_util_unittest.cc',
     'sys_info_unittest.cc',
+    'thread_collision_warner_unittest.cc',
     'thread_local_storage_unittest.cc',
     'thread_local_unittest.cc',
     'thread_unittest.cc',

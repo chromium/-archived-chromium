@@ -850,6 +850,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\thread_collision_warner.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\thread_collision_warner.h"
+			>
+		</File>
+		<File
 			RelativePath="..\thread_local.h"
 			>
 		</File>
