@@ -11,15 +11,15 @@ namespace media {
 
 // Common MIME types.
 namespace mime_type {
-extern const wchar_t kURI[];
-extern const wchar_t kApplicationOctetStream[];
-extern const wchar_t kMPEGAudio[];
-extern const wchar_t kAACAudio[];
-extern const wchar_t kH264AnnexB[];
-extern const wchar_t kUncompressedAudio[];
-extern const wchar_t kUncompressedVideo[];
-extern const wchar_t kFFmpegAudio[];
-extern const wchar_t kFFmpegVideo[];
+extern const char kURI[];
+extern const char kApplicationOctetStream[];
+extern const char kMPEGAudio[];
+extern const char kAACAudio[];
+extern const char kH264AnnexB[];
+extern const char kUncompressedAudio[];
+extern const char kUncompressedVideo[];
+extern const char kFFmpegAudio[];
+extern const char kFFmpegVideo[];
 }  // namespace mime_type
 
 // MediaFormat is used to describe the output of a MediaFilterInterface to
@@ -65,12 +65,12 @@ class MediaFormat {
   void SetAsBoolean(const std::string& key, bool in_value);
   void SetAsInteger(const std::string& key, int in_value);
   void SetAsReal(const std::string& key, double in_value);
-  void SetAsString(const std::string& key, const std::wstring& in_value);
+  void SetAsString(const std::string& key, const std::string& in_value);
 
   bool GetAsBoolean(const std::string& key, bool* out_value) const;
   bool GetAsInteger(const std::string& key, int* out_value) const;
   bool GetAsReal(const std::string& key, double* out_value) const;
-  bool GetAsString(const std::string& key, std::wstring* out_value) const;
+  bool GetAsString(const std::string& key, std::string* out_value) const;
 
  private:
   // Helper to return a value.

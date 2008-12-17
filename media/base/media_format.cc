@@ -11,30 +11,30 @@ namespace mime_type {
 // Represents a URI, typically used to create a DataSourceInterface.
 // Expected keys:
 //   kUri             String          The URI
-const wchar_t kURI[]                        = L"text/x-uri";
+const char kURI[]                           = "text/x-uri";
 
 // Represents a generic byte stream, typically from a DataSourceInterface.
 // Expected keys:
 //   None
-const wchar_t kApplicationOctetStream[]     = L"application/octet-stream";
+const char kApplicationOctetStream[]        = "application/octet-stream";
 
 // Represents encoded audio data, typically from an DemuxerStreamInterface.
 // Expected keys:
 //   None
-const wchar_t kMPEGAudio[]                  = L"audio/mpeg";
-const wchar_t kAACAudio[]                   = L"audio/aac";
+const char kMPEGAudio[]                     = "audio/mpeg";
+const char kAACAudio[]                      = "audio/aac";
 
 // Represents encoded video data, typically from a DemuxerStreamInterface.
 // Expected keys:
 //   None
-const wchar_t kH264AnnexB[]                 = L"video/x-h264-annex-b";
+const char kH264AnnexB[]                    = "video/x-h264-annex-b";
 
 // Represents decoded audio data, typically from an AudioDecoderInterface.
 // Expected keys:
 //   kChannels        Integer         Number of audio channels
 //   kSampleRate      Integer         Audio sample rate (i.e., 44100)
 //   kSampleBits      Integer         Audio bits-per-sample (i.e., 16)
-const wchar_t kRawAudio[]                   = L"audio/x-uncompressed";
+const char kRawAudio[]                      = "audio/x-uncompressed";
 
 // Represents decoded video data, typically from a VideoDecoderInterface.
 // Other information, such as surface format (i.e., YV12), stride and planes are
@@ -42,13 +42,13 @@ const wchar_t kRawAudio[]                   = L"audio/x-uncompressed";
 // Expected keys:
 //   kWidth           Integer         Display width of the surface
 //   kHeight          Integer         Display height of the surface
-const wchar_t kRawVideo[]                   = L"video/x-uncompressed";
+const char kRawVideo[]                      = "video/x-uncompressed";
 
 // Represents FFmpeg encoded packets, typically from an DemuxerStreamInterface.
 // Expected keys:
 //   kFfmpegCodecId   Integer         The FFmpeg CodecID identifying the decoder
-const wchar_t kFFmpegAudio[]                = L"audio/x-ffmpeg";
-const wchar_t kFFmpegVideo[]                = L"video/x-ffmpeg";
+const char kFFmpegAudio[]                   = "audio/x-ffmpeg";
+const char kFFmpegVideo[]                   = "video/x-ffmpeg";
 
 }  // namespace mime_type
 
@@ -94,7 +94,7 @@ void MediaFormat::SetAsReal(const std::string& key, double in_value) {
 }
 
 void MediaFormat::SetAsString(const std::string& key,
-                              const std::wstring& in_value) {
+                              const std::string& in_value) {
   value_map_[key] = Value::CreateStringValue(in_value);
 }
 
@@ -114,7 +114,7 @@ bool MediaFormat::GetAsReal(const std::string& key, double* out_value) const {
 }
 
 bool MediaFormat::GetAsString(const std::string& key,
-                              std::wstring* out_value) const {
+                              std::string* out_value) const {
   Value* value = GetValue(key);
   return value != NULL && value->GetAsString(out_value);
 }
