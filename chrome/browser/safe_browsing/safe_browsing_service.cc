@@ -70,9 +70,6 @@ void SafeBrowsingService::Start() {
   if (!db_thread_->Start())
     return;
 
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &SafeBrowsingService::OnDBInitialize));
-
   // Retrieve client MAC keys.
   PrefService* local_state = g_browser_process->local_state();
   std::string client_key, wrapped_key;
@@ -86,6 +83,9 @@ void SafeBrowsingService::Start() {
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::OnIOInitialize, MessageLoop::current(),
       client_key, wrapped_key));
+
+  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SafeBrowsingService::OnDBInitialize));
 }
 
 void SafeBrowsingService::ShutDown() {
