@@ -1032,9 +1032,13 @@ SKIP LayoutTests/fast/table/table-display-types.html = FAIL
 
 // CHANGED OR REBASELINED IN WEBKIT 36102:37604
 LINUX : LayoutTests/fast/forms/8250.html = FAIL
-// Extra output at the end of the test.
+// The extra output may be legitimate; the extra setSelectionRange line is
+// printed if that property is on a button. This is either a small problem in
+// test shell or a big problem in V8.
 LayoutTests/fast/forms/selection-functions.html = FAIL
-LayoutTests/fast/js/number-toString.html = FAIL
+// I suspect the test itself is really wrong here. Full of nonsense like "FAIL
+// parseInt(NaN) should be 0. Was NaN." and "FAIL parseInt(Infinity) should be
+// 0. Was NaN."
 LayoutTests/fast/js/numeric-conversion.html = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
