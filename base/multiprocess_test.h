@@ -66,10 +66,31 @@ class MultiProcessTest : public PlatformTest {
 
   base::ProcessHandle SpawnChild(const std::wstring& procname,
                                  bool debug_on_start) {
+#if defined(OS_WIN)
+    return SpawnChildImpl(procname, debug_on_start);
+#elif defined(OS_POSIX)
+    base::file_handle_mapping_vector empty_file_list;
+    return SpawnChildImpl(procname, empty_file_list, false);
+#endif
+  }
+
+#if defined(OS_POSIX)
+  base::ProcessHandle SpawnChild(
+      const std::wstring& procname,
+      const base::file_handle_mapping_vector& fds_to_map,
+      bool debug_on_start) {
+    return SpawnChildImpl(procname, fds_to_map, false);
+  }
+
+#endif
+
+ private:
+#if defined(OS_WIN)
+  base::ProcessHandle SpawnChildImpl(
+      const std::wstring& procname,
+      bool debug_on_start) {
     CommandLine cl;
     base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
-
-#if defined(OS_WIN)
     std::wstring clstr = cl.command_line_string();
     CommandLine::AppendSwitchWithValue(&clstr, kRunClientProcess, procname);
 
@@ -78,7 +99,16 @@ class MultiProcessTest : public PlatformTest {
     }
 
     base::LaunchApp(clstr, false, true, &handle);
+    return handle;
+  }
 #elif defined(OS_POSIX)
+  base::ProcessHandle SpawnChildImpl(
+      const std::wstring& procname,
+      const base::file_handle_mapping_vector& fds_to_map,
+      bool debug_on_start) {
+    CommandLine cl;
+    base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
+
     std::vector<std::string> clvec(cl.argv());
     std::wstring wswitchstr =
         CommandLine::PrefixedSwitchStringWithValue(kRunClientProcess,
@@ -89,11 +119,10 @@ class MultiProcessTest : public PlatformTest {
 
     std::string switchstr = WideToUTF8(wswitchstr);
     clvec.push_back(switchstr.c_str());
-    base::LaunchApp(clvec, false, &handle);
-#endif
-
+    base::LaunchApp(clvec, fds_to_map, false, &handle);
     return handle;
   }
+#endif
 };
 
 #endif  // BASE_MULTIPROCESS_TEST_H__

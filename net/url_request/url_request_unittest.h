@@ -342,8 +342,9 @@ class TestServer : public base::ProcessFilter {
     if (!cert_path.empty()) 
       command_line.push_back("--https=" + WideToUTF8(cert_path));
 
+    base::file_handle_mapping_vector no_mappings;
     ASSERT_TRUE(
-        base::LaunchApp(command_line, false, &process_handle_)) <<
+        base::LaunchApp(command_line, no_mappings, false, &process_handle_)) <<
         "Failed to launch " << command_line[0] << " ...";
 #endif
 
