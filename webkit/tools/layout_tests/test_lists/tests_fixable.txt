@@ -313,7 +313,7 @@ SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 // verify if the current behavior is still correct.
 WIN : LayoutTests/fast/css/font-family-initial.html = FAIL
 LINUX WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
-LINUX WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
+WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 
 // ------------------------------------------------------------------------- //
 
@@ -655,8 +655,9 @@ LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 // Flaky
 WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
 LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
-// Linux pixeltest failure: Background image appears to be off by one
-LINUX WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
+// Windows pixeltest failure: Background image appears to be off by one.
+// It looks like it was wrong before and should be rebaselined now.
+WIN : LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 LINUX : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
@@ -848,7 +849,6 @@ LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 LINUX : LayoutTests/fast/block/basic/011.html = FAIL
 LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
-LINUX : LayoutTests/fast/css/acid2.html = FAIL
 LINUX : LayoutTests/fast/css/css2-system-fonts.html = FAIL
 LINUX : LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
 LINUX : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
@@ -1113,8 +1113,6 @@ LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
-// Linux pixeltest failure: The caret is 1px off
-LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
@@ -1289,7 +1287,6 @@ LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
 LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
 
 // MERGE 38729:38760: Regressions
-LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
@@ -1799,10 +1796,6 @@ LayoutTests/fast/css/font-face-descriptor-multiple-values-parsing.html = FAIL
 LayoutTests/fast/js/large-expressions.html = FAIL
 LayoutTests/fast/js/modify-non-references.html = FAIL
 LayoutTests/fast/js/regexp-overflow.html = FAIL
-
-// Linux pixeltest failure: font metrics for Ahem(?).
-// evanm sent a reduction of this problem to agl.
-LINUX : LayoutTests/fast/block/margin-collapse/055.html = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
