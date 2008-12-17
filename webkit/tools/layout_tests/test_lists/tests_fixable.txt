@@ -145,10 +145,6 @@ LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 MAC WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 MAC WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
-// Bug 5247: regressed with the giant WebKit merge?
-LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
-LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
-
 // Bug 865472, this should just need proper pixel test rebaselining.
 // Also skipped by Apple on Windows (rdar://5723191).
 // Linux pixeltest failure: Form control metrics incorrect
