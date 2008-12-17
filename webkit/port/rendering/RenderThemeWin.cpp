@@ -366,7 +366,7 @@ bool RenderThemeWin::paintButton(RenderObject* o,
     const ThemeData& themeData = getThemeData(o);
 
     WebCore::ThemeHelperWin helper(i.context, r);
-    gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
+    skia::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
 
     HDC hdc = canvas->beginPlatformPaint();
     int state = themeData.m_state;
@@ -439,7 +439,7 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
 
     // Get the correct theme data for a textfield and paint the menu.
     WebCore::ThemeHelperWin helper(i.context, rect);
-    gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
+    skia::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
     HDC hdc = canvas->beginPlatformPaint();
     RECT renderRect = helper.rect();
     gfx::NativeTheme::instance()->PaintMenuList(hdc,
@@ -580,7 +580,7 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
     const ThemeData& themeData = getThemeData(o);
 
     WebCore::ThemeHelperWin helper(i.context, r);
-    gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
+    skia::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
 
     HDC hdc = canvas->beginPlatformPaint();
     COLORREF clr = skia::SkColorToCOLORREF(o->style()->backgroundColor().rgb());

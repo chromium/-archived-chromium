@@ -18,7 +18,7 @@
 
 #include "SkColor.h"
 
-namespace gfx {
+namespace skia {
 
 namespace {
 
@@ -292,5 +292,5 @@ TEST(PlatformCanvas, TranslateLayer) {
                                 kInnerW, kInnerH));
 }
 
-}  // namespace
+}  // namespace skia
 

@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_VECTOR_CANVAS_H_
-#define BASE_GFX_VECTOR_CANVAS_H_
+#ifndef SKIA_EXT_VECTOR_CANVAS_H_
+#define SKIA_EXT_VECTOR_CANVAS_H_
 
 #include "skia/ext/platform_canvas_win.h"
 #include "skia/ext/vector_device.h"
 
-namespace gfx {
+namespace skia {
 
 // This class is a specialization of the regular PlatformCanvas. It is designed
 // to work with a VectorDevice to manage platform-specific drawing. It allows
@@ -40,7 +40,7 @@ class VectorCanvas : public PlatformCanvasWin {
   DISALLOW_COPY_AND_ASSIGN(VectorCanvas);
 };
 
-}  // namespace gfx
+}  // namespace skia
 
-#endif  // BASE_GFX_VECTOR_CANVAS_H_
+#endif  // SKIA_EXT_VECTOR_CANVAS_H_
 

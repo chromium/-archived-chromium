@@ -8,7 +8,7 @@
 
 #include "base/logging.h"
 
-namespace gfx {
+namespace skia {
 
 // -----------------------------------------------------------------------------
 // These objects are reference counted and own a Cairo surface. The surface is
@@ -91,4 +91,4 @@ BitmapPlatformDeviceLinux& BitmapPlatformDeviceLinux::operator=(
   return *this;
 }
 
-}  // namespace gfx
+}  // namespace skia

@@ -169,7 +169,7 @@ static void UnitTestAssertHandler(const std::string& str) {
 // static
 std::string TestShell::DumpImage(WebFrame* web_frame,
     const std::wstring& file_name) {
-  scoped_ptr<gfx::BitmapPlatformDevice> device;
+  scoped_ptr<skia::BitmapPlatformDevice> device;
   if (!web_frame->CaptureImage(&device, true))
     return std::string();
 

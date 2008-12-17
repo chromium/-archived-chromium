@@ -8,23 +8,20 @@
 
 #if defined(WIN32)
 #include "skia/ext/bitmap_platform_device_win.h"
-namespace gfx {
-
-typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
-
-}  // namespace gfx
 #elif defined(__APPLE__)
 #include "skia/ext/bitmap_platform_device_mac.h"
-namespace gfx {
-
-typedef BitmapPlatformDeviceMac BitmapPlatformDevice;
-
-}  // namespace gfx
 #elif defined(__linux__)
 #include "skia/ext/bitmap_platform_device_linux.h"
-namespace gfx {
-
-typedef BitmapPlatformDeviceLinux BitmapPlatformDevice;
-
-}  // namespace gfx
 #endif
+
+namespace skia {
+
+#if defined(WIN32)
+typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
+#elif defined(__APPLE__)
+typedef BitmapPlatformDeviceMac BitmapPlatformDevice;
+#elif defined(__linux__)
+typedef BitmapPlatformDeviceLinux BitmapPlatformDevice;
+#endif
+
+}  // namespace skia

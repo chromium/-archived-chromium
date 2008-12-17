@@ -91,10 +91,10 @@ int ComputeFormatFlags(int flags) {
 }  // anonymous namespace
 
 ChromeCanvas::ChromeCanvas(int width, int height, bool is_opaque)
-    : gfx::PlatformCanvasWin(width, height, is_opaque) {
+    : skia::PlatformCanvasWin(width, height, is_opaque) {
 }
 
-ChromeCanvas::ChromeCanvas() : gfx::PlatformCanvasWin() {
+ChromeCanvas::ChromeCanvas() : skia::PlatformCanvasWin() {
 }
 
 ChromeCanvas::~ChromeCanvas() {

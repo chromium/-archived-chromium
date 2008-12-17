@@ -10,7 +10,10 @@
 #include "SkPath.h"
 #include "SkUtils.h"
 
-namespace gfx {
+namespace skia {
+
+// TODO(brettw) remove this when the gfx namespaces are all removed.
+using namespace gfx;
 
 namespace {
 
@@ -157,5 +160,5 @@ void PlatformDeviceMac::LoadClippingRegionToCGContext(
   }
 }
 
-}  // namespace gfx
+}  // namespace skia
 

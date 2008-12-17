@@ -245,7 +245,7 @@ void paintSkBitmap(PlatformContextSkia* platformContext,
     SkPaint paint;
     paint.setPorterDuffXfermode(compOp);
 
-    gfx::PlatformCanvas* canvas = platformContext->canvas();
+    skia::PlatformCanvas* canvas = platformContext->canvas();
 
     ResamplingMode resampling = platformContext->IsPrinting() ? RESAMPLE_NONE :
         computeResamplingMode(bitmap, srcRect.width(), srcRect.height(),

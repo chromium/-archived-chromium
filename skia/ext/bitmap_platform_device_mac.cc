@@ -13,7 +13,7 @@
 #include "base/logging.h"
 #include "skia/ext/skia_utils_mac.h"
 
-namespace gfx {
+namespace skia {
 
 namespace {
 
@@ -23,7 +23,7 @@ namespace {
 bool Constrain(int available_size, int* position, int *size) {
   if (*size < -2)
     return false;
-  
+
   if (*position < 0) {
     if (*size != -1)
       *size += *position;
@@ -31,7 +31,7 @@ bool Constrain(int available_size, int* position, int *size) {
   }
   if (*size == 0 || *position >= available_size)
     return false;
-  
+
   if (*size > 0) {
     int overflow = (*position + *size) - available_size;
     if (overflow > 0) {
@@ -44,7 +44,7 @@ bool Constrain(int available_size, int* position, int *size) {
   return true;
 }
 
-} // namespace
+}  // namespace
 
 class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
     : public base::RefCounted<BitmapPlatformDeviceMacData> {
@@ -104,8 +104,8 @@ BitmapPlatformDeviceMac::\
     : bitmap_context_(bitmap),
       config_dirty_(true) {  // Want to load the config next time.
   DCHECK(bitmap_context_);
-  // Initialize the clip region to the entire bitmap.  
-  
+  // Initialize the clip region to the entire bitmap.
+
   SkIRect rect;
   rect.set(0, 0,
            CGBitmapContextGetWidth(bitmap_context_),
@@ -151,12 +151,12 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   bitmap.setPixels(data);
-  
+
   // Note: The Windows implementation clears the Bitmap later on.
   // This bears mentioning since removal of this line makes the
   // unit tests only fail periodically (or when MallocPreScribble is set).
   bitmap.eraseARGB(0, 0, 0, 0);
-  
+
   bitmap.setIsOpaque(is_opaque);
 
   if (is_opaque) {
@@ -166,14 +166,14 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
     bitmap.eraseARGB(255, 0, 255, 128);  // bright bluish green
 #endif
   }
-  
+
   CGColorSpaceRef color_space =
     CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
   // allocate a bitmap context with 4 components per pixel (RGBA):
   CGContextRef bitmap_context =
     CGBitmapContextCreate(data, width, height, 8, width*4,
                           color_space, kCGImageAlphaPremultipliedLast);
-  
+
   // Change the coordinate system to match WebCore's
   CGContextTranslateCTM(bitmap_context, 0, height);
   CGContextScaleCTM(bitmap_context, 1.0, -1.0);
@@ -251,7 +251,7 @@ void BitmapPlatformDeviceMac::DrawToContext(CGContextRef context, int x, int y,
   if (created_dc)
     data_->ReleaseBitmapContext();
 }
-  
+
 // Returns the color value at the specified location.
 SkColor BitmapPlatformDeviceMac::getColorAt(int x, int y) {
   const SkBitmap& bitmap = accessBitmap(true);
@@ -265,7 +265,7 @@ void BitmapPlatformDeviceMac::onAccessBitmap(SkBitmap*) {
 }
 
 void BitmapPlatformDeviceMac::processPixels(int x, int y,
-                                            int width, int height, 
+                                            int width, int height,
                                             adjustAlpha adjustor) {
   const SkBitmap& bitmap = accessBitmap(true);
   SkMatrix& matrix = data_->transform_;
@@ -286,5 +286,5 @@ void BitmapPlatformDeviceMac::processPixels(int x, int y,
   }
 }
 
-}  // namespace gfx
+}  // namespace skia
 

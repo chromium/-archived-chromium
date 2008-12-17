@@ -846,7 +846,7 @@ void WebViewImpl::Layout() {
   }
 }
 
-void WebViewImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebViewImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
   WebFrameImpl* webframe = main_frame();
   if (webframe)
     webframe->Paint(canvas, rect);

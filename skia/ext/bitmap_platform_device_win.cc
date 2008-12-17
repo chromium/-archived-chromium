@@ -10,7 +10,7 @@
 #include "SkRegion.h"
 #include "SkUtils.h"
 
-namespace gfx {
+namespace skia {
 
 // When Windows draws text, is sets the fourth byte (which Skia uses for alpha)
 // to zero. This means that if we try compositing with text that Windows has
@@ -242,7 +242,7 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
   }
 
   BITMAPINFOHEADER hdr = {0};
-  CreateBitmapHeader(width, height, &hdr);
+  gfx::CreateBitmapHeader(width, height, &hdr);
 
   void* data = NULL;
   HBITMAP hbitmap = CreateDIBSection(screen_dc,
@@ -442,5 +442,5 @@ void BitmapPlatformDeviceWin::processPixels(int x,
   }
 }
 
-}  // namespace gfx
+}  // namespace skia
 

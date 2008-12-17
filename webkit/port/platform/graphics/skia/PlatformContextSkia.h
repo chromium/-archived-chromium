@@ -63,12 +63,12 @@ class PlatformContextSkia {
 public:
     // For printing, there shouldn't be any canvas. canvas can be NULL. If you
     // supply a NULL canvas, you can also call setCanvas later.
-    PlatformContextSkia(gfx::PlatformCanvas* canvas);
+    PlatformContextSkia(skia::PlatformCanvas* canvas);
     ~PlatformContextSkia();
 
     // Sets the canvas associated with this context. Use when supplying NULL
     // to the constructor.
-    void setCanvas(gfx::PlatformCanvas* canvas);
+    void setCanvas(skia::PlatformCanvas* canvas);
 
     void save();
     void restore();
@@ -117,7 +117,7 @@ public:
 
     SkColor fillColor() const;
 
-    gfx::PlatformCanvas* canvas() { return m_canvas; }
+    skia::PlatformCanvas* canvas() { return m_canvas; }
 
     // TODO(brettw) why is this in this class?
     void drawRect(SkRect rect);
@@ -132,7 +132,7 @@ public:
     // Warning: This function is deprecated so the users are reminded that they
     // should use this layer of indirection instead of using the canvas
     // directly. This is to help with the eventual serialization.
-    gfx::PlatformCanvas* canvas() const;
+    skia::PlatformCanvas* canvas() const;
 
     // Returns if the context is a printing context instead of a display
     // context. Bitmap shouldn't be resampled when printing to keep the best
@@ -148,7 +148,7 @@ private:
     struct State;
 
     // NULL indicates painting is disabled. Never delete this object.
-    gfx::PlatformCanvas* m_canvas;
+    skia::PlatformCanvas* m_canvas;
 
     // States stack. Enables local drawing state change with save()/restore()
     // calls.

@@ -217,7 +217,7 @@ void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
     return;
   }
   HDC hdc = emf.hdc();
-  gfx::PlatformDeviceWin::InitializeDC(hdc);
+  skia::PlatformDeviceWin::InitializeDC(hdc);
   delegate_->Print(hdc);
   if (!emf.CloseDc()) {
     NOTREACHED();

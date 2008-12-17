@@ -298,7 +298,7 @@ class WebFrame : public base::RefCounted<WebFrame> {
   //
   // Returns false on failure. CaptureImage can fail if 'image' argument
   // is not valid or due to failure to allocate a canvas.
-  virtual bool CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
+  virtual bool CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
                             bool scroll_to_zero) = 0;
 
   // This function sets a flag within WebKit to instruct it to render the page
@@ -358,7 +358,7 @@ class WebFrame : public base::RefCounted<WebFrame> {
   virtual void GetPageRect(int page, gfx::Rect* page_size) const = 0;
 
   // Prints one page. |page| is 0-based.
-  virtual bool SpoolPage(int page, gfx::PlatformCanvas* canvas) = 0;
+  virtual bool SpoolPage(int page, skia::PlatformCanvas* canvas) = 0;
 
   // Is this frame reloading with allowing stale data? This will be true when
   // the encoding of the page is changed and it needs to be re-interpreted,

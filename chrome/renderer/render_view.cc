@@ -512,7 +512,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   emf.CreateDc(NULL, NULL);
   HDC hdc = emf.hdc();
   DCHECK(hdc);
-  gfx::PlatformDeviceWin::InitializeDC(hdc);
+  skia::PlatformDeviceWin::InitializeDC(hdc);
 
   gfx::Rect rect;
   frame->GetPageRect(params.page_number, &rect);
@@ -536,7 +536,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   // GDI drawing code fails.
 
   // Mix of Skia and GDI based.
-  gfx::PlatformCanvasWin canvas(src_size_x, src_size_y, true);
+  skia::PlatformCanvasWin canvas(src_size_x, src_size_y, true);
   canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
   PlatformContextSkia context(&canvas);
   if (!frame->SpoolPage(params.page_number, &context)) {
@@ -562,7 +562,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   DCHECK(retval != GDI_ERROR);
 #else
   // 100% GDI based.
-  gfx::VectorCanvas canvas(hdc, src_size_x, src_size_y);
+  skia::VectorCanvas canvas(hdc, src_size_x, src_size_y);
   // Set the clipping region to be sure to not overflow.
   SkRect clip_rect;
   clip_rect.set(0, 0, SkIntToScalar(src_size_x), SkIntToScalar(src_size_y));
@@ -756,7 +756,7 @@ bool RenderView::CaptureThumbnail(WebFrame* frame,
   double begin = time_util::GetHighResolutionTimeNow();
 #endif
 
-  scoped_ptr<gfx::BitmapPlatformDevice> device;
+  scoped_ptr<skia::BitmapPlatformDevice> device;
   if (!frame->CaptureImage(&device, true))
     return false;
 

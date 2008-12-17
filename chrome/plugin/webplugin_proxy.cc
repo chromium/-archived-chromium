@@ -355,7 +355,7 @@ void WebPluginProxy::ConvertBuffer(const base::SharedMemoryHandle& buffer,
     return;
   }
 
-  gfx::PlatformDeviceWin::InitializeDC(hdc->Get());
+  skia::PlatformDeviceWin::InitializeDC(hdc->Get());
   SelectObject(hdc->Get(), bitmap->Get());
 }
 

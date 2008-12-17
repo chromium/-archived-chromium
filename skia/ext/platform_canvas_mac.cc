@@ -7,7 +7,7 @@
 #include "base/logging.h"
 #include "skia/ext/bitmap_platform_device_mac.h"
 
-namespace gfx {
+namespace skia {
 
 PlatformCanvasMac::PlatformCanvasMac() : SkCanvas() {
 }
@@ -76,5 +76,5 @@ SkDevice* PlatformCanvasMac::setBitmapDevice(const SkBitmap&) {
   return NULL;
 }
 
-}  // namespace gfx
+}  // namespace skia
 

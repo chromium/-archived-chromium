@@ -4,10 +4,10 @@
 
 #include "skia/ext/platform_device_linux.h"
 
-namespace gfx {
+namespace skia {
 
 PlatformDeviceLinux::PlatformDeviceLinux(const SkBitmap& bitmap)
     : SkDevice(bitmap) {
 }
 
-}  // namespace gfx
+}  // namespace skia

@@ -15,10 +15,10 @@
 #include "chrome/common/l10n_util.h"
 
 ChromeCanvas::ChromeCanvas(int width, int height, bool is_opaque)
-    : gfx::PlatformCanvasLinux(width, height, is_opaque) {
+    : skia::PlatformCanvasLinux(width, height, is_opaque) {
 }
 
-ChromeCanvas::ChromeCanvas() : gfx::PlatformCanvasLinux() {
+ChromeCanvas::ChromeCanvas() : skia::PlatformCanvasLinux() {
 }
 
 ChromeCanvas::~ChromeCanvas() {

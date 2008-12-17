@@ -12,7 +12,7 @@ class SkMatrix;
 class SkPath;
 class SkRegion;
 
-namespace gfx {
+namespace skia {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. Our device provides a surface CoreGraphics can also
@@ -80,7 +80,7 @@ class PlatformDeviceMac : public SkDevice {
                              adjustAlpha adjustor) = 0;
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_PLATFORM_DEVICE_MAC_H_
 

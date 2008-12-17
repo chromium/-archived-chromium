@@ -7,7 +7,7 @@
 #include "base/logging.h"
 #include "skia/ext/vector_device.h"
 
-namespace gfx {
+namespace skia {
 
 VectorCanvas::VectorCanvas() {
 }
@@ -86,5 +86,5 @@ bool VectorCanvas::IsTopDeviceVectorial() const {
   return getTopPlatformDevice().IsVectorial();
 }
 
-}  // namespace gfx
+}  // namespace skia
 

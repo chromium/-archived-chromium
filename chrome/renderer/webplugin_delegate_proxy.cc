@@ -410,13 +410,13 @@ void WebPluginDelegateProxy::ResetWindowlessBitmaps() {
 
 bool WebPluginDelegateProxy::CreateBitmap(
     scoped_ptr<base::SharedMemory>* memory,
-    scoped_ptr<gfx::PlatformCanvasWin>* canvas) {
+    scoped_ptr<skia::PlatformCanvasWin>* canvas) {
   size_t size = GetPaintBufSize(plugin_rect_);
   scoped_ptr<base::SharedMemory> new_shared_memory(new base::SharedMemory());
   if (!new_shared_memory->Create(L"", false, true, size))
     return false;
 
-  scoped_ptr<gfx::PlatformCanvasWin> new_canvas(new gfx::PlatformCanvasWin);
+  scoped_ptr<skia::PlatformCanvasWin> new_canvas(new skia::PlatformCanvasWin);
   if (!new_canvas->initialize(plugin_rect_.width(), plugin_rect_.height(),
                               true, new_shared_memory->handle())) {
     return false;

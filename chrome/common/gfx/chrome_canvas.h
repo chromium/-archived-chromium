@@ -35,7 +35,7 @@ class Rect;
 // source and destination colors are combined. Unless otherwise specified,
 // the variant that does not take a SkPorterDuff::Mode uses a transfer mode
 // of kSrcOver_Mode.
-class ChromeCanvas : public gfx::PlatformCanvas {
+class ChromeCanvas : public skia::PlatformCanvas {
  public:
   // Specifies the alignment for text rendered with the DrawStringInt method.
   enum {
@@ -182,7 +182,7 @@ class ChromeCanvas : public gfx::PlatformCanvas {
 };
 
 #if defined(OS_WIN)
-typedef gfx::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
+typedef skia::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
 #endif
 
 #endif  // CHROME_COMMON_GFX_CHROME_CANVAS_H_

@@ -110,7 +110,7 @@ class WebFrameImpl : public WebFrame {
   virtual WebFrame* GetParent() const;
   virtual WebFrame* GetChildFrame(const std::wstring& xpath) const;
   virtual WebView* GetView() const;
-  virtual bool CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
+  virtual bool CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
                             bool scroll_to_zero);
 
   // This method calls createRuntimeObject (in KJS::Bindings::Instance), which
@@ -170,7 +170,7 @@ class WebFrameImpl : public WebFrame {
                                int* width);
   virtual int ComputePageRects(const gfx::Size& page_size_px);
   virtual void GetPageRect(int page, gfx::Rect* page_size) const;
-  virtual bool SpoolPage(int page, gfx::PlatformCanvas* canvas);
+  virtual bool SpoolPage(int page, skia::PlatformCanvas* canvas);
 
   // Reformats this frame for printing or for screen display, depending on
   // |printing| flag. Acts recursively on inner frames.
@@ -184,7 +184,7 @@ class WebFrameImpl : public WebFrame {
 
   // WebFrameImpl
   void Layout();
-  void Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect);
+  void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
 
   bool IsLoading();
 

@@ -8,7 +8,7 @@
 #include "skia/ext/platform_device_linux.h"
 #include "skia/ext/bitmap_platform_device_linux.h"
 
-namespace gfx {
+namespace skia {
 
 PlatformCanvasLinux::PlatformCanvasLinux() : SkCanvas() {
 }
@@ -52,4 +52,4 @@ SkDevice* PlatformCanvasLinux::createPlatformDevice(int width,
   return BitmapPlatformDeviceLinux::Create(width, height, is_opaque);
 }
 
-}  // namespace gfx
+}  // namespace skia

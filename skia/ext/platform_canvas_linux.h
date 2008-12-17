@@ -7,7 +7,7 @@
 
 #include "skia/ext/platform_device_linux.h"
 
-namespace gfx {
+namespace skia {
 
 // This class is a specialization of the regular SkCanvas that is designed to
 // work with a gfx::PlatformDevice to manage platform-specific drawing. It
@@ -47,6 +47,6 @@ class PlatformCanvasLinux : public SkCanvas {
   PlatformCanvasLinux& operator=(const PlatformCanvasLinux&);
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_PLATFORM_CANVAS_LINUX_H_

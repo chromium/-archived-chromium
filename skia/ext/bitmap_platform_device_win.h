@@ -8,7 +8,7 @@
 #include "base/ref_counted.h"
 #include "skia/ext/platform_device_win.h"
 
-namespace gfx {
+namespace skia {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. Our device provides a surface Windows can also write
@@ -105,7 +105,7 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   scoped_refptr<BitmapPlatformDeviceWinData> data_;
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 

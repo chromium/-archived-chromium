@@ -40,7 +40,7 @@ typedef struct _cairo_surface cairo_surface_t;
 // something that we can't easily change.
 // -----------------------------------------------------------------------------
 
-namespace gfx {
+namespace skia {
 
 // -----------------------------------------------------------------------------
 // This is the Linux bitmap backing for Skia. We create a Cairo image surface
@@ -86,6 +86,6 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   scoped_refptr<BitmapPlatformDeviceLinuxData> data_;
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_BITMAP_PLATFORM_DEVICE_LINUX_H_

@@ -8,7 +8,7 @@
 #include "base/ref_counted.h"
 #include "skia/ext/platform_device_mac.h"
 
-namespace gfx {
+namespace skia {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. Our device provides a surface CoreGraphics can also
@@ -85,11 +85,11 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
   scoped_refptr<BitmapPlatformDeviceMacData> data_;
 
   virtual void processPixels(int x, int y,
-                             int width, int height, 
+                             int width, int height,
                              adjustAlpha adjustor);
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
 

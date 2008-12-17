@@ -43,7 +43,7 @@ class ImageBufferData {
 public:
     ImageBufferData(const IntSize&);
 
-    gfx::PlatformCanvas m_canvas;
+    skia::PlatformCanvas m_canvas;
 
     // Must be second since this will refer to m_canvas.
     PlatformContextSkia m_platformContext;

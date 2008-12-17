@@ -220,7 +220,7 @@ void WebWidgetHost::Paint() {
   if (!canvas_.get()) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-    canvas_.reset(new gfx::PlatformCanvas(width, height, true));
+    canvas_.reset(new skia::PlatformCanvas(width, height, true));
     if (!canvas_.get()) {
       // memory allocation failed, we can't paint.
       LOG(ERROR) << "Failed to allocate memory for " << width << "x" << height;
@@ -262,9 +262,9 @@ void WebWidgetHost::Paint() {
   gdk_window_begin_paint_rect(view_->window, &grect);
 
   // BitBlit to the gdk window.
-  gfx::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
-  gfx::BitmapPlatformDeviceLinux* const bitdev =
-    static_cast<gfx::BitmapPlatformDeviceLinux* >(&platdev);
+  skia::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
+  skia::BitmapPlatformDeviceLinux* const bitdev =
+      static_cast<skia::BitmapPlatformDeviceLinux* >(&platdev);
   cairo_t* cairo_drawable = gdk_cairo_create(view_->window);
   cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
   cairo_paint(cairo_drawable);

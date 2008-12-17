@@ -61,7 +61,7 @@ class WebViewImpl : public WebView {
   virtual void Resize(const gfx::Size& new_size);
   virtual gfx::Size GetSize() { return size(); }
   virtual void Layout();
-  virtual void Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect);
+  virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
   virtual bool HandleInputEvent(const WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);

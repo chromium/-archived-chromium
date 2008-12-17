@@ -7,7 +7,7 @@
 
 #include "SkDevice.h"
 
-namespace gfx {
+namespace skia {
 
 // Blindly copying the mac hierarchy.
 class PlatformDeviceLinux : public SkDevice {
@@ -20,6 +20,6 @@ class PlatformDeviceLinux : public SkDevice {
   PlatformDeviceLinux(const SkBitmap& bitmap);
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_PLATFORM_DEVICE_LINUX_H_

@@ -123,5 +123,5 @@ TEST(Convolver, Halve) {
   }
 }
 
-}  // namespace gfx
+}  // namespace skia
 

@@ -8,7 +8,7 @@
 #include "base/process_util.h"
 #include "skia/ext/bitmap_platform_device_win.h"
 
-namespace gfx {
+namespace skia {
 
 // Crashes the process. This is called when a bitmap allocation fails, and this
 // function tries to determine why it might have failed, and crash on different
@@ -114,4 +114,4 @@ SkDevice* PlatformCanvasWin::setBitmapDevice(const SkBitmap&) {
   return NULL;
 }
 
-}  // namespace gfx
+}  // namespace skia

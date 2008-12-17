@@ -80,7 +80,7 @@ void ScrollbarThemeChromium::paintTrackPiece(GraphicsContext* gc, Scrollbar* scr
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
-    gfx::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
+    skia::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
     HDC hdc = canvas->beginPlatformPaint();
 
     RECT paintRect = toRECT(rect);
@@ -111,7 +111,7 @@ void ScrollbarThemeChromium::paintButton(GraphicsContext* gc, Scrollbar* scrollb
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
-    gfx::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
+    skia::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
     HDC hdc = canvas->beginPlatformPaint();
 
     RECT paintRect = toRECT(rect);
@@ -137,7 +137,7 @@ void ScrollbarThemeChromium::paintThumb(GraphicsContext* gc, Scrollbar* scrollba
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
-    gfx::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
+    skia::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
     HDC hdc = canvas->beginPlatformPaint();
 
     RECT paintRect = toRECT(rect);

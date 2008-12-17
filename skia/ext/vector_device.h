@@ -10,7 +10,7 @@
 #include "SkMatrix.h"
 #include "SkRegion.h"
 
-namespace gfx {
+namespace skia {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. This specific device is not not backed by a surface
@@ -113,7 +113,7 @@ class VectorDevice : public PlatformDeviceWin {
   DISALLOW_COPY_AND_ASSIGN(VectorDevice);
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // VectorDevice_h
 

@@ -1421,7 +1421,7 @@ void WebFrameImpl::Layout() {
     FromFrame(child)->Layout();
 }
 
-void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
   static StatsRate rendering("WebFramePaintTime");
   StatsScope<StatsRate> rendering_scope(rendering);
 
@@ -1444,7 +1444,7 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   }
 }
 
-bool WebFrameImpl::CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
+bool WebFrameImpl::CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
                                 bool scroll_to_zero) {
   if (!image) {
     NOTREACHED();
@@ -1454,7 +1454,7 @@ bool WebFrameImpl::CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
   // Must layout before painting.
   Layout();
 
-  gfx::PlatformCanvas canvas;
+  skia::PlatformCanvas canvas;
   if (!canvas.initialize(frameview()->width(), frameview()->height(), true))
     return false;
 
@@ -1471,14 +1471,14 @@ bool WebFrameImpl::CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
   canvas.endPlatformPaint();
 #endif
 
-  gfx::BitmapPlatformDevice& device =
-      static_cast<gfx::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+  skia::BitmapPlatformDevice& device =
+      static_cast<skia::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
 
 #if defined(OS_WIN)
   device.fixupAlphaBeforeCompositing();
 #endif
 
-  image->reset(new gfx::BitmapPlatformDevice(device));
+  image->reset(new skia::BitmapPlatformDevice(device));
   return true;
 }
 
@@ -1781,7 +1781,7 @@ void WebFrameImpl::GetPageRect(int page, gfx::Rect* page_size) const {
   *page_size = webkit_glue::FromIntRect(pages_[page]);
 }
 
-bool WebFrameImpl::SpoolPage(int page, gfx::PlatformCanvas* canvas) {
+bool WebFrameImpl::SpoolPage(int page, skia::PlatformCanvas* canvas) {
   // Ensure correct state.
   if (!printing_ ||
       page < 0 ||

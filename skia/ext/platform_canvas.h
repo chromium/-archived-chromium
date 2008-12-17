@@ -8,23 +8,20 @@
 
 #if defined(WIN32)
 #include "skia/ext/platform_canvas_win.h"
-namespace gfx {
-
-typedef PlatformCanvasWin PlatformCanvas;
-
-}  // namespace gfx
 #elif defined(__APPLE__)
 #include "skia/ext/platform_canvas_mac.h"
-namespace gfx {
-
-typedef PlatformCanvasMac PlatformCanvas;
-
-}  // namespace gfx
 #elif defined(__linux__)
 #include "skia/ext/platform_canvas_linux.h"
-namespace gfx {
-
-typedef PlatformCanvasLinux PlatformCanvas;
-
-}  // namespace gfx
 #endif
+
+namespace skia {
+
+#if defined(WIN32)
+typedef PlatformCanvasWin PlatformCanvas;
+#elif defined(__APPLE__)
+typedef PlatformCanvasMac PlatformCanvas;
+#elif defined(__linux__)
+typedef PlatformCanvasLinux PlatformCanvas;
+#endif
+
+}  // namespace skia

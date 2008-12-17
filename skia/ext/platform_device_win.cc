@@ -11,10 +11,7 @@
 #include "SkRegion.h"
 #include "SkUtils.h"
 
-namespace gfx {
-
-// TODO(brettw) remove this when this file is moved into the Skia namespace.
-using namespace skia;
+namespace skia {
 
 PlatformDeviceWin::PlatformDeviceWin(const SkBitmap& bitmap)
     : SkDevice(bitmap) {
@@ -228,5 +225,5 @@ void PlatformDeviceWin::LoadClippingRegionToDC(HDC context,
   DCHECK_NE(result, 0);
 }
 
-}  // namespace gfx
+}  // namespace skia
 

@@ -62,8 +62,8 @@ void GetRebarGradientColors(int width, int x1, int x2, SkColor* c1, SkColor* c2)
   // Extract the color values from the selected pixels
   // The | in the following operations forces the alpha to 0xFF. This is
   // needed as windows sets the alpha to 0 when it renders.
-  gfx::BitmapPlatformDeviceWin& device =
-      static_cast<gfx::BitmapPlatformDeviceWin&>(canvas.getTopPlatformDevice());
+  skia::BitmapPlatformDeviceWin& device =
+      static_cast<skia::BitmapPlatformDeviceWin&>(canvas.getTopPlatformDevice());
   *c1 = 0xFF000000 | device.getColorAt(x1, 0);
   *c2 = 0xFF000000 | device.getColorAt(x2, 0);
 }

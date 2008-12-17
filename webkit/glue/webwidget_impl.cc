@@ -121,7 +121,7 @@ void WebWidgetImpl::Resize(const gfx::Size& new_size) {
 void WebWidgetImpl::Layout() {
 }
 
-void WebWidgetImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebWidgetImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
   if (!widget_)
     return;
 

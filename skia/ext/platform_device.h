@@ -14,7 +14,7 @@
 #include "skia/ext/platform_device_linux.h"
 #endif
 
-namespace gfx {
+namespace skia {
 
 #if defined(WIN32)
 typedef PlatformDeviceWin PlatformDevice;
@@ -24,4 +24,4 @@ typedef PlatformDeviceMac PlatformDevice;
 typedef PlatformDeviceLinux PlatformDevice;
 #endif
 
-}  // namespace gfx
+}  // namespace skia

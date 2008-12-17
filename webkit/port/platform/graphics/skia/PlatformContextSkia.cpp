@@ -142,7 +142,7 @@ SkColor PlatformContextSkia::State::applyAlpha(SkColor c) const
 // PlatformContextSkia ---------------------------------------------------------
 
 // Danger: canvas can be NULL.
-PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvas* canvas)
+PlatformContextSkia::PlatformContextSkia(skia::PlatformCanvas* canvas)
     : m_canvas(canvas)
     , m_stateStack(sizeof(State))
 {
@@ -163,7 +163,7 @@ PlatformContextSkia::~PlatformContextSkia()
 #endif
 }
 
-void PlatformContextSkia::setCanvas(gfx::PlatformCanvas* canvas)
+void PlatformContextSkia::setCanvas(skia::PlatformCanvas* canvas)
 {
     m_canvas = canvas;
 }

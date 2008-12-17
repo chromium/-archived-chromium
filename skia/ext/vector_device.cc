@@ -11,10 +11,7 @@
 
 #include "SkUtils.h"
 
-namespace gfx {
-
-// TODO(brettw) remove this when all the namespaces are moved to skia.
-using namespace skia;
+namespace skia {
 
 VectorDevice* VectorDevice::create(HDC dc, int width, int height) {
   InitializeDC(dc);
@@ -611,5 +608,5 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
   Cleanup();
 }
 
-}  // namespace gfx
+}  // namespace skia
 

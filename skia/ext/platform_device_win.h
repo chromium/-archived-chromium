@@ -15,7 +15,7 @@ class SkMatrix;
 class SkPath;
 class SkRegion;
 
-namespace gfx {
+namespace skia {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. Our device provides a surface Windows can also write
@@ -92,7 +92,7 @@ class PlatformDeviceWin : public SkDevice {
   static bool SkPathToCubicPaths(CubicPaths* paths, const SkPath& skpath);
 };
 
-}  // namespace gfx
+}  // namespace skia
 
 #endif  // SKIA_EXT_PLATFORM_DEVICE_WIN_H_
 
