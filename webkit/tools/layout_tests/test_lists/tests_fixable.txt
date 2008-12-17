@@ -750,7 +750,7 @@ LINUX WIN : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-pro
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
+WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
 
 // Windows fails to draw anything here
 LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
@@ -887,7 +887,7 @@ LINUX MAC : LayoutTests/fast/lists/001.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/url-parse-1.html = FAIL
-LINUX MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
+MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-kerning-and-ligatures.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-partial-selection.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-small-caps-punctuation-size.html = FAIL
@@ -949,8 +949,6 @@ LINUX : LayoutTests/fast/forms/listbox-clip.html = FAIL
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
 // Linux pixeltest failure: Failed to clip the scrollbars
 LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
-// Linux pixeltest failure: It appears that the form controls are overlapping
-LINUX : LayoutTests/fast/replaced/width100percent-menulist.html = FAIL
 // Linux pixeltest failure: The text suggests that the radios should not
 // overlap, but it's very close and quite different from the Windows version
 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
@@ -1104,7 +1102,7 @@ LINUX WIN : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-linking.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-xy-updates.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
+WIN : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
@@ -1761,22 +1759,6 @@ LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
 // Mac where everything is dark gray.
 LINUX WIN : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
-// Linux pixeltest failure: Indentation incorrect
-LINUX : LayoutTests/fast/table/border-collapsing/004.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
-LINUX : LayoutTests/fast/text/basic/002.html = FAIL
-// Linux pixeltest failure: Letting spacing wrong
-LINUX : LayoutTests/fast/text/basic/003.html = FAIL
-// Linux pixeltest failure: Word spacing wrong
-LINUX : LayoutTests/fast/text/basic/005.html = FAIL
-// Linux pixeltest failure: Font metrics incorrect with arabic script
-LINUX : LayoutTests/fast/text/international/bidi-neutral-directionality-paragraph-start.html = FAIL
-// Linux pixeltest failure: Word spacing incorrect
-LINUX : LayoutTests/fast/text/justified-selection-at-edge.html = FAIL
-// Linux pixeltest failure: Letter spacing wrong
-LINUX : LayoutTests/fast/text/justified-selection.html = FAIL
-// Linux pixeltest failure: Letter spacing wrong
-LINUX : LayoutTests/fast/text/word-space.html = FAIL
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 
@@ -1787,8 +1769,6 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 // Linux pixeltest failure: Gradient fail
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
-// Linux pixeltest failure: windows baseline incorrect
-LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
 
 // Failed with r6844 (dglazkov)
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
@@ -1812,14 +1792,14 @@ DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-heigh
 // The pixel tests regressed while the tests were marked FAIL for text diff reasons, which are now fixed.
 // They are already rebaselined compared to the webkit standard, and are now off by a small number of pixels
 // from the platform rebaseline, so they could probably just be re-rebaselined.
-LINUX WIN : LayoutTests/svg/custom/empty-merge.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/feDisplacementMap-01.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/fractional-rects.svg = FAIL
+WIN : LayoutTests/svg/custom/empty-merge.svg = FAIL
+WIN : LayoutTests/svg/custom/feDisplacementMap-01.svg = FAIL
+WIN : LayoutTests/svg/custom/fractional-rects.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/gradient-add-stops.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/rounded-rects.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
+WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
+WIN : LayoutTests/svg/custom/rounded-rects.svg = FAIL
+WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
+WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
 // Same as above, but only regressed on win.
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 // Our pixel results have darker red and green.
@@ -1837,6 +1817,8 @@ LayoutTests/animations/keyframes-to-missing.html = FAIL
 LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 LayoutTests/fast/regex/quantified-assertions.html = FAIL
+// This test appears to pass on Linux, despite it referencing feed:// URLs which
+// we don't support.  Needs more investigation.
 LayoutTests/http/tests/security/feed-urls-from-remote.html = FAIL
 WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 LayoutTests/transforms/2d/transform-value-types.html = FAIL
