@@ -1780,8 +1780,7 @@ LayoutTests/wml/go-task-get-method-external-deck-with-href.html = FAIL
 
 // WebKit Merge 39100:39141 regressions:
 LayoutTests/fast/css/font-face-descriptor-multiple-values-parsing.html = FAIL
-LayoutTests/fast/js/large-expressions.html = FAIL
-LayoutTests/fast/js/modify-non-references.html = FAIL
+// We don't appear to be throwing an exception on super long regexps.
 LayoutTests/fast/js/regexp-overflow.html = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
