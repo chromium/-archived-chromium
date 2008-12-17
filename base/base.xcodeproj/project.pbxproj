@@ -171,7 +171,6 @@
 		ABFBD3E60DC793C600E164CB /* md5.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403290D92D2090006B936 /* md5.cc */; };
 		B52C916C0E9428F500208D01 /* clipboard_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B52C916B0E9428F500208D01 /* clipboard_unittest.cc */; };
 		B53C85280E9C298C000F70AB /* idle_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4EB0E3A60FE009668FC /* idle_timer.cc */; };
-		B5637CB20EF2D79A004EF692 /* process_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8F4A00E65AA2400034DE9 /* process_util_unittest.cc */; };
 		B57E4D780E9C26340090055D /* idletimer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B57E4D770E9C26340090055D /* idletimer_unittest.cc */; };
 		B5A8618E0EC1257900B332C2 /* clipboard.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5A8618D0EC1257900B332C2 /* clipboard.cc */; };
 		B5D544AB0EAFB7E000272A1C /* sys_string_conversions_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D544AA0EAFB7E000272A1C /* sys_string_conversions_unittest.cc */; };
@@ -1466,7 +1465,6 @@
 				7B78D3960E54FE0100609465 /* path_service_unittest.cc in Sources */,
 				7B78D3970E54FE0100609465 /* pickle_unittest.cc in Sources */,
 				7B8505D50E5B441000730B43 /* png_codec_unittest.cc in Sources */,
-				B5637CB20EF2D79A004EF692 /* process_util_unittest.cc in Sources */,
 				7B78D3980E54FE0100609465 /* pr_time_unittest.cc in Sources */,
 				4D11B59C0E91730500EF7617 /* rand_util_unittest.cc in Sources */,
 				7B8505D30E5B43EE00730B43 /* rect_unittest.cc in Sources */,

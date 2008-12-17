@@ -6,8 +6,6 @@
 
 #include <ctype.h>
 #include <dirent.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -31,7 +29,6 @@ enum ParsingState {
 namespace base {
 
 bool LaunchApp(const std::vector<std::string>& argv,
-               const file_handle_mapping_vector& fds_to_remap,
                bool wait, ProcessHandle* process_handle) {
   bool retval = true;
 
@@ -42,33 +39,8 @@ bool LaunchApp(const std::vector<std::string>& argv,
   }
   argv_copy[argv.size()] = NULL;
 
-  // Make sure we don't leak any FDs to the child process by marking all FDs
-  // as close-on-exec.
-  int max_files = GetMaxFilesOpenInProcess();
-  for (int i = STDERR_FILENO + 1; i < max_files; i++) {
-    int flags = fcntl(i, F_GETFD);
-    if (flags != -1) {
-      fcntl(i, F_SETFD, flags | FD_CLOEXEC);
-    }
-  }
-
   int pid = fork();
   if (pid == 0) {
-    for (file_handle_mapping_vector::const_iterator it = fds_to_remap.begin();
-         it != fds_to_remap.end();
-         ++it) {
-      int src_fd = it->first;
-      int dest_fd = it->second;
-      if (src_fd == dest_fd) {
-        int flags = fcntl(src_fd, F_GETFD);
-        if (flags != -1) {
-          fcntl(src_fd, F_SETFD, flags & ~FD_CLOEXEC);
-        }
-      } else {
-        dup2(src_fd, dest_fd);
-      }
-    }
-
     execvp(argv_copy[0], argv_copy);
   } else if (pid < 0) {
     retval = false;
@@ -88,8 +60,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
 
 bool LaunchApp(const CommandLine& cl,
                bool wait, bool start_hidden, ProcessHandle* process_handle) {
-  file_handle_mapping_vector no_files;
-  return LaunchApp(cl.argv(), no_files, wait, process_handle);
+  return LaunchApp(cl.argv(), wait, process_handle);
 }
 
 // Attempts to kill the process identified by the given process
@@ -137,7 +108,7 @@ bool DidProcessCrash(ProcessHandle handle) {
 }
 
 NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
-                                           const ProcessFilter* filter)
+                                           const ProcessFilter* filter) 
     :
        executable_name_(executable_name),
        filter_(filter) {

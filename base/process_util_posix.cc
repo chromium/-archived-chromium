@@ -9,7 +9,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <limits>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -30,23 +29,6 @@ ProcessHandle GetCurrentProcessHandle() {
 
 int GetProcId(ProcessHandle process) {
   return process;
-}
-
-int GetMaxFilesOpenInProcess() {
-  struct rlimit rlimit;
-  if (getrlimit(RLIMIT_NOFILE, &rlimit) != 0) {
-    return 0;
-  }
-
-  // rlim_t is a uint64 - clip to maxint.
-  // We do this since we use the value of this function to close FD #s in a loop
-  // if we didn't clamp the value, doing this would be too time consuming.
-  rlim_t max_int = static_cast<rlim_t>(std::numeric_limits<int32>::max());
-  if (rlimit.rlim_cur > max_int) {
-    return max_int;
-  }
-
-  return rlimit.rlim_cur;
 }
 
 ProcessMetrics::ProcessMetrics(ProcessHandle process) : process_(process),

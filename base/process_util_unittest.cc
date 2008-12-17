@@ -9,15 +9,10 @@
 #include "base/process_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if defined(OS_LINUX)
-#include <dlfcn.h>
-#endif
-#if defined(OS_POSIX)
-#include <fcntl.h>
-#include <sys/socket.h>
-#endif
 #if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_LINUX)
+#include <dlfcn.h>
 #endif
 
 namespace base {
@@ -141,73 +136,5 @@ TEST_F(ProcessUtilTest, CalcFreeMemory) {
   delete metrics;
 }
 #endif  // defined(OS_WIN)
-
-#if defined(OS_POSIX)
-const int kChildPipe = 20;  // FD # for write end of pipe in child process.
-MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
-  // This child process counts the number of open FDs, it then writes that
-  // number out to a pipe connected to the parent.
-  int num_open_files = 0;
-  int write_pipe = kChildPipe;
-  int max_files = GetMaxFilesOpenInProcess();
-  for (int i = STDERR_FILENO + 1; i < max_files; i++) {
-    if (i != kChildPipe) {
-      if (close(i) != -1) {
-        LOG(WARNING) << "Leaked FD " << i;
-        num_open_files += 1;
-      }
-    }
-  }
-
-#if defined(OS_LINUX)
-  // On Linux, '/etc/localtime' is opened before the test's main() enters.
-  const int expected_num_open_fds = 1;
-  num_open_files -= expected_num_open_fds;
-#endif  // defined(OS_LINUX)
-
-  write(write_pipe, &num_open_files, sizeof(num_open_files));
-  close(write_pipe);
-
-  return 0;
-}
-
-TEST_F(ProcessUtilTest, FDRemapping) {
-  // Open some files to check they don't get leaked to the child process.
-  int fds[2];
-  pipe(fds);
-  int pipe_read_fd = fds[0];
-  int pipe_write_fd = fds[1];
-
-  // open some dummy fds to make sure they don't propogate over to the
-  // child process.
-  int dev_null = open("/dev/null", O_RDONLY);
-  int sockets[2];
-  socketpair(AF_UNIX, SOCK_STREAM, 0, sockets);
-
-  file_handle_mapping_vector fd_mapping_vec;
-  fd_mapping_vec.push_back(std::pair<int,int>(pipe_write_fd, kChildPipe));
-  ProcessHandle handle = this->SpawnChild(L"ProcessUtilsLeakFDChildProcess",
-                                          fd_mapping_vec,
-                                          false);
-  ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
-  close(pipe_write_fd);
-
-  // Read number of open files in client process from pipe;
-  int num_open_files = -1;
-  ssize_t bytes_read = read(pipe_read_fd, &num_open_files,
-                            sizeof(num_open_files));
-  ASSERT_EQ(bytes_read, static_cast<ssize_t>(sizeof(num_open_files)));
-
-  // Make sure 0 fds are leaked to the client.
-  ASSERT_EQ(0, num_open_files);
-
-  EXPECT_TRUE(WaitForSingleProcess(handle, 1000));
-  close(fds[0]);
-  close(sockets[0]);
-  close(sockets[1]);
-  close(dev_null);
-}
-
-#endif  // defined(OS_POSIX)
 
 }  // namespace base

@@ -61,20 +61,11 @@ class MultiProcessTest : public PlatformTest {
   // TODO(darin): re-enable this once we have base/debug_util.h
   // ProcessDebugFlags(&cl, DebugUtil::UNKNOWN, false);
   base::ProcessHandle SpawnChild(const std::wstring& procname) {
-    base::file_handle_mapping_vector empty_file_list;
-    return SpawnChild(procname, empty_file_list, false);
+    return SpawnChild(procname, false);
   }
 
   base::ProcessHandle SpawnChild(const std::wstring& procname,
                                  bool debug_on_start) {
-    base::file_handle_mapping_vector empty_file_list;
-    return SpawnChild(procname, empty_file_list, false);
-  }
-
-  base::ProcessHandle SpawnChild(
-      const std::wstring& procname,
-      const base::file_handle_mapping_vector& fds_to_map,
-      bool debug_on_start) {
     CommandLine cl;
     base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
 
@@ -98,7 +89,7 @@ class MultiProcessTest : public PlatformTest {
 
     std::string switchstr = WideToUTF8(wswitchstr);
     clvec.push_back(switchstr.c_str());
-    base::LaunchApp(clvec, fds_to_map, false, &handle);
+    base::LaunchApp(clvec, false, &handle);
 #endif
 
     return handle;

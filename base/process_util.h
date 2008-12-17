@@ -66,12 +66,6 @@ ProcessHandle GetCurrentProcessHandle();
 // Win XP SP1 as well.
 int GetProcId(ProcessHandle process);
 
-#if defined(OS_POSIX)
-// Returns the maximum number of files that a process can have open.
-// Returns 0 on error.
-int GetMaxFilesOpenInProcess();
-#endif
-
 #if defined(OS_WIN)
 // Runs the given application name with the given command line. Normally, the
 // first command line argument should be the path to the process, and don't
@@ -93,18 +87,13 @@ bool LaunchApp(const std::wstring& cmdline,
 // Runs the application specified in argv[0] with the command line argv.
 // Both the elements of argv and argv itself must be terminated with a null
 // byte.
-// Before launching all FDs open in the parent process will be marked as
-// close-on-exec.  |fds_to_remap| defines a mapping of src fd->dest fd to
-// propagate FDs into the child process.
 //
 // As above, if wait is true, execute synchronously. The pid will be stored
 // in process_handle if that pointer is non-null.
 //
 // Note that the first argument in argv must point to the filename,
 // and must be fully specified.
-typedef std::vector<std::pair<int, int> > file_handle_mapping_vector;
 bool LaunchApp(const std::vector<std::string>& argv,
-               const file_handle_mapping_vector& fds_to_remap,
                bool wait, ProcessHandle* process_handle);
 #endif
 
