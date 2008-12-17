@@ -685,7 +685,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
 // Radial gradients are broken.
-WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
@@ -743,7 +743,7 @@ LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
-WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
@@ -966,6 +966,7 @@ LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement09.html = FAIL
 LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
 LINUX MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
+LINUX MAC : LayoutTests/http/tests/plugins/get-url.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/post-url-file.html = CRASH TIMEOUT
