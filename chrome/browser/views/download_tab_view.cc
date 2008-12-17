@@ -877,7 +877,10 @@ void DownloadTabView::Paint(ChromeCanvas* canvas) {
   if (canvas->getClipBounds(&clip)) {
     int row_start = (SkScalarRound(clip.fTop) - kSpacer) /
                     (big_icon_size_ + kSpacer);
-    int row_stop = SkScalarRound(clip.fBottom) / (big_icon_size_ + kSpacer);
+    int row_stop =
+        std::min(static_cast<int>(downloads_.size()) - 1,
+                 (SkScalarRound(clip.fBottom) - kSpacer) /
+                 (big_icon_size_ + kSpacer));
     SkRect download_rect;
     for (int i = row_start; i <= row_stop; ++i) {
       int y = i * (big_icon_size_ + kSpacer) + kSpacer;
