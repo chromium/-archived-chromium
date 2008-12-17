@@ -307,11 +307,6 @@ bool Browser::IsCommandEnabled(int id) const {
   if (!GetSelectedTabContents())
     return false;
 
-  // TODO(pkasting): Should maybe enable/disable this in
-  // NavigationStateChanged()?
-  if (id == IDC_STOP)
-    return IsCurrentPageLoading();
-
   return controller_.IsCommandEnabled(id);
 }
 
@@ -632,7 +627,7 @@ void Browser::Go() {
 
 void Browser::Stop() {
   UserMetrics::RecordAction(L"Stop", profile_);
-  GetSelectedTabContents()->AsWebContents()->Stop();
+  GetSelectedTabContents()->Stop();
 }
 
 void Browser::NewWindow() {
@@ -1429,12 +1424,13 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   UpdateToolbar(true);
 
   // Force the go/stop button to change.
-  GetGoButton()->ChangeMode(
-      (new_contents->AsWebContents() && new_contents->is_loading()) ?
+  bool is_loading = new_contents->is_loading();
+  GetGoButton()->ChangeMode(is_loading ?
       GoButton::MODE_STOP : GoButton::MODE_GO);
 
   // Update commands to reflect current state.
   UpdateCommandsForTabState();
+  controller_.UpdateCommandEnabled(IDC_STOP, is_loading);
 
   // Reset the status bubble.
   GetStatusBubble()->Hide();
@@ -1686,10 +1682,13 @@ void Browser::LoadingStateChanged(TabContents* source) {
   window_->UpdateLoadingAnimations(tabstrip_model_.TabsAreLoading());
   window_->UpdateTitleBar();
 
-  // Let the go button know that it should change appearance if possible.
   if (source == GetSelectedTabContents()) {
-    GetGoButton()->ScheduleChangeMode(
-      source->is_loading() ? GoButton::MODE_STOP : GoButton::MODE_GO);
+    // Let the go button know that it should change appearance if possible.
+    bool is_loading = source->is_loading();
+    GetGoButton()->ScheduleChangeMode(is_loading ?
+        GoButton::MODE_STOP : GoButton::MODE_GO);
+
+    controller_.UpdateCommandEnabled(IDC_STOP, is_loading);
 
     GetStatusBubble()->SetStatus(GetSelectedTabContents()->GetStatusText());
   }
