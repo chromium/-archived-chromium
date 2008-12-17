@@ -604,11 +604,12 @@ void TemplateURLModel::OnWebDataServiceRequestDone(
   // loading. Now that we've loaded we can nuke it.
   prefs_default_search_provider_.reset();
 
-  // Compiler won't convert std::vector<TemplateURL*> to
-  // std::vector<const TemplateURL*>.
-  std::vector<const TemplateURL*> template_urls =
-      *reinterpret_cast<std::vector<const TemplateURL*>* >(
-          &keyword_result.keywords);
+  // Compiler won't implicitly convert std::vector<TemplateURL*> to
+  // std::vector<const TemplateURL*>, and reinterpret_cast is unsafe,
+  // so we just copy it.
+  std::vector<const TemplateURL*> template_urls(keyword_result.keywords.begin(),
+                                                keyword_result.keywords.end());
+
   const int resource_keyword_version =
       TemplateURLPrepopulateData::GetDataVersion();
   if (keyword_result.builtin_keyword_version != resource_keyword_version) {
