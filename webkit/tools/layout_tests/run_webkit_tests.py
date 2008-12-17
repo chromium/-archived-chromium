@@ -146,7 +146,11 @@ class TestRunner:
     structure holding them. Throws an error if the test_list files have invalid
     syntax.
     """
-    test_files = self._options.lint_test_files ? None : self._test_files
+    if self._options.lint_test_files:
+      test_files = None
+    else:
+      test_files = self._test_files
+
     try:
       return test_expectations.TestExpectations(test_files,
                                                 self._file_dir,
