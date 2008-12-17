@@ -4,6 +4,7 @@
 
 #include "net/ftp/ftp_network_transaction.h"
 
+#include "base/compiler_specific.h"
 #include "net/base/client_socket.h"
 #include "net/base/net_errors.h"
 #include "net/ftp/ftp_network_session.h"
@@ -12,8 +13,8 @@ namespace net {
 
 FtpNetworkTransaction::FtpNetworkTransaction(
     FtpNetworkSession* session, ClientSocketFactory* socket_factory)
-#pragma warning(suppress: 4355)
-    : io_callback_(this, &FtpNetworkTransaction::OnIOComplete),
+  :  ALLOW_THIS_IN_INITIALIZER_LIST(io_callback_(this,
+                                         &FtpNetworkTransaction::OnIOComplete)),
       user_callback_(NULL),
       session_(session),
       socket_factory_(socket_factory),
