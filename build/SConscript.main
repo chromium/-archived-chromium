@@ -64,9 +64,13 @@ clvars.AddVariables(
 
 
 root_env = Environment(
+    # MSVSNew in the base environment?  Yes, the point is we can (and
+    # want to) generate Visual Studio project and solution files from
+    # any platform.
     tools = ['component_setup',
              'chromium_builders',
-             'chromium_load_component'],
+             'chromium_load_component',
+             'MSVSNew'],
     variables = clvars,
 
     # Requested list of system (shared) libraries, from the comma separated
@@ -126,6 +130,7 @@ root_env = Environment(
     LZMA_SDK_DIR          = '$THIRD_PARTY_DIR/lzma_sdk',
     MODP_B64_DIR          = '$THIRD_PARTY_DIR/modp_b64',
     NPAPI_DIR             = '$THIRD_PARTY_DIR/npapi',
+    SQLITE_DIR            = '$THIRD_PARTY_DIR/sqlite',
     ZLIB_DIR              = '$THIRD_PARTY_DIR/zlib',
 
     THIRD_PARTY_WEBKIT_DIR = '$THIRD_PARTY_DIR/WebKit',
@@ -221,8 +226,19 @@ root_env.Append(BUILD_SCONSCRIPTS = sconscripts)
 # Windows specific
 
 windows_env = root_env.Clone()
+
 windows_env.Tool('target_platform_windows')
 windows_env.Tool('component_targets_msvs')  # Per target project support.
+
+# Hammer's target_platform_windows module added the stock SCons
+# MSVSProject() and MSVSSolution() Builders, which we're going to
+# replace with our newer, more flexible implementation.  Wipe out the
+# older ones so they don't interfere with our initialization and so
+# SCons doesn't propagate them to cloned construction environments.
+del windows_env['BUILDERS']['MSVSProject']
+del windows_env['BUILDERS']['MSVSSolution']
+windows_env.Tool('MSVSNew')
+
 windows_env.Tool('midl')
 
 # TODO(bradnelson): target_platform_windows defines a whole bunch of
@@ -242,7 +258,7 @@ windows_env['MSVC_BATCH'] = True
 
 # TODO(bradnelson): this should not need to be gated on host platform.
 if root_env['PLATFORM'] in ['win32', 'cygwin']:
-  msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
+  msvs_env = Environment(tools=['msvc', 'mslink'])['ENV']
   msvs_drive = msvs_env['PATH'][0]
 else:
   msvs_env = {'PATH': '', 'INCLUDE': '', 'LIB': ''}
