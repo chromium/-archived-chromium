@@ -945,9 +945,15 @@ LINUX MAC : LayoutTests/fast/js/date-big-setdate.html = FAIL
 
 // Linux pixeltest failure: Form control incorrect size
 LINUX : LayoutTests/fast/forms/listbox-clip.html = FAIL
-
 // Linux pixeltest failure: Failing to apply style
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
+// Linux pixeltest failure: Failed to clip the scrollbars
+LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
+// Linux pixeltest failure: It appears that the form controls are overlapping
+LINUX : LayoutTests/fast/replaced/width100percent-menulist.html = FAIL
+// Linux pixeltest failure: The text suggests that the radios should not
+// overlap, but it's very close and quite different from the Windows version
+LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 
 // Internationalization / complex characters / etc
 LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
@@ -1382,6 +1388,14 @@ MAC : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
 MAC : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-drag-into-disabled.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-overflow.html = FAIL
+MAC : LayoutTests/fast/lists/dynamic-marker-crash.html = FAIL
+MAC : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL
+MAC : LayoutTests/fast/repaint/subtree-root-skipped.html = FAIL
+MAC : LayoutTests/fast/replaced/replaced-breaking-mixture.html = FAIL
+MAC : LayoutTests/fast/replaced/width100percent-textfield.html = FAIL
+MAC : LayoutTests/fast/table/colspanMinWidth.html = FAIL
+MAC : LayoutTests/fast/table/spanOverlapRepaint.html = FAIL
+MAC : LayoutTests/fast/text/textIteratorNilRenderer.html = FAIL
 
 // we're waiting on upstreaming a change to how textarea padding works. rather
 // than rebasing, we'll wait for the upstream (which ojan said should happen
@@ -1403,6 +1417,8 @@ MAC : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-setinnerhtml.html = FAIL
+MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
+MAC : LayoutTests/fast/table/003.html = FAIL
 
 // text input garbage
 MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
@@ -1448,18 +1464,30 @@ MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
 MAC : LayoutTests/editing/selection/5109817.html = FAIL
 MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
 
-// missing resources (images or strings)
+// missing default resources (images or strings)
 MAC : LayoutTests/editing/execCommand/insertImage.html = FAIL
 MAC : LayoutTests/fast/dom/inner-text.html = FAIL
 MAC : LayoutTests/fast/forms/button-default-title.html = FAIL
 MAC : LayoutTests/fast/forms/file-input-direction.html = FAIL
 MAC : LayoutTests/fast/forms/file-input-disabled.html = FAIL
 MAC : LayoutTests/fast/forms/hidden-input-file.html = FAIL
+MAC : LayoutTests/fast/lists/inlineBoxWrapperNullCheck.html = FAIL
+MAC : LayoutTests/fast/loader/start-load-in-unload.html = FAIL
 
 // incorrect layout
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 MAC : LayoutTests/fast/encoding/utf-16-big-endian.html = FAIL
 MAC : LayoutTests/fast/encoding/utf-16-little-endian.html = FAIL
+
+// not loading local files
+MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
+MAC : LayoutTests/fast/loader/local-JavaScript-from-local.html = FAIL
+MAC : LayoutTests/fast/loader/local-image-from-local.html = FAIL
+
+// parser issues (guess: may be related to missing resources?)
+MAC : LayoutTests/fast/parser/entities-in-attributes.xhtml = FAIL
+MAC : LayoutTests/fast/parser/entities-in-xhtml.xhtml = FAIL
+MAC : LayoutTests/fast/parser/entity-ignorable-whitespace.xhtml = FAIL
 
 // unknown
 MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
@@ -1482,69 +1510,6 @@ MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
 // should remove its baseline and convert this to all platforms.
 MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 
-MAC : LayoutTests/fast/js/cyclic-proto.html = FAIL
-MAC : LayoutTests/fast/js/cyclic-prototypes.html = FAIL
-MAC : LayoutTests/fast/js/deep-recursion-test.html = FAIL
-MAC : LayoutTests/fast/js/exception-codegen-crash.html = FAIL
-MAC : LayoutTests/fast/js/function-toString-object-literals.html = FAIL
-MAC : LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
-MAC : LayoutTests/fast/js/kde/Number.html = FAIL
-MAC : LayoutTests/fast/js/kde/RegExp.html = FAIL
-MAC : LayoutTests/fast/js/kde/StringObject.html = FAIL
-MAC : LayoutTests/fast/js/kde/encode_decode_uri.html = FAIL
-MAC : LayoutTests/fast/js/kde/garbage-n.html = FAIL
-MAC : LayoutTests/fast/js/kde/lval-exceptions.html = FAIL
-MAC : LayoutTests/fast/js/kde/parse.html = FAIL
-MAC : LayoutTests/fast/js/kde/string-1-n.html = FAIL
-MAC : LayoutTests/fast/js/kde/string-2-n.html = FAIL
-MAC : LayoutTests/fast/js/number-toExponential.html = FAIL
-MAC : LayoutTests/fast/js/number-tofixed.html = FAIL
-MAC : LayoutTests/fast/js/number-toprecision.html = FAIL
-MAC : LayoutTests/fast/js/object-extra-comma.html = FAIL
-MAC : LayoutTests/fast/js/postfix-syntax.html = FAIL
-MAC : LayoutTests/fast/js/prefix-syntax.html = FAIL
-MAC : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
-MAC : LayoutTests/fast/js/recursion-limit-equal.html = FAIL
-MAC : LayoutTests/fast/js/regexp-compile-crash.html = FAIL
-MAC : LayoutTests/fast/js/regexp-compile.html = FAIL
-MAC : LayoutTests/fast/js/regexp-range-out-of-order.html = FAIL
-MAC : LayoutTests/fast/js/reserved-words.html = FAIL
-MAC : LayoutTests/fast/js/string-capitalization.html = FAIL
-MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
-MAC : LayoutTests/fast/js/toString-and-valueOf-override.html = FAIL
-MAC : LayoutTests/fast/js/toString-prefix-postfix-preserve-parens.html = FAIL
-MAC : LayoutTests/fast/js/toString-stack-overflow.html = FAIL
-MAC : LayoutTests/fast/lists/dynamic-marker-crash.html = FAIL
-MAC : LayoutTests/fast/lists/inlineBoxWrapperNullCheck.html = FAIL
-MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
-MAC : LayoutTests/fast/loader/local-JavaScript-from-local.html = FAIL
-MAC : LayoutTests/fast/loader/local-image-from-local.html = FAIL
-MAC : LayoutTests/fast/loader/start-load-in-unload.html = FAIL
-MAC : LayoutTests/fast/loader/window-clearing.html = FAIL
-MAC : LayoutTests/fast/loader/xmlhttprequest-missing-file-exception.html = FAIL
-// Linux pixeltest failure: Failed to clip the scrollbars
-LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
-MAC : LayoutTests/fast/parser/entities-in-attributes.xhtml = FAIL
-MAC : LayoutTests/fast/parser/entities-in-xhtml.xhtml = FAIL
-MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
-MAC : LayoutTests/fast/parser/entity-end-script-tag.html = FAIL
-MAC : LayoutTests/fast/parser/entity-ignorable-whitespace.xhtml = FAIL
-MAC : LayoutTests/fast/parser/external-entities.xml = FAIL
-MAC : LayoutTests/fast/parser/script-tag-with-trailing-slash.html = FAIL
-MAC : LayoutTests/fast/parser/xhtml-alternate-entities.xml = FAIL
-MAC : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL
-MAC : LayoutTests/fast/repaint/subtree-root-skipped.html = FAIL
-MAC : LayoutTests/fast/replaced/replaced-breaking-mixture.html = FAIL
-// Linux pixeltest failure: It appears that the form controls are overlapping
-LINUX : LayoutTests/fast/replaced/width100percent-menulist.html = FAIL
-// Linux pixeltest failure: The text suggests that the radios should not
-// overlap, but it's very close and quite different from the Windows version
-LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
-MAC : LayoutTests/fast/replaced/width100percent-textfield.html = FAIL
-MAC : LayoutTests/fast/table/003.html = FAIL
-MAC : LayoutTests/fast/table/colspanMinWidth.html = FAIL
-MAC : LayoutTests/fast/table/spanOverlapRepaint.html = FAIL
-MAC : LayoutTests/fast/text/textIteratorNilRenderer.html = FAIL
 MAC : LayoutTests/fast/tokenizer/002.html = FAIL
 MAC : LayoutTests/fast/tokenizer/external-script-document-write_2.html = FAIL
 MAC : LayoutTests/fast/tokenizer/script_extra_close.html = FAIL
@@ -1674,9 +1639,6 @@ MAC : LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
 MAC : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 MAC : LayoutTests/fast/forms/input-type-text-min-width.html = FAIL
 MAC : LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
-MAC : LayoutTests/fast/js/const.html = FAIL
-MAC : LayoutTests/fast/js/exception-sequencing-binops2.html = FAIL
-MAC : LayoutTests/fast/js/function-toString-parentheses.html = FAIL
 MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
