@@ -16,29 +16,11 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-static void InitNavigateParams(ViewHostMsg_FrameNavigate_Params* params,
-                               int page_id,
-                               const GURL& url) {
-  params->page_id = page_id;
-  params->url = url;
-  params->referrer = GURL::EmptyGURL();
-  params->transition = PageTransition::TYPED;
-  params->redirects = std::vector<GURL>();
-  params->should_update_history = false;
-  params->searchable_form_url = GURL::EmptyGURL();
-  params->searchable_form_element_name = std::wstring();
-  params->searchable_form_encoding = std::string();
-  params->password_form = PasswordForm();
-  params->security_info = std::string();
-  params->gesture = NavigationGestureUser;
-  params->is_post = false;
-}
-
 // Subclass the RenderViewHost's view so that we can call Show(), etc.,
 // without having side-effects.
 class TestRenderWidgetHostView : public RenderWidgetHostView {
  public:
-   TestRenderWidgetHostView() : is_showing_(false) {}
+  TestRenderWidgetHostView() {}
 
   virtual RenderWidgetHost* GetRenderWidgetHost() const { return NULL; }
   virtual void DidBecomeSelected() {}
@@ -53,8 +35,8 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void Blur() {}
   virtual bool HasFocus() { return true; }
   virtual void AdvanceFocus(bool reverse) {}
-  virtual void Show() { is_showing_ = true; }
-  virtual void Hide() { is_showing_ = false; }
+  virtual void Show() {}
+  virtual void Hide() {}
   virtual gfx::Rect GetViewBounds() const { return gfx::Rect(); }
   virtual void UpdateCursor(const WebCursor& cursor) {}
   virtual void UpdateCursorIfOverSelf() {}
@@ -68,11 +50,6 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void Destroy() {}
   virtual void PrepareToDestroy() {}
   virtual void SetTooltipText(const std::wstring& tooltip_text) {}
- 
-  bool is_showing() const { return is_showing_; }
-
- private:
-  bool is_showing_;
 };
 
 // Subclass RenderViewHost so that it does not create a process.
@@ -207,10 +184,33 @@ class TestWebContents : public WebContents {
     return static_cast<TestRenderViewHost*>(
         render_manager_.pending_render_view_host_);
   }
-  
-  // State accessor.
-  bool cross_navigation_pending() {
-    return render_manager_.cross_navigation_pending_;
+  TestRenderViewHost* interstitial_rvh() {
+    return static_cast<TestRenderViewHost*>(
+        render_manager_.interstitial_render_view_host_);
+  }
+  TestRenderViewHost* original_rvh() {
+    return static_cast<TestRenderViewHost*>(
+        render_manager_.original_render_view_host_);
+  }
+
+  // State accessors.
+  bool state_is_normal() const {
+    return render_manager_.renderer_state_ == RenderViewHostManager::NORMAL;
+  }
+  bool state_is_pending() const {
+    return render_manager_.renderer_state_ == RenderViewHostManager::PENDING;
+  }
+  bool state_is_entering_interstitial() const {
+    return render_manager_.renderer_state_ ==
+        RenderViewHostManager::ENTERING_INTERSTITIAL;
+  }
+  bool state_is_interstitial() const {
+    return render_manager_.renderer_state_ ==
+        RenderViewHostManager::INTERSTITIAL;
+  }
+  bool state_is_leaving_interstitial() const {
+    return render_manager_.renderer_state_ ==
+        RenderViewHostManager::LEAVING_INTERSTITIAL;
   }
 
   // Ensure we create TestRenderViewHosts that don't spawn processes.
@@ -250,83 +250,27 @@ class TestWebContents : public WebContents {
   bool transition_cross_site;
 };
 
-class TestInterstitialPage : public InterstitialPage {
- public:
-  enum InterstitialState {
-    UNDECIDED = 0, // No decision taken yet.
-    OKED,          // Proceed was called.
-    CANCELED       // DontProceed was called.
-  };
-
-  TestInterstitialPage(WebContents* tab,
-                       bool new_navigation,
-                       const GURL& url,
-                       InterstitialState* state,
-                       bool* deleted)
-      : InterstitialPage(tab, new_navigation, url),
-        state_(state),
-        deleted_(deleted),
-        command_received_count_(0) {
-    *state_ = UNDECIDED;
-    *deleted_ = false;
-  }
-
-  virtual ~TestInterstitialPage() {
-    *deleted_ = true;
-  }
-
-  virtual void DontProceed() {
-    *state_ = CANCELED;
-    InterstitialPage::DontProceed();
-  }
-  virtual void Proceed() {
-    *state_ = OKED;
-    InterstitialPage::Proceed();
-  }
-
-  int command_received_count() const {
-    return command_received_count_;
-  }
-
-  void TestDomOperationResponse(const std::string& json_string) {
-    DomOperationResponse(json_string, 1);
-  }
-
-  void TestDidNavigate(int page_id, const GURL& url) {
-    ViewHostMsg_FrameNavigate_Params params;
-    InitNavigateParams(&params, page_id, url);
-    DidNavigate(render_view_host(), params);
-  }
-
-  void TestRendererGone() {
-    RendererGone(render_view_host());
-  }
-
-  bool is_showing() const {
-    return static_cast<TestRenderWidgetHostView*>(render_view_host()->view())->
-        is_showing();
-  }
-
- protected:
-  virtual RenderViewHost* CreateRenderViewHost() {
-    return new TestRenderViewHost(
-        SiteInstance::CreateSiteInstance(tab()->profile()),
-        this, MSG_ROUTING_NONE, NULL);
-  }
- 
-  virtual void CommandReceived(const std::string& command) {
-    command_received_count_++;
-  }
-
- private:
-  InterstitialState* state_;
-  bool* deleted_;
-  int command_received_count_;
-};
-
 class WebContentsTest : public testing::Test {
  public:
   WebContentsTest() : contents(NULL) {}
+
+  void InitNavigateParams(ViewHostMsg_FrameNavigate_Params* params,
+                          int pageID,
+                          const GURL& url) {
+    params->page_id = pageID;
+    params->url = url;
+    params->referrer = GURL::EmptyGURL();
+    params->transition = PageTransition::TYPED;
+    params->redirects = std::vector<GURL>();
+    params->should_update_history = false;
+    params->searchable_form_url = GURL::EmptyGURL();
+    params->searchable_form_element_name = std::wstring();
+    params->searchable_form_encoding = std::string();
+    params->password_form = PasswordForm();
+    params->security_info = std::string();
+    params->gesture = NavigationGestureUser;
+    params->is_post = false;
+  }
 
   // testing::Test methods:
 
@@ -342,19 +286,11 @@ class WebContentsTest : public testing::Test {
 
   virtual void TearDown() {
     // This will delete the contents.
-    if (contents)
     contents->CloseContents();
 
     // Make sure that we flush any messages related to WebContents destruction
     // before we destroy the profile.
     MessageLoop::current()->RunAllPending();
-  }
-
-  void Navigate(int page_id, const GURL& url) {
-    DCHECK(contents);
-    ViewHostMsg_FrameNavigate_Params params;
-    InitNavigateParams(&params, page_id, url);
-    contents->TestDidNavigate(contents->rvh(), params);
   }
 
   scoped_ptr<WebContentsTestingProfile> profile;
@@ -370,9 +306,9 @@ TEST_F(WebContentsTest, UpdateTitle) {
   InitNavigateParams(&params, 0, GURL("about:blank"));
 
   NavigationController::LoadCommittedDetails details;
-  contents->controller()->RendererDidNavigate(params, &details);
+  contents->controller()->RendererDidNavigate(params, false, &details);
 
-  contents->UpdateTitle(contents->rvh(), 0, L"    Lots O' Whitespace\n");
+  contents->UpdateTitle(NULL, 0, L"    Lots O' Whitespace\n");
   EXPECT_EQ(std::wstring(L"Lots O' Whitespace"), contents->GetTitle());
 }
 
@@ -381,12 +317,14 @@ TEST_F(WebContentsTest, SimpleNavigation) {
   TestRenderViewHost* orig_rvh = contents->rvh();
   SiteInstance* instance1 = contents->GetSiteInstance();
   EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
   EXPECT_FALSE(orig_rvh->is_loading);
 
   // Navigate to URL
   const GURL url("http://www.google.com");
   contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_TRUE(orig_rvh->is_loading);
   EXPECT_EQ(instance1, orig_rvh->site_instance());
   // Controller's pending entry will have a NULL site instance until we assign
@@ -398,13 +336,267 @@ TEST_F(WebContentsTest, SimpleNavigation) {
   ViewHostMsg_FrameNavigate_Params params;
   InitNavigateParams(&params, 1, url);
   contents->TestDidNavigate(orig_rvh, params);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
   EXPECT_EQ(instance1, orig_rvh->site_instance());
   // Controller's entry should now have the SiteInstance, or else we won't be
   // able to find it later.
   EXPECT_EQ(instance1,
             contents->controller()->GetActiveEntry()->site_instance());
+}
+
+// Test navigating to a page that shows an interstitial, then hiding it
+// without proceeding.
+TEST_F(WebContentsTest, ShowInterstitialDontProceed) {
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+  EXPECT_FALSE(orig_rvh->is_loading);
+
+  // Navigate to URL
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_TRUE(orig_rvh->is_loading);
+
+  // Show interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  EXPECT_TRUE(contents->state_is_entering_interstitial());
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+  EXPECT_TRUE(orig_rvh->is_loading);  // Still loading in the background
+  EXPECT_TRUE(interstitial_rvh->is_loading);
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params;
+  InitNavigateParams(&params, 1, url);
+  contents->TestDidNavigate(interstitial_rvh, params);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_FALSE(interstitial_rvh->is_loading);
+
+  // Hide interstitial (don't proceed)
+  contents->HideInterstitialPage(false, false);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+}
+
+// Test navigating to a page that shows an interstitial, then proceeding.
+TEST_F(WebContentsTest, ShowInterstitialProceed) {
+  TestRenderViewHost* orig_rvh = contents->rvh();
+
+  // The RenderViewHost's SiteInstance should not yet have a site.
+  EXPECT_EQ(GURL(), contents->rvh()->site_instance()->site());
+
+  // Navigate to URL
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+
+  // Show interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params;
+  InitNavigateParams(&params, 1, url);
+  contents->TestDidNavigate(interstitial_rvh, params);
+
+  // Ensure this DidNavigate hasn't changed the SiteInstance's site.
+  // Prevents regression for bug 1163298.
+  EXPECT_EQ(GURL(), contents->rvh()->site_instance()->site());
+
+  // Hide interstitial (proceed and wait)
+  contents->HideInterstitialPage(true, true);
+  EXPECT_TRUE(contents->state_is_leaving_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+
+  // DidNavigate from the destination page
+  contents->TestDidNavigate(orig_rvh, params);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // The SiteInstance's site should now be updated.
+  EXPECT_EQ(GURL("http://google.com"),
+            contents->rvh()->site_instance()->site());
+
+  // Since we weren't viewing a page before, we shouldn't be able to go back.
+  EXPECT_FALSE(contents->controller()->CanGoBack());
+}
+
+// Test navigating to a page that shows an interstitial, then navigating away.
+TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
+  TestRenderViewHost* orig_rvh = contents->rvh();
+
+  // Navigate to URL
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+
+  // Show interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params;
+  InitNavigateParams(&params, 1, url);
+  contents->TestDidNavigate(interstitial_rvh, params);
+
+  // While interstitial showing, navigate to a new URL.
+  const GURL url2("http://www.yahoo.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  EXPECT_TRUE(contents->state_is_leaving_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_TRUE(orig_rvh->is_loading);
+  EXPECT_FALSE(interstitial_rvh->is_loading);
+
+  // DidNavigate from the new URL.  In the old process model, we'll still have
+  // the same RenderViewHost.
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 2, url2);
+  contents->TestDidNavigate(orig_rvh, params2);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_FALSE(orig_rvh->is_loading);
+}
+
+// Ensures that an interstitial cannot be cancelled if a notification for a
+// navigation from an IFrame from the previous page is received while the
+// interstitial is being shown (bug #1182394).
+TEST_F(WebContentsTest, ShowInterstitialIFrameNavigate) {
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+  EXPECT_FALSE(orig_rvh->is_loading);
+
+  // Navigate to URL.
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_TRUE(orig_rvh->is_loading);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  // Show interstitial (in real world would probably be triggered by a resource
+  // in the page).
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  EXPECT_TRUE(contents->state_is_entering_interstitial());
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+  EXPECT_TRUE(interstitial_rvh->is_loading);
+
+  // DidNavigate from an IFrame in the initial page.
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 1, GURL("http://www.iframe.com"));
+  params2.transition = PageTransition::AUTO_SUBFRAME;
+  contents->TestDidNavigate(orig_rvh, params2);
+
+  // Now we get the DidNavigate from the interstitial.
+  ViewHostMsg_FrameNavigate_Params params3;
+  InitNavigateParams(&params3, 1, url);
+  contents->TestDidNavigate(interstitial_rvh, params3);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_FALSE(interstitial_rvh->is_loading);
+}
+
+// Test navigating to an interstitial page from a normal page.  Also test
+// visiting the interstitial-inducing URL twice (bug 1079784), and test
+// that going back shows the first page and not the interstitial.
+TEST_F(WebContentsTest, VisitInterstitialURLTwice) {
+  TestRenderViewHost* orig_rvh = contents->rvh();
+
+  // Navigate to URL
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  // Now navigate to an interstitial-inducing URL
+  const GURL url2("https://www.google.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  EXPECT_TRUE(contents->state_is_entering_interstitial());
+  int interstitial_delete_counter = 0;
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+  interstitial_rvh->set_delete_counter(&interstitial_delete_counter);
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 2, url2);
+  contents->TestDidNavigate(interstitial_rvh, params2);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+
+  // While interstitial showing, navigate to the same URL.
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  EXPECT_TRUE(contents->state_is_leaving_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+
+  // Interstitial shown a second time in a different RenderViewHost.
+  interstitial = new InterstitialPage(contents, true, interstitial_url);
+  interstitial->Show();
+  EXPECT_TRUE(contents->state_is_entering_interstitial());
+  // We expect the original interstitial has been deleted.
+  EXPECT_EQ(interstitial_delete_counter, 1);
+  TestRenderViewHost* interstitial_rvh2 = contents->interstitial_rvh();
+  interstitial_rvh2->set_delete_counter(&interstitial_delete_counter);
+
+  // DidNavigate from the interstitial.
+  ViewHostMsg_FrameNavigate_Params params3;
+  InitNavigateParams(&params3, 3, url2);
+  contents->TestDidNavigate(interstitial_rvh2, params3);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh2, contents->render_view_host());
+
+  // Proceed.  In the old process model, we'll still have the same
+  // RenderViewHost.
+  contents->HideInterstitialPage(true, true);
+  EXPECT_TRUE(contents->state_is_leaving_interstitial());
+  ViewHostMsg_FrameNavigate_Params params4;
+  InitNavigateParams(&params4, 3, url2);
+  contents->TestDidNavigate(orig_rvh, params4);
+  EXPECT_TRUE(contents->state_is_normal());
+  // We expect the second interstitial has been deleted.
+  EXPECT_EQ(interstitial_delete_counter, 2);
+
+  // Now go back.  Should take us back to the original page.
+  contents->controller()->GoBack();
+  EXPECT_TRUE(contents->state_is_normal());
+
+  // DidNavigate from going back.
+  contents->TestDidNavigate(orig_rvh, params1);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
 }
 
 // Test that navigating across a site boundary creates a new RenderViewHost
@@ -423,13 +615,15 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
 
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
 
   // Navigate to new site
   const GURL url2("http://www.yahoo.com");
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
-  EXPECT_TRUE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_pending());
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
   int pending_rvh_delete_count = 0;
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
@@ -440,21 +634,23 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
   contents->TestDidNavigate(pending_rvh, params2);
   SiteInstance* instance2 = contents->GetSiteInstance();
 
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(pending_rvh, contents->render_view_host());
   EXPECT_NE(instance1, instance2);
   EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
   EXPECT_EQ(orig_rvh_delete_count, 1);
 
   // Going back should switch SiteInstances again.  The first SiteInstance is
   // stored in the NavigationEntry, so it should be the same as at the start.
   contents->controller()->GoBack();
   TestRenderViewHost* goback_rvh = contents->pending_rvh();
-  EXPECT_TRUE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_pending());
 
   // DidNavigate from the back action
   contents->TestDidNavigate(goback_rvh, params1);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(goback_rvh, contents->render_view_host());
   EXPECT_EQ(pending_rvh_delete_count, 1);
   EXPECT_EQ(instance1, contents->GetSiteInstance());
@@ -476,8 +672,10 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
 
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
 
   // Crash the renderer.
   orig_rvh->is_created = false;
@@ -486,8 +684,10 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
   const GURL url2("http://www.yahoo.com");
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   TestRenderViewHost* new_rvh = contents->rvh();
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
   EXPECT_NE(orig_rvh, new_rvh);
   EXPECT_EQ(orig_rvh_delete_count, 1);
 
@@ -497,10 +697,330 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
   contents->TestDidNavigate(new_rvh, params2);
   SiteInstance* instance2 = contents->GetSiteInstance();
 
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(new_rvh, contents->render_view_host());
   EXPECT_NE(instance1, instance2);
   EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+}
+
+// Test state transitions when showing an interstitial in the new process
+// model, and then choosing DontProceed.
+TEST_F(WebContentsTest, CrossSiteInterstitialDontProceed) {
+  contents->transition_cross_site = true;
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  SiteInstance* instance1 = contents->GetSiteInstance();
+
+  // Navigate to URL.  First URL should use first RenderViewHost.
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+
+  // Navigate to new site
+  const GURL url2("https://www.google.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  EXPECT_TRUE(contents->state_is_pending());
+  TestRenderViewHost* pending_rvh = contents->pending_rvh();
+
+  // Show an interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  EXPECT_TRUE(contents->state_is_entering_interstitial());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_EQ(pending_rvh, contents->pending_rvh());
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 2, url2);
+  contents->TestDidNavigate(interstitial_rvh, params2);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_EQ(pending_rvh, contents->pending_rvh());
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // Hide interstitial (don't proceed)
+  contents->HideInterstitialPage(false, false);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+}
+
+// Test state transitions when showing an interstitial in the new process
+// model, and then choosing Proceed.
+TEST_F(WebContentsTest, CrossSiteInterstitialProceed) {
+  contents->transition_cross_site = true;
+  int orig_rvh_delete_count = 0;
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  orig_rvh->set_delete_counter(&orig_rvh_delete_count);
+  SiteInstance* instance1 = contents->GetSiteInstance();
+
+  // Navigate to URL.  First URL should use first RenderViewHost.
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  // Navigate to new site
+  const GURL url2("https://www.google.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  TestRenderViewHost* pending_rvh = contents->pending_rvh();
+  int pending_rvh_delete_count = 0;
+  pending_rvh->set_delete_counter(&pending_rvh_delete_count);
+
+  // Show an interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 1, url2);
+  contents->TestDidNavigate(interstitial_rvh, params2);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_EQ(pending_rvh, contents->pending_rvh());
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // Hide interstitial (proceed and wait)
+  contents->HideInterstitialPage(true, true);
+  EXPECT_TRUE(contents->state_is_leaving_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_EQ(pending_rvh, contents->pending_rvh());
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // DidNavigate from the destination page should transition to new renderer
+  ViewHostMsg_FrameNavigate_Params params3;
+  InitNavigateParams(&params3, 2, url2);
+  contents->TestDidNavigate(pending_rvh, params3);
+  SiteInstance* instance2 = contents->GetSiteInstance();
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(pending_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+  EXPECT_NE(instance1, instance2);
+  EXPECT_EQ(orig_rvh_delete_count, 1);  // The original should be gone.
+
+  // Since we were viewing a page before, we should be able to go back.
+  EXPECT_TRUE(contents->controller()->CanGoBack());
+
+  // Going back should switch SiteInstances again.  The first SiteInstance is
+  // stored in the NavigationEntry, so it should be the same as at the start.
+  contents->controller()->GoBack();
+  TestRenderViewHost* goback_rvh = contents->pending_rvh();
+  EXPECT_TRUE(contents->state_is_pending());
+
+  // DidNavigate from the back action
+  contents->TestDidNavigate(goback_rvh, params1);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(goback_rvh, contents->render_view_host());
+  EXPECT_EQ(instance1, contents->GetSiteInstance());
+  EXPECT_EQ(pending_rvh_delete_count, 1);  // The second page's rvh should die.
+}
+
+// Tests that we can transition away from an interstitial page.
+TEST_F(WebContentsTest, CrossSiteInterstitialThenNavigate) {
+  contents->transition_cross_site = true;
+  int orig_rvh_delete_count = 0;
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  orig_rvh->set_delete_counter(&orig_rvh_delete_count);
+
+  // Navigate to URL.  First URL should use first RenderViewHost.
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  // Show an interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        false,
+                                                        interstitial_url);
+  interstitial->Show();
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 1, url);
+  contents->TestDidNavigate(interstitial_rvh, params2);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // Navigate to a new page.
+  const GURL url2("http://www.yahoo.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+
+  TestRenderViewHost* new_rvh = contents->pending_rvh();
+  ASSERT_TRUE(new_rvh != NULL);
+  // Make sure the RVH is not suspended (bug #1236441).
+  EXPECT_FALSE(new_rvh->IsNavigationSuspended());
+  EXPECT_TRUE(contents->state_is_leaving_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+
+  // DidNavigate from the new page
+  ViewHostMsg_FrameNavigate_Params params3;
+  InitNavigateParams(&params3, 1, url2);
+  contents->TestDidNavigate(new_rvh, params3);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(new_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_EQ(orig_rvh_delete_count, 1);
+}
+
+// Tests that we can transition away from an interstitial page even if the
+// interstitial renderer has crashed.
+TEST_F(WebContentsTest, CrossSiteInterstitialCrashThenNavigate) {
+  contents->transition_cross_site = true;
+  int orig_rvh_delete_count = 0;
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  orig_rvh->set_delete_counter(&orig_rvh_delete_count);
+
+  // Navigate to URL.  First URL should use first RenderViewHost.
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  // Navigate to new site
+  const GURL url2("https://www.google.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  TestRenderViewHost* pending_rvh = contents->pending_rvh();
+  int pending_rvh_delete_count = 0;
+  pending_rvh->set_delete_counter(&pending_rvh_delete_count);
+
+  // Show an interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 1, url2);
+  contents->TestDidNavigate(interstitial_rvh, params2);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_EQ(pending_rvh, contents->pending_rvh());
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // Crash the interstitial RVH
+  // (by making IsRenderViewLive() == false)
+  interstitial_rvh->is_created = false;
+
+  // Navigate to a new page.  Since interstitial RVH is dead, we should clean
+  // it up and go to a new PENDING state, showing the orig_rvh.
+  const GURL url3("http://www.yahoo.com");
+  contents->controller()->LoadURL(url3, GURL(), PageTransition::TYPED);
+  TestRenderViewHost* new_rvh = contents->pending_rvh();
+  ASSERT_TRUE(new_rvh != NULL);
+  EXPECT_TRUE(contents->state_is_pending());
+  EXPECT_EQ(orig_rvh, contents->render_view_host());
+  EXPECT_EQ(pending_rvh_delete_count, 1);
+  EXPECT_NE(interstitial_rvh, new_rvh);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // DidNavigate from the new page
+  ViewHostMsg_FrameNavigate_Params params3;
+  InitNavigateParams(&params3, 1, url3);
+  contents->TestDidNavigate(new_rvh, params3);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(new_rvh, contents->render_view_host());
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_EQ(orig_rvh_delete_count, 1);
+}
+
+// Tests that we can transition away from an interstitial page even if both the
+// original and interstitial renderers have crashed.
+TEST_F(WebContentsTest, CrossSiteInterstitialCrashesThenNavigate) {
+  contents->transition_cross_site = true;
+  int orig_rvh_delete_count = 0;
+  TestRenderViewHost* orig_rvh = contents->rvh();
+  orig_rvh->set_delete_counter(&orig_rvh_delete_count);
+
+  // Navigate to URL.  First URL should use first RenderViewHost.
+  const GURL url("http://www.google.com");
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
+  ViewHostMsg_FrameNavigate_Params params1;
+  InitNavigateParams(&params1, 1, url);
+  contents->TestDidNavigate(orig_rvh, params1);
+
+  // Navigate to new site
+  const GURL url2("https://www.google.com");
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
+  TestRenderViewHost* pending_rvh = contents->pending_rvh();
+  int pending_rvh_delete_count = 0;
+  pending_rvh->set_delete_counter(&pending_rvh_delete_count);
+
+  // Show an interstitial
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
+  TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
+
+  // DidNavigate from the interstitial
+  ViewHostMsg_FrameNavigate_Params params2;
+  InitNavigateParams(&params2, 1, url2);
+  contents->TestDidNavigate(interstitial_rvh, params2);
+  EXPECT_TRUE(contents->state_is_interstitial());
+  EXPECT_EQ(interstitial_rvh, contents->render_view_host());
+  EXPECT_EQ(orig_rvh, contents->original_rvh());
+  EXPECT_EQ(pending_rvh, contents->pending_rvh());
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // Crash both the original and interstitial RVHs
+  // (by making IsRenderViewLive() == false)
+  orig_rvh->is_created = false;
+  interstitial_rvh->is_created = false;
+
+  // Navigate to a new page.  Since both the interstitial and original RVHs are
+  // dead, we should create a new RVH, jump back to NORMAL, and navigate.
+  const GURL url3("http://www.yahoo.com");
+  contents->controller()->LoadURL(url3, GURL(), PageTransition::TYPED);
+  TestRenderViewHost* new_rvh = contents->rvh();
+  ASSERT_TRUE(new_rvh != NULL);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(orig_rvh_delete_count, 1);
+  EXPECT_EQ(pending_rvh_delete_count, 1);
+  EXPECT_NE(interstitial_rvh, new_rvh);
+  EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
+
+  // DidNavigate from the new page
+  ViewHostMsg_FrameNavigate_Params params3;
+  InitNavigateParams(&params3, 1, url3);
+  contents->TestDidNavigate(new_rvh, params3);
+  EXPECT_TRUE(contents->state_is_normal());
+  EXPECT_EQ(new_rvh, contents->render_view_host());
 }
 
 // Test that opening a new tab in the same SiteInstance and then navigating
@@ -542,7 +1062,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
   contents2->controller()->LoadURL(url2b, GURL(), PageTransition::TYPED);
   TestRenderViewHost* pending_rvh_b = contents2->pending_rvh();
   EXPECT_TRUE(pending_rvh_b != NULL);
-  EXPECT_TRUE(contents2->cross_navigation_pending());
+  EXPECT_TRUE(contents2->state_is_pending());
 
   // NOTE(creis): We used to be in danger of showing a sad tab page here if the
   // second tab hadn't navigated somewhere first (bug 1145430).  That case is
@@ -580,16 +1100,16 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   contents2->SetupController(profile.get());
   const GURL url2("http://www.yahoo.com");
   contents2->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
-  // The first RVH in contents2 isn't live yet, so we shortcut the cross site
-  // pending.
+  // The first RVH in contents2 isn't live yet, so we shortcut the PENDING
+  // state and go straight to NORMAL.
   TestRenderViewHost* rvh2 = contents2->rvh();
-  EXPECT_FALSE(contents2->cross_navigation_pending());
+  EXPECT_TRUE(contents2->state_is_normal());
   ViewHostMsg_FrameNavigate_Params params2;
   InitNavigateParams(&params2, 2, url2);
   contents2->TestDidNavigate(rvh2, params2);
   SiteInstance* instance2 = contents2->GetSiteInstance();
   EXPECT_NE(instance1, instance2);
-  EXPECT_FALSE(contents2->cross_navigation_pending());
+  EXPECT_TRUE(contents2->state_is_normal());
 
   // Simulate a link click in first tab to second site.  Doesn't switch
   // SiteInstances, because we don't intercept WebKit navigations.
@@ -598,13 +1118,13 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   contents->TestDidNavigate(orig_rvh, params3);
   SiteInstance* instance3 = contents->GetSiteInstance();
   EXPECT_EQ(instance1, instance3);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
 
   // Navigate to the new site.  Doesn't switch SiteInstancees, because we
   // compare against the current URL, not the SiteInstance's site.
   const GURL url3("http://mail.yahoo.com");
   contents->controller()->LoadURL(url3, GURL(), PageTransition::TYPED);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   ViewHostMsg_FrameNavigate_Params params4;
   InitNavigateParams(&params4, 3, url3);
   contents->TestDidNavigate(orig_rvh, params4);
@@ -627,7 +1147,7 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
 
   // Navigate to new site, but simulate an onbeforeunload denial.
@@ -635,13 +1155,13 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
   orig_rvh->immediate_before_unload = false;
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   orig_rvh->TestOnMsgShouldClose(false);
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
 
   // Navigate again, but simulate an onbeforeunload approval.
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   orig_rvh->TestOnMsgShouldClose(true);
-  EXPECT_TRUE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_pending());
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
 
   // We won't hear DidNavigate until the onunload handler has finished running.
@@ -653,10 +1173,12 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
   InitNavigateParams(&params2, 1, url2);
   contents->TestDidNavigate(pending_rvh, params2);
   SiteInstance* instance2 = contents->GetSiteInstance();
-  EXPECT_FALSE(contents->cross_navigation_pending());
+  EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(pending_rvh, contents->render_view_host());
   EXPECT_NE(instance1, instance2);
   EXPECT_TRUE(contents->pending_rvh() == NULL);
+  EXPECT_TRUE(contents->original_rvh() == NULL);
+  EXPECT_TRUE(contents->interstitial_rvh() == NULL);
 }
 
 // Test that NavigationEntries have the correct content state after going
@@ -731,472 +1253,3 @@ TEST_F(WebContentsTest, WebKitPrefs) {
   EXPECT_EQ(true, webkit_prefs.javascript_enabled);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Interstitial Tests
-////////////////////////////////////////////////////////////////////////////////
-
-// Test navigating to a page (with the navigation initiated from the browser,
-// as when a URL is typed in the location bar) that shows an interstitial and
-// creates a new navigation entry, then hiding it without proceeding.
-TEST_F(WebContentsTest,
-       ShowInterstitialFromBrowserWithNewNavigationDontProceed) {
-  // Navigate to a page.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Initiate a browser navigation that will trigger the interstitial
-  contents->controller()->LoadURL(GURL("http://www.evil.com"), GURL(),
-                                  PageTransition::TYPED);
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url2, &state, &deleted);
-  interstitial->Show();
-  // The interstitial should not show until its navigation has committed.
-  EXPECT_FALSE(interstitial->is_showing());
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  // Let's commit the interstitial navigation.
-  interstitial->TestDidNavigate(1, url2);
-  EXPECT_TRUE(interstitial->is_showing());
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url2);
-
-  // Now don't proceed.
-  interstitial->DontProceed();
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-}
-
-// Test navigating to a page (with the navigation initiated from the renderer,
-// as when clicking on a link in the page) that shows an interstitial and
-// creates a new navigation entry, then hiding it without proceeding.
-TEST_F(WebContentsTest,
-       ShowInterstitiaFromRendererlWithNewNavigationDontProceed) {
-  // Navigate to a page.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Show an interstitial (no pending entry, the interstitial would have been
-  // triggered by clicking on a link).
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url2, &state, &deleted);
-  interstitial->Show();
-  // The interstitial should not show until its navigation has committed.
-  EXPECT_FALSE(interstitial->is_showing());
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  // Let's commit the interstitial navigation.
-  interstitial->TestDidNavigate(1, url2);
-  EXPECT_TRUE(interstitial->is_showing());
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url2);
-
-  // Now don't proceed.
-  interstitial->DontProceed();
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-}
-
-// Test navigating to a page that shows an interstitial without creating a new
-// navigation entry (this happens when the interstitial is triggered by a
-// sub-resource in the page), then hiding it without proceeding.
-TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationDontProceed) {
-  // Navigate to a page.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, false, url2, &state, &deleted);
-  interstitial->Show();
-  // The interstitial should not show until its navigation has committed.
-  EXPECT_FALSE(interstitial->is_showing());
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  // Let's commit the interstitial navigation.
-  interstitial->TestDidNavigate(1, url2);
-  EXPECT_TRUE(interstitial->is_showing());
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  // The URL specified to the interstitial should have been ignored.
-  EXPECT_TRUE(entry->url() == url1);
-
-  // Now don't proceed.
-  interstitial->DontProceed();
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-}
-
-// Test navigating to a page (with the navigation initiated from the browser,
-// as when a URL is typed in the location bar) that shows an interstitial and
-// creates a new navigation entry, then proceeding.
-TEST_F(WebContentsTest, ShowInterstitialFromBrowserNewNavigationProceed) {
-  // Navigate to a page.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Initiate a browser navigation that will trigger the interstitial
-  contents->controller()->LoadURL(GURL("http://www.evil.com"), GURL(),
-                                  PageTransition::TYPED);
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url2, &state, &deleted);
-  interstitial->Show();
-  // The interstitial should not show until its navigation has committed.
-  EXPECT_FALSE(interstitial->is_showing());
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  // Let's commit the interstitial navigation.
-  interstitial->TestDidNavigate(1, url2);
-  EXPECT_TRUE(interstitial->is_showing());
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url2);
-
-  // Then proceed.
-  interstitial->Proceed();
-  // The interstitial should show until the new navigation commits.
-  ASSERT_FALSE(deleted);
-  EXPECT_EQ(TestInterstitialPage::OKED, state);
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-
-  // Simulate the navigation to the page, that's when the interstitial gets
-  // hidden.
-  GURL url3("http://www.thepage.com");
-  Navigate(2, url3);
-
-  EXPECT_TRUE(deleted);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url3);
-
-  EXPECT_EQ(2, contents->controller()->GetEntryCount());
-}
-
-// Test navigating to a page (with the navigation initiated from the renderer,
-// as when clicking on a link in the page) that shows an interstitial and
-// creates a new navigation entry, then proceeding.
-TEST_F(WebContentsTest, ShowInterstitialFromRendererNewNavigationProceed) {
-  // Navigate to a page.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url2, &state, &deleted);
-  interstitial->Show();
-  // The interstitial should not show until its navigation has committed.
-  EXPECT_FALSE(interstitial->is_showing());
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  // Let's commit the interstitial navigation.
-  interstitial->TestDidNavigate(1, url2);
-  EXPECT_TRUE(interstitial->is_showing());
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url2);
-
-  // Then proceed.
-  interstitial->Proceed();
-  // The interstitial should show until the new navigation commits.
-  ASSERT_FALSE(deleted);
-  EXPECT_EQ(TestInterstitialPage::OKED, state);
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-
-  // Simulate the navigation to the page, that's when the interstitial gets
-  // hidden.
-  GURL url3("http://www.thepage.com");
-  Navigate(2, url3);
-
-  EXPECT_TRUE(deleted);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url3);
-
-  EXPECT_EQ(2, contents->controller()->GetEntryCount());
-}
-
-// Test navigating to a page that shows an interstitial without creating a new
-// navigation entry (this happens when the interstitial is triggered by a
-// sub-resource in the page), then proceeding.
-TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationProceed) {
-  // Navigate to a page so we have a navigation entry in the controller.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, false, url2, &state, &deleted);
-  interstitial->Show();
-  // The interstitial should not show until its navigation has committed.
-  EXPECT_FALSE(interstitial->is_showing());
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  // Let's commit the interstitial navigation.
-  interstitial->TestDidNavigate(1, url2);
-  EXPECT_TRUE(interstitial->is_showing());
-  EXPECT_TRUE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == interstitial);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  // The URL specified to the interstitial should have been ignored.
-  EXPECT_TRUE(entry->url() == url1);
-
-  // Then proceed.
-  interstitial->Proceed();
-  // Since this is not a new navigation, the previous page is dismissed right
-  // away and shows the original page.
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::OKED, state);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == url1);
-
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-}
-
-// Test navigating to a page that shows an interstitial, then navigating away.
-TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
-  // Show interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url, &state, &deleted);
-  interstitial->Show();
-  interstitial->TestDidNavigate(1, url);
-
-  // While interstitial showing, navigate to a new URL.
-  const GURL url2("http://www.yahoo.com");
-  Navigate(1, url2);
-
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-}
-
-// Test navigating to a page that shows an interstitial, then close the tab.
-TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
-  // Show interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url, &state, &deleted);
-  interstitial->Show();
-  interstitial->TestDidNavigate(1, url);
-
-  // Now close the tab.
-  contents->CloseContents();
-  contents = NULL;  // So we don't detroy it again on TearDown.
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-}
-
-// Test that after Proceed is called and an interstitial is still shown, no more
-// commands get executed.
-TEST_F(WebContentsTest, ShowInterstitialProceedMultipleCommands) {
-  // Navigate to a page so we have a navigation entry in the controller.
-  GURL url1("http://www.google.com");
-  Navigate(1, url1);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url2("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url2, &state, &deleted);
-  interstitial->Show();
-  interstitial->TestDidNavigate(1, url2);
-
-  // Run a command.
-  EXPECT_EQ(0, interstitial->command_received_count());
-  interstitial->TestDomOperationResponse("toto");
-  EXPECT_EQ(1, interstitial->command_received_count());
-
-  // Then proceed.
-  interstitial->Proceed();
-  ASSERT_FALSE(deleted);
-
-  // While the navigation to the new page is pending, send other commands, they
-  // should be ignored.
-  interstitial->TestDomOperationResponse("hello");
-  interstitial->TestDomOperationResponse("hi");
-  EXPECT_EQ(1, interstitial->command_received_count());
-}
-
-// Test showing an interstitial while another interstitial is already showing.
-TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
-  // Navigate to a page so we have a navigation entry in the controller.
-  GURL start_url("http://www.google.com");
-  Navigate(1, start_url);
-  EXPECT_EQ(1, contents->controller()->GetEntryCount());
-
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state1 =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted1 = false;
-  GURL url1("http://interstitial1");
-  TestInterstitialPage* interstitial1 =
-      new TestInterstitialPage(contents, true, url1, &state1, &deleted1);
-  interstitial1->Show();
-  interstitial1->TestDidNavigate(1, url1);
-
-  // Now show another interstitial.
-  TestInterstitialPage::InterstitialState state2 =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted2 = false;
-  GURL url2("http://interstitial2");
-  TestInterstitialPage* interstitial2 =
-      new TestInterstitialPage(contents, true, url2, &state2, &deleted2);
-  interstitial2->Show();
-  interstitial2->TestDidNavigate(1, url2);
-
-  // Showing interstitial2 should have caused interstitial1 to go away.
-  EXPECT_TRUE(deleted1);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state1);
-  
-  // Let's make sure interstitial2 is working as intended.
-  ASSERT_FALSE(deleted2);
-  EXPECT_EQ(TestInterstitialPage::UNDECIDED, state2);  
-  interstitial2->Proceed();
-  GURL landing_url("http://www.thepage.com");
-  Navigate(2, landing_url);
-
-  EXPECT_TRUE(deleted2);
-  EXPECT_FALSE(contents->showing_interstitial_page());
-  EXPECT_TRUE(contents->interstitial_page() == NULL);
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
-  ASSERT_TRUE(entry != NULL);
-  EXPECT_TRUE(entry->url() == landing_url);
-  EXPECT_EQ(2, contents->controller()->GetEntryCount());
-}
-
-// Test that navigating away from an interstitial while it's loading cause it
-// not to show.
-TEST_F(WebContentsTest, NavigateBeforeInterstitialShows) {
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL interstitial_url("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, interstitial_url,
-                               &state, &deleted);
-  interstitial->Show();
-
-  // Let's simulate a navigation initiated from the browser before the
-  // interstitial finishes loading.
-  const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
-  ASSERT_FALSE(deleted);
-  EXPECT_FALSE(interstitial->is_showing());
-
-  // Now let's make the interstitial navigation commit.
-  interstitial->TestDidNavigate(1, interstitial_url);
-
-  // After it loaded the interstitial should be gone.
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-}
-
-// Test showing an interstitial and have its renderer crash.
-TEST_F(WebContentsTest, InterstitialCrasher) {
-  // Show an interstitial.
-  TestInterstitialPage::InterstitialState state =
-      TestInterstitialPage::UNDECIDED;
-  bool deleted = false;
-  GURL url("http://interstitial");
-  TestInterstitialPage* interstitial =
-      new TestInterstitialPage(contents, true, url, &state, &deleted);
-  interstitial->Show();
-  // Simulate a renderer crash before the interstitial is shown.
-  interstitial->TestRendererGone();
-  // The interstitial should have been dismissed.
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-
-  // Now try again but this time crash the intersitial after it was shown.
-  interstitial =
-      new TestInterstitialPage(contents, true, url, &state, &deleted);
-  interstitial->Show();
-  interstitial->TestDidNavigate(1, url);
-  // Simulate a renderer crash.
-  interstitial->TestRendererGone();
-  // The interstitial should have been dismissed.
-  EXPECT_TRUE(deleted);
-  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
-}

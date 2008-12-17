@@ -16,8 +16,8 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/resource_dispatcher_host.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_util.h"
-#include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/win_util.h"
@@ -458,9 +458,9 @@ void DownloadFileManager::RemoveDownload(int id, DownloadManager* manager) {
 // static
 DownloadManager* DownloadFileManager::DownloadManagerFromRenderIds(
     int render_process_id, int render_view_id) {
-  WebContents* contents = tab_util::GetWebContentsByID(render_process_id,
+  TabContents* contents = tab_util::GetTabContentsByID(render_process_id,
                                                        render_view_id);
-  if (contents) {
+  if (contents && contents->type() == TAB_CONTENTS_WEB) {
     Profile* profile = contents->profile();
     if (profile)
       return profile->GetDownloadManager();

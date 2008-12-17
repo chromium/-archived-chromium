@@ -27,7 +27,7 @@ bool tab_util::GetTabContentsID(URLRequest* request,
   return true;
 }
 
-WebContents* tab_util::GetWebContentsByID(int render_process_id,
+TabContents* tab_util::GetTabContentsByID(int render_process_id,
                                           int render_view_id) {
   RenderViewHost* render_view_host =
       RenderViewHost::FromID(render_process_id, render_view_id);

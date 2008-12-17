@@ -124,24 +124,32 @@ class WebContents : public TabContents,
 
   // Various other systems need to know about our interstitials.
   bool showing_interstitial_page() const {
-    return render_manager_.interstitial_page() != NULL;
+    return render_manager_.showing_interstitial_page();
+  }
+  bool showing_repost_interstitial() const {
+    return render_manager_.showing_repost_interstitial();
   }
 
-  // Sets the passed passed interstitial as the currently showing interstitial.
-  // |interstitial_page| should be non NULL (use the remove_interstitial_page
-  // method to unset the interstitial) and no interstitial page should be set
-  // when there is already a non NULL interstitial page set.
-  void set_interstitial_page(InterstitialPage* interstitial_page) {
-    render_manager_.set_interstitial_page(interstitial_page);
+  // Displays the specified interstitial page. This method can be used to show
+  // temporary pages (such as security error pages).  It can be hidden by
+  // calling HideInterstitialPage, in which case the original page is restored.
+  // |interstitial_page| is not owned by the WebContents.
+  void ShowInterstitialPage(InterstitialPage* interstitial_page) {
+    render_manager_.ShowInterstitialPage(interstitial_page);
   }
 
-  // Unsets the currently showing interstitial.
-  void remove_interstitial_page() {
-    render_manager_.remove_interstitial_page();
+  // Reverts from the interstitial page to the original page.
+  // If |wait_for_navigation| is true, the interstitial page is removed when
+  // the original page has transitioned to the new contents.  This is useful
+  // when you want to hide the interstitial page as you navigate to a new page.
+  // Hiding the interstitial page right away would show the previous displayed
+  // page.  If |proceed| is true, the WebContents will expect the navigation
+  // to complete.  If not, it will revert to the last shown page.
+  void HideInterstitialPage(bool wait_for_navigation, bool proceed) {
+    render_manager_.HideInterstitialPage(wait_for_navigation, proceed);
   }
 
-  // Returns the currently showing interstitial, NULL if no interstitial is
-  // showing.
+  // Returns the interstitial page currently shown if any, NULL otherwise.
   InterstitialPage* interstitial_page() const {
     return render_manager_.interstitial_page();
   }
@@ -245,10 +253,12 @@ class WebContents : public TabContents,
                                           const GURL& target_url);
   virtual void DidLoadResourceFromMemoryCache(const GURL& url,
                                               const std::string& security_info);
-  virtual void DidFailProvisionalLoadWithError(RenderViewHost* render_view_host,
-                                               bool is_main_frame,
-                                               int error_code,
-                                               const GURL& url);
+  virtual void DidFailProvisionalLoadWithError(
+      RenderViewHost* render_view_host,
+      bool is_main_frame,
+      int error_code,
+      const GURL& url,
+      bool showing_repost_interstitial);
   virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
                                 int32 page_id, const GURL& icon_url);
   virtual void DidDownloadImage(RenderViewHost* render_view_host,
@@ -357,9 +367,6 @@ class WebContents : public TabContents,
 
   // Temporary until the view/contents separation is complete.
   friend class WebContentsViewWin;
-
-  // So InterstitialPage can access SetIsLoading.
-  friend class InterstitialPage;
 
   // When CreateShortcut is invoked RenderViewHost::GetApplicationInfo is
   // invoked. CreateShortcut caches the state of the page needed to create the

@@ -17,7 +17,6 @@
 #include "chrome/browser/safe_browsing/protocol_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_blocking_page.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
-#include "chrome/browser/tab_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -282,20 +281,6 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
 // Invoked on the UI thread.
 void SafeBrowsingService::DoDisplayBlockingPage(
     const BlockingPageParam& param) {
-  // The tab might have been closed.
-  if (!tab_util::GetWebContentsByID(param.render_process_host_id,
-                                    param.render_view_id)) {
-    // The tab is gone and we did not have a chance at showing the interstitial.
-    // Just act as "Don't Proceed" was chosen.
-    base::Thread* io_thread = g_browser_process->io_thread();
-    if (!io_thread)
-      return;
-    BlockingPageParam response_param = param;
-    response_param.proceed = false;
-    io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &SafeBrowsingService::OnBlockingPageDone, response_param));
-    return;
-  }
   SafeBrowsingBlockingPage* blocking_page = new SafeBrowsingBlockingPage(this,
                                                                          param);
   blocking_page->Show();

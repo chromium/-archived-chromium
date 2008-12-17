@@ -61,7 +61,9 @@ ShowUnsafeContentTask::~ShowUnsafeContentTask() {
 void ShowUnsafeContentTask::Run() {
   error_handler_->manager()->AllowShowInsecureContentForURL(main_frame_url_);
   // Reload the page.
-  error_handler_->GetWebContents()->controller()->Reload(true);
+  DCHECK(error_handler_->GetTabContents()->type() == TAB_CONTENTS_WEB);
+  WebContents* tab = error_handler_->GetTabContents()->AsWebContents();
+  tab->controller()->Reload(true);
 }
 
 static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
@@ -89,7 +91,8 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
   std::string html_text(jstemplate_builder::GetTemplateHtml(html, &strings,
                                                             "template_root"));
 
-  WebContents* tab  = error->GetWebContents();
+  DCHECK(error->GetTabContents()->type() == TAB_CONTENTS_WEB);
+  WebContents* tab  = error->GetTabContents()->AsWebContents();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
       error->ssl_info().cert, tab->render_view_host()->process()->host_id());
   std::string security_info =
@@ -478,6 +481,7 @@ void SSLPolicy::OnFatalCertError(const GURL& main_frame_url,
     return;
   }
   error->CancelRequest();
+  DCHECK(error->GetTabContents()->type() == TAB_CONTENTS_WEB);
   ShowErrorPage(this, error);
   // No need to degrade our security indicators because we didn't continue.
 }

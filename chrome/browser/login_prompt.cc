@@ -84,11 +84,11 @@ class LoginHandlerImpl : public LoginHandler,
     SendNotifications();
   }
 
-  // Returns the WebContents that needs authentication.
-  WebContents* GetWebContentsForLogin() {
+  // Returns the TabContents that needs authentication.
+  TabContents* GetTabContentsForLogin() {
     DCHECK(MessageLoop::current() == ui_loop_);
 
-    return tab_util::GetWebContentsByID(render_process_host_id_,
+    return tab_util::GetTabContentsByID(render_process_host_id_,
                                         tab_contents_id_);
   }
 
@@ -238,7 +238,7 @@ class LoginHandlerImpl : public LoginHandler,
     DCHECK(MessageLoop::current() == ui_loop_);
 
     NotificationService* service = NotificationService::current();
-    WebContents* requesting_contents = GetWebContentsForLogin();
+    TabContents* requesting_contents = GetTabContentsForLogin();
     if (!requesting_contents)
       return;
 
@@ -311,7 +311,7 @@ class LoginDialogTask : public Task {
   }
 
   void Run() {
-    WebContents* parent_contents = handler_->GetWebContentsForLogin();
+    TabContents* parent_contents = handler_->GetTabContentsForLogin();
     if (!parent_contents) {
       // The request was probably cancelled.
       return;

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PROVISIONAL_LOAD_DETAILS_H_
-#define CHROME_BROWSER_PROVISIONAL_LOAD_DETAILS_H_
+#ifndef CHROME_BROWSER_PROVISIONAL_LOAD_DETAILS_H__
+#define CHROME_BROWSER_PROVISIONAL_LOAD_DETAILS_H__
 
 #include "base/basictypes.h"
 #include "googleurl/src/gurl.h"
@@ -20,6 +20,7 @@
 class ProvisionalLoadDetails {
  public:
   ProvisionalLoadDetails(bool main_frame,
+                         bool interstitial_page,
                          bool in_page_navigation,
                          const GURL& url,
                          const std::string& security_info,
@@ -32,6 +33,8 @@ class ProvisionalLoadDetails {
   const GURL& url() const { return url_; }
 
   bool main_frame() const { return is_main_frame_; }
+
+  bool interstitial_page() const { return is_interstitial_page_; }
 
   bool in_page_navigation() const { return is_in_page_navigation_; }
 
@@ -47,14 +50,15 @@ class ProvisionalLoadDetails {
   int error_code_;
   GURL url_;
   bool is_main_frame_;
+  bool is_interstitial_page_;
   bool is_in_page_navigation_;
   int ssl_cert_id_;
   int ssl_cert_status_;
   int ssl_security_bits_;
   bool is_content_filtered_;
 
-  DISALLOW_COPY_AND_ASSIGN(ProvisionalLoadDetails);
+  DISALLOW_EVIL_CONSTRUCTORS(ProvisionalLoadDetails);
 };
 
-#endif  // CHROME_BROWSER_PROVISIONAL_LOAD_DETAILS_H_
+#endif  // CHROME_BROWSER_PROVISIONAL_LOAD_DETAILS_H__
 

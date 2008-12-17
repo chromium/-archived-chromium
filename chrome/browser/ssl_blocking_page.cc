@@ -12,6 +12,7 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/ssl_error_info.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
@@ -25,7 +26,7 @@
 // No error happening loading a sub-resource triggers an interstitial so far.
 SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
                                  Delegate* delegate)
-    : InterstitialPage(error->GetWebContents(), true, error->request_url()),
+    : InterstitialPage(error->GetTabContents(), true, error->request_url()),
       error_(error),
       delegate_(delegate),
       delegate_has_been_notified_(false) {
@@ -94,11 +95,15 @@ void SSLBlockingPage::CommandReceived(const std::string& command) {
 }
 
 void SSLBlockingPage::Proceed() {
+  // We hide the interstitial page first (by calling Proceed()) as allowing the
+  // certificate will resume the request and we want the WebContents back to
+  // showing the non interstitial page (otherwise the request completion
+  // messages may confuse the WebContents if it is still showing the
+  // interstitial page).
+  InterstitialPage::Proceed();
+
   // Accepting the certificate resumes the loading of the page.
   NotifyAllowCertificate();
-
-  // This call hides and deletes the interstitial.
-  InterstitialPage::Proceed();
 }
 
 void SSLBlockingPage::DontProceed() {

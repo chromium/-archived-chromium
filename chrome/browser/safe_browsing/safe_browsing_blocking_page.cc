@@ -43,7 +43,7 @@ static const wchar_t* const kSbDiagnosticHtml =
 SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
     SafeBrowsingService* sb_service,
     const SafeBrowsingService::BlockingPageParam& param)
-    : InterstitialPage(tab_util::GetWebContentsByID(
+    : InterstitialPage(tab_util::GetTabContentsByID(
           param.render_process_host_id, param.render_view_id),
                        param.resource_type == ResourceType::MAIN_FRAME,
                        param.url),
@@ -55,12 +55,6 @@ SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
       proceed_(false),
       did_notify_(false),
       is_main_frame_(param.resource_type == ResourceType::MAIN_FRAME) {
-  if (!is_main_frame_) {
-    navigation_entry_index_to_remove_ =
-        tab()->controller()->GetLastCommittedEntryIndex();
-  } else {
-    navigation_entry_index_to_remove_ = -1;
-  }
 }
 
 SafeBrowsingBlockingPage::~SafeBrowsingBlockingPage() {
@@ -144,6 +138,8 @@ std::string SafeBrowsingBlockingPage::GetHTMLContents() {
 }
 
 void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
+  DCHECK(tab()->type() == TAB_CONTENTS_WEB);
+  WebContents* web = tab()->AsWebContents();
   if (command == "2") {
     // User pressed "Learn more".
     GURL url;
@@ -154,7 +150,7 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
     } else {
       NOTREACHED();
     }
-    tab()->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::LINK);
+    web->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::LINK);
     return;
   }
   if (command == "3") {
@@ -165,8 +161,8 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
     GURL report_url =
         safe_browsing_util::GeneratePhishingReportUrl(kSbReportPhishingUrl,
                                                       url().spec());
-    Hide();
-    tab()->OpenURL(report_url, GURL(), CURRENT_TAB, PageTransition::LINK);
+    web->HideInterstitialPage(false, false);
+    web->OpenURL(report_url, GURL(), CURRENT_TAB, PageTransition::LINK);
     return;
   }
   if (command == "4") {
@@ -177,26 +173,33 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
     GURL diagnostic_url(diagnostic);
     diagnostic_url = google_util::AppendGoogleLocaleParam(diagnostic_url);
     DCHECK(result_ == SafeBrowsingService::URL_MALWARE);
-    tab()->OpenURL(diagnostic_url, GURL(), CURRENT_TAB, PageTransition::LINK);
+    web->HideInterstitialPage(false, false);
+    web->OpenURL(diagnostic_url, GURL(), CURRENT_TAB, PageTransition::LINK);
     return;
   }
 
   proceed_ = command == "1";
 
-  if (proceed_)
-    Proceed();
-  else
-    DontProceed();
-
+  if (proceed_) {
+    if (is_main_frame_)
+      web->HideInterstitialPage(true, true);
+    else
+      web->HideInterstitialPage(false, false);
+  } else {
+    if (is_main_frame_) {
+      DontProceed();
+    } else {
+      NavigationController* controller = web->controller();
+      controller->RemoveEntryAtIndex(controller->GetLastCommittedEntryIndex(),
+                                     NewTabUIURL());
+    }
+  }
   NotifyDone();
 }
 
-void SafeBrowsingBlockingPage::DontProceed() {
-  if (navigation_entry_index_to_remove_ != -1) {
-    tab()->controller()->RemoveEntryAtIndex(navigation_entry_index_to_remove_,
-                                            NewTabUIURL());
-  }
-  InterstitialPage::DontProceed();
+void SafeBrowsingBlockingPage::InterstitialClosed() {
+  NotifyDone();
+  InterstitialPage::InterstitialClosed();
   // We are now deleted.
 }
 
