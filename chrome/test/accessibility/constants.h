@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_ACCISSIBILITY_CONSTANTS_H__
-#define CHROME_TEST_ACCISSIBILITY_CONSTANTS_H__
+#ifndef CHROME_TEST_ACCESSIBILITY_CONSTANTS_H_
+#define CHROME_TEST_ACCESSIBILITY_CONSTANTS_H_
 
 #include <windows.h>
 #include <tchar.h>
@@ -15,8 +15,8 @@
 ///////////////////////////////////////////////////////////////////
 
 // Safe delete and release operations.
-#define CHK_RELEASE(obj)  { if (obj) { (obj)->Release(); (obj) = NULL; } }
-#define CHK_DELETE(obj)  { if (obj) { delete (obj); (obj) = NULL; } }
+#define CHK_RELEASE(obj) { if (obj) { (obj)->Release(); (obj) = NULL; } }
+#define CHK_DELETE(obj) { if (obj) { delete (obj); (obj) = NULL; } }
 
 
 // Chrome Accessibility Tests specific strings.
@@ -29,15 +29,8 @@
 #define AUTH_TITLE                      _T("Authentication Required - Chrome")
 #define CHROME_TAB_CONTENTS             _T("Chrome_TabContents")
 
-#define BROWSER_WIN_ROLE                _T("window")
-#define BROWSER_APP_ROLE                _T("application")
-#define BROWSER_CLIENT_ROLE             _T("client")
-
 #define CHROME_APP_ACC_INDEX            (3)
 #define CHROME_CLIENT_ACC_INDEX         (0)
-
-#define ROLE_ERROR                      (-1)
-#define STATE_ERROR                     (-1)
 
 // Chrome Client chidren.
 #ifdef NEW_FRAMES
@@ -134,6 +127,5 @@ enum KEYBD_KEYS {
     KEY_INVALID = -1
 };
 
-
-#endif  // CHROME_TEST_ACCISSIBILITY_CONSTANTS_H__
+#endif  // CHROME_TEST_ACCESSIBILITY_CONSTANTS_H_
 

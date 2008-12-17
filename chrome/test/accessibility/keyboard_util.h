@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_ACCISSIBILITY_KEYBOARD_UTIL_H__
-#define CHROME_TEST_ACCISSIBILITY_KEYBOARD_UTIL_H__
+#ifndef CHROME_TEST_ACCESSIBILITY_KEYBOARD_UTIL_H_
+#define CHROME_TEST_ACCESSIBILITY_KEYBOARD_UTIL_H_
 
-#include "constants.h"
+#include <wtypes.h>
 
-#include <oleauto.h>
+#include "chrome/test/accessibility/constants.h"
 
 //////////////////////////////////////////////////////
 // Function declarations to automate keyboard events.
@@ -33,6 +33,5 @@ void ReleaseKey(HWND hwnd, WORD key);
 // Returns native enum values for a key-string specified.
 KEYBD_KEYS GetKeybdKeysVal(BSTR str);
 
-
-#endif  // CHROME_TEST_ACCISSIBILITY_KEYBOARD_UTIL_H__
+#endif  // CHROME_TEST_ACCESSIBILITY_KEYBOARD_UTIL_H_
 

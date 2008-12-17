@@ -2,114 +2,131 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_ACCISSIBILITY_ACCISSIBILITY_UTIL_H__
-#define CHROME_TEST_ACCISSIBILITY_ACCISSIBILITY_UTIL_H__
+#ifndef CHROME_TEST_ACCESSIBILITY_ACCESSIBILITY_UTIL_H_
+#define CHROME_TEST_ACCESSIBILITY_ACCESSIBILITY_UTIL_H_
 
-#include <Oleacc.h>
-#include <iostream>
+#include <oleacc.h>
+
+#include "base/string_util.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// Functions and Globals which are using IAccessible interface.
+// Functions and Globals that use the IAccessible interface.
 // These are the wrappers to fetch accessible object interface and properties.
 ///////////////////////////////////////////////////////////////////////////////
 
 // Variant ID pointing to object itself.
-extern VARIANT g_var_self;
+extern VARIANT id_self;
 
-// Returns window handle to Chrome Browser. Retrives it's(having role as
-// client) IAccessible pointer, if requested.
-HWND GetChromeBrowserWnd(IAccessible** ppi_access);
+// Returns window handle to Chrome Browser, along with (if requested) its
+// IAccessible implementation, by calling AccessibleObjectFromWindow on the
+// window handle. The IAccessible hierarchy (root->app->client) is also verified
+// in terms of accessible name and role. If [acc_obj] is NULL, only the window
+// handle is returned.
+HWND GetChromeBrowserWnd(IAccessible** acc_obj);
 
-// Returns IAccessible pointer of object's child window, provided parent's name
-// and it's 0 based child index. If child is element and not complete object,
-// it's variant id is returned with S_FALSE.
-HRESULT GetChildWndOf(std::wstring parent_name, unsigned int child_index,
-                      IAccessible** ppi_access, VARIANT* child_var_id);
+// Returns IAccessible pointer of object's child window, provided [parent_name]
+// and its (0-based) [child_index]. If child is a leaf element (has no children)
+// its variant id is returned with S_FALSE.
+HRESULT GetChildWnd(std::wstring parent_name, unsigned int child_index,
+                    IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Tabstrip. It does not have window handle.
-HRESULT GetTabStripWnd(IAccessible** ppi_access);
+// Returns IAccessible pointer for Tabstrip (does not have a window handle), by
+// calling upon GetChildWnd. Will never be a leaf element, as it always has at
+// least one child.
+HRESULT GetTabStripWnd(IAccessible** acc_obj);
 
-// Returns IAccessible pointer for BrowserView. It does not have window handle.
-HRESULT GetBrowserViewWnd(IAccessible** ppi_access);
+// Returns IAccessible pointer for BrowserView (does not have a window handle),
+// by calling upon GetChildWnd. Will never be a leaf element, as it always has
+// at least one child.
+HRESULT GetBrowserViewWnd(IAccessible** acc_obj);
 
-// Returns IAccessible pointer for Toolbar. It does not have window handle.
-HRESULT GetToolbarWnd(IAccessible** ppi_access);
+// Returns IAccessible pointer for Toolbar (does not have a window handle), by
+// calling upon GetChildWnd. Will never be a leaf element, as it always has at
+// least one child.
+HRESULT GetToolbarWnd(IAccessible** acc_obj);
 
-// Returns handle to OmniBox(AddressBar) and IAccessible pointer, if requested.
-HWND GetAddressBarWnd(IAccessible** ppi_access);
+// Returns window handle to OmniBox(AddressBar) and IAccessible pointer (if
+// requested), by calling AccessibleObjectFromWindow on the window handle. If
+// [acc_obj] is NULL, only the window handle is returned.
+HWND GetAddressBarWnd(IAccessible** acc_obj);
 
-// Returns handle to Find box and IAccessible pointer, if requested.
-HWND GetFindTextWnd(IAccessible** ppi_access);
+// Returns window handle to Find edit box and IAccessible pointer (if
+// requested), by calling AccessibleObjectFromWindow on the window handle.  If
+// [acc_obj] is NULL, only the window handle is returned.
+HWND GetFindTextWnd(IAccessible** acc_obj);
 
-// Returns handle to authentication dialog and IAccessible pointer, if
-// requested.
-HWND GetAuthWnd(IAccessible** ppi_access);
+// Returns window handle to Authentication dialog and IAccessible pointer (if
+// requested), by calling AccessibleObjectFromWindow on the window handle.  If
+// [acc_obj] is NULL, only the window handle is returned.
+HWND GetAuthWnd(IAccessible** acc_obj);
 
-// Fetches IAccessible pointer for a child of given the IAccessible pointer
-// and desired child id.
-HRESULT GetChildObject(IAccessible* pi_access, VARIANT var_child,
-                       IAccessible** ppi_child_access);
+// Fetches IAccessible pointer for a child, given the IAccessible for the parent
+// ([acc_obj]) and a child id (passed in with the [child] VARIANT). Retrieves
+// the child by calling get_accChild on [acc_obj].
+HRESULT GetChildObject(IAccessible* acc_obj, VARIANT child,
+                       IAccessible** child_acc_obj);
 
-// Fetches IAccessible pointer for a parent of specified IAccessible pointer.
-HRESULT GetParentObject(IAccessible* pi_access,
-                        IAccessible** ppi_parent_access);
+// Fetches IAccessible pointer for the parent of specified IAccessible object
+// (by calling get_accParent on [acc_obj]).
+HRESULT GetParentObject(IAccessible* acc_obj, IAccessible** parent_acc_obj);
 
-// Returns no. of child items of specified IAccessible pointer. If input
+// Returns number of children for the specified IAccessible. If [acc_obj]
 // parameter is NULL, -1 is returned.
-INT64 GetChildCount(IAccessible* pi_access);
+INT64 GetChildCount(IAccessible* acc_obj);
 
-// Extracts (VARIANT)array of child items of specified IAccessible pointer.
-HRESULT GetChildrenArray(IAccessible* pi_access, VARIANT* var_array_child);
+// Extracts (VARIANT)array of child items of specified IAccessible pointer,
+// by calling the AccessibleChildren function in MSAA.
+HRESULT GetChildrenArray(IAccessible* acc_obj, VARIANT* children);
 
 // Activates specified window using IAccessible pointer and/or window handle.
-HRESULT ActivateWnd(IAccessible *pi_access, HWND hwnd);
+// Also calls accSelect on [acc_obj] to set accessibility focus and selection.
+HRESULT ActivateWnd(IAccessible* acc_obj, HWND hwnd);
 
 // Returns title of tab whose index is specified. Tab index starts from 1.
 BSTR GetTabName(INT64 tab_index);
 
-// Returns no. of tabs in tabstrip. If processing fails, it returns -1.
+// Returns number of tabs in tabstrip. If processing fails, it returns -1.
 INT64 GetTabCnt();
 
-// Returns Name of specified IAccessible pointer or it's child specified by
-// variant.
-std::wstring GetName(IAccessible* pi_access, VARIANT child = g_var_self);
+// Returns Name of specified [acc_obj] or its [child], by calling get_accName.
+// If input is invalid, an empty std::wstring is returned.
+std::wstring GetName(IAccessible* acc_obj, VARIANT child = id_self);
 
-// Returns the role of specified IAccessible pointer or it's child specified by
-// variant.
-DWORD GetRole(IAccessible* pi_access, VARIANT child = g_var_self);
+// Returns Role of specified [acc_obj] or its [child], by calling get_accRole. A
+// returned value of -1 indicates error.
+LONG GetRole(IAccessible* acc_obj, VARIANT child = id_self);
 
-// Returns state of specified IAccessible pointer or it's child specified by
-// variant.
-DWORD GetState(IAccessible* pi_access, VARIANT child = g_var_self);
+// Returns State of specified [acc_obj] or its [child], by calling get_accState.
+// A returned value of -1 indicates error.
+LONG GetState(IAccessible* acc_obj, VARIANT child = id_self);
 
-// Returns IAccessible pointer for Chrome Minimize Button. It does not have
-// window handle.
-HRESULT GetBrowserMinimizeButton(IAccessible** ppi_access,
-                                 VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Minimize Button, by calling
+// GetChildWnd. It does not have window handle.
+HRESULT GetBrowserMinimizeButton(IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Chrome Maximize Button. It does not have
-// window handle.
-HRESULT GetBrowserMaximizeButton(IAccessible** ppi_access,
-                                 VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Maximize Button, by calling
+// GetChildWnd. It does not have window handle.
+HRESULT GetBrowserMaximizeButton(IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Chrome Restore Button. It does not have
-// window handle.
-HRESULT GetBrowserRestoreButton(IAccessible** ppi_access,
-                                VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Restore Button, by calling
+// GetChildWnd. It does not have window handle.
+HRESULT GetBrowserRestoreButton(IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Chrome Close Button. It does not have
-// window handle.
-HRESULT GetBrowserCloseButton(IAccessible** ppi_access, VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Close Button, by calling
+// GetChildWnd. It does not have window handle.
+HRESULT GetBrowserCloseButton(IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Star Button. It does not have window handle.
-HRESULT GetStarButton(IAccessible** ppi_access, VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Star Button, by calling GetChildWnd.
+// It does not have window handle.
+HRESULT GetStarButton(IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Back Button. It does not have window handle.
-HRESULT GetBackButton(IAccessible** ppi_access, VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Back Button, by calling GetChildWnd.
+// It does not have window handle.
+HRESULT GetBackButton(IAccessible** acc_obj, VARIANT* child);
 
-// Returns IAccessible pointer for Forward Button. It does not have window
-// handle.
-HRESULT GetForwardButton(IAccessible** ppi_access, VARIANT* child_var_id);
+// Returns IAccessible pointer for Chrome Forward Button, by calling
+// GetChildWnd. It does not have window handle.
+HRESULT GetForwardButton(IAccessible** acc_obj, VARIANT* child);
 
-#endif  // CHROME_TEST_ACCISSIBILITY_ACCISSIBILITY_UTIL_H__
+#endif  // CHROME_TEST_ACCESSIBILITY_ACCESSIBILITY_UTIL_H_
 

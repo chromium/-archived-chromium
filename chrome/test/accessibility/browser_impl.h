@@ -2,15 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_ACCISSIBILITY_BROWSER_IMPL_H__
-#define CHROME_TEST_ACCISSIBILITY_BROWSER_IMPL_H__
+#ifndef CHROME_TEST_ACCESSIBILITY_BROWSER_IMPL_H_
+#define CHROME_TEST_ACCESSIBILITY_BROWSER_IMPL_H_
 
+#include <oleacc.h>
 #include <vector>
 
-#include "tab_impl.h"
+#include "base/linked_ptr.h"
+#include "chrome/test/accessibility/tab_impl.h"
 
 /////////////////////////////////////////////////////////////////////
-// CBrowserImpl
+// BrowserImpl
 // It is a wrapper to Browser specific functionalities.
 // Note:
 // In most of the tasks, keyboard messages are used for now.
@@ -19,9 +21,9 @@
 // And keyboard messages will be tested using ApplyAccelerator().
 /////////////////////////////////////////////////////////////////////
 
-class CBrowserImpl {
+class BrowserImpl {
  public:
-  CBrowserImpl() {
+  BrowserImpl() {
     active_tab_index_ = 0;
   }
 
@@ -37,41 +39,46 @@ class CBrowserImpl {
   // Returns URL of the active tab.
   bool GetActiveTabURL(BSTR* url);
 
-  // Gets active tab's title.
+  // Gets active tab's title. Note that it is the caller's responsibility to
+  // call SysFreeString on [title].
   bool GetActiveTabTitle(BSTR* title);
 
   // Gets active tab index.
   bool GetActiveTabIndex(INT64* index);
 
   // Returns active tab object.
-  bool GetActiveTab(CTabImpl** tab);
+  bool GetActiveTab(TabImpl** tab);
 
   // Returns no. of tabs in tabstrip.
   bool GetTabCount(INT64* count);
 
   bool GetBrowserProcessCount(INT64* count);
 
-  // Reads browser title, which is also a active tab's title
+  // Reads browser title, which is also a active tab's title. Note that it is
+  // the caller's responsibility to call SysFreeString on [title].
   bool GetBrowserTitle(BSTR* title);
 
-  // Adds new tab. Maintain current active tab index.
-  // Returns created tab, if requested.
-  bool AddTab(CTabImpl** tab);
+  // Adds new tab. Maintain current active tab index. Returns created tab, if
+  // requested. Note that it is the caller's responsibility to delete [tab].
+  bool AddTab(TabImpl** tab);
 
-  // Returns tab object of specified index.
-  bool GetTab(const INT64 index, CTabImpl** tab);
+  // Returns tab object of specified index.  Note that it is the caller's
+  // responsibility to delete [tab].
+  bool GetTab(const INT64 index, TabImpl** tab);
 
-  // Activate tab of specified index. Maintain current active tab index.
-  // Returns created tab, if requested.
-  bool GoToTab(const INT64 index, CTabImpl** tab);
+  // Activate tab of specified index. Maintain current active tab index. Returns
+  // created tab, if requested.  Note that it is the caller's responsibility to
+  // delete [tab].
+  bool GoToTab(const INT64 index, TabImpl** tab);
 
-  // Move to next tab. Maintain current active tab index.
-  // Returns created tab, if requested.
-  bool GoToNextTab(CTabImpl** tab);
+  // Move to next tab. Maintain current active tab index. Returns created tab,
+  // if requested. Note that it is the caller's responsibility to delete [tab].
+  bool GoToNextTab(TabImpl** tab);
 
-  // Move to previous tab. Maintain current active tab index.
-  // Returns created tab, if requested.
-  bool GoToPrevTab(CTabImpl** tab);
+  // Move to previous tab. Maintain current active tab index. Returns created
+  // tab, if requested. Note that it is the caller's responsibility to delete
+  // [tab].
+  bool GoToPrevTab(TabImpl** tab);
 
   // Wait for chrome window to be visible. It checks for accessibility object
   // for tabstrip after every 'interval' for the specified 'timeout'.
@@ -91,7 +98,7 @@ class CBrowserImpl {
   // Removed tab from tab collection vector.
   void CloseTabFromCollection(INT64 index);
 
-  // Updates tab collection vector
+  // Updates tab collection vector.
   void UpdateTabCollection(void);
 
   // Removes tab from tab collection vector.
@@ -102,9 +109,8 @@ class CBrowserImpl {
   INT64 active_tab_index_;
 
   // Collection of tab data.
-  std::vector<ChromeTab*> tab_collection_;
+  std::vector<linked_ptr<ChromeTab> > tab_collection_;
 };
 
-
-#endif  // CHROME_TEST_ACCISSIBILITY_BROWSER_IMPL_H__
+#endif  // CHROME_TEST_ACCESSIBILITY_BROWSER_IMPL_H_
 

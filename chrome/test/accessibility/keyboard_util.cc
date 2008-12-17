@@ -9,13 +9,13 @@ void ClickKey(HWND hwnd, WORD key) {
   memset(&input, 0, sizeof(INPUT)*2);
 
   // Press key.
-  input[0].type       = INPUT_KEYBOARD;
-  input[0].ki.wVk     = key;
+  input[0].type = INPUT_KEYBOARD;
+  input[0].ki.wVk = key;
   input[0].ki.dwFlags = 0;
 
   // Release key.
-  input[1].type       = INPUT_KEYBOARD;
-  input[1].ki.wVk     = key;
+  input[1].type = INPUT_KEYBOARD;
+  input[1].ki.wVk = key;
   input[1].ki.dwFlags = KEYEVENTF_KEYUP;
 
   SendInput(2, input, sizeof(INPUT));
@@ -26,23 +26,23 @@ void ClickKey(HWND hwnd, WORD extended_key, WORD key) {
   memset(&input, 0, sizeof(INPUT)*4);
 
   // Press extended key.
-  input[0].type       = INPUT_KEYBOARD;
-  input[0].ki.wVk     = extended_key;
+  input[0].type = INPUT_KEYBOARD;
+  input[0].ki.wVk = extended_key;
   input[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
   // Press key.
-  input[1].type       = INPUT_KEYBOARD;
-  input[1].ki.wVk     = key;
+  input[1].type = INPUT_KEYBOARD;
+  input[1].ki.wVk = key;
   input[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
   // Release key.
-  input[2].type       = INPUT_KEYBOARD;
-  input[2].ki.wVk     = key;
+  input[2].type = INPUT_KEYBOARD;
+  input[2].ki.wVk = key;
   input[2].ki.dwFlags = KEYEVENTF_EXTENDEDKEY|KEYEVENTF_KEYUP;
 
   // Release key.
-  input[3].type       = INPUT_KEYBOARD;
-  input[3].ki.wVk     = extended_key;
+  input[3].type = INPUT_KEYBOARD;
+  input[3].ki.wVk = extended_key;
   input[3].ki.dwFlags = KEYEVENTF_EXTENDEDKEY|KEYEVENTF_KEYUP;
 
   SendInput(4, input, sizeof(INPUT));
@@ -53,23 +53,23 @@ void ClickKey(HWND hwnd, WORD extended_key1, WORD extended_key2, WORD key) {
   memset(&input, 0, sizeof(INPUT)*6);
 
   // Press extended key1.
-  input[0].type       = INPUT_KEYBOARD;
-  input[0].ki.wVk     = extended_key1;
+  input[0].type = INPUT_KEYBOARD;
+  input[0].ki.wVk = extended_key1;
   input[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
   // Press extended key2.
-  input[1].type       = INPUT_KEYBOARD;
-  input[1].ki.wVk     = extended_key2;
+  input[1].type = INPUT_KEYBOARD;
+  input[1].ki.wVk = extended_key2;
   input[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
   // Press key.
-  input[2].type       = INPUT_KEYBOARD;
-  input[2].ki.wVk     = key;
+  input[2].type = INPUT_KEYBOARD;
+  input[2].ki.wVk = key;
   input[2].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
   // Release key.
-  input[3].type       = INPUT_KEYBOARD;
-  input[3].ki.wVk     = key;
+  input[3].type = INPUT_KEYBOARD;
+  input[3].ki.wVk = key;
   input[3].ki.dwFlags = KEYEVENTF_EXTENDEDKEY|KEYEVENTF_KEYUP;
 
   // Release extended key2.
@@ -78,8 +78,8 @@ void ClickKey(HWND hwnd, WORD extended_key1, WORD extended_key2, WORD key) {
   input[4].ki.dwFlags = KEYEVENTF_EXTENDEDKEY|KEYEVENTF_KEYUP;
 
   // Release extended key1.
-  input[5].type       = INPUT_KEYBOARD;
-  input[5].ki.wVk     = extended_key1;
+  input[5].type = INPUT_KEYBOARD;
+  input[5].ki.wVk = extended_key1;
   input[5].ki.dwFlags = KEYEVENTF_EXTENDEDKEY|KEYEVENTF_KEYUP;
 
   SendInput(6, input, sizeof(INPUT));

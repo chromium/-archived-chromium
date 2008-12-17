@@ -2,29 +2,39 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_impl.h"
-#include "tab_impl.h"
-#include "accessibility_util.h"
-#include "keyboard_util.h"
-#include "constants.h"
+#include "chrome/test/accessibility/tab_impl.h"
 
-bool CTabImpl::Close(void) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+#include <oleacc.h>
+
+#include "chrome/test/accessibility/accessibility_util.h"
+#include "chrome/test/accessibility/browser_impl.h"
+#include "chrome/test/accessibility/keyboard_util.h"
+
+
+TabImpl::~TabImpl() {
+  if (tab_) {
+    SysFreeString(tab_->title_);
+    delete tab_;
+  }
+}
+
+bool TabImpl::Close(void) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Activate main window and operate key Ctrl+F4.
-  ActivateWnd(pi_access, hwnd);
+  ActivateWnd(acc_obj, hwnd);
   ClickKey(hwnd, VK_CONTROL, VK_F4);
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
 
   // Update tab information in browser object.
-  my_browser_->CloseTabFromCollection(tab_->index_);
+  browser_->CloseTabFromCollection(tab_->index_);
   return true;
 }
 
-bool CTabImpl::GetTitle(BSTR* title) {
+bool TabImpl::GetTitle(BSTR* title) {
   // Validation.
   if (!title)
     return false;
@@ -36,62 +46,62 @@ bool CTabImpl::GetTitle(BSTR* title) {
   return true;
 }
 
-bool CTabImpl::SetAddressBarText(const BSTR text) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd_addr_bar = GetAddressBarWnd(&pi_access);
-  if (!pi_access || !hwnd_addr_bar)
+bool TabImpl::SetAddressBarText(const BSTR text) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd_addr_bar = GetAddressBarWnd(&acc_obj);
+  if (!acc_obj || !hwnd_addr_bar)
     return false;
 
   // Activate address bar.
-  ActivateWnd(pi_access, hwnd_addr_bar);
+  ActivateWnd(acc_obj, hwnd_addr_bar);
   // Set text to address bar.
   SendMessage(hwnd_addr_bar, WM_SETTEXT, 0, LPARAM(text));
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::NavigateToURL(const BSTR url) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd_addr_bar = GetAddressBarWnd(&pi_access);
+bool TabImpl::NavigateToURL(const BSTR url) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd_addr_bar = GetAddressBarWnd(&acc_obj);
 
-  if (!pi_access || !hwnd_addr_bar)
+  if (!acc_obj || !hwnd_addr_bar)
     return false;
 
   // Activate address bar.
-  ActivateWnd(pi_access, hwnd_addr_bar);
+  ActivateWnd(acc_obj, hwnd_addr_bar);
   // Set text to address bar.
   SendMessage(hwnd_addr_bar, WM_SETTEXT, 0, LPARAM(url));
   // Click Enter. Window is activated above for this.
   ClickKey(hwnd_addr_bar, VK_RETURN);
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::FindInPage(const BSTR find_text) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+bool TabImpl::FindInPage(const BSTR find_text) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Activate main window and operate key 'F3' to invoke Find window.
-  ActivateWnd(pi_access, hwnd);
+  ActivateWnd(acc_obj, hwnd);
   ClickKey(hwnd, VK_F3);
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
 
   // If no text is to be searched, return.
   if (find_text != NULL) {
-    // TODO: Once FindWindow is exported through Accessibility.
+    // TODO(klink): Once FindWindow is exported through Accessibility.
     // Instead of sleep, check if FindWindows exists or not.
     Sleep(50);
 
     // Get Find window.
-    pi_access = NULL;
-    hwnd = GetFindTextWnd(&pi_access);
+    acc_obj = NULL;
+    hwnd = GetFindTextWnd(&acc_obj);
     if (hwnd) {
-      HWND hwnd_find_edit = FindWindowEx(hwnd, 0,
-                                         CHROME_VIEWS_TEXT_FIELD_EDIT, 0);
+      HWND hwnd_find_edit = FindWindowEx(hwnd, 0, CHROME_VIEWS_TEXT_FIELD_EDIT,
+                                         0);
       if (hwnd_find_edit) {
-        ActivateWnd(pi_access, hwnd);
+        ActivateWnd(acc_obj, hwnd);
         ActivateWnd(NULL, hwnd_find_edit);
         // Set text in Find window edit box.
         WCHAR* strTemp =
@@ -99,77 +109,77 @@ bool CTabImpl::FindInPage(const BSTR find_text) {
         wcscpy_s(strTemp, wcslen(find_text), find_text);
         for (size_t i = 0; i < wcslen(strTemp); i++) {
           SendMessage(hwnd_find_edit, WM_KEYDOWN, strTemp[i], 0);
-          SendMessage(hwnd_find_edit, WM_CHAR,  strTemp[i], 0);
-          SendMessage(hwnd_find_edit, WM_KEYUP,  strTemp[i], 0);
+          SendMessage(hwnd_find_edit, WM_CHAR, strTemp[i], 0);
+          SendMessage(hwnd_find_edit, WM_KEYUP, strTemp[i], 0);
         }
       }
     }
   }
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
 
   return true;
 }
 
-bool CTabImpl::Reload(void) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+bool TabImpl::Reload(void) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Operate key F5.
-  ActivateWnd(pi_access, hwnd);
+  ActivateWnd(acc_obj, hwnd);
   ClickKey(hwnd, VK_F5);
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::Duplicate(CTabImpl** tab) {
-  // TODO: Add your implementation code here
+bool TabImpl::Duplicate(TabImpl** tab) {
   return true;
 }
 
-bool CTabImpl::IsAuthDialogVisible() {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+bool TabImpl::IsAuthDialogVisible() {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Activate main window.
-  ActivateWnd(pi_access, hwnd);
-  CHK_RELEASE(pi_access);
+  ActivateWnd(acc_obj, hwnd);
+  CHK_RELEASE(acc_obj);
 
   // Check for Authentication Window.
-  pi_access = NULL;
-  hwnd = GetAuthWnd(&pi_access);
-  if (!hwnd || !pi_access) {
-      CHK_RELEASE(pi_access);
+  acc_obj = NULL;
+  hwnd = GetAuthWnd(&acc_obj);
+  if (!hwnd || !acc_obj) {
+      CHK_RELEASE(acc_obj);
       return false;
-    }
+  }
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::SetAuthDialog(const BSTR user_name, const BSTR password) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+bool TabImpl::SetAuthDialog(const BSTR user_name, const BSTR password) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Activate main window.
-  ActivateWnd(pi_access, hwnd);
-  CHK_RELEASE(pi_access);
+  ActivateWnd(acc_obj, hwnd);
+  CHK_RELEASE(acc_obj);
 
   // Get editbox for user name and password.
-  pi_access = NULL;
-  hwnd = GetAuthWnd(&pi_access);
+  acc_obj = NULL;
+  hwnd = GetAuthWnd(&acc_obj);
   if (!hwnd) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
   // Get handle to password edit box.
   HWND hwnd_auth_pwd = FindWindowEx(hwnd, 0, CHROME_VIEWS_TEXT_FIELD_EDIT, 0);
   if (!hwnd_auth_pwd) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
@@ -177,14 +187,14 @@ bool CTabImpl::SetAuthDialog(const BSTR user_name, const BSTR password) {
   HWND hwnd_auth_name = FindWindowEx(hwnd, hwnd_auth_pwd,
                                      CHROME_VIEWS_TEXT_FIELD_EDIT, 0);
   if (!hwnd_auth_name) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
   // Activate Tab.
   SetActiveWindow(GetParent(hwnd));
   // Activate Authentication window.
-  ActivateWnd(pi_access, hwnd);
+  ActivateWnd(acc_obj, hwnd);
 
   // Activate edit box for name.
   ActivateWnd(NULL, hwnd_auth_name);
@@ -196,8 +206,8 @@ bool CTabImpl::SetAuthDialog(const BSTR user_name, const BSTR password) {
     wcscpy_s(strTemp, wcslen(user_name), user_name);
     for (size_t i = 0; i < wcslen(strTemp); i++) {
       SendMessage(hwnd_auth_name, WM_KEYDOWN, strTemp[i], 0);
-      SendMessage(hwnd_auth_name, WM_CHAR,  strTemp[i], 0);
-      SendMessage(hwnd_auth_name, WM_KEYUP,  strTemp[i], 0);
+      SendMessage(hwnd_auth_name, WM_CHAR, strTemp[i], 0);
+      SendMessage(hwnd_auth_name, WM_KEYUP, strTemp[i], 0);
     }
   }
 
@@ -207,8 +217,8 @@ bool CTabImpl::SetAuthDialog(const BSTR user_name, const BSTR password) {
   // Set password.
   if (password != NULL) {
     // set text
-    WCHAR* strTemp =
-        reinterpret_cast<WCHAR*>(calloc(wcslen(password), sizeof(WCHAR)));
+    WCHAR* strTemp = reinterpret_cast<WCHAR*>(calloc(wcslen(password),
+                                                     sizeof(WCHAR)));
     wcscpy_s(strTemp, wcslen(password), password);
     for (size_t i = 0; i < wcslen(strTemp); i++) {
       SendMessage(hwnd_auth_pwd, WM_KEYDOWN, strTemp[i], 0);
@@ -217,38 +227,39 @@ bool CTabImpl::SetAuthDialog(const BSTR user_name, const BSTR password) {
     }
   }
 
-  CHK_RELEASE(pi_access);
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::CancelAuthDialog(void) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+bool TabImpl::CancelAuthDialog(void) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Activate main window.
-  ActivateWnd(pi_access, hwnd);
-  CHK_RELEASE(pi_access);
+  ActivateWnd(acc_obj, hwnd);
+  CHK_RELEASE(acc_obj);
 
   // Get editbox for user name which is after password.
-  pi_access = NULL;
-  hwnd = GetAuthWnd(&pi_access);
+  acc_obj = NULL;
+  hwnd = GetAuthWnd(&acc_obj);
   if (!hwnd) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
   // Get Cancel button.
-  HWND cancel_button_container =
-      FindWindowEx(hwnd, 0, CHROME_VIEWS_NATIVE_CTRL_CONTNR, 0);
+  HWND cancel_button_container = FindWindowEx(hwnd, 0,
+                                              CHROME_VIEWS_NATIVE_CTRL_CONTNR,
+                                              0);
   if (!cancel_button_container) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
   HWND cancel_button = FindWindowEx(cancel_button_container, 0, STD_BUTTON, 0);
   if (!cancel_button) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
@@ -257,32 +268,34 @@ bool CTabImpl::CancelAuthDialog(void) {
   SetActiveWindow(cancel_button);
   SendMessage(cancel_button, BM_CLICK, 0, 0);
 
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::UseAuthDialog(void) {
-  IAccessible *pi_access = NULL;
-  HWND hwnd = GetChromeBrowserWnd(&pi_access);
-  if (!pi_access || !hwnd)
+bool TabImpl::UseAuthDialog(void) {
+  IAccessible* acc_obj = NULL;
+  HWND hwnd = GetChromeBrowserWnd(&acc_obj);
+  if (!acc_obj || !hwnd)
     return false;
 
   // Activate main window.
-  ActivateWnd(pi_access, hwnd);
-  CHK_RELEASE(pi_access);
+  ActivateWnd(acc_obj, hwnd);
+  CHK_RELEASE(acc_obj);
 
   // Get editbox for user name which is after password.
-  pi_access = NULL;
-  hwnd = GetAuthWnd(&pi_access);
+  acc_obj = NULL;
+  hwnd = GetAuthWnd(&acc_obj);
   if (!hwnd) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
   // Get Ok button.
-  HWND cancel_button_container =
-      FindWindowEx(hwnd, 0, CHROME_VIEWS_NATIVE_CTRL_CONTNR, 0);
+  HWND cancel_button_container = FindWindowEx(hwnd, 0,
+                                              CHROME_VIEWS_NATIVE_CTRL_CONTNR,
+                                              0);
   if (!cancel_button_container) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
@@ -290,12 +303,12 @@ bool CTabImpl::UseAuthDialog(void) {
   HWND ok_button_container = FindWindowEx(hwnd, cancel_button_container,
                                           CHROME_VIEWS_NATIVE_CTRL_CONTNR, 0);
   if (!ok_button_container) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
   HWND ok_button = FindWindowEx(ok_button_container, 0, STD_BUTTON, 0);
   if (!ok_button) {
-    CHK_RELEASE(pi_access);
+    CHK_RELEASE(acc_obj);
     return false;
   }
 
@@ -304,62 +317,50 @@ bool CTabImpl::UseAuthDialog(void) {
   SetActiveWindow(ok_button);
   SendMessage(ok_button, BM_CLICK, 0, 0);
 
+  CHK_RELEASE(acc_obj);
   return true;
 }
 
-bool CTabImpl::Activate(void) {
-  // TODO: Add your implementation code here
+void TabImpl::set_title(BSTR title) {
+  if (!tab_)
+    InitTabData();
+  tab_->title_ = SysAllocString(title);
+}
 
+bool TabImpl::Activate(void) {
   return true;
 }
 
-bool CTabImpl::WaitForTabToBecomeActive(const INT64 interval,
-                                        const INT64 timeout) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::WaitForTabToBecomeActive(const INT64 interval,
+                                       const INT64 timeout) {
   return true;
 }
 
-bool CTabImpl::WaitForTabToGetLoaded(const INT64 interval,
-                                     const INT64 timeout) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::WaitForTabToGetLoaded(const INT64 interval, const INT64 timeout) {
   return true;
 }
 
-bool CTabImpl::IsSSLLockPresent(bool* present) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::IsSSLLockPresent(bool* present) {
   return true;
 }
 
-bool CTabImpl::IsSSLSoftError(bool* soft_err) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::IsSSLSoftError(bool* soft_err) {
   return true;
 }
 
-bool CTabImpl::OpenPageCertificateDialog(void) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::OpenPageCertificateDialog(void) {
   return true;
 }
 
-bool CTabImpl::ClosePageCertificateDialog(void) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::ClosePageCertificateDialog(void) {
   return true;
 }
 
-bool CTabImpl::GoBack(void) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::GoBack(void) {
   return true;
 }
 
-bool CTabImpl::GoForward(void) {
-  // TODO: Add your implementation code here
-
+bool TabImpl::GoForward(void) {
   return true;
 }
 
