@@ -108,7 +108,8 @@ class SdchManager {
     SDCH_CONTENT_ENCODE_FOR_NON_SDCH_REQUEST = 51,
 
     // Dictionary manager issues.
-    DOMAIN_BLACKLIST_INCLUDES_TARGET = 60,
+    PLEASE_IGNORE_THIS_ENUM = 60,  // Erroneous use in Version 1.0 of Chrome.
+    DOMAIN_BLACKLIST_INCLUDES_TARGET = 61,
 
 
     MAX_PROBLEM_CODE  // Used to bound histogram.

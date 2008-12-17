@@ -88,11 +88,11 @@ const bool SdchManager::IsInSupportedDomain(const GURL& url) const {
     return true;
 
   std::string domain = StringToLowerASCII(url.host());
-  bool was_blacklisted(blacklisted_domains_.end() ==
+  bool was_blacklisted(blacklisted_domains_.end() !=
                        blacklisted_domains_.find(domain));
   if (was_blacklisted)
     SdchErrorRecovery(DOMAIN_BLACKLIST_INCLUDES_TARGET);
-  return was_blacklisted;
+  return !was_blacklisted;
 }
 
 bool SdchManager::CanFetchDictionary(const GURL& referring_url,
