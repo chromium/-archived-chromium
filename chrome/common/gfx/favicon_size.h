@@ -5,13 +5,18 @@
 #ifndef CHROME_COMMON_GFX_FAVICON_SIZE_H__
 #define CHROME_COMMON_GFX_FAVICON_SIZE_H__
 
+#include "base/compiler_specific.h"
+
 // Size (along each axis) of the favicon.
 const int kFavIconSize = 16;
 
 // If the width or height is bigger than the favicon size, a new width/height
 // is calculated and returned in width/height that maintains the aspect
 // ratio of the supplied values.
-static void calc_favicon_target_size(int* width, int* height) {
+static void calc_favicon_target_size(int* width, int* height) ALLOW_UNUSED;
+
+// static
+void calc_favicon_target_size(int* width, int* height) {
   if (*width > kFavIconSize || *height > kFavIconSize) {
     // Too big, resize it maintaining the aspect ratio.
     float aspect_ratio = static_cast<float>(*width) /

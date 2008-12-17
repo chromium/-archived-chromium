@@ -61,7 +61,7 @@ class CertStore : public NotificationObserver {
   static CertStore* instance_;
 
   typedef std::multimap<int, int> IDMap;
-  typedef std::map<int, scoped_refptr<net::X509Certificate>> CertMap;
+  typedef std::map<int, scoped_refptr<net::X509Certificate> > CertMap;
   typedef std::map<net::X509Certificate*, int, net::X509Certificate::LessThan>
       ReverseCertMap;
 

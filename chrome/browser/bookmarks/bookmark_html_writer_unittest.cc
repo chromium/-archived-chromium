@@ -109,7 +109,7 @@ TEST_F(BookmarkHTMLWriterTest, Test) {
                                         NULL);
 
   // Verify we got back what we wrote.
-  ASSERT_EQ(6, parsed_bookmarks.size());
+  ASSERT_EQ(6U, parsed_bookmarks.size());
   AssertBookmarkEntryEquals(parsed_bookmarks[0], false, url1, url1_title, t1,
                             L"Bookmark Bar", f1_title, std::wstring());
   AssertBookmarkEntryEquals(parsed_bookmarks[1], false, url2, url2_title, t2,

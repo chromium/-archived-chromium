@@ -67,8 +67,10 @@
 
 
 #if defined(COMPILER_GCC)
+#define ALLOW_UNUSED __attribute__((unused))
 #define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #else  // Not GCC
+#define ALLOW_UNUSED
 #define WARN_UNUSED_RESULT
 #endif
 

@@ -3,9 +3,10 @@
 // found in the LICENSE file.
 
 #include <stdlib.h>
-#include <windows.h>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -95,7 +96,7 @@ TEST(URLFixerUpperTest, SegmentURL) {
   std::wstring result;
   url_parse::Parsed parts;
 
-  for (int i = 0; i < arraysize(segment_cases); ++i) {
+  for (size_t i = 0; i < arraysize(segment_cases); ++i) {
     segment_case value = segment_cases[i];
     result = URLFixerUpper::SegmentURL(value.input, &parts);
     EXPECT_EQ(value.result, result);
@@ -118,13 +119,12 @@ TEST(URLFixerUpperTest, SegmentURL) {
 static bool MakeTempFile(const std::wstring& dir,
                          const std::wstring& file_name,
                          std::wstring* full_path) {
-  *full_path = dir + L"\\" + file_name;
-
-  HANDLE hfile = CreateFile(full_path->c_str(), GENERIC_READ | GENERIC_WRITE,
-                            0, NULL, CREATE_ALWAYS, 0, NULL);
-  if (hfile == NULL || hfile == INVALID_HANDLE_VALUE)
+  FilePath dir_path = FilePath::FromWStringHack(dir);
+  FilePath file_name_path = FilePath::FromWStringHack(file_name);
+  FilePath path = dir_path.Append(file_name_path.value());
+  if (!file_util::CreateTemporaryFileName(&path))
     return false;
-  CloseHandle(hfile);
+  *full_path = path.ToWStringHack();
   return true;
 }
 
@@ -139,7 +139,7 @@ static bool IsMatchingFileURL(const std::wstring& url,
     return false; // contains backslashes
 
   std::wstring derived_path;
-  net::FileURLToFilePath(GURL(url), &derived_path);
+  net::FileURLToFilePath(GURL(WideToUTF8(url)), &derived_path);
   return (derived_path.length() == full_file_path.length()) &&
       std::equal(derived_path.begin(), derived_path.end(),
                  full_file_path.begin(), CaseInsensitiveCompare<wchar_t>());
@@ -178,7 +178,7 @@ struct fixup_case {
 TEST(URLFixerUpperTest, FixupURL) {
   std::wstring output;
 
-  for (int i = 0; i < arraysize(fixup_cases); ++i) {
+  for (size_t i = 0; i < arraysize(fixup_cases); ++i) {
     fixup_case value = fixup_cases[i];
     output = URLFixerUpper::FixupURL(value.input, value.desired_tld);
     EXPECT_EQ(value.output, output);
@@ -204,7 +204,7 @@ TEST(URLFixerUpperTest, FixupURL) {
     {L"google:123", L"com", L"http://www.google.com:123/"},
     {L"http://google:123", L"com", L"http://www.google.com:123/"},
   };
-  for (int i = 0; i < arraysize(tld_cases); ++i) {
+  for (size_t i = 0; i < arraysize(tld_cases); ++i) {
     fixup_case value = tld_cases[i];
     output = URLFixerUpper::FixupURL(value.input, value.desired_tld);
     EXPECT_EQ(value.output, output);
@@ -260,13 +260,13 @@ TEST(URLFixerUpperTest, FixupFile) {
     //   {L"file://server/folder/file", L"", L"file://server/folder/file"},
     //   {L"file:/\\/server\\folder/file", L"", L"file://server/folder/file"},
   };
-  for (int i = 0; i < arraysize(file_cases); i++) {
+  for (size_t i = 0; i < arraysize(file_cases); i++) {
     fixedup = URLFixerUpper::FixupURL(file_cases[i].input,
                                       file_cases[i].desired_tld);
     EXPECT_EQ(file_cases[i].output, fixedup);
   }
 
-  EXPECT_TRUE(DeleteFile(original.c_str()));
+  EXPECT_TRUE(file_util::Delete(original, false));
 }
 
 TEST(URLFixerUpperTest, FixupRelativeFile) {
@@ -277,7 +277,7 @@ TEST(URLFixerUpperTest, FixupRelativeFile) {
 
   // make sure we pass through good URLs
   std::wstring fixedup;
-    for (int i = 0; i < arraysize(fixup_cases); ++i) {
+  for (size_t i = 0; i < arraysize(fixup_cases); ++i) {
     fixup_case value = fixup_cases[i];
     fixedup = URLFixerUpper::FixupRelativeFile(dir, value.input);
     EXPECT_EQ(value.output, fixedup);
@@ -287,7 +287,7 @@ TEST(URLFixerUpperTest, FixupRelativeFile) {
   // are no backslashes
   fixedup = URLFixerUpper::FixupRelativeFile(dir, file_part);
   EXPECT_PRED2(IsMatchingFileURL, fixedup, full_path);
-  EXPECT_TRUE(DeleteFile(full_path.c_str()));
+  EXPECT_TRUE(file_util::Delete(full_path, false));
 
   // create a filename we know doesn't exist and make sure it doesn't get
   // fixed up to a file URL
@@ -301,7 +301,7 @@ TEST(URLFixerUpperTest, FixupRelativeFile) {
   std::wstring sub_dir(L"url fixer-upper dir");
   std::wstring sub_file(L"url fixer-upper existing file.txt");
   std::wstring new_dir = dir + L"\\" + sub_dir;
-  CreateDirectory(new_dir.c_str(), NULL);
+  ASSERT_TRUE(file_util::CreateDirectory(new_dir));
   ASSERT_TRUE(MakeTempFile(new_dir, sub_file, &full_path));
 
   // test file in the subdir
@@ -322,7 +322,6 @@ TEST(URLFixerUpperTest, FixupRelativeFile) {
   EXPECT_PRED2(IsMatchingFileURL, fixedup, full_path);
 
   // done with the subdir
-  EXPECT_TRUE(DeleteFile(full_path.c_str()));
-  EXPECT_TRUE(RemoveDirectory(new_dir.c_str()));
+  EXPECT_TRUE(file_util::Delete(new_dir, true));
 }
 
