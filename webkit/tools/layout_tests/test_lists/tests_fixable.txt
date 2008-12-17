@@ -1113,6 +1113,8 @@ LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
+// Caret may be off, but it may just need rebaselining.
+WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
@@ -1272,6 +1274,7 @@ LayoutTests/transitions/transition-drt-api-delay.html = TIMEOUT
 LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT
 
 // MERGE 38653:38729: Expectations changed upstream
+WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
 LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
