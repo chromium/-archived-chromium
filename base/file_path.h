@@ -70,6 +70,11 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 
+#if defined(COMPILER_GCC)
+#include <ext/hash_fun.h>
+#include <tr1/functional>
+#endif
+
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid testing.  These #defines are
 // here so that the same setting can be used in both the implementation and
@@ -194,5 +199,19 @@ class FilePath {
 #elif defined(OS_WIN)
 #define FILE_PATH_LITERAL(x) L ## x
 #endif  // OS_WIN
+
+#if defined(COMPILER_GCC)
+// Implement hash function so that we can use FilePaths in hashsets and maps.
+namespace __gnu_cxx {
+
+template<>
+struct hash<FilePath> {
+  size_t operator()(const FilePath& f) const {
+    return std::tr1::hash<FilePath::StringType>()(f.value());
+  }
+};
+
+}  // namespace __gnu_cxx
+#endif  // defined(COMPILER_GCC)
 
 #endif  // BASE_FILE_PATH_H_
