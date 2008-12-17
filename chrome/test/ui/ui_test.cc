@@ -570,6 +570,11 @@ std::wstring UITest::GetDownloadDirectory() {
   return download_directory;
 }
 
+void UITest::CloseBrowserAsync(BrowserProxy* browser) const {
+  server_->Send(
+      new AutomationMsg_CloseBrowserRequest(0, browser->handle()));
+}
+
 bool UITest::CloseBrowser(BrowserProxy* browser,
                           bool* application_closed) const {
   DCHECK(application_closed);

@@ -142,6 +142,11 @@ class UITest : public testing::Test {
   bool WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
                                           bool wait_for_open);
 
+  // Sends the request to close the browser without blocking.
+  // This is so we can interact with dialogs opened on browser close,
+  // e.g. the beforeunload confirm dialog.
+  void CloseBrowserAsync(BrowserProxy* browser) const;
+
   // Closes the specified browser.  Returns true if the browser was closed.
   // This call is blocking.  |application_closed| is set to true if this was
   // the last browser window (and therefore as a result of it closing the
