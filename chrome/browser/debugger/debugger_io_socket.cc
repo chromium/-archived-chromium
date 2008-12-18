@@ -6,13 +6,8 @@
 
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "chrome/browser/browser.h"
-#include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/render_process_host.h"
-#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
-#include "chrome/common/resource_bundle.h"
 #include "v8/include/v8.h"
 
 ////////////////////////////////////////////////

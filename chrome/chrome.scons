@@ -81,7 +81,6 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
 # TODO(port)
 if env['PLATFORM'] != 'win32':
   remove_files = [
-      'browser/debugger/debugger.scons',
       'installer/mini_installer/installer_unittests.scons',
       'installer/mini_installer/mini_installer.scons',
       'installer/setup/setup.scons',
