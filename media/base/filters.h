@@ -34,8 +34,8 @@ template <class BufferType> class AssignableInterface;
 class BufferInterface;
 class DecoderInterface;
 class DemuxerStreamInterface;
+class FilterHostInterface;
 class MediaFormat;
-class SchedulerFilterInterface;
 class VideoFrameInterface;
 class WritableBufferInterface;
 
@@ -54,9 +54,9 @@ enum FilterType {
 
 
 class MediaFilterInterface :
-  public base::RefCountedThreadSafe<MediaFilterInterface> {
+    public base::RefCountedThreadSafe<MediaFilterInterface> {
  public:
-  virtual void SetScheduler(SchedulerFilterInterface* scheduler) = 0;
+  virtual void SetFilterHost(FilterHostInterface* filter_host) = 0;
 
  protected:
   friend class base::RefCountedThreadSafe<MediaFilterInterface>;
