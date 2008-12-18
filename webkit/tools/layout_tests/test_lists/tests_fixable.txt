@@ -586,6 +586,7 @@ SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 LINUX WIN : LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
 // http://crbug.com/3244 : SVG masks aren't quite working yet.
+// Might also be related to https://bugs.webkit.org/show_bug.cgi?id=21910
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
@@ -770,9 +771,6 @@ chrome/fast/forms/basic-textareas-quirks.html = FAIL
 
 // This test seems to fail on the builders but not locally.
 LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
-
-// TODO(eroman): passed for me locally, need to see why failed on buildbot...
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 
 // Post-merge Debug only Crashes
 // This test also produces an unending stream of blank lines on stderr,
@@ -1128,14 +1126,6 @@ LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // Caret may be off, but it may just need rebaselining.
 WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
-WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-// Linux pixeltest failure: We fail to draw anything
-LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
-// Linux pixeltest failure: We fail to draw anything
-LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
 WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LINUX WIN : LayoutTests/fast/events/mouse-click-events.html = FAIL
 WIN : LayoutTests/fast/flexbox/009.html = FAIL
@@ -1159,12 +1149,6 @@ LINUX WIN : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 // Linux pixeltest failure: Looks like we're screwing up the scollbar
 LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
 LayoutTests/fast/html/keygen.html = FAIL
-// Linux pixeltest failure: Box is the wrong colour
-LINUX WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
-// Linux pixeltest failure: Box is the wrong colour
-LINUX WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
-// Linux pixeltest failure: Box is the wrong colour
-LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 WIN : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
@@ -1832,7 +1816,6 @@ LayoutTests/wml/go-task-animation.html = FAIL
 LayoutTests/animations/change-keyframes-name.html = TIMEOUT
 LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
-LayoutTests/fast/backgrounds/svg-as-background-5.html = CRASH FAIL PASS
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
@@ -1856,3 +1839,17 @@ LayoutTests/fast/forms/select-baseline.html = FAIL
 
 // Merge 39309:39335 New Test
 LayoutTests/fast/dom/Window/window-custom-prototype.html = FAIL
+
+// Background SVGs fail upstream but were rebaselined to pass (r38335)
+// https://bugs.webkit.org/show_bug.cgi?id=21910
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
+LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
+LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
+LINUX WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
+LINUX WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
+LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
