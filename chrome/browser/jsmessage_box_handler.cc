@@ -152,6 +152,12 @@ views::View* JavascriptMessageBoxHandler::GetContentsView() {
   return message_box_view_;
 }
 
+views::View* JavascriptMessageBoxHandler::GetInitiallyFocusedView() const {
+  if (message_box_view_->text_box())
+    return message_box_view_->text_box();
+  return views::AppModalDialogDelegate::GetInitiallyFocusedView();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // JavascriptMessageBoxHandler, private:
 
