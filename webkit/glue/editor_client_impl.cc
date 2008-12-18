@@ -575,7 +575,7 @@ const char* EditorClientImpl::interpretKeyEvent(
 }
 
 bool EditorClientImpl::handleEditingKeyboardEvent(
-  WebCore::KeyboardEvent* evt) {
+    WebCore::KeyboardEvent* evt) {
   const WebCore::PlatformKeyboardEvent* keyEvent = evt->keyEvent();
   // do not treat this as text input if it's a system key event
   if (!keyEvent || keyEvent->isSystemKey())
@@ -627,6 +627,12 @@ bool EditorClientImpl::handleEditingKeyboardEvent(
 //
 
 void EditorClientImpl::handleKeyboardEvent(WebCore::KeyboardEvent* evt) {
+  if (evt->keyCode() == WebCore::VKEY_DOWN ||
+      evt->keyCode() == WebCore::VKEY_UP) {
+    DCHECK(evt->target()->toNode());
+    ShowAutofillForNode(evt->target()->toNode());
+  }
+
   if (handleEditingKeyboardEvent(evt))
     evt->setDefaultHandled();
 }
@@ -651,13 +657,27 @@ void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
 
 void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
   DCHECK(element->hasLocalName(WebCore::HTMLNames::inputTag));
+  Autofill(static_cast<WebCore::HTMLInputElement*>(element), false);
+}
 
+void EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
+  if (node->nodeType() == WebCore::Node::ELEMENT_NODE) {
+    WebCore::Element* element = static_cast<WebCore::Element*>(node);
+    if (element->hasLocalName(WebCore::HTMLNames::inputTag)) {
+      WebCore::HTMLInputElement* input_element =
+          static_cast<WebCore::HTMLInputElement*>(element);
+      if (input_element->value().isEmpty())
+        Autofill(input_element, true);
+    }
+  }
+}
+
+void EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
+                                bool autofill_on_empty_value) {
   // Cancel any pending DoAutofill calls.
   autofill_factory_.RevokeAll();
 
   // Let's try to trigger autofill for that field, if applicable.
-  WebCore::HTMLInputElement* input_element =
-      static_cast<WebCore::HTMLInputElement*>(element);
   if (!input_element->isEnabled() || !input_element->isTextField() ||
       input_element->isPasswordField() || !input_element->autoComplete()) {
     return;
@@ -679,10 +699,12 @@ void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
       FROM_HERE,
       autofill_factory_.NewRunnableMethod(&EditorClientImpl::DoAutofill,
                                           input_element,
+                                          autofill_on_empty_value,
                                           backspace_pressed_));
 }
 
 void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
+                                  bool autofill_on_empty_value,
                                   bool backspace) {
   std::wstring value = webkit_glue::StringToStdWString(input_element->value());
 
@@ -690,7 +712,7 @@ void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
   bool caret_at_end =
       input_element->selectionStart() == input_element->selectionEnd() &&
       input_element->selectionEnd() == static_cast<int>(value.length());
-  if (value.empty() || !caret_at_end) {
+  if ((!autofill_on_empty_value && value.empty()) || !caret_at_end) {
     web_view_->HideAutoCompletePopup();
     return;
   }

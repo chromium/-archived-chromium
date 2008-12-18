@@ -119,11 +119,28 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual std::wstring Describe(WebCore::EAffinity affinity);
   virtual std::wstring Describe(WebCore::CSSStyleDeclaration* style);
 
+  // Shows the autofill popup for |node| if it is an HTMLInputElement and it is
+  // empty.  This is called when you press the up or down arrow in a text field
+  // or when clicking an already focused text-field.
+  virtual void ShowAutofillForNode(WebCore::Node* node);
+
  private:
   void ModifySelection(WebCore::Frame* frame,
                        WebCore::KeyboardEvent* event);
 
-  void DoAutofill(WebCore::HTMLInputElement* input_element, bool backspace);
+  // Popups an autofill menu for |input_element| is applicable.
+  // |autofill_on_empty_value| indicates whether the autofill should be shown
+  // when the text-field is empty.
+  void Autofill(WebCore::HTMLInputElement* input_element,
+                bool autofill_on_empty_value);
+
+  // This method is invoked later by Autofill() as when Autofill() is invoked
+  // (from one of the EditorClient callback) the carret position is not
+  // reflecting the last text change yet and we need it to decide whether or not
+  // to show the autofill popup.
+  void DoAutofill(WebCore::HTMLInputElement* input_element,
+                  bool autofill_on_empty_value,
+                  bool backspace);
 
  protected:
   WebViewImpl* web_view_;

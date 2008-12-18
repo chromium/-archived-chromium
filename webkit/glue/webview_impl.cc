@@ -364,8 +364,22 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
     return;
 
   last_mouse_down_point_ = gfx::Point(event.x, event.y);
+  // We need to remember who has focus, as if the user left-clicks an already
+  // focused text-field, we may want to show the auto-fill popup.
+  RefPtr<Node> focused_node;
+  if (event.button == WebMouseEvent::BUTTON_LEFT)
+    focused_node = GetFocusedNode();
+
   main_frame()->frame()->eventHandler()->handleMousePressEvent(
       MakePlatformMouseEvent(main_frame()->frameview(), event));
+
+  if (focused_node.get() && focused_node == GetFocusedNode()) {
+    // Already focused node was clicked, ShowAutofillForNode will determine
+    // whether to show the autofill (typically, if the node is a text-field and
+    // is empty).
+    static_cast<EditorClientImpl*>(page_->editorClient())->
+        ShowAutofillForNode(focused_node.get());
+  }
 }
 
 void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
@@ -1616,4 +1630,16 @@ void WebViewImpl::HideAutoCompletePopup() {
     autocomplete_popup_.clear();
     autocomplete_popup_client_.clear();
   }
+}
+
+Node* WebViewImpl::GetFocusedNode() {
+  Frame* frame = page_->focusController()->focusedFrame();
+  if (!frame)
+    return NULL;
+
+  Document* document = frame->document();
+  if (!document)
+    return NULL;
+
+  return document->focusedNode();
 }

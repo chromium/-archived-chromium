@@ -255,6 +255,9 @@ class WebViewImpl : public WebView {
   // This is invoked after the download is completed (or fails).
   void DeleteImageResourceFetcher(ImageResourceFetcher* fetcher);
 
+  // Returns the currently focused Node or NULL if no node has focus.
+  WebCore::Node* GetFocusedNode();
+
   // ImageResourceFetchers schedule via DownloadImage.
   std::set<ImageResourceFetcher*> image_fetchers_;
 
