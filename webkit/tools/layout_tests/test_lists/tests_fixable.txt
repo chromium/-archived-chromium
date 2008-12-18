@@ -1790,7 +1790,7 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = CRASH
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
 LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
@@ -1800,6 +1800,3 @@ LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 
 // Not quite sure what's going on here.  Getting the builder green.
 LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
-
-// Text output is all wrong.
-LINUX : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
