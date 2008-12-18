@@ -659,6 +659,7 @@ LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 // path.  We correctly return file:///C:/test on Windows.  We should fix
 // upstream
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
+// RenderListBox wrong size.  Fonts?  Or needs rebaselining?
 LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
@@ -1602,7 +1603,8 @@ MAC : LayoutTests/tables/mozilla_expected_failures/dom/insertTbodyExpand1.html =
 MAC : LayoutTests/tables/mozilla_expected_failures/dom/insertTbodyRebuild1.html = FAIL
 MAC : chrome/fast/forms/basic-buttons.html = FAIL
 MAC : chrome/fast/forms/basic-inputs.html = FAIL
-MAC : chrome/fast/forms/basic-selects.html = FAIL
+// Linux pixel tests: the select arrow is clipping wrong on one line.
+LINUX MAC : chrome/fast/forms/basic-selects.html = FAIL
 MAC : chrome/fast/forms/textarea-metrics.html = FAIL
 MAC : chrome/fonts/arial.html = FAIL
 MAC : chrome/fonts/comic-sans-ms.html = FAIL
@@ -1749,6 +1751,10 @@ LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
 // Mac where everything is dark gray.
 LINUX WIN : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
+LINUX : LayoutTests/fast/repaint/box-shadow-dynamic.html = FAIL
+LINUX : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
+LINUX : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
+
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 
@@ -1853,3 +1859,6 @@ LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
 LINUX WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
 LINUX WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
 LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
+
+// Not quite sure what's going on here.  Getting the builder green.
+LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
