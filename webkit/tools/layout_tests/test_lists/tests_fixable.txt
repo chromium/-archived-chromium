@@ -785,7 +785,7 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.
 DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
-LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
+WIN : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
 
 // Crash in DEBUG only
 DEBUG LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
@@ -979,6 +979,8 @@ LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
 LINUX MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/get-url.html = TIMEOUT
+// Skip because we throw an exception before we get to dumpAsText.
+LINUX MAC SKIP : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/post-url-file.html = CRASH TIMEOUT
@@ -1004,7 +1006,8 @@ LINUX MAC : LayoutTests/plugins/plugin-javascript-access.html = FAIL
 LINUX MAC : LayoutTests/plugins/plugin-remove-subframe.html = FAIL
 LINUX MAC : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
 LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
-LINUX MAC : chrome/plugins/get-url-with-blank-target.html = FAIL
+// Skip because we throw an exception before we get to dumpAsText.
+SKIP LINUX MAC : chrome/plugins/get-url-with-blank-target.html = FAIL
 LINUX MAC : chrome/plugins/multiple-plugins.html = FAIL
 LINUX MAC : chrome/plugins/nested-plugin-objects.html = FAIL
 LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
