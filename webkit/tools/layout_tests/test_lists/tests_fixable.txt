@@ -415,7 +415,6 @@ LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
-LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-02-t.svg = FAIL   // 1 numbers differ, by an absolute total of 10.00
 LINUX WIN : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
 LINUX WIN : LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
 LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
@@ -675,8 +674,6 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Linux pixeltest failure: background is all blue instead of white.
 WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
@@ -1065,13 +1062,6 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-01-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-02-t.svg = FAIL
