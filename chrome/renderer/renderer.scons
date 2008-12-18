@@ -44,8 +44,8 @@ input_files = [
     'renderer_glue.cc',
     'renderer_main.cc',
     'visitedlink_slave.cc',
+    'webmediaplayer_delegate_impl.cc',
     'webplugin_delegate_proxy.cc',
-
     'automation/dom_automation_controller.cc',
 
     'net/render_dns_master.cc',

@@ -208,6 +208,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
       const std::string& mime_type,
       const std::string& clsid,
       std::string* actual_mime_type);
+  virtual webkit_glue::WebMediaPlayerDelegate* CreateMediaPlayerDelegate();
   virtual void OnMissingPluginStatus(WebPluginDelegate* delegate, int status);
   virtual void OpenURL(WebView* webview, const GURL& url,
                        const GURL& referrer,

@@ -32,6 +32,7 @@
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/renderer_resources.h"
 #include "chrome/renderer/visitedlink_slave.h"
+#include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
 #include "chrome/views/message_box_view.h"
 #include "net/base/escape.h"
@@ -1865,6 +1866,10 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   plugin_delegates_.push_back(proxy);
 
   return proxy;
+}
+
+webkit_glue::WebMediaPlayerDelegate* RenderView::CreateMediaPlayerDelegate() {
+  return new WebMediaPlayerDelegateImpl();
 }
 
 void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,

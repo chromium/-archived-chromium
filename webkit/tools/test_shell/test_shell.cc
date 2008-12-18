@@ -33,6 +33,7 @@
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
+#include "webkit/tools/test_shell/test_shell_switches.h"
 
 #if defined(OS_MACOSX)
 #include "webkit/glue/bogus_webkit_strings.h"
@@ -441,6 +442,10 @@ void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
 //-----------------------------------------------------------------------------
 
 namespace webkit_glue {
+
+bool IsMediaPlayerAvailable() {
+  return CommandLine().HasSwitch(test_shell::kEnableVideo);
+}
 
 void PrefetchDns(const std::string& hostname) {}
 

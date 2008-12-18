@@ -67,5 +67,8 @@ const wchar_t kAllowScriptsToCloseWindows[] = L"allow-scripts-to-close-windows";
 extern const wchar_t kCheckLayoutTestSystemDeps[] =
     L"check-layout-test-sys-deps";
 
+// Enable the media player by having this switch.
+extern const wchar_t kEnableVideo[] = L"enable-video";
+
 }  // namespace test_shell
 

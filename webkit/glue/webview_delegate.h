@@ -37,8 +37,12 @@
 #include "webkit/glue/window_open_disposition.h"
 
 namespace gfx {
-  class Point;
-  class Rect;
+class Point;
+class Rect;
+}
+
+namespace webkit_glue {
+class WebMediaPlayerDelegate;
 }
 
 struct PasswordForm;
@@ -49,6 +53,7 @@ class SkBitmap;
 class WebError;
 class WebFrame;
 class WebHistoryItem;
+class WebMediaPlayerDelegate;
 class WebPluginDelegate;
 class WebRequest;
 class WebResponse;
@@ -125,6 +130,11 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
       const std::string& mime_type,
       const std::string& clsid,
       std::string* actual_mime_type) {
+    return NULL;
+  }
+
+  // Called when a WebMediaPlayerDelegate is needed.
+  virtual webkit_glue::WebMediaPlayerDelegate* CreateMediaPlayerDelegate() {
     return NULL;
   }
 

@@ -9,6 +9,10 @@
 
 #include "MediaPlayer.h"
 
+namespace webkit_glue {
+class WebMediaPlayerDelegate;
+}
+
 namespace WebCore {
 
     class MediaPlayerPrivate : public Noncopyable {
@@ -50,20 +54,25 @@ namespace WebCore {
         void setVisible(bool);
         void setRect(const IntRect&);
 
-        void loadStateChanged();
-        void didEnd();
-
         void paint(GraphicsContext*, const IntRect&);
 
         static void getSupportedTypes(HashSet<String>& types);
         static bool isAvailable();
 
+        // Public methods to be called by WebMediaPlayer
+        FrameView* frameView();
+        void networkStateChanged();
+        void readyStateChanged();
+        void timeChanged();
+        void volumeChanged();
+        void repaint();
+
     private:
         MediaPlayer* m_player;
-        MediaPlayer::NetworkState m_networkState;
-        MediaPlayer::ReadyState m_readyState;
+        // TODO(hclam): MediaPlayerPrivateChromium should not know
+        // WebMediaPlayerDelegate, will need to get rid of this later.
+        webkit_glue::WebMediaPlayerDelegate* m_delegate;
     };
-
 }
 
 #endif

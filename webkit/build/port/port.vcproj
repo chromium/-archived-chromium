@@ -1143,10 +1143,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\chromium\MediaPlayerPrivateChromium.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\port\platform\graphics\chromium\MediaPlayerPrivateChromium.h"
 						>
 					</File>

@@ -127,6 +127,10 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image);
 //-----------------------------------------------------------------------------
 // Functions implemented by the embedder, called by WebKit:
 
+// This function is called from WebCore::MediaPlayerPrivate, 
+// Returns true if media player is available and can be created.
+bool IsMediaPlayerAvailable();
+
 // This function is called to request a prefetch of the DNS resolution for the
 // provided hostname.
 void PrefetchDns(const std::string& hostname);

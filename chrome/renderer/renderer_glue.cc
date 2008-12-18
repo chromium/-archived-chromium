@@ -8,8 +8,10 @@
 #include <wininet.h>
 
 #include "base/clipboard.h"
+#include "base/command_line.h"
 #include "base/scoped_clipboard_writer.h"
 #include "chrome/renderer/net/render_dns_master.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/render_view.h"
@@ -132,6 +134,10 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 }
 
 namespace webkit_glue {
+
+bool IsMediaPlayerAvailable() {
+  return CommandLine().HasSwitch(switches::kEnableVideo);
+}
 
 void PrefetchDns(const std::string& hostname) {
   if (!hostname.empty())

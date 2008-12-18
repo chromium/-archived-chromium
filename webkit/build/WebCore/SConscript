@@ -438,7 +438,6 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/Image.cpp',
     '$WEBCORE_DIR/platform/graphics/IntRect.cpp',
     '$WEBCORE_DIR/platform/graphics/MediaPlayer.cpp',
-    '$PORT_DIR/platform/graphics/chromium/MediaPlayerPrivateChromium.cpp',
     '$WEBCORE_DIR/platform/graphics/Path.cpp',
     '$WEBCORE_DIR/platform/graphics/PathTraversalState.cpp',
     '$WEBCORE_DIR/platform/graphics/Pattern.cpp',

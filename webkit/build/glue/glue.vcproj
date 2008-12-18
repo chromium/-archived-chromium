@@ -193,6 +193,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\webmediaplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\webmediaplayer_delegate.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\webplugin.h"
 				>
 			</File>
@@ -441,6 +449,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\media_player_private_impl.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\multipart_response_delegate.cc"
 				>
 			</File>
@@ -598,6 +610,14 @@
 			</File>
 			<File
 				RelativePath="..\..\glue\webkit_glue_win.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\webmediaplayer_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\webmediaplayer_impl.h"
 				>
 			</File>
 			<File

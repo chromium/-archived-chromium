@@ -294,6 +294,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\webmediaplayer_delegate_impl.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\webmediaplayer_delegate_impl.h"
+			>
+		</File>
+		<File
 			RelativePath=".\webplugin_delegate_proxy.cc"
 			>
 		</File>

@@ -279,6 +279,7 @@ bool RenderProcessHost::Init() {
     switches::kUseLowFragHeapCrt,
     switches::kGearsInRenderer,
     switches::kEnableGreasemonkey,
+    switches::kEnableVideo,
   };
 
   for (int i = 0; i < arraysize(switch_names); ++i) {
