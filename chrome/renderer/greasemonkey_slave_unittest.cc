@@ -36,7 +36,7 @@ TEST(GreasemonkeySlaveTest, Parse1) {
 
   GreasemonkeyScript script("foo");
   script.Parse(text);
-  EXPECT_EQ(3, script.include_patterns_.size());
+  EXPECT_EQ(3U, script.include_patterns_.size());
   EXPECT_EQ(text, script.GetBody());
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com/foo")));
@@ -50,7 +50,7 @@ TEST(GreasemonkeySlaveTest, Parse2) {
 
   GreasemonkeyScript script("foo");
   script.Parse(text);
-  EXPECT_EQ(1, script.include_patterns_.size());
+  EXPECT_EQ(1U, script.include_patterns_.size());
   EXPECT_EQ(text, script.GetBody());
   EXPECT_TRUE(script.MatchesUrl(GURL("foo")));
   EXPECT_TRUE(script.MatchesUrl(GURL("bar")));
@@ -64,7 +64,7 @@ TEST(GreasemonkeySlaveTest, Parse3) {
 
   GreasemonkeyScript script("foo");
   script.Parse(text);
-  EXPECT_EQ(1, script.include_patterns_.size());
+  EXPECT_EQ(1U, script.include_patterns_.size());
   EXPECT_EQ(text, script.GetBody());
   EXPECT_TRUE(script.MatchesUrl(GURL("http://foo.com/bar")));
   EXPECT_FALSE(script.MatchesUrl(GURL("http://baz.org")));

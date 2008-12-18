@@ -189,6 +189,9 @@ struct ViewHostMsg_PaintRect_Flags {
   }
 };
 
+#if defined(OS_WIN)
+// TODO(port): Make these structs portable.
+
 struct ViewHostMsg_PaintRect_Params {
   // The bitmap to be painted into the rect given by bitmap_rect.  Valid only
   // in the context of the renderer process.
@@ -244,6 +247,7 @@ struct ViewHostMsg_ScrollRect_Params {
   // New window locations for plugin child windows.
   std::vector<WebPluginGeometry> plugin_window_moves;
 };
+#endif  // defined(OS_WIN)
 
 // Parameters structure for ViewMsg_UploadFile.
 struct ViewMsg_UploadFile_Params {
@@ -973,6 +977,9 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
   }
 };
 
+#if defined(OS_WIN)
+// TODO(port): Make these messages portable.
+
 // Traits for ViewHostMsg_PaintRect_Params structure to pack/unpack.
 template <>
 struct ParamTraits<ViewHostMsg_PaintRect_Params> {
@@ -1081,6 +1088,7 @@ struct ParamTraits<WebPluginGeometry> {
     l->append(L")");
   }
 };
+#endif  // defined(OS_WIN)
 
 // Traits for ViewMsg_GetPlugins_Reply structure to pack/unpack.
 template <>
@@ -1388,7 +1396,7 @@ struct ParamTraits<URLRequestStatus> {
 };
 
 template <>
-struct ParamTraits<scoped_refptr<net::HttpResponseHeaders>> {
+struct ParamTraits<scoped_refptr<net::HttpResponseHeaders> > {
   typedef scoped_refptr<net::HttpResponseHeaders> param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.get() != NULL);

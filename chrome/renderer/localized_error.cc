@@ -103,7 +103,7 @@ void GetLocalizedErrorValues(const WebError& error,
     SUGGEST_NONE,
   };
   int error_code = error.GetErrorCode();
-  for (int i = 0; i < arraysize(net_error_options); ++i) {
+  for (size_t i = 0; i < arraysize(net_error_options); ++i) {
     if (net_error_options[i].error_code == error_code) {
       memcpy(&options, &net_error_options[i], sizeof(WebErrorNetErrorMap));
       break;

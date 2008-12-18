@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "build/build_config.h"
+
 #include "base/clipboard.h"
 #include "base/gfx/rect.h"
 #include "base/shared_memory.h"
@@ -37,10 +39,12 @@ IPC_BEGIN_MESSAGES(View, 1)
   IPC_MESSAGE_CONTROL1(ViewMsg_SetNextPageID,
                        int32 /* next_page_id */)
 
+#if defined(OS_WIN)
   // Tells the renderer to create a new view.
   // This message is slightly different, the view it takes is the view to
   // create, the message itself is sent as a non-view control message.
   IPC_MESSAGE_CONTROL4(ViewMsg_New, HWND, HANDLE, WebPreferences, int32)
+#endif  // defined(OS_WIN)
 
   // Tells the renderer to set its maximum cache size to the supplied value
   IPC_MESSAGE_CONTROL3(ViewMsg_SetCacheCapacities,
@@ -54,11 +58,13 @@ IPC_BEGIN_MESSAGES(View, 1)
                        std::wstring /* dll_path of plugin */,
                        std::vector<uint8> /* opaque data */)
 
+#if defined(OS_WIN)
   // Reply in response to ViewHostMsg_ShowView or ViewHostMsg_ShowWidget.
   // similar to the new command, but used when the renderer created a view
   // first, and we need to update it
   IPC_MESSAGE_ROUTED1(ViewMsg_CreatingNew_ACK,
                       HWND /* parent_hwnd */)
+#endif  // defined(OS_WIN)
 
   // Tells the render view to close.
   IPC_MESSAGE_ROUTED0(ViewMsg_Close)
@@ -486,6 +492,7 @@ IPC_END_MESSAGES(View)
 // These are messages sent from the renderer to the browser process.
 
 IPC_BEGIN_MESSAGES(ViewHost, 2)
+#if defined(OS_WIN)
   // Sent by the renderer when it is creating a new window.  The browser creates
   // a tab for it and responds with a ViewMsg_CreatingNew_ACK.  If route_id is
   // MSG_ROUTING_NONE, the view couldn't be created.  modal_dialog_event is set
@@ -495,6 +502,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               bool /* user_gesture */,
                               int /* route_id */,
                               HANDLE /* modal_dialog_event */)
+#endif  // defined(OS_WIN)
 
   // Similar to ViewHostMsg_CreateView, except used for sub-widgets, like
   // <select> dropdowns.  This message is sent to the WebContents that
@@ -504,11 +512,13 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               bool /* focus on show */,
                               int /* route_id */)
 
+#if defined(OS_WIN)
   // These two messages are sent as a result of the above two, in the browser
   // process, from RenderWidgetHelper to RenderViewHost.
   IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWindowWithRoute,
                       int /* route_id */,
                       HANDLE /* modal_dialog_event */)
+#endif  // defined(OS_WIN)
 
   IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWidgetWithRoute,
                       int /* route_id */,
@@ -612,6 +622,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               navigating to a POST again and we're going to
                               show the POST interstitial */ )
 
+#if defined(OS_WIN)
   // Sent to paint part of the view.  In response to this message, the host
   // generates a ViewMsg_PaintRect_ACK message.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_PaintRect,
@@ -621,6 +632,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // generates a ViewMsg_ScrollRect_ACK message.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ScrollRect,
                       ViewHostMsg_ScrollRect_Params)
+#endif  // defined(OS_WIN)
 
   // Acknowledges receipt of a ViewMsg_HandleInputEvent message.
   // Payload is a WebInputEvent::Type which is the type of the event, followed
@@ -631,10 +643,12 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_ROUTED0(ViewHostMsg_Focus)
   IPC_MESSAGE_ROUTED0(ViewHostMsg_Blur)
 
+#if defined(OS_WIN)
   // Returns the window location of the given window.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetWindowRect,
                              HWND /* window */,
                              gfx::Rect /* Out: Window location */)
+#endif  // defined(OS_WIN)
 
   IPC_MESSAGE_ROUTED1(ViewHostMsg_SetCursor, WebCursor)
   // Result of string search in the page.
@@ -820,6 +834,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               std::wstring /* markup */,
                               GURL /* url */)
 
+#if defined(OS_WIN)
   // Request that the given font be loaded by the browser.
   // Please see ResourceMessageFilter::OnLoadFont for details.
   IPC_SYNC_MESSAGE_CONTROL1_0(ViewHostMsg_LoadFont,
@@ -829,6 +844,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetScreenInfo,
                               gfx::NativeView /* window */,
                               webkit_glue::ScreenInfo /* results */)
+#endif  // defined(OS_WIN)
 
   // Send the tooltip text for the current mouse position to the browser.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_SetTooltipText,
@@ -931,6 +947,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_SYNC_MESSAGE_ROUTED0_1(ViewHostMsg_GetDefaultPrintSettings,
                              ViewMsg_Print_Params /* default_settings */)
 
+#if defined(OS_WIN)
   // It's the renderer that controls the printing process when it is generated
   // by javascript. This step is about showing UI to the user to select the
   // final print settings. The output parameter is the same as
@@ -941,6 +958,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                              int /* expected_pages_count */,
                              ViewMsg_PrintPages_Params /* settings choosen by
                                                           the user*/)
+#endif  // defined(OS_WIN)
 
   // WebKit and JavaScript error messages to log to the console
   // or debugger UI.
@@ -1074,6 +1092,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UnloadListenerChanged,
                       bool /* has_listener */)
 
+#if defined(OS_WIN)
   // Returns the window location of the window this widget is embeded.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowRect,
                              HWND /* window */,
@@ -1084,6 +1103,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowResizerRect,
                              HWND /* window */,
                              gfx::Rect /* Out: Window location */)
+#endif  // defined(OS_WIN)
 
   // Queries the browser for suggestion for autofill in a form input field.
   IPC_MESSAGE_ROUTED4(ViewHostMsg_QueryFormFieldAutofill,

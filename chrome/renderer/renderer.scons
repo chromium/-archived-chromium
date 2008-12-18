@@ -55,14 +55,9 @@ input_files = [
 # TODO(port): Port these to Linux
 if env['PLATFORM'] == 'posix':
   to_be_ported_files = [
-      'automation/dom_automation_controller.cc',
       'chrome_plugin_host.cc',
       'debug_message_handler.cc',
-      'dom_ui_bindings.cc',
       'external_js_object.cc',
-      'external_host_bindings.cc',
-      'greasemonkey_slave.cc',
-      'localized_error.cc',
       'net/render_dns_master.cc',
       'plugin_channel_host.cc',
       'render_process.cc',
