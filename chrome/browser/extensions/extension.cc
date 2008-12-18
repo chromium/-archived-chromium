@@ -73,7 +73,7 @@ bool Extension::InitFromValue(const DictionaryValue& source,
     }
 
     for (size_t i = 0; i < list_value->GetSize(); ++i) {
-      std::wstring content_script;
+      std::string content_script;
       if (!list_value->Get(i, &value) || !value->GetAsString(&content_script)) {
         *error = kInvalidContentScriptError;
         *error += IntToString(i);

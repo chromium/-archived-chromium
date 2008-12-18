@@ -45,16 +45,16 @@ class Extension {
   // is expected to not change across versions. In the case of conflicts,
   // updates will only be allowed if the extension can be validated using the
   // previous version's update key.
-  const std::wstring& id() const { return id_; }
+  const std::string& id() const { return id_; }
 
   // A human-readable name of the extension.
-  const std::wstring& name() const { return name_; }
+  const std::string& name() const { return name_; }
 
   // An optional longer description of the extension.
-  const std::wstring& description() const { return description_; }
+  const std::string& description() const { return description_; }
 
   // Paths to the content scripts that the extension contains.
-  const std::vector<std::wstring>& content_scripts() const {
+  const std::vector<std::string>& content_scripts() const {
     return content_scripts_;
   }
 
@@ -65,10 +65,10 @@ class Extension {
   void CopyToValue(DictionaryValue* value);
 
  private:
-  std::wstring id_;
-  std::wstring name_;
-  std::wstring description_;
-  std::vector<std::wstring> content_scripts_;
+  std::string id_;
+  std::string name_;
+  std::string description_;
+  std::vector<std::string> content_scripts_;
 
   DISALLOW_COPY_AND_ASSIGN(Extension);
 };

@@ -95,23 +95,23 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   EXPECT_TRUE(frontend->errors()->size() >= 2u);
   ASSERT_EQ(2u, frontend->extensions()->size());
 
-  EXPECT_EQ(std::wstring(L"com.google.myextension1"),
+  EXPECT_EQ(std::string("com.google.myextension1"),
             frontend->extensions()->at(0)->id());
-  EXPECT_EQ(std::wstring(L"My extension 1"),
+  EXPECT_EQ(std::string("My extension 1"),
             frontend->extensions()->at(0)->name());
-  EXPECT_EQ(std::wstring(L"The first extension that I made."),
+  EXPECT_EQ(std::string("The first extension that I made."),
             frontend->extensions()->at(0)->description());
   ASSERT_EQ(2u, frontend->extensions()->at(0)->content_scripts().size());
-  EXPECT_EQ(std::wstring(L"script1.user.js"),
+  EXPECT_EQ(std::string("script1.user.js"),
             frontend->extensions()->at(0)->content_scripts().at(0));
-  EXPECT_EQ(std::wstring(L"script2.user.js"),
+  EXPECT_EQ(std::string("script2.user.js"),
             frontend->extensions()->at(0)->content_scripts().at(1));
 
-  EXPECT_EQ(std::wstring(L"com.google.myextension2"),
+  EXPECT_EQ(std::string("com.google.myextension2"),
             frontend->extensions()->at(1)->id());
-  EXPECT_EQ(std::wstring(L"My extension 2"),
+  EXPECT_EQ(std::string("My extension 2"),
             frontend->extensions()->at(1)->name());
-  EXPECT_EQ(std::wstring(L""),
+  EXPECT_EQ(std::string(""),
             frontend->extensions()->at(1)->description());
   ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 };
