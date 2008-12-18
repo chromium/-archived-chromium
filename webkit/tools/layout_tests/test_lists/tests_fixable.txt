@@ -956,6 +956,8 @@ LINUX : LayoutTests/fast/forms/select-style.html = FAIL
 // Linux pixeltest failure: The text suggests that the radios should not
 // overlap, but it's very close and quite different from the Windows version
 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
+// Linux pixel tests: the select arrow is clipping wrong on one line.
+LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
 // Internationalization / complex characters / etc
 LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
@@ -1293,6 +1295,9 @@ LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
 // MERGE 38760:38800: Expectations changed upstream
 WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
 
+// Windows is missing the green box.
+WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
+
 // -----------------------------------------------------------------
 // MAC PORT TESTS
 // -----------------------------------------------------------------
@@ -1308,7 +1313,8 @@ SKIP MAC : LayoutTests/fast/regex/ = TIMEOUT
 // pass on Mac once we fix the bugs.
 //
 
-// ***** BUCKETS
+// We've bucketed tests into groupings for why they're failing. Please try
+// to add new failures in the appropriate bucket.
 
 // text fields wrong width
 MAC : LayoutTests/editing/deleting/5168598.html = FAIL
@@ -1380,6 +1386,44 @@ MAC : LayoutTests/fast/replaced/width100percent-textfield.html = FAIL
 MAC : LayoutTests/fast/table/colspanMinWidth.html = FAIL
 MAC : LayoutTests/fast/table/spanOverlapRepaint.html = FAIL
 MAC : LayoutTests/fast/text/textIteratorNilRenderer.html = FAIL
+MAC : LayoutTests/svg/hixie/mixed/003.xml = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug1188.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug12384.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug18359.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug24200.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug2479-3.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug2479-4.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug28928.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug2962.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug39209.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug4382.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug4429.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug4527.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug46368-1.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug46368-2.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug51037.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug53690-1.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug55545.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug56201.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug59354.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug7342.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug9024.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug96334.html = FAIL
+MAC : LayoutTests/tables/mozilla/bugs/bug99948.html = FAIL
+MAC : LayoutTests/tables/mozilla/dom/tableDom.html = FAIL
+MAC : LayoutTests/tables/mozilla/other/move_row.html = FAIL
+MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug92647-1.html = FAIL
+MAC : chrome/fast/forms/basic-buttons.html = FAIL
+MAC : chrome/fast/forms/basic-inputs.html = FAIL
+MAC : chrome/fast/forms/basic-selects.html = FAIL
+MAC : chrome/fast/forms/textarea-metrics.html = FAIL
+MAC : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
+MAC : LayoutTests/fast/forms/input-type-text-min-width.html = FAIL
+MAC : LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
+MAC : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 
 // we're waiting on upstreaming a change to how textarea padding works. rather
 // than rebasing, we'll wait for the upstream (which ojan said should happen
@@ -1429,6 +1473,12 @@ MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
 MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
+MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 
 // text input garbage
 MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
@@ -1489,6 +1539,16 @@ MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 MAC : LayoutTests/fast/encoding/utf-16-big-endian.html = FAIL
 MAC : LayoutTests/fast/encoding/utf-16-little-endian.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
+MAC : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
+MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
+MAC : LayoutTests/tables/mozilla/collapsing_borders/bug41262-3.html = FAIL
+MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
+MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
+MAC : LayoutTests/editing/deleting/5408255.html = FAIL
+MAC : LayoutTests/editing/pasteboard/5006779.html = FAIL
+// These started failing around 2008/12/12
+MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
+MAC DEBUG : LayoutTests/svg/hixie/perf/007.xml = FAIL
 
 // not loading local files
 MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
@@ -1505,15 +1565,42 @@ MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 
 // the url comes back wrong, it should have a question mark for args on it.
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
+MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 
 // contain extra output at the top, no clue why.
 MAC : LayoutTests/fast/forms/001.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-narrow-width.html = FAIL
 
+// JS profiler not enabled?
+MAC : LayoutTests/fast/profiler/document-dot-write.html = FAIL
+MAC : LayoutTests/fast/profiler/stop-then-function-call.html = FAIL
+
 // whitespace differences (??)
 MAC : LayoutTests/fast/dom/tabindex-clamp.html = FAIL
 
-// ***** END BUCKETS
+// Error from CGImageSourceUpdateData but everything else is correct.
+MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
+
+// come back to clean this up. Windows was incorrectly baselined and so we
+// should remove its baseline and convert this to all platforms.
+MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+
+// Crashing...
+
+// window.open crashes
+MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT
+MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
+MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH
+MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
+MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH
+MAC RELEASE : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
+MAC RELEASE : LayoutTests/fast/history/history_reload.html = CRASH
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT
+MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH
+MAC RELEASE : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH
+MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
 
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH
@@ -1524,148 +1611,19 @@ MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreig
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH
-
-// come back to clean this up. Windows was incorrectly baselined and so we
-// should remove its baseline and convert this to all platforms.
-MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-
-// Windows is missing the green box. Mac gets error from CGImageSourceUpdateData but
-// everything else is correct.
-WIN MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
-
-
-MAC : LayoutTests/svg/custom/SVGException.html = FAIL
-MAC : LayoutTests/svg/custom/createelement.svg = FAIL
-MAC : LayoutTests/svg/custom/junk-data.svg = FAIL
-MAC : LayoutTests/svg/custom/missing-xlink.svg = FAIL
-MAC : LayoutTests/svg/custom/path-bad-data.svg = FAIL
-MAC : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
-MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
-MAC : LayoutTests/svg/hixie/error/012.xml = FAIL
-MAC : LayoutTests/svg/hixie/mixed/003.xml = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug1188.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug12384.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug18359.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug24200.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug2479-3.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug2479-4.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug28928.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug2962.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug39209.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug4382.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug4429.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug4527.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug46368-1.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug46368-2.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug51037.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug53690-1.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug55545.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug56201.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug59354.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug7342.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug9024.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug96334.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug99948.html = FAIL
-MAC : LayoutTests/tables/mozilla/collapsing_borders/bug41262-3.html = FAIL
-MAC : LayoutTests/tables/mozilla/dom/tableDom.html = FAIL
-MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
-MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
-MAC : LayoutTests/tables/mozilla/other/move_row.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug3517.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug92647-1.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug92868_1.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/dom/appendCells1.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/dom/appendCellsRebuild1.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/dom/insertTbodyExpand1.html = FAIL
-MAC : LayoutTests/tables/mozilla_expected_failures/dom/insertTbodyRebuild1.html = FAIL
-MAC : chrome/fast/forms/basic-buttons.html = FAIL
-MAC : chrome/fast/forms/basic-inputs.html = FAIL
-// Linux pixel tests: the select arrow is clipping wrong on one line.
-LINUX MAC : chrome/fast/forms/basic-selects.html = FAIL
-MAC : chrome/fast/forms/textarea-metrics.html = FAIL
-MAC : chrome/fonts/arial.html = FAIL
-MAC : chrome/fonts/comic-sans-ms.html = FAIL
-MAC : chrome/fonts/courier.html = FAIL
-MAC : chrome/fonts/default.html = FAIL
-MAC : chrome/fonts/helvetica.html = FAIL
-MAC : chrome/fonts/impact.html = FAIL
-MAC : chrome/fonts/lucida-grande.html = FAIL
-MAC : chrome/fonts/times.html = FAIL
-MAC : pending/fast/repaint/bugzilla-6473.html = FAIL
-MAC : LayoutTests/fast/profiler/document-dot-write.html = FAIL
-MAC : LayoutTests/fast/profiler/stop-then-function-call.html = FAIL
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
-MAC : LayoutTests/editing/deleting/5408255.html = FAIL
-MAC : LayoutTests/editing/pasteboard/5006779.html = FAIL
-MAC : LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
-MAC : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
-MAC : LayoutTests/fast/forms/input-type-text-min-width.html = FAIL
-MAC : LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
-MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
-MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
-MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-uppercase.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame.html = FAIL
-MAC : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
-MAC : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-shortcut.html = FAIL
-MAC : LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-addEventListener.html = FAIL
-MAC : LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.html = FAIL
-MAC : LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
-MAC : LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
-MAC : LayoutTests/http/tests/security/xss-eval.html = FAIL
-
-// These crash
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
 
-// Items failing on the Mac as of 2008/12/12
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/hixie/perf/007.xml = FAIL
-
-// Items crashing (sometimes) on the Mac as of 2008/12/12
-
-// window.open
-MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT
-// window.open
-MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
-// window.open
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
-// window.open
-MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH
-// window.open and plugin
-MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
-
-// 2008/12/15 things crashing/timing out on the mac
-
 //  no html tags, bad html (unmatched tags)
 MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
-// window.open
-MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH
-// eventSender -- window.open
-MAC RELEASE : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
-// Script -- window.open
-MAC RELEASE : LayoutTests/fast/history/history_reload.html = CRASH
-// Script -- window.open
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT
-// Script -- window.open
-MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH
-// Script -- window.open
-MAC RELEASE : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
-// Script -- window.open
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH
-// Script+SVG -- window.open
-MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
 // Script doesn't seem to run full tests before crashing
 MAC DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-width-prop.html = CRASH
 // Script -- onload hooks
 MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
+
+// -----------------------------------------------------------------
+// END MAC PORT TESTS
+// -----------------------------------------------------------------
 
 // WebKit Merge 38800:38850 regressions
 LayoutTests/fast/dom/HTMLDocument/document-open-return-value.html = FAIL
@@ -1816,12 +1774,12 @@ MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAI
 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
 
 // Merge 39309:39335 Regressions
-LayoutTests/fast/box-sizing/percentage-height.html = FAIL
+LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
-LayoutTests/fast/forms/control-clip.html = FAIL
+LINUX WIN : LayoutTests/fast/forms/control-clip.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
-LayoutTests/fast/forms/select-baseline.html = FAIL
+LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 
 // Merge 39309:39335 New Test
 LayoutTests/fast/dom/Window/window-custom-prototype.html = FAIL
