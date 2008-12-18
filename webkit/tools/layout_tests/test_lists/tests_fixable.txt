@@ -1266,7 +1266,8 @@ LayoutTests/transitions/transition-drt-api-delay.html = TIMEOUT
 LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT
 
 // MERGE 38653:38729: Expectations changed upstream
-WIN : LayoutTests/editing/selection/5057506.html = FAIL
+// Flaky on Linux, maybe on Windows too?
+LINUX WIN : LayoutTests/editing/selection/5057506.html = PASS FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
 LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
@@ -1861,3 +1862,6 @@ LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 
 // Not quite sure what's going on here.  Getting the builder green.
 LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
+
+// Text output is all wrong.
+LINUX : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
