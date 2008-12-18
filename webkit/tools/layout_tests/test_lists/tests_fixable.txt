@@ -1645,7 +1645,6 @@ LayoutTests/wml/variable-reference-invalid-character.html = FAIL
 LayoutTests/wml/variable-reference-valid.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
-LINUX WIN : LayoutTests/editing/pasteboard/5780697-2.html = FAIL
 LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
@@ -1661,11 +1660,6 @@ SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg
 LayoutTests/wml/go-task-get-method-external-deck.html = FAIL
 LayoutTests/wml/go-task-get-method-same-deck.html = FAIL
 LayoutTests/wml/go-task-get-method-external-deck-with-href.html = FAIL
-
-// WebKit Merge 39100:39141 regressions:
-LayoutTests/fast/css/font-face-descriptor-multiple-values-parsing.html = FAIL
-// We don't appear to be throwing an exception on super long regexps.
-LayoutTests/fast/js/regexp-overflow.html = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
