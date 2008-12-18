@@ -965,7 +965,7 @@ void GraphicsContext::setPlatformShadow(const IntSize& size,
 
     // TODO(tc): Should we have a max value for the blur?  CG clamps at 1000.0
     // for perf reasons.
-    SkDrawLooper* dl = new SkBlurDrawLooper(blur, width, height, c);
+    SkDrawLooper* dl = new SkBlurDrawLooper(blur / 2, width, height, c);
     platformContext()->setDrawLooper(dl);
     dl->unref();
 }

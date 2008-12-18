@@ -1797,10 +1797,5 @@ LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 // Not quite sure what's going on here.  Getting the builder green.
 LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 
-// Shadow failures from Brett's shadow changes. These probably just need
-// rebaselining. (Note: they all fail on Linux, but the ones not marked Linux
-// failures appear elsewhere).
-LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
-WIN : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
-WIN : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
+// Brett broke this with his font rendering effect patch and needs to fix it.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
