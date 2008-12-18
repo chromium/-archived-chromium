@@ -206,7 +206,7 @@ class TabProxy : public AutomationResourceProxy {
 
   // Shows an interstitial page.  Blocks until the interstitial page
   // has been loaded. Return false if a failure happens.3
-  bool ShowInterstitialPage(const std::string& html_text);
+  bool ShowInterstitialPage(const std::string& html_text, int timeout_ms);
 
   // Hides the currently shown interstitial page. Blocks until the interstitial
   // page has been hidden. Return false if a failure happens.

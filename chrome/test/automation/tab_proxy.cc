@@ -723,17 +723,17 @@ bool TabProxy::GetDownloadDirectory(std::wstring* download_directory) {
   return true;
 }
 
-bool TabProxy::ShowInterstitialPage(const std::string& html_text) {
+bool TabProxy::ShowInterstitialPage(const std::string& html_text,
+                                    int timeout_ms) {
   if (!is_valid())
     return false;
 
-  const int kTimeout = 2000;
   bool is_timeout = false;
   IPC::Message* response = NULL;
   bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
       new AutomationMsg_ShowInterstitialPageRequest(0, handle_, html_text),
       &response,
-      AutomationMsg_ShowInterstitialPageResponse::ID, kTimeout, &is_timeout);
+      AutomationMsg_ShowInterstitialPageResponse::ID, timeout_ms, &is_timeout);
 
   if (!succeeded || !is_timeout)
     return false;

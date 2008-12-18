@@ -50,6 +50,14 @@ bool UITest::disable_breakpad_ = false;
 int UITest::timeout_ms_ = 20 * 60 * 1000;
 std::wstring UITest::js_flags_ = L"";
 
+
+// Specify the time (in milliseconds) that the ui_tests should wait before
+// timing out. This is used to specify longer timeouts when running under Purify
+// which requires much more time.
+const wchar_t kUiTestTimeout[] = L"ui-test-timeout";
+const wchar_t kUiTestActionTimeout[] = L"ui-test-action-timeout";
+const wchar_t kUiTestActionMaxTimeout[] = L"ui-test-action-max-timeout";
+
 const wchar_t kExtraChromeFlagsSwitch[] = L"extra-chrome-flags";
 
 // Uncomment this line to have the spawned process wait for the debugger to
@@ -81,7 +89,10 @@ UITest::UITest()
       show_window_(false),
       clear_profile_(true),
       include_testing_id_(true),
-      use_existing_browser_(default_use_existing_browser_) {
+      use_existing_browser_(default_use_existing_browser_),
+      command_execution_timeout_ms_(kMaxTestExecutionTime),
+      action_timeout_ms_(kWaitForActionMsec),
+      action_max_timeout_ms_(kWaitForActionMaxMsec) {
   PathService::Get(chrome::DIR_APP, &browser_directory_);
   PathService::Get(chrome::DIR_TEST_DATA, &test_data_directory_);
   GetSystemTimeAsFileTime(&test_start_time_);
@@ -93,6 +104,7 @@ void UITest::SetUp() {
                         L"of the app before testing.");
   }
 
+  InitializeTimeouts();
   LaunchBrowserAndServer();
 }
 
@@ -130,9 +142,31 @@ void UITest::TearDown() {
   EXPECT_EQ(expected_crashes_, actual_crashes) << error_msg;
 }
 
+// Pick up the various test time out values from the command line.
+void UITest::InitializeTimeouts() {
+  if (CommandLine().HasSwitch(kUiTestTimeout)) {
+    std::wstring timeout_str = CommandLine().GetSwitchValue(kUiTestTimeout);
+    int timeout = StringToInt(timeout_str);
+    command_execution_timeout_ms_ = std::max(kMaxTestExecutionTime, timeout);
+  }
+
+  if (CommandLine().HasSwitch(kUiTestActionTimeout)) {
+    std::wstring act_str = CommandLine().GetSwitchValue(kUiTestActionTimeout);
+    int act_timeout = StringToInt(act_str);
+    action_timeout_ms_ = std::max(kWaitForActionMsec, act_timeout);
+  }
+
+  if (CommandLine().HasSwitch(kUiTestActionMaxTimeout)) {
+    std::wstring action_max_str =
+        CommandLine().GetSwitchValue(kUiTestActionMaxTimeout);
+    int max_timeout = StringToInt(action_max_str);
+    action_max_timeout_ms_ = std::max(kWaitForActionMaxMsec, max_timeout);
+  }
+}
+
 void UITest::LaunchBrowserAndServer() {
   // Set up IPC testing interface server.
-  server_.reset(new AutomationProxy);
+  server_.reset(new AutomationProxy(command_execution_timeout_ms_));
 
   LaunchBrowser(launch_arguments_, clear_profile_);
   if (wait_for_initial_loads_)
@@ -369,8 +403,8 @@ void UITest::NavigateToURL(const GURL& url) {
     return;
 
   bool is_timeout = true;
-  ASSERT_TRUE(tab_proxy->NavigateToURLWithTimeout(url, kMaxTestExecutionTime,
-                                                  &is_timeout)) << url.spec();
+  ASSERT_TRUE(tab_proxy->NavigateToURLWithTimeout(
+      url, command_execution_timeout_ms(), &is_timeout)) << url.spec();
   ASSERT_FALSE(is_timeout) << url.spec();
 }
 

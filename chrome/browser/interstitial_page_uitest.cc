@@ -60,7 +60,7 @@ TEST_F(InterstitialPageTest, TestShowHideInterstitial) {
   EXPECT_TRUE(tab->GetPageType(&page_type));
   EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
 
-  tab->ShowInterstitialPage(kInterstitialPageHTMLText);
+  tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
   EXPECT_TRUE(tab->GetPageType(&page_type));
   EXPECT_EQ(NavigationEntry::INTERSTITIAL_PAGE, page_type);
 
@@ -84,7 +84,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenBack) {
               server.TestServerPageW(L"files/interstitial_page/google.html"));
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
-  tab->ShowInterstitialPage(kInterstitialPageHTMLText);
+  tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
   EXPECT_EQ(L"Interstitial page", GetActiveTabTitle());
 
   tab->GoBack();
@@ -100,7 +100,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenNavigate) {
               server.TestServerPageW(L"files/interstitial_page/google.html"));
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
-  tab->ShowInterstitialPage(kInterstitialPageHTMLText);
+  tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
   EXPECT_EQ(L"Interstitial page", GetActiveTabTitle());
 
   tab->NavigateToURL(
@@ -117,7 +117,7 @@ TEST_F(InterstitialPageTest, TestShowInterstitialThenCloseTab) {
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
-  tab->ShowInterstitialPage(kInterstitialPageHTMLText);
+  tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
   EXPECT_EQ(L"Interstitial page", GetActiveTabTitle());
   tab->Close();
 }
@@ -133,7 +133,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseBrowser) {
       server.TestServerPageW(L"files/interstitial_page/google.html"));
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
-  tab->ShowInterstitialPage(kInterstitialPageHTMLText);
+  tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
   EXPECT_EQ(L"Interstitial page", GetActiveTabTitle());
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));

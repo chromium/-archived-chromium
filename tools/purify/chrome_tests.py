@@ -285,7 +285,12 @@ class ChromeTests:
     if instrumentation_error:
       return instrumentation_error
     return self.ScriptedTest("chrome", "chrome.exe", "ui_tests", 
-        ["ui_tests.exe", "--single-process", "--test-timeout=100000000"], multi=True)
+                             ["ui_tests.exe",
+                              "--single-process",
+                              "--ui-test-timeout=120000",
+                              "--ui-test-action-timeout=80000",
+                              "--ui-test-action-max-timeout=180000"],
+                             multi=True)
 
 
 def _main(argv):

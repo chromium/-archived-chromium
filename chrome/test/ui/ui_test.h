@@ -37,6 +37,7 @@ class UITest : public testing::Test {
   static const int kWaitForActionMaxMsec = 10000;
   // Delay to let the browser complete the test.
   static const int kMaxTestExecutionTime = 30000;
+
   // String to display when a test fails because the crash service isn't
   // running.
   static const wchar_t kFailedNoCrashService[];
@@ -55,6 +56,9 @@ class UITest : public testing::Test {
 
   // Closes the browser window.
   virtual void TearDown();
+
+  // Set up the test time out values.
+  virtual void InitializeTimeouts();
 
   // ********* Utility functions *********
 
@@ -294,6 +298,15 @@ class UITest : public testing::Test {
   // UITest::SetUp().
   std::wstring user_data_dir() const { return user_data_dir_; }
 
+  // Timeout accessors.
+  int command_execution_timeout_ms() const {
+    return command_execution_timeout_ms_;
+  }
+
+  int action_timeout_ms() const { return action_timeout_ms_; }
+
+  int action_max_timeout_ms() const { return action_max_timeout_ms_; }
+
   // Count the number of active browser processes.  This function only counts
   // browser processes that share the same profile directory as the current
   // process.  The count includes browser sub-processes.
@@ -407,6 +420,10 @@ class UITest : public testing::Test {
   ::scoped_ptr<AutomationProxy> server_;
 
   MessageLoop message_loop_;            // Enables PostTask to main thread.
+
+  int command_execution_timeout_ms_;
+  int action_timeout_ms_;
+  int action_max_timeout_ms_;
 };
 
 // These exist only to support the gTest assertion macros, and

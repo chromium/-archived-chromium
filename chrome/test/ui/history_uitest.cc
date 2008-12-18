@@ -37,7 +37,6 @@
 
 const char kTestCompleteCookie[] = "status";
 const char kTestCompleteSuccess[] = "OK";
-const int kShortWaitTimeout = 5 * 1000;
 
 class HistoryTester : public UITest {
  protected:
@@ -54,5 +53,5 @@ TEST_F(HistoryTester, VerifyHistoryLength) {
   GURL url = GetTestUrl(L"History", test_case);
   NavigateToURL(url);
   WaitForFinish("History_Length_Test", "1", url, kTestCompleteCookie,
-                kTestCompleteSuccess, kShortWaitTimeout);
+                kTestCompleteSuccess, action_max_timeout_ms());
 }

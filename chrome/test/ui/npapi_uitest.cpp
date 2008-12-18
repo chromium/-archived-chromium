@@ -259,5 +259,5 @@ TEST_F(NPAPIVisiblePluginTester, OpenPopupWindowWithPlugin) {
   NavigateToURL(url);
   WaitForFinish("plugin_popup_with_plugin_target", "1", url,
                 kTestCompleteCookie, kTestCompleteSuccess,
-                kShortWaitTimeout);
+                action_timeout_ms());
 }

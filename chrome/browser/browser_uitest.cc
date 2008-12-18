@@ -91,14 +91,14 @@ TEST_F(BrowserTest, WindowsSessionEnd) {
   file_util::AppendToPath(&test_file, L"title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
 
   // Simulate an end of session. Normally this happens when the user
   // shuts down the pc or logs off.
   HWND window_handle = GetMainWindow();
   ASSERT_TRUE(::PostMessageW(window_handle, WM_ENDSESSION, 0, 0));
 
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
   ASSERT_FALSE(IsBrowserRunning());
 
   // Make sure the UMA metrics say we didn't crash.
@@ -210,7 +210,7 @@ TEST_F(BrowserTest, DuplicateTab) {
 
   tab_proxy.reset(browser_proxy->GetTab(1));
   ASSERT_TRUE(tab_proxy != NULL);
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
   // Verify the stack of urls.
   GURL url;

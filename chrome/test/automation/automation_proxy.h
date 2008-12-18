@@ -60,7 +60,7 @@ class AutomationMessageSender : public IPC::Message::Sender {
 class AutomationProxy : public IPC::Channel::Listener,
                         public AutomationMessageSender {
  public:
-  AutomationProxy();
+  explicit AutomationProxy(int command_execution_timeout_ms);
   virtual ~AutomationProxy();
 
   // IPC callback
@@ -204,6 +204,10 @@ class AutomationProxy : public IPC::Channel::Listener,
   // that can be reparented in another process.
   TabProxy* CreateExternalTab(HWND* external_tab_container);
 
+  int command_execution_timeout_ms() const {
+    return command_execution_timeout_ms_;
+  }
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(AutomationProxy);
 
@@ -225,8 +229,8 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   AutomationRequest* current_request_;
 
-  static const int kMaxCommandExecutionTime;  // Delay to let the browser
-                                              //  execute the command.;
+  // Delay to let the browser execute the command.
+  int command_execution_timeout_ms_;
 };
 
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_PROXY_H__
