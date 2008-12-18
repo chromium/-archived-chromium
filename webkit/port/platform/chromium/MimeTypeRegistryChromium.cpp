@@ -28,30 +28,31 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
-#include "ChromiumBridge.h"
 #include "MIMETypeRegistry.h"
+
+#include "ChromiumBridge.h"
+#include "CString.h"
+#include "MediaPlayer.h"
+
+// NOTE: Unlike other ports, we don't use the shared implementation bits in
+// MIMETypeRegistry.cpp.  Instead, we need to route most functions via the
+// ChromiumBridge to the embedder.
 
 namespace WebCore 
 {
 
-// From MIMETypeRegistryMac.mm.
-#if PLATFORM(DARWIN) && PLATFORM(CG)
-String getMIMETypeForUTI(const String & uti)
+// Checks if any of the plugins handle this extension, and if so returns the
+// plugin's mime type for this extension.  Otherwise returns an empty string.
+// See PluginsChromium.cpp for the implementation of this function.
+String getPluginMimeTypeFromExtension(const String& extension);
+
+String MIMETypeRegistry::getMIMETypeForExtension(const String &ext)
 {
-    CFStringRef utiref = uti.createCFString();
-    CFStringRef mime = UTTypeCopyPreferredTagWithClass(utiref, kUTTagClassMIMEType);
-    String mimeType = mime;
-    if (mime)
-        CFRelease(mime);
-    CFRelease(utiref);
-    return mimeType;
+    return ChromiumBridge::mimeTypeForExtension(ext);
 }
-#endif
 
 // Returns the file extension if one is found.  Does not include the dot in the
 // filename.  E.g., 'html'.
-// NOTE: This does not work in the sandbox because the renderer doesn't have
-// access to the Windows Registry.
 String MIMETypeRegistry::getPreferredExtensionForMIMEType(const String& type)
 {
     // Prune out any parameters in case they happen to have snuck in there...
@@ -65,9 +66,82 @@ String MIMETypeRegistry::getPreferredExtensionForMIMEType(const String& type)
     return ext;
 }
 
-String MIMETypeRegistry::getMIMETypeForExtension(const String &ext)
+String MIMETypeRegistry::getMIMETypeForPath(const String& path)
 {
-    return ChromiumBridge::mimeTypeForExtension(ext);
+    int pos = path.reverseFind('.');
+    if (pos < 0)
+        return "application/octet-stream";
+    String extension = path.substring(pos + 1);
+    String mimeType = getMIMETypeForExtension(extension);
+    if (mimeType.isEmpty()) {
+        // If there's no mimetype registered for the extension, check to see
+        // if a plugin can handle the extension.
+        mimeType = getPluginMimeTypeFromExtension(extension);
+    }
+    return mimeType;
 }
+
+bool MIMETypeRegistry::isSupportedImageMIMEType(const String& mimeType)
+{ 
+    return !mimeType.isEmpty()
+        && ChromiumBridge::isSupportedImageMIMEType(mimeType.latin1().data());
+}
+
+bool MIMETypeRegistry::isSupportedImageResourceMIMEType(const String& mimeType)
+{ 
+    return isSupportedImageMIMEType(mimeType); 
+}
+
+bool MIMETypeRegistry::isSupportedImageMIMETypeForEncoding(const String& mimeType)
+{
+    // TODO(brettw) fill this out. See: http://trac.webkit.org/changeset/30888
+    return isSupportedImageMIMEType(mimeType);
+}
+
+bool MIMETypeRegistry::isSupportedJavaScriptMIMEType(const String& mimeType)
+{
+    return !mimeType.isEmpty()
+        && ChromiumBridge::isSupportedJavascriptMIMEType(mimeType.latin1().data());
+}
+    
+bool MIMETypeRegistry::isSupportedNonImageMIMEType(const String& mimeType)
+{
+    return !mimeType.isEmpty()
+        && ChromiumBridge::isSupportedNonImageMIMEType(mimeType.latin1().data());
+}
+
+bool MIMETypeRegistry::isSupportedMediaMIMEType(const String& mimeType)
+{
+    HashSet<String> supportedMediaMIMETypes;
+#if ENABLE(VIDEO)
+    MediaPlayer::getSupportedTypes(supportedMediaMIMETypes);
+#endif
+    return !mimeType.isEmpty() && supportedMediaMIMETypes.contains(mimeType);
+}
+
+bool MIMETypeRegistry::isJavaAppletMIMEType(const String& mimeType)
+{
+    // Since this set is very limited and is likely to remain so we won't bother with the overhead
+    // of using a hash set.
+    // Any of the MIME types below may be followed by any number of specific versions of the JVM,
+    // which is why we use startsWith()
+    return mimeType.startsWith("application/x-java-applet", false) 
+        || mimeType.startsWith("application/x-java-bean", false) 
+        || mimeType.startsWith("application/x-java-vm", false);
+}
+
+static HashSet<String>& dummyHashSet()
+{
+    ASSERT_NOT_REACHED();
+    static HashSet<String> dummy;
+    return dummy;
+}
+
+// NOTE: the following methods should never be reached
+HashSet<String>& MIMETypeRegistry::getSupportedImageMIMETypes() { return dummyHashSet(); }
+HashSet<String>& MIMETypeRegistry::getSupportedImageResourceMIMETypes() { return dummyHashSet(); }
+HashSet<String>& MIMETypeRegistry::getSupportedImageMIMETypesForEncoding() { return dummyHashSet(); }
+HashSet<String>& MIMETypeRegistry::getSupportedNonImageMIMETypes() { return dummyHashSet(); }
+HashSet<String>& MIMETypeRegistry::getSupportedMediaMIMETypes() { return dummyHashSet(); }
 
 }

@@ -930,10 +930,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontFastPath.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\Font.cpp"
 				>
 			</File>
@@ -971,6 +967,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontFamily.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontFastPath.cpp"
 				>
 			</File>
 			<File
@@ -1043,10 +1043,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Logging.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\MIMETypeRegistry.cpp"
 				>
 			</File>
 			<File

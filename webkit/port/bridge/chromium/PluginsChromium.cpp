@@ -124,7 +124,7 @@ public:
         return false;
     }
 
-    String GetPluginMimeTypeFromExtension(const String& extension) 
+    String getPluginMimeTypeFromExtension(const String& extension) 
     {
 #if !defined(__linux__)
         // TODO(port): unstub once we have plugin support for Linux
@@ -176,9 +176,9 @@ void refreshPlugins(bool)
     pluginCache.load(true);
 }
 
-String GetPluginMimeTypeFromExtension(const String& extension) 
+String getPluginMimeTypeFromExtension(const String& extension) 
 {
-    return pluginCache.GetPluginMimeTypeFromExtension(extension);
+    return pluginCache.getPluginMimeTypeFromExtension(extension);
 }
 
 } // namespace WebCore
