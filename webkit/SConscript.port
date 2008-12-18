@@ -27,8 +27,6 @@ elif env.Bit('linux'):
 input_files = [
     '$PORT_DIR/bridge/chromium/PluginsChromium.cpp',
 
-    '$PORT_DIR/history/CachedPage.cpp',
-
     '$PORT_DIR/page/Location.cpp',
     '$PORT_DIR/page/chromium/AccessibilityObjectChromium.cpp',
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
