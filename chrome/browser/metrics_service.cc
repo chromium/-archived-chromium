@@ -984,18 +984,18 @@ void MetricsService::RecallUnsentLogs() {
       prefs::kMetricsInitialLogs);
   for (ListValue::iterator it = unsent_initial_logs->begin();
       it != unsent_initial_logs->end(); ++it) {
-    std::wstring wide_log;
-    (*it)->GetAsString(&wide_log);
-    unsent_initial_logs_.push_back(WideToUTF8(wide_log));
+    std::string log;
+    (*it)->GetAsString(&log);
+    unsent_initial_logs_.push_back(log);
   }
 
   ListValue* unsent_ongoing_logs = local_state->GetMutableList(
       prefs::kMetricsOngoingLogs);
   for (ListValue::iterator it = unsent_ongoing_logs->begin();
       it != unsent_ongoing_logs->end(); ++it) {
-    std::wstring wide_log;
-    (*it)->GetAsString(&wide_log);
-    unsent_ongoing_logs_.push_back(WideToUTF8(wide_log));
+    std::string log;
+    (*it)->GetAsString(&log);
+    unsent_ongoing_logs_.push_back(log);
   }
 }
 
@@ -1014,7 +1014,7 @@ void MetricsService::StoreUnsentLogs() {
     start = unsent_initial_logs_.size() - kMaxInitialLogsPersisted;
   for (size_t i = start; i < unsent_initial_logs_.size(); ++i)
     unsent_initial_logs->Append(
-        Value::CreateStringValue(UTF8ToWide(unsent_initial_logs_[i])));
+        Value::CreateStringValue(unsent_initial_logs_[i]));
 
   ListValue* unsent_ongoing_logs = local_state->GetMutableList(
       prefs::kMetricsOngoingLogs);
@@ -1024,7 +1024,7 @@ void MetricsService::StoreUnsentLogs() {
     start = unsent_ongoing_logs_.size() - kMaxOngoingLogsPersisted;
   for (size_t i = start; i < unsent_ongoing_logs_.size(); ++i)
     unsent_ongoing_logs->Append(
-        Value::CreateStringValue(UTF8ToWide(unsent_ongoing_logs_[i])));
+        Value::CreateStringValue(unsent_ongoing_logs_[i]));
 }
 
 void MetricsService::PreparePendingLogText() {

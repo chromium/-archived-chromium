@@ -576,11 +576,11 @@ void MetricsLog::WriteProfileMetrics(const std::wstring& profileidhash,
       DCHECK(*i != L"id");
       switch (value->GetType()) {
         case Value::TYPE_STRING: {
-          std::wstring string_value;
+          std::string string_value;
           if (value->GetAsString(&string_value)) {
             OPEN_ELEMENT_FOR_SCOPE("profileparam");
             WriteAttribute("name", WideToUTF8(*i));
-            WriteAttribute("value", WideToUTF8(string_value));
+            WriteAttribute("value", string_value);
           }
           break;
         }
