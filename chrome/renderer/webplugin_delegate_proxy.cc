@@ -208,12 +208,12 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
                                         WebPlugin* plugin,
                                         bool load_manually) {
   std::wstring channel_name, plugin_path;
-  if (!RenderThread::current()->Send(new ViewHostMsg_OpenChannelToPlugin(
-      url, mime_type_, clsid_, webkit_glue::GetWebKitLocale(),
-      &channel_name, &plugin_path)))
+  if (!g_render_thread->Send(new ViewHostMsg_OpenChannelToPlugin(
+          url, mime_type_, clsid_, webkit_glue::GetWebKitLocale(),
+          &channel_name, &plugin_path)))
     return false;
 
-  MessageLoop* ipc_message_loop = RenderThread::current()->owner_loop();
+  MessageLoop* ipc_message_loop = g_render_thread->owner_loop();
   scoped_refptr<PluginChannelHost> channel_host =
       PluginChannelHost::GetPluginChannelHost(channel_name, ipc_message_loop);
   if (!channel_host.get())

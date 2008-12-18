@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_RENDER_THREAD_H__
-#define CHROME_RENDERER_RENDER_THREAD_H__
+#ifndef CHROME_RENDERER_RENDER_THREAD_H_
+#define CHROME_RENDERER_RENDER_THREAD_H_
 
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
@@ -61,9 +61,6 @@ class RenderThread : public IPC::Channel::Listener,
 
   void AddFilter(IPC::ChannelProxy::MessageFilter* filter);
   void RemoveFilter(IPC::ChannelProxy::MessageFilter* filter);
-
-  // The RenderThread instance for the current thread.
-  static RenderThread* current();
 
   // Gets the VisitedLinkSlave instance for this thread
   VisitedLinkSlave* visited_link_slave() const { return visited_link_slave_; }
@@ -139,5 +136,8 @@ class RenderThread : public IPC::Channel::Listener,
   DISALLOW_EVIL_CONSTRUCTORS(RenderThread);
 };
 
-#endif  // CHROME_RENDERER_RENDER_THREAD_H__
+// The global RenderThread object for this process. Note that this should only
+// be accessed when running on the render thread itself.
+extern RenderThread* g_render_thread;
 
+#endif  // CHROME_RENDERER_RENDER_THREAD_H_

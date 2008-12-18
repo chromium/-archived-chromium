@@ -143,7 +143,7 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderView::RenderView()
-  : RenderWidget(RenderThread::current(), true),
+  : RenderWidget(g_render_thread, true),
     is_loading_(false),
     page_id_(-1),
     last_page_id_sent_to_browser_(-1),
@@ -183,7 +183,7 @@ RenderView::~RenderView() {
     it = plugin_delegates_.erase(it);
   }
 
-  RenderThread::current()->RemoveFilter(debug_message_handler_);
+  g_render_thread->RemoveFilter(debug_message_handler_);
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::CleanupRendererPersonalization(personalization_);
@@ -271,7 +271,7 @@ void RenderView::Init(HWND parent_hwnd,
   webview()->SetBackForwardListSize(1);
 
   routing_id_ = routing_id;
-  RenderThread::current()->AddRoute(routing_id_, this);
+  g_render_thread->AddRoute(routing_id_, this);
   // Take a reference on behalf of the RenderThread.  This will be balanced
   // when we receive ViewMsg_Close.
   AddRef();
@@ -295,7 +295,7 @@ void RenderView::Init(HWND parent_hwnd,
       command_line.HasSwitch(switches::kEnableGreasemonkey);
 
   debug_message_handler_ = new DebugMessageHandler(this);
-  RenderThread::current()->AddFilter(debug_message_handler_);
+  g_render_thread->AddFilter(debug_message_handler_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -1461,7 +1461,7 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
     if (gurl.SchemeIs("file") ||
         gurl.SchemeIs("http") ||
         gurl.SchemeIs("https")) {
-      RenderThread::current()->greasemonkey_slave()->InjectScripts(frame);
+      g_render_thread->greasemonkey_slave()->InjectScripts(frame);
     }
   }
 }
@@ -1785,7 +1785,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 
   int32 routing_id = MSG_ROUTING_NONE;
   HANDLE modal_dialog_event = NULL;
-  bool result = RenderThread::current()->Send(
+  bool result = g_render_thread->Send(
       new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id,
                                    &modal_dialog_event));
   if (routing_id == MSG_ROUTING_NONE) {
@@ -1811,7 +1811,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 WebWidget* RenderView::CreatePopupWidget(WebView* webview,
                                          bool focus_on_show) {
   RenderWidget* widget = RenderWidget::Create(routing_id_,
-                                              RenderThread::current(),
+                                              g_render_thread,
                                               focus_on_show);
   return widget->webwidget();
 }
@@ -1839,7 +1839,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   bool is_gears = false;
   if (ShouldLoadPluginInProcess(mime_type, &is_gears)) {
     std::wstring path;
-    RenderThread::current()->Send(
+    g_render_thread->Send(
         new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
                                       actual_mime_type));
     if (path.empty())

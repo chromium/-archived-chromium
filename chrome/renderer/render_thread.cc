@@ -7,9 +7,7 @@
 
 #include "chrome/renderer/render_thread.h"
 
-#include "base/lazy_instance.h"
 #include "base/shared_memory.h"
-#include "base/thread_local.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
@@ -21,21 +19,15 @@
 #include "chrome/renderer/visitedlink_slave.h"
 #include "webkit/glue/cache_manager.h"
 
+RenderThread* g_render_thread;
+
 static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
 // V8 needs a 1MB stack size.
 static const size_t kStackSize = 1024 * 1024;
 
-static base::LazyInstance<base::ThreadLocalPointer<RenderThread> >
-    lazy_tls_ptr(base::LINKER_INITIALIZED);
-
 //-----------------------------------------------------------------------------
 // Methods below are only called on the owner's thread:
-
-// static
-RenderThread* RenderThread::current() {
-  return lazy_tls_ptr.Pointer()->Get();
-}
 
 RenderThread::RenderThread(const std::wstring& channel_name)
     : Thread("Chrome_RenderThread"),
@@ -97,7 +89,8 @@ void RenderThread::RemoveRoute(int32 routing_id) {
 }
 
 void RenderThread::Init() {
-  DCHECK(!current()) << "should only have one RenderThread per thread";
+  DCHECK(!g_render_thread);
+  g_render_thread = this;
 
   notification_service_.reset(new NotificationService);
 
@@ -107,8 +100,6 @@ void RenderThread::Init() {
   channel_.reset(new IPC::SyncChannel(channel_name_,
       IPC::Channel::MODE_CLIENT, this, NULL, owner_loop_, true,
       RenderProcess::GetShutDownEvent()));
-
-  lazy_tls_ptr.Pointer()->Set(this);
 
   // The renderer thread should wind-up COM.
   CoInitialize(0);
@@ -124,7 +115,8 @@ void RenderThread::Init() {
 }
 
 void RenderThread::CleanUp() {
-  DCHECK(current() == this);
+  DCHECK(g_render_thread == this);
+  g_render_thread = NULL;
 
   // Need to destruct the SyncChannel to the browser before we go away because
   // it caches a pointer to this thread.
