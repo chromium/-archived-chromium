@@ -716,7 +716,7 @@ PassRefPtr<SharedBuffer> ResourceHandle::bufferedData() {
     ResourceResponse& response, Vector<char>& data, Frame*) {
 
   RefPtr<ResourceHandle> handle =
-      new ResourceHandle(request, NULL, false, false, false);
+      adoptRef(new ResourceHandle(request, NULL, false, false, false));
 
   ResourceLoaderBridge::SyncLoadResponse sync_load_response;
   if (!handle->d->Start(&sync_load_response)) {
