@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/file_path.h"
-
 #include "base/basictypes.h"
+#include "base/file_path.h"
+#include "base/file_util.h"
+#include "base/path_service.h"
+#include "chrome/common/chrome_paths.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 // This macro helps avoid wrapped lines in the test structs.
 #define FPL(x) FILE_PATH_LITERAL(x)
@@ -25,7 +28,19 @@ struct BinaryTestData {
   const FilePath::CharType* expected;
 };
 
-TEST(FilePathTest, DirName) {
+// file_util winds up using autoreleased objects on the Mac, so this needs
+// to be a PlatformTest
+class FilePathTest : public PlatformTest {
+ protected:
+  virtual void SetUp() {
+    PlatformTest::SetUp();
+  }
+  virtual void TearDown() {
+    PlatformTest::TearDown();
+  }
+};
+
+TEST_F(FilePathTest, DirName) {
   const struct UnaryTestData cases[] = {
     { FPL(""),              FPL(".") },
     { FPL("aa"),            FPL(".") },
@@ -114,7 +129,7 @@ TEST(FilePathTest, DirName) {
   }
 }
 
-TEST(FilePathTest, BaseName) {
+TEST_F(FilePathTest, BaseName) {
   const struct UnaryTestData cases[] = {
     { FPL(""),              FPL("") },
     { FPL("aa"),            FPL("aa") },
@@ -201,7 +216,7 @@ TEST(FilePathTest, BaseName) {
   }
 }
 
-TEST(FilePathTest, Append) {
+TEST_F(FilePathTest, Append) {
   const struct BinaryTestData cases[] = {
     { { FPL(""),           FPL("cc") }, FPL("cc") },
     { { FPL("."),          FPL("ff") }, FPL("ff") },
@@ -282,7 +297,7 @@ TEST(FilePathTest, Append) {
   }
 }
 
-TEST(FilePathTest, IsAbsolute) {
+TEST_F(FilePathTest, IsAbsolute) {
   const struct UnaryBooleanTestData cases[] = {
     { FPL(""),       false },
     { FPL("a"),      false },
@@ -348,4 +363,47 @@ TEST(FilePathTest, IsAbsolute) {
     EXPECT_EQ(cases[i].expected, observed) <<
               "i: " << i << ", input: " << input.value();
   }
+}
+
+TEST_F(FilePathTest, Contains) {
+  FilePath data_dir;
+  ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &data_dir));
+  data_dir = data_dir.Append(FILE_PATH_LITERAL("FilePathTest"));
+
+  // Create a fresh, empty copy of this directory.
+  file_util::Delete(data_dir, true);
+  file_util::CreateDirectory(data_dir);
+
+  FilePath foo(data_dir.Append(FILE_PATH_LITERAL("foo")));
+  FilePath bar(foo.Append(FILE_PATH_LITERAL("bar.txt")));
+  FilePath baz(data_dir.Append(FILE_PATH_LITERAL("baz.txt")));
+  FilePath foobar(data_dir.Append(FILE_PATH_LITERAL("foobar.txt")));
+
+  // Annoyingly, the directories must actually exist in order for realpath(),
+  // which Contains() relies on in posix, to work.
+  file_util::CreateDirectory(foo);
+  std::string data("hello");
+  file_util::WriteFile(bar.ToWStringHack(), data.c_str(), data.length());
+  file_util::WriteFile(baz.ToWStringHack(), data.c_str(), data.length());
+  file_util::WriteFile(foobar.ToWStringHack(), data.c_str(), data.length());
+
+  EXPECT_TRUE(foo.Contains(bar));
+  EXPECT_FALSE(foo.Contains(baz));
+  EXPECT_FALSE(foo.Contains(foobar));
+  EXPECT_FALSE(foo.Contains(foo));
+
+// Platform-specific concerns
+  FilePath foo_caps(data_dir.Append(FILE_PATH_LITERAL("FOO")));
+#if defined(OS_WIN)
+  EXPECT_TRUE(foo.Contains(foo_caps.Append(FILE_PATH_LITERAL("bar.txt"))));
+  EXPECT_TRUE(foo.Contains(
+      FilePath(foo.value() + FILE_PATH_LITERAL("/bar.txt"))));
+#elif defined(OS_LINUX)
+  EXPECT_FALSE(foo.Contains(foo_caps.Append(FILE_PATH_LITERAL("bar.txt"))));
+#else
+  // We can't really do this test on osx since the case-sensitivity of the
+  // filesystem is configurable.
+#endif
+
+  // Note: whether 
 }
