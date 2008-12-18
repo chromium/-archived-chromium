@@ -1298,6 +1298,8 @@ WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
 // Windows is missing the green box.
 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
+LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+
 // -----------------------------------------------------------------
 // MAC PORT TESTS
 // -----------------------------------------------------------------
@@ -1424,6 +1426,7 @@ MAC : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 MAC : LayoutTests/fast/forms/input-type-text-min-width.html = FAIL
 MAC : LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
 MAC : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
+MAC : LayoutTests/fast/table/text-field-baseline.html = FAIL
 
 // we're waiting on upstreaming a change to how textarea padding works. rather
 // than rebasing, we'll wait for the upstream (which ojan said should happen
@@ -1580,10 +1583,6 @@ MAC : LayoutTests/fast/dom/tabindex-clamp.html = FAIL
 
 // Error from CGImageSourceUpdateData but everything else is correct.
 MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
-
-// come back to clean this up. Windows was incorrectly baselined and so we
-// should remove its baseline and convert this to all platforms.
-MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 
 // Crashing...
 
