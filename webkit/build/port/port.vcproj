@@ -1397,14 +1397,6 @@
 				</File>
 			</Filter>
 		</Filter>
-		<Filter
-			Name="history"
-			>
-			<File
-				RelativePath="..\..\port\history\CachedPage.cpp"
-				>
-			</File>
-		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
