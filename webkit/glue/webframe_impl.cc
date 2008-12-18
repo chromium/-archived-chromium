@@ -1675,6 +1675,12 @@ bool WebFrameImpl::ExecuteCoreCommandByName(const std::string& name,
       .execute(webkit_glue::StdStringToString(value));
 }
 
+bool WebFrameImpl::IsCoreCommandEnabled(const std::string& name) {
+  ASSERT(frame());
+  return frame()->editor()->command(webkit_glue::StdStringToString(name))
+      .isEnabled();
+}
+
 void WebFrameImpl::AddMessageToConsole(const std::wstring& msg,
                                        ConsoleMessageLevel level) {
   ASSERT(frame());

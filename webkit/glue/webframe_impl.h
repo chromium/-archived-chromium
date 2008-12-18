@@ -156,6 +156,7 @@ class WebFrameImpl : public WebFrame {
   virtual WebTextInput* GetTextInput();
 
   virtual bool ExecuteCoreCommandByName(const std::string& name, const std::string& value);
+  virtual bool IsCoreCommandEnabled(const std::string& name);
 
   virtual void AddMessageToConsole(const std::wstring& msg,
                                    ConsoleMessageLevel level);

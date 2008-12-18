@@ -111,8 +111,11 @@ class LayoutTestController : public CppBoundClass {
   // with a fake file object.
   void addFileToPasteboardOnDrag(const CppArgumentList& args, CppVariant* result);
 
-  // Executes an internal command (superset of document.execCommand() commands)
+  // Executes an internal command (superset of document.execCommand() commands).
   void execCommand(const CppArgumentList& args, CppVariant* result);
+
+  // Checks if an internal command is currently available.
+  void isCommandEnabled(const CppArgumentList& args, CppVariant* result);
 
   // Set the WebPreference that controls webkit's popup blocking.
   void setPopupBlockingEnabled(const CppArgumentList& args, CppVariant* result);

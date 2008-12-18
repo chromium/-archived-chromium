@@ -92,6 +92,7 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("pathToLocalResource", &LayoutTestController::pathToLocalResource);
   BindMethod("addFileToPasteboardOnDrag", &LayoutTestController::addFileToPasteboardOnDrag);
   BindMethod("execCommand", &LayoutTestController::execCommand);
+  BindMethod("isCommandEnabled", &LayoutTestController::isCommandEnabled);
   BindMethod("setPopupBlockingEnabled", &LayoutTestController::setPopupBlockingEnabled);
   BindMethod("setStopProvisionalFrameLoads", &LayoutTestController::setStopProvisionalFrameLoads);
   BindMethod("setSmartInsertDeleteEnabled", &LayoutTestController::setSmartInsertDeleteEnabled);
@@ -470,6 +471,18 @@ void LayoutTestController::execCommand(
                                                                    value);
   }
   result->SetNull();
+}
+
+void LayoutTestController::isCommandEnabled(
+    const CppArgumentList& args, CppVariant* result) {
+  if (args.size() <= 0 || !args[0].isString()) {
+    result->SetNull();
+    return;
+  }
+
+  std::string command = args[0].ToString();
+  bool rv = shell_->webView()->GetFocusedFrame()->IsCoreCommandEnabled(command);
+  result->Set(rv);
 }
 
 void LayoutTestController::setPopupBlockingEnabled(

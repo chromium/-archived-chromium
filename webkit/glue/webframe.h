@@ -323,6 +323,11 @@ class WebFrame : public base::RefCounted<WebFrame> {
   virtual bool ExecuteCoreCommandByName(const std::string& name,
                                         const std::string& value) = 0;
 
+  // Checks whether a webkit editor command is currently enabled. This
+  // method is exposed in order to implement
+  // javascript:layoutTestController.isCommandEnabled()
+  virtual bool IsCoreCommandEnabled(const std::string& name) = 0;
+
   // Adds a message to the frame's console.
   virtual void AddMessageToConsole(const std::wstring& msg,
                                    ConsoleMessageLevel level) = 0;

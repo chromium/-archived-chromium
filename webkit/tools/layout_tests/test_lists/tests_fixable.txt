@@ -1654,7 +1654,6 @@ LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 LINUX WIN : LayoutTests/http/tests/loading/simple-subframe.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
-LayoutTests/editing/execCommand/enabling-and-selection-2.html = FAIL
 SKIP : LayoutTests/fast/dom/Window/timeout-released-on-close.html = FAIL
 LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
 LayoutTests/fast/regex/non-pattern-characters.html = FAIL
