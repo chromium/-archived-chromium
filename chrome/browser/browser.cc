@@ -373,7 +373,10 @@ bool Browser::GetSavedMaximizedState() const {
 }
 
 SkBitmap Browser::GetCurrentPageIcon() const {
-  return GetSelectedTabContents()->GetFavIcon();
+  TabContents* contents = GetSelectedTabContents();
+  // |contents| can be NULL since GetCurrentPageIcon() is called by the window
+  // during the window's creation (before tabs have been added).
+  return contents ? contents->GetFavIcon() : SkBitmap();
 }
 
 std::wstring Browser::GetCurrentPageTitle() const {
