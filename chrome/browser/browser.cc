@@ -1306,6 +1306,12 @@ void Browser::DuplicateContentsAt(int index) {
       browser = Browser::CreateForPopup(profile_);
     }
 
+    // Preserve the size of the original window. The new window has already
+    // been given an offset by the OS, so we shouldn't copy the old bounds.
+    BrowserWindow* new_window = browser->window();
+    new_window->SetBounds(gfx::Rect(new_window->GetNormalBounds().origin(),
+                          window()->GetNormalBounds().size()));
+
     // We need to show the browser now. Otherwise ContainerWin assumes the
     // TabContents is invisible and won't size it.
     browser->window()->Show();
