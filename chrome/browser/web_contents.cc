@@ -850,6 +850,8 @@ void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
   scoped_ptr<LoadNotificationDetails> details;
   if (controller()) {
     NavigationEntry* entry = controller()->GetActiveEntry();
+    // An entry may not exist for a stop when loading an initial blank page or
+    // if an iframe injected by script into a blank page finishes loading.
     if (entry) {
       scoped_ptr<base::ProcessMetrics> metrics(
           base::ProcessMetrics::CreateProcessMetrics(
@@ -863,11 +865,6 @@ void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
           elapsed,
           controller(),
           controller()->GetCurrentEntryIndex()));
-    } else {
-      DCHECK(page_id == -1) <<
-          "When a controller exists a NavigationEntry should always be "
-          "available in OnMsgDidStopLoading unless we are loading the "
-          "initial blank page.";
     }
   }
 

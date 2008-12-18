@@ -30,7 +30,7 @@ TEST_F(IFrameTest, Crash) {
 
 // http://crbug.com/3035 : Triggers a DCHECK in web_contents.cc.  Need to
 // investigate.
-TEST_F(IFrameTest, DISABLED_InEmptyFrame) {
+TEST_F(IFrameTest, InEmptyFrame) {
   NavigateAndVerifyTitle(L"iframe_in_empty_frame.html", L"iframe test");
 }
 
