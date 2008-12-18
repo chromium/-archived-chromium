@@ -682,9 +682,11 @@ void BackendImpl::OnStatsTimer() {
   stats_.SetCounter(Stats::MAX_ENTRIES, max_refs_);
 
   static bool first_time = true;
+  if (!data_)
+    first_time = false;
   if (first_time) {
     first_time = false;
-    int experiment = data_ ? data_->header.experiment : 1;
+    int experiment = data_->header.experiment;
     std::wstring entries(StringPrintf(L"DiskCache.Entries_%d", experiment));
     std::wstring size(StringPrintf(L"DiskCache.Size_%d", experiment));
     std::wstring max_size(StringPrintf(L"DiskCache.MaxSize_%d", experiment));
