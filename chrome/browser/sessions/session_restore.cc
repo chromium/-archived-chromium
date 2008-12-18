@@ -424,6 +424,7 @@ static void Restore(Profile* profile,
     NOTREACHED();
     return;
   }
+  profile->set_restored_last_session(true);
   // SessionRestoreImpl takes care of deleting itself when done.
   SessionRestoreImpl* restorer =
       new SessionRestoreImpl(profile, browser, synchronous,

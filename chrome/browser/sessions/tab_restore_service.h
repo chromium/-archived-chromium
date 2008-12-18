@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_SESSIONS_TAB_RESTORE_SERVICE_H_
 
 #include <list>
+#include <vector>
 
 #include "base/observer_list.h"
 #include "base/time.h"
@@ -126,14 +127,35 @@ class TabRestoreService : public BaseSessionService {
                         SessionID::id_type id,
                         bool replace_existing_tab);
 
-  // Loads the tabs from the previous session. This does nothing if the tabs
+  // Loads the tabs and previous session. This does nothing if the tabs
   // from the previous session have already been loaded.
   void LoadTabsFromLastSession();
+
+  // Max number of entries we'll keep around.
+  static const size_t kMaxEntries;
 
  protected:
   virtual void Save();
 
  private:
+  // Used to indicate what has loaded.
+  enum LoadState {
+    // Indicates we haven't loaded anything.
+    NOT_LOADED           = 1 << 0,
+
+    // Indicates we've asked for the last sessions and tabs but haven't gotten
+    // the result back yet.
+    LOADING              = 1 << 2,
+
+    // Indicates we finished loading the last tabs (but not necessarily the
+    // last session).
+    LOADED_LAST_TABS     = 1 << 3,
+
+    // Indicates we finished loading the last session (but not necessarily the
+    // last tabs).
+    LOADED_LAST_SESSION  = 1 << 4
+  };
+
   // Populates tabs->navigations from the NavigationController.
   void PopulateTabFromController(NavigationController* controller,
                                  Tab* tab);
@@ -179,11 +201,17 @@ class TabRestoreService : public BaseSessionService {
   // no valid navigation to persist.
   int GetSelectedNavigationIndexToPersist(const Tab& tab);
 
-  // Invoked when we've loaded the session commands from the previous run.
-  // This creates entries and adds them to entries_, notifying the observer.
+  // Invoked when we've loaded the session commands that identify the
+  // previously closed tabs. This creates entries, adds them to
+  // staging_entries_, and invokes LoadState.
   void OnGotLastSessionCommands(
       Handle handle,
       scoped_refptr<InternalGetCommandsRequest> request);
+
+  // Populates |loaded_entries| with Entries from |request|.
+  void CreateEntriesFromCommands(
+      scoped_refptr<InternalGetCommandsRequest> request,
+      std::vector<Entry*>* loaded_entries);
 
   // Returns true if |tab| has more than one navigation. If |tab| has more
   // than one navigation |tab->current_navigation_index| is constrained based
@@ -195,11 +223,32 @@ class TabRestoreService : public BaseSessionService {
   // hold.
   void ValidateAndDeleteEmptyEntries(std::vector<Entry*>* entries);
 
+  // Callback from SessionService when we've received the windows from the
+  // previous session. This creates and add entries to |staging_entries_|
+  // and invokes LoadStateChanged.
+  void OnGotPreviousSession(Handle handle,
+                            std::vector<SessionWindow*>* windows);
+
+  // Creates and add entries to |entries| for each of the windows in |windows|.
+  void CreateEntriesFromWindows(
+      std::vector<SessionWindow*>* windows,
+      std::vector<Entry*>* entries);
+
+  // Converts a SessionWindow into a Window, returning true on success.
+  bool ConvertSessionWindowToWindow(
+      SessionWindow* session_window,
+      Window* window);
+
+  // Invoked when previous tabs or session is loaded. If both have finished
+  // loading the entries in staging_entries_ are added to entries_ and
+  // observers are notified.
+  void LoadStateChanged();
+
   // Set of entries.
   Entries entries_;
 
   // Whether we've loaded the last session.
-  bool loaded_last_session_;
+  int load_state_;
 
   // Are we restoring a tab? If this is true we ignore requests to create a
   // historical tab.
@@ -221,8 +270,14 @@ class TabRestoreService : public BaseSessionService {
   // avoid creating historical tabs for them.
   std::set<Browser*> closing_browsers_;
 
-  // Used when loading commands from the previous session.
-  CancelableRequestConsumer load_tabs_consumer_;
+  // Used when loading previous tabs/session.
+  CancelableRequestConsumer load_consumer_;
+
+  // Results from previously closed tabs/sessions is first added here. When
+  // the results from both us and the session restore service have finished
+  // loading LoadStateChanged is invoked, which adds these entries to
+  // entries_.
+  std::vector<Entry*> staging_entries_;
 
   DISALLOW_COPY_AND_ASSIGN(TabRestoreService);
 };

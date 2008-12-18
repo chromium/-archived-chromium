@@ -65,6 +65,7 @@ class Profile {
     // off the record mode.
     IMPLICIT_ACCESS
   };
+  Profile() : restored_last_session_(false) {}
   virtual ~Profile() {}
 
   // Profile prefs are registered as soon as the prefs are loaded for the first
@@ -229,8 +230,19 @@ class Profile {
   }
 #endif
 
+  // Did the user restore the last session? This is set by SessionRestore.
+  void set_restored_last_session(bool restored_last_session) {
+    restored_last_session_ = restored_last_session;
+  }
+  bool restored_last_session() const {
+    return restored_last_session_;
+  }
+
  protected:
   static URLRequestContext* default_request_context_;
+
+ private:
+  bool restored_last_session_;
 };
 
 class OffTheRecordProfileImpl;

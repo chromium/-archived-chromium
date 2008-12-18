@@ -12,6 +12,7 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_backend.h"
+#include "chrome/browser/sessions/session_service.h"
 #include "chrome/common/scoped_vector.h"
 #include "chrome/common/stl_util-inl.h"
 
@@ -28,8 +29,8 @@ TabRestoreService::Entry::Entry(Type type) : id(next_entry_id++), type(type) {}
 
 // TabRestoreService ----------------------------------------------------------
 
-// Max number of entries we'll keep around.
-static const size_t kMaxEntries = 10;
+// static
+const size_t TabRestoreService::kMaxEntries = 10;
 
 // Identifier for commands written to file.
 // The ordering in the file is as follows:
@@ -64,7 +65,7 @@ struct WindowPayload {
   int32 num_tabs;
 };
 
-// Paylowed used for the start of a tab close.
+// Payload used for the start of a tab close.
 struct SelectedNavigationInTabPayload {
   SessionID::id_type id;
   int32 index;
@@ -92,7 +93,7 @@ void RemoveEntryByID(SessionID::id_type id,
 TabRestoreService::TabRestoreService(Profile* profile)
     : BaseSessionService(BaseSessionService::TAB_RESTORE, profile,
                          std::wstring()),
-      loaded_last_session_(false),
+      load_state_(NOT_LOADED),
       restoring_(false),
       reached_max_(false),
       entries_to_write_(0),
@@ -105,6 +106,7 @@ TabRestoreService::~TabRestoreService() {
 
   FOR_EACH_OBSERVER(Observer, observer_list_, TabRestoreServiceDestroyed(this));
   STLDeleteElements(&entries_);
+  STLDeleteElements(&staging_entries_);
 }
 
 void TabRestoreService::AddObserver(Observer* observer) {
@@ -242,15 +244,30 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
 }
 
 void TabRestoreService::LoadTabsFromLastSession() {
-  if (loaded_last_session_ || reached_max_)
+  if (load_state_ != NOT_LOADED || reached_max_)
     return;
 
-  loaded_last_session_ = true;
+  load_state_ = LOADING;
 
+  if (!profile()->restored_last_session() &&
+      !profile()->DidLastSessionExitCleanly() &&
+      profile()->GetSessionService()) {
+    // The previous session crashed and wasn't restored. Load the tabs/windows
+    // that were open at the point of crash from the session service.
+    profile()->GetSessionService()->GetLastSession(
+        &load_consumer_,
+        NewCallback(this, &TabRestoreService::OnGotPreviousSession));
+  } else {
+    load_state_ |= LOADED_LAST_SESSION;
+  }
+
+  // Request the tabs closed in the last session. If the last session crashed,
+  // this won't contain the tabs/window that were open at the point of the
+  // crash (the call to GetLastSession above requests those).
   ScheduleGetLastSessionCommands(
       new InternalGetCommandsRequest(
           NewCallback(this, &TabRestoreService::OnGotLastSessionCommands)),
-      &load_tabs_consumer_);
+      &load_consumer_);
 }
 
 void TabRestoreService::Save() {
@@ -466,6 +483,18 @@ int TabRestoreService::GetSelectedNavigationIndexToPersist(const Tab& tab) {
 void TabRestoreService::OnGotLastSessionCommands(
     Handle handle,
     scoped_refptr<InternalGetCommandsRequest> request) {
+  std::vector<Entry*> entries;
+  CreateEntriesFromCommands(request, &entries);
+  // Closed tabs always go to the end.
+  staging_entries_.insert(staging_entries_.end(), entries.begin(),
+                          entries.end());
+  load_state_ |= LOADED_LAST_TABS;
+  LoadStateChanged();
+}
+
+void TabRestoreService::CreateEntriesFromCommands(
+    scoped_refptr<InternalGetCommandsRequest> request,
+    std::vector<Entry*>* loaded_entries) {
   if (request->canceled() || entries_.size() == kMaxEntries)
     return;
 
@@ -575,23 +604,7 @@ void TabRestoreService::OnGotLastSessionCommands(
   // entries with no navigations.
   ValidateAndDeleteEmptyEntries(&(entries.get()));
 
-  if (entries->empty())
-    return;
-
-  // And add them.
-  for (size_t i = 0; i < entries->size(); ++i)
-    AddEntry(entries[i], false, false);
-
-  // AddEntry takes ownership of the entry, need to clear out entries so that
-  // it doesn't delete them.
-  entries->clear();
-
-  // Make it so we rewrite all the tabs. We need to do this otherwise we won't
-  // correctly write out the entries when Save is invoked (Save starts from
-  // the front, not the end and we just added the entries to the end).
-  entries_to_write_ = entries_.size();
-
-  PruneAndNotify();
+  loaded_entries->swap(entries.get());
 }
 
 bool TabRestoreService::ValidateTab(Tab* tab) {
@@ -646,4 +659,91 @@ void TabRestoreService::ValidateAndDeleteEmptyEntries(
 
   // Delete the remaining entries.
   STLDeleteElements(&invalid_entries);
+}
+
+void TabRestoreService::OnGotPreviousSession(
+    Handle handle,
+    std::vector<SessionWindow*>* windows) {
+  std::vector<Entry*> entries;
+  CreateEntriesFromWindows(windows, &entries);
+  // Previous session tabs go first.
+  staging_entries_.insert(staging_entries_.begin(), entries.begin(),
+                          entries.end());
+  load_state_ |= LOADED_LAST_SESSION;
+  LoadStateChanged();
+}
+
+void TabRestoreService::CreateEntriesFromWindows(
+    std::vector<SessionWindow*>* windows,
+    std::vector<Entry*>* entries) {
+  for (size_t i = 0; i < windows->size(); ++i) {
+    scoped_ptr<Window> window(new Window());
+    if (ConvertSessionWindowToWindow((*windows)[i], window.get()))
+      entries->push_back(window.release());
+  }
+}
+
+bool TabRestoreService::ConvertSessionWindowToWindow(
+    SessionWindow* session_window,
+    Window* window) {
+  for (size_t i = 0; i < session_window->tabs.size(); ++i) {
+    if (!session_window->tabs[i]->navigations.empty()) {
+      window->tabs.resize(window->tabs.size() + 1);
+      Tab& tab = window->tabs.back();
+      tab.navigations.swap(session_window->tabs[i]->navigations);
+      tab.current_navigation_index =
+          session_window->tabs[i]->current_navigation_index;
+    }
+  }
+  if (window->tabs.empty())
+    return false;
+
+  window->selected_tab_index =
+      std::min(session_window->selected_tab_index,
+               static_cast<int>(window->tabs.size() - 1));
+  return true;
+}
+
+void TabRestoreService::LoadStateChanged() {
+  if ((load_state_ & (LOADED_LAST_TABS | LOADED_LAST_SESSION)) !=
+      (LOADED_LAST_TABS | LOADED_LAST_SESSION)) {
+    // Still waiting on previous session or previous tabs.
+    return;
+  }
+
+  // We're done loading.
+  load_state_ ^= LOADING;
+
+  if (staging_entries_.empty() || reached_max_) {
+    STLDeleteElements(&staging_entries_);
+    return;
+  }
+
+  if (staging_entries_.size() + entries_.size() > kMaxEntries) {
+    // If we add all the staged entries we'll end up with more than
+    // kMaxEntries. Delete entries such that we only end up with
+    // at most kMaxEntries.
+    DCHECK(entries_.size() < kMaxEntries);
+    STLDeleteContainerPointers(
+        staging_entries_.begin() + (kMaxEntries - entries_.size()),
+        staging_entries_.end());
+    staging_entries_.erase(
+        staging_entries_.begin() + (kMaxEntries - entries_.size()),
+        staging_entries_.end());
+  }
+
+  // And add them.
+  for (size_t i = 0; i < staging_entries_.size(); ++i)
+    AddEntry(staging_entries_[i], false, false);
+
+  // AddEntry takes ownership of the entry, need to clear out entries so that
+  // it doesn't delete them.
+  staging_entries_.clear();
+
+  // Make it so we rewrite all the tabs. We need to do this otherwise we won't
+  // correctly write out the entries when Save is invoked (Save starts from
+  // the front, not the end and we just added the entries to the end).
+  entries_to_write_ = staging_entries_.size();
+
+  PruneAndNotify();
 }

@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/common/pref_service.h"
 
@@ -107,13 +108,16 @@ class TestingProfile : public Profile {
   virtual URLRequestContext* GetRequestContext() {
     return NULL;
   }
+  void set_session_service(SessionService* session_service) {
+    session_service_ = session_service;
+  }
   virtual SessionService* GetSessionService() {
-    return NULL;
+    return session_service_.get();
   }
   virtual void ShutdownSessionService() {
   }
   virtual bool HasSessionService() const {
-    return false;
+    return (session_service_.get() != NULL);
   }
   virtual std::wstring GetName() {
     return std::wstring();
@@ -126,8 +130,11 @@ class TestingProfile : public Profile {
   virtual void SetID(const std::wstring& id) {
     id_ = id;
   }
+  void set_last_session_exited_cleanly(bool value) {
+    last_session_exited_cleanly_ = value;
+  }
   virtual bool DidLastSessionExitCleanly() {
-    return true;
+    return last_session_exited_cleanly_;
   }
   virtual void MergeResourceString(int message_id,
                                    std::wstring* output_string) {
@@ -185,6 +192,9 @@ class TestingProfile : public Profile {
   // The TemplateURLFetcher. Only created if CreateTemplateURLModel is invoked.
   scoped_ptr<TemplateURLModel> template_url_model_;
 
+  // The SessionService. Defaults to NULL, but can be set using the setter.
+  scoped_refptr<SessionService> session_service_;
+
   // Do we have a history service? This defaults to the value of
   // history_service, but can be explicitly set.
   bool has_history_service_;
@@ -192,6 +202,9 @@ class TestingProfile : public Profile {
   std::wstring id_;
 
   bool off_the_record_;
+
+  // Did the last session exit cleanly? Default is true.
+  bool last_session_exited_cleanly_;
 };
 
 #endif  // CHROME_TEST_TESTING_PROFILE_H__
