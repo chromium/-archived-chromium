@@ -127,7 +127,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
   // (the bug would make this step hang the renderer).
   bool timed_out = false;
   tab->NavigateToURLWithTimeout(server.TestServerPageW(L"files/title2.html"),
-                                action_timeout_ms(),
+                                action_max_timeout_ms(),
                                 &timed_out);
   EXPECT_FALSE(timed_out);
 
