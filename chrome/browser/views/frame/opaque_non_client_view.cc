@@ -657,7 +657,8 @@ views::View* OpaqueNonClientView::GetViewForPoint(const gfx::Point& point,
   for (int i = 0; i < arraysize(views); ++i) {
     if (!views[i]->IsVisible())
       continue;
-    if (views[i]->bounds().Contains(point))
+    // Apply mirroring transformation on view bounds for RTL chrome.
+    if (views[i]->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
       return views[i];
   }
   return View::GetViewForPoint(point, can_create_floating);
