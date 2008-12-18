@@ -13,7 +13,7 @@ env.ApplySConscript([
     '$LZMA_SDK_DIR/using_lzma_sdk.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env_res = env.Clone()
 
   env_res.Append(
@@ -46,7 +46,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       LINKFLAGS = [
           '/INCREMENTAL',
@@ -87,6 +87,6 @@ exe_version_rc = env.ChromeVersionRC('setup_exe_version.rc',
                                      'setup_exe_version.rc.version',
                                      PWD = env.Dir('.'))
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(sgk):  implicit dependency should be picked up automatically
   env_res.Depends(resources, exe_version_rc)

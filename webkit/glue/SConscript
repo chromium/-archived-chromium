@@ -12,7 +12,7 @@ env.Append(
     ]
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
           '/TP',
@@ -81,7 +81,7 @@ input_files = [
   'webview_impl.cc',
 ]
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   # TODO(port): until we have plugin support for Linux, these files aren't
   # built.
   remove_files = [
@@ -94,7 +94,7 @@ if env['PLATFORM'] == 'posix':
   for file in remove_files:
     input_files.remove(file)
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): These extra files aren't win32-specific, they've just not been
   # tested on other platforms yet.
   input_files.extend([
@@ -108,25 +108,25 @@ if env['PLATFORM'] == 'win32':
     'webdropdata.cc',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
     'plugins/plugin_stream_win.cc',
     'webcursor_win.cc',
     'webinputevent_win.cc',
     'webkit_glue_win.cc',
   ])
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   input_files.extend([
       'webcursor_gtk.cc',
       'webinputevent_linux.cc',
       'webkit_glue_gtk.cc',
   ])
-elif env['PLATFORM'] == 'darwin':
+elif env.Bit('mac'):
   input_files.extend([
     'webcursor_mac.mm',
   ])
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   input_files.extend([
     'plugins/plugin_stream_posix.cc',
   ])

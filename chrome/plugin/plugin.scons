@@ -17,7 +17,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
           '$CHROME_DIR/tools/build/win',
@@ -38,7 +38,7 @@ input_files = [
     'webplugin_proxy.cc',
 ]
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   # TODO(port)
   to_be_ported_files = [
       'chrome_plugin_host.cc',

@@ -17,7 +17,7 @@ env.ApplySConscript([
     '$NET_DIR/using_net.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       LINKFLAGS = [
           '/SUBSYSTEM:CONSOLE',

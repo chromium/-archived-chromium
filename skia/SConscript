@@ -23,7 +23,7 @@ env.Append(
   ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
     CCFLAGS = [
       '/TP',
@@ -36,7 +36,7 @@ if env['PLATFORM'] == 'win32':
       '/wd4800',
     ],
   )
-elif env['PLATFORM'] in ('posix', 'darwin'):
+elif env.Bit('posix'):
   env.Append(CCFLAGS = ['-Wno-unused'])
 
 input_files = [
@@ -159,7 +159,7 @@ input_files = [
   'sgl/SkXfermode.cpp',
 ]
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   input_files.append('ext/bitmap_platform_device_linux.cc')
   input_files.append('ext/platform_canvas_linux.cc')
   input_files.append('ext/platform_device_linux.cc')
@@ -176,15 +176,15 @@ if env['PLATFORM'] == 'posix':
 
   env.Append(CCFLAGS = ['-Wno-unused-function'])
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   input_files.append('ports/SkThread_pthread.cpp')
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   input_files.append('ext/bitmap_platform_device_mac.cc')
   input_files.append('ext/platform_canvas_mac.cc')
   input_files.append('ext/platform_device_mac.cc')
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.append('ext/bitmap_platform_device_win.cc')
   input_files.append('ext/platform_canvas_win.cc')
   input_files.append('ext/platform_device_win.cc')

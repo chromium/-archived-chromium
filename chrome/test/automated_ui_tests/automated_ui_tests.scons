@@ -33,7 +33,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
           '$CHROME_DIR/tools/build/win',

@@ -48,7 +48,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CPPDEFINES = [
           'W32',
@@ -60,7 +60,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   env.Append(
       CCFLAGS = [
           '-Wno-parentheses',

@@ -12,7 +12,7 @@ env.ApplySConscript([
     '$SANDBOX_DIR/using_sandbox.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
           '/WX',          # treat warnings as errors

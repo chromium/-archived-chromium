@@ -19,18 +19,18 @@ env.ApplySConscript([
     '$NET_DIR/using_net.scons',
 ])
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   env.SConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
   ], {'env':env})
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CCFLAGS = [
           '/WX',
       ],
   )
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   env.Append(
       # TODO(port): disk_cache_perftest breaks strict aliasing rules.
       CCFLAGS = ['-fno-strict-aliasing'],
@@ -46,6 +46,5 @@ input_files = [
     '$OBJ_ROOT/base/perftimer$OBJSUFFIX',
 ]
 
-if env['PLATFORM'] in ('posix', 'win32'):
-
+if not env.Bit('mac'):
   env.ChromeTestProgram('net_perftests', input_files)

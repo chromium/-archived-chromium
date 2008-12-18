@@ -10,14 +10,14 @@ env.ApplySConscript([
     '$LZMA_SDK_DIR/using_lzma_sdk.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
     CCFLAGS = [
         '/TP',
         '/wd4800',
     ],
   )
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   # We're not responsible for bad warning hygiene in this third party code.
   env.FilterOut(
       CXXFLAGS = ['-Wall'],

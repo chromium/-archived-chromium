@@ -19,7 +19,7 @@ input_files = [
     'plugin_test.cc'
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): Port these.
   input_files.extend([
       'plugin_execute_script_delete_test.cc',
@@ -36,7 +36,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       env_res.RES('npapi_test.rc'),
       'npapi_test.def'

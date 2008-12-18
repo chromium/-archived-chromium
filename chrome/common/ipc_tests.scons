@@ -20,7 +20,7 @@ env.SConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   env.SConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
   ], {'env':env})
@@ -43,14 +43,14 @@ env.Prepend(
     ]
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
           '$CHROME_DIR/tools/build/win',
       ],
   )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       LINKFLAGS = [
           '/INCREMENTAL',

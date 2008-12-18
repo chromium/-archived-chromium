@@ -49,14 +49,14 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
           '/TC',
           '/wd4800',
       ],
   )
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   env.Append(
       CPPDEFINES = [
           '_REENTRANT',
@@ -116,7 +116,7 @@ input_files = [
 env.ChromeStaticLibrary('libxml', input_files)
 
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   config_files = [
       # The configure.js script must be first in this list; the
       # env.Command() call below executes the first list element.
@@ -146,7 +146,7 @@ if env['PLATFORM'] == 'win32':
               copied_files,
               'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
               CONFIG_OPTIONS='compiler=msvc iconv=no icu=yes')
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   config_files = [
       'config.h',
       'include/libxml/xmlversion.h',

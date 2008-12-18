@@ -6,7 +6,7 @@ Import('env')
 
 env = env.Clone()
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
     env.Prepend(
         CPPDEFINES = [
                 'NOGDI',
@@ -344,7 +344,7 @@ inputs = [
     '$PORT_DIR/page/inspector/InspectorController.cpp',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   inputs.append('precompiled_v8bindings.cpp')
 
 env.ChromeStaticLibrary('V8Bindings', inputs)

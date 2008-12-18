@@ -32,7 +32,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
           '$CHROME_DIR/tools/build/win',
@@ -41,7 +41,7 @@ if env['PLATFORM'] == 'win32':
 
 input_files = []
 
-if env['PLATFORM'] in ('posix', 'win32'):
+if not env.Bit('mac'):
   # TODO(port): Port to Mac.
   input_files.extend([
       'animation.cc',
@@ -77,7 +77,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'visitedlink_common.cc',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): Port these.
   input_files.extend([
       'child_process.cc',
@@ -111,24 +111,24 @@ if env['PLATFORM'] == 'win32':
       'worker_thread_ticker.cc',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # Windows specific files
   input_files.extend([
       'gfx/chrome_font_win.cc',
       'ipc_channel_win.cc',
   ])
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   input_files.extend([
       'gfx/chrome_canvas_skia.cc',
       'gfx/chrome_font_skia.cc',
   ])
 
-if env['PLATFORM'] in ['posix', 'mac']:
+if env.Bit('posix'):
   input_files.extend([
       'ipc_channel_posix.cc',
   ])
 
 
-if env['PLATFORM'] in ('posix', 'win32'):
+if not env.Bit('mac'):
   # TODO(port): This should be enabled for all platforms.
   env.ChromeStaticLibrary('common', input_files)

@@ -12,11 +12,11 @@ env.ApplySConscript([
 
 
 # TODO(port):  Don't be too fooled by the presence of all the
-# if env['PLATFORM'] == 'win32' tests in this file into thinking
+# if env.Bit('windows') tests in this file into thinking
 # this is necessarily portable.  They're just there to wall off the
 # obviously windows-specific things
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env_res = env.Clone()
 
   env_res.Append(
@@ -42,7 +42,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.FilterOut(
       LIBS = ['DelayImp.lib'],
       CCFLAGS = ['/RTC1'],
@@ -80,7 +80,7 @@ input_files = [
     "pe_resource.cc",
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       "$VISUAL_STUDIO/VC/crt/src/intel/mt_lib/memset.obj",
       "$VISUAL_STUDIO/VC/crt/src/intel/mt_lib/P4_memset.obj",
@@ -109,6 +109,6 @@ exe_version_rc = env.ChromeVersionRC('mini_installer_exe_version.rc',
                                      'mini_installer_exe_version.rc.version',
                                      PWD=Dir('.'))
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(sgk):  implicit dependency should be picked up automatically
   env_res.Depends(resources, exe_version_rc)

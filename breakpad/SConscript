@@ -13,7 +13,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
           '/TP',
@@ -29,7 +29,7 @@ if env['PLATFORM'] == 'win32':
   env.ChromeStaticLibrary('breakpad_sender', sender_input_files)
 
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   handler_input_files = [
       'src/client/windows/crash_generation/client_info.cc',
       'src/client/windows/crash_generation/minidump_generator.cc',
@@ -38,7 +38,7 @@ if env['PLATFORM'] == 'win32':
       'src/client/windows/crash_generation/crash_generation_server.cc',
       'src/client/windows/crash_generation/crash_generation_client.cc',
   ]
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   handler_input_files = [
       'src/common/linux/guid_creator.cc',
       'src/client/linux/handler/exception_handler.cc',

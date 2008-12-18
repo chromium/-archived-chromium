@@ -21,7 +21,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   incremental = env.get('INCREMENTAL')
   if incremental is not None:
     if incremental:
@@ -110,7 +110,7 @@ if env['PLATFORM'] == 'win32':
           '/EH',    # VCCLCompilerTool.ExceptionHandling="0"
       ],
   )
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   pass
-elif env['PLATFORM'] == 'mac':
+elif env.Bit('mac'):
   pass

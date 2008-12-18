@@ -13,7 +13,7 @@ input_files = [
     'TestObject.cpp'
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       env_res.RES('npapi_layout_test_plugin.rc'),
       'npapi_layout_test_plugin.def'

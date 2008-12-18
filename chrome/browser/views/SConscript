@@ -132,7 +132,7 @@ input_files = [
     'user_data_dir_dialog.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       'find_bar_win.cc',
   ])

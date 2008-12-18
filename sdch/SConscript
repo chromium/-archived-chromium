@@ -12,7 +12,7 @@ cpppath = [
     '$OPEN_VCDIFF_DIR/src',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   cpppath.append('$OPEN_VCDIFF_DIR/vsprojects')
 
 env.Prepend(CPPPATH = cpppath)
@@ -33,7 +33,7 @@ input_files = [
 
 env.ChromeStaticLibrary('sdch', input_files)
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
 
   # Generate a target config.h file from a source config.h.in file.
   #
@@ -73,14 +73,14 @@ if env['PLATFORM'] in ('posix', 'darwin'):
       'STDC_HEADERS',
   ]
 
-  if env['PLATFORM'] == 'posix':
+  if env.Bit('linux'):
     defines.extend([
         'HAVE_MALLOC_H',
         'HAVE_MEMALIGN',
         'HAVE_POSIX_MEMALIGN',
     ])
 
-  if env['PLATFORM'] == 'darwin':
+  if env.Bit('mac'):
     defines.extend([
         'HAVE_WORKING_KQUEUE',
     ])

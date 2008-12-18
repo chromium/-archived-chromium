@@ -19,7 +19,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
           '/TC',

@@ -13,7 +13,7 @@ env.SConscript([
     '$CHROME_SRC_DIR/build/using_v8.scons',
 ], {'env':env})
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env_res.Append(
       CPPPATH = [
           '.',
@@ -58,7 +58,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): put portable libs in above declaration.
   env.Append(
       LIBS = [
@@ -67,7 +67,7 @@ if env['PLATFORM'] == 'win32':
       ]
   )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       LIBS = [
           'comctl32.lib',
@@ -90,14 +90,14 @@ if env['PLATFORM'] == 'win32':
           '/nxcompat',
       ],
   )
-elif env['PLATFORM'] in ('posix', 'darwin'):
+elif env.Bit('posix'):
   env.Append(
       LIBS = [
           'event',
       ]
   )
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   env.Append(
       CPPPATH = [
           '$THIRD_PARTY_DIR/WebKit/WebKit/mac/WebCoreSupport',
@@ -115,7 +115,7 @@ input_files = [
     'test_webview_delegate.cc',
     'text_input_controller.cc',
 ]
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): Consider porting drag_delegate.cc and drop_delecate.cc.
   input_files.extend([
       'drag_delegate.cc',
@@ -125,7 +125,7 @@ if env['PLATFORM'] == 'win32':
       'webview_host_win.cc',
       'webwidget_host_win.cc',
   ])
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   input_files.extend([
       'webview_host_gtk.cc',
       'webwidget_host_gtk.cc',
@@ -140,7 +140,7 @@ exe_input_files = [
   'test_shell_main.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): figure out what to do with resources.
   resources = [
       env_res.RES('resources/test_shell.rc'),
@@ -157,7 +157,7 @@ test_shell = env.ChromeProgram('test_shell', resources + exe_input_files)
 i = env.Install('$TARGET_ROOT', test_shell)
 env.Alias('webkit', i)
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Depends(test_shell, '$V8_DIR/vc80.pdb')
 
 test_files = [
@@ -189,7 +189,7 @@ test_files = [
     '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(port): put portable files in above test_files declaration.
   test_files.extend([
       'plugin_tests.cc',

@@ -45,7 +45,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
           '$CHROME_DIR/tools/build/win',
@@ -123,7 +123,7 @@ ui_test_files = [
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   ui_test_files.extend([
       '$CHROME_DIR/browser/views/find_bar_win_interactive_uitest.cc',
       '$CHROME_DIR/browser/views/find_bar_win_uitest.cc',

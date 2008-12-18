@@ -24,7 +24,7 @@ env.Append(
   ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
           '/TP',
@@ -39,7 +39,7 @@ input_files = [
 ]
 
 # TODO: Quarantine files -- need porting to platform-specific blocks above.
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       'activex_installer.cc',
       'default_plugin.cc',

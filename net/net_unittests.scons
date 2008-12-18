@@ -22,12 +22,12 @@ env.ApplySConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ])
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   env.SConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
   ], {'env':env})
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CCFLAGS = [
           '/WX',
@@ -85,14 +85,14 @@ input_files = [
     'url_request/url_request_unittest.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       'base/wininet_util_unittest.cc',
       'http/http_transaction_winhttp_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
   ])
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   # TODO(port):
   to_be_ported_files = [
       'base/x509_certificate_unittest.cc',
@@ -101,7 +101,7 @@ if env['PLATFORM'] == 'posix':
   ]
   input_files = list(set(input_files) - set(to_be_ported_files))
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   input_files.extend([
       '../base/platform_test_mac$OBJSUFFIX',
   ])

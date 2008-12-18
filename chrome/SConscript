@@ -23,7 +23,7 @@ env.Prepend(
 
 
 # TODO(port)
-if env_res['PLATFORM'] == 'win32':
+if env_res.Bit('windows'):
   env_res.Append(
       CPPPATH = [
           '.',
@@ -139,7 +139,7 @@ env_dll.Append(
     ],
 )
 
-if env_dll['PLATFORM'] == 'win32':
+if env_dll.Bit('windows'):
   env_dll.Append(
       LIBS = [
           # TODO(sgk):  to be ported to Mac and Linux
@@ -190,7 +190,7 @@ if env_dll['PLATFORM'] == 'win32':
 
 input_files = []
 
-if env_dll['PLATFORM'] == 'win32':
+if env_dll.Bit('windows'):
   input_files.extend([
       'app/chrome_dll_main.cc',
       '$V8_DIR/snapshot-empty$OBJSUFFIX',
@@ -226,7 +226,7 @@ grit_files.extend(google_chrome)
 
 
 # TODO(port)
-if env_dll['PLATFORM'] == 'win32':
+if env_dll.Bit('windows'):
   dll_targets = env_dll.ChromeSharedLibrary('chrome_dll/chrome',
                                             dll_resources + input_files,
                                             PDB='chrome_dll.pdb')
@@ -300,7 +300,7 @@ env_exe.Append(
 )
 
 # TODO(port)
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   chrome_exe = env_exe.ChromeProgram(
       'chrome_exe/chrome',
       [
@@ -366,7 +366,7 @@ flats = [
 ]
 
 # TODO(port)
-if env_flat['PLATFORM'] == 'win32':
+if env_flat.Bit('windows'):
   flats_out = []
   for i in flats:
     flats_out.extend(env_flat.FlatHtml(i))
@@ -383,7 +383,7 @@ if not env.WantSystemLib('sqlite'):
   sconscript_files.append('$THIRD_PARTY_DIR/sqlite/SConscript')
 
 # TODO(port)
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   sconscript_files.extend([
       'app/resources/SConscript',
       'app/theme/SConscript',
@@ -394,7 +394,7 @@ if env['PLATFORM'] == 'win32':
 env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
 
 # TODO(port)
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.InstallAs('$LIBS_DIR/${LIBPREFIX}jscre${LIBSUFFIX}',
                 '$WEBKIT_DIR/JavaScriptCore_pcre.lib')
 
@@ -408,7 +408,7 @@ gears_plugins = [
 ]
 
 # TODO(port)
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Install('$DESTINATION_ROOT/plugins/gears', gears_plugins)
 
 env.Command('$DESTINATION_ROOT/resources/inspector',

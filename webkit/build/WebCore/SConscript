@@ -6,7 +6,7 @@ Import('env')
 
 env = env.Clone()
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Append(
     CCFLAGS = [
       '/TP',
@@ -24,7 +24,7 @@ if env['PLATFORM'] == 'win32':
     ],
   )
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   if '-Wall' in env['CXXFLAGS'] and '-Werror' in env['CXXFLAGS']:
     # It'd be nice to fix these warnings upstream, but we're not going to
     # block on it.
@@ -803,7 +803,7 @@ input_files = [
 ]
 
 # These files don't compile yet on linux or mac.
-if env['PLATFORM'] in ('darwin'):
+if env.Bit('mac'):
   remove_files = [
     # includes platform specific FontCustomPlatformData.h
     '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',
@@ -813,7 +813,7 @@ if env['PLATFORM'] in ('darwin'):
     input_files.remove(remove)
 
 # These files don't compile on the mac
-if env['PLATFORM'] in ('darwin'):
+if env.Bit('mac'):
   remove_files = [
     # Missing WebCore::FrameView::printPanScrollIcon
     '$WEBCORE_DIR/page/EventHandler.cpp',
@@ -822,7 +822,7 @@ if env['PLATFORM'] in ('darwin'):
     input_files.remove(remove)
 
 # Precompiled headers only work under MSVC in scons.
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env_p = env.Clone()
   env_p.Append(CCFLAGS='/Ylwebcore')
   pch, obj = env_p.PCH('$OBJ_ROOT/webkit/build/precompiled_webkit.cc')

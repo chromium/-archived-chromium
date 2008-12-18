@@ -15,7 +15,7 @@ env.Prepend(
         '$WEBKIT_DIR/build/JSConfig/WebCore/v8',
     ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
     env.Prepend(
         CCFLAGS = [
                 '/TP',

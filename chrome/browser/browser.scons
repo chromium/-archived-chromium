@@ -30,7 +30,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
           '$CHROME_DIR/tools/build/win',
@@ -39,7 +39,7 @@ if env['PLATFORM'] == 'win32':
 
 input_files = []
 
-if env['PLATFORM'] in ('posix', 'win32'):
+if not env.Bit('mac'):
   # TODO: Port to Mac.
   input_files.extend([
       'autocomplete/keyword_provider.cc',
@@ -117,7 +117,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'webdata/web_database.cc',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO: Port these.
   input_files.extend([
       'autofill_manager.cc',
@@ -300,11 +300,11 @@ if env['PLATFORM'] == 'win32':
       'web_contents_view_win.cc',
   ])
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   input_files.extend([
       'importer/firefox_profile_lock_posix.cc',
   ])
 
-if env['PLATFORM'] in ('posix', 'win32'):
+if not env.Bit('mac'):
   # TODO: This should work for all platforms.
   env.ChromeStaticLibrary('browser', input_files)

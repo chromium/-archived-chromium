@@ -19,7 +19,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   env.Prepend(
       CPPPATH = [
           '$LIBEVENT_DIR/generated/',
@@ -31,7 +31,7 @@ if env['PLATFORM'] == 'darwin':
               'sh ${SOURCES[0]} ${SOURCES[1]}')
     
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   env.Prepend(
       CPPPATH = [
           '$LIBEVENT_DIR/linux/',
@@ -61,13 +61,13 @@ input_files = [
     'strlcpy.c',
 ]
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   input_files.extend([
       'epoll.c',
       'epoll_sub.c',
   ])
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   input_files.extend([
       'kqueue.c',
   ])

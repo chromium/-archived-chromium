@@ -79,7 +79,7 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
 )
 
 # TODO(port)
-if env['PLATFORM'] != 'win32':
+if env.AnyBits('linux', 'mac'):
   remove_files = [
       'installer/mini_installer/installer_unittests.scons',
       'installer/mini_installer/mini_installer.scons',

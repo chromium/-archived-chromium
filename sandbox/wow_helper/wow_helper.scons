@@ -6,7 +6,7 @@ Import('env')
 
 env = env.Clone()
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
 
   # NOTE:  env.Replace() instead of inhering the normal *.scons settings!
   env.Replace(

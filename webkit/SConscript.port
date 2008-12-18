@@ -6,7 +6,7 @@ Import('env')
 
 env = env.Clone()
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
     CCFLAGS = [
       '/TP',
@@ -17,7 +17,7 @@ if env['PLATFORM'] == 'win32':
       '/wd4521',
       '/wd4800',
       ],)
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   env.Append(
       # For the image readers and decoders:
       CXXFLAGS = ["-Wno-sign-compare"],
@@ -110,7 +110,7 @@ input_files = [
     '$PORT_DIR/plugins/chromium/PluginDataChromium.cpp',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # Windows specific implementations.
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemChromiumWin.cpp',
@@ -131,7 +131,7 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   # Linux specific implementations.
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
@@ -157,7 +157,7 @@ if env['PLATFORM'] == 'posix':
   ]
   input_files = list(set(input_files) - set(to_be_ported_files))
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   # Mac specific implementations.
   input_files.extend([
     '$PORT_DIR/bridge/mac/FrameMac.mm',
@@ -167,6 +167,8 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/PluginStubsMac.cpp',
     '$PORT_DIR/platform/mac/DragDataMac.mm',
     '$PORT_DIR/platform/graphics/mac/FontCacheMacPending.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasMac.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceMac.cpp',
     '$PORT_DIR/rendering/RenderThemeMac.mm',
   ])
 

@@ -20,12 +20,12 @@ env.ApplySConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ])
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   env.ApplySConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CCFLAGS = [
           '/TP',
@@ -33,7 +33,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   env.Append(
       # We need 'Xss' (X Screen Saver) in LIBS if we want idletimer_unittest
       LIBS = [
@@ -99,7 +99,7 @@ input_files = [
     'gfx/rect_unittest.cc',
 ]
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
@@ -112,7 +112,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   for remove in to_be_ported_files:
     input_files.remove(remove)
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
@@ -123,7 +123,7 @@ if env['PLATFORM'] == 'darwin':
     input_files.remove(remove)
 
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # Windows-specific tests.
   input_files.extend([
       'directory_watcher_unittest.cc',
@@ -136,7 +136,7 @@ if env['PLATFORM'] == 'win32':
       'wmi_util_unittest.cc',
   ])
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   # Mac-specific tests.
   input_files.extend([
       'mac_util_unittest.cc',

@@ -15,7 +15,7 @@ env.ApplySConscript([
 #    '$ZLIB_DIR/using_zlib.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       LIBS = [
           #'breakpad_handler',

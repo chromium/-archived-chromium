@@ -36,7 +36,7 @@ input_files = [
     'debugger_wrapper.cc',
 ]
 
-if env['PLATFORM'] != 'win32':
+if env.Bit('linux'):
   # TODO(port): Port these.
   remove_list = [
       'debugger_contents.cc',
@@ -49,7 +49,20 @@ if env['PLATFORM'] != 'win32':
   for file in remove_list:
     input_files.remove(file)
 
-if env['PLATFORM'] in ('posix', 'win32'):
+if env.Bit('mac'):
+  # TODO(port): Port these.
+  remove_list = [
+      'debugger_contents.cc',
+      'debugger_host_impl.cpp',
+      'debugger_node.cc',
+      'debugger_shell.cc',
+      'debugger_view.cc',
+      'debugger_window.cc',
+  ]
+  for file in remove_list:
+    input_files.remove(file)
+
+if not env.Bit('mac'):
   # TODO(port): Enable for Mac.
   env.ChromeStaticLibrary('debugger', input_files)
 

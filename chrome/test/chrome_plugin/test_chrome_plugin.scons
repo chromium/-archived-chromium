@@ -18,7 +18,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       LINKFLAGS = [
           '/INCREMENTAL',
@@ -45,7 +45,7 @@ input_files = [
     'test_chrome_plugin.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       'test_chrome_plugin.def',
   ])

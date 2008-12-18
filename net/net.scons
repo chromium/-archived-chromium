@@ -23,7 +23,7 @@ sconscript_files = [
     'stress_cache.scons',
 ]
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   # Remove *.scons files whose targets still need to be ported.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported = [
@@ -32,7 +32,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   for remove in to_be_ported:
     sconscript_files.remove(remove)
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO: We need to port tld_cleanup before this will work on other
   # platforms.
   sconscript_files.extend([

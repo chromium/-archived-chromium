@@ -29,19 +29,19 @@ input_files = [
     'base/media_format.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
   ])
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   input_files.extend([
   ])
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   input_files.extend([
   ])
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   input_files.extend([
   ])
 

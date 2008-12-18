@@ -125,7 +125,7 @@ env.Replace(
                   '${SOURCES[0].posix}',
 )
 
-if env['PLATFORM'] == 'mac':  # Mac OS X
+if env.Bit('mac'):  # Mac OS X
   env['BINDINGSPREFIX'] = 'DOM'
   env['BINDINGS_GENERATOR_ARG'] = 'ObjC'
   env['BINDINGS_LANGUAGE'] = 'LANGUAGE_OBJECTIVE_C'

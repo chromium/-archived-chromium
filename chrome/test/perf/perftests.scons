@@ -30,7 +30,7 @@ env.Prepend(
     ],
 )
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   env.SConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
   ], {'env':env})
@@ -45,7 +45,7 @@ input_files = [
     '$CHROME_DIR/common/json_value_serializer_perftest.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       LIBS = [
           'rpcrt4',
@@ -54,7 +54,7 @@ if env['PLATFORM'] == 'win32':
       ]
   )
 
-if env['PLATFORM'] != 'win32':
+if env.Bit('linux'):
   # TODO(port): Port these files.
   remove_files = [
       'url_parse_perftest.cc',
@@ -64,5 +64,15 @@ if env['PLATFORM'] != 'win32':
   for file in remove_files:
     input_files.remove(file)
 
-if env['PLATFORM'] in ('posix', 'win32'):
+if env.Bit('mac'):
+  # TODO(port): Port these files.
+  remove_files = [
+      'url_parse_perftest.cc',
+      '$CHROME_DIR/browser/visitedlink_master$OBJSUFFIX',
+      '$CHROME_DIR/browser/visitedlink_perftest.cc',
+  ]
+  for file in remove_files:
+    input_files.remove(file)
+
+if not env.Bit('mac'):
   env.ChromeTestProgram('perf_tests', input_files)

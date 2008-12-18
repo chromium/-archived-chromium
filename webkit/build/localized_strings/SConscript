@@ -16,7 +16,7 @@ env_res.Append(
     ],
 )
 
-if env_res['PLATFORM'] == 'win32':
+if env_res.Bit('windows'):
   env_res.Append(
       RCFLAGS = [
           ["/l", "0x409"],
@@ -34,6 +34,6 @@ generated = env_grd.GRIT(
     '$TARGET_ROOT/grit_derived_sources/fake_generated_target',
     '$CHROME_SRC_DIR/webkit/glue/webkit_strings.grd')
 
-if env_res['PLATFORM'] == 'win32':
+if env_res.Bit('windows'):
   for g in [g for g in generated if str(g).endswith('.rc')]:
     env_res.RES(g)

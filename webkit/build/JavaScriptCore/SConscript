@@ -120,7 +120,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
     env.Append(
         CPPPATH = [
                 # Windows workarounds to not having pthread.h and sched.h
@@ -157,11 +157,11 @@ wtf_inputs = [
     '$WTF_DIR/unicode/icu/CollatorICU.cpp',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   wtf_inputs.extend([
       '$WTF_DIR/ThreadingWin.cpp',
   ])
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   wtf_inputs.extend([
       '$WTF_DIR/gtk/MainThreadGtk.cpp',
       '$WTF_DIR/ThreadingPthreads.cpp',

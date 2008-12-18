@@ -14,7 +14,7 @@ env.ApplySConscript([
     '$ICU38_DIR/using_icu38.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CCFLAGS = [
           '/Wp64',
@@ -84,7 +84,7 @@ input_files = [
 # Add object files David M Gay's dtoa and g_fmt third party lib.  We
 # compile these separately so we can disable warnings.
 env_dmg_fp = env.Clone()
-if env_dmg_fp['PLATFORM'] == 'win32':
+if env_dmg_fp.Bit('windows'):
   env_dmg_fp.Append(
       CCFLAGS = [
           '/wd4018',
@@ -93,7 +93,7 @@ if env_dmg_fp['PLATFORM'] == 'win32':
           '/wd4554',
       ],
   )
-elif env_dmg_fp['PLATFORM'] in ('darwin', 'posix'):
+elif env_dmg_fp.Bit('posix'):
   for var in ['CCFLAGS', 'CXXFLAGS']:
     if '-Wall' in env_dmg_fp[var]:
       env_dmg_fp[var].remove('-Wall')
@@ -104,7 +104,7 @@ input_files.extend([
     env_dmg_fp.Object('third_party/dmg_fp/g_fmt.cc'),
 ])
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
@@ -123,7 +123,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   for remove in to_be_ported_files:
       input_files.remove(remove)
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       'base_drag_source.cc',
       'base_drop_target.cc',
@@ -162,7 +162,7 @@ if env['PLATFORM'] == 'win32':
       'worker_pool.cc',
   ])
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   input_files.extend([
       'condition_variable_posix.cc',
       'debug_util_posix.cc',
@@ -182,7 +182,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'waitable_event_generic.cc',
   ])
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   input_files.extend([
       'base_paths_mac.mm',
       'clipboard_mac.mm',
@@ -198,7 +198,7 @@ if env['PLATFORM'] == 'darwin':
       'worker_pool_mac.mm',
   ])
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   input_files.extend([
       'atomicops_internals_x86_gcc.cc',
       'base_paths_linux.cc',

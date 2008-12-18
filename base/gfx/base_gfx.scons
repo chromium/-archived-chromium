@@ -17,7 +17,7 @@ env.ApplySConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Prepend(
       CCFLAGS = [
           '/WX',
@@ -34,7 +34,7 @@ input_files = [
     'size.cc',
 ]
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
@@ -44,10 +44,10 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   for remove in to_be_ported_files:
     input_files.remove(remove)
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
   ])
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   input_files.extend([
   ])
 

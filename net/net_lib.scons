@@ -102,7 +102,7 @@ input_files = [
     'url_request/url_request_view_cache_job.cc',
 ]
 
-if env['PLATFORM'] in ('posix', 'darwin'):
+if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
@@ -114,7 +114,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   for remove in to_be_ported_files:
       input_files.remove(remove)
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   input_files.extend([
       'base/file_stream_win.cc',
       'base/net_util_win.cc',
@@ -131,7 +131,7 @@ if env['PLATFORM'] == 'win32':
       'url_request/url_request_inet_job.cc',
   ])
 
-if env['PLATFORM'] == 'darwin':
+if env.Bit('mac'):
   input_files.extend([
       'base/platform_mime_util_mac.cc',
       'base/ssl_client_socket_mac.cc',
@@ -139,7 +139,7 @@ if env['PLATFORM'] == 'darwin':
       'proxy/proxy_resolver_mac.cc',
   ])
 
-if env['PLATFORM'] == 'posix':
+if env.Bit('linux'):
   input_files.extend([
       'base/nss_memio.c',
       # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
@@ -148,7 +148,7 @@ if env['PLATFORM'] == 'posix':
       'base/x509_certificate_nss.cc',
   ])
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   input_files.extend([
       'base/file_stream_posix.cc',
       'base/net_util_posix.cc',
@@ -158,7 +158,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'disk_cache/mapped_file_posix.cc',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # TODO(bradnelson): This step generates file precompiled_net.pch.ib_tag
   #                   possibly only on incredibuild, scons doesn't know this.
   env_p = env.Clone()

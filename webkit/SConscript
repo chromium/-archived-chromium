@@ -40,9 +40,9 @@ port_dir = env.Dir('$WEBKIT_DIR/port')
 port_dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/port'))
 port_dir.addRepository(env.Dir('$CHROME_SRC_DIR/third_party/WebKit/WebCore'))
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env['WEBKIT_PLATFORM_SUBDIR'] = 'win'
-elif env['PLATFORM'] == 'darwin':
+elif env.Bit('mac'):
   env['WEBKIT_PLATFORM_SUBDIR'] = 'mac'
   env.Append(
       CCFLAGS = [
@@ -56,7 +56,7 @@ elif env['PLATFORM'] == 'darwin':
           '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader/archive/cf',
       ]]
   )
-elif env['PLATFORM'] == 'posix':
+elif env.Bit('linux'):
   env.Append(
       CPPDEFINES = [
         # We want webkit to use pthreads rather than gthread.
@@ -64,7 +64,7 @@ elif env['PLATFORM'] == 'posix':
       ],
   )
 
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env.Bit('posix'):
   env.Append(
       CCFLAGS = [
           '-Wno-parentheses',
@@ -234,7 +234,7 @@ sconscript_dirs = env.ChromiumLoadComponentSConscripts(
   test_shell = 'tools/test_shell/SConscript',
 )
 
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   # These extra dirs aren't win32-specific, they're just the dirs that
   # haven't yet been made portable.
   sconscript_dirs.extend(env.ChromiumLoadComponentSConscripts(
@@ -272,7 +272,7 @@ env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 # Instead we're going to let all the subsidiary SConscript files
 # add their own individual targets to the 'webkit' Alias.
 #env.Alias('webkit', ['.', '$DESTINATION_ROOT/icudt38.dll'])
-if env['PLATFORM'] == 'win32':
+if env.Bit('windows'):
   env.Alias('webkit', ['$DESTINATION_ROOT/icudt38.dll'])
 
 version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
