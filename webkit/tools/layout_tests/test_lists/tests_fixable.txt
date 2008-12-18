@@ -1403,6 +1403,32 @@ MAC : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-setinnerhtml.html = FAIL
 MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/table/003.html = FAIL
+MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/reload-subframe-object.html = FAIL
+MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
+MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 
 // text input garbage
 MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
@@ -1462,6 +1488,7 @@ MAC : LayoutTests/fast/loader/start-load-in-unload.html = FAIL
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 MAC : LayoutTests/fast/encoding/utf-16-big-endian.html = FAIL
 MAC : LayoutTests/fast/encoding/utf-16-little-endian.html = FAIL
+MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
 
 // not loading local files
 MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
@@ -1489,71 +1516,24 @@ MAC : LayoutTests/fast/dom/tabindex-clamp.html = FAIL
 // ***** END BUCKETS
 
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH
 
 // come back to clean this up. Windows was incorrectly baselined and so we
 // should remove its baseline and convert this to all platforms.
 MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 
-MAC : LayoutTests/fast/tokenizer/002.html = FAIL
-MAC : LayoutTests/fast/tokenizer/external-script-document-write_2.html = FAIL
-MAC : LayoutTests/fast/tokenizer/script_extra_close.html = FAIL
-MAC : LayoutTests/fast/xpath/nsresolver-exception.xhtml = FAIL
-MAC : LayoutTests/fast/xsl/mozilla-tests.xml = FAIL
-MAC : LayoutTests/fast/xsl/xslt-extra-content-at-end.xml = FAIL
-MAC : LayoutTests/http/tests/loading/bad-scheme-subframe.html = FAIL
-MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
-MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
-// Windows is missing the green box
+// Windows is missing the green box. Mac gets error from CGImageSourceUpdateData but
+// everything else is correct.
 WIN MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
-MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/reload-subframe-object.html = FAIL
-MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
-MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = FAIL
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = FAIL CRASH
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = FAIL CRASH
-MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL TIMEOUT
-MAC : LayoutTests/http/tests/security/cross-frame-access-custom.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-get-override.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-get.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-history-get-override.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-history-get.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-location-get-override.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-location-put.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = FAIL
-LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-2-level.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = FAIL CRASH
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH
-MAC : LayoutTests/http/tests/xmlhttprequest/XMLHttpRequestException.html = FAIL
-MAC : LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
+
+
 MAC : LayoutTests/svg/custom/SVGException.html = FAIL
 MAC : LayoutTests/svg/custom/createelement.svg = FAIL
 MAC : LayoutTests/svg/custom/junk-data.svg = FAIL
