@@ -48,7 +48,8 @@ class TabRestoreUITest : public UITest {
     // Wait for the restored tab to finish loading.
     scoped_ptr<TabProxy> restored_tab_proxy(
         browser_proxy->GetTab(restored_tab_count - 1));
-    ASSERT_TRUE(restored_tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+    ASSERT_TRUE(restored_tab_proxy->WaitForTabToBeRestored(
+        action_timeout_ms()));
   }
 
   GURL url1_;
