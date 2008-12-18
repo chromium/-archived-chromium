@@ -182,10 +182,10 @@ test_files = [
     '$WEBKIT_DIR/glue/regular_expression_unittest.cc',
     '$WEBKIT_DIR/glue/resource_fetcher_unittest.cc',
     '$WEBKIT_DIR/glue/webframe_unittest.cc',
-    '$WEBKIT_DIR/port/platform/GKURL_unittest.cpp',
-    '$WEBKIT_DIR/port/platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp',
-    '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
-    '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/tools/webcore_unit_tests/GKURL_unittest.cpp',
+    '$WEBKIT_DIR/tools/webcore_unit_tests/BMPImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/tools/webcore_unit_tests/ICOImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/tools/webcore_unit_tests/XBMImageDecoder_unittest.cpp',
     '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
@@ -196,7 +196,7 @@ if env['PLATFORM'] == 'win32':
       # Commented out until a regression is fixed and this file is restored.
       #'$WEBKIT_DIR/glue/stringimpl_unittest.cc',
       '$WEBKIT_DIR/glue/webplugin_impl_unittest.cc',
-      '$WEBKIT_DIR/port/platform/graphics/chromium/UniscribeHelper_unittest.cpp',
+      '$WEBKIT_DIR/tools/webcore_unit_tests/UniscribeHelper_unittest.cpp',
   ])
 
 test_shell_tests = env.ChromeTestProgram('test_shell_tests',

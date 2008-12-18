@@ -295,7 +295,7 @@
 			Name="tests"
 			>
 			<File
-				RelativePath="..\..\port\platform\image-decoders\bmp\BMPImageDecoder_unittest.cpp"
+				RelativePath="..\webcore_unit_tests\BMPImageDecoder_unittest.cpp"
 				>
 			</File>
 			<File
@@ -323,7 +323,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\GKURL_unittest.cpp"
+				RelativePath="..\webcore_unit_tests\GKURL_unittest.cpp"
 				>
 			</File>
 			<File
@@ -331,7 +331,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\image-decoders\ico\ICOImageDecoder_unittest.cpp"
+				RelativePath="..\webcore_unit_tests\ICOImageDecoder_unittest.cpp"
 				>
 			</File>
 			<File
@@ -383,7 +383,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\graphics\chromium\UniscribeHelper_unittest.cpp"
+				RelativePath="..\webcore_unit_tests\UniscribeHelper_unittest.cpp"
 				>
 			</File>
 			<File
@@ -399,7 +399,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\image-decoders\xbm\XBMImageDecoder_unittest.cpp"
+				RelativePath="..\webcore_unit_tests\XBMImageDecoder_unittest.cpp"
 				>
 			</File>
 		</Filter>

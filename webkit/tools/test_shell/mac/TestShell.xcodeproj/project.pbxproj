@@ -68,6 +68,10 @@
 		82F39D400E7EFD9300785E15 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82056C0E770291008F45CF /* libxml.a */; };
 		82F39D490E7EFDAA00785E15 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059A0E770291008F45CF /* libjscre.a */; };
 		82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059C0E770291008F45CF /* libv8.a */; };
+		93AF4F340EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F300EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp */; };
+		93AF4F350EFAFE2C0073C62D /* GKURL_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F310EFAFE2C0073C62D /* GKURL_unittest.cpp */; };
+		93AF4F360EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F320EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp */; };
+		93AF4F370EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F330EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp */; };
 		E44662070ECCD652000B9316 /* test_webview_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = E44662060ECCD652000B9316 /* test_webview_delegate.cc */; };
 		E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E450637D0E4100740025A81A /* test_shell_request_context.cc */; };
 		E45067B90EF015BF003BE099 /* event_sending_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */; };
@@ -138,10 +142,6 @@
 		E4506BDC0EF03307003BE099 /* regular_expression_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506BDB0EF03307003BE099 /* regular_expression_unittest.cc */; };
 		E4506BDE0EF03310003BE099 /* resource_fetcher_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506BDD0EF03310003BE099 /* resource_fetcher_unittest.cc */; };
 		E4506BE00EF03318003BE099 /* webframe_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506BDF0EF03318003BE099 /* webframe_unittest.cc */; };
-		E4506BF10EF03722003BE099 /* GKURL_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4506BF00EF03722003BE099 /* GKURL_unittest.cpp */; };
-		E4506BF30EF0372D003BE099 /* BMPImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4506BF20EF0372D003BE099 /* BMPImageDecoder_unittest.cpp */; };
-		E4506BF50EF03736003BE099 /* ICOImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4506BF40EF03736003BE099 /* ICOImageDecoder_unittest.cpp */; };
-		E4506BF70EF03740003BE099 /* XBMImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4506BF60EF03740003BE099 /* XBMImageDecoder_unittest.cpp */; };
 		E4506C4A0EF04007003BE099 /* node_leak_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78540DC553BC005C27B8 /* node_leak_test.cc */; };
 		E45449370EC9FD15000DFA6E /* test_shell.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45449360EC9FD15000DFA6E /* test_shell.cc */; };
 		E45628E70E26B4FE005E4685 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
@@ -759,6 +759,10 @@
 		82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		82F39CFF0E7EF95A00785E15 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		93AF4F300EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BMPImageDecoder_unittest.cpp; path = ../../webcore_unit_tests/BMPImageDecoder_unittest.cpp; sourceTree = SOURCE_ROOT; };
+		93AF4F310EFAFE2C0073C62D /* GKURL_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GKURL_unittest.cpp; path = ../../webcore_unit_tests/GKURL_unittest.cpp; sourceTree = SOURCE_ROOT; };
+		93AF4F320EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICOImageDecoder_unittest.cpp; path = ../../webcore_unit_tests/ICOImageDecoder_unittest.cpp; sourceTree = SOURCE_ROOT; };
+		93AF4F330EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XBMImageDecoder_unittest.cpp; path = ../../webcore_unit_tests/XBMImageDecoder_unittest.cpp; sourceTree = SOURCE_ROOT; };
 		AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_navigation_controller.cc; sourceTree = "<group>"; };
 		AB351E2F0DC7B290002F427A /* test_navigation_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_navigation_controller.h; sourceTree = "<group>"; };
 		AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
@@ -810,10 +814,6 @@
 		E4506BDB0EF03307003BE099 /* regular_expression_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regular_expression_unittest.cc; sourceTree = "<group>"; };
 		E4506BDD0EF03310003BE099 /* resource_fetcher_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_fetcher_unittest.cc; sourceTree = "<group>"; };
 		E4506BDF0EF03318003BE099 /* webframe_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webframe_unittest.cc; sourceTree = "<group>"; };
-		E4506BF00EF03722003BE099 /* GKURL_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GKURL_unittest.cpp; path = platform/GKURL_unittest.cpp; sourceTree = "<group>"; };
-		E4506BF20EF0372D003BE099 /* BMPImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BMPImageDecoder_unittest.cpp; path = "platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp"; sourceTree = "<group>"; };
-		E4506BF40EF03736003BE099 /* ICOImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICOImageDecoder_unittest.cpp; path = "platform/image-decoders/ico/ICOImageDecoder_unittest.cpp"; sourceTree = "<group>"; };
-		E4506BF60EF03740003BE099 /* XBMImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XBMImageDecoder_unittest.cpp; path = "platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp"; sourceTree = "<group>"; };
 		E45449360EC9FD15000DFA6E /* test_shell.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell.cc; sourceTree = "<group>"; };
 		E456293E0E26B4FE005E4685 /* TestShell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestShell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45629460E26B5A7005E4685 /* net.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = net.xcodeproj; path = net/net.xcodeproj; sourceTree = "<group>"; };
@@ -1215,6 +1215,17 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		93AF4F2D0EFAFDF40073C62D /* webcore_unit_tests */ = {
+			isa = PBXGroup;
+			children = (
+				93AF4F300EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp */,
+				93AF4F310EFAFE2C0073C62D /* GKURL_unittest.cpp */,
+				93AF4F320EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp */,
+				93AF4F330EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp */,
+			);
+			name = webcore_unit_tests;
+			sourceTree = "<group>";
+		};
 		AB1E8EFA0DB7B95C00742926 /* Source */ = {
 			isa = PBXGroup;
 			children = (
@@ -1257,7 +1268,7 @@
 			isa = PBXGroup;
 			children = (
 				E4506B840EF02BD4003BE099 /* glue */,
-				E4506BE10EF03328003BE099 /* port */,
+				93AF4F2D0EFAFDF40073C62D /* webcore_unit_tests */,
 				E45069EE0EF017D0003BE099 /* image_decoder_unittest.h */,
 				E45069EF0EF017D0003BE099 /* image_decoder_unittest.cc */,
 				E45069FA0EF01895003BE099 /* keyboard_unittest.cc */,
@@ -1288,18 +1299,6 @@
 			);
 			name = glue;
 			path = ../../glue;
-			sourceTree = "<group>";
-		};
-		E4506BE10EF03328003BE099 /* port */ = {
-			isa = PBXGroup;
-			children = (
-				E4506BF20EF0372D003BE099 /* BMPImageDecoder_unittest.cpp */,
-				E4506BF00EF03722003BE099 /* GKURL_unittest.cpp */,
-				E4506BF40EF03736003BE099 /* ICOImageDecoder_unittest.cpp */,
-				E4506BF60EF03740003BE099 /* XBMImageDecoder_unittest.cpp */,
-			);
-			name = port;
-			path = ../../port;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1841,7 +1840,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4506BF30EF0372D003BE099 /* BMPImageDecoder_unittest.cpp in Sources */,
 				E4506B8A0EF02BEF003BE099 /* bookmarklet_unittest.cc in Sources */,
 				E4506B8C0EF02BFF003BE099 /* context_menu_unittest.cc in Sources */,
 				E4506B910EF02C44003BE099 /* cpp_bound_class_unittest.cc in Sources */,
@@ -1849,9 +1847,7 @@
 				E4506B950EF02C53003BE099 /* dom_operations_unittest.cc in Sources */,
 				E4506B970EF02C5B003BE099 /* dom_serializer_unittest.cc in Sources */,
 				E45067B90EF015BF003BE099 /* event_sending_controller.cc in Sources */,
-				E4506BF10EF03722003BE099 /* GKURL_unittest.cpp in Sources */,
 				E4506B990EF02C67003BE099 /* glue_serialize_unittest.cc in Sources */,
-				E4506BF50EF03736003BE099 /* ICOImageDecoder_unittest.cpp in Sources */,
 				E4506B9B0EF02C6D003BE099 /* iframe_redirect_unittest.cc in Sources */,
 				E45069F00EF017D0003BE099 /* image_decoder_unittest.cc in Sources */,
 				E45069FB0EF01895003BE099 /* keyboard_unittest.cc in Sources */,
@@ -1880,7 +1876,10 @@
 				E4506BE00EF03318003BE099 /* webframe_unittest.cc in Sources */,
 				E45067C70EF01689003BE099 /* webview_host.mm in Sources */,
 				E45067C80EF0168B003BE099 /* webwidget_host.mm in Sources */,
-				E4506BF70EF03740003BE099 /* XBMImageDecoder_unittest.cpp in Sources */,
+				93AF4F340EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp in Sources */,
+				93AF4F350EFAFE2C0073C62D /* GKURL_unittest.cpp in Sources */,
+				93AF4F360EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp in Sources */,
+				93AF4F370EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2172,7 +2171,9 @@
 					../../../../webkit/port/platform,
 					"../../../../webkit/port/platform/image-decoders",
 					"../../../../webkit/port/platform/image-decoders/bmp",
+					"../../../../webkit/port/platform/image-decoders/ico",
 					"../../../../webkit/port/platform/image-decoders/png",
+					"../../../../webkit/port/platform/image-decoders/xbm",
 					../../../../webkit/port/platform/graphics,
 					../../../../webkit/port/platform/graphics/skia,
 					../../../../webkit/port/platform/network/chromium,
@@ -2234,7 +2235,9 @@
 					../../../../webkit/port/platform,
 					"../../../../webkit/port/platform/image-decoders",
 					"../../../../webkit/port/platform/image-decoders/bmp",
+					"../../../../webkit/port/platform/image-decoders/ico",
 					"../../../../webkit/port/platform/image-decoders/png",
+					"../../../../webkit/port/platform/image-decoders/xbm",
 					../../../../webkit/port/platform/graphics,
 					../../../../webkit/port/platform/graphics/skia,
 					../../../../webkit/port/platform/network/chromium,
