@@ -83,7 +83,6 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'importer/firefox2_importer.cc',
       'importer/firefox3_importer.cc',
       'importer/firefox_profile_lock.cc',
-      'importer/firefox_profile_lock_posix.cc',
       'importer/mork_reader.cc',
       'meta_table_helper.cc',
       'metrics_log.cc',
@@ -106,6 +105,8 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'safe_browsing/safe_browsing_service.cc',
       'safe_browsing/safe_browsing_util.cc',
       'session_startup_pref.cc',
+      'sessions/session_command.cc',
+      'sessions/session_id.cc',
       'spellcheck_worditerator.cc',
       'spellchecker.cc',
       'ssl_error_info.cc',
@@ -255,8 +256,6 @@ if env['PLATFORM'] == 'win32':
       'sandbox_policy.cc',
       'sessions/base_session_service.cc',
       'sessions/session_backend.cc',
-      'sessions/session_command.cc',
-      'sessions/session_id.cc',
       'sessions/session_restore.cc',
       'sessions/session_service.cc',
       'sessions/session_types.cc',
@@ -296,10 +295,15 @@ if env['PLATFORM'] == 'win32':
   env.TypeLibrary('history/history_indexer.idl')
 
   input_files.extend([
-      'web_contents_view_win.cc',
+      'importer/firefox_profile_lock_win.cc',
       'render_widget_host_view_win.cc',
+      'web_contents_view_win.cc',
   ])
 
+if env['PLATFORM'] in ('darwin', 'posix'):
+  input_files.extend([
+      'importer/firefox_profile_lock_posix.cc',
+  ])
 
 if env['PLATFORM'] in ('posix', 'win32'):
   # TODO: This should work for all platforms.
