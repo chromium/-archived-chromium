@@ -683,9 +683,6 @@ NavigationType::Type NavigationController::ClassifyNavigation(
     return NavigationType::SAME_PAGE;
   }
 
-  if (AreURLsInPageNavigation(existing_entry->url(), params.url))
-    return NavigationType::IN_PAGE;
-
   if (!PageTransition::IsMainFrame(params.transition)) {
     // All manual subframes would get new IDs and were handled above, so we
     // know this is auto. Since the current page was found in the navigation
@@ -693,6 +690,14 @@ NavigationType::Type NavigationController::ClassifyNavigation(
     DCHECK(GetLastCommittedEntry());
     return NavigationType::AUTO_SUBFRAME;
   }
+
+  // Any toplevel navigations with the same base (minus the reference fragment)
+  // are in-page navigations. We weeded out subframe navigations above. Most of
+  // the time this doesn't matter since WebKit doesn't tell us about subframe
+  // navigations that don't actually navigate, but it can happen when there is
+  // an encoding override (it always sends a navigation request).
+  if (AreURLsInPageNavigation(existing_entry->url(), params.url))
+    return NavigationType::IN_PAGE;
 
   // Since we weeded out "new" navigations above, we know this is an existing
   // (back/forward) navigation.

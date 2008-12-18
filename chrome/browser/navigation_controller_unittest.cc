@@ -1497,6 +1497,37 @@ TEST_F(NavigationControllerTest, IsInPageNavigation) {
       other_url_with_ref));
 }
 
+// Some pages can have subframes with the same base URL (minus the reference) as
+// the main page. Even though this is hard, it can happen, and we don't want
+// these subframe navigations to affect the toplevel document. They should
+// instead be ignored.  http://crbug.com/5585
+TEST_F(NavigationControllerTest, SameSubframe) {
+  // Navigate the main frame.
+  const GURL url("http://www.google.com/");
+  contents->CompleteNavigationAsRenderer(0, url);
+
+  // We should be at the first navigation entry.
+  EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
+  EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
+
+  // Navigate a subframe that would normally count as in-page.
+  const GURL subframe("http://www.google.com/#");
+  ViewHostMsg_FrameNavigate_Params params;
+  params.page_id = 0;
+  params.url = subframe;
+  params.transition = PageTransition::AUTO_SUBFRAME;
+  params.should_update_history = false;
+  params.gesture = NavigationGestureAuto;
+  params.is_post = false;
+  NavigationController::LoadCommittedDetails details;
+  EXPECT_FALSE(contents->controller()->RendererDidNavigate(params, false,
+                                                           &details));
+
+  // Nothing should have changed.
+  EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
+  EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
+}
+
 // A basic test case. Navigates to a single url, and make sure the history
 // db matches.
 TEST_F(NavigationControllerHistoryTest, Basic) {
