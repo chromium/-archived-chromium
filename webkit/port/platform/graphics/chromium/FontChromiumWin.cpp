@@ -26,12 +26,14 @@
 #include "config.h"
 #include <windows.h>
 
+#include "AffineTransform.h"
 #include "ChromiumBridge.h"
 #include "Font.h"
 #include "FontFallbackList.h"
 #include "GlyphBuffer.h"
 #include "PlatformContextSkia.h"
 #include "SimpleFontData.h"
+#include "SkiaFontWin.h"
 #include "SkiaUtils.h"
 #include "UniscribeHelperTextRun.h"
 
@@ -39,6 +41,78 @@
 #include "skia/ext/skia_utils_win.h"  // TODO(brettw) remove this dependency.
 
 namespace WebCore {
+
+static bool windowsCanHandleTextDrawing(GraphicsContext* context)
+{
+    // Check for non-translation transforms. Sometimes zooms will look better in
+    // Skia, and sometimes better in Windows. The main problem is that zooming
+    // in using Skia will show you the hinted outlines for the smaller size,
+    // which look weird. All else being equal, it's better to use Windows' text
+    // drawing, so we don't check for zooms.
+    const AffineTransform& xform = context->getCTM();
+    if (xform.b() != 0 ||  // Y skew
+        xform.c() != 0)    // X skew
+        return false;
+
+    // Check for stroke effects.
+    if (context->platformContext()->getTextDrawingMode() != cTextFill)
+        return false;
+
+    // Check for shadow effects.
+    if (context->platformContext()->getDrawLooper())
+        return false;
+
+    return true;
+}
+
+static bool PaintSkiaText(PlatformContextSkia* platformContext,
+                          HFONT hfont,
+                          int numGlyphs,
+                          const WORD* glyphs,
+                          const int* advances,
+                          const SkPoint& origin)
+{
+    int textMode = platformContext->getTextDrawingMode();
+
+    // Filling (if necessary). This is the common case.
+    SkPaint paint;
+    platformContext->setupPaintForFilling(&paint);
+    paint.setFlags(SkPaint::kAntiAlias_Flag);
+    bool didFill = false;
+    if ((textMode & cTextFill) && SkColorGetA(paint.getColor())) {
+        if (!SkiaDrawText(hfont, platformContext->canvas(), origin, &paint,
+                          &glyphs[0], &advances[0], numGlyphs))
+            return false;
+        didFill = true;
+    }
+
+    // Stroking on top (if necessary).
+    if ((textMode & WebCore::cTextStroke) &&
+        platformContext->getStrokeStyle() != NoStroke &&
+        platformContext->getStrokeThickness() > 0) {
+
+        paint.reset();
+        platformContext->setupPaintForStroking(&paint, NULL, 0);
+        paint.setFlags(SkPaint::kAntiAlias_Flag);
+        if (didFill) {
+            // If there is a shadow and we filled above, there will already be
+            // a shadow. We don't want to draw it again or it will be too dark
+            // and it will go on top of the fill.
+            //
+            // Note that this isn't strictly correct, since the stroke could be
+            // very thick and the shadow wouldn't account for this. The "right"
+            // thing would be to draw to a new layer and then draw that layer
+            // with a shadow. But this is a lot of extra work for something
+            // that isn't normally an issue.
+            paint.setLooper(NULL)->safeUnref();
+        }
+
+        if (!SkiaDrawText(hfont, platformContext->canvas(), origin,
+                          &paint, &glyphs[0], &advances[0], numGlyphs))
+            return false;
+    }
+    return true;
+}
 
 void Font::drawGlyphs(GraphicsContext* graphicsContext,
                       const SimpleFontData* font,
@@ -57,7 +131,7 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
     SkColor color = context->fillColor();
     unsigned char alpha = SkColorGetA(color);
     // Skip 100% transparent text; no need to draw anything.
-    if (!alpha)
+    if (!alpha && context->getStrokeStyle() == NoStroke)
         return;
 
     // Set up our graphics context.
@@ -82,6 +156,8 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
     int x = static_cast<int>(point.x());
     int lineTop = static_cast<int>(point.y()) - font->ascent();
 
+    bool canUseGDI = windowsCanHandleTextDrawing(graphicsContext);
+
     // We draw the glyphs in chunks to avoid having to do a heap allocation for
     // the arrays of characters and advances. Since ExtTextOut is the
     // lowest-level text output function on Windows, there should be little
@@ -105,10 +181,19 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
 
         bool success = false;
         for (int executions = 0; executions < 2; ++executions) {
-            success = !!ExtTextOut(hdc, x, lineTop, ETO_GLYPH_INDEX, NULL,
-                                   reinterpret_cast<const wchar_t*>(&glyphs[0]),
-                                   curLen,
-                                   &advances[0]);
+            if (canUseGDI) {
+                success = !!ExtTextOut(hdc, x, lineTop, ETO_GLYPH_INDEX, NULL,
+                                       reinterpret_cast<const wchar_t*>(&glyphs[0]),
+                                       curLen, &advances[0]);
+            } else {
+                // Skia's text draing origin is the baseline, like WebKit, not
+                // the top, like Windows.
+                SkPoint origin = { x, point.y() };
+                success = PaintSkiaText(context,
+                                        font->platformData().hfont(), numGlyphs,
+                                        reinterpret_cast<const WORD*>(&glyphs[0]),
+                                        &advances[0], origin);
+            }
 
             if (!success && executions == 0) {
                 // Ask the browser to load the font for us and retry.

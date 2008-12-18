@@ -106,6 +106,7 @@ public:
     void setPattern(SkShader*);
     void setDashPathEffect(SkDashPathEffect*);
 
+    SkDrawLooper* getDrawLooper() const;
     WebCore::StrokeStyle getStrokeStyle() const;
     float getStrokeThickness() const;
     int getTextDrawingMode() const;

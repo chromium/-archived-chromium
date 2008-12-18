@@ -29,6 +29,7 @@
 #include <mlang.h>
 
 #include "ChromiumBridge.h"
+#include "SkiaFontWin.h"
 
 namespace WebCore {
 
@@ -103,6 +104,7 @@ FontPlatformData::~FontPlatformData()
 FontPlatformData::RefCountedHFONT::~RefCountedHFONT()
 {
     if (m_hfont != reinterpret_cast<HFONT>(-1)) {
+        RemoveFontFromSkiaFontWinCache(m_hfont);
         DeleteObject(m_hfont);
     }
 }

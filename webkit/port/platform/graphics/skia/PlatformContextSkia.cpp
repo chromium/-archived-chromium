@@ -319,6 +319,11 @@ void PlatformContextSkia::setFillColor(SkColor color)
     m_state->m_fillColor = color;
 }
 
+SkDrawLooper* PlatformContextSkia::getDrawLooper() const
+{
+    return m_state->m_looper;
+}
+
 WebCore::StrokeStyle PlatformContextSkia::getStrokeStyle() const
 {
     return m_state->m_strokeStyle;

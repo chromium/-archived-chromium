@@ -1072,6 +1072,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\graphics\skia\SkiaFontWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\skia\SkiaFontWin.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\graphics\skia\SkiaUtils.cpp"
 					>
 				</File>
