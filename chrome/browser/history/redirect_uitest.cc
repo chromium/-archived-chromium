@@ -59,7 +59,7 @@ TEST_F(RedirectTest, Client) {
   // We need the sleep for the client redirects, because it appears as two
   // page visits in the browser.
   NavigateToURL(first_url);
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
 
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
@@ -106,7 +106,7 @@ TEST_F(RedirectTest, ClientCancelled) {
   GURL first_url = net::FilePathToFileURL(first_path);
 
   NavigateToURL(first_url);
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
 
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());

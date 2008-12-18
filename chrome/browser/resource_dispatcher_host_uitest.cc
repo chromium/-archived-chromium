@@ -127,7 +127,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
   // (the bug would make this step hang the renderer).
   bool timed_out = false;
   tab->NavigateToURLWithTimeout(server.TestServerPageW(L"files/title2.html"),
-                                kWaitForActionMaxMsec,
+                                action_timeout_ms(),
                                 &timed_out);
   EXPECT_FALSE(timed_out);
 
@@ -263,7 +263,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   std::wstring redirect_url = L"javascript:window.location='" +
       ASCIIToWide(test_url.possibly_invalid_spec()) + L"'";
   tab->NavigateToURLAsync(GURL(redirect_url));
-  Sleep(kWaitForActionMsec);  // Wait for JavaScript redirect to happen.
+  Sleep(action_timeout_ms());  // Wait for JavaScript redirect to happen.
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
 }
