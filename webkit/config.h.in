@@ -122,6 +122,9 @@
 #endif
 
 #if PLATFORM(CHROMIUM)
+
+#define WTF_USE_GOOGLEURL 1
+
 #if !PLATFORM(DARWIN)
 // Don't define SKIA on Mac. Undefine other things as well that might get set
 // as side-effects.

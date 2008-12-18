@@ -828,6 +828,10 @@
 				RelativePath="..\..\port\platform\GKURL.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\port\platform\GoogleURLPrivate.h"
+				>
+			</File>
 			<Filter
 				Name="chromium"
 				>

@@ -73,7 +73,7 @@ WebCore::String StdStringToString(const std::string& str) {
 // URL conversions -------------------------------------------------------------
 
 GURL KURLToGURL(const WebCore::KURL& url) {
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
   const WebCore::CString& spec = url.utf8String();
   if (spec.isNull() || 0 == spec.length())
     return GURL();
@@ -85,7 +85,7 @@ GURL KURLToGURL(const WebCore::KURL& url) {
 
 WebCore::KURL GURLToKURL(const GURL& url) {
   const std::string& spec = url.possibly_invalid_spec();
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
   // Convert using the internal structures to avoid re-parsing.
   return WebCore::KURL(spec.c_str(), static_cast<int>(spec.length()),
                        url.parsed_for_possibly_invalid_spec(), url.is_valid());

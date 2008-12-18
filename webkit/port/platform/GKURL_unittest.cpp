@@ -274,7 +274,7 @@ TEST(GKURL, Setters) {
 }
 
 // Tests that KURL::decodeURLEscapeSequences works as expected
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
 TEST(GKURL, Decode) {
   struct DecodeCase {
     const char* input;
@@ -361,7 +361,7 @@ TEST(GKURL, ReplaceInvalid) {
   
   gurl.setProtocol("http");
   // GKURL will say that a URL with just a scheme is invalid, KURL will not.
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
   EXPECT_FALSE(gurl.isValid());
 #else
   EXPECT_TRUE(gurl.isValid());
@@ -370,7 +370,7 @@ TEST(GKURL, ReplaceInvalid) {
   // At this point, we do things slightly differently if there is only a scheme.
   // We check the results here to make it more obvious what is going on, but it
   // shouldn't be a big deal if these change.
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
   EXPECT_STREQ("http:", gurl.string().utf8().data());
 #else
   EXPECT_STREQ("http:/", gurl.string().utf8().data());
@@ -392,7 +392,7 @@ TEST(GKURL, ReplaceInvalid) {
   EXPECT_STREQ("http://www.google.com:8000/favicon.ico", gurl.string().utf8().data());
 
   // Now let's test that giving an invalid replacement still fails.
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
   gurl.setProtocol("f/sj#@");
   EXPECT_FALSE(gurl.isValid());
 #endif
@@ -502,7 +502,7 @@ TEST(GKURL, Empty) {
   // Test non-hierarchical schemes resolving. The actual URLs will be different.
   // WebKit's one will set the string to "something.gif" and we'll set it to an
   // empty string. I think either is OK, so we just check our behavior.
-#ifdef USE_GOOGLE_URL_LIBRARY
+#if USE(GOOGLEURL)
   WebCore::KURL gurl3(WebCore::KURL("data:foo"), "something.gif");
   EXPECT_TRUE(gurl3.isEmpty());
   EXPECT_FALSE(gurl3.isValid());
@@ -585,4 +585,16 @@ TEST(GKURL, Offsets) {
   EXPECT_EQ(11u, gurl3.pathStart());
   EXPECT_EQ(17u, gurl3.pathEnd());
   EXPECT_EQ(11u, gurl3.pathAfterLastSlash());
+}
+
+TEST(GKURL, DeepCopy) {
+  const char url[] = "http://www.google.com/";
+  WebCore::KURL src(url);
+  EXPECT_TRUE(src.string() == url);  // This really just initializes the cache.
+  WebCore::KURL dest = src.copy();
+  EXPECT_TRUE(dest.string() == url);  // This really just initializes the cache.
+
+  // The pointers should be different for both UTF-8 and UTF-16.
+  EXPECT_NE(dest.string().characters(), src.string().characters());
+  EXPECT_NE(dest.utf8String().data(), src.utf8String().data());
 }

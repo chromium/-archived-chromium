@@ -156,7 +156,11 @@ void ChromiumBridge::clipboardWriteSelection(const String& html,
                                              bool can_smart_copy_or_delete) {
   ScopedClipboardWriterGlue scw(webkit_glue::ClipboardGetClipboard());
   scw.WriteHTML(webkit_glue::StringToStdWString(html),
+#if USE(GOOGLEURL)
                 webkit_glue::CStringToStdString(url.utf8String()));
+#else
+                webkit_glue::StringToStdString(url.string()));
+#endif
   scw.WriteText(webkit_glue::StringToStdWString(plain_text));
 
   if (can_smart_copy_or_delete)
@@ -543,13 +547,29 @@ WebCore::LinkHash ChromiumBridge::visitedLinkHash(
   url_canon::RawCanonOutput<2048> buffer;
   url_parse::Parsed parsed;
 
+#if USE(GOOGLEURL)
   const WebCore::CString& cstr = base.utf8String();
-  if (!url_util::ResolveRelative(cstr.data(), cstr.length(), base.parsed(),
+  const char* data = cstr.data();
+  int length = cstr.length();
+  const url_parse::Parsed& src_parsed = base.parsed();
+#else
+  // When we're not using GoogleURL, first canonicalize it so we can resolve it
+  // below.
+  url_canon::RawCanonOutput<2048> src_canon;
+  url_parse::Parsed src_parsed;
+  WebCore::String str = base.string();
+  if (!url_util::Canonicalize(str.characters(), str.length(), NULL,
+                              &src_canon, &src_parsed))
+    return false;
+  const char* data = src_canon.data();
+  int length = src_canon.length();
+#endif
+
+  if (!url_util::ResolveRelative(data, length, src_parsed,
                                  attributeURL.characters(),
                                  attributeURL.length(), NULL,
                                  &buffer, &parsed))
     return false;  // Invalid resolved URL.
-
   return webkit_glue::VisitedLinkHash(buffer.data(), buffer.length());
 }
 
