@@ -1715,6 +1715,8 @@ WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // 2008/12/13 - Turning off some Friday night test regressions until they can be looked at.
 WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
+// Passes when run by itself.  Fails on the buildbot.
+LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
 DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
 
 // 2008/12/15 These fail the pixel tests.
