@@ -9,7 +9,6 @@
 #include "base/compiler_specific.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
-#include "base/memory_debug.h"
 #include "base/message_pump_default.h"
 #include "base/string_util.h"
 #include "base/thread_local.h"
@@ -108,14 +107,6 @@ MessageLoop::MessageLoop(Type type)
     pump_ = new base::MessagePumpDefault();
   }
 #endif  // OS_POSIX
-
-  // We override the PURIFY build to disregard any UMRs in delayed_work_queue_.
-  // This avoids an error in pop(), which pushes the |comp| field onto the
-  // stack. The |comp| field is uninitialized, since it is std::less, which is
-  // an empty struct -- VS reserves 1 byte for this struct, which will never
-  // be initialized. See http://crbug.com/5555.
-  base::MemoryDebug::MarkAsInitialized(&delayed_work_queue_,
-                                       sizeof(delayed_work_queue_));
 }
 
 MessageLoop::~MessageLoop() {
