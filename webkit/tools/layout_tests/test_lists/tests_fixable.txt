@@ -658,6 +658,7 @@ LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 // path.  We correctly return file:///C:/test on Windows.  We should fix
 // upstream
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
+LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
