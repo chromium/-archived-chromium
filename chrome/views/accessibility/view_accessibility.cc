@@ -45,11 +45,6 @@ STDMETHODIMP ViewAccessibility::get_accChild(VARIANT var_child,
   } else {
     // Child is located elsewhere in the hierarchy, get ID and adjust for MSAA.
     child_view = view_->GetViewByID(static_cast<int>(var_child.lVal));
-
-    // Child view does not exist, or id is incorrect.
-    if (!child_view)
-      return E_INVALIDARG;
-
     get_iaccessible = true;
   }
 

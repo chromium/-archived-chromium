@@ -157,6 +157,7 @@ void BrowserToolbarView::CreateLeftSideControls() {
   home_->SetImage(views::Button::BS_PUSHED, rb.GetBitmapNamed(IDR_HOME_P));
   home_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_HOME));
   home_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_HOME));
+  home_->SetID(VIEW_ID_HOME_BUTTON);
   AddChildView(home_);
   controller_->AddManagedButton(home_, IDC_HOME);
 }
