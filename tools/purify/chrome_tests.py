@@ -8,6 +8,7 @@
 ''' Runs various chrome tests through purify_test.py
 '''
 
+import glob
 import logging
 import optparse
 import os
@@ -161,7 +162,12 @@ class ChromeTests:
                          "latest")
       if out_dir_extra:
         out = os.path.join(out, out_dir_extra)
-        os.makedirs(out)
+        if os.path.exists(out):
+          old_files = glob.glob(os.path.join(out, "*.txt"))
+          for f in old_files:
+            os.remove(f)
+        else:
+          os.makedirs(out)
       out = os.path.join(out, "%s%%5d.txt" % name)
       cmd.append("--out_file=%s" % out)
     if cmd_args:
@@ -214,7 +220,7 @@ class ChromeTests:
     chunk_num = 0
     # Tests currently seem to take about 20-30s each.
     chunk_size = 120  # so about 40-60 minutes per run
-    chunk_file = "purify_layout_chunk.txt"
+    chunk_file = os.path.join(os.environ["TEMP"], "purify_layout_chunk.txt")
     if not run_all:
       try:
         f = open(chunk_file)
