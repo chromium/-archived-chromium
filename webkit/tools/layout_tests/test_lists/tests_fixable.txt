@@ -876,8 +876,9 @@ LINUX : LayoutTests/fast/forms/listbox-width-change.html = FAIL
 LINUX : LayoutTests/fast/forms/option-strip-whitespace.html = FAIL
 MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/search-rtl.html = FAIL
+MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
+// Prints FAIL in output.
+LayoutTests/fast/forms/search-rtl.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 LINUX : LayoutTests/fast/forms/select-block-background.html = FAIL
 LINUX : LayoutTests/fast/forms/select-change-listbox-size.html = FAIL
@@ -952,8 +953,6 @@ LINUX MAC : LayoutTests/fast/js/date-big-setdate.html = FAIL
 LINUX : LayoutTests/fast/forms/listbox-clip.html = FAIL
 // Linux pixeltest failure: Failing to apply style
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
-// Linux pixeltest failure: Failed to clip the scrollbars
-LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
 // Linux pixeltest failure: The text suggests that the radios should not
 // overlap, but it's very close and quite different from the Windows version
 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
@@ -1743,9 +1742,8 @@ WIN : LayoutTests/fast/css/imageTileOpacity.html = FAIL
 // Pixeltest failure: Word spacing wrong
 LINUX WIN : LayoutTests/fast/css/word-space-extra.html = FAIL
 
-// Linux pixeltest failure: Appears identical -- needs a pass with a fuzzy
-// differ.
-LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL
+// Linux pixeltest failure: flaky?  Appears without red locally.
+LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 
 // Repaint tests, so the expected output should look like the
 // Mac where everything is dark gray.
@@ -1806,7 +1804,8 @@ WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
 LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
-LayoutTests/animations/combo-transform-translate+scale.html = FAIL
+// Timing sensitive
+LayoutTests/animations/combo-transform-translate+scale.html = FAIL PASS
 LayoutTests/animations/keyframes-from-missing.html = FAIL
 LayoutTests/animations/keyframes-rule.html = FAIL
 LayoutTests/animations/keyframes-to-missing.html = FAIL
@@ -1815,7 +1814,7 @@ LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 LayoutTests/fast/regex/quantified-assertions.html = FAIL
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
-LayoutTests/http/tests/security/feed-urls-from-remote.html = FAIL
+LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 LayoutTests/transforms/2d/transform-value-types.html = FAIL
 LayoutTests/wml/go-task-animation.html = FAIL
