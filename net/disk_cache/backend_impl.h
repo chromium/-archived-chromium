@@ -7,10 +7,10 @@
 #ifndef NET_DISK_CACHE_BACKEND_IMPL_H__
 #define NET_DISK_CACHE_BACKEND_IMPL_H__
 
-#include "base/compiler_specific.h"
 #include "base/timer.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
+#include "net/disk_cache/eviction.h"
 #include "net/disk_cache/rankings.h"
 #include "net/disk_cache/stats.h"
 #include "net/disk_cache/trace.h"
@@ -20,16 +20,15 @@ namespace disk_cache {
 // This class implements the Backend interface. An object of this
 // class handles the operations of the cache for a particular profile.
 class BackendImpl : public Backend {
+  friend class Eviction;
  public:
   explicit BackendImpl(const std::wstring& path)
-      : path_(path), block_files_(path), mask_(0), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false), read_only_(false),
-        ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {}
+      : path_(path), block_files_(path), mask_(0), max_size_(0), init_(false),
+        restarted_(false), unit_test_(false), read_only_(false) {}
   // mask can be used to limit the usable size of the hash table, for testing.
   BackendImpl(const std::wstring& path, uint32 mask)
       : path_(path), block_files_(path), mask_(mask), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false), read_only_(false),
-        ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {}
+        init_(false), restarted_(false), unit_test_(false), read_only_(false) {}
   ~BackendImpl();
 
   // Performs general initialization for this current instance of the cache.
@@ -153,12 +152,6 @@ class BackendImpl : public Backend {
 
   void DestroyInvalidEntry(Addr address, EntryImpl* entry);
 
-  // Deletes entries from the cache until the current size is below the limit.
-  // If empty is true, the whole cache will be trimmed, regardless of being in
-  // use.
-  void TrimCache(bool empty);
-  void ReportTrimTimes(EntryImpl* entry);
-  
   // Handles the used storage count.
   void AddStorageSize(int32 bytes);
   void SubstractStorageSize(int32 bytes);
@@ -186,6 +179,7 @@ class BackendImpl : public Backend {
   Rankings rankings_;  // Rankings to be able to trim the cache.
   uint32 mask_;  // Binary mask to map a hash to the hash table.
   int32 max_size_;  // Maximum data size for this instance.
+  Eviction eviction_;  // Handler of the eviction algorithm.
   int num_refs_;  // Number of referenced cache entries.
   int max_refs_;  // Max number of eferenced cache entries.
   int num_pending_io_;  // Number of pending IO operations;
@@ -198,7 +192,6 @@ class BackendImpl : public Backend {
   Stats stats_;  // Usage statistcs.
   base::RepeatingTimer<BackendImpl> timer_;  // Usage timer.
   TraceObject trace_object_;  // Inits and destroys internal tracing.
-  ScopedRunnableMethodFactory<BackendImpl> factory_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BackendImpl);
 };

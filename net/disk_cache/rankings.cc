@@ -495,6 +495,8 @@ CacheRankingsBlock* Rankings::GetNext(CacheRankingsBlock* node, List list) {
     if (my_tail.value() == node->address().value())
       return NULL;
     Addr address(node->Data()->next);
+    if (address.value() == node->address().value())
+      return NULL;  // Another tail? fail it.
     next.reset(new CacheRankingsBlock(backend_->File(address), address));
   }
 
@@ -523,6 +525,8 @@ CacheRankingsBlock* Rankings::GetPrev(CacheRankingsBlock* node, List list) {
     if (my_head.value() == node->address().value())
       return NULL;
     Addr address(node->Data()->prev);
+    if (address.value() == node->address().value())
+      return NULL;  // Another head? fail it.
     prev.reset(new CacheRankingsBlock(backend_->File(address), address));
   }
 

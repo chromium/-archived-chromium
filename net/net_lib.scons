@@ -54,6 +54,7 @@ input_files = [
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
     'disk_cache/entry_impl.cc',
+    'disk_cache/eviction.cc',
     'disk_cache/file_lock.cc',
     'disk_cache/hash.cc',
     'disk_cache/mem_backend_impl.cc',

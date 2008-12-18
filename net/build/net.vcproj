@@ -905,6 +905,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\disk_cache\eviction.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\disk_cache\eviction.h"
+				>
+			</File>
+			<File
 				RelativePath="..\disk_cache\file.h"
 				>
 			</File>

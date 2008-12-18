@@ -166,6 +166,7 @@
 		A5AB7BFC0EB7DBA10070A7D3 /* file_stream_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5AB7BFB0EB7DBA10070A7D3 /* file_stream_unittest.cc */; };
 		B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A30E5A198600A747DB /* url_request_job_manager.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
+		DFC96EFA0EF9BC5D003C335B /* eviction.cc in Sources */ = {isa = PBXBuildFile; fileRef = DFC96EF80EF9BC5D003C335B /* eviction.cc */; };
 		DFEE18270E882E3600666107 /* stats_histogram.cc in Sources */ = {isa = PBXBuildFile; fileRef = DFEE18250E882E3600666107 /* stats_histogram.cc */; };
 		E4005E3A0E9FA63B0055B38E /* url_request_file_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33B00E5A198600A747DB /* url_request_file_job.cc */; };
 		E45449720ECA0264000DFA6E /* url_request_filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33B90E5A198600A747DB /* url_request_filter.cc */; };
@@ -684,6 +685,8 @@
 		936882DC0E9154E200043405 /* file_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_stream.h; sourceTree = "<group>"; };
 		93D11DCD0E91463000C36437 /* file_stream_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_stream_posix.cc; sourceTree = "<group>"; };
 		A5AB7BFB0EB7DBA10070A7D3 /* file_stream_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_stream_unittest.cc; sourceTree = "<group>"; };
+		DFC96EF80EF9BC5D003C335B /* eviction.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eviction.cc; sourceTree = "<group>"; };
+		DFC96EF90EF9BC5D003C335B /* eviction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eviction.h; sourceTree = "<group>"; };
 		DFEE18250E882E3600666107 /* stats_histogram.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stats_histogram.cc; sourceTree = "<group>"; };
 		DFEE18260E882E3600666107 /* stats_histogram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stats_histogram.h; sourceTree = "<group>"; };
 		E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_client_socket_libevent.cc; sourceTree = "<group>"; };
@@ -1022,6 +1025,8 @@
 				7BED32F20E5A190600A747DB /* entry_impl.h */,
 				7BED32E40E5A190600A747DB /* entry_unittest.cc */,
 				7BED32E30E5A190600A747DB /* errors.h */,
+				DFC96EF80EF9BC5D003C335B /* eviction.cc */,
+				DFC96EF90EF9BC5D003C335B /* eviction.h */,
 				7BED32E20E5A190600A747DB /* file.h */,
 				7BED32E10E5A190600A747DB /* file_block.h */,
 				7BED32FF0E5A190600A747DB /* file_lock.cc */,
@@ -1474,6 +1479,7 @@
 				7B8504100E5B2DF000730B43 /* entry_impl.cc in Sources */,
 				7B8504120E5B2DF000730B43 /* escape.cc in Sources */,
 				825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */,
+				DFC96EFA0EF9BC5D003C335B /* eviction.cc in Sources */,
 				7B8504140E5B2DF000730B43 /* file_lock.cc in Sources */,
 				7B8504150E5B2DF000730B43 /* file_posix.cc in Sources */,
 				93D11DCE0E91463000C36437 /* file_stream_posix.cc in Sources */,

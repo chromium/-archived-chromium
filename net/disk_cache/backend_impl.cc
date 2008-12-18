@@ -23,7 +23,6 @@ using base::TimeDelta;
 namespace {
 
 const wchar_t* kIndexName = L"index";
-const int kCleanUpMargin = 1024 * 1024;
 const int kMaxOldFolders = 100;
 
 // Seems like ~240 MB correspond to less than 50k entries for 99% of the people.
@@ -52,13 +51,6 @@ int MaxStorageSizeForTable(int table_len) {
 size_t GetIndexSize(int table_len) {
   size_t table_size = sizeof(disk_cache::CacheAddr) * table_len;
   return sizeof(disk_cache::IndexHeader) + table_size;
-}
-
-int LowWaterAdjust(int high_water) {
-  if (high_water < kCleanUpMargin)
-    return 0;
-
-  return high_water - kCleanUpMargin;
 }
 
 // ------------------------------------------------------------------------
@@ -248,6 +240,7 @@ bool BackendImpl::Init() {
     return false;
 
   disabled_ = !rankings_.Init(this);
+  eviction_.Init(this);
 
   return !disabled_;
 }
@@ -287,6 +280,7 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
     return false;
   }
 
+  eviction_.OnOpenEntry(cache_entry);
   DCHECK(entry);
   *entry = cache_entry;
 
@@ -355,7 +349,7 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
 
   data_->header.num_entries++;
   DCHECK(data_->header.num_entries > 0);
-  rankings_.Insert(cache_entry->rankings(), true, Rankings::NO_USE);
+  eviction_.OnCreateEntry(cache_entry);
   if (!parent.get())
     data_->table[hash & mask_] = entry_address.value();
 
@@ -394,7 +388,7 @@ bool BackendImpl::DoomAllEntries() {
     if (disabled_)
       return false;
 
-    TrimCache(true);
+    eviction_.TrimCache(true);
     stats_.OnEvent(Stats::DOOM_CACHE);
     return true;
   }
@@ -575,7 +569,7 @@ LruData* BackendImpl::GetLruData() {
 
 void BackendImpl::UpdateRank(EntryImpl* entry, bool modified) {
   if (!read_only_) {
-    rankings_.UpdateRank(entry->rankings(), modified, Rankings::NO_USE);
+    eviction_.UpdateRank(entry, modified);
   }
 }
 
@@ -604,8 +598,7 @@ void BackendImpl::InternalDoomEntry(EntryImpl* entry) {
 
   Trace("Doom entry 0x%p", entry);
 
-  rankings_.Remove(entry->rankings(), Rankings::NO_USE);
-
+  eviction_.OnDoomEntry(entry);
   entry->InternalDoom();
 
   if (parent_entry) {
@@ -1020,9 +1013,9 @@ void BackendImpl::DestroyInvalidEntry(Addr address, EntryImpl* entry) {
   LOG(WARNING) << "Destroying invalid entry.";
   Trace("Destroying invalid entry 0x%p", entry);
 
-  rankings_.Remove(entry->rankings(), Rankings::NO_USE);
   entry->SetPointerForInvalidEntry(GetCurrentEntryId());
 
+  eviction_.OnDoomEntry(entry);
   entry->InternalDoom();
 
   data_->header.num_entries--;
@@ -1030,71 +1023,12 @@ void BackendImpl::DestroyInvalidEntry(Addr address, EntryImpl* entry) {
   stats_.OnEvent(Stats::INVALID_ENTRY);
 }
 
-void BackendImpl::TrimCache(bool empty) {
-  Trace("*** Trim Cache ***");
-  if (disabled_)
-    return;
-
-  Time start = Time::Now();
-  Rankings::ScopedRankingsBlock node(&rankings_);
-  Rankings::ScopedRankingsBlock next(&rankings_,
-      rankings_.GetPrev(node.get(), Rankings::NO_USE));
-  DCHECK(next.get());
-  int target_size = empty ? 0 : LowWaterAdjust(max_size_);
-  int deleted = 0;
-  while (data_->header.num_bytes > target_size && next.get()) {
-    node.reset(next.release());
-    next.reset(rankings_.GetPrev(node.get(), Rankings::NO_USE));
-    if (!node->Data()->pointer || empty) {
-      // This entry is not being used by anybody.
-      EntryImpl* entry;
-      bool dirty;
-      if (NewEntry(Addr(node->Data()->contents), &entry, &dirty)) {
-        Trace("NewEntry failed on Trim 0x%x", node->address().value());
-        continue;
-      }
-
-      if (node->Data()->pointer) {
-        entry = EntryImpl::Update(entry);
-      }
-      ReportTrimTimes(entry);
-      entry->Doom();
-      entry->Release();
-      if (!empty)
-        stats_.OnEvent(Stats::TRIM_ENTRY);
-      if (++deleted == 4 && !empty) {
-#if defined(OS_WIN)
-        MessageLoop::current()->PostTask(FROM_HERE,
-            factory_.NewRunnableMethod(&BackendImpl::TrimCache, false));
-        break;
-#endif
-      }
-    }
-  }
-
-  UMA_HISTOGRAM_TIMES(L"DiskCache.TotalTrimTime", Time::Now() - start);
-  Trace("*** Trim Cache end ***");
-  return;
-}
-
-void BackendImpl::ReportTrimTimes(EntryImpl* entry) {
-  static bool first_time = true;
-  if (first_time) {
-    first_time = false;
-    std::wstring name(StringPrintf(L"DiskCache.TrimAge_%d",
-                                   data_->header.experiment));
-    static Histogram counter(name.c_str(), 1, 10000, 50);
-    counter.SetFlags(kUmaTargetedHistogramFlag);
-    counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
-  }
-}
-
 void BackendImpl::AddStorageSize(int32 bytes) {
   data_->header.num_bytes += bytes;
   DCHECK(data_->header.num_bytes >= 0);
 
   if (data_->header.num_bytes > max_size_)
-    TrimCache(false);
+    eviction_.TrimCache(false);
 }
 
 void BackendImpl::SubstractStorageSize(int32 bytes) {
