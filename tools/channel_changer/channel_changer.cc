@@ -18,7 +18,7 @@ enum Branch {
 
 // This vector of strings needs to be in sync with the Branch enum above.
 static const wchar_t* const kBranchStrings[] = {
-  L"",
+  L"?",
   L"1.1-dev",
   L"1.1-beta",
   L"",
@@ -26,14 +26,19 @@ static const wchar_t* const kBranchStrings[] = {
 
 // This vector of strings needs to be in sync with the Branch enum above.
 static const wchar_t* const kBranchStringsReadable[] = {
-  L"",
+  L"?",
   L"Dev",
   L"Beta",
   L"Stable",
 };
 
-// The root key for Google Update.
-static const HKEY kGoogleUpdateRoot = HKEY_CURRENT_USER;
+// The Registry Hive to write to. Points to the hive where we found the 'ap' key
+// unless there is an error, in which case it is 0.
+HKEY registry_hive = 0;
+
+// The value of the 'ap' key under the registry hive specified in
+// |registry_hive|.
+std::wstring update_branch;
 
 // The Google Update key to read to find out which branch you are on.
 static const wchar_t* const kGoogleUpdateKey =
@@ -44,13 +49,51 @@ static const wchar_t* const kGoogleUpdateKey =
 static const wchar_t* const kBranchKey = L"ap";
 
 // The suffix Google Update sometimes adds to the channel name (channel names
-// are defined in kBranchStrings), indicating that a full install is needed. We 
+// are defined in kBranchStrings), indicating that a full install is needed. We
 // strip this out (if present) for the purpose of determining which channel you
 // are on.
 static const wchar_t* const kChannelSuffix = L"-full";
 
+// Title to show in the MessageBoxes.
+static const wchar_t* const kMessageBoxTitle = L"Google Chrome Channel Changer";
+
+// A parameter passed into us when we are trying to elevate. This is used as a
+// safeguard to make sure we only try to elevate once (so that if it fails we
+// don't create an infinite process spawn loop).
+static const wchar_t* const kElevationParam = L"--elevation-attempt";
+
 // The icon to use.
 static HICON dlg_icon = NULL;
+
+void DetectBranch() {
+  // See if we can find the 'ap' key on the HKCU branch.
+  registry_hive = HKEY_CURRENT_USER;
+  RegKey google_update_hkcu(registry_hive, kGoogleUpdateKey, KEY_READ);
+  if (!google_update_hkcu.Valid() ||
+      !google_update_hkcu.ReadValue(kBranchKey, &update_branch)) {
+    // HKCU failed us, try the same for the HKLM branch.
+    registry_hive = HKEY_LOCAL_MACHINE;
+    RegKey google_update_hklm(registry_hive, kGoogleUpdateKey, KEY_READ);
+    if (!google_update_hklm.Valid() ||
+        !google_update_hklm.ReadValue(kBranchKey, &update_branch)) {
+      // HKLM also failed us! "Set condition 1 throughout the ship!"
+      registry_hive = 0;  // Failed to find the 'ap' key.
+      update_branch = kBranchStrings[UNKNOWN_BRANCH];
+    }
+  }
+
+  // We look for '1.1-beta' or '1.1-dev', but Google Update might have added
+  // '-full' to the channel name, which we need to strip out to determine what
+  // channel you are on.
+  std::wstring suffix = kChannelSuffix;
+  if (update_branch.length() > suffix.length()) {
+    size_t index = update_branch.rfind(suffix);
+    if (index != std::wstring::npos &&
+        index == update_branch.length() - suffix.length()) {
+      update_branch = update_branch.substr(0, index);
+    }
+  }
+}
 
 void SetMainLabel(HWND dialog, Branch branch) {
   std::wstring main_label = L"You are currently on ";
@@ -69,35 +112,12 @@ void SetMainLabel(HWND dialog, Branch branch) {
 void OnInitDialog(HWND dialog) {
   SendMessage(dialog, WM_SETICON, (WPARAM) false, (LPARAM) dlg_icon);
 
-  std::wstring branch_string;
-  RegKey google_update(kGoogleUpdateRoot, kGoogleUpdateKey, KEY_READ);
-  if (google_update.Valid() &&
-      !google_update.ReadValue(kBranchKey, &branch_string)) {
-    // If the 'ap' value is missing, we create it, unless the key is missing.
-    RegKey write_default(kGoogleUpdateRoot, kGoogleUpdateKey, KEY_WRITE);
-    branch_string = kBranchStrings[STABLE_BRANCH];
-    if (!write_default.WriteValue(kBranchKey, branch_string.c_str()))
-      branch_string = L"";  // Error, show disabled UI.
-  }
-
-  // We look for '1.1-beta' or '1.1-dev', but Google Update might have added
-  // '-full' to the channel name, which we need to strip out to determine what
-  // channel you are on.
-  std::wstring suffix = kChannelSuffix;
-  if (branch_string.length() > suffix.length()) {
-    size_t index = branch_string.rfind(suffix);
-    if (index != std::wstring::npos &&
-        index == branch_string.length() - suffix.length()) {
-      branch_string = branch_string.substr(0, index);
-    }
-  }
-
   Branch branch = UNKNOWN_BRANCH;
-  if (branch_string == kBranchStrings[STABLE_BRANCH]) {
+  if (update_branch == kBranchStrings[STABLE_BRANCH]) {
     branch = STABLE_BRANCH;
-  } else if (branch_string == kBranchStrings[DEV_BRANCH]) {
+  } else if (update_branch == kBranchStrings[DEV_BRANCH]) {
     branch = DEV_BRANCH;
-  } else if (branch_string == kBranchStrings[BETA_BRANCH]) {
+  } else if (update_branch == kBranchStrings[BETA_BRANCH]) {
     branch = BETA_BRANCH;
   } else {
     // Hide the controls we can't use.
@@ -106,9 +126,9 @@ void OnInitDialog(HWND dialog) {
     EnableWindow(GetDlgItem(dialog, IDC_BETA), false);
     EnableWindow(GetDlgItem(dialog, IDC_CUTTING_EDGE), false);
 
-    MessageBox(dialog, L"KEY NOT FOUND\n\nChrome is not installed, or is not "
-                       L"using GoogleUpdate for updates.",
-                       L"Chrome Channel Changer",
+    MessageBox(dialog, L"KEY NOT FOUND\n\nGoogle Chrome is not installed, or "
+                       L"is not using GoogleUpdate for updates.",
+                       kMessageBoxTitle,
                        MB_ICONEXCLAMATION | MB_OK);
   }
 
@@ -149,17 +169,18 @@ void SaveChanges(HWND dialog) {
     branch = DEV_BRANCH;
 
   if (branch != UNKNOWN_BRANCH) {
-    RegKey google_update(kGoogleUpdateRoot, kGoogleUpdateKey, KEY_WRITE);
+    RegKey google_update(registry_hive, kGoogleUpdateKey, KEY_WRITE);
     if (!google_update.WriteValue(kBranchKey, kBranchStrings[branch])) {
-      MessageBox(dialog, L"Unable to change value, please make sure you\n"
-                         L"have permission to change registry keys under HKLM",
-                         L"Unable to update branch info", MB_OK);
+      MessageBox(dialog, L"Unable to change value. Please make sure you\n"
+                         L"have permission to change registry keys.",
+                         L"Unable to update branch info", MB_OK | MB_ICONERROR);
     } else {
       std::wstring save_msg = L"Your changes have been saved.\nYou are now "
                               L"on the " +
                               std::wstring(kBranchStringsReadable[branch]) +
                               L" branch.";
-      MessageBox(dialog, save_msg.c_str(), L"Changes were saved", MB_OK);
+      MessageBox(dialog, save_msg.c_str(), L"Changes were saved",
+                 MB_OK | MB_ICONINFORMATION);
 
       SetMainLabel(dialog, branch);
     }
@@ -212,21 +233,147 @@ INT_PTR CALLBACK DialogWndProc(HWND dialog,
   return static_cast<INT_PTR>(FALSE);
 }
 
+// This function checks to see if we are running elevated. This function will
+// return false on error and on success will modify the parameter |elevated|
+// to specify whether we are running elevated or not. This function should only
+// be called for Vista or later.
+bool IsRunningElevated(bool* elevated) {
+  HANDLE process_token;
+  if (!::OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &process_token))
+    return false;
+
+  TOKEN_ELEVATION_TYPE elevation_type = TokenElevationTypeDefault;
+  DWORD size_returned = 0;
+  if (!::GetTokenInformation(process_token, TokenElevationType,
+      &elevation_type, sizeof(elevation_type), &size_returned)) {
+    ::CloseHandle(process_token);
+    return false;
+  }
+
+  ::CloseHandle(process_token);
+  *elevated = (elevation_type == TokenElevationTypeFull);
+  return true;
+}
+
+// This function checks to see if we need to elevate. Essentially, we need to
+// elevate if ALL of the following conditions are true:
+// - The OS is Vista or later.
+// - UAC is enabled.
+// - We are not already elevated.
+// - The registry hive we are working with is HKLM.
+// This function will return false on error and on success will modify the
+// parameter |elevation_required| to specify whether we need to elevated or not.
+bool ElevationIsRequired(bool* elevation_required) {
+  *elevation_required = false;
+
+  // First, make sure we are running on Vista or more recent.
+  OSVERSIONINFO info = {0};
+  info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  if (!::GetVersionEx(&info))
+    return false;  // Failure.
+
+  // Unless we are Vista or newer, we don't need to elevate.
+  if (info.dwMajorVersion < 6)
+    return true;  // No error, we just don't need to elevate.
+
+  // Make sure UAC is not disabled.
+  RegKey key(HKEY_LOCAL_MACHINE,
+             L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System");
+  DWORD uac_enabled;
+  if (!key.ReadValueDW(L"EnableLUA", &uac_enabled))
+    uac_enabled = true;  // If the value doesn't exist, then UAC is enabled.
+
+  if (!uac_enabled)
+    return true;  // No error, but UAC is disabled, so elevation is futile!
+
+  // This is Vista or more recent, so check if already running elevated.
+  bool elevated = false;
+  if (!IsRunningElevated(&elevated))
+    return false;  // Error checking to see if we already elevated.
+
+  if (elevated)
+    return true;  // No error, but we are already elevated.
+
+  // We are not already running elevated, check if we found our key under HKLM
+  // because then we need to elevate us so that our writes don't get
+  // virtualized.
+  *elevation_required = (registry_hive == HKEY_LOCAL_MACHINE);
+  return true;  // Success.
+}
+
+int RelaunchProcessWithElevation() {
+  // Get the path and EXE name of this process so we can relaunch it.
+  wchar_t executable[MAX_PATH];
+  if (!::GetModuleFileName(0, &executable[0], MAX_PATH))
+    return 0;
+
+  SHELLEXECUTEINFO info;
+  ZeroMemory(&info, sizeof(info));
+  info.hwnd            = GetDesktopWindow();
+  info.cbSize          = sizeof(SHELLEXECUTEINFOW);
+  info.lpVerb          = L"runas";  // Relaunch with elevation.
+  info.lpFile          = executable;
+  info.lpParameters    = kElevationParam;  // Our special notification param.
+  info.nShow           = SW_SHOWNORMAL;
+  return ::ShellExecuteEx(&info);
+}
+
+BOOL RestartWithElevationIfRequired(const std::wstring& cmd_line) {
+  bool elevation_required = false;
+  if (!ElevationIsRequired(&elevation_required)) {
+    ::MessageBox(NULL, L"Cannot determine if Elevation is required",
+                 kMessageBoxTitle, MB_OK | MB_ICONERROR);
+    return TRUE;  // This causes the app to exit.
+  }
+
+  if (elevation_required) {
+    if (cmd_line.find(kElevationParam) != std::wstring::npos) {
+      // If we get here, that means we tried to elevate but it failed.
+      // We break here to prevent an infinite spawning loop.
+      ::MessageBox(NULL, L"Second elevation attempted", kMessageBoxTitle,
+                   MB_OK | MB_ICONERROR);
+      return TRUE;  // This causes the app to exit.
+    }
+
+    // Restart this application with elevation.
+    if (!RelaunchProcessWithElevation()) {
+      ::MessageBox(NULL, L"Elevation attempt failed", kMessageBoxTitle,
+                   MB_OK | MB_ICONERROR);
+    }
+    return TRUE;  // This causes the app to exit.
+  }
+
+  return FALSE;  // No elevation required, Channel Changer can continue running.
+}
+
 int APIENTRY _tWinMain(HINSTANCE instance,
                        HINSTANCE previous_instance,
                        LPTSTR    cmd_line,
                        int       cmd_show) {
   UNREFERENCED_PARAMETER(previous_instance);
-  UNREFERENCED_PARAMETER(cmd_line);
   UNREFERENCED_PARAMETER(cmd_show);
+
+  // Detect which update path the user is on. This also sets the registry_hive
+  // parameter to the right Registry hive, which we will use later to determine
+  // if we need to elevate (Vista and later only).
+  DetectBranch();
+
+  // If we detect that we need to elevate then we will restart this process
+  // as an elevated process, so all this process needs to do is exit.
+  // NOTE: We need to elevate on Vista if we detect that Chrome was installed
+  // system-wide (because then we'll be modifying Google Update keys under
+  // HKLM). We don't want to set the elevation policy in the manifest because
+  // then we block non-admin users (that want to modify user-level Chrome
+  // installation) from running the channel changer.
+  if (RestartWithElevationIfRequired(cmd_line))
+    return TRUE;
 
   dlg_icon = ::LoadIcon(instance, MAKEINTRESOURCE(IDI_BRANCH_SWITCHER));
 
   ::DialogBox(instance,
               MAKEINTRESOURCE(IDD_MAIN_DIALOG),
-              GetDesktopWindow(),
+              ::GetDesktopWindow(),
               DialogWndProc);
 
   return TRUE;
 }
-

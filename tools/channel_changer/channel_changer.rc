@@ -37,22 +37,22 @@ IDI_BRANCH_SWITCHER     ICON                    "../../chrome/app/theme/google_c
 // Dialog
 //
 
-IDD_MAIN_DIALOG DIALOGEX 0, 0, 419, 186
+IDD_MAIN_DIALOG DIALOGEX 0, 0, 414, 143
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Google Chrome Channel Switcher v1.2"
+CAPTION "Google Chrome Channel Switcher v1.3"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Update",IDOK,157,153,50,14
-    PUSHBUTTON      "Close",IDCANCEL,213,153,50,14
+    DEFPUSHBUTTON   "Update",IDOK,157,120,50,14
+    PUSHBUTTON      "Close",IDCANCEL,213,120,50,14
     LTEXT           "This label will be populated programmatically.",IDC_LABEL_MAIN,47,13,322,18
     CONTROL         "Stable: Official Google Chrome releases (~ quarterly updates).",IDC_STABLE,
-                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,45,39,340,19
+                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,47,44,340,8
     CONTROL         "Beta: More stable releases (~ monthly updates).",IDC_BETA,
-                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,45,63,340,19
+                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,47,59,340,8
     CONTROL         "Dev: The latest features and bugfixes (~ weekly updates).",IDC_CUTTING_EDGE,
-                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,45,90,355,21
+                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,47,73,340,8
     CONTROL         129,IDC_IMAGEVIEW,"Static",SS_BITMAP,7,7,35,30
-    LTEXT           "Note: If you switch from Dev to Beta, you'll stay on the current Chrome version until the Beta channel gets a later update. Changing channels does not change the version of Chrome you are currently using.",IDC_SECONDARY_LABEL,44,128,340,21
+    LTEXT           "Note: If you switch from Dev to Beta, you'll stay on the current Chrome version until the Beta channel gets a later update. Changing channels does not change the version of Chrome you are currently using.",IDC_SECONDARY_LABEL,47,95,340,21
 END
 
 
@@ -95,9 +95,9 @@ BEGIN
     IDD_MAIN_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 412
+        RIGHTMARGIN, 407
         TOPMARGIN, 7
-        BOTTOMMARGIN, 179
+        BOTTOMMARGIN, 136
     END
 END
 #endif    // APSTUDIO_INVOKED
