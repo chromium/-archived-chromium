@@ -151,6 +151,7 @@ wtf_inputs = [
     '$WTF_DIR/FastMalloc.cpp',
     '$WTF_DIR/HashTable.cpp',
     '$WTF_DIR/MainThread.cpp',
+    '$WTF_DIR/RandomNumber.cpp',
     '$WTF_DIR/RefCountedLeakCounter.cpp',
     '$WTF_DIR/TCSystemAlloc.cpp',
     '$WTF_DIR/unicode/UTF8.cpp',

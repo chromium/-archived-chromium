@@ -262,6 +262,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RandomNumber.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RandomNumber.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefCounted.h"
 			>
 		</File>
@@ -277,7 +285,7 @@
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefPtrHashMap.h"
 			>
 		</File>
- 		<File
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\StdLibExtras.h"
 			>
 		</File>

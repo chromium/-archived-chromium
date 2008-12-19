@@ -41,6 +41,7 @@
 		04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */; };
 		04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */; };
 		4103039F0EFB0F7C008832CA /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103039E0EFB0F7C008832CA /* CachedPage.cpp */; };
+		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
 		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
@@ -1449,6 +1450,8 @@
 		410303530EFB0C7C008832CA /* ScriptCachedPageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCachedPageData.h; sourceTree = "<group>"; };
 		4103039E0EFB0F7C008832CA /* CachedPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CachedPage.cpp; sourceTree = "<group>"; };
 		410303A10EFB0F8D008832CA /* CachedPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPage.h; sourceTree = "<group>"; };
+		4112E7040EFB0A26001E0E7A /* RandomNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandomNumber.h; sourceTree = "<group>"; };
+		4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomNumber.cpp; sourceTree = "<group>"; };
 		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
 		419106470EF2D6D500BFDCC5 /* ScriptState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptState.h; sourceTree = "<group>"; };
 		419107540EF319C300BFDCC5 /* ScriptCallFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallFrame.h; sourceTree = "<group>"; };
@@ -4673,6 +4676,8 @@
 				7B5E85CC0D7F28F5001ECF42 /* OwnPtr.h */,
 				7B5E85CE0D7F28F5001ECF42 /* PassRefPtr.h */,
 				7B5E85CF0D7F28F5001ECF42 /* Platform.h */,
+				4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */,
+				4112E7040EFB0A26001E0E7A /* RandomNumber.h */,
 				7B5E85D00D7F28F5001ECF42 /* RefCounted.h */,
 				E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */,
 				4DB7F5250E9BD3FB00C66CE0 /* RefCountedLeakCounter.h */,
@@ -8160,6 +8165,7 @@
 				7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */,
 				4DB7F5290E9BD3FB00C66CE0 /* MainThread.cpp in Sources */,
 				4DB7F5420E9BD50600C66CE0 /* MainThreadMac.mm in Sources */,
+				4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */,
 				E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */,
 				7B5E86090D7F28F5001ECF42 /* TCSystemAlloc.cpp in Sources */,
 				4DB7F52A0E9BD3FB00C66CE0 /* ThreadingPthreads.cpp in Sources */,
