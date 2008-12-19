@@ -87,9 +87,9 @@ SessionStartupPref SessionStartupPref::GetStartupPref(PrefService* prefs) {
   for (size_t i = 0; i < url_pref_list->GetSize(); ++i) {
     Value* value = NULL;
     if (url_pref_list->Get(i, &value)) {
-      std::wstring url_text;
+      std::string url_text;
       if (value->GetAsString(&url_text))
-        pref.urls.push_back(GURL(WideToUTF8(url_text)));
+        pref.urls.push_back(GURL(url_text));
     }
   }
 
