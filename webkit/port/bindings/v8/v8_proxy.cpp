@@ -2656,6 +2656,8 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
   v8::Local<v8::Function> function;
   V8Proxy* proxy = V8Proxy::retrieve();
   if (proxy) {
+    // Make sure that the context of the proxy has been initialized.
+    proxy->InitContextIfNeeded();
     // Constructor is configured.
     function = proxy->GetConstructor(desc_type);
   } else {
