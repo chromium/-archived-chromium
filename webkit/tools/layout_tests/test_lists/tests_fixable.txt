@@ -1683,9 +1683,6 @@ LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 // Mac where everything is dark gray.
 LINUX WIN : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
-LINUX : LayoutTests/fast/repaint/box-shadow-dynamic.html = FAIL
-LINUX : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
-LINUX : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
 
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
