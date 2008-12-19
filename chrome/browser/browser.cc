@@ -1236,6 +1236,9 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   browser->set_override_maximized(maximize);
   browser->CreateBrowserWindow();
   browser->tabstrip_model()->AppendTabContents(detached_contents, true);
+  // Make sure the loading state is updated correctly, otherwise the throbber
+  // won't start if the page is loading.
+  browser->LoadingStateChanged(detached_contents);
   browser->window()->Show();
 
   // When we detach a tab we need to make sure any associated Find window moves
@@ -1363,6 +1366,10 @@ void Browser::TabInsertedAt(TabContents* contents,
   WebContents* web_contents = contents->AsWebContents();
   if (web_contents)
     web_contents->view()->ReparentFindWindow(this);
+
+  // Make sure the loading state is updated correctly, otherwise the throbber
+  // won't start if the page is loading.
+  LoadingStateChanged(contents);
 
   // If the tab crashes in the beforeunload or unload handler, it won't be
   // able to ack. But we know we can close it.
