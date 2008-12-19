@@ -145,9 +145,7 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
     titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
     SendMessage(frame_->GetHWND(), WM_GETTITLEBARINFOEX, 0,
       reinterpret_cast<WPARAM>(&titlebar_info));
-
-    // rgrect[2] refers to the minimize button.
-    tabstrip_width -= (tabstrip_width - titlebar_info.rgrect[2].left);
+    tabstrip_width = titlebar_info.rgrect[2].left;  // Edge of minimize button
   }
   int tabstrip_height = tabstrip->GetPreferredHeight();
   int tabstrip_x = otr_avatar_bounds_.width() + kOTRAvatarIconTabStripSpacing;
