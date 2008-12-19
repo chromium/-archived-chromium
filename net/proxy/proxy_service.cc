@@ -17,10 +17,10 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
-#include "net/proxy/proxy_resolver_fixed.h"
-#include "net/proxy/proxy_resolver_null.h"
+#include "net/proxy/proxy_config_service_fixed.h"
 #if defined(OS_WIN)
 #include "net/http/http_transaction_winhttp.h"
+#include "net/proxy/proxy_config_service_win.h"
 #include "net/proxy/proxy_resolver_winhttp.h"
 #elif defined(OS_MACOSX)
 #include "net/proxy/proxy_resolver_mac.h"
@@ -30,6 +30,15 @@ using base::TimeDelta;
 using base::TimeTicks;
 
 namespace net {
+
+// Config getter that fails every time.
+class ProxyConfigServiceNull : public ProxyConfigService {
+ public:
+  virtual int GetProxyConfig(ProxyConfig* config) {
+    return ERR_NOT_IMPLEMENTED;
+  }
+};
+
 
 // ProxyConfig ----------------------------------------------------------------
 
@@ -272,8 +281,10 @@ class ProxyService::PacRequest :
 
 // ProxyService ---------------------------------------------------------------
 
-ProxyService::ProxyService(ProxyResolver* resolver)
-    : resolver_(resolver),
+ProxyService::ProxyService(ProxyConfigService* config_service,
+                           ProxyResolver* resolver)
+    : config_service_(config_service),
+      resolver_(resolver),
       config_is_bad_(false),
       config_has_been_updated_(false) {
 }
@@ -281,8 +292,10 @@ ProxyService::ProxyService(ProxyResolver* resolver)
 // static
 ProxyService* ProxyService::Create(const ProxyInfo* pi) {
   if (pi) {
+    // The ProxyResolver is set to NULL, since it should never be called
+    // (because the configuration will never require PAC).
     ProxyService* proxy_service =
-        new ProxyService(new ProxyResolverFixed(*pi));
+        new ProxyService(new ProxyConfigServiceFixed(*pi), NULL);
 
     // TODO(eroman): remove this WinHTTP hack once it is no more.
     // We keep a copy of the ProxyInfo that was used to create the
@@ -292,23 +305,32 @@ ProxyService* ProxyService::Create(const ProxyInfo* pi) {
     return proxy_service;
   }
 #if defined(OS_WIN)
-  return new ProxyService(new ProxyResolverWinHttp());
+  return new ProxyService(new ProxyConfigServiceWin(),
+                          new ProxyResolverWinHttp());
 #elif defined(OS_MACOSX)
-  return new ProxyService(new ProxyResolverMac());
+  return new ProxyService(new ProxyConfigServiceMac(),
+                          new ProxyResolverMac());
 #else
   // This used to be a NOTIMPLEMENTED(), but that logs as an error,
   // screwing up layout tests.
   LOG(WARNING) << "Proxies are not implemented; remove me once that's fixed.";
   // http://code.google.com/p/chromium/issues/detail?id=4523 is the bug
   // to implement this.
-  return new ProxyService(new ProxyResolverNull());
+  return CreateNull();
 #endif
+}
+
+// static
+ProxyService* ProxyService::CreateNull() {
+  // The ProxyResolver is set to NULL, since it should never be called
+  // (because the configuration will never require PAC).
+  return new ProxyService(new ProxyConfigServiceNull, NULL);
 }
 
 int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
                                CompletionCallback* callback,
                                PacRequest** pac_request) {
-  // The overhead of calling WinHttpGetIEProxyConfigForCurrentUser is very low.
+  // The overhead of calling ProxyConfigService::GetProxyConfig is very low.
   const TimeDelta kProxyConfigMaxAge = TimeDelta::FromSeconds(5);
 
   // Periodically check for a new config.
@@ -481,7 +503,7 @@ void ProxyService::UpdateConfig() {
   config_has_been_updated_ = true;
 
   ProxyConfig latest;
-  if (resolver_->GetProxyConfig(&latest) != OK)
+  if (config_service_->GetProxyConfig(&latest) != OK)
     return;
   config_last_update_time_ = TimeTicks::Now();
 

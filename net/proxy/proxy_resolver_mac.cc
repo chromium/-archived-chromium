@@ -115,7 +115,7 @@ void ResultCallback(void* client, CFArrayRef proxies, CFErrorRef error) {
 
 namespace net {
 
-int ProxyResolverMac::GetProxyConfig(ProxyConfig* config) {
+int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
   scoped_cftyperef<CFDictionaryRef> config_dict(
       SCDynamicStoreCopyProxies(NULL));
   DCHECK(config_dict);

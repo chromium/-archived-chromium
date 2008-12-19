@@ -81,7 +81,6 @@ input_files = [
     'http/http_util.cc',
     'http/http_vary_data.cc',
     'http/winhttp_request_throttle.cc',
-    'proxy/proxy_resolver_fixed.cc',
     'proxy/proxy_script_fetcher.cc',
     'proxy/proxy_service.cc',
     'url_request/mime_sniffer_proxy.cc',
@@ -127,6 +126,7 @@ if env.Bit('windows'):
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
+      'proxy/proxy_config_service_win.cc',
       'proxy/proxy_resolver_winhttp.cc',
       'url_request/url_request_inet_job.cc',
   ])

@@ -8,7 +8,6 @@
 #include <winhttp.h>
 
 #include "base/histogram.h"
-#include "base/string_tokenizer.h"
 #include "net/base/net_errors.h"
 
 #pragma comment(lib, "winhttp.lib")
@@ -35,15 +34,6 @@ static BOOL CallWinHttpGetProxyForUrl(HINTERNET session, LPCWSTR url,
   return rv;
 }
 
-static void FreeConfig(WINHTTP_CURRENT_USER_IE_PROXY_CONFIG* config) {
-  if (config->lpszAutoConfigUrl)
-    GlobalFree(config->lpszAutoConfigUrl);
-  if (config->lpszProxy)
-    GlobalFree(config->lpszProxy);
-  if (config->lpszProxyBypass)
-    GlobalFree(config->lpszProxyBypass);
-}
-
 static void FreeInfo(WINHTTP_PROXY_INFO* info) {
   if (info->lpszProxy)
     GlobalFree(info->lpszProxy);
@@ -57,37 +47,6 @@ ProxyResolverWinHttp::ProxyResolverWinHttp()
 
 ProxyResolverWinHttp::~ProxyResolverWinHttp() {
   CloseWinHttpSession();
-}
-
-int ProxyResolverWinHttp::GetProxyConfig(ProxyConfig* config) {
-  WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
-  if (!WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
-    LOG(ERROR) << "WinHttpGetIEProxyConfigForCurrentUser failed: " <<
-        GetLastError();
-    return ERR_FAILED;  // TODO(darin): Bug 1189288: translate error code.
-  }
-
-  if (ie_config.fAutoDetect)
-    config->auto_detect = true;
-  if (ie_config.lpszProxy)
-    config->proxy_server = WideToASCII(ie_config.lpszProxy);
-  if (ie_config.lpszProxyBypass) {
-    std::string proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
-    
-    StringTokenizer proxy_server_bypass_list(proxy_bypass, "; \t\n\r");
-    while (proxy_server_bypass_list.GetNext()) {
-      std::string bypass_url_domain = proxy_server_bypass_list.token();
-      if (bypass_url_domain == "<local>")
-        config->proxy_bypass_local_names = true;
-      else
-        config->proxy_bypass.push_back(bypass_url_domain);
-    }
-  }
-  if (ie_config.lpszAutoConfigUrl)
-    config->pac_url = GURL(ie_config.lpszAutoConfigUrl);
-
-  FreeConfig(&ie_config);
-  return OK;
 }
 
 int ProxyResolverWinHttp::GetProxyForURL(const GURL& query_url,

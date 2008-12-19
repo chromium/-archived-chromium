@@ -175,7 +175,6 @@
 		E49DD2EA0E892F8C003C7A87 /* sdch_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */; };
 		E49DD3290E893336003C7A87 /* http_network_layer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33620E5A194700A747DB /* http_network_layer.cc */; };
 		E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD3360E8933A2003C7A87 /* proxy_service.cc */; };
-		E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
 		E4CE9BC50E8BF92400D5378C /* http_network_transaction.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33680E5A194700A747DB /* http_network_transaction.cc */; };
 		E4CE9C070E8BFF0700D5378C /* upload_data_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32870E5A181C00A747DB /* upload_data_stream.cc */; };
@@ -429,7 +428,6 @@
 		0435A48D0E8DD74300E4DF08 /* http_auth_handler_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler_basic.h; sourceTree = "<group>"; };
 		0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_digest.cc; sourceTree = "<group>"; };
 		0435A4900E8DD75200E4DF08 /* http_auth_handler_digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler_digest.h; sourceTree = "<group>"; };
-		04AC41720EA941AE0063A0AB /* proxy_resolver_null.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_resolver_null.h; path = proxy/proxy_resolver_null.h; sourceTree = "<group>"; };
 		04C626D50E8DE39E0067E92A /* http_auth_handler_digest_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_digest_unittest.cc; sourceTree = "<group>"; };
 		04C626D70E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_basic_unittest.cc; sourceTree = "<group>"; };
 		04C626D90E8DE3BA0067E92A /* http_auth_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_unittest.cc; sourceTree = "<group>"; };
@@ -694,8 +692,6 @@
 		E49DD2E90E892F8C003C7A87 /* sdch_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdch_manager.h; sourceTree = "<group>"; };
 		E49DD3350E8933A2003C7A87 /* proxy_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_service.h; path = proxy/proxy_service.h; sourceTree = "<group>"; };
 		E49DD3360E8933A2003C7A87 /* proxy_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_service.cc; path = proxy/proxy_service.cc; sourceTree = "<group>"; };
-		E49DD33A0E8933C0003C7A87 /* proxy_resolver_fixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_resolver_fixed.h; path = proxy/proxy_resolver_fixed.h; sourceTree = "<group>"; };
-		E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_resolver_fixed.cc; path = proxy/proxy_resolver_fixed.cc; sourceTree = "<group>"; };
 		E4AFA6230E523E2900201347 /* net_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4AFA62E0E5240A300201347 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		E4AFA6420E5241B400201347 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
@@ -1160,11 +1156,8 @@
 		E49DD3330E893388003C7A87 /* proxy */ = {
 			isa = PBXGroup;
 			children = (
-				E49DD33A0E8933C0003C7A87 /* proxy_resolver_fixed.h */,
-				E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */,
 				820701030EB6611F005CD9E7 /* proxy_resolver_mac.h */,
 				820701020EB6611F005CD9E7 /* proxy_resolver_mac.cc */,
-				04AC41720EA941AE0063A0AB /* proxy_resolver_null.h */,
 				E49DD3350E8933A2003C7A87 /* proxy_service.h */,
 				E49DD3360E8933A2003C7A87 /* proxy_service.cc */,
 				7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */,
@@ -1513,7 +1506,6 @@
 				7B8B5AE30E5CDC00002F9A97 /* net_util.cc in Sources */,
 				533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */,
 				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.cc in Sources */,
-				E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */,
 				820701040EB6611F005CD9E7 /* proxy_resolver_mac.cc in Sources */,
 				E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */,
 				7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */,

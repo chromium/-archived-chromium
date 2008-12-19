@@ -14,10 +14,15 @@ namespace net {
 class ProxyResolverMac : public ProxyResolver {
  public:
   // ProxyResolver methods:
-  virtual int GetProxyConfig(ProxyConfig* config);
   virtual int GetProxyForURL(const GURL& query_url,
                              const GURL& pac_url,
                              ProxyInfo* results);
+};
+
+class ProxyConfigServiceMac : public ProxyConfigService {
+ public:
+  // ProxyConfigService methods:
+  virtual int GetProxyConfig(ProxyConfig* config);
 };
 
 }  // namespace net

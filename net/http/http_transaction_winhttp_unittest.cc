@@ -4,19 +4,18 @@
 
 #include "net/http/http_transaction_winhttp.h"
 #include "net/http/http_transaction_unittest.h"
-#include "net/proxy/proxy_resolver_null.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 TEST(HttpTransactionWinHttp, CreateAndDestroy) {
-  net::ProxyService proxy_service(new net::ProxyResolverNull);
-  net::HttpTransactionWinHttp::Factory factory(&proxy_service);
+  scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
+  net::HttpTransactionWinHttp::Factory factory(proxy_service.get());
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
 }
 
 TEST(HttpTransactionWinHttp, Suspend) {
-  net::ProxyService proxy_service(new net::ProxyResolverNull);
-  net::HttpTransactionWinHttp::Factory factory(&proxy_service);
+  scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
+  net::HttpTransactionWinHttp::Factory factory(proxy_service.get());
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
   trans.reset();
@@ -32,8 +31,8 @@ TEST(HttpTransactionWinHttp, Suspend) {
 }
 
 TEST(HttpTransactionWinHttp, GoogleGET) {
-  net::ProxyService proxy_service(new net::ProxyResolverNull);
-  net::HttpTransactionWinHttp::Factory factory(&proxy_service);
+  scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
+  net::HttpTransactionWinHttp::Factory factory(proxy_service.get());
   TestCompletionCallback callback;
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());

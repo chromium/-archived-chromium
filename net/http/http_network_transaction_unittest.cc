@@ -11,8 +11,7 @@
 #include "net/http/http_network_session.h"
 #include "net/http/http_network_transaction.h"
 #include "net/http/http_transaction_unittest.h"
-#include "net/proxy/proxy_resolver_fixed.h"
-#include "net/proxy/proxy_resolver_null.h"
+#include "net/proxy/proxy_config_service_fixed.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -202,8 +201,16 @@ MockClientSocketFactory mock_socket_factory;
 
 // Create a proxy service which fails on all requests (falls back to direct).
 net::ProxyService* CreateNullProxyService() {
-  return new net::ProxyService(new net::ProxyResolverNull);
+  return net::ProxyService::CreateNull();
 }
+
+net::ProxyService* CreateFixedProxyService(const std::string& proxy) {
+  net::ProxyInfo proxy_info;
+  proxy_info.UseNamedProxy(proxy);
+  return new net::ProxyService(
+      new net::ProxyConfigServiceFixed(proxy_info), NULL);
+}
+
 
 net::HttpNetworkSession* CreateSession(net::ProxyService* proxy_service) {
   return new net::HttpNetworkSession(proxy_service);
@@ -709,13 +716,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
 // authentication. Again, this uses basic auth for both since that is
 // the simplest to mock.
 TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
-  net::ProxyInfo proxy_info;
-  proxy_info.UseNamedProxy("myproxy:70");
-  net::ProxyService proxy_service(new net::ProxyResolverFixed(proxy_info));
+  scoped_ptr<net::ProxyService> proxy_service(
+      CreateFixedProxyService("myproxy:70"));
 
   // Configure against proxy server "myproxy:70".
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
-      CreateSession(&proxy_service),
+      CreateSession(proxy_service.get()),
       &mock_socket_factory));
 
   net::HttpRequestInfo request;
@@ -889,12 +895,11 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
 // http://code.google.com/p/chromium/issues/detail?id=3772
 TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   // Configure against proxy server "myproxy:70".
-  net::ProxyInfo proxy_info;
-  proxy_info.UseNamedProxy("myproxy:70");
-  net::ProxyService proxy_service(new net::ProxyResolverFixed(proxy_info));
+  scoped_ptr<net::ProxyService> proxy_service(
+      CreateFixedProxyService("myproxy:70"));
 
   scoped_refptr<net::HttpNetworkSession> session(
-      CreateSession(&proxy_service));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
       session.get(), &mock_socket_factory));

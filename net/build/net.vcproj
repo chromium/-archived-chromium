@@ -1017,15 +1017,15 @@
 			Name="proxy"
 			>
 			<File
-				RelativePath="..\proxy\proxy_resolver_fixed.cc"
+				RelativePath="..\proxy\proxy_config_service_fixed.h"
 				>
 			</File>
 			<File
-				RelativePath="..\proxy\proxy_resolver_fixed.h"
+				RelativePath="..\proxy\proxy_config_service_win.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\proxy\proxy_resolver_null.h"
+				RelativePath="..\proxy\proxy_config_service_win.h"
 				>
 			</File>
 			<File

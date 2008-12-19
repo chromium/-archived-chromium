@@ -24,6 +24,7 @@ class GURL;
 
 namespace net {
 
+class ProxyConfigService;
 class ProxyInfo;
 class ProxyResolver;
 
@@ -85,8 +86,9 @@ typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 // resolution.  See ProxyResolverWinHttp for example.
 class ProxyService {
  public:
-  // The instance takes ownership of |resolver|.
-  explicit ProxyService(ProxyResolver* resolver);
+  // The instance takes ownership of |config_service| and |resolver|.
+  ProxyService(ProxyConfigService* config_service,
+               ProxyResolver* resolver);
 
   // Used internally to handle PAC queries.
   class PacRequest;
@@ -138,6 +140,10 @@ class ProxyService {
   // use IE's settings).
   static ProxyService* Create(const ProxyInfo* pi);
 
+  // Create a proxy service that always fails to fetch the proxy configuration,
+  // so it falls back to direct connect.
+  static ProxyService* CreateNull();
+
   // TODO(eroman): remove once WinHTTP is gone.
   // Get the ProxyInfo used to create this proxy service (only used by WinHTTP).
   const ProxyInfo* proxy_info() const {
@@ -169,6 +175,7 @@ class ProxyService {
   // 2. The URL matches one of the entities in the proxy bypass list.
   bool ShouldBypassProxyForURL(const GURL& url);
 
+  scoped_ptr<ProxyConfigService> config_service_;
   scoped_ptr<ProxyResolver> resolver_;
   scoped_ptr<base::Thread> pac_thread_;
 
@@ -288,20 +295,27 @@ class ProxyInfo {
   bool config_was_tried_;
 };
 
-// This interface provides the low-level functions to access the proxy
-// configuration and resolve proxies for given URLs synchronously.
-class ProxyResolver {
+// Synchronously fetch the system's proxy configuration settings. Called on
+// the IO Thread.
+class ProxyConfigService {
  public:
-  virtual ~ProxyResolver() {}
+  virtual ~ProxyConfigService() {}
 
   // Get the proxy configuration.  Returns OK if successful or an error code if
   // otherwise.  |config| should be in its initial state when this method is
   // called.
   virtual int GetProxyConfig(ProxyConfig* config) = 0;
+};
+
+// Synchronously resolve the proxy for a URL, using a PAC script. Called on the
+// PAC Thread.
+class ProxyResolver {
+ public:
+  virtual ~ProxyResolver() {}
 
   // Query the proxy auto-config file (specified by |pac_url|) for the proxy to
   // use to load the given |query_url|.  Returns OK if successful or an error
-  // code if otherwise.
+  // code otherwise.
   virtual int GetProxyForURL(const GURL& query_url,
                              const GURL& pac_url,
                              ProxyInfo* results) = 0;

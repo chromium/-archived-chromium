@@ -29,7 +29,6 @@
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_network_layer.h"
-#include "net/proxy/proxy_resolver_null.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -42,7 +41,7 @@ namespace {
 class URLRequestHttpCacheContext : public URLRequestContext {
  public:
   URLRequestHttpCacheContext() {
-    proxy_service_ = new net::ProxyService(new net::ProxyResolverNull);
+    proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
         new net::HttpCache(net::HttpNetworkLayer::CreateFactory(proxy_service_),
                            disk_cache::CreateInMemoryCacheBackend(0));
