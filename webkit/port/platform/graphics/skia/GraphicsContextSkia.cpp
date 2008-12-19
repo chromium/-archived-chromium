@@ -60,7 +60,7 @@ static bool IsCoordinateReasonable(float coord)
 {
 #ifdef CHECK_REASONABLE
     // First check for valid floats.
-#if defined(COMPILER_MSVC)
+#if defined(_MSC_VER)
     if (!_finite(coord))
 #else
     if (!finite(coord))

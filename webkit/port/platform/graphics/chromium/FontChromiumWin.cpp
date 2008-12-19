@@ -241,7 +241,7 @@ void Font::drawComplexText(GraphicsContext* graphicsContext,
     UniscribeHelperTextRun state(run, *this);
 
     SkColor color = context->fillColor();
-    uint8 alpha = SkColorGetA(color);
+    unsigned char alpha = SkColorGetA(color);
     // Skip 100% transparent text; no need to draw anything.
     if (!alpha)
         return;
