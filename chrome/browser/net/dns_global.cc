@@ -251,7 +251,7 @@ void PrefetchObserver::SaveStartupListAsPref(PrefService* local_state) {
   for (Results::iterator it = first_resolutions->begin();
        it != first_resolutions->end();
        it++) {
-    const std::string hostname = it->first;
+    const std::wstring hostname = ASCIIToWide(it->first);
     startup_list->Append(Value::CreateStringValue(hostname));
   }
 }
@@ -440,9 +440,9 @@ void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
     for (ListValue::iterator it = startup_list->begin();
          it != startup_list->end();
          it++) {
-      std::string hostname;
-      (*it)->GetAsString(&hostname);
-      hostnames.push_back(hostname);
+      std::wstring w_hostname;
+      (*it)->GetAsString(&w_hostname);
+      hostnames.push_back(WideToASCII(w_hostname));
     }
   }
 
