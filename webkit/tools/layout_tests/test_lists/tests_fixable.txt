@@ -540,11 +540,13 @@ SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // Failing because looking up a method on an object fails when the stack is
 // full because of recursion.
+// Partially fixed in bleeding_edge: Now gives a StackOverflowException,
+// which isn't unreasonable when calling a method on a full stack.
 LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 // V8 completely fails to parse the JS at all; suspect it's because of the
 // Unicode BOM at the beginning of the file.
 LayoutTests/fast/js/removing-Cf-characters.html = FAIL
-// V8 is using the wrong global object (this could be serious)
+// Fixed in bleeding_edge@999.
 LayoutTests/fast/js/static-scope-object.html = FAIL
 // http://b/issue?id=1344252
 LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
