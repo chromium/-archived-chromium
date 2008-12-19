@@ -5,7 +5,6 @@
 #ifndef SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 #define SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 
-#include "base/ref_counted.h"
 #include "skia/ext/platform_device_win.h"
 
 namespace skia {
@@ -34,10 +33,10 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   // If shared_section is non-null, then it must be a handle to a file-mapping
   // object returned by CreateFileMapping.  See CreateDIBSection for details.
   static BitmapPlatformDeviceWin* create(HDC screen_dc,
-                                int width,
-                                int height,
-                                bool is_opaque,
-                                HANDLE shared_section);
+                                         int width,
+                                         int height,
+                                         bool is_opaque,
+                                         HANDLE shared_section);
 
   // Copy constructor. When copied, devices duplicate their internal data, so
   // stay linked. This is because their implementation is very heavyweight
@@ -88,7 +87,7 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   // bitmaps used by the base device class are already refcounted and copyable.
   class BitmapPlatformDeviceWinData;
 
-  // Private constructor.
+  // Private constructor. The data should already be ref'ed for us.
   BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data,
                           const SkBitmap& bitmap);
 
@@ -101,8 +100,9 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
                      int width,
                      int height);
 
-  // Data associated with this device, guaranteed non-null.
-  scoped_refptr<BitmapPlatformDeviceWinData> data_;
+  // Data associated with this device, guaranteed non-null. We hold a reference
+  // to this object.
+  BitmapPlatformDeviceWinData* data_;
 };
 
 }  // namespace skia

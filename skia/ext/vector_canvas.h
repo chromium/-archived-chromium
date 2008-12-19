@@ -37,7 +37,9 @@ class VectorCanvas : public PlatformCanvasWin {
   // Returns true if the top device is vector based and not bitmap based.
   bool IsTopDeviceVectorial() const;
 
-  DISALLOW_COPY_AND_ASSIGN(VectorCanvas);
+  // Copy & assign are not supported.
+  VectorCanvas(const VectorCanvas&);
+  const VectorCanvas& operator=(const VectorCanvas&);
 };
 
 }  // namespace skia
