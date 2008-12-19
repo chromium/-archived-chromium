@@ -4,8 +4,6 @@
 
 #include <windows.h>
 
-#include "base/basictypes.h"
-
 #include "WTF/ListHashSet.h"
 #include "WTF/Vector.h"
 
@@ -38,7 +36,9 @@ const bool operator==(const CachedOutlineKey& a, const CachedOutlineKey& b)
 struct CachedOutlineKeyHash {
     static unsigned hash(const CachedOutlineKey& key)
     {
-        return bit_cast<unsigned>(key.font) + key.glyph;
+        unsigned keyBytes;
+        memcpy(&keyBytes, &key.font, sizeof(unsigned));
+        return keyBytes + key.glyph;
     }
 
     static unsigned equal(const CachedOutlineKey& a,
@@ -58,12 +58,17 @@ const int outlineCacheSize = 256;
 
 inline FIXED SkScalarToFIXED(SkScalar x)
 {
-    return bit_cast<FIXED>(SkScalarToFixed(x));
+    FIXED fixed;
+    SkFixed skFixed = SkScalarToFixed(x);
+    memcpy(&fixed, &skFixed, sizeof(FIXED));
+    return fixed;
 }
 
 inline SkScalar FIXEDToSkScalar(FIXED fixed)
 {
-    return SkFixedToScalar(bit_cast<SkFixed>(fixed));
+    SkFixed skFixed;
+    memcpy(&skFixed, &fixed, sizeof(SkFixed));
+    return SkFixedToScalar(skFixed);
 }
 
 // Removes the given key from the cached outlines, also deleting the path.
@@ -109,16 +114,19 @@ void AddPolyCurveToPath(const TTPOLYCURVE* polyCurve, SkPath* path)
     }
 }
 
+// The size of the glyph outline buffer.
+const int glyphPathBufferSize = 4096;
+
 // Fills the given SkPath with the outline for the given glyph index. The font
 // currently selected into the given DC is used. Returns true on success.
 bool GetPathForGlyph(HDC dc, WORD glyph, SkPath* path)
 {
-    char buffer[4096];
+    char buffer[glyphPathBufferSize];
     GLYPHMETRICS gm;
     MAT2 mat = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};  // Each one is (fract,value).
 
     DWORD totalSize = GetGlyphOutlineW(dc, glyph, GGO_GLYPH_INDEX | GGO_NATIVE,
-                                     &gm, arraysize(buffer), buffer, &mat);
+                                       &gm, glyphPathBufferSize, buffer, &mat);
     if (totalSize == GDI_ERROR)
         return false;
 
