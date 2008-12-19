@@ -16,21 +16,29 @@
 #include <sys/un.h>
 #endif
 
-
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_counters.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_message_utils.h"
 
 namespace IPC {
 
 //------------------------------------------------------------------------------
-// TODO(playmobil): Only use FIFOs for debugging, for real work, use a
-// socketpair.
 namespace {
 
+// Used to map a channel name to the equivalent FD # in the client process.
+int ChannelNameToClientFD(const std::string& channel_id) {
+  // TODO(playmobil): Support a smarter mapping that allows for a process to
+  // be a client of multiple channels.
+  const int kClientChannelID = 50;
+  return kClientChannelID;
+}
+
+//------------------------------------------------------------------------------
 // The -1 is to take the NULL terminator into account.
 #if defined(OS_LINUX)
 const size_t kMaxPipeNameLength = UNIX_PATH_MAX - 1;
@@ -156,8 +164,10 @@ Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
     : mode_(mode),
       is_blocked_on_write_(false),
       message_send_bytes_written_(0),
+      uses_fifo_(CommandLine().HasSwitch(switches::kTestingChannelID)),
       server_listen_pipe_(-1),
       pipe_(-1),
+      client_pipe_(-1),
       listener_(listener),
       waiting_connect_(true),
       processing_incoming_(false),
@@ -183,19 +193,42 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
                                       Mode mode) {
   DCHECK(server_listen_pipe_ == -1 && pipe_ == -1);
 
-  // TODO(playmobil): Should we just change pipe_name to be a normal string
-  // everywhere?
-  pipe_name_ = WideToUTF8(PipeName(channel_id));
+  if (uses_fifo_) {
+    // TODO(playmobil): Should we just change pipe_name to be a normal string
+    // everywhere?
+    pipe_name_ = WideToUTF8(PipeName(channel_id));
 
-  if (mode == MODE_SERVER) {
-    if (!CreateServerFifo(pipe_name_, &server_listen_pipe_)) {
-      return false;
+    if (mode == MODE_SERVER) {
+      if (!CreateServerFifo(pipe_name_, &server_listen_pipe_)) {
+        return false;
+      }
+    } else {
+      if (!ClientConnectToFifo(pipe_name_, &pipe_)) {
+        return false;
+      }
+      waiting_connect_ = false;
     }
   } else {
-    if (!ClientConnectToFifo(pipe_name_, &pipe_)) {
-      return false;
+    // socketpair()
+    if (mode == MODE_SERVER) {
+      int pipe_fds[2];
+      if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipe_fds) != 0) {
+        return false;
+      }
+      // Set both ends to be non-blocking.
+      if (fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK) == -1 ||
+          fcntl(pipe_fds[1], F_SETFL, O_NONBLOCK) == -1) {
+        close(pipe_fds[0]);
+        close(pipe_fds[1]);
+        return false;
+      }
+      pipe_ = pipe_fds[0];
+      client_pipe_ = pipe_fds[1];
+    } else {
+      pipe_ = ChannelNameToClientFD(pipe_name_);
+      DCHECK(pipe_ > 0);
+      waiting_connect_ = false;
     }
-    waiting_connect_ = false;
   }
 
   // Create the Hello message to be sent when Connect is called
@@ -212,7 +245,7 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
 }
 
 bool Channel::ChannelImpl::Connect() {
-  if (mode_ == MODE_SERVER) {
+  if (mode_ == MODE_SERVER && uses_fifo_) {
     if (server_listen_pipe_ == -1) {
       return false;
     }
@@ -396,10 +429,27 @@ bool Channel::ChannelImpl::Send(Message* message) {
   return true;
 }
 
+void Channel::ChannelImpl::GetClientFileDescriptorMapping(int *src_fd,
+                                                          int *dest_fd) {
+  DCHECK(mode_ == MODE_SERVER);
+  *src_fd = client_pipe_;
+  *dest_fd = ChannelNameToClientFD(pipe_name_);
+}
+
+void Channel::ChannelImpl::OnClientConnected() {
+  DCHECK(mode_ == MODE_SERVER);
+  close(client_pipe_);
+  client_pipe_ = -1;
+}
+
 // Called by libevent when we can read from th pipe without blocking.
 void Channel::ChannelImpl::OnFileCanReadWithoutBlocking(int fd) {
   bool send_server_hello_msg = false;
   if (waiting_connect_ && mode_ == MODE_SERVER) {
+    // In the case of a socketpair() the server starts listening on its end
+    // of the pipe in Connect().
+    DCHECK(uses_fifo_);
+
     if (!ServerAcceptFifoConnection(server_listen_pipe_, &pipe_)) {
       Close();
     }
@@ -465,6 +515,10 @@ void Channel::ChannelImpl::Close() {
     close(pipe_);
     pipe_ = -1;
   }
+  if (client_pipe_ != -1) {
+    close(client_pipe_);
+    client_pipe_ = -1;
+  }
 
   // Unlink the FIFO
   unlink(pipe_name_.c_str());
@@ -502,5 +556,14 @@ void Channel::set_listener(Listener* listener) {
 bool Channel::Send(Message* message) {
   return channel_impl_->Send(message);
 }
+
+void Channel::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) {
+  return channel_impl_->GetClientFileDescriptorMapping(src_fd, dest_fd);
+}
+
+void Channel::OnClientConnected() {
+  return channel_impl_->OnClientConnected();
+}
+
 
 }  // namespace IPC

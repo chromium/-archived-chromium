@@ -49,7 +49,9 @@ void IPCChannelTest::TearDown() {
   MultiProcessTest::TearDown();
 }
 
-base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type) {
+#if defined(OS_WIN)
+base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
+                                               IPC::Channel *channel) {
   // kDebugChildren support.
   bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
 
@@ -68,6 +70,47 @@ base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type) {
     break;
   }
 }
+#elif defined(OS_POSIX)
+base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
+                                               IPC::Channel *channel) {
+  // kDebugChildren support.
+  bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
+
+  base::file_handle_mapping_vector fds_to_map;
+  int src_fd;
+  int dest_fd;
+  channel->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+  if (src_fd > -1) {
+    fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
+  }
+
+  base::ProcessHandle ret = NULL;
+  switch (child_type) {
+  case TEST_CLIENT:
+    ret = MultiProcessTest::SpawnChild(L"RunTestClient",
+                                       fds_to_map,
+                                       debug_on_start);
+    channel->OnClientConnected();
+    break;
+  case TEST_REFLECTOR:
+    ret = MultiProcessTest::SpawnChild(L"RunReflector",
+                                       fds_to_map,
+                                       debug_on_start);
+    channel->OnClientConnected();
+    break;
+  case FUZZER_SERVER:
+    ret = MultiProcessTest::SpawnChild(L"RunFuzzServer",
+                                       fds_to_map,
+                                       debug_on_start);
+    channel->OnClientConnected();
+    break;
+  default:
+    return NULL;
+    break;
+  }
+  return ret;
+}
+#endif  // defined(OS_POSIX)
 
 TEST_F(IPCChannelTest, BasicMessageTest) {
   int v1 = 10;
@@ -157,7 +200,7 @@ TEST_F(IPCChannelTest, ChannelTest) {
 
   channel_listener.Init(&chan);
 
-  base::ProcessHandle process_handle = SpawnChild(TEST_CLIENT);
+  base::ProcessHandle process_handle = SpawnChild(TEST_CLIENT, &chan);
   ASSERT_TRUE(process_handle);
 
   Send(&chan, "hello from parent");
@@ -184,7 +227,10 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
 
     channel_listener.Init(&chan);
 
-    HANDLE process_handle = SpawnChild(TEST_CLIENT);
+    bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
+    base::ProcessHandle process_handle = MultiProcessTest::SpawnChild(
+        L"RunTestClient",
+        debug_on_start);
     ASSERT_TRUE(process_handle);
 
     Send(&chan, "hello from parent");
@@ -193,8 +239,7 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
     MessageLoop::current()->Run();
 
     // cleanup child process
-    WaitForSingleObject(process_handle, 5000);
-    CloseHandle(process_handle);
+    EXPECT_TRUE(base::WaitForSingleProcess(process_handle, 5000));
   }
   thread.Stop();
 }
@@ -340,7 +385,7 @@ TEST_F(IPCChannelTest, Performance) {
   chan.set_listener(&perf_listener);
   chan.Connect();
 
-  HANDLE process = SpawnChild(TEST_REFLECTOR);
+  HANDLE process = SpawnChild(TEST_REFLECTOR, &chan);
   ASSERT_TRUE(process);
 
   Sleep(1000);

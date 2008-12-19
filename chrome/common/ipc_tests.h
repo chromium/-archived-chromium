@@ -22,6 +22,9 @@ extern const wchar_t kReflectorChannel[];
 extern const wchar_t kFuzzerChannel[];
 
 class MessageLoopForIO;
+namespace IPC {
+class Channel;
+}  // namespace IPC
 
 //Base class to facilitate Spawning IPC Client processes.
 class IPCChannelTest : public MultiProcessTest {
@@ -32,7 +35,8 @@ class IPCChannelTest : public MultiProcessTest {
   virtual void TearDown();
 
   // Spawns a child process of the specified type
-  base::ProcessHandle SpawnChild(ChildType child_type);
+  base::ProcessHandle SpawnChild(ChildType child_type,
+                                 IPC::Channel *channel);
 
   // Created around each test instantiation.
   MessageLoopForIO *message_loop_;

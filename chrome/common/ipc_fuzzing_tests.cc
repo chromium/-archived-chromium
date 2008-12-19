@@ -270,7 +270,7 @@ class FuzzerClientListener : public SimpleListener {
 MULTIPROCESS_TEST_MAIN(RunFuzzServer) {
   MessageLoopForIO main_message_loop;
   FuzzerServerListener listener;
-  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_SERVER, &listener);
+  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_CLIENT, &listener);
   chan.Connect();
   listener.Init(&chan);
   MessageLoop::current()->Run();
@@ -283,12 +283,12 @@ class IPCFuzzingTest : public IPCChannelTest {
 // This test makes sure that the FuzzerClientListener and FuzzerServerListener
 // are working properly by generating two well formed IPC calls.
 TEST_F(IPCFuzzingTest, SanityTest) {
-  base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
+  FuzzerClientListener listener;
+  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_SERVER,
+                    &listener);
+  base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER, &chan);
   ASSERT_TRUE(server_process);
   PlatformThread::Sleep(1000);
-  FuzzerClientListener listener;
-  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_CLIENT,
-                    &listener);
   ASSERT_TRUE(chan.Connect());
   listener.Init(&chan);
 
@@ -312,12 +312,12 @@ TEST_F(IPCFuzzingTest, SanityTest) {
 // properly.
 #ifdef NDEBUG
 TEST_F(IPCFuzzingTest, MsgBadPayloadShort) {
-  base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
+  FuzzerClientListener listener;
+  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_SERVER,
+                    &listener);
+  base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER, &chan);
   ASSERT_TRUE(server_process);
   PlatformThread::Sleep(1000);
-  FuzzerClientListener listener;
-  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_CLIENT,
-                    &listener);
   ASSERT_TRUE(chan.Connect());
   listener.Init(&chan);
 
@@ -341,12 +341,12 @@ TEST_F(IPCFuzzingTest, MsgBadPayloadShort) {
 // This test does not pinpoint a flaw (per se) as by design we don't carry
 // type information on the IPC message.
 TEST_F(IPCFuzzingTest, MsgBadPayloadArgs) {
-  base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER);
+  FuzzerClientListener listener;
+  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_SERVER,
+                    &listener);
+  base::ProcessHandle server_process = SpawnChild(FUZZER_SERVER, &chan);
   ASSERT_TRUE(server_process);
   PlatformThread::Sleep(1000);
-  FuzzerClientListener listener;
-  IPC::Channel chan(kFuzzerChannel, IPC::Channel::MODE_CLIENT,
-                    &listener);
   ASSERT_TRUE(chan.Connect());
   listener.Init(&chan);
 
