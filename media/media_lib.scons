@@ -46,3 +46,6 @@ if env.Bit('posix'):
   ])
 
 env.ChromeStaticLibrary('media', input_files)
+
+env.ChromeMSVSProject('$MEDIA_DIR/build/media.vcproj',
+                guid='{6AE76406-B03B-11DD-94B1-80B556D89593}')

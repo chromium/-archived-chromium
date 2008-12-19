@@ -216,3 +216,9 @@ if env.Bit('linux'):
   ])
 
 env.ChromeStaticLibrary('base', input_files)
+
+env.ChromeMSVSProject('$BASE_DIR/build/base.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/debug_message.vcproj',
+                ],
+                guid='{1832A374-8A74-4F9E-B536-69A699B3E165}')

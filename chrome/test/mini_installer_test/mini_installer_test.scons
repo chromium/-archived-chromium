@@ -65,4 +65,15 @@ input_files = [
     'test.cc',
 ]
 
-env.ChromeTestProgram('mini_installer_test', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeTestProgram('mini_installer_test', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/mini_installer_test/mini_installer_test.vcproj',
+                      dependencies = [
+                          '$BASE_DIR/build/base.vcproj',
+                          '$ICU38_DIR/build/icu.vcproj',
+                          '$TESTING_DIR/gtest.vcproj',
+                          '$CHROME_DIR/installer/util/util.vcproj',
+                      ],
+                      guid='{4B6E199A-034A-49BD-AB93-458DD37E45B1}')

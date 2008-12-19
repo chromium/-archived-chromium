@@ -834,3 +834,12 @@ if env.Bit('windows'):
 
 env.ChromeStaticLibrary('WebCore', input_files)
 
+env.ChromeMSVSProject('$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
+                dependencies = [
+                    '$WEBKIT_DIR/build/JSConfig/V8Config.vcproj',
+                    '$WEBKIT_DIR/build/V8Bindings/V8Bindings_prebuild.vcproj',
+                    '$LIBXML_DIR/build/libxml_config.vcproj',
+                    '$LIBXSLT_DIR/build/libxslt_config.vcproj',
+                    '$SQLITE_DIR/sqlite.vcproj',
+                ],
+                guid='{1C16337B-ACF3-4D03-AA90-851C5B5EADA6}')

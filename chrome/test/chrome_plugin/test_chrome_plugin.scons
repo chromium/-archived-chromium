@@ -51,3 +51,12 @@ if env.Bit('windows'):
   ])
 
 env.ChromeSharedLibrary('test_chrome_plugin', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/chrome_plugin/test_chrome_plugin.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$ICU38_DIR/build/icudt.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                ],
+                guid='{7F0A70F6-BE3F-4C19-B435-956AB8F30BA4}')

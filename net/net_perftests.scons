@@ -48,3 +48,15 @@ input_files = [
 
 if not env.Bit('mac'):
   env.ChromeTestProgram('net_perftests', input_files)
+
+env.ChromeMSVSProject('$NET_DIR/build/net_perftests.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$NET_DIR/build/net.vcproj',
+                    '$MODP_B64_DIR/modp_b64.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                    '$SDCH_DIR/sdch.vcproj',
+                ],
+                guid='{AAC78796-B9A2-4CD9-BF89-09B03E92BF73}')

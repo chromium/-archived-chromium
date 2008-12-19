@@ -47,3 +47,14 @@ input_files = [
 ]
 
 env.ChromeTestProgram('image_diff', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/tools/test/image_diff/image_diff.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ZLIB_DIR/zlib.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$BASE_DIR/build/base_gfx.vcproj',
+                    '$LIBPNG_DIR/libpng.vcproj',
+                    '$SKIA_DIR/skia.vcproj',
+                ],
+                guid='{50B079C7-CD01-42D3-B8C4-9F8D9322E822}')

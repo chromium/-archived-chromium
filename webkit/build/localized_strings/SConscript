@@ -37,3 +37,6 @@ generated = env_grd.GRIT(
 if env_res.Bit('windows'):
   for g in [g for g in generated if str(g).endswith('.rc')]:
     env_res.RES(g)
+
+env.ChromeMSVSProject('$WEBKIT_DIR/build/localized_strings/localized_strings.vcproj',
+                guid='{60B43839-95E6-4526-A661-209F16335E0E}')

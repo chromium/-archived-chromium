@@ -66,3 +66,8 @@ if not env.Bit('mac'):
   # TODO(port): Enable for Mac.
   env.ChromeStaticLibrary('debugger', input_files)
 
+env.ChromeMSVSProject('$CHROME_DIR/browser/debugger/debugger.vcproj',
+                dependencies = [
+                    '$CHROME_DIR/app/generated_resources.vcproj',
+                ],
+                guid='{57823D8C-A317-4713-9125-2C91FDFD12D6}')

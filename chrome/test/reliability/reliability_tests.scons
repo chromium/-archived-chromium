@@ -70,4 +70,26 @@ input_files = [
     'run_all_unittests.cc',
 ]
 
-env.ChromeTestProgram('reliability_tests', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeTestProgram('reliability_tests', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/reliability/reliability_tests.vcproj',
+                      dependencies = [
+                          '$CHROME_DIR/test/automation/automation.vcproj',
+                          '$BASE_DIR/build/base.vcproj',
+                          '$NET_DIR/build/net.vcproj',
+                          '$CHROME_DIR/browser/browser.vcproj',
+                          '$MODP_B64_DIR/modp_b64.vcproj',
+                          '$CHROME_DIR/app/chrome_exe.vcproj',
+                          '$ZLIB_DIR/zlib.vcproj',
+                          '$CHROME_DIR/common/common.vcproj',
+                          '$ICU38_DIR/build/icu.vcproj',
+                          '$BASE_DIR/build/base_gfx.vcproj',
+                          '$TESTING_DIR/gtest.vcproj',
+                          '$LIBPNG_DIR/libpng.vcproj',
+                          '$SKIA_DIR/skia.vcproj',
+                          '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                          '$CHROME_DIR/browser/views/browser_views.vcproj',
+                      ],
+                      guid='{8A3E1774-1DE9-445C-982D-3EE37C8A752A}')

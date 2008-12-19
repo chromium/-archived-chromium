@@ -1,0 +1,142 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building base.sln.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.Tool('MSVSNew')
+
+env.ChromeMSVSProject('$SANDBOX_DIR/sandbox_poc/sandbox_poc.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                    '$SANDBOX_DIR/sandbox_poc/pocdll/pocdll.vcproj',
+                ],
+                guid='{CF757839-F2A1-417C-8F25-DCAE480020F1}')
+
+env.ChromeMSVSProject('$SANDBOX_DIR/sandbox_poc/pocdll/pocdll.vcproj',
+                guid='{AE5BFB87-850E-4454-B01D-58E7D8BAC224}')
+
+env.ChromeMSVSProject('$SANDBOX_DIR/src/sandbox.vcproj',
+                guid='{881F6A97-D539-4C48-B401-DF04385B2343}')
+
+env.ChromeMSVSProject(('$SANDBOX_DIR/tests/integration_tests/' +
+                     'sbox_integration_tests.vcproj'),
+                dependencies = [
+                    '$BASE_DIR/build/debug_message.vcproj',
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                ],
+                guid='{542D4B3B-98D4-4233-B68D-0103891508C6}')
+
+env.ChromeMSVSProject('$SANDBOX_DIR/tests/unit_tests/sbox_unittests.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/debug_message.vcproj',
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                ],
+                guid='{883553BE-2A9D-418C-A121-61FE1DFBC562}')
+
+env.ChromeMSVSProject(('$SANDBOX_DIR/tests/validation_tests/' + 
+                     'sbox_validation_tests.vcproj'),
+                dependencies = [
+                    '$BASE_DIR/build/debug_message.vcproj',
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                ],
+                guid='{B9CC7B0D-145A-49C2-B887-84E43CFA0F27}')
+
+env.ChromeMSVSProject('$SANDBOX_DIR/tools/finder/finder.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                ],
+                guid='{ACDC2E06-0366-41A4-A646-C37E130A605D}')
+
+env.ChromeMSVSProject('$SANDBOX_DIR/tools/launcher/launcher.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                ],
+                guid='{386FA217-FBC2-4461-882D-CDAD221ED800}')
+
+
+dependencies = env.ChromeMSVSFolder('sandbox_dependencies',
+                              name='dependencies',
+                              entries = [
+                                  '$BASE_DIR/build/debug_message.vcproj',
+                                  '$BASE_DIR/build/base.vcproj',
+                                  '$TESTING_DIR/gtest.vcproj',
+                              ],
+                              guid='{BCE54389-D18D-48B9-977E-9D1998200F63}')
+
+proof_of_concept = env.ChromeMSVSFolder('proof_of_concept',
+                                  entries = [
+                                      ('$SANDBOX_DIR/sandbox_poc/pocdll/' +
+                                           'pocdll.vcproj'),
+                                      ('$SANDBOX_DIR/sandbox_poc/' +
+                                           'sandbox_poc.vcproj'),
+                                  ],
+                                  guid='{B607BE7B-3555-422C-A40B-28E73C0B5E24}')
+
+tests = env.ChromeMSVSFolder('tests',
+                       entries = [
+                           ('$SANDBOX_DIR/tests/integration_tests/' +
+                                'sbox_integration_tests.vcproj'),
+                           ('$SANDBOX_DIR/tests/unit_tests/' +
+                                'sbox_unittests.vcproj'),
+                           ('$SANDBOX_DIR/tests/validation_tests/' +
+                                'sbox_validation_tests.vcproj'),
+                       ],
+                       guid='{F7A3B82E-B8B4-4FDF-BC8E-FEC9398F57ED}')
+
+tools = env.ChromeMSVSFolder('sandbox_tools',
+                       name='tools',
+                       entries = [
+                           '$SANDBOX_DIR/tools/launcher/launcher.vcproj',
+                           '$SANDBOX_DIR/tools/finder/finder.vcproj',
+                       ],
+                       guid='{7F36EE20-5016-4051-B0D7-42824CDA0291}')
+
+
+solution = env.ChromeMSVSSolution('$SANDBOX_DIR/sandbox.sln',
+                            entries = [
+                                '$SANDBOX_DIR/src/sandbox.vcproj',
+                                ('$SANDBOX_DIR/tests/unit_tests/' +
+                                     'sbox_unittests.vcproj'),
+                                tests,
+                                ('$SANDBOX_DIR/tests/validation_tests/' +
+                                     'sbox_validation_tests.vcproj'),
+                                dependencies,
+                                '$BASE_DIR/build/debug_message.vcproj',
+                                tools,
+                                proof_of_concept,
+                                '$SANDBOX_DIR/sandbox_poc/sandbox_poc.vcproj',
+                                '$SANDBOX_DIR/sandbox_poc/pocdll/pocdll.vcproj',
+                                '$SANDBOX_DIR/tools/finder/finder.vcproj',
+                                '$SANDBOX_DIR/tools/launcher/launcher.vcproj',
+                                ('$SANDBOX_DIR/tests/integration_tests/' +
+                                     'sbox_integration_tests.vcproj'),
+                                '$BASE_DIR/build/base.vcproj',
+                                '$TESTING_DIR/gtest.vcproj',
+                            ],
+                            variants = [
+                                'Debug|Win32',
+                                'Release|Win32',
+                            ],
+                            websiteProperties=False)
+
+env.AlwaysBuild(solution)
+
+i = env.Command('$CHROME_SRC_DIR/sandbox/sandbox.sln', solution,
+                Copy('$TARGET', '$SOURCE'))
+Alias('solutions', i)

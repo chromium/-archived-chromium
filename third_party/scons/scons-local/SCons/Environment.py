@@ -219,7 +219,8 @@ class BuilderWrapper(MethodWrapper):
         return apply(MethodWrapper.__call__, (self, target, source) + args, kw)
 
     def __repr__(self):
-        return '<BuilderWrapper %s>' % repr(self.name)
+        fmt = '<BuilderWrapper %s instance at 0x%08X>'
+        return fmt % (repr(self.name), id(self))
 
     def __str__(self):
         return self.__repr__()

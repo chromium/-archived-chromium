@@ -52,3 +52,11 @@ input_files = [
 ]
 
 env.ChromeTestProgram('media_unittests', input_files)
+
+env.ChromeMSVSProject('$MEDIA_DIR/build/media_unittests.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$MEDIA_DIR/build/media.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                ],
+                guid='{C8C6183C-B03C-11DD-B471-DFD256D89593}')

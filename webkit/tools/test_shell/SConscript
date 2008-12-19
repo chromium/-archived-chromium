@@ -135,6 +135,39 @@ elif env.Bit('linux'):
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)
 
+env.ChromeMSVSProject('$WEBKIT_DIR/tools/test_shell/test_shell.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
+                    '$LIBJPEG_DIR/libjpeg.vcproj',
+                    '$BZIP2_DIR/bzip2.vcproj',
+                    '$NET_DIR/build/net.vcproj',
+                    ('$WEBKIT_DIR/build/JavaScriptCore/' +
+                         'JavaScriptCore_pcre.vcproj'),
+                    '$WEBKIT_DIR/build/port/port.vcproj',
+                    '$WEBKIT_DIR/default_plugin/default_plugin.vcproj',
+                    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.vcproj',
+                    '$MODP_B64_DIR/modp_b64.vcproj',
+                    '$ZLIB_DIR/zlib.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$BASE_DIR/build/base_gfx.vcproj',
+                    '$WEBKIT_DIR/build/JavaScriptCore/WTF.vcproj',
+                    '$BREAKPAD_DIR/breakpad_handler.vcproj',
+                    ('$WEBKIT_DIR/tools/npapi_layout_test_plugin/' +
+                         'npapi_layout_test_plugin.vcproj'),
+                    '$TESTING_DIR/gtest.vcproj',
+                    '$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
+                    '$LIBPNG_DIR/libpng.vcproj',
+                    '$WEBKIT_DIR/build/glue/glue.vcproj',
+                    '$SKIA_DIR/skia.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                    '$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
+                    '$SDCH_DIR/sdch.vcproj',
+                    '$LIBXSLT_DIR/build/libxslt.vcproj',
+                ],
+                guid='{FA39524D-3067-4141-888D-28A86C66F2B9}')
+
+
 resources = []
 exe_input_files = [
   'test_shell_main.cc',
@@ -203,3 +236,34 @@ test_shell_tests = env.ChromeTestProgram('test_shell_tests',
                                          resources + test_files)
 i = env.Install('$TARGET_ROOT', test_shell_tests)
 env.Alias('webkit', i)
+
+env.ChromeMSVSProject('$WEBKIT_DIR/tools/test_shell/test_shell_tests.vcproj',
+                dependencies = [
+                    '$WEBKIT_DIR/glue/plugins/test/npapi_test_plugin.vcproj',
+                    '$BASE_DIR/build/base.vcproj',
+                    '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
+                    '$LIBJPEG_DIR/libjpeg.vcproj',
+                    '$BZIP2_DIR/bzip2.vcproj',
+                    '$NET_DIR/build/net.vcproj'           ,
+                    ('$WEBKIT_DIR/build/JavaScriptCore/' +
+                         'JavaScriptCore_pcre.vcproj'),
+                    '$WEBKIT_DIR/build/port/port.vcproj',
+                    '$WEBKIT_DIR/default_plugin/default_plugin.vcproj',
+                    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.vcproj',
+                    '$MODP_B64_DIR/modp_b64.vcproj',
+                    '$ZLIB_DIR/zlib.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$BASE_DIR/build/base_gfx.vcproj',
+                    '$WEBKIT_DIR/build/JavaScriptCore/WTF.vcproj',
+                    '$BREAKPAD_DIR/breakpad_handler.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                    '$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
+                    '$LIBPNG_DIR/libpng.vcproj',
+                    '$WEBKIT_DIR/build/glue/glue.vcproj',
+                    '$SKIA_DIR/skia.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                    '$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
+                    '$SDCH_DIR/sdch.vcproj',
+                    '$LIBXSLT_DIR/build/libxslt.vcproj',
+                ],
+                guid='{E6766F81-1FCD-4CD7-BC16-E36964A14867}')

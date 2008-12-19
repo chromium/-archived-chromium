@@ -133,3 +133,14 @@ if env.Bit('posix'):
 
 env.ChromeStaticLibrary('glue', input_files)
 
+env.ChromeMSVSProject('$WEBKIT_DIR/build/glue/glue.vcproj',
+                name = 'Glue',
+                dependencies = [
+                       '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
+                       '$WEBKIT_DIR/build/JSConfig/V8Config.vcproj',
+                       ('$WEBKIT_DIR/build/V8Bindings/' +
+                            'V8Bindings_prebuild.vcproj'),
+                       ('$WEBKIT_DIR/build/localized_strings/' +
+                            'localized_strings.vcproj'),
+                ],
+                guid='{C66B126D-0ECE-4CA2-B6DC-FA780AFBBF09}')

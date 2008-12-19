@@ -51,3 +51,5 @@ input_files = [
 
 env.ChromeStaticLibrary('JavaScriptCore_pcre', input_files)
 
+env.ChromeMSVSProject('$WEBKIT_DIR/build/JavaScriptCore/JavaScriptCore_pcre.vcproj',
+                guid='{49909552-0B0C-4C14-8CF6-DB8A2ADE0934}')

@@ -18,4 +18,11 @@ if env.Bit('windows'):
       ],
   )
 
-env.ChromeProgram('debug_message', ['debug_message.cc'])
+if env.Bit('windows'):
+  # TODO(port): port this if it's needed on non-Windows systems,
+  # or remove this comment (and merge with the above block?)
+  # if it's really Windows-specific.
+  env.ChromeProgram('debug_message', ['debug_message.cc'])
+
+env.ChromeMSVSProject('$BASE_DIR/build/debug_message.vcproj',
+                guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}')

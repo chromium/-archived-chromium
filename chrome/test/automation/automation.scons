@@ -27,4 +27,9 @@ input_files = [
     'window_proxy.cc',
 ]
 
-env.ChromeStaticLibrary('automation', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeStaticLibrary('automation', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/automation/automation.vcproj',
+                      guid='{1556EF78-C7E6-43C8-951F-F6B43AC0DD12}')

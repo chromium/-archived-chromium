@@ -43,6 +43,8 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
 
     LOAD_NAMES = ['chrome'],
 
+    chrome_sln          = 'chrome_sln.scons',
+    locales             = 'app/locales/locales.scons',
     browser             = 'browser/browser.scons',
     debugger            = 'browser/debugger/debugger.scons',
     common              = 'common/common.scons',
@@ -77,32 +79,5 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
     generate_profile    = 'tools/profiles/generate_profile.scons',
     image_diff          = 'tools/test/image_diff/image_diff.scons',
 )
-
-# TODO(port)
-if env.AnyBits('linux', 'mac'):
-  remove_files = [
-      'installer/mini_installer/installer_unittests.scons',
-      'installer/mini_installer/mini_installer.scons',
-      'installer/setup/setup.scons',
-      'installer/util/util.scons',
-      'test/activex_test_control/activex_test_control.scons',
-      'test/automated_ui_tests/automated_ui_tests.scons',
-      'test/automation/automation.scons',
-      'test/interactive_ui/interactive_ui_tests.scons',
-      'test/memory_test/memory_test.scons',
-      'test/mini_installer_test/mini_installer_test.scons',
-      'test/page_cycler/page_cycler_tests.scons',
-      'test/plugin/plugin_tests.scons',
-      'test/reliability/reliability_tests.scons',
-      'test/security_tests/security_tests.scons',
-      'test/selenium/selenium_tests.scons',
-      'test/startup/startup_tests.scons',
-      'test/tab_switching/tab_switching_test.scons',
-      'test/ui/ui_tests.scons',
-      'tools/convert_dict/convert_dict.scons',
-      'tools/crash_service/crash_service.scons',
-      'tools/profiles/generate_profile.scons',
-  ]
-  sconscript_files = list(set(sconscript_files) - set(remove_files))
 
 SConscript(sconscript_files, exports=['env'])

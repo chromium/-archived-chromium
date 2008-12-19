@@ -62,4 +62,24 @@ input_files = [
     'memory_test.cc',
 ]
 
-env.ChromeTestProgram('memory_test', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeTestProgram('memory_test', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/memory_test/memory_test.vcproj',
+                      dependencies = [
+                          '$CHROME_DIR/test/automation/automation.vcproj',
+                          '$BASE_DIR/build/base.vcproj',
+                          '$NET_DIR/build/net.vcproj',
+                          '$CHROME_DIR/browser/browser.vcproj',
+                          '$MODP_B64_DIR/modp_b64.vcproj',
+                          '$ZLIB_DIR/zlib.vcproj',
+                          '$CHROME_DIR/common/common.vcproj',
+                          '$BASE_DIR/build/base_gfx.vcproj',
+                          '$TESTING_DIR/gtest.vcproj',
+                          '$LIBPNG_DIR/libpng.vcproj',
+                          '$SKIA_DIR/skia.vcproj',
+                          '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                          '$CHROME_DIR/browser/views/browser_views.vcproj',
+                      ],
+                      guid='{A5F831FD-9B9C-4FEF-9FBA-554817B734CE}')

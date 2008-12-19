@@ -308,3 +308,11 @@ if env.Bit('posix'):
 if not env.Bit('mac'):
   # TODO: This should work for all platforms.
   env.ChromeStaticLibrary('browser', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/browser/browser.vcproj',
+                dependencies = [
+                    '$LIBXML_DIR/build/libxml_config.vcproj',
+                    '$GOOGLE_UPDATE_DIR/ondemand_updates.vcproj',
+                    '$CHROME_DIR/app/generated_resources.vcproj',
+                ],
+                guid='{5BF908A7-68FB-4A4B-99E3-8C749F1FE4EA}')

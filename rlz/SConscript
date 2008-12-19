@@ -8,3 +8,5 @@ env.Install('$TARGET_ROOT',
             ['binaries/rlz.dll',
              'binaries/rlz_dll.pdb'])
 
+env.ChromeMSVSProject('$RLZ_DIR/rlz.vcproj',
+                guid='{BF4F447B-72B5-4059-BE1B-F94337B1F385}')

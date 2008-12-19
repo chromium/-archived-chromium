@@ -47,3 +47,6 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('googleurl', input_files)
+
+env.ChromeMSVSProject('$GOOGLEURL_DIR/build/googleurl.vcproj',
+                guid='{EF5E94AB-B646-4E5B-A058-52EF07B8351C}')

@@ -58,3 +58,5 @@ if env.Bit('posix'):
 
 env.ChromeStaticLibrary('plugin', input_files)
 
+env.ChromeMSVSProject('$CHROME_DIR/plugin/plugin.vcproj',
+                guid='{20A560A0-2CD0-4D9E-A58B-1F24B99C087A}')

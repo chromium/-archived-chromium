@@ -74,3 +74,9 @@ dll = env.ChromeSharedLibrary('npapi_test_plugin', input_files)
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)
 
+env.ChromeMSVSProject('$WEBKIT_DIR/glue/plugins/test/npapi_test_plugin.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                ],
+                guid='{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}')

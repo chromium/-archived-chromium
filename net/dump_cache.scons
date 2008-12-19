@@ -33,3 +33,11 @@ input_files = [
 if env.Bit('windows'):
 
   env.ChromeTestProgram('dump_cache', input_files)
+
+env.ChromeMSVSProject('$NET_DIR/build/dump_cache.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$NET_DIR/build/net.vcproj',
+                ],
+                guid='{4A14E455-2B7C-4C0F-BCC2-35A9666C186F}')

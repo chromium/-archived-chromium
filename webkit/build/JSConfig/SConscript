@@ -21,3 +21,6 @@ def CopyConfigH(target, source, env):
 env.Command('WebCore/config.h',
             '../../config.h.in',
             Action(CopyConfigH))
+
+env.ChromeMSVSProject('$WEBKIT_DIR/build/JSConfig/V8Config.vcproj',
+                guid='{2E2D3301-2EC4-4C0F-B889-87073B30F673}')

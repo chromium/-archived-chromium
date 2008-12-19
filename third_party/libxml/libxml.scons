@@ -115,6 +115,15 @@ input_files = [
 
 env.ChromeStaticLibrary('libxml', input_files)
 
+env.ChromeMSVSProject('$LIBXML_DIR/build/libxml.vcproj',
+                dependencies = [
+                    '$LIBXML_DIR/build/libxml_config.vcproj',
+                ],
+                guid='{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}')
+
+env.ChromeMSVSProject('$LIBXML_DIR/build/libxml_config.vcproj',
+                guid='{31D88CBF-DC28-47A8-8838-BF81D528EE74}')
+
 
 if env.Bit('windows'):
   config_files = [

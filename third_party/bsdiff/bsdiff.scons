@@ -17,3 +17,10 @@ input_files = [
 ]
 
 env.ChromeProgram('bsdiff', input_files)
+
+env.ChromeMSVSProject('$BSDIFF_DIR/bsdiff.vcproj',
+                dependencies = [
+                    '$LZMA_SDK_DIR/7z_C.vcproj',
+                    '$BSPATCH_DIR/bspatch.vcproj',
+                ],
+                guid='{E1D0B89E-257B-4BCA-A0C6-A2CD997A2FDC}')

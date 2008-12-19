@@ -170,3 +170,9 @@ if env.Bit('windows'):
   input_files += [obj]
 
 env.ChromeStaticLibrary('net', input_files)
+
+env.ChromeMSVSProject('$NET_DIR/build/net.vcproj',
+                dependencies = [
+                    '$NET_DIR/build/tld_cleanup.vcproj'
+                ],
+                guid='{326E9795-E760-410A-B69A-3F79DB3F5243}')

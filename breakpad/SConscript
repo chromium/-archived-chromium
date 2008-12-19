@@ -28,6 +28,8 @@ if env.Bit('windows'):
 
   env.ChromeStaticLibrary('breakpad_sender', sender_input_files)
 
+env.ChromeMSVSProject('$BREAKPAD_DIR/breakpad_sender.vcproj',
+                guid='{9946A048-043B-4F8F-9E07-9297B204714C}')
 
 if env.Bit('windows'):
   handler_input_files = [
@@ -47,4 +49,7 @@ elif env.Bit('linux'):
   ]
 
 env.ChromeStaticLibrary('breakpad_handler', handler_input_files)
+
+env.ChromeMSVSProject('$BREAKPAD_DIR/breakpad_handler.vcproj',
+                guid='{B55CA863-B374-4BAF-95AC-539E4FA4C90C}')
 

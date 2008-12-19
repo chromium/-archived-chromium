@@ -28,4 +28,15 @@ input_files = [
     'tld_cleanup.cc',
 ]
 
-env.ChromeProgram('tld_cleanup', input_files)
+if env.Bit('windows'):
+  # TODO(port): We need to port tld_cleanup before this will work on other
+  # platforms.
+  env.ChromeProgram('tld_cleanup', input_files)
+
+env.ChromeMSVSProject('$NET_DIR/build/tld_cleanup.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                ],
+                guid='{E13045CD-7E1F-4A41-9B18-8D288B2E7B41}')

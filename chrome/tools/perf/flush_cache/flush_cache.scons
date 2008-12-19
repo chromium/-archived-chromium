@@ -41,3 +41,10 @@ input_files = [
 ]
 
 env.ChromeTestProgram('flush_cache', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/tools/perf/flush_cache/flush_cache.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                ],
+                guid='{4539AFB3-B8DC-47F3-A491-6DAC8FD26657}')

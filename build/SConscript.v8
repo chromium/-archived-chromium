@@ -86,3 +86,31 @@ if env.Bit('windows'):
 env.ChromeStaticLibrary('v8_snapshot',
                         ['$V8_MODE_DIR/libraries-empty${OBJSUFFIX}',
                          '$V8_MODE_DIR/snapshot${OBJSUFFIX}'])
+
+env.ChromeMSVSProject('$V8_DIR/tools/visual_studio/v8.vcproj',
+                dependencies = [
+                    '$V8_DIR/tools/visual_studio/v8_base.vcproj',
+                ],
+                guid='{21E22961-22BF-4493-BD3A-868F93DA5179}')
+
+env.ChromeMSVSProject('$V8_DIR/tools/visual_studio/v8_base.vcproj',
+                guid='{EC8B7909-62AF-470D-A75D-E1D89C837142}')
+
+env.ChromeMSVSProject('$V8_DIR/tools/visual_studio/v8_mksnapshot.vcproj',
+                dependencies = [
+                    '$V8_DIR/tools/visual_studio/v8.vcproj',
+                ],
+                guid='{865575D0-37E2-405E-8CBA-5F6C485B5A26}')
+
+env.ChromeMSVSProject('$V8_DIR/tools/visual_studio/v8_shell_sample.vcproj',
+                dependencies = [
+                    '$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
+                ],
+                guid='{2DE20FFA-6F5E-48D9-84D8-09B044A5B119}')
+
+env.ChromeMSVSProject('$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
+                dependencies = [
+                    '$V8_DIR/tools/visual_studio/v8_mksnapshot.vcproj',
+                    '$V8_DIR/tools/visual_studio/v8_base.vcproj',
+                ],
+                guid='{C0334F9A-1168-4101-9DD8-C30FB252D435}')

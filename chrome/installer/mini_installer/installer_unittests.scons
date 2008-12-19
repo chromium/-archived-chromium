@@ -65,4 +65,6 @@ input_files = [
     '../util/work_item_list_unittest.cc',
 ]
 
-env.ChromeTestProgram('installer_unittests', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeTestProgram('installer_unittests', input_files)

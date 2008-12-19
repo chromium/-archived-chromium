@@ -21,16 +21,18 @@ input_files = [
     'tools/tld_cleanup/tld_cleanup.exe'
 ]
 
-# TODO: Need to figure out what to do with external resources on linux.
-# This dat file needed by net_resources is generated.
-tld_names_clean = env.Command('net/effective_tld_names_clean.dat',
+if env.Bit('windows'):
+  # TODO(port): Need to figure out what to do with external resources
+  # on linux (and mac?).
+  # This dat file needed by net_resources is generated.
+  tld_names_clean = env.Command('net/effective_tld_names_clean.dat',
                               input_files,
                               '${SOURCES[1]} ${SOURCES[0]} $TARGET')
 
-rc = env.Command('net_resources.rc',
-                 'base/net_resources.rc',
-                  Copy('$TARGET', '$SOURCE'))
+  rc = env.Command('net_resources.rc',
+                   'base/net_resources.rc',
+                    Copy('$TARGET', '$SOURCE'))
 
-env.Depends(rc, tld_names_clean)
+  env.Depends(rc, tld_names_clean)
 
-env.RES(rc)
+  env.RES(rc)

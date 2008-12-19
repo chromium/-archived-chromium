@@ -71,4 +71,30 @@ input_files = [
 ]
 
 
-env.ChromeTestProgram('plugin_tests', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeTestProgram('plugin_tests', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/plugin/plugin_tests.vcproj',
+                      dependencies = [
+                          '$CHROME_DIR/test/automation/automation.vcproj',
+                          '$BASE_DIR/build/base.vcproj',
+                          '$NET_DIR/build/net.vcproj',
+                          ('$CHROME_DIR/test/activex_test_control/' +
+                               'activex_test_control.vcproj'),
+                          '$CHROME_DIR/browser/browser.vcproj',
+                          '$MODP_B64_DIR/modp_b64.vcproj',
+                          '$CHROME_DIR/app/chrome_exe.vcproj',
+                          '$ZLIB_DIR/zlib.vcproj',
+                          '$CHROME_DIR/common/common.vcproj',
+                          '$ICU38_DIR/build/icu.vcproj',
+                          '$BASE_DIR/build/base_gfx.vcproj',
+                          '$TESTING_DIR/gtest.vcproj',
+                          '$LIBPNG_DIR/libpng.vcproj',
+                          '$SKIA_DIR/skia.vcproj',
+                          ('$CHROME_DIR/test/security_tests/' +
+                               'security_tests.vcproj'),
+                          '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                          '$CHROME_DIR/browser/views/browser_views.vcproj',
+                      ],
+                      guid='{A1CAA831-C507-4B2E-87F3-AEC63C9907F9}')

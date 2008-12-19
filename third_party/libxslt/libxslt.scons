@@ -87,6 +87,16 @@ input_files = [
 
 env.ChromeStaticLibrary('libxslt', input_files)
 
+env.ChromeMSVSProject('$LIBXSLT_DIR/build/libxslt.vcproj',
+                dependencies = [
+                    '$LIBXSLT_DIR/build/libxslt_config.vcproj',
+                    '$LIBXML_DIR/build/libxml.vcproj',
+                ],
+                guid='{FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED}')
+
+env.ChromeMSVSProject('$LIBXSLT_DIR/build/libxslt_config.vcproj',
+                guid='{4BD929D4-494B-4EE8-91F6-FD0277A51D2B}')
+
 
 if env.Bit('windows'):
   config_files = [

@@ -144,6 +144,18 @@ if env.Bit('mac'):
 
 env.ChromeTestProgram('base_unittests', input_files)
 
+env.ChromeMSVSProject('$BASE_DIR/build/base_unittests.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ZLIB_DIR/zlib.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$BASE_DIR/build/base_gfx.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                    '$LIBPNG_DIR/libpng.vcproj',
+                    '$SKIA_DIR/skia.vcproj',
+                ],
+                guid='{27A30967-4BBA-48D1-8522-CDE95F7B1CEC}')
+
 # TODO(sgk) should this be moved into base.lib like everything else?  This will
 # require updating a bunch of other SConscripts which link directly against
 # this generated object file.

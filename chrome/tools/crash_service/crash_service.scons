@@ -47,5 +47,19 @@ input_files = [
     'crash_service.cc',
 ]
 
-env.ChromeProgram('crash_service', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeProgram('crash_service', input_files)
 
+env.ChromeMSVSProject('$CHROME_DIR/tools/crash_service/crash_service.vcproj',
+                      dependencies = [
+                          '$BASE_DIR/build/base.vcproj',
+                          '$ZLIB_DIR/zlib.vcproj',
+                          '$CHROME_DIR/common/common.vcproj',
+                          '$ICU38_DIR/build/icu.vcproj',
+                          '$BREAKPAD_DIR/breakpad_sender.vcproj',
+                          '$BASE_DIR/build/base_gfx.vcproj',
+                          '$BREAKPAD_DIR/breakpad_handler.vcproj',
+                          '$SKIA_DIR/skia.vcproj',
+                      ],
+                      guid='{89C1C190-A5D1-4EC4-BD6A-67FF2195C7CC}')

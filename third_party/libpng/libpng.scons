@@ -60,3 +60,6 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('libpng', input_files)
+
+env.ChromeMSVSProject('$LIBPNG_DIR/libpng.vcproj',
+                guid='{C564F145-9172-42C3-BFCB-6014CA97DBCD}')

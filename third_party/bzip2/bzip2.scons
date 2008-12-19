@@ -39,3 +39,6 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('bzip2', input_files)
+
+env.ChromeMSVSProject('$BZIP2_DIR/bzip2.vcproj',
+                guid='{2A70CBF0-847E-4E3A-B926-542A656DC7FE}')

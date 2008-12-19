@@ -138,3 +138,11 @@ if env.Bit('windows'):
   ])
 
 env.ChromeStaticLibrary('browser_views', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/browser/views/browser_views.vcproj',
+                dependencies = [
+                    '$LIBXML_DIR/build/libxml_config.vcproj',
+                    '$GOOGLE_UPDATE_DIR/ondemand_updates.vcproj',
+                    '$CHROME_DIR/app/generated_resources.vcproj',
+                ],
+                guid='{FA537565-7B03-4FFC-AF15-F7A979B72E22}')

@@ -211,3 +211,5 @@ if env.Bit('windows'):
 
 env.ChromeStaticLibrary('skia', input_files)
 
+env.ChromeMSVSProject('$SKIA_DIR/skia.vcproj',
+                guid='{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}')

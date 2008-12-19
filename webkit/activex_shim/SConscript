@@ -40,3 +40,11 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('activex_shim', input_files)
+
+env.ChromeMSVSProject('$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                ],
+                guid='{F4F4BCAA-EA59-445C-A119-3E6C29647A51}')

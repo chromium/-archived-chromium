@@ -174,3 +174,6 @@ elif env.Bit('linux'):
 
 
 env.ChromeStaticLibrary('WTF', wtf_inputs)
+
+env.ChromeMSVSProject('$WEBKIT_DIR/build/JavaScriptCore/WTF.vcproj',
+                guid='{AA8A5A85-592B-4357-BC60-E0E91E026AF6}')

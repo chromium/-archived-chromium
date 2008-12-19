@@ -132,3 +132,10 @@ if env.Bit('posix'):
 if not env.Bit('mac'):
   # TODO(port): This should be enabled for all platforms.
   env.ChromeStaticLibrary('common', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/common/common.vcproj',
+                dependencies = [
+                    '$LIBXML_DIR/build/libxml_config.vcproj',
+                    '$CHROME_DIR/app/generated_resources.vcproj',
+                ],
+                guid='{899F1280-3441-4D1F-BA04-CCD6208D9146}')

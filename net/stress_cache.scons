@@ -40,3 +40,12 @@ input_files = [
 
 if not env.Bit('mac'):
   env.ChromeTestProgram('stress_cache', input_files)
+
+env.ChromeMSVSProject('$NET_DIR/build/stress_cache.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$NET_DIR/build/net.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                ],
+                guid='{B491C3A1-DE5F-4843-A1BB-AB8C4337187B}')

@@ -81,12 +81,26 @@ input_files = [
     'uninstall.cc',
 ]
 
-env.ChromeProgram('setup', resources + input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeProgram('setup', resources + input_files)
 
-exe_version_rc = env.ChromeVersionRC('setup_exe_version.rc',
+env.ChromeMSVSProject('$CHROME_DIR/installer/setup/setup.vcproj',
+                      dependencies = [
+                          '$BASE_DIR/build/base.vcproj',
+                          '$CHROME_DIR/common/common.vcproj',
+                          '$ICU38_DIR/build/icu.vcproj',
+                          '$LZMA_SDK_DIR/7z_C.vcproj',
+                          '$BSPATCH_DIR/bspatch.vcproj',
+                          '$CHROME_DIR/installer/util/util.vcproj',
+                      ],
+                      guid='{21C76E6E-8B38-44D6-8148-B589C13B9554}')
+
+# TODO(port):
+if env.Bit('windows'):
+  exe_version_rc = env.ChromeVersionRC('setup_exe_version.rc',
                                      'setup_exe_version.rc.version',
                                      PWD = env.Dir('.'))
 
-if env.Bit('windows'):
   # TODO(sgk):  implicit dependency should be picked up automatically
   env_res.Depends(resources, exe_version_rc)

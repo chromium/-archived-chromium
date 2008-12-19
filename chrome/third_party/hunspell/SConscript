@@ -85,7 +85,6 @@ input_files = [
 env.ChromeStaticLibrary('hunspell', input_files)
 
 
-
 dictionaries = [
     'dictionaries/en-US-1-1.bdic',
     'dictionaries/en-US.dic',
@@ -94,3 +93,6 @@ dictionaries = [
 
 i = env.Install('$DESTINATION_ROOT/Dictionaries', dictionaries)
 env.Alias('chrome_Dictionaries', i)
+
+env.ChromeMSVSProject('$CHROME_DIR/third_party/hunspell/hunspell.vcproj',
+                guid='{D5E8DCB2-9C61-446F-8BEE-B18CA0E0936E}')

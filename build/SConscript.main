@@ -379,6 +379,35 @@ windows_opt.Tool('target_optimized')
 windows_opt.ApplySConscript(['$CHROME_SRC_DIR/build/release.scons'])
 
 # --------------------------------------------------------------------------
+# Platform-independent "msvs" mode for generating Visual Studio
+# project and solution files from any platform.
+
+DeclareBit('msvs', 'Generate Visual Studio files')
+
+msvs_env = windows_env.Clone()
+
+msvs_env.Tool('target_platform_windows')
+msvs_env.Tool('component_targets_msvs')  # Per target project support.
+
+del msvs_env['BUILDERS']['MSVSProject']
+del msvs_env['BUILDERS']['MSVSSolution']
+msvs_env.Tool('MSVSNew')
+
+msvs_env.Tool('midl')
+
+environment_list.append(msvs_env)
+msvs_env.Replace(
+    BUILD_TYPE = 'msvs',
+    BUILD_TYPE_DESCRIPTION = 'Generate Visual Studio files',
+    HOST_PLATFORMS = ['*'],
+    ICU_LIBS = [],
+)
+msvs_env.SetBits('windows', 'msvs')
+# TODO(sgk):  turn into separate debug + release env adding
+# to a common .sln file
+msvs_env.Tool('target_debug')
+
+# --------------------------------------------------------------------------
 # Linux specific
 
 linux_env = root_env.Clone()
@@ -624,6 +653,30 @@ mac_env.Append(
 )
 
 
+# --------------------------------------------------------------------------
+# Platform-independent "xcode" mode for generating XCode files
+# from any platform.
+
+DeclareBit('xcode', 'Generate XCode files')
+
+# TODO(sgk):  remove this after we update Hammer modules.
+DeclareBit('mac', 'Target platform is mac.')
+
+xcode_env = mac_env.Clone()
+# TODO(sgk):  uncomment when xcode generation becomes real.
+#environment_list.append(xcode_env)
+xcode_env.Replace(
+    BUILD_TYPE = 'xcode',
+    BUILD_TYPE_DESCRIPTION = 'Generate XCode files',
+    HOST_PLATFORMS = ['*'],
+    ICU_LIBS = [],
+)
+xcode_env.SetBits('mac', 'xcode')
+# TODO(sgk):  turn into separate debug + release env adding
+# to a common .sln file
+xcode_env.Tool('target_debug')
+
+
 # -------------------------------------------------------------------------
 
 
@@ -671,16 +724,29 @@ if GetOption('help'):
 
   Help(help_fmt % (components, all_system_libs))
 
-
-Import('build_component')
-Default(None)  # Reset default target to empty.
-Default(Alias(build_component))  # Set default target based on where built.
-
 # -------------------------------------------------------------------------
 
 # Invoke all the SConscripts in each of the environments that make sense on
 # this host-platform.
 BuildComponents(environment_list)
+
+# -------------------------------------------------------------------------
+
+Default(None)  # Reset default target to empty.
+
+modes = GetTargetModes().keys()
+
+if set(modes) - set(['msvs', 'xcode']):
+  # There's at least one mode being built besides the platform-
+  # independent 'msvs' or 'xcode' modes.  Build the current
+  # build_component's Alias as default--that is, "base" when we're
+  # in the base/ subdirectory, "chrome" under chrome/, etc.
+  Import('build_component')
+  Default(Alias(build_component))  # Set default target based on where built.
+
+if 'msvs' in modes:
+  # We're in --mode=msvs, so add its Alias(es) to the default targets.
+  Default(Alias('solutions'))
 
 # -------------------------------------------------------------------------
 

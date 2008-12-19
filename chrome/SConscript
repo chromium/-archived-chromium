@@ -258,6 +258,46 @@ if env_dll.Bit('windows'):
   install_targets.extend(chrome_dll_version_rc)
   install_targets.extend(chrome_dll_version_res)
 
+env.ChromeMSVSProject('$CHROME_DIR/app/chrome_dll.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
+                    '$CHROME_DIR/plugin/plugin.vcproj',
+                    '$LIBJPEG_DIR/libjpeg.vcproj',
+                    '$BZIP2_DIR/bzip2.vcproj',
+                    '$NET_DIR/build/net.vcproj',
+                    ('$WEBKIT_DIR/build/JavaScriptCore/' +
+                         'JavaScriptCore_pcre.vcproj'),
+                    '$WEBKIT_DIR/build/port/port.vcproj',
+                    '$CHROME_DIR/browser/debugger/debugger.vcproj',
+                    '$WEBKIT_DIR/default_plugin/default_plugin.vcproj',
+                    '$CHROME_DIR/browser/browser.vcproj',
+                    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.vcproj',
+                    '$SQLITE_DIR/sqlite.vcproj',
+                    '$CHROME_DIR/views/views.vcproj',
+                    '$MODP_B64_DIR/modp_b64.vcproj',
+                    '$ZLIB_DIR/zlib.vcproj',
+                    '$CHROME_DIR/common/common.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$CHROME_DIR/renderer/renderer.vcproj',
+                    '$BASE_DIR/build/base_gfx.vcproj',
+                    '$WEBKIT_DIR/build/JavaScriptCore/WTF.vcproj',
+                    '$CHROME_DIR/browser/resources/browser_resources.vcproj',
+                    '$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
+                    '$LIBPNG_DIR/libpng.vcproj',
+                    '$WEBKIT_DIR/build/glue/glue.vcproj',
+                    '$SKIA_DIR/skia.vcproj',
+                    '$CHROME_DIR/third_party/hunspell/hunspell.vcproj',
+                    '$GEARS_DIR/gears.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                    '$CHROME_DIR/installer/util/util.vcproj',
+                    '$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
+                    '$SDCH_DIR/sdch.vcproj',
+                    '$CHROME_DIR/browser/views/browser_views.vcproj',
+                    '$LIBXSLT_DIR/build/libxslt.vcproj',
+                ],
+                guid='{C0A7EE2C-2A6D-45BE-BA78-6D006FDF52D9}')
+
 
 
 env_exe = env.Clone()
@@ -328,8 +368,21 @@ if env.Bit('windows'):
 
   # For release we want to run dependencies.py, may look something like:
   #env.AddPostAction('$TARGET_ROOT/chrome.exe',
-  #                  '$PYTHON tools/build/win/dependencies.py $(TargetPath) chrome.exe.deps')
+  #                  ('$PYTHON tools/build/win/dependencies.py ' +
+  #                       '$(TargetPath) chrome.exe.deps'))
 
+env.ChromeMSVSProject('$CHROME_DIR/app/chrome_exe.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$SANDBOX_DIR/src/sandbox.vcproj',
+                    '$CHROME_DIR/tools/crash_service/crash_service.vcproj',
+                    '$BREAKPAD_DIR/breakpad_handler.vcproj',
+                    '$CHROME_DIR/app/chrome_dll.vcproj',
+                    '$CHROME_DIR/app/locales/en-US.vcproj',
+                    '$CHROME_DIR/installer/util/util.vcproj',
+                    '$CHROME_DIR/app/theme/theme_dll.vcproj',
+                ],
+                guid='{7B219FAA-E360-43C8-B341-804A94EEFFAC}')
 
 
 env_flat = env.Clone(

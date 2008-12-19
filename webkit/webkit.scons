@@ -16,6 +16,7 @@ env.Append(
 
 sconscript_files = [
     'SConscript',
+    'webkit_sln.scons',
 ]
 
 SConscript(sconscript_files, exports=['env'])

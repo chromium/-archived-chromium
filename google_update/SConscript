@@ -4,5 +4,9 @@
 
 Import('env')
 
-env.TypeLibrary('google_update_idl')
+# TODO(port):
+if env.Bit('windows'):
+  env.TypeLibrary('google_update_idl')
 
+env.ChromeMSVSProject('$GOOGLE_UPDATE_DIR/ondemand_updates.vcproj',
+                guid='{4052059A-D72B-4183-B5C2-9D1B099E9E35}')

@@ -41,4 +41,9 @@ input_files = [
     '$SANDBOX_DIR/tests/validation_tests/commands${OBJSUFFIX}',
 ]
 
-env.ChromeSharedLibrary('security_tests', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeSharedLibrary('security_tests', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/test/security_tests/security_tests.vcproj',
+                      guid='{E750512D-FC7C-4C98-BF04-0A0DAF882055}')

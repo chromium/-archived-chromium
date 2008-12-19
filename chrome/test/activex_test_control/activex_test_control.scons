@@ -36,7 +36,9 @@ if env.Bit('windows'):
       ],
   )
 
-env.TypeLibrary('activex_test_control.idl')
+# TODO(port):
+if env.Bit('windows'):
+  env.TypeLibrary('activex_test_control.idl')
 
 input_files = [
     'activex_test_control.cc',
@@ -44,4 +46,10 @@ input_files = [
     'chrome_test_control.cc',
 ]
 
-env.ChromeSharedLibrary('activex_test_control', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeSharedLibrary('activex_test_control', input_files)
+
+env.ChromeMSVSProject(('$CHROME_DIR/test/activex_test_control/' +
+                          'activex_test_control.vcproj'),
+                      guid='{414D4D24-5D65-498B-A33F-3A29AD3CDEDC}')

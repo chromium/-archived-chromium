@@ -16,15 +16,10 @@ env.Append(
 
 sconscript_files = [
     'base_lib.scons',
+    'base_sln.scons',
     'base_unittests.scons',
     'gfx/base_gfx.scons',
+    'debug_message.scons',
 ]
-
-if env.Bit('windows'):
-  # TODO(port): port this if it's needed on non-Windows systems,
-  # or remove this comment if it's really Windows-specific.
-  sconscript_files.extend([
-      'debug_message.scons',
-  ])
 
 SConscript(sconscript_files, exports=['env'])

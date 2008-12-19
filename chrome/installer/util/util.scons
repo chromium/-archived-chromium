@@ -50,17 +50,28 @@ input_files = [
     'work_item_list.cc',
 ]
 
-env.ChromeStaticLibrary('util', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeStaticLibrary('util', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/installer/util/util.vcproj',
+                      dependencies = [
+                          ('$CHROME_DIR/installer/util/prebuild/' + 
+                               'util_prebuild.vcproj'),
+                      ],
+                      guid='{EFBB1436-A63F-4CD8-9E99-B89226E782EC}')
 
 
-# create_string_rc.py imports FP.py from the tools/grit/grit/extern
-# directory, so add that to PYTHONPATH for this command execution.
-env_x = env.Clone()
-env_x.AppendENVPath('PYTHONPATH',
-    [env_x.Dir('$CHROME_SRC_DIR/tools/grit/grit/extern').abspath])
-env_x.Command(['$CHROME_DIR/installer/util/installer_util_strings.rc',
-               '$CHROME_DIR/installer/util/installer_util_strings.h'],
-              ['$CHROME_DIR/installer/util/prebuild/create_string_rc.py',
-               '$CHROME_DIR/app/generated_resources.grd'] +
-               env.Glob('$CHROME_DIR/app/resources/*.xtb'),
-              "$PYTHON ${SOURCES[0]} ${TARGET.dir}")
+# TODO(port):
+if env.Bit('windows'):
+  # create_string_rc.py imports FP.py from the tools/grit/grit/extern
+  # directory, so add that to PYTHONPATH for this command execution.
+  env_x = env.Clone()
+  env_x.AppendENVPath('PYTHONPATH',
+      [env_x.Dir('$CHROME_SRC_DIR/tools/grit/grit/extern').abspath])
+  env_x.Command(['$CHROME_DIR/installer/util/installer_util_strings.rc',
+                 '$CHROME_DIR/installer/util/installer_util_strings.h'],
+                ['$CHROME_DIR/installer/util/prebuild/create_string_rc.py',
+                 '$CHROME_DIR/app/generated_resources.grd'] +
+                 env.Glob('$CHROME_DIR/app/resources/*.xtb'),
+                "$PYTHON ${SOURCES[0]} ${TARGET.dir}")

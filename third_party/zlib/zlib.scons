@@ -42,3 +42,6 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('zlib', input_files)
+
+env.ChromeMSVSProject('$ZLIB_DIR/zlib.vcproj',
+                guid='{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}')

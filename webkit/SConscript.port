@@ -195,3 +195,11 @@ else:
   ])
 
 env.ChromeStaticLibrary("port", input_files)
+
+env.ChromeMSVSProject('$WEBKIT_DIR/build/port/port.vcproj',
+                name = 'Port',
+                dependencies = [
+                    '$WEBKIT_DIR/build/JSConfig/V8Config.vcproj',
+                    '$WEBKIT_DIR/build/V8Bindings/V8Bindings_prebuild.vcproj',
+                ],
+                guid='{5597AD47-3494-4750-A235-4F9C2F864700}')

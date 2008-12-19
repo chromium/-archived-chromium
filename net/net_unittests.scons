@@ -116,3 +116,17 @@ if env.Bit('mac'):
   input_files = list(set(input_files) - set(to_be_ported_files))
 
 env.ChromeTestProgram('net_unittests', input_files)
+
+env.ChromeMSVSProject('$NET_DIR/build/net_unittests.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$BZIP2_DIR/bzip2.vcproj',
+                    '$NET_DIR/build/net.vcproj',
+                    '$MODP_B64_DIR/modp_b64.vcproj',
+                    '$ZLIB_DIR/zlib.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                    '$SDCH_DIR/sdch.vcproj',
+                ],
+                guid='{E99DA267-BE90-4F45-88A1-6919DB2C7567}')

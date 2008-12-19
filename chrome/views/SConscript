@@ -93,3 +93,9 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('views', input_files)
+
+env.ChromeMSVSProject('$CHROME_DIR/views/views.vcproj',
+                dependencies = [
+                    '$CHROME_DIR/app/generated_resources.vcproj',
+                ],
+                guid='{6F9258E5-294F-47B2-919D-17FFE7A8B751}')

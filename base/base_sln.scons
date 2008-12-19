@@ -1,0 +1,51 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building base.sln.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.Tool('MSVSNew')
+
+env.ChromeMSVSFolder('base dependencies',
+                     name='dependencies',
+                     entries = [
+                         '$ZLIB_DIR/zlib.vcproj',
+                         '$ICU38_DIR/build/icu.vcproj',
+                         '$ICU38_DIR/build/icudt.vcproj',
+                         '$TESTING_DIR/gtest.vcproj',
+                         '$LIBPNG_DIR/libpng.vcproj',
+                         '$SKIA_DIR/skia.vcproj',
+                     ],
+                     guid='{F216062D-F9C4-4883-A52C-2BE9ECADEEA0}')
+
+
+solution = env.ChromeMSVSSolution('base.sln',
+                                  entries = [
+                                      '$BASE_DIR/build/base.vcproj',
+                                      '$BASE_DIR/build/base_unittests.vcproj',
+                                      '$BASE_DIR/build/debug_message.vcproj',
+                                      'base dependencies',
+                                      '$ICU38_DIR/build/icu.vcproj',
+                                      '$ICU38_DIR/build/icudt.vcproj',
+                                      '$BASE_DIR/build/base_gfx.vcproj',
+                                      '$SKIA_DIR/skia.vcproj',
+                                      '$LIBPNG_DIR/libpng.vcproj',
+                                      '$ZLIB_DIR/zlib.vcproj',
+                                      '$TESTING_DIR/gtest.vcproj',
+                                  ],
+                                  variants = [
+                                      'Debug|Win32',
+                                      'Release|Win32',
+                                  ])
+
+env.AlwaysBuild(solution)
+
+i = env.Command('$CHROME_SRC_DIR/base/base.sln', solution,
+                Copy('$TARGET', '$SOURCE'))
+Alias('solutions', i)

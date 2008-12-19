@@ -93,4 +93,7 @@ input_files = [
 
 env.ChromeStaticLibrary('sqlite', input_files)
 
+env.ChromeMSVSProject('$SQLITE_DIR/sqlite.vcproj',
+                guid='{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}')
+
 # TODO(tc): There should be a target to build the stand alone sqlite shell.

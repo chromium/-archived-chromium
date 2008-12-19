@@ -84,3 +84,12 @@ input_files = [
 ipc_tests = env.ChromeTestProgram('ipc_tests', input_files)
 i = env.Install('$TARGET_ROOT', ipc_tests)
 Alias('chrome', i)
+
+env.ChromeMSVSProject('$CHROME_DIR/common/ipc_tests.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$CHROME_DIR/common/common.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$TESTING_DIR/gtest.vcproj',
+                ],
+                guid='{B92AE829-E1CD-4781-824A-DCB1603A1672}')

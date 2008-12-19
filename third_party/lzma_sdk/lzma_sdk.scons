@@ -47,3 +47,7 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('lzma_sdk', input_files)
+
+env.ChromeMSVSProject('$LZMA_SDK_DIR/7z_C.vcproj',
+                name='lzma_sdk',
+                guid='{B84553C8-5676-427B-B3E4-23DDDC4DBC7B}')

@@ -33,5 +33,14 @@ input_files = [
     '$CHROME_DIR/third_party/hunspell/google/bdict_writer.cc',
 ]
 
-env.ChromeProgram('convert_dict', input_files)
+# TODO(port):
+if env.Bit('windows'):
+  env.ChromeProgram('convert_dict', input_files)
 
+env.ChromeMSVSProject('$CHROME_DIR/tools/convert_dict/convert_dict.vcproj',
+                      dependencies = [
+                          '$BASE_DIR/build/base.vcproj',
+                          '$ICU38_DIR/build/icu.vcproj',
+                          '$ICU38_DIR/build/icudt.vcproj',
+                      ],
+                      guid='{42ECD5EC-722F-41DE-B6B8-83764C8016DF}')

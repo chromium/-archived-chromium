@@ -40,5 +40,23 @@ def generate(env):
     return env.ComponentObject(*args, **kw)
   env.AddMethod(ChromeObject)
 
+  def ChromeMSVSFolder(env, *args, **kw):
+    if env.Bit('msvs'):
+      return env.MSVSFolder(*args, **kw)
+    return []
+  env.AddMethod(ChromeMSVSFolder)
+
+  def ChromeMSVSProject(env, *args, **kw):
+    if env.Bit('msvs'):
+      return env.MSVSProject(*args, **kw)
+    return []
+  env.AddMethod(ChromeMSVSProject)
+
+  def ChromeMSVSSolution(env, *args, **kw):
+    if env.Bit('msvs'):
+      return env.MSVSSolution(*args, **kw)
+    return []
+  env.AddMethod(ChromeMSVSSolution)
+
 def exists(env):
   return True

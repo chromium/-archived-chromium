@@ -348,3 +348,13 @@ if env.Bit('windows'):
   inputs.append('precompiled_v8bindings.cpp')
 
 env.ChromeStaticLibrary('V8Bindings', inputs)
+
+env.ChromeMSVSProject('$WEBKIT_DIR/build/V8Bindings/V8Bindings.vcproj',
+                dependencies = [
+                    '$WEBKIT_DIR/build/JSConfig/V8Config.vcproj',
+                    '$WEBKIT_DIR/build/V8Bindings/V8Bindings_prebuild.vcproj',
+                ],
+                guid='{625A8F11-2B4E-45B4-BD99-C6D629C606C0}')
+
+env.ChromeMSVSProject('$WEBKIT_DIR/build/V8Bindings/V8Bindings_prebuild.vcproj',
+                guid='{2F7EDFA2-EE27-4D83-8454-9EFBD5779203}')

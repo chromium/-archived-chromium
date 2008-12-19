@@ -16,6 +16,7 @@ env.Append(
 
 sconscript_files = [
     'src/sandbox_lib.scons',
+    'sandbox_sln.scons',
     'tests/common/sandbox_common.scons',
     'tests/integration_tests/sbox_integration_tests.scons',
     'tests/unit_tests/sbox_unittests.scons',
