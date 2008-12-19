@@ -258,6 +258,15 @@ class TestInterstitialPage : public InterstitialPage {
     CANCELED       // DontProceed was called.
   };
 
+  // IMPORTANT NOTE: if you pass stack allocated values for |state| and
+  // |deleted| (like all interstitial related tests do at this point), make sure
+  // to create an instance of the TestInterstitialPageStateGuard class on the
+  // stack in your test.  This will ensure that the TestInterstitialPage states
+  // are cleared when the test finishes.
+  // Not doing so will cause stack trashing if your test does not hide the
+  // interstitial, as in such a case it will be destroyed in the test TearDown
+  // method and will dereference the |deleted| local variable which by then is
+  // out of scope.
   TestInterstitialPage(WebContents* tab,
                        bool new_navigation,
                        const GURL& url,
@@ -272,15 +281,18 @@ class TestInterstitialPage : public InterstitialPage {
   }
 
   virtual ~TestInterstitialPage() {
-    *deleted_ = true;
+    if (deleted_)
+      *deleted_ = true;
   }
 
   virtual void DontProceed() {
-    *state_ = CANCELED;
+    if (state_)
+      *state_ = CANCELED;
     InterstitialPage::DontProceed();
   }
   virtual void Proceed() {
-    *state_ = OKED;
+    if (state_)
+      *state_ = OKED;
     InterstitialPage::Proceed();
   }
 
@@ -307,6 +319,11 @@ class TestInterstitialPage : public InterstitialPage {
         is_showing();
   }
 
+  void ClearStates() {
+    state_ = NULL;
+    deleted_ = NULL;
+  }
+
  protected:
   virtual RenderViewHost* CreateRenderViewHost() {
     return new TestRenderViewHost(
@@ -322,6 +339,21 @@ class TestInterstitialPage : public InterstitialPage {
   InterstitialState* state_;
   bool* deleted_;
   int command_received_count_;
+};
+
+class TestInterstitialPageStateGuard {
+ public:
+  explicit TestInterstitialPageStateGuard(
+      TestInterstitialPage* interstitial_page)
+      : interstitial_page_(interstitial_page) {
+    DCHECK(interstitial_page_);
+  }
+  ~TestInterstitialPageStateGuard() {
+    interstitial_page_->ClearStates();
+  }
+
+ private:
+  TestInterstitialPage* interstitial_page_;
 };
 
 class WebContentsTest : public testing::Test {
@@ -756,6 +788,7 @@ TEST_F(WebContentsTest,
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // The interstitial should not show until its navigation has committed.
   EXPECT_FALSE(interstitial->is_showing());
@@ -800,6 +833,7 @@ TEST_F(WebContentsTest,
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // The interstitial should not show until its navigation has committed.
   EXPECT_FALSE(interstitial->is_showing());
@@ -842,6 +876,7 @@ TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationDontProceed) {
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, false, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // The interstitial should not show until its navigation has committed.
   EXPECT_FALSE(interstitial->is_showing());
@@ -889,6 +924,7 @@ TEST_F(WebContentsTest, ShowInterstitialFromBrowserNewNavigationProceed) {
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // The interstitial should not show until its navigation has committed.
   EXPECT_FALSE(interstitial->is_showing());
@@ -942,6 +978,7 @@ TEST_F(WebContentsTest, ShowInterstitialFromRendererNewNavigationProceed) {
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // The interstitial should not show until its navigation has committed.
   EXPECT_FALSE(interstitial->is_showing());
@@ -995,6 +1032,7 @@ TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationProceed) {
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, false, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // The interstitial should not show until its navigation has committed.
   EXPECT_FALSE(interstitial->is_showing());
@@ -1034,6 +1072,7 @@ TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
   GURL url("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   interstitial->TestDidNavigate(1, url);
 
@@ -1054,6 +1093,7 @@ TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
   GURL url("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   interstitial->TestDidNavigate(1, url);
 
@@ -1066,8 +1106,7 @@ TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
 
 // Test that after Proceed is called and an interstitial is still shown, no more
 // commands get executed.
-// TODO(jcampan): bug #5700 Disabled because crashes on "XP Test" build bot.
-TEST_F(WebContentsTest, DISABLED_ShowInterstitialProceedMultipleCommands) {
+TEST_F(WebContentsTest, ShowInterstitialProceedMultipleCommands) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -1080,6 +1119,7 @@ TEST_F(WebContentsTest, DISABLED_ShowInterstitialProceedMultipleCommands) {
   GURL url2("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url2, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   interstitial->TestDidNavigate(1, url2);
 
@@ -1113,6 +1153,7 @@ TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   GURL url1("http://interstitial1");
   TestInterstitialPage* interstitial1 =
       new TestInterstitialPage(contents, true, url1, &state1, &deleted1);
+  TestInterstitialPageStateGuard state_guard1(interstitial1);
   interstitial1->Show();
   interstitial1->TestDidNavigate(1, url1);
 
@@ -1123,6 +1164,7 @@ TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   GURL url2("http://interstitial2");
   TestInterstitialPage* interstitial2 =
       new TestInterstitialPage(contents, true, url2, &state2, &deleted2);
+  TestInterstitialPageStateGuard state_guard2(interstitial2);
   interstitial2->Show();
   interstitial2->TestDidNavigate(1, url2);
 
@@ -1157,6 +1199,7 @@ TEST_F(WebContentsTest, NavigateBeforeInterstitialShows) {
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, interstitial_url,
                                &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
 
   // Let's simulate a navigation initiated from the browser before the
@@ -1183,6 +1226,7 @@ TEST_F(WebContentsTest, InterstitialCrasher) {
   GURL url("http://interstitial");
   TestInterstitialPage* interstitial =
       new TestInterstitialPage(contents, true, url, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // Simulate a renderer crash before the interstitial is shown.
   interstitial->TestRendererGone();
