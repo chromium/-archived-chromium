@@ -413,3 +413,67 @@ bool BrowserProxy::SetIntPreference(const std::wstring& name, int value) {
   // We failed to deserialize the returned value.
   return false;
 }
+
+bool BrowserProxy::SetStringPreference(const std::wstring& name,
+                                       const std::wstring& value) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+    new AutomationMsg_SetStringPreferenceRequest(0, handle_, name , value),
+    &response, AutomationMsg_SetStringPreferenceResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!success)
+    return false;
+
+  if (AutomationMsg_SetStringPreferenceResponse::Read(response, &success))
+    return success;
+
+  return false;
+}
+
+bool BrowserProxy::GetBooleanPreference(const std::wstring& name,
+                                        bool* value) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+    new AutomationMsg_GetBooleanPreferenceRequest(0, handle_, name),
+    &response, AutomationMsg_GetBooleanPreferenceResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!success)
+    return false;
+
+  void* iter = NULL;
+  bool successed_get_value;
+  success = response->ReadBool(&iter, &successed_get_value);
+  if (!success || !successed_get_value)
+    return false;
+  DCHECK(iter);
+  success = response->ReadBool(&iter, value);
+  return success;
+}
+
+bool BrowserProxy::SetBooleanPreference(const std::wstring& name,
+                                        bool value) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+    new AutomationMsg_SetBooleanPreferenceRequest(0, handle_, name , value),
+    &response, AutomationMsg_SetBooleanPreferenceResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!success)
+    return false;
+
+  if (AutomationMsg_SetBooleanPreferenceResponse::Read(response, &success))
+    return success;
+
+  return false;
+}

@@ -600,7 +600,8 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED2(AutomationMsg_ActionOnSSLBlockingPage, int, bool)
   IPC_MESSAGE_ROUTED1(AutomationMsg_ActionOnSSLBlockingPageResponse, bool)
 
-  // Message to request that a browser window is brought to the front and activated.
+  // Message to request that a browser window is brought to the front and
+  // activated.
   // Request:
   //   - int: handle of the browser window.
   // Response:
@@ -608,8 +609,8 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_BringBrowserToFront, int)
   IPC_MESSAGE_ROUTED1(AutomationMsg_BringBrowserToFrontResponse, bool)
 
-  // Message to request whether a certain item is enabled of disabled in the "Page"
-  // menu in the browser window
+  // Message to request whether a certain item is enabled of disabled in the
+  // "Page" menu in the browser window
   //
   // Request:
   //   - int: handle of the browser window.
@@ -641,8 +642,8 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_LastActiveBrowserWindowResponse, int)
 
   // This message requests the bounds of a constrained window (relative to its
-  // containing TabContents). On an internal error, the boolean in the result will
-  // be set to false.
+  // containing TabContents). On an internal error, the boolean in the result
+  // will be set to false.
   IPC_MESSAGE_ROUTED1(AutomationMsg_ConstrainedWindowBoundsRequest,
                       int /* tab_handle */)
   IPC_MESSAGE_ROUTED2(AutomationMsg_ConstrainedWindowBoundsResponse,
@@ -819,6 +820,45 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_ClickAppModalDialogButtonRequest,
                       int /* view::DelegateDialog::DialogButton */)
   IPC_MESSAGE_ROUTED1(AutomationMsg_ClickAppModalDialogButtonResponse,
+                      bool /* success */)
+
+  // This messages sets a string-value preference.
+  IPC_MESSAGE_ROUTED3(AutomationMsg_SetStringPreferenceRequest,
+                      int /* browser handle */,
+                      std::wstring /* pref name */,
+                      std::wstring /* pref value */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_SetStringPreferenceResponse,
+                      bool /* success */)
+
+  // This messages gets a boolean-value preference.
+  IPC_MESSAGE_ROUTED2(AutomationMsg_GetBooleanPreferenceRequest,
+                      int /* browser handle */,
+                      std::wstring /* pref name */)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_GetBooleanPreferenceResponse,
+                      bool /* success */,
+                      bool /* pref value */)
+
+  // This messages sets a boolean-value preference.
+  IPC_MESSAGE_ROUTED3(AutomationMsg_SetBooleanPreferenceRequest,
+                      int /* browser handle */,
+                      std::wstring /* pref name */,
+                      bool /* pref value */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_SetBooleanPreferenceResponse,
+                      bool /* success */)
+
+  // Queries the current used encoding name of the page in the specified
+  // web content tab.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_GetPageCurrentEncodingRequest,
+                      int /* tab handle */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_GetPageCurrentEncodingResponse,
+                      std::wstring /* current used encoding name */)
+
+  // Uses the specified encoding to override the encoding of the page in the
+  // specified web content tab.
+  IPC_MESSAGE_ROUTED2(AutomationMsg_OverrideEncodingRequest,
+                      int /* tab handle */,
+                      std::wstring /* overrided encoding name */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_OverrideEncodingResponse,
                       bool /* success */)
 
 IPC_END_MESSAGES(Automation)

@@ -149,6 +149,15 @@ class BrowserProxy : public AutomationResourceProxy {
   // Sets the int value of the specified preference.
   bool SetIntPreference(const std::wstring& name, int value);
 
+  // Sets the string value of the specified preference.
+  bool SetStringPreference(const std::wstring& name, const std::wstring& value);
+
+  // Gets the boolean value of the specified preference.
+  bool GetBooleanPreference(const std::wstring& name, bool* value);
+
+  // Sets the boolean value of the specified preference.
+  bool SetBooleanPreference(const std::wstring& name, bool value);
+
  private:
   DISALLOW_COPY_AND_ASSIGN(BrowserProxy);
 };

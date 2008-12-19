@@ -12,6 +12,7 @@
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/browser/automation/url_request_slow_download_job.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_package.h"
@@ -815,6 +816,16 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetShowingAppModalDialog)
     IPC_MESSAGE_HANDLER(AutomationMsg_ClickAppModalDialogButtonRequest,
                         ClickAppModalDialogButton)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetStringPreferenceRequest,
+                        SetStringPreference)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetBooleanPreferenceRequest,
+                        GetBooleanPreference)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetBooleanPreferenceRequest,
+                        SetBooleanPreference)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetPageCurrentEncodingRequest,
+                        GetPageCurrentEncoding)
+    IPC_MESSAGE_HANDLER(AutomationMsg_OverrideEncodingRequest,
+                        OverrideEncoding)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2476,7 +2487,7 @@ void AutomationProvider::WaitForNavigation(const IPC::Message& message,
 
 void AutomationProvider::SetIntPreference(const IPC::Message& message,
                                           int handle,
-                                          std::wstring name,
+                                          const std::wstring& name,
                                           int value) {
   bool success = false;
   if (browser_tracker_->ContainsHandle(handle)) {
@@ -2486,4 +2497,90 @@ void AutomationProvider::SetIntPreference(const IPC::Message& message,
   }
   Send(new AutomationMsg_SetIntPreferenceResponse(message.routing_id(),
                                                   success));
+}
+
+void AutomationProvider::SetStringPreference(const IPC::Message& message,
+                                             int handle,
+                                             const std::wstring& name,
+                                             const std::wstring& value) {
+  bool success = false;
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    browser->profile()->GetPrefs()->SetString(name.c_str(), value);
+    success = true;
+  }
+  Send(new AutomationMsg_SetStringPreferenceResponse(message.routing_id(),
+                                                     success));
+}
+
+void AutomationProvider::GetBooleanPreference(const IPC::Message& message,
+                                              int handle,
+                                              const std::wstring& name) {
+  bool success = false;
+  bool value = false;
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    value = browser->profile()->GetPrefs()->GetBoolean(name.c_str());
+    success = true;
+  }
+  Send(new AutomationMsg_GetBooleanPreferenceResponse(message.routing_id(),
+                                                      success, value));
+}
+
+void AutomationProvider::SetBooleanPreference(const IPC::Message& message,
+                                              int handle,
+                                              const std::wstring& name,
+                                              bool value) {
+  bool success = false;
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    browser->profile()->GetPrefs()->SetBoolean(name.c_str(), value);
+    success = true;
+  }
+  Send(new AutomationMsg_SetBooleanPreferenceResponse(message.routing_id(),
+                                                      success));
+}
+
+// Gets the current used encoding name of the page in the specified tab.
+void AutomationProvider::GetPageCurrentEncoding(const IPC::Message& message,
+                                                int tab_handle) {
+  std::wstring current_encoding;
+  if (tab_tracker_->ContainsHandle(tab_handle)) {
+    NavigationController* nav = tab_tracker_->GetResource(tab_handle);
+    Browser* browser = FindAndActivateTab(nav);
+    DCHECK(browser);
+
+    if (browser->IsCommandEnabled(IDC_ENCODING_MENU)) {
+      TabContents* tab_contents = nav->active_contents();
+      DCHECK(tab_contents->type() == TAB_CONTENTS_WEB);
+      current_encoding = tab_contents->AsWebContents()->encoding();
+    }
+  }
+  Send(new AutomationMsg_GetPageCurrentEncodingResponse(message.routing_id(),
+                                                        current_encoding));
+}
+
+// Gets the current used encoding name of the page in the specified tab.
+void AutomationProvider::OverrideEncoding(const IPC::Message& message,
+                                          int tab_handle,
+                                          const std::wstring& encoding_name) {
+  bool succeed = false;
+  if (tab_tracker_->ContainsHandle(tab_handle)) {
+    NavigationController* nav = tab_tracker_->GetResource(tab_handle);
+    Browser* browser = FindAndActivateTab(nav);
+    DCHECK(browser);
+
+    if (browser->IsCommandEnabled(IDC_ENCODING_MENU)) {
+      TabContents* tab_contents = nav->active_contents();
+      DCHECK(tab_contents->type() == TAB_CONTENTS_WEB);
+      int selected_encoding_id =
+          CharacterEncoding::GetCommandIdByCanonicalEncodingName(encoding_name);
+      if (selected_encoding_id) {
+        browser->OverrideEncoding(selected_encoding_id);
+        succeed = true;
+      }
+    }
+  }
+  Send(new AutomationMsg_OverrideEncodingResponse(message.routing_id(),
+                                                  succeed));
 }

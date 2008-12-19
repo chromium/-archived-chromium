@@ -129,23 +129,6 @@ const CanonicalEncodingNameToIdMapType* CanonicalEncodingMap::GetCanonicalEncodi
 // encoding names.
 static CanonicalEncodingMap canonical_encoding_name_map_singleton;
 
-// Static.
-// Get encoding command id according to input encoding name. If the name is
-// valid, return corresponding encoding command id. Otherwise return 0;
-static int GetCommandIdByCanonicalEncodingName(
-    const std::wstring& encoding_name) {
-  const CanonicalEncodingNameToIdMapType* map =
-      canonical_encoding_name_map_singleton.
-          GetCanonicalEncodingNameToIdMapData();
-  DCHECK(map);
-
-  CanonicalEncodingNameToIdMapType::const_iterator found_id =
-      map->find(encoding_name);
-  if (found_id != map->end())
-    return found_id->second;
-  return 0;
-}
-
 const int default_encoding_menus[] = {
   IDC_ENCODING_UTF16LE,
   0,
@@ -204,7 +187,8 @@ static void ParseEncodingListSeparatedWithComma(
     size_t maximum_size) {
   WStringTokenizer tokenizer(encoding_list, L",");
   while (tokenizer.GetNext()) {
-    int id = GetCommandIdByCanonicalEncodingName(tokenizer.token());
+    int id = CharacterEncoding::GetCommandIdByCanonicalEncodingName(
+        tokenizer.token());
     // Ignore invalid encoding.
     if (!id)
       continue;
@@ -228,6 +212,21 @@ std::wstring GetEncodingDisplayName(std::wstring encoding_name,
 }
 
 }  // namespace
+
+// Static.
+int CharacterEncoding::GetCommandIdByCanonicalEncodingName(
+    const std::wstring& encoding_name) {
+  const CanonicalEncodingNameToIdMapType* map =
+      canonical_encoding_name_map_singleton.
+          GetCanonicalEncodingNameToIdMapData();
+  DCHECK(map);
+
+  CanonicalEncodingNameToIdMapType::const_iterator found_id =
+      map->find(encoding_name);
+  if (found_id != map->end())
+    return found_id->second;
+  return 0;
+}
 
 // Static.
 std::wstring CharacterEncoding::GetCanonicalEncodingNameByCommandId(int id) {

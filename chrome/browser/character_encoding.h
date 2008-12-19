@@ -70,6 +70,11 @@ class CharacterEncoding {
       int new_selected_encoding_id,
       std::wstring* selected_encodings);
 
+  // Get encoding command id according to input encoding name. If the name is
+  // valid, return corresponding encoding command id. Otherwise return 0;
+  static int GetCommandIdByCanonicalEncodingName(
+      const std::wstring& encoding_name);
+
  private:
   // Disallow instantiating it since this class only contains static methods.
   DISALLOW_IMPLICIT_CONSTRUCTORS(CharacterEncoding);

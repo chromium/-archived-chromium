@@ -1047,3 +1047,42 @@ bool TabProxy::WaitForNavigation(int64 last_navigation_time) {
   response->ReadBool(&iter, &success);
   return success;
 }
+
+bool TabProxy::GetPageCurrentEncoding(std::wstring* encoding) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response;
+  bool succeeded = sender_->SendAndWaitForResponse(
+      new AutomationMsg_GetPageCurrentEncodingRequest(0, handle_),
+      &response,
+      AutomationMsg_GetPageCurrentEncodingResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!succeeded)
+    return false;
+
+  void* iter = NULL;
+  succeeded = response->ReadWString(&iter, encoding);
+  return succeeded;
+}
+
+bool TabProxy::OverrideEncoding(const std::wstring& encoding) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response;
+  bool succeeded = sender_->SendAndWaitForResponse(
+      new AutomationMsg_OverrideEncodingRequest(0, handle_, encoding),
+      &response,
+      AutomationMsg_OverrideEncodingResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!succeeded)
+    return false;
+
+  void* iter = NULL;
+  bool successed_set_value = false;
+  succeeded = response->ReadBool(&iter, &successed_set_value);
+  return succeeded && successed_set_value;
+}
