@@ -11,6 +11,9 @@
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/size.h"
 #include "base/icu_util.h"
+#if defined(OS_MACOSX)
+#include "base/mac_util.h"
+#endif
 #include "base/md5.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -60,11 +63,26 @@ const int kSVGTestWindowHeight = 360;
 // Helper method for getting the path to the test shell resources directory.
 FilePath GetResourcesFilePath() {
   FilePath path;
+#if defined(OS_MACOSX)
+  // we need to know if we're bundled or not to know which path to use
+  if (mac_util::AmIBundled()) {
+    PathService::Get(base::DIR_EXE, &path);
+    path = path.Append(FILE_PATH_LITERAL(FilePath::kParentDirectory));
+    return path.Append(FILE_PATH_LITERAL("Resources"));
+  } else {
+    PathService::Get(base::DIR_SOURCE_ROOT, &path);
+    path = path.Append(FILE_PATH_LITERAL("webkit"));
+    path = path.Append(FILE_PATH_LITERAL("tools"));
+    path = path.Append(FILE_PATH_LITERAL("test_shell"));
+    return path.Append(FILE_PATH_LITERAL("resources"));  
+  }
+#else
   PathService::Get(base::DIR_SOURCE_ROOT, &path);
   path = path.Append(FILE_PATH_LITERAL("webkit"));
   path = path.Append(FILE_PATH_LITERAL("tools"));
   path = path.Append(FILE_PATH_LITERAL("test_shell"));
   return path.Append(FILE_PATH_LITERAL("resources"));
+#endif
 }
 
 // URLRequestTestShellFileJob is used to serve the inspector
@@ -179,16 +197,19 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
   // Encode image.
   std::vector<unsigned char> png;
   SkAutoLockPixels src_bmp_lock(src_bmp);
-  PNGEncoder::ColorFormat color_format =
 #if defined(OS_WIN) || defined(OS_LINUX)
-      PNGEncoder::FORMAT_BGRA;
+  bool discard_transparency = true;
+  PNGEncoder::ColorFormat color_format = PNGEncoder::FORMAT_BGRA;
 #elif defined(OS_MACOSX)
-      PNGEncoder::FORMAT_RGBA;
+  // the expected PNGs in webkit have an alpha channel. We must not discard
+  // the transparency else the checksums won't match.
+  bool discard_transparency = false;
+  PNGEncoder::ColorFormat color_format = PNGEncoder::FORMAT_RGBA;
 #endif
   PNGEncoder::Encode(
       reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
       color_format, src_bmp.width(), src_bmp.height(),
-      static_cast<int>(src_bmp.rowBytes()), true, &png);
+      static_cast<int>(src_bmp.rowBytes()), discard_transparency, &png);
 
   // Write to disk.
   file_util::WriteFile(file_name, reinterpret_cast<const char *>(&png[0]),
