@@ -1,5 +1,4 @@
-// Copyright (c) 2008, Google Inc.
-// All rights reserved.
+// Copyright (c) 2008, Google Inc. All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -37,7 +36,6 @@
 #if USE(GOOGLEURL)
 
 #undef LOG
-#include "base/string_util.h"
 #include "googleurl/src/url_canon_internal.h"
 #include "googleurl/src/url_util.h"
 
@@ -71,7 +69,7 @@ private:
 // Note that this function must be named differently than the one in KURL.cpp
 // since our unit tests evilly include both files, and their local definition
 // will be ambiguous.
-inline void AssertProtocolIsGood(const char* protocol)
+inline void assertProtocolIsGood(const char* protocol)
 {
 #ifndef NDEBUG
     const char* p = protocol;
@@ -92,9 +90,18 @@ inline const url_parse::UTF16Char* CharactersOrEmpty(const String& str) {
            &zero;
 }
 
-inline bool IsUnicodeEncoding(const TextEncoding* encoding)
+inline bool isUnicodeEncoding(const TextEncoding* encoding)
 {
     return encoding->encodingForFormSubmission() == UTF8Encoding();
+}
+
+bool lowerCaseEqualsASCII(const char* begin, const char* end, const char* str)
+{
+    while (begin != end && *str) {
+        if (toASCIILower(*begin++) != *str++)
+            return false;
+    }
+    return true;
 }
 
 }  // namespace
@@ -165,7 +172,7 @@ void GoogleURLPrivate::init(const KURL& base, const char* rel, int rel_len,
     // just a wrapper around a reference.
     WebCoreCharsetConverter charset_converter_object(query_encoding);
     WebCoreCharsetConverter* charset_converter =
-        (!query_encoding || IsUnicodeEncoding(query_encoding)) ? 0 :
+        (!query_encoding || isUnicodeEncoding(query_encoding)) ? 0 :
         &charset_converter_object;
 
     url_canon::RawCanonOutputT<char> output;
@@ -201,7 +208,7 @@ void GoogleURLPrivate::init(const KURL& base, const UChar* rel, int rel_len,
 {
     WebCoreCharsetConverter charset_converter_object(query_encoding);
     WebCoreCharsetConverter* charset_converter =
-        (!query_encoding || IsUnicodeEncoding(query_encoding)) ? 0 :
+        (!query_encoding || isUnicodeEncoding(query_encoding)) ? 0 :
         &charset_converter_object;
 
     url_canon::RawCanonOutputT<char> output;
@@ -774,10 +781,10 @@ String decodeURLEscapeSequences(const String& str, const TextEncoding& encoding)
 
 bool KURL::protocolIs(const char* protocol) const
 {
-    AssertProtocolIsGood(protocol);
+    assertProtocolIsGood(protocol);
     if (m_url.m_parsed.scheme.len <= 0)
         return protocol == NULL;
-    return LowerCaseEqualsASCII(
+    return lowerCaseEqualsASCII(
         m_url.utf8String().data() + m_url.m_parsed.scheme.begin,
         m_url.utf8String().data() + m_url.m_parsed.scheme.end(),
         protocol);
@@ -911,7 +918,7 @@ bool protocolIs(const String& url, const char* protocol)
 #endif
 {
     // Do the comparison without making a new string object.
-    AssertProtocolIsGood(protocol);
+    assertProtocolIsGood(protocol);
     for (int i = 0; ; ++i) {
         if (!protocol[i])
             return url[i] == ':';
