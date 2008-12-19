@@ -63,6 +63,7 @@ class StorageBlock : public FileBlock {
 
  private:
   void AllocateData();
+  void DeleteData();
 
   T* data_;
   MappedFile* file_;
