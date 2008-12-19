@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VectorDevice_h
-#define VectorDevice_h
+#ifndef SKIA_EXT_VECTOR_DEVICE_H_
+#define SKIA_EXT_VECTOR_DEVICE_H_
 
-#include "base/basictypes.h"
 #include "skia/ext/platform_device_win.h"
 #include "SkMatrix.h"
 #include "SkRegion.h"
@@ -110,10 +109,12 @@ class VectorDevice : public PlatformDeviceWin {
   // Previously selected pen before the current drawing.
   HGDIOBJ previous_pen_;
 
-  DISALLOW_COPY_AND_ASSIGN(VectorDevice);
+  // Copy & assign are not supported.
+  VectorDevice(const VectorDevice&);
+  const VectorDevice& operator=(const VectorDevice&);
 };
 
 }  // namespace skia
 
-#endif  // VectorDevice_h
+#endif  // SKIA_EXT_VECTOR_DEVICE_H_
 

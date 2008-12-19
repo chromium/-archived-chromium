@@ -4,7 +4,6 @@
 
 #include "skia/ext/platform_device_win.h"
 
-#include "base/logging.h"
 #include "skia/ext/skia_utils_win.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -26,35 +25,35 @@ void PlatformDeviceWin::InitializeDC(HDC context) {
   // and arcs themselves fully respect the device context's world-to-device
   // transformation.
   BOOL res = SetGraphicsMode(context, GM_ADVANCED);
-  DCHECK_NE(res, 0);
+  SkASSERT(res != 0);
 
   // Enables dithering.
   res = SetStretchBltMode(context, HALFTONE);
-  DCHECK_NE(res, 0);
+  SkASSERT(res != 0);
   // As per SetStretchBltMode() documentation, SetBrushOrgEx() must be called
   // right after.
   res = SetBrushOrgEx(context, 0, 0, NULL);
-  DCHECK_NE(res, 0);
+  SkASSERT(res != 0);
 
   // Sets up default orientation.
   res = SetArcDirection(context, AD_CLOCKWISE);
-  DCHECK_NE(res, 0);
+  SkASSERT(res != 0);
 
   // Sets up default colors.
   res = SetBkColor(context, RGB(255, 255, 255));
-  DCHECK_NE(res, CLR_INVALID);
+  SkASSERT(res != CLR_INVALID);
   res = SetTextColor(context, RGB(0, 0, 0));
-  DCHECK_NE(res, CLR_INVALID);
+  SkASSERT(res != CLR_INVALID);
   res = SetDCBrushColor(context, RGB(255, 255, 255));
-  DCHECK_NE(res, CLR_INVALID);
+  SkASSERT(res != CLR_INVALID);
   res = SetDCPenColor(context, RGB(0, 0, 0));
-  DCHECK_NE(res, CLR_INVALID);
+  SkASSERT(res != CLR_INVALID);
 
   // Sets up default transparency.
   res = SetBkMode(context, OPAQUE);
-  DCHECK_NE(res, 0);
+  SkASSERT(res != 0);
   res = SetROP2(context, R2_COPYPEN);
-  DCHECK_NE(res, 0);
+  SkASSERT(res != 0);
 }
 
 // static
@@ -62,21 +61,21 @@ void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
   switch (path.getFillType()) {
     case SkPath::kWinding_FillType: {
       int res = SetPolyFillMode(context, WINDING);
-      DCHECK(res != 0);
+      SkASSERT(res != 0);
       break;
     }
     case SkPath::kEvenOdd_FillType: {
       int res = SetPolyFillMode(context, ALTERNATE);
-      DCHECK(res != 0);
+      SkASSERT(res != 0);
       break;
     }
     default: {
-      NOTREACHED();
+      SkASSERT(false);
       break;
     }
   }
   BOOL res = BeginPath(context);
-  DCHECK(res != 0);
+  SkASSERT(res != 0);
 
   CubicPaths paths;
   if (!SkPathToCubicPaths(&paths, path))
@@ -87,7 +86,6 @@ void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
        ++path) {
     if (!path->size())
       continue;
-    // DCHECK_EQ(points.size() % 4, 0);
     points.resize(0);
     points.reserve(path->size() * 3 / 4 + 1);
     points.push_back(SkPointToPOINT(path->front().p[0]));
@@ -98,14 +96,14 @@ void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
       points.push_back(SkPointToPOINT(point->p[2]));
       points.push_back(SkPointToPOINT(point->p[3]));
     }
-    DCHECK_EQ((points.size() - 1) % 3, 0);
+    SkASSERT((points.size() - 1) % 3 == 0);
     // This is slightly inefficient since all straight line and quadratic lines
     // are "upgraded" to a cubic line.
     // TODO(maruel):  http://b/1147346 We should use
     // PolyDraw/PolyBezier/Polyline whenever possible.
     res = PolyBezier(context, &points.front(),
                      static_cast<DWORD>(points.size()));
-    DCHECK_NE(res, 0);
+    SkASSERT(res != 0);
     if (res == 0)
       break;
   }
@@ -114,7 +112,7 @@ void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
     AbortPath(context);
   } else {
     res = EndPath(context);
-    DCHECK(res != 0);
+    SkASSERT(res != 0);
   }
 }
 
@@ -183,7 +181,7 @@ bool PlatformDeviceWin::SkPathToCubicPaths(CubicPaths* paths,
         break;
       }
     }
-    DCHECK(current_path);
+    SkASSERT(current_path);
     if (!current_path) {
       paths->clear();
       return false;
@@ -220,9 +218,9 @@ void PlatformDeviceWin::LoadClippingRegionToDC(HDC context,
     hrgn = PathToRegion(context);
   }
   int result = SelectClipRgn(context, hrgn);
-  DCHECK_NE(result, ERROR);
+  SkASSERT(result != ERROR);
   result = DeleteObject(hrgn);
-  DCHECK_NE(result, 0);
+  SkASSERT(result != 0);
 }
 
 }  // namespace skia

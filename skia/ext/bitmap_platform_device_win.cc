@@ -4,9 +4,8 @@
 
 #include "skia/ext/bitmap_platform_device_win.h"
 
-#include "base/gfx/gdi_util.h"
-#include "base/logging.h"
 #include "SkMatrix.h"
+#include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkUtils.h"
 
@@ -100,8 +99,7 @@ void FixupAlphaBeforeCompositing(uint32_t* pixel) {
 
 }  // namespace
 
-class BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData
-    : public base::RefCounted<BitmapPlatformDeviceWinData> {
+class BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData : public SkRefCnt {
  public:
   explicit BitmapPlatformDeviceWinData(HBITMAP hbitmap);
 
@@ -144,10 +142,11 @@ class BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData
   SkRegion clip_region_;
 
  private:
-  friend class base::RefCounted<BitmapPlatformDeviceWinData>;
-  ~BitmapPlatformDeviceWinData();
+  virtual ~BitmapPlatformDeviceWinData();
 
-  DISALLOW_EVIL_CONSTRUCTORS(BitmapPlatformDeviceWinData);
+  // Copy & assign are not supported.
+  BitmapPlatformDeviceWinData(const BitmapPlatformDeviceWinData&);
+  BitmapPlatformDeviceWinData& operator=(const BitmapPlatformDeviceWinData&);
 };
 
 BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::BitmapPlatformDeviceWinData(
@@ -190,7 +189,7 @@ HDC BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::GetBitmapDC() {
 }
 
 void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::ReleaseBitmapDC() {
-  DCHECK(hdc_);
+  SkASSERT(hdc_);
   DeleteDC(hdc_);
   hdc_ = NULL;
 }
@@ -227,11 +226,12 @@ void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::LoadConfig() {
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
 // data.
-BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
-                                                   int width,
-                                                   int height,
-                                                   bool is_opaque,
-                                                   HANDLE shared_section) {
+BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(
+    HDC screen_dc,
+    int width,
+    int height,
+    bool is_opaque,
+    HANDLE shared_section) {
   SkBitmap bitmap;
 
   // CreateDIBSection appears to get unhappy if we create an empty bitmap, so
@@ -242,7 +242,17 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
   }
 
   BITMAPINFOHEADER hdr = {0};
-  gfx::CreateBitmapHeader(width, height, &hdr);
+  hdr.biSize = sizeof(BITMAPINFOHEADER);
+  hdr.biWidth = width;
+  hdr.biHeight = -height;  // minus means top-down bitmap
+  hdr.biPlanes = 1;
+  hdr.biBitCount = 32;
+  hdr.biCompression = BI_RGB;  // no compression
+  hdr.biSizeImage = 0;
+  hdr.biXPelsPerMeter = 1;
+  hdr.biYPelsPerMeter = 1;
+  hdr.biClrUsed = 0;
+  hdr.biClrImportant = 0;
 
   void* data = NULL;
   HBITMAP hbitmap = CreateDIBSection(screen_dc,
@@ -256,7 +266,6 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
   // we deliberately crash here, even in release mode.
   if (!hbitmap) {
     DWORD error = GetLastError();
-    LOG(ERROR) << "CreateDIBSection Failed. Error: " << error << "\n";
     return NULL;
   }
 
@@ -277,7 +286,8 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
                 width * height);
   }
 
-  // The device object will take ownership of the HBITMAP.
+  // The device object will take ownership of the HBITMAP. The initial refcount
+  // of the data object will be 1, which is what the constructor expects.
   return new BitmapPlatformDeviceWin(new BitmapPlatformDeviceWinData(hbitmap),
                                      bitmap);
 }
@@ -286,7 +296,10 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
 BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(
     BitmapPlatformDeviceWinData* data,
-    const SkBitmap& bitmap) : PlatformDeviceWin(bitmap), data_(data) {
+    const SkBitmap& bitmap)
+    : PlatformDeviceWin(bitmap),
+      data_(data) {
+  // The data object is already ref'ed for us by create().
 }
 
 // The copy constructor just adds another reference to the underlying data.
@@ -297,14 +310,17 @@ BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(
     : PlatformDeviceWin(
           const_cast<BitmapPlatformDeviceWin&>(other).accessBitmap(true)),
       data_(other.data_) {
+  data_->ref();
 }
 
 BitmapPlatformDeviceWin::~BitmapPlatformDeviceWin() {
+  data_->unref();
 }
 
 BitmapPlatformDeviceWin& BitmapPlatformDeviceWin::operator=(
     const BitmapPlatformDeviceWin& other) {
   data_ = other.data_;
+  data_->ref();
   return *this;
 }
 
@@ -313,12 +329,12 @@ HDC BitmapPlatformDeviceWin::getBitmapDC() {
 }
 
 void BitmapPlatformDeviceWin::setMatrixClip(const SkMatrix& transform,
-                                         const SkRegion& region) {
+                                            const SkRegion& region) {
   data_->SetMatrixClip(transform, region);
 }
 
 void BitmapPlatformDeviceWin::drawToHDC(HDC dc, int x, int y,
-                                     const RECT* src_rect) {
+                                        const RECT* src_rect) {
   bool created_dc = !data_->IsBitmapDCCreated();
   HDC source_dc = getBitmapDC();
 
@@ -351,7 +367,7 @@ void BitmapPlatformDeviceWin::drawToHDC(HDC dc, int x, int y,
            src_rect->top,
            SRCCOPY);
   } else {
-    DCHECK(copy_width != 0 && copy_height != 0);
+    SkASSERT(copy_width != 0 && copy_height != 0);
     BLENDFUNCTION blend_function = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
     GdiAlphaBlend(dc,
                   x,
@@ -416,11 +432,11 @@ void BitmapPlatformDeviceWin::onAccessBitmap(SkBitmap* bitmap) {
 
 template<BitmapPlatformDeviceWin::adjustAlpha adjustor>
 void BitmapPlatformDeviceWin::processPixels(int x,
-                                   int y,
-                                   int width,
-                                   int height) {
+                                            int y,
+                                            int width,
+                                            int height) {
   const SkBitmap& bitmap = accessBitmap(true);
-  DCHECK_EQ(bitmap.config(), SkBitmap::kARGB_8888_Config);
+  SkASSERT(bitmap.config() == SkBitmap::kARGB_8888_Config);
   const SkMatrix& matrix = data_->transform();
   int bitmap_start_x = SkScalarRound(matrix.getTranslateX()) + x;
   int bitmap_start_y = SkScalarRound(matrix.getTranslateY()) + y;
@@ -428,7 +444,7 @@ void BitmapPlatformDeviceWin::processPixels(int x,
   if (Constrain(bitmap.width(), &bitmap_start_x, &width) &&
       Constrain(bitmap.height(), &bitmap_start_y, &height)) {
     SkAutoLockPixels lock(bitmap);
-    DCHECK_EQ(bitmap.rowBytes() % sizeof(uint32_t), 0u);
+    SkASSERT(bitmap.rowBytes() % sizeof(uint32_t) == 0u);
     size_t row_words = bitmap.rowBytes() / sizeof(uint32_t);
     // Set data to the first pixel to be modified.
     uint32_t* data = bitmap.getAddr32(0, 0) + (bitmap_start_y * row_words) +
