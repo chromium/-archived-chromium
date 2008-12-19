@@ -281,9 +281,10 @@ class ChromeTests:
     return ret
 
   def TestUI(self):
-    instrumentation_error = self.InstrumentDll()
-    if instrumentation_error:
-      return instrumentation_error
+    if not self._options.no_reinstrument:
+      instrumentation_error = self.InstrumentDll()
+      if instrumentation_error:
+        return instrumentation_error
     return self.ScriptedTest("chrome", "chrome.exe", "ui_tests", 
                              ["ui_tests.exe",
                               "--single-process",
@@ -307,6 +308,8 @@ def _main(argv):
                     help="additional arguments to --gtest_filter")
   parser.add_option("-v", "--verbose", action="store_true", default=False,
                     help="verbose output - enable debug log messages")
+  parser.add_option("", "--no-reinstrument", action="store_true", default=False,
+                    help="Don't force a re-instrumentation for ui_tests")
   options, args = parser.parse_args()
 
   if options.verbose:
