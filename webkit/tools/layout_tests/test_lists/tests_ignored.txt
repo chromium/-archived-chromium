@@ -145,6 +145,12 @@ LayoutTests/fast/js/function-names.html = FAIL PASS
 LINUX WIN : LayoutTests/fast/images/embed-image.html = FAIL
 LINUX WIN : LayoutTests/fast/images/object-image.html = FAIL
 
+// Safari has a unique handling of the BOM characters among browsers.
+// There is a strong suspicion that this is a security problem, so we
+// follow the rest of the browsers on this one.
+LayoutTests/fast/js/removing-Cf-characters.html = FAIL
+
+
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS
 // -----------------------------------------------------------------

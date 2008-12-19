@@ -543,9 +543,6 @@ SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 // Partially fixed in bleeding_edge: Now gives a StackOverflowException,
 // which isn't unreasonable when calling a method on a full stack.
 LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
-// V8 completely fails to parse the JS at all; suspect it's because of the
-// Unicode BOM at the beginning of the file.
-LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 // Fixed in bleeding_edge@999.
 LayoutTests/fast/js/static-scope-object.html = FAIL
 // http://b/issue?id=1344252
