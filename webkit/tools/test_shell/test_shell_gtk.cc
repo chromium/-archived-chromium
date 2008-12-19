@@ -329,7 +329,6 @@ void TestShell::ClosePopup() {
   GtkWidget* window =
       gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
   gtk_widget_destroy(window);
-  m_popupHost->WindowDestroyed();
   m_popupHost = NULL;
 }
 
