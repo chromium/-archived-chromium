@@ -4,6 +4,7 @@
 
 #include "skia/ext/vector_canvas.h"
 
+#include "base/logging.h"
 #include "skia/ext/vector_device.h"
 
 namespace skia {
@@ -13,8 +14,7 @@ VectorCanvas::VectorCanvas() {
 
 VectorCanvas::VectorCanvas(HDC dc, int width, int height) {
   bool initialized = initialize(dc, width, height);
-  if (!initialized)
-    __debugbreak();
+  CHECK(initialized);
 }
 
 VectorCanvas::~VectorCanvas() {
@@ -35,20 +35,20 @@ SkBounder* VectorCanvas::setBounder(SkBounder* bounder) {
     return PlatformCanvasWin::setBounder(bounder);
 
   // This function isn't used in the code. Verify this assumption.
-  SkASSERT(false);
+  NOTREACHED();
   return NULL;
 }
 
 SkDevice* VectorCanvas::createDevice(SkBitmap::Config config,
                                      int width, int height,
                                      bool is_opaque, bool isForLayer) {
-  SkASSERT(config == SkBitmap::kARGB_8888_Config);
+  DCHECK(config == SkBitmap::kARGB_8888_Config);
   return createPlatformDevice(width, height, is_opaque, NULL);
 }
 
 SkDrawFilter* VectorCanvas::setDrawFilter(SkDrawFilter* filter) {
   // This function isn't used in the code. Verify this assumption.
-  SkASSERT(false);
+  NOTREACHED();
   return NULL;
 }
 
@@ -76,7 +76,7 @@ SkDevice* VectorCanvas::createPlatformDevice(int width,
   // multiply each SkScalar that are passed to SkScalarRound(value) as
   // SkScalarRound(value * 10). Safari is already doing the same for text
   // rendering.
-  SkASSERT(shared_section);
+  DCHECK(shared_section);
   PlatformDeviceWin* device = VectorDevice::create(
       reinterpret_cast<HDC>(shared_section), width, height);
   return device;

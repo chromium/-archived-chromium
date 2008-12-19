@@ -2,16 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <psapi.h>
-
 #include "skia/ext/platform_canvas_win.h"
 
+#include "base/logging.h"
+#include "base/process_util.h"
 #include "skia/ext/bitmap_platform_device_win.h"
 
 namespace skia {
-
-// Crash on failure.
-#define CHECK(condition) if (!(condition)) __debugbreak();
 
 // Crashes the process. This is called when a bitmap allocation fails, and this
 // function tries to determine why it might have failed, and crash on different
@@ -26,20 +23,20 @@ void CrashForBitmapAllocationFailure(int w, int h) {
 
   // If the bitmap is ginormous, then we probably can't allocate it.
   // We use 64M pixels = 256MB @ 4 bytes per pixel.
-  const __int64 kGinormousBitmapPxl = 64000000;
-  CHECK(static_cast<__int64>(w) * static_cast<__int64>(h) <
-        kGinormousBitmapPxl);
+  const int64 kGinormousBitmapPxl = 64000000;
+  CHECK(static_cast<int64>(w) * static_cast<int64>(h) < kGinormousBitmapPxl);
 
   // If we're using a crazy amount of virtual address space, then maybe there
   // isn't enough for our bitmap.
-  const __int64 kLotsOfMem = 1500000000;  // 1.5GB.
-  PROCESS_MEMORY_COUNTERS pmc;
-  if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)))
-    CHECK(pmc.PagefileUsage < kLotsOfMem);
+  const int64 kLotsOfMem = 1500000000;  // 1.5GB.
+  scoped_ptr<base::ProcessMetrics> process_metrics(
+      base::ProcessMetrics::CreateProcessMetrics(GetCurrentProcess()));
+  CHECK(process_metrics->GetPagefileUsage() < kLotsOfMem);
 
   // Everything else.
   CHECK(0);
 }
+
 
 PlatformCanvasWin::PlatformCanvasWin() : SkCanvas() {
 }
@@ -97,7 +94,7 @@ SkDevice* PlatformCanvasWin::createDevice(SkBitmap::Config config,
                                           int width,
                                           int height,
                                           bool is_opaque, bool isForLayer) {
-  SkASSERT(config == SkBitmap::kARGB_8888_Config);
+  DCHECK(config == SkBitmap::kARGB_8888_Config);
   return createPlatformDevice(width, height, is_opaque, NULL);
 }
 
@@ -113,7 +110,7 @@ SkDevice* PlatformCanvasWin::createPlatformDevice(int width,
 }
 
 SkDevice* PlatformCanvasWin::setBitmapDevice(const SkBitmap&) {
-  SkASSERT(false);  // Should not be called.
+  NOTREACHED();
   return NULL;
 }
 

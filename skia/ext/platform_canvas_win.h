@@ -7,6 +7,7 @@
 
 #include <windows.h>
 
+#include "base/basictypes.h"
 #include "skia/ext/platform_device_win.h"
 
 #include "SkCanvas.h"

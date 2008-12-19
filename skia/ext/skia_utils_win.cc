@@ -2,27 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "skia/ext/skia_utils_win.h"
 
+#include "base/logging.h"
 #include "SkRect.h"
 #include "SkGradientShader.h"
 
 namespace {
 
-template <bool>
-struct CompileAssert {
-};
-
-#undef COMPILE_ASSERT
-#define COMPILE_ASSERT(expr, msg) \
-  typedef CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1]
-
-COMPILE_ASSERT(SK_OFFSETOF(RECT, left) == SK_OFFSETOF(SkIRect, fLeft), o1);
-COMPILE_ASSERT(SK_OFFSETOF(RECT, top) == SK_OFFSETOF(SkIRect, fTop), o2);
-COMPILE_ASSERT(SK_OFFSETOF(RECT, right) == SK_OFFSETOF(SkIRect, fRight), o3);
-COMPILE_ASSERT(SK_OFFSETOF(RECT, bottom) == SK_OFFSETOF(SkIRect, fBottom), o4);
+COMPILE_ASSERT(offsetof(RECT, left) == offsetof(SkIRect, fLeft), o1);
+COMPILE_ASSERT(offsetof(RECT, top) == offsetof(SkIRect, fTop), o2);
+COMPILE_ASSERT(offsetof(RECT, right) == offsetof(SkIRect, fRight), o3);
+COMPILE_ASSERT(offsetof(RECT, bottom) == offsetof(SkIRect, fBottom), o4);
 COMPILE_ASSERT(sizeof(RECT().left) == sizeof(SkIRect().fLeft), o5);
 COMPILE_ASSERT(sizeof(RECT().top) == sizeof(SkIRect().fTop), o6);
 COMPILE_ASSERT(sizeof(RECT().right) == sizeof(SkIRect().fRight), o7);
@@ -57,7 +48,7 @@ COLORREF SkColorToCOLORREF(SkColor color) {
   // Currently, Alpha is always 255 or the color is 0 so there is no need to
   // demultiply the channels. If this DCHECK() is ever hit, the full
   // (SkColorGetX(color) * 255 / a) will have to be added in the conversion.
-  SkASSERT((0xFF == SkColorGetA(color)) || (0 == color));
+  DCHECK((0xFF == SkColorGetA(color)) || (0 == color));
 #ifndef _MSC_VER
   return RGB(SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 #else

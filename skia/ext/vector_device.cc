@@ -5,6 +5,8 @@
 #include "skia/ext/vector_device.h"
 
 #include "base/gfx/gdi_util.h"
+#include "base/logging.h"
+#include "base/scoped_handle.h"
 #include "skia/ext/skia_utils_win.h"
 
 #include "SkUtils.h"
@@ -53,8 +55,8 @@ VectorDevice::VectorDevice(HDC dc, const SkBitmap& bitmap)
 }
 
 VectorDevice::~VectorDevice() {
-  SkASSERT(previous_brush_ == NULL);
-  SkASSERT(previous_pen_ == NULL);
+  DCHECK(previous_brush_ == NULL);
+  DCHECK(previous_pen_ == NULL);
 }
 
 
@@ -75,7 +77,7 @@ void VectorDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     return;
 
   if (mode == SkCanvas::kPoints_PointMode) {
-    SkASSERT(false);
+    NOTREACHED();
     return;
   }
 
@@ -87,7 +89,7 @@ void VectorDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
   switch (mode) {
     case SkCanvas::kLines_PointMode:
       if (count % 2) {
-        SkASSERT(false);
+        NOTREACHED();
         return;
       }
       for (size_t i = 0; i < count / 2; ++i) {
@@ -102,7 +104,7 @@ void VectorDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
       }
       break;
     default:
-      SkASSERT(false);
+      NOTREACHED();
       return;
   }
   // Draw the calculated path.
@@ -137,7 +139,7 @@ void VectorDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                  SkScalarRound(rect.fTop),
                  SkScalarRound(rect.fRight),
                  SkScalarRound(rect.fBottom))) {
-    SkASSERT(false);
+    NOTREACHED();
   }
   Cleanup();
 }
@@ -166,21 +168,21 @@ void VectorDevice::drawPath(const SkDraw& draw, const SkPath& path,
   switch (paint.getStyle()) {
     case SkPaint::kFill_Style: {
       BOOL res = StrokeAndFillPath(dc);
-      SkASSERT(res != 0);
+      DCHECK(res != 0);
       break;
     }
     case SkPaint::kStroke_Style: {
       BOOL res = StrokePath(dc);
-      SkASSERT(res != 0);
+      DCHECK(res != 0);
       break;
     }
     case SkPaint::kStrokeAndFill_Style: {
       BOOL res = StrokeAndFillPath(dc);
-      SkASSERT(res != 0);
+      DCHECK(res != 0);
       break;
     }
     default:
-      SkASSERT(false);
+      NOTREACHED();
       break;
   }
   Cleanup();
@@ -215,14 +217,14 @@ void VectorDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 void VectorDevice::drawText(const SkDraw& draw, const void* text, size_t byteLength,
                             SkScalar x, SkScalar y, const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
-  SkASSERT(false);
+  NOTREACHED();
 }
 
 void VectorDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
                                const SkScalar pos[], SkScalar constY,
                                int scalarsPerPos, const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
-  SkASSERT(false);
+  NOTREACHED();
 }
 
 void VectorDevice::drawTextOnPath(const SkDraw& draw, const void* text,
@@ -230,7 +232,7 @@ void VectorDevice::drawTextOnPath(const SkDraw& draw, const void* text,
                                   const SkPath& path, const SkMatrix* matrix,
                                   const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
-  SkASSERT(false);
+  NOTREACHED();
 }
 
 void VectorDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
@@ -240,7 +242,7 @@ void VectorDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                 const uint16_t indices[], int indexCount,
                                 const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
-  SkASSERT(false);
+  NOTREACHED();
 }
 
 void VectorDevice::drawDevice(const SkDraw& draw, SkDevice* device, int x,
@@ -307,25 +309,25 @@ bool VectorDevice::ApplyPaint(const SkPaint& paint) {
   //  SkShader::CreateBitmapShader
   //  SkGradientShader::CreateRadial
   //  SkGradientShader::CreateLinear
-  // SkASSERT(!paint.getShader());
+  // DCHECK(!paint.getShader());
 
   // http://b/1106647 Implement loopers and mask filter. Looper currently in
   // use:
   //   SkBlurDrawLooper is used for shadows.
-  // SkASSERT(!paint.getLooper());
-  // SkASSERT(!paint.getMaskFilter());
+  // DCHECK(!paint.getLooper());
+  // DCHECK(!paint.getMaskFilter());
 
   // http://b/1165900 Implement xfermode.
-  // SkASSERT(!paint.getXfermode());
+  // DCHECK(!paint.getXfermode());
 
   // The path effect should be processed before arriving here.
-  SkASSERT(!paint.getPathEffect());
+  DCHECK(!paint.getPathEffect());
 
   // These aren't used in the code. Verify this assumption.
-  SkASSERT(!paint.getColorFilter());
-  SkASSERT(!paint.getRasterizer());
+  DCHECK(!paint.getColorFilter());
+  DCHECK(!paint.getRasterizer());
   // Reuse code to load Win32 Fonts.
-  SkASSERT(!paint.getTypeface());
+  DCHECK(!paint.getTypeface());
   return true;
 }
 
@@ -339,7 +341,7 @@ void VectorDevice::setMatrixClip(const SkMatrix& transform,
 }
 
 void VectorDevice::drawToHDC(HDC dc, int x, int y, const RECT* src_rect) {
-  SkASSERT(false);
+  NOTREACHED();
 }
 
 void VectorDevice::LoadClipRegion() {
@@ -349,7 +351,7 @@ void VectorDevice::LoadClipRegion() {
 }
 
 bool VectorDevice::CreateBrush(bool use_brush, COLORREF color) {
-  SkASSERT(previous_brush_ == NULL);
+  DCHECK(previous_brush_ == NULL);
   // We can't use SetDCBrushColor() or DC_BRUSH when drawing to a EMF buffer.
   // SetDCBrushColor() calls are not recorded at all and DC_BRUSH will use
   // WHITE_BRUSH instead.
@@ -357,7 +359,7 @@ bool VectorDevice::CreateBrush(bool use_brush, COLORREF color) {
   if (!use_brush) {
     // Set the transparency.
     if (0 == SetBkMode(hdc_, TRANSPARENT)) {
-      SkASSERT(false);
+      NOTREACHED();
       return false;
     }
 
@@ -368,7 +370,7 @@ bool VectorDevice::CreateBrush(bool use_brush, COLORREF color) {
 
   // Set the opacity.
   if (0 == SetBkMode(hdc_, OPAQUE)) {
-    SkASSERT(false);
+    NOTREACHED();
     return false;
   }
 
@@ -379,7 +381,7 @@ bool VectorDevice::CreateBrush(bool use_brush, COLORREF color) {
 
 bool VectorDevice::CreatePen(bool use_pen, COLORREF color, int stroke_width,
                              float stroke_miter, DWORD pen_style) {
-  SkASSERT(previous_pen_ == NULL);
+  DCHECK(previous_pen_ == NULL);
   // We can't use SetDCPenColor() or DC_PEN when drawing to a EMF buffer.
   // SetDCPenColor() calls are not recorded at all and DC_PEN will use BLACK_PEN
   // instead.
@@ -403,13 +405,13 @@ bool VectorDevice::CreatePen(bool use_pen, COLORREF color, int stroke_width,
   brush.lbColor = color;
   brush.lbHatch = 0;
   HPEN pen = ExtCreatePen(pen_style, stroke_width, &brush, 0, NULL);
-  SkASSERT(pen != NULL);
+  DCHECK(pen != NULL);
   previous_pen_ = SelectObject(pen);
   if (previous_pen_ == NULL)
     return false;
 
   if (!SetMiterLimit(hdc_, stroke_miter, NULL)) {
-    SkASSERT(false);
+    NOTREACHED();
     return false;
   }
   return true;
@@ -421,7 +423,7 @@ void VectorDevice::Cleanup() {
     previous_brush_ = NULL;
     if (result) {
       BOOL res = DeleteObject(result);
-      SkASSERT(res != 0);
+      DCHECK(res != 0);
     }
   }
   if (previous_pen_) {
@@ -429,7 +431,7 @@ void VectorDevice::Cleanup() {
     previous_pen_ = NULL;
     if (result) {
       BOOL res = DeleteObject(result);
-      SkASSERT(res != 0);
+      DCHECK(res != 0);
     }
   }
   // Remove any loaded path from the context.
@@ -438,7 +440,7 @@ void VectorDevice::Cleanup() {
 
 HGDIOBJ VectorDevice::SelectObject(HGDIOBJ object) {
   HGDIOBJ result = ::SelectObject(hdc_, object);
-  SkASSERT(result != HGDI_ERROR);
+  DCHECK(result != HGDI_ERROR);
   if (result == HGDI_ERROR)
     return NULL;
   return result;
@@ -448,7 +450,7 @@ bool VectorDevice::CreateBrush(bool use_brush, const SkPaint& paint) {
   // Make sure that for transparent color, no brush is used.
   if (paint.getAlpha() == 0) {
     // Test if it ever happen.
-    SkASSERT(false);
+    NOTREACHED();
     use_brush = false;
   }
 
@@ -459,7 +461,7 @@ bool VectorDevice::CreatePen(bool use_pen, const SkPaint& paint) {
   // Make sure that for transparent color, no pen is used.
   if (paint.getAlpha() == 0) {
     // Test if it ever happen.
-    SkASSERT(false);
+    NOTREACHED();
     use_pen = false;
   }
 
@@ -478,7 +480,7 @@ bool VectorDevice::CreatePen(bool use_pen, const SkPaint& paint) {
       pen_style |= PS_JOIN_BEVEL;
       break;
     default:
-      SkASSERT(false);
+      NOTREACHED();
       break;
   }
   switch (paint.getStrokeCap()) {
@@ -495,7 +497,7 @@ bool VectorDevice::CreatePen(bool use_pen, const SkPaint& paint) {
       pen_style |= PS_ENDCAP_SQUARE;
       break;
     default:
-      SkASSERT(false);
+      NOTREACHED();
       break;
   }
 
@@ -508,7 +510,7 @@ bool VectorDevice::CreatePen(bool use_pen, const SkPaint& paint) {
 
 void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
                                       const SkPaint& paint) {
-  unsigned char alpha = paint.getAlpha();
+  uint8 alpha = paint.getAlpha();
   if (alpha == 0)
     return;
 
@@ -535,10 +537,10 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
   gfx::CreateBitmapV4Header(src_size_x, src_size_y, &bitmap_header);
   HDC dc = getBitmapDC();
   SkAutoLockPixels lock(bitmap);
-  SkASSERT(bitmap.getConfig() == SkBitmap::kARGB_8888_Config);
+  DCHECK_EQ(bitmap.getConfig(), SkBitmap::kARGB_8888_Config);
   const uint32_t* pixels = static_cast<const uint32_t*>(bitmap.getPixels());
   if (pixels == NULL) {
-    SkASSERT(false);
+    NOTREACHED();
     return;
   }
 
@@ -560,14 +562,15 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
   gfx::CreateBitmapHeader(src_size_x, src_size_y, &hdr);
   if (is_translucent) {
     // The image must be loaded as a bitmap inside a device context.
-    HDC bitmap_dc = ::CreateCompatibleDC(dc);
+    ScopedHDC bitmap_dc(::CreateCompatibleDC(dc));
     void* bits = NULL;
-    HBITMAP hbitmap = ::CreateDIBSection(
+    ScopedBitmap hbitmap(::CreateDIBSection(
         bitmap_dc, reinterpret_cast<const BITMAPINFO*>(&hdr),
-        DIB_RGB_COLORS, &bits, NULL, 0);
+        DIB_RGB_COLORS, &bits, NULL, 0));
     memcpy(bits, pixels, bitmap.getSize());
-    SkASSERT(hbitmap);
+    DCHECK(hbitmap);
     HGDIOBJ old_bitmap = ::SelectObject(bitmap_dc, hbitmap);
+    DeleteObject(old_bitmap);
 
     // After some analysis of IE7's behavior, this is the thing to do. I was
     // sure IE7 was doing so kind of bitmasking due to the way translucent image
@@ -577,7 +580,7 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
     // what the driver expects.
     DWORD previous_mode = GetStretchBltMode(dc);
     BOOL result = SetStretchBltMode(dc, COLORONCOLOR);
-    SkASSERT(result);
+    DCHECK(result);
     // Note that this function expect premultiplied colors (!)
     BLENDFUNCTION blend_function = {AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA};
     result = GdiAlphaBlend(dc,
@@ -587,13 +590,9 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
                            0, 0,  // Source origin.
                            src_size_x, src_size_y,  // Source size.
                            blend_function);
-    SkASSERT(result);
+    DCHECK(result);
     result = SetStretchBltMode(dc, previous_mode);
-    SkASSERT(result);
-
-    ::SelectObject(bitmap_dc, static_cast<HBITMAP>(old_bitmap));
-    DeleteObject(hbitmap);
-    DeleteDC(bitmap_dc);
+    DCHECK(result);
   } else {
     BOOL result = StretchDIBits(dc,
                                 x, y,  // Destination origin.
@@ -604,7 +603,7 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
                                 reinterpret_cast<const BITMAPINFO*>(&hdr),
                                 DIB_RGB_COLORS,
                                 SRCCOPY);
-    SkASSERT(result);
+    DCHECK(result);
   }
   Cleanup();
 }
