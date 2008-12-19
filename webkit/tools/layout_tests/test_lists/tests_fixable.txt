@@ -1163,6 +1163,7 @@ LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX WIN : LayoutTests/fast/text/drawBidiText.html = FAIL
+LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
@@ -1528,6 +1529,7 @@ MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // history
 MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS FAIL
 
 // selection
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
