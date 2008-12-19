@@ -76,7 +76,7 @@ class HostResolver::Request :
         error_(OK),
         results_(NULL) {
   }
-  
+
   ~Request() {
     if (results_)
       freeaddrinfo(results_);
@@ -97,7 +97,7 @@ class HostResolver::Request :
         reply = NULL;
       }
     }
-    
+
     // Does nothing if it got posted.
     delete reply;
   }
@@ -129,7 +129,7 @@ class HostResolver::Request :
     AutoLock locked(origin_loop_lock_);
     origin_loop_ = NULL;
   }
-  
+
  private:
   // Set on the origin thread, read on the worker thread.
   std::string host_;
