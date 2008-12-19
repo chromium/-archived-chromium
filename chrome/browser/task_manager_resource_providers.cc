@@ -85,12 +85,9 @@ TaskManager::Resource* TaskManagerWebContentsResourceProvider::GetResource(
     int render_process_host_id,
     int routing_id) {
 
-  TabContents* tab_contents =
-      tab_util::GetTabContentsByID(render_process_host_id, routing_id);
-  if (!tab_contents)  // Not one of our resource.
-    return NULL;
-  WebContents* web_contents = tab_contents->AsWebContents();
-  if (!web_contents)
+  WebContents* web_contents =
+      tab_util::GetWebContentsByID(render_process_host_id, routing_id);
+  if (!web_contents)  // Not one of our resource.
     return NULL;
 
   if (!web_contents->process()->process().handle()) {

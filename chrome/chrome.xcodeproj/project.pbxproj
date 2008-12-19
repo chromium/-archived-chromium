@@ -93,7 +93,6 @@
 		4D7BFAEF0E9D49E7009A6919 /* chunk_range.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD10E9D49DE009A6919 /* chunk_range.cc */; };
 		4D7BFAF10E9D49EB009A6919 /* protocol_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD80E9D49DE009A6919 /* protocol_parser.cc */; };
 		4D7BFAF30E9D49EF009A6919 /* safe_browsing_database.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADD0E9D49DE009A6919 /* safe_browsing_database.cc */; };
-		4D7BFAF40E9D49F3009A6919 /* safe_browsing_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE50E9D49DE009A6919 /* safe_browsing_service.cc */; };
 		4D7BFAF60E9D49F6009A6919 /* safe_browsing_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE70E9D49DE009A6919 /* safe_browsing_util.cc */; };
 		4D7BFB350E9D4C18009A6919 /* chrome_thread_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8610E9D4839009A6919 /* chrome_thread_unittest.cc */; };
 		4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9F80E9D48F7009A6919 /* history_types_unittest.cc */; };
@@ -3173,7 +3172,6 @@
 				4D7BFAF30E9D49EF009A6919 /* safe_browsing_database.cc in Sources */,
 				E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */,
 				E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */,
-				4D7BFAF40E9D49F3009A6919 /* safe_browsing_service.cc in Sources */,
 				4D7BFAF60E9D49F6009A6919 /* safe_browsing_util.cc in Sources */,
 				4D7BF9E10E9D48D6009A6919 /* save_file.cc in Sources */,
 				E4F324650EE5D082002533CE /* sdch_dictionary_fetcher.cc in Sources */,

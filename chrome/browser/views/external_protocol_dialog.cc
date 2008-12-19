@@ -10,7 +10,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/tab_util.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
@@ -31,10 +31,10 @@ const int kMessageWidth = 400;
 void ExternalProtocolDialog::RunExternalProtocolDialog(
     const GURL& url, const std::wstring& command, int render_process_host_id,
     int routing_id) {
-  TabContents* tab_contents = tab_util::GetTabContentsByID(
+  WebContents* web_contents = tab_util::GetWebContentsByID(
       render_process_host_id, routing_id);
   ExternalProtocolDialog* handler =
-      new ExternalProtocolDialog(tab_contents, url, command);
+      new ExternalProtocolDialog(web_contents, url, command);
 }
 
 ExternalProtocolDialog::~ExternalProtocolDialog() {

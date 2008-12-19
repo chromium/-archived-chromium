@@ -215,14 +215,10 @@ void SaveFileManager::RemoveSaveFile(int save_id, const std::wstring& save_url,
 // only on the UI thread.
 SavePackage* SaveFileManager::GetSavePackageFromRenderIds(
     int render_process_id, int render_view_id) {
-  TabContents* contents = tab_util::GetTabContentsByID(render_process_id,
+  WebContents* contents = tab_util::GetWebContentsByID(render_process_id,
                                                        render_view_id);
-  if (contents && contents->type() == TAB_CONTENTS_WEB) {
-    // Convert const pointer of WebContents to pointer of WebContents.
-    const WebContents* web_contents = contents->AsWebContents();
-    if (web_contents)
-      return web_contents->save_package();
-  }
+  if (contents)
+    return contents->save_package();
 
   return NULL;
 }

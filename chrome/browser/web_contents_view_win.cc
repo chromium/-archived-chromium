@@ -10,6 +10,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_request_manager.h"
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/render_view_context_menu.h"
 #include "chrome/browser/render_view_context_menu_controller.h"
 #include "chrome/browser/render_view_host.h"
@@ -595,6 +596,8 @@ void WebContentsViewWin::WasShown() {
 }
 
 void WebContentsViewWin::WasSized(const gfx::Size& size) {
+  if (web_contents_->interstitial_page())
+    web_contents_->interstitial_page()->SetSize(size);
   if (web_contents_->render_widget_host_view())
     web_contents_->render_widget_host_view()->SetSize(size);
   if (find_bar_.get())

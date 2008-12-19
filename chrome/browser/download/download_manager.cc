@@ -618,7 +618,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
 
-    TabContents* contents = tab_util::GetTabContentsByID(
+    WebContents* contents = tab_util::GetWebContentsByID(
         info->render_process_id, info->render_view_id);
     std::wstring filter = win_util::GetFileFilterFromPath(info->suggested_path);
     HWND owning_hwnd =
@@ -1308,7 +1308,7 @@ void DownloadManager::OnCreateDownloadEntryComplete(DownloadCreateInfo info,
   // this start completion event. If it does, tell the origin WebContents to
   // display its download shelf.
   TabContents* contents =
-      tab_util::GetTabContentsByID(info.render_process_id, info.render_view_id);
+      tab_util::GetWebContentsByID(info.render_process_id, info.render_view_id);
 
   // If the contents no longer exists or is no longer active, we start the
   // download in the last active browser. This is not ideal but better than

@@ -22,8 +22,8 @@ class RenderWidgetHostView;
 class SiteInstance;
 
 // Manages RenderViewHosts for a WebContents. Normally there is only one and
-// it is easy to do. But we can also have interstitial pages and transitions
-// of processes (and hence RenderViewHosts) that can get very complex.
+// it is easy to do. But we can also have transitions of processes (and hence
+// RenderViewHosts) that can get complex.
 class RenderViewHostManager {
  public:
   // Functions implemented by our owner that we need.
@@ -101,9 +101,9 @@ class RenderViewHostManager {
   // page to stop loading.
   void Stop();
 
-  // Notifies all RenderViewHosts (regular, interstitials, etc.) that a load is
-  // or is not happening. Even though the message is only for one of them, we
-  // don't know which one so we tell them all.
+  // Notifies the regular and pending RenderViewHosts that a load is or is not
+  // happening. Even though the message is only for one of them, we don't know
+  // which one so we tell both.
   void SetIsLoading(bool is_loading);
 
   // Whether to close the tab or not when there is a hang during an unload
@@ -111,8 +111,7 @@ class RenderViewHostManager {
   // with the navigation instead of closing the tab.
   bool ShouldCloseTabOnUnresponsiveRenderer();
 
-  // Called when a renderer's main frame navigates. This handles all the logic
-  // associated with interstitial management.
+  // Called when a renderer's main frame navigates.
   void DidNavigateMainFrame(RenderViewHost* render_view_host);
 
   // Allows the WebContents to react when a cross-site response is ready to be
@@ -128,98 +127,34 @@ class RenderViewHostManager {
   // WebContents.
   void ShouldClosePage(bool proceed);
 
-  // Displays an interstitial page in the current page. This method can be used
-  // to show temporary pages (such as security error pages).  It can be hidden
-  // by calling HideInterstitialPage, in which case the original page is
-  // restored.  The passed InterstitialPage is owned by the caller and must
-  // remain valid while the interstitial page is shown.
-  void ShowInterstitialPage(InterstitialPage* interstitial_page);
-
-  // Reverts from the interstitial page to the original page.
-  // If |wait_for_navigation| is true, the interstitial page is removed when
-  // the original page has transitioned to the new contents.  This is useful
-  // when you want to hide the interstitial page as you navigate to a new page.
-  // Hiding the interstitial page right away would show the previous displayed
-  // page.  If |proceed| is true, the WebContents will expect the navigation
-  // to complete.  If not, it will revert to the last shown page.
-  void HideInterstitialPage(bool wait_for_navigation,
-                            bool proceed);
-
-  // Returns true if the given render view host is an interstitial.
-  bool IsRenderViewInterstitial(const RenderViewHost* render_view_host) const;
-
-  // Forwards the message to the RenderViewHost, which is the original one,
-  // not any interstitial that may be showing.
+  // Forwards the message to the RenderViewHost, which is the original one.
   void OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                     bool success,
                                     const std::wstring& prompt);
 
-  // Are we showing the POST interstitial page?
-  //
-  // NOTE: the POST interstitial does NOT result in a separate RenderViewHost.
-  bool showing_repost_interstitial() const {
-    return showing_repost_interstitial_;
-  }
-  void set_showing_repost_interstitial(bool showing) {
-    showing_repost_interstitial_ = showing;
-  }
-
-  // Returns whether we are currently showing an interstitial page.
-  bool showing_interstitial_page() const {
-    return (renderer_state_ == INTERSTITIAL) ||
-        (renderer_state_ == LEAVING_INTERSTITIAL);
+  // Sets the passed passed interstitial as the currently showing interstitial.
+  // |interstitial_page| should be non NULL (use the remove_interstitial_page
+  // method to unset the interstitial) and no interstitial page should be set
+  // when there is already a non NULL interstitial page set.
+  void set_interstitial_page(InterstitialPage* interstitial_page) {
+    DCHECK(!interstitial_page_ && interstitial_page);
+    interstitial_page_ = interstitial_page;
   }
 
-  // Accessors to the the interstitial page.
+  // Unsets the currently showing interstitial.
+  void remove_interstitial_page() {
+    DCHECK(interstitial_page_);
+    interstitial_page_ = NULL;
+  }
+
+  // Returns the currently showing interstitial, NULL if no interstitial is
+  // showing.
   InterstitialPage* interstitial_page() const {
     return interstitial_page_;
   }
 
  private:
   friend class TestWebContents;
-
-  // RenderViewHost states. These states represent whether a cross-site
-  // request is pending (in the new process model) and whether an interstitial
-  // page is being shown. These are public to give easy access to unit tests.
-  enum RendererState {
-    // NORMAL: just showing a page normally.
-    // render_view_host_ is showing a page.
-    // pending_render_view_host_ is NULL.
-    // original_render_view_host_ is NULL.
-    // interstitial_render_view_host_ is NULL.
-    NORMAL = 0,
-
-    // PENDING: creating a new RenderViewHost for a cross-site navigation.
-    // Never used when --process-per-tab is specified.
-    // render_view_host_ is showing a page.
-    // pending_render_view_host_ is loading a page in the background.
-    // original_render_view_host_ is NULL.
-    // interstitial_render_view_host_ is NULL.
-    PENDING,
-
-    // ENTERING_INTERSTITIAL: an interstitial RenderViewHost has been created.
-    // and will be shown as soon as it calls DidNavigate.
-    // render_view_host_ is showing a page.
-    // pending_render_view_host_ is either NULL or suspended in the background.
-    // original_render_view_host_ is NULL.
-    // interstitial_render_view_host_ is loading in the background.
-    ENTERING_INTERSTITIAL,
-
-    // INTERSTITIAL: Showing an interstitial page.
-    // render_view_host_ is showing the interstitial.
-    // pending_render_view_host_ is either NULL or suspended in the background.
-    // original_render_view_host_ is the hidden original page.
-    // interstitial_render_view_host_ is NULL.
-    INTERSTITIAL,
-
-    // LEAVING_INTERSTITIAL: interstitial is still showing, but we are
-    // navigating to a new page that will replace it.
-    // render_view_host_ is showing the interstitial.
-    // pending_render_view_host_ is either NULL or loading a page.
-    // original_render_view_host_ is hidden and possibly loading a page.
-    // interstitial_render_view_host_ is NULL.
-    LEAVING_INTERSTITIAL
-  };
 
   // Returns whether this tab should transition to a new renderer for
   // cross-site URLs.  Enabled unless we see the --process-per-tab command line
@@ -251,21 +186,13 @@ class RenderViewHostManager {
   void SwapToRenderView(RenderViewHost** new_render_view_host,
                         bool destroy_after);
 
+  // Helper method to terminate the pending RenderViewHost.
+  void CancelPendingRenderView();
+
   RenderViewHost* UpdateRendererStateNavigate(const NavigationEntry& entry);
-
-  // Prevent the interstitial page from proceeding after we start navigating
-  // away from it.  If |stop_request| is true, abort the pending requests
-  // immediately, because we are navigating away.
-  void DisableInterstitialProceed(bool stop_request);
-
-  // Cleans up after an interstitial page is hidden.
-  void InterstitialPageGone();
 
   // Our delegate, not owned by us. Guaranteed non-NULL.
   Delegate* delegate_;
-
-  // See RendererState definition above.
-  RendererState renderer_state_;
 
   // Allows tests to create their own render view host types.
   RenderViewHostFactory* render_view_factory_;
@@ -275,31 +202,19 @@ class RenderViewHostManager {
   RenderViewHostDelegate* render_view_delegate_;
 
   // Our RenderView host. This object is responsible for all communication with
-  // a child RenderView instance.  Note that this can be the page render view
-  // host or the interstitial RenderViewHost if the RendererState is
-  // INTERSTITIAL or LEAVING_INTERSTITIAL.
+  // a child RenderView instance.
   RenderViewHost* render_view_host_;
 
-  // This var holds the original RenderViewHost when the interstitial page is
-  // showing (the RendererState is INTERSTITIAL or LEAVING_INTERSTITIAL).  It
-  // is NULL otherwise.
-  RenderViewHost* original_render_view_host_;
-
-  // The RenderViewHost of the interstitial page.  This is non NULL when the
-  // the RendererState is ENTERING_INTERSTITIAL.
-  RenderViewHost* interstitial_render_view_host_;
-
   // A RenderViewHost used to load a cross-site page.  This remains hidden
-  // during the PENDING RendererState until it calls DidNavigate.  It can also
-  // exist if an interstitial page is shown.
+  // while a cross-site request is pending until it calls DidNavigate.
   RenderViewHost* pending_render_view_host_;
 
   // The intersitial page currently shown if any, not own by this class
   // (the InterstitialPage is self-owned, it deletes itself when hidden).
   InterstitialPage* interstitial_page_;
 
-  // See comment above showing_repost_interstitial().
-  bool showing_repost_interstitial_;
+  // Whether a cross-site request is pending (in the new process model).
+  bool cross_navigation_pending_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHostManager);
 };

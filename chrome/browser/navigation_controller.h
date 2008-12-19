@@ -51,8 +51,7 @@ class NavigationController {
         : entry(NULL),
           is_auto(false),
           is_in_page(false),
-          is_main_frame(true),
-          is_interstitial(false) {
+          is_main_frame(true) {
     }
 
     // The committed entry. This will be the active entry in the controller.
@@ -84,10 +83,6 @@ class NavigationController {
     // True when the main frame was navigated. False means the navigation was a
     // sub-frame.
     bool is_main_frame;
-
-    // True when this navigation is for an interstitial page. Many consumers
-    // won't care about interstitial loads.
-    bool is_interstitial;
 
     // Whether the content of this frame has been altered/blocked because it was
     // unsafe.
@@ -325,7 +320,6 @@ class NavigationController {
   // In the case that nothing has changed, the details structure is undefined
   // and it will return false.
   bool RendererDidNavigate(const ViewHostMsg_FrameNavigate_Params& params,
-                           bool is_interstitial,
                            LoadCommittedDetails* details);
 
   // Notifies us that we just became active. This is used by the TabContents
