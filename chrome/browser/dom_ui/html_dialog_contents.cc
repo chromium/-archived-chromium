@@ -60,14 +60,14 @@ std::string GetJsonResponse(const Value* content) {
     return "";
   }
 
-  std::wstring result;
+  std::string result;
   Value* value = NULL;
   if (!args->Get(0, &value) || !value->GetAsString(&result)) {
     NOTREACHED();
     return "";
   }
 
-  return WideToASCII(result);
+  return result;
 }
 
 void HtmlDialogContents::OnDialogClosed(const Value* content) {
