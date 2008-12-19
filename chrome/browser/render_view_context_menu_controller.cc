@@ -459,13 +459,14 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
           params_.misspelled_word);
       break;
 
-    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
-      views::Window::CreateChromeWindow(
-          source_web_contents_->GetContentHWND(),
-          gfx::Rect(),
-          new FontsLanguagesWindowView(
-              source_web_contents_->profile()))->Show();
+    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS: {
+      FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
+          source_web_contents_->profile());
+      views::Window::CreateChromeWindow(source_web_contents_->GetContentHWND(),
+                                        gfx::Rect(), window_)->Show();
+      window_->SelectLanguagesTab();
       break;
+    }
 
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.
     default:

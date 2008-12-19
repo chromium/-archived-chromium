@@ -37,6 +37,9 @@ class FontsLanguagesWindowView : public views::View,
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
+  // Selects the Languages tab.
+  void SelectLanguagesTab();
+
  protected:
   // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,

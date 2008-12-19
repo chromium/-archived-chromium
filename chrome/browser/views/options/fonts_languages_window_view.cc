@@ -73,6 +73,10 @@ gfx::Size FontsLanguagesWindowView::GetPreferredSize() {
       IDS_FONTSLANG_DIALOG_HEIGHT_LINES));
 }
 
+void FontsLanguagesWindowView::SelectLanguagesTab() {
+  tabs_->SelectTabForContents(languages_page_);
+}
+
 void FontsLanguagesWindowView::ViewHierarchyChanged(
     bool is_add, views::View* parent, views::View* child) {
   // Can't init before we're inserted into a Container, because we require
@@ -89,11 +93,11 @@ void FontsLanguagesWindowView::Init() {
   AddChildView(tabs_);
 
   fonts_page_ = new FontsPageView(profile_);
-  tabs_->AddTabAtIndex(0, l10n_util::GetString(
-      IDS_FONT_LANGUAGE_SETTING_FONT_TAB_TITLE), fonts_page_, true);
+  tabs_->AddTab(l10n_util::GetString(
+      IDS_FONT_LANGUAGE_SETTING_FONT_TAB_TITLE), fonts_page_);
 
   languages_page_ = new LanguagesPageView(profile_);
-  tabs_->AddTabAtIndex(1, l10n_util::GetString(
-      IDS_FONT_LANGUAGE_SETTING_LANGUAGES_TAB_TITLE), languages_page_, true);
+  tabs_->AddTab(l10n_util::GetString(
+      IDS_FONT_LANGUAGE_SETTING_LANGUAGES_TAB_TITLE), languages_page_);
 }
 

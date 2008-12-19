@@ -127,9 +127,13 @@ View* TabbedPane::RemoveTabAtIndex(int index) {
 }
 
 void TabbedPane::SelectTabAt(int index) {
-  DCHECK(index < static_cast<int>(tab_views_.size()));
+  DCHECK((index >= 0) && (index < static_cast<int>(tab_views_.size())));
   TabCtrl_SetCurSel(tab_control_, index);
   DoSelectTabAt(index);
+}
+
+void TabbedPane::SelectTabForContents(const View* contents) {
+  SelectTabAt(GetIndexForContents(contents));
 }
 
 int TabbedPane::GetTabCount() {
@@ -214,6 +218,13 @@ void TabbedPane::DoSelectTabAt(int index) {
   content_root->Layout();
   if (listener_)
     listener_->TabSelectedAt(index);
+}
+
+int TabbedPane::GetIndexForContents(const View* contents) const {
+  std::vector<View*>::const_iterator i =
+      std::find(tab_views_.begin(), tab_views_.end(), contents);
+  DCHECK(i != tab_views_.end());
+  return static_cast<int>(i - tab_views_.begin());
 }
 
 void TabbedPane::Layout() {
