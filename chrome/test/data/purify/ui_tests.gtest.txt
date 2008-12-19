@@ -1,0 +1,9 @@
+# Fails in cache_uitest.cc:69. Increasing the timeouts doesn't seem to help.
+CacheTest.Private
+CacheTest.Public
+
+# These tests seem to stall out and not complete. Adjusting various timeouts
+# didn't seem to help, but more investigation is needed.
+UnloadTest.BrowserCloseBeforeUnloadOK
+UnloadTest.BrowserCloseBeforeUnloadCancel
+
