@@ -6,6 +6,9 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/frame/browser_view.h"
 
 namespace {
@@ -82,6 +85,25 @@ bool IsCloseToMonitorPoint(const gfx::Point& screen_loc,
   int max_delta_y = abs(screen_loc.y() - y);
   *in_enable_area = (*in_enable_area || (max_delta_y < kMaximizeEnableDeltaY));
   return *in_enable_area || (max_delta_y < kMaximizeHotSpotDeltaY);
+}
+
+// Returns true if there is a maximized tabbed browser on the monitor
+// |monitor|.
+bool IsMaximizedTabbedBrowserOnMonitor(HMONITOR monitor) {
+  for (BrowserList::const_iterator i = BrowserList::begin();
+       i != BrowserList::end(); ++i) {
+    Browser* browser = *i;
+    if (browser->type() == Browser::TYPE_NORMAL) {
+      HWND browser_hwnd =
+          reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
+      if (IsZoomed(browser_hwnd) &&
+          MonitorFromWindow(browser_hwnd, MONITOR_DEFAULTTONEAREST) ==
+          monitor) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 // BaseWindowFinder -----------------------------------------------------------
@@ -320,13 +342,13 @@ DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
   int mid_y = (m_bounds.top + m_bounds.bottom) / 2;
 
   bool result = 
-      info.CheckMonitorPoint(screen_point, mid_x, m_bounds.top,
+      info.CheckMonitorPoint(monitor, screen_point, mid_x, m_bounds.top,
                              DockInfo::MAXIMIZE) ||
-      info.CheckMonitorPoint(screen_point, mid_x, m_bounds.bottom,
+      info.CheckMonitorPoint(monitor, screen_point, mid_x, m_bounds.bottom,
                              DockInfo::BOTTOM_HALF) ||
-      info.CheckMonitorPoint(screen_point, m_bounds.left, mid_y,
+      info.CheckMonitorPoint(monitor, screen_point, m_bounds.left, mid_y,
                              DockInfo::LEFT_HALF) ||
-      info.CheckMonitorPoint(screen_point, m_bounds.right, mid_y,
+      info.CheckMonitorPoint(monitor, screen_point, m_bounds.right, mid_y,
                              DockInfo::RIGHT_HALF);
 
   return info;
@@ -468,11 +490,14 @@ void DockInfo::AdjustOtherWindowBounds() const {
                  SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 }
 
-bool DockInfo::CheckMonitorPoint(const gfx::Point& screen_loc,
+bool DockInfo::CheckMonitorPoint(HMONITOR monitor,
+                                 const gfx::Point& screen_loc,
                                  int x,
                                  int y,
                                  Type type) {
-  if (IsCloseToMonitorPoint(screen_loc, x, y, type, &in_enable_area_)) {
+  if (IsCloseToMonitorPoint(screen_loc, x, y, type, &in_enable_area_) &&
+      (type != MAXIMIZE ||
+       !IsMaximizedTabbedBrowserOnMonitor(monitor))) {
     hot_spot_.SetPoint(x, y);
     type_ = type;
     return true;

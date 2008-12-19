@@ -119,8 +119,10 @@ class DockInfo {
 
   // If screen_loc is close enough to the hot spot given by |x| and |y|, the
   // type and hot_spot are set from the supplied parameters. This is used
-  // internally, there is no need to invoke this otherwise.
-  bool CheckMonitorPoint(const gfx::Point& screen_loc,
+  // internally, there is no need to invoke this otherwise. |monitor| gives the
+  // monitor the location is on.
+  bool CheckMonitorPoint(HMONITOR monitor,
+                         const gfx::Point& screen_loc,
                          int x,
                          int y,
                          Type type);
