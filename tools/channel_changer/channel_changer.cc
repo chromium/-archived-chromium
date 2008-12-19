@@ -41,8 +41,13 @@ HKEY registry_hive = 0;
 std::wstring update_branch;
 
 // The Google Update key to read to find out which branch you are on.
-static const wchar_t* const kGoogleUpdateKey =
+static const wchar_t* const kChromeClientStateKey =
     L"Software\\Google\\Update\\ClientState\\"
+    L"{8A69D345-D564-463C-AFF1-A69D9E530F96}";
+
+// The Google Client key to read to find out which branch you are on.
+static const wchar_t* const kChromeClientsKey =
+    L"Software\\Google\\Update\\Clients\\"
     L"{8A69D345-D564-463C-AFF1-A69D9E530F96}";
 
 // The Google Update value that defines which branch you are on.
@@ -65,32 +70,41 @@ static const wchar_t* const kElevationParam = L"--elevation-attempt";
 // The icon to use.
 static HICON dlg_icon = NULL;
 
+// We need to detect which update branch the user is on. We do this by checking
+// under the Google Update 'Clients\<Chrome GUID>' key for HKLM (for
+// system-level installs) and then HKCU (for user-level installs). Once we find
+// the right registry hive, we read the current value of the 'ap' key under
+// Google Update 'ClientState\<Chrome GUID>' key.
 void DetectBranch() {
-  // See if we can find the 'ap' key on the HKCU branch.
-  registry_hive = HKEY_CURRENT_USER;
-  RegKey google_update_hkcu(registry_hive, kGoogleUpdateKey, KEY_READ);
-  if (!google_update_hkcu.Valid() ||
-      !google_update_hkcu.ReadValue(kBranchKey, &update_branch)) {
-    // HKCU failed us, try the same for the HKLM branch.
-    registry_hive = HKEY_LOCAL_MACHINE;
-    RegKey google_update_hklm(registry_hive, kGoogleUpdateKey, KEY_READ);
-    if (!google_update_hklm.Valid() ||
-        !google_update_hklm.ReadValue(kBranchKey, &update_branch)) {
-      // HKLM also failed us! "Set condition 1 throughout the ship!"
-      registry_hive = 0;  // Failed to find the 'ap' key.
+  // See if we can find the Clients key on the HKLM branch.
+  registry_hive = HKEY_LOCAL_MACHINE;
+  RegKey google_update_hklm(registry_hive, kChromeClientsKey, KEY_READ);
+  if (!google_update_hklm.Valid()) {
+    // HKLM failed us, try the same for the HKCU branch.
+    registry_hive = HKEY_CURRENT_USER;
+    RegKey google_update_hkcu(registry_hive, kChromeClientsKey, KEY_READ);
+    if (!google_update_hkcu.Valid()) {
+      // HKCU also failed us! "Set condition 1 throughout the ship!"
+      registry_hive = 0;  // Failed to find Google Update Chrome key.
       update_branch = kBranchStrings[UNKNOWN_BRANCH];
     }
   }
 
-  // We look for '1.1-beta' or '1.1-dev', but Google Update might have added
-  // '-full' to the channel name, which we need to strip out to determine what
-  // channel you are on.
-  std::wstring suffix = kChannelSuffix;
-  if (update_branch.length() > suffix.length()) {
-    size_t index = update_branch.rfind(suffix);
-    if (index != std::wstring::npos &&
-        index == update_branch.length() - suffix.length()) {
-      update_branch = update_branch.substr(0, index);
+  if (registry_hive != 0) {
+    // Now that we know which hive to use, read the 'ap' key from it.
+    RegKey client_state(registry_hive, kChromeClientStateKey, KEY_READ);
+    client_state.ReadValue(kBranchKey, &update_branch);
+
+    // We look for '1.1-beta' or '1.1-dev', but Google Update might have added
+    // '-full' to the channel name, which we need to strip out to determine what
+    // channel you are on.
+    std::wstring suffix = kChannelSuffix;
+    if (update_branch.length() > suffix.length()) {
+      size_t index = update_branch.rfind(suffix);
+      if (index != std::wstring::npos &&
+          index == update_branch.length() - suffix.length()) {
+        update_branch = update_branch.substr(0, index);
+      }
     }
   }
 }
@@ -169,7 +183,7 @@ void SaveChanges(HWND dialog) {
     branch = DEV_BRANCH;
 
   if (branch != UNKNOWN_BRANCH) {
-    RegKey google_update(registry_hive, kGoogleUpdateKey, KEY_WRITE);
+    RegKey google_update(registry_hive, kChromeClientStateKey, KEY_WRITE);
     if (!google_update.WriteValue(kBranchKey, kBranchStrings[branch])) {
       MessageBox(dialog, L"Unable to change value. Please make sure you\n"
                          L"have permission to change registry keys.",
