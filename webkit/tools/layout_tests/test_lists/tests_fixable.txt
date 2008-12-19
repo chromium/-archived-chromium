@@ -1523,6 +1523,12 @@ MAC : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
 MAC : LayoutTests/fast/forms/button-spacebar-click.html = FAIL
 MAC : LayoutTests/fast/forms/focus-control-to-page.html = FAIL
 
+// event failures
+MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
+
+// history
+MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
+
 // selection
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
 MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
