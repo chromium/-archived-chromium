@@ -1770,7 +1770,7 @@ MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAI
 // Missing expected results.
 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
 
-// Merge 39309:39335 Regressions
+// Merge 39309:39335 Regressions, see bug 5737
 LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
@@ -1778,7 +1778,7 @@ LINUX WIN : LayoutTests/fast/forms/control-clip.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 
-// Merge 39309:39335 New Test
+// Merge 39309:39335 New Test, see bug 5725
 LayoutTests/fast/dom/Window/window-custom-prototype.html = FAIL
 
 // Background SVGs fail upstream but were rebaselined to pass (r38335)
