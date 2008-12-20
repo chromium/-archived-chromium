@@ -151,7 +151,7 @@ class DnsMaster {
   bool PreLockedCreateNewSlaveIfNeeded();  // Lazy slave processes creation.
 
   // Number of slave processes started early (to help with startup prefetch).
-  static const int kSlaveCountMin = 4;
+  static const size_t kSlaveCountMin = 4;
 
   // Synchronize access to results_, referrers_, and slave control data.
   Lock lock_;
