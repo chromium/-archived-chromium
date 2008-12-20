@@ -49,6 +49,15 @@ QUANTIFYW_PATH = os.path.join(PPLUS_PATH, "quantifyw.exe")
 class TimeoutError(Exception): pass
 
 
+def _print_line(line, flush=True):
+  # Printing to a text file (including stdout) on Windows always winds up
+  # using \r\n automatically.  On buildbot, this winds up being read by a master
+  # running on Linux, so this is a pain.  Unfortunately, it doesn't matter what
+  # we do here, so just leave this comment for future reference.
+  print line,
+  if flush:
+    sys.stdout.flush()
+
 def RunSubprocess(proc, timeout=0, detach=False):
   """ Runs a subprocess, polling every .2 seconds until it finishes or until
   timeout is reached.  Then kills the process with taskkill.  A timeout <= 0
@@ -67,14 +76,35 @@ def RunSubprocess(proc, timeout=0, detach=False):
     DETACHED_PROCESS = 0x8
     p = subprocess.Popen(proc, creationflags=DETACHED_PROCESS)
   else:
-    p = subprocess.Popen(proc)
+    # For non-detached processes, manually read and print out stdout and stderr.
+    # By default, the subprocess is supposed to inherit these from its parent,
+    # however when run under buildbot, it seems unable to read data from a
+    # grandchild process, so we have to read the child and print the data as if
+    # it came from us for buildbot to read it.  We're not sure why this is
+    # necessary.
+    # TODO(erikkay): should we buffer stderr and stdout separately?
+    p = subprocess.Popen(proc, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   if timeout <= 0:
     while p.poll() is None:
+      if not detach:
+        line = p.stdout.readline()
+        while line:
+          _print_line(line)
+          line = p.stdout.readline()
       time.sleep(0.2)
   else:
     wait_until = time.time() + timeout
     while p.poll() is None and time.time() < wait_until:
+      if not detach:
+        line = p.stdout.readline()
+        while line:
+          _print_line(line)
+          line = p.stdout.readline()
       time.sleep(0.2)
+  if not detach:
+    for line in p.stdout.readlines():
+      _print_line(line, False)
+    p.stdout.flush()
   result = p.poll()
   if result is None:
     subprocess.call(["taskkill", "/T", "/F", "/PID", str(p.pid)])
