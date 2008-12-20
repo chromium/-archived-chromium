@@ -716,8 +716,11 @@ LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
+WIN : LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
 // Size is off by 0.01.  Maybe a rounding difference?
 LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
+WIN : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
+WIN : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
 // Flaky on both release and debug. 
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
