@@ -41,7 +41,7 @@ void DomAutomationController::send(const CppArgumentList& args,
   // grabbing the 0th element to get the value out.
   switch(args[0].type) {
     case NPVariantType_String: {
-      value = Value::CreateStringValue(UTF8ToWide(args[0].ToString()));
+      value = Value::CreateStringValue(args[0].ToString());
       break;
     }
     case NPVariantType_Bool: {
