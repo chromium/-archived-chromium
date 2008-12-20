@@ -893,7 +893,11 @@ void PopupListBox::setOriginalIndex(int index)
 
 int PopupListBox::getRowHeight(int index)
 {
-    return m_popupClient->itemStyle(index).font().height();
+    if (index >= 0) {
+        return m_popupClient->itemStyle(index).font().height();
+    } else {
+        return 0;
+    }
 }
 
 IntRect PopupListBox::getRowBounds(int index)
@@ -1035,9 +1039,6 @@ void PopupListBox::layout()
         windowHeight += rowHeight;
     }
 
-    if (windowHeight == 0)
-        windowHeight = min(getRowHeight(-1), kMaxHeight);
-
     // Set our widget and scrollable contents sizes.
     int scrollbarWidth = 0;
     if (m_visibleRows < numItems())
@@ -1055,7 +1056,7 @@ void PopupListBox::layout()
 
     resize(windowWidth, windowHeight);
     setContentsSize(IntSize(contentWidth, getRowBounds(numItems() - 1).bottom()));
-    
+
     if (hostWindow())
         scrollToRevealSelection();
 
