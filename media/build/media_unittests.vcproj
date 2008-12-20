@@ -160,6 +160,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="audio"
+				>
+				<File
+					RelativePath="..\audio\win\audio_output_win_unittest.cc"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

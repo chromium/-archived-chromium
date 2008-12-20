@@ -124,7 +124,7 @@ class AudioManager {
   virtual void UnMuteAll() = 0;
 
  protected:
-  virtual ~AudioManager();
+  virtual ~AudioManager() {}
 };
 
 // Get AudioManager singleton.

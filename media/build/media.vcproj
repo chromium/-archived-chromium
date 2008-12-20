@@ -153,6 +153,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="audio"
+			>
+			<File
+				RelativePath="..\audio\audio_output.h"
+				>
+			</File>
+			<File
+				RelativePath="..\audio\win\audio_output_win.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
