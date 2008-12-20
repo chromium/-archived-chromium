@@ -9,8 +9,8 @@
 //
 // See http://dev.chromium.org/developers/design-documents/multi-process-resource-loading
 
-#ifndef CHROME_BROWSER_RESOURCE_DISPATCHER_HOST_H__
-#define CHROME_BROWSER_RESOURCE_DISPATCHER_HOST_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RESOURCE_DISPATCHER_HOST_H_
+#define CHROME_BROWSER_RENDERER_HOST_RESOURCE_DISPATCHER_HOST_H_
 
 #include <map>
 #include <string>
@@ -18,14 +18,14 @@
 #include "base/logging.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
-#include "base/shared_memory.h"
-#include "base/task.h"
 #include "base/timer.h"
+#include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/ipc_message.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_type.h"
 
+class CrossSiteResourceHandler;
 class DownloadFileManager;
 class DownloadRequestManager;
 class LoginHandler;
@@ -33,56 +33,11 @@ class MessageLoop;
 class PluginService;
 class SafeBrowsingService;
 class SaveFileManager;
-class TabContents;
 class URLRequestContext;
 struct ViewHostMsg_Resource_Request;
-struct ViewMsg_Resource_ResponseHead;
 
 class ResourceDispatcherHost : public URLRequest::Delegate {
  public:
-  // Simple wrapper that refcounts ViewMsg_Resource_ResponseHead.
-  struct Response;
-
-  // The resource dispatcher host uses this interface to push load events to the
-  // renderer, allowing for differences in the types of IPC messages generated.
-  // See the implementations of this interface defined below.
-  class EventHandler : public base::RefCounted<EventHandler> {
-   public:
-    virtual ~EventHandler() {}
-
-    // Called as upload progress is made.
-    virtual bool OnUploadProgress(int request_id,
-                                  uint64 position,
-                                  uint64 size) {
-      return true;
-    }
-
-    // The request was redirected to a new URL.
-    virtual bool OnRequestRedirected(int request_id, const GURL& url) = 0;
-
-    // Response headers and meta data are available.
-    virtual bool OnResponseStarted(int request_id, Response* response) = 0;
-
-    // Data will be read for the response.  Upon success, this method places the
-    // size and address of the buffer where the data is to be written in its
-    // out-params.  This call will be followed by either OnReadCompleted or
-    // OnResponseCompleted, at which point the buffer may be recycled.
-    virtual bool OnWillRead(int request_id,
-                            char** buf,
-                            int* buf_size,
-                            int min_size) = 0;
-
-    // Data (*bytes_read bytes) was written into the buffer provided by
-    // OnWillRead. A return value of false cancels the request, true continues
-    // reading data.
-    virtual bool OnReadCompleted(int request_id, int* bytes_read) = 0;
-
-    // The response is complete.  The final response status is given.
-    // Returns false if the handler is deferring the call to a later time.
-    virtual bool OnResponseCompleted(int request_id,
-                                     const URLRequestStatus& status) = 0;
-  };
-
   // Implemented by the client of ResourceDispatcherHost to receive messages in
   // response to a resource load.  The messages are intended to be forwarded to
   // the ResourceDispatcher in the renderer process via an IPC channel that the
@@ -97,22 +52,18 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // renderer crashes and the channel dies).
   typedef IPC::Message::Sender Receiver;
 
-  // Forward declaration of CrossSiteEventHandler, so that it can be referenced
-  // in ExtraRequestInfo.
-  class CrossSiteEventHandler;
-
   // Holds the data we would like to associate with each request
   class ExtraRequestInfo : public URLRequest::UserData {
    friend class ResourceDispatcherHost;
    public:
-    ExtraRequestInfo(EventHandler* handler,
+    ExtraRequestInfo(ResourceHandler* handler,
                      int request_id,
                      int render_process_host_id,
                      int render_view_id,
                      bool mixed_content,
                      ResourceType::Type resource_type,
                      uint64 upload_size)
-        : event_handler(handler),
+        : resource_handler(handler),
           cross_site_handler(NULL),
           login_handler(NULL),
           request_id(request_id),
@@ -133,13 +84,13 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
           paused_read_bytes(0) {
     }
 
-    // Top-level EventHandler servicing this request.
-    scoped_refptr<EventHandler> event_handler;
+    // Top-level ResourceHandler servicing this request.
+    scoped_refptr<ResourceHandler> resource_handler;
 
-    // CrossSiteEventHandler for this request, if it is a cross-site request.
-    // (NULL otherwise.)  This handler is part of the chain of EventHandlers
-    // pointed to by event_handler.
-    CrossSiteEventHandler* cross_site_handler;
+    // CrossSiteResourceHandler for this request, if it is a cross-site request.
+    // (NULL otherwise.)  This handler is part of the chain of ResourceHandlers
+    // pointed to by resource_handler.
+    CrossSiteResourceHandler* cross_site_handler;
 
     LoginHandler* login_handler;
 
@@ -361,15 +312,18 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // Retrieves a URLRequest.  Must be called from the IO thread.
   URLRequest* GetURLRequest(GlobalRequestID request_id) const;
 
+  // A test to determining whether a given request should be forwarded to the
+  // download thread.
+  bool ShouldDownload(const std::string& mime_type,
+                      const std::string& content_disposition);
+
+  // Notify our observers that a request has been cancelled.
+  void NotifyResponseCompleted(URLRequest* request, int render_process_host_id);
+
+  void RemovePendingRequest(int render_process_host_id, int request_id);
+
  private:
-  class AsyncEventHandler;
-  class BufferedEventHandler;
-  class CrossSiteNotifyTabTask;
-  class DownloadEventHandler;
-  class DownloadThrottlingEventHandler;
-  class SaveFileEventHandler;
   class ShutdownTask;
-  class SyncEventHandler;
 
   friend class ShutdownTask;
 
@@ -416,12 +370,6 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // out we have a lot of things here.
   typedef std::map<GlobalRequestID,URLRequest*> PendingRequestList;
 
-  // A test to determining whether a given request should be forwarded to the
-  // download thread.
-  bool ShouldDownload(const std::string& mime_type,
-                      const std::string& content_disposition);
-
-  void RemovePendingRequest(int render_process_host_id, int request_id);
   // Deletes the pending request identified by the iterator passed in.
   // This function will invalidate the iterator passed in. Callers should
   // not rely on this iterator being valid on return.
@@ -429,9 +377,6 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   // Notify our observers that we started receiving a response for a request.
   void NotifyResponseStarted(URLRequest* request, int render_process_host_id);
-
-  // Notify our observers that a request has been cancelled.
-  void NotifyResponseCompleted(URLRequest* request, int render_process_host_id);
 
   // Notify our observers that a request has been redirected.
   void NofityReceivedRedirect(URLRequest* request,
@@ -445,7 +390,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                               int tab_contents_id,
                               const GURL& url,
                               ResourceType::Type resource_type,
-                              EventHandler* handler);
+                              ResourceHandler* handler);
 
   void UpdateLoadStates();
 
@@ -495,7 +440,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // True if the resource dispatcher host has been shut down.
   bool is_shutdown_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ResourceDispatcherHost);
+  DISALLOW_COPY_AND_ASSIGN(ResourceDispatcherHost);
 };
 
-#endif  // CHROME_BROWSER_RESOURCE_DISPATCHER_HOST_H__
+#endif  // CHROME_BROWSER_RENDERER_HOST_RESOURCE_DISPATCHER_HOST_H_

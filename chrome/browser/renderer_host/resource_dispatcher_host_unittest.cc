@@ -6,7 +6,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/browser/renderer_security_policy.h"
-#include "chrome/browser/resource_dispatcher_host.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/render_messages.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
