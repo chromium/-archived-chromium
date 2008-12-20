@@ -1634,7 +1634,6 @@ MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
 // -----------------------------------------------------------------
 
 // WebKit Merge 38800:38850 regressions
-LayoutTests/fast/dom/HTMLDocument/document-open-return-value.html = FAIL
 LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // WebKit Merge 38850:38900 new tests
@@ -1654,7 +1653,6 @@ LayoutTests/wml/variable-reference-invalid-character.html = FAIL
 LayoutTests/wml/variable-reference-valid.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
-LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 LINUX WIN : LayoutTests/http/tests/loading/simple-subframe.html = FAIL
