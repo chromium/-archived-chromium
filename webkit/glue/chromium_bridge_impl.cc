@@ -60,6 +60,16 @@
 
 namespace {
 
+gfx::NativeView ToPlatform(WebCore::Widget* widget) {
+  if (!widget)
+    return 0;
+  PlatformWidget widget_id = widget->root()->hostWindow()->platformWindow();
+  // TODO(eseidel): This cast is a hack.  We should replace gfx::NativeView with
+  // something more abstract like PlatformWidget since webkit/glue should not
+  // know about actual native widgets.
+  return static_cast<gfx::NativeView>(widget_id);
+}
+
 #if PLATFORM(WIN_OS)
 static RECT IntRectToRECT(const WebCore::IntRect& r) {
   RECT result;
@@ -70,10 +80,6 @@ static RECT IntRectToRECT(const WebCore::IntRect& r) {
   return result;
 }
 #endif
-
-PlatformWidget ToPlatform(WebCore::Widget* widget) {
-  return widget ? widget->root()->hostWindow()->platformWindow() : 0;
-}
 
 ChromeClientImpl* ToChromeClient(WebCore::Widget* widget) {
   WebCore::FrameView* view;

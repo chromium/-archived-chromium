@@ -4,7 +4,6 @@
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -30,8 +29,10 @@
 #ifndef PlatformWidget_h
 #define PlatformWidget_h
 
-#include "base/gfx/native_widget_types.h"
+// PlatformWidget is an opaque identifier corresponding to whatever native
+// view type the embedder may use.  PlatformWidget CANNOT be assumed to be
+// a valid pointer.  Some embedders may not use this identifier at all.
 
-typedef gfx::NativeView PlatformWidget;
+typedef void* PlatformWidget;
 
 #endif

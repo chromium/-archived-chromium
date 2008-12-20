@@ -127,13 +127,18 @@ HRESULT STDMETHODCALLTYPE AccessibleBase::get_accParent(IDispatch** parent)
         return S_OK;
     }
 
-		HMODULE accessibilityLib = ::LoadLibrary(TEXT("oleacc.dll"));
+	HMODULE accessibilityLib = ::LoadLibrary(TEXT("oleacc.dll"));
 
     static LPFNACCESSIBLEOBJECTFROMWINDOW procPtr = reinterpret_cast<LPFNACCESSIBLEOBJECTFROMWINDOW>(::GetProcAddress(accessibilityLib, "AccessibleObjectFromWindow"));
-		if (!procPtr)
-		    return E_FAIL;
+    if (!procPtr)
+        return E_FAIL;
 
-		return procPtr(m_object->topDocumentFrameView()->hostWindow()->platformWindow(), OBJID_WINDOW, __uuidof(IAccessible), reinterpret_cast<void**>(parent));
+    // TODO(eseidel): platformWindow returns a void* which is an opaque
+    // identifier corresponding to the HWND WebKit is embedded in.  It happens
+    // to be the case that platformWindow is a valid HWND pointer (inaccessible
+    // from the sandboxed renderer).
+    HWND window = static_cast<HWND>(m_object->topDocumentFrameView()->hostWindow()->platformWindow());
+	return procPtr(window, OBJID_WINDOW, __uuidof(IAccessible), reinterpret_cast<void**>(parent));
 }
 
 HRESULT STDMETHODCALLTYPE AccessibleBase::get_accChildCount(long* count)
@@ -152,9 +157,9 @@ HRESULT STDMETHODCALLTYPE AccessibleBase::get_accChild(VARIANT vChild, IDispatch
         return E_POINTER;
 
     if (vChild.vt != VT_I4) {
-		    *ppChild = NULL;
-				return E_INVALIDARG;
-	  }
+        *ppChild = NULL;
+		return E_INVALIDARG;
+    }
 
     *ppChild = 0;
 
