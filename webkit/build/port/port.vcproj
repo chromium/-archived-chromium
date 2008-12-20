@@ -848,6 +848,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\ChromiumUtilsWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ChromiumUtilsWin.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\ClipboardChromium.cpp"
 					>
 				</File>

@@ -26,8 +26,6 @@
 #ifndef ThemeHelperWin_h
 #define ThemeHelperWin_h
 
-#include <windows.h>
-
 #include "AffineTransform.h"
 #include "ImageBuffer.h"
 #include "IntRect.h"
@@ -72,9 +70,7 @@ public:
     }
 
     // Returns the rectangle in which to draw into the canvas() by Windows.
-    const RECT& rect() { return m_rect; }
-
-    RECT transformRect(const RECT& r) const;
+    const IntRect& rect() { return m_rect; }
 
 private:
     Type m_type;
@@ -88,8 +84,8 @@ private:
     // represents the copy.
     OwnPtr<ImageBuffer> m_newBuffer;
 
-    // The control rectangle in the cooredinate space of canvas().
-    RECT m_rect;
+    // The control rectangle in the coordinate space of canvas().
+    IntRect m_rect;
 };
 
 }  // namespace WebCore

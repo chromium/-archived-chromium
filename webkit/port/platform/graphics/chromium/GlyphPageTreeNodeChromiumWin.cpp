@@ -1,5 +1,4 @@
-// Copyright (c) 2008, Google Inc.
-// All rights reserved.
+// Copyright (c) 2008, Google Inc. All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -32,6 +31,7 @@
 #include <vector>
 
 #include "ChromiumBridge.h"
+#include "ChromiumUtilsWin.h"
 #include "Font.h"
 #include "GlyphPageTreeNode.h"
 #include "SimpleFontData.h"
@@ -40,31 +40,17 @@
 namespace WebCore
 {
 
-static bool IsVistaOrGreater()
-{
-    // Cache the result to avoid asking every time.
-    static bool checkedVersion = false;
-    static bool isVistaOrGreater = false;
-    if (!checkedVersion) {
-        OSVERSIONINFO versionInfo;
-        versionInfo.dwOSVersionInfoSize = sizeof(versionInfo);
-        GetVersionEx(&versionInfo);
-
-        checkedVersion = true;
-        isVistaOrGreater = versionInfo.dwMajorVersion >= 6;
-    }
-    return isVistaOrGreater;
-}
-
 // Fills one page of font data pointers with NULL to indicate that there
 // are no glyphs for the characters.
-static void FillEmptyGlyphs(GlyphPage* page) {
-  for (int i = 0; i < GlyphPage::size; ++i)
-      page->setGlyphDataForIndex(i, NULL, NULL);
+static void FillEmptyGlyphs(GlyphPage* page)
+{
+    for (int i = 0; i < GlyphPage::size; ++i)
+        page->setGlyphDataForIndex(i, NULL, NULL);
 }
 
 // Lazily initializes space glyph
-static Glyph InitSpaceGlyph(HDC dc, Glyph* space_glyph) {
+static Glyph InitSpaceGlyph(HDC dc, Glyph* space_glyph)
+{
     if (*space_glyph)
         return *space_glyph;
     static wchar_t space = ' ';
@@ -85,24 +71,24 @@ static bool FillBMPGlyphs(UChar* buffer,
 
     TEXTMETRIC tm = {0};
     if (!GetTextMetrics(dc, &tm)) {
-      SelectObject(dc, old_font);
-      ReleaseDC(0, dc);
+        SelectObject(dc, old_font);
+        ReleaseDC(0, dc);
 
-      if (recurse) {
-        if (ChromiumBridge::ensureFontLoaded(fontData->m_font.hfont())) {
-          return FillBMPGlyphs(buffer, page, fontData, false);
+        if (recurse) {
+            if (ChromiumBridge::ensureFontLoaded(fontData->m_font.hfont())) {
+                return FillBMPGlyphs(buffer, page, fontData, false);
+            } else {
+                FillEmptyGlyphs(page);
+                return false;
+            }
         } else {
-          FillEmptyGlyphs(page);
-          return false;
+            // TODO(nsylvain): This should never happen. We want to crash the
+            // process and receive a crash dump. We should revisit this code later.
+            // See bug 1136944.
+            ASSERT_NOT_REACHED();
+            FillEmptyGlyphs(page);
+            return false;
         }
-      } else {
-        // TODO(nsylvain): This should never happen. We want to crash the
-        // process and receive a crash dump. We should revisit this code later.
-        // See bug 1136944.
-        ASSERT_NOT_REACHED();
-        FillEmptyGlyphs(page);
-        return false;
-      }
     }
 
     // NOTE(hbono): GetGlyphIndices() sets each item of localGlyphBuffer[]
@@ -145,8 +131,8 @@ static bool FillBMPGlyphs(UChar* buffer,
     // Copy the output to the GlyphPage
     bool have_glyphs = false;
     int invalid_glyph = 0xFFFF;
-    if (!IsVistaOrGreater() && !(tm.tmPitchAndFamily & TMPF_TRUETYPE))
-      invalid_glyph = 0x1F;
+    if (!ChromiumUtils::isVistaOrGreater() && !(tm.tmPitchAndFamily & TMPF_TRUETYPE))
+        invalid_glyph = 0x1F;
 
     Glyph space_glyph = 0;  // Glyph for a space. Lazily filled.
 

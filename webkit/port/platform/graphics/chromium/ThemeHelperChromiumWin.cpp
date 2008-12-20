@@ -24,19 +24,12 @@
  */
 
 #include "config.h"
-#include "FloatRect.h"
-#include "GraphicsContext.h"
 #include "ThemeHelperChromiumWin.h"
 
-namespace WebCore {
+#include "FloatRect.h"
+#include "GraphicsContext.h"
 
-static void IntRectToRECT(const IntRect& ir, RECT* r)
-{
-    r->left = ir.x();
-    r->top = ir.y();
-    r->right = ir.right();
-    r->bottom = ir.bottom();
-}
+namespace WebCore {
 
 ThemeHelperWin::ThemeHelperWin(GraphicsContext* context,
                                const IntRect& rect)
@@ -48,10 +41,7 @@ ThemeHelperWin::ThemeHelperWin(GraphicsContext* context,
         m_orgMatrix.c() != 0) {  // X skew
         // Complicated effects, make a copy and draw the bitmap there.
         m_type = COPY;
-        m_rect.left = 0;
-        m_rect.top = 0;
-        m_rect.right = rect.width();
-        m_rect.bottom = rect.height();
+        m_rect.setSize(rect.size());
 
         m_newBuffer.set(ImageBuffer::create(rect.size(), false).release());
 
@@ -78,7 +68,7 @@ ThemeHelperWin::ThemeHelperWin(GraphicsContext* context,
         m_type = SCALE;
 
         // Save the transformed coordinates to draw.
-        IntRectToRECT(m_orgMatrix.mapRect(rect), &m_rect);
+        m_rect = m_orgMatrix.mapRect(rect);
         
         m_orgContext->save();
         m_orgContext->concatCTM(m_orgContext->getCTM().inverse());
@@ -86,7 +76,7 @@ ThemeHelperWin::ThemeHelperWin(GraphicsContext* context,
     }
 
     // Nothing interesting.
-    IntRectToRECT(rect, &m_rect);
+    m_rect = rect;
     m_type = ORIGINAL;
 }
 
@@ -107,27 +97,6 @@ ThemeHelperWin::~ThemeHelperWin()
     case ORIGINAL:
         break;
     }
-}
-
-RECT ThemeHelperWin::transformRect(const RECT& r) const
-{
-    IntRect src(r.left, r.top, r.right - r.left, r.bottom - r.top);
-    IntRect dest;
-    switch (m_type) {
-    case SCALE:
-        dest = m_orgMatrix.mapRect(src);
-        break;
-    case COPY:
-        dest = src;
-        dest.move(-m_orgRect.x(), -m_orgRect.y());
-        break;
-    case ORIGINAL:
-        break;
-    }
-
-    RECT output;
-    IntRectToRECT(dest, &output);
-    return output;
 }
 
 }  // namespace WebCore

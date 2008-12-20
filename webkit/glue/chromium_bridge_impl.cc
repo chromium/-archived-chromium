@@ -15,6 +15,7 @@
 #include "NativeImageSkia.h"
 #include "Page.h"
 #include "PasteboardPrivate.h"
+#include "PlatformContextSkia.h"
 #include "PlatformString.h"
 #include "PlatformWidget.h"
 #include "PluginData.h"
@@ -35,6 +36,7 @@
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
+#include "skia/ext/skia_utils_win.h"
 #if USE(V8)
 #include <v8.h>
 #endif
@@ -57,6 +59,17 @@
 #endif
 
 namespace {
+
+#if PLATFORM(WIN_OS)
+static RECT IntRectToRECT(const WebCore::IntRect& r) {
+  RECT result;
+  result.left = r.x();
+  result.top = r.y();
+  result.right = r.right();
+  result.bottom = r.bottom();
+  return result;
+}
+#endif
 
 PlatformWidget ToPlatform(WebCore::Widget* widget) {
   return widget ? widget->root()->hostWindow()->platformWindow() : 0;
@@ -498,13 +511,102 @@ void ChromiumBridge::initV8CounterFunction() {
 }
 #endif
 
-// SystemTime ------------------------------------------------------------------
+// SystemTime -----------------------------------------------------------------
 // Called by SystemTimeChromium.cpp
 
 double ChromiumBridge::currentTime() {
   // Get the current time in seconds since epoch.
   return base::Time::Now().ToDoubleT();
 }
+
+// Theming --------------------------------------------------------------------
+
+#if PLATFORM(WIN_OS)
+
+void ChromiumBridge::paintButton(
+    GraphicsContext* gc, int part, int state, int classic_state,
+    const IntRect& rect) {
+  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = IntRectToRECT(rect);
+  gfx::NativeTheme::instance()->PaintButton(
+      hdc, part, state, classic_state, &native_rect);
+
+  canvas->endPlatformPaint();
+}
+
+void ChromiumBridge::paintMenuList(
+    GraphicsContext* gc, int part, int state, int classic_state,
+    const IntRect& rect) {
+  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = IntRectToRECT(rect);
+  gfx::NativeTheme::instance()->PaintMenuList(
+      hdc, part, state, classic_state, &native_rect);
+
+  canvas->endPlatformPaint();
+}
+
+void ChromiumBridge::paintScrollbarArrow(
+    GraphicsContext* gc, int state, int classic_state, const IntRect& rect) {
+  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = IntRectToRECT(rect);
+  gfx::NativeTheme::instance()->PaintScrollbarArrow(
+      hdc, state, classic_state, &native_rect);
+
+  canvas->endPlatformPaint();
+}
+
+void ChromiumBridge::paintScrollbarThumb(
+    GraphicsContext* gc, int part, int state, int classic_state,
+    const IntRect& rect) {
+  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = IntRectToRECT(rect);
+  gfx::NativeTheme::instance()->PaintScrollbarThumb(
+      hdc, part, state, classic_state, &native_rect);
+
+  canvas->endPlatformPaint();
+}
+
+void ChromiumBridge::paintScrollbarTrack(
+    GraphicsContext* gc, int part, int state, int classic_state,
+    const IntRect& rect, const IntRect& align_rect) {
+  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = IntRectToRECT(rect);
+  RECT native_align_rect = IntRectToRECT(align_rect);
+  gfx::NativeTheme::instance()->PaintScrollbarTrack(
+      hdc, part, state, classic_state, &native_rect, &native_align_rect,
+      canvas);
+
+  canvas->endPlatformPaint();
+}
+
+void ChromiumBridge::paintTextField(
+    GraphicsContext* gc, int part, int state, int classic_state,
+    const IntRect& rect, const Color& color, bool fill_content_area,
+    bool draw_edges) {
+  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = IntRectToRECT(rect);
+  COLORREF clr = skia::SkColorToCOLORREF(color.rgb());
+
+  gfx::NativeTheme::instance()->PaintTextField(
+      hdc, part, state, classic_state, &native_rect, clr, fill_content_area,
+      draw_edges);
+
+  canvas->endPlatformPaint();
+}
+
+#endif
 
 // Trace Event ----------------------------------------------------------------
 

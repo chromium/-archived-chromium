@@ -111,6 +111,7 @@ input_files = [
 if env.Bit('windows'):
   # Windows specific implementations.
   input_files.extend([
+    '$PORT_DIR/platform/chromium/ChromiumUtilsWin.cpp',
     '$PORT_DIR/platform/chromium/FileSystemChromiumWin.cpp',
     '$PORT_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
     '$PORT_DIR/platform/chromium/SoundChromiumWin.cpp',

@@ -1,5 +1,4 @@
-// Copyright (c) 2008, Google Inc.
-// All rights reserved.
+// Copyright (c) 2008, Google Inc. All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -48,9 +47,11 @@ typedef struct HFONT__* HFONT;
 #endif
 
 namespace WebCore {
+    class Color;
     class Cursor;
     class Document;
     class Frame;
+    class GraphicsContext;
     class Image;
     class IntRect;
     class KURL;
@@ -125,7 +126,7 @@ namespace WebCore {
         static IntRect screenRect(Widget*);
         static IntRect screenAvailableRect(Widget*);
 
-        // SharedTimers --------------------------------------------------------
+        // SharedTimers -------------------------------------------------------
         static void setSharedTimerFiredFunction(void (*func)());
         static void setSharedTimerFireTime(double fire_time);
         static void stopSharedTimer();
@@ -135,8 +136,24 @@ namespace WebCore {
         static void incrementStatsCounter(const char* name);
         static void initV8CounterFunction();
 
-        // SystemTime ----------------------------------------------------------
+        // SystemTime ---------------------------------------------------------
         static double currentTime();
+
+        // Theming ------------------------------------------------------------
+#if PLATFORM(WIN_OS)
+        static void paintButton(
+            GraphicsContext*, int part, int state, int classicState, const IntRect& rect);
+        static void paintMenuList(
+            GraphicsContext*, int part, int state, int classicState, const IntRect& rect);
+        static void paintScrollbarArrow(
+            GraphicsContext*, int state, int classicState, const IntRect& rect);
+        static void paintScrollbarThumb(
+            GraphicsContext*, int part, int state, int classicState, const IntRect& rect);
+        static void paintScrollbarTrack(
+            GraphicsContext*, int part, int state, int classicState, const IntRect& rect, const IntRect& alignRect);
+        static void paintTextField(
+            GraphicsContext*, int part, int state, int classicState, const IntRect& rect, const Color& color, bool fillContentArea, bool drawEdges);
+#endif
 
         // Trace Event --------------------------------------------------------
         static void traceEventBegin(const char* name, void* id, const char* extra);

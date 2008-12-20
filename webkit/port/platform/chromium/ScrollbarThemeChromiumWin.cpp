@@ -30,35 +30,20 @@
 #include <vsstyle.h>
 
 #include "ChromiumBridge.h"
+#include "ChromiumUtilsWin.h"
 #include "GraphicsContext.h"
 #include "PlatformContextSkia.h"
 #include "PlatformMouseEvent.h"
 #include "Scrollbar.h"
 
-#include "base/gfx/native_theme.h"
-#include "base/win_util.h"
-
 namespace WebCore {
+
+using ChromiumUtils::isVistaOrGreater;
 
 // The scrollbar size in DumpRenderTree on the Mac - so we can match their
 // layout results.  Entries are for regular, small, and mini scrollbars.
 // Metrics obtained using [NSScroller scrollerWidthForControlSize:]
 static const int kMacScrollbarSize[3] = { 15, 11, 15 };
-
-static bool runningVista()
-{
-    return win_util::GetWinVersion() >= win_util::WINVERSION_VISTA;
-}
-
-static RECT toRECT(const IntRect& input)
-{
-    RECT output;
-    output.left = input.x();
-    output.right = input.right();
-    output.top = input.y();
-    output.bottom = input.bottom();
-    return output;
-}
 
 int ScrollbarThemeChromium::scrollbarThickness(ScrollbarControlSize controlSize)
 {
@@ -73,17 +58,12 @@ int ScrollbarThemeChromium::scrollbarThickness(ScrollbarControlSize controlSize)
 
 bool ScrollbarThemeChromium::invalidateOnMouseEnterExit()
 {
-    return runningVista();
+    return isVistaOrGreater();
 }
 
 void ScrollbarThemeChromium::paintTrackPiece(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect, ScrollbarPart partType)
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
-
-    skia::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
-    HDC hdc = canvas->beginPlatformPaint();
-
-    RECT paintRect = toRECT(rect);
 
     int partId;
     if (partType == BackTrackPart) {
@@ -92,29 +72,21 @@ void ScrollbarThemeChromium::paintTrackPiece(GraphicsContext* gc, Scrollbar* scr
         partId = horz ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
     }
 
-    RECT alignRect = toRECT(trackRect(scrollbar, false));
+    IntRect alignRect = trackRect(scrollbar, false);
 
     // Draw the track area before/after the thumb on the scroll bar.
-    gfx::NativeTheme::instance()->PaintScrollbarTrack(
-        hdc,
+    ChromiumBridge::paintScrollbarTrack(
+        gc,
         partId,
         getThemeState(scrollbar, partType),
         getClassicThemeState(scrollbar, partType),
-        &paintRect,
-        &alignRect,
-        gc->platformContext()->canvas());
-
-    canvas->endPlatformPaint();
+        rect,
+        alignRect);
 }
 
 void ScrollbarThemeChromium::paintButton(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect, ScrollbarPart part)
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
-
-    skia::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
-    HDC hdc = canvas->beginPlatformPaint();
-
-    RECT paintRect = toRECT(rect);
 
     int partId;
     if (part == BackButtonStartPart || part == ForwardButtonStartPart) {
@@ -124,41 +96,32 @@ void ScrollbarThemeChromium::paintButton(GraphicsContext* gc, Scrollbar* scrollb
     }
 
     // Draw the thumb (the box you drag in the scroll bar to scroll).
-    gfx::NativeTheme::instance()->PaintScrollbarArrow(
-        hdc,
+    ChromiumBridge::paintScrollbarArrow(
+        gc,
         getThemeArrowState(scrollbar, part),
         partId | getClassicThemeState(scrollbar, part),
-        &paintRect);
-
-    canvas->endPlatformPaint();
+        rect);
 }
 
 void ScrollbarThemeChromium::paintThumb(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect)
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
-    skia::PlatformCanvasWin* canvas = gc->platformContext()->canvas();
-    HDC hdc = canvas->beginPlatformPaint();
-
-    RECT paintRect = toRECT(rect);
-
     // Draw the thumb (the box you drag in the scroll bar to scroll).
-    gfx::NativeTheme::instance()->PaintScrollbarThumb(
-        hdc,
+    ChromiumBridge::paintScrollbarThumb(
+        gc,
         horz ? SBP_THUMBBTNHORZ : SBP_THUMBBTNVERT,
         getThemeState(scrollbar, ThumbPart),
         getClassicThemeState(scrollbar, ThumbPart),
-        &paintRect);
+        rect);
 
     // Draw the gripper (the three little lines on the thumb).
-    gfx::NativeTheme::instance()->PaintScrollbarThumb(
-        hdc,
+    ChromiumBridge::paintScrollbarThumb(
+        gc,
         horz ? SBP_GRIPPERHORZ : SBP_GRIPPERVERT,
         getThemeState(scrollbar, ThumbPart),
         getClassicThemeState(scrollbar, ThumbPart),
-        &paintRect);
-
-    canvas->endPlatformPaint();
+        rect);
 }
 
 int ScrollbarThemeChromium::getThemeState(Scrollbar* scrollbar, ScrollbarPart part) const
@@ -169,12 +132,12 @@ int ScrollbarThemeChromium::getThemeState(Scrollbar* scrollbar, ScrollbarPart pa
     if (scrollbar->pressedPart() == ThumbPart) {
         if (part == ThumbPart)
             return SCRBS_PRESSED;
-        return runningVista() ? SCRBS_HOVER : SCRBS_NORMAL;
+        return isVistaOrGreater() ? SCRBS_HOVER : SCRBS_NORMAL;
     }
     if (!scrollbar->enabled())
         return SCRBS_DISABLED;
     if (scrollbar->hoveredPart() != part || part == BackTrackPart || part == ForwardTrackPart)
-        return (scrollbar->hoveredPart() == NoPart || !runningVista()) ? SCRBS_NORMAL : SCRBS_HOVER;
+        return (scrollbar->hoveredPart() == NoPart || !isVistaOrGreater()) ? SCRBS_NORMAL : SCRBS_HOVER;
     if (scrollbar->pressedPart() == NoPart)
         return SCRBS_HOT;
     return (scrollbar->pressedPart() == part) ? SCRBS_PRESSED : SCRBS_NORMAL;
@@ -188,43 +151,43 @@ int ScrollbarThemeChromium::getThemeArrowState(Scrollbar* scrollbar, ScrollbarPa
     if (part == BackButtonStartPart || part == ForwardButtonStartPart) {
         if (scrollbar->orientation() == HorizontalScrollbar) {
             if (scrollbar->pressedPart() == ThumbPart)
-                return !runningVista() ? ABS_LEFTNORMAL : ABS_LEFTHOVER;
+                return !isVistaOrGreater() ? ABS_LEFTNORMAL : ABS_LEFTHOVER;
             if (!scrollbar->enabled())
                 return ABS_LEFTDISABLED;
             if (scrollbar->hoveredPart() != part)
-                return ((scrollbar->hoveredPart() == NoPart) || !runningVista()) ? ABS_LEFTNORMAL : ABS_LEFTHOVER;
+                return ((scrollbar->hoveredPart() == NoPart) || !isVistaOrGreater()) ? ABS_LEFTNORMAL : ABS_LEFTHOVER;
             if (scrollbar->pressedPart() == NoPart)
                 return ABS_LEFTHOT;
             return (scrollbar->pressedPart() == part) ?
                 ABS_LEFTPRESSED : ABS_LEFTNORMAL;
         }
         if (scrollbar->pressedPart() == ThumbPart)
-            return !runningVista() ? ABS_UPNORMAL : ABS_UPHOVER;
+            return !isVistaOrGreater() ? ABS_UPNORMAL : ABS_UPHOVER;
         if (!scrollbar->enabled())
             return ABS_UPDISABLED;
         if (scrollbar->hoveredPart() != part)
-            return ((scrollbar->hoveredPart() == NoPart) || !runningVista()) ? ABS_UPNORMAL : ABS_UPHOVER;
+            return ((scrollbar->hoveredPart() == NoPart) || !isVistaOrGreater()) ? ABS_UPNORMAL : ABS_UPHOVER;
         if (scrollbar->pressedPart() == NoPart)
             return ABS_UPHOT;
         return (scrollbar->pressedPart() == part) ? ABS_UPPRESSED : ABS_UPNORMAL;
     }
     if (scrollbar->orientation() == HorizontalScrollbar) {
         if (scrollbar->pressedPart() == ThumbPart)
-            return !runningVista() ? ABS_RIGHTNORMAL : ABS_RIGHTHOVER;
+            return !isVistaOrGreater() ? ABS_RIGHTNORMAL : ABS_RIGHTHOVER;
         if (!scrollbar->enabled())
             return ABS_RIGHTDISABLED;
         if (scrollbar->hoveredPart() != part)
-            return ((scrollbar->hoveredPart() == NoPart) || !runningVista()) ? ABS_RIGHTNORMAL : ABS_RIGHTHOVER;
+            return ((scrollbar->hoveredPart() == NoPart) || !isVistaOrGreater()) ? ABS_RIGHTNORMAL : ABS_RIGHTHOVER;
         if (scrollbar->pressedPart() == NoPart)
             return ABS_RIGHTHOT;
         return (scrollbar->pressedPart() == part) ? ABS_RIGHTPRESSED : ABS_RIGHTNORMAL;
     }
     if (scrollbar->pressedPart() == ThumbPart)
-        return !runningVista() ? ABS_DOWNNORMAL : ABS_DOWNHOVER;
+        return !isVistaOrGreater() ? ABS_DOWNNORMAL : ABS_DOWNHOVER;
     if (!scrollbar->enabled())
         return ABS_DOWNDISABLED;
     if (scrollbar->hoveredPart() != part)
-        return ((scrollbar->hoveredPart() == NoPart) || !runningVista()) ? ABS_DOWNNORMAL : ABS_DOWNHOVER;
+        return ((scrollbar->hoveredPart() == NoPart) || !isVistaOrGreater()) ? ABS_DOWNNORMAL : ABS_DOWNHOVER;
     if (scrollbar->pressedPart() == NoPart)
         return ABS_DOWNHOT;
     return (scrollbar->pressedPart() == part) ? ABS_DOWNPRESSED : ABS_DOWNNORMAL;

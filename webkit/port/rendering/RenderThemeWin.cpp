@@ -28,6 +28,7 @@
 #include <vssym32.h>
 
 #include "ChromiumBridge.h"
+#include "ChromiumUtilsWin.h"
 #include "CSSStyleSheet.h"
 #include "CSSValueKeywords.h"
 #include "Document.h"
@@ -39,12 +40,25 @@
 #include "ThemeHelperChromiumWin.h"
 #include "UserAgentStyleSheets.h"
 
-// TODO(brettw) all of these dependencies should eventually be removed.
-#include "base/gfx/native_theme.h"
-#include "base/win_util.h"
+// FIXME(brettw): this dependency should eventually be removed.
 #include "skia/ext/skia_utils_win.h"
 
 namespace {
+
+#define SIZEOF_STRUCT_WITH_SPECIFIED_LAST_MEMBER(structName, member) \
+    offsetof(structName, member) + \
+    (sizeof static_cast<structName*>(0)->member)
+#define NONCLIENTMETRICS_SIZE_PRE_VISTA \
+    SIZEOF_STRUCT_WITH_SPECIFIED_LAST_MEMBER(NONCLIENTMETRICS, lfMessageFont)
+
+void getNonClientMetrics(NONCLIENTMETRICS* metrics) {
+    static UINT size = WebCore::ChromiumUtils::isVistaOrGreater() ?
+        sizeof(NONCLIENTMETRICS) : NONCLIENTMETRICS_SIZE_PRE_VISTA;
+    metrics->cbSize = size;
+    bool success =
+        !!SystemParametersInfo(SPI_GETNONCLIENTMETRICS, size, metrics, 0);
+    ASSERT(success);
+}
 
 enum PaddingType {
     TopPadding,
@@ -282,7 +296,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             cachedDesc = &smallSystemFont;
             if (!smallSystemFont.isAbsoluteSize()) {
                 NONCLIENTMETRICS metrics;
-                win_util::GetNonClientMetrics(&metrics);
+                getNonClientMetrics(&metrics);
                 faceName = metrics.lfSmCaptionFont.lfFaceName;
                 fontSize = systemFontSize(metrics.lfSmCaptionFont);
             }
@@ -291,7 +305,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             cachedDesc = &menuFont;
             if (!menuFont.isAbsoluteSize()) {
                 NONCLIENTMETRICS metrics;
-                win_util::GetNonClientMetrics(&metrics);
+                getNonClientMetrics(&metrics);
                 faceName = metrics.lfMenuFont.lfFaceName;
                 fontSize = systemFontSize(metrics.lfMenuFont);
             }
@@ -300,7 +314,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             cachedDesc = &labelFont;
             if (!labelFont.isAbsoluteSize()) {
                 NONCLIENTMETRICS metrics;
-                win_util::GetNonClientMetrics(&metrics);
+                getNonClientMetrics(&metrics);
                 faceName = metrics.lfStatusFont.lfFaceName;
                 fontSize = systemFontSize(metrics.lfStatusFont);
             }
@@ -366,18 +380,11 @@ bool RenderThemeWin::paintButton(RenderObject* o,
     const ThemeData& themeData = getThemeData(o);
 
     WebCore::ThemeHelperWin helper(i.context, r);
-    skia::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
-
-    HDC hdc = canvas->beginPlatformPaint();
-    int state = themeData.m_state;
-    RECT renderRect = helper.rect();
-
-    gfx::NativeTheme::instance()->PaintButton(hdc,
-                                              themeData.m_part,
-                                              state,
-                                              themeData.m_classicState,
-                                              &renderRect);
-    canvas->endPlatformPaint();
+    ChromiumBridge::paintButton(helper.context(),
+                                themeData.m_part,
+                                themeData.m_state,
+                                themeData.m_classicState,
+                                helper.rect());
     return false;
 }
 
@@ -439,15 +446,11 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
 
     // Get the correct theme data for a textfield and paint the menu.
     WebCore::ThemeHelperWin helper(i.context, rect);
-    skia::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
-    HDC hdc = canvas->beginPlatformPaint();
-    RECT renderRect = helper.rect();
-    gfx::NativeTheme::instance()->PaintMenuList(hdc,
-                                                CP_DROPDOWNBUTTON,
-                                                determineState(o),
-                                                determineClassicState(o),
-                                                &renderRect);
-    canvas->endPlatformPaint();
+    ChromiumBridge::paintMenuList(helper.context(),
+                                  CP_DROPDOWNBUTTON,
+                                  determineState(o),
+                                  determineClassicState(o),
+                                  helper.rect());
     return false;
 }
 
@@ -580,21 +583,14 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
     const ThemeData& themeData = getThemeData(o);
 
     WebCore::ThemeHelperWin helper(i.context, r);
-    skia::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
-
-    HDC hdc = canvas->beginPlatformPaint();
-    COLORREF clr = skia::SkColorToCOLORREF(o->style()->backgroundColor().rgb());
-    RECT renderRect = helper.rect();
-
-    gfx::NativeTheme::instance()->PaintTextField(hdc,
-                                                 themeData.m_part,
-                                                 themeData.m_state,
-                                                 themeData.m_classicState,
-                                                 &renderRect,
-                                                 clr,
-                                                 true,
-                                                 drawEdges);
-    canvas->endPlatformPaint();
+    ChromiumBridge::paintTextField(helper.context(),
+                                   themeData.m_part,
+                                   themeData.m_state,
+                                   themeData.m_classicState,
+                                   helper.rect(),
+                                   o->style()->backgroundColor(),
+                                   true,
+                                   drawEdges);
     return false;
 }
 
