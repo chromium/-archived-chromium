@@ -10,6 +10,7 @@
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 // TODO(eroman):
 //   - Test canceling an outstanding request.
@@ -160,7 +161,9 @@ GURL GetTestFileUrl(const std::string& relpath) {
   return GURL(base_url.spec() + "/" + relpath);
 }
 
-TEST(ProxyScriptFetcherTest, FileUrl) {
+typedef PlatformTest ProxyScriptFetcherTest;
+
+TEST_F(ProxyScriptFetcherTest, FileUrl) {
   SynchFetcher pac_fetcher;
 
   { // Fetch a non-existent file.
@@ -177,7 +180,7 @@ TEST(ProxyScriptFetcherTest, FileUrl) {
 
 // Note that all mime types are allowed for PAC file, to be consistent
 // with other browsers.
-TEST(ProxyScriptFetcherTest, HttpMimeType) {
+TEST_F(ProxyScriptFetcherTest, HttpMimeType) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -201,7 +204,7 @@ TEST(ProxyScriptFetcherTest, HttpMimeType) {
   }
 }
 
-TEST(ProxyScriptFetcherTest, HttpStatusCode) {
+TEST_F(ProxyScriptFetcherTest, HttpStatusCode) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -219,7 +222,7 @@ TEST(ProxyScriptFetcherTest, HttpStatusCode) {
   }
 }
 
-TEST(ProxyScriptFetcherTest, ContentDisposition) {
+TEST_F(ProxyScriptFetcherTest, ContentDisposition) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -231,7 +234,7 @@ TEST(ProxyScriptFetcherTest, ContentDisposition) {
   EXPECT_EQ("-downloadable.pac-\n", result.bytes);
 }
 
-TEST(ProxyScriptFetcherTest, TooLarge) {
+TEST_F(ProxyScriptFetcherTest, TooLarge) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 
@@ -264,7 +267,7 @@ TEST(ProxyScriptFetcherTest, TooLarge) {
   }
 }
 
-TEST(ProxyScriptFetcherTest, Hang) {
+TEST_F(ProxyScriptFetcherTest, Hang) {
   TestServer server(kDocRoot);
   SynchFetcher pac_fetcher;
 

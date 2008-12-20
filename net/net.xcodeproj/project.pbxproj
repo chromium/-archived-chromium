@@ -41,6 +41,8 @@
 		0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A4790E8DD6F300E4DF08 /* http_auth_handler.cc */; };
 		0435A4800E8DD73600E4DF08 /* http_auth_handler_basic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A47F0E8DD73600E4DF08 /* http_auth_handler_basic.cc */; };
 		0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */; };
+		043C23D90EFC592000658F5E /* proxy_script_fetcher_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 043C23D80EFC592000658F5E /* proxy_script_fetcher_unittest.cc */; };
+		043C23DB0EFC592900658F5E /* proxy_script_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 043C23DA0EFC592900658F5E /* proxy_script_fetcher.cc */; };
 		048133550ED27FEF005C5BBC /* url_request_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33AB0E5A198600A747DB /* url_request_unittest.cc */; };
 		048268070E5B3B1000A30786 /* mime_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AA0E5A181C00A747DB /* mime_util.cc */; };
 		048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */; };
@@ -428,6 +430,9 @@
 		0435A48D0E8DD74300E4DF08 /* http_auth_handler_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler_basic.h; sourceTree = "<group>"; };
 		0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_digest.cc; sourceTree = "<group>"; };
 		0435A4900E8DD75200E4DF08 /* http_auth_handler_digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler_digest.h; sourceTree = "<group>"; };
+		043C23D80EFC592000658F5E /* proxy_script_fetcher_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_script_fetcher_unittest.cc; path = proxy/proxy_script_fetcher_unittest.cc; sourceTree = "<group>"; };
+		043C23DA0EFC592900658F5E /* proxy_script_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_script_fetcher.cc; path = proxy/proxy_script_fetcher.cc; sourceTree = "<group>"; };
+		043C23DC0EFC592E00658F5E /* proxy_script_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_script_fetcher.h; path = proxy/proxy_script_fetcher.h; sourceTree = "<group>"; };
 		04C626D50E8DE39E0067E92A /* http_auth_handler_digest_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_digest_unittest.cc; sourceTree = "<group>"; };
 		04C626D70E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_basic_unittest.cc; sourceTree = "<group>"; };
 		04C626D90E8DE3BA0067E92A /* http_auth_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_unittest.cc; sourceTree = "<group>"; };
@@ -1158,6 +1163,9 @@
 			children = (
 				820701030EB6611F005CD9E7 /* proxy_resolver_mac.h */,
 				820701020EB6611F005CD9E7 /* proxy_resolver_mac.cc */,
+				043C23DA0EFC592900658F5E /* proxy_script_fetcher.cc */,
+				043C23DC0EFC592E00658F5E /* proxy_script_fetcher.h */,
+				043C23D80EFC592000658F5E /* proxy_script_fetcher_unittest.cc */,
 				E49DD3350E8933A2003C7A87 /* proxy_service.h */,
 				E49DD3360E8933A2003C7A87 /* proxy_service.cc */,
 				7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */,
@@ -1536,6 +1544,7 @@
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
+				043C23DB0EFC592900658F5E /* proxy_script_fetcher.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1591,6 +1600,7 @@
 				7BA361450E8C341F0023C8B9 /* test_completion_callback_unittest.cc in Sources */,
 				048133550ED27FEF005C5BBC /* url_request_unittest.cc in Sources */,
 				82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */,
+				043C23D90EFC592000658F5E /* proxy_script_fetcher_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
