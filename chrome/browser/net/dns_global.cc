@@ -187,7 +187,7 @@ PrefetchObserver::~PrefetchObserver() {
 
 void PrefetchObserver::OnStartResolution(const std::string& host_name,
                                          void* context) {
-  DCHECK_NE(0, host_name.length());
+  DCHECK_NE(0U, host_name.length());
   DnsHostInfo navigation_info;
   navigation_info.SetHostname(host_name);
   navigation_info.SetStartedState();

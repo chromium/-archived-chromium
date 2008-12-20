@@ -20,12 +20,12 @@ using base::TimeDelta;
 namespace chrome_browser_net {
 
 DnsMaster::DnsMaster(TimeDelta shutdown_wait_time)
-  : slave_count_(0),
-    shutdown_(false),
+  : slaves_have_work_(&lock_),
+    slave_count_(0),
     running_slave_count_(0),
-    kShutdownWaitTime_(shutdown_wait_time),
-    slaves_have_work_(&lock_) {
-  for ( int i = 0; i < kSlaveCountMax; i++ ) {
+    shutdown_(false),
+    kShutdownWaitTime_(shutdown_wait_time) {
+  for (size_t i = 0; i < kSlaveCountMax; i++) {
     thread_ids_[i] = 0;
     thread_handles_[i] = 0;
     slaves_[i] = NULL;
@@ -40,8 +40,7 @@ void DnsMaster::ResolveList(const NameList& hostnames,
     AutoLock auto_lock(lock_);
     if (shutdown_) return;
     if (slave_count_ < kSlaveCountMin) {
-      for (int target_count = std::min(static_cast<int>(hostnames.size()),
-                                       kSlaveCountMin);
+      for (int target_count = std::min(hostnames.size(), kSlaveCountMin);
            target_count > 0;
            target_count--)
         PreLockedCreateNewSlaveIfNeeded();
@@ -114,7 +113,7 @@ bool DnsMaster::AccruePrefetchBenefits(const GURL& referrer,
       // Remain under lock to push data.
       cache_hits_.push_back(*navigation_info);
       if (referrer_based_prefetch) {
-        std::string& motivating_referrer(
+        std::string motivating_referrer(
             prefetched_host_info.referring_hostname());
         if (!motivating_referrer.empty()) {
           referrers_[motivating_referrer].AccrueValue(
@@ -168,12 +167,6 @@ void DnsMaster::NavigatingTo(const std::string& host_name) {
   }
   if (need_to_signal)
     slaves_have_work_.Signal();
-}
-
-static char* PluralOptionalHostname(size_t count) {
-  if (count == 1)
-    return "hostname";
-  return "hostnames";
 }
 
 // Provide sort order so all .com's are together, etc.
@@ -410,7 +403,7 @@ void DnsMaster::SetNoSuchNameState(const std::string hostname) {
 }
 
 bool DnsMaster::PreLockedCreateNewSlaveIfNeeded() {
-  // Don't create more then max.
+  // Don't create more than max.
   if (kSlaveCountMax <= slave_count_  || shutdown_)
     return false;
 

@@ -38,7 +38,7 @@ typedef std::map<std::string, DnsHostInfo> Results;
 class DnsMaster {
  public:
   // The number of slave processes that will do DNS prefetching
-  static const int kSlaveCountMax = 8;
+  static const size_t kSlaveCountMax = 8;
 
   explicit DnsMaster(base::TimeDelta shutdown_wait_time);
 
@@ -113,7 +113,7 @@ class DnsMaster {
     return results_[hostname].queue_duration();
   }
 
-  int running_slave_count() {
+  size_t running_slave_count() {
     AutoLock auto_lock(lock_);
     return running_slave_count_;
   }
@@ -171,8 +171,8 @@ class DnsMaster {
   // is done using ConditionVariables.
   ConditionVariable slaves_have_work_;
 
-  int slave_count_;  // Count of slave processes started.
-  int running_slave_count_;  // Count of slaves process still running.
+  size_t slave_count_;  // Count of slave processes started.
+  size_t running_slave_count_;  // Count of slaves process still running.
 
   // The following arrays are only initialized as
   // slave_count_ grows (up to the indicated max).

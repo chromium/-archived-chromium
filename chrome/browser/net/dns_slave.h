@@ -42,9 +42,9 @@ FreeAddrInfoFunction get_freeaddrinfo();
 
 class DnsSlave {
  public:
-  DnsSlave(DnsMaster* master, int slave_index)
-      : slave_index_(slave_index),
-        master_(master) {
+  DnsSlave(DnsMaster* master, size_t slave_index)
+      : master_(master),
+        slave_index_(slave_index) {
   }
 
   ~DnsSlave() {
@@ -59,7 +59,7 @@ class DnsSlave {
   std::string hostname_;  // Name being looked up.
 
   DnsMaster* master_;  // Master that started us.
-  int slave_index_;  // Our index into DnsMaster's array.
+  size_t slave_index_;  // Our index into DnsMaster's array.
 
   void BlockingDnsLookup();
 

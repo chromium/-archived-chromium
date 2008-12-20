@@ -13,6 +13,7 @@
 #include <sstream>
 #include <string>
 
+#include "base/platform_thread.h"
 #include "base/spin_wait.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/dns_host_info.h"
@@ -88,7 +89,7 @@ static int __stdcall fake_get_addr_info(const char* nodename,
     latency[hostname] = 1;
   }  // Release lock.
 
-  Sleep(duration);
+  PlatformThread::Sleep(duration);
 
   return was_found ? 0 : WSAHOST_NOT_FOUND;
 }
@@ -284,7 +285,7 @@ TEST(DnsMasterTest, DISABLED_SingleSlaveLookupTest) {
   EXPECT_FALSE(testing_master.WasFound(bad1));
   EXPECT_FALSE(testing_master.WasFound(bad2));
 
-  EXPECT_EQ(1, testing_master.running_slave_count());
+  EXPECT_EQ(1U, testing_master.running_slave_count());
 
   // With just one thread (doing nothing now), ensure a clean shutdown.
   EXPECT_TRUE(testing_master.ShutdownSlaves());
@@ -332,7 +333,7 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedLookupTest) {
   EXPECT_FALSE(testing_master.WasFound(bad1));
   EXPECT_FALSE(testing_master.WasFound(bad2));
 
-  EXPECT_EQ(8, testing_master.running_slave_count());
+  EXPECT_EQ(8U, testing_master.running_slave_count());
 
   EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
@@ -378,7 +379,7 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
   EXPECT_FALSE(testing_master.WasFound(goog2));
   EXPECT_FALSE(testing_master.WasFound(goog4));
 
-  EXPECT_EQ(1, testing_master.running_slave_count());
+  EXPECT_EQ(1U, testing_master.running_slave_count());
 
   // Get all 8 threads running by calling many times before queue is handled.
   names.clear();
@@ -422,7 +423,7 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
   EXPECT_GE(testing_master.GetResolutionDuration(bad2).InMilliseconds(),
               testing_master.GetResolutionDuration(goog4).InMilliseconds());
 
-  EXPECT_EQ(8, testing_master.running_slave_count());
+  EXPECT_EQ(8U, testing_master.running_slave_count());
 
   EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
