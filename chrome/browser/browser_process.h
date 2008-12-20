@@ -16,7 +16,7 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #if defined(OS_WIN)
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/resource_dispatcher_host.h"
 #endif  // defined(OS_WIN)
 
 class AutomationProviderList;

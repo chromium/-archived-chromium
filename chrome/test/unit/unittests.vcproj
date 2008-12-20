@@ -290,26 +290,8 @@
 			Name="TestResourceDispatcher"
 			>
 			<File
-				RelativePath="..\..\browser\renderer_host\resource_dispatcher_host_unittest.cc"
+				RelativePath="..\..\browser\resource_dispatcher_host_unittest.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\common\resource_dispatcher_unittest.cc"

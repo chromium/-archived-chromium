@@ -21,7 +21,7 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_process_host.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_plugin_lib.h"

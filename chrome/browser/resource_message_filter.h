@@ -9,7 +9,7 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/notification_service.h"
 #include "webkit/glue/cache_manager.h"
