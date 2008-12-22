@@ -258,6 +258,12 @@ class TestInterstitialPage : public InterstitialPage {
     CANCELED       // DontProceed was called.
   };
 
+  class Delegate {
+   public:
+    virtual void TestInterstitialPageDeleted(
+        TestInterstitialPage* interstitial) = 0;
+  };
+
   // IMPORTANT NOTE: if you pass stack allocated values for |state| and
   // |deleted| (like all interstitial related tests do at this point), make sure
   // to create an instance of the TestInterstitialPageStateGuard class on the
@@ -275,7 +281,8 @@ class TestInterstitialPage : public InterstitialPage {
       : InterstitialPage(tab, new_navigation, url),
         state_(state),
         deleted_(deleted),
-        command_received_count_(0) {
+        command_received_count_(0),
+        delegate_(NULL) {
     *state_ = UNDECIDED;
     *deleted_ = false;
   }
@@ -283,6 +290,8 @@ class TestInterstitialPage : public InterstitialPage {
   virtual ~TestInterstitialPage() {
     if (deleted_)
       *deleted_ = true;
+    if (delegate_)
+      delegate_->TestInterstitialPageDeleted(this);
   }
 
   virtual void DontProceed() {
@@ -322,6 +331,11 @@ class TestInterstitialPage : public InterstitialPage {
   void ClearStates() {
     state_ = NULL;
     deleted_ = NULL;
+    delegate_ = NULL;
+  }
+
+  void set_delegate(Delegate* delegate) {
+    delegate_ = delegate;
   }
 
  protected:
@@ -339,17 +353,25 @@ class TestInterstitialPage : public InterstitialPage {
   InterstitialState* state_;
   bool* deleted_;
   int command_received_count_;
+  Delegate* delegate_;
 };
 
-class TestInterstitialPageStateGuard {
+class TestInterstitialPageStateGuard : public TestInterstitialPage::Delegate {
  public:
   explicit TestInterstitialPageStateGuard(
       TestInterstitialPage* interstitial_page)
       : interstitial_page_(interstitial_page) {
     DCHECK(interstitial_page_);
+    interstitial_page_->set_delegate(this);
   }
   ~TestInterstitialPageStateGuard() {
-    interstitial_page_->ClearStates();
+    if (interstitial_page_)
+      interstitial_page_->ClearStates();
+  }
+
+  virtual void TestInterstitialPageDeleted(TestInterstitialPage* interstitial) {
+    DCHECK(interstitial_page_ == interstitial);
+    interstitial_page_ = NULL;
   }
 
  private:
@@ -767,15 +789,11 @@ TEST_F(WebContentsTest, WebKitPrefs) {
 // Interstitial Tests
 ////////////////////////////////////////////////////////////////////////////////
 
-// All the tests have been temporarily disabled while investigating a heap
-// corruption problem showing up on the build bot.
-// TODO(jcampan): bug #5789 Fix and reenable these tests.
-
 // Test navigating to a page (with the navigation initiated from the browser,
 // as when a URL is typed in the location bar) that shows an interstitial and
 // creates a new navigation entry, then hiding it without proceeding.
 TEST_F(WebContentsTest,
-       DISABLED_ShowInterstitialFromBrowserWithNewNavigationDontProceed) {
+       ShowInterstitialFromBrowserWithNewNavigationDontProceed) {
   // Navigate to a page.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -823,7 +841,7 @@ TEST_F(WebContentsTest,
 // as when clicking on a link in the page) that shows an interstitial and
 // creates a new navigation entry, then hiding it without proceeding.
 TEST_F(WebContentsTest,
-       DISABLED_ShowInterstitiaFromRendererlWithNewNavigationDontProceed) {
+       ShowInterstitiaFromRendererlWithNewNavigationDontProceed) {
   // Navigate to a page.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -867,8 +885,7 @@ TEST_F(WebContentsTest,
 // Test navigating to a page that shows an interstitial without creating a new
 // navigation entry (this happens when the interstitial is triggered by a
 // sub-resource in the page), then hiding it without proceeding.
-TEST_F(WebContentsTest,
-       DISABLED_ShowInterstitialNoNewNavigationDontProceed) {
+TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationDontProceed) {
   // Navigate to a page.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -913,7 +930,7 @@ TEST_F(WebContentsTest,
 // as when a URL is typed in the location bar) that shows an interstitial and
 // creates a new navigation entry, then proceeding.
 TEST_F(WebContentsTest,
-       DISABLED_ShowInterstitialFromBrowserNewNavigationProceed) {
+       ShowInterstitialFromBrowserNewNavigationProceed) {
   // Navigate to a page.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -972,7 +989,7 @@ TEST_F(WebContentsTest,
 // as when clicking on a link in the page) that shows an interstitial and
 // creates a new navigation entry, then proceeding.
 TEST_F(WebContentsTest,
-       DISABLED_ShowInterstitialFromRendererNewNavigationProceed) {
+       ShowInterstitialFromRendererNewNavigationProceed) {
   // Navigate to a page.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -1026,7 +1043,7 @@ TEST_F(WebContentsTest,
 // Test navigating to a page that shows an interstitial without creating a new
 // navigation entry (this happens when the interstitial is triggered by a
 // sub-resource in the page), then proceeding.
-TEST_F(WebContentsTest, DISABLED_ShowInterstitialNoNewNavigationProceed) {
+TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationProceed) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -1071,7 +1088,7 @@ TEST_F(WebContentsTest, DISABLED_ShowInterstitialNoNewNavigationProceed) {
 }
 
 // Test navigating to a page that shows an interstitial, then navigating away.
-TEST_F(WebContentsTest, DISABLED_ShowInterstitialThenNavigate) {
+TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
   // Show interstitial.
   TestInterstitialPage::InterstitialState state =
       TestInterstitialPage::UNDECIDED;
@@ -1092,7 +1109,7 @@ TEST_F(WebContentsTest, DISABLED_ShowInterstitialThenNavigate) {
 }
 
 // Test navigating to a page that shows an interstitial, then close the tab.
-TEST_F(WebContentsTest, DISABLED_ShowInterstitialThenCloseTab) {
+TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
   // Show interstitial.
   TestInterstitialPage::InterstitialState state =
       TestInterstitialPage::UNDECIDED;
@@ -1113,7 +1130,7 @@ TEST_F(WebContentsTest, DISABLED_ShowInterstitialThenCloseTab) {
 
 // Test that after Proceed is called and an interstitial is still shown, no more
 // commands get executed.
-TEST_F(WebContentsTest, DISABLED_ShowInterstitialProceedMultipleCommands) {
+TEST_F(WebContentsTest, ShowInterstitialProceedMultipleCommands) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   Navigate(1, url1);
@@ -1147,7 +1164,7 @@ TEST_F(WebContentsTest, DISABLED_ShowInterstitialProceedMultipleCommands) {
 }
 
 // Test showing an interstitial while another interstitial is already showing.
-TEST_F(WebContentsTest, DISABLED_ShowInterstitialOnInterstitial) {
+TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL start_url("http://www.google.com");
   Navigate(1, start_url);
@@ -1197,7 +1214,7 @@ TEST_F(WebContentsTest, DISABLED_ShowInterstitialOnInterstitial) {
 
 // Test that navigating away from an interstitial while it's loading cause it
 // not to show.
-TEST_F(WebContentsTest, DISABLED_NavigateBeforeInterstitialShows) {
+TEST_F(WebContentsTest, NavigateBeforeInterstitialShows) {
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state =
       TestInterstitialPage::UNDECIDED;
@@ -1225,7 +1242,7 @@ TEST_F(WebContentsTest, DISABLED_NavigateBeforeInterstitialShows) {
 }
 
 // Test showing an interstitial and have its renderer crash.
-TEST_F(WebContentsTest, DISABLED_InterstitialCrasher) {
+TEST_F(WebContentsTest, InterstitialCrasher) {
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state =
       TestInterstitialPage::UNDECIDED;
