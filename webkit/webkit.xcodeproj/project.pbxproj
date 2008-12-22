@@ -43,6 +43,15 @@
 		4103039F0EFB0F7C008832CA /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103039E0EFB0F7C008832CA /* CachedPage.cpp */; };
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
+		41822AF50F0000B70034A67A /* AffineTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F10EFC893600E752CB /* AffineTransform.cpp */; };
+		41822B020F0000D30034A67A /* AnimationList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5ED0EFC892100E752CB /* AnimationList.cpp */; };
+		41822B030F0000D80034A67A /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5EB0EFC892100E752CB /* Animation.cpp */; };
+		41822B050F0000E40034A67A /* MatrixTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */; };
+		41822B070F0000F70034A67A /* TransformOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FD0EFC893600E752CB /* TransformOperations.cpp */; };
+		41822B110F0002610034A67A /* TranslateTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FF0EFC893600E752CB /* TranslateTransformOperation.cpp */; };
+		41822B120F0002680034A67A /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
+		41822B130F00026D0034A67A /* ScaleTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F80EFC893600E752CB /* ScaleTransformOperation.cpp */; };
+		41822B140F0002730034A67A /* RotateTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F60EFC893600E752CB /* RotateTransformOperation.cpp */; };
 		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
@@ -9325,6 +9334,15 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
+				41822AF50F0000B70034A67A /* AffineTransform.cpp in Sources */,
+				41822B020F0000D30034A67A /* AnimationList.cpp in Sources */,
+				41822B030F0000D80034A67A /* Animation.cpp in Sources */,
+				41822B050F0000E40034A67A /* MatrixTransformOperation.cpp in Sources */,
+				41822B070F0000F70034A67A /* TransformOperations.cpp in Sources */,
+				41822B110F0002610034A67A /* TranslateTransformOperation.cpp in Sources */,
+				41822B120F0002680034A67A /* SkewTransformOperation.cpp in Sources */,
+				41822B130F00026D0034A67A /* ScaleTransformOperation.cpp in Sources */,
+				41822B140F0002730034A67A /* RotateTransformOperation.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
