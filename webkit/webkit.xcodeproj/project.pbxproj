@@ -55,9 +55,9 @@
 		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
 		41A361D90F001E3800778012 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A361D80F001E3800778012 /* PluginDataChromium.cpp */; };
+		41A362390F0032B100778012 /* RenderThemeChromiumMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41A362380F0032B100778012 /* RenderThemeChromiumMac.mm */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */; };
-		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
 		4D1637CD0EBFA49E008F024E /* SQLiteDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */; };
 		4D1637CE0EBFA49E008F024E /* SQLiteStatement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C60EBFA49E008F024E /* SQLiteStatement.cpp */; };
@@ -1480,6 +1480,8 @@
 		4191075D0EF319FC00BFDCC5 /* ScriptCallStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallStack.h; sourceTree = "<group>"; };
 		4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallStack.cpp; sourceTree = "<group>"; };
 		41A361D80F001E3800778012 /* PluginDataChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginDataChromium.cpp; path = ../third_party/WebKit/WebCore/plugins/chromium/PluginDataChromium.cpp; sourceTree = SOURCE_ROOT; };
+		41A362370F0032B100778012 /* RenderThemeChromiumMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderThemeChromiumMac.h; sourceTree = "<group>"; };
+		41A362380F0032B100778012 /* RenderThemeChromiumMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderThemeChromiumMac.mm; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
@@ -3392,7 +3394,6 @@
 		7B5E959F0D7F3E95001ECF42 /* RenderTextFragment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTextFragment.cpp; sourceTree = "<group>"; };
 		7B5E95A00D7F3E95001ECF42 /* RenderTextFragment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTextFragment.h; sourceTree = "<group>"; };
 		7B5E95A10D7F3E95001ECF42 /* RenderTheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTheme.cpp; sourceTree = "<group>"; };
-		7B5E95A30D7F3E95001ECF42 /* RenderThemeMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenderThemeMac.h; path = ../../../../webkit/pending/RenderThemeMac.h; sourceTree = "<group>"; };
 		7B5E95AA0D7F3E95001ECF42 /* RenderTreeAsText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTreeAsText.cpp; sourceTree = "<group>"; };
 		7B5E95AB0D7F3E95001ECF42 /* RenderTreeAsText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTreeAsText.h; sourceTree = "<group>"; };
 		7B5E95AC0D7F3E95001ECF42 /* RenderVideo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderVideo.cpp; sourceTree = "<group>"; };
@@ -4273,7 +4274,6 @@
 		E473F6890EAE0230006C2098 /* DragControllerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragControllerChromium.cpp; sourceTree = "<group>"; };
 		E48A06D80E3F840F00172919 /* image_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_resource_fetcher.cc; sourceTree = "<group>"; };
 		E48A06D90E3F840F00172919 /* image_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_resource_fetcher.h; sourceTree = "<group>"; };
-		E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderThemeMac.mm; sourceTree = "<group>"; };
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
 		E4A9708A0E36150500E8EF3B /* ChromeClientChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromeClientChromium.h; sourceTree = "<group>"; };
@@ -6203,7 +6203,8 @@
 				7B5E959F0D7F3E95001ECF42 /* RenderTextFragment.cpp */,
 				7B5E95A00D7F3E95001ECF42 /* RenderTextFragment.h */,
 				7B5E95A10D7F3E95001ECF42 /* RenderTheme.cpp */,
-				7B5E95A30D7F3E95001ECF42 /* RenderThemeMac.h */,
+				41A362370F0032B100778012 /* RenderThemeChromiumMac.h */,
+				41A362380F0032B100778012 /* RenderThemeChromiumMac.mm */,
 				7B5E95AA0D7F3E95001ECF42 /* RenderTreeAsText.cpp */,
 				7B5E95AB0D7F3E95001ECF42 /* RenderTreeAsText.h */,
 				7B5E95AC0D7F3E95001ECF42 /* RenderVideo.cpp */,
@@ -6720,7 +6721,6 @@
 				E4A970880E3614F200E8EF3B /* page */,
 				822B1BE60DC778FF005C9A96 /* platform */,
 				938181210EF6D25700993F02 /* plugins */,
-				E450EF7B0E65F4E700107F73 /* rendering */,
 			);
 			path = port;
 			sourceTree = "<group>";
@@ -7814,14 +7814,6 @@
 				7B5E95BF0D7F3E95001ECF42 /* SVGRenderStyleDefs.h */,
 			);
 			path = style;
-			sourceTree = "<group>";
-		};
-		E450EF7B0E65F4E700107F73 /* rendering */ = {
-			isa = PBXGroup;
-			children = (
-				E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */,
-			);
-			path = rendering;
 			sourceTree = "<group>";
 		};
 		E45628270E269688005E4685 /* network */ = {
@@ -8986,6 +8978,7 @@
 				E456258B0E268E87005E4685 /* RenderTextControl.cpp in Sources */,
 				E456258C0E268E87005E4685 /* RenderTextFragment.cpp in Sources */,
 				E456258D0E268E87005E4685 /* RenderTheme.cpp in Sources */,
+				41A362390F0032B100778012 /* RenderThemeChromiumMac.mm in Sources */,
 				E456258E0E268E87005E4685 /* RenderTreeAsText.cpp in Sources */,
 				E456258F0E268E87005E4685 /* RenderVideo.cpp in Sources */,
 				E45625900E268E87005E4685 /* RenderView.cpp in Sources */,
@@ -9451,7 +9444,6 @@
 				93AF4BAB0EF6D4FB0073C62D /* PluginsChromium.cpp in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E473F6600EAE00A6006C2098 /* PopupMenuChromium.cpp in Sources */,
-				4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				E473F6640EAE00E4006C2098 /* SearchPopupMenuChromium.cpp in Sources */,
 				E473F6660EAE00F4006C2098 /* SharedTimerChromium.cpp in Sources */,
