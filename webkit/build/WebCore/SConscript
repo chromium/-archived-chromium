@@ -503,6 +503,8 @@ input_files = [
     '$WEBCORE_DIR/plugins/PluginArray.cpp',
     '$WEBCORE_DIR/plugins/PluginData.cpp',
 
+    '$WEBCORE_DIR/plugins/chromium/PluginDataChromium.cpp',
+
     '$WEBCORE_DIR/rendering/AutoTableLayout.cpp',
     '$WEBCORE_DIR/rendering/bidi.cpp',
     '$WEBCORE_DIR/rendering/break_lines.cpp',

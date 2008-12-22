@@ -96,8 +96,6 @@ input_files = [
     '$PORT_DIR/platform/network/chromium/CookieJarChromium.cpp',
     '$PORT_DIR/platform/network/chromium/DNSChromium.cpp',
     '$PORT_DIR/platform/network/chromium/NetworkStateNotifierChromium.cpp',
-
-    '$PORT_DIR/plugins/chromium/PluginDataChromium.cpp',
 ]
 
 if env.Bit('windows'):

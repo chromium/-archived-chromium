@@ -54,6 +54,7 @@
 		41822B140F0002730034A67A /* RotateTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F60EFC893600E752CB /* RotateTransformOperation.cpp */; };
 		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
+		41A361D90F001E3800778012 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A361D80F001E3800778012 /* PluginDataChromium.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
@@ -486,7 +487,6 @@
 		93817C990EF1D0C400993F02 /* ColorSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93817C980EF1D0C400993F02 /* ColorSkia.cpp */; };
 		938180480EF3392100993F02 /* BackForwardList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938180460EF3392100993F02 /* BackForwardList.cpp */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
-		938181440EF6D27600993F02 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938181430EF6D27600993F02 /* PluginDataChromium.cpp */; };
 		938181480EF6D29000993F02 /* PluginData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938181460EF6D29000993F02 /* PluginData.cpp */; };
 		93AF4BAB0EF6D4FB0073C62D /* PluginsChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */; };
 		93AF4BDA0EF6FB960073C62D /* IconChromiumMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4BD90EF6FB960073C62D /* IconChromiumMac.cpp */; };
@@ -1479,6 +1479,7 @@
 		419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallFrame.cpp; sourceTree = "<group>"; };
 		4191075D0EF319FC00BFDCC5 /* ScriptCallStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallStack.h; sourceTree = "<group>"; };
 		4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallStack.cpp; sourceTree = "<group>"; };
+		41A361D80F001E3800778012 /* PluginDataChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginDataChromium.cpp; path = ../third_party/WebKit/WebCore/plugins/chromium/PluginDataChromium.cpp; sourceTree = SOURCE_ROOT; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
@@ -4009,7 +4010,6 @@
 		938180470EF3392100993F02 /* BackForwardList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackForwardList.h; sourceTree = "<group>"; };
 		9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = back_forward_list_client_impl.cc; sourceTree = "<group>"; };
 		9381804F0EF3394A00993F02 /* back_forward_list_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = back_forward_list_client_impl.h; sourceTree = "<group>"; };
-		938181430EF6D27600993F02 /* PluginDataChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginDataChromium.cpp; path = plugins/chromium/PluginDataChromium.cpp; sourceTree = "<group>"; };
 		938181460EF6D29000993F02 /* PluginData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginData.cpp; sourceTree = "<group>"; };
 		938181470EF6D29000993F02 /* PluginData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginData.h; sourceTree = "<group>"; };
 		93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginsChromium.cpp; path = chromium/PluginsChromium.cpp; sourceTree = "<group>"; };
@@ -6034,6 +6034,7 @@
 		7B5E94F70D7F3E5B001ECF42 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
+				938181420EF6D26400993F02 /* chromium */,
 				4DDC62AE0EAD142D00FB5EBE /* MimeType.cpp */,
 				4DDC62AF0EAD142D00FB5EBE /* MimeType.h */,
 				4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */,
@@ -7667,7 +7668,6 @@
 		938181210EF6D25700993F02 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
-				938181420EF6D26400993F02 /* chromium */,
 			);
 			name = plugins;
 			sourceTree = "<group>";
@@ -7675,9 +7675,10 @@
 		938181420EF6D26400993F02 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
-				938181430EF6D27600993F02 /* PluginDataChromium.cpp */,
+				41A361D80F001E3800778012 /* PluginDataChromium.cpp */,
 			);
 			name = chromium;
+			path = ../../../../webkit/port;
 			sourceTree = "<group>";
 		};
 		93AF4BA90EF6D4E30073C62D /* chromium */ = {
@@ -8904,6 +8905,7 @@
 				4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */,
 				4DDC62B90EAD142D00FB5EBE /* PluginArray.cpp in Sources */,
 				938181480EF6D29000993F02 /* PluginData.cpp in Sources */,
+				41A361D90F001E3800778012 /* PluginDataChromium.cpp in Sources */,
 				E45624930E268E87005E4685 /* PluginDocument.cpp in Sources */,
 				E45625570E268E87005E4685 /* PointerEventsHitRules.cpp in Sources */,
 				E45623D80E268E87005E4685 /* Position.cpp in Sources */,
@@ -9446,7 +9448,6 @@
 				93817B980EF1CD9600993F02 /* PlatformContextSkia.cpp in Sources */,
 				E473F6530EAE002F006C2098 /* PlatformKeyboardEventChromium.cpp in Sources */,
 				93AF4CE00EFAEDF80073C62D /* PlatformScreenMac.mm in Sources */,
-				938181440EF6D27600993F02 /* PluginDataChromium.cpp in Sources */,
 				93AF4BAB0EF6D4FB0073C62D /* PluginsChromium.cpp in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E473F6600EAE00A6006C2098 /* PopupMenuChromium.cpp in Sources */,

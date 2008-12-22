@@ -6793,6 +6793,18 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginStream.h"
 				>
 			</File>
+			<Filter
+				Name="plugins"
+				>
+				<Filter
+					Name="chromium"
+					>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginDataChromium.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="version"

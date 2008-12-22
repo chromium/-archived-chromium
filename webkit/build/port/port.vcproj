@@ -1326,18 +1326,6 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="plugins"
-			>
-			<Filter
-				Name="chromium"
-				>
-				<File
-					RelativePath="..\..\port\plugins\chromium\PluginDataChromium.cpp"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
 			Name="rendering"
 			>
 			<File
