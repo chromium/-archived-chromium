@@ -845,9 +845,6 @@ WIN : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
 WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
 
-// Possibily due to removing the search field hacks from the render themes?
-LINUX WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
-
 // Font size for arrows are different.  Should we rebaseline?
 LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 
@@ -877,10 +874,7 @@ MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
 LINUX : LayoutTests/fast/forms/listbox-width-change.html = FAIL
 LINUX : LayoutTests/fast/forms/option-strip-whitespace.html = FAIL
 MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
 MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-// Prints FAIL in output.
-LayoutTests/fast/forms/search-rtl.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 LINUX : LayoutTests/fast/forms/select-block-background.html = FAIL
 LINUX : LayoutTests/fast/forms/select-change-listbox-size.html = FAIL
@@ -1255,8 +1249,6 @@ LayoutTests/fast/workers/worker-location.html = TIMEOUT
 LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
 
 // MERGE 38600:38625: New tests
-// Bug 4997, this looks mostly OK, but the test reports FAIL.
-LayoutTests/fast/forms/search-transformed.html = FAIL
 // Big 4999: we need to fix this same bug in our plugin handling Apple did in
 // r38611.
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
@@ -1774,9 +1766,11 @@ SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
 
 // Merge 39309:39335 Regressions, see bug 5737
 LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
+// This seems to pass what it is testing, however the bottom three boxes should
+// have small buttons.  We seem to not draw buttons if the height is set.
 LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/control-clip.html = FAIL
+LINUX : LayoutTests/fast/forms/button-default-title.html = FAIL
+LINUX : LayoutTests/fast/forms/control-clip.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 
@@ -1799,6 +1793,13 @@ LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 
 // Brett broke this with his font rendering effect patch and needs to fix it.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
+
+// These test the behavior of the (x) in type=search inputs.  We haven't
+// implemented this yet (should we on win/linux?). http://crbug.com/5701
+LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
+LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
+LayoutTests/fast/forms/search-rtl.html = FAIL
+LayoutTests/fast/forms/search-transformed.html = FAIL
 
 // Merge 39369:39410: new test
 LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
