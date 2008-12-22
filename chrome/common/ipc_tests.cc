@@ -212,8 +212,6 @@ TEST_F(IPCChannelTest, ChannelTest) {
   EXPECT_TRUE(base::WaitForSingleProcess(process_handle, 5000));
 }
 
-// TODO(playmobil): Implement
-#if defined(OS_WIN)
 TEST_F(IPCChannelTest, ChannelProxyTest) {
   // The thread needs to out-live the ChannelProxy.
   base::Thread thread("ChannelProxyTestServer");
@@ -227,10 +225,25 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
 
     channel_listener.Init(&chan);
 
+#if defined(OS_WIN)
+  base::ProcessHandle process_handle = SpawnChild(TEST_CLIENT, NULL);
+#elif defined(OS_POSIX)
     bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
+    base::file_handle_mapping_vector fds_to_map;
+    int src_fd;
+    int dest_fd;
+    chan.GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+    if (src_fd > -1) {
+      fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
+    }
+
     base::ProcessHandle process_handle = MultiProcessTest::SpawnChild(
         L"RunTestClient",
+        fds_to_map,
         debug_on_start);
+    chan.OnClientConnected();
+#endif  // defined(OS_POXIX)
+
     ASSERT_TRUE(process_handle);
 
     Send(&chan, "hello from parent");
@@ -243,7 +256,6 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
   }
   thread.Stop();
 }
-#endif  // defined(OS_WIN)
 
 MULTIPROCESS_TEST_MAIN(RunTestClient) {
   MessageLoopForIO main_message_loop;

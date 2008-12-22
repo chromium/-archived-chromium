@@ -113,6 +113,14 @@ class ChannelProxy : public Message::Sender {
   void AddFilter(MessageFilter* filter);
   void RemoveFilter(MessageFilter* filter);
 
+#if defined(OS_POSIX)
+  // Calls through to the underlying channel's methods.
+  // TODO(playmobil): For now this is only implemented in the case of
+  // create_pipe_now = true, we need to figure this out for the latter case.
+  void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd);
+  void OnClientConnected();
+#endif  // defined(OS_POSIX)
+
  protected:
   class Context;
   // A subclass uses this constructor if it needs to add more information

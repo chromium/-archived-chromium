@@ -41,6 +41,10 @@ if env.Bit('windows'):
 
 input_files = []
 
+input_files.extend([
+  'ipc_channel_proxy.cc',
+])
+
 if not env.Bit('mac'):
   # TODO(port): Port to Mac.
   input_files.extend([
@@ -91,7 +95,6 @@ if env.Bit('windows'):
       'gfx/icon_util.cc',
       'gfx/path.cc',
       'gfx/text_elider.cc',
-      'ipc_channel_proxy.cc',
       'ipc_logging.cc',
       'ipc_sync_channel.cc',
       'ipc_sync_message.cc',

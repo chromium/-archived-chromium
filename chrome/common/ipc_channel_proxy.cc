@@ -5,10 +5,18 @@
 #include "base/message_loop.h"
 #include "base/thread.h"
 #include "chrome/common/ipc_channel_proxy.h"
+#if defined(OS_WIN)
+// TODO(playmobil): remove ifdef once ObjectWatcher is ported
 #include "chrome/common/ipc_logging.h"
+#endif
 #include "chrome/common/ipc_message_utils.h"
 
 namespace IPC {
+
+#if defined(OS_POSIX)
+// TODO(playmobil): remove once ObjectWatcher is ported
+#undef IPC_MESSAGE_LOG_ENABLED
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -216,6 +224,19 @@ void ChannelProxy::Init(const std::wstring& channel_id, Channel::Mode mode,
     // to connect and get an error since the pipe doesn't exist yet.
     context_->CreateChannel(channel_id, mode);
   } else {
+#if defined(OS_POSIX)
+    // TODO(playmobil): On POSIX, IPC::Channel uses a socketpair(), one side of
+    // which needs to be mapped into the child process' address space.
+    // To know the value of the client side FD we need to have already
+    // created a socketpair which currently occurs in IPC::Channel's
+    // constructor.
+    // If we lazilly construct the IPC::Channel then the caller has no way
+    // of knowing the FD #.
+    //
+    // We can solve this either by having the Channel's creation launch the
+    // subprocess itself or by creating the socketpair() externally.
+    NOTIMPLEMENTED();
+#endif  // defined(OS_POSIX)
     context_->ipc_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         context_.get(), &Context::CreateChannel, channel_id, mode));
   }
@@ -259,6 +280,24 @@ void ChannelProxy::RemoveFilter(MessageFilter* filter) {
   context_->ipc_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       context_.get(), &Context::OnRemoveFilter, filter));
 }
+
+#if defined(OS_POSIX)
+// See the TODO regarding lazy initialization of the channel in
+// ChannelProxy::Init().
+// We assume that IPC::Channel::GetClientFileDescriptorMapping() is thread-safe.
+void ChannelProxy::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) {
+  Channel *channel = context_.get()->channel_;
+  DCHECK(channel); // Channel must have been created first.
+  channel->GetClientFileDescriptorMapping(src_fd, dest_fd);
+}
+
+// We assume that IP::Channel::OnClientConnected() is thread-safe.
+void ChannelProxy::OnClientConnected() {
+  Channel *channel = context_.get()->channel_;
+  DCHECK(channel); // Channel must have been created first.
+  channel->OnClientConnected();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 

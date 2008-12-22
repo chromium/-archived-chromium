@@ -155,6 +155,7 @@
 		A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612D90EE9957000A8EE5D /* extensions_service.cc */; };
 		B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */; };
 		B562C8430ED49C830077A23F /* mach_ipc_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B562C8420ED49C830077A23F /* mach_ipc_mac.mm */; };
+		B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */; };
 		B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */; };
 		B5FDC1CA0EE48ADB00BEC6E6 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDD10E9D5295009A6919 /* CoreFoundation.framework */; };
 		B5FDC1CC0EE48ADB00BEC6E6 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
@@ -3239,6 +3240,7 @@
 				4D7BFC2E0E9D4CF5009A6919 /* debug_flags.cc in Sources */,
 				4D7BFC330E9D4CF9009A6919 /* env_vars.cc in Sources */,
 				B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */,
+				B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */,
 				4D7BFC380E9D4CFF009A6919 /* ipc_message.cc in Sources */,
 				E4F3257D0EE83679002533CE /* ipc_message_utils.cc in Sources */,
 				4D7BFC580E9D4D0E009A6919 /* jpeg_codec.cc in Sources */,
