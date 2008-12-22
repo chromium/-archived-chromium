@@ -1801,3 +1801,10 @@ LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 
 // Brett broke this with his font rendering effect patch and needs to fix it.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
+
+// Merge 39369:39410: new test
+LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
+
+// Merge 39369:39410: new test. Ran correctly and was baselined on Win32;
+// may just need a baseline for Mac and Linux.  (Might even pass there.)
+MAC LINUX : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL

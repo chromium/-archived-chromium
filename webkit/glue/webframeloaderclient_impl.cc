@@ -208,6 +208,15 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
   }
 }
 
+bool WebFrameLoaderClient::shouldUseCredentialStorage(DocumentLoader*,
+    unsigned long identifier) {
+  // FIXME
+  // Intended to call a method on the resource load delegate.
+  // Returns true for backward compatibility.
+  return true;   
+}
+
+
 void WebFrameLoaderClient::dispatchDidReceiveAuthenticationChallenge(
     DocumentLoader*, unsigned long identifier, const AuthenticationChallenge&) {
   // FIXME
@@ -748,6 +757,12 @@ void WebFrameLoaderClient::dispatchDidFinishLoad() {
 void WebFrameLoaderClient::dispatchDidFirstLayout() {
  // FIXME: called when webkit finished layout of page.
  // All resources have not necessarily finished loading.
+}
+
+void WebFrameLoaderClient::dispatchDidFirstVisuallyNonEmptyLayout() {
+  // FIXME: called when webkit finished layout of a page that was visually
+  // non-empty.
+  // All resources have not necessarily finished loading.
 }
 
 Frame* WebFrameLoaderClient::dispatchCreatePage() {

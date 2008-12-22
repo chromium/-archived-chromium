@@ -1205,14 +1205,6 @@
 				Name="graphics"
 				>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\AffineTransform.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\AffineTransform.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\BitmapImage.cpp"
 					>
 				</File>
@@ -1420,6 +1412,74 @@
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\SimpleFontData.h"
 					>
 				</File>
+				<Filter
+					Name="transforms"
+					>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\AffineTransform.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\AffineTransform.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\IdentityTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\MatrixTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\MatrixTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\RotateTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\RotateTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\ScaleTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\ScaleTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\SkewTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\SkewTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TransformOperations.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TransformOperations.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TranslateTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TranslateTransformOperation.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="network"
@@ -1778,6 +1838,30 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLValue.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="animation"
+				>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\animation\Animation.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\animation\Animation.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\animation\AnimationList.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\animation\AnimationList.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\animation\TimingFunction.h"
 					>
 				</File>
 			</Filter>
@@ -3025,22 +3109,6 @@
 				Name="style"
 				>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\Animation.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\Animation.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\AnimationList.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\AnimationList.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\BindingURI.cpp"
 					>
 				</File>
@@ -3101,23 +3169,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\IdentityTransformOperation.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\KeyframeList.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\KeyframeList.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\MatrixTransformOperation.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\MatrixTransformOperation.h"
 					>
 				</File>
 				<File
@@ -3145,35 +3201,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\RotateTransformOperation.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\RotateTransformOperation.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\ScaleTransformOperation.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\ScaleTransformOperation.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\ShadowData.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\ShadowData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\SkewTransformOperation.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\SkewTransformOperation.h"
 					>
 				</File>
 				<File
@@ -3302,30 +3334,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\SVGRenderStyleDefs.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\TimingFunction.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\TransformOperation.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\TransformOperations.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\TransformOperations.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\TranslateTransformOperation.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\TranslateTransformOperation.h"
 					>
 				</File>
 			</Filter>

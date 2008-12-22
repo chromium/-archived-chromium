@@ -508,23 +508,15 @@
 		ABBD23A60EB7A95B00BEC658 /* StyleSurroundData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD239C0EB7A95B00BEC658 /* StyleSurroundData.cpp */; };
 		ABBD23A70EB7A95B00BEC658 /* StyleTransformData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD239E0EB7A95B00BEC658 /* StyleTransformData.cpp */; };
 		ABBD23A80EB7A95B00BEC658 /* StyleVisualData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23A00EB7A95B00BEC658 /* StyleVisualData.cpp */; };
-		ABBD23C30EB7AC1300BEC658 /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23AB0EB7AC1300BEC658 /* Animation.cpp */; };
-		ABBD23C40EB7AC1300BEC658 /* AnimationList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23AD0EB7AC1300BEC658 /* AnimationList.cpp */; };
 		ABBD23C50EB7AC1300BEC658 /* BindingURI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23AF0EB7AC1300BEC658 /* BindingURI.cpp */; };
 		ABBD23C60EB7AC1300BEC658 /* ContentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23B40EB7AC1300BEC658 /* ContentData.cpp */; };
 		ABBD23C70EB7AC1300BEC658 /* CounterDirectives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23B70EB7AC1300BEC658 /* CounterDirectives.cpp */; };
 		ABBD23C80EB7AC1300BEC658 /* FillLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23BC0EB7AC1300BEC658 /* FillLayer.cpp */; };
 		ABBD23C90EB7AC1300BEC658 /* KeyframeList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23BF0EB7AC1300BEC658 /* KeyframeList.cpp */; };
-		ABBD23CA0EB7AC1300BEC658 /* MatrixTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23C10EB7AC1300BEC658 /* MatrixTransformOperation.cpp */; };
-		ABBD23EA0EB7ACA600BEC658 /* RotateTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23D50EB7ACA600BEC658 /* RotateTransformOperation.cpp */; };
-		ABBD23EB0EB7ACA600BEC658 /* ScaleTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23D70EB7ACA600BEC658 /* ScaleTransformOperation.cpp */; };
 		ABBD23EC0EB7ACA600BEC658 /* ShadowData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23D90EB7ACA600BEC658 /* ShadowData.cpp */; };
-		ABBD23ED0EB7ACA600BEC658 /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23DB0EB7ACA600BEC658 /* SkewTransformOperation.cpp */; };
 		ABBD23EE0EB7ACA600BEC658 /* StyleBackgroundData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23DD0EB7ACA600BEC658 /* StyleBackgroundData.cpp */; };
 		ABBD23EF0EB7ACA600BEC658 /* StyleBoxData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23DF0EB7ACA600BEC658 /* StyleBoxData.cpp */; };
 		ABBD23F00EB7ACA600BEC658 /* StyleFlexibleBoxData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23E20EB7ACA600BEC658 /* StyleFlexibleBoxData.cpp */; };
-		ABBD23F10EB7ACA600BEC658 /* TransformOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23E60EB7ACA600BEC658 /* TransformOperations.cpp */; };
-		ABBD23F20EB7ACA600BEC658 /* TranslateTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23E80EB7ACA600BEC658 /* TranslateTransformOperation.cpp */; };
 		ABBD24370EB7AE0700BEC658 /* V8MessagePort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24020EB7AE0700BEC658 /* V8MessagePort.cpp */; };
 		ABBD246D0EB7B1DA00BEC658 /* MessageChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24660EB7B1DA00BEC658 /* MessageChannel.cpp */; };
 		ABBD246E0EB7B1DA00BEC658 /* MessagePort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24680EB7B1DA00BEC658 /* MessagePort.cpp */; };
@@ -885,7 +877,6 @@
 		E45624BD0E268E87005E4685 /* DragData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9A0D7F3CC1001ECF42 /* DragData.cpp */; };
 		E45624BE0E268E87005E4685 /* DragImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9C0D7F3CC1001ECF42 /* DragImage.cpp */; };
 		E45624BF0E268E87005E4685 /* FileChooser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9E0D7F3CC1001ECF42 /* FileChooser.cpp */; };
-		E45624C00E268E87005E4685 /* AffineTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FA30D7F3CC1001ECF42 /* AffineTransform.cpp */; };
 		E45624C10E268E87005E4685 /* BitmapImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FA50D7F3CC1001ECF42 /* BitmapImage.cpp */; };
 		E45624C20E268E87005E4685 /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FC40D7F3CC1001ECF42 /* Color.cpp */; };
 		E45624C30E268E87005E4685 /* FloatPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FC60D7F3CC1001ECF42 /* FloatPoint.cpp */; };
@@ -1447,6 +1438,27 @@
 		04C3AFC40EF1E4430046D578 /* NavigatorBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigatorBase.h; sourceTree = "<group>"; };
 		04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerNavigator.cpp; sourceTree = "<group>"; };
 		04C3AFC70EF1E4650046D578 /* WorkerNavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerNavigator.h; sourceTree = "<group>"; };
+		3CBAF5EB0EFC892100E752CB /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
+		3CBAF5EC0EFC892100E752CB /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
+		3CBAF5ED0EFC892100E752CB /* AnimationList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationList.cpp; sourceTree = "<group>"; };
+		3CBAF5EE0EFC892100E752CB /* AnimationList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationList.h; sourceTree = "<group>"; };
+		3CBAF5EF0EFC892100E752CB /* TimingFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimingFunction.h; sourceTree = "<group>"; };
+		3CBAF5F10EFC893600E752CB /* AffineTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AffineTransform.cpp; sourceTree = "<group>"; };
+		3CBAF5F20EFC893600E752CB /* AffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AffineTransform.h; sourceTree = "<group>"; };
+		3CBAF5F30EFC893600E752CB /* IdentityTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdentityTransformOperation.h; sourceTree = "<group>"; };
+		3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixTransformOperation.cpp; sourceTree = "<group>"; };
+		3CBAF5F50EFC893600E752CB /* MatrixTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixTransformOperation.h; sourceTree = "<group>"; };
+		3CBAF5F60EFC893600E752CB /* RotateTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateTransformOperation.cpp; sourceTree = "<group>"; };
+		3CBAF5F70EFC893600E752CB /* RotateTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTransformOperation.h; sourceTree = "<group>"; };
+		3CBAF5F80EFC893600E752CB /* ScaleTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScaleTransformOperation.cpp; sourceTree = "<group>"; };
+		3CBAF5F90EFC893600E752CB /* ScaleTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScaleTransformOperation.h; sourceTree = "<group>"; };
+		3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkewTransformOperation.cpp; sourceTree = "<group>"; };
+		3CBAF5FB0EFC893600E752CB /* SkewTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkewTransformOperation.h; sourceTree = "<group>"; };
+		3CBAF5FC0EFC893600E752CB /* TransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformOperation.h; sourceTree = "<group>"; };
+		3CBAF5FD0EFC893600E752CB /* TransformOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformOperations.cpp; sourceTree = "<group>"; };
+		3CBAF5FE0EFC893600E752CB /* TransformOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformOperations.h; sourceTree = "<group>"; };
+		3CBAF5FF0EFC893600E752CB /* TranslateTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TranslateTransformOperation.cpp; sourceTree = "<group>"; };
+		3CBAF6000EFC893600E752CB /* TranslateTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TranslateTransformOperation.h; sourceTree = "<group>"; };
 		410303530EFB0C7C008832CA /* ScriptCachedPageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCachedPageData.h; sourceTree = "<group>"; };
 		4103039E0EFB0F7C008832CA /* CachedPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CachedPage.cpp; sourceTree = "<group>"; };
 		410303A10EFB0F8D008832CA /* CachedPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPage.h; sourceTree = "<group>"; };
@@ -3023,8 +3035,6 @@
 		7B5E8F9F0D7F3CC1001ECF42 /* FileChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileChooser.h; sourceTree = "<group>"; };
 		7B5E8FA00D7F3CC1001ECF42 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		7B5E8FA10D7F3CC1001ECF42 /* FloatConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatConversion.h; sourceTree = "<group>"; };
-		7B5E8FA30D7F3CC1001ECF42 /* AffineTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AffineTransform.cpp; sourceTree = "<group>"; };
-		7B5E8FA40D7F3CC1001ECF42 /* AffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AffineTransform.h; sourceTree = "<group>"; };
 		7B5E8FA50D7F3CC1001ECF42 /* BitmapImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitmapImage.cpp; sourceTree = "<group>"; };
 		7B5E8FA60D7F3CC1001ECF42 /* BitmapImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapImage.h; sourceTree = "<group>"; };
 		7B5E8FB40D7F3CC1001ECF42 /* AffineTransformCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AffineTransformCG.cpp; sourceTree = "<group>"; };
@@ -4040,10 +4050,6 @@
 		ABBD239F0EB7A95B00BEC658 /* StyleTransformData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleTransformData.h; sourceTree = "<group>"; };
 		ABBD23A00EB7A95B00BEC658 /* StyleVisualData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleVisualData.cpp; sourceTree = "<group>"; };
 		ABBD23A10EB7A95B00BEC658 /* StyleVisualData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleVisualData.h; sourceTree = "<group>"; };
-		ABBD23AB0EB7AC1300BEC658 /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
-		ABBD23AC0EB7AC1300BEC658 /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
-		ABBD23AD0EB7AC1300BEC658 /* AnimationList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationList.cpp; sourceTree = "<group>"; };
-		ABBD23AE0EB7AC1300BEC658 /* AnimationList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationList.h; sourceTree = "<group>"; };
 		ABBD23AF0EB7AC1300BEC658 /* BindingURI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BindingURI.cpp; sourceTree = "<group>"; };
 		ABBD23B00EB7AC1300BEC658 /* BindingURI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BindingURI.h; sourceTree = "<group>"; };
 		ABBD23B10EB7AC1300BEC658 /* BorderData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BorderData.h; sourceTree = "<group>"; };
@@ -4059,21 +4065,12 @@
 		ABBD23BB0EB7AC1300BEC658 /* DataRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataRef.h; sourceTree = "<group>"; };
 		ABBD23BC0EB7AC1300BEC658 /* FillLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FillLayer.cpp; sourceTree = "<group>"; };
 		ABBD23BD0EB7AC1300BEC658 /* FillLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FillLayer.h; sourceTree = "<group>"; };
-		ABBD23BE0EB7AC1300BEC658 /* IdentityTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdentityTransformOperation.h; sourceTree = "<group>"; };
 		ABBD23BF0EB7AC1300BEC658 /* KeyframeList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyframeList.cpp; sourceTree = "<group>"; };
 		ABBD23C00EB7AC1300BEC658 /* KeyframeList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyframeList.h; sourceTree = "<group>"; };
-		ABBD23C10EB7AC1300BEC658 /* MatrixTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixTransformOperation.cpp; sourceTree = "<group>"; };
-		ABBD23C20EB7AC1300BEC658 /* MatrixTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixTransformOperation.h; sourceTree = "<group>"; };
 		ABBD23D30EB7ACA600BEC658 /* OutlineValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutlineValue.h; sourceTree = "<group>"; };
 		ABBD23D40EB7ACA600BEC658 /* RenderStyleConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderStyleConstants.h; sourceTree = "<group>"; };
-		ABBD23D50EB7ACA600BEC658 /* RotateTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateTransformOperation.cpp; sourceTree = "<group>"; };
-		ABBD23D60EB7ACA600BEC658 /* RotateTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTransformOperation.h; sourceTree = "<group>"; };
-		ABBD23D70EB7ACA600BEC658 /* ScaleTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScaleTransformOperation.cpp; sourceTree = "<group>"; };
-		ABBD23D80EB7ACA600BEC658 /* ScaleTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScaleTransformOperation.h; sourceTree = "<group>"; };
 		ABBD23D90EB7ACA600BEC658 /* ShadowData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShadowData.cpp; sourceTree = "<group>"; };
 		ABBD23DA0EB7ACA600BEC658 /* ShadowData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShadowData.h; sourceTree = "<group>"; };
-		ABBD23DB0EB7ACA600BEC658 /* SkewTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkewTransformOperation.cpp; sourceTree = "<group>"; };
-		ABBD23DC0EB7ACA600BEC658 /* SkewTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkewTransformOperation.h; sourceTree = "<group>"; };
 		ABBD23DD0EB7ACA600BEC658 /* StyleBackgroundData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleBackgroundData.cpp; sourceTree = "<group>"; };
 		ABBD23DE0EB7ACA600BEC658 /* StyleBackgroundData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleBackgroundData.h; sourceTree = "<group>"; };
 		ABBD23DF0EB7ACA600BEC658 /* StyleBoxData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleBoxData.cpp; sourceTree = "<group>"; };
@@ -4081,12 +4078,6 @@
 		ABBD23E10EB7ACA600BEC658 /* StyleDashboardRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleDashboardRegion.h; sourceTree = "<group>"; };
 		ABBD23E20EB7ACA600BEC658 /* StyleFlexibleBoxData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleFlexibleBoxData.cpp; sourceTree = "<group>"; };
 		ABBD23E30EB7ACA600BEC658 /* StyleFlexibleBoxData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleFlexibleBoxData.h; sourceTree = "<group>"; };
-		ABBD23E40EB7ACA600BEC658 /* TimingFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimingFunction.h; sourceTree = "<group>"; };
-		ABBD23E50EB7ACA600BEC658 /* TransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformOperation.h; sourceTree = "<group>"; };
-		ABBD23E60EB7ACA600BEC658 /* TransformOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformOperations.cpp; sourceTree = "<group>"; };
-		ABBD23E70EB7ACA600BEC658 /* TransformOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformOperations.h; sourceTree = "<group>"; };
-		ABBD23E80EB7ACA600BEC658 /* TranslateTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TranslateTransformOperation.cpp; sourceTree = "<group>"; };
-		ABBD23E90EB7ACA600BEC658 /* TranslateTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TranslateTransformOperation.h; sourceTree = "<group>"; };
 		ABBD24000EB7AE0700BEC658 /* V8Database.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8Database.cpp; sourceTree = "<group>"; };
 		ABBD24010EB7AE0700BEC658 /* V8Database.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8Database.h; sourceTree = "<group>"; };
 		ABBD24020EB7AE0700BEC658 /* V8MessagePort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8MessagePort.cpp; sourceTree = "<group>"; };
@@ -4334,6 +4325,41 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3CBAF5EA0EFC892100E752CB /* animation */ = {
+			isa = PBXGroup;
+			children = (
+				3CBAF5EB0EFC892100E752CB /* Animation.cpp */,
+				3CBAF5EC0EFC892100E752CB /* Animation.h */,
+				3CBAF5ED0EFC892100E752CB /* AnimationList.cpp */,
+				3CBAF5EE0EFC892100E752CB /* AnimationList.h */,
+				3CBAF5EF0EFC892100E752CB /* TimingFunction.h */,
+			);
+			path = animation;
+			sourceTree = "<group>";
+		};
+		3CBAF5F00EFC893600E752CB /* transforms */ = {
+			isa = PBXGroup;
+			children = (
+				3CBAF5F10EFC893600E752CB /* AffineTransform.cpp */,
+				3CBAF5F20EFC893600E752CB /* AffineTransform.h */,
+				3CBAF5F30EFC893600E752CB /* IdentityTransformOperation.h */,
+				3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */,
+				3CBAF5F50EFC893600E752CB /* MatrixTransformOperation.h */,
+				3CBAF5F60EFC893600E752CB /* RotateTransformOperation.cpp */,
+				3CBAF5F70EFC893600E752CB /* RotateTransformOperation.h */,
+				3CBAF5F80EFC893600E752CB /* ScaleTransformOperation.cpp */,
+				3CBAF5F90EFC893600E752CB /* ScaleTransformOperation.h */,
+				3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */,
+				3CBAF5FB0EFC893600E752CB /* SkewTransformOperation.h */,
+				3CBAF5FC0EFC893600E752CB /* TransformOperation.h */,
+				3CBAF5FD0EFC893600E752CB /* TransformOperations.cpp */,
+				3CBAF5FE0EFC893600E752CB /* TransformOperations.h */,
+				3CBAF5FF0EFC893600E752CB /* TranslateTransformOperation.cpp */,
+				3CBAF6000EFC893600E752CB /* TranslateTransformOperation.h */,
+			);
+			path = transforms;
+			sourceTree = "<group>";
+		};
 		4D1637C20EBFA485008F024E /* sql */ = {
 			isa = PBXGroup;
 			children = (
@@ -5606,6 +5632,7 @@
 		7B5E8F7C0D7F3CC1001ECF42 /* platform */ = {
 			isa = PBXGroup;
 			children = (
+				3CBAF5EA0EFC892100E752CB /* animation */,
 				7B5E8F820D7F3CC1001ECF42 /* cf */,
 				7B5E8FA20D7F3CC1001ECF42 /* graphics */,
 				7B5E90D40D7F3CC2001ECF42 /* mac */,
@@ -5702,8 +5729,7 @@
 			children = (
 				7B5E8FB30D7F3CC1001ECF42 /* cg */,
 				7B5E90030D7F3CC1001ECF42 /* mac */,
-				7B5E8FA30D7F3CC1001ECF42 /* AffineTransform.cpp */,
-				7B5E8FA40D7F3CC1001ECF42 /* AffineTransform.h */,
+				3CBAF5F00EFC893600E752CB /* transforms */,
 				7B5E8FA50D7F3CC1001ECF42 /* BitmapImage.cpp */,
 				7B5E8FA60D7F3CC1001ECF42 /* BitmapImage.h */,
 				7B5E8FC40D7F3CC1001ECF42 /* Color.cpp */,
@@ -7718,10 +7744,6 @@
 		B5C180A00E958E85006EAF87 /* style */ = {
 			isa = PBXGroup;
 			children = (
-				ABBD23AB0EB7AC1300BEC658 /* Animation.cpp */,
-				ABBD23AC0EB7AC1300BEC658 /* Animation.h */,
-				ABBD23AD0EB7AC1300BEC658 /* AnimationList.cpp */,
-				ABBD23AE0EB7AC1300BEC658 /* AnimationList.h */,
 				ABBD23AF0EB7AC1300BEC658 /* BindingURI.cpp */,
 				ABBD23B00EB7AC1300BEC658 /* BindingURI.h */,
 				ABBD23B10EB7AC1300BEC658 /* BorderData.h */,
@@ -7737,25 +7759,16 @@
 				ABBD23BB0EB7AC1300BEC658 /* DataRef.h */,
 				ABBD23BC0EB7AC1300BEC658 /* FillLayer.cpp */,
 				ABBD23BD0EB7AC1300BEC658 /* FillLayer.h */,
-				ABBD23BE0EB7AC1300BEC658 /* IdentityTransformOperation.h */,
 				ABBD23BF0EB7AC1300BEC658 /* KeyframeList.cpp */,
 				ABBD23C00EB7AC1300BEC658 /* KeyframeList.h */,
-				ABBD23C10EB7AC1300BEC658 /* MatrixTransformOperation.cpp */,
-				ABBD23C20EB7AC1300BEC658 /* MatrixTransformOperation.h */,
 				B51C76DA0E9BC9F400D9DFC4 /* NinePieceImage.cpp */,
 				B51C76D90E9BC9F400D9DFC4 /* NinePieceImage.h */,
 				ABBD23D30EB7ACA600BEC658 /* OutlineValue.h */,
 				B5C180A30E958EAA006EAF87 /* RenderStyle.cpp */,
 				B5C1809E0E958E3D006EAF87 /* RenderStyle.h */,
 				ABBD23D40EB7ACA600BEC658 /* RenderStyleConstants.h */,
-				ABBD23D50EB7ACA600BEC658 /* RotateTransformOperation.cpp */,
-				ABBD23D60EB7ACA600BEC658 /* RotateTransformOperation.h */,
-				ABBD23D70EB7ACA600BEC658 /* ScaleTransformOperation.cpp */,
-				ABBD23D80EB7ACA600BEC658 /* ScaleTransformOperation.h */,
 				ABBD23D90EB7ACA600BEC658 /* ShadowData.cpp */,
 				ABBD23DA0EB7ACA600BEC658 /* ShadowData.h */,
-				ABBD23DB0EB7ACA600BEC658 /* SkewTransformOperation.cpp */,
-				ABBD23DC0EB7ACA600BEC658 /* SkewTransformOperation.h */,
 				ABBD23DD0EB7ACA600BEC658 /* StyleBackgroundData.cpp */,
 				ABBD23DE0EB7ACA600BEC658 /* StyleBackgroundData.h */,
 				ABBD23DF0EB7ACA600BEC658 /* StyleBoxData.cpp */,
@@ -7789,12 +7802,6 @@
 				7B5E95BD0D7F3E95001ECF42 /* SVGRenderStyle.h */,
 				7B5E95BE0D7F3E95001ECF42 /* SVGRenderStyleDefs.cpp */,
 				7B5E95BF0D7F3E95001ECF42 /* SVGRenderStyleDefs.h */,
-				ABBD23E40EB7ACA600BEC658 /* TimingFunction.h */,
-				ABBD23E50EB7ACA600BEC658 /* TransformOperation.h */,
-				ABBD23E60EB7ACA600BEC658 /* TransformOperations.cpp */,
-				ABBD23E70EB7ACA600BEC658 /* TransformOperations.h */,
-				ABBD23E80EB7ACA600BEC658 /* TranslateTransformOperation.cpp */,
-				ABBD23E90EB7ACA600BEC658 /* TranslateTransformOperation.h */,
 			);
 			path = style;
 			sourceTree = "<group>";
@@ -8502,12 +8509,9 @@
 				4DB7F2040E9BAE2900C66CE0 /* AccessibilityTableHeaderContainer.cpp in Sources */,
 				4DB7F2050E9BAE2900C66CE0 /* AccessibilityTableRow.cpp in Sources */,
 				4D1641310EC29E80008F024E /* ActiveDOMObject.cpp in Sources */,
-				E45624C00E268E87005E4685 /* AffineTransform.cpp in Sources */,
 				E45626810E268E87005E4685 /* AffineTransformCG.cpp in Sources */,
-				ABBD23C30EB7AC1300BEC658 /* Animation.cpp in Sources */,
 				4DB7EFE50E9BA1E400C66CE0 /* AnimationBase.cpp in Sources */,
 				AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */,
-				ABBD23C40EB7AC1300BEC658 /* AnimationList.cpp in Sources */,
 				E45623EC0E268E87005E4685 /* AppendNodeCommand.cpp in Sources */,
 				E45623ED0E268E87005E4685 /* ApplyStyleCommand.cpp in Sources */,
 				4DB7F11B0E9BAC1500C66CE0 /* ArchiveFactory.cpp in Sources */,
@@ -8836,7 +8840,6 @@
 				E45624900E268E87005E4685 /* MainResourceLoader.cpp in Sources */,
 				E45623CA0E268E87005E4685 /* MappedAttribute.cpp in Sources */,
 				E45624050E268E87005E4685 /* markup.cpp in Sources */,
-				ABBD23CA0EB7AC1300BEC658 /* MatrixTransformOperation.cpp in Sources */,
 				E45625560E268E87005E4685 /* MediaControlElements.cpp in Sources */,
 				ABBD248C0EB7BEA400BEC658 /* MediaDocument.cpp in Sources */,
 				E456239F0E268E87005E4685 /* MediaFeatureNames.cpp in Sources */,
@@ -8985,8 +8988,6 @@
 				E45625260E268E87005E4685 /* ResourceRequestBase.cpp in Sources */,
 				B57635F80E96C13D008A7ABC /* ResourceResponseBase.cpp in Sources */,
 				E45625930E268E87005E4685 /* RootInlineBox.cpp in Sources */,
-				ABBD23EA0EB7ACA600BEC658 /* RotateTransformOperation.cpp in Sources */,
-				ABBD23EB0EB7ACA600BEC658 /* ScaleTransformOperation.cpp in Sources */,
 				E45624B00E268E87005E4685 /* Screen.cpp in Sources */,
 				4DB7F1030E9BAB5600C66CE0 /* ScriptElement.cpp in Sources */,
 				4D1641330EC29E80008F024E /* ScriptExecutionContext.cpp in Sources */,
@@ -9009,7 +9010,6 @@
 				B5442A900E9BDDF10098766D /* SharedBufferCF.cpp in Sources */,
 				E45624E80E268E87005E4685 /* SimpleFontData.cpp in Sources */,
 				E45624E20E268E87005E4685 /* SimpleFontDataMac.mm in Sources */,
-				ABBD23ED0EB7ACA600BEC658 /* SkewTransformOperation.cpp in Sources */,
 				93817B950EF1CD9600993F02 /* SkiaUtils.cpp in Sources */,
 				E45624120E268E87005E4685 /* SmartReplace.cpp in Sources */,
 				E45624130E268E87005E4685 /* SmartReplaceCF.cpp in Sources */,
@@ -9257,8 +9257,6 @@
 				E45625460E268E87005E4685 /* TextStream.cpp in Sources */,
 				E45625480E268E87005E4685 /* Timer.cpp in Sources */,
 				E45624760E268E87005E4685 /* TimeRanges.cpp in Sources */,
-				ABBD23F10EB7ACA600BEC658 /* TransformOperations.cpp in Sources */,
-				ABBD23F20EB7ACA600BEC658 /* TranslateTransformOperation.cpp in Sources */,
 				E45623E60E268E87005E4685 /* Traversal.cpp in Sources */,
 				E45623E70E268E87005E4685 /* TreeWalker.cpp in Sources */,
 				E45624190E268E87005E4685 /* TypingCommand.cpp in Sources */,
@@ -9697,10 +9695,12 @@
 					"$(DIR_WEBCORE)/page/animation",
 					"$(DIR_WEBCORE)/page/mac",
 					"$(DIR_WEBCORE)/platform",
+					"$(DIR_WEBCORE)/platform/animation",
 					"$(DIR_WEBCORE)/platform/cf",
 					"$(DIR_WEBCORE)/platform/graphics",
 					"$(DIR_WEBCORE)/platform/graphics/cg",
 					"$(DIR_WEBCORE)/platform/graphics/mac",
+					"$(DIR_WEBCORE)/platform/graphics/transforms",
 					"$(DIR_WEBCORE)/platform/mac",
 					"$(DIR_WEBCORE)/platform/network",
 					"$(DIR_WEBCORE)/platform/network/mac",
@@ -9828,10 +9828,12 @@
 					"$(DIR_WEBCORE)/page/animation",
 					"$(DIR_WEBCORE)/page/mac",
 					"$(DIR_WEBCORE)/platform",
+					"$(DIR_WEBCORE)/platform/animation",
 					"$(DIR_WEBCORE)/platform/cf",
 					"$(DIR_WEBCORE)/platform/graphics",
 					"$(DIR_WEBCORE)/platform/graphics/cg",
 					"$(DIR_WEBCORE)/platform/graphics/mac",
+					"$(DIR_WEBCORE)/platform/graphics/transforms",
 					"$(DIR_WEBCORE)/platform/mac",
 					"$(DIR_WEBCORE)/platform/network",
 					"$(DIR_WEBCORE)/platform/network/mac",
