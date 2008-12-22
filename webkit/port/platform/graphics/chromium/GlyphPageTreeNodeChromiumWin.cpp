@@ -42,14 +42,14 @@ namespace WebCore
 
 // Fills one page of font data pointers with NULL to indicate that there
 // are no glyphs for the characters.
-static void FillEmptyGlyphs(GlyphPage* page)
+static void fillEmptyGlyphs(GlyphPage* page)
 {
     for (int i = 0; i < GlyphPage::size; ++i)
         page->setGlyphDataForIndex(i, NULL, NULL);
 }
 
 // Lazily initializes space glyph
-static Glyph InitSpaceGlyph(HDC dc, Glyph* space_glyph)
+static Glyph initSpaceGlyph(HDC dc, Glyph* space_glyph)
 {
     if (*space_glyph)
         return *space_glyph;
@@ -61,7 +61,7 @@ static Glyph InitSpaceGlyph(HDC dc, Glyph* space_glyph)
 // Fills a page of glyphs in the Basic Multilingual Plane (<= U+FFFF). We
 // can use the standard Windows GDI functions here. The input buffer size is
 // assumed to be GlyphPage::size. Returns true if any glyphs were found.
-static bool FillBMPGlyphs(UChar* buffer,
+static bool fillBMPGlyphs(UChar* buffer,
                           GlyphPage* page,
                           const SimpleFontData* fontData,
                           bool recurse)
@@ -76,9 +76,9 @@ static bool FillBMPGlyphs(UChar* buffer,
 
         if (recurse) {
             if (ChromiumBridge::ensureFontLoaded(fontData->m_font.hfont())) {
-                return FillBMPGlyphs(buffer, page, fontData, false);
+                return fillBMPGlyphs(buffer, page, fontData, false);
             } else {
-                FillEmptyGlyphs(page);
+                fillEmptyGlyphs(page);
                 return false;
             }
         } else {
@@ -86,7 +86,7 @@ static bool FillBMPGlyphs(UChar* buffer,
             // process and receive a crash dump. We should revisit this code later.
             // See bug 1136944.
             ASSERT_NOT_REACHED();
-            FillEmptyGlyphs(page);
+            fillEmptyGlyphs(page);
             return false;
         }
     }
@@ -146,13 +146,13 @@ static bool FillBMPGlyphs(UChar* buffer,
         if (Font::treatAsSpace(c)) {
             // Hard code the glyph indices for characters that should be
             // treated like spaces.
-            glyph = InitSpaceGlyph(dc, &space_glyph);
+            glyph = initSpaceGlyph(dc, &space_glyph);
         // TODO(dglazkov): change Font::treatAsZeroWidthSpace to use
         // u_hasBinaryProperty, per jungshik's comment here:
         // https://bugs.webkit.org/show_bug.cgi?id=20237#c6.
         // Then the additional OR won't be necessary.
         } else if (Font::treatAsZeroWidthSpace(c) || c == 0x200B) {
-            glyph = InitSpaceGlyph(dc, &space_glyph);
+            glyph = initSpaceGlyph(dc, &space_glyph);
             glyphFontData = fontData->zeroWidthFontData();
         } else if (glyph == invalid_glyph) {
             // WebKit expects both the glyph index and FontData
@@ -188,11 +188,11 @@ static bool FillBMPGlyphs(UChar* buffer,
 // since they may be missing.
 //
 // Returns true if any glyphs were found.
-static bool FillNonBMPGlyphs(UChar* buffer,
+static bool fillNonBMPGlyphs(UChar* buffer,
                              GlyphPage* page,
                              const SimpleFontData* fontData)
 {
-    bool have_glyphs = false;
+    bool haveGlyphs = false;
 
     UniscribeHelperTextRun state(buffer, GlyphPage::size * 2, false,
                                  fontData->m_font.hfont(),
@@ -207,19 +207,20 @@ static bool FillNonBMPGlyphs(UChar* buffer,
         // (i * 2).
         WORD glyph = state.FirstGlyphForCharacter(i * 2);
         if (glyph) {
-            have_glyphs = true;
+            haveGlyphs = true;
             page->setGlyphDataForIndex(i, glyph, fontData);
         } else {
             // Clear both glyph and fontData fields.
             page->setGlyphDataForIndex(i, 0, 0);
         }
     }
-    return have_glyphs;
+    return haveGlyphs;
 }
 
 // We're supposed to return true if there are any glyphs in this page in our
 // font, false if there are none.
-bool GlyphPage::fill(unsigned offset, unsigned length, UChar* characterBuffer, unsigned bufferLength, const SimpleFontData* fontData)
+bool GlyphPage::fill(unsigned offset, unsigned length, UChar* characterBuffer,
+                     unsigned bufferLength, const SimpleFontData* fontData)
 {
     // This function's parameters are kind of stupid. We always fill this page,
     // which is a fixed size. The source character indices are in the given
@@ -229,9 +230,9 @@ bool GlyphPage::fill(unsigned offset, unsigned length, UChar* characterBuffer, u
     //
     // We have to handle BMP and non-BMP characters differently anyway...
     if (bufferLength == GlyphPage::size) {
-        return FillBMPGlyphs(characterBuffer, this, fontData, true);
+        return fillBMPGlyphs(characterBuffer, this, fontData, true);
     } else if (bufferLength == GlyphPage::size * 2) {
-        return FillNonBMPGlyphs(characterBuffer, this, fontData);
+        return fillNonBMPGlyphs(characterBuffer, this, fontData);
     } else {
         // TODO: http://b/1007391 make use of offset and length
         return false;

@@ -24,18 +24,25 @@
 
 namespace WebCore {
 
+// To avoid exposing a glue type like this in WebCore, MediaPlayerPrivate
+// defines a private field m_data as type void*.  This method is used to
+// cast that to a WebMediaPlayerDelegate pointer.
+static inline webkit_glue::WebMediaPlayerDelegate* AsDelegate(void* data) {
+  return static_cast<webkit_glue::WebMediaPlayerDelegate*>(data);
+}
+
 // We can't create the delegate here because m_player->frameView is null at
 // this moment. Although we can static_cast the MediaPlayerClient to 
 // HTMLElement and get the frame from there, but creating the delegate from 
 // load() seems to be a better idea.
 MediaPlayerPrivate::MediaPlayerPrivate(MediaPlayer* player)
     : m_player(player),
-      m_delegate(NULL) {
+      m_data(NULL) {
 }
 
 MediaPlayerPrivate::~MediaPlayerPrivate() {
   // Delete the delegate, it should delete the associated WebMediaPlayer.
-  delete m_delegate;
+  delete AsDelegate(m_data);
 }
 
 void MediaPlayerPrivate::load(const String& url) {
@@ -45,124 +52,125 @@ void MediaPlayerPrivate::load(const String& url) {
   // player, in order to hook the actual media player with ResourceHandle in
   // WebMediaPlayer given the new view, we destroy the old
   // WebMediaPlayerDelegate and WebMediaPlayer and create a new set of both.
-  delete m_delegate;
-  m_delegate = NULL;
+  delete AsDelegate(m_data);
+  m_data = NULL;
 
   webkit_glue::WebMediaPlayer* media_player = 
       new webkit_glue::WebMediaPlayerImpl(this);
   WebViewDelegate* d = media_player->GetWebFrame()->GetView()->GetDelegate();
 
-  m_delegate = d->CreateMediaPlayerDelegate();
+  webkit_glue::WebMediaPlayerDelegate* new_delegate =
+      d->CreateMediaPlayerDelegate();
   // In case we couldn't create a delegate.
-  if (m_delegate) {
-    m_delegate->Initialize(media_player);
-    media_player->Initialize(m_delegate);
+  if (new_delegate) {
+    m_data = new_delegate;
+    new_delegate->Initialize(media_player);
+    media_player->Initialize(new_delegate);
 
-    m_delegate->Load(webkit_glue::StringToGURL(url));
+    new_delegate->Load(webkit_glue::StringToGURL(url));
   }
 }
 
 void MediaPlayerPrivate::cancelLoad() {
-  if (m_delegate) {
-    m_delegate->CancelLoad();
-  }
+  if (m_data)
+    AsDelegate(m_data)->CancelLoad();
 }
 
 IntSize MediaPlayerPrivate::naturalSize() const {
-  if (m_delegate) {
-    return IntSize(m_delegate->GetWidth(), m_delegate->GetHeight());
+  if (m_data) {
+    return IntSize(AsDelegate(m_data)->GetWidth(), AsDelegate(m_data)->GetHeight());
   } else {
     return IntSize(0, 0);
   }
 }
 
 bool MediaPlayerPrivate::hasVideo() const {
-  if (m_delegate) {
-    return m_delegate->IsVideo();
+  if (m_data) {
+    return AsDelegate(m_data)->IsVideo();
   } else {
     return false;
   }
 }
 
 void MediaPlayerPrivate::play() {
-  if (m_delegate) {
-    m_delegate->Play();
+  if (m_data) {
+    AsDelegate(m_data)->Play();
   }
 }
 
 void MediaPlayerPrivate::pause() {
-  if (m_delegate) {
-    m_delegate->Pause();
+  if (m_data) {
+    AsDelegate(m_data)->Pause();
   }
 }
 
 bool MediaPlayerPrivate::paused() const {
-  if (m_delegate) {
-    return m_delegate->IsPaused();
+  if (m_data) {
+    return AsDelegate(m_data)->IsPaused();
   } else {
     return true;
   }
 }
 
 bool MediaPlayerPrivate::seeking() const {
-  if (m_delegate) {
-    return m_delegate->IsSeeking();
+  if (m_data) {
+    return AsDelegate(m_data)->IsSeeking();
   } else {
     return false;
   }
 }
 
 float MediaPlayerPrivate::duration() const {
-  if (m_delegate) {
-    return m_delegate->GetDuration();
+  if (m_data) {
+    return AsDelegate(m_data)->GetDuration();
   } else {
     return 0.0f;
   }
 }
 
 float MediaPlayerPrivate::currentTime() const {
-  if (m_delegate) {
-    return m_delegate->GetCurrentTime();
+  if (m_data) {
+    return AsDelegate(m_data)->GetCurrentTime();
   } else {
     return 0.0f;
   }
 }
 
 void MediaPlayerPrivate::seek(float time) {
-  if (m_delegate) {  
-    m_delegate->Seek(time);
+  if (m_data) {  
+    AsDelegate(m_data)->Seek(time);
   }
 }
 
 void MediaPlayerPrivate::setEndTime(float time) {
-  if (m_delegate) {
-    m_delegate->SetEndTime(time);
+  if (m_data) {
+    AsDelegate(m_data)->SetEndTime(time);
   }
 }
 
 void MediaPlayerPrivate::setRate(float rate) {
-  if (m_delegate) {
-    m_delegate->SetPlaybackRate(rate);
+  if (m_data) {
+    AsDelegate(m_data)->SetPlaybackRate(rate);
   }
 }
 
 void MediaPlayerPrivate::setVolume(float volume) {
-  if (m_delegate) {
-    m_delegate->SetVolume(volume);
+  if (m_data) {
+    AsDelegate(m_data)->SetVolume(volume);
   }
 }
 
 int MediaPlayerPrivate::dataRate() const {
-  if (m_delegate) {
-    return m_delegate->GetDataRate();
+  if (m_data) {
+    return AsDelegate(m_data)->GetDataRate();
   } else {
     return 0;
   }
 }
 
 MediaPlayer::NetworkState MediaPlayerPrivate::networkState() const {
-  if (m_delegate) {
-    switch (m_delegate->GetNetworkState()) {
+  if (m_data) {
+    switch (AsDelegate(m_data)->GetNetworkState()) {
       case webkit_glue::WebMediaPlayer::EMPTY:
         return MediaPlayer::Empty;
       case webkit_glue::WebMediaPlayer::LOADED:
@@ -184,8 +192,8 @@ MediaPlayer::NetworkState MediaPlayerPrivate::networkState() const {
 }
 
 MediaPlayer::ReadyState MediaPlayerPrivate::readyState() const {
-  if (m_delegate) {
-    switch (m_delegate->GetReadyState()) {
+  if (m_data) {
+    switch (AsDelegate(m_data)->GetReadyState()) {
       case webkit_glue::WebMediaPlayer::CAN_PLAY:
         return MediaPlayer::CanPlay;
       case webkit_glue::WebMediaPlayer::CAN_PLAY_THROUGH:
@@ -203,61 +211,61 @@ MediaPlayer::ReadyState MediaPlayerPrivate::readyState() const {
 }
 
 float MediaPlayerPrivate::maxTimeBuffered() const {
-  if (m_delegate) {
-    return m_delegate->GetMaxTimeBuffered();
+  if (m_data) {
+    return AsDelegate(m_data)->GetMaxTimeBuffered();
   } else {
     return 0.0f;
   }
 }
 
 float MediaPlayerPrivate::maxTimeSeekable() const {
-  if (m_delegate) {
-    return m_delegate->GetMaxTimeSeekable();
+  if (m_data) {
+    return AsDelegate(m_data)->GetMaxTimeSeekable();
   } else {
     return 0.0f;
   }
 }
 
 unsigned MediaPlayerPrivate::bytesLoaded() const {
-  if (m_delegate) {
-    return static_cast<unsigned>(m_delegate->GetBytesLoaded());
+  if (m_data) {
+    return static_cast<unsigned>(AsDelegate(m_data)->GetBytesLoaded());
   } else {
     return 0;
   }
 }
 
 bool MediaPlayerPrivate::totalBytesKnown() const {
-  if (m_delegate) {
-    return m_delegate->IsTotalBytesKnown();
+  if (m_data) {
+    return AsDelegate(m_data)->IsTotalBytesKnown();
   } else {
     return false;
   }
 }
 
 unsigned MediaPlayerPrivate::totalBytes() const {
-  if (m_delegate) {
-    return static_cast<unsigned>(m_delegate->GetTotalBytes());
+  if (m_data) {
+    return static_cast<unsigned>(AsDelegate(m_data)->GetTotalBytes());
   } else {
     return 0;
   }
 }
 
 void MediaPlayerPrivate::setVisible(bool visible) {
-  if (m_delegate) {
-    m_delegate->SetVisible(visible);
+  if (m_data) {
+    AsDelegate(m_data)->SetVisible(visible);
   }
 }
 
 void MediaPlayerPrivate::setRect(const IntRect& r) {
-  if (m_delegate) {
-    m_delegate->SetRect(gfx::Rect(r.x(), r.y(), r.width(), r.height()));
+  if (m_data) {
+    AsDelegate(m_data)->SetRect(gfx::Rect(r.x(), r.y(), r.width(), r.height()));
   }
 }
 
 void MediaPlayerPrivate::paint(GraphicsContext* p, const IntRect& r) {
-  if (m_delegate) {
+  if (m_data) {
     gfx::Rect rect(r.x(), r.y(), r.width(), r.height());
-    m_delegate->Paint(p->platformContext()->canvas(), rect);
+    AsDelegate(m_data)->Paint(p->platformContext()->canvas(), rect);
   }
 }
 

@@ -65,7 +65,7 @@ static void SetLogFontAndStyle(HFONT hfont, LOGFONT *logfont, int *style)
     logfont->lfQuality = DEFAULT_QUALITY;  // Honor user's desktop settings.
     logfont->lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
     if (style)
-        *style = GetStyleFromLogfont(logfont);
+        *style = getStyleFromLogfont(logfont);
 }
 
 UniscribeHelper::UniscribeHelper(const UChar* input,
@@ -568,9 +568,9 @@ bool UniscribeHelper::Shape(const UChar* input,
 
             // TODO(jungshik): generic type should come from webkit for
             // UniscribeHelperTextRun (a derived class used in webkit).
-            const UChar *family = GetFallbackFamily(input, itemLength,
-                GENERIC_FAMILY_STANDARD, NULL, NULL);
-            bool font_ok = GetDerivedFontData(family, m_style, &m_logfont,
+            const UChar *family = getFallbackFamily(input, itemLength,
+                FontDescription::StandardFamily, NULL, NULL);
+            bool font_ok = getDerivedFontData(family, m_style, &m_logfont,
                                               &ascent, &hfont, &scriptCache);
 
             if (!font_ok) {
@@ -582,7 +582,7 @@ bool UniscribeHelper::Shape(const UChar* input,
                 TryToPreloadFont(hfont);
 
                 // Try again.
-                font_ok = GetDerivedFontData(family, m_style, &m_logfont,
+                font_ok = getDerivedFontData(family, m_style, &m_logfont,
                                              &ascent, &hfont, &scriptCache);
                 ASSERT(font_ok);
             }

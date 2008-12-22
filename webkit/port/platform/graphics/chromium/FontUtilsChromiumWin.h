@@ -1,7 +1,31 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-//
+// Copyright (c) 2006-2008, Google Inc. All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+// 
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 // A collection of utilities for font handling.
 
 #ifndef FontUtilsWin_h
@@ -11,28 +35,15 @@
 #include <wchar.h>
 #include <windows.h>
 
+#include "FontDescription.h"
 #include <unicode/uscript.h>
 
 namespace WebCore {
 
-// The order of family types needs to be exactly the same as
-// WebCore::FontDescription::GenericFamilyType. We may lift that restriction
-// when we make webkit_glue::WebkitGenericToChromeGenericFamily more
-// intelligent.
-enum GenericFamilyType {
-    GENERIC_FAMILY_NONE = 0,
-    GENERIC_FAMILY_STANDARD,
-    GENERIC_FAMILY_SERIF,
-    GENERIC_FAMILY_SANSSERIF,
-    GENERIC_FAMILY_MONOSPACE,
-    GENERIC_FAMILY_CURSIVE,
-    GENERIC_FAMILY_FANTASY
-};
-
-// Return a font family that supports a script and belongs to |generic| font family.
-// It can return NULL and a caller has to implement its own fallback.
-const UChar* GetFontFamilyForScript(UScriptCode script,
-                                    GenericFamilyType generic);
+// Return a font family that supports a script and belongs to |generic| font
+// family.  It can return NULL and a caller has to implement its own fallback.
+const UChar* getFontFamilyForScript(UScriptCode script,
+                                    FontDescription::GenericFamilyType generic);
 
 // Return a font family that can render |characters| based on
 // what script characters belong to. When char_checked is non-NULL,
@@ -40,11 +51,11 @@ const UChar* GetFontFamilyForScript(UScriptCode script,
 // When script_checked is non-NULL, the script used to determine
 // the family is returned.
 // TODO(jungshik) : This function needs a total overhaul.
-const UChar* GetFallbackFamily(const UChar* characters,
+const UChar* getFallbackFamily(const UChar* characters,
                                int length,
-                               GenericFamilyType generic,
-                               UChar32 *char_checked,
-                               UScriptCode *script_checked);
+                               FontDescription::GenericFamilyType generic,
+                               UChar32 *charChecked,
+                               UScriptCode *scriptChecked);
 
 // Derive a new HFONT by replacing lfFaceName of LOGFONT with |family|,
 // calculate the ascent for the derived HFONT, and initialize SCRIPT_CACHE
@@ -64,23 +75,23 @@ const UChar* GetFallbackFamily(const UChar* characters,
 // intl2 page-cycler test is noticeably slower with one out param than
 // the current version although the subsequent 9 passes take about the
 // same time.
-bool GetDerivedFontData(const UChar *family,
+bool getDerivedFontData(const UChar *family,
                         int style,
                         LOGFONT *logfont,
                         int *ascent,
                         HFONT *hfont,
-                        SCRIPT_CACHE **script_cache);
+                        SCRIPT_CACHE **scriptCache);
 
 enum {
-    FONT_STYLE_NORMAL = 0,
-    FONT_STYLE_BOLD = 1,
-    FONT_STYLE_ITALIC = 2,
-    FONT_STYLE_UNDERLINED = 4
+    FontStyleNormal = 0,
+    FontStyleBold = 1,
+    FontStyleItalic = 2,
+    FontStyleUnderlined = 4
 };
 
 // Derive style (bit-wise OR of FONT_STYLE_BOLD, FONT_STYLE_UNDERLINED, and
 // FONT_STYLE_ITALIC) from LOGFONT. Returns 0 if |*logfont| is NULL.
-int GetStyleFromLogfont(const LOGFONT *logfont);
+int getStyleFromLogfont(const LOGFONT *logfont);
 
 }  // namespace WebCore
 

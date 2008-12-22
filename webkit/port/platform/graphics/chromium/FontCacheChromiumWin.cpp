@@ -27,15 +27,16 @@
  */
 
 #include "config.h"
-#include "ChromiumBridge.h"
 #include "FontCache.h"
+
+#include "ChromiumBridge.h"
 #include "Font.h"
 #include "FontUtilsChromiumWin.h"
 #include "HashMap.h"
 #include "HashSet.h"
 #include "SimpleFontData.h"
 #include "StringHash.h"
-#include "unicode/uniset.h"
+#include <unicode/uniset.h>
 
 #include <windows.h>
 #include <objidl.h>
@@ -52,7 +53,7 @@ void FontCache::platformInit()
 }
 
 // FIXME(jungshik) : consider adding to WebKit String class
-static bool IsStringASCII(const String& s)
+static bool isStringASCII(const String& s)
 {
     for (int i = 0; i < static_cast<int>(s.length()); ++i) {
         if (s[i] > 0x7f)
@@ -200,10 +201,8 @@ static bool LookupAltName(const String& name, String& altName)
     if (!fontNameMap) {
         size_t numElements = sizeof(namePairs) / sizeof(NamePair);
         fontNameMap = new NameMap;
-        for (size_t i = 0; i < numElements; ++i) {
-            fontNameMap->set(String(namePairs[i].name),
-                             &(namePairs[i].altNameCp));
-        }
+        for (size_t i = 0; i < numElements; ++i)
+            fontNameMap->set(String(namePairs[i].name), &(namePairs[i].altNameCp));
     }
 
     bool isAscii = false; 
@@ -211,12 +210,11 @@ static bool LookupAltName(const String& name, String& altName)
     // use |lower| only for ASCII names 
     // For non-ASCII names, we don't want to invoke an expensive 
     // and unnecessary |lower|. 
-    if (IsStringASCII(name)) {
+    if (isStringASCII(name)) {
         isAscii = true;
         n = name.lower();
-    } else {
+    } else
         n = name;
-    }
 
     NameMap::iterator iter = fontNameMap->find(n);
     if (iter == fontNameMap->end())
@@ -225,8 +223,7 @@ static bool LookupAltName(const String& name, String& altName)
     static int systemCp = ::GetACP();
     int fontCp = iter->second->codePage;
 
-    if ((isAscii && systemCp == fontCp) ||
-        (!isAscii && systemCp != fontCp)) {
+    if ((isAscii && systemCp == fontCp) || (!isAscii && systemCp != fontCp)) {
         altName = String(iter->second->name);
         return true;
     }
@@ -243,7 +240,7 @@ static HFONT createFontIndirectAndGetWinName(const String& family,
 
     HFONT hfont = CreateFontIndirect(winfont);
     if (!hfont)
-      return NULL;
+        return NULL;
 
     HDC dc = GetDC(0);
     HGDIOBJ oldFont = static_cast<HFONT>(SelectObject(dc, hfont));
@@ -287,10 +284,8 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
     HDC hdc = GetDC(0);
     HGDIOBJ oldFont = static_cast<HFONT>(SelectObject(hdc, hfont));
     int count = GetFontUnicodeRanges(hdc, 0);
-    if (count == 0) {
-        if (ChromiumBridge::ensureFontLoaded(hfont)) 
-            count = GetFontUnicodeRanges(hdc, 0);
-    }
+    if (count == 0 && ChromiumBridge::ensureFontLoaded(hfont))
+        count = GetFontUnicodeRanges(hdc, 0);
     if (count == 0) {
         ASSERT_NOT_REACHED();
         SelectObject(hdc, oldFont);
@@ -336,9 +331,8 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     FontDescription fontDescription = font.fontDescription();
     UChar32 c;
     UScriptCode script;
-    const wchar_t* family = GetFallbackFamily(characters, length,
-        static_cast<GenericFamilyType>(fontDescription.genericFamily()),
-        &c, &script);
+    const wchar_t* family = getFallbackFamily(characters, length,
+        fontDescription.genericFamily(), &c, &script);
     FontPlatformData* data = NULL;
     if (family) {
         data = getCachedFontPlatformData(font.fontDescription(), 
@@ -466,13 +460,11 @@ FontPlatformData* FontCache::getLastResortFallbackFont(
     // be more intelligent. 
     // This spot rarely gets reached. GetFontDataForCharacters() gets hit a lot
     // more often (see TODO comment there). 
-    const wchar_t* family = GetFontFamilyForScript(description.dominantScript(),
-        static_cast<GenericFamilyType>(generic));
+    const wchar_t* family = getFontFamilyForScript(description.dominantScript(),
+        generic);
 
-    if (family) {
-        return getCachedFontPlatformData(description,
-                                         AtomicString(family, wcslen(family)));
-    }
+    if (family)
+        return getCachedFontPlatformData(description, AtomicString(family, wcslen(family)));
 
     // FIXME: Would be even better to somehow get the user's default font here.
     // For now we'll pick the default that the user would get without changing
@@ -510,9 +502,8 @@ static LONG toGDIFontWeight(FontWeight fontWeight)
 // TODO in pending/FontCache.h.
 AtomicString FontCache::getGenericFontForScript(UScriptCode script, const FontDescription& description)
 {
-    FontDescription::GenericFamilyType generic = description.genericFamily();
-    const wchar_t* scriptFont = GetFontFamilyForScript(
-        script, static_cast<GenericFamilyType>(generic));
+    const wchar_t* scriptFont = getFontFamilyForScript(
+        script, description.genericFamily());
     return scriptFont ? AtomicString(scriptFont, wcslen(scriptFont)) : emptyAtom;
 }
 

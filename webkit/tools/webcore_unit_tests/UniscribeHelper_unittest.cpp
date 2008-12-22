@@ -8,9 +8,8 @@
 #include "PlatformString.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// This must be in the gfx namespace for the friend statements in uniscribe.h
-// to work.
-namespace WebCore {
+using WebCore::String;
+using WebCore::UniscribeHelper;
 
 namespace {
 
@@ -138,5 +137,3 @@ TEST_F(UniscribeTest, TooBig)
         EXPECT_EQ(0, uniscribe.XToCharacter(1000));
     }
 }
-
-}  // namespace WebCore

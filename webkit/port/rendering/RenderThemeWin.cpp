@@ -166,7 +166,7 @@ static wchar_t* defaultGUIFont(Document* document)
         dominantScript != USCRIPT_CYRILLIC &&
         dominantScript != USCRIPT_GREEK &&
         dominantScript != USCRIPT_INVALID_CODE) {
-        family = GetFontFamilyForScript(dominantScript, GENERIC_FAMILY_NONE);
+        family = getFontFamilyForScript(dominantScript, FontDescription::NoFamily);
         if (family)
             return const_cast<wchar_t*>(family);
     }

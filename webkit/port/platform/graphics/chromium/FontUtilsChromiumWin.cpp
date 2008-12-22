@@ -1,6 +1,30 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright (c) 2006-2008, Google Inc. All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+// 
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
 #include "FontUtilsChromiumWin.h"
@@ -22,7 +46,7 @@ namespace {
 // which works well since the range of UScriptCode values is small.
 typedef const UChar* ScriptToFontMap[USCRIPT_CODE_LIMIT];
 
-void InitializeScriptFontMap(ScriptToFontMap& scriptFontMap)
+void initializeScriptFontMap(ScriptToFontMap& scriptFontMap)
 {
     struct FontMap {
         UScriptCode script;
@@ -97,15 +121,15 @@ const int kUndefinedAscent = std::numeric_limits<int>::min();
 
 // Given an HFONT, return the ascent. If GetTextMetrics fails,
 // kUndefinedAscent is returned, instead.
-int GetAscent(HFONT hfont)
+int getAscent(HFONT hfont)
 {
     HDC dc = GetDC(NULL);
     HGDIOBJ oldFont = SelectObject(dc, hfont);
     TEXTMETRIC tm;
-    BOOL got_metrics = GetTextMetrics(dc, &tm);
+    BOOL gotMetrics = GetTextMetrics(dc, &tm);
     SelectObject(dc, oldFont);
     ReleaseDC(NULL, dc);
-    return got_metrics ? tm.tmAscent : kUndefinedAscent;
+    return gotMetrics ? tm.tmAscent : kUndefinedAscent;
 }
 
 struct FontData {
@@ -139,12 +163,13 @@ typedef HashMap<String, FontData> FontDataCache;
 //    keep track of which character is supported by which font
 //  - Update script_font_cache in response to WM_FONTCHANGE
 
-const UChar* GetFontFamilyForScript(UScriptCode script,
-                                    GenericFamilyType generic) {
+const UChar* getFontFamilyForScript(UScriptCode script,
+                                    FontDescription::GenericFamilyType generic)
+{
     static ScriptToFontMap scriptFontMap;
     static bool initialized = false;
     if (!initialized) {
-        InitializeScriptFontMap(scriptFontMap);
+        initializeScriptFontMap(scriptFontMap);
         initialized = true;
     }
     if (script == USCRIPT_INVALID_CODE)
@@ -161,9 +186,9 @@ const UChar* GetFontFamilyForScript(UScriptCode script,
 //    and just return it.
 //  - All the characters (or characters up to the point a single
 //    font can cover) need to be taken into account
-const UChar* GetFallbackFamily(const UChar *characters,
+const UChar* getFallbackFamily(const UChar *characters,
                                int length,
-                               GenericFamilyType generic,
+                               FontDescription::GenericFamilyType generic,
                                UChar32 *charChecked,
                                UScriptCode *scriptChecked)
 {
@@ -230,7 +255,7 @@ const UChar* GetFallbackFamily(const UChar *characters,
     }
 
     // Another lame work-around to cover non-BMP characters.
-    const UChar* family = GetFontFamilyForScript(script, generic);
+    const UChar* family = getFontFamilyForScript(script, generic);
     if (!family) {
         int plane = ucs4 >> 16;
         switch (plane) {
@@ -253,7 +278,7 @@ const UChar* GetFallbackFamily(const UChar *characters,
 }
 
 // Be aware that this is not thread-safe.
-bool GetDerivedFontData(const UChar *family,
+bool getDerivedFontData(const UChar *family,
                         int style,
                         LOGFONT *logfont,
                         int *ascent,
@@ -283,14 +308,14 @@ bool GetDerivedFontData(const UChar *family,
         // GetAscent may return kUndefinedAscent, but we still want to
         // cache it so that we won't have to call CreateFontIndirect once
         // more for HFONT next time.
-        derived->ascent = GetAscent(derived->hfont);
+        derived->ascent = getAscent(derived->hfont);
     } else {
         derived = &iter->second;
         // Last time, GetAscent failed so that only HFONT was
         // cached. Try once more assuming that TryPreloadFont
         // was called by a caller between calls.
         if (kUndefinedAscent == derived->ascent)
-            derived->ascent = GetAscent(derived->hfont);
+            derived->ascent = getAscent(derived->hfont);
     }
     *hfont = derived->hfont;
     *ascent = derived->ascent;
@@ -298,16 +323,16 @@ bool GetDerivedFontData(const UChar *family,
     return *ascent != kUndefinedAscent;
 }
 
-int GetStyleFromLogfont(const LOGFONT* logfont) {
+int getStyleFromLogfont(const LOGFONT* logfont) {
     // TODO(jungshik) : consider defining UNDEFINED or INVALID for style and
     //                  returning it when logfont is NULL
     if (!logfont) {
         ASSERT_NOT_REACHED();
-        return FONT_STYLE_NORMAL;
+        return FontStyleNormal;
     }
-    return (logfont->lfItalic ? FONT_STYLE_ITALIC : FONT_STYLE_NORMAL) |
-           (logfont->lfUnderline ? FONT_STYLE_UNDERLINED : FONT_STYLE_NORMAL) |
-           (logfont->lfWeight >= 700 ? FONT_STYLE_BOLD : FONT_STYLE_NORMAL);
+    return (logfont->lfItalic ? FontStyleItalic : FontStyleNormal) |
+           (logfont->lfUnderline ? FontStyleUnderlined : FontStyleNormal) |
+           (logfont->lfWeight >= 700 ? FontStyleBold : FontStyleNormal);
 }
 
 }  // namespace WebCore
