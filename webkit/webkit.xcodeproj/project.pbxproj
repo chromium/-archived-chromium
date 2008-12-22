@@ -84,7 +84,6 @@
 		4D16411F0EC29D01008F024E /* GeolocationService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1641140EC29D01008F024E /* GeolocationService.cpp */; };
 		4D1641310EC29E80008F024E /* ActiveDOMObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1641280EC29E80008F024E /* ActiveDOMObject.cpp */; };
 		4D1641330EC29E80008F024E /* ScriptExecutionContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D16412F0EC29E80008F024E /* ScriptExecutionContext.cpp */; };
-		4D2A63EB0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */; };
 		4D2A64400EBBC0A700B55603 /* V8HTMLVideoElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A643A0EBBC0A700B55603 /* V8HTMLVideoElement.cpp */; };
 		4D2A64410EBBC0A700B55603 /* V8MediaError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A643C0EBBC0A700B55603 /* V8MediaError.cpp */; };
 		4D2A64420EBBC0A700B55603 /* V8TimeRanges.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A643E0EBBC0A700B55603 /* V8TimeRanges.cpp */; };
@@ -499,6 +498,7 @@
 		93AF4CE90EFAEE440073C62D /* TextBreakIteratorInternalICUChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4CE50EFAEE440073C62D /* TextBreakIteratorInternalICUChromium.cpp */; };
 		93AF4D050EFAF0090073C62D /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4D040EFAF0090073C62D /* ScrollView.cpp */; };
 		93AF4D090EFAF2770073C62D /* TextBoundariesChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4D080EFAF2770073C62D /* TextBoundariesChromium.cpp */; };
+		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
@@ -1579,7 +1579,6 @@
 		4D1641690EC29FED008F024E /* ParserUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParserUtilities.h; sourceTree = "<group>"; };
 		4D1641790EC2A055008F024E /* AccessibilityObjectWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObjectWrapper.h; sourceTree = "<group>"; };
 		4D16417A0EC2A055008F024E /* FrameChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameChromium.h; sourceTree = "<group>"; };
-		4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaPlayerPrivateChromium.cpp; sourceTree = "<group>"; };
 		4D2A63EA0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaPlayerPrivateChromium.h; sourceTree = "<group>"; };
 		4D2A643A0EBBC0A700B55603 /* V8HTMLVideoElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLVideoElement.cpp; sourceTree = "<group>"; };
 		4D2A643B0EBBC0A700B55603 /* V8HTMLVideoElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLVideoElement.h; sourceTree = "<group>"; };
@@ -4023,6 +4022,7 @@
 		93AF4CE50EFAEE440073C62D /* TextBreakIteratorInternalICUChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextBreakIteratorInternalICUChromium.cpp; sourceTree = "<group>"; };
 		93AF4D040EFAF0090073C62D /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollView.cpp; sourceTree = "<group>"; };
 		93AF4D080EFAF2770073C62D /* TextBoundariesChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextBoundariesChromium.cpp; sourceTree = "<group>"; };
+		93AF52480F001CAB0073C62D /* media_player_private_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = media_player_private_impl.cc; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
 		93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CookieJarChromium.cpp; path = chromium/CookieJarChromium.cpp; sourceTree = "<group>"; };
@@ -4448,7 +4448,6 @@
 			children = (
 				93AF4BD90EF6FB960073C62D /* IconChromiumMac.cpp */,
 				E45074750EFC13C2003BE099 /* ImageChromiumMac.mm */,
-				4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */,
 				4D2A63EA0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.h */,
 			);
 			path = chromium;
@@ -7520,6 +7519,7 @@
 				825405180D92E3DA0006B936 /* inspector_client_impl.cc */,
 				825405190D92E3DA0006B936 /* inspector_client_impl.h */,
 				8254051A0D92E3DA0006B936 /* localized_strings.cc */,
+				93AF52480F001CAB0073C62D /* media_player_private_impl.cc */,
 				8254051B0D92E3DA0006B936 /* mimetype_unittest.cc */,
 				8254051D0D92E3DA0006B936 /* multipart_response_delegate.cc */,
 				8254051E0D92E3DA0006B936 /* multipart_response_delegate.h */,
@@ -9374,6 +9374,7 @@
 				E48A06DE0E3F840F00172919 /* image_resource_fetcher.cc in Sources */,
 				E456270B0E268F03005E4685 /* inspector_client_impl.cc in Sources */,
 				E45063BA0E4104700025A81A /* localized_strings.cc in Sources */,
+				93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */,
 				E456283A0E269DCB005E4685 /* multipart_response_delegate.cc in Sources */,
 				538D819B0EC371EA00278C31 /* password_autocomplete_listener.cc in Sources */,
 				E45627100E268F03005E4685 /* password_form_dom_manager.cc in Sources */,
@@ -9438,7 +9439,6 @@
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
 				E473F64B0EADFFF8006C2098 /* Language.cpp in Sources */,
 				4D1641090EC29C84008F024E /* Location.cpp in Sources */,
-				4D2A63EB0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp in Sources */,
 				E473F64E0EAE0005006C2098 /* MimeTypeRegistryChromium.cpp in Sources */,
 				93817B970EF1CD9600993F02 /* NativeImageSkia.cpp in Sources */,
 				93BF8E9C0EA6B0F30030F05C /* NetworkStateNotifierChromium.cpp in Sources */,
