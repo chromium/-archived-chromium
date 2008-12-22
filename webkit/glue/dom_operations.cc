@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "AnimationController.h"
 #include "FrameLoader.h"
 #include "FrameTree.h"
 #include "Document.h"
@@ -794,5 +795,50 @@ void GetApplicationInfo(WebView* view, WebApplicationInfo* app_info) {
   }
 }
 
-} // webkit_glue
+bool PauseAnimationAtTimeOnElementWithId(WebView* view,
+                                         const std::string& animation_name,
+                                         double time,
+                                         const std::string& element_id) {
+  WebFrame* web_frame = view->GetMainFrame();
+  if (!web_frame)
+    return false;
 
+  WebCore::Frame* frame = static_cast<WebFrameImpl*>(web_frame)->frame();
+  WebCore::AnimationController* controller = frame->animation();
+  if (!controller)
+    return false;
+
+  WebCore::Element* element =
+      frame->document()->getElementById(StdStringToString(element_id));
+  if (!element)
+    return false;
+
+  return controller->pauseAnimationAtTime(element->renderer(),
+                                          StdStringToString(animation_name),
+                                          time);
+}
+
+bool PauseTransitionAtTimeOnElementWithId(WebView* view,
+                                          const std::string& property_name,
+                                          double time,
+                                          const std::string& element_id) {
+  WebFrame* web_frame = view->GetMainFrame();
+  if (!web_frame)
+    return false;
+
+  WebCore::Frame* frame = static_cast<WebFrameImpl*>(web_frame)->frame();
+  WebCore::AnimationController* controller = frame->animation();
+  if (!controller)
+    return false;
+
+  WebCore::Element* element =
+      frame->document()->getElementById(StdStringToString(element_id));
+  if (!element)
+    return false;
+
+  return controller->pauseTransitionAtTime(element->renderer(),
+                                           StdStringToString(property_name),
+                                           time);
+}
+
+} // webkit_glue

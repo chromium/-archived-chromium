@@ -1733,12 +1733,9 @@ LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
-LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
-// Timing sensitive
-LayoutTests/animations/combo-transform-translate+scale.html = FAIL PASS
-LayoutTests/animations/keyframes-from-missing.html = FAIL
+// This test needs to be rebaselined on Mac/Linux.
+LINUX MAC : LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
 LayoutTests/animations/keyframes-rule.html = FAIL
-LayoutTests/animations/keyframes-to-missing.html = FAIL
 LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 LayoutTests/fast/regex/quantified-assertions.html = FAIL

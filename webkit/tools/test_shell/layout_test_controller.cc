@@ -14,6 +14,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "webkit/glue/dom_operations.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
@@ -97,6 +98,8 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("setStopProvisionalFrameLoads", &LayoutTestController::setStopProvisionalFrameLoads);
   BindMethod("setSmartInsertDeleteEnabled", &LayoutTestController::setSmartInsertDeleteEnabled);
   BindMethod("setSelectTrailingWhitespaceEnabled", &LayoutTestController::setSelectTrailingWhitespaceEnabled);
+  BindMethod("pauseAnimationAtTimeOnElementWithId", &LayoutTestController::pauseAnimationAtTimeOnElementWithId);
+  BindMethod("pauseTransitionAtTimeOnElementWithId", &LayoutTestController::pauseTransitionAtTimeOnElementWithId);
 
   // The following are stubs.
   BindMethod("dumpAsWebArchive", &LayoutTestController::dumpAsWebArchive);
@@ -566,6 +569,39 @@ void LayoutTestController::setSelectTrailingWhitespaceEnabled(
   }
 
   result->SetNull();
+}
+
+void LayoutTestController::pauseAnimationAtTimeOnElementWithId(
+    const CppArgumentList& args,
+    CppVariant* result) {
+  if (args.size() > 2 && args[0].isString() && args[1].isNumber() &&
+      args[2].isString()) {
+    std::string animation_name = args[0].ToString();
+    double time = args[1].ToDouble();
+    std::string element_id = args[2].ToString();
+
+    result->Set(
+        webkit_glue::PauseAnimationAtTimeOnElementWithId(
+            shell_->webView(), animation_name, time, element_id));
+  } else {
+    result->Set(false);
+  }
+}
+
+void LayoutTestController::pauseTransitionAtTimeOnElementWithId(
+    const CppArgumentList& args,
+    CppVariant* result) {
+  if (args.size() > 2 && args[0].isString() && args[1].isNumber() &&
+      args[2].isString()) {
+    std::string property_name = args[0].ToString();
+    double time = args[1].ToDouble();
+    std::string element_id = args[2].ToString();
+
+    webkit_glue::PauseTransitionAtTimeOnElementWithId(
+        shell_->webView(), property_name, time, element_id);
+  } else {
+    result->Set(false);
+  }
 }
 
 //

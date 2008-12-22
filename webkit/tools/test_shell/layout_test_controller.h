@@ -133,6 +133,11 @@ class LayoutTestController : public CppBoundClass {
   void setSelectTrailingWhitespaceEnabled(const CppArgumentList& args,
                                           CppVariant* result);
 
+  void pauseAnimationAtTimeOnElementWithId(const CppArgumentList& args,
+                                           CppVariant* result);
+  void pauseTransitionAtTimeOnElementWithId(const CppArgumentList& args,
+                                            CppVariant* result);
+
   // The following are only stubs.  TODO(pamg): Implement any of these that
   // are needed to pass the layout tests.
   void dumpAsWebArchive(const CppArgumentList& args, CppVariant* result);

@@ -171,7 +171,22 @@ bool ParseIconSizes(const std::wstring& text,
 // WebApplicationInfo for details as to where each field comes from.
 void GetApplicationInfo(WebView* view, WebApplicationInfo* app_info);
 
+// Invokes pauseAnimationAtTime on the AnimationController associated with the
+// |view|s main frame.
+// This is used by test shell.
+bool PauseAnimationAtTimeOnElementWithId(WebView* view,
+                                         const std::string& animation_name,
+                                         double time,
+                                         const std::string& element_id);
+
+// Invokes pauseTransitionAtTime on the AnimationController associated with the
+// |view|s main frame.
+// This is used by test shell.
+bool PauseTransitionAtTimeOnElementWithId(WebView* view,
+                                          const std::string& property_name,
+                                          double time,
+                                          const std::string& element_id);
+
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_DOM_OPERATIONS_H__
-
