@@ -1326,18 +1326,6 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="rendering"
-			>
-			<File
-				RelativePath="..\..\port\rendering\RenderThemeWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\rendering\RenderThemeWin.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="bridge"
 			>
 			<Filter

@@ -67,7 +67,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PopupMenuChromium.h"
 #include "PopupMenuClient.h"
 #if defined(OS_WIN)
-#include "RenderThemeWin.h"
+#include "RenderThemeChromiumWin.h"
 #endif
 #include "RenderView.h"
 #include "ResourceHandle.h"

@@ -116,8 +116,6 @@ if env.Bit('windows'):
     '$PORT_DIR/platform/graphics/chromium/ThemeHelperChromiumWin.cpp',
     '$PORT_DIR/platform/graphics/chromium/UniscribeHelper.cpp',
     '$PORT_DIR/platform/graphics/chromium/UniscribeHelperTextRun.cpp',
-
-    '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
 
 if env.Bit('linux'):

@@ -99,7 +99,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformContextSkia.h"
 #include "RenderFrame.h"
 #if defined(OS_WIN)
-#include "RenderThemeWin.h"
+#include "RenderThemeChromiumWin.h"
 #endif
 #include "RenderWidget.h"
 #include "ReplaceSelectionCommand.h"

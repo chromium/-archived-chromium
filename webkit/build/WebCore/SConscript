@@ -578,6 +578,7 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderTextControl.cpp',
     '$WEBCORE_DIR/rendering/RenderTextFragment.cpp',
     '$WEBCORE_DIR/rendering/RenderTheme.cpp',
+    '$WEBCORE_DIR/rendering/RenderThemeChromiumWin.cpp',
     '$WEBCORE_DIR/rendering/RenderTreeAsText.cpp',
     '$WEBCORE_DIR/rendering/RenderVideo.cpp',
     '$WEBCORE_DIR/rendering/RenderView.cpp',
