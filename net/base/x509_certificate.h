@@ -19,6 +19,9 @@
 #include <wincrypt.h>
 #elif defined(OS_MACOSX)
 #include <Security/Security.h>
+#elif defined(OS_LINUX)
+// Forward declaration; real one in <cert.h>
+struct CERTCertificateStr;
 #endif
 
 class Pickle;
@@ -50,6 +53,8 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   typedef PCCERT_CONTEXT OSCertHandle;
 #elif defined(OS_MACOSX)
   typedef SecCertificateRef OSCertHandle;
+#elif defined(OS_LINUX)
+  typedef struct CERTCertificateStr* OSCertHandle;
 #else
   // TODO(ericroman): not implemented
   typedef void* OSCertHandle;

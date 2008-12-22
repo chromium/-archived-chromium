@@ -95,7 +95,6 @@ if env.Bit('windows'):
 if env.Bit('linux'):
   # TODO(port):
   to_be_ported_files = [
-      'base/x509_certificate_unittest.cc',
       'base/sdch_filter_unittest.cc',
       'base/ssl_config_service_unittest.cc',
   ]
