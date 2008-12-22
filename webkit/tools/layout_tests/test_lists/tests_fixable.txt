@@ -918,6 +918,7 @@ LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
 LINUX : LayoutTests/fast/text/should-use-atsui.html = FAIL
 LINUX : LayoutTests/fast/text/updateNewFont.html = FAIL
 LINUX MAC : LayoutTests/fast/xsl/transform-xhr-doc.xhtml = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
@@ -1808,3 +1809,5 @@ LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
 // Merge 39369:39410: new test. Ran correctly and was baselined on Win32;
 // may just need a baseline for Mac and Linux.  (Might even pass there.)
 MAC LINUX : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
+LINUX : LayoutTests/transitions/transform-op-list-match.html = FAIL
+LINUX : LayoutTests/transitions/transform-op-list-no-match.html = FAIL
