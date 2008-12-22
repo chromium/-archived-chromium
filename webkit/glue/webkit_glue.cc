@@ -83,6 +83,7 @@ bool IsLayoutTestMode() {
 
 void InitializeForTesting() {
   WTF::initializeThreading();
+  WebCore::AtomicString::init();
 }
 
 void EnableWebCoreNotImplementedLogging() {

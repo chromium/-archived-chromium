@@ -33,7 +33,12 @@ MultipartResponseDelegate::MultipartResponseDelegate(
       first_received_data_(true),
       processing_headers_(false),
       stop_sending_(false) {
-  boundary_.append(boundary);
+  // Some servers report a boundary prefixed with "--".  See bug 5786.
+  if (StartsWithASCII(boundary, "--", true)) {
+    boundary_.assign(boundary);
+  } else {
+    boundary_.append(boundary);
+  }
 }
 
 void MultipartResponseDelegate::OnReceivedData(const char* data, int data_len) {

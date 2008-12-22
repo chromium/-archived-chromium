@@ -225,6 +225,32 @@ TEST(MultipartResponseTest, MissingBoundaries) {
             client.data_);
 }
 
+TEST(MultipartResponseTest, MalformedBoundary) {
+  // Some servers send a boundary that is prefixed by "--".  See bug 5786.
+
+  ResourceResponse response(KURL(), "multipart/x-mixed-replace", 0, "en-US",
+                            String());
+  response.setHTTPHeaderField(String("Foo"), String("Bar"));
+  response.setHTTPHeaderField(String("Content-type"), String("text/plain"));
+  MockResourceHandleClient client;
+  MultipartResponseDelegate delegate(&client, NULL, response, "--bound");
+
+  string data(
+    "--bound\n"
+    "Content-type: text/plain\n\n"
+    "This is a sample response\n"
+    "--bound--"
+    "ignore junk after end token --bound\n\nTest2\n");
+  delegate.OnReceivedData(data.c_str(), static_cast<int>(data.length()));
+  EXPECT_EQ(1, client.received_response_);
+  EXPECT_EQ(1, client.received_data_);
+  EXPECT_EQ(string("This is a sample response\n"), client.data_);
+
+  delegate.OnCompletedRequest();
+  EXPECT_EQ(1, client.received_response_);
+  EXPECT_EQ(1, client.received_data_);
+}
+
 
 // Used in for tests that break the data in various places.
 struct TestChunk {
