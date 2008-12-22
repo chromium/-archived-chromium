@@ -1735,7 +1735,8 @@ WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 // Merge 39143:39309
 // This test needs to be rebaselined on Mac/Linux.
 LINUX MAC : LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
-LayoutTests/animations/keyframes-rule.html = FAIL
+// This test needs to be rebaselined on Mac/Linux.
+LINUX MAC : LayoutTests/animations/keyframes-rule.html = FAIL
 LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 LayoutTests/fast/regex/quantified-assertions.html = FAIL
