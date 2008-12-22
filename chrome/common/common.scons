@@ -43,6 +43,7 @@ input_files = []
 
 input_files.extend([
   'ipc_channel_proxy.cc',
+  'ipc_sync_message.cc',
 ])
 
 if not env.Bit('mac'):
@@ -97,7 +98,6 @@ if env.Bit('windows'):
       'gfx/text_elider.cc',
       'ipc_logging.cc',
       'ipc_sync_channel.cc',
-      'ipc_sync_message.cc',
       'jstemplate_builder.cc',
       'l10n_util.cc',
       'message_router.cc',

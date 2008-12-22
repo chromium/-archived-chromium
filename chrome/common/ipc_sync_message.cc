@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 #include <stack>
 
 #include "chrome/common/ipc_sync_message.h"
@@ -13,17 +15,24 @@ namespace IPC {
 uint32 SyncMessage::next_id_ = 0;
 #define kSyncMessageHeaderSize 4
 
+#if defined(OS_WIN)
+// TODO(playmobil): reinstantiate once ObjectWatcher is ported.
 // A dummy handle used by EnableMessagePumping.
 HANDLE dummy_event = ::CreateEvent(NULL, TRUE, TRUE, NULL);
+#endif
 
 SyncMessage::SyncMessage(
     int32 routing_id,
-    WORD type,
+    uint16 type,
     PriorityValue priority,
     MessageReplyDeserializer* deserializer)
     : Message(routing_id, type, priority),
-      deserializer_(deserializer),
-      pump_messages_event_(NULL) {
+      deserializer_(deserializer)
+#if defined(OS_WIN)
+      // TODO(playmobil): reinstantiate once ObjectWatcher is ported.
+      , pump_messages_event_(NULL)
+#endif
+      {
   set_sync();
   set_unblock(true);
 
@@ -40,10 +49,13 @@ MessageReplyDeserializer* SyncMessage::GetReplyDeserializer() {
   return rv;
 }
 
+#if defined(OS_WIN)
+// TODO(playmobil): reinstantiate once ObjectWatcher is ported.
 void SyncMessage::EnableMessagePumping() {
   DCHECK(!pump_messages_event_);
   set_pump_messages_event(dummy_event);
 }
+#endif // defined(OS_WIN)
 
 bool SyncMessage::IsMessageReplyTo(const Message& msg, int request_id) {
   if (!msg.is_reply())
@@ -100,8 +112,6 @@ bool SyncMessage::ReadSyncHeader(const Message& msg, SyncHeader* header) {
 bool SyncMessage::WriteSyncHeader(Message* msg, const SyncHeader& header) {
   DCHECK(msg->is_sync() || msg->is_reply());
   DCHECK(msg->payload_size() == 0);
-
-  void* iter = NULL;
   bool result = msg->WriteInt(header.message_id);
   if (!result) {
     NOTREACHED();
