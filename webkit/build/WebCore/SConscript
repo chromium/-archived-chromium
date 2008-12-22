@@ -778,6 +778,14 @@ input_files = [
     '$WEBCORE_DIR/svg/graphics/SVGResourceMarker.cpp',
     '$WEBCORE_DIR/svg/graphics/SVGResourceMasker.cpp',
 
+    '$WEBCORE_DIR/svg/graphics/skia/RenderPathSkia.cpp',
+    '$WEBCORE_DIR/svg/graphics/skia/SkiaSupport.cpp',
+    '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerGradientSkia.cpp',
+    '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerPatternSkia.cpp',
+    '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerSkia.cpp',
+    '$WEBCORE_DIR/svg/graphics/skia/SVGResourceFilterSkia.cpp',
+    '$WEBCORE_DIR/svg/graphics/skia/SVGResourceMaskerSkia.cpp',
+
     '$WEBCORE_DIR/xml/DOMParser.cpp',
     '$WEBCORE_DIR/xml/NativeXPathNSResolver.cpp',
     '$WEBCORE_DIR/xml/XMLHttpRequest.cpp',

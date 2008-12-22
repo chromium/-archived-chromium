@@ -83,14 +83,6 @@ input_files = [
 
     '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
 
-    '$PORT_DIR/svg/graphics/skia/RenderPathSkia.cpp',
-    '$PORT_DIR/svg/graphics/skia/SkiaSupport.cpp',
-    '$PORT_DIR/svg/graphics/skia/SVGPaintServerGradientSkia.cpp',
-    '$PORT_DIR/svg/graphics/skia/SVGPaintServerPatternSkia.cpp',
-    '$PORT_DIR/svg/graphics/skia/SVGPaintServerSkia.cpp',
-    '$PORT_DIR/svg/graphics/skia/SVGResourceFilterSkia.cpp',
-    '$PORT_DIR/svg/graphics/skia/SVGResourceMaskerSkia.cpp',
-
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
     '$PORT_DIR/platform/image-decoders/gif/GIFImageDecoder.cpp',

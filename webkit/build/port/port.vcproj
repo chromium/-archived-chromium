@@ -1350,50 +1350,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="svg"
-			>
-			<Filter
-				Name="graphics"
-				>
-				<Filter
-					Name="skia"
-					>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\RenderPathSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SkiaSupport.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SkiaSupport.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SVGPaintServerGradientSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SVGPaintServerPatternSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SVGPaintServerSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SVGResourceFilterSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\port\svg\graphics\skia\SVGResourceMaskerSkia.cpp"
-						>
-					</File>
-				</Filter>
-			</Filter>
-		</Filter>
-		<Filter
 			Name="bridge"
 			>
 			<Filter

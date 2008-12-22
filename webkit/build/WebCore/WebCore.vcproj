@@ -6416,6 +6416,42 @@
 			<Filter
 				Name="graphics"
 				>
+				<Filter
+					Name="skia"
+					>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\RenderPathSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SkiaSupport.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SkiaSupport.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerGradientSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerPatternSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGResourceFilterSkia.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGResourceMaskerSkia.cpp"
+						>
+					</File>
+				</Filter>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\SVGImage.cpp"
 					>
