@@ -5,6 +5,8 @@
 #ifndef BASE_SCOPED_HANDLE_H_
 #define BASE_SCOPED_HANDLE_H_
 
+#include <stdio.h>
+
 #include "base/basictypes.h"
 
 #if defined(OS_WIN)
