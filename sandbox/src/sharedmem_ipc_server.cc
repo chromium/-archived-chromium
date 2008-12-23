@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "sandbox/src/sharedmem_ipc_server.h"
 #include "sandbox/src/sharedmem_ipc_client.h"
 #include "sandbox/src/sandbox.h"
 #include "sandbox/src/sandbox_types.h"
 #include "sandbox/src/crosscall_params.h"
 #include "sandbox/src/crosscall_server.h"
-#include "base/logging.h"
 
 namespace sandbox {
 

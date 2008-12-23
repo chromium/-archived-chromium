@@ -5,7 +5,7 @@
 #include "sandbox/src/registry_dispatcher.h"
 
 #include "base/logging.h"
-#include "base/scoped_handle.h"
+#include "base/scoped_handle_win.h"
 #include "sandbox/src/crosscall_client.h"
 #include "sandbox/src/interception.h"
 #include "sandbox/src/ipc_tags.h"

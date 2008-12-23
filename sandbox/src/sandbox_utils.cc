@@ -98,5 +98,22 @@ void InitObjectAttribs(const std::wstring& name, ULONG attributes, HANDLE root,
   InitializeObjectAttributes(obj_attr, uni_name, attributes, root, NULL);
 }
 
+std::string WideToMultiByte(const std::wstring& wide) {
+  if (wide.length() == 0)
+    return std::string();
+
+  // compute the length of the buffer we'll need
+  int charcount = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1,
+                                      NULL, 0, NULL, NULL);
+  if (charcount == 0)
+    return std::string();
+
+  std::string mb;
+  WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1,
+                      WriteInto(&mb, charcount), charcount, NULL, NULL);
+
+  return mb;
+}
+
 };  // namespace sandbox
 

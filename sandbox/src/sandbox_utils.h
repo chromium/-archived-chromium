@@ -33,6 +33,20 @@ bool IsXPSP2OrLater();
 void InitObjectAttribs(const std::wstring& name, ULONG attributes, HANDLE root,
                        OBJECT_ATTRIBUTES* obj_attr, UNICODE_STRING* uni_name);
 
+// The next 2 functions are copied from base\string_util.h and have been
+// slighty modified because we don't want to depend on ICU.
+template <class char_type>
+inline char_type* WriteInto(
+    std::basic_string<char_type, std::char_traits<char_type>,
+                      std::allocator<char_type> >* str,
+    size_t length_including_null) {
+  str->reserve(length_including_null);
+  str->resize(length_including_null - 1);
+  return &((*str)[0]);
+}
+
+std::string WideToMultiByte(const std::wstring& wide);
+
 };  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SANDBOX_UTILS_H__

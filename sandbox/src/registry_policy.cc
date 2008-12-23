@@ -7,7 +7,7 @@
 #include "sandbox/src/registry_policy.h"
 
 #include "base/logging.h"
-#include "base/scoped_handle.h"
+#include "base/scoped_handle_win.h"
 #include "sandbox/src/ipc_tags.h"
 #include "sandbox/src/policy_engine_opcodes.h"
 #include "sandbox/src/policy_params.h"

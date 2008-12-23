@@ -5,43 +5,15 @@
 #include <string>
 #include <memory>
 
-#include "base/scoped_handle.h"
+#include "base/scoped_handle_win.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "sandbox/src/sandbox.h"
 #include "sandbox/src/sandbox_policy.h"
 #include "sandbox/src/sandbox_factory.h"
+#include "sandbox/src/sandbox_utils.h"
 #include "sandbox/tests/common/controller.h"
 
 namespace {
-
-// The next 2 functions are copied from base\string_util.h and have been
-// slighty modified because we don't want to depend on ICU.
-template <class char_type>
-inline char_type* WriteInto(
-    std::basic_string<char_type, std::char_traits<char_type>,
-                      std::allocator<char_type> >* str,
-    size_t length_including_null) {
-  str->reserve(length_including_null);
-  str->resize(length_including_null - 1);
-  return &((*str)[0]);
-}
-
-std::string WideToMultiByte(const std::wstring& wide) {
-  if (wide.length() == 0)
-    return std::string();
-
-  // compute the length of the buffer we'll need
-  int charcount = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1,
-                                      NULL, 0, NULL, NULL);
-  if (charcount == 0)
-    return std::string();
-
-  std::string mb;
-  WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1,
-                      WriteInto(&mb, charcount), charcount, NULL, NULL);
-
-  return mb;
-}
 
 // While the shell API provides better calls than this home brew function
 // we use GetSystemWindowsDirectoryW which does not query the registry so
@@ -93,9 +65,10 @@ sandbox::SboxTestResult CreateProcessHelper(const std::wstring &exe,
   STARTUPINFOA sia = {sizeof(sia)};
   sandbox::SboxTestResult ret2 = sandbox::SBOX_TEST_FAILED;
 
+  std::string narrow_cmd_line = sandbox::WideToMultiByte(cmd_line);
   if (!::CreateProcessA(
-        exe_name ? WideToMultiByte(exe_name).c_str() : NULL,
-        cmd_line ? const_cast<char*>(WideToMultiByte(cmd_line).c_str()) : NULL,
+        exe_name ? sandbox::WideToMultiByte(exe_name).c_str() : NULL,
+        cmd_line ? const_cast<char*>(narrow_cmd_line.c_str()) : NULL,
         NULL, NULL, FALSE, 0, NULL, NULL, &sia, &pi)) {
     DWORD last_error = GetLastError();
     if ((ERROR_NOT_ENOUGH_QUOTA == last_error) ||

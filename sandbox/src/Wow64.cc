@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "sandbox/src/sandbox.h"
 #include "sandbox/src/target_process.h"
 

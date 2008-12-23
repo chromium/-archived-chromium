@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/scoped_handle.h"
+#include "base/scoped_handle_win.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "sandbox/src/sandbox.h"
 #include "sandbox/src/sandbox_policy.h"

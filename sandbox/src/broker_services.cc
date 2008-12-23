@@ -90,7 +90,8 @@ BrokerServicesBase::~BrokerServicesBase() {
   ::CloseHandle(job_port_);
 
   if (WAIT_TIMEOUT == ::WaitForSingleObject(job_thread_, 1000)) {
-    NOTREACHED() << "Cannot clean broker services";
+    // Cannot clean broker services.
+    NOTREACHED();
     return;
   }
 
