@@ -132,10 +132,6 @@ class FilePath {
 
   const StringType& value() const { return path_; }
 
-  // Returns value() encoded as a UTF8 std::string.  Be careful to not use this
-  // in places that use filesystem APIs as it won't be portable.
-  const std::string UTF8Value() const;
-
   // Returns true if |character| is in kSeparators.
   static bool IsSeparator(CharType character);
 
