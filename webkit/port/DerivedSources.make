@@ -27,7 +27,6 @@
 
 VPATH = \
     $(PORTROOT)/bindings/v8 \
-    $(PORTROOT)/page/inspector \
     $(WebCore) \
     $(WebCore)/bindings/js \
     $(WebCore)/bindings/v8 \
@@ -35,6 +34,7 @@ VPATH = \
     $(WebCore)/css \
     $(WebCore)/dom \
     $(WebCore)/html \
+    $(WebCore)/inspector \
     $(WebCore)/page \
     $(WebCore)/plugins \
     $(WebCore)/storage \

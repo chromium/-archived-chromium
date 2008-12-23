@@ -176,28 +176,28 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\debugger.css"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\debugger.css"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\debugger.html"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\debugger.html"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DebuggerConsole.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DebuggerConsole.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DebuggerIPC.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DebuggerIPC.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DebuggerPanel.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DebuggerPanel.js"
 				DeploymentContent="true"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DebuggerShell.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DebuggerShell.js"
 				>
 			</File>
 			<File

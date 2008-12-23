@@ -2429,10 +2429,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\page\inspector\InspectorController.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bindings\v8\JSDOMBinding.cpp"
 			>
 		</File>

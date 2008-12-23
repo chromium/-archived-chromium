@@ -341,7 +341,6 @@ inputs = [
     '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
     '$PORT_DIR/bindings/v8/V8MessagePortCustom.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
-    '$PORT_DIR/page/inspector/InspectorController.cpp',
 ]
 
 if env.Bit('windows'):

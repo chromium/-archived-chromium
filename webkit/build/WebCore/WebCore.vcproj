@@ -131,6 +131,18 @@
 	</References>
 	<Files>
 		<Filter
+			Name="inspector"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="page"
 			>
 			<File

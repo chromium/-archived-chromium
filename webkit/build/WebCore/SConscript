@@ -315,6 +315,8 @@ input_files = [
     '$WEBCORE_DIR/html/PreloadScanner.cpp',
     '$WEBCORE_DIR/html/TimeRanges.cpp',
 
+    '$WEBCORE_DIR/inspector/InspectorController.cpp',
+
     '$WEBCORE_DIR/loader/Cache.cpp',
     '$WEBCORE_DIR/loader/CachedCSSStyleSheet.cpp',
     '$WEBCORE_DIR/loader/CachedFont.cpp',
