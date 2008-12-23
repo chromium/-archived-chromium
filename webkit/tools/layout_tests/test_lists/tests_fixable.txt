@@ -1788,3 +1788,7 @@ LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
 MAC LINUX : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
 LINUX : LayoutTests/transitions/transform-op-list-match.html = FAIL
 LINUX : LayoutTests/transitions/transform-op-list-no-match.html = FAIL
+
+// Merge 39410:39438
+// We're not clearing the exposed region. See test output.
+LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
