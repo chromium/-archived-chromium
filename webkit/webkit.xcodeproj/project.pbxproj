@@ -57,6 +57,11 @@
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
 		41A361D90F001E3800778012 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A361D80F001E3800778012 /* PluginDataChromium.cpp */; };
 		41A362390F0032B100778012 /* RenderThemeChromiumMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41A362380F0032B100778012 /* RenderThemeChromiumMac.mm */; };
+		41A3624F0F003B3000778012 /* AccessibilityObjectChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A362470F003B3000778012 /* AccessibilityObjectChromium.cpp */; };
+		41A362500F003B3000778012 /* AXObjectCacheChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A362490F003B3000778012 /* AXObjectCacheChromium.cpp */; };
+		41A362510F003B3000778012 /* DragControllerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624B0F003B3000778012 /* DragControllerChromium.cpp */; };
+		41A362520F003B3000778012 /* EventHandlerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */; };
+		41A362530F003B3000778012 /* FrameChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624D0F003B3000778012 /* FrameChromium.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
@@ -519,7 +524,6 @@
 		93AF52C60F0030780073C62D /* NativeImageSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52BF0F0030780073C62D /* NativeImageSkia.cpp */; };
 		93AF52C70F0030780073C62D /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52C10F0030780073C62D /* PlatformContextSkia.cpp */; };
 		93AF52C80F0030780073C62D /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52C30F0030780073C62D /* SkiaUtils.cpp */; };
-		93BF8F520EA6BD870030F05C /* AccessibilityObjectChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */; };
 		A80DD9190EE4A87900728DDE /* PurgeableBufferMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */; };
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
@@ -595,7 +599,6 @@
 		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
 		E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40060DA0EA69E0B0055B38E /* ScriptController.cpp */; };
 		E40064540EA90AA10055B38E /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3D0D7F3C48001ECF42 /* Console.cpp */; };
-		E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */; };
 		E45063BA0E4104700025A81A /* localized_strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051A0D92E3DA0006B936 /* localized_strings.cc */; };
 		E4506C0C0EF039DE003BE099 /* dom_serializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506C0A0EF039DE003BE099 /* dom_serializer.cc */; };
 		E4506C100EF03A2F003BE099 /* entity_map.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506C0F0EF03A2F003BE099 /* entity_map.cc */; };
@@ -1293,9 +1296,6 @@
 		E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */; };
 		E45628370E269DBB005E4685 /* feed_preview.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254050F0D92E3DA0006B936 /* feed_preview.cc */; };
 		E456283A0E269DCB005E4685 /* multipart_response_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051D0D92E3DA0006B936 /* multipart_response_delegate.cc */; };
-		E473F6860EAE01F5006C2098 /* EventHandlerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6850EAE01F5006C2098 /* EventHandlerChromium.cpp */; };
-		E473F6880EAE021B006C2098 /* FrameChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6870EAE021B006C2098 /* FrameChromium.cpp */; };
-		E473F68A0EAE0230006C2098 /* DragControllerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E473F6890EAE0230006C2098 /* DragControllerChromium.cpp */; };
 		E48A06DE0E3F840F00172919 /* image_resource_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06D80E3F840F00172919 /* image_resource_fetcher.cc */; };
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
@@ -1481,6 +1481,14 @@
 		41A361D80F001E3800778012 /* PluginDataChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginDataChromium.cpp; path = ../third_party/WebKit/WebCore/plugins/chromium/PluginDataChromium.cpp; sourceTree = SOURCE_ROOT; };
 		41A362370F0032B100778012 /* RenderThemeChromiumMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderThemeChromiumMac.h; sourceTree = "<group>"; };
 		41A362380F0032B100778012 /* RenderThemeChromiumMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderThemeChromiumMac.mm; sourceTree = "<group>"; };
+		41A362470F003B3000778012 /* AccessibilityObjectChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AccessibilityObjectChromium.cpp; path = chromium/AccessibilityObjectChromium.cpp; sourceTree = "<group>"; };
+		41A362480F003B3000778012 /* AccessibilityObjectWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AccessibilityObjectWrapper.h; path = chromium/AccessibilityObjectWrapper.h; sourceTree = "<group>"; };
+		41A362490F003B3000778012 /* AXObjectCacheChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AXObjectCacheChromium.cpp; path = chromium/AXObjectCacheChromium.cpp; sourceTree = "<group>"; };
+		41A3624A0F003B3000778012 /* ChromeClientChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChromeClientChromium.h; path = chromium/ChromeClientChromium.h; sourceTree = "<group>"; };
+		41A3624B0F003B3000778012 /* DragControllerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DragControllerChromium.cpp; path = chromium/DragControllerChromium.cpp; sourceTree = "<group>"; };
+		41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EventHandlerChromium.cpp; path = chromium/EventHandlerChromium.cpp; sourceTree = "<group>"; };
+		41A3624D0F003B3000778012 /* FrameChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameChromium.cpp; path = chromium/FrameChromium.cpp; sourceTree = "<group>"; };
+		41A3624E0F003B3000778012 /* FrameChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FrameChromium.h; path = chromium/FrameChromium.h; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
@@ -1578,8 +1586,6 @@
 		4D1641300EC29E80008F024E /* ScriptExecutionContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptExecutionContext.h; sourceTree = "<group>"; };
 		4D1641680EC29FED008F024E /* AtomicStringHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AtomicStringHash.h; sourceTree = "<group>"; };
 		4D1641690EC29FED008F024E /* ParserUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParserUtilities.h; sourceTree = "<group>"; };
-		4D1641790EC2A055008F024E /* AccessibilityObjectWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObjectWrapper.h; sourceTree = "<group>"; };
-		4D16417A0EC2A055008F024E /* FrameChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameChromium.h; sourceTree = "<group>"; };
 		4D2A643A0EBBC0A700B55603 /* V8HTMLVideoElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLVideoElement.cpp; sourceTree = "<group>"; };
 		4D2A643B0EBBC0A700B55603 /* V8HTMLVideoElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLVideoElement.h; sourceTree = "<group>"; };
 		4D2A643C0EBBC0A700B55603 /* V8MediaError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8MediaError.cpp; sourceTree = "<group>"; };
@@ -4056,7 +4062,6 @@
 		93AF52C20F0030780073C62D /* PlatformContextSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlatformContextSkia.h; path = skia/PlatformContextSkia.h; sourceTree = "<group>"; };
 		93AF52C30F0030780073C62D /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkiaUtils.cpp; path = skia/SkiaUtils.cpp; sourceTree = "<group>"; };
 		93AF52C40F0030780073C62D /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkiaUtils.h; path = skia/SkiaUtils.h; sourceTree = "<group>"; };
-		93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObjectChromium.cpp; sourceTree = "<group>"; };
 		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSSelectorList.cpp; sourceTree = "<group>"; };
 		A80DD9160EE4A85900728DDE /* PurgeableBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PurgeableBuffer.h; sourceTree = "<group>"; };
 		A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PurgeableBufferMac.cpp; sourceTree = "<group>"; };
@@ -4260,7 +4265,6 @@
 		E40060D90EA69E0B0055B38E /* ScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptController.h; sourceTree = "<group>"; };
 		E40060DA0EA69E0B0055B38E /* ScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptController.cpp; sourceTree = "<group>"; };
 		E40063760EA908220055B38E /* ScriptCallContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScriptCallContext.cpp; path = ../third_party/WebKit/WebCore/bindings/js/ScriptCallContext.cpp; sourceTree = SOURCE_ROOT; };
-		E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCacheChromium.cpp; sourceTree = "<group>"; };
 		E4506C0A0EF039DE003BE099 /* dom_serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_serializer.cc; sourceTree = "<group>"; };
 		E4506C0B0EF039DE003BE099 /* dom_serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_serializer.h; sourceTree = "<group>"; };
 		E4506C0E0EF03A2F003BE099 /* entity_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = entity_map.h; sourceTree = "<group>"; };
@@ -4268,14 +4272,10 @@
 		E45626950E268E87005E4685 /* libwebcore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45627150E268F03005E4685 /* libglue.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libglue.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45627F40E2694B8005E4685 /* libport.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libport.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		E473F6850EAE01F5006C2098 /* EventHandlerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventHandlerChromium.cpp; sourceTree = "<group>"; };
-		E473F6870EAE021B006C2098 /* FrameChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameChromium.cpp; sourceTree = "<group>"; };
-		E473F6890EAE0230006C2098 /* DragControllerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragControllerChromium.cpp; sourceTree = "<group>"; };
 		E48A06D80E3F840F00172919 /* image_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_resource_fetcher.cc; sourceTree = "<group>"; };
 		E48A06D90E3F840F00172919 /* image_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_resource_fetcher.h; sourceTree = "<group>"; };
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
-		E4A9708A0E36150500E8EF3B /* ChromeClientChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromeClientChromium.h; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontCacheMacPending.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -4366,6 +4366,21 @@
 				3CBAF6000EFC893600E752CB /* TranslateTransformOperation.h */,
 			);
 			path = transforms;
+			sourceTree = "<group>";
+		};
+		41A362460F003B0200778012 /* chromium */ = {
+			isa = PBXGroup;
+			children = (
+				41A362470F003B3000778012 /* AccessibilityObjectChromium.cpp */,
+				41A362480F003B3000778012 /* AccessibilityObjectWrapper.h */,
+				41A362490F003B3000778012 /* AXObjectCacheChromium.cpp */,
+				41A3624A0F003B3000778012 /* ChromeClientChromium.h */,
+				41A3624B0F003B3000778012 /* DragControllerChromium.cpp */,
+				41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */,
+				41A3624D0F003B3000778012 /* FrameChromium.cpp */,
+				41A3624E0F003B3000778012 /* FrameChromium.h */,
+			);
+			name = chromium;
 			sourceTree = "<group>";
 		};
 		4D1637C20EBFA485008F024E /* sql */ = {
@@ -5498,6 +5513,7 @@
 			isa = PBXGroup;
 			children = (
 				AB332F440E9549650020F882 /* animation */,
+				41A362460F003B0200778012 /* chromium */,
 				7B5E8EFC0D7F3C48001ECF42 /* mac */,
 				4DB7F1E80E9BAE2900C66CE0 /* AccessibilityImageMapLink.cpp */,
 				4DB7F1E90E9BAE2900C66CE0 /* AccessibilityImageMapLink.h */,
@@ -7758,21 +7774,6 @@
 			name = skia;
 			sourceTree = "<group>";
 		};
-		93BF8E5D0EA6AE880030F05C /* chromium */ = {
-			isa = PBXGroup;
-			children = (
-				93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */,
-				4D1641790EC2A055008F024E /* AccessibilityObjectWrapper.h */,
-				E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */,
-				E4A9708A0E36150500E8EF3B /* ChromeClientChromium.h */,
-				E473F6890EAE0230006C2098 /* DragControllerChromium.cpp */,
-				E473F6850EAE01F5006C2098 /* EventHandlerChromium.cpp */,
-				E473F6870EAE021B006C2098 /* FrameChromium.cpp */,
-				4D16417A0EC2A055008F024E /* FrameChromium.h */,
-			);
-			path = chromium;
-			sourceTree = "<group>";
-		};
 		AB332F440E9549650020F882 /* animation */ = {
 			isa = PBXGroup;
 			children = (
@@ -7780,12 +7781,12 @@
 				4DB7EFDE0E9BA1E400C66CE0 /* AnimationBase.h */,
 				AB332F4B0E95497E0020F882 /* AnimationController.cpp */,
 				AB332F4C0E95497E0020F882 /* AnimationController.h */,
+				4DB7EFE40E9BA1E400C66CE0 /* KeyframeAnimation.h */,
 				4DB7EFDF0E9BA1E400C66CE0 /* CompositeAnimation.cpp */,
 				4DB7EFE00E9BA1E400C66CE0 /* CompositeAnimation.h */,
 				4DB7EFE10E9BA1E400C66CE0 /* ImplicitAnimation.cpp */,
 				4DB7EFE20E9BA1E400C66CE0 /* ImplicitAnimation.h */,
 				4DB7EFE30E9BA1E400C66CE0 /* KeyframeAnimation.cpp */,
-				4DB7EFE40E9BA1E400C66CE0 /* KeyframeAnimation.h */,
 			);
 			name = animation;
 			sourceTree = "<group>";
@@ -7865,7 +7866,6 @@
 		E4A970880E3614F200E8EF3B /* page */ = {
 			isa = PBXGroup;
 			children = (
-				93BF8E5D0EA6AE880030F05C /* chromium */,
 				7B0096150DAFF19C00F72082 /* Location.cpp */,
 			);
 			path = page;
@@ -8497,6 +8497,7 @@
 				4DB7F1FE0E9BAE2900C66CE0 /* AccessibilityListBox.cpp in Sources */,
 				4DB7F1FF0E9BAE2900C66CE0 /* AccessibilityListBoxOption.cpp in Sources */,
 				AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */,
+				41A3624F0F003B3000778012 /* AccessibilityObjectChromium.cpp in Sources */,
 				4DB7F2000E9BAE2900C66CE0 /* AccessibilityRenderObject.cpp in Sources */,
 				4DB7F2010E9BAE2900C66CE0 /* AccessibilityTable.cpp in Sources */,
 				4DB7F2020E9BAE2900C66CE0 /* AccessibilityTableCell.cpp in Sources */,
@@ -8523,6 +8524,7 @@
 				93AF52B70F0030110073C62D /* AuthenticationChallengeChromium.cpp in Sources */,
 				E456254A0E268E87005E4685 /* AutoTableLayout.cpp in Sources */,
 				E45623790E268E87005E4685 /* AXObjectCache.cpp in Sources */,
+				41A362500F003B3000778012 /* AXObjectCacheChromium.cpp in Sources */,
 				938180480EF3392100993F02 /* BackForwardList.cpp in Sources */,
 				E456249B0E268E87005E4685 /* BarInfo.cpp in Sources */,
 				E456252E0E268E87005E4685 /* Base64.cpp in Sources */,
@@ -8649,6 +8651,7 @@
 				E456249F0E268E87005E4685 /* DOMSelection.cpp in Sources */,
 				E45624A00E268E87005E4685 /* DOMWindow.cpp in Sources */,
 				E45624A10E268E87005E4685 /* DragController.cpp in Sources */,
+				41A362510F003B3000778012 /* DragControllerChromium.cpp in Sources */,
 				E45624BD0E268E87005E4685 /* DragData.cpp in Sources */,
 				93AF52900F002F680073C62D /* DragDataChromium.cpp in Sources */,
 				E45624BE0E268E87005E4685 /* DragImage.cpp in Sources */,
@@ -8665,6 +8668,7 @@
 				E45623C20E268E87005E4685 /* EntityReference.cpp in Sources */,
 				E45623C30E268E87005E4685 /* Event.cpp in Sources */,
 				E45624A20E268E87005E4685 /* EventHandler.cpp in Sources */,
+				41A362520F003B3000778012 /* EventHandlerChromium.cpp in Sources */,
 				E45623C40E268E87005E4685 /* EventNames.cpp in Sources */,
 				E45623C50E268E87005E4685 /* EventTarget.cpp in Sources */,
 				E45623C60E268E87005E4685 /* EventTargetNode.cpp in Sources */,
@@ -8708,6 +8712,7 @@
 				E45624250E268E87005E4685 /* FormDataList.cpp in Sources */,
 				E45624860E268E87005E4685 /* FormState.cpp in Sources */,
 				E45624A40E268E87005E4685 /* Frame.cpp in Sources */,
+				41A362530F003B3000778012 /* FrameChromium.cpp in Sources */,
 				93AF52960F002F680073C62D /* FramelessScrollView.cpp in Sources */,
 				E45624870E268E87005E4685 /* FrameLoader.cpp in Sources */,
 				416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */,
@@ -9040,6 +9045,7 @@
 				93AF529D0F002F680073C62D /* SharedTimerChromium.cpp in Sources */,
 				E45624E80E268E87005E4685 /* SimpleFontData.cpp in Sources */,
 				E45624E20E268E87005E4685 /* SimpleFontDataMac.mm in Sources */,
+				41822B120F0002680034A67A /* SkewTransformOperation.cpp in Sources */,
 				41822B120F0002680034A67A /* SkewTransformOperation.cpp in Sources */,
 				93AF52C80F0030780073C62D /* SkiaUtils.cpp in Sources */,
 				E45624120E268E87005E4685 /* SmartReplace.cpp in Sources */,
@@ -9426,14 +9432,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93BF8F520EA6BD870030F05C /* AccessibilityObjectChromium.cpp in Sources */,
-				E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
-				E473F68A0EAE0230006C2098 /* DragControllerChromium.cpp in Sources */,
-				E473F6860EAE01F5006C2098 /* EventHandlerChromium.cpp in Sources */,
 				4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */,
-				E473F6880EAE021B006C2098 /* FrameChromium.cpp in Sources */,
 				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
 				7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */,
 				4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */,
@@ -9687,6 +9688,7 @@
 					"$(DIR_WEBCORE)/loader/mac",
 					"$(DIR_WEBCORE)/page",
 					"$(DIR_WEBCORE)/page/animation",
+					"$(DIR_WEBCORE)/page/chromium",
 					"$(DIR_WEBCORE)/page/mac",
 					"$(DIR_WEBCORE)/platform",
 					"$(DIR_WEBCORE)/platform/animation",
@@ -9816,6 +9818,7 @@
 					"$(DIR_WEBCORE)/loader/mac",
 					"$(DIR_WEBCORE)/page",
 					"$(DIR_WEBCORE)/page/animation",
+					"$(DIR_WEBCORE)/page/chromium",
 					"$(DIR_WEBCORE)/page/mac",
 					"$(DIR_WEBCORE)/platform",
 					"$(DIR_WEBCORE)/platform/animation",
