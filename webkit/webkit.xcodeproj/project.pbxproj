@@ -38,6 +38,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		040BA91F0F0077E800BFA8E5 /* FormDataBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 040BA91E0F0077E800BFA8E5 /* FormDataBuilder.cpp */; };
 		04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */; };
 		04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */; };
 		4103039F0EFB0F7C008832CA /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103039E0EFB0F7C008832CA /* CachedPage.cpp */; };
@@ -1439,6 +1440,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		040BA91E0F0077E800BFA8E5 /* FormDataBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FormDataBuilder.cpp; sourceTree = "<group>"; };
+		040BA9200F0077EE00BFA8E5 /* FormDataBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormDataBuilder.h; sourceTree = "<group>"; };
 		04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavigatorBase.cpp; sourceTree = "<group>"; };
 		04C3AFC40EF1E4430046D578 /* NavigatorBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigatorBase.h; sourceTree = "<group>"; };
 		04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerNavigator.cpp; sourceTree = "<group>"; };
@@ -5887,6 +5890,8 @@
 				7B5E91250D7F3CC2001ECF42 /* Credential.h */,
 				7B5E912C0D7F3CC2001ECF42 /* FormData.cpp */,
 				7B5E912D0D7F3CC2001ECF42 /* FormData.h */,
+				040BA91E0F0077E800BFA8E5 /* FormDataBuilder.cpp */,
+				040BA9200F0077EE00BFA8E5 /* FormDataBuilder.h */,
 				7B5E912E0D7F3CC2001ECF42 /* HTTPHeaderMap.h */,
 				7B5E912F0D7F3CC2001ECF42 /* HTTPParsers.cpp */,
 				7B5E91300D7F3CC2001ECF42 /* HTTPParsers.h */,
@@ -9360,6 +9365,7 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
+				040BA91F0F0077E800BFA8E5 /* FormDataBuilder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -508,6 +508,7 @@ input_files = [
     '$WEBCORE_DIR/platform/network/AuthenticationChallengeBase.cpp',
     '$WEBCORE_DIR/platform/network/Credential.cpp',
     '$WEBCORE_DIR/platform/network/FormData.cpp',
+    '$WEBCORE_DIR/platform/network/FormDataBuilder.cpp',
     '$WEBCORE_DIR/platform/network/HTTPParsers.cpp',
     '$WEBCORE_DIR/platform/network/NetworkStateNotifier.cpp',
     '$WEBCORE_DIR/platform/network/ProtectionSpace.cpp',

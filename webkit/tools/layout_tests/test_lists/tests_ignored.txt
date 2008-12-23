@@ -23,6 +23,11 @@ SKIP : LayoutTests/fast/dom/open-and-close-by-DOM.html = FAIL
 SKIP : LayoutTests/svg/custom/fill-SVGPaint-interface.svg = PASS
 SKIP : LayoutTests/svg/custom/getPresentationAttribute.svg = PASS
 
+// WML is still an inprogress feature upstream. Chromium does not build
+// with WML support, so skip its tests.
+SKIP : LayoutTests/wml = FAIL
+SKIP : LayoutTests/http/tests/wml = FAIL
+
 // -----------------------------------------------------------------
 // FAILING TESTS
 // -----------------------------------------------------------------

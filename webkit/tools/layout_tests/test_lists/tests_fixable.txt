@@ -1634,8 +1634,6 @@ LINUX WIN : LayoutTests/svg/custom/fill-fallback.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/invalid-css.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/resource-client-removal.svg = FAIL
-LayoutTests/wml/variable-reference-invalid-character.html = FAIL
-LayoutTests/wml/variable-reference-valid.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
@@ -1648,9 +1646,6 @@ LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
 LayoutTests/fast/regex/non-pattern-characters.html = FAIL
 SKIP : LayoutTests/fast/workers/worker-navigator.html = FAIL
 SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
-LayoutTests/wml/go-task-get-method-external-deck.html = FAIL
-LayoutTests/wml/go-task-get-method-same-deck.html = FAIL
-LayoutTests/wml/go-task-get-method-external-deck-with-href.html = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
@@ -1735,7 +1730,6 @@ LayoutTests/fast/regex/quantified-assertions.html = FAIL
 // we don't support.  Needs more investigation.
 LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 LayoutTests/transforms/2d/transform-value-types.html = FAIL
-LayoutTests/wml/go-task-animation.html = FAIL
 LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
