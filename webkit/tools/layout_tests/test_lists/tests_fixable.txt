@@ -1662,10 +1662,6 @@ LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
 // "Cancel" button in a slightly darker gray than the surrounding dark gray.
 WIN : LayoutTests/fast/css/imageTileOpacity.html = FAIL
 
-// Pixeltest failure: font differences, probably just needs to be
-// rebaselined.
-WIN : LayoutTests/fast/css/word-space-extra.html = FAIL
-
 // Linux pixeltest failure: flaky?  Appears without red locally.
 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 
