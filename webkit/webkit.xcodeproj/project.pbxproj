@@ -39,6 +39,7 @@
 
 /* Begin PBXBuildFile section */
 		040BA91F0F0077E800BFA8E5 /* FormDataBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 040BA91E0F0077E800BFA8E5 /* FormDataBuilder.cpp */; };
+		049C0F6F0F00D7CA005BBE56 /* TextBoundariesICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91DC0D7F3CC3001ECF42 /* TextBoundariesICU.cpp */; };
 		04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */; };
 		04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */; };
 		4103039F0EFB0F7C008832CA /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103039E0EFB0F7C008832CA /* CachedPage.cpp */; };
@@ -511,7 +512,6 @@
 		93AF529F0F002F680073C62D /* SSLKeyGeneratorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52840F002F680073C62D /* SSLKeyGeneratorChromium.cpp */; };
 		93AF52A00F002F680073C62D /* SystemTimeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52850F002F680073C62D /* SystemTimeChromium.cpp */; };
 		93AF52A10F002F680073C62D /* TemporaryLinkStubs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52860F002F680073C62D /* TemporaryLinkStubs.cpp */; };
-		93AF52A20F002F680073C62D /* TextBoundariesChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52870F002F680073C62D /* TextBoundariesChromium.cpp */; };
 		93AF52A30F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52880F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp */; };
 		93AF52A40F002F680073C62D /* WidgetChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52890F002F680073C62D /* WidgetChromium.cpp */; };
 		93AF52AA0F002FC80073C62D /* IconChromiumMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52A70F002FC80073C62D /* IconChromiumMac.cpp */; };
@@ -9279,7 +9279,6 @@
 				E45623E30E268E87005E4685 /* TagNodeList.cpp in Sources */,
 				93AF52A10F002F680073C62D /* TemporaryLinkStubs.cpp in Sources */,
 				E45623E40E268E87005E4685 /* Text.cpp in Sources */,
-				93AF52A20F002F680073C62D /* TextBoundariesChromium.cpp in Sources */,
 				93AF52A30F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp in Sources */,
 				E456253D0E268E87005E4685 /* TextBreakIteratorICU.cpp in Sources */,
 				E45625370E268E87005E4685 /* TextBreakIteratorInternalICUMac.mm in Sources */,
@@ -9372,6 +9371,7 @@
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
 				040BA91F0F0077E800BFA8E5 /* FormDataBuilder.cpp in Sources */,
+				049C0F6F0F00D7CA005BBE56 /* TextBoundariesICU.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -479,7 +479,6 @@ input_files = [
     '$WEBCORE_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/SystemTimeChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/TemporaryLinkStubs.cpp',
-    '$WEBCORE_DIR/platform/chromium/TextBoundariesChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/TextBreakIteratorInternalICUChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/WidgetChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromium.cpp',

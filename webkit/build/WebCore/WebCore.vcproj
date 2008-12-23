@@ -2329,10 +2329,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\TextBoundariesChromium.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\TextBreakIteratorInternalICUChromium.cpp"
 					>
 				</File>
