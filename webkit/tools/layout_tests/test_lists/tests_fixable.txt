@@ -1263,8 +1263,6 @@ LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 // MERGE 38625:38653: New tests
 LayoutTests/fast/css/computed-style.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
-LayoutTests/transitions/transition-drt-api-delay.html = TIMEOUT
-LayoutTests/transitions/transition-shorthand-delay.html = TIMEOUT
 
 // MERGE 38653:38729: Expectations changed upstream
 // Flaky on Linux, maybe on Windows too?
@@ -1748,7 +1746,6 @@ LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 LayoutTests/transforms/2d/transform-value-types.html = FAIL
 LayoutTests/wml/go-task-animation.html = FAIL
-LayoutTests/animations/change-keyframes-name.html = TIMEOUT
 LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
