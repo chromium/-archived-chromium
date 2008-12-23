@@ -217,8 +217,15 @@ void BaseButton::NotifyClick(int mouse_event_flags) {
 
 bool BaseButton::OnKeyPressed(const KeyEvent& e) {
   if (state_ != BS_DISABLED) {
-    if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
+    // Space sets button state to pushed. Enter clicks the button. This matches
+    // the Windows native behavior of buttons, where Space clicks the button
+    // on KeyRelease and Enter clicks the button on KeyPressed.
+    if (e.GetCharacter() == VK_SPACE) {
       SetState(BS_PUSHED);
+      return true;
+    } else if  (e.GetCharacter() == VK_RETURN) {
+      SetState(BS_NORMAL);
+      NotifyClick(0);
       return true;
     }
   }
@@ -227,7 +234,7 @@ bool BaseButton::OnKeyPressed(const KeyEvent& e) {
 
 bool BaseButton::OnKeyReleased(const KeyEvent& e) {
   if (state_ != BS_DISABLED) {
-    if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
+    if (e.GetCharacter() == VK_SPACE) {
       SetState(BS_NORMAL);
       NotifyClick(0);
       return true;
