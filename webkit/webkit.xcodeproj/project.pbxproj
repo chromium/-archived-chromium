@@ -89,7 +89,6 @@
 		4D1638210EBFA4FC008F024E /* StorageMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D16380A0EBFA4FB008F024E /* StorageMap.cpp */; };
 		4D1640E50EC29BB4008F024E /* Geolocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1640D80EC29BB4008F024E /* Geolocation.cpp */; };
 		4D1640E60EC29BB4008F024E /* Geoposition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1640DA0EC29BB4008F024E /* Geoposition.cpp */; };
-		4D1641090EC29C84008F024E /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096150DAFF19C00F72082 /* Location.cpp */; };
 		4D16411F0EC29D01008F024E /* GeolocationService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1641140EC29D01008F024E /* GeolocationService.cpp */; };
 		4D1641310EC29E80008F024E /* ActiveDOMObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1641280EC29E80008F024E /* ActiveDOMObject.cpp */; };
 		4D1641330EC29E80008F024E /* ScriptExecutionContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D16412F0EC29E80008F024E /* ScriptExecutionContext.cpp */; };
@@ -2329,7 +2328,6 @@
 		7B0095EC0DAFF0DD00F72082 /* v8_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_utility.h; sourceTree = "<group>"; };
 		7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v8_vectornodelist.cpp; sourceTree = "<group>"; };
 		7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_vectornodelist.h; sourceTree = "<group>"; };
-		7B0096150DAFF19C00F72082 /* Location.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Location.cpp; sourceTree = "<group>"; };
 		7B00961D0DAFF19C00F72082 /* ScheduledAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScheduledAction.h; sourceTree = "<group>"; };
 		7B0096290DAFF1D000F72082 /* InspectorController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InspectorController.cpp; path = port/page/inspector/InspectorController.cpp; sourceTree = "<group>"; };
 		7B0E595B0DB3D195007D4907 /* IconDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IconDatabase.h; path = icon/IconDatabase.h; sourceTree = "<group>"; };
@@ -6710,7 +6708,6 @@
 		7B9375960D919010008B9587 /* port */ = {
 			isa = PBXGroup;
 			children = (
-				E4A970880E3614F200E8EF3B /* page */,
 				822B1BE60DC778FF005C9A96 /* platform */,
 				938181210EF6D25700993F02 /* plugins */,
 			);
@@ -7845,14 +7842,6 @@
 				7B5E95BF0D7F3E95001ECF42 /* SVGRenderStyleDefs.h */,
 			);
 			path = style;
-			sourceTree = "<group>";
-		};
-		E4A970880E3614F200E8EF3B /* page */ = {
-			isa = PBXGroup;
-			children = (
-				7B0096150DAFF19C00F72082 /* Location.cpp */,
-			);
-			path = page;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -9426,7 +9415,6 @@
 				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
-				4D1641090EC29C84008F024E /* Location.cpp in Sources */,
 				93AF4CE00EFAEDF80073C62D /* PlatformScreenMac.mm in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
