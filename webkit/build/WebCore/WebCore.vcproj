@@ -7283,6 +7283,10 @@
 						RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginDataChromium.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginsChromium.cpp"
+						>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>

@@ -562,6 +562,7 @@ input_files = [
     '$WEBCORE_DIR/plugins/PluginData.cpp',
 
     '$WEBCORE_DIR/plugins/chromium/PluginDataChromium.cpp',
+    '$WEBCORE_DIR/plugins/chromium/PluginsChromium.cpp',
 
     '$WEBCORE_DIR/rendering/AutoTableLayout.cpp',
     '$WEBCORE_DIR/rendering/bidi.cpp',

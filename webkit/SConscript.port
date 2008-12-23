@@ -25,8 +25,6 @@ elif env.Bit('linux'):
   )
 
 input_files = [
-    '$PORT_DIR/bridge/chromium/PluginsChromium.cpp',
-
     '$PORT_DIR/page/Location.cpp',
 
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
@@ -47,6 +45,8 @@ if env.Bit('mac'):
   ])
 
 if env.get('KJS'):
+  # These actually no longer exist, but since JSC build is super-broken, we'll
+  # leave them here as stark reminders of our past.
   input_files.extend([
     '$PORT_DIR/bridge/KJSBridge.cpp',
     '$PORT_DIR/bridge/ScriptControllerKJS.cpp',
