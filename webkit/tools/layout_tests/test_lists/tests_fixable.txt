@@ -1792,3 +1792,8 @@ LINUX : LayoutTests/transitions/transform-op-list-no-match.html = FAIL
 // Merge 39410:39438
 // We're not clearing the exposed region. See test output.
 LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
+
+// Passes locally when run individually, but fails on buildbot. Could be a
+// sideffect from previous test causing it to be flaky. Seems to have
+// started with r7379
+WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
