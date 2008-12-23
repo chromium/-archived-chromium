@@ -105,7 +105,6 @@
 		4D64AC520EEE271C0021761F /* CSSSelectorList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
-		4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
 		4DB299C50EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */; };
 		4DB299C60EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */; };
 		4DB299C70EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299C10EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp */; };
@@ -4276,7 +4275,6 @@
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
-		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontCacheMacPending.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4469,7 +4467,6 @@
 		4DB044090EB161B600A5633C /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */,
 				4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */,
 			);
 			path = mac;
@@ -9411,7 +9408,6 @@
 			files = (
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
-				4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */,
 				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
 				7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */,
 				4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */,
