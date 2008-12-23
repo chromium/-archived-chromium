@@ -718,8 +718,4 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return false;
 }
 
-ScreenInfo GetScreenInfo(gfx::NativeView window) {
-  return GetScreenInfoHelper(window);
-}
-
 }  // namespace webkit_glue

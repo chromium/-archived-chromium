@@ -690,13 +690,6 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return false; // NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
-ScreenInfo GetScreenInfo(gfx::NativeView window) {
-  // This should call GetScreenInfoHelper, which should be implemented in
-  // webkit_glue_mac.mm
-  NOTIMPLEMENTED();
-  return ScreenInfo();
-}
-
 bool DownloadUrl(const std::string& url, NSWindow* caller_window) {
   return false;
 }
