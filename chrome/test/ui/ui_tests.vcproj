@@ -362,7 +362,7 @@
 			Name="TestResourceDispatcherHost"
 			>
 			<File
-				RelativePath="..\..\browser\resource_dispatcher_host_uitest.cc"
+				RelativePath="..\..\browser\renderer_host\resource_dispatcher_host_uitest.cc"
 				>
 			</File>
 		</Filter>

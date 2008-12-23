@@ -13,7 +13,7 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/password_manager.h"
 #include "chrome/browser/render_process_host.h"
-#include "chrome/browser/resource_dispatcher_host.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/tab_util.h"
 #include "chrome/browser/views/login_view.h"
