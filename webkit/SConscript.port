@@ -34,55 +34,6 @@ input_files = [
     '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
     '$PORT_DIR/page/chromium/FrameChromium.cpp',
 
-    '$PORT_DIR/platform/GKURL.cpp',
-
-    '$PORT_DIR/platform/chromium/ChromiumDataObject.cpp',
-    '$PORT_DIR/platform/chromium/ClipboardChromium.cpp',
-    '$PORT_DIR/platform/chromium/ClipboardUtilitiesChromium.cpp',
-    '$PORT_DIR/platform/chromium/ContextMenuChromium.cpp',
-    '$PORT_DIR/platform/chromium/ContextMenuItemChromium.cpp',
-    '$PORT_DIR/platform/chromium/CursorChromium.cpp',
-    '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
-    '$PORT_DIR/platform/chromium/DragImageChromium.cpp',
-    '$PORT_DIR/platform/chromium/EditorChromium.cpp',
-    '$PORT_DIR/platform/chromium/FileChooserChromium.cpp',
-    '$PORT_DIR/platform/chromium/FileSystemChromium.cpp',
-    '$PORT_DIR/platform/chromium/FramelessScrollView.cpp',
-    '$PORT_DIR/platform/chromium/Language.cpp',
-    '$PORT_DIR/platform/chromium/MimeTypeRegistryChromium.cpp',
-    '$PORT_DIR/platform/chromium/PasteboardChromium.cpp',
-    '$PORT_DIR/platform/chromium/PlatformKeyboardEventChromium.cpp',
-    '$PORT_DIR/platform/chromium/PlatformScreenChromium.cpp',
-    '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
-    '$PORT_DIR/platform/chromium/SearchPopupMenuChromium.cpp',
-    '$PORT_DIR/platform/chromium/SharedTimerChromium.cpp',
-    '$PORT_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
-    '$PORT_DIR/platform/chromium/SystemTimeChromium.cpp',
-    '$PORT_DIR/platform/chromium/TemporaryLinkStubs.cpp',
-    '$PORT_DIR/platform/chromium/TextBoundariesChromium.cpp',
-    '$PORT_DIR/platform/chromium/TextBreakIteratorInternalICUChromium.cpp',
-    '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
-    '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
-
-    '$PORT_DIR/platform/graphics/skia/AffineTransformSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/ColorSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/FloatPointSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/FloatRectSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/GradientSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/GraphicsContextSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/ImageBufferSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/ImageSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/ImageSourceSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/IntPointSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/IntRectSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/NativeImageSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/PathSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/PatternSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/PlatformContextSkia.cpp',
-    '$PORT_DIR/platform/graphics/skia/SkiaUtils.cpp',
-
-    '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
-
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
     '$PORT_DIR/platform/image-decoders/gif/GIFImageDecoder.cpp',
@@ -91,71 +42,12 @@ input_files = [
     '$PORT_DIR/platform/image-decoders/jpeg/JPEGImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/png/PNGImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/xbm/XBMImageDecoder.cpp',
-
-    '$PORT_DIR/platform/network/chromium/AuthenticationChallengeChromium.cpp',
-    '$PORT_DIR/platform/network/chromium/CookieJarChromium.cpp',
-    '$PORT_DIR/platform/network/chromium/DNSChromium.cpp',
-    '$PORT_DIR/platform/network/chromium/NetworkStateNotifierChromium.cpp',
 ]
-
-if env.Bit('windows'):
-  # Windows specific implementations.
-  input_files.extend([
-    '$PORT_DIR/platform/chromium/ChromiumUtilsWin.cpp',
-    '$PORT_DIR/platform/chromium/FileSystemChromiumWin.cpp',
-    '$PORT_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
-    '$PORT_DIR/platform/chromium/SoundChromiumWin.cpp',
-
-    '$PORT_DIR/platform/graphics/chromium/FontCacheChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontPlatformDataChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontUtilsChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/IconChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/SimpleFontDataChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/ThemeHelperChromiumWin.cpp',
-    '$PORT_DIR/platform/graphics/chromium/UniscribeHelper.cpp',
-    '$PORT_DIR/platform/graphics/chromium/UniscribeHelperTextRun.cpp',
-  ])
-
-if env.Bit('linux'):
-  # Linux specific implementations.
-  input_files.extend([
-    '$PORT_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
-    '$PORT_DIR/platform/chromium/gtk2drawing.c',
-    '$PORT_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
-    '$PORT_DIR/platform/chromium/RenderThemeGtk.cpp',
-    '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
-    '$PORT_DIR/platform/chromium/SoundChromiumPosix.cpp',
-
-    '$PORT_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/IconChromiumLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
-
-    '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
-  ])
-
-  # Remove from the list files that haven't yet been made portable to Linux.
-  to_be_ported_files = [
-    '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
-  ]
-  input_files = list(set(input_files) - set(to_be_ported_files))
 
 if env.Bit('mac'):
   # Mac specific implementations.
   input_files.extend([
-    '$PORT_DIR/bridge/mac/FrameMac.mm',
-    '$PORT_DIR/page/EventHandlerMac.mm',
-    '$PORT_DIR/page/WebCoreFrameBridge.mm',
-    '$PORT_DIR/platform/GKURLMac.mm',
-    '$PORT_DIR/platform/PluginStubsMac.cpp',
-    '$PORT_DIR/platform/mac/DragDataMac.mm',
     '$PORT_DIR/platform/graphics/mac/FontCacheMacPending.cpp',
-    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasMac.cpp',
-    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceMac.cpp',
     '$PORT_DIR/rendering/RenderThemeMac.mm',
   ])
 
@@ -163,13 +55,6 @@ if env.Bit('mac'):
   to_be_ported_files = [
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
     '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
-    '$PORT_DIR/platform/chromium/CursorChromium.cpp',
-    '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
-    '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
-    '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
-    '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
-    '$PORT_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
-    '$PORT_DIR/platform/graphics/skia/ImageSkia.cpp',
   ]
   input_files = list(set(input_files) - set(to_be_ported_files))
 

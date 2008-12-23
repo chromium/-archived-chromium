@@ -404,7 +404,7 @@ input_files = [
     '$WEBCORE_DIR/platform/DragImage.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
     '$WEBCORE_DIR/platform/GeolocationService.cpp',
-    '$WEBCORE_DIR/platform/KURL.cpp',
+    '$WEBCORE_DIR/platform/GKURL.cpp',
     '$WEBCORE_DIR/platform/Length.cpp',
     '$WEBCORE_DIR/platform/LinkHash.cpp',
     '$WEBCORE_DIR/platform/Logging.cpp',
@@ -450,6 +450,36 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/StringTruncator.cpp',
     '$WEBCORE_DIR/platform/graphics/WidthIterator.cpp',
 
+    '$WEBCORE_DIR/platform/chromium/ChromiumDataObject.cpp',
+    '$WEBCORE_DIR/platform/chromium/ClipboardChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/ClipboardUtilitiesChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/ContextMenuChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/ContextMenuItemChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/CursorChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/DragDataChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/DragImageChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/EditorChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/FileChooserChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/FileSystemChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/FramelessScrollView.cpp',
+    '$WEBCORE_DIR/platform/chromium/Language.cpp',
+    '$WEBCORE_DIR/platform/chromium/MimeTypeRegistryChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/PasteboardChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/PlatformKeyboardEventChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/PlatformScreenChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/PopupMenuChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/SearchPopupMenuChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/SharedTimerChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/SystemTimeChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/TemporaryLinkStubs.cpp',
+    '$WEBCORE_DIR/platform/chromium/TextBoundariesChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/TextBreakIteratorInternalICUChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/WidgetChromium.cpp',
+    '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
+
+    '$WEBCORE_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
+
     '$WEBCORE_DIR/platform/graphics/transforms/ScaleTransformOperation.cpp',
     '$WEBCORE_DIR/platform/graphics/transforms/TranslateTransformOperation.cpp',
     '$WEBCORE_DIR/platform/graphics/transforms/RotateTransformOperation.cpp',
@@ -457,6 +487,23 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/transforms/MatrixTransformOperation.cpp',
     '$WEBCORE_DIR/platform/graphics/transforms/AffineTransform.cpp',
     '$WEBCORE_DIR/platform/graphics/transforms/SkewTransformOperation.cpp',
+
+    '$WEBCORE_DIR/platform/graphics/skia/AffineTransformSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/ColorSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/FloatPointSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/FloatRectSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/GradientSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/GraphicsContextSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/ImageBufferSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/ImageSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/ImageSourceSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/IntPointSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/IntRectSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/NativeImageSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/PathSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/PatternSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/PlatformContextSkia.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/SkiaUtils.cpp',
 
     '$WEBCORE_DIR/platform/network/AuthenticationChallengeBase.cpp',
     '$WEBCORE_DIR/platform/network/Credential.cpp',
@@ -468,6 +515,11 @@ input_files = [
     #'$WEBCORE_DIR/platform/network/ResourceHandle.cpp',
     '$WEBCORE_DIR/platform/network/ResourceRequestBase.cpp',
     '$WEBCORE_DIR/platform/network/ResourceResponseBase.cpp',
+
+    '$WEBCORE_DIR/platform/network/chromium/AuthenticationChallengeChromium.cpp',
+    '$WEBCORE_DIR/platform/network/chromium/CookieJarChromium.cpp',
+    '$WEBCORE_DIR/platform/network/chromium/DNSChromium.cpp',
+    '$WEBCORE_DIR/platform/network/chromium/NetworkStateNotifierChromium.cpp',
 
     '$WEBCORE_DIR/platform/sql/SQLiteAuthorizer.cpp',
     '$WEBCORE_DIR/platform/sql/SQLiteDatabase.cpp',
@@ -815,6 +867,51 @@ input_files = [
     '$WEBCORE_DIR/xml/XSLTUnicodeSort.cpp',
 ]
 
+if env.Bit('windows'):
+  # Windows specific implementations.
+  input_files.extend([
+    '$WEBCORE_DIR/platform/chromium/ChromiumUtilsWin.cpp',
+    '$WEBCORE_DIR/platform/chromium/FileSystemChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/chromium/SoundChromiumWin.cpp',
+
+    '$WEBCORE_DIR/platform/graphics/chromium/FontCacheChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/FontPlatformDataChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/FontUtilsChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/FontChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/GlyphPageTreeNodeChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/IconChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/SimpleFontDataChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/ThemeHelperChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/UniscribeHelper.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/UniscribeHelperTextRun.cpp',
+  ])
+
+if env.Bit('linux'):
+  # Linux specific implementations.
+  input_files.extend([
+    '$WEBCORE_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
+    '$WEBCORE_DIR/platform/chromium/gtk2drawing.c',
+    '$WEBCORE_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
+    '$WEBCORE_DIR/platform/chromium/RenderThemeGtk.cpp',
+    '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
+    '$WEBCORE_DIR/platform/chromium/SoundChromiumPosix.cpp',
+
+    '$WEBCORE_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/FontLinux.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/IconChromiumLinux.cpp',
+    '$WEBCORE_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
+
+    '$WEBCORE_DIR/platform/graphics/skia/GdkSkia.cc',
+  ])
+  # Remove from the list files that haven't yet been made portable to Linux.
+  to_be_ported_files = [
+    '$WEBCORE_DIR/platform/graphics/chromium/FontCustomPlatformData.cpp',
+  ]
+  input_files = list(set(input_files) - set(to_be_ported_files))
+
 # These files don't compile yet on linux or mac.
 if env.Bit('mac'):
   remove_files = [
@@ -822,8 +919,7 @@ if env.Bit('mac'):
     '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',
     '$WEBCORE_DIR/loader/CachedFont.cpp',
   ]
-  for remove in remove_files:
-    input_files.remove(remove)
+  input_files = list(set(input_files) - set(remove_files))
 
 # These files don't compile on the mac
 if env.Bit('mac'):
