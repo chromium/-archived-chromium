@@ -40,9 +40,9 @@ FileVersionInfo* FileVersionInfo::CreateFileVersionInfoForCurrentModule() {
 
 // static
 FileVersionInfo* FileVersionInfo::CreateFileVersionInfo(
-    const std::wstring& file_path) {
+    const FilePath& file_path) {
   DWORD dummy;
-  const wchar_t* path = file_path.c_str();
+  const wchar_t* path = file_path.value().c_str();
   DWORD length = ::GetFileVersionInfoSize(path, &dummy);
   if (length == 0)
     return NULL;
@@ -69,6 +69,12 @@ FileVersionInfo* FileVersionInfo::CreateFileVersionInfo(
     free(data);
     return NULL;
   }
+}
+
+FileVersionInfo* FileVersionInfo::CreateFileVersionInfo(
+    const std::wstring& file_path) {
+  FilePath file_path_fp = FilePath::FromWStringHack(file_path);
+  return CreateFileVersionInfo(file_path_fp);
 }
 
 std::wstring FileVersionInfo::company_name() {
