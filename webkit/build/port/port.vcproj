@@ -137,14 +137,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="page"
-			>
-			<File
-				RelativePath="..\..\port\page\Location.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="inspector"
 			>
 			<File

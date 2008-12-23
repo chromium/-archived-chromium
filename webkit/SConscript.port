@@ -25,8 +25,6 @@ elif env.Bit('linux'):
   )
 
 input_files = [
-    '$PORT_DIR/page/Location.cpp',
-
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
     '$PORT_DIR/platform/image-decoders/gif/GIFImageDecoder.cpp',

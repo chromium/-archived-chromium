@@ -380,6 +380,7 @@ input_files = [
     '$WEBCORE_DIR/page/FrameView.cpp',
     '$WEBCORE_DIR/page/Geolocation.cpp',
     '$WEBCORE_DIR/page/History.cpp',
+    '$WEBCORE_DIR/page/Location.cpp',
     '$WEBCORE_DIR/page/MouseEventWithHitTestResults.cpp',
     '$WEBCORE_DIR/page/Navigator.cpp',
     '$WEBCORE_DIR/page/NavigatorBase.cpp',
