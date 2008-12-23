@@ -7008,14 +7008,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SkiaSupport.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SkiaSupport.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerGradientSkia.cpp"
 						>
 					</File>
