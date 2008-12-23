@@ -304,7 +304,7 @@ idl_files = [
     'page/Navigator.idl',
     'page/Screen.idl',
 
-    'page/inspector/InspectorController.idl',
+    'inspector/InspectorController.idl',
 
     'plugins/MimeTypeArray.idl',
     'plugins/MimeType.idl',
