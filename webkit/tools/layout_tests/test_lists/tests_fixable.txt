@@ -547,11 +547,6 @@ LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
 LINUX WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
 
-// There appears to be some parsing error. These tests give "successfullyParsed
-// should be true (of type boolean). Was undefined (of type undefined)."
-// http://code.google.com/p/chromium/issues/detail?id=2976
-LINUX WIN : LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
-
 // getImageData isn't supported on canvas.
 // http://code.google.com/p/chromium/issues/detail?id=2974
 LayoutTests/fast/canvas/canvas-pattern-behaviour.html = FAIL
