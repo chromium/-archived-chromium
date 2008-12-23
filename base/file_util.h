@@ -186,6 +186,8 @@ bool PathExists(const FilePath& path);
 bool PathExists(const std::wstring& path);
 
 // Returns true if the given path is writable by the user, false otherwise.
+bool PathIsWritable(const FilePath& path);
+// Deprecated temporary compatibility function.
 bool PathIsWritable(const std::wstring& path);
 
 // Returns true if the given path exists and is a directory, false otherwise.
@@ -273,7 +275,12 @@ bool CreateTemporaryFileNameInDir(const std::wstring& dir,
 
 // Create a new directory under TempPath. If prefix is provided, the new
 // directory name is in the format of prefixyyyy.
+// NOTE: prefix is ignored in the POSIX implementation.
+// TODO(erikkay): is this OK?
 // If success, return true and output the full path of the directory created.
+bool CreateNewTempDirectory(const FilePath::StringType& prefix,
+                            FilePath* new_temp_path);
+// Deprecated temporary compatibility function.
 bool CreateNewTempDirectory(const std::wstring& prefix,
                             std::wstring* new_temp_path);
 

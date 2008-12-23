@@ -335,6 +335,19 @@ bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
 bool CreateDirectory(const std::wstring& full_path) {
   return CreateDirectory(FilePath::FromWStringHack(full_path));
 }
+bool CreateNewTempDirectory(const std::wstring& prefix,
+                            std::wstring* new_temp_path) {
+#if defined(OS_WIN)
+  FilePath::StringType dir_prefix(prefix);
+#elif defined(OS_POSIX)
+  FilePath::StringType dir_prefix = WideToUTF8(prefix);
+#endif
+  FilePath temp_path;
+  if (!CreateNewTempDirectory(dir_prefix, &temp_path))
+    return false;
+  *new_temp_path = temp_path.ToWStringHack();
+  return true;
+}
 bool CreateTemporaryFileName(std::wstring* temp_file) {
   FilePath temp_file_path;
   if (!CreateTemporaryFileName(&temp_file_path))
@@ -389,6 +402,9 @@ FILE* OpenFile(const std::wstring& filename, const char* mode) {
 }
 bool PathExists(const std::wstring& path) {
   return PathExists(FilePath::FromWStringHack(path));
+}
+bool PathIsWritable(const std::wstring& path) {
+  return PathIsWritable(FilePath::FromWStringHack(path));
 }
 bool SetCurrentDirectory(const std::wstring& directory) {
   return SetCurrentDirectory(FilePath::FromWStringHack(directory));

@@ -168,9 +168,9 @@ bool PathExists(const FilePath& path) {
   return (GetFileAttributes(path.value().c_str()) != INVALID_FILE_ATTRIBUTES);
 }
 
-bool PathIsWritable(const std::wstring& path) {
+bool PathIsWritable(const FilePath& path) {
   HANDLE dir =
-      CreateFile(path.c_str(), FILE_ADD_FILE,
+      CreateFile(path.value().c_str(), FILE_ADD_FILE,
                  FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                  NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
@@ -421,26 +421,26 @@ bool CreateTemporaryFileNameInDir(const std::wstring& dir,
   return true;
 }
 
-bool CreateNewTempDirectory(const std::wstring& prefix,
-                            std::wstring* new_temp_path) {
-  std::wstring system_temp_dir;
+bool CreateNewTempDirectory(const FilePath::StringType& prefix,
+                            FilePath* new_temp_path) {
+  FilePath system_temp_dir;
   if (!GetTempDir(&system_temp_dir))
     return false;
 
-  std::wstring path_to_create;
+  FilePath path_to_create;
   srand(static_cast<uint32>(time(NULL)));
 
   int count = 0;
   while (count < 50) {
     // Try create a new temporary directory with random generated name. If
     // the one exists, keep trying another path name until we reach some limit.
-    path_to_create.assign(system_temp_dir);
+    path_to_create = system_temp_dir;
     std::wstring new_dir_name;
     new_dir_name.assign(prefix);
     new_dir_name.append(IntToWString(rand() % kint16max));
-    file_util::AppendToPath(&path_to_create, new_dir_name);
+    path_to_create = path_to_create.Append(new_dir_name);
 
-    if (::CreateDirectory(path_to_create.c_str(), NULL))
+    if (::CreateDirectory(path_to_create.value().c_str(), NULL))
       break;
     count++;
   }
@@ -449,7 +449,7 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
     return false;
   }
 
-  new_temp_path->assign(path_to_create);
+  *new_temp_path = path_to_create;
   return true;
 }
 

@@ -85,7 +85,7 @@ bool Delete(const FilePath& path, bool recursive) {
           continue;
           break;
         case FTS_DP:
-          rmdir(fts_ent->fts_accpath);
+          success = (rmdir(fts_ent->fts_accpath) == 0);
           break;
         case FTS_D:
           break;
@@ -93,7 +93,7 @@ bool Delete(const FilePath& path, bool recursive) {
         case FTS_F:
         case FTS_SL:
         case FTS_SLNONE:
-          unlink(fts_ent->fts_accpath);
+          success = (unlink(fts_ent->fts_accpath) == 0);
           break;
         default:
           DCHECK(false);
@@ -215,6 +215,26 @@ bool PathExists(const FilePath& path) {
   return (stat64(path.value().c_str(), &file_info) == 0);
 }
 
+bool PathIsWritable(const FilePath& path) {
+  FilePath test_path(path);
+  struct stat64 file_info;
+  if (stat64(test_path.value().c_str(), &file_info) != 0) {
+    // If the path doesn't exist, test the parent dir.
+    test_path = test_path.DirName();
+    // If the parent dir doesn't exist, then return false (the path is not
+    // directly writable).
+    if (stat64(test_path.value().c_str(), &file_info) != 0)
+      return false;
+  }
+  if (S_IWOTH & file_info.st_mode)
+    return true;
+  if (getegid() == file_info.st_gid && (S_IWGRP & file_info.st_mode))
+    return true;
+  if (geteuid() == file_info.st_uid && (S_IWUSR & file_info.st_mode))
+    return true;
+  return false;
+}
+
 bool DirectoryExists(const FilePath& path) {
   struct stat64 file_info;
   if (stat64(path.value().c_str(), &file_info) == 0)
@@ -274,8 +294,8 @@ bool CreateTemporaryFileNameInDir(const std::wstring& dir,
   return false;
 }
 
-bool CreateNewTempDirectory(const std::wstring& prefix,
-                            std::wstring* new_temp_path) {
+bool CreateNewTempDirectory(const FilePath::StringType& prefix,
+                            FilePath* new_temp_path) {
   FilePath tmpdir;
   if (!GetTempDir(&tmpdir))
     return false;
@@ -286,7 +306,7 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
   char* dtemp = mkdtemp(buffer);
   if (!dtemp)
     return false;
-  *new_temp_path = UTF8ToWide(dtemp);
+  *new_temp_path = FilePath(dtemp);
   return true;
 }
 
