@@ -1794,3 +1794,15 @@ LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 // sideffect from previous test causing it to be flaky. Seems to have
 // started with r7379
 WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
+
+// Merge 39438:39453 -- new tests.
+LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-004.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-005.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-006.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-007.html = FAIL
+
+// Merge 39438:39453 -- new tests missing expected results. Probably going to
+// fail anyway, since chromium does not support webarchive format.
+SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
+SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
+
