@@ -1726,7 +1726,9 @@ LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 LINUX MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
 // Currently we don't support workers.
 SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
-LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
+// Skipped as this tests window.sessionStorage, which we don't support. Enable
+// once we turn on DOM_STORAGE.
+SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
