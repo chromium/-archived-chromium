@@ -153,6 +153,9 @@
 		4DDC64580EAE394200FB5EBE /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DDC64550EAE392400FB5EBE /* libzlib.a */; };
 		A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612DB0EE9958600A8EE5D /* extensions_service_unittest.cc */; };
 		A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612D90EE9957000A8EE5D /* extensions_service.cc */; };
+		B503E0F00F0175FD00547DC6 /* greasemonkey_slave.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC90EAE868600EBCFC0 /* greasemonkey_slave.cc */; };
+		B503E0FC0F01764800547DC6 /* greasemonkey_slave_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B503E0FB0F01764800547DC6 /* greasemonkey_slave_unittest.cc */; };
+		B503E1030F017C1000547DC6 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
 		B507AC1F0F0048E10060FEE8 /* ipc_sync_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBA0E9D4C9F009A6919 /* ipc_sync_message.cc */; };
 		B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBC0E9D4C9F009A6919 /* ipc_sync_message_unittest.cc */; };
 		B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */; };
@@ -594,6 +597,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = zlib;
+		};
+		B503E1010F017BE300547DC6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D640CEA0EAE86BD00EBCFC0;
+			remoteInfo = renderer;
 		};
 		B5067F5A0EE4936200CC5024 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1428,6 +1438,7 @@
 		A54612D90EE9957000A8EE5D /* extensions_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extensions_service.cc; sourceTree = "<group>"; };
 		A54612DA0EE9957000A8EE5D /* extensions_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extensions_service.h; sourceTree = "<group>"; };
 		A54612DB0EE9958600A8EE5D /* extensions_service_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extensions_service_unittest.cc; sourceTree = "<group>"; };
+		B503E0FB0F01764800547DC6 /* greasemonkey_slave_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = greasemonkey_slave_unittest.cc; sourceTree = "<group>"; };
 		B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mach_message_source_mac.cc; sourceTree = "<group>"; };
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
 		B562C8410ED49C830077A23F /* mach_ipc_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_ipc_mac.h; sourceTree = "<group>"; };
@@ -1507,6 +1518,7 @@
 				4D7BFF3A0E9D5378009A6919 /* libjpeg.a in Frameworks */,
 				4D7B005E0E9D54BB009A6919 /* libmodp_b64.a in Frameworks */,
 				4D7B00510E9D5473009A6919 /* libnet.a in Frameworks */,
+				B503E1030F017C1000547DC6 /* librenderer.a in Frameworks */,
 				4D7B00520E9D5473009A6919 /* libskia.a in Frameworks */,
 				4D7B01420E9D56C4009A6919 /* libsqlite.a in Frameworks */,
 				4DDC644B0EAE390800FB5EBE /* libxml.a in Frameworks */,
@@ -1579,6 +1591,7 @@
 				4D640CC80EAE868600EBCFC0 /* external_js_object.h */,
 				4D640CC90EAE868600EBCFC0 /* greasemonkey_slave.cc */,
 				4D640CCA0EAE868600EBCFC0 /* greasemonkey_slave.h */,
+				B503E0FB0F01764800547DC6 /* greasemonkey_slave_unittest.cc */,
 				4D640CCB0EAE868600EBCFC0 /* localized_error.cc */,
 				4D640CCC0EAE868600EBCFC0 /* localized_error.h */,
 				4D640CCD0EAE868600EBCFC0 /* plugin_channel_host.cc */,
@@ -2698,11 +2711,12 @@
 				4D7BFE780E9D52EB009A6919 /* PBXTargetDependency */,
 				4D7BFF580E9D53D2009A6919 /* PBXTargetDependency */,
 				4D7BFF390E9D536D009A6919 /* PBXTargetDependency */,
-				4DDC644A0EAE38F500FB5EBE /* PBXTargetDependency */,
 				4D7B00600E9D54BF009A6919 /* PBXTargetDependency */,
 				4D7B00560E9D5487009A6919 /* PBXTargetDependency */,
+				B503E1020F017BE300547DC6 /* PBXTargetDependency */,
 				4D7B00540E9D5487009A6919 /* PBXTargetDependency */,
 				4D7B01440E9D56CC009A6919 /* PBXTargetDependency */,
+				4DDC644A0EAE38F500FB5EBE /* PBXTargetDependency */,
 				4DDC64570EAE393800FB5EBE /* PBXTargetDependency */,
 			);
 			name = unit_tests;
@@ -3131,6 +3145,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D640CF30EAE86E300EBCFC0 /* about_handler.cc in Sources */,
+				B503E0F00F0175FD00547DC6 /* greasemonkey_slave.cc in Sources */,
 				4D640CF40EAE86EA00EBCFC0 /* render_dns_queue.cc in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
 			);
@@ -3210,6 +3225,8 @@
 				4D7BFB710E9D4C55009A6919 /* chunk_range_unittest.cc in Sources */,
 				4D7BFB510E9D4C3E009A6919 /* dns_host_info_unittest.cc in Sources */,
 				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
+				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,
+				B503E0FC0F01764800547DC6 /* greasemonkey_slave_unittest.cc in Sources */,
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
 				B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */,
 				4D7BFCE30E9D4DCE009A6919 /* jpeg_codec_unittest.cc in Sources */,
@@ -3225,7 +3242,6 @@
 				4D7BFB3E0E9D4C2F009A6919 /* text_database_unittest.cc in Sources */,
 				4D7BFB610E9D4C4B009A6919 /* units_unittest.cc in Sources */,
 				4D7BFB420E9D4C35009A6919 /* visit_tracker_unittest.cc in Sources */,
-				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3433,6 +3449,11 @@
 			isa = PBXTargetDependency;
 			name = zlib;
 			targetProxy = 4DDC64560EAE393800FB5EBE /* PBXContainerItemProxy */;
+		};
+		B503E1020F017BE300547DC6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4D640CEA0EAE86BD00EBCFC0 /* renderer */;
+			targetProxy = B503E1010F017BE300547DC6 /* PBXContainerItemProxy */;
 		};
 		B5067F5B0EE4936200CC5024 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

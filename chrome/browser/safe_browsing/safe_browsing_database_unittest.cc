@@ -19,6 +19,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 using base::Time;
 
@@ -95,8 +96,11 @@ namespace {
 
 }  // namespace
 
+class SafeBrowsingDatabasePlatformTest : public PlatformTest {
+};
+
 // Tests retrieving list name information.
-TEST(SafeBrowsingDatabase, ListName) {
+TEST_F(SafeBrowsingDatabasePlatformTest, ListName) {
   SafeBrowsingDatabase* database = SetupTestDatabase();
 
   // Insert some malware add chunks.
