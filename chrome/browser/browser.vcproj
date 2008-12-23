@@ -1950,6 +1950,14 @@
 			Name="Net"
 			>
 			<File
+				RelativePath=".\net\chrome_url_request_context.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\net\chrome_url_request_context.h"
+				>
+			</File>
+			<File
 				RelativePath=".\net\dns_global.cc"
 				>
 			</File>

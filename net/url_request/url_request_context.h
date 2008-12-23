@@ -31,8 +31,7 @@ class URLRequestContext :
   URLRequestContext()
       : proxy_service_(NULL),
         http_transaction_factory_(NULL),
-        cookie_store_(NULL),
-        is_off_the_record_(false) {
+        cookie_store_(NULL) {
   }
 
   // Get the proxy service for this context.
@@ -63,9 +62,6 @@ class URLRequestContext :
   // Gets the value of 'Accept-Language' header field.
   const std::string& accept_language() const { return accept_language_; }
 
-  // Returns true if this context is off the record.
-  bool is_off_the_record() { return is_off_the_record_; }
-
   // Do not call this directly.  TODO(darin): extending from RefCounted* should
   // not require a public destructor!
   virtual ~URLRequestContext() {}
@@ -79,7 +75,6 @@ class URLRequestContext :
   net::CookiePolicy cookie_policy_;
   net::AuthCache ftp_auth_cache_;
   std::string user_agent_;
-  bool is_off_the_record_;
   std::string accept_language_;
   std::string accept_charset_;
 

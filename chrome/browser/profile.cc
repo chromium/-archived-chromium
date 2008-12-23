@@ -21,6 +21,7 @@
 #include "chrome/browser/greasemonkey_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/navigation_controller.h"
+#include "chrome/browser/net/chrome_url_request_context.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/sessions/session_service.h"
@@ -76,272 +77,6 @@ URLRequestContext* Profile::GetDefaultRequestContext() {
 }
 
 
-// Sets up proxy info if it was specified, otherwise returns NULL. The
-// returned pointer MUST be deleted by the caller if non-NULL.
-static net::ProxyInfo* CreateProxyInfo(const CommandLine& command_line) {
-  net::ProxyInfo* proxy_info = NULL;
-
-  if (command_line.HasSwitch(switches::kProxyServer)) {
-    proxy_info = new net::ProxyInfo();
-    const std::wstring& proxy_server =
-        command_line.GetSwitchValue(switches::kProxyServer);
-    proxy_info->UseNamedProxy(WideToASCII(proxy_server));
-  }
-
-  return proxy_info;
-}
-
-// Releases the URLRequestContext and sends out a notification about it.
-// Note: runs on IO thread.
-static void ReleaseURLRequestContext(URLRequestContext* context) {
-  NotificationService::current()->Notify(NOTIFY_URL_REQUEST_CONTEXT_RELEASED,
-                                         Source<URLRequestContext>(context),
-                                         NotificationService::NoDetails());
-  context->Release();
-}
-
-// A context for URLRequests issued relative to this profile.
-class ProfileImpl::RequestContext : public URLRequestContext,
-                                    public NotificationObserver {
- public:
-  // |cookie_store_path| is the local disk path at which the cookie store
-  // is persisted.
-  RequestContext(const std::wstring& cookie_store_path,
-                 const std::wstring& disk_cache_path,
-                 PrefService* prefs)
-      : prefs_(prefs) {
-    cookie_store_ = NULL;
-
-    // setup user agent
-    user_agent_ = webkit_glue::GetUserAgent();
-    // set up Accept-Language and Accept-Charset header values
-    // TODO(jungshik) : This may slow down http requests. Perhaps,
-    // we have to come up with a better way to set up these values.
-    accept_language_ = WideToASCII(prefs_->GetString(prefs::kAcceptLanguages));
-    accept_charset_ = WideToASCII(prefs_->GetString(prefs::kDefaultCharset));
-    accept_charset_ += ",*,utf-8";
-
-    CommandLine command_line;
-
-    scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
-    proxy_service_ = net::ProxyService::Create(proxy_info.get());
-
-    net::HttpCache* cache =
-        new net::HttpCache(proxy_service_, disk_cache_path, 0);
-
-    bool record_mode = chrome::kRecordModeEnabled &&
-                       CommandLine().HasSwitch(switches::kRecordMode);
-    bool playback_mode = CommandLine().HasSwitch(switches::kPlaybackMode);
-
-    if (record_mode || playback_mode) {
-      // Don't use existing cookies and use an in-memory store.
-      cookie_store_ = new net::CookieMonster();
-      cache->set_mode(
-          record_mode ? net::HttpCache::RECORD : net::HttpCache::PLAYBACK);
-    }
-    http_transaction_factory_ = cache;
-
-    // setup cookie store
-    if (!cookie_store_) {
-      DCHECK(!cookie_store_path.empty());
-      cookie_db_.reset(new SQLitePersistentCookieStore(
-          cookie_store_path, g_browser_process->db_thread()->message_loop()));
-      cookie_store_ = new net::CookieMonster(cookie_db_.get());
-    }
-
-    cookie_policy_.SetType(net::CookiePolicy::FromInt(
-        prefs_->GetInteger(prefs::kCookieBehavior)));
-
-    // The first request context to be created is the one for the default
-    // profile - at least until we support multiple profiles.
-    if (!default_request_context_)
-      default_request_context_ = this;
-    NotificationService::current()->Notify(
-        NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
-        NotificationService::AllSources(), NotificationService::NoDetails());
-
-    // Register for notifications about prefs.
-    prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
-    prefs_->AddPrefObserver(prefs::kCookieBehavior, this);
-  }
-
-  // NotificationObserver implementation.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) {
-    if (NOTIFY_PREF_CHANGED == type) {
-      std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
-      PrefService* prefs = Source<PrefService>(source).ptr();
-      DCHECK(pref_name_in && prefs);
-      if (*pref_name_in == prefs::kAcceptLanguages) {
-        std::string accept_language =
-            WideToASCII(prefs->GetString(prefs::kAcceptLanguages));
-        g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-            NewRunnableMethod(this,
-                              &RequestContext::OnAcceptLanguageChange,
-                              accept_language));
-      } else if (*pref_name_in == prefs::kCookieBehavior) {
-        net::CookiePolicy::Type type = net::CookiePolicy::FromInt(
-            prefs_->GetInteger(prefs::kCookieBehavior));
-        g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-            NewRunnableMethod(this,
-                              &RequestContext::OnCookiePolicyChange,
-                              type));
-      }
-    }
-  }
-
-  // Since ProfileImpl::RequestContext will be destroyed on IO thread, but all
-  // PrefService observers are needed to clear in before destroying ProfileImpl.
-  // So we use to CleanupBeforeDestroy to do this thing. This function need to
-  // be called on destructor of ProfileImpl.
-  void CleanupBeforeDestroy() {
-    // Unregister for pref notifications.
-    prefs_->RemovePrefObserver(prefs::kAcceptLanguages, this);
-    prefs_->RemovePrefObserver(prefs::kCookieBehavior, this);
-    prefs_ = NULL;
-  }
-
-  void OnAcceptLanguageChange(std::string accept_language) {
-    DCHECK(MessageLoop::current() ==
-           ChromeThread::GetMessageLoop(ChromeThread::IO));
-    accept_language_ = accept_language;
-  }
-
-  void OnCookiePolicyChange(net::CookiePolicy::Type type) {
-    DCHECK(MessageLoop::current() ==
-           ChromeThread::GetMessageLoop(ChromeThread::IO));
-    cookie_policy_.SetType(type);
-  }
-
-  virtual ~RequestContext() {
-    DCHECK(NULL == prefs_);
-    delete cookie_store_;
-    delete http_transaction_factory_;
-    delete proxy_service_;
-
-    if (default_request_context_ == this)
-      default_request_context_ = NULL;
-  }
-
- private:
-  scoped_ptr<SQLitePersistentCookieStore> cookie_db_;
-  PrefService* prefs_;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// An URLRequestContext proxy for OffTheRecord. This request context is
-// really a proxy to the original profile's request context but set
-// is_off_the_record_ to true.
-//
-// TODO(ACW). Do we need to share the FtpAuthCache with the real request context
-// see bug 974328
-//
-// TODO(jackson): http://b/issue?id=1197350 Remove duplicated code from above.
-//
-////////////////////////////////////////////////////////////////////////////////
-class OffTheRecordRequestContext : public URLRequestContext,
-                                   public NotificationObserver {
- public:
-  explicit OffTheRecordRequestContext(Profile* profile) {
-    DCHECK(!profile->IsOffTheRecord());
-    prefs_ = profile->GetPrefs();
-    DCHECK(prefs_);
-
-    // The OffTheRecordRequestContext is owned by the OffTheRecordProfileImpl
-    // which is itself owned by the original profile. We reference the original
-    // context to make sure it doesn't go away when we delete the object graph.
-    original_context_ = profile->GetRequestContext();
-
-    // Share the same proxy service as the original profile. This proxy
-    // service's lifespan is dependent on the lifespan of the original profile,
-    // which we reference (see above).
-    proxy_service_ = original_context_->proxy_service();
-
-    http_transaction_factory_ = new net::HttpCache(proxy_service_, 0);
-    cookie_store_ = new net::CookieMonster;
-    cookie_policy_.SetType(net::CookiePolicy::FromInt(
-        prefs_->GetInteger(prefs::kCookieBehavior)));
-    user_agent_ = original_context_->user_agent();
-    accept_language_ = original_context_->accept_language();
-    accept_charset_ = original_context_->accept_charset();
-    is_off_the_record_ = true;
-
-    // Register for notifications about prefs.
-    prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
-    prefs_->AddPrefObserver(prefs::kCookieBehavior, this);
-  }
-
-  // Since OffTheRecordProfileImpl maybe be destroyed after destroying
-  // PrefService, but all PrefService observers are needed to clear in
-  // before destroying PrefService. So we use to CleanupBeforeDestroy
-  // to do this thing. This function need to be called on destructor
-  // of ProfileImpl.
-  void CleanupBeforeDestroy() {
-    // Unregister for pref notifications.
-    prefs_->RemovePrefObserver(prefs::kAcceptLanguages, this);
-    prefs_->RemovePrefObserver(prefs::kCookieBehavior, this);
-    prefs_ = NULL;
-  }
-
-  // NotificationObserver implementation.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) {
-    if (NOTIFY_PREF_CHANGED == type) {
-      std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
-      PrefService* prefs = Source<PrefService>(source).ptr();
-      DCHECK(pref_name_in && prefs);
-      if (*pref_name_in == prefs::kAcceptLanguages) {
-        std::string accept_language =
-            WideToASCII(prefs->GetString(prefs::kAcceptLanguages));
-        g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-            NewRunnableMethod(
-                this,
-                &OffTheRecordRequestContext::OnAcceptLanguageChange,
-                accept_language));
-      } else if (*pref_name_in == prefs::kCookieBehavior) {
-        net::CookiePolicy::Type type = net::CookiePolicy::FromInt(
-            prefs_->GetInteger(prefs::kCookieBehavior));
-        g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-            NewRunnableMethod(this,
-                              &OffTheRecordRequestContext::OnCookiePolicyChange,
-                              type));
-      }
-    }
-  }
-
-  void OnAcceptLanguageChange(std::string accept_language) {
-    DCHECK(MessageLoop::current() ==
-           ChromeThread::GetMessageLoop(ChromeThread::IO));
-    accept_language_ = accept_language;
-  }
-
-  void OnCookiePolicyChange(net::CookiePolicy::Type type) {
-    DCHECK(MessageLoop::current() ==
-           ChromeThread::GetMessageLoop(ChromeThread::IO));
-    cookie_policy_.SetType(type);
-  }
-
-  virtual ~OffTheRecordRequestContext() {
-    DCHECK(NULL == prefs_);
-    delete cookie_store_;
-    delete http_transaction_factory_;
-    // NOTE: do not delete |proxy_service_| as is owned by the original profile.
-   
-    // The OffTheRecordRequestContext simply act as a proxy to the real context.
-    // There is nothing else to delete.
-  }
-
- private:
-  // The original (non off the record) URLRequestContext.
-  scoped_refptr<URLRequestContext> original_context_;
-  PrefService* prefs_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(OffTheRecordRequestContext);
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // OffTheRecordProfileImpl is a profile subclass that wraps an existing profile
@@ -354,7 +89,7 @@ class OffTheRecordProfileImpl : public Profile,
   explicit OffTheRecordProfileImpl(Profile* real_profile)
       : profile_(real_profile),
         start_time_(Time::Now()) {
-    request_context_ = new OffTheRecordRequestContext(real_profile);
+    request_context_ = ChromeURLRequestContext::CreateOffTheRecord(this);
     request_context_->AddRef();
     // Register for browser close notifications so we can detect when the last
     // off-the-record window is closed, in which case we can clean our states
@@ -365,10 +100,12 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual ~OffTheRecordProfileImpl() {
     if (request_context_) {
-      request_context_->CleanupBeforeDestroy();
+      request_context_->CleanupOnUIThread();
+
       // Clean up request context on IO thread.
       g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-          NewRunnableFunction(&ReleaseURLRequestContext, request_context_));
+          NewRunnableMethod(request_context_,
+              &base::RefCountedThreadSafe<URLRequestContext>::Release));
       request_context_ = NULL;
     }
     NotificationService::current()->RemoveObserver(
@@ -545,8 +282,8 @@ class OffTheRecordProfileImpl : public Profile,
   // The real underlying profile.
   Profile* profile_;
 
-  // A proxy to the real request context.
-  OffTheRecordRequestContext* request_context_;
+  // The context to use for requests made from this OTR session.
+  ChromeURLRequestContext* request_context_;
 
   // The download manager that only stores downloaded items in memory.
   scoped_refptr<DownloadManager> download_manager_;
@@ -628,10 +365,15 @@ ProfileImpl::~ProfileImpl() {
   }
 
   if (request_context_) {
-    request_context_->CleanupBeforeDestroy();
+    request_context_->CleanupOnUIThread();
+
+    if (default_request_context_ == request_context_)
+      default_request_context_ = NULL;
+
     // Clean up request context on IO thread.
-    io_thread->message_loop()->PostTask(FROM_HERE,
-        NewRunnableFunction(&ReleaseURLRequestContext, request_context_));
+    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(request_context_,
+            &base::RefCountedThreadSafe<URLRequestContext>::Release));
     request_context_ = NULL;
   }
 
@@ -753,9 +495,19 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
     file_util::AppendToPath(&cookie_path, chrome::kCookieFilename);
     std::wstring cache_path = GetPath();
     file_util::AppendToPath(&cache_path, chrome::kCacheDirname);
-    request_context_ =
-        new ProfileImpl::RequestContext(cookie_path, cache_path, GetPrefs());
+    request_context_ = ChromeURLRequestContext::CreateOriginal(
+        this, cookie_path, cache_path);
     request_context_->AddRef();
+
+    // The first request context is always a normal (non-OTR) request context.
+    // Even when Chromium is started in OTR mode, a normal profile is always
+    // created first.
+    if (!default_request_context_) {
+      default_request_context_ = request_context_;
+      NotificationService::current()->Notify(
+          NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+          NotificationService::AllSources(), NotificationService::NoDetails());
+    }
 
     DCHECK(request_context_->cookie_store());
   }

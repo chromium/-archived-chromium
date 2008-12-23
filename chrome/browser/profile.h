@@ -23,6 +23,7 @@
 #include "chrome/common/pref_service.h"
 
 class BookmarkModel;
+class ChromeURLRequestContext;
 class DownloadManager;
 class ExtensionsService;
 class GreasemonkeyMaster;
@@ -294,8 +295,6 @@ class ProfileImpl : public Profile,
                        const NotificationDetails& details);  
 
  private:
-  class RequestContext;
-
   friend class Profile;
 
   explicit ProfileImpl(const std::wstring& path);
@@ -332,7 +331,7 @@ class ProfileImpl : public Profile,
   scoped_ptr<ProfilePersonalization> personalization_;
 #endif
 
-  RequestContext* request_context_;
+  ChromeURLRequestContext* request_context_;
 
   scoped_refptr<DownloadManager> download_manager_;
   scoped_refptr<HistoryService> history_service_;
