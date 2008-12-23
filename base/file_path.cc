@@ -63,6 +63,15 @@ bool IsPathAbsolute(const FilePath::StringType& path) {
 
 }  // namespace
 
+const std::string FilePath::UTF8Value() const {
+#if defined(OS_POSIX)
+  // TODO(erikkay): I'm not sure how to make this code always correct for Linux.
+  return path_;
+#elif defined(OS_WIN)
+  return WideToUTF8(path_);
+#endif
+}
+
 bool FilePath::IsSeparator(CharType character) {
   for (size_t i = 0; i < arraysize(kSeparators) - 1; ++i) {
     if (character == kSeparators[i]) {
