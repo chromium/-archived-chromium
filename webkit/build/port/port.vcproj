@@ -143,34 +143,6 @@
 				RelativePath="..\..\port\page\Location.cpp"
 				>
 			</File>
-			<Filter
-				Name="chromium"
-				>
-				<File
-					RelativePath="..\..\port\page\chromium\AccessibilityObjectChromium.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\page\chromium\AXObjectCacheChromium.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\page\chromium\ChromeClientChromium.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\page\chromium\DragControllerChromium.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\page\chromium\EventHandlerChromium.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\page\chromium\FrameChromium.cpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="inspector"

@@ -397,6 +397,12 @@ input_files = [
     '$WEBCORE_DIR/page/animation/ImplicitAnimation.cpp',
     '$WEBCORE_DIR/page/animation/KeyframeAnimation.cpp',
 
+    '$WEBCORE_DIR/page/chromium/AccessibilityObjectChromium.cpp',
+    '$WEBCORE_DIR/page/chromium/AXObjectCacheChromium.cpp',
+    '$WEBCORE_DIR/page/chromium/DragControllerChromium.cpp',
+    '$WEBCORE_DIR/page/chromium/EventHandlerChromium.cpp',
+    '$WEBCORE_DIR/page/chromium/FrameChromium.cpp',
+
     '$WEBCORE_DIR/platform/Arena.cpp',
     '$WEBCORE_DIR/platform/ContextMenu.cpp',
     '$WEBCORE_DIR/platform/DeprecatedPtrListImpl.cpp',
@@ -927,6 +933,8 @@ if env.Bit('mac'):
   remove_files = [
     # Missing WebCore::FrameView::printPanScrollIcon
     '$WEBCORE_DIR/page/EventHandler.cpp',
+    '$WEBCORE_DIR/page/chromium/AXObjectCacheChromium.cpp',
+    '$WEBCORE_DIR/page/chromium/EventHandlerChromium.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)

@@ -521,6 +521,34 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="chromium"
+				>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\AccessibilityObjectChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\AXObjectCacheChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\ChromeClientChromium.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\DragControllerChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\EventHandlerChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\FrameChromium.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="loader"

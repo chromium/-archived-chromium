@@ -28,11 +28,6 @@ input_files = [
     '$PORT_DIR/bridge/chromium/PluginsChromium.cpp',
 
     '$PORT_DIR/page/Location.cpp',
-    '$PORT_DIR/page/chromium/AccessibilityObjectChromium.cpp',
-    '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
-    '$PORT_DIR/page/chromium/DragControllerChromium.cpp',
-    '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
-    '$PORT_DIR/page/chromium/FrameChromium.cpp',
 
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
@@ -50,13 +45,6 @@ if env.Bit('mac'):
     '$PORT_DIR/platform/graphics/mac/FontCacheMacPending.cpp',
     '$PORT_DIR/rendering/RenderThemeMac.mm',
   ])
-
-  # Remove from the list files that haven't yet been made portable to Mac.
-  to_be_ported_files = [
-    '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
-    '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
-  ]
-  input_files = list(set(input_files) - set(to_be_ported_files))
 
 if env.get('KJS'):
   input_files.extend([
