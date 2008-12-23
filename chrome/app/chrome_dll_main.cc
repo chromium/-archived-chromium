@@ -206,6 +206,23 @@ void InitializeSandbox(const CommandLine& parsed_command_line,
   }  
 }
 
+void CommonSubprocessInit() {
+#if defined(OS_WIN)
+  // Initialize ResourceBundle which handles files loaded from external
+  // sources.  The language should have been passed in to us from the
+  // browser process as a command line flag.
+  // TODO(port): enable when we figure out resource bundle issues
+  ResourceBundle::InitSharedInstance(std::wstring());
+
+  // HACK: Let Windows know that we have started.  This is needed to suppress
+  // the IDC_APPSTARTING cursor from being displayed for a prolonged period
+  // while a subprocess is starting.
+  PostThreadMessage(GetCurrentThreadId(), WM_NULL, 0, 0);
+  MSG msg;
+  PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+#endif
+}
+
 }  // namespace
 
 #if defined(OS_WIN)
@@ -311,15 +328,8 @@ int ChromeMain(int argc, const char** argv) {
   }
 #endif  // NDEBUG
 
-  if (!process_type.empty()) {
-#if defined(OS_WIN)
-    // Initialize ResourceBundle which handles files loaded from external
-    // sources.  The language should have been passed in to us from the
-    // browser process as a command line flag.
-    // TODO(port): enable when we figure out resource bundle issues
-    ResourceBundle::InitSharedInstance(std::wstring());
-#endif
-  }
+  if (!process_type.empty())
+    CommonSubprocessInit();
 
   startup_timer.Stop();  // End of Startup Time Measurement.
 
