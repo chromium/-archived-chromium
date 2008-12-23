@@ -1729,14 +1729,16 @@ SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 // Skipped as this tests window.sessionStorage, which we don't support. Enable
 // once we turn on DOM_STORAGE.
 SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
+// These are failing until Adam's patch to ImageDecoder is merged and we
+// update ImageSource. See bug 5827.
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = CRASH
-// eventSender to fake a drag
-MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
 LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
+// eventSender to fake a drag
+MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 // eventSender to fake a drag
 MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Missing expected results.
