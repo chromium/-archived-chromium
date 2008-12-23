@@ -1729,7 +1729,8 @@ LayoutTests/fast/regex/quantified-assertions.html = FAIL
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
 LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
-LayoutTests/transforms/2d/transform-value-types.html = FAIL
+// Needs to be rebaselined on Linux/Mac.
+LINUX MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
 LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
