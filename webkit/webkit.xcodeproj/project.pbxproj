@@ -63,6 +63,7 @@
 		41A362510F003B3000778012 /* DragControllerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624B0F003B3000778012 /* DragControllerChromium.cpp */; };
 		41A362520F003B3000778012 /* EventHandlerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */; };
 		41A362530F003B3000778012 /* FrameChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624D0F003B3000778012 /* FrameChromium.cpp */; };
+		41A362D70F01695600778012 /* PluginsChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A362D60F01695600778012 /* PluginsChromium.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
@@ -483,7 +484,6 @@
 		938180480EF3392100993F02 /* BackForwardList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938180460EF3392100993F02 /* BackForwardList.cpp */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
 		938181480EF6D29000993F02 /* PluginData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938181460EF6D29000993F02 /* PluginData.cpp */; };
-		93AF4BAB0EF6D4FB0073C62D /* PluginsChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */; };
 		93AF4CE00EFAEDF80073C62D /* PlatformScreenMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4CDF0EFAEDF80073C62D /* PlatformScreenMac.mm */; };
 		93AF4D050EFAF0090073C62D /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4D040EFAF0090073C62D /* ScrollView.cpp */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
@@ -1489,6 +1489,7 @@
 		41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EventHandlerChromium.cpp; path = chromium/EventHandlerChromium.cpp; sourceTree = "<group>"; };
 		41A3624D0F003B3000778012 /* FrameChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameChromium.cpp; path = chromium/FrameChromium.cpp; sourceTree = "<group>"; };
 		41A3624E0F003B3000778012 /* FrameChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FrameChromium.h; path = chromium/FrameChromium.h; sourceTree = "<group>"; };
+		41A362D60F01695600778012 /* PluginsChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginsChromium.cpp; path = ../third_party/WebKit/WebCore/plugins/chromium/PluginsChromium.cpp; sourceTree = SOURCE_ROOT; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
@@ -3995,7 +3996,6 @@
 		9381804F0EF3394A00993F02 /* back_forward_list_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = back_forward_list_client_impl.h; sourceTree = "<group>"; };
 		938181460EF6D29000993F02 /* PluginData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginData.cpp; sourceTree = "<group>"; };
 		938181470EF6D29000993F02 /* PluginData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginData.h; sourceTree = "<group>"; };
-		93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginsChromium.cpp; path = chromium/PluginsChromium.cpp; sourceTree = "<group>"; };
 		93AF4CDF0EFAEDF80073C62D /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatformScreenMac.mm; path = mac/PlatformScreenMac.mm; sourceTree = "<group>"; };
 		93AF4D040EFAF0090073C62D /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollView.cpp; sourceTree = "<group>"; };
 		93AF52480F001CAB0073C62D /* media_player_private_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = media_player_private_impl.cc; sourceTree = "<group>"; };
@@ -6710,20 +6710,11 @@
 		7B9375960D919010008B9587 /* port */ = {
 			isa = PBXGroup;
 			children = (
-				7B9375970D91902E008B9587 /* bridge */,
 				E4A970880E3614F200E8EF3B /* page */,
 				822B1BE60DC778FF005C9A96 /* platform */,
 				938181210EF6D25700993F02 /* plugins */,
 			);
 			path = port;
-			sourceTree = "<group>";
-		};
-		7B9375970D91902E008B9587 /* bridge */ = {
-			isa = PBXGroup;
-			children = (
-				93AF4BA90EF6D4E30073C62D /* chromium */,
-			);
-			path = bridge;
 			sourceTree = "<group>";
 		};
 		7B964AAB0E7EE4A0006D1A11 /* Projects */ = {
@@ -7663,18 +7654,11 @@
 		938181420EF6D26400993F02 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
+				41A362D60F01695600778012 /* PluginsChromium.cpp */,
 				41A361D80F001E3800778012 /* PluginDataChromium.cpp */,
 			);
 			name = chromium;
 			path = ../../../../webkit/port;
-			sourceTree = "<group>";
-		};
-		93AF4BA90EF6D4E30073C62D /* chromium */ = {
-			isa = PBXGroup;
-			children = (
-				93AF4BAA0EF6D4FB0073C62D /* PluginsChromium.cpp */,
-			);
-			name = chromium;
 			sourceTree = "<group>";
 		};
 		93AF4CDE0EFAEDC20073C62D /* mac */ = {
@@ -8925,6 +8909,7 @@
 				938181480EF6D29000993F02 /* PluginData.cpp in Sources */,
 				41A361D90F001E3800778012 /* PluginDataChromium.cpp in Sources */,
 				E45624930E268E87005E4685 /* PluginDocument.cpp in Sources */,
+				41A362D70F01695600778012 /* PluginsChromium.cpp in Sources */,
 				E45625570E268E87005E4685 /* PointerEventsHitRules.cpp in Sources */,
 				93AF529B0F002F680073C62D /* PopupMenuChromium.cpp in Sources */,
 				E45623D80E268E87005E4685 /* Position.cpp in Sources */,
@@ -9443,7 +9428,6 @@
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
 				4D1641090EC29C84008F024E /* Location.cpp in Sources */,
 				93AF4CE00EFAEDF80073C62D /* PlatformScreenMac.mm in Sources */,
-				93AF4BAB0EF6D4FB0073C62D /* PluginsChromium.cpp in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
