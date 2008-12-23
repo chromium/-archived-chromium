@@ -142,8 +142,8 @@ LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 
 
 // Bug 5248
-MAC WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-MAC WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Bug 865472, this should just need proper pixel test rebaselining.
 // Also skipped by Apple on Windows (rdar://5723191).
@@ -432,7 +432,7 @@ LINUX WIN : LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by
 LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
 LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
-LINUX WIN : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
+LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
 
 // This is an interesting one.
 // The test has an error which causes it to output a message to the console.
@@ -1735,7 +1735,7 @@ WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 LINUX MAC : LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
 // This test needs to be rebaselined on Mac/Linux.
 LINUX MAC : LayoutTests/animations/keyframes-rule.html = FAIL
-LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
+LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 // These two appear to be failing because of changes to PCRE that have
 // not made it to JSCRE (regex engine used by V8). See V8 bug 182.
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
@@ -1743,7 +1743,6 @@ LayoutTests/fast/regex/quantified-assertions.html = FAIL
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
 LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
-WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 LayoutTests/transforms/2d/transform-value-types.html = FAIL
 LayoutTests/wml/go-task-animation.html = FAIL
 LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
