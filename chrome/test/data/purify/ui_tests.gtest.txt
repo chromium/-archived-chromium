@@ -7,3 +7,8 @@ CacheTest.Public
 UnloadTest.BrowserCloseBeforeUnloadOK
 UnloadTest.BrowserCloseBeforeUnloadCancel
 
+# These tests stall out, more investigation needed.
+NPAPITester.ManyPlugins
+SessionHistoryTest.FrameBackForward
+SessionHistoryTest.BasicBackForward
+
