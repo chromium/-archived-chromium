@@ -64,6 +64,7 @@
 		41A362520F003B3000778012 /* EventHandlerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */; };
 		41A362530F003B3000778012 /* FrameChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624D0F003B3000778012 /* FrameChromium.cpp */; };
 		41A362D70F01695600778012 /* PluginsChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A362D60F01695600778012 /* PluginsChromium.cpp */; };
+		41A365230F01A0DF00778012 /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1640DC0EC29BB4008F024E /* Location.cpp */; };
 		41AF32C60EE5E6ED00BF6361 /* ScriptInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */; };
 		41F1D4630EF70D1600DA8753 /* FontFastPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */; };
 		4D1637CC0EBFA49E008F024E /* SQLiteAuthorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */; };
@@ -8831,6 +8832,7 @@
 				E45625550E268E87005E4685 /* ListMarkerBox.cpp in Sources */,
 				E456248B0E268E87005E4685 /* loader.cpp in Sources */,
 				E45624FC0E268E87005E4685 /* LocalCurrentGraphicsContext.mm in Sources */,
+				41A365230F01A0DF00778012 /* Location.cpp in Sources */,
 				E45624EB0E268E87005E4685 /* Logging.cpp in Sources */,
 				E45624FE0E268E87005E4685 /* LoggingMac.mm in Sources */,
 				E45624900E268E87005E4685 /* MainResourceLoader.cpp in Sources */,
