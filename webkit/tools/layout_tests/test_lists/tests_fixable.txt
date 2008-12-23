@@ -293,10 +293,6 @@ LINUX WIN : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 // Bug 941049: Function arguments object is copied for each access.
 LayoutTests/fast/js/kde/function_arguments.html = FAIL
 
-// The following tests (up to the ---- line below) need to add new methods to
-// layoutTestController in test_shell since WebKit add those methods to its
-// layoutTestController in DumpRenderTree tools.
-
 // BUG 973468: Need a setAuthorAndUserStylesEnabled method in
 // layoutTestController. Now we have preference to enable/disable user
 // styles(not work now), we still need to add a preference to enable/disable
@@ -314,8 +310,6 @@ SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 WIN : LayoutTests/fast/css/font-family-initial.html = FAIL
 WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
 WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
-
-// ------------------------------------------------------------------------- //
 
 // Bug: 924387, 1058654
 // Broken until we fix our port to support remote TTF fonts and SVG Fonts
@@ -1668,8 +1662,9 @@ LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
 // "Cancel" button in a slightly darker gray than the surrounding dark gray.
 WIN : LayoutTests/fast/css/imageTileOpacity.html = FAIL
 
-// Pixeltest failure: Word spacing wrong
-LINUX WIN : LayoutTests/fast/css/word-space-extra.html = FAIL
+// Pixeltest failure: font differences, probably just needs to be
+// rebaselined.
+WIN : LayoutTests/fast/css/word-space-extra.html = FAIL
 
 // Linux pixeltest failure: flaky?  Appears without red locally.
 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
