@@ -1234,13 +1234,13 @@ LayoutTests/transitions/transition-drt-api.html = TIMEOUT
 SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 
 // MERGE 38550:38575: New tests. Need ENABLE_WORKERS turned on.
-LayoutTests/fast/workers/worker-constructor.html = FAIL
-LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
-LayoutTests/fast/workers/worker-gc.html = TIMEOUT
-LayoutTests/fast/workers/worker-location.html = TIMEOUT
+SKIP : LayoutTests/fast/workers/worker-constructor.html = FAIL
+SKIP : LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
+SKIP : LayoutTests/fast/workers/worker-gc.html = TIMEOUT
+SKIP : LayoutTests/fast/workers/worker-location.html = TIMEOUT
 
-// MERGE 38575:38600: New test
-LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
+// MERGE 38575:38600: Currently we don't support workers
+SKIP : LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
 
 // MERGE 38600:38625: New tests
 // Big 4999: we need to fix this same bug in our plugin handling Apple did in
@@ -1269,10 +1269,12 @@ LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 // MERGE 38653:38729: New tests
 LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
-LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
+// Currently we don't support workers.
+SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
 
 // MERGE 38729:38760: New tests
-LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
+// Currently we don't support workers.
+SKIP : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
 LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
 
 // MERGE 38729:38760: Regressions
@@ -1281,7 +1283,8 @@ LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
 
 // MERGE 38760:38800: New tests
-LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
+// Currently we don't support workers.
+SKIP : LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
 
 // MERGE 38760:38800: Expectations changed upstream
 WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
@@ -1731,7 +1734,8 @@ LayoutTests/fast/regex/quantified-assertions.html = FAIL
 LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 // Needs to be rebaselined on Linux/Mac.
 LINUX MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
-LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
+// Currently we don't support workers.
+SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-in-about-blank-frame.html = CRASH
