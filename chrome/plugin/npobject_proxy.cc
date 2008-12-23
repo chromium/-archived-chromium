@@ -178,13 +178,18 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
   // messages are pumped).
   msg->set_pump_messages_event(proxy->modal_dialog_event_);
 
+  HANDLE modal_dialog_event_handle = proxy->modal_dialog_event_;
+
   proxy->Send(msg);
+
+  // Send may delete proxy.
+  proxy = NULL;
 
   if (!result)
     return false;
 
   CreateNPVariant(
-      param_result, channel_copy, np_result, proxy->modal_dialog_event_);
+      param_result, channel_copy, np_result, modal_dialog_event_handle);
   return true;
 }
 
@@ -202,6 +207,9 @@ bool NPObjectProxy::NPHasProperty(NPObject *obj,
   NPVariant_Param param;
   proxy->Send(new NPObjectMsg_HasProperty(
       proxy->route_id(), name_param, &result));
+
+  // Send may delete proxy.
+  proxy = NULL;
 
   return result;
 }
@@ -229,13 +237,17 @@ bool NPObjectProxy::NPGetProperty(NPObject *obj,
   CreateNPIdentifierParam(name, &name_param);
 
   NPVariant_Param param;
+  HANDLE modal_dialog_event_handle = proxy->modal_dialog_event_;
+  scoped_refptr<PluginChannelBase> channel(proxy->channel_);
   proxy->Send(new NPObjectMsg_GetProperty(
       proxy->route_id(), name_param, &param, &result));
+  // Send may delete proxy.
+  proxy = NULL;
   if (!result)
     return false;
 
   CreateNPVariant(
-      param, proxy->channel(), np_result, proxy->modal_dialog_event_);
+      param, channel.get(), np_result, modal_dialog_event_handle);
 
   return true;
 }
@@ -257,6 +269,8 @@ bool NPObjectProxy::NPSetProperty(NPObject *obj,
 
   proxy->Send(new NPObjectMsg_SetProperty(
       proxy->route_id(), name_param, value_param, &result));
+  // Send may delete proxy.
+  proxy = NULL;
 
   return result;
 }
@@ -275,6 +289,8 @@ bool NPObjectProxy::NPRemoveProperty(NPObject *obj,
   NPVariant_Param param;
   proxy->Send(new NPObjectMsg_RemoveProperty(
       proxy->route_id(), name_param, &result));
+  // Send may delete proxy.
+  proxy = NULL;
 
   return result;
 }
@@ -287,6 +303,8 @@ void NPObjectProxy::NPPInvalidate(NPObject *obj) {
   }
 
   proxy->Send(new NPObjectMsg_Invalidate(proxy->route_id()));
+  // Send may delete proxy.
+  proxy = NULL;
 }
 
 bool NPObjectProxy::NPNEnumerate(NPObject *obj,
@@ -301,6 +319,8 @@ bool NPObjectProxy::NPNEnumerate(NPObject *obj,
   std::vector<NPIdentifier_Param> value_param;
   proxy->Send(new NPObjectMsg_Enumeration(
       proxy->route_id(), &value_param, &result));
+  // Send may delete proxy.
+  proxy = NULL;
 
   if (!result)
     return false;
@@ -346,12 +366,16 @@ bool NPObjectProxy::NPNEvaluate(NPP npp,
   // Please refer to the comments in NPObjectProxy::NPInvokePrivate for
   // the reasoning behind setting the pump messages event in the sync message.
   msg->set_pump_messages_event(proxy->modal_dialog_event_);
+  scoped_refptr<PluginChannelBase> channel(proxy->channel_);
+  HANDLE modal_dialog_event_handle = proxy->modal_dialog_event_;
   proxy->Send(msg);
+  // Send may delete proxy.
+  proxy = NULL;
   if (!result)
     return false;
 
   CreateNPVariant(
-      result_param, proxy->channel(), result_var, proxy->modal_dialog_event_);
+      result_param, channel.get(), result_var, modal_dialog_event_handle);
   return true;
 }
 
@@ -366,5 +390,7 @@ void NPObjectProxy::NPNSetException(NPObject *obj,
   std::string message_str(message);
 
   proxy->Send(new NPObjectMsg_SetException(proxy->route_id(), message_str));
+  // Send may delete proxy.
+  proxy = NULL;
 }
 
