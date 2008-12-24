@@ -149,7 +149,7 @@ LayoutTests/fast/js/function-names.html = FAIL PASS
 // This test relies on KJS specific implementation
 // (window.GCController.getJSObjectCount), which we have no intention of
 // supporting.
-LayoutTests/fast/dom/Window/timeout-released-on-close.html = FAIL
+SKIP : LayoutTests/fast/dom/Window/timeout-released-on-close.html = FAIL
 
 // These tests expect a tiff decoder, which we don't have.
 LINUX WIN : LayoutTests/fast/images/embed-image.html = FAIL
