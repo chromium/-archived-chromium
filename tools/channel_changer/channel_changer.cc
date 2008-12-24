@@ -185,8 +185,9 @@ void SaveChanges(HWND dialog) {
   if (branch != UNKNOWN_BRANCH) {
     RegKey google_update(registry_hive, kChromeClientStateKey, KEY_WRITE);
     if (!google_update.WriteValue(kBranchKey, kBranchStrings[branch])) {
-      MessageBox(dialog, L"Unable to change value. Please make sure you\n"
-                         L"have permission to change registry keys.",
+      MessageBox(dialog, L"Unable to change value. You must be an "
+                         L"administrator of this computer\nto run this "
+                         L"program.",
                          L"Unable to update branch info", MB_OK | MB_ICONERROR);
     } else {
       std::wstring save_msg = L"Your changes have been saved.\nYou are now "
