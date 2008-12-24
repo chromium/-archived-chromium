@@ -2741,7 +2741,8 @@ CALLBACK_FUNC_DECL(HTMLDocumentOpen) {
 
   Frame* frame = V8Proxy::retrieveActiveFrame();
   imp->open(frame->document());
-  return args.This();
+  // Return the document.
+  return args.Holder();
 }
 
 // Document --------------------------------------------------------------------
