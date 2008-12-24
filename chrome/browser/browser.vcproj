@@ -2246,6 +2246,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_protocol.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_protocol.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extensions_service.cc"
 				>
 			</File>

@@ -42,6 +42,7 @@
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
+#include "chrome/browser/extensions/extension_protocol.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics_service.h"
@@ -401,8 +402,10 @@ int BrowserMain(CommandLine &parsed_command_line,
   // Config the network module so it has access to resources.
   net::NetModule::SetResourceProvider(NetResourceProvider);
 
-  // Register our global network handler for chrome:// URLs.
+  // Register our global network handler for chrome:// and chrome-extension://
+  // URLs.
   RegisterURLRequestChromeJob();
+  RegisterExtensionProtocol();
 
   browser_process->InitBrokerServices(broker_services);
 

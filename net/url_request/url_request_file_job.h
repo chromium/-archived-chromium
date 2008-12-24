@@ -15,7 +15,7 @@
 // A request job that handles reading file URLs
 class URLRequestFileJob : public URLRequestJob {
  public:
-  URLRequestFileJob(URLRequest* request);
+  URLRequestFileJob(URLRequest* request, const FilePath& file_path);
   virtual ~URLRequestFileJob();
 
   virtual void Start();

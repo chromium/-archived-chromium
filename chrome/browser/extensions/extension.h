@@ -16,6 +16,7 @@
 class Extension {
  public:
   Extension(){};
+  Extension(const FilePath& path) : path_(path) {};
 
   // The format for extension manifests that this code understands.
   static const int kExpectedFormatVersion = 1;
@@ -38,6 +39,9 @@ class Extension {
   static const char* kInvalidDescriptionError;
   static const char* kInvalidContentScriptsListError;
   static const char* kInvalidContentScriptError;
+
+  // The path to the folder the extension is stored in.
+  const FilePath& path() const { return path_; }
 
   // A human-readable ID for the extension. The convention is to use something
   // like 'com.example.myextension', but this is not currently enforced. An
@@ -65,9 +69,19 @@ class Extension {
   void CopyToValue(DictionaryValue* value);
 
  private:
+  // The path to the directory the extension is stored in.
+  FilePath path_;
+
+  // The extension's ID.
   std::string id_;
+
+  // The extension's human-readable name.
   std::string name_;
+
+  // An optional description for the extension.
   std::string description_;
+
+  // Paths to the content scripts the extension contains.
   std::vector<std::string> content_scripts_;
 
   DISALLOW_COPY_AND_ASSIGN(Extension);

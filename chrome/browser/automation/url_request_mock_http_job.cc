@@ -33,9 +33,8 @@ URLRequestJob* URLRequestMockHTTPJob::Factory(URLRequest* request,
   // Convert the file:/// URL to a path on disk.
   std::wstring file_path;
   net::FileURLToFilePath(GURL(WideToUTF8(file_url)), &file_path);
-  URLRequestMockHTTPJob* job = new URLRequestMockHTTPJob(request);
-  job->file_path_ = FilePath::FromWStringHack(file_path);
-  return job;
+  return new URLRequestMockHTTPJob(request,
+                                   FilePath::FromWStringHack(file_path));
 }
 
 /* static */
@@ -57,8 +56,9 @@ GURL URLRequestMockHTTPJob::GetMockUrl(const std::wstring& path) {
   return GURL(url);
 }
 
-URLRequestMockHTTPJob::URLRequestMockHTTPJob(URLRequest* request)
-    : URLRequestFileJob(request) { }
+URLRequestMockHTTPJob::URLRequestMockHTTPJob(URLRequest* request,
+                                             const FilePath& file_path)
+    : URLRequestFileJob(request, file_path) { }
 
 void URLRequestMockHTTPJob::GetResponseInfo(net::HttpResponseInfo* info) {
   std::wstring header_file = file_path_.ToWStringHack() + kMockHeaderFileSuffix;

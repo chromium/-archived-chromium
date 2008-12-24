@@ -1072,6 +1072,10 @@
 			Name="TestExtension"
 			>
 			<File
+				RelativePath="..\..\browser\extensions\extension_protocol_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\extensions\extension_unittest.cc"
 				>
 			</File>

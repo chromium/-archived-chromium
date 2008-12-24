@@ -499,7 +499,12 @@ enum NotificationType {
 
   // Sent when there are new user scripts available.
   // The details are a pointer to SharedMemory containing the new scripts.
-  NOTIFY_NEW_USER_SCRIPTS,
+  NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
+
+  // Extensions ----------------------------------------------------------------
+
+  // Sent when new extensions are loaded. The details are an ExtensionList*.
+  NOTIFY_EXTENSIONS_LOADED,
 
   // Count (must be last) ------------------------------------------------------
   // Used to determine the number of notification types.  Not valid as

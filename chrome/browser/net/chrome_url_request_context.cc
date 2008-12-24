@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -103,8 +104,18 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   cookie_policy_.SetType(net::CookiePolicy::FromInt(
       prefs_->GetInteger(prefs::kCookieBehavior)));
 
+  const ExtensionList* extensions =
+      profile->GetExtensionsService()->extensions();
+  for (ExtensionList::const_iterator iter = extensions->begin();
+      iter != extensions->end(); ++iter) {
+    extension_paths_[(*iter)->id()] = (*iter)->path();
+  }
+
   prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
   prefs_->AddPrefObserver(prefs::kCookieBehavior, this);  
+
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_EXTENSIONS_LOADED, NotificationService::AllSources());
 }
 
 // NotificationObserver implementation.
@@ -130,6 +141,18 @@ void ChromeURLRequestContext::Observe(NotificationType type,
                             &ChromeURLRequestContext::OnCookiePolicyChange,
                             type));
     }
+  } else if (NOTIFY_EXTENSIONS_LOADED == type) {
+    ExtensionPaths* new_paths = new ExtensionPaths;
+    ExtensionList* extensions = Details<ExtensionList>(details).ptr();
+    DCHECK(extensions);
+    for (ExtensionList::const_iterator iter = extensions->begin();
+         iter != extensions->end(); ++iter) {
+      new_paths->insert(ExtensionPaths::value_type((*iter)->id(),
+                                                   (*iter)->path()));
+    }
+    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &ChromeURLRequestContext::OnNewExtensions,
+                          new_paths));
   } else {
     NOTREACHED();
   }
@@ -140,6 +163,18 @@ void ChromeURLRequestContext::CleanupOnUIThread() {
   prefs_->RemovePrefObserver(prefs::kAcceptLanguages, this);
   prefs_->RemovePrefObserver(prefs::kCookieBehavior, this);
   prefs_ = NULL;
+
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_EXTENSIONS_LOADED, NotificationService::AllSources());
+}
+
+FilePath ChromeURLRequestContext::GetPathForExtension(const std::string& id) {
+  ExtensionPaths::iterator iter = extension_paths_.find(id);
+  if (iter != extension_paths_.end()) {
+    return iter->second;
+  } else {
+    return FilePath();
+  }
 }
 
 void ChromeURLRequestContext::OnAcceptLanguageChange(std::string accept_language) {
@@ -152,6 +187,11 @@ void ChromeURLRequestContext::OnCookiePolicyChange(net::CookiePolicy::Type type)
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
   cookie_policy_.SetType(type);
+}
+
+void ChromeURLRequestContext::OnNewExtensions(ExtensionPaths* new_paths) {
+  extension_paths_.insert(new_paths->begin(), new_paths->end());
+  delete new_paths;
 }
 
 ChromeURLRequestContext::~ChromeURLRequestContext() {

@@ -46,26 +46,25 @@ URLRequestJob* URLRequestMockNetErrorJob::Factory(URLRequest* request,
   DCHECK(iter != url_mock_info_map_.end());
 
   MockInfo mock_info = iter->second;
-  URLRequestMockNetErrorJob* job =
-      new URLRequestMockNetErrorJob(request, mock_info.errors,
-                                    mock_info.ssl_cert);
 
-  // URLRequestMockNetErrorJob derives from URLRequestFileJob.  We set the
-  // file_path_ of the job so that the URLRequestFileJob methods will do the
-  // loading from the files.
+  // URLRequestMockNetErrorJob derives from URLRequestFileJob.  We pass a
+  // FilePath so that the URLRequestFileJob methods will do the loading from
+  // the files.
   std::wstring file_url(L"file:///");
   file_url.append(mock_info.base);
   file_url.append(UTF8ToWide(url.path()));
   // Convert the file:/// URL to a path on disk.
   std::wstring file_path;
   net::FileURLToFilePath(GURL(WideToUTF8(file_url)), &file_path);
-  job->file_path_ = FilePath::FromWStringHack(file_path);
-  return job;
+  return new URLRequestMockNetErrorJob(request, mock_info.errors,
+                                       mock_info.ssl_cert,
+                                       FilePath::FromWStringHack(file_path));
 }
 
 URLRequestMockNetErrorJob::URLRequestMockNetErrorJob(URLRequest* request,
-    const std::vector<int>& errors, net::X509Certificate* cert)
-    : URLRequestMockHTTPJob(request),
+    const std::vector<int>& errors, net::X509Certificate* cert,
+    const FilePath& file_path)
+    : URLRequestMockHTTPJob(request, file_path),
       errors_(errors),
       ssl_cert_(cert) {
 }

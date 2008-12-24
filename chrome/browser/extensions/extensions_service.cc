@@ -10,6 +10,7 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/json_value_serializer.h"
+#include "chrome/common/notification_service.h"
 
 // ExtensionsService
 
@@ -51,9 +52,12 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
     ExtensionList* new_extensions) {
   extensions_.insert(extensions_.end(), new_extensions->begin(),
                      new_extensions->end());
-  delete new_extensions;
 
-  // TODO(aa): Notify extensions are loaded.
+  NotificationService::current()->Notify(NOTIFY_EXTENSIONS_LOADED,
+      NotificationService::AllSources(),
+      Details<ExtensionList>(new_extensions));
+
+  delete new_extensions;
 }
 
 void ExtensionsService::OnExtensionLoadError(const std::string& error) {
@@ -99,7 +103,7 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
       continue;
     }
 
-    scoped_ptr<Extension> extension(new Extension());
+    scoped_ptr<Extension> extension(new Extension(child_path));
     if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root),
                                   &error)) {
       ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),

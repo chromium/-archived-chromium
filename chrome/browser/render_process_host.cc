@@ -167,7 +167,7 @@ RenderProcessHost::RenderProcessHost(Profile* profile)
       profile->GetPrefs()->GetBoolean(prefs::kBlockPopups));
 
   NotificationService::current()->AddObserver(this,
-      NOTIFY_NEW_USER_SCRIPTS,
+      NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
       NotificationService::AllSources());
 
   // Note: When we create the RenderProcessHost, it's technically backgrounded,
@@ -191,7 +191,7 @@ RenderProcessHost::~RenderProcessHost() {
   profile_->GetPrefs()->RemovePrefObserver(prefs::kBlockPopups, this);
 
   NotificationService::current()->RemoveObserver(this,
-      NOTIFY_NEW_USER_SCRIPTS,
+      NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
       NotificationService::AllSources());
 }
 
@@ -819,7 +819,7 @@ void RenderProcessHost::Observe(NotificationType type,
       }
       break;
     }
-    case NOTIFY_NEW_USER_SCRIPTS: {
+    case NOTIFY_GREASEMONKEY_SCRIPTS_LOADED: {
       base::SharedMemory* shared_memory =
           Details<base::SharedMemory>(details).ptr();
       DCHECK(shared_memory);

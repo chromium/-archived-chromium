@@ -34,13 +34,13 @@ class GreasemonkeyMasterTest : public testing::Test,
 
     // Register for all user script notifications.
     NotificationService::current()->AddObserver(this,
-        NOTIFY_NEW_USER_SCRIPTS,
+        NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
         NotificationService::AllSources());
   }
 
   virtual void TearDown() {
     NotificationService::current()->RemoveObserver(this,
-        NOTIFY_NEW_USER_SCRIPTS,
+        NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
         NotificationService::AllSources());
 
     // Clean up test directory.
@@ -51,7 +51,7 @@ class GreasemonkeyMasterTest : public testing::Test,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK(type == NOTIFY_NEW_USER_SCRIPTS);
+    DCHECK(type == NOTIFY_GREASEMONKEY_SCRIPTS_LOADED);
 
     shared_memory_ = Details<base::SharedMemory>(details).ptr();
     if (MessageLoop::current() == &message_loop_)

@@ -83,7 +83,7 @@ class URLRequestChromeJob : public URLRequestJob {
 // URLRequestChromeFileJob is a URLRequestJob that acts like a file:// URL
 class URLRequestChromeFileJob : public URLRequestFileJob {
  public:
-  URLRequestChromeFileJob(URLRequest* request, const std::wstring& path);
+  URLRequestChromeFileJob(URLRequest* request, const FilePath& path);
   virtual ~URLRequestChromeFileJob();
 
  private:
@@ -244,7 +244,8 @@ URLRequestJob* ChromeURLDataManager::Factory(URLRequest* request,
   // Try first with a file handler
   std::wstring path;
   if (ChromeURLDataManager::URLToFilePath(request->url(), &path))
-    return new URLRequestChromeFileJob(request, path);
+    return new URLRequestChromeFileJob(request,
+                                       FilePath::FromWStringHack(path));
 
   // Fall back to using a custom handler
   return new URLRequestChromeJob(request);
@@ -329,10 +330,8 @@ void URLRequestChromeJob::StartAsync() {
 }
 
 URLRequestChromeFileJob::URLRequestChromeFileJob(URLRequest* request,
-                                                 const std::wstring& path)
-    : URLRequestFileJob(request) {
-  // set URLRequestFileJob::file_path_
-  this->file_path_ = FilePath::FromWStringHack(path);
+                                                 const FilePath& path)
+    : URLRequestFileJob(request, path) {
 }
 
 URLRequestChromeFileJob::~URLRequestChromeFileJob() { }

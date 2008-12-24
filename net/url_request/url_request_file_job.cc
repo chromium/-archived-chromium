@@ -78,13 +78,13 @@ URLRequestJob* URLRequestFileJob::Factory(
 
   // Use a regular file request job for all non-directories (including invalid
   // file names).
-  URLRequestFileJob* job = new URLRequestFileJob(request);
-  job->file_path_ = file_path;
-  return job;
+  return new URLRequestFileJob(request, file_path);
 }
 
-URLRequestFileJob::URLRequestFileJob(URLRequest* request)
+URLRequestFileJob::URLRequestFileJob(URLRequest* request,
+                                     const FilePath& file_path)
     : URLRequestJob(request),
+      file_path_(file_path),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           io_callback_(this, &URLRequestFileJob::DidRead)),
       is_directory_(false) {
