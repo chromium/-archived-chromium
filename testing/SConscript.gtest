@@ -23,15 +23,65 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
+    'gtest/include/gtest/internal/gtest-death-test-internal.h',
     'gtest/src/gtest-death-test.cc',
+    'gtest/include/gtest/gtest-death-test.h',
     'gtest/src/gtest-filepath.cc',
+    'gtest/include/gtest/internal/gtest-filepath.h',
+    'gtest/src/gtest-internal-inl.h',
+    'gtest/include/gtest/internal/gtest-internal.h',
+    'gtest/include/gtest/gtest-message.h',
     'gtest/src/gtest-port.cc',
+    'gtest/include/gtest/internal/gtest-port.h',
+    'gtest/include/gtest/gtest-spi.h',
+    'gtest/include/gtest/internal/gtest-string.h',
     'gtest/src/gtest.cc',
+    'gtest/include/gtest/gtest.h',
+    'gtest/include/gtest/gtest_pred_impl.h',
+    'gtest/include/gtest/gtest_prod.h',
     'multiprocess_func_list.cc',
-]
+])
 
 env.ChromeStaticLibrary('gtest', input_files)
 
-env.ChromeMSVSProject('$TESTING_DIR/gtest.vcproj',
-                guid='{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}')
+p = env.ChromeMSVSProject('gtest.vcproj',
+                          guid='{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}',
+                          files=input_files,
+                          tools = [
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ])
+
+p.AddConfig('Debug|Win32',
+            ConfigurationType = '4',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/debug.vsprops',
+                './using_gtest.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            ConfigurationType = '4',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/release.vsprops',
+                './using_gtest.vsprops',
+            ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/testing/gtest.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)

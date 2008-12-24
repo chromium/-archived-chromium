@@ -41,17 +41,30 @@ if env.Bit('linux'):
       ],
   )
 
-# These test files work on *all* platforms; tests that don't work
-# cross-platform live below.
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):
+  # We're deliberately mis-indenting the MSVSFilter() calls here
+  # so we don't have to re-indent the file name entries when the
+  # MSVSFilter() calls go away in (favor of automated generation
+  # of the heirarchy).
+  MSVSFilter('support', [
+    'multiprocess_test.h',
+    'no_windows2000_unittest.h',
+    'run_all_unittests.cc',
+    'test_suite.h',
+  ]),
+
+  MSVSFilter('base_tests', [
     'at_exit_unittest.cc',
     'atomicops_unittest.cc',
     'clipboard_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_unittest.cc',
+    'directory_watcher_unittest.cc',
     'field_trial_unittest.cc',
     'file_path_unittest.cc',
     'file_util_unittest.cc',
+    'file_version_info_unittest.cc',
     'histogram_unittest.cc',
     'hmac_unittest.cc',
     'idletimer_unittest.cc',
@@ -60,14 +73,17 @@ input_files = [
     'lazy_instance_unittest.cc',
     'linked_ptr_unittest.cc',
     'message_loop_unittest.cc',
+    'gfx/native_theme_unittest.cc',
+    'object_watcher_unittest.cc',
     'observer_list_unittest.cc',
     'path_service_unittest.cc',
+    'pe_image_unittest.cc',
     'pickle_unittest.cc',
     'pr_time_unittest.cc',
     'process_util_unittest.cc',
     'rand_util_unittest.cc',
+    'gfx/rect_unittest.cc',
     'ref_counted_unittest.cc',
-    'run_all_unittests.cc',
     'scoped_ptr_unittest.cc',
     'sha2_unittest.cc',
     'shared_memory_unittest.cc',
@@ -80,81 +96,127 @@ input_files = [
     'string_tokenizer_unittest.cc',
     'string_util_unittest.cc',
     'sys_info_unittest.cc',
+    'sys_string_conversions_unittest.cc',
+    'system_monitor_unittest.cc',
     'thread_collision_warner_unittest.cc',
     'thread_local_storage_unittest.cc',
     'thread_local_unittest.cc',
     'thread_unittest.cc',
     'time_unittest.cc',
+    'time_unittest_win.cc',
     'timer_unittest.cc',
     'tracked_objects_unittest.cc',
     'tuple_unittest.cc',
     'values_unittest.cc',
     'waitable_event_unittest.cc',
     'watchdog_unittest.cc',
+    'win_util_unittest.cc',
+    'wmi_util_unittest.cc',
     'word_iterator_unittest.cc',
-    'worker_pool_unittest.cc',
-     
-    'gfx/native_theme_unittest.cc',
+  ]),
+
+  MSVSFilter('gfx_tests', [
     'gfx/png_codec_unittest.cc',
-    'gfx/rect_unittest.cc',
-]
+  ]),
+])
 
 if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
-  to_be_ported_files = [
+  input_files.Remove(
       # We have an implementation of idle_timer, but it's unclear if we want it
       # yet, so it's commented out for now.  Leave this 'unported'.
       'idletimer_unittest.cc',
 
       'gfx/native_theme_unittest.cc',
-  ]
-  for remove in to_be_ported_files:
-    input_files.remove(remove)
+  )
 
 if env.Bit('mac'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
-  to_be_ported_files = [
+  input_files.Remove(
       'process_util_unittest.cc',
       'stats_table_unittest.cc',
-  ]
-  for remove in to_be_ported_files:
-    input_files.remove(remove)
+  )
 
 
-if env.Bit('windows'):
-  # Windows-specific tests.
-  input_files.extend([
+if not env.Bit('windows'):
+  # Remove Windows-specific tests.
+  input_files.Remove(
       'directory_watcher_unittest.cc',
       'file_version_info_unittest.cc',
       'object_watcher_unittest.cc',
       'pe_image_unittest.cc',
+      'system_monitor_unittest.cc',
       'sys_string_conversions_unittest.cc',
       'time_unittest_win.cc',
       'win_util_unittest.cc',
       'wmi_util_unittest.cc',
-  ])
+  )
 
 if env.Bit('mac'):
   # Mac-specific tests.
-  input_files.extend([
+  input_files.Extend([
       'mac_util_unittest.cc',
   ])
 
 env.ChromeTestProgram('base_unittests', input_files)
 
-env.ChromeMSVSProject('$BASE_DIR/build/base_unittests.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/base.vcproj',
-                    '$ZLIB_DIR/zlib.vcproj',
-                    '$ICU38_DIR/build/icu.vcproj',
-                    '$BASE_DIR/build/base_gfx.vcproj',
-                    '$TESTING_DIR/gtest.vcproj',
-                    '$LIBPNG_DIR/libpng.vcproj',
-                    '$SKIA_DIR/skia.vcproj',
-                ],
-                guid='{27A30967-4BBA-48D1-8522-CDE95F7B1CEC}')
+p = env.ChromeMSVSProject('build/base_unittests.vcproj',
+                          guid='{27A30967-4BBA-48D1-8522-CDE95F7B1CEC}',
+                          dependencies=[
+                              '$BASE_DIR/build/base.vcproj',
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$BASE_DIR/build/base_gfx.vcproj',
+                              '$TESTING_DIR/gtest.vcproj',
+                              '$LIBPNG_DIR/libpng.vcproj',
+                              '$SKIA_DIR/skia.vcproj',
+                          ],
+                          files=input_files,
+                          tools = [
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              MSVSTool('VCCLCompilerTool',
+                                       PreprocessorDefinitions='UNIT_TEST'),
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ])
+
+p.AddConfig('Debug|Win32',
+            ConfigurationType = '1',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/debug.vsprops',
+                './base_unittests.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            ConfigurationType = '1',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/release.vsprops',
+                './base_unittests.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/base/build/base_unittests.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)
 
 # TODO(sgk) should this be moved into base.lib like everything else?  This will
 # require updating a bunch of other SConscripts which link directly against

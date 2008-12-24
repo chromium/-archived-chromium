@@ -21,66 +21,6 @@ if env.Bit('windows'):
       ],
   )
 
-# Some files from this list are not yet ported. They are removed from
-# the list, see code below.
-input_files = [
-    'at_exit.cc',
-    'base_paths.cc',
-    'base_switches.cc',
-    'bzip2_error_handler.cc',
-    'clipboard.cc',
-    'clipboard_util.cc',
-    'command_line.cc',
-    'debug_util.cc',
-    'event_recorder.cc',
-    'field_trial.cc',
-    'file_path.cc',
-    'file_util.cc',
-    'file_version_info.cc',
-    'histogram.cc',
-    'icu_util.cc',
-    'idle_timer.cc',
-    'json_reader.cc',
-    'json_writer.cc',
-    'lazy_instance.cc',
-    'lock.cc',
-    'logging.cc',
-    'md5.cc',
-    'memory_debug.cc',
-    'message_loop.cc',
-    'message_pump_default.cc',
-    'non_thread_safe.cc',
-    'object_watcher.cc',
-    'path_service.cc',
-    'pickle.cc',
-    'rand_util.cc',
-    'ref_counted.cc',
-    'resource_util.cc',
-    'revocable_store.cc',
-    'scoped_clipboard_writer.cc',
-    'sha2.cc',
-    'simple_thread.cc',
-    'stats_table.cc',
-    'string_escape.cc',
-    'string_piece.cc',
-    'string_util.cc',
-    'string_util_icu.cc',
-    'system_monitor.cc',
-    'third_party/nspr/prtime.cc',
-    'third_party/nss/sha512.cc',
-    'thread.cc',
-    'thread_collision_warner.cc',
-    'time.cc',
-    'time_format.cc',
-    'timer.cc',
-    'trace_event.cc',
-    'tracked.cc',
-    'tracked_objects.cc',
-    'values.cc',
-    'watchdog.cc',
-    'word_iterator.cc',
-]
-
 # Add object files David M Gay's dtoa and g_fmt third party lib.  We
 # compile these separately so we can disable warnings.
 env_dmg_fp = env.Clone()
@@ -99,15 +39,228 @@ elif env_dmg_fp.Bit('posix'):
       env_dmg_fp[var].remove('-Wall')
       env_dmg_fp[var].append('-Wno-write-strings')
 
-input_files.extend([
-    env_dmg_fp.Object('third_party/dmg_fp/dtoa.cc'),
-    env_dmg_fp.Object('third_party/dmg_fp/g_fmt.cc'),
+dtoa_cc = env_dmg_fp.ChromeObject('third_party/dmg_fp/dtoa.cc')
+
+g_fmt_cc = env_dmg_fp.ChromeObject('third_party/dmg_fp/g_fmt.cc')
+
+# Some files from this list are not yet ported. They are removed from
+# the list, see code below.
+input_files = ChromeFileList([
+    'at_exit.cc',
+    'at_exit.h',
+    'atomic_ref_count.h',
+    'atomic_sequence_num.h',
+    'atomicops.h',
+    'atomicops_internals_x86_msvc.h',
+    'base_drag_source.cc',
+    'base_drag_source.h',
+    'base_drop_target.cc',
+    'base_drop_target.h',
+    'base_paths.cc',
+    'base_paths.h',
+    'base_paths_win.cc',
+    'base_paths_win.h',
+    'base_switches.cc',
+    'base_switches.h',
+    'basictypes.h',
+    'third_party/nss/blapi.h',
+    'third_party/nss/blapit.h',
+    '../build/build_config.h',
+    'bzip2_error_handler.cc',
+    'clipboard.cc',
+    'clipboard.h',
+    'clipboard_util.cc',
+    'clipboard_util.h',
+    'clipboard_win.cc',
+    'command_line.cc',
+    'command_line.h',
+    'compiler_specific.h',
+    'condition_variable.h',
+    'condition_variable_win.cc',
+    'cpu.cc',
+    'cpu.h',
+    'debug_on_start.cc',
+    'debug_on_start.h',
+    'debug_util.cc',
+    'debug_util.h',
+    'debug_util_win.cc',
+    'directory_watcher.h',
+    'directory_watcher_win.cc',
+    'third_party/dmg_fp/dmg_fp.h',
+    dtoa_cc,
+    'event_recorder.cc',
+    'event_recorder.h',
+    'field_trial.cc',
+    'field_trial.h',
+    'file_path.cc',
+    'file_path.h',
+    'file_util.cc',
+    'file_util.h',
+    'file_util_win.cc',
+    'file_version_info.cc',
+    'file_version_info.h',
+    'fix_wp64.h',
+    'float_util.h',
+    g_fmt_cc,
+    'hash_tables.h',
+    'histogram.cc',
+    'histogram.h',
+    'hmac.h',
+    'hmac_win.cc',
+    'iat_patch.cc',
+    'iat_patch.h',
+    'icu_util.cc',
+    'icu_util.h',
+    'id_map.h',
+    'idle_timer.cc',
+    'idle_timer.h',
+    'image_util.cc',
+    'image_util.h',
+    'json_reader.cc',
+    'json_reader.h',
+    'json_writer.cc',
+    'json_writer.h',
+    'lazy_instance.cc',
+    'lazy_instance.h',
+    'linked_ptr.h',
+    'lock.cc',
+    'lock.h',
+    'lock_impl.h',
+    'lock_impl_win.cc',
+    'logging.cc',
+    'logging.h',
+    'md5.cc',
+    'md5.h',
+    'memory_debug.cc',
+    'memory_debug.h',
+    'message_loop.cc',
+    'message_loop.h',
+    'message_pump.h',
+    'message_pump_default.cc',
+    'message_pump_default.h',
+    'message_pump_win.cc',
+    'message_pump_win.h',
+    'non_thread_safe.cc',
+    'non_thread_safe.h',
+    'object_watcher.cc',
+    'object_watcher.h',
+    'observer_list.h',
+    'observer_list_threadsafe.h',
+    'path_service.cc',
+    'path_service.h',
+    'pe_image.cc',
+    'pe_image.h',
+    'pickle.cc',
+    'pickle.h',
+    'platform_file.h',
+    'platform_file_win.cc',
+    'platform_thread.h',
+    'platform_thread_win.cc',
+    'port.h',
+    'third_party/nspr/prcpucfg.h',
+    'third_party/nspr/prcpucfg_win.h',
+    'process.h',
+    'process_util.h',
+    'process_util_win.cc',
+    'process_win.cc',
+    'third_party/nspr/prtime.cc',
+    'third_party/nspr/prtime.h',
+    'third_party/nspr/prtypes.h',
+    'third_party/purify/pure.h',
+    'third_party/purify/pure_api.c',
+    'rand_util.cc',
+    'rand_util.h',
+    'rand_util_win.cc',
+    'ref_counted.cc',
+    'ref_counted.h',
+    'registry.cc',
+    'registry.h',
+    'resource_util.cc',
+    'resource_util.h',
+    'revocable_store.cc',
+    'revocable_store.h',
+    'scoped_clipboard_writer.cc',
+    'scoped_clipboard_writer.h',
+    'scoped_handle.h',
+    'scoped_nsautorelease_pool.h',
+    'scoped_ptr.h',
+    'sha2.cc',
+    'sha2.h',
+    'third_party/nss/sha256.h',
+    'third_party/nss/sha512.cc',
+    'shared_memory.h',
+    'shared_memory_win.cc',
+    'simple_thread.cc',
+    'simple_thread.h',
+    'singleton.h',
+    'spin_wait.h',
+    'stack_container.h',
+    'stats_counters.h',
+    'stats_table.cc',
+    'stats_table.h',
+    'string16.h',
+    'string_escape.cc',
+    'string_escape.h',
+    'string_piece.cc',
+    'string_piece.h',
+    'string_tokenizer.h',
+    'string_util.cc',
+    'string_util.h',
+    'string_util_icu.cc',
+    'string_util_win.h',
+    'sys_info.h',
+    'sys_info_win.cc',
+    'sys_string_conversions.h',
+    'sys_string_conversions_win.cc',
+    'system_monitor.cc',
+    'system_monitor.h',
+    'system_monitor_win.cc',
+    'task.h',
+    'test_file_util_win.cc',
+    'test_file_util.h',
+    'thread.cc',
+    'thread.h',
+    'thread_collision_warner.cc',
+    'thread_collision_warner.h',
+    'thread_local.h',
+    'thread_local_storage.h',
+    'thread_local_storage_win.cc',
+    'thread_local_win.cc',
+    'time.cc',
+    'time.h',
+    'time_format.cc',
+    'time_format.h',
+    'time_win.cc',
+    'timer.cc',
+    'timer.h',
+    'trace_event.cc',
+    'trace_event.h',
+    'tracked.cc',
+    'tracked.h',
+    'tracked_objects.cc',
+    'tracked_objects.h',
+    'tuple.h',
+    'values.cc',
+    'values.h',
+    'waitable_event.h',
+    'waitable_event_win.cc',
+    'watchdog.cc',
+    'watchdog.h',
+    'win_util.cc',
+    'win_util.h',
+    'windows_message_list.h',
+    'wmi_util.cc',
+    'wmi_util.h',
+    'word_iterator.cc',
+    'word_iterator.h',
+    'worker_pool.cc',
+    'worker_pool.h',
 ])
 
 if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
-  to_be_ported_files = [
+  input_files.Remove(
     'clipboard_util.cc',
     'event_recorder.cc',
     'file_version_info.cc',
@@ -119,12 +272,16 @@ if env.Bit('posix'):
     'object_watcher.cc',
 
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
-  ]
-  for remove in to_be_ported_files:
-      input_files.remove(remove)
+  )
 
-if env.Bit('windows'):
-  input_files.extend([
+if not env.Bit('windows'):
+  # Remove windows-specific files on non-Windows platforms.
+  # TODO(sgk):
+  # Remove the windows-specific files from the input_files list above
+  # and turn this back in to an add-on-Windows list (like we used to)
+  # once we're comfortable re-ordering the files in the generated
+  # .vcproj file(s).
+  input_files.Remove(
       'base_drag_source.cc',
       'base_drop_target.cc',
       'base_paths_win.cc',
@@ -160,10 +317,10 @@ if env.Bit('windows'):
       'win_util.cc',
       'wmi_util.cc',
       'worker_pool.cc',
-  ])
+  )
 
 if env.Bit('posix'):
-  input_files.extend([
+  input_files.Extend([
       'condition_variable_posix.cc',
       'debug_util_posix.cc',
       'file_util_posix.cc',
@@ -183,7 +340,7 @@ if env.Bit('posix'):
   ])
 
 if env.Bit('mac'):
-  input_files.extend([
+  input_files.Extend([
       'base_paths_mac.mm',
       'clipboard_mac.mm',
       'file_util_mac.mm',
@@ -199,7 +356,7 @@ if env.Bit('mac'):
   ])
 
 if env.Bit('linux'):
-  input_files.extend([
+  input_files.Extend([
       'atomicops_internals_x86_gcc.cc',
       'base_paths_linux.cc',
       'clipboard_linux.cc',
@@ -217,8 +374,76 @@ if env.Bit('linux'):
 
 env.ChromeStaticLibrary('base', input_files)
 
-env.ChromeMSVSProject('$BASE_DIR/build/base.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/debug_message.vcproj',
-                ],
-                guid='{1832A374-8A74-4F9E-B536-69A699B3E165}')
+p = env.ChromeMSVSProject('build/base.vcproj',
+                          guid='{1832A374-8A74-4F9E-B536-69A699B3E165}',
+                          dependencies=[
+                              'build/debug_message.vcproj',
+                          ],
+                          files=input_files,
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ])
+
+p.AddConfig('Debug|Win32',
+            ConfigurationType = '4',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/debug.vsprops',
+                './base.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            ConfigurationType = '4',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/release.vsprops',
+                './base.vsprops',
+            ])
+
+p.AddFileConfig(
+    'third_party/dmg_fp/dtoa.cc',
+    'Debug|Win32',
+    tools=[
+        MSVSTool('VCCLCompilerTool',
+                 DisableSpecificWarnings='4244;4554;4018;4102'),
+    ])
+
+p.AddFileConfig(
+    'third_party/dmg_fp/dtoa.cc',
+    'Release|Win32',
+    tools=[
+        MSVSTool('VCCLCompilerTool',
+                 DisableSpecificWarnings='4244;4554;4018;4102'),
+    ])
+
+p.AddFileConfig(
+    'third_party/dmg_fp/g_fmt.cc',
+    'Debug|Win32',
+    tools=[
+        MSVSTool('VCCLCompilerTool', DisableSpecificWarnings='4102'),
+    ])
+
+p.AddFileConfig(
+    'third_party/dmg_fp/g_fmt.cc',
+    'Release|Win32',
+    tools=[
+        MSVSTool('VCCLCompilerTool', DisableSpecificWarnings='4102'),
+    ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/base/build/base.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)

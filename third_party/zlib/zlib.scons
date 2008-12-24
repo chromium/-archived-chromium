@@ -26,22 +26,61 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'adler32.c',
     'compress.c',
     'crc32.c',
+    'crc32.h',
     'deflate.c',
+    'deflate.h',
     'gzio.c',
     'infback.c',
     'inffast.c',
+    'inffast.h',
+    'inffixed.h',
     'inflate.c',
+    'inflate.h',
     'inftrees.c',
+    'inftrees.h',
+    'mozzconf.h',
     'trees.c',
+    'trees.h',
     'uncompr.c',
+    'zconf.h',
+    'zlib.h',
     'zutil.c',
-]
+    'zutil.h',
+])
 
 env.ChromeStaticLibrary('zlib', input_files)
 
-env.ChromeMSVSProject('$ZLIB_DIR/zlib.vcproj',
-                guid='{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}')
+p = env.ChromeMSVSProject('zlib.vcproj',
+                          guid='{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}',
+                          files=input_files,
+                          relative_path_prefix=r'./',
+                          tools = [
+                              'VCLibrarianTool',
+                              'VCCLCompilerTool',
+                          ])
+
+p.AddConfig('Debug|Win32',
+            ConfigurationType = '4',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            ConfigurationType = '4',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/third_party/zlib/zlib.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)

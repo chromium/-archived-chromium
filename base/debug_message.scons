@@ -18,11 +18,60 @@ if env.Bit('windows'):
       ],
   )
 
+input_files = ChromeFileList([
+    'debug_message.cc',
+])
+
 if env.Bit('windows'):
   # TODO(port): port this if it's needed on non-Windows systems,
   # or remove this comment (and merge with the above block?)
   # if it's really Windows-specific.
-  env.ChromeProgram('debug_message', ['debug_message.cc'])
+  env.ChromeProgram('debug_message', input_files)
 
 env.ChromeMSVSProject('$BASE_DIR/build/debug_message.vcproj',
                 guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}')
+
+p = env.ChromeMSVSProject('build/debug_message.vcproj',
+                          guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}',
+                          files=input_files,
+                          root_namespace='DebugMessage',
+                          tools = [
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              MSVSTool('VCLinkerTool', SubSystem='2'),
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ])
+
+p.AddConfig('Debug|Win32',
+            ConfigurationType = '1',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            ConfigurationType = '1',
+            InheritedPropertySheets = [
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/base/build/debug_message.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)

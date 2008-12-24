@@ -746,7 +746,7 @@ if set(modes) - set(['msvs', 'xcode']):
 
 if 'msvs' in modes:
   # We're in --mode=msvs, so add its Alias(es) to the default targets.
-  Default(Alias('solutions'))
+  Default(Alias('msvs'))
 
 # -------------------------------------------------------------------------
 

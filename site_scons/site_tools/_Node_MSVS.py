@@ -1,21 +1,43 @@
-#!/usr/bin/python2.4
-# Copyright 2008, Google Inc.
-# All rights reserved.
+#
+# __COPYRIGHT__
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __doc__ = """SCons.Node.MSVS
 
-Microsoft Visual Studio nodes.
+New implementation of Visual Studio project generation for SCons.
 """
-
-import SCons.Node.FS
-import SCons.Script
-
-
-"""New implementation of Visual Studio project generation for SCons."""
 
 import md5
 import os
 import random
+import re
+import UserList
+import xml.dom
+import xml.dom.minidom
+
+import SCons.Node.FS
+import SCons.Script
 
 
 # Initialize random number generator
@@ -122,13 +144,81 @@ def LookupCreate(klass, item, *args, **kw):
 
 #------------------------------------------------------------------------------
 
-class _MSVSFolder(SCons.Node.Node):
-  """Folder in a Visual Studio project or solution."""
+class FileList(object):
+  def __init__(self, entries=None):
+    if isinstance(entries, FileList):
+      entries = entries.entries
+    self.entries = entries or []
+  def __getitem__(self, i):
+    return self.entries[i]
+  def __setitem__(self, i, item):
+    self.entries[i] = item
+  def __delitem__(self, i):
+    del self.entries[i]
+  def __add__(self, other):
+    if isinstance(other, FileList):
+      return self.__class__(self.entries + other.entries)
+    elif isinstance(other, type(self.entries)):
+      return self.__class__(self.entries + other)
+    else:
+      return self.__class__(self.entries + list(other))
+  def __radd__(self, other):
+    if isinstance(other, FileList):
+      return self.__class__(other.entries + self.entries)
+    elif isinstance(other, type(self.entries)):
+      return self.__class__(other + self.entries)
+    else:
+      return self.__class__(list(other) + self.entries)
+  def __iadd__(self, other):
+    if isinstance(other, FileList):
+      self.entries += other.entries
+    elif isinstance(other, type(self.entries)):
+      self.entries += other
+    else:
+      self.entries += list(other)
+    return self
+  def append(self, item):
+    return self.entries.append(item)
+  def extend(self, item):
+    return self.entries.extend(item)
+  def index(self, item, *args):
+    return self.entries.index(item, *args)
+  def remove(self, item):
+    return self.entries.remove(item)
+
+def FileListWalk(top, topdown=True, onerror=None):
+  """
+  """
+  try:
+    entries = top.entries
+  except AttributeError, err:
+    if onerror is not None:
+      onerror(err)
+    return
+
+  dirs, nondirs = [], []
+  for entry in entries:
+    if hasattr(entry, 'entries'):
+      dirs.append(entry)
+    else:
+      nondirs.append(entry)
+
+  if topdown:
+    yield top, dirs, nondirs
+  for entry in dirs:
+    for x in FileListWalk(entry, topdown, onerror):
+      yield x
+  if not topdown:
+    yield top, dirs, nondirs
+
+#------------------------------------------------------------------------------
+
+class _MSVSFolder(FileList):
+  """Folder in a Visual Studio solution."""
 
   entry_type_guid = '{2150E333-8FDC-42A3-9474-1A3956D46DE8}'
 
-  def initialize(self, path, name = None, entries = None, guid = None,
-                             items = None):
+  def initialize(self, path, name = None, entries = None, guid = None, items = None):
     """Initializes the folder.
 
     Args:
@@ -143,6 +233,8 @@ class _MSVSFolder(SCons.Node.Node):
       items: List of solution items to include in the folder project.  May be
           None, if the folder does not directly contain items.
     """
+    super(_MSVSFolder, self).__init__(entries)
+
     # For folder entries, the path is the same as the name
     self.msvs_path = path
     self.msvs_name = name or path
@@ -150,7 +242,6 @@ class _MSVSFolder(SCons.Node.Node):
     self.guid = guid
 
     # Copy passed lists (or set to empty lists)
-    self.entries = list(entries or [])
     self.items = list(items or [])
 
   def get_guid(self):
@@ -171,13 +262,183 @@ def MSVSFolder(env, item, *args, **kw):
 
 #------------------------------------------------------------------------------
 
+class MSVSConfig(object):
+  """Visual Studio configuration."""
+  def __init__(self, Name, config_type, tools=[], **attrs):
+    """Initializes the configuration.
+
+    Args:
+      **attrs: Configuration attributes.
+    """
+    # Special handling for attributes that we want to make more
+    # convenient for the user.
+    ips = attrs.get('InheritedPropertySheets')
+    if ips:
+      if isinstance(ips, list):
+        ips = ';'.join(ips)
+      attrs['InheritedPropertySheets'] = ips.replace('/', '\\')
+
+    tools = tools or []
+    if not SCons.Util.is_List(tools):
+      tools = [tools]
+    tool_objects = []
+    for t in tools:
+      if not isinstance(t, MSVSTool):
+        t = MSVSTool(t)
+      tool_objects.append(t)
+
+    self.Name = Name
+    self.config_type = config_type
+    self.tools = tool_objects
+    self.attrs = attrs
+
+  def CreateElement(self, doc):
+    """Creates an element for the configuration.
+
+    Args:
+      doc: xml.dom.Document object to use for node creation.
+
+    Returns:
+      A new xml.dom.Element for the configuration.
+    """
+    node = doc.createElement(self.config_type)
+    node.setAttribute('Name', self.Name)
+    for k, v in self.attrs.items():
+      node.setAttribute(k, v)
+    for t in self.tools:
+        node.appendChild(t.CreateElement(doc))
+    return node
+
+
+class MSVSFileListBase(FileList):
+  """Base class for a file list in a Visual Studio project file."""
+
+  def CreateElement(self, doc, node_func=lambda x: x):
+    """Creates an element for an MSVSFileListBase subclass.
+
+    Args:
+      doc: xml.dom.Document object to use for node creation.
+      node_func: Function to use to return Nodes for objects that
+          don't have a CreateElement() method of their own.
+
+    Returns:
+      A new xml.dom.Element for the MSVSFileListBase object.
+    """
+    node = doc.createElement(self.element_name)
+    for entry in self.entries:
+      if hasattr(entry, 'CreateElement'):
+        n = entry.CreateElement(doc, node_func)
+      else:
+        n = node_func(entry)
+      node.appendChild(n)
+    return node
+
+
+class MSVSFiles(MSVSFileListBase):
+  """Files list in a Visual Studio project file."""
+  element_name = 'Files'
+
+
+class MSVSFilter(MSVSFileListBase):
+  """Filter (that is, a virtual folder) in a Visual Studio project file."""
+
+  element_name = 'Filter'
+
+  def __init__(self, Name, entries=None):
+    """Initializes the folder.
+
+    Args:
+      Name: Filter (folder) name.
+      entries: List of filenames and/or Filter objects contained.
+    """
+    super(MSVSFilter, self).__init__(entries)
+    self.Name = Name
+
+  def CreateElement(self, doc, node_func=lambda x: x):
+    """Creates an element for the Filter.
+
+    Args:
+      doc: xml.dom.Document object to use for node creation.
+      node_func: Function to use to return Nodes for objects that
+          don't have a CreateElement() method of their own.
+
+    Returns:
+      A new xml.dom.Element for the filter.
+    """
+    node = super(MSVSFilter, self).CreateElement(doc, node_func)
+    node.setAttribute('Name', self.Name)
+    return node
+
+
+class MSVSTool(object):
+  """Visual Studio tool."""
+
+  def __init__(self, Name, **attrs):
+    """Initializes the tool.
+
+    Args:
+      Name: Tool name.
+      **attrs: Tool attributes.
+    """
+    self.Name = Name
+    self.attrs = attrs
+
+  def CreateElement(self, doc):
+    """Creates an element for the tool.
+
+    Args:
+      doc: xml.dom.Document object to use for node creation.
+
+    Returns:
+      A new xml.dom.Element for the tool.
+    """
+    node = doc.createElement('Tool')
+    node.setAttribute('Name', self.Name)
+    for k, v in self.attrs.items():
+      node.setAttribute(k, v)
+    return node
+
+
+class MSVSToolFile(object):
+  """Visual Studio tool file specification."""
+
+  def __init__(self, node, **attrs):
+    """Initializes the tool.
+
+    Args:
+      node: Node for the Tool File
+      **attrs: Tool File attributes.
+    """
+    self.node = node
+
+  def CreateElement(self, doc, project):
+      result = doc.createElement('ToolFile')
+      result.setAttribute('RelativePath', project.get_rel_path(self.node))
+      return result
+
+
+#------------------------------------------------------------------------------
+
+def MSVSAction(target, source, env):
+  target[0].Write(env)
+
+MSVSProjectAction = SCons.Script.Action(MSVSAction,
+                                        "Generating Visual Studio project `$TARGET' ...")
 
 class _MSVSProject(SCons.Node.FS.File):
   """Visual Studio project."""
 
   entry_type_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
 
-  def initialize(self, path, name = None, dependencies = None, guid = None):
+  def initialize(self, env, path, name = None,
+                                 dependencies = None,
+                                 guid = None,
+                                 buildtargets = [],
+                                 files = [],
+                                 root_namespace = None,
+                                 relative_path_prefix = '',
+                                 tools = None,
+                                 configurations = None):
     """Initializes the project.
 
     Args:
@@ -187,14 +448,87 @@ class _MSVSProject(SCons.Node.FS.File):
       dependencies: List of other Project objects this project is dependent
           upon, if not None.
       guid: GUID to use for project, if not None.
+      buildtargets: List of target(s) being built by this project.
+      files: List of source files for the project.  This will be
+          supplemented by any source files of buildtargets.
+      root_namespace: The value of the RootNamespace attribute of the
+          project, if not None.  The default is to use the same
+          string as the name.
+      relative_path_prefix: A prefix to be appended to the beginning of
+          every file name in the list.  The canonical use is to specify
+          './' to make files explicitly relative to the local directory.
+      tools: A list of MSVSTool objects or strings representing
+          tools to be used to build this project.  This will be used
+          for any configurations that don't provide their own
+          per-configuration tool list.
+      configurations: A list of MSVSConfig objects representing
+          configurations built by this project.
     """
     self.msvs_path = path
-    self.msvs_name = name or os.path.splitext(os.path.basename(self.name))[0]
+    self.msvs_node = env.File(path)
+    if name is None:
+      if buildtargets:
+        name = os.path.splitext(buildtargets[0].name)[0]
+      else:
+        name = os.path.splitext(os.path.basename(path))[0]
+    self.msvs_name = name
+    self.root_namespace = root_namespace or self.msvs_name
+    self.buildtargets = buildtargets
+    self.relative_path_prefix = relative_path_prefix
+    self.tools = tools
 
+    self.env = env
     self.guid = guid
 
-    # Copy passed lists (or set to empty lists)
     self.dependencies = list(dependencies or [])
+    self.configurations = list(configurations or [])
+    self.file_configurations = {}
+    self.tool_files = []
+
+    if not isinstance(files, MSVSFiles):
+      files = MSVSFiles(self.args2nodes(files))
+    self.files = files
+
+    env.Command(self, [], MSVSSolutionAction)
+
+  def args2nodes(self, entries):
+    result = []
+    for entry in entries:
+      if SCons.Util.is_String(entry):
+        entry = self.env.File(entry)
+        result.append(entry)
+      elif hasattr(entry, 'entries'):
+        entry.entries = self.args2nodes(entry.entries)
+        result.append(entry)
+      elif isinstance(entry, (list, UserList.UserList)):
+        result.extend(self.args2nodes(entry))
+      elif hasattr(entry, 'sources') and entry.sources:
+        result.extend(entry.sources)
+      else:
+        result.append(entry)
+    return result
+
+  def FindFile(self, node):
+    try:
+      flat_file_dict = self.flat_file_dict
+    except AttributeError:
+      flat_file_dict = {}
+      file_list = self.files[:]
+      while file_list:
+        entry = file_list.pop(0)
+        if not isinstance(entry, (list, UserList.UserList)):
+          entry = [entry]
+        for f in entry:
+          if hasattr(f, 'entries'):
+            file_list.extend(f.entries)
+          else:
+            flat_file_dict[f] = True
+            if hasattr(f, 'sources'):
+              for s in f.sources:
+                flat_file_dict[s] = True
+      self.flat_file_dict = flat_file_dict
+
+    return flat_file_dict.get(node)
 
   def get_guid(self):
     if self.guid is None:
@@ -220,19 +554,313 @@ class _MSVSProject(SCons.Node.FS.File):
   def get_msvs_path(self, sln):
       return sln.rel_path(self).replace('/', '\\')
 
+  def get_rel_path(self, node):
+      result = self.relative_path_prefix + self.msvs_node.rel_path(node)
+      return result.replace('/', '\\')
+
+  def AddConfig(self, Name, tools=None, **attrs):
+    """Adds a configuration to the parent node.
+
+    Args:
+      Name: The name of the configuration.
+      tools: List of tools (strings or Tool objects); may be None.
+      **attrs: Configuration attributes.
+    """
+    if tools is None:
+      # No tool list specifically for this configuration,
+      # use the Project's as a default.
+      tools = self.tools
+    c = MSVSConfig(Name, 'Configuration', tools=tools, **attrs)
+    self.configurations.append(c)
+
+  def AddFiles(self, files):
+    """Adds files to the project.
+
+    Args:
+      files: A list of Filter objects and/or relative paths to files.
+
+    This makes a copy of the file/filter tree at the time of this call.  If you
+    later add files to a Filter object which was passed into a previous call
+    to AddFiles(), it will not be reflected in this project.
+    """
+    # TODO(rspangler) This also doesn't handle adding files to an existing
+    # filter.  That is, it doesn't merge the trees.
+    self.files.extend(self.args2nodes(files))
+
+  def AddFileConfig(self, path, Name, tools=None, **attrs):
+    """Adds a configuration to a file.
+
+    Args:
+      path: Relative path to the file.
+      Name: Name of configuration to add.
+      tools: List of tools (strings or MSVSTool objects); may be None.
+      **attrs: Configuration attributes.
+
+    Raises:
+      ValueError: Relative path does not match any file added via AddFiles().
+    """
+    node = self.env.File(path)
+    if not self.FindFile(node):
+      raise ValueError('AddFileConfig: file "%s" not in project' % path)
+    c = MSVSConfig(Name, 'FileConfiguration', tools=tools, **attrs)
+    config_list = self.file_configurations.get(node)
+    if config_list is None:
+        config_list = []
+        self.file_configurations[node] = config_list
+    config_list.append(c)
+
+  def AddToolFile(self, path):
+    """Adds a tool file to the project.
+
+    Args:
+      path: Relative path from project to tool file.
+    """
+    tf = MSVSToolFile(self.env.File(path))
+    self.tool_files.append(tf)
+
+  def Create(self):
+    """Creates the project document.
+
+    Args:
+      name: Name of the project.
+      guid: GUID to use for project, if not None.
+    """
+    # Create XML doc
+    xml_impl = xml.dom.getDOMImplementation()
+    self.doc = xml_impl.createDocument(None, 'VisualStudioProject', None)
+
+    # Add attributes to root element
+    root = self.doc.documentElement
+    root.setAttribute('ProjectType', 'Visual C++')
+    root.setAttribute('Version', '8.00')
+    root.setAttribute('Name', self.msvs_name)
+    root.setAttribute('ProjectGUID', self.get_guid())
+    root.setAttribute('RootNamespace', self.root_namespace)
+    root.setAttribute('Keyword', 'Win32Proj')
+
+    # Add platform list
+    platforms = self.doc.createElement('Platforms')
+    root.appendChild(platforms)
+    n = self.doc.createElement('Platform')
+    n.setAttribute('Name', 'Win32')
+    platforms.appendChild(n)
+
+    # Add tool files section
+    tool_files = self.doc.createElement('ToolFiles')
+    root.appendChild(tool_files)
+    for tf in self.tool_files:
+        tool_files.appendChild(tf.CreateElement(self.doc, self))
+
+    # Add configurations section
+    configs = self.doc.createElement('Configurations')
+    root.appendChild(configs)
+    for c in self.configurations:
+        configs.appendChild(c.CreateElement(self.doc))
+
+    # Add empty References section
+    root.appendChild(self.doc.createElement('References'))
+
+    # Add files section
+    root.appendChild(self.files.CreateElement(self.doc, self.CreateFileElement))
+
+    # Add empty Globals section
+    root.appendChild(self.doc.createElement('Globals'))
+
+  def CreateFileElement(self, file):
+    """Create a DOM node for the specified file.
+
+    Args:
+      file: The file Node being considered.
+
+    Returns:
+      A DOM Node for the File, with a relative path to the current
+      project object, and any file configurations attached to the
+      project.
+    """
+
+    node = self.doc.createElement('File')
+    node.setAttribute('RelativePath', self.get_rel_path(file))
+    for c in self.file_configurations.get(file, []):
+      node.appendChild(c.CreateElement(self.doc))
+    return node
+
+  def _AddFileConfigurationDifferences(self, target, source, base_env, file_env):
+    """Adds a per-file configuration.
+
+    Args:
+      target: The target being built from the source.
+      source: The source to which the file configuration is being added.
+      base_env: The base construction environment for the project.
+          Differences from this will go into the FileConfiguration
+          in the project file.
+      file_env: The construction environment for the target, containing
+          the per-target settings.
+    """
+    pass
+
+  def _AddFileConfigurations(self, env):
+    """Adds per-file configurations for the buildtarget's sources.
+
+    Args:
+      env: The base construction environment for the project.
+    """
+    if not self.buildtargets:
+      return
+
+    bt = self.buildtargets[0]
+    additional_files = []
+    for t in bt.sources:
+        e = t.get_build_env()
+        for s in t.sources:
+          s = env.arg2nodes([s])[0]
+          if not self.FindFile(s):
+            additional_files.append(s)
+          if not env is e:
+            self._AddFileConfigurationDifferences(t, s, env, e)
+    self.AddFiles(additional_files)
+
+  def Write(self, env):
+    """Writes the project file."""
+    self._AddFileConfigurations(env)
+
+    self.Create()
+
+    f = open(str(self.msvs_node), 'wt')
+    f.write(self.formatMSVSProjectXML(self.doc))
+    f.close()
+
+  # Methods for formatting XML as nearly identically to Microsoft's
+  # .vcproj output as we can practically make it.
+  #
+  # The general design here is copied from:
+  #
+  #     Bruce Eckels' MindView, Inc:  12-09-04 XML Oddyssey
+  #     http://www.mindview.net/WebLog/log-0068
+  #
+  # Eckels' implementation broke up long tag definitions for readability,
+  # in much the same way that .vcproj does, but we've modified things
+  # for .vcproj quirks (like some tags *always* terminating with </Tag>,
+  # even when empty).
+
+  encoding = 'Windows-1252'
+
+  def formatMSVSProjectXML(self, xmldoc):
+      xmldoc = xmldoc.toprettyxml("", "\n", encoding=self.encoding)
+      # Remove trailing whitespace from each line:
+      xmldoc = "\n".join(
+          [line.rstrip() for line in xmldoc.split("\n")])
+      # Remove all empty lines before opening '<':
+      while xmldoc.find("\n\n<") != -1:
+          xmldoc = xmldoc.replace("\n\n<", "\n<")
+      dom = xml.dom.minidom.parseString(xmldoc)
+      xmldoc = dom.toprettyxml("\t", "", encoding=self.encoding)
+      xmldoc = xmldoc.replace('?><', '?>\n<')
+      xmldoc = self.reformatLines(xmldoc)
+      return xmldoc
+
+  def reformatLines(self, xmldoc):
+      result = []
+      for line in [line.rstrip() for line in xmldoc.split("\n")]:
+          if line.lstrip().startswith("<"):
+              result.append(self.reformatLine(line) + "\n")
+          else:
+              result.append(line + "\n")
+      return ''.join(result)
+
+  # Keyword order for specific tags.
+  #
+  # Listed keywords will come first and in the specified order.
+  # Any unlisted keywords come after, in whatever order they appear
+  # in the input config.  In theory this means we would only *have* to
+  # list the keywords that we care about, but in practice we'll probably
+  # want to nail down Visual Studio's order to make sure we match them
+  # as nearly as possible.
+
+  order = {
+      'Configuration' : [
+          'Name',
+          'ConfigurationType',
+          'InheritedPropertySheets',
+      ],
+      'FileConfiguration' : [
+          'Name',
+          'ExcludedFromBuild',
+      ],
+      'Tool' : [
+          'Name',
+          'DisableSpecificWarnings',
+      ],
+      'VisualStudioProject' : [
+          'ProjectType',
+          'Version',
+          'Name',
+          'ProjectGUID',
+          'RootNamespace',
+          'Keyword',
+      ],
+  }
+
+  force_closing_tag = [
+      'File',
+      'Globals',
+      'References',
+      'ToolFiles'
+  ]
+
+  oneLiner = re.compile("(\s*)<(\w+)(.*)>")
+  keyValuePair = re.compile('\w+="[^"]*?"')
+  def reformatLine(self, line):
+      """Reformat an xml tag to put each key-value
+      element on a single indented line, for readability"""
+      matchobj = self.oneLiner.match(line.rstrip())
+      if not matchobj:
+          return line
+      baseIndent, tag, rest = matchobj.groups()
+      slash = ''
+      if rest[-1:] == '/':
+          slash = '/'
+          rest = rest[:-1]
+      result = [baseIndent + '<' + tag]
+      indent = baseIndent + "\t"
+      pairs = self.keyValuePair.findall(rest)
+      for key in self.order.get(tag, []):
+          for p in [ p for p in pairs if p.startswith(key+'=') ]:
+              result.append("\n" + indent + p)
+              pairs.remove(p)
+      for pair in pairs:
+          result.append("\n" + indent + pair)
+      result = [''.join(result).rstrip()]
+
+      if tag in self.force_closing_tag:
+          # These force termination with </Tag>, so translate slash.
+          if rest:
+              result.append("\n")
+              result.append(indent)
+          result.append(">")
+          if slash:
+              result.append("\n")
+              result.append(baseIndent + "</" + tag + ">")
+      else:
+          if rest:
+              result.append("\n")
+              if slash:
+                  result.append(baseIndent)
+              else:
+                  result.append(indent)
+          result.append(slash + ">")
+
+      return ''.join(result)
+
 def MSVSProject(env, item, *args, **kw):
   if not SCons.Util.is_String(item):
       return item
   item = env.subst(item)
   result = env.fs._lookup(item, None, _MSVSProject, create=1)
-  result.initialize(item, *args, **kw)
+  result.initialize(env, item, *args, **kw)
   LookupAdd(item, result)
   return result
 
 #------------------------------------------------------------------------------
-
-def MSVSAction(target, source, env):
-  target[0].Write(env)
 
 MSVSSolutionAction = SCons.Script.Action(MSVSAction,
                                          "Generating Visual Studio solution `$TARGET' ...")
@@ -240,8 +868,7 @@ MSVSSolutionAction = SCons.Script.Action(MSVSAction,
 class _MSVSSolution(SCons.Node.FS.File):
   """Visual Studio solution."""
 
-  def initialize(self, env, path, entries = None, variants = None,
-                                  websiteProperties = True):
+  def initialize(self, env, path, entries = None, variants = None, websiteProperties = True):
     """Initializes the solution.
 
     Args:
@@ -432,3 +1059,10 @@ def MSVSSolution(env, item, *args, **kw):
   result.initialize(env, item, *args, **kw)
   LookupAdd(item, result)
   return result
+
+import __builtin__
+
+__builtin__.MSVSFilter = MSVSFilter
+__builtin__.MSVSProject = MSVSProject
+__builtin__.MSVSSolution = MSVSSolution
+__builtin__.MSVSTool = MSVSTool

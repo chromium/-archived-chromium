@@ -139,4 +139,4 @@ env.AlwaysBuild(solution)
 
 i = env.Command('$CHROME_SRC_DIR/sandbox/sandbox.sln', solution,
                 Copy('$TARGET', '$SOURCE'))
-Alias('solutions', i)
+Alias('msvs', i)
