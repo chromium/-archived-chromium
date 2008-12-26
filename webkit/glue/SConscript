@@ -87,12 +87,13 @@ if env.Bit('linux'):
   remove_files = [
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',
+    'plugins/plugin_stream.cc',
     'plugins/plugin_string_stream.cc',
     'plugins/plugin_stream_url.cc',
   ]
-
   for file in remove_files:
     input_files.remove(file)
+  input_files.extend(['plugins/plugin_stubs.cc'])
 
 if env.Bit('windows'):
   # TODO(port): These extra files aren't win32-specific, they've just not been
