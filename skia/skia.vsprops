@@ -8,7 +8,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="include;include\corecg;corecg;sgl;picture"
-		PreprocessorDefinitions="SKIA_DISABLE_SUPPORT_FOR_DECODERS"
+		PreprocessorDefinitions="SK_BUILD_NO_IMAGE_ENCODE"
 		DisableSpecificWarnings="4244; 4267; 4345; 4390; 4554; 4800"
 	/>
 </VisualStudioPropertySheet>

@@ -19,7 +19,7 @@ env.Prepend(
 
 env.Append(
   CPPDEFINES = [
-    'SKIA_DISABLE_SUPPORT_FOR_DECODERS',
+    'SK_BUILD_NO_IMAGE_ENCODE',
   ],
 )
 
@@ -303,6 +303,7 @@ input_files = ChromeFileList([
     'sgl/SkTSearch.cpp',
     'sgl/SkTSort.h',
     'sgl/SkTypeface_fake.cpp',
+    'sgl/SkUnPreMultiply.cpp',
     'sgl/SkUtils.cpp',
     'sgl/SkWriter32.cpp',
     'sgl/SkXfermode.cpp',
@@ -415,6 +416,7 @@ if env.Bit('linux'):
 
 if env.Bit('posix'):
   input_files.append('ports/SkThread_pthread.cpp')
+  input_files.append('ports/SkTime_Unix.cpp')
 
 if env.Bit('mac'):
   input_files.append('ext/bitmap_platform_device_mac.cc')

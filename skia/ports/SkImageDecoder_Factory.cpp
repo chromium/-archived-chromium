@@ -34,12 +34,14 @@ struct CodecFormat {
 };
 
 static const CodecFormat gPairs[] = {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     { SkImageDecoder_GIF_Factory,   SkImageDecoder::kGIF_Format },
     { SkImageDecoder_PNG_Factory,   SkImageDecoder::kPNG_Format },
     { SkImageDecoder_ICO_Factory,   SkImageDecoder::kICO_Format },
     { SkImageDecoder_WBMP_Factory,  SkImageDecoder::kWBMP_Format },
     { SkImageDecoder_BMP_Factory,   SkImageDecoder::kBMP_Format },
     { SkImageDecoder_JPEG_Factory,  SkImageDecoder::kJPEG_Format }
+#endif
 };
 
 SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
@@ -73,11 +75,15 @@ extern SkMovie* SkMovie_GIF_StreamFactory(SkStream*);
 extern SkMovie* SkMovie_GIF_MemoryFactory(const void*, size_t);
 
 static const SkMovieStreamProc gStreamProc[] = {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     SkMovie_GIF_StreamFactory
+#endif
 };
 
 static const SkMovieMemoryProc gMemoryProc[] = {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     SkMovie_GIF_MemoryFactory
+#endif
 };
 
 SkMovie* SkMovie::DecodeStream(SkStream* stream) {
