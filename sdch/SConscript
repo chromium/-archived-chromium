@@ -25,6 +25,7 @@ input_files = [
     '$OPEN_VCDIFF_DIR/src/decodetable.cc',
     '$OPEN_VCDIFF_DIR/src/encodetable.cc',
     '$OPEN_VCDIFF_DIR/src/headerparser.cc',
+    '$OPEN_VCDIFF_DIR/src/instruction_map.cc',
     '$OPEN_VCDIFF_DIR/src/logging.cc',
     '$OPEN_VCDIFF_DIR/src/varint_bigendian.cc',
     '$OPEN_VCDIFF_DIR/src/vcdecoder.cc',
