@@ -32,12 +32,10 @@ env.Append(
         '$GTEST_DIR/include',
     ],
     LIBS = [
-        'test_shell',
         'glue',
         'port',
         'base',
         'base_gfx',
-        'breakpad_handler',
         'googleurl',
         'net',
         'sdch',
@@ -63,6 +61,7 @@ if env.Bit('windows'):
   env.Append(
       LIBS = [
           'activex_shim',
+          'breakpad_handler',
           'breakpad_sender',
       ]
   )
@@ -134,6 +133,8 @@ elif env.Bit('linux'):
   ])
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)
+
+env.Append(LIBS = ['test_shell'])
 
 env.ChromeMSVSProject('$WEBKIT_DIR/tools/test_shell/test_shell.vcproj',
                 dependencies = [
