@@ -85,8 +85,14 @@ env = env.Clone(
 
 env.PrependENVPath('PATH', cygwin_posix)
 
-bindings_perl_modules = env.Glob('$BINDINGS_SCRIPTS_DIR/*.pm')
 
+# When we haven't specified --verbose (aka brief_comstr), make the
+# WebKit bindings building step output more brief to match the brief
+# compile/link/etc. lines.
+if env.GetOption('brief_comstr'):
+  env.SetDefault(BINDINGSCOMSTR='________Building bindings in $TARGET')
+
+bindings_perl_modules = env.Glob('$BINDINGS_SCRIPTS_DIR/*.pm')
 
 def BindingsEmitter(target, source, env):
   source.append('$BINDINGS_SCRIPT')
