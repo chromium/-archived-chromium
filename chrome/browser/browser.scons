@@ -274,7 +274,6 @@ if env.Bit('windows'):
       'ssl_manager.cc',
       'ssl_policy.cc',
       'status_view.cc',
-      'suspend_controller.cc',
       'tab_contents.cc',
       'tab_contents_factory.cc',
       'tab_util.cc',
