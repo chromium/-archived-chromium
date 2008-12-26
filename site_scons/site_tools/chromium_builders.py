@@ -73,6 +73,10 @@ def ChromeTestProgram(env, target, source, *args, **kw):
     env.Precious(*result)
   return result
 
+def ChromeLibrary(env, target, source, *args, **kw):
+  source = compilable_files(source)
+  return env.ComponentLibrary(target, source, *args, **kw)
+
 def ChromeStaticLibrary(env, target, source, *args, **kw):
   source = compilable_files(source)
   kw['COMPONENT_STATIC'] = True
@@ -107,6 +111,7 @@ def ChromeMSVSSolution(env, *args, **kw):
 def generate(env):
   env.AddMethod(ChromeProgram)
   env.AddMethod(ChromeTestProgram)
+  env.AddMethod(ChromeLibrary)
   env.AddMethod(ChromeStaticLibrary)
   env.AddMethod(ChromeSharedLibrary)
   env.AddMethod(ChromeObject)
