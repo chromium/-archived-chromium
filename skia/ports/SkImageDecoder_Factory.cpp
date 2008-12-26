@@ -33,18 +33,19 @@ struct CodecFormat {
     SkImageDecoder::Format      fFormat;
 };
 
-static const CodecFormat gPairs[] = {
 #ifdef SK_SUPPORT_IMAGE_DECODE
+static const CodecFormat gPairs[] = {
     { SkImageDecoder_GIF_Factory,   SkImageDecoder::kGIF_Format },
     { SkImageDecoder_PNG_Factory,   SkImageDecoder::kPNG_Format },
     { SkImageDecoder_ICO_Factory,   SkImageDecoder::kICO_Format },
     { SkImageDecoder_WBMP_Factory,  SkImageDecoder::kWBMP_Format },
     { SkImageDecoder_BMP_Factory,   SkImageDecoder::kBMP_Format },
     { SkImageDecoder_JPEG_Factory,  SkImageDecoder::kJPEG_Format }
-#endif
 };
+#endif
 
 SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
         SkImageDecoder* codec = gPairs[i].fProc(stream);
         stream->rewind();
@@ -52,15 +53,18 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
             return codec;
         }
     }
+#endif
     return NULL;
 }
 
 bool SkImageDecoder::SupportsFormat(Format format) {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
         if (gPairs[i].fFormat == format) {
             return true;
         }
     }
+#endif
     return false;
 }
 
@@ -74,19 +78,18 @@ typedef SkMovie* (*SkMovieMemoryProc)(const void*, size_t);
 extern SkMovie* SkMovie_GIF_StreamFactory(SkStream*);
 extern SkMovie* SkMovie_GIF_MemoryFactory(const void*, size_t);
 
-static const SkMovieStreamProc gStreamProc[] = {
 #ifdef SK_SUPPORT_IMAGE_DECODE
+static const SkMovieStreamProc gStreamProc[] = {
     SkMovie_GIF_StreamFactory
-#endif
 };
 
 static const SkMovieMemoryProc gMemoryProc[] = {
-#ifdef SK_SUPPORT_IMAGE_DECODE
     SkMovie_GIF_MemoryFactory
-#endif
 };
+#endif
 
 SkMovie* SkMovie::DecodeStream(SkStream* stream) {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     for (unsigned i = 0; i < SK_ARRAY_COUNT(gStreamProc); i++) {
         SkMovie* movie = gStreamProc[i](stream);
         if (NULL != movie) {
@@ -94,17 +97,20 @@ SkMovie* SkMovie::DecodeStream(SkStream* stream) {
         }
         stream->rewind();
     }
+#endif
     return NULL;
 }
 
 SkMovie* SkMovie::DecodeMemory(const void* data, size_t length)
 {
+#ifdef SK_SUPPORT_IMAGE_DECODE
     for (unsigned i = 0; i < SK_ARRAY_COUNT(gMemoryProc); i++) {
         SkMovie* movie = gMemoryProc[i](data, length);
         if (NULL != movie) {
             return movie;
         }
     }
+#endif
     return NULL;
 }
 
