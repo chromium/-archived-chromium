@@ -83,9 +83,9 @@ if env.Bit('windows'):
   # TODO(evanm): this may be necessary on other platforms(?)
   i = env.InstallAs('$TARGET_ROOT/v8_shell_sample${PROGSUFFIX}', v8[0])
 
-env.ChromeStaticLibrary('v8_snapshot',
-                        ['$V8_MODE_DIR/libraries-empty${OBJSUFFIX}',
-                         '$V8_MODE_DIR/snapshot${OBJSUFFIX}'])
+env.ChromeLibrary('v8_snapshot',
+                  ['$V8_MODE_DIR/libraries-empty${OBJSUFFIX}',
+                   '$V8_MODE_DIR/snapshot${OBJSUFFIX}'])
 
 env.ChromeMSVSProject('$V8_DIR/tools/visual_studio/v8.vcproj',
                 dependencies = [

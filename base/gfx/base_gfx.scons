@@ -56,7 +56,7 @@ elif env.Bit('linux'):
   input_files.Extend([
   ])
 
-env.ChromeStaticLibrary('base_gfx', input_files)
+env.ChromeLibrary('base_gfx', input_files)
 
 p = env.ChromeMSVSProject('../build/base_gfx.vcproj',
                           guid='{A508ADD3-CECE-4E0F-8448-2F5E454DF551}',

@@ -27,7 +27,7 @@ input_files = [
     'mbspatch.cc',
 ]
 
-env.ChromeStaticLibrary('bspatch', input_files)
+env.ChromeLibrary('bspatch', input_files)
 
 env.ChromeMSVSProject('$BSPATCH_DIR/bspatch.vcproj',
                 guid='{D7ED06E8-6138-4CE3-A906-5EF1D9C804E0}')

@@ -39,7 +39,7 @@ input_files = [
     'web_activex_site.cc',
 ]
 
-env.ChromeStaticLibrary('activex_shim', input_files)
+env.ChromeLibrary('activex_shim', input_files)
 
 env.ChromeMSVSProject('$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
                 dependencies = [

@@ -99,7 +99,7 @@ input_files = [
     'jutils.c',
 ]
 
-env.ChromeStaticLibrary('libjpeg', input_files)
+env.ChromeLibrary('libjpeg', input_files)
 
 env.ChromeMSVSProject('$LIBJPEG_DIR/libjpeg.vcproj',
                 guid='{238CE175-76CE-4A25-A676-69D115885601}')

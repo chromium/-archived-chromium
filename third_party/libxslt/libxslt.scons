@@ -85,7 +85,7 @@ input_files = [
     'libxslt/xsltutils.c',
 ]
 
-env.ChromeStaticLibrary('libxslt', input_files)
+env.ChromeLibrary('libxslt', input_files)
 
 env.ChromeMSVSProject('$LIBXSLT_DIR/build/libxslt.vcproj',
                 dependencies = [

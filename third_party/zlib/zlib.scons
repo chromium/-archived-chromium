@@ -52,7 +52,7 @@ input_files = ChromeFileList([
     'zutil.h',
 ])
 
-env.ChromeStaticLibrary('zlib', input_files)
+env.ChromeLibrary('zlib', input_files)
 
 p = env.ChromeMSVSProject('zlib.vcproj',
                           guid='{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}',

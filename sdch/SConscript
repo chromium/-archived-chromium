@@ -32,7 +32,7 @@ input_files = [
     '$OPEN_VCDIFF_DIR/src/vcdiffengine.cc',
 ]
 
-env.ChromeStaticLibrary('sdch', input_files)
+env.ChromeLibrary('sdch', input_files)
 
 env.ChromeMSVSProject('$SDCH_DIR/sdch.vcproj',
                 guid='{F54ABC59-5C00-414A-A9BA-BAF26D1699F0}')

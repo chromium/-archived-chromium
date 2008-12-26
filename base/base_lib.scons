@@ -373,7 +373,7 @@ if env.Bit('linux'):
       'worker_pool.cc',
   ])
 
-env.ChromeStaticLibrary('base', input_files)
+env.ChromeLibrary('base', input_files)
 
 p = env.ChromeMSVSProject('build/base.vcproj',
                           guid='{1832A374-8A74-4F9E-B536-69A699B3E165}',

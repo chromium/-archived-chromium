@@ -132,7 +132,7 @@ if env.Bit('posix'):
     'plugins/plugin_stream_posix.cc',
   ])
 
-env.ChromeStaticLibrary('glue', input_files)
+env.ChromeLibrary('glue', input_files)
 
 env.ChromeMSVSProject('$WEBKIT_DIR/build/glue/glue.vcproj',
                 name = 'Glue',

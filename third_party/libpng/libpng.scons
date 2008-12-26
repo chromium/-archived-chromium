@@ -62,7 +62,7 @@ input_files = ChromeFileList([
     'pngwutil.c',
 ])
 
-env.ChromeStaticLibrary('libpng', input_files)
+env.ChromeLibrary('libpng', input_files)
 
 p = env.ChromeMSVSProject('libpng.vcproj',
                           guid='{C564F145-9172-42C3-BFCB-6014CA97DBCD}',

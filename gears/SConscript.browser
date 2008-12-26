@@ -509,7 +509,7 @@ if env['OS'] in ['win32', 'wince'] and env['MODE'] == 'dbg':
 env.Alias('gears', outputs['MODULE'])
 
 if env['OS'] == 'win32' and env['BROWSER'] == 'NPAPI':
-  lib = env.ChromeStaticLibrary('gears-static',
+  lib = env.ChromeLibrary('gears-static',
       env.SharedObject(GetInputs('$BROWSER_CPPSRCS')) +
       GetInputs('$BROWSER_LINKSRCS'))
   env.Alias('gears-static', lib)

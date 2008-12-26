@@ -73,4 +73,4 @@ if env.Bit('mac'):
   ])
 
 
-env.ChromeStaticLibrary('event', input_files)
+env.ChromeLibrary('event', input_files)

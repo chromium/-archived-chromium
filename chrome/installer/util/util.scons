@@ -52,7 +52,7 @@ input_files = [
 
 # TODO(port):
 if env.Bit('windows'):
-  env.ChromeStaticLibrary('util', input_files)
+  env.ChromeLibrary('util', input_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/installer/util/util.vcproj',
                       dependencies = [

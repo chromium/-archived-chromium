@@ -54,7 +54,7 @@ else:
     '$PORT_DIR/bindings/v8/ScriptController.cpp',
   ])
 
-env.ChromeStaticLibrary("port", input_files)
+env.ChromeLibrary("port", input_files)
 
 env.ChromeMSVSProject('$WEBKIT_DIR/build/port/port.vcproj',
                 name = 'Port',

@@ -82,7 +82,7 @@ input_files = [
     'src/parsers/textparser.cxx',
 ]
 
-env.ChromeStaticLibrary('hunspell', input_files)
+env.ChromeLibrary('hunspell', input_files)
 
 
 dictionaries = [

@@ -56,7 +56,7 @@ if env.Bit('posix'):
   for remove in to_be_ported_files:
     input_files.remove(remove)
 
-env.ChromeStaticLibrary('plugin', input_files)
+env.ChromeLibrary('plugin', input_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/plugin/plugin.vcproj',
                 guid='{20A560A0-2CD0-4D9E-A58B-1F24B99C087A}')

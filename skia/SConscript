@@ -457,7 +457,7 @@ if env.Bit('windows'):
   env_p['PCH'] = pch
   input_files.Replace('precompiled.cc', obj)
 
-env.ChromeStaticLibrary('skia', input_files)
+env.ChromeLibrary('skia', input_files)
 
 p = env.ChromeMSVSProject('skia.vcproj',
                           guid='{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}',

@@ -46,7 +46,7 @@ input_files = [
     'Compress/Lzma/LzmaDecode.c',
 ]
 
-env.ChromeStaticLibrary('lzma_sdk', input_files)
+env.ChromeLibrary('lzma_sdk', input_files)
 
 env.ChromeMSVSProject('$LZMA_SDK_DIR/7z_C.vcproj',
                 name='lzma_sdk',

@@ -22,7 +22,7 @@ input_files = [
     'modp_b64.cc',
 ]
 
-env.ChromeStaticLibrary('modp_b64', input_files)
+env.ChromeLibrary('modp_b64', input_files)
 
 env.ChromeMSVSProject('$MODP_B64_DIR/modp_b64.vcproj',
                 guid='{7100F41F-868D-4E99-80A2-AF8E6574749D}')

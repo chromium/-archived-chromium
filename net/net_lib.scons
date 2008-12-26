@@ -169,7 +169,7 @@ if env.Bit('windows'):
   env.Append(CCPCHFLAGS = ['/FIprecompiled_net.h'])
   input_files += [obj]
 
-env.ChromeStaticLibrary('net', input_files)
+env.ChromeLibrary('net', input_files)
 
 env.ChromeMSVSProject('$NET_DIR/build/net.vcproj',
                 dependencies = [

@@ -26,7 +26,7 @@ if env.Bit('windows'):
       'src/common/windows/http_upload.cc',
   ]
 
-  env.ChromeStaticLibrary('breakpad_sender', sender_input_files)
+  env.ChromeLibrary('breakpad_sender', sender_input_files)
 
 env.ChromeMSVSProject('$BREAKPAD_DIR/breakpad_sender.vcproj',
                 guid='{9946A048-043B-4F8F-9E07-9297B204714C}')
@@ -48,7 +48,7 @@ elif env.Bit('linux'):
       'src/client/linux/handler/linux_thread.cc',
   ]
 
-env.ChromeStaticLibrary('breakpad_handler', handler_input_files)
+env.ChromeLibrary('breakpad_handler', handler_input_files)
 
 env.ChromeMSVSProject('$BREAKPAD_DIR/breakpad_handler.vcproj',
                 guid='{B55CA863-B374-4BAF-95AC-539E4FA4C90C}')

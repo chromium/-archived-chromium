@@ -43,7 +43,7 @@ input_files = ChromeFileList([
     'multiprocess_func_list.cc',
 ])
 
-env.ChromeStaticLibrary('gtest', input_files)
+env.ChromeLibrary('gtest', input_files)
 
 p = env.ChromeMSVSProject('gtest.vcproj',
                           guid='{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}',

@@ -101,7 +101,7 @@ if env.Bit('mac'):
 
 # TODO(port): Enable for Mac.
 if not env.Bit('mac'):
-  env.ChromeStaticLibrary('renderer', input_files)
+  env.ChromeLibrary('renderer', input_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/renderer/renderer.vcproj',
                 dependencies = [

@@ -91,7 +91,7 @@ input_files = [
     'where.c',
 ]
 
-env.ChromeStaticLibrary('sqlite', input_files)
+env.ChromeLibrary('sqlite', input_files)
 
 env.ChromeMSVSProject('$SQLITE_DIR/sqlite.vcproj',
                 guid='{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}')

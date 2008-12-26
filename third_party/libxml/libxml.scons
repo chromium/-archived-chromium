@@ -113,7 +113,7 @@ input_files = [
     'xpointer.c',
 ]
 
-env.ChromeStaticLibrary('libxml', input_files)
+env.ChromeLibrary('libxml', input_files)
 
 env.ChromeMSVSProject('$LIBXML_DIR/build/libxml.vcproj',
                 dependencies = [

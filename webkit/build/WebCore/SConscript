@@ -951,7 +951,7 @@ if env.Bit('windows'):
   env.Append(CCPCHFLAGS = ['/FIprecompiled_webkit.h'])
   input_files += [obj]
 
-env.ChromeStaticLibrary('WebCore', input_files)
+env.ChromeLibrary('WebCore', input_files)
 
 env.ChromeMSVSProject('$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
                 dependencies = [

@@ -914,7 +914,7 @@ elif env['OS'] == 'android':
 # that value, scons gets confused.  I'm not sure who is at fault here.
 # See http://code.google.com/p/chromium/issues/detail?id=4177.
 def GearsStaticLibrary(env, *args, **kw):
-  lib = env.ChromeStaticLibrary(*args, **kw)
+  lib = env.ChromeLibrary(*args, **kw)
   env.Install('$COMPONENT_LIBRARY_DIR', lib[0])
   return lib
 env.AddMethod(GearsStaticLibrary)

@@ -315,7 +315,7 @@ if env.Bit('posix'):
 
 if not env.Bit('mac'):
   # TODO: This should work for all platforms.
-  env.ChromeStaticLibrary('browser', input_files)
+  env.ChromeLibrary('browser', input_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/browser/browser.vcproj',
                 dependencies = [

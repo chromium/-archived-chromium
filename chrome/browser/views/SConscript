@@ -137,7 +137,7 @@ if env.Bit('windows'):
       'find_bar_win.cc',
   ])
 
-env.ChromeStaticLibrary('browser_views', input_files)
+env.ChromeLibrary('browser_views', input_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/browser/views/browser_views.vcproj',
                 dependencies = [

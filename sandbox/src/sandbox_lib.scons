@@ -81,4 +81,4 @@ env['PCH'] = pch
 env['PCHSTOP'] = 'stdafx.h'
 env.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
-env.ChromeStaticLibrary('sandbox', input_files + [obj])
+env.ChromeLibrary('sandbox', input_files + [obj])

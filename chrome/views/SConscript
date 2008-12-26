@@ -92,7 +92,7 @@ input_files = [
     'window_delegate.cc',
 ]
 
-env.ChromeStaticLibrary('views', input_files)
+env.ChromeLibrary('views', input_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/views/views.vcproj',
                 dependencies = [

@@ -513,6 +513,10 @@ if ARGUMENTS.get('PROFILE') == '1':
 if ARGUMENTS.get('SYMBOLS') == '1':
   linux_env.Append(CCFLAGS=['-g'])
 
+# Build shared libraries (useful for fast links) when SHARED=1.
+if ARGUMENTS.get('SHARED') == '1':
+  linux_env.Replace(COMPONENT_STATIC=False)
+
 # Build with system-provided NSS and GTK.
 if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
   try:
