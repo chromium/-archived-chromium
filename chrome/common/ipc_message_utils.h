@@ -161,6 +161,24 @@ struct ParamTraits<size_t> {
   }
 };
 
+#if defined(OS_MACOSX)
+// On Linux size_t & uint32 can be the same type.
+// TODO(playmobil): Fix compilation if this is not the case.
+template <>
+struct ParamTraits<uint32> {
+  typedef uint32 param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteUInt32(p);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return m->ReadUInt32(iter, r);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(StringPrintf(L"%u", p));
+  }
+};
+#endif  // defined(OS_MACOSX)
+
 template <>
 struct ParamTraits<int64> {
   typedef int64 param_type;

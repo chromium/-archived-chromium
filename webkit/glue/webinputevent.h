@@ -11,7 +11,6 @@
 #include <windows.h>
 #elif defined(OS_MACOSX)
 #include <vector>
-#include <wtf/RetainPtr.h>
 #ifdef __OBJC__
 @class NSEvent;
 @class NSView;
@@ -70,11 +69,6 @@ class WebInputEvent {
 
   Type type;
   int modifiers;
-#if defined(OS_MACOSX)
-  // For now, good enough for the test shell. TODO(avi): Revisit when we need
-  // to start sending this over an IPC pipe.
-  RetainPtr<NSEvent> mac_event;
-#endif
 };
 
 // WebMouseEvent --------------------------------------------------------------

@@ -89,8 +89,6 @@ WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
   timestamp_sec = [event timestamp];
 
   layout_test_click_count = 0;
-  
-  mac_event = event;  // retains |event|
 }
 
 // WebMouseWheelEvent ---------------------------------------------------------
@@ -130,8 +128,6 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
     modifiers |= SHIFT_KEY;
   if ([event modifierFlags] & NSAlternateKeyMask)
     modifiers |= ALT_KEY;
-  
-  mac_event = event;  // retains |event|
 }
 
 // WebKeyboardEvent -----------------------------------------------------------
@@ -964,6 +960,4 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
   FillVectorFromNSString(&key_identifier, identStr);
 
   key_code = WebCore::windowsKeyCodeForKeyEvent(event);
-  
-  mac_event = event;  // retains |event|
 }

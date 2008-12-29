@@ -164,7 +164,9 @@
 		B562E2D50F05834500FB1A4F /* chrome_canvas.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFCA90E9D4D5D009A6919 /* chrome_canvas.cc */; };
 		B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F60F05843C00FB1A4F /* property_bag.cc */; };
 		B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */; };
+		B56E281B0F057F2800447108 /* message_router.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD10E9D4C9F009A6919 /* message_router.cc */; };
 		B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */; };
+		B5E98B140F0574A8000A37D6 /* render_messages.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBF10E9D4C9F009A6919 /* render_messages.cc */; };
 		B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */; };
 		B5FDC1CA0EE48ADB00BEC6E6 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDD10E9D5295009A6919 /* CoreFoundation.framework */; };
 		B5FDC1CC0EE48ADB00BEC6E6 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
@@ -3282,11 +3284,13 @@
 				E4F3242C0EE5CBBF002533CE /* logging_chrome.cc in Sources */,
 				B562C8430ED49C830077A23F /* mach_ipc_mac.mm in Sources */,
 				B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */,
+				B56E281B0F057F2800447108 /* message_router.cc in Sources */,
 				E4F324300EE5CBEB002533CE /* notification_registrar.cc in Sources */,
 				4D7BFC5C0E9D4D24009A6919 /* notification_service.cc in Sources */,
 				4D7BFC710E9D4D28009A6919 /* pref_member.cc in Sources */,
 				4D7BFC7A0E9D4D2B009A6919 /* pref_names.cc in Sources */,
 				B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */,
+				B5E98B140F0574A8000A37D6 /* render_messages.cc in Sources */,
 				4D7BFC7F0E9D4D2E009A6919 /* slide_animation.cc in Sources */,
 				4D7BFC840E9D4D32009A6919 /* sqlite_compiled_statement.cc in Sources */,
 				4D7BFC8B0E9D4D35009A6919 /* sqlite_utils.cc in Sources */,
