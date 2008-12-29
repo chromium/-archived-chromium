@@ -160,6 +160,10 @@
 		B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBC0E9D4C9F009A6919 /* ipc_sync_message_unittest.cc */; };
 		B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */; };
 		B562C8430ED49C830077A23F /* mach_ipc_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B562C8420ED49C830077A23F /* mach_ipc_mac.mm */; };
+		B562E2C70F0582F800FB1A4F /* common_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB9F0E9D4C9F009A6919 /* common_glue.cc */; };
+		B562E2D50F05834500FB1A4F /* chrome_canvas.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFCA90E9D4D5D009A6919 /* chrome_canvas.cc */; };
+		B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F60F05843C00FB1A4F /* property_bag.cc */; };
+		B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */; };
 		B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */; };
 		B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */; };
 		B5FDC1CA0EE48ADB00BEC6E6 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDD10E9D5295009A6919 /* CoreFoundation.framework */; };
@@ -1443,6 +1447,9 @@
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
 		B562C8410ED49C830077A23F /* mach_ipc_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_ipc_mac.h; sourceTree = "<group>"; };
 		B562C8420ED49C830077A23F /* mach_ipc_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mach_ipc_mac.mm; sourceTree = "<group>"; };
+		B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = property_bag_unittest.cc; sourceTree = "<group>"; };
+		B562E2F50F05843C00FB1A4F /* property_bag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = property_bag.h; sourceTree = "<group>"; };
+		B562E2F60F05843C00FB1A4F /* property_bag.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = property_bag.cc; sourceTree = "<group>"; };
 		B5D7CD350EF0702F00EE645F /* ipc_channel_posix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_channel_posix.h; sourceTree = "<group>"; };
 		B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ipc_tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_channel_posix.cc; sourceTree = "<group>"; };
@@ -2393,6 +2400,9 @@
 				4D7BFBED0E9D4C9F009A6919 /* pref_service_unittest.cc */,
 				4D7BFBEE0E9D4C9F009A6919 /* process_watcher.cc */,
 				4D7BFBEF0E9D4C9F009A6919 /* process_watcher.h */,
+				B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */,
+				B562E2F50F05843C00FB1A4F /* property_bag.h */,
+				B562E2F60F05843C00FB1A4F /* property_bag.cc */,
 				4D7BFBF00E9D4C9F009A6919 /* ref_counted_util.h */,
 				4D7BFBF10E9D4C9F009A6919 /* render_messages.cc */,
 				4D7BFBF20E9D4C9F009A6919 /* render_messages.h */,
@@ -3234,6 +3244,7 @@
 				4DDC63E70EAE344300FB5EBE /* metrics_response_unittest.cc in Sources */,
 				4D7BFB580E9D4C43009A6919 /* page_range_unittest.cc in Sources */,
 				4D7BFB5F0E9D4C46009A6919 /* page_setup_unittest.cc in Sources */,
+				B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */,
 				4D7BFB780E9D4C5A009A6919 /* protocol_parser_unittest.cc in Sources */,
 				4D7BFCF30E9D4E07009A6919 /* run_all_unittests.cc in Sources */,
 				E48FB9870EC4EBA10052B72B /* safe_browsing_database_unittest.cc in Sources */,
@@ -3250,8 +3261,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D7BFC260E9D4CE8009A6919 /* animation.cc in Sources */,
+				B562E2D50F05834500FB1A4F /* chrome_canvas.cc in Sources */,
 				4D7BFC280E9D4CEB009A6919 /* chrome_constants.cc in Sources */,
 				4D7BFC2A0E9D4CED009A6919 /* chrome_counters.cc in Sources */,
+				B562E2C70F0582F800FB1A4F /* common_glue.cc in Sources */,
 				E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */,
 				4D7BFC2C0E9D4CF1009A6919 /* chrome_switches.cc in Sources */,
 				4D7BFCC90E9D4D72009A6919 /* color_utils.cc in Sources */,
@@ -3273,6 +3286,7 @@
 				4D7BFC5C0E9D4D24009A6919 /* notification_service.cc in Sources */,
 				4D7BFC710E9D4D28009A6919 /* pref_member.cc in Sources */,
 				4D7BFC7A0E9D4D2B009A6919 /* pref_names.cc in Sources */,
+				B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */,
 				4D7BFC7F0E9D4D2E009A6919 /* slide_animation.cc in Sources */,
 				4D7BFC840E9D4D32009A6919 /* sqlite_compiled_statement.cc in Sources */,
 				4D7BFC8B0E9D4D35009A6919 /* sqlite_utils.cc in Sources */,
