@@ -1754,9 +1754,6 @@ LINUX WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
 LINUX WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
 LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 
-// Not quite sure what's going on here.  Getting the builder green.
-LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
-
 // Brett broke this with his font rendering effect patch and needs to fix it.
 WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 
