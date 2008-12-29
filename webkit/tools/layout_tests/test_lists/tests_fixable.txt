@@ -1768,9 +1768,6 @@ LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 // Not quite sure what's going on here.  Getting the builder green.
 LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 
-// Brett broke this with his font rendering effect patch and needs to fix it.
-WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
-
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
 LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
@@ -1806,4 +1803,3 @@ LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-007.html = FAIL
 // fail anyway, since chromium does not support webarchive format.
 SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
 SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
-
