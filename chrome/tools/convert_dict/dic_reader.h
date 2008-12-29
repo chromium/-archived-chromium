@@ -35,6 +35,7 @@ class DicReader {
 
  private:
   FILE* file_;
+  FILE* additional_words_file_;
 
   // Contains all words and their corresponding affix index.
   WordList words_;
