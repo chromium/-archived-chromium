@@ -158,6 +158,12 @@ gboolean MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
   return FALSE;  // Don't stop this message.
 }
 
+gboolean MainWindowLostFocus(GtkWidget* widget, GdkEventFocus* event,
+                             TestShell* shell) {
+  shell->ClosePopup();
+  return FALSE;
+}
+
 // Callback for when you click the back button.
 void BackButtonClicked(GtkButton* button, TestShell* shell) {
   shell->GoBackOrForward(-1);
@@ -184,7 +190,7 @@ void URLEntryActivate(GtkEntry* entry, TestShell* shell) {
   shell->LoadURL(UTF8ToWide(url).c_str());
 }
 
-};
+}
 
 bool TestShell::Initialize(const std::wstring& startingURL) {
   m_mainWnd = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -192,7 +198,8 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   gtk_window_set_default_size(GTK_WINDOW(m_mainWnd), 640, 480);
   g_signal_connect(G_OBJECT(m_mainWnd), "destroy",
                    G_CALLBACK(MainWindowDestroyed), this);
-
+  g_signal_connect(G_OBJECT(m_mainWnd), "focus-out-event",
+                   G_CALLBACK(MainWindowLostFocus), this);
   g_object_set_data(G_OBJECT(m_mainWnd), "test-shell", this);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
@@ -320,16 +327,25 @@ WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
   gtk_container_add(GTK_CONTAINER(popupwindow), vbox);
   m_popupHost = host;
 
+  // Grab all input to the test shell and funnel it to the popup.
+  // The popup will detect if mouseclicks are outside its bounds and destroy
+  // itself if so. Clicks that are outside the test_shell window will destroy
+  // the popup by taking focus away from the main window.
+  gtk_grab_add(host->view_handle());
+
   return host->webwidget();
 }
 
 void TestShell::ClosePopup() {
-  DCHECK(m_popupHost);
+  if (!m_popupHost)
+    return;
   GtkWidget* drawing_area = m_popupHost->view_handle();
+  // gtk_widget_destroy will recursively call ClosePopup, so to avoid GTK
+  // warnings set m_popupHost to null here before making the call.
+  m_popupHost = NULL;
   GtkWidget* window =
       gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
   gtk_widget_destroy(window);
-  m_popupHost = NULL;
 }
 
 void TestShell::ResizeSubViews() {
