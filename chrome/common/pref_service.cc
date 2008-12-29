@@ -136,38 +136,34 @@ bool PrefService::LoadPersistentPrefs(const std::wstring& file_path) {
   DCHECK(CalledOnValidThread());
 
   JSONFileValueSerializer serializer(file_path);
-  Value* root = NULL;
-  if (serializer.Deserialize(&root, NULL)) {
-    // Preferences should always have a dictionary root.
-    if (!root->IsType(Value::TYPE_DICTIONARY)) {
-      delete root;
-      return false;
-    }
+  scoped_ptr<Value> root(serializer.Deserialize(NULL));
+  if (!root.get())
+    return false;
 
-    persistent_.reset(static_cast<DictionaryValue*>(root));
-    return true;
-  }
+  // Preferences should always have a dictionary root.
+  if (!root->IsType(Value::TYPE_DICTIONARY))
+    return false;
 
-  return false;
+  persistent_.reset(static_cast<DictionaryValue*>(root.release()));
+  return true;
 }
 
 void PrefService::ReloadPersistentPrefs() {
   DCHECK(CalledOnValidThread());
 
   JSONFileValueSerializer serializer(pref_filename_);
-  Value* root;
-  if (serializer.Deserialize(&root, NULL)) {
-    // Preferences should always have a dictionary root.
-    if (!root->IsType(Value::TYPE_DICTIONARY)) {
-      delete root;
-      return;
-    }
+  scoped_ptr<Value> root(serializer.Deserialize(NULL));
+  if (!root.get())
+    return;
 
-    persistent_.reset(static_cast<DictionaryValue*>(root));
-    for (PreferenceSet::iterator it = prefs_.begin();
-         it != prefs_.end(); ++it) {
-      (*it)->root_pref_ = persistent_.get();
-    }
+  // Preferences should always have a dictionary root.
+  if (!root->IsType(Value::TYPE_DICTIONARY))
+    return;
+
+  persistent_.reset(static_cast<DictionaryValue*>(root.release()));
+  for (PreferenceSet::iterator it = prefs_.begin();
+       it != prefs_.end(); ++it) {
+    (*it)->root_pref_ = persistent_.get();
   }
 }
 

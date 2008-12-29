@@ -167,7 +167,7 @@ void BookmarkStorageBackend::Read(scoped_refptr<BookmarkStorage> service,
   Value* root = NULL;
   if (bookmark_file_exists) {
     JSONFileValueSerializer serializer(path);
-    serializer.Deserialize(&root, NULL);
+    root = serializer.Deserialize(NULL);
   }
 
   // BookmarkStorage takes ownership of root.

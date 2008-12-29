@@ -40,16 +40,15 @@ void PageState::InitWithBytes(const std::string& bytes) {
   state_.reset(new DictionaryValue);
 
   JSONStringValueSerializer serializer(bytes);
-  Value* root = NULL;
+  scoped_ptr<Value> root(serializer.Deserialize(NULL));
 
-  if (!serializer.Deserialize(&root, NULL))
+  if (!root.get()) {
     NOTREACHED();
-
-  if (root != NULL && root->GetType() == Value::TYPE_DICTIONARY) {
-    state_.reset(static_cast<DictionaryValue*>(root));
-  } else if (root) {
-    delete root;
+    return;
   }
+
+  if (root->GetType() == Value::TYPE_DICTIONARY)
+    state_.reset(static_cast<DictionaryValue*>(root.release()));
 }
 
 void PageState::GetByteRepresentation(std::string* out) const {

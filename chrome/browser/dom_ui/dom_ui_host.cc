@@ -78,9 +78,10 @@ void DOMUIHost::ProcessDOMUIMessage(const std::string& message,
     return;
 
   // Convert the content JSON into a Value.
-  Value* value = NULL;
+  scoped_ptr<Value> value;
   if (!content.empty()) {
-    if (!JSONReader::Read(content, &value, false)) {
+    value.reset(JSONReader::Read(content, false));
+    if (!value.get()) {
       // The page sent us something that we didn't understand.
       // This probably indicates a programming error.
       NOTREACHED();
@@ -89,8 +90,7 @@ void DOMUIHost::ProcessDOMUIMessage(const std::string& message,
   }
 
   // Forward this message and content on.
-  callback->second->Run(value);
-  delete value;
+  callback->second->Run(value.get());
 }
 
 WebPreferences DOMUIHost::GetWebkitPrefs() {

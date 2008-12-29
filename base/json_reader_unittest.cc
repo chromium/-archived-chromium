@@ -4,66 +4,55 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/json_reader.h"
+#include "base/scoped_ptr.h"
 #include "base/values.h"
 #include "build/build_config.h"
 
 TEST(JSONReaderTest, Reading) {
   // some whitespace checking
-  Value* root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("   null   ", &root, false, false));
-  ASSERT_TRUE(root);
+  scoped_ptr<Value> root;
+  root.reset(JSONReader().JsonToValue("   null   ", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_NULL));
-  delete root;
 
   // Invalid JSON string
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("nu", &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("nu", false, false));
+  ASSERT_FALSE(root.get());
 
   // Simple bool
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("true  ", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("true  ", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_BOOLEAN));
-  delete root;
 
   // Test number formats
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("43", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("43", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_INTEGER));
   int int_val = 0;
   ASSERT_TRUE(root->GetAsInteger(&int_val));
   ASSERT_EQ(43, int_val);
-  delete root;
 
   // According to RFC4627, oct, hex, and leading zeros are invalid JSON.
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("043", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("0x43", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("00", &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("043", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("0x43", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("00", false, false));
+  ASSERT_FALSE(root.get());
 
   // Test 0 (which needs to be special cased because of the leading zero
   // clause).
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("0", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("0", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_INTEGER));
   int_val = 1;
   ASSERT_TRUE(root->GetAsInteger(&int_val));
   ASSERT_EQ(0, int_val);
-  delete root;
 
   // Numbers that overflow ints should succeed, being internally promoted to
   // storage as doubles
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("2147483648", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("2147483648", false, false));
+  ASSERT_TRUE(root.get());
   double real_val;
 #ifdef ARCH_CPU_32_BITS
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
@@ -76,10 +65,8 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root->GetAsInteger(&int_val));
   ASSERT_EQ(2147483648, int_val);
 #endif
-  delete root;
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("-2147483649", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("-2147483649", false, false));
+  ASSERT_TRUE(root.get());
 #ifdef ARCH_CPU_32_BITS
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
@@ -91,250 +78,194 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root->GetAsInteger(&int_val));
   ASSERT_EQ(-2147483649, int_val);
 #endif
-  delete root;
 
   // Parse a double
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("43.1", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("43.1", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(43.1, real_val);
-  delete root;
 
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("4.3e-1", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("4.3e-1", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(.43, real_val);
-  delete root;
 
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("2.1e0", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("2.1e0", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(2.1, real_val);
-  delete root;
 
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("2.1e+0001", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("2.1e+0001", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(21.0, real_val);
-  delete root;
 
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("0.01", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("0.01", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(0.01, real_val);
-  delete root;
 
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("1.00", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("1.00", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
   real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(1.0, real_val);
-  delete root;
 
   // Fractional parts must have a digit before and after the decimal point.
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1.", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue(".1", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1.e10", &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("1.", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue(".1", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("1.e10", false, false));
+  ASSERT_FALSE(root.get());
 
   // Exponent must have a digit following the 'e'.
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1e", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1E", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1e1.", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1e1.0", &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("1e", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("1E", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("1e1.", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("1e1.0", false, false));
+  ASSERT_FALSE(root.get());
 
   // INF/-INF/NaN are not valid
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("1e1000", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("-1e1000", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("NaN", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("nan", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("inf", &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("1e1000", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("-1e1000", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("NaN", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("nan", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("inf", false, false));
+  ASSERT_FALSE(root.get());
 
   // Invalid number formats
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("4.3.1", &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("4e3.1", &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("4.3.1", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("4e3.1", false, false));
+  ASSERT_FALSE(root.get());
 
   // Test string parser
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("\"hello world\"", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("\"hello world\"", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_STRING));
   std::wstring str_val;
   ASSERT_TRUE(root->GetAsString(&str_val));
   ASSERT_EQ(L"hello world", str_val);
-  delete root;
 
   // Empty string
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("\"\"", &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("\"\"", false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_STRING));
   str_val.clear();
   ASSERT_TRUE(root->GetAsString(&str_val));
   ASSERT_EQ(L"", str_val);
-  delete root;
 
   // Test basic string escapes
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("\" \\\"\\\\\\/\\b\\f\\n\\r\\t\\v\"",
-                                       &root, false, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader().JsonToValue("\" \\\"\\\\\\/\\b\\f\\n\\r\\t\\v\"",
+                                      false, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_STRING));
   str_val.clear();
   ASSERT_TRUE(root->GetAsString(&str_val));
   ASSERT_EQ(L" \"\\/\b\f\n\r\t\v", str_val);
-  delete root;
 
   // Test hex and unicode escapes including the null character.
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("\"\\x41\\x00\\u1234\"", &root, false,
+  root.reset(JSONReader().JsonToValue("\"\\x41\\x00\\u1234\"", false,
                                       false));
-  ASSERT_TRUE(root);
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_STRING));
   str_val.clear();
   ASSERT_TRUE(root->GetAsString(&str_val));
   ASSERT_EQ(std::wstring(L"A\0\x1234", 3), str_val);
-  delete root;
 
   // Test invalid strings
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("\"no closing quote", &root, false,
-                                       false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("\"\\z invalid escape char\"", &root,
-                                       false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("\"\\xAQ invalid hex code\"", &root,
-                                       false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("not enough hex chars\\x1\"", &root,
-                                       false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("\"not enough escape chars\\u123\"",
-                                       &root, false, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("\"extra backslash at end of input\\\"",
-                                       &root, false, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader().JsonToValue("\"no closing quote", false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("\"\\z invalid escape char\"", false,
+                                      false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("\"\\xAQ invalid hex code\"", false,
+                                      false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("not enough hex chars\\x1\"", false,
+                                      false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("\"not enough escape chars\\u123\"",
+                                      false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("\"extra backslash at end of input\\\"",
+                                      false, false));
+  ASSERT_FALSE(root.get());
 
   // Basic array
-  root = NULL;
-  ASSERT_TRUE(JSONReader::Read("[true, false, null]", &root, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read("[true, false, null]", false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
-  ListValue* list = static_cast<ListValue*>(root);
+  ListValue* list = static_cast<ListValue*>(root.get());
   ASSERT_EQ(3U, list->GetSize());
 
   // Test with trailing comma.  Should be parsed the same as above.
-  Value* root2 = NULL;
-  ASSERT_TRUE(JSONReader::Read("[true, false, null, ]", &root2, true));
-  EXPECT_TRUE(root->Equals(root2));
-  delete root;
-  delete root2;
+  scoped_ptr<Value> root2;
+  root2.reset(JSONReader::Read("[true, false, null, ]", true));
+  EXPECT_TRUE(root->Equals(root2.get()));
 
   // Empty array
-  root = NULL;
-  ASSERT_TRUE(JSONReader::Read("[]", &root, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read("[]", false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
-  list = static_cast<ListValue*>(root);
+  list = static_cast<ListValue*>(root.get());
   ASSERT_EQ(0U, list->GetSize());
-  delete root;
 
   // Nested arrays
-  root = NULL;
-  ASSERT_TRUE(JSONReader::Read("[[true], [], [false, [], [null]], null]", &root,
-                               false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read("[[true], [], [false, [], [null]], null]",
+                              false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
-  list = static_cast<ListValue*>(root);
+  list = static_cast<ListValue*>(root.get());
   ASSERT_EQ(4U, list->GetSize());
 
   // Lots of trailing commas.
-  root2 = NULL;
-  ASSERT_TRUE(JSONReader::Read("[[true], [], [false, [], [null, ]  , ], null,]",
-                               &root2, true));
-  EXPECT_TRUE(root->Equals(root2));
-  delete root;
-  delete root2;
+  root2.reset(JSONReader::Read("[[true], [], [false, [], [null, ]  , ], null,]",
+                               true));
+  EXPECT_TRUE(root->Equals(root2.get()));
 
   // Invalid, missing close brace.
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("[[true], [], [false, [], [null]], null", &root,
-                                false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("[[true], [], [false, [], [null]], null", false));
+  ASSERT_FALSE(root.get());
 
   // Invalid, too many commas
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("[true,, null]", &root, false));
-  ASSERT_FALSE(root);
-  ASSERT_FALSE(JSONReader::Read("[true,, null]", &root, true));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("[true,, null]", false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("[true,, null]", true));
+  ASSERT_FALSE(root.get());
 
   // Invalid, no commas
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("[true null]", &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("[true null]", false));
+  ASSERT_FALSE(root.get());
 
   // Invalid, trailing comma
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("[true,]", &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("[true,]", false));
+  ASSERT_FALSE(root.get());
 
   // Valid if we set |allow_trailing_comma| to true.
-  EXPECT_TRUE(JSONReader::Read("[true,]", &root, true));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read("[true,]", true));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
-  list = static_cast<ListValue*>(root);
+  list = static_cast<ListValue*>(root.get());
   EXPECT_EQ(1U, list->GetSize());
   Value* tmp_value = NULL;
   ASSERT_TRUE(list->Get(0, &tmp_value));
@@ -342,34 +273,29 @@ TEST(JSONReaderTest, Reading) {
   bool bool_value = false;
   ASSERT_TRUE(tmp_value->GetAsBoolean(&bool_value));
   EXPECT_TRUE(bool_value);
-  delete root;
 
   // Don't allow empty elements, even if |allow_trailing_comma| is
   // true.
-  root = NULL;
-  EXPECT_FALSE(JSONReader::Read("[,]", &root, true));
-  EXPECT_FALSE(root);
-  EXPECT_FALSE(JSONReader::Read("[true,,]", &root, true));
-  EXPECT_FALSE(root);
-  EXPECT_FALSE(JSONReader::Read("[,true,]", &root, true));
-  EXPECT_FALSE(root);
-  EXPECT_FALSE(JSONReader::Read("[true,,false]", &root, true));
-  EXPECT_FALSE(root);
+  root.reset(JSONReader::Read("[,]", true));
+  EXPECT_FALSE(root.get());
+  root.reset(JSONReader::Read("[true,,]", true));
+  EXPECT_FALSE(root.get());
+  root.reset(JSONReader::Read("[,true,]", true));
+  EXPECT_FALSE(root.get());
+  root.reset(JSONReader::Read("[true,,false]", true));
+  EXPECT_FALSE(root.get());
 
   // Test objects
-  root = NULL;
-  ASSERT_TRUE(JSONReader::Read("{}", &root, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read("{}", false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
-  delete root;
 
-  root = NULL;
-  ASSERT_TRUE(JSONReader::Read(
-    "{\"number\":9.87654321, \"null\":null , \"\\x53\" : \"str\" }", &root,
+  root.reset(JSONReader::Read(
+    "{\"number\":9.87654321, \"null\":null , \"\\x53\" : \"str\" }",
     false));
-  ASSERT_TRUE(root);
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
-  DictionaryValue* dict_val = static_cast<DictionaryValue*>(root);
+  DictionaryValue* dict_val = static_cast<DictionaryValue*>(root.get());
   real_val = 0.0;
   ASSERT_TRUE(dict_val->GetReal(L"number", &real_val));
   ASSERT_DOUBLE_EQ(9.87654321, real_val);
@@ -380,21 +306,16 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(dict_val->GetString(L"S", &str_val));
   ASSERT_EQ(L"str", str_val);
 
-  root2 = NULL;
-  ASSERT_TRUE(JSONReader::Read(
-    "{\"number\":9.87654321, \"null\":null , \"\\x53\" : \"str\", }", &root2,
-    true));
-  EXPECT_TRUE(root->Equals(root2));
-  delete root;
-  delete root2;
+  root2.reset(JSONReader::Read(
+    "{\"number\":9.87654321, \"null\":null , \"\\x53\" : \"str\", }", true));
+  EXPECT_TRUE(root->Equals(root2.get()));
 
   // Test nesting
-  root = NULL;
-  ASSERT_TRUE(JSONReader::Read(
-    "{\"inner\":{\"array\":[true]},\"false\":false,\"d\":{}}", &root, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read(
+    "{\"inner\":{\"array\":[true]},\"false\":false,\"d\":{}}", false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
-  dict_val = static_cast<DictionaryValue*>(root);
+  dict_val = static_cast<DictionaryValue*>(root.get());
   DictionaryValue* inner_dict = NULL;
   ASSERT_TRUE(dict_val->GetDictionary(L"inner", &inner_dict));
   ListValue* inner_array = NULL;
@@ -406,61 +327,49 @@ TEST(JSONReaderTest, Reading) {
   inner_dict = NULL;
   ASSERT_TRUE(dict_val->GetDictionary(L"d", &inner_dict));
 
-  root2 = NULL;
-  ASSERT_TRUE(JSONReader::Read(
-    "{\"inner\": {\"array\":[true] , },\"false\":false,\"d\":{},}", &root2,
-    true));
-  EXPECT_TRUE(root->Equals(root2));
-  delete root;
-  delete root2;
+  root2.reset(JSONReader::Read(
+    "{\"inner\": {\"array\":[true] , },\"false\":false,\"d\":{},}", true));
+  EXPECT_TRUE(root->Equals(root2.get()));
 
   // Invalid, no closing brace
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{\"a\": true", &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("{\"a\": true", false));
+  ASSERT_FALSE(root.get());
 
   // Invalid, keys must be quoted
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{foo:true}", &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("{foo:true}", false));
+  ASSERT_FALSE(root.get());
 
   // Invalid, trailing comma
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{\"a\":true,}", &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("{\"a\":true,}", false));
+  ASSERT_FALSE(root.get());
 
   // Invalid, too many commas
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{\"a\":true,,\"b\":false}", &root, false));
-  ASSERT_FALSE(root);
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{\"a\":true,,\"b\":false}", &root, true));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("{\"a\":true,,\"b\":false}", false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("{\"a\":true,,\"b\":false}", true));
+  ASSERT_FALSE(root.get());
 
   // Invalid, no separator
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{\"a\" \"b\"}", &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("{\"a\" \"b\"}", false));
+  ASSERT_FALSE(root.get());
 
   // Invalid, lone comma.
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("{,}", &root, false));
-  ASSERT_FALSE(root);
-  ASSERT_FALSE(JSONReader::Read("{,}", &root, true));
-  ASSERT_FALSE(root);
-  ASSERT_FALSE(JSONReader::Read("{\"a\":true,,}", &root, true));
-  ASSERT_FALSE(root);
-  ASSERT_FALSE(JSONReader::Read("{,\"a\":true}", &root, true));
-  ASSERT_FALSE(root);
-  ASSERT_FALSE(JSONReader::Read("{\"a\":true,,\"b\":false}", &root, true));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read("{,}", false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("{,}", true));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("{\"a\":true,,}", true));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("{,\"a\":true}", true));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("{\"a\":true,,\"b\":false}", true));
+  ASSERT_FALSE(root.get());
 
   // Test stack overflow
-  root = NULL;
   std::string evil(1000000, '[');
   evil.append(std::string(1000000, ']'));
-  ASSERT_FALSE(JSONReader::Read(evil, &root, false));
-  ASSERT_FALSE(root);
+  root.reset(JSONReader::Read(evil, false));
+  ASSERT_FALSE(root.get());
 
   // A few thousand adjacent lists is fine.
   std::string not_evil("[");
@@ -469,58 +378,58 @@ TEST(JSONReaderTest, Reading) {
     not_evil.append("[],");
   }
   not_evil.append("[]]");
-  ASSERT_TRUE(JSONReader::Read(not_evil, &root, false));
-  ASSERT_TRUE(root);
+  root.reset(JSONReader::Read(not_evil, false));
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
-  list = static_cast<ListValue*>(root);
+  list = static_cast<ListValue*>(root.get());
   ASSERT_EQ(5001U, list->GetSize());
-  delete root;
 
   // Test utf8 encoded input
-  root = NULL;
-  ASSERT_TRUE(JSONReader().JsonToValue("\"\xe7\xbd\x91\xe9\xa1\xb5\"", &root,
+  root.reset(JSONReader().JsonToValue("\"\xe7\xbd\x91\xe9\xa1\xb5\"",
                                       false, false));
-  ASSERT_TRUE(root);
+  ASSERT_TRUE(root.get());
   ASSERT_TRUE(root->IsType(Value::TYPE_STRING));
   str_val.clear();
   ASSERT_TRUE(root->GetAsString(&str_val));
   ASSERT_EQ(L"\x7f51\x9875", str_val);
-  delete root;
 
   // Test invalid utf8 encoded input
-  root = NULL;
-  ASSERT_FALSE(JSONReader().JsonToValue("\"345\xb0\xa1\xb0\xa2\"", &root,
-                                       false, false));
-  ASSERT_FALSE(JSONReader().JsonToValue("\"123\xc0\x81\"", &root,
-                                       false, false));
+  root.reset(JSONReader().JsonToValue("\"345\xb0\xa1\xb0\xa2\"",
+                                      false, false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader().JsonToValue("\"123\xc0\x81\"",
+                                      false, false));
+  ASSERT_FALSE(root.get());
 
   // Test invalid root objects.
-  root = NULL;
-  ASSERT_FALSE(JSONReader::Read("null", &root, false));
-  ASSERT_FALSE(JSONReader::Read("true", &root, false));
-  ASSERT_FALSE(JSONReader::Read("10", &root, false));
-  ASSERT_FALSE(JSONReader::Read("\"root\"", &root, false));
+  root.reset(JSONReader::Read("null", false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("true", false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("10", false));
+  ASSERT_FALSE(root.get());
+  root.reset(JSONReader::Read("\"root\"", false));
+  ASSERT_FALSE(root.get());
 }
 
 TEST(JSONReaderTest, ErrorMessages) {
   // Error strings should not be modified in case of success.
   std::string error_message;
-  Value* root = NULL;
-  EXPECT_TRUE(JSONReader::ReadAndReturnError("[42]", &root, false,
-                                             &error_message));
+  scoped_ptr<Value> root;
+  root.reset(JSONReader::ReadAndReturnError("[42]", false, &error_message));
   EXPECT_TRUE(error_message.empty());
 
   // Test line and column counting
   const char* big_json = "[\n0,\n1,\n2,\n3,4,5,6 7,\n8,\n9\n]";
   // error here --------------------------------^
-  EXPECT_FALSE(JSONReader::ReadAndReturnError(big_json, &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError(big_json, false, &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(5, 9, JSONReader::kSyntaxError),
             error_message);
 
   // Test each of the error conditions
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("{},{}", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("{},{}", false, &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 3,
       JSONReader::kUnexpectedDataAfterRoot), error_message);
 
@@ -529,50 +438,55 @@ TEST(JSONReaderTest, ErrorMessages) {
     nested_json.insert(nested_json.begin(), '[');
     nested_json.append(1, ']');
   }
-  EXPECT_FALSE(JSONReader::ReadAndReturnError(nested_json, &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError(nested_json, false,
+                                            &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 101, JSONReader::kTooMuchNesting),
             error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("42", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("42", false, &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 1,
       JSONReader::kBadRootElementType), error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("[1,]", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("[1,]", false, &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 4, JSONReader::kTrailingComma),
             error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("{foo:\"bar\"}", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("{foo:\"bar\"}", false,
+                                            &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 2,
       JSONReader::kUnquotedDictionaryKey), error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("{\"foo\":\"bar\",}", &root,
-                                              false, &error_message));
+  root.reset(JSONReader::ReadAndReturnError("{\"foo\":\"bar\",}", false,
+                                            &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 14, JSONReader::kTrailingComma),
             error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("[nu]", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("[nu]", false, &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 2, JSONReader::kSyntaxError),
             error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("[\"xxx\\xq\"]", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("[\"xxx\\xq\"]", false,
+                                            &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 7, JSONReader::kInvalidEscape),
             error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("[\"xxx\\uq\"]", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("[\"xxx\\uq\"]", false,
+                                            &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 7, JSONReader::kInvalidEscape),
             error_message);
 
-  EXPECT_FALSE(JSONReader::ReadAndReturnError("[\"xxx\\q\"]", &root, false,
-                                              &error_message));
+  root.reset(JSONReader::ReadAndReturnError("[\"xxx\\q\"]", false,
+                                            &error_message));
+  EXPECT_FALSE(root.get());
   EXPECT_EQ(JSONReader::FormatErrorMessage(1, 7, JSONReader::kInvalidEscape),
             error_message);
 
-  delete root;
 }

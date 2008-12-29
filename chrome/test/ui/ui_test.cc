@@ -497,13 +497,11 @@ static DictionaryValue* LoadDictionaryValueFromPath(const std::wstring& path) {
     return NULL;
 
   JSONFileValueSerializer serializer(path);
-  Value* root_value = NULL;
-  if (serializer.Deserialize(&root_value, NULL) &&
-      root_value->GetType() != Value::TYPE_DICTIONARY) {
-    delete root_value;
+  scoped_ptr<Value> root_value(serializer.Deserialize(NULL));
+  if (!root_value.get() || root_value->GetType() != Value::TYPE_DICTIONARY)
     return NULL;
-  }
-  return static_cast<DictionaryValue*>(root_value);
+
+  return static_cast<DictionaryValue*>(root_value.release());
 }
 
 DictionaryValue* UITest::GetLocalState() {

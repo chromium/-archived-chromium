@@ -83,8 +83,8 @@ void DebuggerHostImpl::Debug(TabContents* tab) {
 
 void DebuggerHostImpl::DebugMessage(const std::wstring& msg) {
 
-  Value* msg_value = NULL;
-  if (!JSONReader::Read(WideToUTF8(msg), &msg_value, false)) {
+  Value* msg_value = JSONReader::Read(WideToUTF8(msg), false);
+  if (!msg_value) {
     msg_value = Value::CreateStringValue(L"Message parse error!");
   }
   ListValue* argv = new ListValue;

@@ -88,15 +88,14 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
     }
 
     JSONFileValueSerializer serializer(manifest_path.ToWStringHack());
-    Value* root = NULL;
     std::string error;
-    if (!serializer.Deserialize(&root, &error)) {
+    scoped_ptr<Value> root(serializer.Deserialize(&error));
+    if (!root.get()) {
       ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
                                error);
       continue;
     }
 
-    scoped_ptr<Value> scoped_root(root);
     if (!root->IsType(Value::TYPE_DICTIONARY)) {
       ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
                                Extension::kInvalidManifestError);
@@ -104,7 +103,7 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
     }
 
     scoped_ptr<Extension> extension(new Extension(child_path));
-    if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root),
+    if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root.get()),
                                   &error)) {
       ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
                                error);

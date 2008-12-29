@@ -85,22 +85,19 @@ class JSONReader {
   static const char* kUnsupportedEncoding;
   static const char* kUnquotedDictionaryKey;
 
-  // Reads and parses |json| and populates |root|. If |json| is not a properly
-  // formed JSON string, returns false, leaves root unaltered and sets
-  // error_message if it was non-null. If allow_trailing_comma is true, we will
-  // ignore trailing commas in objects and arrays even though this goes against
-  // the RFC.
-  static bool Read(const std::string& json,
-                   Value** root,
-                   bool allow_trailing_comma);
+  // Reads and parses |json|, returning a Value. The caller owns the returned
+  // instance. If |json| is not a properly formed JSON string, returns NULL.
+  // If allow_trailing_comma is true, we will ignore trailing commas in objects
+  // and arrays even though this goes against the RFC.
+  static Value* Read(const std::string& json,
+                     bool allow_trailing_comma);
 
   // Reads and parses |json| like Read(). |error_message_out| is optional. If
-  // specified and false is returned, error_message_out will be populated with
+  // specified and NULL is returned, error_message_out will be populated with
   // a string describing the error. Otherwise, error_message_out is unmodified.
-  static bool ReadAndReturnError(const std::string& json,
-                                 Value** root,
-                                 bool allow_trailing_comma,
-                                 std::string *error_message_out);
+  static Value* ReadAndReturnError(const std::string& json,
+                                   bool allow_trailing_comma,
+                                   std::string *error_message_out);
 
  private:
   static std::string FormatErrorMessage(int line, int column,
@@ -118,13 +115,13 @@ class JSONReader {
 
   // Pass through method from JSONReader::Read.  We have this so unittests can
   // disable the root check.
-  bool JsonToValue(const std::string& json, Value** root, bool check_root,
-                   bool allow_trailing_comma);
+  Value* JsonToValue(const std::string& json, bool check_root,
+                     bool allow_trailing_comma);
 
-  // Recursively build Value.  Returns false if we don't have a valid JSON
+  // Recursively build Value.  Returns NULL if we don't have a valid JSON
   // string.  If |is_root| is true, we verify that the root element is either
   // an object or an array.
-  bool BuildValue(Value** root, bool is_root);
+  Value* BuildValue(bool is_root);
 
   // Parses a sequence of characters into a Token::NUMBER. If the sequence of
   // characters is not a valid number, returns a Token::INVALID_TOKEN. Note
@@ -133,9 +130,8 @@ class JSONReader {
   Token ParseNumberToken();
 
   // Try and convert the substring that token holds into an int or a double. If
-  // we can (ie., no overflow), return true and create the appropriate value
-  // for |node|.  Return false if we can't do the conversion.
-  bool DecodeNumber(const Token& token, Value** node);
+  // we can (ie., no overflow), return the value, else return NULL.
+  Value* DecodeNumber(const Token& token);
 
   // Parses a sequence of characters into a Token::STRING. If the sequence of
   // characters is not a valid string, returns a Token::INVALID_TOKEN. Note
@@ -146,7 +142,7 @@ class JSONReader {
   // Convert the substring into a value string.  This should always succeed
   // (otherwise ParseStringToken would have failed), but returns a success bool
   // just in case.
-  bool DecodeString(const Token& token, Value** node);
+  Value* DecodeString(const Token& token);
 
   // Grabs the next token in the JSON stream.  This does not increment the
   // stream so it can be used to look ahead at the next token.

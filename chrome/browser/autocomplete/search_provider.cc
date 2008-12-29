@@ -129,13 +129,14 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
     }
   }
 
-  JSONStringValueSerializer deserializer(json_data);
-  deserializer.set_allow_trailing_comma(true);
-  Value* root_val = NULL;
-  have_suggest_results_ = status.is_success() && (response_code == 200) &&
-      deserializer.Deserialize(&root_val, NULL) &&
-      ParseSuggestResults(root_val);
-  delete root_val;
+  if (status.is_success() && response_code == 200) {
+    JSONStringValueSerializer deserializer(json_data);
+    deserializer.set_allow_trailing_comma(true);
+    scoped_ptr<Value> root_val(deserializer.Deserialize(NULL));
+    have_suggest_results_ =
+        root_val.get() && ParseSuggestResults(root_val.get());
+  }
+
   ConvertResultsToAutocompleteMatches();
   listener_->OnProviderUpdate(!suggest_results_.empty());
 }

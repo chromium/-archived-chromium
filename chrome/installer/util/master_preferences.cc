@@ -12,14 +12,13 @@ namespace {
 
 DictionaryValue* ReadJSONPrefs(const std::string& data) {
   JSONStringValueSerializer json(data);
-  Value* root;
-  if (!json.Deserialize(&root, NULL))
+  scoped_ptr<Value> root(json.Deserialize(NULL));
+  if (!root.get())
     return NULL;
-  if (!root->IsType(Value::TYPE_DICTIONARY)) {
-    delete root;
+  if (!root->IsType(Value::TYPE_DICTIONARY))
     return NULL;
-  }
-  return static_cast<DictionaryValue*>(root);
+
+  return static_cast<DictionaryValue*>(root.release());
 }
 
 bool GetBooleanPref(const DictionaryValue* prefs, const std::wstring& name) {

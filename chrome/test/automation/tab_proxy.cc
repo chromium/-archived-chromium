@@ -555,10 +555,10 @@ bool TabProxy::ExecuteAndExtractValue(const std::wstring& frame_xpath,
   json.append("]");
 
   JSONStringValueSerializer deserializer(json);
-  succeeded = deserializer.Deserialize(value, NULL);
+  *value = deserializer.Deserialize(NULL);
 
   delete response;
-  return succeeded;
+  return *value != NULL;
 }
 
 bool TabProxy::GetConstrainedWindowCount(int* count) const {

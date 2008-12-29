@@ -155,14 +155,16 @@ TEST_F(PrefServiceTest, Overlay) {
   Value* transient_value;
   {
     JSONStringValueSerializer serializer(transient);
-    ASSERT_TRUE(serializer.Deserialize(&transient_value, NULL));
+    transient_value = serializer.Deserialize(NULL);
+    ASSERT_TRUE(transient_value);
   }
   prefs.transient()->Set(transient_string, transient_value);
 
   Value* both_transient_value;
   {
     JSONStringValueSerializer serializer(transient);
-    ASSERT_TRUE(serializer.Deserialize(&both_transient_value, NULL));
+    both_transient_value = serializer.Deserialize(NULL);
+    ASSERT_TRUE(both_transient_value);
   }
   prefs.transient()->Set(L"both", both_transient_value);
 

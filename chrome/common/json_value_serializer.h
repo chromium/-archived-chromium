@@ -39,12 +39,9 @@ class JSONStringValueSerializer : public ValueSerializer {
 
   // Attempt to deserialize the data structure encoded in the string passed
   // in to the constructor into a structure of Value objects.  If the return
-  // value is true, the |root| parameter will be set to point to a new Value
-  // object that corresponds to the values represented in the string.  The
-  // caller takes ownership of the returned Value objects. Otherwise, the root
-  // value will be changed and if |error_message| is non-null, it will contain
+  // value is NULL and |error_message| is non-null, |error-message| will contain
   // a string describing the error.
-  bool Deserialize(Value** root, std::string* error_message);
+  Value* Deserialize(std::string* error_message);
 
   void set_pretty_print(bool new_value) { pretty_print_ = new_value; }
   bool pretty_print() { return pretty_print_; }
@@ -86,12 +83,9 @@ class JSONFileValueSerializer : public ValueSerializer {
 
   // Attempt to deserialize the data structure encoded in the file passed
   // in to the constructor into a structure of Value objects.  If the return
-  // value is true, the |root| parameter will be set to point to a new Value
-  // object that corresponds to the values represented in the file.  The
-  // caller takes ownership of the returned Value objects. Otherwise, the root
-  // value will be changed and if |error_message| is non-null, it will contain
-  // a string describing the error.
-  bool Deserialize(Value** root, std::string* error_message);
+  // value is NULL, and if |error_message| is non-null, |error_message| will
+  // contain a string describing the error.
+  Value* Deserialize(std::string* error_message);
 
  private:
   std::wstring json_file_path_;
