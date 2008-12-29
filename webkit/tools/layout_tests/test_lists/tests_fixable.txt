@@ -1381,7 +1381,6 @@ MAC : LayoutTests/tables/mozilla/bugs/bug24200.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug2479-3.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug2479-4.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug28928.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug2962.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug39209.html = FAIL
@@ -1393,7 +1392,6 @@ MAC : LayoutTests/tables/mozilla/bugs/bug46368-2.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug51037.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug53690-1.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug55545.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug56201.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug59354.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug7342.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug9024.html = FAIL
@@ -1526,19 +1524,13 @@ MAC : LayoutTests/fast/forms/hidden-input-file.html = FAIL
 
 // incorrect layout
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
-MAC : LayoutTests/fast/encoding/utf-16-big-endian.html = FAIL
-MAC : LayoutTests/fast/encoding/utf-16-little-endian.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
 MAC : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
 MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
-MAC : LayoutTests/tables/mozilla/collapsing_borders/bug41262-3.html = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
 MAC : LayoutTests/editing/deleting/5408255.html = FAIL
 MAC : LayoutTests/editing/pasteboard/5006779.html = FAIL
-// These started failing around 2008/12/12
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/hixie/perf/007.xml = FAIL
 
 // not loading local files
 MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
@@ -1592,7 +1584,8 @@ MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH
-MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
+// passing as of 12/29/08, remove this once it proves to be passing and no longer flaky.
+//   MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
@@ -1602,8 +1595,6 @@ MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
 
 //  no html tags, bad html (unmatched tags)
 MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
-// Script doesn't seem to run full tests before crashing
-MAC DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-width-prop.html = CRASH
 // Script -- onload hooks
 MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
 
@@ -1710,7 +1701,7 @@ WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
 // This test needs to be rebaselined on Mac/Linux.
-LINUX MAC : LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
+LINUX : LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
 // This test needs to be rebaselined on Mac/Linux.
 LINUX MAC : LayoutTests/animations/keyframes-rule.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
@@ -1736,8 +1727,6 @@ LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-i
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
 LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
-// eventSender to fake a drag
-MAC : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-in-iframe.html = FAIL
 // eventSender to fake a drag
 MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 // Missing expected results.
@@ -1773,7 +1762,7 @@ WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
-LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
+LINUX WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
 LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
 LayoutTests/fast/forms/search-rtl.html = FAIL
 LayoutTests/fast/forms/search-transformed.html = FAIL
