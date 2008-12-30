@@ -42,6 +42,10 @@
 		049C0F6F0F00D7CA005BBE56 /* TextBoundariesICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91DC0D7F3CC3001ECF42 /* TextBoundariesICU.cpp */; };
 		04C3AFC30EF1E43D0046D578 /* NavigatorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */; };
 		04C3AFC60EF1E45F0046D578 /* WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */; };
+		3CF1E7470F09B352009BC1A7 /* Threading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E7460F09B352009BC1A7 /* Threading.cpp */; };
+		3CF1E74C0F09B3FA009BC1A7 /* ThreadGlobalData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E74A0F09B3FA009BC1A7 /* ThreadGlobalData.cpp */; };
+		3CF1E7530F09B425009BC1A7 /* RenderTextControlMultiLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E74F0F09B425009BC1A7 /* RenderTextControlMultiLine.cpp */; };
+		3CF1E7540F09B425009BC1A7 /* RenderTextControlSingleLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E7510F09B425009BC1A7 /* RenderTextControlSingleLine.cpp */; };
 		4103039F0EFB0F7C008832CA /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103039E0EFB0F7C008832CA /* CachedPage.cpp */; };
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
@@ -1467,6 +1471,14 @@
 		3CBAF5FE0EFC893600E752CB /* TransformOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformOperations.h; sourceTree = "<group>"; };
 		3CBAF5FF0EFC893600E752CB /* TranslateTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TranslateTransformOperation.cpp; sourceTree = "<group>"; };
 		3CBAF6000EFC893600E752CB /* TranslateTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TranslateTransformOperation.h; sourceTree = "<group>"; };
+		3CF1E7460F09B352009BC1A7 /* Threading.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Threading.cpp; sourceTree = "<group>"; };
+		3CF1E74A0F09B3FA009BC1A7 /* ThreadGlobalData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadGlobalData.cpp; sourceTree = "<group>"; };
+		3CF1E74B0F09B3FA009BC1A7 /* ThreadGlobalData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadGlobalData.h; sourceTree = "<group>"; };
+		3CF1E74F0F09B425009BC1A7 /* RenderTextControlMultiLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTextControlMultiLine.cpp; sourceTree = "<group>"; };
+		3CF1E7500F09B425009BC1A7 /* RenderTextControlMultiLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTextControlMultiLine.h; sourceTree = "<group>"; };
+		3CF1E7510F09B425009BC1A7 /* RenderTextControlSingleLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTextControlSingleLine.cpp; sourceTree = "<group>"; };
+		3CF1E7520F09B425009BC1A7 /* RenderTextControlSingleLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTextControlSingleLine.h; sourceTree = "<group>"; };
+		3CF1E7570F09B441009BC1A7 /* FormControlElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormControlElement.h; sourceTree = "<group>"; };
 		410303530EFB0C7C008832CA /* ScriptCachedPageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCachedPageData.h; sourceTree = "<group>"; };
 		4103039E0EFB0F7C008832CA /* CachedPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CachedPage.cpp; sourceTree = "<group>"; };
 		410303A10EFB0F8D008832CA /* CachedPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPage.h; sourceTree = "<group>"; };
@@ -4717,6 +4729,7 @@
 				7B5E85D70D7F28F5001ECF42 /* TCSpinLock.h */,
 				7B5E85D80D7F28F5001ECF42 /* TCSystemAlloc.cpp */,
 				7B5E85D90D7F28F5001ECF42 /* TCSystemAlloc.h */,
+				3CF1E7460F09B352009BC1A7 /* Threading.cpp */,
 				4DB7F5260E9BD3FB00C66CE0 /* Threading.h */,
 				4DB7F5270E9BD3FB00C66CE0 /* ThreadingPthreads.cpp */,
 				4DB7F5280E9BD3FB00C66CE0 /* ThreadSpecific.h */,
@@ -4984,6 +4997,7 @@
 				7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */,
 				7B5E8A0A0D7F3A7C001ECF42 /* ExceptionCode.cpp */,
 				7B5E8A0B0D7F3A7C001ECF42 /* ExceptionCode.h */,
+				3CF1E7570F09B441009BC1A7 /* FormControlElement.h */,
 				7B5E8A0C0D7F3A7C001ECF42 /* KeyboardEvent.cpp */,
 				7B5E8A0D0D7F3A7C001ECF42 /* KeyboardEvent.h */,
 				7B5E8A110D7F3A7C001ECF42 /* MappedAttribute.cpp */,
@@ -5707,6 +5721,8 @@
 				4D16411C0EC29D01008F024E /* Theme.h */,
 				4D16411D0EC29D01008F024E /* ThemeTypes.h */,
 				7B5E91F90D7F3CC3001ECF42 /* ThreadCheck.h */,
+				3CF1E74A0F09B3FA009BC1A7 /* ThreadGlobalData.cpp */,
+				3CF1E74B0F09B3FA009BC1A7 /* ThreadGlobalData.h */,
 				7B5E91FC0D7F3CC3001ECF42 /* Timer.cpp */,
 				7B5E91FD0D7F3CC3001ECF42 /* Timer.h */,
 				4D16411E0EC29D01008F024E /* TreeShared.h */,
@@ -6196,6 +6212,10 @@
 				B5C180A80E958F0E006EAF87 /* RenderText.h */,
 				7B5E959D0D7F3E95001ECF42 /* RenderTextControl.cpp */,
 				7B5E959E0D7F3E95001ECF42 /* RenderTextControl.h */,
+				3CF1E74F0F09B425009BC1A7 /* RenderTextControlMultiLine.cpp */,
+				3CF1E7500F09B425009BC1A7 /* RenderTextControlMultiLine.h */,
+				3CF1E7510F09B425009BC1A7 /* RenderTextControlSingleLine.cpp */,
+				3CF1E7520F09B425009BC1A7 /* RenderTextControlSingleLine.h */,
 				7B5E959F0D7F3E95001ECF42 /* RenderTextFragment.cpp */,
 				7B5E95A00D7F3E95001ECF42 /* RenderTextFragment.h */,
 				7B5E95A10D7F3E95001ECF42 /* RenderTheme.cpp */,
@@ -8140,6 +8160,7 @@
 				4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */,
 				E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */,
 				7B5E86090D7F28F5001ECF42 /* TCSystemAlloc.cpp in Sources */,
+				3CF1E7470F09B352009BC1A7 /* Threading.cpp in Sources */,
 				4DB7F52A0E9BD3FB00C66CE0 /* ThreadingPthreads.cpp in Sources */,
 				7B5E860E0D7F28F5001ECF42 /* UTF8.cpp in Sources */,
 			);
@@ -8977,6 +8998,8 @@
 				E45625890E268E87005E4685 /* RenderTableSection.cpp in Sources */,
 				E456258A0E268E87005E4685 /* RenderText.cpp in Sources */,
 				E456258B0E268E87005E4685 /* RenderTextControl.cpp in Sources */,
+				3CF1E7530F09B425009BC1A7 /* RenderTextControlMultiLine.cpp in Sources */,
+				3CF1E7540F09B425009BC1A7 /* RenderTextControlSingleLine.cpp in Sources */,
 				E456258C0E268E87005E4685 /* RenderTextFragment.cpp in Sources */,
 				E456258D0E268E87005E4685 /* RenderTheme.cpp in Sources */,
 				41A362390F0032B100778012 /* RenderThemeChromiumMac.mm in Sources */,
@@ -9272,6 +9295,7 @@
 				E45624180E268E87005E4685 /* TextIterator.cpp in Sources */,
 				E45624990E268E87005E4685 /* TextResourceDecoder.cpp in Sources */,
 				E45625460E268E87005E4685 /* TextStream.cpp in Sources */,
+				3CF1E74C0F09B3FA009BC1A7 /* ThreadGlobalData.cpp in Sources */,
 				E45625480E268E87005E4685 /* Timer.cpp in Sources */,
 				E45624760E268E87005E4685 /* TimeRanges.cpp in Sources */,
 				41822B070F0000F70034A67A /* TransformOperations.cpp in Sources */,

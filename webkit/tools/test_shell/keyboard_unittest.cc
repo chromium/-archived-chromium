@@ -7,7 +7,6 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "EventNames.h"
 #include "EventTarget.h"
 #include "KeyboardCodes.h"
 #include "KeyboardEvent.h"
@@ -27,7 +26,6 @@ class KeyboardTest : public testing::Test {
  public:
   void SetUp() {
     WTF::initializeThreading();
-    WebCore::EventNames::init();
   }
 
   // Pass a WebKeyboardEvent into the EditorClient and get back the string

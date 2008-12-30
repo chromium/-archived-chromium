@@ -154,6 +154,7 @@ wtf_inputs = [
     '$WTF_DIR/RandomNumber.cpp',
     '$WTF_DIR/RefCountedLeakCounter.cpp',
     '$WTF_DIR/TCSystemAlloc.cpp',
+    '$WTF_DIR/Threading.cpp',
     '$WTF_DIR/unicode/UTF8.cpp',
     '$WTF_DIR/unicode/icu/CollatorICU.cpp',
 ]

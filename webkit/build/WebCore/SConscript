@@ -421,6 +421,7 @@ input_files = [
     '$WEBCORE_DIR/platform/ScrollbarThemeComposite.cpp',
     '$WEBCORE_DIR/platform/ScrollView.cpp',
     '$WEBCORE_DIR/platform/SharedBuffer.cpp',
+    '$WEBCORE_DIR/platform/ThreadGlobalData.cpp',
     '$WEBCORE_DIR/platform/Timer.cpp',
     '$WEBCORE_DIR/platform/Widget.cpp',
 
@@ -638,6 +639,8 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderTableSection.cpp',
     '$WEBCORE_DIR/rendering/RenderText.cpp',
     '$WEBCORE_DIR/rendering/RenderTextControl.cpp',
+    '$WEBCORE_DIR/rendering/RenderTextControlMultiLine.cpp',
+    '$WEBCORE_DIR/rendering/RenderTextControlSingleLine.cpp',
     '$WEBCORE_DIR/rendering/RenderTextFragment.cpp',
     '$WEBCORE_DIR/rendering/RenderTheme.cpp',
     '$WEBCORE_DIR/rendering/RenderTreeAsText.cpp',
