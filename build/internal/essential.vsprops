@@ -56,7 +56,7 @@
 	/>
 	<UserMacro
 		Name="SDK"
-		Value="$(SolutionDir)..\third_party\platformsdk_win2008_6_1\files"
+		Value="$(SolutionDir)..\third_party\platformsdk_vista_6_0\files"
 	/>
 	<UserMacro
 		Name="SDKIncludes"

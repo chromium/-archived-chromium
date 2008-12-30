@@ -46,7 +46,8 @@ if env.Bit('windows'):
           ('_HAS_TR1', 0),
       ],
       CPPPATH = [
-          '$PLATFORMSDK_6_1/Include',
+          '$PLATFORMSDK_VISTA/Include',
+          '$PLATFORMSDK_VISTA/VC/INCLUDE',
           '$VISUAL_STUDIO/VC/atlmfc/include',
       ],
       CCFLAGS = [
@@ -75,7 +76,8 @@ if env.Bit('windows'):
           '/wd4819',
       ],
       LIBPATH = [
-          '$PLATFORMSDK_6_1/Lib',
+          '$PLATFORMSDK_VISTA/Lib',
+          '$PLATFORMSDK_VISTA/VC/LIB',
           '$VISUAL_STUDIO/VC/atlmfc/lib',
       ],
       LIBS = [

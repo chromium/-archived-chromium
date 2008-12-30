@@ -1615,6 +1615,14 @@
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\UniscribeHelperTextRun.h"
 						>
 					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\opentype\OpenTypeUtilities.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\opentype\OpenTypeUtilities.h"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="skia"
