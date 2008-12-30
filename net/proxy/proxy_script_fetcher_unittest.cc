@@ -181,23 +181,25 @@ TEST_F(ProxyScriptFetcherTest, FileUrl) {
 // Note that all mime types are allowed for PAC file, to be consistent
 // with other browsers.
 TEST_F(ProxyScriptFetcherTest, HttpMimeType) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
   { // Fetch a PAC with mime type "text/plain"
-    GURL url = server.TestServerPage("files/pac.txt");
+    GURL url = server->TestServerPage("files/pac.txt");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::OK, result.code);
     EXPECT_EQ("-pac.txt-\n", result.bytes);
   }
   { // Fetch a PAC with mime type "text/html"
-    GURL url = server.TestServerPage("files/pac.html");
+    GURL url = server->TestServerPage("files/pac.html");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::OK, result.code);
     EXPECT_EQ("-pac.html-\n", result.bytes);
   }
   { // Fetch a PAC with mime type "application/x-ns-proxy-autoconfig"
-    GURL url = server.TestServerPage("files/pac.nsproxy");
+    GURL url = server->TestServerPage("files/pac.nsproxy");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::OK, result.code);
     EXPECT_EQ("-pac.nsproxy-\n", result.bytes);
@@ -205,17 +207,19 @@ TEST_F(ProxyScriptFetcherTest, HttpMimeType) {
 }
 
 TEST_F(ProxyScriptFetcherTest, HttpStatusCode) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
   { // Fetch a PAC which gives a 500 -- FAIL
-    GURL url = server.TestServerPage("files/500.pac");
+    GURL url = server->TestServerPage("files/500.pac");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::ERR_PAC_STATUS_NOT_OK, result.code);
     EXPECT_TRUE(result.bytes.empty());
   }
   { // Fetch a PAC which gives a 404 -- FAIL
-    GURL url = server.TestServerPage("files/404.pac");
+    GURL url = server->TestServerPage("files/404.pac");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::ERR_PAC_STATUS_NOT_OK, result.code);
     EXPECT_TRUE(result.bytes.empty());
@@ -223,19 +227,23 @@ TEST_F(ProxyScriptFetcherTest, HttpStatusCode) {
 }
 
 TEST_F(ProxyScriptFetcherTest, ContentDisposition) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
   // Fetch PAC scripts via HTTP with a Content-Disposition header -- should
   // have no effect.
-  GURL url = server.TestServerPage("files/downloadable.pac");
+  GURL url = server->TestServerPage("files/downloadable.pac");
   FetchResult result = pac_fetcher.Fetch(url);
   EXPECT_EQ(net::OK, result.code);
   EXPECT_EQ("-downloadable.pac-\n", result.bytes);
 }
 
 TEST_F(ProxyScriptFetcherTest, TooLarge) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
   // Set the maximum response size to 50 bytes.
@@ -243,7 +251,7 @@ TEST_F(ProxyScriptFetcherTest, TooLarge) {
 
   // These two URLs are the same file, but are http:// vs file://
   GURL urls[] = {
-    server.TestServerPage("files/large-pac.nsproxy"),
+    server->TestServerPage("files/large-pac.nsproxy"),
     GetTestFileUrl("large-pac.nsproxy")
   };
 
@@ -260,7 +268,7 @@ TEST_F(ProxyScriptFetcherTest, TooLarge) {
   net::ProxyScriptFetcher::SetSizeConstraintForUnittest(prev_size);
 
   { // Make sure we can still fetch regular URLs.
-    GURL url = server.TestServerPage("files/pac.nsproxy");
+    GURL url = server->TestServerPage("files/pac.nsproxy");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::OK, result.code);
     EXPECT_EQ("-pac.nsproxy-\n", result.bytes);
@@ -268,7 +276,9 @@ TEST_F(ProxyScriptFetcherTest, TooLarge) {
 }
 
 TEST_F(ProxyScriptFetcherTest, Hang) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
   // Set the timeout period to 0.5 seconds.
@@ -277,7 +287,7 @@ TEST_F(ProxyScriptFetcherTest, Hang) {
 
   // Try fetching a URL which takes 1.2 seconds. We should abort the request
   // after 500 ms, and fail with a timeout error.
-  { GURL url = server.TestServerPage("slow/proxy.pac?1.2");
+  { GURL url = server->TestServerPage("slow/proxy.pac?1.2");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::ERR_TIMED_OUT, result.code);
     EXPECT_TRUE(result.bytes.empty());
@@ -287,7 +297,7 @@ TEST_F(ProxyScriptFetcherTest, Hang) {
   net::ProxyScriptFetcher::SetTimeoutConstraintForUnittest(prev_timeout);
 
   { // Make sure we can still fetch regular URLs.
-    GURL url = server.TestServerPage("files/pac.nsproxy");
+    GURL url = server->TestServerPage("files/pac.nsproxy");
     FetchResult result = pac_fetcher.Fetch(url);
     EXPECT_EQ(net::OK, result.code);
     EXPECT_EQ("-pac.nsproxy-\n", result.bytes);

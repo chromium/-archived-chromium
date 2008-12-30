@@ -145,8 +145,10 @@ TEST_F(SessionRestoreUITest, RestoresForwardAndBackwardNavs) {
 // cross-site page and then forward again works.  (Bug 1204135)
 TEST_F(SessionRestoreUITest, RestoresCrossSiteForwardAndBackwardNavs) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
-  TestServer server(kDocRoot);
-  GURL cross_site_url(server.TestServerPageW(L"files/title2.html"));
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
+  GURL cross_site_url(server->TestServerPageW(L"files/title2.html"));
 
   // Visit URLs on different sites.
   NavigateToURL(url1);

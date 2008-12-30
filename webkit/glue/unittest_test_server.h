@@ -14,14 +14,22 @@ using webkit_glue::ResourceLoaderBridge;
 // We need to use ResourceLoaderBridge to communicate with the testserver
 // instead of using URLRequest directly because URLRequests need to be run on
 // the test_shell's IO thread.
-class UnittestTestServer : public TestServer {
- public:
-  UnittestTestServer() : TestServer(TestServer::ManualInit()) {
-    Init("localhost", 1337, L"webkit/data", std::wstring());
+class UnittestTestServer : public HTTPTestServer {
+ protected:
+  UnittestTestServer() {
   }
 
-  ~UnittestTestServer() {
-    Shutdown();
+ public:
+  static UnittestTestServer* CreateServer() {
+    UnittestTestServer* test_server = new UnittestTestServer();
+    if (!test_server->Init("localhost", 1337, L"webkit/data")) {
+      delete test_server;
+      return NULL;
+    }
+    return test_server;
+  }
+
+  virtual ~UnittestTestServer() {
   }
 
   virtual bool MakeGETRequest(const std::string& page_name) {

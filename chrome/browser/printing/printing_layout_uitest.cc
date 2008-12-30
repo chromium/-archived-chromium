@@ -457,7 +457,8 @@ class DismissTheWindow : public base::RefCountedThreadSafe<DismissTheWindow> {
             dialog_window,
             WM_COMMAND,
             print_button_id,
-            reinterpret_cast<LPARAM>(GetDlgItem(dialog_window, print_button_id)));
+            reinterpret_cast<LPARAM>(GetDlgItem(dialog_window,
+                print_button_id)));
         // Try again.
         if (res)
           return;
@@ -498,8 +499,11 @@ TEST_F(PrintingLayoutTextTest, DISABLED_Complex) {
     return;
 
   // Print a document, check its output.
-  TestServer server(kDocRoot);
-  NavigateToURL(server.TestServerPage("files/printing/test1.html"));
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
+
+  NavigateToURL(server->TestServerPage("files/printing/test1.html"));
   PrintNowTab();
   EXPECT_EQ(0., CompareWithResult(L"test1"));
 }
@@ -524,13 +528,16 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
   if (IsTestCaseDisabled())
     return;
 
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+    HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
+
   ASSERT_GT(arraysize(kTestPool), 0u);
   for (int i = 0; i < arraysize(kTestPool); ++i) {
     if (i)
       CleanupDumpDirectory();
     const TestPool& test = kTestPool[i % arraysize(kTestPool)];
-    NavigateToURL(server.TestServerPageW(test.source));
+    NavigateToURL(server->TestServerPageW(test.source));
     PrintNowTab();
     EXPECT_EQ(0., CompareWithResult(test.result)) << test.result;
     CleanupDumpDirectory();
@@ -554,13 +561,15 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_XP)
     return;
 
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   {
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     bool is_timeout = true;
-    GURL url = server.TestServerPage("files/printing/popup_delayed_print.htm");
+    GURL url = server->TestServerPage("files/printing/popup_delayed_print.htm");
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
 
@@ -579,7 +588,7 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
     worker->Stop();
 
     // Force a navigation elsewhere to verify that it's fine with it.
-    url = server.TestServerPage("files/printing/test1.html");
+    url = server->TestServerPage("files/printing/test1.html");
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
   }
@@ -594,12 +603,14 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
   if (IsTestCaseDisabled())
     return;
 
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   {
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
-    GURL url = server.TestServerPage("files/printing/iframe.htm");
+    GURL url = server->TestServerPage("files/printing/iframe.htm");
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
 
@@ -617,7 +628,7 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
     worker->Stop();
 
     // Force a navigation elsewhere to verify that it's fine with it.
-    url = server.TestServerPage("files/printing/test1.html");
+    url = server->TestServerPage("files/printing/test1.html");
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
   }

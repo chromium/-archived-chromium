@@ -54,8 +54,10 @@ class CacheTest : public UITest {
 void CacheTest::RunCacheTest(const std::wstring &url,
                              bool expect_new_tab_cached,
                              bool expect_delayed_reload) {
-  TestServer server(L"chrome/test/data");
-  GURL test_page(server.TestServerPageW(url));
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
+  GURL test_page(server->TestServerPageW(url));
 
   NavigateToURL(test_page);
   std::wstring original_time = GetActiveTabTitle();
