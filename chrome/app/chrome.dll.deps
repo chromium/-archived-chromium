@@ -28,4 +28,5 @@ delay_loaded = [
   'dwmapi.dll',
   'COMDLG32.dll',
   'urlmon.dll',
+  't2embed.dll',
 ]

@@ -269,16 +269,16 @@ else:
 visual_studio_path = msvs_drive + ':/Program Files/Microsoft Visual Studio 8'
 
 # If side-by-side platform sdk is not available try local copy.
-platform_sdk_path = '$CHROME_SRC_DIR/third_party/platformsdk_vista_6_0/files'
+platform_sdk_path = '$CHROME_SRC_DIR/third_party/platformsdk_win2008_6_1/files'
 if (root_env['PLATFORM'] in ['win32', 'cygwin'] and
     not os.path.exists(windows_env.subst(platform_sdk_path))):
   platform_sdk_path = (
-      msvs_drive + ':\\Program Files\\Microsoft SDKs\\Windows\\v6.0')
+      msvs_drive + ':\\Program Files\\Microsoft SDKs\\Windows\\v6.1')
 
 windows_env.Replace(
     CSCRIPT = 'c:\\Windows\\System32\\cscript',
 
-    PLATFORMSDK_VISTA = platform_sdk_path,
+    PLATFORMSDK_6_1 = platform_sdk_path,
     VISUAL_STUDIO = visual_studio_path,
 
     CYGWIN_DIR = windows_env.Dir('$CHROME_SRC_DIR/third_party/cygwin'),

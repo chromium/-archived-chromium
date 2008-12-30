@@ -101,7 +101,7 @@ sub process_raw($) {
       if ($filename =~ m/microsoft visual studio 8/) {
         next;
       }
-      if ($filename =~ m/platformsdk_vista_6_0/) {
+      if ($filename =~ m/platformsdk_win2008_6_1/) {
         next;
       }
       if ($location_blame eq "") {
