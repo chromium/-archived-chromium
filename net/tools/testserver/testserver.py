@@ -24,10 +24,6 @@ import sys
 import time
 import tlslite
 import tlslite.api
-import pyftpdlib.ftpserver
-
-SERVER_HTTP = 0 
-SERVER_FTP = 1
 
 debug_output = sys.stderr
 def debug(str):
@@ -113,6 +109,16 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request, client_address, socket_server)
 
+  def _ShouldHandleRequest(self, handler_name):
+    """Determines if the path can be handled by the handler.
+
+    We consider a handler valid if the path begins with the
+    handler name. It can optionally be followed by "?*", "/*".
+    """
+
+    pattern = re.compile('%s($|\?|/).*' % handler_name)
+    return pattern.match(self.path)
+
   def GetMIMETypeFromName(self, file_name):
     """Returns the mime type for the specified file_name. So far it only looks
     at the file extension."""
@@ -144,7 +150,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and no caching requested."""
 
-    if (self.path.find("/nocachetime/maxage") != 0):
+    if not self._ShouldHandleRequest("/nocachetime/maxage"):
       return False
 
     self.send_response(200)
@@ -160,7 +166,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and no caching requested."""
 
-    if (self.path.find("/nocachetime") != 0):
+    if not self._ShouldHandleRequest("/nocachetime"):
       return False
 
     self.send_response(200)
@@ -176,7 +182,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and allows caching for one minute."""
 
-    if self.path.find("/cachetime") != 0:
+    if not self._ShouldHandleRequest("/cachetime"):
       return False
 
     self.send_response(200)
@@ -192,7 +198,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and set the page to expire on 1 Jan 2099."""
 
-    if (self.path.find("/cache/expires") != 0):
+    if not self._ShouldHandleRequest("/cache/expires"):
       return False
 
     self.send_response(200)
@@ -208,7 +214,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and allows caching for 60 seconds"""
 
-    if (self.path.find("/cache/proxy-revalidate") != 0):
+    if not self._ShouldHandleRequest("/cache/proxy-revalidate"):
       return False
 
     self.send_response(200)
@@ -224,7 +230,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and allows caching for 5 seconds."""
 
-    if (self.path.find("/cache/private") != 0):
+    if not self._ShouldHandleRequest("/cache/private"):
       return False
 
     self.send_response(200)
@@ -240,7 +246,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and allows caching for 5 seconds."""
 
-    if (self.path.find("/cache/public") != 0):
+    if not self._ShouldHandleRequest("/cache/public"):
       return False
 
     self.send_response(200)
@@ -256,7 +262,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and does not allow for caching."""
 
-    if (self.path.find("/cache/s-maxage") != 0):
+    if not self._ShouldHandleRequest("/cache/s-maxage"):
       return False
 
     self.send_response(200)
@@ -272,7 +278,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This request handler yields a page with the title set to the current
     system time, and does not allow caching."""
 
-    if (self.path.find("/cache/must-revalidate") != 0):
+    if not self._ShouldHandleRequest("/cache/must-revalidate"):
       return False
 
     self.send_response(200)
@@ -289,7 +295,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     system time, and does not allow caching event though max-age of 60
     seconds is specified."""
 
-    if (self.path.find("/cache/must-revalidate/max-age") != 0):
+    if not self._ShouldHandleRequest("/cache/must-revalidate/max-age"):
       return False
 
     self.send_response(200)
@@ -301,12 +307,11 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     return True
 
-
   def CacheNoStoreHandler(self):
     """This request handler yields a page with the title set to the current
     system time, and does not allow the page to be stored."""
 
-    if (self.path.find("/cache/no-store") != 0):
+    if not self._ShouldHandleRequest("/cache/no-store"):
       return False
 
     self.send_response(200)
@@ -323,7 +328,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     system time, and does not allow the page to be stored even though max-age
     of 60 seconds is specified."""
 
-    if (self.path.find("/cache/no-store/max-age") != 0):
+    if not self._ShouldHandleRequest("/cache/no-store/max-age"):
       return False
 
     self.send_response(200)
@@ -341,7 +346,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     system time, and does not allow the content to transformed during
     user-agent caching"""
 
-    if (self.path.find("/cache/no-transform") != 0):
+    if not self._ShouldHandleRequest("/cache/no-transform"):
       return False
 
     self.send_response(200)
@@ -356,7 +361,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def EchoHeader(self):
     """This handler echoes back the value of a specific request header."""
 
-    if self.path.find("/echoheader") != 0:
+    if not self._ShouldHandleRequest("/echoheader"):
       return False
 
     query_char = self.path.find('?')
@@ -381,7 +386,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This handler just echoes back the payload of the request, for testing
     form submission."""
 
-    if self.path.find("/echo") != 0:
+    if not self._ShouldHandleRequest("/echo"):
       return False
 
     self.send_response(200)
@@ -395,7 +400,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def EchoTitleHandler(self):
     """This handler is like Echo, but sets the page title to the request."""
 
-    if self.path.find("/echotitle") != 0:
+    if not self._ShouldHandleRequest("/echotitle"):
       return False
 
     self.send_response(200)
@@ -412,7 +417,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This handler yields a (more) human-readable page listing information
     about the request header & contents."""
 
-    if self.path.find("/echoall") != 0:
+    if not self._ShouldHandleRequest("/echoall"):
       return False
 
     self.send_response(200)
@@ -485,7 +490,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def DownloadFinishHandler(self):
     """This handler just tells the server to finish the current download."""
 
-    if not self.path.startswith("/download-finish"):
+    if not self._ShouldHandleRequest("/download-finish"):
       return False
 
     self.server.waitForDownload = False
@@ -620,7 +625,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This handler tests 'Basic' authentication.  It just sends a page with
     title 'user/pass' if you succeed."""
 
-    if not self.path.startswith("/auth-basic"):
+    if not self._ShouldHandleRequest("/auth-basic"):
       return False
 
     username = userpass = password = b64str = ""
@@ -676,7 +681,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This handler tests 'Digest' authentication.  It just sends a page with
     title 'user/pass' if you succeed."""
 
-    if not self.path.startswith("/auth-digest"):
+    if not self._ShouldHandleRequest("/auth-digest"):
       return False
 
     # Periodically generate a new nonce.  Technically we should incorporate
@@ -764,7 +769,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def SlowServerHandler(self):
     """Wait for the user suggested time before responding. The syntax is
     /slow?0.5 to wait for half a second."""
-    if not self.path.startswith("/slow"):
+    if not self._ShouldHandleRequest("/slow"):
       return False
     query_char = self.path.find('?')
     wait_sec = 1.0
@@ -784,7 +789,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """Returns a string of html with the given content type.  E.g.,
     /contenttype?text/css returns an html file with the Content-Type
     header set to text/css."""
-    if not self.path.startswith('/contenttype'):
+    if not self._ShouldHandleRequest("/contenttype"):
       return False
     query_char = self.path.find('?')
     content_type = self.path[query_char + 1:].strip()
@@ -801,7 +806,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     '/server-redirect?http://foo.bar/asdf' to redirect to 'http://foo.bar/asdf'"""
 
     test_name = "/server-redirect"
-    if not self.path.startswith(test_name):
+    if not self._ShouldHandleRequest(test_name):
       return False
 
     query_char = self.path.find('?')
@@ -824,7 +829,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     '/client-redirect?http://foo.bar/asdf' to redirect to 'http://foo.bar/asdf'"""
 
     test_name = "/client-redirect"
-    if not self.path.startswith(test_name):
+    if not self._ShouldHandleRequest(test_name):
       return False
 
     query_char = self.path.find('?');
@@ -858,12 +863,12 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def do_GET(self):
     for handler in self._get_handlers:
-      if handler():
+      if (handler()):
         return
 
   def do_POST(self):
     for handler in self._post_handlers:
-      if handler():
+      if(handler()):
         return
 
   # called by the redirect handling function when there is no parameter
@@ -875,23 +880,6 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.wfile.write('Use <pre>%s?http://dest...</pre>' % redirect_name)
     self.wfile.write('</body></html>')
 
-def MakeDataDir():
-  if options.data_dir:
-    if not os.path.isdir(options.data_dir):
-      print 'specified data dir not found: ' + options.data_dir + ' exiting...'
-      return None
-    my_data_dir = options.data_dir
-  else:
-    # Create the default path to our data dir, relative to the exe dir.
-    my_data_dir = os.path.dirname(sys.argv[0])
-    my_data_dir = os.path.join(my_data_dir, "..", "..", "..", "..",
-                                   "test", "data")
-
-    #TODO(ibrar): Must use Find* funtion defined in google\tools
-    #i.e my_data_dir = FindUpward(my_data_dir, "test", "data")
-
-  return my_data_dir
-
 def main(options, args):
   # redirect output to a log file so it doesn't spam the unit test output
   logfile = open('testserver.log', 'w')
@@ -899,51 +887,27 @@ def main(options, args):
 
   port = options.port
 
-  if options.server_type == SERVER_HTTP:
-    if options.cert:
-      # let's make sure the cert file exists.
-      if not os.path.isfile(options.cert):
-        print 'specified cert file not found: ' + options.cert + ' exiting...'
-        return
-      server = HTTPSServer(('127.0.0.1', port), TestPageHandler, options.cert)
-      print 'HTTPS server started on port %d...' % port
-    else:
-      server = StoppableHTTPServer(('127.0.0.1', port), TestPageHandler)
-      print 'HTTP server started on port %d...' % port
-
-    server.data_dir = MakeDataDir()
-
-  # means FTP Server
+  if options.cert:
+    # let's make sure the cert file exists.
+    if not os.path.isfile(options.cert):
+      print 'specified cert file not found: ' + options.cert + ' exiting...'
+      return
+    server = HTTPSServer(('127.0.0.1', port), TestPageHandler, options.cert)
+    print 'HTTPS server started on port %d...' % port
   else:
-    my_data_dir = MakeDataDir()
+    server = StoppableHTTPServer(('127.0.0.1', port), TestPageHandler)
+    print 'HTTP server started on port %d...' % port
 
-    def line_logger(msg):
-      if (msg.find("kill") >= 0):
-        server.stop = True
-        print 'shutting down server'
-        sys.exit(0)
-
-    # Instantiate a dummy authorizer for managing 'virtual' users
-    authorizer = pyftpdlib.ftpserver.DummyAuthorizer()
-
-    # Define a new user having full r/w permissions and a read-only
-    # anonymous user
-    authorizer.add_user('chrome', 'chrome', my_data_dir, perm='elradfmw')
-
-    authorizer.add_anonymous(my_data_dir)
-
-    # Instantiate FTP handler class
-    ftp_handler = pyftpdlib.ftpserver.FTPHandler
-    ftp_handler.authorizer = authorizer
-    pyftpdlib.ftpserver.logline = line_logger
-
-    # Define a customized banner (string returned when client connects)
-    ftp_handler.banner = "pyftpdlib %s based ftpd ready." % pyftpdlib.ftpserver.__ver__
-
-    # Instantiate FTP server class and listen to 127.0.0.1:port
-    address = ('127.0.0.1', port)
-    server = pyftpdlib.ftpserver.FTPServer(address, ftp_handler)
-    print 'FTP server started on port %d...' % port
+  if options.data_dir:
+    if not os.path.isdir(options.data_dir):
+      print 'specified data dir not found: ' + options.data_dir + ' exiting...'
+      return
+    server.data_dir = options.data_dir
+  else:
+    # Create the default path to our data dir, relative to the exe dir.
+    server.data_dir = os.path.dirname(sys.argv[0])
+    server.data_dir = os.path.join(server.data_dir, "..", "..", "..", "..",
+                                   "test", "data")
 
   try:
     server.serve_forever()
@@ -953,19 +917,15 @@ def main(options, args):
 
 if __name__ == '__main__':
   option_parser = optparse.OptionParser()
-  option_parser.add_option("-f", '--ftp', action='store_const',
-                           const=SERVER_FTP, default=SERVER_HTTP,
-                           dest='server_type',
-                           help='FTP or HTTP server default HTTP')
   option_parser.add_option('', '--port', default='8888', type='int',
                            help='Port used by the server')
-  option_parser.add_option('', '--data-dir', dest='data_dir',
+  option_parser.add_option('', '--data-dir',  dest='data_dir',
                            help='Directory from which to read the files')
-  option_parser.add_option('', '--https', dest='cert',
+  option_parser.add_option('', '--https',  dest='cert',
                            help='Specify that https should be used, specify '
                            'the path to the cert containing the private key '
                            'the server should use')
   options, args = option_parser.parse_args()
 
   sys.exit(main(options, args))
-  
+
