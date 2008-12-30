@@ -50,7 +50,17 @@ input_files = ChromeFileList([
     'zlib.h',
     'zutil.c',
     'zutil.h',
+    'contrib/minizip/ioapi.c',
+    'contrib/minizip/ioapi.h',
+    'contrib/minizip/unzip.c',
+    'contrib/minizip/unzip.h'
 ])
+
+if env.Bit('windows'):
+  input_files.extend([
+      'contrib/minizip/iowin32.c',
+      'contrib/minizip/iowin32.h',
+  ])
 
 env.ChromeLibrary('zlib', input_files)
 
@@ -69,6 +79,7 @@ p.AddConfig('Debug|Win32',
                 '$(SolutionDir)../build/common.vsprops',
                 '$(SolutionDir)../build/debug.vsprops',
                 '$(SolutionDir)../build/external_code.vsprops',
+                './zlib.vsprops'
             ])
 
 p.AddConfig('Release|Win32',
@@ -77,6 +88,7 @@ p.AddConfig('Release|Win32',
                 '$(SolutionDir)../build/common.vsprops',
                 '$(SolutionDir)../build/release.vsprops',
                 '$(SolutionDir)../build/external_code.vsprops',
+                './zlib.vsprops'
             ])
 
 env.AlwaysBuild(p)

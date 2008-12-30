@@ -1,0 +1,15 @@
+This library was downloaded from http://www.zlib.net/zlib-1.2.3.zip
+
+Licensing information appears at the top of each source file.
+
+ZLIB is a compression library compatible with the gzip format. 
+It has been written by Jean-Loup Gailly and Mark Adler. It is free software.
+
+The minizip contrib package enables extracting files from a .zip archive file.
+
+This directory contains a subset of the source package, just the main source 
+and a single contrib package, minizip.
+
+Version: 1.2.3
+
+Learn more at http://www.zlib.net/

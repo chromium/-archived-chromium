@@ -16,7 +16,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\build\external_code.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\build\external_code.vsprops;.\zlib.vsprops"
 			>
 			<Tool
 				Name="VCLibrarianTool"
@@ -28,7 +28,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\build\external_code.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\build\external_code.vsprops;.\zlib.vsprops"
 			>
 			<Tool
 				Name="VCLibrarianTool"
@@ -39,6 +39,34 @@
 		</Configuration>
 	</Configurations>
 	<Files>
+		<Filter
+			Name="minizip"
+			>
+			<File
+				RelativePath=".\contrib\minizip\ioapi.c"
+				>
+			</File>
+			<File
+				RelativePath=".\contrib\minizip\ioapi.h"
+				>
+			</File>
+			<File
+				RelativePath=".\contrib\minizip\iowin32.c"
+				>
+			</File>
+			<File
+				RelativePath=".\contrib\minizip\iowin32.h"
+				>
+			</File>
+			<File
+				RelativePath=".\contrib\minizip\unzip.c"
+				>
+			</File>
+			<File
+				RelativePath=".\contrib\minizip\unzip.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\adler32.c"
 			>
