@@ -48,7 +48,7 @@ const wchar_t* const g_supported_spellchecker_languages[] = {
   L"pt-PT",
   L"ro-RO",
   // L"hu-HU",  // Not to be included in Spellchecker as per B=1277824
-  // L"he-IL",  // Not to be included in Spellchecker as per B=1252241
+  L"he-IL",
   L"id-ID",
   L"cs-CZ",
   L"el-GR",
