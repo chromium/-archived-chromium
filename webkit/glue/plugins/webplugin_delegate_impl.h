@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
@@ -25,7 +26,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
  public:
   static WebPluginDelegateImpl* Create(const std::wstring& filename,
                                        const std::string& mime_type,
-                                       HWND containing_window);
+                                       gfx::NativeView containing_view);
   static bool IsPluginDelegateWindow(HWND window);
   static bool GetPluginNameFromWindow(HWND window, std::wstring *plugin_name);
 
@@ -102,7 +103,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
                          bool visible);
 
  private:
-  WebPluginDelegateImpl(HWND containing_window,
+  WebPluginDelegateImpl(gfx::NativeView containing_view,
                         NPAPI::PluginInstance *instance);
   ~WebPluginDelegateImpl();
 

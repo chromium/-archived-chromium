@@ -20,7 +20,7 @@ struct WebPluginGeometry;
 class WebWidgetDelegate {
  public:
   // Returns the view in which the WebWidget is embedded.
-  virtual gfx::NativeView GetContainingWindow(WebWidget* webwidget) = 0;
+  virtual gfx::NativeView GetContainingView(WebWidget* webwidget) = 0;
 
   // Called when a region of the WebWidget needs to be re-painted.
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect) = 0;

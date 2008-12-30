@@ -504,7 +504,7 @@ void RenderWidget::DoDeferredScroll() {
 ///////////////////////////////////////////////////////////////////////////////
 // WebWidgetDelegate
 
-HWND RenderWidget::GetContainingWindow(WebWidget* webwidget) {
+gfx::NativeView RenderWidget::GetContainingView(WebWidget* webwidget) {
   return host_window_;
 }
 

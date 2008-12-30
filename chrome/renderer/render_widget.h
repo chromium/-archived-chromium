@@ -64,7 +64,7 @@ class RenderWidget : public IPC::Channel::Listener,
   bool InSend() const;
 
   // WebWidgetDelegate
-  virtual HWND GetContainingWindow(WebWidget* webwidget);
+  virtual gfx::NativeView GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const gfx::Rect& clip_rect);

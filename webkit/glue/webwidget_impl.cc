@@ -239,7 +239,7 @@ WebCore::IntRect WebWidgetImpl::windowToScreen(
 PlatformWidget WebWidgetImpl::platformWindow() const {
   if (!delegate_)
     return NULL;
-  return delegate_->GetContainingWindow(const_cast<WebWidgetImpl*>(this));
+  return delegate_->GetContainingView(const_cast<WebWidgetImpl*>(this));
 }
 
 //-----------------------------------------------------------------------------

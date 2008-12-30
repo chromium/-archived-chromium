@@ -53,7 +53,7 @@ iat_patch::IATPatchFunction WebPluginDelegateImpl::iat_patch_helper_;
 WebPluginDelegateImpl* WebPluginDelegateImpl::Create(
     const std::wstring& filename,
     const std::string& mime_type,
-    HWND containing_window) {
+    gfx::NativeView containing_view) {
   scoped_refptr<NPAPI::PluginLib> plugin =
       NPAPI::PluginLib::CreatePluginLib(filename);
   if (plugin.get() == NULL)
@@ -65,7 +65,7 @@ WebPluginDelegateImpl* WebPluginDelegateImpl::Create(
 
   scoped_refptr<NPAPI::PluginInstance> instance =
       plugin->CreateInstance(mime_type);
-  return new WebPluginDelegateImpl(containing_window, instance.get());
+  return new WebPluginDelegateImpl(containing_view, instance.get());
 }
 
 bool WebPluginDelegateImpl::IsPluginDelegateWindow(HWND window) {
@@ -120,9 +120,9 @@ LRESULT CALLBACK WebPluginDelegateImpl::HandleEventMessageFilterHook(
 }
 
 WebPluginDelegateImpl::WebPluginDelegateImpl(
-    HWND containing_window,
+    gfx::NativeView containing_view,
     NPAPI::PluginInstance *instance)
-    : parent_(containing_window),
+    : parent_(containing_view),
       instance_(instance),
       quirks_(0),
       plugin_(NULL),

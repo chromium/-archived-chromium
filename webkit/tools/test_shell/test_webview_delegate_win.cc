@@ -47,7 +47,7 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  HWND hwnd = GetContainingWindow(webview);
+  HWND hwnd = GetContainingView(webview);
   if (!hwnd)
     return NULL;
 
