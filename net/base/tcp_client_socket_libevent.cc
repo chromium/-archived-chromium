@@ -10,6 +10,8 @@
 #include <sys/socket.h>
 
 #include "base/message_loop.h"
+#include "base/string_util.h"
+#include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "third_party/libevent/event.h"
 
@@ -83,6 +85,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
 
   DCHECK(!waiting_connect_);
 
+  TRACE_EVENT_BEGIN("socket.connect", this, "");
   const addrinfo* ai = current_ai_;
   DCHECK(ai);
 
@@ -91,6 +94,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
     return rv;
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
+    TRACE_EVENT_END("socket.connect", this, "");
     // Connected without waiting!
     return OK;
   }
@@ -131,6 +135,8 @@ void TCPClientSocket::Disconnect() {
   if (socket_ == kInvalidSocket)
     return;
 
+  TRACE_EVENT_INSTANT("socket.disconnect", this, "");
+
   socket_watcher_.StopWatchingFileDescriptor();
   close(socket_);
   socket_ = kInvalidSocket;
@@ -165,8 +171,10 @@ int TCPClientSocket::Read(char* buf,
   DCHECK(callback);
   DCHECK(buf_len > 0);
 
+  TRACE_EVENT_BEGIN("socket.read", this, "");
   int nread = read(socket_, buf, buf_len);
   if (nread >= 0) {
+    TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", nread));
     return nread;
   }
   if (errno != EAGAIN && errno != EWOULDBLOCK) {
@@ -197,8 +205,10 @@ int TCPClientSocket::Write(const char* buf,
   DCHECK(callback);
   DCHECK(buf_len > 0);
 
+  TRACE_EVENT_BEGIN("socket.write", this, "");
   int nwrite = write(socket_, buf, buf_len);
   if (nwrite >= 0) {
+    TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", nwrite));
     return nwrite;
   }
   if (errno != EAGAIN && errno != EWOULDBLOCK)
@@ -223,7 +233,6 @@ int TCPClientSocket::CreateSocket(const addrinfo* ai) {
   if (socket_ == kInvalidSocket)
     return MapPosixError(errno);
 
-  // All our socket I/O is nonblocking
   if (SetNonBlocking(socket_))
     return MapPosixError(errno);
 
@@ -252,6 +261,8 @@ void TCPClientSocket::DoWriteCallback(int rv) {
 
 void TCPClientSocket::DidCompleteConnect() {
   int result = ERR_UNEXPECTED;
+
+  TRACE_EVENT_END("socket.connect", this, "");
 
   // Check to see if connect succeeded
   int error_code = 0;
@@ -291,6 +302,8 @@ void TCPClientSocket::DidCompleteRead() {
 
   int result;
   if (bytes_transferred >= 0) {
+    TRACE_EVENT_END("socket.read", this,
+                    StringPrintf("%d bytes", bytes_transferred));
     result = bytes_transferred;
   } else {
     result = MapPosixError(errno);
@@ -311,6 +324,8 @@ void TCPClientSocket::DidCompleteWrite() {
   int result;
   if (bytes_transferred >= 0) {
     result = bytes_transferred;
+    TRACE_EVENT_END("socket.write", this,
+                    StringPrintf("%d bytes", bytes_transferred));
   } else {
     result = MapPosixError(errno);
   }
