@@ -55,7 +55,7 @@ the FUNCTIONS or DATA output, that means those names are already built in
 to this version of Python and we don't need to add them from this module.
 """
 
-__revision__ = "src/engine/SCons/compat/builtins.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/compat/builtins.py 3842 2008/12/20 22:59:52 scons"
 
 import __builtin__
 

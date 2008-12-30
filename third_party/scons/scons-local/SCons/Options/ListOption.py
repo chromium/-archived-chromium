@@ -21,7 +21,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Options/ListOption.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Options/ListOption.py 3842 2008/12/20 22:59:52 scons"
 
 __doc__ = """Place-holder for the old SCons.Options module hierarchy
 
@@ -31,5 +31,14 @@ and will then be removed entirely (some day).
 """
 
 import SCons.Variables
+import SCons.Warnings
 
-ListOption = SCons.Variables.ListVariable
+warned = False
+
+def ListOption(*args, **kw):
+    global warned
+    if not warned:
+        msg = "The ListOption() function is deprecated; use the ListVariable() function instead."
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
+        warned = True
+    return apply(SCons.Variables.ListVariable, args, kw)

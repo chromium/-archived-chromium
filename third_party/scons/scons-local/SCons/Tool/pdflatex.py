@@ -31,7 +31,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/pdflatex.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Tool/pdflatex.py 3842 2008/12/20 22:59:52 scons"
 
 import SCons.Action
 import SCons.Util
@@ -63,8 +63,8 @@ def generate(env):
     bld = env['BUILDERS']['PDF']
     bld.add_action('.ltx', PDFLaTeXAuxAction)
     bld.add_action('.latex', PDFLaTeXAuxAction)
-    bld.add_emitter('.ltx', SCons.Tool.tex.tex_emitter)
-    bld.add_emitter('.latex', SCons.Tool.tex.tex_emitter)
+    bld.add_emitter('.ltx', SCons.Tool.tex.tex_pdf_emitter)
+    bld.add_emitter('.latex', SCons.Tool.tex.tex_pdf_emitter)
 
     env['PDFLATEX']      = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')

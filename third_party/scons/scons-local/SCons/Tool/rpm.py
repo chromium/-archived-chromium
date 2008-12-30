@@ -33,12 +33,12 @@ tar.gz consisting of the source file and a specfile.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/rpm.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Tool/rpm.py 3842 2008/12/20 22:59:52 scons"
 
 import os
 import re
 import shutil
-import popen2
+import subprocess
 
 import SCons.Builder
 import SCons.Node.FS
@@ -67,11 +67,12 @@ def build_rpm(target, source, env):
     env.Prepend( RPMFLAGS = '--define \'_topdir %s\'' % tmpdir )
 
     # now call rpmbuild to create the rpm package.
-    handle  = popen2.Popen3( get_cmd(source, env), capturestderr=1 )
-    output  = handle.fromchild.read()
-    #output += handle.childerr.read()
-    output  = output + handle.childerr.read()
-    status  = handle.wait()
+    handle  = subprocess.Popen(get_cmd(source, env),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT,
+                               shell=True)
+    output = handle.stdout.read()
+    status = handle.wait()
 
     if status:
         raise SCons.Errors.BuildError( node=target[0],

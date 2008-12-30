@@ -34,7 +34,7 @@ it goes here.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Script/Main.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Script/Main.py 3842 2008/12/20 22:59:52 scons"
 
 import os
 import os.path
@@ -216,6 +216,8 @@ class BuildTask(SCons.Taskmaster.Task):
                 sys.stderr.write("\n")
                 try:
                     raise SCons.Errors.BuildError(t, errstr)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.exception_set()
                 self.do_failed()
@@ -229,54 +231,55 @@ class BuildTask(SCons.Taskmaster.Task):
         # Handle the failure of a build task.  The primary purpose here
         # is to display the various types of Errors and Exceptions
         # appropriately.
-        status = 2
         exc_info = self.exc_info()
         try:
             t, e, tb = exc_info
         except ValueError:
             t, e = exc_info
             tb = None
+
         if t is None:
             # The Taskmaster didn't record an exception for this Task;
             # see if the sys module has one.
-            t, e = sys.exc_info()[:2]
+            try:
+                t, e, tb = sys.exc_info()[:]
+            except ValueError:
+                t, e = exc_info
+                tb = None
+                
+        # Deprecated string exceptions will have their string stored
+        # in the first entry of the tuple.
+        if e is None:
+            e = t
 
-        def nodestring(n):
-            if not SCons.Util.is_List(n):
-                n = [ n ]
-            return string.join(map(str, n), ', ')
+        buildError = SCons.Errors.convert_to_BuildError(e)
+        if not buildError.node:
+            buildError.node = self.node
+
+        node = buildError.node
+        if not SCons.Util.is_List(node):
+                node = [ node ]
+        nodename = string.join(map(str, node), ', ')
 
         errfmt = "scons: *** [%s] %s\n"
+        sys.stderr.write(errfmt % (nodename, buildError))
 
-        if t == SCons.Errors.BuildError:
-            tname = nodestring(e.node)
-            errstr = e.errstr
-            if e.filename:
-                errstr = e.filename + ': ' + errstr
-            sys.stderr.write(errfmt % (tname, errstr))
-        elif t == SCons.Errors.TaskmasterException:
-            tname = nodestring(e.node)
-            sys.stderr.write(errfmt % (tname, e.errstr))
-            type, value, trace = e.exc_info
+        if (buildError.exc_info[2] and buildError.exc_info[1] and 
+           # TODO(1.5)
+           #not isinstance(
+           #    buildError.exc_info[1], 
+           #    (EnvironmentError, SCons.Errors.StopError, SCons.Errors.UserError))):
+           not isinstance(buildError.exc_info[1], EnvironmentError) and
+           not isinstance(buildError.exc_info[1], SCons.Errors.StopError) and
+           not isinstance(buildError.exc_info[1], SCons.Errors.UserError)):
+            type, value, trace = buildError.exc_info
             traceback.print_exception(type, value, trace)
-        elif t == SCons.Errors.ExplicitExit:
-            status = e.status
-            tname = nodestring(e.node)
-            errstr = 'Explicit exit, status %s' % status
-            sys.stderr.write(errfmt % (tname, errstr))
-        else:
-            if e is None:
-                e = t
-            s = str(e)
-            if t == SCons.Errors.StopError and not self.options.keep_going:
-                s = s + '  Stop.'
-            sys.stderr.write("scons: *** %s\n" % s)
+        elif tb and print_stacktrace:
+            sys.stderr.write("scons: internal stack trace:\n")
+            traceback.print_tb(tb, file=sys.stderr)
 
-            if tb and print_stacktrace:
-                sys.stderr.write("scons: internal stack trace:\n")
-                traceback.print_tb(tb, file=sys.stderr)
-
-        self.do_failed(status)
+        self.exception = (e, buildError, tb) # type, value, traceback
+        self.do_failed(buildError.exitstatus)
 
         self.exc_clear()
 
@@ -598,12 +601,14 @@ def _scons_internal_error():
     traceback.print_exc()
     sys.exit(2)
 
-def _SConstruct_exists(dirname='', repositories=[]):
+def _SConstruct_exists(dirname='', repositories=[], filelist=None):
     """This function checks that an SConstruct file exists in a directory.
     If so, it returns the path of the file. By default, it checks the
     current directory.
     """
-    for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
+    if not filelist:
+        filelist = ['SConstruct', 'Sconstruct', 'sconstruct']
+    for file in filelist:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):
             return sfile
@@ -732,6 +737,7 @@ def _main(parser):
     default_warnings = [ SCons.Warnings.CorruptSConsignWarning,
                          SCons.Warnings.DeprecatedWarning,
                          SCons.Warnings.DuplicateEnvironmentWarning,
+                         SCons.Warnings.FutureReservedVariableWarning,
                          SCons.Warnings.LinkWarning,
                          SCons.Warnings.MissingSConscriptWarning,
                          SCons.Warnings.NoMD5ModuleWarning,
@@ -739,7 +745,9 @@ def _main(parser):
                          SCons.Warnings.NoObjectCountWarning,
                          SCons.Warnings.NoParallelSupportWarning,
                          SCons.Warnings.MisleadingKeywordsWarning,
-                         SCons.Warnings.StackSizeWarning, ]
+                         SCons.Warnings.ReservedVariableWarning,
+                         SCons.Warnings.StackSizeWarning,
+                       ]
 
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)
@@ -777,13 +785,15 @@ def _main(parser):
     if options.climb_up:
         target_top = '.'  # directory to prepend to targets
         script_dir = os.getcwd()  # location of script
-        while script_dir and not _SConstruct_exists(script_dir, options.repository):
+        while script_dir and not _SConstruct_exists(script_dir,
+                                                    options.repository,
+                                                    options.file):
             script_dir, last_part = os.path.split(script_dir)
             if last_part:
                 target_top = os.path.join(last_part, target_top)
             else:
                 script_dir = ''
-        if script_dir:
+        if script_dir and script_dir != os.getcwd():
             display("scons: Entering directory `%s'" % script_dir)
             os.chdir(script_dir)
 
@@ -802,7 +812,8 @@ def _main(parser):
     if options.file:
         scripts.extend(options.file)
     if not scripts:
-        sfile = _SConstruct_exists(repositories=options.repository)
+        sfile = _SConstruct_exists(repositories=options.repository,
+                                   filelist=options.file)
         if sfile:
             scripts.append(sfile)
 
@@ -1266,6 +1277,8 @@ def main():
     except SConsPrintHelpException:
         parser.print_help()
         exit_status = 0
+    except SCons.Errors.BuildError, e:
+        exit_status = e.exitstatus
     except:
         # An exception here is likely a builtin Python exception Python
         # code in an SConscript file.  Show them precisely what the

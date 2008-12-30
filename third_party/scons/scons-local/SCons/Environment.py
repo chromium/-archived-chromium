@@ -32,7 +32,7 @@ Environment
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Environment.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Environment.py 3842 2008/12/20 22:59:52 scons"
 
 
 import copy
@@ -105,24 +105,40 @@ def apply_tools(env, tools, toolpath):
         else:
             env.Tool(tool)
 
-# These names are controlled by SCons; users should never set or override
-# them.  This warning can optionally be turned off, but scons will still
-# ignore the illegal variable names even if it's off.
-reserved_construction_var_names = \
-    ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']
+# These names are (or will be) controlled by SCons; users should never
+# set or override them.  This warning can optionally be turned off,
+# but scons will still ignore the illegal variable names even if it's off.
+reserved_construction_var_names = [
+    'SOURCE',
+    'SOURCES',
+    'TARGET',
+    'TARGETS',
+]
+
+future_reserved_construction_var_names = [
+    'CHANGED_SOURCES',
+    'CHANGED_TARGETS',
+    'UNCHANGED_SOURCES',
+    'UNCHANGED_TARGETS',
+]
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
     for k in result.keys():
         if k in reserved_construction_var_names:
-            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
-                                "Ignoring attempt to set reserved variable `%s'" % k)
+            msg = "Ignoring attempt to set reserved variable `$%s'"
+            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % k)
             del result[k]
     return result
 
 def _set_reserved(env, key, value):
-    msg = "Ignoring attempt to set reserved variable `%s'" % key
-    SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg)
+    msg = "Ignoring attempt to set reserved variable `$%s'"
+    SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % key)
+
+def _set_future_reserved(env, key, value):
+    env._dict[key] = value
+    msg = "`$%s' will be reserved in a future release and setting it will become ignored"
+    SCons.Warnings.warn(SCons.Warnings.FutureReservedVariableWarning, msg % key)
 
 def _set_BUILDERS(env, key, value):
     try:
@@ -141,6 +157,24 @@ def _del_SCANNERS(env, key):
 def _set_SCANNERS(env, key, value):
     env._dict[key] = value
     env.scanner_map_delete()
+
+def _delete_duplicates(l, keep_last):
+    """Delete duplicates from a sequence, keeping the first or last."""
+    seen={}
+    result=[]
+    if keep_last:           # reverse in & out, then keep first
+        l.reverse()
+    for i in l:
+        try:
+            if not seen.has_key(i):
+                result.append(i)
+                seen[i]=1
+        except TypeError:
+            # probably unhashable.  Just keep it.
+            result.append(i)
+    if keep_last:
+        result.reverse()
+    return result
 
 
 
@@ -219,8 +253,7 @@ class BuilderWrapper(MethodWrapper):
         return apply(MethodWrapper.__call__, (self, target, source) + args, kw)
 
     def __repr__(self):
-        fmt = '<BuilderWrapper %s instance at 0x%08X>'
-        return fmt % (repr(self.name), id(self))
+        return '<BuilderWrapper %s>' % repr(self.name)
 
     def __str__(self):
         return self.__repr__()
@@ -347,6 +380,8 @@ class SubstitutionEnvironment:
         self._special_set = {}
         for key in reserved_construction_var_names:
             self._special_set[key] = _set_reserved
+        for key in future_reserved_construction_var_names:
+            self._special_set[key] = _set_future_reserved
         self._special_set['BUILDERS'] = _set_BUILDERS
         self._special_set['SCANNERS'] = _set_SCANNERS
 
@@ -399,6 +434,9 @@ class SubstitutionEnvironment:
 
     def has_key(self, key):
         return self._dict.has_key(key)
+
+    def __contains__(self, key):
+        return self._dict.__contains__(key)
 
     def items(self):
         return self._dict.items()
@@ -528,7 +566,8 @@ class SubstitutionEnvironment:
     def backtick(self, command):
         import subprocess
         # common arguments
-        kw = { 'stdout' : subprocess.PIPE,
+        kw = { 'stdin' : 'devnull',
+               'stdout' : subprocess.PIPE,
                'stderr' : subprocess.PIPE,
                'universal_newlines' : True,
              }
@@ -1190,6 +1229,8 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if SCons.Util.is_List(val):
+                val = _delete_duplicates(val, delete_existing)
             if not self._dict.has_key(key) or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
@@ -1543,6 +1584,8 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if SCons.Util.is_List(val):
+                val = _delete_duplicates(val, not delete_existing)
             if not self._dict.has_key(key) or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
@@ -2169,6 +2212,10 @@ class OverrideEnvironment(Base):
             return 1
         except KeyError:
             return self.__dict__['__subject'].has_key(key)
+    def __contains__(self, key):
+        if self.__dict__['overrides'].__contains__(key):
+            return 1
+        return self.__dict__['__subject'].__contains__(key)
     def Dictionary(self):
         """Emulates the items() method of dictionaries."""
         d = self.__dict__['__subject'].Dictionary().copy()

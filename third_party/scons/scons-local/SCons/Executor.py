@@ -28,7 +28,7 @@ Nodes.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Executor.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Executor.py 3842 2008/12/20 22:59:52 scons"
 
 import string
 
@@ -134,7 +134,11 @@ class Executor:
                 raise status
             elif status:
                 msg = "Error %s" % status
-                raise SCons.Errors.BuildError(errstr=msg, executor=self, action=act)
+                raise SCons.Errors.BuildError(
+                    errstr=msg, 
+                    node=self.targets,
+                    executor=self, 
+                    action=act)
         return status
 
     # use extra indirection because with new-style objects (Python 2.2

@@ -21,7 +21,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Options/__init__.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Options/__init__.py 3842 2008/12/20 22:59:52 scons"
 
 __doc__ = """Place-holder for the old SCons.Options module hierarchy
 
@@ -31,6 +31,7 @@ and will then be removed entirely (some day).
 """
 
 import SCons.Variables
+import SCons.Warnings
 
 from BoolOption import BoolOption  # okay
 from EnumOption import EnumOption  # okay
@@ -38,7 +39,18 @@ from ListOption import ListOption  # naja
 from PackageOption import PackageOption # naja
 from PathOption import PathOption # okay
 
+warned = False
+
 class Options(SCons.Variables.Variables):
+    def __init__(self, *args, **kw):
+        global warned
+        if not warned:
+            msg = "The Options class is deprecated; use the Variables class instead."
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
+            warned = True
+        apply(SCons.Variables.Variables.__init__,
+              (self,) + args,
+              kw)
 
     def AddOptions(self, *args, **kw):
         return apply(SCons.Variables.Variables.AddVariables,

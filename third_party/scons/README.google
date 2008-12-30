@@ -1,7 +1,7 @@
 This is a copy of SCons, a Python-based software build tool (that is,
 replacement for Make) that we use for cross-platform builds.
 
-Current version:  1.0.1.d20080915
+Current version:  1.2.0
 
 Originally obtained from:
 
@@ -13,13 +13,11 @@ this directory for specifics.
 We check in the contents of the scons-local-* package(s) provided
 by the SCons Project.
 
-Before checking in, we copy the contents of the version-specific
-"scons-local-{VERSION}" to the "scons-local".  We do this so we can use
-Subversion to diff and revert versions more easily, and to make it easier
-to propagate any local modifications we might make to any new versions
-we check in.
-
-We currently do not have any local modifications to the SCons code itself.
+Before checking in, copy the contents of the version-specific
+"scons-local-{VERSION}" subdirectory to the "scons-local" subdirectory.
+We do this so we can use Subversion to diff and revert imported versions,
+and to make it easier to propagate any local modifications we might make
+to any new versions we check in.
 
 To import a new version of SCons:
 
@@ -34,7 +32,8 @@ To import a new version of SCons:
 - Copy the contents of the version-specific directory to scons-local:
 
     $ cp -rf scons-local-{VERSION}/* scons-local
+    $ rm -rf scons-local-{VERSION}
 
 - Update this README.google file to reflect the new version number.
 
-- Check in.
+- Check in (after appropriate testing, of course).

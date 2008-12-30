@@ -29,7 +29,7 @@ stop, and wait on jobs.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Job.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Job.py 3842 2008/12/20 22:59:52 scons"
 
 import os
 import signal
@@ -243,7 +243,7 @@ else:
             while 1:
                 task = self.requestQueue.get()
 
-                if not task:
+                if task is None:
                     # The "None" value is used as a sentinel by
                     # ThreadPool.cleanup().  This indicates that there
                     # are no more tasks, so we should quit.
@@ -284,8 +284,7 @@ else:
                         e.args[0]
                     SCons.Warnings.warn(SCons.Warnings.StackSizeWarning, msg)
             except ValueError, e:
-                msg = "Setting stack size failed:\n    " + \
-                    e.message
+                msg = "Setting stack size failed:\n    " + str(e)
                 SCons.Warnings.warn(SCons.Warnings.StackSizeWarning, msg)
 
             # Create worker threads

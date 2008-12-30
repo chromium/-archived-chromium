@@ -24,15 +24,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/script/scons.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/script/scons.py 3842 2008/12/20 22:59:52 scons"
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
-__build__ = "r3603"
+__build__ = "r3842"
 
 __buildsys__ = "scons-dev"
 
-__date__ = "2008/10/10 05:46:45"
+__date__ = "2008/12/20 22:59:52"
 
 __developer__ = "scons"
 
@@ -160,4 +160,6 @@ sys.path = libs + sys.path
 
 if __name__ == "__main__":
     import SCons.Script
+    # this does all the work, and calls sys.exit
+    # with the proper exit status when done.
     SCons.Script.main()

@@ -21,7 +21,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/compat/_scons_itertools.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/compat/_scons_itertools.py 3842 2008/12/20 22:59:52 scons"
 
 __doc__ = """
 Implementations of itertools functions for Python versions that don't

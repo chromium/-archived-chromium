@@ -42,7 +42,7 @@ be able to depend on any other type of "thing."
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Node/__init__.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Node/__init__.py 3842 2008/12/20 22:59:52 scons"
 
 import copy
 from itertools import chain, izip
@@ -1104,7 +1104,10 @@ class Node:
             env = self.get_build_env()
             for s in self.sources:
                 scanner = self.get_source_scanner(s)
-                path = self.get_build_scanner_path(scanner)
+                if scanner:
+                    path = self.get_build_scanner_path(scanner)
+                else:
+                    path = None
                 def f(node, env=env, scanner=scanner, path=path):
                     return node.get_found_includes(env, scanner, path)
                 return SCons.Util.render_tree(s, f, 1)

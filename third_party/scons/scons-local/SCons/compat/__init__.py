@@ -60,7 +60,7 @@ function defined below loads the module as the "real" name (without the
 rest of our code will find our pre-loaded compatibility module.
 """
 
-__revision__ = "src/engine/SCons/compat/__init__.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/compat/__init__.py 3842 2008/12/20 22:59:52 scons"
 
 def import_as(module, name):
     """
@@ -154,6 +154,19 @@ try:
 except ImportError:
     # Pre-2.3 Python has no optparse module.
     import_as('_scons_optparse', 'optparse')
+
+import os
+try:
+    os.devnull
+except AttributeError:
+    # Pre-2.4 Python has no os.devnull attribute
+    import sys
+    _names = sys.builtin_module_names
+    if 'posix' in _names:
+        os.devnull = '/dev/null'
+    elif 'nt' in _names:
+        os.devnull = 'nul'
+    os.path.devnull = os.devnull
 
 import shlex
 try:

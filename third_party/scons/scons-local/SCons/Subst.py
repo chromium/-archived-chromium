@@ -27,7 +27,7 @@ SCons string substitution.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Subst.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Subst.py 3842 2008/12/20 22:59:52 scons"
 
 import re
 import string

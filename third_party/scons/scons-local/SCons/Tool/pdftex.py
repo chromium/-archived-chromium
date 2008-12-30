@@ -31,7 +31,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/pdftex.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Tool/pdftex.py 3842 2008/12/20 22:59:52 scons"
 
 import SCons.Action
 import SCons.Util
@@ -79,7 +79,11 @@ def generate(env):
 
     bld = env['BUILDERS']['PDF']
     bld.add_action('.tex', PDFTeXLaTeXAction)
-    bld.add_emitter('.tex', SCons.Tool.tex.tex_emitter)
+    bld.add_emitter('.tex', SCons.Tool.tex.tex_pdf_emitter)
+
+    # Add the epstopdf builder after the pdftex builder 
+    # so pdftex is the default for no source suffix
+    pdf.generate2(env)
 
     env['PDFTEX']      = 'pdftex'
     env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')

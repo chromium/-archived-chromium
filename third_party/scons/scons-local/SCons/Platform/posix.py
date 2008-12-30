@@ -30,13 +30,13 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Platform/posix.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Platform/posix.py 3842 2008/12/20 22:59:52 scons"
 
 import errno
 import os
 import os.path
-import popen2
 import string
+import subprocess
 import sys
 import select
 
@@ -131,8 +131,10 @@ def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
                 raise
 
 def exec_popen3(l, env, stdout, stderr):
-    proc = popen2.Popen3(string.join(l), 1)
-    process_cmd_output(proc.fromchild, proc.childerr, stdout, stderr)
+    proc = subprocess.Popen(string.join(l),
+                            stdout=stdout,
+                            stderr=stderr,
+                            shell=True)
     stat = proc.wait()
     if stat & 0xff:
         return stat | 0x80

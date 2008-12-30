@@ -27,7 +27,7 @@ Various utility functions go here.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Util.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Util.py 3842 2008/12/20 22:59:52 scons"
 
 import copy
 import os
@@ -1022,6 +1022,10 @@ class CLVar(UserList):
     """
     def __init__(self, seq = []):
         UserList.__init__(self, Split(seq))
+    def __add__(self, other):
+        return UserList.__add__(self, CLVar(other))
+    def __radd__(self, other):
+        return UserList.__radd__(self, CLVar(other))
     def __coerce__(self, other):
         return (self, CLVar(other))
     def __str__(self):

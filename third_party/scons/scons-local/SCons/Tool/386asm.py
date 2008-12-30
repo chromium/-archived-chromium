@@ -32,7 +32,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/386asm.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Tool/386asm.py 3842 2008/12/20 22:59:52 scons"
 
 from SCons.Tool.PharLapCommon import addPharLapPaths
 import SCons.Util

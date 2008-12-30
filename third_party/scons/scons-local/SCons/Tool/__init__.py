@@ -36,7 +36,7 @@ tool definition.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/__init__.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Tool/__init__.py 3842 2008/12/20 22:59:52 scons"
 
 import imp
 import sys
@@ -142,7 +142,7 @@ class Tool:
                         file.close()
                     return module
                 except ImportError, e:
-                    if e!="No module named %s"%self.name:
+                    if str(e)!="No module named %s"%self.name:
                         raise SCons.Errors.EnvironmentError, e
                     try:
                         import zipimport

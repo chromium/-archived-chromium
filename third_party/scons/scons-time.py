@@ -33,7 +33,7 @@
 
 from __future__ import nested_scopes
 
-__revision__ = "src/script/scons-time.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/script/scons-time.py 3842 2008/12/20 22:59:52 scons"
 
 import getopt
 import glob
@@ -166,13 +166,13 @@ class Gnuplotter(Plotter):
         result = []
         for line in self.lines:
             result.extend(line.get_x_values())
-        return filter(None, result)
+        return filter(lambda r: not r is None, result)
 
     def get_all_y_values(self):
         result = []
         for line in self.lines:
             result.extend(line.get_y_values())
-        return filter(None, result)
+        return filter(lambda r: not r is None, result)
 
     def get_min_x(self):
         try:
