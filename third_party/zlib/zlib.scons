@@ -15,6 +15,7 @@ if env.WantSystemLib('zlib'):
 env = env.Clone()
 
 env.Append(
+    CPPPATH = ['$ZLIB_DIR'],
     ZLIB_LIB = ['zlib'],
 )
 
