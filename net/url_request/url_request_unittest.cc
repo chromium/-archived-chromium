@@ -929,7 +929,7 @@ TEST_F(URLRequestTest, Post307RedirectPost) {
 
 // TODO(ibrar) It appears that these tests are hanging or not shutting down 
 // correctly.  Disable them for now.
-#if 0  // !defined(OS_WIN)
+#if 1  // !defined(OS_WIN)
   #define MAYBE_FTPGetTestAnonymous   DISABLED_FTPGetTestAnonymous
   #define MAYBE_FTPCheckWrongPassword DISABLED_FTPCheckWrongPassword
   #define MAYBE_FTPCheckWrongUser     DISABLED_FTPCheckWrongUser
