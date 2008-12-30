@@ -33,7 +33,7 @@ TEST_F(ProcessUtilTest, SpawnChild) {
   ProcessHandle handle = this->SpawnChild(L"SimpleChildProcess");
 
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
-  EXPECT_TRUE(WaitForSingleProcess(handle, 1000));
+  EXPECT_TRUE(WaitForSingleProcess(handle, 5000));
 }
 
 MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
