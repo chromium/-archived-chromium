@@ -1168,7 +1168,8 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   char buffer[128];
   // Load up to the max count, all entries should be there.
   for (url_index = 0; url_index < kMaxEntryCount; url_index++) {
-    SNPrintF(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(), url_index);
+    base::snprintf(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(),
+                   url_index);
     GURL url(buffer);
     contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
     contents->CompleteNavigationAsRenderer(url_index, url);
@@ -1180,7 +1181,8 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   PrunedListener listener(contents->controller());
 
   // Navigate some more.
-  SNPrintF(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(), url_index);
+  base::snprintf(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(),
+                 url_index);
   GURL url(buffer);
   contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(url_index, url);
@@ -1198,7 +1200,8 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
 
   // More navigations.
   for (int i = 0; i < 3; i++) {
-    SNPrintF(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(), url_index);
+    base::snprintf(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(),
+                   url_index);
     url = GURL(buffer);
     contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
       contents->CompleteNavigationAsRenderer(url_index, url);

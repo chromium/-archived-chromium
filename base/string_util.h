@@ -105,15 +105,6 @@ bool IsWprintfFormatPortable(const wchar_t* format);
 #error Define string operations appropriately for your platform
 #endif
 
-// Old names for the above string functions, kept for compatibility.
-// TODO(evanm): excise all references to these old names.
-#define StrNCaseCmp base::strncasecmp
-#define SWPrintF base::swprintf
-#define VSNPrintF base::vsnprintf
-#define SNPrintF base::snprintf
-#define SWPrintF base::swprintf
-
-
 // Returns a reference to a globally unique empty string that functions can
 // return.  Use this to avoid static construction of strings, not to replace
 // any and all uses of "std::string()" as nicer-looking sugar.

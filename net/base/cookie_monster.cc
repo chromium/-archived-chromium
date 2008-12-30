@@ -173,7 +173,7 @@ Time CookieMonster::ParseCookieTime(const std::string& time_string) {
       if (!found_month) {
         for (int i = 0; i < kMonthsLen; ++i) {
           // Match prefix, so we could match January, etc
-          if (StrNCaseCmp(token.c_str(), kMonths[i], 3) == 0) {
+          if (base::strncasecmp(token.c_str(), kMonths[i], 3) == 0) {
             exploded.month = i + 1;
             found_month = true;
             break;

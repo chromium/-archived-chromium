@@ -169,8 +169,8 @@ CPError STDCALL CPP_Shutdown() {
 }
 
 CPBool STDCALL CPP_ShouldInterceptRequest(CPRequest* request) {
-  DCHECK(StrNCaseCmp(request->url, kChromeTestPluginProtocol,
-                     arraysize(kChromeTestPluginProtocol) - 1) == 0);
+  DCHECK(base::strncasecmp(request->url, kChromeTestPluginProtocol,
+                           arraysize(kChromeTestPluginProtocol) - 1) == 0);
   return FindPayload(request->url) != NULL;
 }
 
