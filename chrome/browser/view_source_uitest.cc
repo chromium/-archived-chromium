@@ -38,14 +38,12 @@ class ViewSourceTest : public UITest {
 // set in the html was set successfully (it shouldn't because we rendered the
 // page in view source)
 TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
   std::string cookie = "viewsource_cookie";
   std::string cookie_data = "foo";
 
   // First we navigate to our view-source test page
-  GURL url = server->TestServerPageW(test_html_);
+  GURL url = server.TestServerPageW(test_html_);
   url = GURL("view-source:" + url.spec());
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
@@ -63,12 +61,10 @@ TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
 // implementation of the view-source: prefix being consumed (removed from the
 // URL) if the URL was not changed (apart from adding the view-source prefix)
 TEST_F(ViewSourceTest, DoesBrowserConsumeViewSourcePrefix) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // First we navigate to google.html
-  GURL url = server->TestServerPageW(test_html_);
+  GURL url = server.TestServerPageW(test_html_);
   NavigateToURL(url);
 
   // Then we navigate to the SAME url but with the view-source: prefix
@@ -82,12 +78,10 @@ TEST_F(ViewSourceTest, DoesBrowserConsumeViewSourcePrefix) {
 // Make sure that when looking at the actual page, we can select
 // "View Source" from the Page menu.
 TEST_F(ViewSourceTest, ViewSourceInPageMenuEnabledOnANormalPage) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // First we navigate to google.html
-  GURL url = server->TestServerPageW(test_html_);
+  GURL url = server.TestServerPageW(test_html_);
   NavigateToURL(url);
 
   EXPECT_TRUE(IsPageMenuCommandEnabled(IDC_VIEW_SOURCE));
@@ -96,12 +90,10 @@ TEST_F(ViewSourceTest, ViewSourceInPageMenuEnabledOnANormalPage) {
 // Make sure that when looking at the page source, we can't select
 // "View Source" from the Page menu.
 TEST_F(ViewSourceTest, ViewSourceInPageMenuDisabledWhileViewingSource) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // First we navigate to google.html
-  GURL url = server->TestServerPageW(test_html_);
+  GURL url = server.TestServerPageW(test_html_);
   GURL url_viewsource = GURL("view-source:" + url.spec());
   NavigateToURL(url_viewsource);
 

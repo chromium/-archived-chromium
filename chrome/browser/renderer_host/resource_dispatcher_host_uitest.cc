@@ -89,15 +89,12 @@ TEST_F(ResourceDispatcherTest, ContentDispositionInline) {
 // Test for bug #1091358.
 TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
-  tab->NavigateToURL(server->TestServerPageW(
-      L"files/sync_xmlhttprequest.html"));
+  tab->NavigateToURL(server.TestServerPageW(L"files/sync_xmlhttprequest.html"));
 
   // Let's check the XMLHttpRequest ran successfully.
   bool success = false;
@@ -112,16 +109,14 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
 // if executed while navigating to a new page.
 TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
   tab->NavigateToURL(
-      server->TestServerPageW(L"files/sync_xmlhttprequest_during_unload.html"));
+      server.TestServerPageW(L"files/sync_xmlhttprequest_during_unload.html"));
 
   // Confirm that the page has loaded (since it changes its title during load).
   std::wstring tab_title;
@@ -131,7 +126,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
   // Navigate to a new page, to dispatch unload event and trigger xhr.
   // (the bug would make this step hang the renderer).
   bool timed_out = false;
-  tab->NavigateToURLWithTimeout(server->TestServerPageW(L"files/title2.html"),
+  tab->NavigateToURLWithTimeout(server.TestServerPageW(L"files/title2.html"),
                                 kWaitForActionMaxMsec,
                                 &timed_out);
   EXPECT_FALSE(timed_out);
@@ -147,15 +142,13 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
 // Tests that onunload is run for cross-site requests.  (Bug 1114994)
 TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
-  GURL url(server->TestServerPageW(L"files/onunload_cookie.html"));
+  GURL url(server.TestServerPageW(L"files/onunload_cookie.html"));
   tab->NavigateToURL(url);
 
   // Confirm that the page has loaded (since it changes its title during load).
@@ -226,15 +219,13 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
 // away from the link doctor page.  (Bug 1235537)
 TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
-  GURL url(server->TestServerPageW(L"files/onunload_cookie.html"));
+  GURL url(server.TestServerPageW(L"files/onunload_cookie.html"));
   tab->NavigateToURL(url);
 
   // Confirm that the page has loaded (since it changes its title during load).
@@ -268,7 +259,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   // WebContents was in the NORMAL state, it would ignore the attempt to run
   // the onunload handler, and the navigation would fail.
   // (Test by redirecting to javascript:window.location='someURL'.)
-  GURL test_url(server->TestServerPageW(L"files/title2.html"));
+  GURL test_url(server.TestServerPageW(L"files/title2.html"));
   std::wstring redirect_url = L"javascript:window.location='" +
       ASCIIToWide(test_url.possibly_invalid_spec()) + L"'";
   tab->NavigateToURLAsync(GURL(redirect_url));

@@ -52,13 +52,10 @@ class InterstitialPageTest : public UITest {
 // causes the actual navigation entry (title) to be modified by the content of
 // the interstitial.
 TEST_F(InterstitialPageTest, TestShowHideInterstitial) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
-
+  TestServer server(kDocRoot);
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
-              server->TestServerPageW(L"files/interstitial_page/google.html"));
+              server.TestServerPageW(L"files/interstitial_page/google.html"));
   NavigationEntry::PageType page_type;
   EXPECT_TRUE(tab->GetPageType(&page_type));
   EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
@@ -81,13 +78,10 @@ TEST_F(InterstitialPageTest, TestShowHideInterstitial) {
 // the interstitial.  In the mean time, we are treating Back like cancelling
 // the interstitial, which breaks this test because no notification occurs.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenBack) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
-
+  TestServer server(kDocRoot);
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
-              server->TestServerPageW(L"files/interstitial_page/google.html"));
+              server.TestServerPageW(L"files/interstitial_page/google.html"));
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
   tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
@@ -100,31 +94,26 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenBack) {
 // Shows an interstitial page then navigates to a new URL.
 // Flacky on Windows 2000 bot. Disabled for now bug #1173138.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenNavigate) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
-
+  TestServer server(kDocRoot);
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
-              server->TestServerPageW(L"files/interstitial_page/google.html"));
+              server.TestServerPageW(L"files/interstitial_page/google.html"));
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
   tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());
   EXPECT_EQ(L"Interstitial page", GetActiveTabTitle());
 
   tab->NavigateToURL(
-      server->TestServerPageW(L"files/interstitial_page/shopping.html"));
+      server.TestServerPageW(L"files/interstitial_page/shopping.html"));
   EXPECT_EQ(L"Google Product Search", GetActiveTabTitle());
 }
 
 // Shows an interstitial page then closes the tab (to make sure we don't crash).
 TEST_F(InterstitialPageTest, TestShowInterstitialThenCloseTab) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // Create 2 tabs so closing one does not close the browser.
-  AppendTab(server->TestServerPageW(L"files/interstitial_page/google.html"));
+  AppendTab(server.TestServerPageW(L"files/interstitial_page/google.html"));
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
@@ -137,13 +126,11 @@ TEST_F(InterstitialPageTest, TestShowInterstitialThenCloseTab) {
 // crash).
 // This test is disabled. See bug #1119448.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseBrowser) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   tab->NavigateToURL(
-      server->TestServerPageW(L"files/interstitial_page/google.html"));
+      server.TestServerPageW(L"files/interstitial_page/google.html"));
   EXPECT_EQ(L"Google", GetActiveTabTitle());
 
   tab->ShowInterstitialPage(kInterstitialPageHTMLText, action_timeout_ms());

@@ -62,11 +62,9 @@ wstring ExpectedTitleFromAuth(wstring username, wstring password) {
 
 // Test that "Basic" HTTP authentication works.
 TEST_F(LoginPromptTest, TestBasicAuth) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-basic"));
 
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_FALSE(tab->SetAuth(username_basic_, password_bad_));
@@ -74,7 +72,7 @@ TEST_F(LoginPromptTest, TestBasicAuth) {
   EXPECT_TRUE(tab->CancelAuth());
   EXPECT_EQ(L"Denied: wrong password", GetActiveTabTitle());
 
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-basic"));
 
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_TRUE(tab->SetAuth(username_basic_, password_));
@@ -84,18 +82,16 @@ TEST_F(LoginPromptTest, TestBasicAuth) {
 
 // Test that "Digest" HTTP authentication works.
 TEST_F(LoginPromptTest, TestDigestAuth) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-digest"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-digest"));
 
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_FALSE(tab->SetAuth(username_digest_, password_bad_));
   EXPECT_TRUE(tab->CancelAuth());
   EXPECT_EQ(L"Denied: wrong password", GetActiveTabTitle());
 
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-digest"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-digest"));
 
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_TRUE(tab->SetAuth(username_digest_, password_));
@@ -105,16 +101,14 @@ TEST_F(LoginPromptTest, TestDigestAuth) {
 
 // Test that logging in on 2 tabs at once works.
 TEST_F(LoginPromptTest, TestTwoAuths) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   ::scoped_ptr<TabProxy> basic_tab(GetActiveTabProxy());
-  NavigateTab(basic_tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(basic_tab.get(), server.TestServerPageW(L"auth-basic"));
 
   AppendTab(GURL("about:blank"));
   ::scoped_ptr<TabProxy> digest_tab(GetActiveTabProxy());
-  NavigateTab(digest_tab.get(), server->TestServerPageW(L"auth-digest"));
+  NavigateTab(digest_tab.get(), server.TestServerPageW(L"auth-digest"));
 
   // TODO(devint): http://b/1158262 basic_tab is not active, so this logs in to
   // a page whose tab isn't active, which isn't actually possible for the user
@@ -135,36 +129,34 @@ TEST_F(LoginPromptTest, TestTwoAuths) {
 
 // Test that cancelling authentication works.
 TEST_F(LoginPromptTest, TestCancelAuth) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
   // First navigate to a test server page so we have something to go back to.
-  EXPECT_TRUE(tab->NavigateToURL(server->TestServerPageW(L"a")));
+  EXPECT_TRUE(tab->NavigateToURL(server.TestServerPageW(L"a")));
 
   // Navigating while auth is requested is the same as cancelling.
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-basic"));
   EXPECT_TRUE(tab->NeedsAuth());
-  EXPECT_TRUE(tab->NavigateToURL(server->TestServerPageW(L"b")));
+  EXPECT_TRUE(tab->NavigateToURL(server.TestServerPageW(L"b")));
   EXPECT_FALSE(tab->NeedsAuth());
 
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-basic"));
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_TRUE(tab->GoBack());  // should bring us back to 'a'
   EXPECT_FALSE(tab->NeedsAuth());
 
   // Now add a page and go back, so we have something to go forward to.
-  EXPECT_TRUE(tab->NavigateToURL(server->TestServerPageW(L"c")));
+  EXPECT_TRUE(tab->NavigateToURL(server.TestServerPageW(L"c")));
   EXPECT_TRUE(tab->GoBack());  // should bring us back to 'a'
 
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-basic"));
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_TRUE(tab->GoForward());  // should bring us to 'c'
   EXPECT_FALSE(tab->NeedsAuth());
 
   // Now test that cancelling works as expected.
-  NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
+  NavigateTab(tab.get(), server.TestServerPageW(L"auth-basic"));
   EXPECT_TRUE(tab->NeedsAuth());
   EXPECT_TRUE(tab->CancelAuth());
   EXPECT_FALSE(tab->NeedsAuth());

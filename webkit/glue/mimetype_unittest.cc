@@ -23,7 +23,7 @@ class MimeTypeTests : public TestShellTest {
     test_shell_->LoadURL(UTF8ToWide(url.spec()).c_str());
     test_shell_->WaitTestFinished();
   }
-
+  
   void CheckMimeType(const char* mimetype, const std::wstring& expected) {
     std::string path("contenttype?");
     GURL url = server_->TestServerPage(path + mimetype);
@@ -31,17 +31,16 @@ class MimeTypeTests : public TestShellTest {
     WebFrame* frame = test_shell_->webView()->GetMainFrame();
     EXPECT_EQ(expected, webkit_glue::DumpDocumentText(frame));
   }
-
-  scoped_refptr<UnittestTestServer> server_;
+  
+  scoped_ptr<UnittestTestServer> server_;
 };
 
 TEST_F(MimeTypeTests, MimeTypeTests) {
-  server_ = UnittestTestServer::CreateServer();
-  ASSERT_TRUE(NULL != server_.get());
+  server_.reset(new UnittestTestServer);
 
   std::wstring expected_src(L"<html>\n<body>\n"
       L"<p>HTML text</p>\n</body>\n</html>\n");
-
+  
   // These files should all be displayed as plain text.
   const char* plain_text[] = {
     "text/css",
@@ -81,6 +80,7 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
   // TODO(tc): make sure other mime types properly go to download (e.g.,
   // image/foo).
 
+  server_.reset(NULL);
 }
 
 }  // namespace

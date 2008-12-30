@@ -38,10 +38,8 @@ TEST_F(ErrorPageTest, IFrame404) {
   // In this test, the iframe sets the title of the parent page to "SUCCESS"
   // when the iframe loads.  If the iframe fails to load (because an alternate
   // error page loads instead), then the title will remain as "FAIL".
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
-  ASSERT_TRUE(NULL != server.get());
-  GURL test_url = server->TestServerPage("files/iframe404.html");
+  TestServer server(L"chrome/test/data");
+  GURL test_url = server.TestServerPage("files/iframe404.html");
   NavigateToURL(test_url);
 
   // Verify that the url is in the title.  Since it's set via Javascript, we

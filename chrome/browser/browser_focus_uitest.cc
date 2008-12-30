@@ -55,12 +55,10 @@ bool ActivateTabByClick(AutomationProxy* automation,
 }  // namespace
 
 TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // First we navigate to our test page.
-  GURL url = server->TestServerPageW(kSimplePage);
+  GURL url = server.TestServerPageW(kSimplePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   EXPECT_NE(AUTOMATION_MSG_NAVIGATION_ERROR, tab->NavigateToURL(url));
 
@@ -132,9 +130,7 @@ TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
 
 // Tabs remember focus.
 TEST_F(BrowserFocusTest, TabsRememberFocus) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
   ASSERT_TRUE(window.get() != NULL);
@@ -143,7 +139,7 @@ TEST_F(BrowserFocusTest, TabsRememberFocus) {
   ASSERT_TRUE(browser.get() != NULL);
 
   // First we navigate to our test page.
-  GURL url = server->TestServerPageW(kSimplePage);
+  GURL url = server.TestServerPageW(kSimplePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
 
@@ -198,12 +194,10 @@ TEST_F(BrowserFocusTest, TabsRememberFocus) {
 
 // Background window does not steal focus.
 TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // First we navigate to our test page.
-  GURL simple_page_url = server->TestServerPageW(kSimplePage);
+  GURL simple_page_url = server.TestServerPageW(kSimplePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(simple_page_url);
 
@@ -221,7 +215,7 @@ TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
       automation()->GetBrowserForWindow(new_window.get()));
   ASSERT_TRUE(new_browser.get() != NULL);
 
-  GURL steal_focus_url = server->TestServerPageW(kStealFocusPage);
+  GURL steal_focus_url = server.TestServerPageW(kStealFocusPage);
   new_browser->AppendTab(steal_focus_url);
 
   // Make the first browser active
@@ -238,12 +232,10 @@ TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
 
 // Page cannot steal focus when focus is on location bar.
 TEST_F(BrowserFocusTest, LocationBarLockFocus) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // Open the page that steals focus.
-  GURL url = server->TestServerPageW(kStealFocusPage);
+  GURL url = server.TestServerPageW(kStealFocusPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
 
@@ -272,12 +264,10 @@ TEST_F(BrowserFocusTest, LocationBarLockFocus) {
 
 // Focus traversal
 TEST_F(BrowserFocusTest, FocusTraversal) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // Open the page the test page.
-  GURL url = server->TestServerPageW(kTypicalPage);
+  GURL url = server.TestServerPageW(kTypicalPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
 
@@ -347,12 +337,10 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
 
 // Make sure Find box can request focus, even when it is already open.
 TEST_F(BrowserFocusTest, FindFocusTest) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   // Open some page (any page that doesn't steal focus).
-  GURL url = server->TestServerPageW(kTypicalPage);
+  GURL url = server.TestServerPageW(kTypicalPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
 

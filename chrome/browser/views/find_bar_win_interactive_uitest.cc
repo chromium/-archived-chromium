@@ -52,9 +52,7 @@ bool ActivateTabByClick(AutomationProxy* automation,
 }  // namespace
 
 TEST_F(FindInPageTest, CrashEscHandlers) {
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
-  ASSERT_TRUE(NULL != server.get());
+  TestServer server(kDocRoot);
 
   scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
   ASSERT_TRUE(browser.get() != NULL);
@@ -63,7 +61,7 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
   ASSERT_TRUE(window.get() != NULL);
 
   // First we navigate to our test page (tab A).
-  GURL url = server->TestServerPageW(kSimplePage);
+  GURL url = server.TestServerPageW(kSimplePage);
   scoped_ptr<TabProxy> tabA(GetActiveTab());
   EXPECT_NE(AUTOMATION_MSG_NAVIGATION_ERROR, tabA->NavigateToURL(url));
 
