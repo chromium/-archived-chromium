@@ -7,9 +7,9 @@
 #include "base/command_line.h"
 #include "sandbox/src/sandbox.h"
 
-// TODO(port): several win-only methods have been pulled out of this, but 
+// TODO(port): several win-only methods have been pulled out of this, but
 // BrowserMain() as a whole needs to be broken apart so that it's usable by
-// other platforms. For now, it's just a stub. This is a serious work in 
+// other platforms. For now, it's just a stub. This is a serious work in
 // progress and should not be taken as an indication of a real refactoring.
 
 #if defined(OS_WIN)
@@ -150,6 +150,13 @@ int BrowserMain(CommandLine &parsed_command_line,
   // TODO(beng, brettw): someday, break this out into sub functions with well
   //                     defined roles (e.g. pre/post-profile startup, etc).
 
+#ifdef TRACK_ALL_TASK_OBJECTS
+  // Start tracking the creation and deletion of Task instance.
+  // This construction MUST be done before main_message_loop, so that it is
+  // destroyed after the main_message_loop.
+  tracked_objects::AutoTracking tracking_objects;
+#endif
+
   MessageLoop main_message_loop(MessageLoop::TYPE_UI);
 
   // Initialize the SystemMonitor
@@ -263,12 +270,6 @@ int BrowserMain(CommandLine &parsed_command_line,
 
   // Initialize histogram statistics gathering system.
   StatisticsRecorder statistics;
-
-  // Start tracking the creation and deletion of Task instances
-  bool tracking_objects = false;
-#ifdef TRACK_ALL_TASK_OBJECTS
-  tracking_objects = tracked_objects::ThreadData::StartTracking(true);
-#endif
 
   // Initialize the shared instance of user data manager.
   UserDataManager::Create();
@@ -487,20 +488,7 @@ int BrowserMain(CommandLine &parsed_command_line,
   // browser_shutdown takes care of deleting browser_process, so we need to
   // release it.
   browser_process.release();
-
   browser_shutdown::Shutdown();
-
-  // The following teardown code will pacify Purify, but is not necessary for
-  // shutdown.  Only list methods here that have no significant side effects
-  // and can be run in single threaded mode before terminating.
-#ifndef NDEBUG  // Don't call these in a Release build: they just waste time.
-  // The following should ONLY be called when in single threaded mode. It is
-  // unsafe to do this cleanup if other threads are still active.
-  // It is also very unnecessary, so I'm only doing this in debug to satisfy
-  // purify.
-  if (tracking_objects)
-    tracked_objects::ThreadData::ShutdownSingleThreadedCleanup();
-#endif  // NDEBUG
 
   return result_code;
 }
