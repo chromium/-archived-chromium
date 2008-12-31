@@ -1793,3 +1793,9 @@ LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-007.html = FAIL
 SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
 SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
 
+// Merge 39543:39501 -- new test missing expected results.  Passes on Windows;
+// may just need to be baselined.
+LINUX : LayoutTests/fast/backgrounds/opacity-on-document-element.html = FAIL
+
+// Merge 39543:39501 -- test was edited slightly.  Needs new expected result.
+LINUX : LayoutTests/fast/transforms/identity-matrix.html = FAIL
