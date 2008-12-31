@@ -117,7 +117,7 @@ class Stack:
   # if functions match the following, elide them from the stack
   pat_func_elide = (re.compile('^std::'), re.compile('^new\('))
   # if files match the following, elide them from the stack
-  pat_file_elide = (re.compile('.*platformsdk_vista.*'), 
+  pat_file_elide = (re.compile('.*platformsdk_win2008.*'), 
                     re.compile('.*.(dll|DLL)$'),
                     # bug 1069902
                     re.compile('webkit/pending/wtf/fastmalloc\.h'),

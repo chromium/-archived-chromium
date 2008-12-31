@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SolutionDir)..;$(SolutionDir)..\third_party\platformsdk_vista_6_0\files\Include;$(SolutionDir)..\third_party\platformsdk_vista_6_0\files\VC\INCLUDE;$(VSInstallDir)\VC\atlmfc\include"
+				AdditionalIncludeDirectories="$(SolutionDir)..;$(SolutionDir)..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include"
 				PreprocessorDefinitions="_WIN32_WINNT=0x0501;WINVER=0x0501;WIN32;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -120,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(SolutionDir)..;$(SolutionDir)..\third_party\platformsdk_vista_6_0\files\Include;$(SolutionDir)..\third_party\platformsdk_vista_6_0\files\VC\INCLUDE;$(VSInstallDir)\VC\atlmfc\include"
+				AdditionalIncludeDirectories="$(SolutionDir)..;$(SolutionDir)..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include"
 				PreprocessorDefinitions="_WIN32_WINNT=0x0501;WINVER=0x0501;WIN32;NDEBUG"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
