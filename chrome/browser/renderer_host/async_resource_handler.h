@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_ASYNC_RESOURCE_HANDLER_H_
 #define CHROME_BROWSER_RENDERER_HOST_ASYNC_RESOURCE_HANDLER_H_
 
+#include "base/process.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 
@@ -17,7 +18,7 @@ class AsyncResourceHandler : public ResourceHandler {
   AsyncResourceHandler(ResourceDispatcherHost::Receiver* receiver,
                        int render_process_host_id,
                        int routing_id,
-                       HANDLE render_process,
+                       base::ProcessHandle render_process,
                        const GURL& url,
                        ResourceDispatcherHost* resource_dispatcher_host);
 
@@ -41,7 +42,7 @@ class AsyncResourceHandler : public ResourceHandler {
   ResourceDispatcherHost::Receiver* receiver_;
   int render_process_host_id_;
   int routing_id_;
-  HANDLE render_process_;
+  base::ProcessHandle render_process_;
   ResourceDispatcherHost* rdh_;
 
   DISALLOW_COPY_AND_ASSIGN(AsyncResourceHandler);

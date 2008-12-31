@@ -69,9 +69,6 @@ bool BufferedResourceHandler::OnWillRead(int request_id,
 }
 
 bool BufferedResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
-  ResourceDispatcherHost::ExtraRequestInfo* info =
-      ResourceDispatcherHost::ExtraInfoForRequest(request_);
-
   if (sniff_content_ || should_buffer_) {
     if (KeepBuffering(*bytes_read))
       return true;

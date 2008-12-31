@@ -21,11 +21,11 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
       render_process_host_id_(render_process_host_id),
       render_view_id_(render_view_id),
       paused_request_id_(-1),
-      safe_browsing_(safe_browsing),
       in_safe_browsing_check_(false),
       displaying_blocking_page_(false),
-      rdh_(resource_dispatcher_host),
+      safe_browsing_(safe_browsing),
       queued_error_request_id_(-1),
+      rdh_(resource_dispatcher_host),
       resource_type_(resource_type) {
   if (safe_browsing_->CheckUrl(url, this)) {
     safe_browsing_result_ = SafeBrowsingService::URL_SAFE;

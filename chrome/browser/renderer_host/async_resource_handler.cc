@@ -4,13 +4,15 @@
 
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 
+#include "base/process.h"
+
 base::SharedMemory* AsyncResourceHandler::spare_read_buffer_;
 
 AsyncResourceHandler::AsyncResourceHandler(
     ResourceDispatcherHost::Receiver* receiver,
     int render_process_host_id,
     int routing_id,
-    HANDLE render_process,
+    base::ProcessHandle render_process,
     const GURL& url,
     ResourceDispatcherHost* resource_dispatcher_host)
     : receiver_(receiver),

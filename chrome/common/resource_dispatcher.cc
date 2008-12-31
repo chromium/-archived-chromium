@@ -7,6 +7,7 @@
 #include "chrome/common/resource_dispatcher.h"
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
@@ -235,8 +236,7 @@ void IPCResourceLoaderBridge::SyncLoad(SyncLoadResponse* response) {
 
 ResourceDispatcher::ResourceDispatcher(IPC::Message::Sender* sender)
     : message_sender_(sender),
-#pragma warning(suppress: 4355)
-      method_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)) {
 }
 
 ResourceDispatcher::~ResourceDispatcher() {
