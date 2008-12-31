@@ -80,7 +80,7 @@ if env.Bit('windows'):
           'views',
           'WebCore',
 
-	  # Windows-specific libraries.
+          # Windows-specific libraries.
           'activex_shim',
 
           'winmm',
@@ -112,6 +112,7 @@ unit_test_files = []
 unit_test_files.extend([
   '$CHROME_DIR/common/ipc_sync_message_unittest.cc',
   '$CHROME_DIR/common/property_bag_unittest.cc',
+  '$CHROME_DIR/common/unzip_unittest.cc',
   '$CHROME_DIR/renderer/greasemonkey_slave_unittest.cc',
 ])
 

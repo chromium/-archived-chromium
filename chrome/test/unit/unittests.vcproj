@@ -1092,6 +1092,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestUnzip"
+			>
+			<File
+				RelativePath="..\..\common\unzip_unittest.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

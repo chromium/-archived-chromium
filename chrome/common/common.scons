@@ -74,6 +74,7 @@ input_files.extend([
   'task_queue.cc',
   'throb_animation.cc',
   'thumbnail_score.cc',
+  'unzip.cc',
   'visitedlink_common.cc',
 ])
 
