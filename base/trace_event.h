@@ -35,8 +35,6 @@
 // RunScript(script);
 // TRACE_EVENT_END("v8.run", documentId, scriptLocation);
 
-#if defined(OS_WIN)
-
 // Record that an event (of name, id) has begun.  All BEGIN events should have
 // corresponding END events with a matching (name, id).
 #define TRACE_EVENT_BEGIN(name, id, extra) \
@@ -65,13 +63,6 @@
                                           extra, \
                                           __FILE__, \
                                           __LINE__)
-#else
-// TODO(erikkay): temporarily disable the macros on other platforms
-// until I can add the files to the other platform build files.
-#define TRACE_EVENT_BEGIN(name, id, extra)
-#define TRACE_EVENT_END(name, id, extra)
-#define TRACE_EVENT_INSTANT(name, id, extra)
-#endif
 
 namespace base {
 class ProcessMetrics;
