@@ -19,14 +19,14 @@
 	/>
 	<UserMacro
 		Name="SDK"
-		Value="$(SolutionDir)..\..\third_party\platformsdk_vista_6_0\files"
+		Value="$(SolutionDir)..\..\third_party\platformsdk_win2008_6_1\files"
 	/>
 	<UserMacro
 		Name="SDKIncludes"
-		Value="$(SDK)\Include;$(SDK)\VC\INCLUDE;$(VSInstallDir)\VC\atlmfc\include"
+		Value="$(SDK)\Include;$(VSInstallDir)\VC\atlmfc\include"
 	/>
 	<UserMacro
 		Name="SDKLibs"
-		Value="$(SDK)\Lib;$(SDK)\VC\LIB"
+		Value="$(SDK)\Lib"
 	/>
 </VisualStudioPropertySheet>
