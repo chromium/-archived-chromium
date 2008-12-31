@@ -53,7 +53,8 @@ void SetContentStateIfEmpty(NavigationEntry* entry) {
       (entry->tab_type() == TAB_CONTENTS_WEB ||
        entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
        entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
-       entry->tab_type() == TAB_CONTENTS_HTML_DIALOG)) {
+       entry->tab_type() == TAB_CONTENTS_HTML_DIALOG ||
+       entry->tab_type() == TAB_CONTENTS_VIEW_SOURCE)) {
     entry->set_content_state(
         webkit_glue::CreateHistoryStateForURL(entry->url()));
   }
