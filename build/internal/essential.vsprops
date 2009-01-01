@@ -60,11 +60,11 @@
 	/>
 	<UserMacro
 		Name="SDKIncludes"
-		Value="$(SDK)\Include;$(SDK)\VC\INCLUDE;$(VSInstallDir)\VC\atlmfc\include"
+		Value="$(SDK)\Include;$(VSInstallDir)\VC\atlmfc\include"
 	/>
 	<UserMacro
 		Name="SDKLibs"
-		Value="$(SDK)\Lib;$(SDK)\VC\LIB"
+		Value="$(SDK)\Lib"
 	/>
 	<UserMacro
 		Name="DefaultOutputDirectory"
