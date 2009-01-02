@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -162,17 +163,17 @@ void DiskCacheBackendTest::BackendKeying() {
   entry2->Close();
 
   char buffer[30];
-  base::strlcpy(buffer, kName1, sizeof(buffer));
+  base::strlcpy(buffer, kName1, arraysize(buffer));
   ASSERT_TRUE(cache_->OpenEntry(buffer, &entry2));
   EXPECT_TRUE(entry1 == entry2);
   entry2->Close();
 
-  base::strlcpy(buffer + 1, kName1, sizeof(buffer) - 1);
+  base::strlcpy(buffer + 1, kName1, arraysize(buffer) - 1);
   ASSERT_TRUE(cache_->OpenEntry(buffer + 1, &entry2));
   EXPECT_TRUE(entry1 == entry2);
   entry2->Close();
 
-  base::strlcpy(buffer + 3,  kName1, sizeof(buffer) - 3);
+  base::strlcpy(buffer + 3,  kName1, arraysize(buffer) - 3);
   ASSERT_TRUE(cache_->OpenEntry(buffer + 3, &entry2));
   EXPECT_TRUE(entry1 == entry2);
   entry2->Close();

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "net/disk_cache/disk_cache_test_base.h"
@@ -77,7 +78,7 @@ TEST_F(DiskCacheTest, MappedFile_SyncIO) {
   char buffer1[20];
   char buffer2[20];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
-  base::strlcpy(buffer1, "the data", sizeof(buffer1));
+  base::strlcpy(buffer1, "the data", arraysize(buffer1));
   EXPECT_TRUE(file->Write(buffer1, sizeof(buffer1), 8192));
   EXPECT_TRUE(file->Read(buffer2, sizeof(buffer2), 8192));
   EXPECT_STREQ(buffer1, buffer2);
@@ -100,7 +101,7 @@ TEST_F(DiskCacheTest, MappedFile_AsyncIO) {
   char buffer1[20];
   char buffer2[20];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
-  base::strlcpy(buffer1, "the data", sizeof(buffer1));
+  base::strlcpy(buffer1, "the data", arraysize(buffer1));
   bool completed;
   EXPECT_TRUE(file->Write(buffer1, sizeof(buffer1), 1024 * 1024, &callback,
               &completed));

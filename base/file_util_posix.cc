@@ -460,7 +460,7 @@ FilePath FileEnumerator::Next() {
     // Start a new find operation.
     int ftsflags = FTS_LOGICAL;
     char top_dir[PATH_MAX];
-    base::strlcpy(top_dir, root_path_.value().c_str(), sizeof(top_dir));
+    base::strlcpy(top_dir, root_path_.value().c_str(), arraysize(top_dir));
     char* dir_list[2] = { top_dir, NULL };
     fts_ = fts_open(dir_list, ftsflags, NULL);
     if (!fts_)
