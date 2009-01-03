@@ -42,6 +42,7 @@ DirectoryWatcher::Impl::~Impl() {
 
 bool DirectoryWatcher::Impl::Watch(const FilePath& path) {
   DCHECK(path_.value().empty());  // Can only watch one path.
+  DCHECK(path.IsAbsolute());  // FindFirstChangeNotification requires it.
 
   handle_ = FindFirstChangeNotification(
       path.value().c_str(),
