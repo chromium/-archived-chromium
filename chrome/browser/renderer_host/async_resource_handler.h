@@ -9,7 +9,9 @@
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 
-class base::SharedMemory;
+namespace base {
+class SharedMemory;
+}
 
 // Used to complete an asynchronous resource request in response to resource
 // load events from the resource dispatcher host.
