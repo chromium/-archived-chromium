@@ -174,6 +174,7 @@ if env.Bit('windows'):
       'controller.cc',
       'dock_info.cc',
       'dom_ui/chrome_url_data_manager.cc',
+      'dom_ui/dom_ui_contents.cc',
       'dom_ui/dom_ui_host.cc',
       'dom_ui/html_dialog_contents.cc',
       'dom_ui/new_tab_ui.cc',
@@ -222,6 +223,7 @@ if env.Bit('windows'):
       'native_ui_contents.cc',
       'navigation_controller.cc',
       'navigation_entry.cc',
+      'net/chrome_url_request_context.cc',
       'net/dns_global.cc',
       'net/dns_master.cc',
       'net/dns_slave.cc',
@@ -302,9 +304,11 @@ if env.Bit('windows'):
   env.TypeLibrary('history/history_indexer.idl')
 
   input_files.extend([
+      'browser_main_win.cc',
       'importer/firefox_profile_lock_win.cc',
       'render_widget_host_view_win.cc',
       'web_contents_view_win.cc',
+      'webdata/web_database_win.cc',
   ])
 
 if env.Bit('posix'):
