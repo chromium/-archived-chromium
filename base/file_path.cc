@@ -113,7 +113,7 @@ FilePath FilePath::DirName() const {
   return new_path;
 }
 
-FilePath::StringType FilePath::BaseName() const {
+FilePath FilePath::BaseName() const {
   FilePath new_path(path_);
   new_path.StripTrailingSeparatorsInternal();
 
@@ -133,7 +133,7 @@ FilePath::StringType FilePath::BaseName() const {
     new_path.path_.erase(0, last_separator + 1);
   }
 
-  return new_path.path_;
+  return new_path;
 }
 
 FilePath FilePath::Append(const FilePath::StringType& component) const {

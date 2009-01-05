@@ -739,6 +739,7 @@ void MemoryMappedFile::CloseHandles() {
 }
 
 // Deprecated functions ----------------------------------------------------
+
 void InsertBeforeExtension(std::wstring* path_str,
                            const std::wstring& suffix) {
   FilePath path(*path_str);

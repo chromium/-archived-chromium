@@ -467,7 +467,7 @@ class SafeBrowsingDatabaseTest {
 
     int64 total_ms = total_timer.Elapsed().InMilliseconds();
 
-    DLOG(INFO) << path_.BaseName() << " read " << keys_to_read <<
+    DLOG(INFO) << path_.BaseName().value() << " read " << keys_to_read <<
         " entries in " << total_ms << " ms.  "  << keys_from_db <<
         " keys were read from the db, with average read taking " <<
         db_ms / keys_from_db << " ms";
@@ -486,7 +486,7 @@ class SafeBrowsingDatabaseTest {
 
     int64 total_ms = total_timer.Elapsed().InMilliseconds();
 
-    DLOG(INFO) << path_.BaseName() <<
+    DLOG(INFO) << path_.BaseName().value() <<
         " built bloom filter in " << total_ms << " ms.";
   }
 

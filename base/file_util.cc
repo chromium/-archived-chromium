@@ -381,11 +381,7 @@ std::wstring GetFilenameFromPath(const std::wstring& path) {
   if (path.empty() || EndsWithSeparator(path))
     return std::wstring();
 
-#if defined(OS_WIN)
-  return FilePath::FromWStringHack(path).BaseName();
-#elif defined(OS_POSIX)
-  return UTF8ToWide(FilePath::FromWStringHack(path).BaseName());
-#endif
+  return FilePath::FromWStringHack(path).BaseName().ToWStringHack();
 }
 bool GetFileSize(const std::wstring& file_path, int64* file_size) {
   return GetFileSize(FilePath::FromWStringHack(file_path), file_size);

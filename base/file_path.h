@@ -146,7 +146,7 @@ class FilePath {
   // object, either a file or a directory.  If this object already refers to
   // the root directory, returns a FilePath identifying the root directory;
   // this is the only situation in which BaseName will return an absolute path.
-  StringType BaseName() const;
+  FilePath BaseName() const;
 
   // Returns a FilePath by appending a separator and the supplied path
   // component to this object's path.  Append takes care to avoid adding
