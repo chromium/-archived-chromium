@@ -12,6 +12,7 @@
 enum Branch {
   UNKNOWN_BRANCH = 0,
   DEV_BRANCH,
+  OLD_DEV_BRANCH,
   BETA_BRANCH,
   STABLE_BRANCH,
 };
@@ -19,6 +20,7 @@ enum Branch {
 // This vector of strings needs to be in sync with the Branch enum above.
 static const wchar_t* const kBranchStrings[] = {
   L"?",
+  L"2.0-dev",
   L"1.1-dev",
   L"1.1-beta",
   L"",
@@ -28,6 +30,7 @@ static const wchar_t* const kBranchStrings[] = {
 static const wchar_t* const kBranchStringsReadable[] = {
   L"?",
   L"Dev",
+  L"Beta (was Dev)",
   L"Beta",
   L"Stable",
 };
@@ -106,6 +109,11 @@ void DetectBranch() {
         update_branch = update_branch.substr(0, index);
       }
     }
+    // The 1.1-dev channel has been deprecated and all users have been
+    // logically moved to the Beta channel. If we find that token, we
+    // just declare the user on the Beta channel.
+    if (update_branch == kBranchStrings[OLD_DEV_BRANCH])
+      update_branch = kBranchStrings[BETA_BRANCH];
   }
 }
 
