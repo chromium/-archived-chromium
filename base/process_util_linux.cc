@@ -92,30 +92,6 @@ bool LaunchApp(const CommandLine& cl,
   return LaunchApp(cl.argv(), no_files, wait, process_handle);
 }
 
-// Attempts to kill the process identified by the given process
-// entry structure.  Ignores specified exit_code; linux can't force that.
-// Returns true if this is successful, false otherwise.
-bool KillProcess(int process_id, int exit_code, bool wait) {
-  bool result = false;
-
-  int status = kill(process_id, SIGTERM);
-  if (!status && wait) {
-    int tries = 60;
-    // The process may not end immediately due to pending I/O
-    while (tries-- > 0) {
-      int pid = waitpid(process_id, &status, WNOHANG);
-      if (pid == process_id) {
-        result = true;
-        break;
-      }
-      sleep(1);
-    }
-  }
-  if (!result)
-    DLOG(ERROR) << "Unable to terminate process.";
-  return result;
-}
-
 bool DidProcessCrash(ProcessHandle handle) {
   int status;
   if (waitpid(handle, &status, WNOHANG)) {

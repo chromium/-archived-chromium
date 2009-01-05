@@ -4,6 +4,7 @@
 
 #include "base/process_util.h"
 
+#include <signal.h>
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -30,6 +31,30 @@ ProcessHandle GetCurrentProcessHandle() {
 
 int GetProcId(ProcessHandle process) {
   return process;
+}
+
+// Attempts to kill the process identified by the given process
+// entry structure.  Ignores specified exit_code; posix can't force that.
+// Returns true if this is successful, false otherwise.
+bool KillProcess(int process_id, int exit_code, bool wait) {
+  bool result = false;
+
+  int status = kill(process_id, SIGTERM);
+  if (!status && wait) {
+    int tries = 60;
+    // The process may not end immediately due to pending I/O
+    while (tries-- > 0) {
+      int pid = waitpid(process_id, &status, WNOHANG);
+      if (pid == process_id) {
+        result = true;
+        break;
+      }
+      sleep(1);
+    }
+  }
+  if (!result)
+    DLOG(ERROR) << "Unable to terminate process.";
+  return result;
 }
 
 int GetMaxFilesOpenInProcess() {
