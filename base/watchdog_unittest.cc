@@ -80,7 +80,8 @@ TEST(WatchdogTest, AlarmTest) {
   // Set a time greater than the timeout into the past.
   watchdog.ArmSomeTimeDeltaAgo(TimeDelta::FromSeconds(2));
   // It should instantly go off, but certainly in less than a second.
-  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromSeconds(1),
+  // In practice, on our trybots, it sometimes takes a little longer!
+  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMilliseconds(1500),
                                    watchdog.alarm_counter() > 1);
 
   EXPECT_EQ(2, watchdog.alarm_counter());
