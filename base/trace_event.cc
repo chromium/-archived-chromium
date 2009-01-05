@@ -51,7 +51,7 @@ bool TraceLog::Start() {
     return true;
   enabled_ = OpenLogFile();
   if (enabled_) {
-    Log("var raw_trace_events = [\r\n");
+    Log("var raw_trace_events = [\n");
     trace_start_time_ = TimeTicks::Now();
     timer_.Start(TimeDelta::FromMilliseconds(250), this, &TraceLog::Heartbeat);
   }
@@ -67,7 +67,7 @@ void TraceLog::StopTracing() {
 void TraceLog::Stop() {
   if (enabled_) {
     enabled_ = false;
-    Log("];\r\n");
+    Log("];\n");
     CloseLogFile();
     timer_.Stop();
   }
@@ -132,7 +132,7 @@ void TraceLog::Trace(const std::string& name,
   std::string msg = 
     StringPrintf("{'pid':'0x%lx', 'tid':'0x%lx', 'type':'%s', "
                  "'name':'%s', 'id':'0x%lx', 'extra':'%s', 'file':'%s', "
-                 "'line_number':'%d', 'usec_begin': %I64d},\r\n", 
+                 "'line_number':'%d', 'usec_begin': %I64d},\n",
                  base::GetCurrentProcId(),
                  PlatformThread::CurrentId(),
                  kEventTypeNames[type],
