@@ -761,7 +761,7 @@ void Browser::ViewSource() {
   NavigationEntry* entry = current_tab->controller()->GetLastCommittedEntry();
   if (entry) {
     GURL url("view-source:" + entry->url().spec());
-    AddTabWithURL(url, GURL(), PageTransition::LINK, true, NULL);
+    OpenURL(url, GURL(), NEW_FOREGROUND_TAB, PageTransition::LINK);
   }
 }
 
