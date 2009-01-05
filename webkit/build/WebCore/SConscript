@@ -897,6 +897,9 @@ if env.Bit('windows'):
     '$WEBCORE_DIR/platform/graphics/chromium/ThemeHelperChromiumWin.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/UniscribeHelper.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/UniscribeHelperTextRun.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/SkiaFontWin.cpp',
+
+    '$WEBCORE_DIR/rendering/RenderThemeChromiumWin.cpp',
   ])
 
 if env.Bit('linux'):

@@ -62,6 +62,7 @@ env_dll = env.Clone()
 
 env_dll.ApplySConscript([
     '$CHROME_SRC_DIR/build/using_v8.scons',
+    '$ICU38_DIR/using_icu38.scons',
 ])
 
 env_dll.Prepend(
@@ -105,7 +106,6 @@ env_dll.Append(
         'net',
         'skia',
         'bzip2',
-        env_dll['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
         'libxml',
@@ -151,6 +151,8 @@ if env_dll.Bit('windows'):
           #'shlwapi.lib',
           #'winmm.lib',
           #'wsock32.lib',
+
+          'Urlmon',
       ],
       LINKFLAGS = [
           '/INCREMENTAL',
