@@ -23,7 +23,8 @@ SdchFilter::SdchFilter()
       dest_buffer_excess_index_(0),
       source_bytes_(0),
       output_bytes_(0),
-      time_of_last_read_() {
+      time_of_last_read_(),
+      size_of_last_read_(0) {
 }
 
 SdchFilter::~SdchFilter() {
@@ -54,6 +55,10 @@ SdchFilter::~SdchFilter() {
       if (PASS_THROUGH == decoding_status_)
         UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Transit_Pass-through_Latency_M",
                                    duration);
+      // Look at sizes of the 20% of blocks that arrive with large latency.
+      if (15 < duration.InSeconds())
+        UMA_HISTOGRAM_COUNTS(L"Sdch.Transit_Belated_Final_Block_Size",
+                             size_of_last_read_);
     }
   }
 
@@ -92,8 +97,10 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
     return FILTER_ERROR;
 
   // Don't update when we're called to just flush out our internal buffers.
-  if (next_stream_data_ && stream_data_len_ > 0)
+  if (next_stream_data_ && stream_data_len_ > 0) {
     time_of_last_read_ = base::Time::Now();
+    size_of_last_read_ = stream_data_len_;
+  }
 
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();
