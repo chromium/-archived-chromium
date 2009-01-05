@@ -1930,7 +1930,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetStrokeColor) {
 }
 
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetFillColor) {
-  INC_STATS("DOM.CanvasRenderingContext2D.steFillColor()");
+  INC_STATS("DOM.CanvasRenderingContext2D.setFillColor()");
   CanvasRenderingContext2D* context =
       V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
