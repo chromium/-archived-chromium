@@ -39,7 +39,7 @@ class JSONStringValueSerializer : public ValueSerializer {
 
   // Attempt to deserialize the data structure encoded in the string passed
   // in to the constructor into a structure of Value objects.  If the return
-  // value is NULL and |error_message| is non-null, |error-message| will contain
+  // value is NULL and |error_message| is non-null, |error_message| will contain
   // a string describing the error.
   Value* Deserialize(std::string* error_message);
 
@@ -84,7 +84,8 @@ class JSONFileValueSerializer : public ValueSerializer {
   // Attempt to deserialize the data structure encoded in the file passed
   // in to the constructor into a structure of Value objects.  If the return
   // value is NULL, and if |error_message| is non-null, |error_message| will
-  // contain a string describing the error.
+  // contain a string describing the error. The caller takes ownership of the
+  // returned value.
   Value* Deserialize(std::string* error_message);
 
  private:

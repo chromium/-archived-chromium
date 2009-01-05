@@ -321,7 +321,7 @@ class ListValue : public Value {
 
   // Removes the Value with the specified index from this list.
   // If |out_value| is non-NULL, the removed Value AND ITS OWNERSHIP will be
-  // passed out via out_value.  If |out_value| is NULL, the removed value will
+  // passed out via |out_value|.  If |out_value| is NULL, the removed value will
   // be deleted.  This method returns true if |index| is valid; otherwise
   // it will return false and the ListValue object will be unchanged.
   bool Remove(size_t index, Value** out_value);

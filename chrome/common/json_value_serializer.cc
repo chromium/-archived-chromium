@@ -23,7 +23,7 @@ bool JSONStringValueSerializer::Serialize(const Value& root) {
 
 Value* JSONStringValueSerializer::Deserialize(std::string* error_message) {
   if (!json_string_)
-    return false;
+    return NULL;
 
   return JSONReader::ReadAndReturnError(*json_string_, allow_trailing_comma_,
                                         error_message);
@@ -51,7 +51,7 @@ bool JSONFileValueSerializer::Serialize(const Value& root) {
 Value* JSONFileValueSerializer::Deserialize(std::string* error_message) {
   std::string json_string;
   if (!file_util::ReadFileToString(json_file_path_, &json_string)) {
-    return false;
+    return NULL;
   }
   JSONStringValueSerializer serializer(json_string);
   return serializer.Deserialize(error_message);

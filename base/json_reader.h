@@ -87,17 +87,17 @@ class JSONReader {
 
   // Reads and parses |json|, returning a Value. The caller owns the returned
   // instance. If |json| is not a properly formed JSON string, returns NULL.
-  // If allow_trailing_comma is true, we will ignore trailing commas in objects
-  // and arrays even though this goes against the RFC.
-  static Value* Read(const std::string& json,
-                     bool allow_trailing_comma);
+  // If |allow_trailing_comma| is true, we will ignore trailing commas in
+  // objects and arrays even though this goes against the RFC.
+  static Value* Read(const std::string& json, bool allow_trailing_comma);
 
   // Reads and parses |json| like Read(). |error_message_out| is optional. If
-  // specified and NULL is returned, error_message_out will be populated with
-  // a string describing the error. Otherwise, error_message_out is unmodified.
+  // specified and NULL is returned, |error_message_out| will be populated with
+  // a string describing the error. Otherwise, |error_message_out| is
+  // unmodified.
   static Value* ReadAndReturnError(const std::string& json,
                                    bool allow_trailing_comma,
-                                   std::string *error_message_out);
+                                   std::string* error_message_out);
 
  private:
   static std::string FormatErrorMessage(int line, int column,
@@ -140,22 +140,21 @@ class JSONReader {
   Token ParseStringToken();
 
   // Convert the substring into a value string.  This should always succeed
-  // (otherwise ParseStringToken would have failed), but returns a success bool
-  // just in case.
+  // (otherwise ParseStringToken would have failed).
   Value* DecodeString(const Token& token);
 
   // Grabs the next token in the JSON stream.  This does not increment the
   // stream so it can be used to look ahead at the next token.
   Token ParseToken();
 
-  // Increments json_pos_ past leading whitespace and comments.
+  // Increments |json_pos_| past leading whitespace and comments.
   void EatWhitespaceAndComments();
 
-  // If json_pos_ is at the start of a comment, eat it, otherwise, returns
+  // If |json_pos_| is at the start of a comment, eat it, otherwise, returns
   // false.
   bool EatComment();
 
-  // Checks if json_pos_ matches str.
+  // Checks if |json_pos_| matches str.
   bool NextStringMatch(const std::wstring& str);
 
   // Creates the error message that will be returned to the caller. The current

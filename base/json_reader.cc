@@ -136,7 +136,7 @@ Value* JSONReader::JsonToValue(const std::string& json, bool check_root,
   // When the input JSON string starts with a UTF-8 Byte-Order-Mark
   // (0xEF, 0xBB, 0xBF), the UTF8ToWide() function converts it to a Unicode
   // BOM (U+FEFF). To avoid the JSONReader::BuildValue() function from
-  // mis-treating a Unicode BOM as an invalid character and returning false,
+  // mis-treating a Unicode BOM as an invalid character and returning NULL,
   // skip a converted Unicode BOM if it exists.
   if (!json_wide.empty() && start_pos_[0] == 0xFEFF) {
     ++start_pos_;
@@ -217,9 +217,8 @@ Value* JSONReader::BuildValue(bool is_root) {
         node.reset(new ListValue());
         while (token.type != Token::ARRAY_END) {
           Value* array_node = BuildValue(false);
-          if (!array_node) {
+          if (!array_node)
             return NULL;
-          }
           static_cast<ListValue*>(node.get())->Append(array_node);
 
           // After a list value, we expect a comma or the end of the list.
