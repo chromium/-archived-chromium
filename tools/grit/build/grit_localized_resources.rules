@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VisualStudioToolFile
-	Name="GRIT resource data file"
+	Name="GRIT localized resources"
 	Version="8.00"
 	>
 	<Rules>
 		<CustomBuildRule
-			Name="GRIT Generated Resources"
-			DisplayName="GRIT Generated Resources"
+			Name="GRIT Generated Localized Resources"
+			DisplayName="GRIT Generated Localized Resources"
 			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot;"
 			Outputs="$(OutDir)\grit_derived_sources\$(InputName).h;
 			  $(OutDir)\grit_derived_sources\$(InputName)_ar.rc;

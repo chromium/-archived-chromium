@@ -3,10 +3,10 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="default plugin"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(OutDir)\grit_derived_sources"
+		AdditionalIncludeDirectories=""
 	/>
 </VisualStudioPropertySheet>

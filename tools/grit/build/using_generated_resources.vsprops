@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="using_generated_strings"
+	Name="using_generated_resources"
 	>
 	<Tool
 		Name="VCCLCompilerTool"

@@ -14,7 +14,7 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath="..\..\..\tools\grit\build\grit_resource_file.rules"
+			RelativePath="..\..\..\tools\grit\build\grit_localized_resources.rules"
 		/>
 	</ToolFiles>
 	<Configurations>

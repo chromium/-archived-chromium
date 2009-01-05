@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="unit_test"
-	InheritedPropertySheets="$(SolutionDir)third_party\wtl\using_wtl.vsprops;.\using_generated_strings.vsprops"
+	InheritedPropertySheets="$(SolutionDir)third_party\wtl\using_wtl.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="GRIT resources"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="GRIT Generated Resources"
+			DisplayName="GRIT Generated Resources"
+			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot;"
+			Outputs="$(OutDir)\grit_derived_sources\$(InputName).h"
+			AdditionalDependencies="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat;$(SolutionDir)..\tools\grit\grit.py"
+			FileExtensions="*.grd"
+			ExecutionDescription="Generating resources..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

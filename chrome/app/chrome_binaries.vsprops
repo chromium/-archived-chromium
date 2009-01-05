@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="chrome_binaries"
-	InheritedPropertySheets="$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;..\tools\build\win\using_generated_strings.vsprops;$(SolutionDir)third_party\wtl\using_wtl.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops;$(SolutionDir)third_party\wtl\using_wtl.vsprops"
 	>
 	<Tool
 		Name="VCLinkerTool"

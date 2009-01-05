@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="browser"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;..\tools\build\win\using_generated_strings.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)third_party\wtl\using_wtl.vsprops;..\third_party\hunspell\using_hunspell.vsprops;$(SolutionDir)..\google_update\using_google_update.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)third_party\wtl\using_wtl.vsprops;..\third_party\hunspell\using_hunspell.vsprops;$(SolutionDir)..\google_update\using_google_update.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
