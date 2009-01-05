@@ -996,9 +996,11 @@ struct ParamTraits<webkit_glue::WebApplicationInfo> {
 // Generic message subclasses
 
 // Used for asynchronous messages.
-template <class Param>
+template <class ParamType>
 class MessageWithTuple : public Message {
  public:
+  typedef ParamType Param;
+
   MessageWithTuple(int32 routing_id, uint16 type, const Param& p)
       : Message(routing_id, type, PRIORITY_NORMAL) {
     WriteParam(this, p);

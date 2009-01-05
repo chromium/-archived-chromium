@@ -488,3 +488,9 @@ void ChromeClientImpl::disableSuddenTermination() {
   if (d)
     d->DisableSuddenTermination();
 }
+
+void ChromeClientImpl::formStateDidChange(const WebCore::Node*) {
+  WebViewDelegate* d = webview_->delegate();
+  if (d)
+    d->OnNavStateChanged(webview_);
+}

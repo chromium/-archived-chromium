@@ -71,8 +71,8 @@ void RenderThread::RemoveFilter(IPC::ChannelProxy::MessageFilter* filter) {
 }
 
 void RenderThread::Resolve(const char* name, size_t length) {
-    return render_dns_master_->Resolve(name, length);
-  }
+  return render_dns_master_->Resolve(name, length);
+}
 
 void RenderThread::AddRoute(int32 routing_id,
                             IPC::Channel::Listener* listener) {
@@ -199,7 +199,7 @@ void RenderThread::OnCreateNewView(HWND parent_hwnd,
   // TODO(darin): once we have a RenderThread per RenderView, this will need to
   // change to assert that we are not creating more than one view.
   RenderView::Create(
-      parent_hwnd, modal_dialog_event, MSG_ROUTING_NONE, webkit_prefs,
+      this, parent_hwnd, modal_dialog_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
 }
 

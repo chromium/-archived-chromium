@@ -25,6 +25,7 @@
 #include "chrome/renderer/external_js_object.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_widget.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/glue_accessibility.h"
@@ -38,6 +39,7 @@
 
 class DebugMessageHandler;
 class GURL;
+class RenderThread;
 class SkBitmap;
 struct ThumbnailScore;
 class WebError;
@@ -68,7 +70,8 @@ typedef base::RefCountedData<int> SharedRenderViewCounter;
 // RenderView is an object that manages a WebView object, and provides a
 // communication interface with an embedding application process
 //
-class RenderView : public RenderWidget, public WebViewDelegate,
+class RenderView : public RenderWidget,
+                   public WebViewDelegate,
                    public webkit_glue::DomSerializerDelegate {
  public:
   // Creates a new RenderView.  The parent_hwnd specifies a HWND to use as the
@@ -80,6 +83,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // parent_hwnd). |counter| is either a currently initialized counter, or NULL
   // (in which case we treat this RenderView as a top level window).
   static RenderView* Create(
+      RenderThreadBase* render_thread,
       HWND parent_hwnd,
       HANDLE modal_dialog_event,
       int32 opener_id,
@@ -305,12 +309,18 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // This is called from within the renderer, not via an IPC message.
   void OnDebugDetach();
 
- private:
-  RenderView();
+  int delay_seconds_for_form_state_sync() const {
+    return delay_seconds_for_form_state_sync_;
+  }
+  void set_delay_seconds_for_form_state_sync(int delay_in_seconds) {
+    delay_seconds_for_form_state_sync_ = delay_in_seconds;
+  }
 
-  // When we are created from window.open from an already existing view, this
-  // constructor stores that view ID.
-  explicit RenderView(int32 opener_id);
+ private:
+  FRIEND_TEST(RenderViewTest, OnLoadAlternateHTMLText);
+  FRIEND_TEST(RenderViewTest, OnNavStateChanged);
+
+  explicit RenderView(RenderThreadBase* render_thread);
 
   // Initializes this view with the given parent and ID. The |routing_id| can be
   // set to 'MSG_ROUTING_NONE' if the true ID is not yet known. In this case,
@@ -710,6 +720,12 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // this RenderView, that it is going to be blocked until we get a message
   // from the Browser process telling us otherwise.
   bool popup_notification_visible_;
+
+  // Time in seconds of the delay between syncing page state such as form
+  // elements and scroll position. This timeout allows us to avoid spamming the
+  // browser process with every little thing that changes. This normally doesn't
+  // change but is overridden by tests.
+  int delay_seconds_for_form_state_sync_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };

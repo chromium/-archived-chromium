@@ -123,8 +123,7 @@ public:
   virtual void enableSuddenTermination();
   virtual void disableSuddenTermination();
 
-  // TODO(brettw): Implement me!
-  virtual void formStateDidChange(const WebCore::Node*) { }
+  virtual void formStateDidChange(const WebCore::Node*);
 
 private:
   WebViewImpl* webview_;  // weak pointer

@@ -245,11 +245,6 @@ ScreenInfo GetScreenInfo(gfx::NativeView window);
 
 // Functions implemented by webkit_glue for WebKit ----------------------------
 
-// Notifies the embedder that a form element value has changed. The document
-// pointer, which MAY BE NULL, indicates the document that owns the form
-// element that changed, if any.
-void NotifyFormStateChanged(const WebCore::Document* document);
-
 // Returns a bool indicating if the Null plugin should be enabled or not.
 bool IsDefaultPluginEnabled();
 

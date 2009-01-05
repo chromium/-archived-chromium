@@ -244,12 +244,6 @@ bool ChromiumBridge::ensureFontLoaded(HFONT font) {
 }
 #endif
 
-// Forms ----------------------------------------------------------------------
-
-void ChromiumBridge::notifyFormStateChanged(const Document* doc) {
-  webkit_glue::NotifyFormStateChanged(doc);
-}
-
 // JavaScript -----------------------------------------------------------------
 
 void ChromiumBridge::notifyJSOutOfMemory(Frame* frame) {

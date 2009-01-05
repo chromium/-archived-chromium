@@ -89,9 +89,9 @@ static const int kDelayForCaptureMs = 500;
 // delay.
 static const int kDelayForForcedCaptureMs = 6000;
 
-// How often we will sync the navigation state when the user is changing form
-// elements or scroll position.
-const TimeDelta kDelayForNavigationSync = TimeDelta::FromSeconds(5);
+// The default value for RenderView.delay_seconds_for_form_state_sync_, see
+// that variable for more.
+const int kDefaultDelaySecondsForFormStateSync = 5;
 
 // The next available page ID to use. This ensures that the page IDs are
 // globally unique in the renderer.
@@ -142,29 +142,30 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderView::RenderView()
-  : RenderWidget(g_render_thread, true),
-    is_loading_(false),
-    page_id_(-1),
-    last_page_id_sent_to_browser_(-1),
-    last_indexed_page_id_(-1),
-    method_factory_(this),
-    opened_by_user_gesture_(true),
-    enable_dom_automation_(false),
-    enable_dom_ui_bindings_(false),
-    target_url_status_(TARGET_NONE),
-    printed_document_width_(0),
-    first_default_plugin_(NULL),
-    navigation_gesture_(NavigationGestureUnknown),
-    history_back_list_count_(0),
-    history_forward_list_count_(0),
-    disable_popup_blocking_(false),
-    has_unload_listener_(false),
-    decrement_shared_popup_at_destruction_(false),
-    greasemonkey_enabled_(false),
-    waiting_for_create_window_ack_(false),
-    form_field_autofill_request_id_(0),
-    popup_notification_visible_(false)  {
+RenderView::RenderView(RenderThreadBase* render_thread)
+    : RenderWidget(render_thread, true),
+      is_loading_(false),
+      page_id_(-1),
+      last_page_id_sent_to_browser_(-1),
+      last_indexed_page_id_(-1),
+      method_factory_(this),
+      opened_by_user_gesture_(true),
+      enable_dom_automation_(false),
+      enable_dom_ui_bindings_(false),
+      target_url_status_(TARGET_NONE),
+      printed_document_width_(0),
+      first_default_plugin_(NULL),
+      navigation_gesture_(NavigationGestureUnknown),
+      history_back_list_count_(0),
+      history_forward_list_count_(0),
+      disable_popup_blocking_(false),
+      has_unload_listener_(false),
+      decrement_shared_popup_at_destruction_(false),
+      greasemonkey_enabled_(false),
+      waiting_for_create_window_ack_(false),
+      form_field_autofill_request_id_(0),
+      popup_notification_visible_(false),
+      delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync) {
   resource_dispatcher_ = new ResourceDispatcher(this);
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateRendererPersonalization();
@@ -183,7 +184,7 @@ RenderView::~RenderView() {
     it = plugin_delegates_.erase(it);
   }
 
-  g_render_thread->RemoveFilter(debug_message_handler_);
+  render_thread_->RemoveFilter(debug_message_handler_);
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::CleanupRendererPersonalization(personalization_);
@@ -193,6 +194,7 @@ RenderView::~RenderView() {
 
 /*static*/
 RenderView* RenderView::Create(
+    RenderThreadBase* render_thread,
     HWND parent_hwnd,
     HANDLE modal_dialog_event,
     int32 opener_id,
@@ -200,7 +202,7 @@ RenderView* RenderView::Create(
     SharedRenderViewCounter* counter,
     int32 routing_id) {
   DCHECK(routing_id != MSG_ROUTING_NONE);
-  scoped_refptr<RenderView> view = new RenderView();
+  scoped_refptr<RenderView> view = new RenderView(render_thread);
   view->Init(parent_hwnd,
              modal_dialog_event,
              opener_id,
@@ -271,7 +273,7 @@ void RenderView::Init(HWND parent_hwnd,
   webview()->SetBackForwardListSize(1);
 
   routing_id_ = routing_id;
-  g_render_thread->AddRoute(routing_id_, this);
+  render_thread_->AddRoute(routing_id_, this);
   // Take a reference on behalf of the RenderThread.  This will be balanced
   // when we receive ViewMsg_Close.
   AddRef();
@@ -295,7 +297,7 @@ void RenderView::Init(HWND parent_hwnd,
       command_line.HasSwitch(switches::kEnableGreasemonkey);
 
   debug_message_handler_ = new DebugMessageHandler(this);
-  g_render_thread->AddFilter(debug_message_handler_);
+  render_thread_->AddFilter(debug_message_handler_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -1458,9 +1460,10 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
   // do inject into any other document.
   if (greasemonkey_enabled_) {
     const GURL &gurl = frame->GetURL();
-    if (gurl.SchemeIs("file") ||
-        gurl.SchemeIs("http") ||
-        gurl.SchemeIs("https")) {
+    if (g_render_thread &&  // Will be NULL when testing.
+        (gurl.SchemeIs("file") ||
+         gurl.SchemeIs("http") ||
+         gurl.SchemeIs("https"))) {
       g_render_thread->greasemonkey_slave()->InjectScripts(frame);
     }
   }
@@ -1785,7 +1788,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 
   int32 routing_id = MSG_ROUTING_NONE;
   HANDLE modal_dialog_event = NULL;
-  bool result = g_render_thread->Send(
+  bool result = render_thread_->Send(
       new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id,
                                    &modal_dialog_event));
   if (routing_id == MSG_ROUTING_NONE) {
@@ -1795,7 +1798,8 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 
   // The WebView holds a reference to this new RenderView
   const WebPreferences& prefs = webview->GetPreferences();
-  RenderView* view = RenderView::Create(NULL, modal_dialog_event, routing_id_,
+  RenderView* view = RenderView::Create(render_thread_,
+                                        NULL, modal_dialog_event, routing_id_,
                                         prefs, shared_popup_counter_,
                                         routing_id);
   view->set_opened_by_user_gesture(user_gesture);
@@ -1811,7 +1815,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 WebWidget* RenderView::CreatePopupWidget(WebView* webview,
                                          bool focus_on_show) {
   RenderWidget* widget = RenderWidget::Create(routing_id_,
-                                              g_render_thread,
+                                              render_thread_,
                                               focus_on_show);
   return widget->webwidget();
 }
@@ -1839,7 +1843,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   bool is_gears = false;
   if (ShouldLoadPluginInProcess(mime_type, &is_gears)) {
     std::wstring path;
-    g_render_thread->Send(
+    render_thread_->Send(
         new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
                                       actual_mime_type));
     if (path.empty())
@@ -2369,9 +2373,11 @@ int RenderView::GetHistoryForwardListCount() {
 }
 
 void RenderView::OnNavStateChanged(WebView* webview) {
-  if (!nav_state_sync_timer_.IsRunning())
-    nav_state_sync_timer_.Start(kDelayForNavigationSync, this,
-                                &RenderView::SyncNavigationState);
+  if (!nav_state_sync_timer_.IsRunning()) {
+    nav_state_sync_timer_.Start(
+        TimeDelta::FromSeconds(delay_seconds_for_form_state_sync_), this,
+        &RenderView::SyncNavigationState);
+  }
 }
 
 void RenderView::SetTooltipText(WebView* webview,
