@@ -77,6 +77,8 @@ std::wstring GetFilenameFromPath(const std::wstring& path);
 
 // Returns "jpg" for path "C:\pics\jojo.jpg", or an empty string if
 // the file has no extension.
+FilePath::StringType GetFileExtensionFromPath(const FilePath& path);
+// Deprecated temporary compatibility function.
 std::wstring GetFileExtensionFromPath(const std::wstring& path);
 
 // Returns 'jojo' for path "C:\pics\jojo.jpg".

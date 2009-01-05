@@ -201,7 +201,7 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     discard_button_->set_enforce_dlu_min_size(false);
     AddChildView(save_button_);
     AddChildView(discard_button_);
-    std::wstring file_name = download->original_name();
+    std::wstring file_name = download->original_name().ToWStringHack();
 
     // Ensure the file name is not too long.
 
@@ -457,7 +457,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   // Note that in dangerous mode we use a label (as the text is multi-line).
   if (!IsDangerousMode()) {
     std::wstring filename = 
-        gfx::ElideFilename(download_->GetFileName(),
+        gfx::ElideFilename(download_->GetFileName().ToWStringHack(),
                            font_,
                            kTextWidth);
 
@@ -487,7 +487,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   // Paint the icon.
   IconManager* im = g_browser_process->icon_manager();
   SkBitmap* icon = IsDangerousMode() ? warning_icon_ :
-      im->LookupIcon(download_->full_path(), IconLoader::SMALL);
+      im->LookupIcon(download_->full_path().ToWStringHack(), IconLoader::SMALL);
 
   // We count on the fact that the icon manager will cache the icons and if one
   // is available, it will be cached here. We *don't* want to request the icon
@@ -716,7 +716,7 @@ bool DownloadItemView::OnMouseDragged(const views::MouseEvent& event) {
   if (dragging_) {
     if (download_->state() == DownloadItem::COMPLETE) {
       IconManager* im = g_browser_process->icon_manager();
-      SkBitmap* icon = im->LookupIcon(download_->full_path(),
+      SkBitmap* icon = im->LookupIcon(download_->full_path().ToWStringHack(),
                                       IconLoader::SMALL);
       if (icon)
         download_util::DragDownload(download_, icon);
@@ -750,7 +750,7 @@ void DownloadItemView::OnExtractIconComplete(IconManager::Handle handle,
 
 void DownloadItemView::LoadIcon() {
   IconManager* im = g_browser_process->icon_manager();
-  im->LoadIcon(download_->full_path(), IconLoader::SMALL,
+  im->LoadIcon(download_->full_path().ToWStringHack(), IconLoader::SMALL,
                &icon_consumer_,
                NewCallback(this, &DownloadItemView::OnExtractIconComplete));
 }

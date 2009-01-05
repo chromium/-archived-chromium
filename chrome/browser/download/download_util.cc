@@ -47,7 +47,7 @@ bool BaseContextMenu::IsItemChecked(int id) const {
     case OPEN_WHEN_COMPLETE:
       return download_->open_when_complete();
     case ALWAYS_OPEN_TYPE: {
-      const std::wstring extension =
+      const FilePath::StringType extension =
           file_util::GetFileExtensionFromPath(download_->full_path());
       return download_->manager()->ShouldOpenFileExtension(extension);
     }
@@ -115,17 +115,17 @@ void BaseContextMenu::ExecuteCommand(int id) {
       scw.WriteText(download_->url());
       break;
     case COPY_PATH:
-      scw.WriteText(download_->full_path());
+      scw.WriteText(download_->full_path().ToWStringHack());
       break;
     case COPY_FILE:
       // TODO(paulg): Move to OSExchangeData when implementing drag and drop?
-      scw.WriteFile(download_->full_path());
+      scw.WriteFile(download_->full_path().ToWStringHack());
       break;
     case OPEN_WHEN_COMPLETE:
       OpenDownload(download_);
       break;
     case ALWAYS_OPEN_TYPE: {
-      const std::wstring extension =
+      const FilePath::StringType extension =
           file_util::GetFileExtensionFromPath(download_->full_path());
       download_->manager()->OpenFilesOfExtension(
           extension, !IsItemChecked(ALWAYS_OPEN_TYPE));
@@ -221,11 +221,11 @@ DownloadDestinationContextMenu::~DownloadDestinationContextMenu() {
 // Download opening ------------------------------------------------------------
 
 bool CanOpenDownload(DownloadItem* download) {
-  std::wstring file_to_use = download->full_path();
-  if (!download->original_name().empty())
+  FilePath file_to_use = download->full_path();
+  if (!download->original_name().value().empty())
     file_to_use = download->original_name();
 
-  const std::wstring extension =
+  const FilePath::StringType extension =
       file_util::GetFileExtensionFromPath(file_to_use);
   return !download->manager()->IsExecutable(extension);
 }
@@ -416,8 +416,9 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
   // Set up our OLE machinery
   scoped_refptr<OSExchangeData> data(new OSExchangeData);
   if (icon)
-    drag_utils::CreateDragImageForFile(download->file_name(), icon, data);
-  data->SetFilename(download->full_path());
+    drag_utils::CreateDragImageForFile(download->file_name().ToWStringHack(),
+                                       icon, data);
+  data->SetFilename(download->full_path().ToWStringHack());
   scoped_refptr<BaseDragSource> drag_source(new BaseDragSource);
 
   // Run the drag and drop loop
@@ -426,6 +427,4 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
              &effects);
 }
 
-
 }  // namespace download_util
-

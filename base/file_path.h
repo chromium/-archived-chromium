@@ -132,6 +132,8 @@ class FilePath {
 
   const StringType& value() const { return path_; }
 
+  bool empty() const { return path_.empty(); }
+
   // Returns true if |character| is in kSeparators.
   static bool IsSeparator(CharType character);
 

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/time.h"
 
 // Used for informing the download database of a new download, where we don't
@@ -18,7 +19,7 @@
 // vector of these structs for passing us the state of all downloads at
 // initialization time (see DownloadQueryInfo below).
 struct DownloadCreateInfo {
-  DownloadCreateInfo(const std::wstring& path,
+  DownloadCreateInfo(const FilePath& path,
                      const std::wstring& url,
                      base::Time start_time,
                      int64 received_bytes,
@@ -44,9 +45,9 @@ struct DownloadCreateInfo {
   DownloadCreateInfo() : download_id(-1) {}
 
   // DownloadItem fields
-  std::wstring path;
+  FilePath path;
   std::wstring url;
-  std::wstring suggested_path;
+  FilePath suggested_path;
   // A number that should be added to the suggested path to make it unique.
   // 0 means no number should be appended.  Not actually stored in the db.
   int path_uniquifier;
@@ -65,7 +66,7 @@ struct DownloadCreateInfo {
   // Whether this download is potentially dangerous (ex: exe, dll, ...).
   bool is_dangerous;
   // The original name for a dangerous download.
-  std::wstring original_name;
+  FilePath original_name;
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_TYPES_H__
