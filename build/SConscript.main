@@ -113,6 +113,7 @@ root_env = Environment(
     SKIA_DIR              = '$OBJ_ROOT/skia',
     TESTING_DIR           = '$OBJ_ROOT/testing',
     THIRD_PARTY_DIR       = '$OBJ_ROOT/third_party',
+    TOOLS_DIR             = '$OBJ_ROOT/tools',
     V8_DIR                = '$OBJ_ROOT/v8',
     WEBKIT_DIR            = '$OBJ_ROOT/webkit',
 
@@ -134,6 +135,8 @@ root_env = Environment(
     ZLIB_DIR              = '$THIRD_PARTY_DIR/zlib',
 
     THIRD_PARTY_WEBKIT_DIR = '$THIRD_PARTY_DIR/WebKit',
+
+    GTK_CLIP_DUMP_DIR     = '$TOOLS_DIR/gtk_clipboard_dump',
 
     PYTHON=sys.executable,
 
@@ -213,6 +216,7 @@ sconscripts = root_env.ChromiumLoadComponentSConscripts(
         '$MODP_B64_DIR/modp_b64.scons',
         '$ZLIB_DIR/zlib.scons',
     ],
+    tools = '$GTK_CLIP_DUMP_DIR/gcd.scons',
     v8 = '$OBJ_ROOT/build/SConscript.v8',
     webkit = '$WEBKIT_DIR/webkit.scons',
 )
