@@ -415,9 +415,15 @@ sub GenerateConstructorGetter
     INC_STATS(\"DOM.$implClassName.constructors._get\");
     v8::Handle<v8::Value> data = info.Data();
     ASSERT(data->IsNumber());
-
     V8ClassIndex::V8WrapperType type = V8ClassIndex::FromInt(data->Int32Value());
-        
+    DOMWindow* window = V8Proxy::ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, info.Holder());
+    Frame* frame = window->frame();
+    if (frame) {
+      // Get the proxy corresponding to the DOMWindow if possible to
+      // make sure that the constructor function is constructed in the
+      // context of the DOMWindow and not in the context of the caller.
+      return V8Proxy::retrieve(frame)->GetConstructor(type);
+    }
     return V8Proxy::retrieve()->GetConstructor(type);
   }
 

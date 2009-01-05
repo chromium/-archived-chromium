@@ -1460,9 +1460,14 @@ v8::Local<v8::Function> V8Proxy::GetConstructor(V8ClassIndex::V8WrapperType t)
 
     // Not in cache.
     {
+        // Enter the context of the proxy to make sure that the
+        // function is constructed in the context corresponding to
+        // this proxy.
+        v8::Context::Scope scope(m_context);
         v8::Handle<v8::FunctionTemplate> templ = GetTemplate(t);
+        // Getting the function might fail if we're running out of
+        // stack or memory.
         v8::TryCatch try_catch;
-        // This might fail if we're running out of stack or memory.
         v8::Local<v8::Function> value = templ->GetFunction();
         if (value.IsEmpty())
             return v8::Local<v8::Function>();
@@ -1776,12 +1781,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::XMLHTTPREQUEST: {
       // Reserve one more internal field for keeping event listeners.
-        v8::Local<v8::ObjectTemplate> instance_template =
-            desc->InstanceTemplate();
-        instance_template->SetInternalFieldCount(
-            V8Custom::kXMLHttpRequestInternalFieldCount);
-        desc->SetCallHandler(USE_CALLBACK(XMLHttpRequestConstructor));
-        break;
+      v8::Local<v8::ObjectTemplate> instance_template =
+          desc->InstanceTemplate();
+      instance_template->SetInternalFieldCount(
+          V8Custom::kXMLHttpRequestInternalFieldCount);
+      desc->SetCallHandler(USE_CALLBACK(XMLHttpRequestConstructor));
+      break;
     }
     case V8ClassIndex::XMLHTTPREQUESTUPLOAD: {
       // Reserve one more internal field for keeping event listeners.
