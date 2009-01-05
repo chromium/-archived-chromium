@@ -2,21 +2,27 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
+#if !defined(OS_MACOSX)
 #include "chrome/test/data/resource.h"
+#endif
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 #include "unicode/locid.h"
 
 namespace {
 
-class L10nUtilTest: public testing::Test {
+class L10nUtilTest: public PlatformTest {
 };
 
-TEST(L10nUtilTest, GetString) {
+#if defined(OS_WIN)
+TEST_F(L10nUtilTest, GetString) {
   std::wstring s = l10n_util::GetString(IDS_SIMPLE);
   EXPECT_EQ(std::wstring(L"Hello World!"), s);
 
@@ -26,8 +32,9 @@ TEST(L10nUtilTest, GetString) {
   s = l10n_util::GetStringF(IDS_PLACEHOLDERS_2, 20);
   EXPECT_EQ(std::wstring(L"You owe me $20."), s);
 }
+#endif  // defined(OS_WIN)
 
-TEST(L10nUtilTest, TruncateString) {
+TEST_F(L10nUtilTest, TruncateString) {
   std::wstring string(L"foooooey    bxxxar baz");
 
   // Make sure it doesn't modify the string if length > string length.
@@ -61,7 +68,7 @@ void SetICUDefaultLocale(const std::wstring& locale_string) {
   EXPECT_TRUE(U_SUCCESS(error_code));
 }
 
-TEST(L10nUtilTest, GetAppLocale) {
+TEST_F(L10nUtilTest, GetAppLocale) {
   // Use a temporary locale dir so we don't have to actually build the locale
   // dlls for this test.
   std::wstring orig_locale_dir;
