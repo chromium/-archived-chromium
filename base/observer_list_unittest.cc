@@ -101,7 +101,7 @@ class AddRemoveThread : public PlatformThread::Delegate,
     factory_ = new ScopedRunnableMethodFactory<AddRemoveThread>(this);
   }
 
-  ~AddRemoveThread() {
+  virtual ~AddRemoveThread() {
     delete factory_;
   }
 
@@ -113,6 +113,7 @@ class AddRemoveThread : public PlatformThread::Delegate,
     //LOG(ERROR) << "Loop 0x" << std::hex << loop_ << " done. " << count_observes_ << ", " << count_addtask_;
     delete loop_;
     loop_ = reinterpret_cast<MessageLoop*>(0xdeadbeef);
+    delete this;
   }
 
   // This task just keeps posting to itself in an attempt
