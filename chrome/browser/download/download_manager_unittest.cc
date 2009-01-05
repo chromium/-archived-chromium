@@ -19,14 +19,12 @@ class DownloadManagerTest : public testing::Test {
   void GetGeneratedFilename(const std::string& content_disposition,
                             const std::wstring& url,
                             const std::string& mime_type,
-                            std::wstring* generated_name_string) {
+                            std::wstring* generated_name) {
     DownloadCreateInfo info;
     info.content_disposition = content_disposition;
     info.url = url;
     info.mime_type = mime_type;
-    FilePath generated_name;
-    download_manager_->GenerateFilename(&info, &generated_name);
-    *generated_name_string = generated_name.ToWStringHack();
+    download_manager_->GenerateFilename(&info, generated_name);
   }
 
  protected:

@@ -209,8 +209,8 @@ TEST_F(FilePathTest, BaseName) {
 
   for (size_t i = 0; i < arraysize(cases); ++i) {
     FilePath input(cases[i].input);
-    FilePath observed = input.BaseName();
-    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed.value()) <<
+    FilePath::StringType observed = input.BaseName();
+    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed) <<
               "i: " << i << ", input: " << input.value();
   }
 }

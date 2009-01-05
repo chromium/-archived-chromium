@@ -53,7 +53,6 @@
 #include "chrome/browser/history/download_types.h"
 
 class DownloadManager;
-class FilePath;
 class GURL;
 class MessageLoop;
 class ResourceDispatcherHost;
@@ -94,12 +93,12 @@ class DownloadFile {
   void Cancel();
 
   // Rename the download file. Returns 'true' if the rename was successful.
-  bool Rename(const FilePath& full_path);
+  bool Rename(const std::wstring& full_path);
 
   // Accessors.
   int64 bytes_so_far() const { return bytes_so_far_; }
   int id() const { return id_; }
-  FilePath full_path() const { return full_path_; }
+  std::wstring full_path() const { return full_path_; }
   int render_process_id() const { return render_process_id_; }
   int render_view_id() const { return render_view_id_; }
   int request_id() const { return request_id_; }
@@ -133,7 +132,7 @@ class DownloadFile {
   int64 bytes_so_far_;
 
   // Full path to the downloaded file.
-  FilePath full_path_;
+  std::wstring full_path_;
 
   // Whether the download is still using its initial temporary path.
   bool path_renamed_;
@@ -193,22 +192,26 @@ class DownloadFileManager
   void RemoveDownload(int id, DownloadManager* manager);
 
   // Handler for shell operations sent from the UI to the download thread.
-  void OnShowDownloadInShell(const FilePath& full_path);
+  void OnShowDownloadInShell(const std::wstring full_path);
   // Handler to open or execute a downloaded file.
-  void OnOpenDownloadInShell(const FilePath& full_path,
+  void OnOpenDownloadInShell(const std::wstring full_path,
                              const std::wstring& url, HWND parent_window);
 
   // The download manager has provided a final name for a download. Sent from
   // the UI thread and run on the download thread.
-  void OnFinalDownloadName(int id, const FilePath& full_path);
+  void OnFinalDownloadName(int id, const std::wstring& full_path);
 
   // Timer notifications.
   void UpdateInProgressDownloads();
 
   MessageLoop* file_loop() const { return file_loop_; }
 
-  // Called by the download manager to delete non validated dangerous downloads.
-  static void DeleteFile(const FilePath& path);
+  // Called by the download manager at initialization to ensure the default
+  // download directory exists.
+  void CreateDirectory(const std::wstring& directory);
+
+  // Called by the donwload manager to delete non validated dangerous downloads.
+  void DeleteFile(const std::wstring& path);
 
  private:
   // Timer helpers for updating the UI about the current progress of a download.

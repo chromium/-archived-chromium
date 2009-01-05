@@ -65,23 +65,22 @@ static const int kUninitializedHandle = 0;
 
 // Appends the passed the number between parenthesis the path before the
 // extension.
-static void AppendNumberToPath(FilePath* path, int number) {
-  file_util::InsertBeforeExtension(path,
-      StringPrintf(FILE_PATH_LITERAL(" (%d)"), number));
+static void AppendNumberToPath(std::wstring* path, int number) {
+  file_util::InsertBeforeExtension(path, StringPrintf(L" (%d)", number));
 }
 
 // Attempts to find a number that can be appended to that path to make it
 // unique. If |path| does not exist, 0 is returned.  If it fails to find such
 // a number, -1 is returned.
-static int GetUniquePathNumber(const FilePath& path) {
+static int GetUniquePathNumber(const std::wstring& path) {
   const int kMaxAttempts = 100;
 
   if (!file_util::PathExists(path))
     return 0;
 
-  FilePath new_path;
+  std::wstring new_path;
   for (int count = 1; count <= kMaxAttempts; ++count) {
-    new_path = FilePath(path);
+    new_path.assign(path);
     AppendNumberToPath(&new_path, count);
 
     if (!file_util::PathExists(new_path))
@@ -91,8 +90,8 @@ static int GetUniquePathNumber(const FilePath& path) {
   return -1;
 }
 
-static bool DownloadPathIsDangerous(const FilePath& download_path) {
-  FilePath desktop_dir;
+static bool DownloadPathIsDangerous(const std::wstring& download_path) {
+  std::wstring desktop_dir;
   if (!PathService::Get(chrome::DIR_USER_DESKTOP, &desktop_dir)) {
     NOTREACHED();
     return false;
@@ -127,10 +126,10 @@ DownloadItem::DownloadItem(const DownloadCreateInfo& info)
 
 // Constructor for DownloadItem created via user action in the main thread.
 DownloadItem::DownloadItem(int32 download_id,
-                           const FilePath& path,
+                           const std::wstring& path,
                            int path_uniquifier,
                            const std::wstring& url,
-                           const FilePath& original_name,
+                           const std::wstring& original_name,
                            const Time start_time,
                            int64 download_size,
                            int render_process_id,
@@ -157,7 +156,7 @@ DownloadItem::DownloadItem(int32 download_id,
 }
 
 void DownloadItem::Init(bool start_timer) {
-  file_name_ = full_path_.BaseName();
+  file_name_ = file_util::GetFilenameFromPath(full_path_);
   if (start_timer)
     StartProgressTimer();
 }
@@ -262,10 +261,10 @@ int DownloadItem::PercentComplete() const {
   return percent;
 }
 
-void DownloadItem::Rename(const FilePath& full_path) {
+void DownloadItem::Rename(const std::wstring& full_path) {
   DCHECK(!full_path.empty());
   full_path_ = full_path;
-  file_name_ = full_path_.BaseName();
+  file_name_ = file_util::GetFilenameFromPath(full_path_);
 }
 
 void DownloadItem::TogglePause() {
@@ -275,11 +274,11 @@ void DownloadItem::TogglePause() {
   UpdateObservers();
 }
 
-FilePath DownloadItem::GetFileName() const {
+std::wstring DownloadItem::GetFileName() const {
   if (safety_state_ == DownloadItem::SAFE)
     return file_name_;
   if (path_uniquifier_ > 0) {
-    FilePath name(original_name_);
+    std::wstring name(original_name_);
     AppendNumberToPath(&name, path_uniquifier_);
     return name;
   }
@@ -295,24 +294,24 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kDownloadDirUpgraded, false);
 
   // The default download path is userprofile\download.
-  FilePath default_download_path;
+  std::wstring default_download_path;
   if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
                         &default_download_path)) {
     NOTREACHED();
   }
   prefs->RegisterStringPref(prefs::kDownloadDefaultDirectory,
-                            default_download_path.ToWStringHack());
+                            default_download_path);
 
   // If the download path is dangerous we forcefully reset it. But if we do
   // so we set a flag to make sure we only do it once, to avoid fighting
   // the user if he really wants it on an unsafe place such as the desktop.
 
   if (!prefs->GetBoolean(prefs::kDownloadDirUpgraded)) {
-    FilePath current_download_dir = FilePath::FromWStringHack(
-        prefs->GetString(prefs::kDownloadDefaultDirectory));
+    std::wstring current_download_dir =
+        prefs->GetString(prefs::kDownloadDefaultDirectory);
     if (DownloadPathIsDangerous(current_download_dir)) {
       prefs->SetString(prefs::kDownloadDefaultDirectory,
-                       default_download_path.ToWStringHack());
+                       default_download_path);
     }
     prefs->SetBoolean(prefs::kDownloadDirUpgraded, true);
   }
@@ -480,14 +479,9 @@ bool DownloadManager::Init(Profile* profile) {
 
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs, NULL);
 
-  // This variable is needed to resolve which CreateDirectory we want to point
-  // to. Without it, the NewRunnableFunction cannot resolve the ambiguity.
-  // TODO(estade): when file_util::CreateDirectory(wstring) is removed,
-  // get rid of |CreateDirectoryPtr|.
-  bool (*CreateDirectoryPtr)(const FilePath&) = &file_util::CreateDirectory;
   // Ensure that the download directory specified in the preferences exists.
-  file_loop_->PostTask(FROM_HERE, NewRunnableFunction(
-      CreateDirectoryPtr, download_path()));
+  file_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      file_manager_, &DownloadFileManager::CreateDirectory, *download_path_));
 
   // We store any file extension that should be opened automatically at
   // download completion in this pref.
@@ -533,17 +527,19 @@ void DownloadManager::StartDownload(DownloadCreateInfo* info) {
 
   // Determine the proper path for a download, by choosing either the default
   // download directory, or prompting the user.
-  FilePath generated_name;
+  std::wstring generated_name;
   GenerateFilename(info, &generated_name);
   if (info->save_as && !last_download_path_.empty())
     info->suggested_path = last_download_path_;
   else
-    info->suggested_path = download_path();
-  info->suggested_path = info->suggested_path.Append(generated_name);
+    info->suggested_path = *download_path_;
+  file_util::AppendToPath(&info->suggested_path, generated_name);
 
   if (!info->save_as) {
     // Let's check if this download is dangerous, based on its name.
-    info->is_dangerous = IsDangerous(info->suggested_path.BaseName());
+    const std::wstring filename =
+        file_util::GetFilenameFromPath(info->suggested_path);
+    info->is_dangerous = IsDangerous(filename);
   }
 
   // We need to move over to the download thread because we don't want to stat
@@ -559,29 +555,31 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
 
   // Check writability of the suggested path. If we can't write to it, default
   // to the user's "My Documents" directory. We'll prompt them in this case.
-  FilePath dir = info->suggested_path.DirName();
-  FilePath filename = info->suggested_path.BaseName();
+  std::wstring dir = file_util::GetDirectoryFromPath(info->suggested_path);
+  const std::wstring filename =
+      file_util::GetFilenameFromPath(info->suggested_path);
   if (!file_util::PathIsWritable(dir)) {
     info->save_as = true;
     PathService::Get(chrome::DIR_USER_DOCUMENTS, &info->suggested_path);
-    info->suggested_path = info->suggested_path.Append(filename);
+    file_util::AppendToPath(&info->suggested_path, filename);
   }
 
   info->path_uniquifier = GetUniquePathNumber(info->suggested_path);
 
   // If the download is deemed dangerous, we'll use a temporary name for it.
   if (info->is_dangerous) {
-    info->original_name = FilePath(info->suggested_path).BaseName();
+    info->original_name = file_util::GetFilenameFromPath(info->suggested_path);
     // Create a temporary file to hold the file until the user approves its
     // download.
-    FilePath::StringType file_name;
-    FilePath path;
+    std::wstring file_name;
+    std::wstring path;
     while (path.empty()) {
-      SStringPrintf(&file_name, FILE_PATH_LITERAL("unconfirmed %d.download"),
+      SStringPrintf(&file_name, L"unconfirmed %d.download",
                     base::RandInt(0, 100000));
-      path = dir.Append(file_name);
+      path = dir;
+      file_util::AppendToPath(&path, file_name);
       if (file_util::PathExists(path))
-        path = FilePath();
+        path.clear();
     }
     info->suggested_path = path;
   } else {
@@ -601,7 +599,7 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
     // Create an empty file at the suggested path so that we don't allocate the
     // same "non-existant" path to multiple downloads.
     // See: http://code.google.com/p/chromium/issues/detail?id=3662
-    file_util::WriteFile(info->suggested_path.ToWStringHack(), "", 0);
+    file_util::WriteFile(info->suggested_path, "", 0);
   }
 
   // Now we return to the UI thread.
@@ -622,13 +620,11 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
 
     WebContents* contents = tab_util::GetWebContentsByID(
         info->render_process_id, info->render_view_id);
-    std::wstring filter =
-        win_util::GetFileFilterFromPath(info->suggested_path.value());
+    std::wstring filter = win_util::GetFileFilterFromPath(info->suggested_path);
     HWND owning_hwnd =
         contents ? GetAncestor(contents->GetContainerHWND(), GA_ROOT) : NULL;
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
-                                    std::wstring(),
-                                    info->suggested_path.ToWStringHack(),
+                                    std::wstring(), info->suggested_path,
                                     filter, std::wstring(),
                                     owning_hwnd, info);
   } else {
@@ -638,7 +634,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
 }
 
 void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,
-                                            const FilePath& target_path) {
+                                            const std::wstring& target_path) {
   scoped_ptr<DownloadCreateInfo> infop(info);
   info->path = target_path;
 
@@ -813,13 +809,14 @@ void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
 // Called on the file thread.  Renames the downloaded file to its original name.
 void DownloadManager::ProceedWithFinishedDangerousDownload(
     int64 download_handle,
-    const FilePath& path,
-    const FilePath& original_name) {
+    const std::wstring& path,
+    const std::wstring& original_name) {
   bool success = false;
-  FilePath new_path;
+  std::wstring new_path = path;
   int uniquifier = 0;
   if (file_util::PathExists(path)) {
-    new_path = new_path.DirName().Append(original_name);
+    new_path = file_util::GetDirectoryFromPath(new_path);
+    file_util::AppendToPath(&new_path, original_name);
     // Make our name unique at this point, as if a dangerous file is downloading
     // and a 2nd download is started for a file with the same name, they would
     // have the same path.  This is because we uniquify the name on download
@@ -841,7 +838,7 @@ void DownloadManager::ProceedWithFinishedDangerousDownload(
 // Call from the file thread when the finished dangerous download was renamed.
 void DownloadManager::DangerousDownloadRenamed(int64 download_handle,
                                                bool success,
-                                               const FilePath& new_path,
+                                               const std::wstring& new_path,
                                                int new_path_uniquifier) {
   DownloadMap::iterator it = downloads_.find(download_handle);
   if (it == downloads_.end()) {
@@ -940,13 +937,13 @@ void DownloadManager::OnPauseDownloadRequest(ResourceDispatcherHost* rdh,
   rdh->PauseRequest(render_process_id, request_id, pause);
 }
 
-bool DownloadManager::IsDangerous(const FilePath& file_name) {
+bool DownloadManager::IsDangerous(const std::wstring& file_name) {
   // TODO(jcampan): Improve me.
   return IsExecutable(file_util::GetFileExtensionFromPath(file_name));
 }
 
 void DownloadManager::RenameDownload(DownloadItem* download,
-                                     const FilePath& new_path) {
+                                     const std::wstring& new_path) {
   download->Rename(new_path);
 
   // Update the history.
@@ -958,7 +955,7 @@ void DownloadManager::RenameDownload(DownloadItem* download,
   // FIXME(paulg) see bug 958058. EXPLICIT_ACCESS below is wrong.
   HistoryService* hs = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
   if (hs)
-    hs->UpdateDownloadPath(new_path.ToWStringHack(), download->db_handle());
+    hs->UpdateDownloadPath(new_path, download->db_handle());
 }
 
 void DownloadManager::RemoveDownload(int64 download_handle) {
@@ -1049,8 +1046,9 @@ void DownloadManager::NotifyAboutDownloadStop() {
              NotificationService::NoDetails());
 }
 
-void DownloadManager::GenerateExtension(const FilePath& file_name,
-    const std::string& mime_type, FilePath::StringType* generated_extension) {
+void DownloadManager::GenerateExtension(const std::wstring& file_name,
+                                        const std::string& mime_type,
+                                        std::wstring* generated_extension) {
   // We're worried about three things here:
   //
   // 1) Security.  Many sites let users upload content, such as buddy icons, to
@@ -1066,20 +1064,17 @@ void DownloadManager::GenerateExtension(const FilePath& file_name,
   //    the shell.  We block these extensions to prevent a malicious web site
   //    from integrating with the user's shell.
 
-  static const FilePath::CharType default_extension[] =
-      FILE_PATH_LITERAL("download");
+  static const wchar_t default_extension[] = L"download";
 
   // See if our file name already contains an extension.
-  FilePath::StringType extension(
-      file_util::GetFileExtensionFromPath(file_name));
+  std::wstring extension(file_util::GetFileExtensionFromPath(file_name));
 
   // Rename shell-integrated extensions.
   if (win_util::IsShellIntegratedExtension(extension))
     extension.assign(default_extension);
 
   std::string mime_type_from_extension;
-  net::GetMimeTypeFromFile(file_name.ToWStringHack(),
-                           &mime_type_from_extension);
+  net::GetMimeTypeFromFile(file_name, &mime_type_from_extension);
   if (mime_type == mime_type_from_extension) {
     // The hinted extension matches the mime type.  It looks like a winner.
     generated_extension->swap(extension);
@@ -1104,13 +1099,12 @@ void DownloadManager::GenerateExtension(const FilePath& file_name,
     // 1. New extension is not ".txt"
     // 2. New extension is not the same as the already existing extension.
     // 3. New extension is not executable. This action mitigates the case when
-    //    an executable is hidden in a benign file extension;
+    //    an execuatable is hidden in a benign file extension;
     //    E.g. my-cat.jpg becomes my-cat.jpg.js if content type is
     //         application/x-javascript.
-    FilePath::StringType append_extension;
+    std::wstring append_extension;
     if (net::GetPreferredExtensionForMimeType(mime_type, &append_extension)) {
-      if (append_extension != FILE_PATH_LITERAL(".txt") &&
-          append_extension != extension &&
+      if (append_extension != L".txt" && append_extension != extension &&
           !IsExecutable(append_extension))
         extension += append_extension;
     }
@@ -1120,23 +1114,23 @@ void DownloadManager::GenerateExtension(const FilePath& file_name,
 }
 
 void DownloadManager::GenerateFilename(DownloadCreateInfo* info,
-                                       FilePath* generated_name) {
-  FilePath file_name = FilePath::FromWStringHack(
+                                       std::wstring* generated_name) {
+  std::wstring file_name =
       net::GetSuggestedFilename(GURL(info->url),
                                 info->content_disposition,
-                                L"download"));
+                                L"download");
   DCHECK(!file_name.empty());
 
   // Make sure we get the right file extension.
-  FilePath::StringType extension;
+  std::wstring extension;
   GenerateExtension(file_name, info->mime_type, &extension);
   file_util::ReplaceExtension(&file_name, extension);
 
   // Prepend "_" to the file name if it's a reserved name
-  if (win_util::IsReservedName(file_name.ToWStringHack()))
-    file_name = FilePath(L"_").Append(file_name);
+  if (win_util::IsReservedName(file_name))
+    file_name = std::wstring(L"_") + file_name;
 
-  *generated_name = FilePath(file_name);
+  generated_name->assign(file_name);
 }
 
 void DownloadManager::AddObserver(Observer* observer) {
@@ -1155,7 +1149,7 @@ void DownloadManager::ShowDownloadInShell(const DownloadItem* download) {
   file_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(file_manager_,
                         &DownloadFileManager::OnShowDownloadInShell,
-                        FilePath(download->full_path())));
+                        download->full_path()));
 }
 
 void DownloadManager::OpenDownloadInShell(const DownloadItem* download,
@@ -1167,8 +1161,8 @@ void DownloadManager::OpenDownloadInShell(const DownloadItem* download,
                         download->full_path(), download->url(), parent_window));
 }
 
-void DownloadManager::OpenFilesOfExtension(
-    const FilePath::StringType& extension, bool open) {
+void DownloadManager::OpenFilesOfExtension(const std::wstring& extension,
+                                           bool open) {
   if (open && !IsExecutable(extension))
     auto_open_.insert(extension);
   else
@@ -1176,8 +1170,7 @@ void DownloadManager::OpenFilesOfExtension(
   SaveAutoOpens();
 }
 
-bool DownloadManager::ShouldOpenFileExtension(
-    const FilePath::StringType& extension) {
+bool DownloadManager::ShouldOpenFileExtension(const std::wstring& extension) {
   if (!IsExecutable(extension) &&
       auto_open_.find(extension) != auto_open_.end())
       return true;
@@ -1213,7 +1206,7 @@ bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
   return net::MatchesMimeType("application/*", mime_type);
 }
 
-bool DownloadManager::IsExecutable(const FilePath::StringType& extension) {
+bool DownloadManager::IsExecutable(const std::wstring& extension) {
   return exe_types_.find(extension) != exe_types_.end();
 }
 
@@ -1229,10 +1222,10 @@ bool DownloadManager::HasAutoOpenFileTypesRegistered() const {
 void DownloadManager::SaveAutoOpens() {
   PrefService* prefs = profile_->GetPrefs();
   if (prefs) {
-    FilePath::StringType extensions;
-    for (std::set<FilePath::StringType>::iterator it = auto_open_.begin();
+    std::wstring extensions;
+    for (std::set<std::wstring>::iterator it = auto_open_.begin();
          it != auto_open_.end(); ++it) {
-      extensions += *it + FILE_PATH_LITERAL(":");
+      extensions += *it + L":";
     }
     if (!extensions.empty())
       extensions.erase(extensions.size() - 1);
@@ -1240,12 +1233,10 @@ void DownloadManager::SaveAutoOpens() {
   }
 }
 
-void DownloadManager::FileSelected(const std::wstring& path_string,
-                                   void* params) {
-  FilePath path = FilePath::FromWStringHack(path_string);
+void DownloadManager::FileSelected(const std::wstring& path, void* params) {
   DownloadCreateInfo* info = reinterpret_cast<DownloadCreateInfo*>(params);
   if (info->save_as)
-    last_download_path_ = path.DirName();
+    last_download_path_ = file_util::GetDirectoryFromPath(path);
   ContinueStartDownload(info, path);
 }
 
@@ -1258,9 +1249,9 @@ void DownloadManager::FileSelectionCanceled(void* params) {
                         info->download_id));
 }
 
-void DownloadManager::DeleteDownload(const FilePath& path) {
-  file_loop_->PostTask(FROM_HERE, NewRunnableFunction(
-      &DownloadFileManager::DeleteFile, FilePath(path)));
+void DownloadManager::DeleteDownload(const std::wstring& path) {
+  file_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      file_manager_, &DownloadFileManager::DeleteFile, path));
 }
 
 
@@ -1371,5 +1362,5 @@ void DownloadManager::OnSearchComplete(HistoryService::Handle handle,
 
 // Clears the last download path, used to initialize "save as" dialogs.
 void DownloadManager::ClearLastDownloadPath() {
-  last_download_path_ = FilePath();
+  last_download_path_.clear();
 }

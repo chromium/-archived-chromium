@@ -43,7 +43,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
@@ -103,10 +102,10 @@ class DownloadItem {
 
   // Constructing from user action:
   DownloadItem(int32 download_id,
-               const FilePath& path,
+               const std::wstring& path,
                int path_uniquifier,
                const std::wstring& url,
-               const FilePath& original_name,
+               const std::wstring& original_name,
                const base::Time start_time,
                int64 download_size,
                int render_process_id,
@@ -165,17 +164,17 @@ class DownloadItem {
 
   // Update the download's path, the actual file is renamed on the download
   // thread.
-  void Rename(const FilePath& full_path);
+  void Rename(const std::wstring& full_path);
 
   // Allow the user to temporarily pause a download or resume a paused download.
   void TogglePause();
 
   // Accessors
   DownloadState state() const { return state_; }
-  FilePath file_name() const { return file_name_; }
-  void set_file_name(const FilePath& name) { file_name_ = name; }
-  FilePath full_path() const { return full_path_; }
-  void set_full_path(const FilePath& path) { full_path_ = path; }
+  std::wstring file_name() const { return file_name_; }
+  void set_file_name(const std::wstring& name) { file_name_ = name; }
+  std::wstring full_path() const { return full_path_; }
+  void set_full_path(const std::wstring& path) { full_path_ = path; }
   int path_uniquifier() const { return path_uniquifier_; }
   void set_path_uniquifier(int uniquifier) { path_uniquifier_ = uniquifier; }
   std::wstring url() const { return url_; }
@@ -198,13 +197,13 @@ class DownloadItem {
   void set_safety_state(SafetyState safety_state) {
     safety_state_ = safety_state;
   }
-  FilePath original_name() const { return original_name_; }
-  void set_original_name(const FilePath& name) { original_name_ = name; }
+  std::wstring original_name() const { return original_name_; }
+  void set_original_name(const std::wstring& name) { original_name_ = name; }
 
   // Returns the file-name that should be reported to the user, which is
   // file_name_ for safe downloads and original_name_ for dangerous ones with
   // the uniquifier number.
-  FilePath GetFileName() const;
+  std::wstring GetFileName() const;
 
  private:
   // Internal helper for maintaining consistent received and total sizes.
@@ -214,14 +213,14 @@ class DownloadItem {
   int32 id_;
 
   // Full path to the downloaded file
-  FilePath full_path_;
+  std::wstring full_path_;
 
   // A number that should be appended to the path to make it unique, or 0 if the
   // path should be used as is.
   int path_uniquifier_;
 
   // Short display version of the file
-  FilePath file_name_;
+  std::wstring file_name_;
 
   // The URL from whence we came, for display
   std::wstring url_;
@@ -265,7 +264,7 @@ class DownloadItem {
 
   // Dangerous download are given temporary names until the user approves them.
   // This stores their original name.
-  FilePath original_name_;
+  std::wstring original_name_;
 
   // For canceling or pausing requests.
   int render_process_id_;
@@ -372,9 +371,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
     return static_cast<int>(in_progress_.size());
   }
 
-  FilePath download_path() {
-    return FilePath::FromWStringHack(*download_path_);
-  }
+  std::wstring download_path() { return *download_path_; }
 
   // Clears the last download path, used to initialize "save as" dialogs.  
   void ClearLastDownloadPath();
@@ -382,16 +379,16 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // Registers this file extension for automatic opening upon download
   // completion if 'open' is true, or prevents the extension from automatic
   // opening if 'open' is false.
-  void OpenFilesOfExtension(const FilePath::StringType& extension, bool open);
+  void OpenFilesOfExtension(const std::wstring& extension, bool open);
 
   // Tests if a file type should be opened automatically.
-  bool ShouldOpenFileExtension(const FilePath::StringType& extension);
+  bool ShouldOpenFileExtension(const std::wstring& extension);
 
   // Tests if we think the server means for this mime_type to be executable.
   static bool IsExecutableMimeType(const std::string& mime_type);
 
   // Tests if a file type is considered executable.
-  bool IsExecutable(const FilePath::StringType& extension);
+  bool IsExecutable(const std::wstring& extension);
 
   // Resets the automatic open preference.
   void ResetAutoOpenFiles();
@@ -401,12 +398,11 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   bool HasAutoOpenFileTypesRegistered() const;
 
   // Overridden from SelectFileDialog::Listener:
-  // TODO(port): convert this to FilePath when SelectFileDialog gets converted.
   virtual void FileSelected(const std::wstring& path, void* params);
   virtual void FileSelectionCanceled(void* params);
 
   // Deletes the specified path on the file thread.
-  void DeleteDownload(const FilePath& path);
+  void DeleteDownload(const std::wstring& path);
 
   // Called when the user has validated the donwload of a dangerous file.
   void DangerousDownloadValidated(DownloadItem* download);
@@ -428,7 +424,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // determined, either automatically based on the suggested file name, or by
   // the user in a Save As dialog box.
   void ContinueStartDownload(DownloadCreateInfo* info,
-                             const FilePath& target_path);
+                             const std::wstring& target_path);
 
   // Update the history service for a particular download.
   void UpdateHistoryForDownload(DownloadItem* download);
@@ -441,12 +437,12 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   void NotifyAboutDownloadStop();
 
   // Create an extension based on the file name and mime type.
-  void GenerateExtension(const FilePath& file_name,
+  void GenerateExtension(const std::wstring& file_name,
                          const std::string& mime_type,
-                         FilePath::StringType* generated_extension);
+                         std::wstring* generated_extension);
 
   // Create a file name based on the response from the server.
-  void GenerateFilename(DownloadCreateInfo* info, FilePath* generated_name);
+  void GenerateFilename(DownloadCreateInfo* info, std::wstring* generated_name);
 
   // Persist the automatic opening preference.
   void SaveAutoOpens();
@@ -473,21 +469,21 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // real file name.
   // Invoked on the file thread.
   void ProceedWithFinishedDangerousDownload(int64 download_handle, 
-                                            const FilePath& path,
-                                            const FilePath& original_name);
+                                            const std::wstring& path,
+                                            const std::wstring& original_name);
 
   // Invoked on the UI thread when a dangerous downloaded file has been renamed.
   void DangerousDownloadRenamed(int64 download_handle,
                                 bool success,
-                                const FilePath& new_path,
+                                const std::wstring& new_path,
                                 int new_path_uniquifier);
 
   // Checks whether a file represents a risk if downloaded.
-  bool IsDangerous(const FilePath& file_name);
+  bool IsDangerous(const std::wstring& file_name);
 
   // Changes the paths and file name of the specified |download|, propagating
   // the change to the history system.
-  void RenameDownload(DownloadItem* download, const FilePath& new_path);
+  void RenameDownload(DownloadItem* download, const std::wstring& new_path);
 
   // 'downloads_' is map of all downloads in this profile. The key is the handle
   // returned by the history system, which is unique across sessions. This map
@@ -547,13 +543,13 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 
   // The user's last choice for download directory. This is only used when the
   // user wants us to prompt for a save location for each download.
-  FilePath last_download_path_;
+  std::wstring last_download_path_;
 
   // Set of file extensions to open at download completion.
-  std::set<FilePath::StringType> auto_open_;
+  std::set<std::wstring> auto_open_;
 
   // Set of file extensions that are executables and shouldn't be auto opened.
-  std::set<FilePath::StringType> exe_types_;
+  std::set<std::wstring> exe_types_;
 
   // Keep track of downloads that are completed before the user selects the
   // destination, so that observers are appropriately notified of completion

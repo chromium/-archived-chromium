@@ -132,8 +132,6 @@ class FilePath {
 
   const StringType& value() const { return path_; }
 
-  bool empty() const { return path_.empty(); }
-
   // Returns true if |character| is in kSeparators.
   static bool IsSeparator(CharType character);
 
@@ -148,7 +146,7 @@ class FilePath {
   // object, either a file or a directory.  If this object already refers to
   // the root directory, returns a FilePath identifying the root directory;
   // this is the only situation in which BaseName will return an absolute path.
-  FilePath BaseName() const;
+  StringType BaseName() const;
 
   // Returns a FilePath by appending a separator and the supplied path
   // component to this object's path.  Append takes care to avoid adding
