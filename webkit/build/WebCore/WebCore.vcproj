@@ -2750,6 +2750,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\css\mediaControls.css"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\css\MediaFeatureNames.cpp"
 				>
 			</File>

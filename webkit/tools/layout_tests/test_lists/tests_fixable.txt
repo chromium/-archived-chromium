@@ -1793,3 +1793,6 @@ LINUX : LayoutTests/fast/backgrounds/opacity-on-document-element.html = FAIL
 
 // Merge 39543:39501 -- test was edited slightly.  Needs new expected result.
 LINUX : LayoutTests/fast/transforms/identity-matrix.html = FAIL
+
+// Merge 39520:39606 -- new tests
+LayoutTests/fast/canvas/set-colors.html = FAIL

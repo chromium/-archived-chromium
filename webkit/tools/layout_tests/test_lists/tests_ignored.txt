@@ -206,3 +206,6 @@ LayoutTests/fast/js/regexp-charclass-crash.html = PASS TIMEOUT
 // Test to verify legacy MAC encodings. We don't want to support them and
 // have to skip this test.
 SKIP : LayoutTests/fast/encoding/char-decoding-mac.html = FAIL
+
+// WebKit QT Build-specific tests
+SKIP : LayoutTests/platform/qt/view/fixed-layout-size.html = FAIL
