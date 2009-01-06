@@ -29,7 +29,6 @@
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/views/app_modal_dialog_delegate.h"
@@ -46,19 +45,28 @@ class InitialLoadObserver : public NotificationObserver {
         automation_(automation) {
     if (outstanding_tab_count_ > 0) {
       NotificationService* service = NotificationService::current();
-      registrar_.Add(this, NOTIFY_LOAD_START,
-                     NotificationService::AllSources());
-      registrar_.Add(this, NOTIFY_LOAD_STOP,
-                     NotificationService::AllSources());
+      service->AddObserver(this, NOTIFY_LOAD_START,
+                           NotificationService::AllSources());
+      service->AddObserver(this, NOTIFY_LOAD_STOP,
+                          NotificationService::AllSources());
     }
   }
 
   ~InitialLoadObserver() {
+    Unregister();
   }
 
   void ConditionMet() {
-    registrar_.RemoveAll();
+    Unregister();
     automation_->Send(new AutomationMsg_InitialLoadsComplete(0));
+  }
+
+  void Unregister() {
+    NotificationService* service = NotificationService::current();
+    service->RemoveObserver(this, NOTIFY_LOAD_START,
+                            NotificationService::AllSources());
+    service->RemoveObserver(this, NOTIFY_LOAD_STOP,
+                            NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type,
@@ -81,8 +89,6 @@ class InitialLoadObserver : public NotificationObserver {
 
  private:
   typedef std::set<uintptr_t> TabSet;
-
-  NotificationRegistrar registrar_;
 
   AutomationProvider* automation_;
   size_t outstanding_tab_count_;

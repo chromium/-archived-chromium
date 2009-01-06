@@ -15,7 +15,6 @@
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
-#include "chrome/common/notification_registrar.h"
 #include "chrome/common/property_bag.h"
 
 namespace gfx {
@@ -511,8 +510,6 @@ class TabContents : public PageNavigator,
   NavigationController* controller_;
 
   PropertyBag property_bag_;
-
-  NotificationRegistrar registrar_;
 
   // Indicates whether we're currently loading a resource.
   bool is_loading_;
