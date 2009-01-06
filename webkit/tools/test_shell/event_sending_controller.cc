@@ -198,7 +198,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 // Implemented javascript methods.
 //
 
- void EventSendingController::mouseDown(
+void EventSendingController::mouseDown(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 
@@ -227,7 +227,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
   webview()->HandleInputEvent(&event);
 }
 
- void EventSendingController::mouseUp(
+void EventSendingController::mouseUp(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 
@@ -274,7 +274,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
   }
 }
 
- void EventSendingController::mouseMoveTo(
+void EventSendingController::mouseMoveTo(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 
@@ -304,20 +304,9 @@ int EventSendingController::GetButtonNumberFromSingleArg(
   }
 }
 
- void EventSendingController::keyDown(
+void EventSendingController::keyDown(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
-
-  static const int kPercentVirtualKeyCode = 0x25;
-  static const int kAmpersandVirtualKeyCode = 0x26;
-
-  static const int kLeftParenthesesVirtualKeyCode = 0x28;
-  static const int kRightParenthesesVirtualKeyCode = 0x29;
-
-#if defined(OS_WIN)
-  static const int kLeftCurlyBracketVirtualKeyCode = 0x7B;
-  static const int kRightCurlyBracketVirtualKeyCode = 0x7D;
-#endif
 
   bool generate_char = false;
 
@@ -384,47 +373,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 
     if (generate_char) {
       WebKeyboardEvent event_char = event_down;
-      if (event_down.modifiers & WebInputEvent::SHIFT_KEY) {
-        // Special case for the following characters when the shift key is
-        // pressed in conjunction with these characters.
-        // Windows generates a WM_KEYDOWN message with the ASCII code of 
-        // the character followed by a WM_CHAR for the corresponding
-        // virtual key code.
-        // We check for these keys to catch regressions in keyEvent handling
-        // in webkit.
-        switch(code) {
-          case '5':
-            event_char.key_code = kPercentVirtualKeyCode;
-            break;
-          case '7':
-            event_char.key_code = kAmpersandVirtualKeyCode;
-            break;
-          case '9':
-            event_char.key_code = kLeftParenthesesVirtualKeyCode;
-            break;
-          case '0':
-            event_char.key_code = kRightParenthesesVirtualKeyCode;
-            break;
-#if defined(OS_WIN)
-          //  '[{' for US
-          case VK_OEM_4:
-            event_char.key_code = kLeftCurlyBracketVirtualKeyCode;
-            break;
-          //  ']}' for US
-          case VK_OEM_6:
-            event_char.key_code = kRightCurlyBracketVirtualKeyCode;
-            break;
-#endif
-          default:
-            break;
-        }
-      }
       event_char.type = WebInputEvent::CHAR;
-#if defined(OS_LINUX)
-      // |key_code| may have changed, so update |text|.
-      // (See deanm comment above.)
-      event_char.text = event_char.key_code;
-#endif
       webview()->HandleInputEvent(&event_char);
     }
 
@@ -432,7 +381,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
   }
 }
 
- bool EventSendingController::NeedsShiftModifer(int key_code) {
+bool EventSendingController::NeedsShiftModifer(int key_code) {
   // If code is an uppercase letter, assign a SHIFT key to
   // event_down.modifier, this logic comes from
   // WebKit/WebKitTools/DumpRenderTree/Win/EventSender.cpp
@@ -441,7 +390,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
   return false;
  }
 
- void EventSendingController::leapForward(
+void EventSendingController::leapForward(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 
@@ -454,19 +403,19 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 
 // Apple's port of webkit zooms by a factor of 1.2 (see
 // WebKit/WebView/WebView.mm)
- void EventSendingController::textZoomIn(
+void EventSendingController::textZoomIn(
     const CppArgumentList& args, CppVariant* result) {
   webview()->ZoomIn(true);
   result->SetNull();
 }
 
- void EventSendingController::textZoomOut(
+void EventSendingController::textZoomOut(
     const CppArgumentList& args, CppVariant* result) {
   webview()->ZoomOut(true);
   result->SetNull();
 }
 
- void EventSendingController::ReplaySavedEvents() {
+void EventSendingController::ReplaySavedEvents() {
   replaying_saved_events = true;
   while (!mouse_event_queue.empty()) {
     WebMouseEvent event = mouse_event_queue.front();
@@ -483,14 +432,14 @@ int EventSendingController::GetButtonNumberFromSingleArg(
         NOTREACHED();
     }
   }
-  
+ 
   replaying_saved_events = false;
 }
 
- void EventSendingController::contextClick(
+void EventSendingController::contextClick(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
-  
+
   webview()->Layout();
 
   if (GetCurrentEventTimeSec() - last_click_time_sec >= 1) {
@@ -518,17 +467,17 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 // Unimplemented stubs
 //
 
- void EventSendingController::enableDOMUIEventLogging(
+void EventSendingController::enableDOMUIEventLogging(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 }
 
- void EventSendingController::fireKeyboardEventsToElement(
+void EventSendingController::fireKeyboardEventsToElement(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 }
 
- void EventSendingController::clearKillRing(
+void EventSendingController::clearKillRing(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 }

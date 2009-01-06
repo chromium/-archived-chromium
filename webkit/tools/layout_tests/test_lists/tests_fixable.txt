@@ -997,7 +997,6 @@ LINUX MAC : pending/plugins/destroy-stream-twice.html = TIMEOUT
 LINUX MAC : pending/plugins/iframe-shims.html = FAIL
 
 // Depends on event_sending_controller fixes.
-MAC : pending/fast/events/special-key-events-in-input-text.html = FAIL
 MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL
 
 // NEW FOR MERGE 36102:37604
@@ -1624,7 +1623,7 @@ LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 LINUX WIN : LayoutTests/http/tests/loading/simple-subframe.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
-LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
+MAC : LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
 LayoutTests/fast/regex/non-pattern-characters.html = FAIL
 SKIP : LayoutTests/fast/workers/worker-navigator.html = FAIL
 SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
