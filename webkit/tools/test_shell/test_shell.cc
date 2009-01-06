@@ -197,14 +197,14 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
   // Encode image.
   std::vector<unsigned char> png;
   SkAutoLockPixels src_bmp_lock(src_bmp);
+  PNGEncoder::ColorFormat color_format = PNGEncoder::FORMAT_BGRA;
 #if defined(OS_WIN) || defined(OS_LINUX)
   bool discard_transparency = true;
-  PNGEncoder::ColorFormat color_format = PNGEncoder::FORMAT_BGRA;
 #elif defined(OS_MACOSX)
-  // the expected PNGs in webkit have an alpha channel. We must not discard
-  // the transparency else the checksums won't match.
+  // the expected PNGs in webkit have an alpha channel. We shouldn't discard
+  // the transparency for reference purposes, though the hashes will still
+  // match.
   bool discard_transparency = false;
-  PNGEncoder::ColorFormat color_format = PNGEncoder::FORMAT_RGBA;
 #endif
   PNGEncoder::Encode(
       reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
@@ -497,7 +497,14 @@ std::string GetDataResource(int resource_id) {
     static std::string broken_image_data;
     if (broken_image_data.empty()) {
       FilePath path = GetResourcesFilePath();
+#if defined(OS_WIN) || defined(OS_LINUX)
       path = path.Append(FILE_PATH_LITERAL("missingImage.gif"));
+#elif defined(OS_MACOSX)
+      // In order to match WebKit's colors for the missing image, we have to
+      // use a PNG. The GIF doesn't have the color range needed to correctly
+      // match the TIFF they use in Safari.
+      path = path.Append(FILE_PATH_LITERAL("missingImage.png"));
+#endif
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &broken_image_data);
       if (!success) {

@@ -169,10 +169,13 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
 
   CGColorSpaceRef color_space =
     CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-  // allocate a bitmap context with 4 components per pixel (RGBA):
+  // allocate a bitmap context with 4 components per pixel (BGRA). Apple
+  // recommends these flags for improved CG performance.
   CGContextRef bitmap_context =
     CGBitmapContextCreate(data, width, height, 8, width*4,
-                          color_space, kCGImageAlphaPremultipliedLast);
+                          color_space,
+                          kCGImageAlphaPremultipliedFirst |
+                              kCGBitmapByteOrder32Host);
 
   // Change the coordinate system to match WebCore's
   CGContextTranslateCTM(bitmap_context, 0, height);
