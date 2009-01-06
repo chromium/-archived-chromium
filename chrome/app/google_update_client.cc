@@ -81,8 +81,9 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
     std::wstring key_path(google_update::kRegPathClientState);
     key_path.append(L"\\" + guid_);
     HKEY reg_key;
-    if (::RegOpenKeyEx(HKEY_CURRENT_USER, key_path.c_str(), 0,
-                       KEY_WRITE, &reg_key) == ERROR_SUCCESS) {
+    if (::RegCreateKeyEx(HKEY_CURRENT_USER, key_path.c_str(), 0, NULL,
+                         REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL,
+                         &reg_key, NULL) == ERROR_SUCCESS) {
       const wchar_t kVal[] = L"1";
       ::RegSetValueEx(reg_key, google_update::kRegDidRunField, 0, REG_SZ,
                       reinterpret_cast<const BYTE *>(kVal), sizeof(kVal));
