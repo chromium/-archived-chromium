@@ -157,16 +157,23 @@ class MetricsLog {
   // NOTE: Has the side-effect of clearing those counts.
   void WriteStabilityElement();
 
-  // Within the stability group, write required elements.
-  void WriteRequiredStabilityElements(PrefService* pref);
-  // Within the stability group, write elements that need to be updated asap
+  // Within stability group, write plugin crash stats.
+  void WritePluginStabilityElements(PrefService* pref);
+
+  // Within the stability group, write required attributes.
+  void WriteRequiredStabilityAttributes(PrefService* pref);
+
+  // Within the stability group, write attributes that need to be updated asap
   // and can't be delayed until the user decides to restart chromium.
   // Delaying these stats would bias metrics away from happy long lived
   // chromium processes (ones that don't crash, and keep on running).
-  void WriteRealtimeStabilityElements(PrefService* pref);
+  void WriteRealtimeStabilityAttributes(PrefService* pref);
 
   // Writes the list of installed plugins.
   void WritePluginList(const std::vector<WebPluginInfo>& plugin_list);
+
+  // Within the profile group, write basic install info including appversion.
+  void WriteInstallElement();
 
   // Writes all profile metrics. This invokes WriteProfileMetrics for each key
   // in all_profiles_metrics that starts with kProfilePrefix.

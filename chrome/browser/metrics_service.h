@@ -163,7 +163,7 @@ class MetricsService : public NotificationObserver,
   // Called to start recording user experience metrics.
   // Constructs a new, empty current_log_.
   void StartRecording();
-  
+
   // Called to stop recording user experience metrics.  The caller takes
   // ownership of the resulting MetricsLog object via the log parameter,
   // or passes in NULL to indicate that the log should simply be deleted.

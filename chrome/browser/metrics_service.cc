@@ -680,7 +680,7 @@ void MetricsService::StopRecording(MetricsLog** log) {
   }
 
   // Put incremental data (histogram deltas, and realtime stats deltas) at the
-  // end of every log transmission.
+  // end of all log transmissions (initial log handles this separately).
   // Don't bother if we're going to discard current_log_.
   if (log) {
     current_log_->RecordIncrementalStabilityElements();
@@ -1192,6 +1192,10 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
     if (local_state)
       local_state->ScheduleSavePersistentPrefs(
           g_browser_process->file_thread());
+
+    // Provide a default (free of exponetial backoff, other varances) in case
+    // the server does not specify a value.
+    interlog_duration_ = TimeDelta::FromSeconds(kMinSecondsPerLog);
 
     GetSettingsFromResponseData(data);
     // Override server specified interlog delay if there are unsent logs to
