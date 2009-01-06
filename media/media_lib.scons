@@ -26,6 +26,7 @@ env.Prepend(
 # cross-platform live below.
 input_files = [
     'base/data_buffer.cc',
+    'base/filter_host_impl.cc',
     'base/media_format.cc',
 ]
 

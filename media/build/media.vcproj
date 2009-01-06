@@ -141,6 +141,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\filter_host_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\filter_host_impl.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\filters.h"
 				>
 			</File>
