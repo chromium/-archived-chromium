@@ -165,8 +165,6 @@ TEST_F(VisitDatabaseTest, Update) {
 
 // TODO(brettw) write test for GetMostRecentVisitForURL!
 
-#if defined(OS_WIN)
-// TODO(playmobil): Enable on POSIX
 TEST_F(VisitDatabaseTest, GetVisibleVisitsInRange) {
   // Add one visit.
   VisitRow visit_info1(1, Time::Now(), 0,
@@ -244,5 +242,4 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsInRange) {
   EXPECT_TRUE(IsVisitInfoEqual(results[0], visit_info4) &&
               IsVisitInfoEqual(results[1], visit_info2));
 }
-#endif  // defined(OS_WIN)
 }  // namespace history
