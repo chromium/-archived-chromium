@@ -1,59 +1,105 @@
-This directory contains a partial snapshot of the sqlite library from
-http://sqlite.org.
+Instructions for importing a new release of sqlite from sqlite.org.
 
-Current version: 3.5.3, released 23-Nov-2007.
+First, you need to be on Linux.
 
-(This was built as 3.4.2 [13-Aug-2007] as described below, with the four
-intervening patches 4315, 4427, 4546, and 4556 applied by hand.)
+Find the release you want at:
+  http://www.sqlite.org/cvstrac/timeline
 
-To import a new snapshot of sqlite:
+Search for "Milestone", and find the appropriate release.  Click
+through, and snag the "Date" for use in DATE line below.
+Unfortunately, the actual displayed date string on that page will not
+work, you have to make it YYYY/MM/DD.  [TODO(shess) Determine if the
+fact that sqlite.org thinks it's running under UTC is relevant.]
 
-- Visit http://sqlite.org/download.html and download the latest source
-  distribution.
-- Unpack the source on a Linux machine.
-- Change to the source directory and run:
-    $ ./configure --disable-tcl  # build headers
-    $ make                       # build some generated files
-- Copy the generated .c/.h files from the sqlite directory to this directory,
-  as well as those in src/ and ext/fts2/.  Omit files which have been omitted
-  here.  Here's an easy way to be sure you get everything:
-    $ cp /path/to/source/*.[ch] .  # don't forget subdirs, too
-    $ gvn status | grep -v ^M      # print the names of all new files
-    $ mkdir new; mv each new file to new
-    Then rebuild, and if any of the files in new/ are needed, move them
-    back into this directory, add them to the project, and "gvn add" them.
-- Apply the preload-cache.diff (see below)
-- Update this README to reflect the new version number.
+DATE='2007/01/24 09:54:56'
 
-Modifications for this release:
-- I marked all changes I made with "evanm", so you can find them with
-  "grep evanm *".
-- Most files include sqlite3ext.h with SQLITE_CORE #defined, but two don't:
-  fts2_tokenizer.c and icu.c.  Without this #define, the calls in
-  fts2_tokenizer.c try to go through some pointer to the sqlite API instead of
-  calling the functions directly (to work as a loadable module), but then crash
-  (because the other files never initialize that loadable module support).  As
-  a hack I #defined it in these files, but it'd be nice to figure out what
-  really ought to happen here (perhaps this file is new and hasn't been tested
-  to verify it works right).
-- shell_icu.c is a Chrome-specific file used to load our ICU data.  shell.c
-  has been modifed to call into shell_icu.c.
-- fts2_icu.c has a critical bug. U8_NEXT is used over a UTF-16 string. It's replaced
-  by U16_NEXT (jungshik)
+# Get to the third_party/sqlite directory in your Chromium client.
+cd ../third_party/sqlite
 
-Patch
------
-The file preload-cache.diff patch must be applied to add a new function we use
-to prime the database cache. It allows much faster performance by reading the
-file in one contiguous operation rather than bringing it in organically, which
-involves a lot of seeking.
+# Run the super awesome automatic merge tool (requires kdiff3).
+# NOTE(shess): The following (which runs google_generate_preprocessed.sh) will
+# produce different output on grhat versus goobuntu; I've been running it on
+# goobuntu.
+./google_update_sqlite.sh "$DATE"
 
-FTS2 modification
------------------
-In fts2.c, we added an additional check from fts3 to try to catch some
-additional problems. In buildTerms on line 3807, we replaced
-    if( iPosition<0 ){
-with:
-    if( iPosition<0 || pToken == NULL || nTokenBytes == 0 ){
-It is from this change to sqlite:
-    http://www.sqlite.org/cvstrac/chngview?cn=4514
+# Resolve any conflicts.  Figure out if we've got everything we should
+# have (see below), or if we can omit any changes we no longer need.
+
+# TODO(shess) If we don't want the CVS dirs.
+# find sqlite_vendor -name CVS -execdir rm -rf {} + -prune
+
+# Find a sucker.  Send review.
+# TODO(shess) Describe an appropriate comment style.  Seems like it
+# should include the DATE line, and the sqlite version number.
+
+
+--------------------------------------------
+
+Why all this convolution?  The problem being solved is that we want to
+harvest changes from the sqlite CVS tree, and merge them with any
+local changes we make.  In CVS, you would do this using a "vendor
+import", which is essentially a branch dedictated to the vendor
+version which is merged with local changes.
+
+third_party/sqlite_vendor/... is the CVS checkout for a particular
+build from sqlite.org.  third_party/sqlite_google/... is the local
+version, with our local modifications.  So we update the sqlite_vendor
+tree, then use perforce to downintegrate changes into our
+locally-modified tree.  The downintegrate will call out any
+conflicting changes, but will otherwise just merge things together.
+Basically, sqlite_vendor is a gateway between CVS and perforce.
+
+Scott Hess <shess@google.com>, April 9, 2007.
+
+--------------------------------------------
+
+How to run the SQLite tests for the Gears version of SQLite on Linux.
+
+cd ../third_party/sqlite_google/
+mkdir build
+cd build
+make -f ../Makefile.linux-gcc testfixture
+make -f ../Makefile.linux-gcc test > /tmp/test.log
+egrep -v 'Ok$' /tmp/test.log
+# When run on a locally-mounted disk, my output ends with:
+# 0 errors out of 57887 tests
+
+Scott Hess <shess@google.com>, December 11, 2007
+
+--------------------------------------------
+
+As of September 12, 2008, these are our changes from sqlite_vendor:
+
+ - fts2.c disables fts2_tokenizer().
+ - sqlite3Poison() in src/btree.c.
+ - BEGIN defaults to BEGIN IMMEDIATE in parse.y.
+ - Tweak to SQLITE_EXTENSION_INIT* in sqlite3ext.h.
+   - That implied a change in src/test_autoext.c for testing.
+ - Added fts.test and fts1.test in tests, modified quick.test.
+ - src/os_symbian.cc.
+ - Modifications to Makefile.linux-gcc and main.mk for compiling
+   SQLite tests.
+ - Compile warning fixed in func.c (check if this is still needed)
+ - Fixed a typo bug in fts2_icu.c: "strlen(nInput)" (filed upstream as
+   http://www.sqlite.org/cvstrac/tktview?tn=3543)
+
+Changes from Chrome:
+ - I marked all changes I made with "evanm", so you can find them with
+   "grep evanm *".
+ - Most files include sqlite3ext.h with SQLITE_CORE #defined, but two don't:
+   fts2_tokenizer.c and icu.c.  Without this #define, the calls in
+   fts2_tokenizer.c try to go through some pointer to the sqlite API instead
+   of calling the functions directly (to work as a loadable module), but then
+   crash (because the other files never initialize that loadable module
+   support).  As a hack I #defined it in these files, but it'd be nice to
+   figure out what really ought to happen here (perhaps this file is new and
+   hasn't been tested to verify it works right).  Update: Seems this is an
+   issue we get because we're using fts2 instead of fts3.
+ - shell_icu.c is a Chrome-specific file used to load our ICU data.  shell.c
+   has been modifed to call into shell_icu.c.
+ - fts2_icu.c has a critical bug. U8_NEXT is used over a UTF-16 string. It's
+   rep$ by U16_NEXT (jungshik)
+ - Added a new function sqlite3Preload we use to prime the database cache. It
+   allows much faster performance by reading the file in one contiguous
+   operation rather than bringing it in organically, which involves a lot of
+   seeking.

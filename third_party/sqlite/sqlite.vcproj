@@ -37,6 +37,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\sqlite\src&quot;;&quot;$(SolutionDir)..\third_party\sqlite\preprocessed&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -88,6 +89,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\sqlite\src&quot;;&quot;$(SolutionDir)..\third_party\sqlite\preprocessed&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -139,6 +141,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\sqlite\src&quot;;&quot;$(SolutionDir)..\third_party\sqlite\preprocessed&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -182,195 +185,247 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\alter.c"
+			RelativePath=".\src\alter.c"
 			>
 		</File>
 		<File
-			RelativePath=".\analyze.c"
+			RelativePath=".\src\analyze.c"
 			>
 		</File>
 		<File
-			RelativePath=".\attach.c"
+			RelativePath=".\src\attach.c"
 			>
 		</File>
 		<File
-			RelativePath=".\auth.c"
+			RelativePath=".\src\auth.c"
 			>
 		</File>
 		<File
-			RelativePath=".\btree.c"
+			RelativePath=".\src\bitvec.c"
 			>
 		</File>
 		<File
-			RelativePath=".\btree.h"
+			RelativePath=".\src\btmutex.c"
 			>
 		</File>
 		<File
-			RelativePath=".\btreeInt.h"
+			RelativePath=".\src\btree.c"
 			>
 		</File>
 		<File
-			RelativePath=".\build.c"
+			RelativePath=".\src\btree.h"
 			>
 		</File>
 		<File
-			RelativePath=".\callback.c"
+			RelativePath=".\src\btreeInt.h"
 			>
 		</File>
 		<File
-			RelativePath=".\complete.c"
+			RelativePath=".\src\build.c"
 			>
 		</File>
 		<File
-			RelativePath=".\date.c"
+			RelativePath=".\src\callback.c"
 			>
 		</File>
 		<File
-			RelativePath=".\delete.c"
+			RelativePath=".\src\complete.c"
 			>
 		</File>
 		<File
-			RelativePath=".\expr.c"
+			RelativePath=".\src\date.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2.c"
+			RelativePath=".\src\delete.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2.h"
+			RelativePath=".\src\expr.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_hash.c"
+			RelativePath=".\src\fault.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_hash.h"
+			RelativePath=".\ext\fts2\fts2.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_icu.c"
+			RelativePath=".\ext\fts2\fts2.h"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_porter.c"
+			RelativePath=".\ext\fts2\fts2_hash.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_tokenizer.c"
+			RelativePath=".\ext\fts2\fts2_hash.h"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_tokenizer.h"
+			RelativePath=".\ext\fts2\fts2_icu.c"
 			>
 		</File>
 		<File
-			RelativePath=".\fts2_tokenizer1.c"
+			RelativePath=".\ext\fts2\fts2_porter.c"
 			>
 		</File>
 		<File
-			RelativePath=".\func.c"
+			RelativePath=".\ext\fts2\fts2_tokenizer.c"
 			>
 		</File>
 		<File
-			RelativePath=".\hash.c"
+			RelativePath=".\ext\fts2\fts2_tokenizer.h"
 			>
 		</File>
 		<File
-			RelativePath=".\hash.h"
+			RelativePath=".\ext\fts2\fts2_tokenizer1.c"
 			>
 		</File>
 		<File
-			RelativePath=".\icu.c"
+			RelativePath=".\src\func.c"
 			>
 		</File>
 		<File
-			RelativePath=".\insert.c"
+			RelativePath=".\src\global.c"
 			>
 		</File>
 		<File
-			RelativePath=".\keywordhash.h"
+			RelativePath=".\src\hash.c"
 			>
 		</File>
 		<File
-			RelativePath=".\legacy.c"
+			RelativePath=".\src\hash.h"
 			>
 		</File>
 		<File
-			RelativePath=".\limits.h"
+			RelativePath=".\ext\icu\icu.c"
 			>
 		</File>
 		<File
-			RelativePath=".\loadext.c"
+			RelativePath=".\src\insert.c"
 			>
 		</File>
 		<File
-			RelativePath=".\main.c"
+			RelativePath=".\preprocessed\keywordhash.h"
 			>
 		</File>
 		<File
-			RelativePath=".\malloc.c"
+			RelativePath=".\src\legacy.c"
 			>
 		</File>
 		<File
-			RelativePath=".\opcodes.c"
+			RelativePath=".\src\loadext.c"
 			>
 		</File>
 		<File
-			RelativePath=".\opcodes.h"
+			RelativePath=".\src\main.c"
 			>
 		</File>
 		<File
-			RelativePath=".\os.c"
+			RelativePath=".\src\malloc.c"
 			>
 		</File>
 		<File
-			RelativePath=".\os.h"
+			RelativePath=".\src\mem1.c"
 			>
 		</File>
 		<File
-			RelativePath=".\os_win.c"
+			RelativePath=".\src\mem2.c"
 			>
 		</File>
 		<File
-			RelativePath=".\pager.c"
+			RelativePath=".\src\mem3.c"
 			>
 		</File>
 		<File
-			RelativePath=".\pager.h"
+			RelativePath=".\src\mem4.c"
 			>
 		</File>
 		<File
-			RelativePath=".\parse.c"
+			RelativePath=".\src\mem5.c"
 			>
 		</File>
 		<File
-			RelativePath=".\parse.h"
+			RelativePath=".\src\mem6.c"
 			>
 		</File>
 		<File
-			RelativePath=".\pragma.c"
+			RelativePath=".\src\mutex.c"
 			>
 		</File>
 		<File
-			RelativePath=".\prepare.c"
+			RelativePath=".\src\mutex.h"
 			>
 		</File>
 		<File
-			RelativePath=".\printf.c"
+			RelativePath=".\src\mutex_w32.c"
 			>
 		</File>
 		<File
-			RelativePath=".\random.c"
+			RelativePath=".\preprocessed\opcodes.c"
 			>
 		</File>
 		<File
-			RelativePath=".\select.c"
+			RelativePath=".\preprocessed\opcodes.h"
 			>
 		</File>
 		<File
-			RelativePath=".\shell.c"
+			RelativePath=".\src\os.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\os.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\os_common.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\os_win.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\pager.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\pager.h"
+			>
+		</File>
+		<File
+			RelativePath=".\preprocessed\parse.c"
+			>
+		</File>
+		<File
+			RelativePath=".\preprocessed\parse.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\pragma.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\prepare.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\printf.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\random.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\select.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\shell.c"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -390,87 +445,95 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\shell_icu.c"
+			RelativePath=".\src\shell_icu.c"
 			>
 		</File>
 		<File
-			RelativePath=".\sqlite3.h"
+			RelativePath=".\preprocessed\sqlite3.h"
 			>
 		</File>
 		<File
-			RelativePath=".\sqlite3ext.h"
+			RelativePath=".\src\sqlite3ext.h"
 			>
 		</File>
 		<File
-			RelativePath=".\sqliteInt.h"
+			RelativePath=".\src\sqliteInt.h"
 			>
 		</File>
 		<File
-			RelativePath=".\sqliteLimit.h"
+			RelativePath=".\src\sqliteLimit.h"
 			>
 		</File>
 		<File
-			RelativePath=".\table.c"
+			RelativePath=".\src\status.c"
 			>
 		</File>
 		<File
-			RelativePath=".\tokenize.c"
+			RelativePath=".\src\table.c"
 			>
 		</File>
 		<File
-			RelativePath=".\trigger.c"
+			RelativePath=".\src\tokenize.c"
 			>
 		</File>
 		<File
-			RelativePath=".\update.c"
+			RelativePath=".\src\trigger.c"
 			>
 		</File>
 		<File
-			RelativePath=".\utf.c"
+			RelativePath=".\src\update.c"
 			>
 		</File>
 		<File
-			RelativePath=".\util.c"
+			RelativePath=".\src\utf.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vacuum.c"
+			RelativePath=".\src\util.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbe.c"
+			RelativePath=".\src\vacuum.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbe.h"
+			RelativePath=".\src\vdbe.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbeapi.c"
+			RelativePath=".\src\vdbe.h"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbeaux.c"
+			RelativePath=".\src\vdbeapi.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbefifo.c"
+			RelativePath=".\src\vdbeaux.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbeInt.h"
+			RelativePath=".\src\vdbeblob.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vdbemem.c"
+			RelativePath=".\src\vdbefifo.c"
 			>
 		</File>
 		<File
-			RelativePath=".\vtab.c"
+			RelativePath=".\src\vdbeInt.h"
 			>
 		</File>
 		<File
-			RelativePath=".\where.c"
+			RelativePath=".\src\vdbemem.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\vtab.c"
+			>
+		</File>
+		<File
+			RelativePath=".\src\where.c"
 			>
 		</File>
 	</Files>
