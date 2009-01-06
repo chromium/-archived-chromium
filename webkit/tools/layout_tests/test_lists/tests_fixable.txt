@@ -430,6 +430,7 @@ DEFER LINUX WIN : LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers diff
 DEFER LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
 DEFER LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
+// SVG combined with font metrics.
 LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
 
 // This is an interesting one.
@@ -646,7 +647,7 @@ LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
 // path.  We correctly return file:///C:/test on Windows.  We should fix
 // upstream
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-// RenderListBox wrong size.  Fonts?  Or needs rebaselining?
+// RenderListBox off by 4px.  Font metrics?  Or form control size wrong?
 LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
@@ -789,7 +790,7 @@ LayoutTests/animations/big-rotation.html = FAIL PASS
 WIN : LayoutTests/css2.1/t040302-c61-ex-len-00-b-a.html = FAIL
 WIN : LayoutTests/css2.1/t040302-c61-rel-len-00-b-ag.html = FAIL
 
-// Radio buttons rendered differently between Linux and Windows.
+// Renderblocks off by a pixel -- font metrics?
 LINUX : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
 
 // Missing a Georgian font for Linux
@@ -817,7 +818,7 @@ WIN : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
 // We should be able to pass this -- not sure what's wrong.
 LINUX WIN : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 
-// Render tree off by a pixel -- margins wrong?  All sizes are correct.
+// Many off-by-one-pixel bits.  Font metrics?
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
 
 // Red pixels -- probably font metrics?  Ugh.
@@ -836,70 +837,104 @@ WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
 // Font size for arrows are different.  Should we rebaseline?
 LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 
-// Uncharacterized tests that fail on linux but pass on windows.
-// TODO(port): figure out what's wrong with these and annotate appropriately.
+// Linux: color off by one.  Rounding error?
 LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
+// Linux: off-by-ones imply font metrics.
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
+
+// Linux: off-by-ones imply font metrics.
 LINUX : LayoutTests/fast/block/basic/011.html = FAIL
+
+// Linux: fonts significantly different.
 LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
+
+// Asks for "system" fonts, which we don't support at all.
 LINUX : LayoutTests/fast/css/css2-system-fonts.html = FAIL
+
+// Large fonts have different metrics.
 LINUX : LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
+
+// Wants Helvetica, Monaco.  It's still testing something useful, but we may
+// need to check in a wrong-looking baseline.
 LINUX : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
-LINUX : LayoutTests/fast/css/font-weight-1.html = FAIL
+
+// Fonts are all wrong.  Not sure.
 LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
-LINUX : LayoutTests/fast/css/rtl-ordering.html = FAIL
-LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
-LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
+
+// Need a Japanese font.
 LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
-LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
+
+// Font metrics wrong, despite using Lucida Grande?
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+
+// RenderListBox metrics off.
 LINUX : LayoutTests/fast/forms/HTMLOptionElement_label05.html = FAIL
 LINUX : LayoutTests/fast/forms/hidden-listbox.html = FAIL
-MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
-MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
 LINUX : LayoutTests/fast/forms/listbox-width-change.html = FAIL
 LINUX : LayoutTests/fast/forms/option-strip-whitespace.html = FAIL
-MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 LINUX : LayoutTests/fast/forms/select-block-background.html = FAIL
 LINUX : LayoutTests/fast/forms/select-change-listbox-size.html = FAIL
 LINUX : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
 LINUX : LayoutTests/fast/forms/select-initial-position.html = FAIL
 LINUX : LayoutTests/fast/forms/select-list-box-with-height.html = FAIL
-LINUX : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
+LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
+
+// Off-by-one in form controls -- font metrics?
+LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
+
+// Hebrew font metrics.
+LINUX : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
+
+// Layout totally different -- wrong font selected?
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
-LINUX MAC : LayoutTests/fast/lists/001.html = FAIL
+
+// We fail to load a file URL with a port number -- how does this work on
+// Windows?
 LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
-LINUX MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
+
+// URL canonicalization is different -- how does this work on Windows?
 LINUX MAC : LayoutTests/fast/loader/url-parse-1.html = FAIL
-MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
+
+// Text doesn't display at all -- maybe we don't have the slow font
+// code enabled?
 LINUX : LayoutTests/fast/text/atsui-kerning-and-ligatures.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-partial-selection.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-small-caps-punctuation-size.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LINUX : LayoutTests/fast/text/cg-vs-atsui.html = FAIL
+LINUX : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
+LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
+
+// Missing CJK fonts.
 LINUX : LayoutTests/fast/text/international/001.html = FAIL
 LINUX : LayoutTests/fast/text/international/002.html = FAIL
 LINUX : LayoutTests/fast/text/international/003.html = FAIL
+LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
+
+// Missing text -- slow font path unimplemented?
 LINUX : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
-LINUX : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-control-chars-treated-as-ZWS.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-listbox-atsui.html = FAIL
-LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
-LINUX : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
-LINUX : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
-LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
-LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
-LINUX : LayoutTests/fast/text/letter-spacing-negative-opacity.html = FAIL
-LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
 LINUX : LayoutTests/fast/text/should-use-atsui.html = FAIL
-LINUX : LayoutTests/fast/text/updateNewFont.html = FAIL
+
+// Missing Arabic font.
+LINUX : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
+
+// Missing Hindi font.
+LINUX : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
+
+// Missing composed "m'" glyph.
+LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
+
+// We print to stderr when a failure happens while importing XSL;
+// should disable this in libxml.
 LINUX MAC : LayoutTests/fast/xsl/transform-xhr-doc.xhtml = FAIL
+
+// I find it hard to care too much about SVG failures.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
@@ -910,7 +945,6 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-desc-02-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-zoom-01-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-01-b.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/textAnchor.svg = FAIL
 LINUX : LayoutTests/svg/batik/text/textPosition.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/slider.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/textbox.svg = FAIL
@@ -927,20 +961,33 @@ LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
 LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
-LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
+
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
+
+// Mysterious off-by-one on the y axis -- font metrics?
 LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
+
+// Dates are wrong -- looks like maybe improper use of timezones?
 LINUX MAC : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
 LINUX MAC : LayoutTests/fast/js/date-big-setdate.html = FAIL
 
+MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
+MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
+MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
+MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
+MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
+
 // Linux pixeltest failure: Form control incorrect size
 LINUX : LayoutTests/fast/forms/listbox-clip.html = FAIL
+
 // Linux pixeltest failure: Failing to apply style
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
+
 // Linux pixeltest failure: The text suggests that the radios should not
 // overlap, but it's very close and quite different from the Windows version
 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
+
 // Linux pixel tests: the select arrow is clipping wrong on one line.
 LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
@@ -948,6 +995,11 @@ LINUX : chrome/fast/forms/basic-selects.html = FAIL
 LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 
 // Depends on plugin support.
+LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
+LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
+LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
+LINUX MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
+LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
 MAC : chrome/plugins/call-as-function.html = FAIL
 LINUX MAC : LayoutTests/dom/html/level2/html/AppletsCollection.html = FAIL
