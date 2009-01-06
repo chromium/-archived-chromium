@@ -21,8 +21,9 @@ Watchdog::Watchdog(const TimeDelta& duration,
     lock_(),
     condition_variable_(&lock_),
     state_(DISARMED),
+    duration_(duration),
     thread_watched_name_(thread_watched_name),
-    ALLOW_THIS_IN_INITIALIZER_LIST(delegate_(this, duration)) {
+    ALLOW_THIS_IN_INITIALIZER_LIST(delegate_(this)) {
   if (!enabled)
     return;  // Don't start thread, or doing anything really.
   init_successful_ = PlatformThread::Create(0,  // Default stack size.
@@ -84,7 +85,7 @@ void Watchdog::ThreadDelegate::ThreadMain() {
     if (SHUTDOWN == watchdog_->state_)
       return;
     DCHECK(ARMED == watchdog_->state_);
-    remaining_duration = duration_ -
+    remaining_duration = watchdog_->duration_ -
         (TimeTicks::Now() - watchdog_->start_time_);
     if (remaining_duration.InMilliseconds() > 0) {
       // Spurios wake?  Timer drifts?  Go back to sleep for remaining time.

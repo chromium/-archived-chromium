@@ -50,13 +50,11 @@ class Watchdog {
  private:
   class ThreadDelegate : public PlatformThread::Delegate {
    public:
-    explicit ThreadDelegate(Watchdog* watchdog, const base::TimeDelta& duration)
-      : watchdog_(watchdog), duration_(duration) {
+    explicit ThreadDelegate(Watchdog* watchdog) : watchdog_(watchdog) {
     }
     virtual void ThreadMain();
    private:
     Watchdog* watchdog_;
-    const base::TimeDelta duration_;  // How long after start_time_ do we alarm?
 
     void SetThreadName() const;
   };
@@ -68,6 +66,7 @@ class Watchdog {
   Lock lock_;  // Mutex for state_.
   ConditionVariable condition_variable_;
   State state_;
+  const base::TimeDelta duration_;  // How long after start_time_ do we alarm?
   const std::string thread_watched_name_;
   PlatformThreadHandle handle_;
   ThreadDelegate delegate_;  // Store it, because it must outlive the thread.
