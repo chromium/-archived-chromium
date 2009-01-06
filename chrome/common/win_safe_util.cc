@@ -8,6 +8,7 @@
 
 #include "chrome/common/win_safe_util.h"
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -88,7 +89,7 @@ public:
 // more information at:
 // http://msdn2.microsoft.com/en-us/library/ms647048.aspx
 bool SaferOpenItemViaShell(HWND hwnd, const std::wstring& window_title,
-                           const std::wstring& full_path,
+                           const FilePath& full_path,
                            const std::wstring& source_url,
                            bool ask_for_app) {
   ATL::CComPtr<IAttachmentExecute> attachment_services;
@@ -118,7 +119,7 @@ bool SaferOpenItemViaShell(HWND hwnd, const std::wstring& window_title,
   // what the documentation calls evidence. Which we provide now:
   //
   // Set the file itself as evidence.
-  hr = attachment_services->SetLocalPath(full_path.c_str());
+  hr = attachment_services->SetLocalPath(full_path.value().c_str());
   if (FAILED(hr))
     return false;
   // Set the origin URL as evidence.
@@ -161,9 +162,9 @@ bool SaferOpenItemViaShell(HWND hwnd, const std::wstring& window_title,
   return OpenItemViaShellNoZoneCheck(full_path, ask_for_app);
 }
 
-bool SetInternetZoneIdentifier(const std::wstring& full_path) {
+bool SetInternetZoneIdentifier(const FilePath& full_path) {
   const DWORD kShare = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-  std::wstring path = full_path + L":Zone.Identifier";
+  std::wstring path = full_path.value() + L":Zone.Identifier";
   HANDLE file = CreateFile(path.c_str(), GENERIC_WRITE, kShare, NULL,
                            OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (INVALID_HANDLE_VALUE == file)

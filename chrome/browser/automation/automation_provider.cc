@@ -1903,7 +1903,7 @@ void AutomationProvider::GetDownloadDirectory(const IPC::Message& message,
     NavigationController* tab = tab_tracker_->GetResource(handle);
     DownloadManager* dlm = tab->profile()->GetDownloadManager();
     DCHECK(dlm);
-    download_directory = dlm->download_path();
+    download_directory = dlm->download_path().ToWStringHack();
   }
 
   Send(new AutomationMsg_DownloadDirectoryResponse(message.routing_id(),

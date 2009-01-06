@@ -79,12 +79,13 @@ void TrimTrailingSeparator(std::wstring* dir) {
     dir->resize(dir->length() - 1);
 }
 
-std::wstring GetFileExtensionFromPath(const std::wstring& path) {
-  std::wstring file_name = GetFilenameFromPath(path);
-  std::wstring::size_type last_dot = file_name.rfind(L'.');
-  return std::wstring(last_dot == std::wstring::npos ? 
-      L"" : 
-      file_name, last_dot+1);
+FilePath::StringType GetFileExtensionFromPath(const FilePath& path) {
+  FilePath::StringType file_name = path.BaseName().value();
+  const FilePath::StringType::size_type last_dot =
+      file_name.rfind(kExtensionSeparator);
+  return FilePath::StringType(last_dot == FilePath::StringType::npos ?
+                              FILE_PATH_LITERAL("") :
+                              file_name, last_dot+1);
 }
 
 std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path) {
@@ -373,6 +374,15 @@ bool GetCurrentDirectory(std::wstring* path_str) {
     return false;
   *path_str = path.ToWStringHack();
   return true;
+}
+std::wstring GetFileExtensionFromPath(const std::wstring& path) {
+  FilePath::StringType extension =
+      GetFileExtensionFromPath(FilePath::FromWStringHack(path));
+#if defined(OS_WIN)
+  return extension;
+#elif defined(OS_POSIX)
+  return UTF8ToWide(extension);
+#endif
 }
 bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
   return GetFileInfo(FilePath::FromWStringHack(file_path), results);

@@ -101,7 +101,7 @@ bool SaveFile::Open(const char* open_mode) {
   // Sets the zone to tell Windows that this file comes from the Internet.
   // We ignore the return value because a failure is not fatal.
   // TODO(port): Similarly mark on Mac.
-  win_util::SetInternetZoneIdentifier(full_path_);
+  win_util::SetInternetZoneIdentifier(FilePath::FromWStringHack(full_path_));
 #endif
   return true;
 }

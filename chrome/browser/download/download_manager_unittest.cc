@@ -19,12 +19,14 @@ class DownloadManagerTest : public testing::Test {
   void GetGeneratedFilename(const std::string& content_disposition,
                             const std::wstring& url,
                             const std::string& mime_type,
-                            std::wstring* generated_name) {
+                            std::wstring* generated_name_string) {
     DownloadCreateInfo info;
     info.content_disposition = content_disposition;
     info.url = url;
     info.mime_type = mime_type;
-    download_manager_->GenerateFilename(&info, generated_name);
+    FilePath generated_name;
+    download_manager_->GenerateFilename(&info, &generated_name);
+    *generated_name_string = generated_name.ToWStringHack();
   }
 
  protected:
@@ -330,53 +332,53 @@ TEST_F(DownloadManagerTest, TestDownloadFilename) {
 namespace {
 
 const struct {
-  const wchar_t* path;
+  const FilePath::CharType* path;
   const char* mime_type;
-  const wchar_t* expected_path;
+  const FilePath::CharType* expected_path;
 } kSafeFilenameCases[] = {
-  { L"C:\\foo\\bar.htm",
+  { FILE_PATH_LITERAL("C:\\foo\\bar.htm"),
     "text/html",
-    L"C:\\foo\\bar.htm" },
-  { L"C:\\foo\\bar.html",
+    FILE_PATH_LITERAL("C:\\foo\\bar.htm") },
+  { FILE_PATH_LITERAL("C:\\foo\\bar.html"),
     "text/html",
-    L"C:\\foo\\bar.html" },
-  { L"C:\\foo\\bar",
+    FILE_PATH_LITERAL("C:\\foo\\bar.html") },
+  { FILE_PATH_LITERAL("C:\\foo\\bar"),
     "text/html",
-    L"C:\\foo\\bar.htm" },
+    FILE_PATH_LITERAL("C:\\foo\\bar.htm") },
 
-  { L"C:\\bar.html",
+  { FILE_PATH_LITERAL("C:\\bar.html"),
     "image/png",
-    L"C:\\bar.png" },
-  { L"C:\\bar",
+    FILE_PATH_LITERAL("C:\\bar.png") },
+  { FILE_PATH_LITERAL("C:\\bar"),
     "image/png",
-    L"C:\\bar.png" },
+    FILE_PATH_LITERAL("C:\\bar.png") },
 
-  { L"C:\\foo\\bar.exe",
+  { FILE_PATH_LITERAL("C:\\foo\\bar.exe"),
     "text/html",
-    L"C:\\foo\\bar.htm" },
-  { L"C:\\foo\\bar.exe",
+    FILE_PATH_LITERAL("C:\\foo\\bar.htm") },
+  { FILE_PATH_LITERAL("C:\\foo\\bar.exe"),
     "image/gif",
-    L"C:\\foo\\bar.gif" },
+    FILE_PATH_LITERAL("C:\\foo\\bar.gif") },
 
-  { L"C:\\foo\\google.com",
+  { FILE_PATH_LITERAL("C:\\foo\\google.com"),
     "text/html",
-    L"C:\\foo\\google.htm" },
+    FILE_PATH_LITERAL("C:\\foo\\google.htm") },
 
-  { L"C:\\foo\\con.htm",
+  { FILE_PATH_LITERAL("C:\\foo\\con.htm"),
     "text/html",
-    L"C:\\foo\\_con.htm" },
-  { L"C:\\foo\\con",
+    FILE_PATH_LITERAL("C:\\foo\\_con.htm") },
+  { FILE_PATH_LITERAL("C:\\foo\\con"),
     "text/html",
-    L"C:\\foo\\_con.htm" },
+    FILE_PATH_LITERAL("C:\\foo\\_con.htm") },
 };
 
 }  // namespace
 
 TEST_F(DownloadManagerTest, GetSafeFilename) {
   for (int i = 0; i < arraysize(kSafeFilenameCases); ++i) {
-    std::wstring path(kSafeFilenameCases[i].path);
+    FilePath path(kSafeFilenameCases[i].path);
     download_manager_->GenerateSafeFilename(kSafeFilenameCases[i].mime_type,
         &path);
-    EXPECT_EQ(kSafeFilenameCases[i].expected_path, path);
+    EXPECT_EQ(kSafeFilenameCases[i].expected_path, path.value());
   }
 }

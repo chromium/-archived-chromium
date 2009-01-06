@@ -177,8 +177,9 @@ bool SavePackage::Init() {
   }
 
   // Create the fake DownloadItem and display the view.
-  download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
-                               std::wstring(), Time::Now(), 0, -1, -1, false);
+  download_ = new DownloadItem(1,
+      FilePath::FromWStringHack(saved_main_file_path_), 0, page_url_,
+      FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
   DownloadShelfView* shelf = web_contents_->GetDownloadShelfView();
   shelf->AddDownloadView(new DownloadItemView(
@@ -951,8 +952,9 @@ bool SavePackage::GetSaveInfo(const std::wstring& suggest_name,
 
   DCHECK(download_manager);
   // Ensure the filename is safe.
-  download_manager->GenerateSafeFilename(param->current_tab_mime_type,
-      &param->saved_main_file_path);
+  FilePath path;
+  download_manager->GenerateSafeFilename(param->current_tab_mime_type, &path);
+  param->saved_main_file_path = path.ToWStringHack();
 
   // The option index is not zero-based.
   DCHECK(index > 0 && index < 3);

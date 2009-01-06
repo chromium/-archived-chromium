@@ -8,6 +8,8 @@
 #include <string>
 #include <windows.h>
 
+class FilePath;
+
 namespace win_util {
 
 // Open or run a downloaded file via the Windows shell, possibly showing first
@@ -35,14 +37,14 @@ namespace win_util {
 // dialog, for an application to use if 'ask_for_app' is true.
 // Returns 'true' on successful open, 'false' otherwise.
 bool SaferOpenItemViaShell(HWND hwnd, const std::wstring& window_title,
-                           const std::wstring& full_path,
+                           const FilePath& full_path,
                            const std::wstring& source_url, bool ask_for_app);
 
 // Sets the Zone Identifier on the file to "Internet" (3). Returns true if the
 // function succeeds, false otherwise. A failure is expected on system where
 // the Zone Identifier is not supported, like a machine with a FAT32 filesystem.
 // It should not be considered fatal.
-bool SetInternetZoneIdentifier(const std::wstring& full_path);
+bool SetInternetZoneIdentifier(const FilePath& full_path);
 
 }  // namespace win_util
 

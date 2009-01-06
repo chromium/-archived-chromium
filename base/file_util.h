@@ -77,6 +77,8 @@ std::wstring GetFilenameFromPath(const std::wstring& path);
 
 // Returns "jpg" for path "C:\pics\jojo.jpg", or an empty string if
 // the file has no extension.
+FilePath::StringType GetFileExtensionFromPath(const FilePath& path);
+// Deprecated temporary compatibility function.
 std::wstring GetFileExtensionFromPath(const std::wstring& path);
 
 // Returns 'jojo' for path "C:\pics\jojo.jpg".
@@ -464,8 +466,8 @@ class MemoryMappedFile {
 // Renames a file using the SHFileOperation API to ensure that the target file
 // gets the correct default security descriptor in the new path.
 bool RenameFileAndResetSecurityDescriptor(
-    const std::wstring& source_file_path,
-    const std::wstring& target_file_path);
+    const FilePath& source_file_path,
+    const FilePath& target_file_path);
 
 }  // namespace file_util
 

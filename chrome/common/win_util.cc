@@ -223,33 +223,33 @@ void ShowItemInFolder(const std::wstring& full_path) {
 
 // Open an item via a shell execute command. Error code checking and casting
 // explanation: http://msdn2.microsoft.com/en-us/library/ms647732.aspx
-bool OpenItemViaShell(const std::wstring& full_path, bool ask_for_app) {
+bool OpenItemViaShell(const FilePath& full_path, bool ask_for_app) {
   HINSTANCE h = ::ShellExecuteW(
-      NULL, NULL, full_path.c_str(), NULL,
-      file_util::GetDirectoryFromPath(full_path).c_str(), SW_SHOWNORMAL);
+      NULL, NULL, full_path.value().c_str(), NULL,
+      full_path.DirName().value().c_str(), SW_SHOWNORMAL);
 
   LONG_PTR error = reinterpret_cast<LONG_PTR>(h);
   if (error > 32)
     return true;
 
   if ((error == SE_ERR_NOASSOC) && ask_for_app)
-    return OpenItemWithExternalApp(full_path);
+    return OpenItemWithExternalApp(full_path.value());
 
   return false;
 }
 
-bool OpenItemViaShellNoZoneCheck(const std::wstring& full_path,
+bool OpenItemViaShellNoZoneCheck(const FilePath& full_path,
                                  bool ask_for_app) {
   SHELLEXECUTEINFO sei = { sizeof(sei) };
   sei.fMask = SEE_MASK_NOZONECHECKS | SEE_MASK_FLAG_DDEWAIT;
   sei.nShow = SW_SHOWNORMAL;
   sei.lpVerb = NULL;
-  sei.lpFile = full_path.c_str();
+  sei.lpFile = full_path.value().c_str();
   if (::ShellExecuteExW(&sei))
     return true;
   LONG_PTR error = reinterpret_cast<LONG_PTR>(sei.hInstApp);
   if ((error == SE_ERR_NOASSOC) && ask_for_app)
-    return OpenItemWithExternalApp(full_path);
+    return OpenItemWithExternalApp(full_path.value());
   return false;
 }
 

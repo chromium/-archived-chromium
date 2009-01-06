@@ -549,12 +549,11 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
   return -1;
 }
 
-bool RenameFileAndResetSecurityDescriptor(
-    const std::wstring& source_file_path,
-    const std::wstring& target_file_path) {
+bool RenameFileAndResetSecurityDescriptor(const FilePath& source_file_path,
+                                          const FilePath& target_file_path) {
   // The parameters to SHFileOperation must be terminated with 2 NULL chars.
-  std::wstring source = source_file_path;
-  std::wstring target = target_file_path;
+  std::wstring source = source_file_path.value();
+  std::wstring target = target_file_path.value();
 
   source.append(1, L'\0');
   target.append(1, L'\0');
