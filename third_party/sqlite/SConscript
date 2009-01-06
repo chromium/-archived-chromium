@@ -12,6 +12,8 @@ env.Prepend(
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$CHROME_SRC_DIR',
+        'preprocessed',
+        'src',
     ],
 )
 
@@ -124,7 +126,8 @@ input_files = [
     'src/where.c',
 ]
 
-env.ChromeLibrary('sqlite', input_files)
+x=env.ChromeLibrary('sqlite', input_files)
+env.Alias('sl', x)
 
 env.ChromeMSVSProject('$SQLITE_DIR/sqlite.vcproj',
                 guid='{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}')
