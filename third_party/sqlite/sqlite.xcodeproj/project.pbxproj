@@ -57,6 +57,20 @@
 		4D7B011F0E9D55AF009A6919 /* vdbemem.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B00D90E9D55AF009A6919 /* vdbemem.c */; };
 		4D7B01200E9D55AF009A6919 /* vtab.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B00DA0E9D55AF009A6919 /* vtab.c */; };
 		4D7B01210E9D55AF009A6919 /* where.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B00DB0E9D55AF009A6919 /* where.c */; };
+		4D7FA8280F141996004F1B19 /* bitvec.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8270F141996004F1B19 /* bitvec.c */; };
+		4D7FA8380F1419E0004F1B19 /* btmutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8290F1419E0004F1B19 /* btmutex.c */; };
+		4D7FA8390F1419E0004F1B19 /* fault.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA82A0F1419E0004F1B19 /* fault.c */; };
+		4D7FA83A0F1419E0004F1B19 /* global.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA82B0F1419E0004F1B19 /* global.c */; };
+		4D7FA83B0F1419E0004F1B19 /* mem1.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA82D0F1419E0004F1B19 /* mem1.c */; };
+		4D7FA83C0F1419E0004F1B19 /* mem2.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA82E0F1419E0004F1B19 /* mem2.c */; };
+		4D7FA83D0F1419E0004F1B19 /* mem3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA82F0F1419E0004F1B19 /* mem3.c */; };
+		4D7FA83E0F1419E0004F1B19 /* mem4.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8300F1419E0004F1B19 /* mem4.c */; };
+		4D7FA83F0F1419E0004F1B19 /* mem5.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8310F1419E0004F1B19 /* mem5.c */; };
+		4D7FA8400F1419E0004F1B19 /* mem6.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8320F1419E0004F1B19 /* mem6.c */; };
+		4D7FA8410F1419E0004F1B19 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8330F1419E0004F1B19 /* mutex.c */; };
+		4D7FA8420F1419E0004F1B19 /* mutex_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8350F1419E0004F1B19 /* mutex_unix.c */; };
+		4D7FA8430F1419E0004F1B19 /* status.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8360F1419E0004F1B19 /* status.c */; };
+		4D7FA8440F1419E0004F1B19 /* vdbeblob.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FA8370F1419E0004F1B19 /* vdbeblob.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -136,6 +150,22 @@
 		4D7B00D90E9D55AF009A6919 /* vdbemem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vdbemem.c; sourceTree = "<group>"; };
 		4D7B00DA0E9D55AF009A6919 /* vtab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vtab.c; sourceTree = "<group>"; };
 		4D7B00DB0E9D55AF009A6919 /* where.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = where.c; sourceTree = "<group>"; };
+		4D7FA8270F141996004F1B19 /* bitvec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bitvec.c; sourceTree = "<group>"; };
+		4D7FA8290F1419E0004F1B19 /* btmutex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = btmutex.c; sourceTree = "<group>"; };
+		4D7FA82A0F1419E0004F1B19 /* fault.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fault.c; sourceTree = "<group>"; };
+		4D7FA82B0F1419E0004F1B19 /* global.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = global.c; sourceTree = "<group>"; };
+		4D7FA82C0F1419E0004F1B19 /* hwtime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hwtime.h; sourceTree = "<group>"; };
+		4D7FA82D0F1419E0004F1B19 /* mem1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem1.c; sourceTree = "<group>"; };
+		4D7FA82E0F1419E0004F1B19 /* mem2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem2.c; sourceTree = "<group>"; };
+		4D7FA82F0F1419E0004F1B19 /* mem3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem3.c; sourceTree = "<group>"; };
+		4D7FA8300F1419E0004F1B19 /* mem4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem4.c; sourceTree = "<group>"; };
+		4D7FA8310F1419E0004F1B19 /* mem5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem5.c; sourceTree = "<group>"; };
+		4D7FA8320F1419E0004F1B19 /* mem6.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem6.c; sourceTree = "<group>"; };
+		4D7FA8330F1419E0004F1B19 /* mutex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mutex.c; sourceTree = "<group>"; };
+		4D7FA8340F1419E0004F1B19 /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
+		4D7FA8350F1419E0004F1B19 /* mutex_unix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mutex_unix.c; sourceTree = "<group>"; };
+		4D7FA8360F1419E0004F1B19 /* status.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = status.c; sourceTree = "<group>"; };
+		4D7FA8370F1419E0004F1B19 /* vdbeblob.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vdbeblob.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,10 +212,22 @@
 		4D7B00900E9D559F009A6919 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				4D7FA8130F14186A004F1B19 /* ext */,
+				4D7FA8180F1418CA004F1B19 /* preprocessed */,
+				4D7FA8120F14184E004F1B19 /* src */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		4D7FA8120F14184E004F1B19 /* src */ = {
+			isa = PBXGroup;
+			children = (
 				4D7B00910E9D55AF009A6919 /* alter.c */,
 				4D7B00920E9D55AF009A6919 /* analyze.c */,
 				4D7B00930E9D55AF009A6919 /* attach.c */,
 				4D7B00940E9D55AF009A6919 /* auth.c */,
+				4D7FA8270F141996004F1B19 /* bitvec.c */,
+				4D7FA8290F1419E0004F1B19 /* btmutex.c */,
 				4D7B00950E9D55AF009A6919 /* btree.c */,
 				4D7B00960E9D55AF009A6919 /* btree.h */,
 				4D7B00970E9D55AF009A6919 /* btreeInt.h */,
@@ -195,27 +237,26 @@
 				4D7B009B0E9D55AF009A6919 /* date.c */,
 				4D7B009C0E9D55AF009A6919 /* delete.c */,
 				4D7B009D0E9D55AF009A6919 /* expr.c */,
-				4D7B009E0E9D55AF009A6919 /* fts2.c */,
-				4D7B009F0E9D55AF009A6919 /* fts2.h */,
-				4D7B00A00E9D55AF009A6919 /* fts2_hash.c */,
-				4D7B00A10E9D55AF009A6919 /* fts2_hash.h */,
-				4D7B00A20E9D55AF009A6919 /* fts2_icu.c */,
-				4D7B00A30E9D55AF009A6919 /* fts2_porter.c */,
-				4D7B00A40E9D55AF009A6919 /* fts2_tokenizer.c */,
-				4D7B00A50E9D55AF009A6919 /* fts2_tokenizer.h */,
-				4D7B00A60E9D55AF009A6919 /* fts2_tokenizer1.c */,
+				4D7FA82A0F1419E0004F1B19 /* fault.c */,
 				4D7B00A70E9D55AF009A6919 /* func.c */,
+				4D7FA82B0F1419E0004F1B19 /* global.c */,
 				4D7B00A80E9D55AF009A6919 /* hash.c */,
 				4D7B00A90E9D55AF009A6919 /* hash.h */,
-				4D7B00AA0E9D55AF009A6919 /* icu.c */,
+				4D7FA82C0F1419E0004F1B19 /* hwtime.h */,
 				4D7B00AB0E9D55AF009A6919 /* insert.c */,
-				4D7B00AC0E9D55AF009A6919 /* keywordhash.h */,
 				4D7B00AD0E9D55AF009A6919 /* legacy.c */,
 				4D7B00AE0E9D55AF009A6919 /* loadext.c */,
 				4D7B00AF0E9D55AF009A6919 /* main.c */,
 				4D7B00B00E9D55AF009A6919 /* malloc.c */,
-				4D7B00B10E9D55AF009A6919 /* opcodes.c */,
-				4D7B00B20E9D55AF009A6919 /* opcodes.h */,
+				4D7FA82D0F1419E0004F1B19 /* mem1.c */,
+				4D7FA82E0F1419E0004F1B19 /* mem2.c */,
+				4D7FA82F0F1419E0004F1B19 /* mem3.c */,
+				4D7FA8300F1419E0004F1B19 /* mem4.c */,
+				4D7FA8310F1419E0004F1B19 /* mem5.c */,
+				4D7FA8320F1419E0004F1B19 /* mem6.c */,
+				4D7FA8330F1419E0004F1B19 /* mutex.c */,
+				4D7FA8340F1419E0004F1B19 /* mutex.h */,
+				4D7FA8350F1419E0004F1B19 /* mutex_unix.c */,
 				4D7B00B30E9D55AF009A6919 /* os.c */,
 				4D7B00B40E9D55AF009A6919 /* os.h */,
 				4D7B00B50E9D55AF009A6919 /* os_common.h */,
@@ -223,8 +264,6 @@
 				4D7B00B70E9D55AF009A6919 /* os_win.c */,
 				4D7B00B80E9D55AF009A6919 /* pager.c */,
 				4D7B00B90E9D55AF009A6919 /* pager.h */,
-				4D7B00BA0E9D55AF009A6919 /* parse.c */,
-				4D7B00BB0E9D55AF009A6919 /* parse.h */,
 				4D7B00BC0E9D55AF009A6919 /* pragma.c */,
 				4D7B00BE0E9D55AF009A6919 /* prepare.c */,
 				4D7B00BF0E9D55AF009A6919 /* printf.c */,
@@ -232,10 +271,10 @@
 				4D7B00C30E9D55AF009A6919 /* select.c */,
 				4D7B00C40E9D55AF009A6919 /* shell.c */,
 				4D7B00C50E9D55AF009A6919 /* shell_icu.c */,
-				4D7B00C80E9D55AF009A6919 /* sqlite3.h */,
 				4D7B00C90E9D55AF009A6919 /* sqlite3ext.h */,
 				4D7B00CA0E9D55AF009A6919 /* sqliteInt.h */,
 				4D7B00CB0E9D55AF009A6919 /* sqliteLimit.h */,
+				4D7FA8360F1419E0004F1B19 /* status.c */,
 				4D7B00CC0E9D55AF009A6919 /* table.c */,
 				4D7B00CD0E9D55AF009A6919 /* tokenize.c */,
 				4D7B00CE0E9D55AF009A6919 /* trigger.c */,
@@ -247,13 +286,60 @@
 				4D7B00D40E9D55AF009A6919 /* vdbe.h */,
 				4D7B00D50E9D55AF009A6919 /* vdbeapi.c */,
 				4D7B00D60E9D55AF009A6919 /* vdbeaux.c */,
+				4D7FA8370F1419E0004F1B19 /* vdbeblob.c */,
 				4D7B00D70E9D55AF009A6919 /* vdbefifo.c */,
 				4D7B00D80E9D55AF009A6919 /* vdbeInt.h */,
 				4D7B00D90E9D55AF009A6919 /* vdbemem.c */,
 				4D7B00DA0E9D55AF009A6919 /* vtab.c */,
 				4D7B00DB0E9D55AF009A6919 /* where.c */,
 			);
-			name = Source;
+			path = src;
+			sourceTree = "<group>";
+		};
+		4D7FA8130F14186A004F1B19 /* ext */ = {
+			isa = PBXGroup;
+			children = (
+				4D7FA8140F141874004F1B19 /* fts2 */,
+				4D7FA8170F141897004F1B19 /* icu */,
+			);
+			path = ext;
+			sourceTree = "<group>";
+		};
+		4D7FA8140F141874004F1B19 /* fts2 */ = {
+			isa = PBXGroup;
+			children = (
+				4D7B009E0E9D55AF009A6919 /* fts2.c */,
+				4D7B009F0E9D55AF009A6919 /* fts2.h */,
+				4D7B00A00E9D55AF009A6919 /* fts2_hash.c */,
+				4D7B00A10E9D55AF009A6919 /* fts2_hash.h */,
+				4D7B00A20E9D55AF009A6919 /* fts2_icu.c */,
+				4D7B00A30E9D55AF009A6919 /* fts2_porter.c */,
+				4D7B00A40E9D55AF009A6919 /* fts2_tokenizer.c */,
+				4D7B00A50E9D55AF009A6919 /* fts2_tokenizer.h */,
+				4D7B00A60E9D55AF009A6919 /* fts2_tokenizer1.c */,
+			);
+			path = fts2;
+			sourceTree = "<group>";
+		};
+		4D7FA8170F141897004F1B19 /* icu */ = {
+			isa = PBXGroup;
+			children = (
+				4D7B00AA0E9D55AF009A6919 /* icu.c */,
+			);
+			path = icu;
+			sourceTree = "<group>";
+		};
+		4D7FA8180F1418CA004F1B19 /* preprocessed */ = {
+			isa = PBXGroup;
+			children = (
+				4D7B00AC0E9D55AF009A6919 /* keywordhash.h */,
+				4D7B00B10E9D55AF009A6919 /* opcodes.c */,
+				4D7B00B20E9D55AF009A6919 /* opcodes.h */,
+				4D7B00BA0E9D55AF009A6919 /* parse.c */,
+				4D7B00BB0E9D55AF009A6919 /* parse.h */,
+				4D7B00C80E9D55AF009A6919 /* sqlite3.h */,
+			);
+			path = preprocessed;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -302,6 +388,8 @@
 				4D7B00DD0E9D55AF009A6919 /* analyze.c in Sources */,
 				4D7B00DE0E9D55AF009A6919 /* attach.c in Sources */,
 				4D7B00DF0E9D55AF009A6919 /* auth.c in Sources */,
+				4D7FA8280F141996004F1B19 /* bitvec.c in Sources */,
+				4D7FA8380F1419E0004F1B19 /* btmutex.c in Sources */,
 				4D7B00E00E9D55AF009A6919 /* btree.c in Sources */,
 				4D7B00E30E9D55AF009A6919 /* build.c in Sources */,
 				4D7B00E40E9D55AF009A6919 /* callback.c in Sources */,
@@ -309,6 +397,7 @@
 				4D7B00E60E9D55AF009A6919 /* date.c in Sources */,
 				4D7B00E70E9D55AF009A6919 /* delete.c in Sources */,
 				4D7B00E80E9D55AF009A6919 /* expr.c in Sources */,
+				4D7FA8390F1419E0004F1B19 /* fault.c in Sources */,
 				4D7B00E90E9D55AF009A6919 /* fts2.c in Sources */,
 				4D7B00EB0E9D55AF009A6919 /* fts2_hash.c in Sources */,
 				4D7B00ED0E9D55AF009A6919 /* fts2_icu.c in Sources */,
@@ -316,6 +405,7 @@
 				4D7B00EF0E9D55AF009A6919 /* fts2_tokenizer.c in Sources */,
 				4D7B00F10E9D55AF009A6919 /* fts2_tokenizer1.c in Sources */,
 				4D7B00F20E9D55AF009A6919 /* func.c in Sources */,
+				4D7FA83A0F1419E0004F1B19 /* global.c in Sources */,
 				4D7B00F30E9D55AF009A6919 /* hash.c in Sources */,
 				4D7B00F50E9D55AF009A6919 /* icu.c in Sources */,
 				4D7B00F60E9D55AF009A6919 /* insert.c in Sources */,
@@ -323,6 +413,14 @@
 				4D7B00F90E9D55AF009A6919 /* loadext.c in Sources */,
 				4D7B00FA0E9D55AF009A6919 /* main.c in Sources */,
 				4D7B00FB0E9D55AF009A6919 /* malloc.c in Sources */,
+				4D7FA83B0F1419E0004F1B19 /* mem1.c in Sources */,
+				4D7FA83C0F1419E0004F1B19 /* mem2.c in Sources */,
+				4D7FA83D0F1419E0004F1B19 /* mem3.c in Sources */,
+				4D7FA83E0F1419E0004F1B19 /* mem4.c in Sources */,
+				4D7FA83F0F1419E0004F1B19 /* mem5.c in Sources */,
+				4D7FA8400F1419E0004F1B19 /* mem6.c in Sources */,
+				4D7FA8410F1419E0004F1B19 /* mutex.c in Sources */,
+				4D7FA8420F1419E0004F1B19 /* mutex_unix.c in Sources */,
 				4D7B00FC0E9D55AF009A6919 /* opcodes.c in Sources */,
 				4D7B00FE0E9D55AF009A6919 /* os.c in Sources */,
 				4D7B01010E9D55AF009A6919 /* os_unix.c in Sources */,
@@ -334,6 +432,7 @@
 				4D7B01090E9D55AF009A6919 /* printf.c in Sources */,
 				4D7B010A0E9D55AF009A6919 /* random.c in Sources */,
 				4D7B010B0E9D55AF009A6919 /* select.c in Sources */,
+				4D7FA8430F1419E0004F1B19 /* status.c in Sources */,
 				4D7B01120E9D55AF009A6919 /* table.c in Sources */,
 				4D7B01130E9D55AF009A6919 /* tokenize.c in Sources */,
 				4D7B01140E9D55AF009A6919 /* trigger.c in Sources */,
@@ -344,6 +443,7 @@
 				4D7B01190E9D55AF009A6919 /* vdbe.c in Sources */,
 				4D7B011B0E9D55AF009A6919 /* vdbeapi.c in Sources */,
 				4D7B011C0E9D55AF009A6919 /* vdbeaux.c in Sources */,
+				4D7FA8440F1419E0004F1B19 /* vdbeblob.c in Sources */,
 				4D7B011D0E9D55AF009A6919 /* vdbefifo.c in Sources */,
 				4D7B011F0E9D55AF009A6919 /* vdbemem.c in Sources */,
 				4D7B01200E9D55AF009A6919 /* vtab.c in Sources */,
@@ -386,6 +486,8 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
+					preprocessed,
+					src,
 					../icu38/public/common,
 					../icu38/public/i18n,
 				);
@@ -409,6 +511,8 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
+					preprocessed,
+					src,
 					../icu38/public/common,
 					../icu38/public/i18n,
 				);
