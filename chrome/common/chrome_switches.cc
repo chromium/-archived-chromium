@@ -22,7 +22,7 @@ const wchar_t kDisableMetrics[]                = L"disable-metrics";
 // client would use for reporting, except the report is dropped rather than sent
 // to the server. This is useful for finding issues in the metrics code during
 // UI and performance tests.
-const wchar_t kMetricsRecordingOnly[]       = L"metrics-recording-only";
+const wchar_t kMetricsRecordingOnly[]          = L"metrics-recording-only";
 
 // Causes the browser process to throw an assertion on startup.
 const wchar_t kBrowserAssertTest[]             = L"assert-test";
@@ -84,13 +84,13 @@ const wchar_t kSingleProcess[]                 = L"single-process";
 // renderer process.  We default to using a renderer process for each
 // site instance (i.e., group of pages from the same registered domain with
 // script connections to each other).
-const wchar_t kProcessPerTab[] = L"process-per-tab";
+const wchar_t kProcessPerTab[]                 = L"process-per-tab";
 
 // Runs a single process for each site (i.e., group of pages from the same
 // registered domain) the user visits.  We default to using a renderer process
 // for each site instance (i.e., group of pages from the same registered
 // domain with script connections to each other).
-const wchar_t kProcessPerSite[] = L"process-per-site";
+const wchar_t kProcessPerSite[]                = L"process-per-site";
 
 // Runs plugins inside the renderer process
 const wchar_t kInProcessPlugins[]              = L"in-process-plugins";
@@ -102,7 +102,7 @@ const wchar_t kNoSandbox[]                     = L"no-sandbox";
 const wchar_t kSafePlugins[]                   = L"safe-plugins";
 
 // Excludes these plugins from the plugin sandbox.
-// This is a comma separated list of plugin dlls name and activex clsid.
+// This is a comma-separated list of plugin library names and activex clsid.
 const wchar_t kTrustedPlugins[]                = L"trusted-plugins";
 
 // Runs the security test for the sandbox.
@@ -113,7 +113,7 @@ const wchar_t kTestSandbox[]                   = L"test-sandbox";
 const wchar_t kUserDataDir[]                   = L"user-data-dir";
 
 // Specifies the path to the user data folder for the parent profile.
-const wchar_t kParentProfile[]                = L"parent-profile";
+const wchar_t kParentProfile[]                 = L"parent-profile";
 
 // Specifies that the associated value should be launched in "application" mode.
 const wchar_t kApp[]                           = L"app";
@@ -188,56 +188,56 @@ const wchar_t kOmniBoxPopupCount[]             = L"omnibox-popup-count";
 
 // The value of this switch tells the app to listen for and broadcast
 // automation-related messages on IPC channel with the given ID.
-const wchar_t kAutomationClientChannelID[]        = L"automation-channel";
+const wchar_t kAutomationClientChannelID[]     = L"automation-channel";
 
 // Indicates the last session should be restored on startup. This overrides
 // the preferences value and is primarily intended for testing.
-const wchar_t kRestoreLastSession[] = L"restore-last-session";
+const wchar_t kRestoreLastSession[]            = L"restore-last-session";
 
 // Chrome supports a playback and record mode.  Record mode saves *everything*
 // to the cache.  Playback mode reads data exclusively from the cache.  This
 // allows us to record a session into the cache and then replay it at will.
-const wchar_t kRecordMode[] = L"record-mode";
-const wchar_t kPlaybackMode[] = L"playback-mode";
+const wchar_t kRecordMode[]                    = L"record-mode";
+const wchar_t kPlaybackMode[]                  = L"playback-mode";
 
 // Don't record/playback events when using record & playback.
-const wchar_t kNoEvents[] = L"no-events";
+const wchar_t kNoEvents[]                      = L"no-events";
 
 // Make Windows happy by allowing it to show "Enable access to this program"
 // checkbox in Add/Remove Programs->Set Program Access and Defaults. This
 // only shows an error box because the only way to hide Chrome is by
 // uninstalling it.
-const wchar_t kHideIcons[] = L"hide-icons";
+const wchar_t kHideIcons[]                     = L"hide-icons";
 
-const wchar_t kShowIcons[] = L"show-icons";
+const wchar_t kShowIcons[]                     = L"show-icons";
 
 // Make Chrome default browser
-const wchar_t kMakeDefaultBrowser[] = L"make-default-browser";
+const wchar_t kMakeDefaultBrowser[]            = L"make-default-browser";
 
 // Use a specified proxy server, overrides system settings. This switch only
 // affects HTTP and HTTPS requests.
-const wchar_t kProxyServer[] = L"proxy-server";
+const wchar_t kProxyServer[]                   = L"proxy-server";
 
 // Chrome will support prefetching of DNS information.  Until this becomes
 // the default, we'll provide a command line switch.
-extern const wchar_t kDnsLogDetails[] = L"dns-log-details";
-extern const wchar_t kDnsPrefetchDisable[] = L"dns-prefetch-disable";
+extern const wchar_t kDnsLogDetails[]          = L"dns-log-details";
+extern const wchar_t kDnsPrefetchDisable[]     = L"dns-prefetch-disable";
 
 // Enables support to debug printing subsystem.
-const wchar_t kDebugPrint[] = L"debug-print";
+const wchar_t kDebugPrint[]                    = L"debug-print";
 
 // Allow initialization of all activex controls. This is only to help website
 // developers test their controls to see if they are compatible in Chrome.
 // Note there's a duplicate value in activex_shared.cc (to avoid
 // dependency on chrome module). Please change both locations at the same time.
-const wchar_t kAllowAllActiveX[] = L"allow-all-activex";
+const wchar_t kAllowAllActiveX[]               = L"allow-all-activex";
 
 // Browser flag to disable the web inspector for all renderers.
-const wchar_t kDisableDevTools[] = L"disable-dev-tools";
+const wchar_t kDisableDevTools[]               = L"disable-dev-tools";
 
 // Enable web inspector for all windows, even if they're part of the browser.
 // Allows us to use our dev tools to debug browser windows itself.
-const wchar_t kAlwaysEnableDevTools[] = L"always-enable-dev-tools";
+const wchar_t kAlwaysEnableDevTools[]          = L"always-enable-dev-tools";
 
 // Used to set the value of SessionRestore::num_tabs_to_load_. See
 // session_restore.h for details.
@@ -246,111 +246,111 @@ const wchar_t kTabCountToLoadOnSessionRestore[] =
 
 // Enable dynamic loading of the Memory Profiler DLL, which will trace
 // all memory allocations during the run.
-const wchar_t kMemoryProfiling[] = L"memory-profile";
+const wchar_t kMemoryProfiling[]               = L"memory-profile";
 
 // Configure Chrome's memory model.
 // Does chrome really need multiple memory models?  No.  But we get a lot
 // of concerns from individuals about how the changes work on *their*
 // system, and we need to be able to experiment with a few choices.
-const wchar_t kMemoryModel[] = L"memory-model";
+const wchar_t kMemoryModel[]                   = L"memory-model";
 
 // By default, cookies are not allowed on file://. They are needed in for
 // testing, for example page cycler and layout tests.  See bug 1157243.
-const wchar_t kEnableFileCookies[] = L"enable-file-cookies";
+const wchar_t kEnableFileCookies[]             = L"enable-file-cookies";
 
 // Start the browser maximized, regardless of any previous settings.
-const wchar_t kStartMaximized[] = L"start-maximized";
+const wchar_t kStartMaximized[]                = L"start-maximized";
 
 // Spawn threads to watch for excessive delays in specified message loops.
 // User should set breakpoints on Alarm() to examine problematic thread.
 // Usage:   -enable-watchdog=[ui][io]
 // Order of the listed sub-arguments does not matter.
-const wchar_t kEnableWatchdog[] = L"enable-watchdog";
+const wchar_t kEnableWatchdog[]                = L"enable-watchdog";
 
 // Display the First Run experience when the browser is started, regardless of
 // whether or not it's actually the first run.
-const wchar_t kFirstRun[] = L"first-run";
+const wchar_t kFirstRun[]                      = L"first-run";
 
 // Enable histograming of tasks served by MessageLoop. See about:histograms/Loop
 // for results, which show frequency of messages on each thread, including APC
 // count, object signalling count, etc.
-const wchar_t kMessageLoopHistogrammer[] = L"message-loop-histogrammer";
+const wchar_t kMessageLoopHistogrammer[]       = L"message-loop-histogrammer";
 
 // Perform importing from another browser. The value associated with this
 // setting encodes the target browser and what items to import.
-const wchar_t kImport[] = L"import";
+const wchar_t kImport[]                        = L"import";
 
 // Change the DCHECKS to dump memory and continue instead of crashing.
 // This is valid only in Release mode when --enable-dcheck is specified.
-const wchar_t kSilentDumpOnDCHECK[] = L"silent-dump-on-dcheck";
+const wchar_t kSilentDumpOnDCHECK[]            = L"silent-dump-on-dcheck";
 
 // Normally when the user attempts to navigate to a page that was the result of
 // a post we prompt to make sure they want to. This switch may be used to
 // disable that check. This switch is used during automated testing.
-const wchar_t kDisablePromptOnRepost[] = L"disable-prompt-on-repost";
+const wchar_t kDisablePromptOnRepost[]         = L"disable-prompt-on-repost";
 
 // Disable pop-up blocking.
-const wchar_t kDisablePopupBlocking[] = L"disable-popup-blocking";
+const wchar_t kDisablePopupBlocking[]          = L"disable-popup-blocking";
 
 // Don't execute JavaScript (browser JS like the new tab page still runs).
-const wchar_t kDisableJavaScript[] = L"disable-javascript";
+const wchar_t kDisableJavaScript[]             = L"disable-javascript";
 
 // Prevent Java from running.
-const wchar_t kDisableJava[] = L"disable-java";
+const wchar_t kDisableJava[]                   = L"disable-java";
 
 // Prevent plugins from running.
-const wchar_t kDisablePlugins[] = L"disable-plugins";
+const wchar_t kDisablePlugins[]                = L"disable-plugins";
 
 // Prevent images from loading.
-const wchar_t kDisableImages[] = L"disable-images";
+const wchar_t kDisableImages[]                 = L"disable-images";
 
 // Use the low fragmentation heap for the CRT.
-const wchar_t kUseLowFragHeapCrt[] = L"use-lf-heap";
+const wchar_t kUseLowFragHeapCrt[]             = L"use-lf-heap";
 
 #ifndef NDEBUG
 // Debug only switch to specify which gears plugin dll to load.
-const wchar_t kGearsPluginPathOverride[] = L"gears-plugin-path";
+const wchar_t kGearsPluginPathOverride[]       = L"gears-plugin-path";
 #endif
 
 // Switch to load Gears in the renderer process.
-const wchar_t kGearsInRenderer[] = L"gears-in-renderer";
+const wchar_t kGearsInRenderer[]               = L"gears-in-renderer";
 
 // Enable winhttp HTTP stack.
-const wchar_t kUseWinHttp[] = L"winhttp";
+const wchar_t kUseWinHttp[]                    = L"winhttp";
 
 // Enable the fastback page cache.
-const wchar_t kEnableFastback[] = L"enable-fastback";
+const wchar_t kEnableFastback[]                = L"enable-fastback";
 
 // Allow loading of the javascript debugger UI from the filesystem.
-const wchar_t kJavaScriptDebuggerPath[] = L"javascript-debugger-path";
+const wchar_t kJavaScriptDebuggerPath[]        = L"javascript-debugger-path";
 
-const wchar_t kEnableP13n[] = L"enable-p13n";
+const wchar_t kEnableP13n[]                    = L"enable-p13n";
 
 // Enable support for SDCH filtering (dictionary based expansion of content).
 // Optional argument is *the* only domain name that will have SDCH suppport.
 // Default is  "-enable-sdch" to advertise SDCH on all domains.
 // Sample usage with argument: "-enable-sdch=.google.com"
 // SDCH is currently only supported server-side for searches on google.com.
-const wchar_t kSdchFilter[] = L"enable-sdch";
+const wchar_t kSdchFilter[]                    = L"enable-sdch";
 
 // Enable Greasemonkey script support.
-const wchar_t kEnableGreasemonkey[] = L"enable-greasemonkey";
+const wchar_t kEnableGreasemonkey[]            = L"enable-greasemonkey";
 
 // Enable extensions.
-const wchar_t kEnableExtensions[] = L"enable-extensions";
+const wchar_t kEnableExtensions[]              = L"enable-extensions";
 
 // Causes the browser to launch directly in incognito mode.
-const wchar_t kIncognito[] = L"incognito";
+const wchar_t kIncognito[]                     = L"incognito";
 
 // Turn on the old implementation of SafeBrowsing which may have performance
 // problems on some computers during updates.
-const wchar_t kUseOldSafeBrowsing[] = L"old-safe-browsing";
+const wchar_t kUseOldSafeBrowsing[]            = L"old-safe-browsing";
 
 // Turns on the accessibility in the renderer.  Off by default until 
 // http://b/issue?id=1432077 is fixed.
 const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";
 
 // Enable HTML5 Video/Audio tag support
-const wchar_t kEnableVideo[] = L"enable-video";
+const wchar_t kEnableVideo[]                   = L"enable-video";
 
 }  // namespace switches

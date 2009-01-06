@@ -32,11 +32,11 @@ int PluginMain(CommandLine &parsed_command_line,
   bool no_sandbox = parsed_command_line.HasSwitch(switches::kNoSandbox) ||
                     !parsed_command_line.HasSwitch(switches::kSafePlugins);
   if (target_services && !no_sandbox) {
-    // The command line might specify a test dll to load.
+    // The command line might specify a test plugin to load.
     if (parsed_command_line.HasSwitch(switches::kTestSandbox)) {
-      std::wstring test_dll_name =
+      std::wstring test_plugin_name =
           parsed_command_line.GetSwitchValue(switches::kTestSandbox);
-      sandbox_test_module = LoadLibrary(test_dll_name.c_str());
+      sandbox_test_module = LoadLibrary(test_plugin_name.c_str());
       DCHECK(sandbox_test_module);
     }
   }

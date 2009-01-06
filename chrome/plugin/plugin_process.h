@@ -25,7 +25,7 @@ class PluginProcess : public ChildProcess {
   // from the browser.
   static void BrowserShutdown();
 
-  // File path of the plugin dll this process hosts.
+  // File path of the plugin this process hosts.
   const FilePath& plugin_path() { return plugin_path_; }
 
  private:

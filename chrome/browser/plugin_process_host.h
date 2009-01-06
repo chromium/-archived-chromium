@@ -40,10 +40,10 @@ class PluginProcessHost : public IPC::Channel::Listener,
   ~PluginProcessHost();
 
   // Initialize the new plugin process, returning true on success. This must
-  // be called before the object can be used. If dll is the ActiveX-shim, then
-  // activex_clsid is the class id of ActiveX control, otherwise activex_clsid
-  // is ignored.
-  bool Init(const FilePath& dll,
+  // be called before the object can be used. If plugin_path is the
+  // ActiveX-shim, then activex_clsid is the class id of ActiveX control,
+  // otherwise activex_clsid is ignored.
+  bool Init(const FilePath& plugin_path,
             const std::string& activex_clsid,
             const std::wstring& locale);
 

@@ -75,7 +75,7 @@ void PluginThread::Init() {
   notification_service_.reset(new NotificationService);
   resource_dispatcher_ = new ResourceDispatcher(this);
 
-  // Preload the dll to avoid loading, unloading then reloading
+  // Preload the library to avoid loading, unloading then reloading
   preloaded_plugin_module_ = NPAPI::PluginLib::LoadPluginHelper(
       plugin_process_->plugin_path());
 

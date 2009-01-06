@@ -81,11 +81,11 @@ class PluginTest : public TestShellTest {
     std::wstring plugin_src = current_directory + L"\\npapi_test_plugin.dll";
     ASSERT_TRUE(file_util::PathExists(plugin_src));
 
-    plugin_dll_path_ = current_directory + L"\\plugins";
-    ::CreateDirectory(plugin_dll_path_.c_str(), NULL);
+    plugin_file_path_ = current_directory + L"\\plugins";
+    ::CreateDirectory(plugin_file_path_.c_str(), NULL);
 
-    plugin_dll_path_ += L"\\npapi_test_plugin.dll";
-    ASSERT_TRUE(CopyFile(plugin_src.c_str(), plugin_dll_path_.c_str(), FALSE));
+    plugin_file_path_ += L"\\npapi_test_plugin.dll";
+    ASSERT_TRUE(CopyFile(plugin_src.c_str(), plugin_file_path_.c_str(), FALSE));
 
     // The plugin list has to be refreshed to ensure that the npapi_test_plugin
     // is loaded by webkit.
@@ -105,11 +105,11 @@ class PluginTest : public TestShellTest {
 
     // TODO(iyengar) The DeleteFile call fails in some cases as the plugin is
     // still in use. Needs more investigation.
-    ::DeleteFile(plugin_dll_path_.c_str());
+    ::DeleteFile(plugin_file_path_.c_str());
   }
 
   std::wstring plugin_data_dir_;
-  std::wstring plugin_dll_path_;
+  std::wstring plugin_file_path_;
   RequestContext* request_context_;
   GURL test_url_;
 };

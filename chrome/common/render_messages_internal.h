@@ -697,7 +697,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               bool /* refresh*/,
                               std::vector<WebPluginInfo> /* plugins */)
 
-  // Returns a path to a plugin dll for the given url and mime type.  If there's
+  // Returns a path to a plugin for the given url and mime type.  If there's
   // no plugin, an empty string is returned.
   IPC_SYNC_MESSAGE_CONTROL3_2(ViewHostMsg_GetPluginPath,
                               GURL /* url */,

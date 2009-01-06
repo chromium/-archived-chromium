@@ -84,7 +84,7 @@ PluginLib* PluginLib::CreatePluginLib(const FilePath& filename) {
   };
 
   static const InternalPluginInfo default_plugin_info = {
-    {kDefaultPluginDllName,
+    {kDefaultPluginLibraryName,
      L"Default Plug-in",
      L"Provides functionality for installing third-party plug-ins",
      L"1, 0, 0, 1",
@@ -339,7 +339,7 @@ class FreePluginLibraryTask : public Task {
 void PluginLib::Unload() {
   if (!internal_ && module_) {
     // In case of single process mode, a plugin can delete itself
-    // by executing a script. So delay the unloading of the DLL
+    // by executing a script. So delay the unloading of the library
     // so that the plugin will have a chance to unwind.
     bool defer_unload = webkit_glue::IsPluginRunningInRendererProcess();
 

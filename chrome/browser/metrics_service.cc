@@ -81,7 +81,7 @@
 // are:
 //
 //    INITIALIZED,            // Constructor was called.
-//    PLUGIN_LIST_REQUESTED,  // Waiting for DLL list to be loaded.
+//    PLUGIN_LIST_REQUESTED,  // Waiting for plugin list to be loaded.
 //    PLUGIN_LIST_ARRIVED,    // Waiting for timer to send initial log.
 //    INITIAL_LOG_READY,      // Initial log generated, and waiting for reply.
 //    SEND_OLD_INITIAL_LOGS,  // Sending unsent logs from previous session.
@@ -94,7 +94,7 @@
 // The MS has been constructed, but has taken no actions to compose the
 // initial log.
 //
-//    PLUGIN_LIST_REQUESTED,  // Waiting for DLL list to be loaded.
+//    PLUGIN_LIST_REQUESTED,  // Waiting for plugin list to be loaded.
 // Typically about 30 seconds after startup, a task is sent to a second thread
 // to get the list of plugins.  That task will (when complete) make an async
 // callback (via a Task) to indicate the completion.
@@ -730,7 +730,7 @@ void MetricsService::AddOrRemoveObserver(NotificationObserver* observer,
 
 void MetricsService::PushPendingLogsToUnsentLists() {
   if (state_ < INITIAL_LOG_READY)
-    return;  // We didn't and still don't have time to get DLL list etc.
+    return;  // We didn't and still don't have time to get plugin list etc.
 
   if (pending_log()) {
     PreparePendingLogText();

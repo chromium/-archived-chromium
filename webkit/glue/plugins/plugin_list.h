@@ -31,15 +31,18 @@ namespace NPAPI
 #define kActivexShimFileNameForMediaPlayer \
     L"Microsoft® Windows Media Player Firefox Plugin"
 
-#define kDefaultPluginDllName L"default_plugin"
+#define kDefaultPluginLibraryName L"default_plugin"
 
 class PluginLib;
 class PluginInstance;
 
-// The PluginList is responsible for loading our NPAPI based plugins.
-// It loads plugins from a known directory by looking for DLLs
-// which start with "NP", and checking to see if they are valid
-// NPAPI libraries.
+// The PluginList is responsible for loading our NPAPI based plugins. It does
+// so in whatever manner is appropriate for the platform. On Windows, it loads
+// plugins from a known directory by looking for DLLs which start with "NP",
+// and checking to see if they are valid NPAPI libraries. On the Mac, it walks
+// the machine-wide and user plugin directories and loads anything that has
+// the correct types. On Linux, it walks the plugin directories as well
+// (e.g. /usr/lib/browser-plugins/).
 class PluginList : public base::RefCounted<PluginList> {
  public:
   // Gets the one instance of the PluginList.
@@ -102,10 +105,10 @@ class PluginList : public base::RefCounted<PluginList> {
                      WebPluginInfo* info,
                      std::string* actual_mime_type);
 
-  // Get plugin info by plugin dll path. Returns true if the plugin is found and
+  // Get plugin info by plugin path. Returns true if the plugin is found and
   // WebPluginInfo has been filled in |info|
-  bool GetPluginInfoByDllPath(const FilePath& dll_path,
-                              WebPluginInfo* info);
+  bool GetPluginInfoByPath(const FilePath& plugin_path,
+                           WebPluginInfo* info);
  private:
   // Constructors are private for singletons
   PluginList();

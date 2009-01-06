@@ -760,9 +760,10 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
     // variable definition.
     scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
     if (plugin->plugin_lib()->plugin_info().file.value() ==
-          kDefaultPluginDllName)
+          kDefaultPluginLibraryName) {
       plugin->webplugin()->OnMissingPluginStatus(
           variable - default_plugin::kMissingPluginStatusStart);
+    }
     break;
   }
   default:
@@ -811,7 +812,7 @@ NPError  NPN_SetValue(NPP id, NPPVariable variable, void *value) {
     DLOG(INFO) << "NPN_SetValue(NPPVJavascriptPushCallerBool) is not implemented.";
     return NPERR_GENERIC_ERROR;
   case NPPVpluginKeepLibraryInMemory:
-    // Tells browser that plugin dll should live longer than usual.
+    // Tells browser that plugin library should live longer than usual.
     // TODO: implement me
     DLOG(INFO) << "NPN_SetValue(NPPVpluginKeepLibraryInMemory) is not implemented.";
     return NPERR_GENERIC_ERROR;

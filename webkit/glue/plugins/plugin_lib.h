@@ -24,7 +24,7 @@ namespace NPAPI
 
 class PluginInstance;
 
-// This struct fully describes a plugin. For dll plugins, it's read in from
+// This struct fully describes a plugin. For external plugins, it's read in from
 // the version info of the dll; For internal plugins, it's predefined.
 struct PluginVersionInfo {
   std::wstring file_name;
@@ -52,7 +52,7 @@ class PluginLib : public base::RefCounted<PluginLib> {
   virtual ~PluginLib();
   static PluginLib* CreatePluginLib(const FilePath& filename);
 
-  // Unloads all the loaded plugin dlls and cleans up the plugin map.
+  // Unloads all the loaded plugin libraries and cleans up the plugin map.
   static void UnloadAllPlugins();
 
   // Shuts down all loaded plugin instances.
@@ -97,22 +97,22 @@ class PluginLib : public base::RefCounted<PluginLib> {
  private:
   // Creates a new PluginLib.  The WebPluginInfo object is owned by this
   // object. If internal_plugin_info is not NULL, this Lib is an internal
-  // plugin thus doesn't need to load dll.
+  // plugin thus doesn't need to load a library.
   PluginLib(WebPluginInfo* info,
             const InternalPluginInfo* internal_plugin_info);
 
-  // Attempts to load the plugin from the DLL.
+  // Attempts to load the plugin from the library.
   // Returns true if it is a legitimate plugin, false otherwise
   bool Load();
 
-  // Unloading the plugin DLL.
+  // Unloads the plugin library.
   void Unload();
 
-  // Shutdown the plugin DLL.
+  // Shutdown the plugin library.
   void Shutdown();
 
   // Returns a WebPluginInfo structure given a plugin's path.  Returns NULL if
-  // the dll couldn't be found, or if it's not a plugin.
+  // the library couldn't be found, or if it's not a plugin.
   static WebPluginInfo* ReadWebPluginInfo(const FilePath &filename);
   // Creates WebPluginInfo structure based on read in or built in
   // PluginVersionInfo.

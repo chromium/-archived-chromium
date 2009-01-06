@@ -249,7 +249,7 @@ std::wstring TaskManagerPluginProcessResource::GetTitle() const {
     std::wstring plugin_name;
     WebPluginInfo info;
     if (PluginService::GetInstance()->
-            GetPluginInfoByDllPath(plugin_process_.plugin_path(), &info))
+            GetPluginInfoByPath(plugin_process_.plugin_path(), &info))
       plugin_name = info.name;
     else
       plugin_name = l10n_util::GetString(IDS_TASK_MANAGER_UNKNOWN_PLUGIN_NAME);

@@ -59,39 +59,40 @@ const std::wstring& PluginService::GetUILocale() {
   return ui_locale_;
 }
 
-PluginProcessHost* PluginService::FindPluginProcess(const FilePath& dll) {
+PluginProcessHost* PluginService::FindPluginProcess(
+    const FilePath& plugin_path) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  if (dll.value().empty()) {
-    NOTREACHED() << "should only be called if we have a plugin dll to load";
+  if (plugin_path.value().empty()) {
+    NOTREACHED() << "should only be called if we have a plugin to load";
     return NULL;
   }
 
-  PluginMap::iterator found = plugin_hosts_.find(dll);
+  PluginMap::iterator found = plugin_hosts_.find(plugin_path);
   if (found != plugin_hosts_.end())
     return found->second;
   return NULL;
 }
 
 PluginProcessHost* PluginService::FindOrStartPluginProcess(
-    const FilePath& dll,
+    const FilePath& plugin_path,
     const std::string& clsid) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  PluginProcessHost *plugin_host = FindPluginProcess(dll);
+  PluginProcessHost *plugin_host = FindPluginProcess(plugin_path);
   if (plugin_host)
     return plugin_host;
 
   // This plugin isn't loaded by any plugin process, so create a new process.
   plugin_host = new PluginProcessHost(this);
-  if (!plugin_host->Init(dll, clsid, ui_locale_)) {
+  if (!plugin_host->Init(plugin_path, clsid, ui_locale_)) {
     DCHECK(false);  // Init is not expected to fail
     delete plugin_host;
     return NULL;
   }
-  plugin_hosts_[dll] = plugin_host;
+  plugin_hosts_[plugin_path] = plugin_host;
   return plugin_host;
 
   // TODO(jabdelmalek): adding a new channel means we can have one less
@@ -106,8 +107,8 @@ void PluginService::OpenChannelToPlugin(
     const std::wstring& locale, IPC::Message* reply_msg) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
-  FilePath dll = GetPluginPath(url, mime_type, clsid, NULL);
-  PluginProcessHost* plugin_host = FindOrStartPluginProcess(dll, clsid);
+  FilePath plugin_path = GetPluginPath(url, mime_type, clsid, NULL);
+  PluginProcessHost* plugin_host = FindOrStartPluginProcess(plugin_path, clsid);
   if (plugin_host) {
     plugin_host->OpenChannelToPlugin(renderer_msg_filter, mime_type, reply_msg);
   } else {
@@ -130,9 +131,9 @@ void PluginService::OnPluginProcessExited(PluginProcessHost* host) {
 void PluginService::RemoveHost(PluginProcessHost* host) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
-  // Search for the instance rather than lookup by dll path,
+  // Search for the instance rather than lookup by plugin path,
   // there is a small window where two instances for the same
-  // dll path can co-exists.
+  // plugin path can co-exists.
   PluginMap::iterator i = plugin_hosts_.begin();
   while (i != plugin_hosts_.end()) {
     if (i->second == host) {
@@ -156,10 +157,10 @@ FilePath PluginService::GetPluginPath(const GURL& url,
   return info.file;
 }
 
-bool PluginService::GetPluginInfoByDllPath(const FilePath& dll_path,
-                                           WebPluginInfo* info) {
+bool PluginService::GetPluginInfoByPath(const FilePath& plugin_path,
+                                        WebPluginInfo* info) {
   AutoLock lock(lock_);
-  return NPAPI::PluginList::Singleton()->GetPluginInfoByDllPath(dll_path, info);
+  return NPAPI::PluginList::Singleton()->GetPluginInfoByPath(plugin_path, info);
 }
 
 bool PluginService::HavePluginFor(const std::string& mime_type,

@@ -108,7 +108,7 @@ class MetricsService : public NotificationObserver,
   // See metrics_service.cc for description of this lifecycle.
   enum State {
     INITIALIZED,            // Constructor was called.
-    PLUGIN_LIST_REQUESTED,  // Waiting for DLL list to be loaded.
+    PLUGIN_LIST_REQUESTED,  // Waiting for plugin list to be loaded.
     PLUGIN_LIST_ARRIVED,    // Waiting for timer to send initial log.
     INITIAL_LOG_READY,      // Initial log generated, and waiting for reply.
     SEND_OLD_INITIAL_LOGS,  // Sending unsent logs from previous session.

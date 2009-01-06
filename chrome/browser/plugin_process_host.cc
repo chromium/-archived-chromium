@@ -48,24 +48,24 @@ static const char kDefaultPluginFinderURL[] =
 class PluginNotificationTask : public Task {
  public:
   PluginNotificationTask(NotificationType notification_type,
-                         FilePath dll_path,
+                         FilePath plugin_path,
                          HANDLE process);
 
   virtual void Run();
 
  private:
   NotificationType notification_type_;
-  FilePath dll_path_;
+  FilePath plugin_path_;
   HANDLE process_;
 };
 
 PluginNotificationTask::PluginNotificationTask(
     NotificationType notification_type,
-    FilePath dll_path,
+    FilePath plugin_path,
     HANDLE process)
     : notification_type_(notification_type),
       process_(process),
-      dll_path_(dll_path) {
+      plugin_path_(plugin_path) {
 }
 
 void PluginNotificationTask::Run() {
@@ -82,7 +82,7 @@ void PluginNotificationTask::Run() {
       return;
   }
 
-  PluginProcessInfo ppi(dll_path_, process_);
+  PluginProcessInfo ppi(plugin_path_, process_);
   // As mentioned in the notification_types.h, the PluginProcessInfo details
   // are only valid for the time of the notification.
   NotificationService::current()->
@@ -361,12 +361,12 @@ PluginProcessHost::~PluginProcessHost() {
   }
 }
 
-bool PluginProcessHost::Init(const FilePath& dll,
+bool PluginProcessHost::Init(const FilePath& plugin_path,
                              const std::string& activex_clsid,
                              const std::wstring& locale) {
   DCHECK(channel_.get() == NULL);
 
-  plugin_path_ = dll;
+  plugin_path_ = plugin_path;
   channel_id_ = GenerateRandomChannelID(this);
   channel_.reset(new IPC::Channel(channel_id_,
                                   IPC::Channel::MODE_SERVER,
@@ -374,14 +374,14 @@ bool PluginProcessHost::Init(const FilePath& dll,
   if (!channel_->Connect())
     return false;
 
-  // build command line for plugin, we have to quote the dll path to deal with
-  // spaces.
-  std::wstring plugin_path;
-  if (!PathService::Get(base::FILE_EXE, &plugin_path))
+  // build command line for plugin, we have to quote the plugin's path to deal
+  // with spaces.
+  std::wstring exe_path;
+  if (!PathService::Get(base::FILE_EXE, &exe_path))
     return false;
 
   std::wstring cmd_line(L"\"");
-  cmd_line += plugin_path;
+  cmd_line += exe_path;
   cmd_line += L"\"";
   if (logging::DialogsAreSuppressed())
     CommandLine::AppendSwitch(&cmd_line, switches::kNoErrorDialogs);
@@ -439,7 +439,7 @@ bool PluginProcessHost::Init(const FilePath& dll,
 
   CommandLine::AppendSwitchWithValue(&cmd_line,
                                      switches::kPluginPath,
-                                     dll.ToWStringHack());
+                                     plugin_path.ToWStringHack());
 
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox) &&
                     browser_command_line.HasSwitch(switches::kSafePlugins);
@@ -458,7 +458,8 @@ bool PluginProcessHost::Init(const FilePath& dll,
 
     std::wstring trusted_plugins =
         browser_command_line.GetSwitchValue(switches::kTrustedPlugins);
-    if (!AddPolicyForPlugin(dll, activex_clsid, trusted_plugins, policy)) {
+    if (!AddPolicyForPlugin(plugin_path, activex_clsid, trusted_plugins,
+                            policy)) {
       NOTREACHED();
       return false;
     }
@@ -468,7 +469,7 @@ bool PluginProcessHost::Init(const FilePath& dll,
       return false;
     }
 
-    result = broker_service->SpawnTarget(plugin_path.c_str(),
+    result = broker_service->SpawnTarget(exe_path.c_str(),
                                          cmd_line.c_str(), policy, &target);
     policy->Release();
     if (sandbox::SBOX_ALL_OK != result)
@@ -495,8 +496,9 @@ bool PluginProcessHost::Init(const FilePath& dll,
   FilePath gears_path;
   if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_path)) {
     FilePath::StringType gears_path_lc = StringToLowerASCII(gears_path.value());
-    FilePath::StringType dll_lc = StringToLowerASCII(dll.value());
-    if (dll_lc == gears_path_lc) {
+    FilePath::StringType plugin_path_lc =
+        StringToLowerASCII(plugin_path.value());
+    if (plugin_path_lc == gears_path_lc) {
       // Give Gears plugins "background" priority.  See
       // http://b/issue?id=1280317.
       process_.SetProcessBackgrounded(true);

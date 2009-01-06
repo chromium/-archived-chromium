@@ -264,7 +264,7 @@ typedef struct _NPNetscapeFuncs {
 } NPNetscapeFuncs;
 
 //
-// NPAPI DLL entry points
+// NPAPI library entry points
 //
 typedef NPError (API_CALL * NP_InitializeFunc)(NPNetscapeFuncs* pFuncs);
 typedef NPError (API_CALL * NP_GetEntryPointsFunc)(NPPluginFuncs* pFuncs);

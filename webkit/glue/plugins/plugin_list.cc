@@ -123,7 +123,7 @@ void PluginList::LoadPlugins(bool refresh) {
 
   if (webkit_glue::IsDefaultPluginEnabled()) {
     scoped_refptr<PluginLib> default_plugin = PluginLib::CreatePluginLib(
-        FilePath(kDefaultPluginDllName));
+        FilePath(kDefaultPluginLibraryName));
     plugins_.push_back(default_plugin);
   }
 
@@ -332,7 +332,7 @@ bool PluginList::GetPluginInfo(const GURL& url,
                                                allow_wildcard);
 
   if (plugin.get() == NULL ||
-      (plugin->plugin_info().file.value() == kDefaultPluginDllName
+      (plugin->plugin_info().file.value() == kDefaultPluginLibraryName
         && clsid.empty())) {
     scoped_refptr<PluginLib> default_plugin = plugin;
     plugin = FindPlugin(url, actual_mime_type);
@@ -348,11 +348,11 @@ bool PluginList::GetPluginInfo(const GURL& url,
   return true;
 }
 
-bool PluginList::GetPluginInfoByDllPath(const FilePath& dll_path,
-                                        WebPluginInfo* info) {
+bool PluginList::GetPluginInfoByPath(const FilePath& plugin_path,
+                                     WebPluginInfo* info) {
   for (size_t i = 0; i < plugins_.size(); ++i) {
     if (wcsicmp(plugins_[i]->plugin_info().file.value().c_str(),
-                dll_path.value().c_str()) == 0) {
+                plugin_path.value().c_str()) == 0) {
       *info = plugins_[i]->plugin_info();
       return true;
     }
