@@ -288,7 +288,7 @@ class ChromeTests:
     return self.ScriptedTest("chrome", "chrome.exe", "ui_tests", 
                              ["ui_tests.exe",
                               "--single-process",
-                              "--ui-test-timeout=120000",
+                              "--ui-test-timeout=180000",
                               "--ui-test-action-timeout=80000",
                               "--ui-test-action-max-timeout=180000"],
                              multi=True)
