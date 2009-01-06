@@ -111,11 +111,9 @@ unit_test_files = []
 
 unit_test_files.extend([
   '$CHROME_DIR/common/ipc_sync_message_unittest.cc',
-  '$CHROME_DIR/common/l10n_util_unittest.cc',
   '$CHROME_DIR/common/property_bag_unittest.cc',
   '$CHROME_DIR/common/unzip_unittest.cc',
   '$CHROME_DIR/renderer/greasemonkey_slave_unittest.cc',
-  '$CHROME_DIR/browser/history/visit_database_unittest.cc',
 ])
 
 if not env.Bit('mac'):
@@ -182,6 +180,7 @@ if env.Bit('windows'):
       '$CHROME_DIR/browser/history/text_database_manager_unittest.cc',
       '$CHROME_DIR/browser/history/thumbnail_database_unittest.cc',
       '$CHROME_DIR/browser/history/url_database_unittest.cc',
+      '$CHROME_DIR/browser/history/visit_database_unittest.cc',
       '$CHROME_DIR/browser/importer/firefox_importer_unittest.cc',
       '$CHROME_DIR/browser/importer/importer_unittest.cc',
       '$CHROME_DIR/browser/metrics_log_unittest.cc',
@@ -221,6 +220,7 @@ if env.Bit('windows'):
       '$CHROME_DIR/common/gfx/icon_util_unittest.cc',
       '$CHROME_DIR/common/gfx/text_elider_unittest.cc',
       '$CHROME_DIR/common/ipc_sync_channel_unittest.cc',
+      '$CHROME_DIR/common/l10n_util_unittest.cc',
       '$CHROME_DIR/common/os_exchange_data_unittest.cc',
       '$CHROME_DIR/common/pref_member_unittest.cc',
       '$CHROME_DIR/common/pref_service_unittest.cc',
