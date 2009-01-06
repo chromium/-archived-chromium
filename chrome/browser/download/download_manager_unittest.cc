@@ -34,7 +34,9 @@ class DownloadManagerTest : public testing::Test {
   DISALLOW_EVIL_CONSTRUCTORS(DownloadManagerTest);
 };
 
-static const struct {
+namespace {
+
+const struct {
   const char* disposition;
   const wchar_t* url;
   const char* mime_type;
@@ -310,6 +312,8 @@ static const struct {
   // TODO(darin): Add some raw 8-bit Content-Disposition tests.
 };
 
+}  // namespace
+
 // Tests to ensure that the file names we generate from hints from the server
 // (content-disposition, URL name, etc) don't cause security holes.
 TEST_F(DownloadManagerTest, TestDownloadFilename) {
@@ -323,3 +327,56 @@ TEST_F(DownloadManagerTest, TestDownloadFilename) {
   }
 }
 
+namespace {
+
+const struct {
+  const wchar_t* path;
+  const char* mime_type;
+  const wchar_t* expected_path;
+} kSafeFilenameCases[] = {
+  { L"C:\\foo\\bar.htm",
+    "text/html",
+    L"C:\\foo\\bar.htm" },
+  { L"C:\\foo\\bar.html",
+    "text/html",
+    L"C:\\foo\\bar.html" },
+  { L"C:\\foo\\bar",
+    "text/html",
+    L"C:\\foo\\bar.htm" },
+
+  { L"C:\\bar.html",
+    "image/png",
+    L"C:\\bar.png" },
+  { L"C:\\bar",
+    "image/png",
+    L"C:\\bar.png" },
+
+  { L"C:\\foo\\bar.exe",
+    "text/html",
+    L"C:\\foo\\bar.htm" },
+  { L"C:\\foo\\bar.exe",
+    "image/gif",
+    L"C:\\foo\\bar.gif" },
+
+  { L"C:\\foo\\google.com",
+    "text/html",
+    L"C:\\foo\\google.htm" },
+
+  { L"C:\\foo\\con.htm",
+    "text/html",
+    L"C:\\foo\\_con.htm" },
+  { L"C:\\foo\\con",
+    "text/html",
+    L"C:\\foo\\_con.htm" },
+};
+
+}  // namespace
+
+TEST_F(DownloadManagerTest, GetSafeFilename) {
+  for (int i = 0; i < arraysize(kSafeFilenameCases); ++i) {
+    std::wstring path(kSafeFilenameCases[i].path);
+    download_manager_->GenerateSafeFilename(kSafeFilenameCases[i].mime_type,
+        &path);
+    EXPECT_EQ(kSafeFilenameCases[i].expected_path, path);
+  }
+}

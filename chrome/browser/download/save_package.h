@@ -22,6 +22,7 @@
 class SaveFileManager;
 class SavePackage;
 class DownloadItem;
+class DownloadManager;
 class GURL;
 class MessageLoop;
 class PrefService;
@@ -158,7 +159,8 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   };
   static bool GetSaveInfo(const std::wstring& suggest_name,
                           HWND container_hwnd,
-                          SavePackageParam* param);
+                          SavePackageParam* param,
+                          DownloadManager* download_manager);
 
   // File name is consist of pure file name, dot and file extension name. File
   // name might has no dot and file extension, or has multiple dot inside file

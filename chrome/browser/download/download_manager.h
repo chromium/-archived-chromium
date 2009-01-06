@@ -407,6 +407,12 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // Called when the user has validated the donwload of a dangerous file.
   void DangerousDownloadValidated(DownloadItem* download);
 
+  // Used to make sure we have a safe file extension and filename for a
+  // download.  |file_name| can either be just the file name or it can be a
+  // full path to a file.
+  void GenerateSafeFilename(const std::string& mime_type,
+                            std::wstring* file_name);
+
  private:
   // Shutdown the download manager.  This call is needed only after Init.
   void Shutdown();

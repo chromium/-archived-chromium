@@ -573,7 +573,8 @@ void WebContents::OnSavePage() {
 
   // TODO(rocking): Use new asynchronous dialog boxes to prevent the SaveAs
   // dialog blocking the UI thread. See bug: http://b/issue?id=1129694.
-  if (SavePackage::GetSaveInfo(suggest_name, GetContainerHWND(), &param))
+  if (SavePackage::GetSaveInfo(suggest_name, GetContainerHWND(), &param,
+                               profile()->GetDownloadManager()))
     SavePage(param.saved_main_file_path, param.dir, param.save_type);
 }
 

@@ -1121,15 +1121,7 @@ void DownloadManager::GenerateFilename(DownloadCreateInfo* info,
                                 L"download");
   DCHECK(!file_name.empty());
 
-  // Make sure we get the right file extension.
-  std::wstring extension;
-  GenerateExtension(file_name, info->mime_type, &extension);
-  file_util::ReplaceExtension(&file_name, extension);
-
-  // Prepend "_" to the file name if it's a reserved name
-  if (win_util::IsReservedName(file_name))
-    file_name = std::wstring(L"_") + file_name;
-
+  GenerateSafeFilename(info->mime_type, &file_name);
   generated_name->assign(file_name);
 }
 
@@ -1270,6 +1262,26 @@ void DownloadManager::DangerousDownloadValidated(DownloadItem* download) {
                         &DownloadManager::ProceedWithFinishedDangerousDownload,
                         download->db_handle(), download->full_path(),
                         download->original_name()));
+}
+
+void DownloadManager::GenerateSafeFilename(const std::string& mime_type,
+                                           std::wstring* file_name) {
+  // Make sure we get the right file extension.
+  std::wstring extension;
+  GenerateExtension(*file_name, mime_type, &extension);
+  file_util::ReplaceExtension(file_name, extension);
+
+  // Prepend "_" to the file name if it's a reserved name
+  std::wstring leaf_name = file_util::GetFilenameFromPath(*file_name);
+  DCHECK(!leaf_name.empty());
+  if (win_util::IsReservedName(leaf_name)) {
+    file_util::UpOneDirectoryOrEmpty(file_name);
+    if (file_name->empty()) {
+      file_name->assign(std::wstring(L"_") + leaf_name);
+    } else {
+      file_util::AppendToPath(file_name, std::wstring(L"_") + leaf_name);
+    }
+  }
 }
 
 // Operations posted to us from the history service ----------------------------
