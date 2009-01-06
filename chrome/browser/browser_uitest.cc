@@ -135,12 +135,14 @@ TEST_F(BrowserTest, TabNavigationAccelerators) {
   ASSERT_TRUE(window->GetTabCount(&old_tab_count));
   ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   int new_tab_count;
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
-      5000));
+  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count,
+                                              &new_tab_count,
+                                              action_max_timeout_ms()));
   ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
   old_tab_count = new_tab_count;
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
-      5000));
+  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count,
+                                              &new_tab_count,
+                                              action_max_timeout_ms()));
   ASSERT_GE(new_tab_count, 2);
 
   // Activate the second tab.
@@ -148,19 +150,20 @@ TEST_F(BrowserTest, TabNavigationAccelerators) {
 
   // Navigate to the first tab using an accelerator.
   ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_TAB_0));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(0, 5000));
+  ASSERT_TRUE(window->WaitForTabToBecomeActive(0, action_max_timeout_ms()));
 
   // Navigate to the second tab using the next accelerators.
   ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_NEXT_TAB));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(1, 5000));
+  ASSERT_TRUE(window->WaitForTabToBecomeActive(1, action_max_timeout_ms()));
 
   // Navigate back to the first tab using the previous accelerators.
   ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_PREVIOUS_TAB));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(0, 5000));
+  ASSERT_TRUE(window->WaitForTabToBecomeActive(0, action_max_timeout_ms()));
 
   // Navigate to the last tab using the select last accelerator.
   ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_LAST_TAB));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(new_tab_count - 1, 5000));
+  ASSERT_TRUE(window->WaitForTabToBecomeActive(new_tab_count - 1,
+                                               action_max_timeout_ms()));
 }
 
 TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
@@ -177,7 +180,7 @@ TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
   ASSERT_TRUE(
       javascript_tab->NavigateToURLAsync(GURL("javascript:alert('Alert!')")));
   ASSERT_TRUE(window->WaitForTabToBecomeActive(javascript_tab_index,
-                                               kWaitForActionMaxMsec));
+                                               action_max_timeout_ms()));
 }
 
 TEST_F(BrowserTest, DuplicateTab) {
@@ -262,7 +265,7 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
   // Make sure that a new tab has been created and that we have a new renderer
   // process for it.
   tab->NavigateToURLAsync(fork_url);
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
   ASSERT_EQ(orig_process_count + 1, GetBrowserProcessCount());
   int new_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&new_tab_count));
@@ -299,7 +302,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 
   // Make sure that a new tab but not new process has been created.
   tab->NavigateToURLAsync(dont_fork_url);
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
   ASSERT_EQ(orig_process_count, GetBrowserProcessCount());
   int new_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&new_tab_count));
@@ -311,7 +314,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 
   // Make sure that no new process has been created.
   tab->NavigateToURLAsync(dont_fork_url2);
-  Sleep(kWaitForActionMsec);
+  Sleep(action_timeout_ms());
   ASSERT_EQ(orig_process_count, GetBrowserProcessCount());
 }
 
@@ -323,7 +326,7 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
 
   int i;
   for (i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(action_max_timeout_ms() / 10);
     std::wstring title = GetActiveTabTitle();
     if (title == L"PASSED") {
       // Success, bail out.
