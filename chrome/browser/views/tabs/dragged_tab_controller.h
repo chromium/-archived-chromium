@@ -57,8 +57,8 @@ class DraggedTabController : public TabContentsDelegate,
   // Complete the current drag session. If the drag session was canceled
   // because the user pressed Escape or something interrupted it, |canceled|
   // is true so the helper can revert the state to the world before the drag
-  // begun.
-  void EndDrag(bool canceled);
+  // begun. Returns whether the tab has been destroyed.
+  bool EndDrag(bool canceled);
 
   // Retrieve the source Tab if the TabContents specified matches the one being
   // dragged by this controller, or NULL if the specified TabContents is not
@@ -186,8 +186,8 @@ class DraggedTabController : public TabContentsDelegate,
   // dragged TabContents.
   Tab* GetTabMatchingDraggedContents(TabStrip* tabstrip) const;
 
-  // Does the work for EndDrag.
-  void EndDragImpl(EndDragType how_end);
+  // Does the work for EndDrag. Returns whether the tab has been destroyed.
+  bool EndDragImpl(EndDragType how_end);
 
   // If the drag was aborted for some reason, this function is called to un-do
   // the changes made during the drag operation.

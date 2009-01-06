@@ -355,8 +355,8 @@ void DraggedTabController::Drag() {
   }
 }
 
-void DraggedTabController::EndDrag(bool canceled) {
-  EndDragImpl(canceled ? CANCELED : NORMAL);
+bool DraggedTabController::EndDrag(bool canceled) {
+  return EndDragImpl(canceled ? CANCELED : NORMAL);
 }
 
 Tab* DraggedTabController::GetDragSourceTabForContents(
@@ -921,7 +921,7 @@ Tab* DraggedTabController::GetTabMatchingDraggedContents(
   return index == TabStripModel::kNoTab ? NULL : tabstrip->GetTabAt(index);
 }
 
-void DraggedTabController::EndDragImpl(EndDragType type) {
+bool DraggedTabController::EndDragImpl(EndDragType type) {
   bring_to_front_timer_.Stop();
 
   // Hide the current dock controllers.
@@ -959,6 +959,8 @@ void DraggedTabController::EndDragImpl(EndDragType type) {
   // If we're not destroyed now, we'll be destroyed asynchronously later.
   if (destroy_now)
     source_tabstrip_->DestroyDragController();
+
+  return destroy_now;
 }
 
 void DraggedTabController::RevertDrag() {

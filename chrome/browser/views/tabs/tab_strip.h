@@ -141,7 +141,7 @@ class TabStrip : public views::View,
   virtual void StopAllHighlighting();
   virtual void MaybeStartDrag(Tab* tab, const views::MouseEvent& event);
   virtual void ContinueDrag(const views::MouseEvent& event);
-  virtual void EndDrag(bool canceled);
+  virtual bool EndDrag(bool canceled);
 
   // views::Button::ButtonListener implementation:
   virtual void ButtonPressed(views::BaseButton* sender);

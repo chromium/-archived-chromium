@@ -1022,9 +1022,8 @@ void TabStrip::ContinueDrag(const views::MouseEvent& event) {
     drag_controller_->Drag();
 }
 
-void TabStrip::EndDrag(bool canceled) {
-  if (drag_controller_.get())
-    drag_controller_->EndDrag(canceled);
+bool TabStrip::EndDrag(bool canceled) {
+  return drag_controller_.get() ? drag_controller_->EndDrag(canceled) : false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

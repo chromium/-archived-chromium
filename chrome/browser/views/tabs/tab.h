@@ -66,8 +66,9 @@ class Tab : public TabRenderer,
     virtual void ContinueDrag(const views::MouseEvent& event) = 0;
 
     // Ends dragging a Tab. |canceled| is true if the drag was aborted in a way
-    // other than the user releasing the mouse.
-    virtual void EndDrag(bool canceled) = 0;
+    // other than the user releasing the mouse. Returns whether the tab has been
+    // destroyed.
+    virtual bool EndDrag(bool canceled) = 0;
   };
 
   explicit Tab(TabDelegate* delegate);

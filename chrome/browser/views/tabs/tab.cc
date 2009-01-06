@@ -178,10 +178,14 @@ bool Tab::OnMouseDragged(const views::MouseEvent& event) {
 void Tab::OnMouseReleased(const views::MouseEvent& event, bool canceled) {
   // Notify the drag helper that we're done with any potential drag operations.
   // Clean up the drag helper, which is re-created on the next mouse press.
-  delegate_->EndDrag(canceled);
+  // In some cases, ending the drag will schedule the tab for destruction; if
+  // so, bail immediately, since our members are already dead and we shouldn't
+  // do anything else except drop the tab where it is.
+  if (delegate_->EndDrag(canceled))
+    return;
 
-  // Close tabs on middle click, but only if the button is released over the tab 
-  // (normal windows behavior is to discard presses of a UI element where the 
+  // Close tab on middle click, but only if the button is released over the tab
+  // (normal windows behavior is to discard presses of a UI element where the
   // releases happen off the element).
   if (event.IsMiddleMouseButton() && HitTest(event.location()))
     delegate_->CloseTab(this);
