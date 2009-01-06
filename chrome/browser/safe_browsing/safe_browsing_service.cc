@@ -577,7 +577,7 @@ void SafeBrowsingService::DatabaseLoadComplete(bool database_error) {
 }
 
 // static
-void SafeBrowsingService::RegisterUserPrefs(PrefService* prefs) {
+void SafeBrowsingService::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kSafeBrowsingClientKey, L"");
   prefs->RegisterStringPref(prefs::kSafeBrowsingWrappedKey, L"");
 }

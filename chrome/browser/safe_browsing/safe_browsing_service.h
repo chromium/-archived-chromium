@@ -160,7 +160,7 @@ class SafeBrowsingService
   void DatabaseLoadComplete(bool database_error);
 
   // Preference handling.
-  static void RegisterUserPrefs(PrefService* prefs);
+  static void RegisterPrefs(PrefService* prefs);
 
   // The SafeBrowsing system has instructed us to reset our database.
   void ResetDatabase();
