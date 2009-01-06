@@ -131,6 +131,9 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // Update internal state for each GetHash response error.
   void HandleGetHashError();
 
+  // Helper function for update completion.
+  void UpdateFinished(bool success);
+
  private:
   // Main SafeBrowsing interface object.
   SafeBrowsingService* sb_service_;
@@ -206,6 +209,9 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
 
   // Used for measuring chunk request latency.
   base::Time chunk_request_start_;
+
+  // Track the size of each update (in bytes).
+  int update_size_;
 
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingProtocolManager);
 };
