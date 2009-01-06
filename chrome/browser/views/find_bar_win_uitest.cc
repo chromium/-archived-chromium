@@ -111,7 +111,9 @@ TEST_F(FindInPageControllerTest, FindInPageOrdinal) {
 
 // This test loads a page with frames and makes sure the ordinal returned makes
 // sense.
-TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
+// Disabling to open tree.
+// See http://code.google.com/p/chromium/issues/detail?id=6030
+TEST_F(FindInPageControllerTest, DISABLED_FindInPageMultiFramesOrdinal) {
   TestServer server(L"chrome/test/data");
 
   // First we navigate to our frames page.
