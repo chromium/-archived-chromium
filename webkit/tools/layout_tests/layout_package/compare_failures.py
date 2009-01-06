@@ -86,7 +86,13 @@ class CompareFailures:
     PrintFilesFromSet(passes & self._expectations.GetIgnoredTimeouts(),
                       "Expected to timeout (ignored), but passed",
                       output)
-
+    # Crashes should never be deferred.
+    PrintFilesFromSet(passes & self._expectations.GetFixableDeferredFailures(),	 
+                      "Expected to fail (deferred), but passed",
+                      output)	 
+    PrintFilesFromSet(passes & self._expectations.GetFixableDeferredTimeouts(),	 
+                      "Expected to timeout (deferred), but passed",
+                      output)
     # Print real regressions.
     PrintFilesFromSet(self._regressed_failures,
                       "Regressions: Unexpected failures",

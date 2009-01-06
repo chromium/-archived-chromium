@@ -9,6 +9,7 @@ file a bug, then add it to tests_fixable.txt.
 Tests can have any combination of the following metadata associated with
 them (optional):
   SKIP : We don't want to run the test (perhaps because it hangs).
+  DEFER : Test does not count in our statistics for the current release.
   DEBUG  : Expectations apply only to the Debug build.
   RELEASE : Expectations apply only to the Release build.
   LINUX/WIN/MAC: Expectations apply only to the listed platform(s).

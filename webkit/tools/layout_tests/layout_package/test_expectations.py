@@ -34,22 +34,40 @@ class TestExpectations:
     self._ValidateLists()
 
   def GetFixable(self):
-    return self._fixable.GetTests()
+    return (self._fixable.GetTests() -
+            self._fixable.GetNonSkippedDeferred() -	 
+            self._fixable.GetSkippedDeferred())
 
   def GetFixableSkipped(self):
     return self._fixable.GetSkipped()
 
+  def GetFixableSkippedDeferred(self):	 
+    return self._fixable.GetSkippedDeferred()
+
   def GetFixableFailures(self):
     return (self._fixable.GetTestsExpectedTo(FAIL) -
             self._fixable.GetTestsExpectedTo(TIMEOUT) -
-            self._fixable.GetTestsExpectedTo(CRASH))
+            self._fixable.GetTestsExpectedTo(CRASH) -
+            self._fixable.GetNonSkippedDeferred())
 
   def GetFixableTimeouts(self):
     return (self._fixable.GetTestsExpectedTo(TIMEOUT) -
-            self._fixable.GetTestsExpectedTo(CRASH))
+            self._fixable.GetTestsExpectedTo(CRASH) -
+            self._fixable.GetNonSkippedDeferred())
 
   def GetFixableCrashes(self):
     return self._fixable.GetTestsExpectedTo(CRASH)
+
+  def GetFixableDeferred(self):	 
+    return self._fixable.GetNonSkippedDeferred()	 
+
+  def GetFixableDeferredFailures(self):	 
+    return (self._fixable.GetNonSkippedDeferred() &	 
+            self._fixable.GetTestsExpectedTo(FAIL))	 
+
+  def GetFixableDeferredTimeouts(self):	 
+    return (self._fixable.GetNonSkippedDeferred() &	 
+            self._fixable.GetTestsExpectedTo(TIMEOUT))
 
   def GetIgnored(self):
     return self._ignored.GetTests()
@@ -72,10 +90,12 @@ class TestExpectations:
     return set([PASS])
 
   def IsFixable(self, test):
-    return self._fixable.Contains(test)
+    return (self._fixable.Contains(test) and
+            test not in self._fixable.GetNonSkippedDeferred())
 
   def IsIgnored(self, test):
-    return self._ignored.Contains(test)
+    return (self._ignored.Contains(test) and
+            test not in self._fixable.GetNonSkippedDeferred())
 
   def _ReadFiles(self):
     self._fixable = self._GetExpectationsFile(self.FIXABLE)
@@ -133,9 +153,10 @@ class TestExpectationsFile:
     DEBUG : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
     DEBUG SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
     LINUX DEBUG SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
-    LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
+    DEFER LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 
   SKIP: Doesn't run the test.
+  DEFER: Test does not count in our statistics for the current release.
   DEBUG: Expectations apply only to the debug build.
   RELEASE: Expectations apply only to release build.
   LINUX/WIN/MAC: Expectations apply only to these platforms.
@@ -163,6 +184,8 @@ class TestExpectationsFile:
     
     self._full_test_list = full_test_list
     self._skipped = set()
+    self._skipped_deferred = set()	 
+    self._non_skipped_deferred = set()
     self._expectations = {}
     self._test_list_paths = {}
     self._tests = {}
@@ -175,6 +198,12 @@ class TestExpectationsFile:
 
   def GetSkipped(self):
     return self._skipped
+
+  def GetNonSkippedDeferred(self):	 
+    return self._non_skipped_deferred	 
+ 	 
+  def GetSkippedDeferred(self):	 
+    return self._skipped_deferred
 
   def GetExpectations(self, test):
     return self._expectations[test]
@@ -225,11 +254,13 @@ class TestExpectationsFile:
       if line.find(':') is -1:
         test_and_expectations = line
         is_skipped = False
+        is_deferred = False
       else:
         parts = line.split(':')
         test_and_expectations = parts[1]
         options = self._GetOptionsList(parts[0])
         is_skipped = 'skip' in options
+        is_deferred = 'defer' in options
         if 'release' in options or 'debug' in options:
           if self._is_debug_mode and 'debug' not in options:
             continue
@@ -266,9 +297,10 @@ class TestExpectationsFile:
         tests = self._ExpandTests(test_list_path)
 
       if is_skipped:    
-        self._AddSkippedTests(tests)
+        self._AddSkippedTests(tests, is_deferred)
       else:
-        self._AddTests(tests, expectations, test_list_path, lineno)
+        self._AddTests(tests, expectations, test_list_path, lineno,
+            is_deferred)
 
     if len(self._errors) is not 0:
       print "\nFAILURES FOR PLATFORM: %s, IS_DEBUG_MODE: %s" \
@@ -302,7 +334,8 @@ class TestExpectationsFile:
       if test.startswith(path): result.append(test)
     return result
 
-  def _AddTests(self, tests, expectations, test_list_path, lineno):
+  def _AddTests(self, tests, expectations, test_list_path, lineno,
+      is_deferred):
     for test in tests:
       if test in self._test_list_paths:
         prev_base_path = self._test_list_paths[test]
@@ -323,11 +356,18 @@ class TestExpectationsFile:
       self._expectations[test] = expectations
       self._test_list_paths[test] = os.path.normpath(test_list_path)
 
+      if is_deferred:	 
+        self._non_skipped_deferred.add(test)
+
       for expectation in expectations:
+        if expectation == CRASH and is_deferred:
+          self._AddError(lineno, 'Crashes cannot be deferred.', test)
         self._tests[expectation].add(test)
  
-  def _AddSkippedTests(self, tests):
+  def _AddSkippedTests(self, tests, is_deferred):
     for test in tests:
+      if is_deferred:	 
+        self._skipped_deferred.add(test)
       self._skipped.add(test)
 
   def _AddError(self, lineno, msg, path):

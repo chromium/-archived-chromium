@@ -219,16 +219,22 @@ class TestRunner:
     else:
       logging.info('Run: %d tests' % len(self._test_files))
 
+    logging.info('Deferred: %d tests' % 
+                 len(self._expectations.GetFixableDeferred()))
     logging.info('Expected passes: %d tests' %
                  len(self._test_files -
                      self._expectations.GetFixable() -
                      self._expectations.GetIgnored()))
-    logging.info(('Expected failures: %d fixable, %d ignored') %
+    logging.info(('Expected failures: %d fixable, %d ignored '
+                  'and %d deferred tests') %
                  (len(self._expectations.GetFixableFailures()),
-                  len(self._expectations.GetIgnoredFailures())))
-    logging.info(('Expected timeouts: %d fixable, %d ignored') %
+                  len(self._expectations.GetIgnoredFailures()),
+                  len(self._expectations.GetFixableDeferredFailures())))
+    logging.info(('Expected timeouts: %d fixable, %d ignored '
+                  'and %d deferred tests') %
                  (len(self._expectations.GetFixableTimeouts()),
-                  len(self._expectations.GetIgnoredTimeouts())))
+                  len(self._expectations.GetIgnoredTimeouts()),
+                  len(self._expectations.GetFixableDeferredTimeouts())))
     logging.info('Expected crashes: %d fixable tests' %
                  len(self._expectations.GetFixableCrashes()))
 
@@ -395,9 +401,11 @@ class TestRunner:
     """
 
     failure_counts = {}
+    deferred_counts = {}
     fixable_counts = {}
     non_ignored_counts = {}
     fixable_failures = set()
+    deferred_failures = set()
     non_ignored_failures = set()
 
     # Aggregate failures in a dictionary (TestFailure -> frequency),
@@ -420,20 +428,31 @@ class TestRunner:
 
     # Print breakdown of tests we need to fix and want to pass.
     # Include skipped fixable tests in the statistics.
-    skipped = self._expectations.GetFixableSkipped().copy()
+    skipped = (self._expectations.GetFixableSkipped() -
+        self._expectations.GetFixableSkippedDeferred())
 
-    self._PrintResultSummary("=> Tests to be fixed",
+    self._PrintResultSummary("=> Tests to be fixed for the current release",
                              self._expectations.GetFixable(),
                              fixable_failures,
                              fixable_counts,
-                             skipped, output)
+                             skipped,
+                             output)
 
-    self._PrintResultSummary("=> Tests we want to pass",
+    self._PrintResultSummary("=> Tests we want to pass for the current release",
                              (self._test_files -
-                              self._expectations.GetIgnored()),
+                              self._expectations.GetIgnored() -
+                              self._expectations.GetFixableDeferred()),
                              non_ignored_failures,
                              non_ignored_counts,
-                             skipped, output)
+                             skipped,
+                             output)
+
+    self._PrintResultSummary("=> Tests to be fixed for a future release",	 
+                             self._expectations.GetFixableDeferred(),	 
+                             deferred_failures,	 
+                             deferred_counts,	 
+                             self._expectations.GetFixableSkippedDeferred(),
+                             output)
 
     # Print breakdown of all tests including all skipped tests.
     skipped |= self._expectations.GetIgnoredSkipped()
@@ -441,7 +460,8 @@ class TestRunner:
                              self._test_files,
                              test_failures,
                              failure_counts,
-                             skipped, output)
+                             skipped,
+                             output)
     print
 
   def _PrintResultSummary(self, heading, all, failed, failure_counts, skipped,
