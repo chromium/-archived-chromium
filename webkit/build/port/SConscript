@@ -572,13 +572,15 @@ def create_h_wrapper(target, source, env):
 
 # TODO(sgk):  make this a real pseudo-Builder
 def BuildYacc(env, dir, name, file):
-  env.Command(['$DERIVED_DIR/%s.cpp' % file,
-               '$DERIVED_DIR/%s.h'   % file],
-              ['$PORT_DIR/%s/%s.y' % (dir, file)],
-              ['$YACC -d -p %s ${SOURCES[0].posix} ' % name +
-                 '-o ${TARGET.posix}',
-               Action(create_h_wrapper),
-               Delete('${TARGETS[1]}pp')])
+  yacc_env = env.Clone()
+  yacc_env['YACC'] = env.Detect('bison') or 'yacc'
+  yacc_env.Command(['$DERIVED_DIR/%s.cpp' % file,
+                    '$DERIVED_DIR/%s.h'   % file],
+                   ['$PORT_DIR/%s/%s.y' % (dir, file)],
+                   ['$YACC -d -p %s ${SOURCES[0].posix} ' % name +
+                      '-o ${TARGET.posix}',
+                    Action(create_h_wrapper),
+                    Delete('${TARGETS[1]}pp')])
 
 BuildYacc(env, 'xml', 'xpathyy', 'XPathGrammar')
 BuildYacc(env, 'css', 'cssyy',   'CSSGrammar')

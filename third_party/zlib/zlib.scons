@@ -63,6 +63,14 @@ if env.Bit('windows'):
       'contrib/minizip/iowin32.h',
   ])
 
+if env.Bit('posix'):
+  env.Append(
+      CCFLAGS = [
+          '-Wno-parentheses',
+          '-Wno-unused-variable',
+      ],
+  )
+
 env.ChromeLibrary('zlib', input_files)
 
 p = env.ChromeMSVSProject('zlib.vcproj',
