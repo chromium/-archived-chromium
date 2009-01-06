@@ -321,8 +321,8 @@ WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 // Bug: 1007391
 // These hit a not-implemented code-path in @font-face code
 // Fixing this should not be required for beta.
-LINUX WIN : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
-LINUX WIN : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
+LINUX : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
+LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 
 // Bug: 1110028
 // The v8 bindings allow shadowing of all properties on the global object.  If you use 
