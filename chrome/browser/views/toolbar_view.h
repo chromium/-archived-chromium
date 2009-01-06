@@ -103,8 +103,12 @@ class BrowserToolbarView : public views::View,
   // first accessible child, based on the above policy.
   int GetNextAccessibleViewIndex(int view_index, bool nav_left);
 
-  views::View* GetAccFocusedChildView() {
+  views::View* acc_focused_view() {
     return acc_focused_view_;
+  }
+
+  void set_acc_focused_view(views::View* acc_focused_view) {
+    acc_focused_view_ = acc_focused_view;
   }
 
   // Returns the selected tab.

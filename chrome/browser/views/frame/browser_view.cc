@@ -501,6 +501,9 @@ void BrowserView::UpdateToolbar(TabContents* contents,
 }
 
 void BrowserView::FocusToolbar() {
+  // Do not restore the button that previously had accessibility focus, if
+  // focus is set by using the toolbar focus keyboard shortcut.
+  toolbar_->set_acc_focused_view(NULL);
   toolbar_->RequestFocus();
 }
 

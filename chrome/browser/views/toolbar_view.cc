@@ -343,28 +343,35 @@ void BrowserToolbarView::Layout() {
 }
 
 void BrowserToolbarView::DidGainFocus() {
-  // Find first accessible child (-1 for start search at parent).
-  int first_acc_child = GetNextAccessibleViewIndex(-1, false);
+  // Check to see if MSAA focus should be restored to previously focused button,
+  // and if button is an enabled, visibled child of toolbar.
+  if (!acc_focused_view() ||
+      (acc_focused_view()->GetParent()->GetID() != VIEW_ID_TOOLBAR) ||
+      !acc_focused_view()->IsEnabled() ||
+      !acc_focused_view()->IsVisible()) {
+    // Find first accessible child (-1 to start search at parent).
+    int first_acc_child = GetNextAccessibleViewIndex(-1, false);
 
-  // No buttons enabled or visible.
-  if (first_acc_child == -1)
-    return;
+    // No buttons enabled or visible.
+    if (first_acc_child == -1)
+      return;
 
-  acc_focused_view_ = GetChildViewAt(first_acc_child);
+    set_acc_focused_view(GetChildViewAt(first_acc_child));
+  }
 
   // Default focus is on the toolbar.
   int view_index = VIEW_ID_TOOLBAR;
 
   // Set hot-tracking for child, and update focused_view for MSAA focus event.
-  if (acc_focused_view_) {
-    acc_focused_view_->SetHotTracked(true);
+  if (acc_focused_view()) {
+    acc_focused_view()->SetHotTracked(true);
 
     // Show the tooltip for the view that got the focus.
     if (GetWidget()->GetTooltipManager())
       GetWidget()->GetTooltipManager()->ShowKeyboardTooltip(acc_focused_view_);
 
     // Update focused_view with MSAA-adjusted child id.
-    view_index = acc_focused_view_->GetID();
+    view_index = acc_focused_view()->GetID();
   }
 
   HWND hwnd = GetWidget()->GetHWND();
@@ -375,12 +382,13 @@ void BrowserToolbarView::DidGainFocus() {
 }
 
 void BrowserToolbarView::WillLoseFocus() {
-  // Resetting focus state.
-  acc_focused_view_->SetHotTracked(false);
+  if (acc_focused_view()) {
+    // Resetting focus state.
+    acc_focused_view()->SetHotTracked(false);
+  }
   // Any tooltips that are active should be hidden when toolbar loses focus.
   if (GetWidget() && GetWidget()->GetTooltipManager())
     GetWidget()->GetTooltipManager()->HideKeyboardTooltip();
-  acc_focused_view_ = NULL;
 }
 
 bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
