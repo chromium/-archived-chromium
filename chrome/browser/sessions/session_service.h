@@ -12,6 +12,7 @@
 #include "chrome/browser/sessions/base_session_service.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/notification_registrar.h"
 
 class Browser;
 class NavigationController;
@@ -304,6 +305,8 @@ class SessionService : public BaseSessionService,
   static bool should_track_changes_for_browser_type(Browser::Type type) {
     return type == Browser::TYPE_NORMAL;
   }
+
+  NotificationRegistrar registrar_;
 
   // Maps from session tab id to the range of navigation entries that has
   // been written to disk.
