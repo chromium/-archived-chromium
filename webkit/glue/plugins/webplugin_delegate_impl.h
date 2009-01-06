@@ -8,12 +8,13 @@
 #include <string>
 #include <list>
 
+#include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "webkit/glue/webplugin_delegate.h"
 #include "third_party/npapi/bindings/npapi.h"
+#include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webcursor.h"
 
 namespace NPAPI {
@@ -24,7 +25,7 @@ namespace NPAPI {
 // the plugin process.
 class WebPluginDelegateImpl : public WebPluginDelegate {
  public:
-  static WebPluginDelegateImpl* Create(const std::wstring& filename,
+  static WebPluginDelegateImpl* Create(const FilePath& filename,
                                        const std::string& mime_type,
                                        gfx::NativeView containing_view);
   static bool IsPluginDelegateWindow(HWND window);
@@ -70,7 +71,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual void DidReceiveManualData(const char* buffer, int length);
   virtual void DidFinishManualLoading();
   virtual void DidManualLoadFail();
-  virtual std::wstring GetPluginPath();
+  virtual FilePath GetPluginPath();
   virtual void InstallMissingPlugin();
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,

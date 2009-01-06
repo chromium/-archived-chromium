@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/chrome_plugin_api.h"
@@ -20,10 +21,10 @@ class MessageLoop;
 // issues a NOTIFY_CHROME_PLUGIN_UNLOADED notification.
 class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
  public:
-  static ChromePluginLib* Create(const std::wstring& filename,
+  static ChromePluginLib* Create(const FilePath& filename,
                                  const CPBrowserFuncs* bfuncs);
-  static ChromePluginLib* Find(const std::wstring& filename);
-  static void Destroy(const std::wstring& filename);
+  static ChromePluginLib* Find(const FilePath& filename);
+  static void Destroy(const FilePath& filename);
   static bool IsPluginThread();
   static MessageLoop* GetPluginThreadLoop();
 
@@ -49,7 +50,7 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
 
   CPID cpid() { return reinterpret_cast<CPID>(this); }
 
-  const std::wstring& filename() { return filename_; }
+  const FilePath& filename() { return filename_; }
 
   // Plugin API functions
 
@@ -62,7 +63,7 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
  private:
   friend class base::RefCounted<ChromePluginLib>;
 
-  ChromePluginLib(const std::wstring& filename);
+  ChromePluginLib(const FilePath& filename);
   ~ChromePluginLib();
 
   // Method to initialize a Plugin.
@@ -79,20 +80,20 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
   // Unloading the plugin DLL.
   void Unload();
 
-  std::wstring     filename_;         // the path to the DLL
-  HMODULE          module_;           // the opened DLL handle
-  bool             initialized_;      // is the plugin initialized
+  FilePath filename_;  // the path to the DLL
+  HMODULE module_;  // the opened DLL handle
+  bool initialized_;  // is the plugin initialized
 
   // DLL exports, looked up by name.
-  CP_VersionNegotiateFunc  CP_VersionNegotiate_;
-  CP_InitializeFunc       CP_Initialize_;
+  CP_VersionNegotiateFunc CP_VersionNegotiate_;
+  CP_InitializeFunc CP_Initialize_;
 
   // Additional function pointers provided by the plugin.
-  CPPluginFuncs    plugin_funcs_;
+  CPPluginFuncs plugin_funcs_;
 
   // Used for unit tests.
   typedef int (STDCALL *CP_TestFunc)(void*);
-  CP_TestFunc             CP_Test_;
+  CP_TestFunc CP_Test_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromePluginLib);
 };

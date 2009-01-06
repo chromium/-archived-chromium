@@ -207,7 +207,8 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
                                         char** argv, int argc,
                                         WebPlugin* plugin,
                                         bool load_manually) {
-  std::wstring channel_name, plugin_path;
+  std::wstring channel_name;
+  FilePath plugin_path;
   if (!g_render_thread->Send(new ViewHostMsg_OpenChannelToPlugin(
           url, mime_type_, clsid_, webkit_glue::GetWebKitLocale(),
           &channel_name, &plugin_path)))
@@ -308,7 +309,7 @@ void WebPluginDelegateProxy::DidManualLoadFail() {
   Send(new PluginMsg_DidManualLoadFail(instance_id_));
 }
 
-std::wstring WebPluginDelegateProxy::GetPluginPath() {
+FilePath WebPluginDelegateProxy::GetPluginPath() {
   return plugin_path_;
 }
 

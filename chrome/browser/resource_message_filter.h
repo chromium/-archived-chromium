@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
 
 #include "base/clipboard.h"
+#include "base/file_path.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
@@ -92,9 +93,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetCookies(const GURL& url, const GURL& policy_url,
                     std::string* cookies);
   void OnGetDataDir(std::wstring* data_dir);
-  void OnPluginMessage(const std::wstring& dll_path,
+  void OnPluginMessage(const FilePath& plugin_path,
                        const std::vector<uint8>& message);
-  void OnPluginSyncMessage(const std::wstring& dll_path,
+  void OnPluginSyncMessage(const FilePath& plugin_path,
                            const std::vector<uint8>& message,
                            std::vector<uint8> *retval);
 
@@ -107,7 +108,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetPluginPath(const GURL& url,
                        const std::string& mime_type,
                        const std::string& clsid,
-                       std::wstring* filename,
+                       FilePath* filename,
                        std::string* actual_mime_type);
   void OnOpenChannelToPlugin(const GURL& url,
                              const std::string& mime_type,

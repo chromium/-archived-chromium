@@ -15,6 +15,7 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "base/task.h"
+#include "net/base/mime_util.h"
 #include "webkit/activex_shim/npp_impl.h"
 #include "webkit/default_plugin/plugin_main.h"
 #include "webkit/glue/glue_util.h"
@@ -23,7 +24,6 @@
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_host.h"
 #include "webkit/glue/plugins/plugin_list.h"
-#include "net/base/mime_util.h"
 
 
 namespace NPAPI
@@ -34,14 +34,22 @@ const char kPluginInstancesActiveCounter[] = "PluginInstancesActive";
 
 PluginLib::PluginMap* PluginLib::loaded_libs_;
 
-PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
+PluginLib* PluginLib::CreatePluginLib(const FilePath& filename) {
+  // For Windows we have a bit of a problem in that we might have the same path
+  // cased differently for two different plugin load paths. Therefore we do a
+  // quick lowercase for canonicalization's sake. WARNING: If you clone this
+  // file for other platforms, remove this lowercasing. This is *wrong* for
+  // other platforms (and arguably the wrong way to do it for Windows too, but
+  // let's not get into that here).
+  FilePath filename_lc(StringToLowerASCII(filename.value()));
+
   // We can only have one PluginLib object per plugin as it controls the per
   // instance function calls (i.e. NP_Initialize and NP_Shutdown).  So we keep
   // a (non-ref counted) map of PluginLib objects.
   if (!loaded_libs_)
     loaded_libs_ = new PluginMap();
 
-  PluginMap::const_iterator iter = loaded_libs_->find(filename);
+  PluginMap::const_iterator iter = loaded_libs_->find(filename_lc);
   if (iter != loaded_libs_->end())
     return iter->second;
 
@@ -91,23 +99,24 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
 
   WebPluginInfo* info = NULL;
   const InternalPluginInfo* internal_plugin_info = NULL;
-  if (!_wcsicmp(filename.c_str(),
+  if (!_wcsicmp(filename.value().c_str(),
                 activex_shim_info_generic.version_info.file_name.c_str())) {
     info = CreateWebPluginInfo(activex_shim_info_generic.version_info);
     internal_plugin_info = &activex_shim_info_generic;
-  } else if (!_wcsicmp(filename.c_str(),
+  } else if (!_wcsicmp(filename.value().c_str(),
                        activex_shim_wmplayer.version_info.file_name.c_str())) {
     info = CreateWebPluginInfo(activex_shim_wmplayer.version_info);
     internal_plugin_info = &activex_shim_wmplayer;
   } else if (!_wcsicmp(
-                 filename.c_str(),
+                 filename.value().c_str(),
                  default_plugin_info.version_info.file_name.c_str())) {
     info = CreateWebPluginInfo(default_plugin_info.version_info);
     internal_plugin_info = &default_plugin_info;
   } else {
-    info = ReadWebPluginInfo(filename);
+    info = ReadWebPluginInfo(filename_lc);
     if (!info) {
-      DLOG(INFO) << "This file isn't a valid NPAPI plugin: " << filename;
+      DLOG(INFO) << "This file isn't a valid NPAPI plugin: "
+                 << filename.value();
       return NULL;
     }
   }
@@ -281,21 +290,20 @@ bool PluginLib::Load() {
   return rv;
 }
 
-HMODULE PluginLib::LoadPluginHelper(const std::wstring plugin_file) {
+HMODULE PluginLib::LoadPluginHelper(const FilePath plugin_file) {
   // Switch the current directory to the plugin directory as the plugin
   // may have dependencies on dlls in this directory.
   bool restore_directory = false;
   std::wstring current_directory;
   if (PathService::Get(base::DIR_CURRENT, &current_directory)) {
-    std::wstring plugin_path = file_util::GetDirectoryFromPath(
-        plugin_file);
-    if (!plugin_path.empty()) {
-      PathService::SetCurrentDirectory(plugin_path);
+    FilePath plugin_path = plugin_file.DirName();
+    if (!plugin_path.value().empty()) {
+      PathService::SetCurrentDirectory(plugin_path.value());
       restore_directory = true;
     }
   }
 
-  HMODULE module = LoadLibrary(plugin_file.c_str());
+  HMODULE module = LoadLibrary(plugin_file.value().c_str());
   if (restore_directory)
     PathService::SetCurrentDirectory(current_directory);
 
@@ -376,7 +384,7 @@ WebPluginInfo* PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi) {
   info->name = pvi.product_name;
   info->desc = pvi.file_description;
   info->version = pvi.file_version;
-  info->file = StringToLowerASCII(pvi.file_name);
+  info->file = FilePath(pvi.file_name);
 
   for (size_t i = 0; i < mime_types.size(); ++i) {
     WebPluginMimeType mime_type;
@@ -403,14 +411,14 @@ WebPluginInfo* PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi) {
   return info;
 }
 
-WebPluginInfo* PluginLib::ReadWebPluginInfo(const std::wstring &filename) {
+WebPluginInfo* PluginLib::ReadWebPluginInfo(const FilePath &filename) {
   // On windows, the way we get the mime types for the library is
   // to check the version information in the DLL itself.  This
   // will be a string of the format:  <type1>|<type2>|<type3>|...
   // For example:
   //     video/quicktime|audio/aiff|image/jpeg
   scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfo(filename));
+      FileVersionInfo::CreateFileVersionInfo(filename.value()));
   if (!version_info.get())
     return NULL;
 
@@ -421,7 +429,7 @@ WebPluginInfo* PluginLib::ReadWebPluginInfo(const std::wstring &filename) {
   pvi.product_name = version_info->product_name();
   pvi.file_description = version_info->file_description();
   pvi.file_version = version_info->file_version();
-  pvi.file_name = filename;
+  pvi.file_name = filename.value();
 
   return CreateWebPluginInfo(pvi);
 }

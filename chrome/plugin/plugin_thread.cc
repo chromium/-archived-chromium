@@ -77,7 +77,7 @@ void PluginThread::Init() {
 
   // Preload the dll to avoid loading, unloading then reloading
   preloaded_plugin_module_ = NPAPI::PluginLib::LoadPluginHelper(
-      plugin_process_->plugin_path().c_str());
+      plugin_process_->plugin_path());
 
   ChromePluginLib::Create(plugin_process_->plugin_path(),
                           GetCPBrowserFuncsForPlugin());

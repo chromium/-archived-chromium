@@ -74,7 +74,7 @@ bool FilePath::IsSeparator(CharType character) {
 }
 
 // libgen's dirname and basename aren't guaranteed to be thread-safe and aren't
-// guaranteed to not modify their input strings, and in fact are implmeneted
+// guaranteed to not modify their input strings, and in fact are implemented
 // differently in this regard on different platforms.  Don't use them, but
 // adhere to their behavior.
 FilePath FilePath::DirName() const {

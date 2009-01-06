@@ -288,7 +288,7 @@ class WebContents : public TabContents,
   virtual GURL GetAlternateErrorPageURL() const;
   virtual WebPreferences GetWebkitPrefs();
   virtual void OnMissingPluginStatus(int status);
-  virtual void OnCrashedPlugin(const std::wstring& plugin_path);
+  virtual void OnCrashedPlugin(const FilePath& plugin_path);
   virtual void OnJSOutOfMemory();
   virtual void ShouldClosePage(bool proceed) {
     render_manager_.ShouldClosePage(proceed);

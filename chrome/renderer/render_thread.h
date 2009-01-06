@@ -5,6 +5,7 @@
 #ifndef CHROME_RENDERER_RENDER_THREAD_H_
 #define CHROME_RENDERER_RENDER_THREAD_H_
 
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "base/task.h"
@@ -97,7 +98,7 @@ class RenderThread : public IPC::Channel::Listener,
   void OnUpdateVisitedLinks(base::SharedMemoryHandle table);
   void OnUpdateGreasemonkeyScripts(base::SharedMemoryHandle table);
 
-  void OnPluginMessage(const std::wstring& dll_path,
+  void OnPluginMessage(const FilePath& plugin_path,
                        const std::vector<uint8>& data);
   void OnSetNextPageID(int32 next_page_id);
   void OnCreateNewView(HWND parent_hwnd,

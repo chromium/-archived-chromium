@@ -48,20 +48,20 @@ static const char kDefaultPluginFinderURL[] =
 class PluginNotificationTask : public Task {
  public:
   PluginNotificationTask(NotificationType notification_type,
-                         std::wstring dll_path,
+                         FilePath dll_path,
                          HANDLE process);
 
   virtual void Run();
 
  private:
   NotificationType notification_type_;
-  std::wstring dll_path_;
+  FilePath dll_path_;
   HANDLE process_;
 };
 
 PluginNotificationTask::PluginNotificationTask(
     NotificationType notification_type,
-    std::wstring dll_path,
+    FilePath dll_path,
     HANDLE process)
     : notification_type_(notification_type),
       process_(process),
@@ -361,12 +361,12 @@ PluginProcessHost::~PluginProcessHost() {
   }
 }
 
-bool PluginProcessHost::Init(const std::wstring& dll,
+bool PluginProcessHost::Init(const FilePath& dll,
                              const std::string& activex_clsid,
                              const std::wstring& locale) {
   DCHECK(channel_.get() == NULL);
 
-  dll_path_ = dll;
+  plugin_path_ = dll;
   channel_id_ = GenerateRandomChannelID(this);
   channel_.reset(new IPC::Channel(channel_id_,
                                   IPC::Channel::MODE_SERVER,
@@ -439,7 +439,7 @@ bool PluginProcessHost::Init(const std::wstring& dll,
 
   CommandLine::AppendSwitchWithValue(&cmd_line,
                                      switches::kPluginPath,
-                                     dll);
+                                     dll.ToWStringHack());
 
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox) &&
                     browser_command_line.HasSwitch(switches::kSafePlugins);
@@ -492,12 +492,11 @@ bool PluginProcessHost::Init(const std::wstring& dll,
 
   watcher_.StartWatching(process_.handle(), this);
 
-  std::wstring gears_path;
-  std::wstring dll_lc = dll;
+  FilePath gears_path;
   if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_path)) {
-    StringToLowerASCII(&gears_path);
-    StringToLowerASCII(&dll_lc);
-    if (dll_lc == gears_path) {
+    FilePath::StringType gears_path_lc = StringToLowerASCII(gears_path.value());
+    FilePath::StringType dll_lc = StringToLowerASCII(dll.value());
+    if (dll_lc == gears_path_lc) {
       // Give Gears plugins "background" priority.  See
       // http://b/issue?id=1280317.
       process_.SetProcessBackgrounded(true);
@@ -528,12 +527,12 @@ void PluginProcessHost::OnObjectSignaled(HANDLE object) {
     // Report that this plugin crashed.
     plugin_service_->main_message_loop()->PostTask(FROM_HERE,
         new PluginNotificationTask(NOTIFY_PLUGIN_PROCESS_CRASHED,
-                                   dll_path(), object));
+                                   plugin_path(), object));
   }
   // Notify in the main loop of the disconnection.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
       new PluginNotificationTask(NOTIFY_PLUGIN_PROCESS_HOST_DISCONNECTED,
-                                 dll_path(), object));
+                                 plugin_path(), object));
 
   // Cancel all requests for plugin processes.
   // TODO(mpcomplete): use a real process ID when http://b/issue?id=1210062 is
@@ -601,7 +600,7 @@ void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
   // Notify in the main loop of the connection.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
       new PluginNotificationTask(NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED,
-                                 dll_path(), process()));
+                                 plugin_path(), process()));
 }
 
 void PluginProcessHost::OnChannelError() {
@@ -609,7 +608,7 @@ void PluginProcessHost::OnChannelError() {
   for (size_t i = 0; i < pending_requests_.size(); ++i) {
     ReplyToRenderer(pending_requests_[i].renderer_message_filter_.get(),
                     std::wstring(),
-                    std::wstring(),
+                    FilePath(),
                     pending_requests_[i].reply_msg);
   }
 
@@ -623,7 +622,7 @@ void PluginProcessHost::OpenChannelToPlugin(
   // Notify in the main loop of the instantiation.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
       new PluginNotificationTask(NOTIFY_PLUGIN_INSTANCE_CREATED,
-                                 dll_path(), process()));
+                                 plugin_path(), process()));
 
   if (opening_channel_) {
     pending_requests_.push_back(
@@ -633,7 +632,7 @@ void PluginProcessHost::OpenChannelToPlugin(
 
   if (!channel_.get()) {
     // There was an error opening the channel, tell the renderer.
-    ReplyToRenderer(renderer_message_filter, std::wstring(), std::wstring(),
+    ReplyToRenderer(renderer_message_filter, std::wstring(), FilePath(),
                     reply_msg);
     return;
   }
@@ -732,7 +731,7 @@ void PluginProcessHost::OnResolveProxy(const GURL& url,
 
 void PluginProcessHost::ReplyToRenderer(
     ResourceMessageFilter* renderer_message_filter,
-    const std::wstring& channel, const std::wstring& plugin_path,
+    const std::wstring& channel, const FilePath& plugin_path,
     IPC::Message* reply_msg) {
   ViewHostMsg_OpenChannelToPlugin::WriteReplyParams(reply_msg, channel,
                                                     plugin_path);
@@ -765,7 +764,7 @@ void PluginProcessHost::RequestPluginChannel(
     sent_requests_.push_back(ChannelRequest(renderer_message_filter, mime_type,
                              reply_msg));
   } else {
-    ReplyToRenderer(renderer_message_filter, std::wstring(), std::wstring(),
+    ReplyToRenderer(renderer_message_filter, std::wstring(), FilePath(),
                     reply_msg);
   }
 }
@@ -777,7 +776,7 @@ void PluginProcessHost::OnChannelCreated(int process_id,
         == process_id) {
       ReplyToRenderer(sent_requests_[i].renderer_message_filter_.get(),
                       channel_name,
-                      dll_path(),
+                      plugin_path(),
                       sent_requests_[i].reply_msg);
 
       sent_requests_.erase(sent_requests_.begin() + i);
@@ -825,7 +824,7 @@ void PluginProcessHost::OnPluginMessage(
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path_);
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path_);
   if (chrome_plugin) {
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());

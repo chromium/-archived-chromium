@@ -6,6 +6,8 @@
 #define CHROME_BROWSER_SANDBOX_POLICY_H_
 
 #include <string>
+
+#include "base/file_path.h"
 #include "sandbox/src/sandbox.h"
 #include "webkit/activex_shim/activex_shared.h"
 
@@ -23,7 +25,7 @@ bool AddPolicyForGearsInRenderer(sandbox::TargetPolicy* policy);
 // |trusted_plugins| contains the comma separate list of plugins that should
 // not be sandboxed. The plugin in the list can be either the plugin dll name
 // of the class id if it's an ActiveX.
-bool AddPolicyForPlugin(const std::wstring &plugin_dll,
+bool AddPolicyForPlugin(const FilePath &plugin_dll,
                         const std::string &activex_clsid,
                         const std::wstring &trusted_plugins,
                         sandbox::TargetPolicy* policy);
@@ -35,7 +37,7 @@ enum PluginPolicyCategory {
 
 // Returns the policy category for the plugin dll.
 PluginPolicyCategory GetPolicyCategoryForPlugin(
-    const std::wstring& plugin_dll,
+    const FilePath& plugin_dll,
     const std::wstring& activex_clsid,
     const std::wstring& trusted_plugins);
 

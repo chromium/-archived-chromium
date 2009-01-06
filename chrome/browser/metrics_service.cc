@@ -158,6 +158,7 @@
 
 #include "chrome/browser/metrics_service.h"
 
+#include "base/file_path.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -1507,7 +1508,7 @@ void MetricsService::LogRendererHang() {
 void MetricsService::LogPluginChange(NotificationType type,
                                      const NotificationSource& source,
                                      const NotificationDetails& details) {
-  std::wstring plugin = Details<PluginProcessInfo>(details)->dll_path();
+  FilePath plugin = Details<PluginProcessInfo>(details)->plugin_path();
 
   if (plugin_stats_buffer_.find(plugin) == plugin_stats_buffer_.end()) {
     plugin_stats_buffer_[plugin] = PluginStats();
@@ -1591,13 +1592,14 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
     }
 
     DictionaryValue* plugin_dict = static_cast<DictionaryValue*>(*value_iter);
-    std::wstring plugin_path;
-    plugin_dict->GetString(prefs::kStabilityPluginPath, &plugin_path);
-    if (plugin_path.empty()) {
+    FilePath::StringType plugin_path_str;
+    plugin_dict->GetString(prefs::kStabilityPluginPath, &plugin_path_str);
+    if (plugin_path_str.empty()) {
       NOTREACHED();
       continue;
     }
 
+    FilePath plugin_path(plugin_path_str);
     if (plugin_stats_buffer_.find(plugin_path) == plugin_stats_buffer_.end())
       continue;
 
@@ -1626,14 +1628,14 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
 
   // Now go through and add dictionaries for plugins that didn't already have
   // reports in Local State.
-  for (std::map<std::wstring, PluginStats>::iterator cache_iter =
+  for (std::map<FilePath, PluginStats>::iterator cache_iter =
            plugin_stats_buffer_.begin();
        cache_iter != plugin_stats_buffer_.end(); ++cache_iter) {
-    std::wstring plugin_path = cache_iter->first;
+    FilePath plugin_path = cache_iter->first;
     PluginStats stats = cache_iter->second;
     DictionaryValue* plugin_dict = new DictionaryValue;
 
-    plugin_dict->SetString(prefs::kStabilityPluginPath, plugin_path);
+    plugin_dict->SetString(prefs::kStabilityPluginPath, plugin_path.value());
     plugin_dict->SetInteger(prefs::kStabilityPluginLaunches,
                             stats.process_launches);
     plugin_dict->SetInteger(prefs::kStabilityPluginCrashes,

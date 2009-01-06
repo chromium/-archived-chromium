@@ -83,7 +83,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual void DidReceiveManualData(const char* buffer, int length);
   virtual void DidFinishManualLoading();
   virtual void DidManualLoadFail();
-  virtual std::wstring GetPluginPath();
+  virtual FilePath GetPluginPath();
   virtual void InstallMissingPlugin();
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,
@@ -154,7 +154,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   std::string mime_type_;
   std::string clsid_;
   int instance_id_;
-  std::wstring plugin_path_;
+  FilePath plugin_path_;
 
   gfx::Rect plugin_rect_;
   gfx::Rect deferred_clip_rect_;

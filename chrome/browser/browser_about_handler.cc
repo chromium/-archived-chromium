@@ -566,7 +566,7 @@ void AboutMemoryHandler::AppendProcess(ListValue* renderers,
       renderer->SetString(L"renderer_id", label);
       FileVersionInfo* version_info =
           FileVersionInfo::CreateFileVersionInfo(
-              (*plugins())[index].dll_path);
+              (*plugins())[index].plugin_path);
       if (version_info)
         name = version_info->product_name();
       ListValue* titles = new ListValue();

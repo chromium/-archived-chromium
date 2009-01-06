@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/process_util.h"
 #include "base/ref_counted.h"
 
@@ -44,7 +45,7 @@ typedef std::vector<ProcessMemoryInformation> ProcessMemoryInformationList;
 // Information that we need about a plugin process.
 struct PluginProcessInformation {
   int pid;
-  std::wstring dll_path;
+  FilePath plugin_path;
 };
 typedef std::vector<PluginProcessInformation> PluginProcessInformationList;
 

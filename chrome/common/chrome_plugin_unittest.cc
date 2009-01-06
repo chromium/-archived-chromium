@@ -17,7 +17,8 @@
 
 namespace {
 const wchar_t kDocRoot[] = L"chrome/test/data";
-const wchar_t kPluginFilename[] = L"test_chrome_plugin.dll";
+const FilePath::CharType kPluginFilename[] =
+    FILE_PATH_LITERAL("test_chrome_plugin.dll");
 
 class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
  public:
@@ -117,9 +118,9 @@ static void STDCALL CPT_InvokeLater(TestFuncParams::CallbackFunc callback,
 }
 
 void ChromePluginTest::LoadPlugin() {
-  std::wstring path;
+  FilePath path;
   PathService::Get(base::DIR_EXE, &path);
-  file_util::AppendToPath(&path, kPluginFilename);
+  path = path.Append(kPluginFilename);
   plugin_ = ChromePluginLib::Create(path, GetCPBrowserFuncsForBrowser());
 
   // Exchange test APIs with the plugin.

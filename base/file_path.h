@@ -69,10 +69,7 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-
-#if defined(COMPILER_GCC)
 #include "base/hash_tables.h"
-#endif
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid testing.  These #defines are
@@ -204,8 +201,8 @@ class FilePath {
 #define FILE_PATH_LITERAL(x) L ## x
 #endif  // OS_WIN
 
-#if defined(COMPILER_GCC)
 // Implement hash function so that we can use FilePaths in hashsets and maps.
+#if defined(COMPILER_GCC)
 namespace __gnu_cxx {
 
 template<>
@@ -216,6 +213,14 @@ struct hash<FilePath> {
 };
 
 }  // namespace __gnu_cxx
-#endif  // defined(COMPILER_GCC)
+#elif defined(COMPILER_MSVC)
+namespace stdext {
+
+inline size_t hash_value(const FilePath& f) {
+  return hash_value(f.value());
+}
+
+}  // namespace stdext
+#endif  // COMPILER
 
 #endif  // BASE_FILE_PATH_H_

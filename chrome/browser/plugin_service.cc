@@ -59,11 +59,11 @@ const std::wstring& PluginService::GetUILocale() {
   return ui_locale_;
 }
 
-PluginProcessHost* PluginService::FindPluginProcess(const std::wstring& dll) {
+PluginProcessHost* PluginService::FindPluginProcess(const FilePath& dll) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  if (dll.empty()) {
+  if (dll.value().empty()) {
     NOTREACHED() << "should only be called if we have a plugin dll to load";
     return NULL;
   }
@@ -75,7 +75,7 @@ PluginProcessHost* PluginService::FindPluginProcess(const std::wstring& dll) {
 }
 
 PluginProcessHost* PluginService::FindOrStartPluginProcess(
-    const std::wstring& dll,
+    const FilePath& dll,
     const std::string& clsid) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
@@ -106,14 +106,14 @@ void PluginService::OpenChannelToPlugin(
     const std::wstring& locale, IPC::Message* reply_msg) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
-  std::wstring dll = GetPluginPath(url, mime_type, clsid, NULL);
+  FilePath dll = GetPluginPath(url, mime_type, clsid, NULL);
   PluginProcessHost* plugin_host = FindOrStartPluginProcess(dll, clsid);
   if (plugin_host) {
     plugin_host->OpenChannelToPlugin(renderer_msg_filter, mime_type, reply_msg);
   } else {
     PluginProcessHost::ReplyToRenderer(renderer_msg_filter,
                                        std::wstring(),
-                                       std::wstring(),
+                                       FilePath(),
                                        reply_msg);
   }
 }
@@ -143,10 +143,10 @@ void PluginService::RemoveHost(PluginProcessHost* host) {
   }
 }
 
-std::wstring PluginService::GetPluginPath(const GURL& url,
-                                          const std::string& mime_type,
-                                          const std::string& clsid,
-                                          std::string* actual_mime_type) {
+FilePath PluginService::GetPluginPath(const GURL& url,
+                                      const std::string& mime_type,
+                                      const std::string& clsid,
+                                      std::string* actual_mime_type) {
   AutoLock lock(lock_);
   bool allow_wildcard = true;
   WebPluginInfo info;
@@ -156,7 +156,7 @@ std::wstring PluginService::GetPluginPath(const GURL& url,
   return info.file;
 }
 
-bool PluginService::GetPluginInfoByDllPath(const std::wstring& dll_path,
+bool PluginService::GetPluginInfoByDllPath(const FilePath& dll_path,
                                            WebPluginInfo* info) {
   AutoLock lock(lock_);
   return NPAPI::PluginList::Singleton()->GetPluginInfoByDllPath(dll_path, info);

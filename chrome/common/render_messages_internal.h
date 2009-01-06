@@ -55,7 +55,7 @@ IPC_BEGIN_MESSAGES(View, 1)
   // Allows a chrome plugin loaded in the browser process to send arbitrary
   // data to an instance of the same plugin loaded in a renderer process.
   IPC_MESSAGE_CONTROL2(ViewMsg_PluginMessage,
-                       std::wstring /* dll_path of plugin */,
+                       FilePath /* plugin_path of plugin */,
                        std::vector<uint8> /* opaque data */)
 
 #if defined(OS_WIN)
@@ -703,7 +703,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               GURL /* url */,
                               std::string /* mime_type */,
                               std::string /* clsid */,
-                              std::wstring /* filename */,
+                              FilePath /* filename */,
                               std::string /* actual mime type for url */)
 
   // Retrieve the data directory associated with the renderer's profile.
@@ -713,13 +713,13 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // Allows a chrome plugin loaded in a renderer process to send arbitrary
   // data to an instance of the same plugin loaded in the browser process.
   IPC_MESSAGE_CONTROL2(ViewHostMsg_PluginMessage,
-                       std::wstring /* dll_path of plugin */,
+                       FilePath /* plugin_path of plugin */,
                        std::vector<uint8> /* opaque data */)
 
   // Allows a chrome plugin loaded in a renderer process to send arbitrary
   // data to an instance of the same plugin loaded in the browser process.
   IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_PluginSyncMessage,
-                              std::wstring /* dll_path of plugin */,
+                              FilePath /* plugin_path of plugin */,
                               std::vector<uint8> /* opaque data */,
                               std::vector<uint8> /* opaque data */)
 
@@ -811,7 +811,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               std::string /* clsid */,
                               std::wstring /* locale */,
                               std::wstring /* channel_name */,
-                              std::wstring /* plugin_path */)
+                              FilePath /* plugin_path */)
 
   // Clipboard IPC messages
 
@@ -991,7 +991,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // Sent by the renderer process to indicate that a plugin instance has
   // crashed.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_CrashedPlugin,
-                      std::wstring /* plugin_path */)
+                      FilePath /* plugin_path */)
 
   // Dsiplays a JavaScript out-of-memory message in the infobar.
   IPC_MESSAGE_ROUTED0(ViewHostMsg_JSOutOfMemory)

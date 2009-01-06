@@ -81,7 +81,7 @@ void MemoryDetails::CollectPluginInformation() {
     PluginProcessInformation info;
     info.pid = base::GetProcId(plugin->process());
     if (info.pid != 0) {
-      info.dll_path = plugin->dll_path();
+      info.plugin_path = plugin->plugin_path();
       plugins_.push_back(info);
     }
   }

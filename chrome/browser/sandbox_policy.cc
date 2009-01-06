@@ -70,10 +70,10 @@ const wchar_t* const kTroublesomeDlls[] = {
 }  // namespace
 
 PluginPolicyCategory GetPolicyCategoryForPlugin(
-    const std::wstring& dll,
+    const FilePath& dll,
     const std::wstring& clsid,
     const std::wstring& list) {
-  std::wstring filename = file_util::GetFilenameFromPath(dll);
+  std::wstring filename = dll.BaseName().value();
   std::wstring plugin_dll = StringToLowerASCII(filename);
   std::wstring trusted_plugins = StringToLowerASCII(list);
   std::wstring activex_clsid = StringToLowerASCII(clsid);
@@ -297,7 +297,7 @@ bool ApplyPolicyForUntrustedPlugin(sandbox::TargetPolicy* policy) {
   return true;
 }
 
-bool AddPolicyForPlugin(const std::wstring &plugin_dll,
+bool AddPolicyForPlugin(const FilePath &plugin_dll,
                         const std::string &activex_clsid,
                         const std::wstring &trusted_plugins,
                         sandbox::TargetPolicy* policy) {

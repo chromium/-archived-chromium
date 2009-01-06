@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/tuple.h"
 #include "chrome/common/ipc_sync_message.h"
@@ -602,6 +603,24 @@ struct ParamTraits<POINT> {
   }
 };
 #endif  // defined(OS_WIN)
+
+template <>
+struct ParamTraits<FilePath> {
+  typedef FilePath param_type;
+  static void Write(Message* m, const param_type& p) {
+    ParamTraits<FilePath::StringType>::Write(m, p.value());
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    FilePath::StringType value;
+    if (!ParamTraits<FilePath::StringType>::Read(m, iter, &value))
+      return false;
+    *r = FilePath(value);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    ParamTraits<FilePath::StringType>::Log(p.value(), l);
+  }
+};
 
 template <>
 struct ParamTraits<gfx::Point> {

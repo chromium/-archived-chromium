@@ -16,7 +16,7 @@
 // Custom factory to allow us to pass additional ctor arguments.
 class PluginProcessFactory : public ChildProcessFactoryInterface {
  public:
-  explicit PluginProcessFactory(const std::wstring& plugin_path)
+  explicit PluginProcessFactory(const FilePath& plugin_path)
       : plugin_path_(plugin_path) {
   }
 
@@ -24,7 +24,7 @@ class PluginProcessFactory : public ChildProcessFactoryInterface {
     return new PluginProcess(channel_name, plugin_path_);
   }
 
-  const std::wstring& plugin_path_;
+  const FilePath& plugin_path_;
 };
 
 // How long to wait after there are no more plugin instances before killing the
@@ -40,7 +40,7 @@ template <> struct RunnableMethodTraits<PluginProcess> {
 };
 
 PluginProcess::PluginProcess(const std::wstring& channel_name,
-                             const std::wstring& plugin_path) :
+                             const FilePath& plugin_path) :
     plugin_path_(plugin_path),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
     plugin_thread_(this, channel_name) {
@@ -50,7 +50,7 @@ PluginProcess::~PluginProcess() {
 }
 
 bool PluginProcess::GlobalInit(const std::wstring &channel_name,
-                               const std::wstring &plugin_path) {
+                               const FilePath &plugin_path) {
   PluginProcessFactory factory(plugin_path);
   return ChildProcess::GlobalInit(channel_name, &factory);
 }

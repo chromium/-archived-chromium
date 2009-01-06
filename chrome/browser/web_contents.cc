@@ -1257,10 +1257,10 @@ void WebContents::OnMissingPluginStatus(int status) {
   GetPluginInstaller()->OnMissingPluginStatus(status);
 }
 
-void WebContents::OnCrashedPlugin(const std::wstring& plugin_path) {
-  DCHECK(!plugin_path.empty());
+void WebContents::OnCrashedPlugin(const FilePath& plugin_path) {
+  DCHECK(!plugin_path.value().empty());
 
-  std::wstring plugin_name = plugin_path;
+  std::wstring plugin_name = plugin_path.ToWStringHack();
   scoped_ptr<FileVersionInfo> version_info(
       FileVersionInfo::CreateFileVersionInfo(plugin_path));
   if (version_info.get()) {

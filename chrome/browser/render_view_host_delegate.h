@@ -335,7 +335,7 @@ class RenderViewHostDelegate {
   virtual void OnMissingPluginStatus(int status) { }
 
   // Notification from the renderer that a plugin instance has crashed.
-  virtual void OnCrashedPlugin(const std::wstring& plugin_path) { }
+  virtual void OnCrashedPlugin(const FilePath& plugin_path) { }
 
   // Notification from the renderer that JS runs out of memory.
   virtual void OnJSOutOfMemory() { }

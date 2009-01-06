@@ -249,7 +249,7 @@ std::wstring TaskManagerPluginProcessResource::GetTitle() const {
     std::wstring plugin_name;
     WebPluginInfo info;
     if (PluginService::GetInstance()->
-            GetPluginInfoByDllPath(plugin_process_.dll_path(), &info))
+            GetPluginInfoByDllPath(plugin_process_.plugin_path(), &info))
       plugin_name = info.name;
     else
       plugin_name = l10n_util::GetString(IDS_TASK_MANAGER_UNKNOWN_PLUGIN_NAME);
@@ -406,7 +406,7 @@ void TaskManagerPluginProcessResourceProvider::RetrievePluginProcessInfo() {
   for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
     PluginProcessHost* plugin = const_cast<PluginProcessHost*>(*iter);
     DCHECK(plugin->process());
-    PluginProcessInfo plugin_info(plugin->dll_path(), plugin->process());
+    PluginProcessInfo plugin_info(plugin->plugin_path(), plugin->process());
     existing_plugin_process_info.push_back(plugin_info);
   }
   // Now notify the UI thread that we have retrieved the PluginProcessHosts.

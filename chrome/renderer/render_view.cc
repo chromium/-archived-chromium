@@ -235,7 +235,7 @@ void RenderView::PluginDestroyed(WebPluginDelegateProxy* proxy) {
     first_default_plugin_ = NULL;
 }
 
-void RenderView::PluginCrashed(const std::wstring& plugin_path) {
+void RenderView::PluginCrashed(const FilePath& plugin_path) {
   Send(new ViewHostMsg_CrashedPlugin(routing_id_, plugin_path));
 }
 
@@ -1843,11 +1843,11 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     std::string* actual_mime_type) {
   bool is_gears = false;
   if (ShouldLoadPluginInProcess(mime_type, &is_gears)) {
-    std::wstring path;
+    FilePath path;
     render_thread_->Send(
         new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
                                       actual_mime_type));
-    if (path.empty())
+    if (path.value().empty())
       return NULL;
 
     std::string mime_type_to_use;
@@ -1858,7 +1858,8 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 
     if (is_gears)
       ChromePluginLib::Create(path, GetCPBrowserFuncsForRenderer());
-    return WebPluginDelegateImpl::Create(path, mime_type_to_use, host_window_);
+    return WebPluginDelegateImpl::Create(path,
+                                         mime_type_to_use, host_window_);
   }
 
   WebPluginDelegateProxy* proxy =

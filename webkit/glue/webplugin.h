@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/gfx/rect.h"
 
 typedef struct HWND__* HWND;
@@ -38,13 +39,13 @@ struct WebPluginInfo {
   // The name of the plugin (i.e. Flash).
   std::wstring name;
 
-  // The path to the dll.
-  std::wstring file;
+  // The path to the plugin file (DLL/bundle/library).
+  FilePath file;
 
   // The version number of the plugin file (may be OS-specific)
   std::wstring version;
 
-  // A description of the plugin that we get from it's version info.
+  // A description of the plugin that we get from its version info.
   std::wstring desc;
 
   // A list of all the mime types that this plugin supports.

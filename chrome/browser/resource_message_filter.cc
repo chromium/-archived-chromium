@@ -308,12 +308,12 @@ void ResourceMessageFilter::OnGetDataDir(std::wstring* data_dir) {
   *data_dir = plugin_service_->GetChromePluginDataDir();
 }
 
-void ResourceMessageFilter::OnPluginMessage(const std::wstring& dll_path,
+void ResourceMessageFilter::OnPluginMessage(const FilePath& plugin_path,
                                             const std::vector<uint8>& data) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path);
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
   if (chrome_plugin) {
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());
@@ -321,13 +321,13 @@ void ResourceMessageFilter::OnPluginMessage(const std::wstring& dll_path,
   }
 }
 
-void ResourceMessageFilter::OnPluginSyncMessage(const std::wstring& dll_path,
+void ResourceMessageFilter::OnPluginSyncMessage(const FilePath& plugin_path,
                                                 const std::vector<uint8>& data,
                                                 std::vector<uint8> *retval) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path);
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
   if (chrome_plugin) {
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());
@@ -398,7 +398,7 @@ void ResourceMessageFilter::OnGetPlugins(bool refresh,
 void ResourceMessageFilter::OnGetPluginPath(const GURL& url,
                                             const std::string& mime_type,
                                             const std::string& clsid,
-                                            std::wstring* filename,
+                                            FilePath* filename,
                                             std::string* url_mime_type) {
   *filename = plugin_service_->GetPluginPath(url, mime_type, clsid,
                                              url_mime_type);

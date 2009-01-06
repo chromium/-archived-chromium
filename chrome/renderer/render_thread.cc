@@ -175,10 +175,10 @@ void RenderThread::OnMessageReceived(const IPC::Message& msg) {
   }
 }
 
-void RenderThread::OnPluginMessage(const std::wstring& dll_path,
+void RenderThread::OnPluginMessage(const FilePath& plugin_path,
                                    const std::vector<uint8>& data) {
   CHECK(ChromePluginLib::IsPluginThread());
-  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path);
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
   if (chrome_plugin) {
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());

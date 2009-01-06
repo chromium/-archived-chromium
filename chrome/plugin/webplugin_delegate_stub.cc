@@ -124,7 +124,8 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   }
 
   CommandLine command_line;
-  std::wstring path = command_line.GetSwitchValue(switches::kPluginPath);
+  FilePath path =
+      FilePath(command_line.GetSwitchValue(switches::kPluginPath));
   delegate_ = WebPluginDelegateImpl::Create(
       path, mime_type_, params.containing_window);
   if (delegate_) {

@@ -50,8 +50,9 @@ int PluginMain(CommandLine &parsed_command_line,
 
   std::wstring channel_name =
       parsed_command_line.GetSwitchValue(switches::kProcessChannelID);
-  std::wstring plugin_path =
-      parsed_command_line.GetSwitchValue(switches::kPluginPath);
+  FilePath plugin_path =
+      FilePath::FromWStringHack(
+      parsed_command_line.GetSwitchValue(switches::kPluginPath));
   if (PluginProcess::GlobalInit(channel_name, plugin_path)) {
     if (!no_sandbox && target_services) {
       target_services->LowerToken();

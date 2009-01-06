@@ -57,13 +57,13 @@ class PluginService {
   // Returns the plugin process host corresponding to the plugin process that
   // has been started by this service. Returns NULL if no process has been
   // started.
-  PluginProcessHost* FindPluginProcess(const std::wstring& dll);
+  PluginProcessHost* FindPluginProcess(const FilePath& dll);
 
   // Returns the plugin process host corresponding to the plugin process that
   // has been started by this service. This will start a process to host the
   // 'dll' if needed. If the process fails to start, the return value is NULL.
   // Must be called on the IO thread.
-  PluginProcessHost* FindOrStartPluginProcess(const std::wstring& dll,
+  PluginProcessHost* FindOrStartPluginProcess(const FilePath& dll,
                                               const std::string& clsid);
 
   // Opens a channel to a plugin process for the given mime type, starting
@@ -85,13 +85,13 @@ class PluginService {
 
   bool HavePluginFor(const std::string& mime_type, bool allow_wildcard);
 
-  std::wstring GetPluginPath(const GURL& url,
-                             const std::string& mime_type,
-                             const std::string& clsid,
-                             std::string* actual_mime_type);
+  FilePath GetPluginPath(const GURL& url,
+                         const std::string& mime_type,
+                         const std::string& clsid,
+                         std::string* actual_mime_type);
 
   // Get plugin info by matching full dll path.
-  bool GetPluginInfoByDllPath(const std::wstring& dll_path,
+  bool GetPluginInfoByDllPath(const FilePath& dll_path,
                               WebPluginInfo* info);
 
   // Returns true if the plugin's mime-type supports a given mime-type.
@@ -121,7 +121,7 @@ class PluginService {
   void OnShutdown();
 
   // mapping between plugin dll path and PluginProcessHost
-  typedef base::hash_map<std::wstring, PluginProcessHost*> PluginMap;
+  typedef base::hash_map<FilePath, PluginProcessHost*> PluginMap;
   PluginMap plugin_hosts_;
 
   // The main thread's message loop.

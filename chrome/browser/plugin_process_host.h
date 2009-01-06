@@ -43,7 +43,7 @@ class PluginProcessHost : public IPC::Channel::Listener,
   // be called before the object can be used. If dll is the ActiveX-shim, then
   // activex_clsid is the class id of ActiveX control, otherwise activex_clsid
   // is ignored.
-  bool Init(const std::wstring& dll,
+  bool Init(const FilePath& dll,
             const std::string& activex_clsid,
             const std::wstring& locale);
 
@@ -68,13 +68,13 @@ class PluginProcessHost : public IPC::Channel::Listener,
                            const std::string& mime_type,
                            IPC::Message* reply_msg);
 
-  const std::wstring& dll_path() const { return dll_path_; }
+  const FilePath& plugin_path() const { return plugin_path_; }
 
   // Sends the reply to an open channel request to the renderer with the given
   // channel name.
   static void ReplyToRenderer(ResourceMessageFilter* renderer_message_filter,
                               const std::wstring& channel,
-                              const std::wstring& plugin_path,
+                              const FilePath& plugin_path,
                               IPC::Message* reply_msg);
 
   // This function is called on the IO thread once we receive a reply from the
@@ -150,8 +150,8 @@ class PluginProcessHost : public IPC::Channel::Listener,
   // IPC Channel's id.
   std::wstring channel_id_;
 
-  // Path to the DLL of that plugin.
-  std::wstring dll_path_;
+  // Path to the file of that plugin.
+  FilePath plugin_path_;
 
   PluginService* plugin_service_;
 
