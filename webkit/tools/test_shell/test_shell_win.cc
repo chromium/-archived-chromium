@@ -650,11 +650,13 @@ LRESULT CALLBACK TestShell::EditWndProc(HWND hwnd, UINT message,
   switch (message) {
     case WM_CHAR:
       if (wParam == VK_RETURN) {
-        wchar_t strPtr[MAX_URL_LENGTH];
+        wchar_t strPtr[MAX_URL_LENGTH + 1];  // Leave room for adding a NULL;
         *((LPWORD)strPtr) = MAX_URL_LENGTH; 
         LRESULT strLen = SendMessage(hwnd, EM_GETLINE, 0, (LPARAM)strPtr);
-        if (strLen > 0)
+        if (strLen > 0) {
+          strPtr[strLen] = 0;  // EM_GETLINE doesn't NULL terminate.
           shell->LoadURL(strPtr);
+        }
 
         return 0;
       }
