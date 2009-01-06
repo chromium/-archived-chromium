@@ -43,15 +43,16 @@ bool MockRenderThread::Send(IPC::Message* msg) {
   // through this function messages, messages with reply and reply messages.
   // We can only handle one synchronous message at a time.
   if (msg->is_reply()) {
-    if (reply_deserializer_) {
+    if (reply_deserializer_.get()) {
       reply_deserializer_->SerializeOutputParameters(*msg);
-      delete reply_deserializer_;
-      reply_deserializer_ = NULL;
+      reply_deserializer_.reset();
     }
   } else {
     if (msg->is_sync()) {
-      reply_deserializer_ =
-          static_cast<IPC::SyncMessage*>(msg)->GetReplyDeserializer();
+      // We actually need to handle deleting the reply dersializer for sync
+      // messages.
+      reply_deserializer_.reset(
+          static_cast<IPC::SyncMessage*>(msg)->GetReplyDeserializer());
     }
     OnMessageReceived(*msg);
   }

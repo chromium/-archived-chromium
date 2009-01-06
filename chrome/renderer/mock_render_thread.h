@@ -108,7 +108,7 @@ class MockRenderThread : public RenderThreadBase {
   IPC::Channel::Listener* widget_;
 
   // The last known good deserializer for sync messages.
-  IPC::MessageReplyDeserializer* reply_deserializer_;
+  scoped_ptr<IPC::MessageReplyDeserializer> reply_deserializer_;
 
   std::vector<MessagePair> messages_;
 };
