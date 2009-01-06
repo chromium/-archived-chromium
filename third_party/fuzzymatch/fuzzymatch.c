@@ -53,6 +53,7 @@
 static int
 usage(const char *argv0) {
   fprintf(stderr, "Usage: %s [--highlight] [--no-ignore-scrollbars] "
+                  "[--output filename] "
                   "<input a> <input b>\n", argv0);
   return 1;
 }
@@ -64,6 +65,8 @@ main(int argc, char **argv) {
 
   char highlight = 0;
   char ignore_scrollbars = 1;
+  /* Default output filename; can be overridden by command line. */
+  const char *output_filename = "highlight.png";
 
   int argi = 1;
 
@@ -72,6 +75,12 @@ main(int argc, char **argv) {
       highlight = 1;
     } else if (strcmp("--no-ignore-scrollbars", argv[argi]) == 0) {
       ignore_scrollbars = 0;
+    } else if (strcmp("--output", argv[argi]) == 0) {
+      if (argi + 1 >= argc) {
+        fprintf(stderr, "missing argument to --output\n");
+        return 1;
+      }
+      output_filename = argv[++argi];
     } else {
       break;
     }
@@ -142,7 +151,7 @@ main(int argc, char **argv) {
     pixInvert(d2, d2);
     pixAnd(d1, d1, d2);
     pixPaintThroughMask(a, d1, 0, 0, 0xff << 24);
-    pixWrite("highlight.png", a, IFF_PNG);
+    pixWrite(output_filename, a, IFF_PNG);
   }
 
   return count > 0;
