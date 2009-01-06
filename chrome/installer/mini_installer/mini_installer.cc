@@ -206,7 +206,9 @@ BOOL CALLBACK OnResourceFound(HMODULE module, const wchar_t* type,
     ::lstrcatW(expand_cmd, L"\"");
     ::lstrcatW(expand_cmd, ctx->full_path);
     ::lstrcatW(expand_cmd, L"\"");
-    if (!RunProcessAndWait(NULL, expand_cmd, NULL)) {
+    int exit_code = 0;
+    if (!RunProcessAndWait(NULL, expand_cmd, &exit_code) ||
+        (exit_code != 0)) {
       // Somehow we failed to uncompress the file. Exit now and leave the file
       // behind for postmortem analysis.
       return FALSE;
