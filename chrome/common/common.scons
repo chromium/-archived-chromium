@@ -9,6 +9,7 @@ env = env.Clone()
 env.SConscript([
     '$BREAKPAD_DIR/using_breakpad.scons',
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$GRIT_DIR/build/using_generated_resources.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$LIBJPEG_DIR/using_libjpeg.scons',
     '$LIBPNG_DIR/using_libpng.scons',
@@ -20,7 +21,6 @@ env.SConscript([
 
 env.Prepend(
     CPPPATH = [
-        '$TARGET_ROOT/grit_derived_sources',
         '$CHROME_DIR/app',
         '$CHROME_SRC_DIR',
     ],
