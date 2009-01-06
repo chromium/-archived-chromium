@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H__
-#define CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H__
+#ifndef CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H_
+#define CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H_
 
 #include "chrome/common/ipc_message.h"
 #include "chrome/views/app_modal_dialog_delegate.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/notification_registrar.h"
 
 class MessageBoxView;
 class WebContents;
@@ -64,6 +65,8 @@ class JavascriptMessageBoxHandler
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  NotificationRegistrar registrar_;
+
   // The message box view whose commands we handle.
   MessageBoxView* message_box_view_;
 
@@ -83,5 +86,4 @@ class JavascriptMessageBoxHandler
   DISALLOW_EVIL_CONSTRUCTORS(JavascriptMessageBoxHandler);
 };
 
-#endif // CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H__
-
+#endif // CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H_

@@ -126,20 +126,6 @@ SessionService::SessionService(const std::wstring& save_path)
 
 SessionService::~SessionService() {
   Save();
-
-  // Unregister our notifications.
-  NotificationService::current()->RemoveObserver(
-      this, NOTIFY_TAB_PARENTED, NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this, NOTIFY_TAB_CLOSED, NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this, NOTIFY_NAV_LIST_PRUNED, NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this, NOTIFY_NAV_ENTRY_CHANGED, NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this, NOTIFY_NAV_ENTRY_COMMITTED, NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this, NOTIFY_BROWSER_OPENED, NotificationService::AllSources());
 }
 
 void SessionService::ResetFromCurrentBrowsers() {
@@ -380,18 +366,18 @@ SessionService::Handle SessionService::GetLastSession(
 
 void SessionService::Init() {
   // Register for the notifications we're interested in.
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_TAB_PARENTED, NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_TAB_CLOSED, NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_NAV_LIST_PRUNED, NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_NAV_ENTRY_CHANGED, NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_NAV_ENTRY_COMMITTED, NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_BROWSER_OPENED, NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_TAB_PARENTED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_TAB_CLOSED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_NAV_LIST_PRUNED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_CHANGED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_BROWSER_OPENED,
+                 NotificationService::AllSources());
 }
 
 void SessionService::Observe(NotificationType type,

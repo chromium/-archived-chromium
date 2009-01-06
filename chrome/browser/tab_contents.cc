@@ -66,7 +66,6 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
 }
 
-
 void TabContents::CloseContents() {
   // Destroy our NavigationController, which will Destroy all tabs it owns.
   controller_->Destroy();
@@ -410,9 +409,9 @@ void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
   // added. We use this notification to expire InfoBars that need to expire on
   // page transitions.
   if (infobar_delegates_.size() == 1) {
-    NotificationService::current()->AddObserver(
-        this, NOTIFY_NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(controller()));
+    DCHECK(controller());
+    registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                   Source<NavigationController>(controller()));
   }
 }
 
@@ -429,9 +428,8 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
 
   // Remove ourselves as an observer if we are tracking no more InfoBars.
   if (infobar_delegates_.empty()) {
-    NotificationService::current()->RemoveObserver(
-        this, NOTIFY_NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(controller()));
+    registrar_.Remove(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                      Source<NavigationController>(controller()));
   }
 }
 

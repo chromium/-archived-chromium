@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H__
-#define CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H__
+#ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H_
+#define CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H_
 
 #include "chrome/browser/automation/automation_resource_tracker.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/navigation_controller.h"
+#include "chrome/common/notification_registrar.h"
 
 class AutomationTabTracker
   : public AutomationResourceTracker<NavigationController*> {
@@ -22,28 +23,24 @@ public:
 
   virtual void AddObserver(NavigationController* resource) {
     // This tab could either be a regular tab or an external tab
-    // Register for both notifications
-    NotificationService::current()->AddObserver(
-        this, NOTIFY_TAB_CLOSING, Source<NavigationController>(resource));
-    NotificationService::current()->AddObserver(
-        this, NOTIFY_EXTERNAL_TAB_CLOSED,
-        Source<NavigationController>(resource));
+    // Register for both notifications.
+    registrar_.Add(this, NOTIFY_TAB_CLOSING,
+                   Source<NavigationController>(resource));
+    registrar_.Add(this, NOTIFY_EXTERNAL_TAB_CLOSED,
+                   Source<NavigationController>(resource));
     // We also want to know about navigations so we can keep track of the last
     // navigation time.
-    NotificationService::current()->AddObserver(
-        this, NOTIFY_NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(resource));
+    registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                   Source<NavigationController>(resource));
   }
 
   virtual void RemoveObserver(NavigationController* resource) {
-    NotificationService::current()->RemoveObserver(
-        this, NOTIFY_TAB_CLOSING, Source<NavigationController>(resource));
-    NotificationService::current()->RemoveObserver(
-        this, NOTIFY_EXTERNAL_TAB_CLOSED,
-        Source<NavigationController>(resource));
-    NotificationService::current()->RemoveObserver(
-        this, NOTIFY_NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(resource));
+    registrar_.Remove(this, NOTIFY_TAB_CLOSING,
+                      Source<NavigationController>(resource));
+    registrar_.Remove(this, NOTIFY_EXTERNAL_TAB_CLOSED,
+                      Source<NavigationController>(resource));
+    registrar_.Remove(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                      Source<NavigationController>(resource));
   }
 
   virtual void Observe(NotificationType type,
@@ -80,11 +77,12 @@ public:
   }
 
  private:
+  NotificationRegistrar registrar_;
+
   // Last time a navigation occurred.
-   std::map<NavigationController*, base::Time> last_navigation_times_;
+  std::map<NavigationController*, base::Time> last_navigation_times_;
 
   DISALLOW_COPY_AND_ASSIGN(AutomationTabTracker);
 };
 
-#endif // CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H__
-
+#endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H_

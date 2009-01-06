@@ -37,12 +37,6 @@ void JavascriptMessageBoxHandler::RunJavascriptMessageBox(
 }
 
 JavascriptMessageBoxHandler::~JavascriptMessageBoxHandler() {
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
-                     NotificationService::AllSources());
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_TAB_CONTENTS_DESTROYED,
-                     NotificationService::AllSources());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -209,11 +203,8 @@ JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
 
   // Make sure we get navigation notifications so we know when our parent
   // contents will disappear or navigate to a different page.
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
-                  NotificationService::AllSources());
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_TAB_CONTENTS_DESTROYED,
-                  NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_TAB_CONTENTS_DESTROYED,
+                 NotificationService::AllSources());
 }
-
