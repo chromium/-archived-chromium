@@ -90,10 +90,12 @@ input_files = [
     'src/mem6.c',
     'src/mutex.c',
     'src/mutex.h',
+    'src/mutex_unix.c',
     'src/mutex_w32.c',
     'src/os.c',
     'src/os.h',
     'src/os_common.h',
+    'src/os_unix.c',
     'src/os_win.c',
     'src/pager.c',
     'src/pager.h',
@@ -102,7 +104,6 @@ input_files = [
     'src/printf.c',
     'src/random.c',
     'src/select.c',
-    'src/shell_icu.c',
     'src/sqlite3ext.h',
     'src/sqliteInt.h',
     'src/sqliteLimit.h',
@@ -126,8 +127,12 @@ input_files = [
     'src/where.c',
 ]
 
-x=env.ChromeLibrary('sqlite', input_files)
-env.Alias('sl', x)
+if env.Bit('windows'):
+  input_files += [
+    'src/shell_icu.c',
+  ]
+
+env.ChromeLibrary('sqlite', input_files)
 
 env.ChromeMSVSProject('$SQLITE_DIR/sqlite.vcproj',
                 guid='{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}')
