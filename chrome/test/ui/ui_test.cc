@@ -10,6 +10,7 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
+#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
@@ -19,18 +20,28 @@
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_process_filter.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/debug_flags.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/json_value_serializer.h"
-#include "chrome/test/automation/browser_proxy.h"
-#include "chrome/test/automation/tab_proxy.h"
-#include "chrome/test/automation/window_proxy.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
+#if defined(OS_WIN)
+// TODO(port): these just need to be ported.
+#include "chrome/common/chrome_process_filter.h"
+#include "chrome/test/automation/browser_proxy.h"
+#include "chrome/test/automation/tab_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
+#endif
+
 using base::TimeTicks;
+
+// Delay to let browser complete a requested action.
+const int UITest::kWaitForActionMsec = 2000;
+const int UITest::kWaitForActionMaxMsec = 10000;
+// Delay to let the browser complete the test.
+const int UITest::kMaxTestExecutionTime = 30000;
 
 const wchar_t UITest::kFailedNoCrashService[] =
     L"NOTE: This test is expected to fail if crash_service.exe is not "
@@ -73,7 +84,7 @@ bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
   for (int i = 0; i < 10; ++i) {
     if (file_util::Delete(file, recurse))
       return true;
-    Sleep(kWaitForActionMaxMsec / 10);
+    PlatformThread::Sleep(kWaitForActionMaxMsec / 10);
   }
   return false;
 }
@@ -82,10 +93,10 @@ UITest::UITest()
     : testing::Test(),
       expected_errors_(0),
       expected_crashes_(0),
-      wait_for_initial_loads_(true),
       homepage_(L"about:blank"),
+      wait_for_initial_loads_(true),
       dom_automation_enabled_(false),
-      process_(NULL),
+      process_(0),  // NULL on Windows, 0 PID on POSIX.
       show_window_(false),
       clear_profile_(true),
       include_testing_id_(true),
@@ -95,7 +106,11 @@ UITest::UITest()
       action_max_timeout_ms_(kWaitForActionMaxMsec) {
   PathService::Get(chrome::DIR_APP, &browser_directory_);
   PathService::Get(chrome::DIR_TEST_DATA, &test_data_directory_);
+#if defined(OS_WIN)
   GetSystemTimeAsFileTime(&test_start_time_);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void UITest::SetUp() {
@@ -118,7 +133,7 @@ void UITest::TearDown() {
   // If there were errors, get all the error strings for display.
   std::wstring failures =
     L"The following error(s) occurred in the application during this test:";
-  if (static_cast<int>(assertions.size()) > expected_errors_) {
+  if (assertions.size() > expected_errors_) {
     logging::AssertionList::const_iterator iter = assertions.begin();
     for (; iter != assertions.end(); ++iter) {
       failures.append(L"\n\n");
@@ -127,6 +142,7 @@ void UITest::TearDown() {
   }
   EXPECT_EQ(expected_errors_, assertions.size()) << failures;
 
+#if defined(OS_WIN)
   // Check for crashes during the test
   std::wstring crash_dump_path;
   PathService::Get(chrome::DIR_CRASH_DUMPS, &crash_dump_path);
@@ -140,6 +156,10 @@ void UITest::TearDown() {
     error_msg += kFailedNoCrashService;
   }
   EXPECT_EQ(expected_crashes_, actual_crashes) << error_msg;
+#else
+  // TODO(port): we don't catch crashes, nor have CountFilesCreatedAfter.
+  NOTIMPLEMENTED();
+#endif
 }
 
 // Pick up the various test time out values from the command line.
@@ -165,6 +185,7 @@ void UITest::InitializeTimeouts() {
 }
 
 void UITest::LaunchBrowserAndServer() {
+#if defined(OS_WIN)
   // Set up IPC testing interface server.
   server_.reset(new AutomationProxy(command_execution_timeout_ms_));
 
@@ -175,14 +196,23 @@ void UITest::LaunchBrowserAndServer() {
     Sleep(2000);
 
   automation()->SetFilteredInet(true);
+#else
+  // TODO(port): depends on AutomationProxy.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void UITest::CloseBrowserAndServer() {
   QuitBrowser();
   CleanupAppProcesses();
 
+#if defined(OS_WIN)
   // Shut down IPC testing interface.
   server_.reset();
+#else
+  // TODO(port): depends on AutomationProxy.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
@@ -203,6 +233,7 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
     CommandLine::AppendSwitch(&command_line,
                               switches::kDomAutomationController);
 
+#if defined(OS_WIN)
   if (include_testing_id_) {
     if (use_existing_browser_) {
       // TODO(erikkay): The new switch depends on a browser instance already
@@ -219,6 +250,10 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
                                          server_->channel_id());
     }
   }
+#else
+  // TODO(port): depends on AutomationProxy.
+  NOTIMPLEMENTED();
+#endif
 
   if (!show_error_dialogs_)
     CommandLine::AppendSwitch(&command_line, switches::kNoErrorDialogs);
@@ -277,6 +312,7 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
   if (clear_profile)
     ASSERT_TRUE(DieFileDie(user_data_dir_, true));
 
+#if defined(OS_WIN)
   if (!template_user_data_.empty()) {
     // Recursively copy the template directory to the user_data_dir.
     ASSERT_TRUE(file_util::CopyRecursiveDirNoCache(template_user_data_,
@@ -302,9 +338,16 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
     CloseHandle(process_);
     process_ = OpenProcess(SYNCHRONIZE, false, pid);
   }
+#else
+  // TODO(port): above code is very Windows-specific; we need to
+  // figure out and abstract out how we'll handle finding any existing
+  // running process, etc. on other platforms.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void UITest::QuitBrowser() {
+#if defined(OS_WIN)
   typedef std::vector<BrowserProxy*> BrowserVector;
 
   // There's nothing to do here if the browser is not running.
@@ -350,13 +393,23 @@ void UITest::QuitBrowser() {
   // Don't forget to close the handle
   CloseHandle(process_);
   process_ = NULL;
+#else
+  // TODO(port): depends on AutomationProxy.
+  NOTIMPLEMENTED();
+#endif  // OS_WIN
 }
 
 void UITest::AssertAppNotRunning(const std::wstring& error_message) {
+#if defined(OS_WIN)
   ASSERT_EQ(0, GetBrowserProcessCount()) << error_message;
+#else
+  // TODO(port): depends on AutomationProxy.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void UITest::CleanupAppProcesses() {
+#if defined(OS_WIN)
   BrowserProcessFilter filter(L"");
 
   // Make sure that no instances of the browser remain.
@@ -372,8 +425,16 @@ void UITest::CleanupAppProcesses() {
   if (!in_process_renderer_) {
     AssertAppNotRunning(L"Unable to quit all browser processes.");
   }
+#else
+  // TODO(port): depends on BrowserProcessFilter.
+  NOTIMPLEMENTED();
+#endif
 }
 
+// TODO(port): this #if effectively cuts out half of this file on
+// non-Windows platforms, and is a temporary hack to get things
+// building.
+#if defined(OS_WIN)
 TabProxy* UITest::GetActiveTab() {
   scoped_ptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
   if (!window_proxy.get())
@@ -719,3 +780,5 @@ void UITest::PrintResultsImpl(const std::wstring& measurement,
           trace.c_str(), prefix.c_str(), values.c_str(), suffix.c_str(),
           units.c_str());
 }
+
+#endif  // OS_WIN

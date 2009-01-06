@@ -13,3 +13,9 @@ env.Append(
         'base',
     ],
 )
+
+# base depends on libevent on POSIX systems.
+if env.Bit('posix'):
+  env.ApplySConscript([
+      '$LIBEVENT_DIR/using_libevent.scons',
+  ])

@@ -34,16 +34,25 @@ env.Prepend(
         'UI_TEST',
     ],
     LIBS = [
-        'automation',
         'browser',
-        'browser_views',
         'common',
-        'npapi_layout_test_plugin',
-        'npapi_test_plugin',
-        'port',
-        'security_tests',
-    ],
+        'sqlite',
+    ]
 )
+
+if env.Bit('windows'):
+  # TODO(port): split these into upper env.Prepend (for portable libs) and
+  # lower env.Prepend (for win-specific libs).
+  env.Prepend(
+      LIBS = [
+          'automation',
+          'browser_views',
+          'npapi_layout_test_plugin',
+          'npapi_test_plugin',
+          'port',
+          'security_tests',
+      ],
+  )
 
 if env.Bit('windows'):
   env.Prepend(
@@ -76,16 +85,22 @@ if env.Bit('windows'):
   )
 
 ui_test_files = [
-    'inspector_controller_uitest.cc',
-    'layout_plugin_uitest.cpp',
-    'npapi_uitest.cpp',
-    'omnibox_uitest.cc',
     'run_all_unittests.cc',
-    'sandbox_uitests.cc',
     'ui_test.cc',
     'ui_test_suite.cc',
+]
+
+if env.Bit('windows'):
+  # TODO(port): mark which of these work and which don't.
+  ui_test_files.extend([
     'history_uitest.cc',
+    'inspector_controller_uitest.cc',
+    'layout_plugin_uitest.cpp',
     'npapi_test_helper.cc',
+    'npapi_uitest.cpp',
+    'omnibox_uitest.cc',
+
+    'sandbox_uitests.cc',
 
     '$CHROME_DIR/app/chrome_main_uitest.cc',
     '$CHROME_DIR/browser/browser_uitest.cc',
@@ -121,15 +136,15 @@ ui_test_files = [
     '$CHROME_DIR/test/perf/mem_usage.cc',
     '$CHROME_DIR/test/reliability/page_load_test$OBJSUFFIX',
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
-]
+    ])
 
-if env.Bit('windows'):
+  # Windows-specific tests.
   ui_test_files.extend([
       '$CHROME_DIR/browser/views/find_bar_win_interactive_uitest.cc',
       '$CHROME_DIR/browser/views/find_bar_win_uitest.cc',
   ])
 
-  env.ChromeTestProgram('ui_tests',  ui_test_files)
+env.ChromeTestProgram('ui_tests', ui_test_files)
 
 env.ChromeMSVSProject('$CHROME_DIR/test/ui/ui_tests.vcproj',
                       dependencies = [
