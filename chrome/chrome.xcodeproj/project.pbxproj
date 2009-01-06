@@ -3632,6 +3632,7 @@
 					..,
 					../skia/include,
 					../skia/include/corecg,
+					../third_party/icu38/public/i18n,
 					../third_party/icu38/public/common,
 					../third_party/libjpeg,
 					../third_party/libxml/include,
