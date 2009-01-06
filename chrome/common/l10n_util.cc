@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include <algorithm>
 
 #include "chrome/common/l10n_util.h"
@@ -15,12 +17,20 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#if defined(OS_WIN)
+// TODO(port): re-enable.
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/view.h"
+#endif  // defined(OS_WIN)
 #include "unicode/coll.h"
 #include "unicode/locid.h"
 #include "unicode/rbbi.h"
 #include "unicode/uchar.h"
+
+// TODO(playmobil): remove this undef once SkPostConfig.h is fixed.
+// skia/include/corecg/SkPostConfig.h #defines strcasecmp() so we can't use
+// base::strcasecmp() without #undefing it here.
+#undef strcasecmp
 
 namespace {
 
@@ -99,10 +109,24 @@ class StringComparator : public std::binary_function<const std::wstring&,
   // Returns true if lhs preceeds rhs.
   bool operator() (const std::wstring& lhs, const std::wstring& rhs) {
     UErrorCode error = U_ZERO_ERROR;
+#if defined(WCHAR_T_IS_UTF32)
+    // Need to convert to UTF-16 to be compatible with UnicodeString's
+    // constructor.
+    string16 lhs_utf16 = WideToUTF16(lhs);
+    string16 rhs_utf16 = WideToUTF16(rhs);
+
+    UCollationResult result = collator_->compare(
+        static_cast<const UChar*>(lhs_utf16.c_str()),
+        static_cast<int>(lhs_utf16.length()),
+        static_cast<const UChar*>(rhs_utf16.c_str()),
+        static_cast<int>(rhs_utf16.length()),
+        error);
+#else
     UCollationResult result = collator_->compare(
         static_cast<const UChar*>(lhs.c_str()), static_cast<int>(lhs.length()),
         static_cast<const UChar*>(rhs.c_str()), static_cast<int>(rhs.length()),
         error);
+#endif
     DCHECK(U_SUCCESS(error));
 
     return result == UCOL_LESS;
@@ -127,8 +151,8 @@ bool IsDuplicateName(const std::string& locale_name) {
   // has to be added manually in GetAvailableLocales().
   if (LowerCaseEqualsASCII(locale_name.substr(0, 3),  "es_"))
     return true;
-  for (int i = 0; i < arraysize(kDuplicateNames); ++i) {
-    if (_stricmp(kDuplicateNames[i], locale_name.c_str()) == 0)
+  for (size_t i = 0; i < arraysize(kDuplicateNames); ++i) {
+    if (base::strcasecmp(kDuplicateNames[i], locale_name.c_str()) == 0)
       return true;
   }
   return false;
@@ -195,7 +219,7 @@ bool CheckAndResolveLocale(const std::wstring& locale,
       {"en", L"en-US"},
   };
 
-  for (int i = 0; i < arraysize(alias_map); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(alias_map); ++i) {
     if (LowerCaseEqualsASCII(locale, alias_map[i].source)) {
       std::wstring tmp_locale(alias_map[i].dest);
       if (IsLocaleAvailable(tmp_locale, locale_path)) {
@@ -274,9 +298,17 @@ std::wstring GetLocalName(const std::wstring& locale_code_wstr,
   const char* locale_code = locale_code_str.c_str();
   UErrorCode error = U_ZERO_ERROR;
   const int buffer_size = 1024;
+
+#if defined(WCHAR_T_IS_UTF32)
+  string16 name_local_utf16;
+  int actual_size = uloc_getDisplayName(locale_code, app_locale.c_str(),
+      WriteInto(&name_local_utf16, buffer_size + 1), buffer_size, &error);
+  std::wstring name_local = UTF16ToWide(name_local_utf16);
+#else
   std::wstring name_local;
   int actual_size = uloc_getDisplayName(locale_code, app_locale.c_str(),
       WriteInto(&name_local, buffer_size + 1), buffer_size, &error);
+#endif
   DCHECK(U_SUCCESS(error));
   name_local.resize(actual_size);
   // Add an RTL mark so parentheses are properly placed.
@@ -286,6 +318,8 @@ std::wstring GetLocalName(const std::wstring& locale_code_wstr,
     return name_local;
 }
 
+#if defined(OS_WIN)
+// TODO(port): re-enable.
 std::wstring GetString(int message_id) {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
   return rb.GetLocalizedString(message_id);
@@ -348,6 +382,7 @@ std::wstring GetStringF(int message_id, int a) {
 std::wstring GetStringF(int message_id, int64 a) {
   return GetStringF(message_id, Int64ToWString(a));
 }
+#endif  // defined(OS_WIN)
 
 std::wstring TruncateString(const std::wstring& string, size_t length) {
   if (string.size() <= length)
@@ -365,20 +400,25 @@ std::wstring TruncateString(const std::wstring& string, size_t length) {
     return kElideString;
   }
 
+#if defined(WCHAR_T_IS_UTF32)
+  const string16 string_utf16 = WideToUTF16(string);
+#else
+  const std::wstring &string_utf16 = string;
+#endif
   // Use a line iterator to find the first boundary.
   UErrorCode status = U_ZERO_ERROR;
   scoped_ptr<RuleBasedBreakIterator> bi(static_cast<RuleBasedBreakIterator*>(
       RuleBasedBreakIterator::createLineInstance(Locale::getDefault(), status)));
   if (U_FAILURE(status))
     return string.substr(0, max) + kElideString;
-  bi->setText(string.c_str());
+  bi->setText(string_utf16.c_str());
   int32_t index = bi->preceding(static_cast<int32_t>(max));
   if (index == BreakIterator::DONE) {
     index = static_cast<int32_t>(max);
   } else {
     // Found a valid break (may be the beginning of the string). Now use
     // a character iterator to find the previous non-whitespace character.
-    StringCharacterIterator char_iterator(string.c_str());
+    StringCharacterIterator char_iterator(string_utf16.c_str());
     if (index == 0) {
       // No valid line breaks. Start at the end again. This ensures we break
       // on a valid character boundary.
@@ -407,6 +447,18 @@ std::wstring TruncateString(const std::wstring& string, size_t length) {
   return string.substr(0, index) + kElideString;
 }
 
+#if defined(WCHAR_T_IS_UTF32)
+std::wstring ToLower(const std::wstring& string) {
+  string16 string_utf16 = WideToUTF16(string);
+  UnicodeString lower_u_str(
+      UnicodeString(string_utf16.c_str()).toLower(Locale::getDefault()));
+  string16 result_utf16;
+  lower_u_str.extract(0, lower_u_str.length(),
+                      WriteInto(&result_utf16, lower_u_str.length() + 1));
+  std::wstring result = UTF16ToWide(result_utf16);
+  return result;
+}
+#else
 std::wstring ToLower(const std::wstring& string) {
   UnicodeString lower_u_str(
       UnicodeString(string.c_str()).toLower(Locale::getDefault()));
@@ -415,6 +467,7 @@ std::wstring ToLower(const std::wstring& string) {
                       WriteInto(&result, lower_u_str.length() + 1));
   return result;
 }
+#endif  // defined(WCHAR_T_IS_UTF32)
 
 // Returns the text direction.
 // This function retrieves the language corresponding to the default ICU locale
@@ -497,7 +550,15 @@ void WrapStringWithRTLFormatting(std::wstring* text) {
   text->append(L"\x202C");
 }
 
-// Returns locale-dependent externded window styles.
+int DefaultCanvasTextAlignment() {
+  if (GetTextDirection() == LEFT_TO_RIGHT) {
+    return ChromeCanvas::TEXT_ALIGN_LEFT;
+  } else {
+    return ChromeCanvas::TEXT_ALIGN_RIGHT;
+  }
+}
+
+#if defined(OS_WIN)
 int GetExtendedStyles() {
   return GetTextDirection() == LEFT_TO_RIGHT ? 0 :
       WS_EX_LAYOUTRTL | WS_EX_RTLREADING;
@@ -505,14 +566,6 @@ int GetExtendedStyles() {
 
 int GetExtendedTooltipStyles() {
   return GetTextDirection() == LEFT_TO_RIGHT ? 0 : WS_EX_LAYOUTRTL;
-}
-
-int DefaultCanvasTextAlignment() {
-  if (GetTextDirection() == LEFT_TO_RIGHT) {
-    return ChromeCanvas::TEXT_ALIGN_LEFT;
-  } else {
-    return ChromeCanvas::TEXT_ALIGN_RIGHT;
-  }
 }
 
 void HWNDSetRTLLayout(HWND hwnd) {
@@ -529,6 +582,7 @@ void HWNDSetRTLLayout(HWND hwnd) {
     ::InvalidateRect(hwnd, NULL, true);
   }
 }
+#endif  // defined(OS_WIN)
 
 void SortStrings(const std::wstring& locale,
                  std::vector<std::wstring>* strings) {
@@ -589,7 +643,12 @@ UBool BiDiLineIterator::Open(const std::wstring& text,
     return false;
   if (right_to_left && url)
     ubidi_setReorderingMode(bidi_, UBIDI_REORDER_RUNS_ONLY);
-  ubidi_setPara(bidi_, text.data(), static_cast<int>(text.length()),
+#if defined(WCHAR_T_IS_UTF32)
+  const string16 text_utf16 = WideToUTF16(text);
+#else
+  const std::wstring &text_utf16 = text;
+#endif  // U_SIZEOF_WCHAR_T != 4
+  ubidi_setPara(bidi_, text_utf16.data(), static_cast<int>(text_utf16.length()),
                 right_to_left ? UBIDI_DEFAULT_RTL : UBIDI_DEFAULT_LTR,
                 NULL, &error);
   return U_SUCCESS(error);
