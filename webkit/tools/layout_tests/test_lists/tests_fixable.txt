@@ -311,12 +311,11 @@ WIN : LayoutTests/fast/css/font-family-initial.html = FAIL
 WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
 WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 
-// Bug: 924387, 1058654
-// Broken until we fix our port to support remote TTF fonts and SVG Fonts
-// GDI @font-face support has been implemented upstream, but we don't plan
-// to fork to add support for @font-face for Beta.
-// upstream: http://trac.webkit.org/projects/webkit/changeset/31507
-LINUX WIN : LayoutTests/fast/css/font-face-remote.html = FAIL
+// Bug: 1303
+// Dynamic font support (@font-face) for Windows was ported from the
+// upstream (http://trac.webkit.org/projects/webkit/changeset/31507)
+// SVG test still fails, though.
+LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
 WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // Bug: 1007391
