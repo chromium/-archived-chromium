@@ -32,7 +32,7 @@ if env.Bit('posix'):
 
 env.Append(
     CPPPATH = [
-        '$THIRD_PARTY_DIR/sqlite'
+        '$THIRD_PARTY_DIR/sqlite/preprocessed'
     ]
 )
 
