@@ -168,11 +168,10 @@ GreasemonkeyMaster::GreasemonkeyMaster(MessageLoop* worker_loop,
       worker_loop_(worker_loop),
       pending_scan_(false) {
   // Watch our scripts directory for modifications.
-  bool ok = dir_watcher_->Watch(script_dir, this);
-  DCHECK(ok);
-
-  // (Asynchronously) scan for our initial set of scripts.
-  StartScan();
+  if (dir_watcher_->Watch(script_dir, this)) {
+    // (Asynchronously) scan for our initial set of scripts.
+    StartScan();
+  }
 }
 
 GreasemonkeyMaster::~GreasemonkeyMaster() {

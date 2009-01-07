@@ -48,10 +48,8 @@ bool DirectoryWatcher::Impl::Watch(const FilePath& path) {
       FALSE,  // Don't watch subtree.
       FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_SIZE |
       FILE_NOTIFY_CHANGE_LAST_WRITE);
-  if (handle_ == INVALID_HANDLE_VALUE) {
-    NOTREACHED();
+  if (handle_ == INVALID_HANDLE_VALUE)
     return false;
-  }
 
   path_ = path;
   watcher_.StartWatching(handle_, this);

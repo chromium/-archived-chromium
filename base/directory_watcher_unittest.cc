@@ -184,3 +184,12 @@ TEST_F(DirectoryWatcherTest, DeleteDuringNotify) {
   // Might as well double-check it got deleted, too.
   ASSERT_TRUE(deleter.watcher_.get() == NULL);
 }
+
+// Verify that watching a directory that doesn't exist fails, but doesn't
+// asssert.
+// Basic test: add a file and verify we notice it.
+TEST_F(DirectoryWatcherTest, NonExistentDirectory) {
+  DirectoryWatcher watcher;
+  ASSERT_FALSE(watcher.Watch(
+      test_dir_.Append(FILE_PATH_LITERAL("does-not-exist")), this));
+}
