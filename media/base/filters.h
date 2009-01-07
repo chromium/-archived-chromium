@@ -70,7 +70,7 @@ class DataSourceInterface : public MediaFilterInterface {
   static const size_t kReadError = static_cast<size_t>(-1);
 
   // Initializes this filter, returns true if successful, false otherwise.
-  virtual bool Initialize(const std::wstring& uri) = 0;
+  virtual bool Initialize(const std::string& uri) = 0;
 
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
