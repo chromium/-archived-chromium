@@ -108,6 +108,7 @@
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4D64AC520EEE271C0021761F /* CSSSelectorList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
+		4D7FAB940F156764004F1B19 /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FAB870F156634004F1B19 /* ByteArray.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
 		4DB299C50EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */; };
 		4DB299C60EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */; };
@@ -1617,6 +1618,8 @@
 		4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dtoa.cpp; sourceTree = "<group>"; };
 		4D35557C0ED4ACF600FB28B1 /* dtoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dtoa.h; sourceTree = "<group>"; };
 		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsContextStub.cpp; sourceTree = "<group>"; };
+		4D7FAB870F156634004F1B19 /* ByteArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteArray.cpp; sourceTree = "<group>"; };
+		4D7FAB880F156634004F1B19 /* ByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteArray.h; sourceTree = "<group>"; };
 		4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitAnimationEvent.cpp; sourceTree = "<group>"; };
 		4DB299BE0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitAnimationEvent.h; sourceTree = "<group>"; };
 		4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSTransformValue.cpp; sourceTree = "<group>"; };
@@ -4470,6 +4473,24 @@
 			path = storage;
 			sourceTree = "<group>";
 		};
+		4D7FAB850F1565F6004F1B19 /* javascriptcore */ = {
+			isa = PBXGroup;
+			children = (
+				4D7FAB890F156638004F1B19 /* runtime */,
+			);
+			name = javascriptcore;
+			path = ../third_party/WebKit/JavaScriptCore;
+			sourceTree = "<group>";
+		};
+		4D7FAB890F156638004F1B19 /* runtime */ = {
+			isa = PBXGroup;
+			children = (
+				4D7FAB870F156634004F1B19 /* ByteArray.cpp */,
+				4D7FAB880F156634004F1B19 /* ByteArray.h */,
+			);
+			path = runtime;
+			sourceTree = "<group>";
+		};
 		4DB044090EB161B600A5633C /* mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -4644,6 +4665,7 @@
 				7BF8842B0E71C100000BAF8A /* Configuration */,
 				7BF889C10E71CEA6000BAF8A /* generated */,
 				825404E50D92E3BB0006B936 /* glue */,
+				4D7FAB850F1565F6004F1B19 /* javascriptcore */,
 				7B0091290DAFEF0E00F72082 /* jsbindings */,
 				7BF891DD0E73118C000BAF8A /* pcre */,
 				7B9375960D919010008B9587 /* port */,
@@ -8141,6 +8163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */,
+				4D7FAB940F156764004F1B19 /* ByteArray.cpp in Sources */,
 				E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */,
 				4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */,
 				7B5E862C0D7F2B56001ECF42 /* FastMalloc.cpp in Sources */,
