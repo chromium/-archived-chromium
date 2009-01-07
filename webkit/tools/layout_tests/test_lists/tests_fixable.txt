@@ -133,6 +133,13 @@ LINUX WIN : LayoutTests/fast/forms/image-border.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // -----------------------------------------------------------------
+// Tests deferred until we provide support for a particular feature.
+// -----------------------------------------------------------------
+
+// Worker related tests (ENABLE_WORKERS):
+DEFER SKIP : LayoutTests/fast/workers = TIMEOUT
+
+// -----------------------------------------------------------------
 // Other
 // -----------------------------------------------------------------
 
@@ -1329,15 +1336,6 @@ LayoutTests/transitions/transition-drt-api.html = TIMEOUT
 // Missing expected results
 SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 
-// MERGE 38550:38575: New tests. Need ENABLE_WORKERS turned on.
-SKIP : LayoutTests/fast/workers/worker-constructor.html = FAIL
-SKIP : LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
-SKIP : LayoutTests/fast/workers/worker-gc.html = TIMEOUT
-SKIP : LayoutTests/fast/workers/worker-location.html = TIMEOUT
-
-// MERGE 38575:38600: Currently we don't support workers
-SKIP : LayoutTests/fast/workers/worker-replace-global-constructor.html = TIMEOUT
-
 // MERGE 38600:38625: New tests
 // Big 4999: we need to fix this same bug in our plugin handling Apple did in
 // r38611.
@@ -1365,20 +1363,12 @@ LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 // MERGE 38653:38729: New tests
 LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
-// Currently we don't support workers.
-SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
 
 // MERGE 38729:38760: New tests
-// Currently we don't support workers.
-SKIP : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT
 LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
 
 // MERGE 38729:38760: Regressions
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
-
-// MERGE 38760:38800: New tests
-// Currently we don't support workers.
-SKIP : LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
 
 // Windows is missing the green box.
 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
@@ -1789,9 +1779,6 @@ LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 
 // Needs to be rebaselined on Mac.
 MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
-
-// Currently we don't support workers.
-SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 
 // Skipped as this tests window.sessionStorage, which we don't support. Enable
 // once we turn on DOM_STORAGE.
