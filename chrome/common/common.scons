@@ -67,25 +67,20 @@ input_files.extend([
   'notification_service.cc',
   'pref_member.cc',
   'pref_names.cc',
+  'pref_service.cc',
   'property_bag.cc',
   'render_messages.cc',
+  'resource_dispatcher.cc',
   'slide_animation.cc',
   'sqlite_compiled_statement.cc',
   'sqlite_utils.cc',
   'task_queue.cc',
   'throb_animation.cc',
+  'time_format.cc',
   'thumbnail_score.cc',
   'unzip.cc',
   'visitedlink_common.cc',
 ])
-
-if not env.Bit('mac'):
-  # TODO(port): Port to Mac.
-  input_files.extend([
-      'pref_service.cc',
-      'resource_dispatcher.cc',
-      'time_format.cc',
-  ])
 
 if env.Bit('windows'):
   # TODO(port): Port these.

@@ -74,14 +74,10 @@ if env.Bit('linux'):
 # TODO(port): Port these to Mac
 if env.Bit('mac'):
   to_be_ported_files = [
-      'about_handler.cc',
       'chrome_plugin_host.cc',
       'debug_message_handler.cc',
-      'dom_ui_bindings.cc',
-      'external_host_bindings.cc',
       'external_js_object.cc',
-      'greasemonkey_slave.cc',
-      'localized_error.cc',
+      'net/render_dns_master.cc',
       'plugin_channel_host.cc',
       'render_process.cc',
       'render_thread.cc',
@@ -89,11 +85,7 @@ if env.Bit('mac'):
       'render_widget.cc',
       'renderer_glue.cc',
       'renderer_main.cc',
-      'visitedlink_slave.cc',
       'webplugin_delegate_proxy.cc',
-      'automation/dom_automation_controller.cc',
-      'net/render_dns_master.cc',
-      'net/render_dns_queue.cc',
   ]
   for remove in to_be_ported_files:
     input_files.remove(remove)
