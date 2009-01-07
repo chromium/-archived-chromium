@@ -919,8 +919,6 @@ if env.Bit('linux'):
     '$WEBCORE_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/IconChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
-
-    '$WEBCORE_DIR/platform/graphics/skia/GdkSkia.cc',
   ])
   # Remove from the list files that haven't yet been made portable to Linux.
   to_be_ported_files = [
