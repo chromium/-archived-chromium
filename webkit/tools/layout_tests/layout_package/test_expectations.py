@@ -89,6 +89,10 @@ class TestExpectations:
     # we expect it to pass (and nothing else).
     return set([PASS])
 
+  def IsDeferred(self, test):
+    return (test in self._fixable.GetSkippedDeferred() or
+            test in self._fixable.GetNonSkippedDeferred())
+
   def IsFixable(self, test):
     return (self._fixable.Contains(test) and
             test not in self._fixable.GetNonSkippedDeferred())

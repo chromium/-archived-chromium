@@ -429,12 +429,16 @@ class TestRunner:
     for test, failures in test_failures.iteritems():
       for failure in failures:
         AddFailure(failure_counts, failure.__class__)
-        if self._expectations.IsFixable(test):
-          AddFailure(fixable_counts, failure.__class__)
-          fixable_failures.add(test)
-        if not self._expectations.IsIgnored(test):
-          AddFailure(non_ignored_counts, failure.__class__)
-          non_ignored_failures.add(test)
+        if self._expectations.IsDeferred(test):
+          AddFailure(deferred_counts, failure.__class__)
+          deferred_failures.add(test)
+        else:
+          if self._expectations.IsFixable(test):
+            AddFailure(fixable_counts, failure.__class__)
+            fixable_failures.add(test)
+          if not self._expectations.IsIgnored(test):
+            AddFailure(non_ignored_counts, failure.__class__)
+            non_ignored_failures.add(test)
 
     # Print breakdown of tests we need to fix and want to pass.
     # Include skipped fixable tests in the statistics.
