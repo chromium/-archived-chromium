@@ -77,8 +77,9 @@ class TestRunner:
     # a list of TestType objects
     self._test_types = []
 
-    # a set of test files
+    # a set of test files, and the same tests as a list
     self._test_files = set()
+    self._test_files_list = None
     self._file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
     self._file_dir = path_utils.GetAbsolutePath(self._file_dir)
 
@@ -96,7 +97,7 @@ class TestRunner:
       self._expectations = self._ParseExpectations(
           platform_utils.GetTestListPlatformName().lower(),
           options.target == 'Debug')
-      self._GenerateExpecationsAndPrintOutput()
+      self._PrepareListsAndPrintOutput()
 
   def __del__(self):
     sys.stdout.flush()
@@ -162,9 +163,13 @@ class TestRunner:
       else:
         raise err
 
-  def _GenerateExpecationsAndPrintOutput(self):
-    """Create appropriate subsets of self._tests_files in 
+  def _PrepareListsAndPrintOutput(self):
+    """Create appropriate subsets of test lists and print test counts.
+
+    Create appropriate subsets of self._tests_files in
     self._ignored_failures, self._fixable_failures, and self._fixable_crashes.
+    Also remove skipped files from self._test_files, extract a subset of tests
+    if desired, and create the sorted self._test_files_list.
     """
     # Filter and sort out files from the skipped, ignored, and fixable file
     # lists.
@@ -188,10 +193,18 @@ class TestRunner:
     logging.info('Skipped: %d tests' % len(skipped))
     logging.info('Skipped tests do not appear in any of the below numbers\n')
 
+    # Create a sorted list of test files so the subset chunk, if used, contains
+    # alphabetically consecutive tests.
+    self._test_files_list = list(self._test_files)
+    if self._options.randomize_order:
+      random.shuffle(self._test_files_list)
+    else:
+      self._test_files_list.sort(self.TestFilesSort)
+
     # If the user specifies they just want to run a subset chunk of the tests,
     # just grab a subset of the non-skipped tests.
     if self._options.run_chunk:
-      test_files = list(self._test_files)
+      test_files = self._test_files_list
       try:
         (chunk_num, chunk_len) = self._options.run_chunk.split(":")
         chunk_num = int(chunk_num)
@@ -211,6 +224,7 @@ class TestRunner:
         extra = 1 + chunk_len - (slice_end - slice_start)
         logging.info('   last chunk is partial, appending [0:%d]' % extra)
         files.extend(test_files[0:extra])
+      self._test_files_list = files
       self._test_files = set(files)
       # update expectations so that the stats are calculated correctly
       self._expectations = self._ParseExpectations(
@@ -295,11 +309,7 @@ class TestRunner:
     # Create the output directory if it doesn't already exist.
     google.path_utils.MaybeMakeDirectory(self._options.results_directory)
 
-    test_files = list(self._test_files)
-    if self._options.randomize_order:
-      random.shuffle(test_files)
-    else:
-      test_files.sort(self.TestFilesSort)
+    test_files = self._test_files_list
 
     # Create the thread safe queue of (test filenames, test URIs) tuples. Each
     # TestShellThread pulls values from this queue.
