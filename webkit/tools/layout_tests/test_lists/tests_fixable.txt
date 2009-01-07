@@ -990,6 +990,7 @@ LINUX : chrome/fast/forms/basic-selects.html = FAIL
 LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 
 // Depends on plugin support.
+LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
@@ -1710,7 +1711,9 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
-// Linux pixeltest failure: Gradient fail
+
+// Linux pixeltest failure: slightly different shade of composited
+// alpha in bottom group.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
 
 // Failed with r6844 (dglazkov)
@@ -1727,16 +1730,19 @@ WIN : LayoutTests/fast/text/international/002.html = FAIL
 WIN : LayoutTests/fast/text/international/003.html = FAIL
 WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
-// 2008/12/13 - Turning off some Friday night test regressions until they can be looked at.
+// 2008/12/13 - Turning off some Friday night test regressions until
+// they can be looked at.
 WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
+
 // Passes when run by itself.  Fails on the buildbot.
 LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
 DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
 
-// 2008/12/15 These fail the pixel tests.
-// The pixel tests regressed while the tests were marked FAIL for text diff reasons, which are now fixed.
-// They are already rebaselined compared to the webkit standard, and are now off by a small number of pixels
-// from the platform rebaseline, so they could probably just be re-rebaselined.
+// 2008/12/15 These fail the pixel tests.  The pixel tests regressed
+// while the tests were marked FAIL for text diff reasons, which are
+// now fixed.  They are already rebaselined compared to the webkit
+// standard, and are now off by a small number of pixels from the
+// platform rebaseline, so they could probably just be re-rebaselined.
 WIN : LayoutTests/svg/custom/empty-merge.svg = FAIL
 WIN : LayoutTests/svg/custom/feDisplacementMap-01.svg = FAIL
 WIN : LayoutTests/svg/custom/fractional-rects.svg = FAIL
@@ -1745,10 +1751,13 @@ WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
 WIN : LayoutTests/svg/custom/rounded-rects.svg = FAIL
 WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
 WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
+
 // Same as above, but only regressed on win.
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
+
 // Our pixel results have darker red and green.
 LINUX WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+
 // The pattern we generate is wrong.
 LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
@@ -1756,8 +1765,6 @@ WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 // Merge 39143:39309
 // This test needs to be rebaselined on Mac.
 MAC : LayoutTests/animations/keyframes-rule.html = FAIL
-
-LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 
 // These two appear to be failing because of changes to PCRE that have
 // not made it to JSCRE (regex engine used by V8). See V8 bug 182.
@@ -1773,9 +1780,11 @@ MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
 
 // Currently we don't support workers.
 SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
+
 // Skipped as this tests window.sessionStorage, which we don't support. Enable
 // once we turn on DOM_STORAGE.
 SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
+
 // These are failing until Adam's patch to ImageDecoder is merged and we
 // update ImageSource. See bug 5827.
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/4947130.html = CRASH
@@ -1784,15 +1793,19 @@ LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-image-to-contenteditable-i
 LINUX WIN DEBUG : LayoutTests/editing/pasteboard/drag-selected-image-to-contenteditable.html = CRASH
 LINUX WIN DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = CRASH
 LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = CRASH
+
 // eventSender to fake a drag
 MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
-// Missing expected results.
+
+// Missing expected results.  Probably going to fail anyway, since
+// chromium does not support webarchive format.
 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
+SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
+SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
 
 // Merge 39309:39335 Regressions, see bug 5737
+// (RenderButton::setupInnerStyle regression).
 LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
-// This seems to pass what it is testing, however the bottom three boxes should
-// have small buttons.  We seem to not draw buttons if the height is set.
 LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
@@ -1824,23 +1837,16 @@ LayoutTests/fast/forms/search-transformed.html = FAIL
 // Merge 39369:39410: new test
 LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
 
-// Merge 39369:39410: new test. Ran correctly and was baselined on Win32;
-// may just need a baseline for Mac and Linux.  (Might even pass there.)
-MAC LINUX : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
+// Merge 39369:39410: new test. Ran correctly and was baselined on Win32.
+MAC : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
 
-// Merge 39410:39438
-// We're not clearing the exposed region. See test output.
+// Linux's rotated text output looks terrible.
 LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 
 // Passes locally when run individually, but fails on buildbot. Could be a
 // sideffect from previous test causing it to be flaky. Seems to have
 // started with r7379
 WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
-
-// Merge 39438:39453 -- new tests missing expected results. Probably going to
-// fail anyway, since chromium does not support webarchive format.
-SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
-SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
 
 // Merge 39520:39606 -- new test.
 MAC WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
