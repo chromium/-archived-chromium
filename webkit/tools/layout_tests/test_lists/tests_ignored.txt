@@ -160,6 +160,18 @@ LINUX WIN : LayoutTests/fast/images/object-image.html = FAIL
 // follow the rest of the browsers on this one.
 LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 
+// These tests fail in all but the PST/PDT time zone.
+// Another reason for failure is that, for compatability, we don't obey
+// the ECMA standard on DST exactly.  We use the OS's facilities to
+// convert to local time for dates within the UNIX 32-bit epoch,
+// and follow the ECMA rules for dates outside that range.
+// The ECMA rules say to use current DST rules for all dates,
+// and that all dates that are separated by an exact multiple of
+// 28 years must behave exactly the same.
+// OS local time services are more accurate than this ECMA rule,
+// which is a discrepancy.
+SKIP : LayoutTests/fast/js/date-DST-time-cusps.html = PASS FAIL
+SKIP : LayoutTests/fast/js/date-big-setdate.html = PASS FAIL
 
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS

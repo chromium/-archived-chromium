@@ -971,10 +971,6 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty
 // Mysterious off-by-one on the y axis -- font metrics?
 LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
 
-// Dates are wrong -- looks like maybe improper use of timezones?
-LINUX MAC : LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
-LINUX MAC : LayoutTests/fast/js/date-big-setdate.html = FAIL
-
 MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
 MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
