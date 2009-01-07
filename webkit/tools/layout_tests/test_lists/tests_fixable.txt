@@ -98,11 +98,6 @@ DEFER : LayoutTests/fast/replaced/table-percent-height.html = FAIL
 // Bug 992930: Unable to load file:/// URLs from data: URLs.
 DEFER RELEASE : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
-// Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
-DEFER LINUX WIN : LayoutTests/svg/custom/font-face-simple.svg = FAIL
-
-LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
-
 // -----------------------------------------------------------------
 // URL
 // -----------------------------------------------------------------
@@ -244,9 +239,6 @@ DEFER : LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
 LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
 LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 
-// Bug 1198880
-DEFER LINUX WIN : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
-
 // Bug 1204878
 LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
@@ -315,12 +307,6 @@ WIN : LayoutTests/fast/css/font-family-initial.html = FAIL
 WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
 WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 
-// Bug: 1303
-// Dynamic font support (@font-face) for Windows was ported from the
-// upstream (http://trac.webkit.org/projects/webkit/changeset/31507)
-// SVG test still fails, though.
-DEFER WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
-
 // We don't support dynamic fonts on Linux.
 // Once we have the sandbox working, we should re-evaluate this.
 DEFER LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
@@ -365,6 +351,20 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 // -----------------------------------------------------------------
 // SVG TESTS
 // -----------------------------------------------------------------
+
+// Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
+DEFER LINUX WIN : LayoutTests/svg/custom/font-face-simple.svg = FAIL
+
+LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
+
+// Bug 1198880
+DEFER LINUX WIN : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
+
+// Bug: 1303
+// Dynamic font support (@font-face) for Windows was ported from the
+// upstream (http://trac.webkit.org/projects/webkit/changeset/31507)
+// SVG test still fails, though.
+DEFER WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // BUG: 992321
 // The failures listed below have never passed in Chromium and need to be 
@@ -432,7 +432,7 @@ DEFER LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FA
 DEFER LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
 // SVG combined with font metrics.
-LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
+DEFER LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
 
 // This is an interesting one.
 // The test has an error which causes it to output a message to the console.
@@ -462,6 +462,323 @@ DEFER : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
 DEFER LINUX WIN : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
 
 LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
+
+// http://crbug.com/3244 : SVG masks aren't quite working yet.
+// Might also be related to https://bugs.webkit.org/show_bug.cgi?id=21910
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
+
+// This test needs to be rebaselined but said rebaselining didn't work and after
+// over an hour wasted, I'm giving up. -brettw
+LINUX WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
+
+// We don't seem to draw this as well as Mac.  The numbers have gaps at the
+// corners.
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
+// We're missing rectangle outlines on the 6th and 7th example.  This may
+// just be the timing of when we take the pixel snapshot.
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
+// We're missing a rainbow box below the word "stop-color".
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
+// Fails in release and debug. Sometimes crashes in debug.
+// Linux pixeltest failure: background is all blue instead of white.
+WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
+LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
+// Radial gradients are broken.
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
+LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
+LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
+LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
+LINUX WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+// 2008/12/13 - This was FAIL but is now CRASH on WIN
+LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
+LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
+WIN : LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
+// Size is off by 0.01.  Maybe a rounding difference?
+LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
+WIN : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
+WIN : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
+// Flaky on both release and debug. 
+LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
+LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
+LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
+LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
+// Difference between numeric precision in output.
+LINUX WIN : LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/gradient-rotated-bbox.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/group-opacity.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
+// Linux pixeltest failure: Failing to draw gradients
+LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
+// Our green is darker and we seem to be a pixel taller.
+WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/large-bounding-box-percents.svg = FAIL
+LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
+LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
+LINUX WIN : LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
+// The pattern we generate appears to be scaled incorrectly.
+LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
+LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
+LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
+LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
+WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
+
+// Windows fails to draw anything here
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
+// This one passes even though nothing is drawn.
+// LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
+
+LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
+// Output differs by 0.01.  Maybe a rounding difference?
+LINUX WIN : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+
+// Crash in DEBUG only
+DEBUG LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
+
+// I find it hard to care too much about SVG failures.
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-07-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-desc-02-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-zoom-01-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-spacing-01-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-01-b.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/textPosition.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/slider.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/textbox.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/window.svg = FAIL
+LINUX : LayoutTests/svg/custom/coords-relative-units-transforms.svg = FAIL
+LINUX : LayoutTests/svg/custom/glyph-setting-d-attribute.svg = FAIL
+LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL
+LINUX : LayoutTests/svg/custom/svg-fonts-in-html.html = FAIL
+LINUX : LayoutTests/svg/custom/use-referencing-nonexisting-symbol.svg = FAIL
+LINUX : LayoutTests/svg/hixie/perf/003.xml = FAIL
+LINUX : LayoutTests/svg/hixie/perf/004.xml = FAIL
+LINUX : LayoutTests/svg/hixie/perf/005.xml = FAIL
+LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
+LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
+LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
+
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+
+// MAC: these two seem to pass in release, but not debug
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
+MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
+MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
+
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-62-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-01-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-02-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-06-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-08-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/script-handle-02-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/script-handle-03-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/script-handle-04-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-align-05-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-align-06-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-04-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-tspan-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textLayout.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textLayout2.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textLength.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
+LINUX WIN : LayoutTests/svg/custom/text-linking.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/text-xy-updates.svg = FAIL
+WIN : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
+LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
+LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
+LINUX WIN : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
+LINUX WIN : LayoutTests/svg/text/kerning.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/multichar-glyph.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-align-05-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-align-06-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-text-04-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-text-05-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-text-06-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-text-07-t.svg = FAIL
+LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
+
+LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
+
+// Bug 1341582
+LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
+LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
+
+// http://crbug.com/4618
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH PASS
+
+// These have been failing for as long as we've had SVG support and were
+// incorrectly removed during a merge.
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
+
+LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
+
+// MERGE 38760:38800: Expectations changed upstream
+WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
+
+// WebKit Merge 38950:39000 failures:
+LINUX WIN : LayoutTests/svg/custom/fill-fallback.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/invalid-css.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/resource-client-removal.svg = FAIL
+
+// http://crbug.com/5294 and http://crbug.com/4618
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRASH PASS
+
+// Linux pixeltest failure: slightly different shade of composited
+// alpha in bottom group.
+LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
+
+DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
+
+// 2008/12/15 These fail the pixel tests.  The pixel tests regressed
+// while the tests were marked FAIL for text diff reasons, which are
+// now fixed.  They are already rebaselined compared to the webkit
+// standard, and are now off by a small number of pixels from the
+// platform rebaseline, so they could probably just be re-rebaselined.
+WIN : LayoutTests/svg/custom/empty-merge.svg = FAIL
+WIN : LayoutTests/svg/custom/feDisplacementMap-01.svg = FAIL
+WIN : LayoutTests/svg/custom/fractional-rects.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/gradient-add-stops.svg = FAIL
+WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
+WIN : LayoutTests/svg/custom/rounded-rects.svg = FAIL
+WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
+WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
+
+// Same as above, but only regressed on win.
+WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
+
+// Our pixel results have darker red and green.
+LINUX WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+
+// The pattern we generate is wrong.
+LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
+WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
+
+// Background SVGs fail upstream but were rebaselined to pass (r38335)
+// https://bugs.webkit.org/show_bug.cgi?id=21910
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
+LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
+WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
+WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
+WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
+WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
+WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
+
+// Brett broke this with his font rendering effect patch and needs to fix it.
+WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 
 //
 // -----------------------------------------------------------------
@@ -568,13 +885,6 @@ SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 // http://code.google.com/p/chromium/issues/detail?id=3229
 LINUX WIN : LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
-// http://crbug.com/3244 : SVG masks aren't quite working yet.
-// Might also be related to https://bugs.webkit.org/show_bug.cgi?id=21910
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
-
 // More tests that fail because of masks not working properly.
 LINUX WIN : LayoutTests/fast/backgrounds/mask-composite.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
@@ -589,10 +899,6 @@ SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 // Issue 3273: TextInputController::firstRectForCharacterRange not implemented
 // http://code.google.com/p/chromium/issues/detail?id=3273
 LayoutTests/editing/selection/move-left-right.html = FAIL
-
-// This test needs to be rebaselined but said rebaselining didn't work and after
-// over an hour wasted, I'm giving up. -brettw
-LINUX WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
@@ -649,108 +955,7 @@ DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.htm
 // Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
-// We don't seem to draw this as well as Mac.  The numbers have gaps at the
-// corners.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-// We're missing rectangle outlines on the 6th and 7th example.  This may
-// just be the timing of when we take the pixel snapshot.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
-// We're missing a rainbow box below the word "stop-color".
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
-// Fails in release and debug. Sometimes crashes in debug.
-// Linux pixeltest failure: background is all blue instead of white.
-WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
-LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
-// Radial gradients are broken.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
-LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
-LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
-LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
-LINUX WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
-// 2008/12/13 - This was FAIL but is now CRASH on WIN
-LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
-LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
-WIN : LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
-// Size is off by 0.01.  Maybe a rounding difference?
-LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
-WIN : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
-WIN : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
-// Flaky on both release and debug. 
-LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
-LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
-LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
-LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
-// Difference between numeric precision in output.
-LINUX WIN : LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/gradient-rotated-bbox.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/group-opacity.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
-// Linux pixeltest failure: Failing to draw gradients
-LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
-// Our green is darker and we seem to be a pixel taller.
-WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/large-bounding-box-percents.svg = FAIL
-LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
-LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
-// The pattern we generate appears to be scaled incorrectly.
-LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
-LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
-WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
 
-// Windows fails to draw anything here
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
-// This one passes even though nothing is drawn.
-// LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
-
-LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
-// Output differs by 0.01.  Maybe a rounding difference?
-LINUX WIN : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 // Linux pixeltest failure: Font mismatch
 LINUX WIN : LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
 // Linux pixeltest failure: Font mismatch
@@ -773,9 +978,6 @@ DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
 WIN : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
-
-// Crash in DEBUG only
-DEBUG LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 
 // This test is timing sensitive and sometimes fails.  However, other tests
 // in the LayoutTests/animations/ directory are timing sensitive in the same
@@ -934,34 +1136,6 @@ LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
 // should disable this in libxml.
 LINUX MAC : LayoutTests/fast/xsl/transform-xhr-doc.xhtml = FAIL
 
-// I find it hard to care too much about SVG failures.
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-07-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-desc-02-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-zoom-01-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-spacing-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-01-b.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/textPosition.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/slider.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/textbox.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/window.svg = FAIL
-LINUX : LayoutTests/svg/custom/coords-relative-units-transforms.svg = FAIL
-LINUX : LayoutTests/svg/custom/glyph-setting-d-attribute.svg = FAIL
-LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL
-LINUX : LayoutTests/svg/custom/svg-fonts-in-html.html = FAIL
-LINUX : LayoutTests/svg/custom/use-referencing-nonexisting-symbol.svg = FAIL
-LINUX : LayoutTests/svg/hixie/perf/003.xml = FAIL
-LINUX : LayoutTests/svg/hixie/perf/004.xml = FAIL
-LINUX : LayoutTests/svg/hixie/perf/005.xml = FAIL
-LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
-LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
-LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
-LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
-
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 
@@ -1080,85 +1254,6 @@ LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 // printed if that property is on a button. This is either a small problem in
 // test shell or a big problem in V8.
 LayoutTests/fast/forms/selection-functions.html = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
-
-// MAC: these two seem to pass in release, but not debug
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
-
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-62-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-01-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-02-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/render-elems-08-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/script-handle-02-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/script-handle-03-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/script-handle-04-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-align-05-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-align-06-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-04-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-tspan-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textLayout.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textLayout2.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textLength.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/custom/text-linking.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/text-xy-updates.svg = FAIL
-WIN : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
-LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
-LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
-LINUX WIN : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
-LINUX WIN : LayoutTests/svg/text/kerning.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/multichar-glyph.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-align-05-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-align-06-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-04-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-05-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-07-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
@@ -1219,13 +1314,8 @@ LINUX WIN : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
-LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
 pending/security/block-test.html = CRASH FAIL
 LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
-
-// Bug 1341582
-LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
-LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
 
 MAC WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
@@ -1244,31 +1334,6 @@ LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 // Started failing with r5743 (darin)
 // http://crbug.com/4617
 LayoutTests/security/block-test.html = FAIL
-
-// http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH PASS
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH PASS
-
-// These have been failing for as long as we've had SVG support and were
-// incorrectly removed during a merge.
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 
 // MERGE 38500:39550: New tests
 LayoutTests/transitions/transition-drt-api.html = TIMEOUT
@@ -1322,14 +1387,9 @@ LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
 // MERGE 38729:38760: Regressions
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
-LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
-
 // MERGE 38760:38800: New tests
 // Currently we don't support workers.
 SKIP : LayoutTests/fast/workers/use-machine-stack.html = TIMEOUT
-
-// MERGE 38760:38800: Expectations changed upstream
-WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
 
 // Windows is missing the green box.
 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
@@ -1665,12 +1725,6 @@ LINUX WIN : LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
 LINUX WIN : LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
 LayoutTests/fast/dom/dom-constructors.html = FAIL
 
-// WebKit Merge 38950:39000 failures:
-LINUX WIN : LayoutTests/svg/custom/fill-fallback.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/invalid-css.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/resource-client-removal.svg = FAIL
-
 // WebKit Merge 39050:39100 failures:
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
@@ -1707,15 +1761,8 @@ LINUX WIN : LayoutTests/fast/repaint/reflection-redraw.html = FAIL
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 
-// http://crbug.com/5294 and http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRASH PASS
-
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
-
-// Linux pixeltest failure: slightly different shade of composited
-// alpha in bottom group.
-LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
 
 // Failed with r6844 (dglazkov)
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
@@ -1737,31 +1784,6 @@ WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
 
 // Passes when run by itself.  Fails on the buildbot.
 LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
-DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
-
-// 2008/12/15 These fail the pixel tests.  The pixel tests regressed
-// while the tests were marked FAIL for text diff reasons, which are
-// now fixed.  They are already rebaselined compared to the webkit
-// standard, and are now off by a small number of pixels from the
-// platform rebaseline, so they could probably just be re-rebaselined.
-WIN : LayoutTests/svg/custom/empty-merge.svg = FAIL
-WIN : LayoutTests/svg/custom/feDisplacementMap-01.svg = FAIL
-WIN : LayoutTests/svg/custom/fractional-rects.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/gradient-add-stops.svg = FAIL
-WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
-WIN : LayoutTests/svg/custom/rounded-rects.svg = FAIL
-WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
-WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
-
-// Same as above, but only regressed on win.
-WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
-
-// Our pixel results have darker red and green.
-LINUX WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
-
-// The pattern we generate is wrong.
-LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
-WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
 // This test needs to be rebaselined on Mac.
@@ -1810,23 +1832,6 @@ LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
-
-// Background SVGs fail upstream but were rebaselined to pass (r38335)
-// https://bugs.webkit.org/show_bug.cgi?id=21910
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
-WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
-WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
-WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
-WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
-
-// Brett broke this with his font rendering effect patch and needs to fix it.
-WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
