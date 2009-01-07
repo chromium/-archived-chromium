@@ -98,7 +98,6 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Italic.ttf",
-    "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf",
     NULL
   };
   for (size_t i = 0; fonts[i]; ++i) {
@@ -110,6 +109,20 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     }
     if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) fonts[i]))
       LOG(FATAL) << "Failed to load font " << fonts[i];
+  }
+
+  // We special case this font because it's only needed in a few layout tests
+  // and it's in an obscure package (sun-java6-fonts), which pulls in the JDK.
+  const char* const lucida_sans_file =
+      "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf";
+  if (access(lucida_sans_file, R_OK)) {
+    LOG(WARNING) << "You are missing " << lucida_sans_file
+                 << ". Without this, some layout tests will fail."
+                 << "It's not a major problem. You can get it from the "
+                 << "sun-java6-fonts package on Ubuntu.";
+  } else {
+    if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) lucida_sans_file))
+      LOG(FATAL) << "Failed to load font " << lucida_sans_file;
   }
 
   // Also load the layout-test-specific "Ahem" font.
