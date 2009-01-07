@@ -468,12 +468,24 @@ void SSLManager::OnMixedContentRequest(ResourceDispatcherHost* rdh,
 void SSLManager::OnCertError(CertError* error) {
   // Ask our delegate to deal with the error.
   NavigationEntry* entry = controller_->GetActiveEntry();
+  // We might not have a navigation entry in some cases (e.g. when a
+  // HTTPS page opens a popup with no URL and then populate it with
+  // document.write()). See bug http://crbug.com/3845.
+  if (!entry)
+    return;
+
   delegate()->OnCertError(entry->url(), error);
 }
 
 void SSLManager::OnMixedContent(MixedContentHandler* mixed_content) {
   // Ask our delegate to deal with the mixed content.
   NavigationEntry* entry = controller_->GetActiveEntry();
+  // We might not have a navigation entry in some cases (e.g. when a
+  // HTTPS page opens a popup with no URL and then populate it with
+  // document.write()). See bug http://crbug.com/3845.
+  if (!entry)
+    return;
+
   delegate()->OnMixedContent(controller_, entry->url(), mixed_content);
 }
 
