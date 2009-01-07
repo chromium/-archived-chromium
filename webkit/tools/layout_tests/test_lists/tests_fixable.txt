@@ -1849,5 +1849,7 @@ WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
 SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
 
-// Merge 39520:39606 -- new tests
-LayoutTests/fast/canvas/set-colors.html = FAIL
+// Merge 39520:39606 -- new test.
+MAC WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
+// Crashes on the buildbot reliably(?) but not locally, even under Valgrind.
+LINUX : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
