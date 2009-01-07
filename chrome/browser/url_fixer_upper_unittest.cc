@@ -173,6 +173,12 @@ struct fixup_case {
   // a clean way to guess this isn't the new-and-exciting "user" scheme.
   {L"user:passwd@www.google.com:8080/", L"", L"user:passwd@www.google.com:8080/"},
   //{L"file:///c:/foo/bar%20baz.txt", L"", L"file:///C:/foo/bar%20baz.txt"},
+  {L"ftp.google.com", L"", L"ftp://ftp.google.com/"},
+  {L"    ftp.google.com", L"", L"ftp://ftp.google.com/"},
+  {L"FTP.GooGle.com", L"", L"ftp://FTP.GooGle.com/"},
+  {L"ftpblah.google.com", L"", L"http://ftpblah.google.com/"},
+  {L"ftp", L"", L"http://ftp/"},
+  {L"google.ftp.com", L"", L"http://google.ftp.com/"},
 };
 
 TEST(URLFixerUpperTest, FixupURL) {

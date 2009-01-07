@@ -287,16 +287,11 @@ wstring URLFixerUpper::SegmentURL(const wstring& text,
       parts->scheme.reset();
   }
 
-  // Check to see if we've found a scheme we liked.
-  int scheme_end;
-  if (parts->scheme.is_valid()) {
-    // Remember the end of the scheme.
-    scheme_end = parts->scheme.end();
-  } else {
-    // Having been unable to extract a scheme, we default to HTTP.
-    scheme.assign(L"http");
-    scheme_end = 0;
-  }
+  // When we couldn't find a scheme in the input, we need to pick one.  Normally
+  // we choose http, but if the URL starts with "ftp.", we match other browsers
+  // and choose ftp.
+  if (!parts->scheme.is_valid())
+    scheme.assign(StartsWith(text, L"ftp.", false) ? L"ftp" : L"http");
 
   // Cannonicalize the scheme.
   StringToLowerASCII(&scheme);
