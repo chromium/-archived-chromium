@@ -790,7 +790,7 @@ WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 // to access non-file urls.
 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
 DEFER : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-DEFER LINUX WIN : LayoutTests/fast/frames/frame-src-attribute.html = FAIL
+DEFER LINUX : LayoutTests/fast/frames/frame-src-attribute.html = FAIL
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
@@ -1257,7 +1257,7 @@ LayoutTests/fast/forms/form-element-geometry.html = FAIL
 // the scrollbar looks too narrow.
 LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
 // The thumb in the scrollbar looks too narrow.
-LINUX WIN : LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
+LINUX : LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 // Thumb is the wrong size and this test doesn't work on Windows due to font
 // sizes.
@@ -1824,10 +1824,10 @@ LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
-LINUX WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
-LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
-LayoutTests/fast/forms/search-rtl.html = FAIL
-LayoutTests/fast/forms/search-transformed.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
+DEFER : LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
+DEFER : LayoutTests/fast/forms/search-rtl.html = FAIL
+DEFER : LayoutTests/fast/forms/search-transformed.html = FAIL
 
 // Merge 39369:39410: new test
 LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
