@@ -38,7 +38,6 @@
 #include "V8CanvasRenderingContext2D.h"
 #include "V8CanvasGradient.h"
 #include "V8CanvasPattern.h"
-#include "V8CanvasPixelArray.h"
 #include "V8CDATASection.h"
 #include "V8CharacterData.h"
 #include "V8Clipboard.h"

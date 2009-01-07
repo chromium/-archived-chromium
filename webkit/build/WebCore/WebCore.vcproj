@@ -1472,14 +1472,6 @@
 					Name="transforms"
 					>
 					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\AffineTransform.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\AffineTransform.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\IdentityTransformOperation.h"
 						>
 					</File>
@@ -1513,6 +1505,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\SkewTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TransformationMatrix.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\TransformationMatrix.h"
 						>
 					</File>
 					<File
@@ -5123,14 +5123,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasPattern.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasPixelArray.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasPixelArray.h"
 				>
 			</File>
 			<File

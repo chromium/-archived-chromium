@@ -49,7 +49,7 @@
 		4103039F0EFB0F7C008832CA /* CachedPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103039E0EFB0F7C008832CA /* CachedPage.cpp */; };
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		416F45220ED7697D008215B6 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
-		41822AF50F0000B70034A67A /* AffineTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F10EFC893600E752CB /* AffineTransform.cpp */; };
+		41822AF50F0000B70034A67A /* TransformationMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F10EFC893600E752CB /* TransformationMatrix.cpp */; };
 		41822B020F0000D30034A67A /* AnimationList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5ED0EFC892100E752CB /* AnimationList.cpp */; };
 		41822B030F0000D80034A67A /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5EB0EFC892100E752CB /* Animation.cpp */; };
 		41822B050F0000E40034A67A /* MatrixTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */; };
@@ -115,7 +115,6 @@
 		4DB299C80EA4DD1E007EA4CF /* V8XMLHttpRequestProgressEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299C30EA4DD1E007EA4CF /* V8XMLHttpRequestProgressEvent.cpp */; };
 		4DB7EF7B0E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF770E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp */; };
 		4DB7EF7C0E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF790E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp */; };
-		4DB7EF920E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF800E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp */; };
 		4DB7EF930E9B9F6300C66CE0 /* V8File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */; };
 		4DB7EF940E9B9F6300C66CE0 /* V8FileList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */; };
 		4DB7EF950E9B9F6300C66CE0 /* V8ImageData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF860E9B9F6300C66CE0 /* V8ImageData.cpp */; };
@@ -146,7 +145,6 @@
 		4DB7F0090E9BA3A100C66CE0 /* GeneratedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFFE0E9BA3A100C66CE0 /* GeneratedImage.cpp */; };
 		4DB7F00A0E9BA3A100C66CE0 /* Gradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F0010E9BA3A100C66CE0 /* Gradient.cpp */; };
 		4DB7F00B0E9BA3A100C66CE0 /* Pattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F0040E9BA3A100C66CE0 /* Pattern.cpp */; };
-		4DB7F0590E9BA86A00C66CE0 /* CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F04B0E9BA86A00C66CE0 /* CanvasPixelArray.cpp */; };
 		4DB7F05A0E9BA86A00C66CE0 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F04D0E9BA86A00C66CE0 /* File.cpp */; };
 		4DB7F05B0E9BA86A00C66CE0 /* FileList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F04F0E9BA86A00C66CE0 /* FileList.cpp */; };
 		4DB7F05C0E9BA86A00C66CE0 /* HTMLAnchorElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F0510E9BA86A00C66CE0 /* HTMLAnchorElement.cpp */; };
@@ -1455,8 +1453,8 @@
 		3CBAF5ED0EFC892100E752CB /* AnimationList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationList.cpp; sourceTree = "<group>"; };
 		3CBAF5EE0EFC892100E752CB /* AnimationList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationList.h; sourceTree = "<group>"; };
 		3CBAF5EF0EFC892100E752CB /* TimingFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimingFunction.h; sourceTree = "<group>"; };
-		3CBAF5F10EFC893600E752CB /* AffineTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AffineTransform.cpp; sourceTree = "<group>"; };
-		3CBAF5F20EFC893600E752CB /* AffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AffineTransform.h; sourceTree = "<group>"; };
+		3CBAF5F10EFC893600E752CB /* TransformationMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformationMatrix.cpp; sourceTree = "<group>"; };
+		3CBAF5F20EFC893600E752CB /* TransformationMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformationMatrix.h; sourceTree = "<group>"; };
 		3CBAF5F30EFC893600E752CB /* IdentityTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdentityTransformOperation.h; sourceTree = "<group>"; };
 		3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixTransformOperation.cpp; sourceTree = "<group>"; };
 		3CBAF5F50EFC893600E752CB /* MatrixTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixTransformOperation.h; sourceTree = "<group>"; };
@@ -1631,8 +1629,6 @@
 		4DB7EF780E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CSSVariablesDeclaration.h; sourceTree = "<group>"; };
 		4DB7EF790E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CSSVariablesRule.cpp; sourceTree = "<group>"; };
 		4DB7EF7A0E9B9F0200C66CE0 /* V8CSSVariablesRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CSSVariablesRule.h; sourceTree = "<group>"; };
-		4DB7EF800E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
-		4DB7EF810E9B9F6300C66CE0 /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
 		4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8File.cpp; sourceTree = "<group>"; };
 		4DB7EF830E9B9F6300C66CE0 /* V8File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8File.h; sourceTree = "<group>"; };
 		4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8FileList.cpp; sourceTree = "<group>"; };
@@ -1700,8 +1696,6 @@
 		4DB7F0050E9BA3A100C66CE0 /* Pattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pattern.h; sourceTree = "<group>"; };
 		4DB7F0060E9BA3A100C66CE0 /* TextRun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextRun.h; sourceTree = "<group>"; };
 		4DB7F0070E9BA3A100C66CE0 /* UnitBezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnitBezier.h; sourceTree = "<group>"; };
-		4DB7F04B0E9BA86A00C66CE0 /* CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasPixelArray.cpp; sourceTree = "<group>"; };
-		4DB7F04C0E9BA86A00C66CE0 /* CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasPixelArray.h; sourceTree = "<group>"; };
 		4DB7F04D0E9BA86A00C66CE0 /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
 		4DB7F04E0E9BA86A00C66CE0 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
 		4DB7F04F0E9BA86A00C66CE0 /* FileList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileList.cpp; sourceTree = "<group>"; };
@@ -4357,8 +4351,8 @@
 		3CBAF5F00EFC893600E752CB /* transforms */ = {
 			isa = PBXGroup;
 			children = (
-				3CBAF5F10EFC893600E752CB /* AffineTransform.cpp */,
-				3CBAF5F20EFC893600E752CB /* AffineTransform.h */,
+				3CBAF5F10EFC893600E752CB /* TransformationMatrix.cpp */,
+				3CBAF5F20EFC893600E752CB /* TransformationMatrix.h */,
 				3CBAF5F30EFC893600E752CB /* IdentityTransformOperation.h */,
 				3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */,
 				3CBAF5F50EFC893600E752CB /* MatrixTransformOperation.h */,
@@ -5238,8 +5232,6 @@
 				7B5E8BE40D7F3B62001ECF42 /* CanvasGradient.h */,
 				7B5E8BE60D7F3B62001ECF42 /* CanvasPattern.cpp */,
 				7B5E8BE70D7F3B62001ECF42 /* CanvasPattern.h */,
-				4DB7F04B0E9BA86A00C66CE0 /* CanvasPixelArray.cpp */,
-				4DB7F04C0E9BA86A00C66CE0 /* CanvasPixelArray.h */,
 				7B5E8BEA0D7F3B62001ECF42 /* CanvasRenderingContext2D.cpp */,
 				7B5E8BEB0D7F3B62001ECF42 /* CanvasRenderingContext2D.h */,
 				7B5E8BED0D7F3B62001ECF42 /* CanvasStyle.cpp */,
@@ -6812,8 +6804,6 @@
 				7B0091440DAFEFE200F72082 /* V8CanvasGradient.h */,
 				7B0091450DAFEFE300F72082 /* V8CanvasPattern.cpp */,
 				7B0091460DAFEFE300F72082 /* V8CanvasPattern.h */,
-				4DB7EF800E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp */,
-				4DB7EF810E9B9F6300C66CE0 /* V8CanvasPixelArray.h */,
 				7B0091470DAFEFE300F72082 /* V8CanvasRenderingContext2D.cpp */,
 				7B0091480DAFEFE300F72082 /* V8CanvasRenderingContext2D.h */,
 				7B0091490DAFEFE300F72082 /* V8CDATASection.cpp */,
@@ -8198,7 +8188,6 @@
 				7B0093830DAFEFE600F72082 /* V8BarInfo.cpp in Sources */,
 				7B0093850DAFEFE600F72082 /* V8CanvasGradient.cpp in Sources */,
 				7B0093870DAFEFE600F72082 /* V8CanvasPattern.cpp in Sources */,
-				4DB7EF920E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp in Sources */,
 				7B0093890DAFEFE600F72082 /* V8CanvasRenderingContext2D.cpp in Sources */,
 				7B00938B0DAFEFE600F72082 /* V8CDATASection.cpp in Sources */,
 				7B00938D0DAFEFE600F72082 /* V8CharacterData.cpp in Sources */,
@@ -8495,7 +8484,7 @@
 				4DB7F2040E9BAE2900C66CE0 /* AccessibilityTableHeaderContainer.cpp in Sources */,
 				4DB7F2050E9BAE2900C66CE0 /* AccessibilityTableRow.cpp in Sources */,
 				4D1641310EC29E80008F024E /* ActiveDOMObject.cpp in Sources */,
-				41822AF50F0000B70034A67A /* AffineTransform.cpp in Sources */,
+				41822AF50F0000B70034A67A /* TransformationMatrix.cpp in Sources */,
 				E45626810E268E87005E4685 /* AffineTransformCG.cpp in Sources */,
 				41822B030F0000D80034A67A /* Animation.cpp in Sources */,
 				4DB7EFE50E9BA1E400C66CE0 /* AnimationBase.cpp in Sources */,
@@ -8540,7 +8529,6 @@
 				E45624830E268E87005E4685 /* CachedXSLStyleSheet.cpp in Sources */,
 				E45624210E268E87005E4685 /* CanvasGradient.cpp in Sources */,
 				E45624220E268E87005E4685 /* CanvasPattern.cpp in Sources */,
-				4DB7F0590E9BA86A00C66CE0 /* CanvasPixelArray.cpp in Sources */,
 				E45624230E268E87005E4685 /* CanvasRenderingContext2D.cpp in Sources */,
 				E45624240E268E87005E4685 /* CanvasStyle.cpp in Sources */,
 				E45623B00E268E87005E4685 /* CDATASection.cpp in Sources */,

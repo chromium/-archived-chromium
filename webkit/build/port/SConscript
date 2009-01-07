@@ -222,7 +222,6 @@ idl_files = [
     'dom/WheelEvent.idl',
 
     'html/CanvasGradient.idl',
-    'html/CanvasPixelArray.idl',
     'html/CanvasPattern.idl',
     'html/CanvasRenderingContext2D.idl',
     'html/File.idl',

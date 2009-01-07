@@ -53,7 +53,6 @@ inputs = [
     '$DERIVED_DIR/V8BarInfo.cpp',
     '$DERIVED_DIR/V8CanvasGradient.cpp',
     '$DERIVED_DIR/V8CanvasPattern.cpp',
-    '$DERIVED_DIR/V8CanvasPixelArray.cpp',
     '$DERIVED_DIR/V8CanvasRenderingContext2D.cpp',
     '$DERIVED_DIR/V8CDATASection.cpp',
     '$DERIVED_DIR/V8CharacterData.cpp',

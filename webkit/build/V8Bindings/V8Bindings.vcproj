@@ -200,14 +200,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\V8CanvasPixelArray.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8CanvasPixelArray.h"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\V8CanvasRenderingContext2D.cpp"
 				>
 			</File>
@@ -2521,11 +2513,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\ScriptString.h"
+			RelativePath="..\..\port\bindings\v8\ScriptState.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\ScriptState.h"
+			RelativePath="..\..\port\bindings\v8\ScriptString.h"
 			>
 		</File>
 		<File

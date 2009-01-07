@@ -635,7 +635,6 @@ all : \
     V8CSSValueList.h \
     V8CanvasGradient.h \
     V8CanvasPattern.h \
-    V8CanvasPixelArray.h \
     V8CanvasRenderingContext2D.h \
     V8CharacterData.h \
     V8Comment.h \
@@ -932,32 +931,29 @@ all : \
 
 # CSS property names and value keywords
 
+WEBCORE_CSS_PROPERTY_NAMES := $(WebCore)/css/CSSPropertyNames.in
+WEBCORE_CSS_VALUE_KEYWORDS := $(WebCore)/css/CSSValueKeywords.in
+
 ifeq ($(findstring ENABLE_SVG,$(FEATURE_DEFINES)), ENABLE_SVG)
+    WEBCORE_CSS_PROPERTY_NAMES := $(WEBCORE_CSS_PROPERTY_NAMES) $(WebCore)/css/SVGCSSPropertyNames.in
+    WEBCORE_CSS_VALUE_KEYWORDS := $(WEBCORE_CSS_VALUE_KEYWORDS) $(WebCore)/css/SVGCSSValueKeywords.in
+endif
 
-CSSPropertyNames.h : css/CSSPropertyNames.in css/SVGCSSPropertyNames.in
-	if sort $< $(WebCore)/css/SVGCSSPropertyNames.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
-	cat $< $(WebCore)/css/SVGCSSPropertyNames.in > CSSPropertyNames.in
+# Chromium does not support this.
+#ifeq ($(ENABLE_DASHBOARD_SUPPORT), 1)
+#    WEBCORE_CSS_PROPERTY_NAMES := $(WEBCORE_CSS_PROPERTY_NAMES) $(WebCore)/css/DashboardSupportCSSPropertyNames.in
+#endif
+
+CSSPropertyNames.h : $(WEBCORE_CSS_PROPERTY_NAMES) css/makeprop.pl
+	if sort $(WEBCORE_CSS_PROPERTY_NAMES) | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
+	cat $(WEBCORE_CSS_PROPERTY_NAMES) > CSSPropertyNames.in
 	perl "$(WebCore)/css/makeprop.pl"
 
-CSSValueKeywords.h : css/CSSValueKeywords.in css/SVGCSSValueKeywords.in
+CSSValueKeywords.h : $(WEBCORE_CSS_VALUE_KEYWORDS) css/makevalues.pl
 	# Lower case all the values, as CSS values are case-insensitive
-	perl -ne 'print lc' $(WebCore)/css/SVGCSSValueKeywords.in > SVGCSSValueKeywords.in
-	if sort $< SVGCSSValueKeywords.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
-	cat $< SVGCSSValueKeywords.in > CSSValueKeywords.in
+	perl -ne 'print lc' $(WEBCORE_CSS_VALUE_KEYWORDS) > CSSValueKeywords.in
+	if sort CSSValueKeywords.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
 	perl "$(WebCore)/css/makevalues.pl"
-
-else
-
-CSSPropertyNames.h : css/CSSPropertyNames.in css/makeprop.pl
-	cp $< CSSPropertyNames.in
-	perl "$(WebCore)/css/makeprop.pl"
-
-CSSValueKeywords.h : css/CSSValueKeywords.in css/makevalues.pl
-	cp $< CSSValueKeywords.in
-	perl "$(WebCore)/css/makevalues.pl"
-
-endif 
-
 
 # DOCTYPE strings
 

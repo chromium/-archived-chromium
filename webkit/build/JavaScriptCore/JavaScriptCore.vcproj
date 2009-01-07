@@ -181,6 +181,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ByteArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ByteArray.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\CallData.cpp"
 				>
 			</File>
@@ -404,6 +412,13 @@
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSArray.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSByteArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSByteArray.h"
+				>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSCell.cpp"
 				>

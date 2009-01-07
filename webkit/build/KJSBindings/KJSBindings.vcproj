@@ -173,14 +173,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCanvasPixelArray.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCanvasPixelArray.h"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCanvasRenderingContext2D.cpp"
 				>
 			</File>
