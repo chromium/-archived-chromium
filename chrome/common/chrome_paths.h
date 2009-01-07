@@ -25,7 +25,6 @@ enum {
   DIR_APP_DICTIONARIES,  // directory where the global dictionaries are
   DIR_USER_DOCUMENTS,    // directory for a user's "My Documents"
   DIR_DEFAULT_DOWNLOADS, // directory for a user's "My Documents/Downloads"
-  DIR_USER_SCRIPTS,      // directory where Greasemonkey user scripts are stored
   FILE_RESOURCE_MODULE,  // full path and filename of the module that contains
                          // embedded resources (version, strings, images, etc.)
   FILE_LOCAL_STATE,      // path and filename to the file in which machine/

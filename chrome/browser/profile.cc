@@ -450,12 +450,11 @@ ExtensionsService* ProfileImpl::GetExtensionsService() {
 
 GreasemonkeyMaster* ProfileImpl::GetGreasemonkeyMaster() {
   if (!greasemonkey_master_.get()) {
-    std::wstring script_dir_str;
-    PathService::Get(chrome::DIR_USER_SCRIPTS, &script_dir_str);
-    FilePath script_dir(script_dir_str);
+    std::wstring script_dir = GetPath();
+    file_util::AppendToPath(&script_dir, chrome::kUserScriptsDirname);
     greasemonkey_master_ =
         new GreasemonkeyMaster(g_browser_process->file_thread()->message_loop(),
-                               script_dir);
+                               FilePath(script_dir));
   }
 
   return greasemonkey_master_.get();

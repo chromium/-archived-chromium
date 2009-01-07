@@ -172,15 +172,6 @@ bool PathProvider(int key, FilePath* result) {
       file_util::AppendToPath(&cur, L"Dictionaries");
       create_dir = true;
       break;
-    case chrome::DIR_USER_SCRIPTS:
-      // TODO(aa): Figure out where the script directory should live.
-#if defined(OS_WIN)
-      cur = L"C:\\SCRIPTS\\";
-#else
-      NOTIMPLEMENTED();
-      return false;
-#endif
-      break;
     case chrome::FILE_LOCAL_STATE:
       if (!PathService::Get(chrome::DIR_USER_DATA, &cur))
         return false;

@@ -34,6 +34,7 @@ const wchar_t kPreferencesFilename[] = L"Preferences";
 const wchar_t kSafeBrowsingFilename[] = L"Safe Browsing";
 const wchar_t kThumbnailsFilename[] = L"Thumbnails";
 const wchar_t kUserDataDirname[] = L"User Data";
+const wchar_t kUserScriptsDirname[] = L"User Scripts";
 const wchar_t kWebDataFilename[] = L"Web Data";
 const wchar_t kBookmarksFileName[] = L"Bookmarks";
 const wchar_t kHistoryBookmarksFileName[] = L"Bookmarks From History";

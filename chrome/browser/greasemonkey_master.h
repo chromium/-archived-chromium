@@ -19,7 +19,7 @@ class GreasemonkeyMaster : public base::RefCounted<GreasemonkeyMaster>,
  public:
   // For testability, the constructor takes the MessageLoop to run the
   // script-reloading worker on as well as the path the scripts live in.
-  // These are normally the file thread and DIR_USER_SCRIPTS.
+  // These are normally the file thread and a directory inside the profile.
   GreasemonkeyMaster(MessageLoop* worker, const FilePath& script_dir);
   ~GreasemonkeyMaster();
 
