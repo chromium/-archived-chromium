@@ -1255,9 +1255,9 @@ int HttpCache::AddTransactionToEntry(ActiveEntry* entry, Transaction* trans) {
 }
 
 void HttpCache::DoneWithEntry(ActiveEntry* entry, Transaction* trans) {
-  // If we already posted a task to move on to the next transaction, there is
-  // nothing to cancel.
-  if (entry->will_process_pending_queue)
+  // If we already posted a task to move on to the next transaction and this was
+  // the writer, there is nothing to cancel.
+  if (entry->will_process_pending_queue && entry->readers.empty())
     return;
 
   if (entry->writer) {

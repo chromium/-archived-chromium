@@ -532,6 +532,80 @@ TEST(HttpCache, SimpleGET_ManyReaders) {
   }
 }
 
+// This is a test for http://code.google.com/p/chromium/issues/detail?id=4769.
+// If cancelling a request is racing with another request for the same resource
+// finishing, we have to make sure that we remove both transactions from the
+// entry.
+TEST(HttpCache, SimpleGET_RacingReaders) {
+  MockHttpCache cache;
+
+  MockHttpRequest request(kSimpleGET_Transaction);
+  MockHttpRequest reader_request(kSimpleGET_Transaction);
+  reader_request.load_flags = net::LOAD_ONLY_FROM_CACHE;
+
+  std::vector<Context*> context_list;
+  const int kNumTransactions = 5;
+
+  for (int i = 0; i < kNumTransactions; ++i) {
+    context_list.push_back(
+        new Context(cache.http_cache()->CreateTransaction()));
+
+    Context* c = context_list[i];
+    MockHttpRequest* this_request = &request;
+    if (i == 1 || i == 2)
+      this_request = &reader_request;
+
+    int rv = c->trans->Start(this_request, &c->callback);
+    if (rv != net::ERR_IO_PENDING)
+      c->result = rv;
+  }
+
+  // The first request should be a writer at this point, and the subsequent
+  // requests should be pending.
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  Context* c = context_list[0];
+  ASSERT_EQ(net::ERR_IO_PENDING, c->result);
+  c->result = c->callback.WaitForResult();
+  ReadAndVerifyTransaction(c->trans.get(), kSimpleGET_Transaction);
+
+  // Now we have 2 active readers and two queued transactions.
+
+  c = context_list[1];
+  ASSERT_EQ(net::ERR_IO_PENDING, c->result);
+  c->result = c->callback.WaitForResult();
+  ReadAndVerifyTransaction(c->trans.get(), kSimpleGET_Transaction);
+
+  // At this point we have one reader, two pending transactions and a task on
+  // the queue to move to the next transaction. Now we cancel the request that
+  // is the current reader, and expect the queued task to be able to start the
+  // next request.
+
+  c = context_list[2];
+  c->trans.reset();
+
+  for (int i = 3; i < kNumTransactions; ++i) {
+    Context* c = context_list[i];
+    if (c->result == net::ERR_IO_PENDING)
+      c->result = c->callback.WaitForResult();
+    ReadAndVerifyTransaction(c->trans.get(), kSimpleGET_Transaction);
+  }
+
+  // We should not have had to re-open the disk entry.
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  for (int i = 0; i < kNumTransactions; ++i) {
+    Context* c = context_list[i];
+    delete c;
+  }
+}
+
 TEST(HttpCache, SimpleGET_ManyWriters_CancelFirst) {
   MockHttpCache cache;
 
