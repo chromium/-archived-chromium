@@ -892,6 +892,10 @@ LINUX MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 // Layout totally different -- wrong font selected?
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
 
+// Linux flaky: sometimes I get scrollbars and sometimes not.
+LINUX : LayoutTests/fast/lists/001.html = FAIL PASS
+MAC : LayoutTests/fast/lists/001.html = FAIL
+
 // We fail to load a file URL with a port number -- how does this work on
 // Windows?
 LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
