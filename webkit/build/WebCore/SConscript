@@ -846,7 +846,6 @@ input_files = [
     '$WEBCORE_DIR/svg/graphics/SVGResourceMasker.cpp',
 
     '$WEBCORE_DIR/svg/graphics/skia/RenderPathSkia.cpp',
-    '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerGradientSkia.cpp',
     '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerPatternSkia.cpp',
     '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerSkia.cpp',
     '$WEBCORE_DIR/svg/graphics/skia/SVGResourceFilterSkia.cpp',
