@@ -1041,10 +1041,10 @@ LINUX : LayoutTests/fast/css/css2-system-fonts.html = FAIL
 LINUX : LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
 
 // Wants Helvetica, Monaco.  It's still testing something useful, but we may
-// need to check in a wrong-looking baseline.
+// need to check in a wrong-looking baseline.  Windows looks wrong too.
 LINUX : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
 
-// Fonts are all wrong.  Not sure.
+// Our metrics for Georgia are off by one pixel.
 LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
 
 // Need a Japanese font.
