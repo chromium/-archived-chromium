@@ -146,6 +146,7 @@ if env.Bit('windows'):
         )
 
 wtf_inputs = [
+    '$JAVASCRIPTCORE_DIR/runtime/ByteArray.cpp',
     '$WTF_DIR/Assertions.cpp',
     '$WTF_DIR/dtoa.cpp',
     '$WTF_DIR/FastMalloc.cpp',
