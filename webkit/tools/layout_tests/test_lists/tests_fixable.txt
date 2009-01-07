@@ -1765,8 +1765,6 @@ WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
 // This test needs to be rebaselined on Mac/Linux.
-LINUX : LayoutTests/animations/animation-drt-api-multiple-keyframes.html = FAIL
-// This test needs to be rebaselined on Mac/Linux.
 LINUX MAC : LayoutTests/animations/keyframes-rule.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 // These two appear to be failing because of changes to PCRE that have
@@ -1850,13 +1848,6 @@ WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 // fail anyway, since chromium does not support webarchive format.
 SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
 SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
-
-// Merge 39543:39501 -- new test missing expected results.  Passes on Windows;
-// may just need to be baselined.
-LINUX : LayoutTests/fast/backgrounds/opacity-on-document-element.html = FAIL
-
-// Merge 39543:39501 -- test was edited slightly.  Needs new expected result.
-LINUX : LayoutTests/fast/transforms/identity-matrix.html = FAIL
 
 // Merge 39520:39606 -- new tests
 LayoutTests/fast/canvas/set-colors.html = FAIL
