@@ -943,14 +943,13 @@ LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 // Linux pixeltest failure: caret is in the wrong place
 LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 // Flaky and wrong pattern output.
-WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
-LINUX : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH PASS
+LINUX WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
+
 // This test assumes we're using unix paths and looks for a file:///test
 // path.  We correctly return file:///C:/test on Windows.  We should fix
 // upstream
 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-// RenderListBox off by 4px.  Font metrics?  Or form control size wrong?
-LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
+
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
@@ -1077,6 +1076,7 @@ LINUX : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
 LINUX : LayoutTests/fast/forms/select-initial-position.html = FAIL
 LINUX : LayoutTests/fast/forms/select-list-box-with-height.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
+LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 
 // Off-by-one in form controls -- font metrics?
 LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
