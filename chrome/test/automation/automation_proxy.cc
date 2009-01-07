@@ -241,6 +241,10 @@ void AutomationProxy::SignalNewTabUITab(int load_time) {
   ::SetEvent(new_tab_ui_load_complete_);
 }
 
+bool AutomationProxy::SavePackageShouldPromptUser(bool should_prompt) {
+  return Send(new AutomationMsg_SavePackageShouldPromptUser(0, should_prompt));
+}
+
 bool AutomationProxy::GetBrowserWindowCount(int* num_windows) {
   if (!num_windows) {
     NOTREACHED();

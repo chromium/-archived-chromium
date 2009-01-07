@@ -820,6 +820,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetPageCurrentEncoding)
     IPC_MESSAGE_HANDLER(AutomationMsg_OverrideEncodingRequest,
                         OverrideEncoding)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SavePackageShouldPromptUser,
+                        SavePackageShouldPromptUser)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2577,4 +2579,9 @@ void AutomationProvider::OverrideEncoding(const IPC::Message& message,
   }
   Send(new AutomationMsg_OverrideEncodingResponse(message.routing_id(),
                                                   succeed));
+}
+
+void AutomationProvider::SavePackageShouldPromptUser(
+    const IPC::Message& message, bool should_prompt) {
+  SavePackage::SetShouldPromptUser(should_prompt);
 }

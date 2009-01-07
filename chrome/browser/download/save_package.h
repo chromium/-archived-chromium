@@ -134,6 +134,10 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
   // Statics -------------------------------------------------------------------
 
+  // Used to disable prompting the user for a directory/filename of the saved
+  // web page.  This is available for testing.
+  static void SetShouldPromptUser(bool should_prompt);
+
   // Helper function for preparing suggested name for the SaveAs Dialog. The
   // suggested name is composed of the default save path and the web document's
   // title.

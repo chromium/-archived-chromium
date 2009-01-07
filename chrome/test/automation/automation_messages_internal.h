@@ -861,4 +861,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_OverrideEncodingResponse,
                       bool /* success */)
 
+  // Used to disable the dialog box that prompts the user for a path when
+  // saving a web page.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_SavePackageShouldPromptUser,
+                      bool /* false if we want to not show the dialog */)
+
 IPC_END_MESSAGES(Automation)
