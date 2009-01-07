@@ -514,18 +514,14 @@ LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 DEFER WIN : LayoutTests/fast/text/zero-width-characters.html = FAIL
 
-// HTTPS tests fail on the open source buildbot with error "cross-site not access allowed".
-// See bug # 2306
+// HTTPS tests fail on the open source buildbot with error "cross-site
+// not access allowed".  See bug # 2306
 LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 
 // V8 doesn't stable sort. This is not required and may never be fixed. It is
 // tracked by: http://code.google.com/p/v8/issues/detail?id=90
 LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
 LayoutTests/fast/js/sort-stability.html = FAIL
-
-// Apparently V8 date handling:
-// http://code.google.com/p/v8/issues/detail?id=91
-LayoutTests/fast/js/date-set-to-nan.html = FAIL
 
 // These require application cache to be enabled.  Skip the tests because
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
@@ -1758,18 +1754,23 @@ LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39143:39309
-// This test needs to be rebaselined on Mac/Linux.
-LINUX MAC : LayoutTests/animations/keyframes-rule.html = FAIL
+// This test needs to be rebaselined on Mac.
+MAC : LayoutTests/animations/keyframes-rule.html = FAIL
+
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
+
 // These two appear to be failing because of changes to PCRE that have
 // not made it to JSCRE (regex engine used by V8). See V8 bug 182.
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 LayoutTests/fast/regex/quantified-assertions.html = FAIL
+
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
 LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
-// Needs to be rebaselined on Linux/Mac.
-LINUX MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
+
+// Needs to be rebaselined on Mac.
+MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
+
 // Currently we don't support workers.
 SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT
 // Skipped as this tests window.sessionStorage, which we don't support. Enable
@@ -1804,11 +1805,11 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
-LINUX WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-LINUX WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
-LINUX WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
-LINUX WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
-LINUX WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
+WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
+WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
+WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
+WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
+WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 
 // Brett broke this with his font rendering effect patch and needs to fix it.
 WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
@@ -1826,8 +1827,6 @@ LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
 // Merge 39369:39410: new test. Ran correctly and was baselined on Win32;
 // may just need a baseline for Mac and Linux.  (Might even pass there.)
 MAC LINUX : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
-LINUX : LayoutTests/transitions/transform-op-list-match.html = FAIL
-LINUX : LayoutTests/transitions/transform-op-list-no-match.html = FAIL
 
 // Merge 39410:39438
 // We're not clearing the exposed region. See test output.
