@@ -334,7 +334,7 @@ const wchar_t kEnableP13n[]                    = L"enable-p13n";
 const wchar_t kSdchFilter[]                    = L"enable-sdch";
 
 // Enable Greasemonkey script support.
-const wchar_t kEnableGreasemonkey[]            = L"enable-greasemonkey";
+const wchar_t kEnableGreasemonkey[] = L"enable-user-scripts";
 
 // Enable extensions.
 const wchar_t kEnableExtensions[]              = L"enable-extensions";
