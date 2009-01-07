@@ -44,12 +44,6 @@ const char kUncompressedAudio[]             = "audio/x-uncompressed";
 //   kHeight          Integer         Display height of the surface
 const char kUncompressedVideo[]             = "video/x-uncompressed";
 
-// Represents FFmpeg encoded packets, typically from an DemuxerStreamInterface.
-// Expected keys:
-//   kFfmpegCodecId   Integer         The FFmpeg CodecID identifying the decoder
-const char kFFmpegAudio[]                   = "audio/x-ffmpeg";
-const char kFFmpegVideo[]                   = "video/x-ffmpeg";
-
 }  // namespace mime_type
 
 // Common keys.
@@ -61,7 +55,6 @@ const char MediaFormat::kSampleBits[]       = "SampleBits";
 const char MediaFormat::kChannels[]         = "Channels";
 const char MediaFormat::kWidth[]            = "Width";
 const char MediaFormat::kHeight[]           = "Height";
-const char MediaFormat::kFfmpegCodecId[]    = "FfmpegCodecId";
 
 MediaFormat::MediaFormat() {
 }

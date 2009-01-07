@@ -18,8 +18,6 @@ extern const char kAACAudio[];
 extern const char kH264AnnexB[];
 extern const char kUncompressedAudio[];
 extern const char kUncompressedVideo[];
-extern const char kFFmpegAudio[];
-extern const char kFFmpegVideo[];
 }  // namespace mime_type
 
 // MediaFormat is used to describe the output of a MediaFilterInterface to
@@ -49,7 +47,6 @@ class MediaFormat {
   static const char kChannels[];
   static const char kWidth[];
   static const char kHeight[];
-  static const char kFfmpegCodecId[];
 
   MediaFormat();
   ~MediaFormat();
