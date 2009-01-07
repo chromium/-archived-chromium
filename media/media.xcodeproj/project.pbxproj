@@ -757,9 +757,9 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					..,
-					"../sdch/open-vcdiff/src",
 					../testing/gtest/include,
 					../testing/gtest/include/gtest,
+					"../sdch/open-vcdiff/src",
 				);
 				PRODUCT_NAME = media_unittests;
 			};
@@ -776,9 +776,9 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					..,
-					"../sdch/open-vcdiff/src",
 					../testing/gtest/include,
 					../testing/gtest/include/gtest,
+					"../sdch/open-vcdiff/src",
 				);
 				PRODUCT_NAME = media_unittests;
 			};

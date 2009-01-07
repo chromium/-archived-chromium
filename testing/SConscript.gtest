@@ -40,6 +40,7 @@ input_files = ChromeFileList([
     'gtest/include/gtest/gtest.h',
     'gtest/include/gtest/gtest_pred_impl.h',
     'gtest/include/gtest/gtest_prod.h',
+    'gtest/src/gtest-test-part.cc',
     'multiprocess_func_list.cc',
 ])
 

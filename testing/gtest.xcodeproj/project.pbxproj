@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		14A5C8D90F13F7F500AA6CC7 /* gtest-test-part.cc in Sources */ = {isa = PBXBuildFile; fileRef = 14A5C8D80F13F7F500AA6CC7 /* gtest-test-part.cc */; };
 		B593AFF90EB7D41B00B72887 /* multiprocess_func_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = B593AFF70EB7D41B00B72887 /* multiprocess_func_list.cc */; };
 		B5E5A6A00EE4BCCA007808DF /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5E5A69F0EE4BCCA007808DF /* platform_test_mac.mm */; };
 		E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB60E47A20200DB1196 /* gtest_main.cc */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		14A5C8D80F13F7F500AA6CC7 /* gtest-test-part.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-test-part.cc"; sourceTree = "<group>"; };
 		7B836C740E55C8CC00F6AD31 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7B836C750E55C8CC00F6AD31 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7B836C760E55C8CC00F6AD31 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				14A5C8D80F13F7F500AA6CC7 /* gtest-test-part.cc */,
 				E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */,
 				E45A2BB80E47A20200DB1196 /* gtest-filepath.cc */,
 				E45A2BB90E47A20200DB1196 /* gtest-internal-inl.h */,
@@ -143,6 +146,7 @@
 				E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */,
 				B593AFF90EB7D41B00B72887 /* multiprocess_func_list.cc in Sources */,
 				B5E5A6A00EE4BCCA007808DF /* platform_test_mac.mm in Sources */,
+				14A5C8D90F13F7F500AA6CC7 /* gtest-test-part.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
