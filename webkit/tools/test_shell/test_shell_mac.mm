@@ -136,6 +136,66 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   window_list_ = new WindowList;
   layout_test_mode_ = layout_test_mode;
   
+  // So we can match the WebKit layout tests, we want to force a bunch of
+  // preferences that control appearance to match.
+  // (We want to do this as early as possible in application startup so
+  // the settings are in before any higher layers could cache values.)
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  if (layout_test_mode_) {
+    const NSInteger kMinFontSizeCGSmoothes = 4;
+    const NSInteger kNoFontSmoothing = 0;
+    const NSInteger kBlueTintedAppearance = 1;
+    [defaults setInteger:kMinFontSizeCGSmoothes
+                  forKey:@"AppleAntiAliasingThreshold"];
+    [defaults setInteger:kNoFontSmoothing
+                  forKey:@"AppleFontSmoothing"];
+    [defaults setInteger:kBlueTintedAppearance
+                  forKey:@"AppleAquaColorVariant"];
+    [defaults setObject:@"0.709800 0.835300 1.000000"
+                 forKey:@"AppleHighlightColor"];
+    [defaults setObject:@"0.500000 0.500000 0.500000"
+                 forKey:@"AppleOtherHighlightColor"];
+    [defaults setObject:[NSArray arrayWithObject:@"en"]
+                 forKey:@"AppleLanguages"];
+    
+    // AppKit pulls scrollbar style from NSUserDefaults.  HIToolbox uses
+    // CFPreferences, but AnyApplication, so we set it, force it to load, and
+    // then reset the pref to what it was (HIToolbox will cache what it loaded).
+    [defaults setObject:@"DoubleMax" forKey:@"AppleScrollBarVariant"];
+    CFTypeRef initialValue
+        = CFPreferencesCopyValue(CFSTR("AppleScrollBarVariant"),
+                                 kCFPreferencesAnyApplication,
+                                 kCFPreferencesCurrentUser,
+                                 kCFPreferencesAnyHost);
+    CFPreferencesSetValue(CFSTR("AppleScrollBarVariant"),
+                          CFSTR("DoubleMax"),
+                          kCFPreferencesAnyApplication,
+                          kCFPreferencesCurrentUser,
+                          kCFPreferencesAnyHost);
+    // Make HIToolbox read from CFPreferences
+    ThemeScrollBarArrowStyle style;
+    GetThemeScrollBarArrowStyle(&style);
+    if (initialValue) {
+      // Reset the preference to what it was
+      CFPreferencesSetValue(CFSTR("AppleScrollBarVariant"),
+                            initialValue,
+                            kCFPreferencesAnyApplication,
+                            kCFPreferencesCurrentUser,
+                            kCFPreferencesAnyHost);
+      CFRelease(initialValue);
+    }
+  } else {
+    // Not running a test, clear the keys so the TestShell looks right to the
+    // running user.
+    [defaults removeObjectForKey:@"AppleAntiAliasingThreshold"];
+    [defaults removeObjectForKey:@"AppleFontSmoothing"];
+    [defaults removeObjectForKey:@"AppleAquaColorVariant"];
+    [defaults removeObjectForKey:@"AppleHighlightColor"];
+    [defaults removeObjectForKey:@"AppleOtherHighlightColor"];
+    [defaults removeObjectForKey:@"AppleLanguages"];
+    [defaults removeObjectForKey:@"AppleScrollBarVariant"];
+  }
+  
   web_prefs_ = new WebPreferences;
   
   ResetWebPreferences();
