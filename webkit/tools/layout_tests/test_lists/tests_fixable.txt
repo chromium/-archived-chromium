@@ -576,6 +576,7 @@ LINUX WIN : LayoutTests/fast/reflections/reflection-masks.html = FAIL
 // http://crbug.com/3244 : SVG masks aren't quite working yet.
 // Might also be related to https://bugs.webkit.org/show_bug.cgi?id=21910
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
@@ -1706,6 +1707,10 @@ LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 // Mac where everything is dark gray.
 LINUX WIN : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
+LINUX WIN : LayoutTests/fast/canvas/canvas-as-image-incremental-repaint.html = FAIL
+LINUX WIN : LayoutTests/fast/canvas/canvas-incremental-repaint.html = FAIL
+LINUX WIN : LayoutTests/fast/repaint/create-layer-repaint.html = FAIL
+LINUX WIN : LayoutTests/fast/repaint/reflection-redraw.html = FAIL
 
 // Linux pixeltest failure: Failing to rotate the form control
 LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
