@@ -16,17 +16,26 @@ std::wstring GetClientStateKeyPath() {
   return reg_path;
 }
 
-bool ReadGoogleUpdateStrKey(const wchar_t* const key_name,
-                            std::wstring* value) {
+bool ReadGoogleUpdateStrKey(const wchar_t* const name, std::wstring* value) {
   std::wstring reg_path = GetClientStateKeyPath();
   RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
-  if (!key.ReadValue(key_name, value)) {
+  if (!key.ReadValue(name, value)) {
     RegKey hklm_key(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_READ);
-    return hklm_key.ReadValue(key_name, value);
+    return hklm_key.ReadValue(name, value);
   }
   return true;
 }
+
+bool ClearGoogleUpdateStrKey(const wchar_t* const name) {
+  std::wstring reg_path = GetClientStateKeyPath();
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
+  std::wstring value;
+  if (!key.ReadValue(name, &value))
+    return false;
+  return key.WriteValue(name, L"");
 }
+
+}  // namespace.
 
 bool GoogleUpdateSettings::GetCollectStatsConsent() {
   std::wstring reg_path = GetClientStateKeyPath();
@@ -60,5 +69,9 @@ bool GoogleUpdateSettings::GetBrand(std::wstring* brand) {
 }
 
 bool GoogleUpdateSettings::GetReferral(std::wstring* referral) {
-   return ReadGoogleUpdateStrKey(google_update::kRegReferralField, referral);
+  return ReadGoogleUpdateStrKey(google_update::kRegReferralField, referral);
+}
+
+bool GoogleUpdateSettings::ClearReferral() {
+  return ClearGoogleUpdateStrKey(google_update::kRegReferralField);
 }

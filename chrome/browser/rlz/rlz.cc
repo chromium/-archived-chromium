@@ -183,8 +183,10 @@ class DailyPingTask : public Task {
     std::wstring referral;
     GoogleUpdateSettings::GetReferral(&referral);
     if (SendFinancialPing(brand.c_str(), lang.c_str(), referral.c_str(),
-                          is_organic(brand)))
+                          is_organic(brand))) {
       access_values_state = ACCESS_VALUES_STALE;
+      GoogleUpdateSettings::ClearReferral();
+    }
   }
 
   // Organic brands all start with GG, such as GGCM.

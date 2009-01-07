@@ -40,6 +40,10 @@ class GoogleUpdateSettings {
   // partners. This value does not exist for most chrome or chromium installs.
   static bool GetReferral(std::wstring* referral);
 
+  // Overwrites the current value of the referral with an empty string. Returns
+  // true if this operation succeeded.
+  static bool ClearReferral();
+
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
