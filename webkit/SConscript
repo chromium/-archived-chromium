@@ -121,6 +121,7 @@ env.Prepend(
         '$ICU38_DIR/public/i18n',
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/ext',
         '$SKIA_DIR/platform',
         '$NPAPI_DIR',
         '$V8_DIR/include',
