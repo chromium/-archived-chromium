@@ -34,7 +34,7 @@ const char kH264AnnexB[]                    = "video/x-h264-annex-b";
 //   kChannels        Integer         Number of audio channels
 //   kSampleRate      Integer         Audio sample rate (i.e., 44100)
 //   kSampleBits      Integer         Audio bits-per-sample (i.e., 16)
-const char kRawAudio[]                      = "audio/x-uncompressed";
+const char kUncompressedAudio[]             = "audio/x-uncompressed";
 
 // Represents decoded video data, typically from a VideoDecoderInterface.
 // Other information, such as surface format (i.e., YV12), stride and planes are
@@ -42,7 +42,7 @@ const char kRawAudio[]                      = "audio/x-uncompressed";
 // Expected keys:
 //   kWidth           Integer         Display width of the surface
 //   kHeight          Integer         Display height of the surface
-const char kRawVideo[]                      = "video/x-uncompressed";
+const char kUncompressedVideo[]             = "video/x-uncompressed";
 
 // Represents FFmpeg encoded packets, typically from an DemuxerStreamInterface.
 // Expected keys:
