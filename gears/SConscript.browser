@@ -207,7 +207,6 @@ if env['OS'] == 'osx':
 if not env['OFFICIAL_BUILD']:
   env.Append(LIBS = [
       'jpeg-gears',
-      'portaudio',
       'gd',
   ])
 
@@ -225,7 +224,6 @@ if env['OS'] == 'android':
   env.FilterOut(LIBS = [
     'googleurl-gears',
     'sqlite-gears',
-    'portaudio',
     'png-gears',
     'zlib-gears',
     'jpeg-gears',

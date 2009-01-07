@@ -96,8 +96,8 @@ env.Replace(
 env.Replace(
     MAJOR = '0',
     MINOR = '5',
-    BUILD = '2',
-    PATCH = '6',
+    BUILD = '7',
+    PATCH = '0',
     VERSION = '${MAJOR}.${MINOR}.${BUILD}.${PATCH}',
 
     FRIENDLY_NAME = 'Google Gears',
@@ -350,8 +350,14 @@ if env['OFFICIAL_BUILD']:
       M4FLAGS = '-DOFFICIAL_BUILD=1',
   )
 
-# TODO: if USING_PNG
-env.Append(CPPDEFINES = 'PNG_USER_CONFIG')
+# TODO: if USING_LIBPNG
+env.Append(
+    CPPDEFINES = [
+        'PNG_USER_CONFIG',
+        'CHROME_PNG_WRITE_SUPPORT',
+        'GEARS_PNG_BUILD',
+    ]
+)
 # TODO: if USING_ZLIB
 env.Append(
     CPPDEFINES = [
@@ -639,9 +645,6 @@ elif env['OS'] == 'linux':
           '-shared',
           '-Wl,--version-script',
           '-Wl,$OPEN_DIR/tools/xpcom-ld-script',
-# for PortAudio: need pthread and math
-          '-lpthread',
-          '-lm',
 # Additions to compile on hardy
           '-m32',
       ],
@@ -745,13 +748,6 @@ elif env['OS'] == 'osx':
           '-DGEARS_TOOLS_DIR="$MAIN_DIR/$PRIVATE_DIR/tools"',
       ],
   )
-  if not env['OFFICIAL_BUILD']:
-    # For PortAudio:
-    env.Append(FRAMEWORKS = [
-        'CoreAudio',
-        'AudioToolbox',
-        'AudioUnit',
-    ])
   if env['MODE'] == 'dbg':
     env.Append(
         CPPFLAGS = [
@@ -930,7 +926,6 @@ sconscripts = [
     'SConscript.zlib',
     'SConscript.libbreakpad_osx',
     'SConscript.libgd',
-    'SConscript.portaudio',
 ]
 
 for each in sconscripts:

@@ -520,6 +520,7 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/desktop/file_dialog_gtk.cc',
     '$OPEN_DIR/desktop/file_dialog_osx.cc',
     '$OPEN_DIR/desktop/file_dialog_win32.cc',
+    '$OPEN_DIR/desktop/file_dialog_android.cc',
 ])
 
 # The browser module also needs these files, to communicate with the notifier.
@@ -533,18 +534,22 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/notifier/notification.cc',
 ])
 
-env.Append(FF3_CPPSRCS = [
-    '$OPEN_DIR/desktop/drag_and_drop_utils_ff.cc',
-    '$OPEN_DIR/desktop/drop_target_ff.cc',
-])
-
-env.Append(IE_CPPSRCS = [
-    '$OPEN_DIR/desktop/drag_and_drop_utils_ie.cc',
-    '$OPEN_DIR/desktop/drop_target_ie.cc',
-])
-
 if not env['OFFICIAL_BUILD']:
   # The Drag-and-Drop API has not been finalized for official builds.
+  env.Append(BROWSER_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_common.cc',
+  ])
+
+  env.Append(FF3_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_ff.cc',
+      '$OPEN_DIR/desktop/drop_target_ff.cc',
+  ])
+
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_ie.cc',
+      '$OPEN_DIR/desktop/drop_target_ie.cc',
+  ])
+
   env.Append(SF_CPPSRCS = [
       '$OPEN_DIR/desktop/drag_and_drop_utils_sf.mm',
       '$OPEN_DIR/desktop/drop_target_sf.cc',
@@ -564,6 +569,7 @@ env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/localserver/common/localserver_perf_test.cc',
     '$OPEN_DIR/localserver/common/managed_resource_store.cc',
     '$OPEN_DIR/localserver/common/manifest.cc',
+    '$OPEN_DIR/localserver/common/progress_event.cc',
     '$OPEN_DIR/localserver/common/resource_store.cc',
     '$OPEN_DIR/localserver/common/safe_http_request.cc',
     '$OPEN_DIR/localserver/common/update_task.cc',
@@ -612,7 +618,6 @@ env.Append(SF_CPPSRCS = [
      '$OPEN_DIR/localserver/safari/http_request_delegate.mm',
      '$OPEN_DIR/localserver/safari/http_request_sf.mm',
      '$OPEN_DIR/localserver/safari/localserver_db_proxy.mm',
-     '$OPEN_DIR/localserver/common/progress_event.cc',
      '$OPEN_DIR/localserver/safari/progress_input_stream.mm',
      '$OPEN_DIR/localserver/safari/ui_thread.cc'
 ])
@@ -621,7 +626,6 @@ env.Append(SF_CPPSRCS = [
 # localserver/firefox
 
 env.Append(FF3_CPPSRCS = [
-    '$OPEN_DIR/localserver/common/progress_event.cc',
     '$OPEN_DIR/localserver/firefox/async_task_ff.cc',
     '$OPEN_DIR/localserver/firefox/cache_intercept.cc',
     '$OPEN_DIR/localserver/firefox/http_request_ff.cc',
@@ -636,7 +640,6 @@ env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/localserver/ie/file_submit_behavior.cc',
     '$OPEN_DIR/localserver/ie/http_handler_ie.cc',
     '$OPEN_DIR/localserver/ie/http_request_ie.cc',
-    '$OPEN_DIR/localserver/common/progress_event.cc',
     '$OPEN_DIR/localserver/ie/progress_input_stream.cc',
     '$OPEN_DIR/localserver/ie/update_task_ie.cc',
     '$OPEN_DIR/localserver/ie/urlmon_utils.cc',
@@ -673,8 +676,6 @@ env.Append(FF3_I18N_M4SRCS = [
     '$OPEN_DIR/ui/generated/' + lang + '/i18n.dtd.m4'
     for lang in env['I18N_LANGS']
 ])
-
-#TODO: $(IE_OUTDIR)/string_table.res
 
 #-----------------------------------------------------------------------------
 # ui/common (built for all browsers)
@@ -969,23 +970,6 @@ env.Append(BROWSER_CPPSRCS = [
 ])
 
 #-----------------------------------------------------------------------------
-# media
-
-# The Audio API has not been finalized for official builds.
-if not env['OFFICIAL_BUILD']:
-  env.Append(BROWSER_CPPSRCS = [
-      '$OPEN_DIR/media/audio.cc',
-      '$OPEN_DIR/media/audio_recorder.cc',
-      '$OPEN_DIR/media/audio_recorder_test.cc',
-      '$OPEN_DIR/media/base_audio_recorder.cc',
-      '$OPEN_DIR/media/media.cc',
-      '$OPEN_DIR/media/media_data.cc',
-      '$OPEN_DIR/media/mock_audio_recorder.cc',
-      '$OPEN_DIR/media/pa_audio_recorder.cc',
-      '$OPEN_DIR/media/time_ranges.cc',
-  ])
-
-#-----------------------------------------------------------------------------
 # vista_broker
 
 env.Append(VISTA_BROKER_CPPSRCS = [
@@ -1033,8 +1017,14 @@ env.Append(NPAPI_RESSRCS = [
     '$OPEN_DIR/base/npapi/module.rc',
 ])
 
+# The string table uses multiple languages, which are not supported by
+# LoadString on WinCE.
+if env['OS'] != 'wince':
+  env.Append(IE_RESSRCS = [
+      '$GENFILES_DIR/string_table.rc',
+  ])
+
 env.Append(IE_RESSRCS = [
-    '$GENFILES_DIR/string_table.rc',
     '$GENFILES_DIR/ui_resources.rc',
     '$OPEN_DIR/base/npapi/module.rc',
 ])
@@ -1068,10 +1058,9 @@ if not env['OFFICIAL_BUILD'] and env['OS'] in ['win32', 'osx']:
   )
 
 if env['OS'] == 'win32':
-  env.Append(NPAPI_LINKSRCS = [
-      '$THIRD_PARTY_DIR/v8/bin-${MODE}/libv8core.lib',
-      '$THIRD_PARTY_DIR/v8/bin-${MODE}/no_snapshotv8.lib',
-      '$THIRD_PARTY_DIR/v8/bin-${MODE}/libjscre.lib',
+  env.Append(NPAPI_SHLINKSRCS = [
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/v8_base.lib',
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/v8_snapshot.lib',
   ])
   env.Append(NPAPI_SHLINKSRCS = [
       '$OPEN_DIR/base/chrome/module.def',

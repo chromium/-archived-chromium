@@ -42,7 +42,7 @@ input_files = [
 #    '$GURL_DIR/src/url_canon_icu.cc',
     '$GURL_DIR/src/url_canon_internal.cc',
     '$GURL_DIR/src/url_canon_ip.cc',
-#    '$GURL_DIR/src/url_canon_mailtourl.cc',
+    '$GURL_DIR/src/url_canon_mailtourl.cc',
     '$GURL_DIR/src/url_canon_path.cc',
     '$GURL_DIR/src/url_canon_pathurl.cc',
     '$GURL_DIR/src/url_canon_query.cc',
