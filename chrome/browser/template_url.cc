@@ -269,7 +269,7 @@ GURL TemplateURLRef::ReplaceSearchTerms(
 
   // replacements_ is ordered in ascending order, as such we need to iterate
   // from the back.
-  for (Replacements::const_reverse_iterator i = replacements_.rbegin();
+  for (Replacements::reverse_iterator i = replacements_.rbegin();
        i != replacements_.rend(); ++i) {
     switch (i->type) {
       case ENCODING:
