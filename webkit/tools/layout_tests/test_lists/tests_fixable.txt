@@ -999,9 +999,6 @@ LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
 // x-height correct and we're still one px off.
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 
-// Form sizing issue.
-LINUX : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
-
 // This needs to be rebased on Windows since the baseline was incorrect.
 WIN : LayoutTests/css2.1/t1601-c547-indent-00-b-a.html = FAIL
 
@@ -1074,6 +1071,7 @@ LINUX : LayoutTests/fast/forms/select-initial-position.html = FAIL
 LINUX : LayoutTests/fast/forms/select-list-box-with-height.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
 LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
+LINUX : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
 
 // Off-by-one in form controls -- font metrics?
 LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
