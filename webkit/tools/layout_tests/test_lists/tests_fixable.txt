@@ -987,9 +987,6 @@ LayoutTests/animations/big-rotation.html = FAIL PASS
 WIN : LayoutTests/css2.1/t040302-c61-ex-len-00-b-a.html = FAIL
 WIN : LayoutTests/css2.1/t040302-c61-rel-len-00-b-ag.html = FAIL
 
-// Renderblocks off by a pixel -- font metrics?
-LINUX : LayoutTests/css2.1/t09-c5526c-display-00-e.html = FAIL
-
 // Missing a Georgian font for Linux
 LINUX : LayoutTests/css2.1/t1202-counter-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
@@ -1024,9 +1021,6 @@ LINUX : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 WIN : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
 WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
-
-// Font size for arrows are different.  Should we rebaseline?
-LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
 
 // Linux: color off by one.  Rounding error?
 LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
