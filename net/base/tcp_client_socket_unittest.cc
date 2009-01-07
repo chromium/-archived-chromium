@@ -49,6 +49,22 @@ TEST_F(TCPClientSocketTest, Connect) {
   EXPECT_FALSE(sock.IsConnected());
 }
 
+TEST_F(TCPClientSocketTest, SyncConnect) {
+  net::AddressList addr;
+  net::HostResolver resolver;
+
+  int rv = resolver.Resolve("www.google.com", 80, &addr, NULL);
+  EXPECT_EQ(rv, net::OK);
+
+  net::TCPClientSocket sock(addr);
+
+  EXPECT_FALSE(sock.IsConnected());
+
+  rv = net::TCPClientSocketSyncConnector::Connect(&sock);
+  EXPECT_EQ(rv, net::OK);
+  EXPECT_TRUE(sock.IsConnected());
+}
+
 TEST_F(TCPClientSocketTest, Read) {
   net::AddressList addr;
   net::HostResolver resolver;

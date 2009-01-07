@@ -18,9 +18,13 @@ struct event;  // From libevent
 #endif
 
 #include "base/scoped_ptr.h"
+#include "base/task.h"
+#include "base/thread.h"
+#include "base/waitable_event.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
+#include "net/base/net_errors.h"
 
 namespace net {
 
@@ -125,6 +129,67 @@ class TCPClientSocket : public ClientSocket,
   int CreateSocket(const struct addrinfo* ai);
   void DoCallback(int rv);
   void DidCompleteConnect();
+};
+
+// Tiny helper class to do a synchronous connect,
+// in lieu of directly supporting that in TcpClientSocket.
+// This avoids cluttering the main codepath with code only used by unit tests.
+// TODO(dkegel): move this to its own header file.
+class TCPClientSocketSyncConnector
+    : public base::RefCounted<TCPClientSocketSyncConnector> {
+ public:
+  // Connect given socket synchronously.
+  // Returns network error code.
+  static int Connect(net::TCPClientSocket* sock) {
+    // Start up a throwaway IO thread just for this.
+    // TODO(port): use some existing thread pool instead?
+    base::Thread io_thread("SyncConnect");
+    base::Thread::Options options;
+    options.message_loop_type = MessageLoop::TYPE_IO;
+    io_thread.StartWithOptions(options);
+
+    // Post a request to do the connect on that thread.
+    scoped_refptr<TCPClientSocketSyncConnector> connector =
+        new TCPClientSocketSyncConnector(sock);
+    io_thread.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(connector.get(),
+        &net::TCPClientSocketSyncConnector::DoConnect));
+    connector->Wait();
+    return connector->GetError();
+  }
+
+ private:
+  // Start a connect.  Must be called on an IO thread.
+  void DoConnect() {
+    net_error_ = sock_->Connect(&connect_callback_);
+    if (net_error_ != ERR_IO_PENDING)
+      event_.Signal();
+  }
+
+  // Callback called on same IO thread when connection complete.
+  void ConnectDone(int rv) {
+    net_error_ = rv;
+    event_.Signal();
+  }
+
+  // Call this after posting a call to DoConnect().
+  void Wait() { event_.Wait(); }
+
+  // Call this after Wait() if you need the final error code from the connect.
+  int GetError() { return net_error_; }
+
+  // sock is owned by caller, but must remain valid while this object lives.
+  explicit TCPClientSocketSyncConnector(TCPClientSocket* sock) :
+      event_(false, false),
+      sock_(sock),
+      net_error_(0),
+      connect_callback_(this, &net::TCPClientSocketSyncConnector::ConnectDone) {
+  }
+
+  base::WaitableEvent event_;
+  net::TCPClientSocket* sock_;
+  int net_error_;
+  net::CompletionCallbackImpl<TCPClientSocketSyncConnector> connect_callback_;
+  DISALLOW_COPY_AND_ASSIGN(TCPClientSocketSyncConnector);
 };
 
 }  // namespace net
