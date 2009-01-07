@@ -319,24 +319,25 @@ WIN : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
 // Dynamic font support (@font-face) for Windows was ported from the
 // upstream (http://trac.webkit.org/projects/webkit/changeset/31507)
 // SVG test still fails, though.
-LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
 DEFER WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
+// We don't support dynamic fonts on Linux.
+// Once we have the sandbox working, we should re-evaluate this.
+DEFER LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
+DEFER LINUX : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
+DEFER LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 
-// Bug: 1007391
-// These hit a not-implemented code-path in @font-face code
-// Fixing this should not be required for beta.
-LINUX : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
-LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
-
-// Bug: 1110028
-// The v8 bindings allow shadowing of all properties on the global object.  If you use 
-// 'var prop = value' you will get a new variable named prop that shadows builtin properties 
-// on the global object.  This behavior is consistent and I'm reluctant to make the 
-// massive change that would be needed to implement the inconsistent handling of this
-// that KJS has (some properties can be shadowed and others can't).  This should have 
-// low priority.
-// We currently match IE, the plan is to convince KJS to change post-beta.
+// The v8 bindings allow shadowing of all properties on the global
+// object.  If you use 'var prop = value' you will get a new variable
+// named prop that shadows builtin properties on the global object.
+// This behavior is consistent and I'm reluctant to make the massive
+// change that would be needed to implement the inconsistent handling
+// of this that KJS has (some properties can be shadowed and others
+// can't).  This should have low priority.
+// We currently match IE and the plan was to convince KJS to change
+// post-beta, but the bug is here:
+// https://bugs.webkit.org/show_bug.cgi?id=16644 , and it's unclear
+// what the resolution was.
 DEFER : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT
 DEFER : LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
 
