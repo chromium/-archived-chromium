@@ -999,9 +999,6 @@ LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
 // x-height correct and we're still one px off.
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 
-// This test fails at least partly due to font sizing issues.
-LINUX : LayoutTests/fast/forms/button-sizes.html = FAIL
-
 // Form sizing issue.
 LINUX : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
 
