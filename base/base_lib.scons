@@ -361,6 +361,7 @@ if env.Bit('linux'):
       'atomicops_internals_x86_gcc.cc',
       'base_paths_linux.cc',
       'clipboard_linux.cc',
+      'data_pack.cc',
       'file_util_linux.cc',
       'file_version_info_linux.cc',
       'hmac_nss.cc',

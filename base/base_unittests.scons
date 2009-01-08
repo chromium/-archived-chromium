@@ -131,6 +131,11 @@ if env.Bit('posix'):
       'gfx/native_theme_unittest.cc',
   )
 
+if env.Bit('linux'):
+  input_files.Append(
+      'data_pack_unittest.cc',
+  )
+
 if env.Bit('mac'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
