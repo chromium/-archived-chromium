@@ -30,9 +30,6 @@ static const char kChromeURLScheme[] = "chrome";
 // The single global instance of ChromeURLDataManager.
 ChromeURLDataManager chrome_url_data_manager;
 
-// The ProtocolFactory for creating URLRequestChromeJobs.
-static URLRequest::ProtocolFactory Factory;
-
 // URLRequestChromeJob is a URLRequestJob that manages running chrome-internal
 // resource requests asynchronously.
 // It hands off URL requests to ChromeURLDataManager, which asynchronously

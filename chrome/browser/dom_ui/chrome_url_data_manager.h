@@ -14,6 +14,7 @@
 class GURL;
 class MessageLoop;
 class URLRequest;
+class URLRequestChromeJob;
 class URLRequestJob;
 
 // To serve dynamic data off of chrome: URLs, implement the

@@ -12,10 +12,10 @@ ProvisionalLoadDetails::ProvisionalLoadDetails(bool is_main_frame,
                                                const GURL& url,
                                                const std::string& security_info,
                                                bool is_content_filtered)
-      : is_main_frame_(is_main_frame),
-        is_in_page_navigation_(is_in_page_navigation),
+      : error_code_(net::OK),
         url_(url),
-        error_code_(net::OK),
+        is_main_frame_(is_main_frame),
+        is_in_page_navigation_(is_in_page_navigation),
         is_content_filtered_(is_content_filtered) {
   SSLManager::DeserializeSecurityInfo(security_info,
                                       &ssl_cert_id_,

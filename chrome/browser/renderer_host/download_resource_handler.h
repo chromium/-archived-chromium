@@ -66,7 +66,7 @@ class DownloadResourceHandler : public ResourceHandler {
   base::OneShotTimer<DownloadResourceHandler> pause_timer_;
 
   static const int kReadBufSize = 32768;  // bytes
-  static const int kLoadsToWrite = 100;  // number of data buffers queued
+  static const size_t kLoadsToWrite = 100;  // number of data buffers queued
   static const int kThrottleTimeMs = 200;  // milliseconds
 
   DISALLOW_COPY_AND_ASSIGN(DownloadResourceHandler);

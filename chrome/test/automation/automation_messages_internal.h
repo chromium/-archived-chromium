@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/navigation_types.h"
@@ -147,6 +148,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
                       bool /* success flag*/,
                       GURL)
 
+#if defined(OS_WIN)
+  // TODO(port): Port these messages.
+  //
   // This message requests the HWND of the top-level window that corresponds
   // to the given automation handle.
   // The response contains the HWND value, which is 0 if the call fails.
@@ -154,6 +158,15 @@ IPC_BEGIN_MESSAGES(Automation, 0)
                       int /* automation handle */)
   IPC_MESSAGE_ROUTED1(AutomationMsg_WindowHWNDResponse,
                       HWND /* Win32 handle */)
+
+  // This message requests the HWND of the tab that corresponds
+  // to the given automation handle.
+  // The response contains the HWND value, which is 0 if the call fails.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_TabHWNDRequest,
+                      int /* tab_handle */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_TabHWNDResponse,
+                      HWND /* win32 Window Handle*/)
+#endif  // defined(OS_WIN)
 
   // This message notifies the AutomationProxy that a handle that it has
   // previously been given is now invalid.  (For instance, if the handle
@@ -165,14 +178,6 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // longer being used, so it can stop paying attention to the
   // associated resource.  The parameter value is the handle.
   IPC_MESSAGE_ROUTED1(AutomationMsg_HandleUnused, int)
-
-  // This message requests the HWND of the tab that corresponds
-  // to the given automation handle.
-  // The response contains the HWND value, which is 0 if the call fails.
-  IPC_MESSAGE_ROUTED1(AutomationMsg_TabHWNDRequest,
-                      int /* tab_handle */)
-  IPC_MESSAGE_ROUTED1(AutomationMsg_TabHWNDResponse,
-                      HWND /* win32 Window Handle*/)
 
   // This message tells the AutomationProvider to provide the given
   // authentication data to the specified tab, in response to an HTTP/FTP
@@ -284,6 +289,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED3(AutomationMsg_WindowViewBoundsRequest, int, int, bool)
   IPC_MESSAGE_ROUTED2(AutomationMsg_WindowViewBoundsResponse, bool, gfx::Rect)
 
+#if defined(OS_WIN)
+  // TODO(port): Port these messages.
+  //
   // This message requests that a drag be performed in window coordinate space
   // Request:
   //   int - the handle of the window that's the context for this drag
@@ -296,6 +304,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED4(AutomationMsg_WindowDragRequest,
                       int, std::vector<POINT>, int, bool)
   IPC_MESSAGE_ROUTED1(AutomationMsg_WindowDragResponse, bool)
+#endif  // defined(OS_WIN)
 
   // Similar to AutomationMsg_InitialLoadsComplete, this indicates that the
   // new tab ui has completed the initial load of its data.
@@ -408,6 +417,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
                       bool /* success flag */,
                       int /* AutocompleteEdit handle */)
 
+#if defined(OS_WIN)
+  // TODO(port): Port this message.
+  //
   // This message requests that a mouse click be performed in window coordinate
   // space.
   // Request:
@@ -416,6 +428,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   //   int - the flags which identify the mouse button(s) for the click, as
   //       defined in chrome/views/event.h
   IPC_MESSAGE_ROUTED3(AutomationMsg_WindowClickRequest, int, POINT, int)
+#endif  // defined(OS_WIN)
 
   // This message requests that a key press be performed.
   // Request:
@@ -425,6 +438,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   //         associated for, as defined in chrome/views/event.h
   IPC_MESSAGE_ROUTED3(AutomationMsg_WindowKeyPressRequest, int, wchar_t, int)
 
+#if defined(OS_WIN)
+  // TODO(port): Port these messages.
+  //
   // This message notifies the AutomationProvider to create a tab which is
   // hosted by an external process. The response contains the HWND of the
   // window that contains the external tab and the handle to the newly
@@ -432,6 +448,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // The second parameter is the url to be loaded in the new tab.
   IPC_MESSAGE_ROUTED0(AutomationMsg_CreateExternalTab)
   IPC_MESSAGE_ROUTED2(AutomationMsg_CreateExternalTabResponse, HWND, int)
+#endif  // defined(OS_WIN)
 
   // This message notifies the AutomationProvider to navigate to a specified
   // url in the external tab with given handle. The first parameter is the
@@ -494,6 +511,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_CloseBrowserRequest, int)
   IPC_MESSAGE_ROUTED2(AutomationMsg_CloseBrowserResponse, bool, bool)
 
+#if defined(OS_WIN)
+  // TODO(port): Port these messages.
+  //
   // This message sets the keyboard accelarators to be used by an externally
   // hosted tab. This call is not valid on a regular tab hosted within
   // Chrome.
@@ -516,16 +536,6 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // host saying whether it processed the accelerator
   IPC_MESSAGE_ROUTED1(AutomationMsg_HandleAccelerator, MSG)
 
-  // This message is an outgoing message from Chrome to an external host.
-  // It is a request to open a url
-  // Request:
-  //   -GURL: The URL to open
-  //   -int: The WindowOpenDisposition that specifies where the URL should
-  //         be opened (new tab, new window etc).
-  // Response:
-  //   None expected
-  IPC_MESSAGE_ROUTED2(AutomationMsg_OpenURL, GURL, int)
-
   // This message is sent by the container of an externally hosted tab to
   // reflect any accelerator keys that it did not process. This gives the
   // tab a chance to handle the keys
@@ -535,6 +545,17 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // Response:
   //   None expected
   IPC_MESSAGE_ROUTED2(AutomationMsg_ProcessUnhandledAccelerator, int, MSG)
+#endif  // defined(OS_WIN)
+
+  // This message is an outgoing message from Chrome to an external host.
+  // It is a request to open a url
+  // Request:
+  //   -GURL: The URL to open
+  //   -int: The WindowOpenDisposition that specifies where the URL should
+  //         be opened (new tab, new window etc).
+  // Response:
+  //   None expected
+  IPC_MESSAGE_ROUTED2(AutomationMsg_OpenURL, GURL, int)
 
   // This message requests the provider to wait until the specified tab has
   // finished restoring after session restore.

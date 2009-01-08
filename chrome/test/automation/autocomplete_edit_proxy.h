@@ -87,18 +87,29 @@ struct ParamTraits<AutocompleteMatchData> {
   }
 
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"[%ls %d %ls %ls %d %ls %ls %ls %ls %ls %ls]",
-        UTF8ToWide(p.provider_name),
-        p.relevance,
-        p.deletable ? L"true" : L"false",
-        p.fill_into_edit,
-        p.inline_autocomplete_offset,
-        p.destination_url,
-        p.contents,
-        p.description,
-        p.is_history_what_you_typed_match ? L"true" : L"false",
-        UTF8ToWide(p.type),
-        p.starred ? L"true" : L"false"));
+    l->append(L"[");
+    l->append(UTF8ToWide(p.provider_name));
+    l->append(L" ");
+    l->append(IntToWString(p.relevance));
+    l->append(L" ");
+    l->append(p.deletable ? L"true" : L"false");
+    l->append(L" ");
+    l->append(p.fill_into_edit);
+    l->append(L" ");
+    l->append(IntToWString(p.inline_autocomplete_offset));
+    l->append(L" ");
+    l->append(UTF8ToWide(p.destination_url.spec()));
+    l->append(L" ");
+    l->append(p.contents);
+    l->append(L" ");
+    l->append(p.description);
+    l->append(L" ");
+    l->append(p.is_history_what_you_typed_match ? L"true" : L"false");
+    l->append(L" ");
+    l->append(UTF8ToWide(p.type));
+    l->append(L" ");
+    l->append(p.starred ? L"true" : L"false");
+    l->append(L"]");
   }
 };
 }  // namespace IPC
