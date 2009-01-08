@@ -1,5 +1,5 @@
 ALERT: 33
-ALERT: 136.5
+ALERT: 116.5
 layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 800x600
@@ -27,4 +27,4 @@ layer at (0,0) size 800x600
           RenderText {#text} at (0,0) size 20x19
             text run at (0,0) width 20: "bar"
 selection start: position 3 of child 0 {#text} of child 0 {SPAN} of child 0 {TD} of child 0 {TR} of child 0 {TBODY} of child 1 {TABLE} of child 2 {DIV} of child 0 {BODY} of child 0 {HTML} of document
-selection end:   position 0 of child 3 {DIV} of child 2 {DIV} of child 0 {BODY} of child 0 {HTML} of document
+selection end:   position 0 of child 0 {#text} of child 3 {DIV} of child 2 {DIV} of child 0 {BODY} of child 0 {HTML} of document

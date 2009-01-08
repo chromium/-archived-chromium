@@ -1356,7 +1356,7 @@ LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 
 // MERGE 38653:38729: Expectations changed upstream
 // Flaky on Linux, maybe on Windows too?
-LINUX WIN : LayoutTests/editing/selection/5057506.html = PASS FAIL
+LINUX : LayoutTests/editing/selection/5057506.html = PASS FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
 LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
