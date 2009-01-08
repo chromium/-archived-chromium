@@ -1540,6 +1540,10 @@
 					Name="chromium"
 					>
 					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\ColorChromium.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\FontCacheChromiumWin.cpp"
 						>
 					</File>
@@ -1641,10 +1645,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\skia\BitmapImageSingleFrameSkia.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\skia\ColorSkia.cpp"
 						>
 					</File>
 					<File

@@ -58,6 +58,7 @@
 		41822B120F0002680034A67A /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
 		41822B130F00026D0034A67A /* ScaleTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F80EFC893600E752CB /* ScaleTransformOperation.cpp */; };
 		41822B140F0002730034A67A /* RotateTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5F60EFC893600E752CB /* RotateTransformOperation.cpp */; };
+		418E48780F166D9A00CF92F9 /* ColorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 418E48770F166D9A00CF92F9 /* ColorChromium.cpp */; };
 		419107560EF319C300BFDCC5 /* ScriptCallFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */; };
 		4191075F0EF319FC00BFDCC5 /* ScriptCallStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */; };
 		41A361D90F001E3800778012 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A361D80F001E3800778012 /* PluginDataChromium.cpp */; };
@@ -521,7 +522,6 @@
 		93AF52B80F0030110073C62D /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52B00F0030110073C62D /* CookieJarChromium.cpp */; };
 		93AF52B90F0030110073C62D /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52B10F0030110073C62D /* DNSChromium.cpp */; };
 		93AF52BA0F0030110073C62D /* NetworkStateNotifierChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52B20F0030110073C62D /* NetworkStateNotifierChromium.cpp */; };
-		93AF52C50F0030780073C62D /* ColorSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52BD0F0030780073C62D /* ColorSkia.cpp */; };
 		93AF52C60F0030780073C62D /* NativeImageSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52BF0F0030780073C62D /* NativeImageSkia.cpp */; };
 		93AF52C70F0030780073C62D /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52C10F0030780073C62D /* PlatformContextSkia.cpp */; };
 		93AF52C80F0030780073C62D /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52C30F0030780073C62D /* SkiaUtils.cpp */; };
@@ -1484,6 +1484,7 @@
 		4112E7040EFB0A26001E0E7A /* RandomNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandomNumber.h; sourceTree = "<group>"; };
 		4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomNumber.cpp; sourceTree = "<group>"; };
 		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
+		418E48770F166D9A00CF92F9 /* ColorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ColorChromium.cpp; path = chromium/ColorChromium.cpp; sourceTree = "<group>"; };
 		419106470EF2D6D500BFDCC5 /* ScriptState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptState.h; sourceTree = "<group>"; };
 		419107540EF319C300BFDCC5 /* ScriptCallFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCallFrame.h; sourceTree = "<group>"; };
 		419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallFrame.cpp; sourceTree = "<group>"; };
@@ -4059,7 +4060,6 @@
 		93AF52B50F0030110073C62D /* ResourceRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ResourceRequest.h; path = chromium/ResourceRequest.h; sourceTree = "<group>"; };
 		93AF52B60F0030110073C62D /* ResourceResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ResourceResponse.h; path = chromium/ResourceResponse.h; sourceTree = "<group>"; };
 		93AF52BC0F0030780073C62D /* BitmapImageSingleFrameSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BitmapImageSingleFrameSkia.h; path = skia/BitmapImageSingleFrameSkia.h; sourceTree = "<group>"; };
-		93AF52BD0F0030780073C62D /* ColorSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ColorSkia.cpp; path = skia/ColorSkia.cpp; sourceTree = "<group>"; };
 		93AF52BE0F0030780073C62D /* ImageSourceSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageSourceSkia.h; path = skia/ImageSourceSkia.h; sourceTree = "<group>"; };
 		93AF52BF0F0030780073C62D /* NativeImageSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NativeImageSkia.cpp; path = skia/NativeImageSkia.cpp; sourceTree = "<group>"; };
 		93AF52C00F0030780073C62D /* NativeImageSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NativeImageSkia.h; path = skia/NativeImageSkia.h; sourceTree = "<group>"; };
@@ -7748,6 +7748,7 @@
 				93AF52A70F002FC80073C62D /* IconChromiumMac.cpp */,
 				93AF52A80F002FC80073C62D /* ImageChromiumMac.mm */,
 				93AF52A90F002FC80073C62D /* MediaPlayerPrivateChromium.h */,
+				418E48770F166D9A00CF92F9 /* ColorChromium.cpp */,
 			);
 			name = chromium;
 			sourceTree = "<group>";
@@ -7772,7 +7773,6 @@
 			isa = PBXGroup;
 			children = (
 				93AF52BC0F0030780073C62D /* BitmapImageSingleFrameSkia.h */,
-				93AF52BD0F0030780073C62D /* ColorSkia.cpp */,
 				93AF52BE0F0030780073C62D /* ImageSourceSkia.h */,
 				93AF52BF0F0030780073C62D /* NativeImageSkia.cpp */,
 				93AF52C00F0030780073C62D /* NativeImageSkia.h */,
@@ -8584,8 +8584,8 @@
 				93AF528C0F002F680073C62D /* ClipboardUtilitiesChromium.cpp in Sources */,
 				E45624C20E268E87005E4685 /* Color.cpp in Sources */,
 				E45626820E268E87005E4685 /* ColorCG.cpp in Sources */,
+				418E48780F166D9A00CF92F9 /* ColorChromium.cpp in Sources */,
 				E456259C0E268E87005E4685 /* ColorDistance.cpp in Sources */,
-				93AF52C50F0030780073C62D /* ColorSkia.cpp in Sources */,
 				E45623B70E268E87005E4685 /* Comment.cpp in Sources */,
 				4DB7EFE60E9BA1E400C66CE0 /* CompositeAnimation.cpp in Sources */,
 				E45623EF0E268E87005E4685 /* CompositeEditCommand.cpp in Sources */,
