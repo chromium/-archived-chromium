@@ -971,7 +971,10 @@ chrome/fast/forms/basic-textareas-quirks.html = FAIL
 // This test seems to fail on the builders but not locally.
 LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 
-// Post-merge Debug only Crashes
+// This test causes a freed memory read which leads to a crash in debug mode.
+// Bug has been filed upstream:
+//     https://bugs.webkit.org/show_bug.cgi?id=23180
+//
 // This test also produces an unending stream of blank lines on stderr,
 // which makes it hang the test harness.
 SKIP DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
