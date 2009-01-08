@@ -153,8 +153,9 @@ void TestShell::PlatformCleanUp() {
   m_webViewHost.release();
 }
 
-// GTK callbacks ------------------------------------------------------
 namespace {
+
+// GTK callbacks ------------------------------------------------------
 
 // Callback for when the main window is destroyed.
 gboolean MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
@@ -203,6 +204,54 @@ void URLEntryActivate(GtkEntry* entry, TestShell* shell) {
   shell->LoadURL(UTF8ToWide(url).c_str());
 }
 
+// Callback for Debug > Dump body text... menu item.
+gboolean DumpBodyTextActivated(GtkWidget* widget, TestShell* shell) {
+  shell->DumpDocumentText();
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Dump render tree... menu item.
+gboolean DumpRenderTreeActivated(GtkWidget* widget, TestShell* shell) {
+  shell->DumpRenderTree();
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Show web inspector... menu item.
+gboolean ShowWebInspectorActivated(GtkWidget* widget, TestShell* shell) {
+  shell->webView()->InspectElement(0, 0);
+  return FALSE;  // Don't stop this message.
+}
+
+// GTK utility functions ----------------------------------------------
+
+GtkWidget* AddMenuEntry(GtkWidget* menu_widget, const char* text,
+                        GCallback callback, TestShell* shell) {
+  GtkWidget* entry = gtk_menu_item_new_with_label(text);
+  g_signal_connect(G_OBJECT(entry), "activate", callback, shell);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_widget), entry);
+  return entry;
+}
+
+GtkWidget* CreateMenu(GtkWidget* menu_bar, const char* text) {
+  GtkWidget* menu_widget = gtk_menu_new();
+  GtkWidget* menu_header = gtk_menu_item_new_with_label(text);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_header), menu_widget);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_header);
+  return menu_widget;
+}
+
+GtkWidget* CreateMenuBar(TestShell* shell) {
+  GtkWidget* menu_bar = gtk_menu_bar_new();
+  GtkWidget* debug_menu = CreateMenu(menu_bar, "Debug");
+  AddMenuEntry(debug_menu, "Dump body text...",
+               G_CALLBACK(DumpBodyTextActivated), shell);
+  AddMenuEntry(debug_menu, "Dump render tree...",
+               G_CALLBACK(DumpRenderTreeActivated), shell);
+  AddMenuEntry(debug_menu, "Show web inspector...",
+               G_CALLBACK(ShowWebInspectorActivated), shell);
+  return menu_bar;
+}
+
 }
 
 bool TestShell::Initialize(const std::wstring& startingURL) {
@@ -216,6 +265,8 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   g_object_set_data(G_OBJECT(m_mainWnd), "test-shell", this);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
+
+  gtk_box_pack_start(GTK_BOX(vbox), CreateMenuBar(this), FALSE, FALSE, 0);
 
   GtkWidget* toolbar = gtk_toolbar_new();
   // Turn off the labels on the toolbar buttons.
@@ -518,59 +569,28 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
     -1, gurl, std::wstring(), frame_string));
 }
 
-static void WriteTextToFile(const std::wstring& data,
-                            const FilePath& filepath)
-{
-  // This function does the same thing as the Windows version except that it
-  // takes a FilePath. We should be using WriteFile in base/file_util.h, but
-  // the patch to add the FilePath version of that file hasn't landed yet, so
-  // this is another TODO(agl) for the merging.
-  const int fd = open(filepath.value().c_str(), O_TRUNC | O_WRONLY | O_CREAT, 0600);
-  if (fd < 0)
-    return;
-  const std::string data_utf8 = WideToUTF8(data);
-  ssize_t n;
-  do {
-    n = write(fd, data_utf8.data(), data.size());
-  } while (n == -1 && errno == EINTR);
-  close(fd);
-}
-
-
-// TODO(agl):
-// This version of PromptForSaveFile uses FilePath, which is what the real
-// version should be using. However, I don't want to step on tony's toes (as he
-// is also editing this file), so this is a hack until we merge the files again.
-// (There is also a PromptForSaveFile member in TestShell which returns a wstring)
-static bool PromptForSaveFile(const char* prompt_title,
-                              FilePath* result)
-{
-  char filenamebuffer[512];
-  printf("Enter filename for \"%s\"\n", prompt_title);
-  if (!fgets(filenamebuffer, sizeof(filenamebuffer), stdin))
-    return false;  // EOF on stdin
-  *result = FilePath(filenamebuffer);
+// TODO(agl): PromptForSaveFile should use FilePath
+bool TestShell::PromptForSaveFile(const wchar_t* prompt_title,
+                                  std::wstring* result) {
+  GtkWidget* dialog;
+  dialog = gtk_file_chooser_dialog_new(WideToUTF8(prompt_title).c_str(),
+                                       GTK_WINDOW(m_mainWnd),
+                                       GTK_FILE_CHOOSER_ACTION_SAVE,
+                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                                       NULL);  // Terminate (button, id) pairs.
+  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),
+                                                 TRUE);
+  int dialog_result = gtk_dialog_run(GTK_DIALOG(dialog));
+  if (dialog_result != GTK_RESPONSE_ACCEPT) {
+    gtk_widget_destroy(dialog);
+    return false;
+  }
+  char* path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+  gtk_widget_destroy(dialog);
+  *result = UTF8ToWide(path);
+  g_free(path);
   return true;
-}
-
-void TestShell::DumpDocumentText()
-{
-  FilePath file_path;
-  if (!::PromptForSaveFile("Dump document text", &file_path))
-      return;
-
-  WriteTextToFile(webkit_glue::DumpDocumentText(webView()->GetMainFrame()),
-                  file_path);
-}
-
-void TestShell::DumpRenderTree()
-{
-  FilePath file_path;
-  if (!::PromptForSaveFile("Dump render tree", &file_path))
-      return;
-
-  WriteTextToFile(webkit_glue::DumpRenderer(webView()->GetMainFrame()),
-                  file_path);
 }
 
 // static

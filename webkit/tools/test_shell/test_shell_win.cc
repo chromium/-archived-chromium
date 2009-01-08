@@ -703,36 +703,6 @@ bool TestShell::PromptForSaveFile(const wchar_t* prompt_title,
   return true;
 }
 
-// TODO(tc): Use methods in base or net/base for this.
-static void WriteTextToFile(const std::wstring& data,
-                            const std::wstring& file_path) {
-  FILE* fp;
-  errno_t err = _wfopen_s(&fp, file_path.c_str(), L"wt");
-  if (err)
-    return;
-  std::string data_utf8 = WideToUTF8(data);
-  fwrite(data_utf8.c_str(), 1, data_utf8.size(), fp);
-  fclose(fp);
-}
-
-void TestShell::DumpDocumentText() {
-  std::wstring file_path;
-  if (!PromptForSaveFile(L"Dump document text", &file_path))
-    return;
-
-  WriteTextToFile(webkit_glue::DumpDocumentText(webView()->GetMainFrame()),
-                  file_path);
-}
-
-void TestShell::DumpRenderTree() {
-  std::wstring file_path;
-  if (!PromptForSaveFile(L"Dump render tree", &file_path))
-    return;
-
-  WriteTextToFile(webkit_glue::DumpRenderer(webView()->GetMainFrame()),
-                  file_path);
-}
-
 // static
 void TestShell::ShowStartupDebuggingDialog() {
   MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);

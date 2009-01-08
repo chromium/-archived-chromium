@@ -94,8 +94,8 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
                                          const std::string& scheme) {
     std::wstring path;
     PathService::Get(base::DIR_EXE, &path);
-    file_util::AppendToPath(&path, L"Resources");
-    file_util::AppendToPath(&path, L"Inspector");
+    file_util::AppendToPath(&path, L"resources");
+    file_util::AppendToPath(&path, L"inspector");
     file_util::AppendToPath(&path, UTF8ToWide(request->url().path()));
     return new URLRequestTestShellFileJob(request,
                                           FilePath::FromWStringHack(path));
@@ -430,6 +430,26 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
 
 void TestShell::GoBackOrForward(int offset) {
     navigation_controller_->GoToOffset(offset);
+}
+
+void TestShell::DumpDocumentText() {
+  std::wstring file_path;
+  if (!PromptForSaveFile(L"Dump document text", &file_path))
+      return;
+
+  const std::string data =
+      WideToUTF8(webkit_glue::DumpDocumentText(webView()->GetMainFrame()));
+  file_util::WriteFile(file_path, data.c_str(), data.length());
+}
+
+void TestShell::DumpRenderTree() {
+  std::wstring file_path;
+  if (!PromptForSaveFile(L"Dump render tree", &file_path))
+    return;
+
+  const std::string data =
+      WideToUTF8(webkit_glue::DumpRenderer(webView()->GetMainFrame()));
+  file_util::WriteFile(file_path, data.c_str(), data.length());
 }
 
 std::wstring TestShell::GetDocumentText() {

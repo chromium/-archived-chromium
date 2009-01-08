@@ -665,38 +665,6 @@ bool TestShell::PromptForSaveFile(const wchar_t* prompt_title,
   return false;
 }
 
-static void WriteTextToFile(const std::string& data,
-                            const std::string& file_path)
-{
-  FILE* fp = fopen(file_path.c_str(), "w");
-  if (!fp)
-    return;
-  fwrite(data.c_str(), sizeof(std::string::value_type), data.size(), fp);
-  fclose(fp);
-}
-
-void TestShell::DumpDocumentText()
-{
-  std::wstring file_path;
-  if (!PromptForSaveFile(L"Dump document text", &file_path))
-    return;
-
-  WriteTextToFile(
-      WideToUTF8(webkit_glue::DumpDocumentText(webView()->GetMainFrame())),
-      WideToUTF8(file_path));
-}
-
-void TestShell::DumpRenderTree()
-{
-  std::wstring file_path;
-  if (!PromptForSaveFile(L"Dump render tree", &file_path))
-    return;
-
-  WriteTextToFile(
-      WideToUTF8(webkit_glue::DumpRenderer(webView()->GetMainFrame())),
-      WideToUTF8(file_path));
-}
-
 // static
 std::string TestShell::RewriteLocalUrl(const std::string& url) {
   // Convert file:///tmp/LayoutTests urls to the actual location on disk.
