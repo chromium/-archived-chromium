@@ -10,6 +10,7 @@
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/template_url_model.h"
+#include "chrome/browser/url_fixer_upper.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
@@ -317,12 +318,17 @@ bool SearchProvider::ParseSuggestResults(Value* root_val) {
         type_val->GetAsString(&type_str) && (type_str == L"NAVIGATION")) {
       Value* site_val;
       std::wstring site_name;
-      if (navigation_results_.size() < max_matches() &&
+      if ((navigation_results_.size() < max_matches()) &&
           description_list && description_list->Get(i, &site_val) &&
           site_val->IsType(Value::TYPE_STRING) &&
           site_val->GetAsString(&site_name)) {
-        navigation_results_.push_back(NavigationResult(GURL(suggestion_str),
-                                                       site_name));
+        // We can't blindly trust the URL coming from the server to be valid.
+        GURL result_url =
+            GURL(URLFixerUpper::FixupURL(suggestion_str, std::wstring()));
+        if (result_url.is_valid()) {
+          navigation_results_.push_back(NavigationResult(result_url,
+                                                         site_name));
+        }
       }
     } else {
       // TODO(kochi): Currently we treat a calculator result as a query, but it
