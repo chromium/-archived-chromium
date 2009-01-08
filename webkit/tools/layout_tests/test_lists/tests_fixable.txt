@@ -278,16 +278,11 @@ SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
 // re-baselining temporarily so the rest of the conditions are still tested.
 DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
 
-// Bug: 916857: These tests fail because of <audio> and <video>?
-// Removed from the skip-list since they consistently fail quickly.
-DEFER : LayoutTests/http/tests/media/video-play-stall.html = FAIL
-DEFER : LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
-DEFER : LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
-DEFER : LayoutTests/http/tests/media/remove-while-loading.html = FAIL
-
-// These tests all time out, which makes running the suite take too long if
-// they're included.  See bug 916857 to investigate <audio> and <video>.
+// Bug 4363: These tests are disabled until <audio> and <video> tags are
+// supported.
 DEFER SKIP : LayoutTests/media = TIMEOUT
+DEFER : LayoutTests/fast/media = FAIL
+DEFER : LayoutTests/http/tests/media = FAIL
 
 // Bug 850287: Need better Thai line-breaking.  Not a high priority, because
 // it's acceptable as it is.
@@ -926,7 +921,6 @@ WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-LINUX WIN : LayoutTests/fast/media/viewport-media-query.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
 // Our pixel results have a darker green color.
 WIN : LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL

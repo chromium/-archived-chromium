@@ -257,6 +257,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(DOMIMPLEMENTATION, DOMImplementation)                               \
   V(DOMPARSER, DOMParser)                                               \
   V(DOMSELECTION, DOMSelection)                                         \
+  V(DOMSTRINGLIST, DOMStringList)                                       \
   V(DOMWINDOW, DOMWindow)                                               \
   V(EVENT, Event)                                                       \
   V(EVENTEXCEPTION, EventException)                                     \

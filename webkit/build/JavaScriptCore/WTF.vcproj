@@ -334,6 +334,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ThreadSpecificWin.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\Unicode.h"
 			>
 		</File>

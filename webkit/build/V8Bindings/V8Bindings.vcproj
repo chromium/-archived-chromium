@@ -432,6 +432,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8DOMStringList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8DOMStringList.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8DOMWindow.cpp"
 				>
 			</File>

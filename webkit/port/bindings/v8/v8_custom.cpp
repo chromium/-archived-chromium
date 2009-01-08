@@ -55,6 +55,7 @@
 #include "ClipboardEvent.h"
 #include "Console.h"
 #include "DOMParser.h"
+#include "DOMStringList.h"
 #include "DOMWindow.h"
 #include "Document.h"
 #include "DocumentFragment.h"
@@ -797,6 +798,29 @@ CALLBACK_FUNC_DECL(HTMLOptionsCollectionAdd) {
     V8Proxy::SetDOMException(ec);
   }
   return v8::Undefined();
+}
+
+
+INDEXED_PROPERTY_GETTER(DOMStringList) {
+  INC_STATS("DOM.DOMStringList.IndexedPropertyGetter");
+  DOMStringList* imp =
+    V8Proxy::DOMWrapperToNative<DOMStringList>(info.Holder());
+  return v8String(imp->item(index));
+}
+
+
+CALLBACK_FUNC_DECL(DOMStringListItem) {
+  INC_STATS("DOM.DOMStringListItem()");
+  if (args.Length() == 0)
+    return v8::Null();
+  uint32_t index = args[0]->Uint32Value();
+
+  DOMStringList* imp =
+    V8Proxy::DOMWrapperToNative<DOMStringList>(args.Holder());
+  if (index >= imp->length())
+    return v8::Null();
+
+  return v8String(imp->item(index));
 }
 
 

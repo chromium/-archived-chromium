@@ -82,6 +82,7 @@ inputs = [
     '$DERIVED_DIR/V8DOMImplementation.cpp',
     '$DERIVED_DIR/V8DOMParser.cpp',
     '$DERIVED_DIR/V8DOMSelection.cpp',
+    '$DERIVED_DIR/V8DOMStringList.cpp',
     '$DERIVED_DIR/V8DOMWindow.cpp',
     '$DERIVED_DIR/V8Element.cpp',
     '$DERIVED_DIR/V8Entity.cpp',

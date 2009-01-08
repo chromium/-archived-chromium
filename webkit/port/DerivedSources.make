@@ -647,6 +647,7 @@ all : \
     V8DOMImplementation.h \
     V8DOMParser.h \
     V8DOMSelection.h \
+    V8DOMStringList.h \
     V8DOMWindow.h \
     V8Database.h \
     V8Document.h \
