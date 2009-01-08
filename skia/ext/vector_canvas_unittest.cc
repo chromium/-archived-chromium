@@ -25,59 +25,6 @@ namespace {
 
 const wchar_t* const kGenerateSwitch = L"vector-canvas-generate";
 
-// Base class for unit test that uses data. It initializes a directory path
-// based on the test's name.
-class DataUnitTest : public testing::Test {
- public:
-  DataUnitTest(const std::wstring& base_path) : base_path_(base_path) { }
-
- protected:
-  // Load the test's data path.
-  virtual void SetUp() {
-    const testing::TestInfo& test_info =
-        *testing::UnitTest::GetInstance()->current_test_info();
-    PathService::Get(base::DIR_SOURCE_ROOT, &test_dir_);
-    file_util::AppendToPath(&test_dir_, base_path_);
-    file_util::AppendToPath(&test_dir_, L"data");
-    file_util::AppendToPath(&test_dir_,
-        ASCIIToWide(test_info.test_case_name()));
-    file_util::AppendToPath(&test_dir_, ASCIIToWide(test_info.name()));
-
-    // Hack for a quick lowercase. We assume all the tests names are ASCII.
-    std::string tmp(WideToASCII(test_dir_));
-    for (size_t i = 0; i < tmp.size(); ++i)
-      tmp[i] = ToLowerASCII(tmp[i]);
-    test_dir_ = ASCIIToWide(tmp);
-  }
-
-  // Returns the fully qualified path of directory containing test data files.
-  const std::wstring& test_dir() const {
-    return test_dir_;
-  }
-
-  // Returns the fully qualified path of a data file.
-  std::wstring test_file(const std::wstring& filename) const {
-    // Hack for a quick lowercase. We assume all the test data file names are
-    // ASCII.
-    std::string tmp(WideToASCII(filename));
-    for (size_t i = 0; i < tmp.size(); ++i)
-      tmp[i] = ToLowerASCII(tmp[i]);
-
-    std::wstring path(test_dir());
-    file_util::AppendToPath(&path, ASCIIToWide(tmp));
-    return path;
-  }
-
- private:
-  // Path where the unit test is coming from: base, net, chrome, etc.
-  std::wstring base_path_;
-
-  // Path to directory used to contain the test data.
-  std::wstring test_dir_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(DataUnitTest);
-};
-
 // Lightweight HDC management.
 class Context {
  public:
@@ -249,10 +196,8 @@ class Image {
 };
 
 // Base for tests. Capability to process an image.
-class ImageTest : public DataUnitTest {
+class ImageTest : public testing::Test {
  public:
-  typedef DataUnitTest parent;
-
   // In what state is the test running.
   enum ProcessAction {
     GENERATE,
@@ -260,19 +205,45 @@ class ImageTest : public DataUnitTest {
     NOOP,
   };
 
-  ImageTest(const std::wstring& base_path, ProcessAction default_action)
-      : parent(base_path),
-        action_(default_action) {
+  ImageTest(ProcessAction default_action)
+      : action_(default_action) {
   }
 
  protected:
   virtual void SetUp() {
-    parent::SetUp();
+    const testing::TestInfo& test_info =
+        *testing::UnitTest::GetInstance()->current_test_info();
+    PathService::Get(base::DIR_SOURCE_ROOT, &test_dir_);
+    file_util::AppendToPath(&test_dir_, L"skia");
+    file_util::AppendToPath(&test_dir_, L"ext");
+    file_util::AppendToPath(&test_dir_, L"data");
+    file_util::AppendToPath(&test_dir_,
+        ASCIIToWide(test_info.test_case_name()));
+    file_util::AppendToPath(&test_dir_, ASCIIToWide(test_info.name()));
+
+    // Hack for a quick lowercase. We assume all the tests names are ASCII.
+    std::string tmp(WideToASCII(test_dir_));
+    for (size_t i = 0; i < tmp.size(); ++i)
+      tmp[i] = ToLowerASCII(tmp[i]);
+    test_dir_ = ASCIIToWide(tmp);
 
     if (action_ == GENERATE) {
       // Make sure the directory exist.
-      file_util::CreateDirectory(test_dir());
+      file_util::CreateDirectory(test_dir_);
     }
+  }
+
+  // Returns the fully qualified path of a data file.
+  std::wstring test_file(const std::wstring& filename) const {
+    // Hack for a quick lowercase. We assume all the test data file names are
+    // ASCII.
+    std::string tmp(WideToASCII(filename));
+    for (size_t i = 0; i < tmp.size(); ++i)
+      tmp[i] = ToLowerASCII(tmp[i]);
+
+    std::wstring path(test_dir_);
+    file_util::AppendToPath(&path, ASCIIToWide(tmp));
+    return path;
   }
 
   // Compares or saves the bitmap currently loaded in the context, depending on
@@ -313,6 +284,9 @@ class ImageTest : public DataUnitTest {
   }
 
   ProcessAction action_;
+
+  // Path to directory used to contain the test data.
+  std::wstring test_dir_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ImageTest);
 };
@@ -367,7 +341,7 @@ class VectorCanvasTest : public ImageTest {
  public:
   typedef ImageTest parent;
 
-  VectorCanvasTest() : parent(L"base", CurrentMode()), compare_canvas_(true) {
+  VectorCanvasTest() : parent(CurrentMode()), compare_canvas_(true) {
   }
 
  protected:
