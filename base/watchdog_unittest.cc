@@ -73,15 +73,14 @@ TEST(WatchdogTest, ArmDisarmTest) {
 TEST(WatchdogTest, AlarmTest) {
   WatchdogCounter watchdog(TimeDelta::FromMilliseconds(10), "Enabled", true);
   watchdog.Arm();
-  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromSeconds(1),
+  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(5),
                                    watchdog.alarm_counter() > 0);
   EXPECT_EQ(1, watchdog.alarm_counter());
 
   // Set a time greater than the timeout into the past.
   watchdog.ArmSomeTimeDeltaAgo(TimeDelta::FromSeconds(2));
-  // It should instantly go off, but certainly in less than a second.
-  // In practice, on our trybots, it sometimes takes a little longer!
-  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMilliseconds(1500),
+  // It should instantly go off, but certainly in less than 5 minutes.
+  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(5),
                                    watchdog.alarm_counter() > 1);
 
   EXPECT_EQ(2, watchdog.alarm_counter());
@@ -98,19 +97,19 @@ TEST(WatchdogTest, ConstructorDisabledTest) {
 
 // Make sure Disarming will prevent firing, even after Arming.
 TEST(WatchdogTest, DisarmTest) {
-  WatchdogCounter watchdog(TimeDelta::FromSeconds(1), "Enabled", true);
+  WatchdogCounter watchdog(TimeDelta::FromSeconds(5), "Enabled", true);
   watchdog.Arm();
   PlatformThread::Sleep(100);  // Don't sleep too long
   watchdog.Disarm();
   // Alarm should not fire.
-  PlatformThread::Sleep(1500);
+  PlatformThread::Sleep(5500);
   EXPECT_EQ(0, watchdog.alarm_counter());
 
   // ...but even after disarming, we can still use the alarm...
   // Set a time greater than the timeout into the past.
   watchdog.ArmSomeTimeDeltaAgo(TimeDelta::FromSeconds(2));
-  // It should almost instantly go off, but certainly in less than a second.
-  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromSeconds(1),
+  // It should almost instantly go off, but certainly in less than 5 minutes.
+  SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(5),
                                    watchdog.alarm_counter() > 0);
 
   EXPECT_EQ(1, watchdog.alarm_counter());
