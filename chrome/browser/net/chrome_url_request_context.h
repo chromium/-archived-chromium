@@ -39,6 +39,11 @@ class ChromeURLRequestContext : public URLRequestContext,
   // Gets the path to the directory for the specified extension.
   FilePath GetPathForExtension(const std::string& id);
 
+  // Gets the path to the directory user scripts are stored in.
+  FilePath user_script_dir_path() const {
+    return user_script_dir_path_;
+  }
+
  private:
   // Private constructor, use the static factory methods instead. This is
   // expected to be called on the UI thread.
@@ -64,6 +69,9 @@ class ChromeURLRequestContext : public URLRequestContext,
   // Maps extension IDs to paths on disk. This is initialized in the
   // construtor and updated when extensions changed.
   ExtensionPaths extension_paths_;
+
+  // Path to the directory user scripts are stored in.
+  FilePath user_script_dir_path_;
 
   scoped_ptr<SQLitePersistentCookieStore> cookie_db_;
   PrefService* prefs_;

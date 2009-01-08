@@ -9,6 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/greasemonkey_master.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -110,6 +111,8 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
       iter != extensions->end(); ++iter) {
     extension_paths_[(*iter)->id()] = (*iter)->path();
   }
+
+  user_script_dir_path_ = profile->GetGreasemonkeyMaster()->user_script_dir();
 
   prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
   prefs_->AddPrefObserver(prefs::kCookieBehavior, this);  

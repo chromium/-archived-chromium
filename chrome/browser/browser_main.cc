@@ -406,7 +406,7 @@ int BrowserMain(CommandLine &parsed_command_line,
   // Register our global network handler for chrome:// and chrome-extension://
   // URLs.
   RegisterURLRequestChromeJob();
-  RegisterExtensionProtocol();
+  RegisterExtensionProtocols();
 
   browser_process->InitBrokerServices(broker_services);
 

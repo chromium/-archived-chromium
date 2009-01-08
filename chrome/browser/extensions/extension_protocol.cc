@@ -11,6 +11,7 @@
 #include "net/url_request/url_request_file_job.h"
 
 static const char kExtensionURLScheme[] = "chrome-extension";
+static const char kUserScriptURLScheme[] = "chrome-user-script";
 
 FilePath GetPathForExtensionResource(const FilePath& extension_path,
                                      const std::string& url_path) {
@@ -50,29 +51,46 @@ FilePath GetPathForExtensionResource(const FilePath& extension_path,
   return ret_val;
 }
 
-// Creates a URLRequestJob instance for an extension URL. This is the factory
-// function that is registered with URLRequest.
-static URLRequestJob* CreateURLRequestJob(URLRequest* request,
-                                          const std::string& scheme) {
+// Factory registered with URLRequest to create URLRequestJobs for extension://
+// URLs.
+static URLRequestJob* CreateExtensionURLRequestJob(URLRequest* request,
+                                                   const std::string& scheme) {
   ChromeURLRequestContext* context =
       static_cast<ChromeURLRequestContext*>(request->context());
 
-  FilePath extension_path = context->GetPathForExtension(request->url().host());
-  if (extension_path.value().empty())
+  // chrome-extension://extension-id/resource/path.js
+  FilePath directory_path = context->GetPathForExtension(request->url().host());
+  if (directory_path.value().empty())
     return NULL;
 
-  FilePath path = GetPathForExtensionResource(extension_path,
-                                              request->url().path());
-  if (path.value().empty())
-    return NULL;
+  std::string resource = request->url().path();
+  FilePath path = GetPathForExtensionResource(directory_path, resource);
 
   return new URLRequestFileJob(request, path);
 }
 
-void RegisterExtensionProtocol() {
-  // Being a standard scheme allows us to resolve relative paths
+// Factory registered with URLRequest to create URLRequestJobs for
+// chrome-user-script:/ URLs.
+static URLRequestJob* CreateUserScriptURLRequestJob(URLRequest* request,
+                                                    const std::string& scheme) {
+  ChromeURLRequestContext* context =
+      static_cast<ChromeURLRequestContext*>(request->context());
+
+  // chrome-user-script:/user-script-name.user.js
+  FilePath directory_path = context->user_script_dir_path();
+  std::string resource = request->url().path();
+
+  FilePath path = GetPathForExtensionResource(directory_path, resource);
+  return new URLRequestFileJob(request, path);
+}
+
+void RegisterExtensionProtocols() {
+  // Being a standard scheme allows us to resolve relative paths. This is used
+  // by extensions, but not by standalone user scripts.
   url_util::AddStandardScheme(kExtensionURLScheme);
 
   URLRequest::RegisterProtocolFactory(kExtensionURLScheme,
-                                      &CreateURLRequestJob);
+                                      &CreateExtensionURLRequestJob);
+  URLRequest::RegisterProtocolFactory(kUserScriptURLScheme,
+                                      &CreateUserScriptURLRequestJob);
 }

@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_GREASEMONKEY_MASTER_H_
 
 #include "base/directory_watcher.h"
+#include "base/file_path.h"
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
@@ -33,6 +34,9 @@ class GreasemonkeyMaster : public base::RefCounted<GreasemonkeyMaster>,
 
   // Return true if we have any scripts ready.
   bool ScriptsReady() const { return shared_memory_.get() != NULL; }
+
+  // Returns the path to the directory user scripts are stored in.
+  FilePath user_script_dir() const { return *user_script_dir_; }
 
  private:
   class ScriptReloader;
