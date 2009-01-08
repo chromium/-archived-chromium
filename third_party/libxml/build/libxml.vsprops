@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="libxml"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		DisableSpecificWarnings="4101;4133"
+	/>
+</VisualStudioPropertySheet>

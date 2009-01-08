@@ -8,6 +8,6 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		PreprocessorDefinitions="__PRETTY_FUNCTION__=__FUNCTION__;DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2"
-		DisableSpecificWarnings="4138; 4244; 4291; 4305; 4355; 4521; 4099;"
+		DisableSpecificWarnings="4138; 4244; 4291; 4305; 4344; 4355; 4521; 4099;"
 	/>
 </VisualStudioPropertySheet>
