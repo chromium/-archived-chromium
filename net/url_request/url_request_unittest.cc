@@ -927,7 +927,8 @@ TEST_F(URLRequestTest, Post307RedirectPost) {
   EXPECT_EQ(req.method(), "POST");
 }
 
-#if !defined(OS_WIN)
+// FTP tests appear to be hanging some of the time
+#if 1  // !defined(OS_WIN)
   #define MAYBE_FTPGetTestAnonymous   DISABLED_FTPGetTestAnonymous
   #define MAYBE_FTPGetTest            DISABLED_FTPGetTest
   #define MAYBE_FTPCheckWrongUser     DISABLED_FTPCheckWrongUser
