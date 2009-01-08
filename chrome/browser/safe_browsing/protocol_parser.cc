@@ -90,6 +90,13 @@ bool SafeBrowsingProtocolParser::ParseGetHash(
     full_hash.add_chunk_id = atoi(cmd_parts[1].c_str());
     int full_hash_len = atoi(cmd_parts[2].c_str());
 
+    // Ignore hash results from lists we don't recognize.
+    if (safe_browsing_util::GetListId(full_hash.list_name) < 0) {
+      data += full_hash_len;
+      length -= full_hash_len;
+      continue;
+    }
+
     while (full_hash_len > 0) {
       DCHECK(static_cast<size_t>(full_hash_len) >= sizeof(SBFullHash));
       memcpy(&full_hash.hash, data, sizeof(SBFullHash));

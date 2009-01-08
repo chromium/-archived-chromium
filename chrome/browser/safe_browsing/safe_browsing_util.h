@@ -277,6 +277,15 @@ namespace safe_browsing_util {
 extern const char kMalwareList[];
 extern const char kPhishingList[];
 
+// Converts between the SafeBrowsing list names and their enumerated value.
+// If the list names change, both of these methods must be updated.
+enum ListType {
+  MALWARE = 0,
+  PHISH = 1,
+};
+int GetListId(const std::string& name);
+std::string GetListName(int list_id);
+
 void FreeChunks(std::deque<SBChunk>* chunks);
 
 // Given a URL, returns all the hosts we need to check.  They are returned

@@ -111,15 +111,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // the given list and chunk type.
   void GetChunkIds(int list_id, ChunkType type, std::string* list);
 
-  // Converts between the SafeBrowsing list names and their enumerated value.
-  // If the list names change, both of these methods must be updated.
-  enum ListType {
-    MALWARE = 0,
-    PHISH = 1,
-  };
-  static int GetListId(const std::string& name);
-  static std::string GetListName(int list_id);
-
   // Generate a bloom filter.
   virtual void BuildBloomFilter();
 

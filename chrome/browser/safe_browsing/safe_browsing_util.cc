@@ -28,6 +28,26 @@ namespace safe_browsing_util {
 const char kMalwareList[] = "goog-malware-shavar";
 const char kPhishingList[] = "goog-phish-shavar";
 
+int GetListId(const std::string& name) {
+  if (name == kMalwareList)
+    return MALWARE;
+  else if (name == kPhishingList)
+    return PHISH;
+
+  return -1;
+}
+
+std::string GetListName(int list_id) {
+  switch (list_id) {
+    case MALWARE:
+      return kMalwareList;
+    case PHISH:
+      return kPhishingList;
+    default:
+      return "";
+  }
+}
+
 void GenerateHostsToCheck(const GURL& url, std::vector<std::string>* hosts) {
   // Per Safe Browsing Protocol 2 spec, first we try the host.  Then we try up
   // to 4 hostnames starting with the last 5 components and successively

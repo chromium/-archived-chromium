@@ -491,6 +491,47 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithMac) {
   EXPECT_EQ(memcmp(hash_result, &full_hashes[0].hash, sizeof(SBFullHash)), 0);
 }
 
+TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithUnknownList) {
+  std::string hash_response = "goog-phish-shavar:1:32\n"
+                              "12345678901234567890123456789012"
+                              "googpub-phish-shavar:19:32\n"
+                              "09876543210987654321098765432109";
+  bool re_key = false;
+  std::string key = "";
+  std::vector<SBFullHashResult> full_hashes;
+  SafeBrowsingProtocolParser parser;
+  EXPECT_TRUE(parser.ParseGetHash(hash_response.data(),
+                                  hash_response.size(),
+                                  key,
+                                  &re_key,
+                                  &full_hashes));
+
+  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(memcmp("12345678901234567890123456789012", 
+                   &full_hashes[0].hash, sizeof(SBFullHash)), 0);
+  EXPECT_EQ(full_hashes[0].list_name, "goog-phish-shavar");
+  EXPECT_EQ(full_hashes[0].add_chunk_id, 1);
+
+  hash_response += "goog-malware-shavar:7:32\n"
+                   "abcdefghijklmnopqrstuvwxyz123457";
+  full_hashes.clear();
+  EXPECT_TRUE(parser.ParseGetHash(hash_response.data(),
+                                  hash_response.size(),
+                                  key,
+                                  &re_key,
+                                  &full_hashes));
+
+  EXPECT_EQ(full_hashes.size(), 2);
+  EXPECT_EQ(memcmp("12345678901234567890123456789012", 
+                   &full_hashes[0].hash, sizeof(SBFullHash)), 0);
+  EXPECT_EQ(full_hashes[0].list_name, "goog-phish-shavar");
+  EXPECT_EQ(full_hashes[0].add_chunk_id, 1);
+  EXPECT_EQ(memcmp("abcdefghijklmnopqrstuvwxyz123457", 
+                   &full_hashes[1].hash, sizeof(SBFullHash)), 0);
+  EXPECT_EQ(full_hashes[1].list_name, "goog-malware-shavar");
+  EXPECT_EQ(full_hashes[1].add_chunk_id, 7);
+}
+
 TEST(SafeBrowsingProtocolParsingTest, TestFormatHash) {
   SafeBrowsingProtocolParser parser;
   std::vector<SBPrefix> prefixes;
