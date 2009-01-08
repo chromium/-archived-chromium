@@ -18,20 +18,6 @@ static const int kDefaultTimeoutMs = 5000;
 static const char* kSemaphoreName = "chromium.listen_socket";
 #endif
 
-// millisecond sleep
-static void msleep(unsigned long milisec) {
-#if defined(OS_WIN)
-  Sleep(milisec);
-#elif defined(OS_POSIX)
-  struct timespec req = {0};
-  time_t sec = (int)(milisec / 1000);
-  milisec = milisec - (sec * 1000);
-  req.tv_sec = sec;
-  req.tv_nsec = milisec * 1000000L;
-  while (nanosleep(&req, &req) == -1)
-    continue;
-#endif
-}
 
 ListenSocket* ListenSocketTester::DoListen() {
   return ListenSocket::Listen(kLoopback, kTestPort, this);
@@ -142,7 +128,7 @@ bool ListenSocketTester::NextAction(int timeout) {
     return false;
   while (true) {
     int result = sem_trywait(semaphore_);
-    msleep(1);  // 1ms sleep
+    PlatformThread::Sleep(1); // 1MS sleep
     timeout--;
     if (timeout <= 0)
       return false;
@@ -175,7 +161,7 @@ int ListenSocketTester::ClearTestSocket() {
     if (len == SOCKET_ERROR) {
       if (errno == EWOULDBLOCK || errno == EAGAIN) {
 #endif
-        msleep(1); 
+        PlatformThread::Sleep(1);
         time_out++;
         if (time_out > 10) 
           break;
@@ -280,7 +266,7 @@ void ListenSocketTester::TestServerSend() {
   // of the time.  I could fix this by making the socket blocking, but then
   // this test might hang in the case of errors.  It would be nice to do
   // something that felt more reliable here.
-  msleep(10);  // sleep for 10ms
+  PlatformThread::Sleep(10);  // sleep for 10ms
   const int buf_len = 200;
   char buf[buf_len+1];
   int recv_len = recv(test_socket_, buf, buf_len, 0);
