@@ -4,6 +4,16 @@
 # and http://code.google.com/p/chromium/wiki/LinuxBuild64Bit
 set -ex
 
+# Root can't access files on all filesystems, but /tmp should always be ok
+# (unless it's full).  
+DIR=`mktemp -d`
+cd $DIR
+touch .created
+
+cleanup() {
+  test -f $DIR/.created && rm -rf $DIR
+}
+
 # TODO(dkegel): add sha1sum verification
 download() {
   dir=$1
@@ -95,6 +105,8 @@ then
   install_hardy_64
 else
   echo "Unsupported system"
+  cleanup
   exit 1
 fi
+cleanup
 
