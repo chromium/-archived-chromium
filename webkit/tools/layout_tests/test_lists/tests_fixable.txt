@@ -1134,9 +1134,6 @@ MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
-// Linux pixeltest failure: Form control incorrect size
-LINUX : LayoutTests/fast/forms/listbox-clip.html = FAIL
-
 // Linux pixeltest failure: Failing to apply style
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
 
@@ -1342,13 +1339,7 @@ LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 LayoutTests/fast/css/computed-style.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 
-// MERGE 38653:38729: Expectations changed upstream
-// Flaky on Linux, maybe on Windows too?
-LINUX : LayoutTests/editing/selection/5057506.html = PASS FAIL
 LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
-LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
-LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
-LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 
 // MERGE 38653:38729: New tests
 LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
