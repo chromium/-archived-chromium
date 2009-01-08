@@ -23,6 +23,7 @@ class Rect;
 class Size;
 }
 namespace views {
+class RootView;
 class WindowDelegate;
 }
 

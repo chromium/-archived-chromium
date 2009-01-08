@@ -21,6 +21,7 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/group_table_view.h"
 #include "chrome/views/image_view.h"
+#include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
 
 #include "chromium_strings.h"

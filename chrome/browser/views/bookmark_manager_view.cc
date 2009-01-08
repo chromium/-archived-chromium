@@ -27,6 +27,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/grid_layout.h"
+#include "chrome/views/label.h"
 #include "chrome/views/menu_button.h"
 #include "chrome/views/single_split_view.h"
 #include "chrome/views/window.h"
