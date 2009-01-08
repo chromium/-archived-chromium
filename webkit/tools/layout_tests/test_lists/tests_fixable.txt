@@ -1856,3 +1856,7 @@ LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 // Merge 39606:39660 - new tests
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
+
+// Merge 39660:39711 - need to implement layoutTestController.numberOfActiveAnimations()
+SKIP : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT
+SKIP : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT
