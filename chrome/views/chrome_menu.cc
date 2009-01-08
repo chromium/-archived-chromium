@@ -1078,7 +1078,8 @@ const int MenuItemView::kMenuItemViewID = 1001;
 bool MenuItemView::allow_task_nesting_during_run_ = false;
 
 MenuItemView::MenuItemView(MenuDelegate* delegate) {
-  DCHECK(delegate_);
+  // NOTE: don't check the delegate for NULL, UpdateMenuPartSizes supplies a
+  // NULL delegate.
   Init(NULL, 0, SUBMENU, delegate);
 }
 
