@@ -2297,6 +2297,7 @@
 					../../../../third_party/WebKit/WebCore,
 					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/WebCore/v8",
+					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/grit",
 					../../../../third_party/WebKit/JavaScriptCore,
 				);
 				INFOPLIST_FILE = Info.plist;
@@ -2332,6 +2333,7 @@
 					../../../../third_party/WebKit/WebCore,
 					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/WebCore/v8",
+					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/grit",
 					../../../../third_party/WebKit/JavaScriptCore,
 				);
 				INFOPLIST_FILE = Info.plist;

@@ -37,12 +37,7 @@
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
-
-#if defined(OS_MACOSX)
-#include "webkit/glue/bogus_webkit_strings.h"
-#elif defined(OS_WIN) || defined(OS_LINUX)
 #include "webkit_strings.h"
-#endif
 
 #include "SkBitmap.h"
 

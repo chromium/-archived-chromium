@@ -7970,6 +7970,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E45627120E268F03005E4685 /* Build configuration list for PBXNativeTarget "glue" */;
 			buildPhases = (
+				E43A75A70F164FAA00ABD5D1 /* Pre-build */,
 				E45626F20E268F03005E4685 /* Sources */,
 				E45627110E268F03005E4685 /* Frameworks */,
 			);
@@ -8119,6 +8120,20 @@
 			shellPath = /bin/sh;
 			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		E43A75A70F164FAA00ABD5D1 /* Pre-build */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Pre-build";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\" \"${@}\"";
 		};
 		E456203F0E268E87005E4685 /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -10000,6 +10015,7 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 				);
 				PRODUCT_NAME = glue;
@@ -10016,6 +10032,7 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 				);
 				PRODUCT_NAME = glue;
