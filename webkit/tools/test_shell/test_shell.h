@@ -333,7 +333,7 @@ private:
 
 #if defined(OS_LINUX)
     // The height of the non-rendering area of the main window, in pixels.
-    int toolbar_height_;
+    int top_chrome_height_;
 #endif
 };
 

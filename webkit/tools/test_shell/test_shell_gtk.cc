@@ -266,7 +266,9 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
 
-  gtk_box_pack_start(GTK_BOX(vbox), CreateMenuBar(this), FALSE, FALSE, 0);
+  GtkWidget* menu_bar = CreateMenuBar(this);
+
+  gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
 
   GtkWidget* toolbar = gtk_toolbar_new();
   // Turn off the labels on the toolbar buttons.
@@ -311,11 +313,11 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
 
   gtk_container_add(GTK_CONTAINER(m_mainWnd), vbox);
   gtk_widget_show_all(m_mainWnd);
-  toolbar_height_ = toolbar->allocation.height +
-      gtk_box_get_spacing(GTK_BOX(vbox));
+  top_chrome_height_ = toolbar->allocation.height +
+      menu_bar->allocation.height + 2 * gtk_box_get_spacing(GTK_BOX(vbox));
 
-  // LoadURL will do a resize (which uses toolbar_height_), so make sure we
-  // don't call LoadURL until we've completed all of our GTK setup.
+  // LoadURL will do a resize (which uses top_chrome_height_), so make
+  // sure we don't call LoadURL until we've completed all of our GTK setup.
   if (!startingURL.empty())
     LoadURL(startingURL.c_str());
 
@@ -337,7 +339,8 @@ void TestShell::TestFinished() {
 }
 
 void TestShell::SizeTo(int width, int height) {
-  gtk_window_resize(GTK_WINDOW(m_mainWnd), width, height + toolbar_height_);
+  gtk_window_resize(GTK_WINDOW(m_mainWnd), width,
+                    height + top_chrome_height_);
 }
 
 static void AlarmHandler(int signatl) {
