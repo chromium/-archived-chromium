@@ -25,10 +25,12 @@ const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
 
 // This test loads a page with frames and starts FindInPage requests
 TEST_F(FindInPageControllerTest, FindInPageFrames) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
-  GURL url = server.TestServerPageW(kFramePage);
+  GURL url = server->TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -76,10 +78,12 @@ TEST_F(FindInPageControllerTest, FindInPageFrames) {
 // This test loads a single-frame page and makes sure the ordinal returned makes
 // sense as we FindNext over all the items.
 TEST_F(FindInPageControllerTest, FindInPageOrdinal) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
-  GURL url = server.TestServerPageW(kFrameData);
+  GURL url = server->TestServerPageW(kFrameData);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -112,10 +116,12 @@ TEST_F(FindInPageControllerTest, FindInPageOrdinal) {
 // This test loads a page with frames and makes sure the ordinal returned makes
 // sense.
 TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
-  GURL url = server.TestServerPageW(kFramePage);
+  GURL url = server->TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -156,10 +162,12 @@ TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
 // We could get ordinals out of whack when restarting search in subframes.
 // See http://crbug.com/5132
 TEST_F(FindInPageControllerTest, FindInPage_Issue5132) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
-  GURL url = server.TestServerPageW(kFramePage);
+  GURL url = server->TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -185,9 +193,11 @@ TEST_F(FindInPageControllerTest, FindInPage_Issue5132) {
 
 // Load a page with no selectable text and make sure we don't crash.
 TEST_F(FindInPageControllerTest, FindUnSelectableText) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server.TestServerPageW(kUserSelectPage);
+  GURL url = server->TestServerPageW(kUserSelectPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -199,9 +209,11 @@ TEST_F(FindInPageControllerTest, FindUnSelectableText) {
 
 // Try to reproduce the crash seen in issue 1341577.
 TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server.TestServerPageW(kCrashPage);
+  GURL url = server->TestServerPageW(kCrashPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -229,9 +241,11 @@ TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
 //    ms) to find one or more of those matches (so Find times out and has to try
 //    again from where it left off).
 TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1155639) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server.TestServerPageW(kTooFewMatchesPage);
+  GURL url = server->TestServerPageW(kTooFewMatchesPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -244,9 +258,11 @@ TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1155639) {
 // The find window should not change its location just because we open and close
 // a new tab.
 TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server.TestServerPageW(kFramePage);
+  GURL url = server->TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tabA(GetActiveTab());
   ASSERT_TRUE(tabA->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -303,9 +319,11 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
 // Make sure Find box disappears on Navigate but not on Refresh.
 TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server.TestServerPageW(kUserSelectPage);
+  GURL url = server->TestServerPageW(kUserSelectPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);

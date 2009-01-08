@@ -41,17 +41,17 @@ class SSLUITest : public UITest {
     EXPECT_TRUE(browser_proxy->AppendTab(url));
   }
 
-  TestServer* PlainServer() {
-    return new TestServer(kDocRoot);
+  HTTPTestServer* PlainServer() {
+    return HTTPTestServer::CreateServer(kDocRoot);
   }
 
   HTTPSTestServer* GoodCertServer() {
-    return new HTTPSTestServer(util_.kHostName, util_.kOKHTTPSPort,
+    return HTTPSTestServer::CreateServer(util_.kHostName, util_.kOKHTTPSPort,
         kDocRoot, util_.GetOKCertPath().ToWStringHack());
   }
 
   HTTPSTestServer* BadCertServer() {
-    return new HTTPSTestServer(util_.kHostName, util_.kBadHTTPSPort,
+    return HTTPSTestServer::CreateServer(util_.kHostName, util_.kBadHTTPSPort,
         kDocRoot, util_.GetExpiredCertPath().ToWStringHack());
   }
 
@@ -65,7 +65,7 @@ class SSLUITest : public UITest {
 
 // Visits a regular page over http.
 TEST_F(SSLUITest, TestHTTP) {
-  scoped_ptr<TestServer> server(PlainServer());
+  scoped_refptr<HTTPTestServer> server = PlainServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), server->TestServerPageW(L"files/ssl/google.html"));
@@ -87,8 +87,8 @@ TEST_F(SSLUITest, TestHTTP) {
 // Visits a page over http which includes broken https resources (status should
 // be OK).
 TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
   NavigateTab(tab.get(),
@@ -106,7 +106,7 @@ TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
 
 // Visits a page over OK https:
 TEST_F(SSLUITest, TestOKHTTPS) {
-  scoped_ptr<HTTPSTestServer> https_server(GoodCertServer());
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               https_server->TestServerPageW(L"files/ssl/google.html"));
@@ -127,7 +127,7 @@ TEST_F(SSLUITest, TestOKHTTPS) {
 
 // Visits a page with https error and proceed:
 TEST_F(SSLUITest, TestHTTPSExpiredCertAndProceed) {
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               bad_https_server->TestServerPageW(L"files/ssl/google.html"));
@@ -160,9 +160,9 @@ TEST_F(SSLUITest, TestHTTPSExpiredCertAndProceed) {
 // Visits a page with https error and don't proceed (and ensure we can still
 // navigate at that point):
 TEST_F(SSLUITest, TestHTTPSExpiredCertAndDontProceed) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
   // First navigate to an OK page.
@@ -221,8 +221,8 @@ TEST_F(SSLUITest, TestHTTPSExpiredCertAndDontProceed) {
 
 // Visits a page with mixed content.
 TEST_F(SSLUITest, TestMixedContents) {
-  scoped_ptr<HTTPSTestServer> https_server(GoodCertServer());
-  scoped_ptr<TestServer> http_server(PlainServer());
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
 
   // Load a page with mixed-content, the default behavior is to show the mixed
   // content.
@@ -293,8 +293,8 @@ TEST_F(SSLUITest, TestMixedContents) {
 // - frames content is replaced with warning
 // - images and scripts are filtered out entirely
 TEST_F(SSLUITest, TestUnsafeContents) {
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -343,8 +343,8 @@ TEST_F(SSLUITest, TestUnsafeContents) {
 
 // Visits a page with mixed content loaded by JS (after the initial page load).
 TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
-  scoped_ptr<HTTPSTestServer> https_server(GoodCertServer());
-  scoped_ptr<TestServer> http_server(PlainServer());
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), https_server->TestServerPageW(
@@ -382,8 +382,8 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
 // referencing that same image over http (hoping it is coming from the webcore
 // memory cache).
 TEST_F(SSLUITest, TestCachedMixedContents) {
-  scoped_ptr<HTTPSTestServer> https_server(GoodCertServer());
-  scoped_ptr<TestServer> http_server(PlainServer());
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), http_server->TestServerPageW(
@@ -422,9 +422,10 @@ TEST_F(SSLUITest, TestCachedMixedContents) {
 // TODO(jcampan): this test is flacky and fails sometimes (bug #1065095)
 TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
   const std::string kLocalHost = "localhost";
-  scoped_ptr<HTTPSTestServer> https_server(
-    new HTTPSTestServer(kLocalHost, util_.kOKHTTPSPort,
-    kDocRoot, util_.GetOKCertPath().ToWStringHack()));
+  scoped_refptr<HTTPSTestServer> https_server =
+      HTTPSTestServer::CreateServer(kLocalHost, util_.kOKHTTPSPort,
+      kDocRoot, util_.GetOKCertPath().ToWStringHack());
+  ASSERT_TRUE(NULL != https_server.get());
 
   // First we hit the server with hostname, this generates an invalid policy
   // error.
@@ -490,7 +491,7 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
 
 // Test that navigating to a #ref does not change a bad security state.
 TEST_F(SSLUITest, TestRefNavigation) {
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               bad_https_server->TestServerPageW(L"files/ssl/page_with_refs.html"));
@@ -533,8 +534,8 @@ TEST_F(SSLUITest, TestRefNavigation) {
 // (bug #1966).
 // Disabled because flaky (bug #2136).
 TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -558,8 +559,8 @@ TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
 
 // Visit a page over bad https that is a redirect to a page with good https.
 TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL url1 = bad_https_server->TestServerPageW(L"server-redirect?");
@@ -591,8 +592,8 @@ TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
 
 // Visit a page over good https that is a redirect to a page with bad https.
 TEST_F(SSLUITest, TestRedirectGoodToBadHTTPS) {
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL url1 = good_https_server->TestServerPageW(L"server-redirect?");
@@ -619,9 +620,9 @@ TEST_F(SSLUITest, TestRedirectGoodToBadHTTPS) {
 // Visit a page over http that is a redirect to a page with https (good and
 // bad).
 TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   // HTTP redirects to good HTTPS.
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -662,8 +663,8 @@ TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
 // Visit a page over https that is a redirect to a page with http (to make sure
 // we don't keep the secure state).
 TEST_F(SSLUITest, TestRedirectHTTPSToHTTP) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> https_server(GoodCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL https_url = https_server->TestServerPageW(L"server-redirect?");
@@ -718,9 +719,9 @@ TEST_F(SSLUITest, TestConnectToBadPort) {
 //   back
 // - navigate to HTTP (expect mixed content), then back
 TEST_F(SSLUITest, TestGoodFrameNavigation) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -814,8 +815,8 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
 // From a bad HTTPS top frame:
 // - navigate to an OK HTTPS frame (expected to be still authentication broken).
 TEST_F(SSLUITest, TestBadFrameNavigation) {
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -856,9 +857,9 @@ TEST_F(SSLUITest, TestBadFrameNavigation) {
 // From an HTTP top frame, navigate to good and bad HTTPS (security state should
 // stay unauthenticated).
 TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
-  scoped_ptr<TestServer> http_server(PlainServer());
-  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
-  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
+  scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),

@@ -107,22 +107,24 @@ class SessionHistoryTest : public UITest {
 }  // namespace
 
 TEST_F(SessionHistoryTest, BasicBackForward) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
   ASSERT_FALSE(tab_->GoBack());
   EXPECT_EQ(L"", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot1.html")));
+      server->TestServerPage("files/session_history/bot1.html")));
   EXPECT_EQ(L"bot1", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot2.html")));
+      server->TestServerPage("files/session_history/bot2.html")));
   EXPECT_EQ(L"bot2", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot3.html")));
+      server->TestServerPage("files/session_history/bot3.html")));
   EXPECT_EQ(L"bot3", GetTabTitle());
 
   // history is [blank, bot1, bot2, *bot3]
@@ -140,7 +142,7 @@ TEST_F(SessionHistoryTest, BasicBackForward) {
   EXPECT_EQ(L"bot1", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot3.html")));
+      server->TestServerPage("files/session_history/bot3.html")));
   EXPECT_EQ(L"bot3", GetTabTitle());
 
   // history is [blank, bot1, *bot3]
@@ -171,7 +173,9 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
   if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
     return;
 
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
   GURL home(homepage_);
@@ -179,7 +183,7 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
   EXPECT_EQ(L"", GetTabTitle());
   EXPECT_EQ(home, GetTabURL());
 
-  GURL frames(server.TestServerPage("files/session_history/frames.html"));
+  GURL frames(server->TestServerPage("files/session_history/frames.html"));
   ASSERT_TRUE(tab_->NavigateToURL(frames));
   EXPECT_EQ(L"bot1", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
@@ -235,13 +239,15 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
 
 // Test that back/forward preserves POST data and document state in subframes.
 TEST_F(SessionHistoryTest, FrameFormBackForward) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
   ASSERT_FALSE(tab_->GoBack());
   EXPECT_EQ(L"", GetTabTitle());
 
-  GURL frames(server.TestServerPage("files/session_history/frames.html"));
+  GURL frames(server->TestServerPage("files/session_history/frames.html"));
   ASSERT_TRUE(tab_->NavigateToURL(frames));
   EXPECT_EQ(L"bot1", GetTabTitle());
 
@@ -295,13 +301,15 @@ TEST_F(SessionHistoryTest, FrameFormBackForward) {
 // Test that back/forward preserves POST data and document state when navigating
 // across frames (ie, from frame -> nonframe).
 TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
   ASSERT_FALSE(tab_->GoBack());
   EXPECT_EQ(L"", GetTabTitle());
 
-  GURL frames(server.TestServerPage("files/session_history/frames.html"));
+  GURL frames(server->TestServerPage("files/session_history/frames.html"));
   ASSERT_TRUE(tab_->NavigateToURL(frames));
   EXPECT_EQ(L"bot1", GetTabTitle());
 
@@ -337,16 +345,18 @@ TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
 }
 #endif
 
-// Test that back/forward entries are created for reference fragment navigations.
-// Bug 730379.
+// Test that back/forward entries are created for reference fragment
+// navigations. Bug 730379.
 TEST_F(SessionHistoryTest, FragmentBackForward) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
   ASSERT_FALSE(tab_->GoBack());
   EXPECT_EQ(L"", GetTabTitle());
 
-  GURL fragment(server.TestServerPage("files/session_history/fragment.html"));
+  GURL fragment(server->TestServerPage("files/session_history/fragment.html"));
   ASSERT_TRUE(tab_->NavigateToURL(fragment));
   EXPECT_EQ(L"fragment", GetTabTitle());
   EXPECT_EQ(fragment, GetTabURL());
@@ -385,7 +395,7 @@ TEST_F(SessionHistoryTest, FragmentBackForward) {
   ASSERT_TRUE(tab_->GoForward());
   EXPECT_EQ(fragment_a, GetTabURL());
 
-  GURL bot3(server.TestServerPage("files/session_history/bot3.html"));
+  GURL bot3(server->TestServerPage("files/session_history/bot3.html"));
   ASSERT_TRUE(tab_->NavigateToURL(bot3));
   EXPECT_EQ(L"bot3", GetTabTitle());
   EXPECT_EQ(bot3, GetTabURL());
@@ -408,22 +418,24 @@ TEST_F(SessionHistoryTest, FragmentBackForward) {
 // means the test will hang if it attempts to navigate too far forward or back,
 // since we'll be waiting forever for a load stop event.
 TEST_F(SessionHistoryTest, JavascriptHistory) {
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
   ASSERT_FALSE(tab_->GoBack());
   EXPECT_EQ(L"", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot1.html")));
+      server->TestServerPage("files/session_history/bot1.html")));
   EXPECT_EQ(L"bot1", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot2.html")));
+      server->TestServerPage("files/session_history/bot2.html")));
   EXPECT_EQ(L"bot2", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot3.html")));
+      server->TestServerPage("files/session_history/bot3.html")));
   EXPECT_EQ(L"bot3", GetTabTitle());
 
   // history is [blank, bot1, bot2, *bot3]
@@ -455,7 +467,7 @@ TEST_F(SessionHistoryTest, JavascriptHistory) {
   EXPECT_EQ(L"bot1", GetTabTitle());
 
   ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/bot3.html")));
+      server->TestServerPage("files/session_history/bot3.html")));
   EXPECT_EQ(L"bot3", GetTabTitle());
 
   // history is [blank, bot1, *bot3]
@@ -489,10 +501,12 @@ TEST_F(SessionHistoryTest, JavascriptHistory) {
 TEST_F(SessionHistoryTest, LocationReplace) {
   // Test that using location.replace doesn't leave the title of the old page
   // visible.
-  TestServer server(kDocRoot);
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot);
+  ASSERT_TRUE(NULL != server.get());
 
-  ASSERT_TRUE(tab_->NavigateToURL(
-      server.TestServerPage("files/session_history/replace.html?no-title.html")));
+  ASSERT_TRUE(tab_->NavigateToURL(server->TestServerPage(
+      "files/session_history/replace.html?no-title.html")));
   EXPECT_EQ(L"", GetTabTitle());
 }
 

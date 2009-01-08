@@ -37,14 +37,20 @@ TEST_F(InspectorControllerTest, DISABLED_InspectElement) {
   if (CommandLine().HasSwitch(switches::kSingleProcess))
     return;
 
-  TestServer server(L"chrome/test/data");
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data");
+  ASSERT_TRUE(NULL != server.get());
+
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   // We don't track resources until we've opened the inspector.
-  NavigateTab(tab.get(), server.TestServerPageW(L"files/inspector/test1.html"));
+  NavigateTab(tab.get(), server->TestServerPageW(
+      L"files/inspector/test1.html"));
   tab->InspectElement(0, 0);
-  NavigateTab(tab.get(), server.TestServerPageW(L"files/inspector/test1.html"));
+  NavigateTab(tab.get(), server->TestServerPageW(
+      L"files/inspector/test1.html"));
   EXPECT_EQ(1, tab->InspectElement(0, 0));
-  NavigateTab(tab.get(), server.TestServerPageW(L"files/inspector/test2.html"));
+  NavigateTab(tab.get(), server->TestServerPageW(
+      L"files/inspector/test2.html"));
   EXPECT_EQ(2, tab->InspectElement(0, 0));
 }
 

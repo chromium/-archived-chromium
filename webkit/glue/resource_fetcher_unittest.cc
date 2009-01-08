@@ -153,14 +153,16 @@ FetcherDelegate* FetcherDelegate::instance_ = NULL;
 
 // Test a fetch from the test server.
 TEST_F(ResourceFetcherTests, ResourceFetcherDownload) {
-  UnittestTestServer server;
+  scoped_refptr<UnittestTestServer> server =
+      UnittestTestServer::CreateServer();
+  ASSERT_TRUE(NULL != server.get());
 
   WebFrame* web_frame = test_shell_->webView()->GetMainFrame();
   // Not safe, but this is a unittest, so whatever.
   WebFrameImpl* web_frame_impl = reinterpret_cast<WebFrameImpl*>(web_frame);
   WebCore::Frame* frame = web_frame_impl->frame();
 
-  GURL url = server.TestServerPage("files/test_shell/index.html");
+  GURL url = server->TestServerPage("files/test_shell/index.html");
   scoped_ptr<FetcherDelegate> delegate(new FetcherDelegate);
   scoped_ptr<ResourceFetcher> fetcher(new ResourceFetcher(
       url, frame, delegate.get()));
@@ -173,7 +175,7 @@ TEST_F(ResourceFetcherTests, ResourceFetcherDownload) {
   EXPECT_TRUE(text.find("What is this page?") != std::string::npos);
 
   // Test 404 response.
-  url = server.TestServerPage("files/thisfiledoesntexist.html");
+  url = server->TestServerPage("files/thisfiledoesntexist.html");
   delegate.reset(new FetcherDelegate);
   fetcher.reset(new ResourceFetcher(url, frame, delegate.get()));
 
@@ -185,7 +187,10 @@ TEST_F(ResourceFetcherTests, ResourceFetcherDownload) {
 }
 
 TEST_F(ResourceFetcherTests, ResourceFetcherDidFail) {
-  UnittestTestServer server;
+  scoped_refptr<UnittestTestServer> server =
+      UnittestTestServer::CreateServer();
+  ASSERT_TRUE(NULL != server.get());
+
   WebFrame* web_frame = test_shell_->webView()->GetMainFrame();
   // Not safe, but this is a unittest, so whatever.
   WebFrameImpl* web_frame_impl = reinterpret_cast<WebFrameImpl*>(web_frame);
@@ -208,7 +213,9 @@ TEST_F(ResourceFetcherTests, ResourceFetcherDidFail) {
 }
 
 TEST_F(ResourceFetcherTests, ResourceFetcherTimeout) {
-  UnittestTestServer server;
+  scoped_refptr<UnittestTestServer> server =
+      UnittestTestServer::CreateServer();
+  ASSERT_TRUE(NULL != server.get());
 
   WebFrame* web_frame = test_shell_->webView()->GetMainFrame();
   // Not safe, but this is a unittest, so whatever.
@@ -217,7 +224,7 @@ TEST_F(ResourceFetcherTests, ResourceFetcherTimeout) {
 
   // Grab a page that takes at least 1 sec to respond, but set the fetcher to
   // timeout in 0 sec.
-  GURL url = server.TestServerPage("slow?1");
+  GURL url = server->TestServerPage("slow?1");
   scoped_ptr<FetcherDelegate> delegate(new FetcherDelegate);
   scoped_ptr<ResourceFetcher> fetcher(new ResourceFetcherWithTimeout(
       url, frame, 0, delegate.get()));

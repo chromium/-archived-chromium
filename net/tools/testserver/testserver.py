@@ -24,6 +24,10 @@ import sys
 import time
 import tlslite
 import tlslite.api
+import pyftpdlib.ftpserver
+
+SERVER_HTTP = 0 
+SERVER_FTP = 1
 
 debug_output = sys.stderr
 def debug(str):
@@ -863,12 +867,12 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def do_GET(self):
     for handler in self._get_handlers:
-      if (handler()):
+      if handler():
         return
 
   def do_POST(self):
     for handler in self._post_handlers:
-      if(handler()):
+      if handler():
         return
 
   # called by the redirect handling function when there is no parameter
@@ -880,6 +884,23 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.wfile.write('Use <pre>%s?http://dest...</pre>' % redirect_name)
     self.wfile.write('</body></html>')
 
+def MakeDataDir():
+  if options.data_dir:
+    if not os.path.isdir(options.data_dir):
+      print 'specified data dir not found: ' + options.data_dir + ' exiting...'
+      return None
+    my_data_dir = options.data_dir
+  else:
+    # Create the default path to our data dir, relative to the exe dir.
+    my_data_dir = os.path.dirname(sys.argv[0])
+    my_data_dir = os.path.join(my_data_dir, "..", "..", "..", "..",
+                                   "test", "data")
+
+    #TODO(ibrar): Must use Find* funtion defined in google\tools
+    #i.e my_data_dir = FindUpward(my_data_dir, "test", "data")
+
+  return my_data_dir
+
 def main(options, args):
   # redirect output to a log file so it doesn't spam the unit test output
   logfile = open('testserver.log', 'w')
@@ -887,27 +908,51 @@ def main(options, args):
 
   port = options.port
 
-  if options.cert:
-    # let's make sure the cert file exists.
-    if not os.path.isfile(options.cert):
-      print 'specified cert file not found: ' + options.cert + ' exiting...'
-      return
-    server = HTTPSServer(('127.0.0.1', port), TestPageHandler, options.cert)
-    print 'HTTPS server started on port %d...' % port
-  else:
-    server = StoppableHTTPServer(('127.0.0.1', port), TestPageHandler)
-    print 'HTTP server started on port %d...' % port
+  if options.server_type == SERVER_HTTP:
+    if options.cert:
+      # let's make sure the cert file exists.
+      if not os.path.isfile(options.cert):
+        print 'specified cert file not found: ' + options.cert + ' exiting...'
+        return
+      server = HTTPSServer(('127.0.0.1', port), TestPageHandler, options.cert)
+      print 'HTTPS server started on port %d...' % port
+    else:
+      server = StoppableHTTPServer(('127.0.0.1', port), TestPageHandler)
+      print 'HTTP server started on port %d...' % port
 
-  if options.data_dir:
-    if not os.path.isdir(options.data_dir):
-      print 'specified data dir not found: ' + options.data_dir + ' exiting...'
-      return
-    server.data_dir = options.data_dir
+    server.data_dir = MakeDataDir()
+
+  # means FTP Server
   else:
-    # Create the default path to our data dir, relative to the exe dir.
-    server.data_dir = os.path.dirname(sys.argv[0])
-    server.data_dir = os.path.join(server.data_dir, "..", "..", "..", "..",
-                                   "test", "data")
+    my_data_dir = MakeDataDir()
+
+    def line_logger(msg):
+      if (msg.find("kill") >= 0):
+        server.stop = True
+        print 'shutting down server'
+        sys.exit(0)
+
+    # Instantiate a dummy authorizer for managing 'virtual' users
+    authorizer = pyftpdlib.ftpserver.DummyAuthorizer()
+
+    # Define a new user having full r/w permissions and a read-only
+    # anonymous user
+    authorizer.add_user('chrome', 'chrome', my_data_dir, perm='elradfmw')
+
+    authorizer.add_anonymous(my_data_dir)
+
+    # Instantiate FTP handler class
+    ftp_handler = pyftpdlib.ftpserver.FTPHandler
+    ftp_handler.authorizer = authorizer
+    pyftpdlib.ftpserver.logline = line_logger
+
+    # Define a customized banner (string returned when client connects)
+    ftp_handler.banner = "pyftpdlib %s based ftpd ready." % pyftpdlib.ftpserver.__ver__
+
+    # Instantiate FTP server class and listen to 127.0.0.1:port
+    address = ('127.0.0.1', port)
+    server = pyftpdlib.ftpserver.FTPServer(address, ftp_handler)
+    print 'FTP server started on port %d...' % port
 
   try:
     server.serve_forever()
@@ -917,15 +962,19 @@ def main(options, args):
 
 if __name__ == '__main__':
   option_parser = optparse.OptionParser()
+  option_parser.add_option("-f", '--ftp', action='store_const',
+                           const=SERVER_FTP, default=SERVER_HTTP,
+                           dest='server_type',
+                           help='FTP or HTTP server default HTTP')
   option_parser.add_option('', '--port', default='8888', type='int',
                            help='Port used by the server')
-  option_parser.add_option('', '--data-dir',  dest='data_dir',
+  option_parser.add_option('', '--data-dir', dest='data_dir',
                            help='Directory from which to read the files')
-  option_parser.add_option('', '--https',  dest='cert',
+  option_parser.add_option('', '--https', dest='cert',
                            help='Specify that https should be used, specify '
                            'the path to the cert containing the private key '
                            'the server should use')
   options, args = option_parser.parse_args()
 
   sys.exit(main(options, args))
-
+  
