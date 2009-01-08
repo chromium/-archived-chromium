@@ -161,6 +161,7 @@ env.Prepend(
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/loader/icon',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/page',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/page/animation',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/graphics/opentype',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/network',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/sql',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/text',
