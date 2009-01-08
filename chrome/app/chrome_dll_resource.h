@@ -7,7 +7,6 @@
 
 // Values around 200 are used by browser/browser_resources.h
 // Values around 300 are used by common/common_resources.h
-// Values around 400 are used by common/net/net_resources.h
 // Values around 500 are used by renderer/renderer_resources.h
 
 #define IDR_SAD_PLUGIN                  1000

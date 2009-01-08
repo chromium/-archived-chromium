@@ -6,33 +6,39 @@ __doc__ = """
 Configuration for building the net_resources.rc resources.
 """
 
+import os
+import sys
+
 Import('env')
 
 env = env.Clone()
 
-env.Prepend(
-    RCFLAGS = [
-        ['/l', '0x409'],
-    ],
-)
-
 input_files = [
     'base/effective_tld_names.dat',
-    'tools/tld_cleanup/tld_cleanup.exe'
+    'tools/tld_cleanup/tld_cleanup$PROGSUFFIX',
 ]
 
+sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
+env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
+# This dummy target is used to tell the emitter where to put the target files.
+generated = env.GRIT('$TARGET_ROOT/grit_derived_sources/dummy_net_res',
+                     'base/net_resources.grd')
+
 if env.Bit('windows'):
+  env.Prepend(
+      RCFLAGS = [
+          '/l 0x409',
+      ],
+  )
+
   # TODO(port): Need to figure out what to do with external resources
   # on linux (and mac?).
-  # This dat file needed by net_resources is generated.
-  tld_names_clean = env.Command('net/effective_tld_names_clean.dat',
-                              input_files,
-                              '${SOURCES[1]} ${SOURCES[0]} $TARGET')
+  # This dat file needed by net_resources.rc is generated.
+  tld_names_clean = env.Command(
+      '$TARGET_ROOT/grit_derived_sources/effective_tld_names_clean.dat',
+      input_files,
+      '${SOURCES[1]} ${SOURCES[0]} $TARGET')
 
-  rc = env.Command('net_resources.rc',
-                   'base/net_resources.rc',
-                    Copy('$TARGET', '$SOURCE'))
-
-  env.Depends(rc, tld_names_clean)
-
-  env.RES(rc)
+  for g in [g for g in generated if str(g).endswith('.rc')]:
+    net_res = env.RES(g)
+    env.Depends(net_res, tld_names_clean)

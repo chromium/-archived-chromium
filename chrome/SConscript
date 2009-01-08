@@ -46,7 +46,7 @@ if env_res.Bit('windows'):
   test_data_res = env_res.RES('test/data/resource.rc')
   webkit_res = env_res.RES('$WEBKIT_DIR/glue/webkit_resources.rc')
 
-  net_res = '$NET_DIR/net_resources.res'
+  net_res = '$TARGET_ROOT/grit_derived_sources/net_resources.res'
 
   dll_resources = [
       browser_res,

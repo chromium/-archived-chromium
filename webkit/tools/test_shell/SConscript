@@ -178,7 +178,7 @@ if env.Bit('windows'):
   # TODO(port): figure out what to do with resources.
   resources = [
       env_res.RES('resources/test_shell.rc'),
-      '$NET_DIR/net_resources.res',
+      '$TARGET_ROOT/grit_derived_sources/net_resources.res',
       '$TARGET_ROOT/grit_derived_sources/webkit_strings_en-US.res',
   ]
 

@@ -23,7 +23,6 @@ if env_res.Bit('windows'):
       ],
   )
 
-import os
 import sys
 sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
 env_grd = env.Clone()

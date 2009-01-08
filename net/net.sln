@@ -48,6 +48,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net", "build\net.vcproj", "
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}
 		{E13045CD-7E1F-4A41-9B18-8D288B2E7B41} = {E13045CD-7E1F-4A41-9B18-8D288B2E7B41}
 	EndProjectSection
 EndProject
@@ -154,10 +155,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdch", "..\sdch\sdch.vcproj
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dump_cache", "build\dump_cache.vcproj", "{4A14E455-2B7C-4C0F-BCC2-35A9666C186F}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
-		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
 		{326E9795-E760-410A-B69A-3F79DB3F5243} = {326E9795-E760-410A-B69A-3F79DB3F5243}
+		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net_resources", "build\net_resources.vcproj", "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Global
@@ -194,6 +205,10 @@ Global
 		{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}.Debug|Win32.Build.0 = Debug|Win32
 		{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}.Release|Win32.ActiveCfg = Release|Win32
 		{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}.Release|Win32.Build.0 = Release|Win32
+		{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}.Debug|Win32.Build.0 = Debug|Win32
+		{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}.Release|Win32.ActiveCfg = Release|Win32
+		{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}.Release|Win32.Build.0 = Release|Win32
 		{8C27D792-2648-4F5E-9ED0-374276327308}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8C27D792-2648-4F5E-9ED0-374276327308}.Debug|Win32.Build.0 = Debug|Win32
 		{8C27D792-2648-4F5E-9ED0-374276327308}.Release|Win32.ActiveCfg = Release|Win32

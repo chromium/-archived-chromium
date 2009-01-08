@@ -145,7 +145,7 @@
 			Name="resources"
 			>
 			<File
-				RelativePath="..\..\..\net\base\net_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\net_resources.rc"
 				>
 			</File>
 			<File

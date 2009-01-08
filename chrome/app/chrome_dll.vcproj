@@ -130,7 +130,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-                                AdditionalManifestFiles="$(SolutionDir)\app\chrome.dll.manifest"
+				AdditionalManifestFiles="$(SolutionDir)\app\chrome.dll.manifest"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -208,7 +208,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\net\base\net_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\net_resources.rc"
 				>
 			</File>
 			<File

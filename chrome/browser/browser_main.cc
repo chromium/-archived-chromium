@@ -73,7 +73,6 @@
 #include "chrome/installer/util/version.h"
 #include "chrome/views/accelerator_handler.h"
 #include "net/base/net_module.h"
-#include "net/base/net_resources.h"
 #include "net/base/net_util.h"
 #include "net/base/sdch_manager.h"
 #include "net/base/winsock_init.h"
@@ -81,6 +80,7 @@
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
+#include "net_resources.h"
 
 namespace {
 

@@ -40,9 +40,12 @@
 #include "googleurl/src/url_parse.h"
 #include "net/base/escape.h"
 #include "net/base/net_module.h"
-#include "net/base/net_resources.h"
 #include "net/base/base64.h"
 #include "unicode/datefmt.h"
+
+#if !defined(OS_MACOSX)
+#include "net_resources.h"
+#endif
 
 using base::Time;
 

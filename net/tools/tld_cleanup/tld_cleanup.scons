@@ -14,7 +14,6 @@ env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
     '$ICU38_DIR/using_icu38.scons',
-    '$NET_DIR/using_net.scons',
 ])
 
 if env.Bit('windows'):

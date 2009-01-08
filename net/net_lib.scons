@@ -11,6 +11,7 @@ Import('env')
 env = env.Clone()
 
 env.ApplySConscript([
+    '$GRIT_DIR/build/using_generated_resources.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$SDCH_DIR/using_sdch.scons',
     '$ZLIB_DIR/using_zlib.scons',

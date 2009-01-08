@@ -45,8 +45,11 @@
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 #include "net/base/net_module.h"
-#include "net/base/net_resources.h"
 #include "net/base/net_util.h"
+
+#if !defined(OS_MACOSX)
+#include "net_resources.h"
+#endif
 
 namespace net {
 
@@ -284,10 +287,14 @@ void RegistryControlledDomainService::UseDomainData(const std::string& data) {
 }
 
 void RegistryControlledDomainService::Init() {
+#if defined(OS_MACOSX)
+  ParseDomainData(kDefaultDomainData);
+#else
   // The resource file isn't present for some unit tests, for example.  Fall
   // back to a tiny, basic list of rules in that case.
   StringPiece res_data = NetModule::GetResource(IDR_EFFECTIVE_TLD_NAMES);
   ParseDomainData(!res_data.empty() ? res_data : kDefaultDomainData);
+#endif
 }
 
 void RegistryControlledDomainService::ParseDomainData(const StringPiece& data) {

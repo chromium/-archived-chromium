@@ -7,8 +7,8 @@
 		<CustomBuildRule
 			Name="Convert TLD Data File"
 			DisplayName="Convert TLD Data File"
-			CommandLine="&quot;$(OutDir)\tld_cleanup.exe&quot; &quot;$(InputPath)&quot; &quot;$(IntDir)\$(InputName)_clean.dat&quot;"
-			Outputs="&quot;$(IntDir)\$(InputName)_clean.dat&quot;"
+			CommandLine="&quot;$(OutDir)\tld_cleanup.exe&quot; &quot;$(InputPath)&quot; &quot;$(IntDir)\..\$(InputName)_clean.dat&quot;"
+			Outputs="&quot;$(IntDir)\..\$(InputName)_clean.dat&quot;"
 			FileExtensions="*.dat"
 			ExecutionDescription="Converting TLD data file..."
 			>
