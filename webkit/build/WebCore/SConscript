@@ -497,7 +497,6 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/transforms/SkewTransformOperation.cpp',
     '$WEBCORE_DIR/platform/graphics/transforms/TransformationMatrix.cpp',
 
-    '$WEBCORE_DIR/platform/graphics/skia/AffineTransformSkia.cpp',
     '$WEBCORE_DIR/platform/graphics/skia/FloatPointSkia.cpp',
     '$WEBCORE_DIR/platform/graphics/skia/FloatRectSkia.cpp',
     '$WEBCORE_DIR/platform/graphics/skia/GradientSkia.cpp',
@@ -512,6 +511,7 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/skia/PatternSkia.cpp',
     '$WEBCORE_DIR/platform/graphics/skia/PlatformContextSkia.cpp',
     '$WEBCORE_DIR/platform/graphics/skia/SkiaUtils.cpp',
+    '$WEBCORE_DIR/platform/graphics/skia/TransformationMatrixSkia.cpp',
 
     '$WEBCORE_DIR/platform/network/AuthenticationChallengeBase.cpp',
     '$WEBCORE_DIR/platform/network/Credential.cpp',

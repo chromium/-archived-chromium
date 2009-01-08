@@ -1640,10 +1640,6 @@
 					Name="skia"
 					>
 					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\skia\AffineTransformSkia.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\skia\BitmapImageSingleFrameSkia.h"
 						>
 					</File>
@@ -1733,6 +1729,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\skia\SkiaUtils.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\skia\TransformationMatrixSkia.cpp"
 						>
 					</File>
 				</Filter>
