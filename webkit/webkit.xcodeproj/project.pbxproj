@@ -8134,6 +8134,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\" \"${@}\"";
+			showEnvVarsInLog = 0;
 		};
 		E456203F0E268E87005E4685 /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
