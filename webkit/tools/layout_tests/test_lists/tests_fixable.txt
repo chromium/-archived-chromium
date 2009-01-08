@@ -527,7 +527,7 @@ LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 LINUX WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
@@ -797,7 +797,6 @@ WIN : LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 // to access non-file urls.
 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
 DEFER : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-DEFER LINUX : LayoutTests/fast/frames/frame-src-attribute.html = FAIL
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
