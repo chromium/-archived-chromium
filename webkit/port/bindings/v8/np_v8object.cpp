@@ -491,3 +491,21 @@ bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier,
 
   return false;
 }
+
+bool NPN_Construct(NPP npp, NPObject* npobj, const NPVariant* args,
+                   uint32_t argCount, NPVariant* result) {
+  if (npobj == NULL) return false;
+
+  // TODO(estade): implement this case.
+  if (npobj->_class == NPScriptObjectClass) {
+    VOID_TO_NPVARIANT(*result);
+    return false;
+  }
+
+  if (NP_CLASS_STRUCT_VERSION_HAS_CTOR(npobj->_class) &&
+      npobj->_class->construct) {
+     return npobj->_class->construct(npobj, args, argCount, result);
+  }
+
+  return false;
+}

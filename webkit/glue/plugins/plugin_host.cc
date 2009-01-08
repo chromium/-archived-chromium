@@ -861,14 +861,5 @@ void NPN_PluginThreadAsyncCall(NPP id,
   }
 }
 
-bool NPN_Construct(NPP npp,
-                   NPObject* obj,
-                   const NPVariant *args,
-                   uint32_t argCount,
-                   NPVariant *result) {
-  NOTREACHED();
-  return false;
-}
-
 } // extern "C"
 

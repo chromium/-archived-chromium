@@ -262,6 +262,7 @@ typedef bool (*NPGetPropertyFunctionPtr)(NPObject *obj, NPIdentifier name, NPVar
 typedef bool (*NPSetPropertyFunctionPtr)(NPObject *obj, NPIdentifier name, const NPVariant *value);
 typedef bool (*NPRemovePropertyFunctionPtr)(NPObject *npobj, NPIdentifier name);
 typedef bool (*NPEnumerationFunctionPtr)(NPObject *npobj, NPIdentifier **value, uint32_t *count);
+typedef bool (*NPConstructFunctionPtr)(NPObject *npobj, const NPVariant *args, uint32_t argCount, NPVariant *result);
 
 /*
     NPObjects returned by create have a reference count of one.  It is the caller's responsibility
@@ -298,12 +299,17 @@ struct NPClass
     NPSetPropertyFunctionPtr setProperty;
     NPRemovePropertyFunctionPtr removeProperty;
     NPEnumerationFunctionPtr enumerate;
+    NPConstructFunctionPtr construct;
 };
 
-#define NP_CLASS_STRUCT_VERSION      2
-#define NP_CLASS_STRUCT_VERSION_ENUM 2                           
+#define NP_CLASS_STRUCT_VERSION      3
+#define NP_CLASS_STRUCT_VERSION_ENUM 2
+#define NP_CLASS_STRUCT_VERSION_CTOR 3
+
 #define NP_CLASS_STRUCT_VERSION_HAS_ENUM(npclass)   \
     ((npclass)->structVersion >= NP_CLASS_STRUCT_VERSION_ENUM)
+#define NP_CLASS_STRUCT_VERSION_HAS_CTOR(npclass)   \
+    ((npclass)->structVersion >= NP_CLASS_STRUCT_VERSION_CTOR)
 
 struct NPObject {
     NPClass *_class;
@@ -351,6 +357,7 @@ bool NPN_RemoveProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName);
 bool NPN_HasProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName);
 bool NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName);
 bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t *count);
+bool NPN_Construct(NPP npp, NPObject* obj, const NPVariant *args, uint32_t argCount, NPVariant *result);
 
 // Helper function for evaluating a script in the scope of the NPObject passed in.
 // Parameters
@@ -375,7 +382,6 @@ void* NPP_GetJavaClass(void);
 void* NPN_GetJavaEnv(void);
 void* NPN_GetJavaPeer(NPP instance);
 void NPN_PluginThreadAsyncCall(NPP id, void (*func)(void *), void *userData);
-bool NPN_Construct(NPP npp, NPObject* obj, const NPVariant *args, uint32_t argCount, NPVariant *result);
 
 // END GOOGLE MODIFICATIONS
 

@@ -106,7 +106,8 @@ static const NPUTF8 *pluginPropertyIdentifierNames[NUM_PROPERTY_IDENTIFIERS] = {
 #define ID_TEST_IDENTIFIER_TO_INT   18
 #define ID_TEST_POSTURL_FILE        19
 #define ID_TEST_CALLBACK_AND_GET_VALUE 20
-#define NUM_METHOD_IDENTIFIERS      21
+#define ID_TEST_CONSTRUCT           21
+#define NUM_METHOD_IDENTIFIERS      22
 
 static NPIdentifier pluginMethodIdentifiers[NUM_METHOD_IDENTIFIERS];
 static const NPUTF8 *pluginMethodIdentifierNames[NUM_METHOD_IDENTIFIERS] = {
@@ -132,6 +133,7 @@ static const NPUTF8 *pluginMethodIdentifierNames[NUM_METHOD_IDENTIFIERS] = {
     "testPostURLFile",
     // Chrome bug http://code.google.com/p/chromium/issues/detail?id=4270
     "testCallbackAndGetValue",
+    "testConstruct",
 };
 
 static NPUTF8* createCStringFromNPVariant(const NPVariant* variant)
@@ -568,6 +570,14 @@ static bool testPostURLFile(PluginObject* obj, const NPVariant* args, uint32_t a
     return true;
 }
 
+static bool testConstruct(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (!argCount || !NPVARIANT_IS_OBJECT(args[0]))
+        return false;
+
+    return browser->construct(obj->npp, NPVARIANT_TO_OBJECT(args[0]), args + 1, argCount - 1, result);
+}
+
 static bool pluginInvoke(NPObject* header, NPIdentifier name, const NPVariant* args, uint32_t argCount, NPVariant* result)
 {
     PluginObject* plugin = reinterpret_cast<PluginObject*>(header);
@@ -725,6 +735,8 @@ static bool pluginInvoke(NPObject* header, NPIdentifier name, const NPVariant* a
         }
     } else if (name == pluginMethodIdentifiers[ID_TEST_CALLBACK_AND_GET_VALUE]) {
         return testCallbackAndGetValue(plugin, args, argCount, result);
+    } else if (name == pluginMethodIdentifiers[ID_TEST_CONSTRUCT]) {
+        return testConstruct(plugin, args, argCount, result);
     }
 
     return false;
