@@ -120,6 +120,10 @@ class RenderViewHostManager {
   void OnCrossSiteResponse(int new_render_process_host_id,
                            int new_request_id);
 
+  // Notifies that the navigation that initiated a cross-site transition has
+  // been canceled.
+  void CrossSiteNavigationCanceled();
+
   // Called when a provisional load on the given renderer is aborted.
   void RendererAbortedProvisionalLoad(RenderViewHost* render_view_host);
 

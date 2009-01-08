@@ -199,6 +199,10 @@ class WebContents : public TabContents,
     render_view_host()->SetPageEncoding(encoding);
   }
 
+  void CrossSiteNavigationCanceled() {
+    render_manager_.CrossSiteNavigationCanceled();
+  }
+
  protected:
   // Should be deleted via CloseContents.
   virtual ~WebContents();

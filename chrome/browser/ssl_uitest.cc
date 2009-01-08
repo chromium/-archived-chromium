@@ -125,8 +125,8 @@ TEST_F(SSLUITest, TestOKHTTPS) {
   EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
-// Visits a page with https error:
-TEST_F(SSLUITest, TestHTTPSExpiredCert) {
+// Visits a page with https error and proceed:
+TEST_F(SSLUITest, TestHTTPSExpiredCertAndProceed) {
   scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -155,6 +155,64 @@ TEST_F(SSLUITest, TestHTTPSExpiredCert) {
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
   EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
+
+// Visits a page with https error and don't proceed (and ensure we can still
+// navigate at that point):
+TEST_F(SSLUITest, TestHTTPSExpiredCertAndDontProceed) {
+  scoped_ptr<TestServer> http_server(PlainServer());
+  scoped_ptr<HTTPSTestServer> good_https_server(GoodCertServer());
+  scoped_ptr<HTTPSTestServer> bad_https_server(BadCertServer());
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+
+  // First navigate to an OK page.
+  NavigateTab(tab.get(),
+              good_https_server->TestServerPageW(L"files/ssl/google.html"));
+
+  GURL cross_site_url =
+      bad_https_server->TestServerPageW(L"files/ssl/google.html");
+  // Change the host name from 127.0.0.1 to localhost so it triggers a
+  // cross-site navigation so we can test http://crbug.com/5800 is gone.
+  ASSERT_EQ("127.0.0.1", cross_site_url.host());
+  GURL::Replacements replacements;
+  std::string new_host("localhost");
+  replacements.SetHostStr(new_host);
+  cross_site_url = cross_site_url.ReplaceComponents(replacements);
+
+  // Now go to a bad HTTPS page.
+  NavigateTab(tab.get(), cross_site_url);
+
+  // An interstitial should be showing.
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(NavigationEntry::INTERSTITIAL_PAGE, page_type);
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Simulate user clicking "Take me back".
+  EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(false));
+
+  // We should be back to the original good page.
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Try to navigate to a new page. (to make sure bug 5800 is fixed).
+  NavigateTab(tab.get(),
+              http_server->TestServerPageW(L"files/ssl/google.html"));
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
 }
 
 //

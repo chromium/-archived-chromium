@@ -5,6 +5,8 @@
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 
 #include "chrome/browser/render_view_host.h"
+#include "chrome/browser/tab_util.h"
+#include "chrome/browser/web_contents.h"
 
 namespace {
 // Task to notify the WebContents that a cross-site response has begun, so that
@@ -34,6 +36,25 @@ class CrossSiteNotifyTabTask : public Task {
   int render_process_host_id_;
   int render_view_id_;
   int request_id_;
+};
+
+class CancelPendingRenderViewTask : public Task {
+ public:
+  CancelPendingRenderViewTask(int render_process_host_id,
+                              int render_view_id)
+    : render_process_host_id_(render_process_host_id),
+      render_view_id_(render_view_id) {}
+
+  void Run() {
+    WebContents* web_contents =
+        tab_util::GetWebContentsByID(render_process_host_id_, render_view_id_);
+    if (web_contents)
+      web_contents->CrossSiteNavigationCanceled();
+  }
+
+ private:
+  int render_process_host_id_;
+  int render_view_id_;
 };
 }
 
@@ -116,12 +137,25 @@ bool CrossSiteResourceHandler::OnResponseCompleted(
       return next_handler_->OnResponseCompleted(request_id, status);
     } else {
       // Some types of failures will call OnResponseCompleted without calling
-      // CrossSiteResourceHandler::OnResponseStarted.  We should wait now for
-      // the cross-site transition.  Also continue with the logic below to
-      // remember that we completed during the cross-site transition.
-      ResourceDispatcherHost::GlobalRequestID global_id(render_process_host_id_,
-                                                        request_id);
-      StartCrossSiteTransition(request_id, NULL, global_id);
+      // CrossSiteResourceHandler::OnResponseStarted.
+      if (status.status() == URLRequestStatus::CANCELED) {
+        // Here the request was canceled, which happens when selecting "take me
+        // back" from an interstitial.  Nothing to do but cancel the pending
+        // render view host.
+        CancelPendingRenderViewTask* task =
+            new CancelPendingRenderViewTask(render_process_host_id_,
+                                            render_view_id_);
+        rdh_->ui_loop()->PostTask(FROM_HERE, task);
+        return next_handler_->OnResponseCompleted(request_id, status);
+      } else {
+        // An error occured, we should wait now for the cross-site transition,
+        // so that the error message (e.g., 404) can be displayed to the user.
+        // Also continue with the logic below to remember that we completed
+        // during the cross-site transition.
+        ResourceDispatcherHost::GlobalRequestID global_id(
+            render_process_host_id_, request_id);
+        StartCrossSiteTransition(request_id, NULL, global_id);
+      }
     }
   }
 

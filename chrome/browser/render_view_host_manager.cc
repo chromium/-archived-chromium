@@ -490,3 +490,10 @@ void RenderViewHostManager::CancelPendingRenderView() {
   pending_render_view_host_ = NULL;
 }
 
+void RenderViewHostManager::CrossSiteNavigationCanceled() {
+  DCHECK(cross_navigation_pending_);
+  cross_navigation_pending_ = false;
+  if (pending_render_view_host_)
+    CancelPendingRenderView();
+}
+
