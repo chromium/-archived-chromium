@@ -506,7 +506,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithUnknownList) {
                                   &re_key,
                                   &full_hashes));
 
-  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(full_hashes.size(), static_cast<size_t>(1));
   EXPECT_EQ(memcmp("12345678901234567890123456789012", 
                    &full_hashes[0].hash, sizeof(SBFullHash)), 0);
   EXPECT_EQ(full_hashes[0].list_name, "goog-phish-shavar");
@@ -521,7 +521,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithUnknownList) {
                                   &re_key,
                                   &full_hashes));
 
-  EXPECT_EQ(full_hashes.size(), 2);
+  EXPECT_EQ(full_hashes.size(), static_cast<size_t>(2));
   EXPECT_EQ(memcmp("12345678901234567890123456789012", 
                    &full_hashes[0].hash, sizeof(SBFullHash)), 0);
   EXPECT_EQ(full_hashes[0].list_name, "goog-phish-shavar");
