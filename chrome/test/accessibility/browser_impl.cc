@@ -280,7 +280,7 @@ bool BrowserImpl::WaitForChromeToBeVisible(const INT64 interval,
 
   // Check and wait.
   while (timeout >= time_elapsed) {
-    GetTabStripWnd(&acc_obj);
+    GetTabStripAccessible(&acc_obj);
     if (acc_obj) {
       *visible = true;
       CHK_RELEASE(acc_obj);

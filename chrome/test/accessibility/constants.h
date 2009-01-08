@@ -8,16 +8,13 @@
 #include <windows.h>
 #include <tchar.h>
 
-#define NEW_FRAMES
-
 ///////////////////////////////////////////////////////////////////
-// Constant Definitations specific to Chrome Accessibility Tests.
+// Constants definitions specific to Chrome Accessibility Tests.
 ///////////////////////////////////////////////////////////////////
 
 // Safe delete and release operations.
 #define CHK_RELEASE(obj) { if (obj) { (obj)->Release(); (obj) = NULL; } }
 #define CHK_DELETE(obj) { if (obj) { delete (obj); (obj) = NULL; } }
-
 
 // Chrome Accessibility Tests specific strings.
 #define CHROME_PATH         _T("C:\\Program Files\\Google\\Chrome\\Chrome.exe")
@@ -29,50 +26,21 @@
 #define AUTH_TITLE                      _T("Authentication Required - Chrome")
 #define CHROME_TAB_CONTENTS             _T("Chrome_TabContents")
 
+// Index for accessing specific children in the MSAA hierarchy.
+// TODO(klink): Remove the need for these.
 #define CHROME_APP_ACC_INDEX            (3)
 #define CHROME_CLIENT_ACC_INDEX         (0)
-
-// Chrome Client chidren.
-#ifdef NEW_FRAMES
 #define BROWSER_VIEW_ACC_INDEX          (4)
+
+// Chrome Client chidren. These UI elements cannot take MSAA focus, and
+// therefore have no ViewID associated.
 #define TABSTRIP_ACC_INDEX              (0)
 #define CHROME_MIN_ACC_INDEX            (0)
 #define CHROME_MAX_ACC_INDEX            (1)
 #define CHROME_RESTORE_ACC_INDEX        (2)
 #define CHROME_CLOSE_ACC_INDEX          (3)
-#else
-#define BROWSER_VIEW_ACC_INDEX          (0)
-#define TABSTRIP_ACC_INDEX              (1)
-#if defined(GOOGLE_CHROME_BUILD)
-#define CHROME_MIN_ACC_INDEX            (4)
-#define CHROME_MAX_ACC_INDEX            (5)
-#define CHROME_RESTORE_ACC_INDEX        (6)
-#define CHROME_CLOSE_ACC_INDEX          (7)
-#else
-#define CHROME_MIN_ACC_INDEX            (3)
-#define CHROME_MAX_ACC_INDEX            (4)
-#define CHROME_RESTORE_ACC_INDEX        (5)
-#define CHROME_CLOSE_ACC_INDEX          (6)
-#endif
-#endif
 
-// Browser View children.
-#ifdef NEW_FRAMES
-#define TOOLBAR_ACC_INDEX               (1)
-#else
-#define TOOLBAR_ACC_INDEX               (0)
-#endif
-
-// Toolbar children.
-#define BACK_BTN_INDEX                  (0)
-#define FORWARD_BTN_INDEX               (1)
-#define RELOAD_BTN_INDEX                (2)
-#define STAR_BTN_INDEX                  (4)
-#define GO_BTN_INDEX                    (6)
-#define PAGE_BTN_INDEX                  (7)
-#define MENU_BTN_INDEX                  (8)
-
-// Digit limits for tab index which can be used in accelerator.
+// Tab index limits for bounds checking in Accessibility Tests.
 #define MAX_TAB_INDEX_DIGIT             (9)
 #define MIN_TAB_INDEX_DIGIT             (1)
 
