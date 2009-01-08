@@ -98,9 +98,8 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Bold_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Verdana_Italic.ttf",
-    NULL
   };
-  for (size_t i = 0; fonts[i]; ++i) {
+  for (size_t i = 0; i < arraysize(fonts); ++i) {
     if (access(fonts[i], R_OK)) {
       LOG(FATAL) << "You are missing " << fonts[i] << ". "
                  << "Try installing msttcorefonts. Also see "
@@ -111,18 +110,23 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
       LOG(FATAL) << "Failed to load font " << fonts[i];
   }
 
-  // We special case this font because it's only needed in a few layout tests
-  // and it's in an obscure package (sun-java6-fonts), which pulls in the JDK.
-  const char* const lucida_sans_file =
-      "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf";
-  if (access(lucida_sans_file, R_OK)) {
-    LOG(WARNING) << "You are missing " << lucida_sans_file
-                 << ". Without this, some layout tests will fail."
-                 << "It's not a major problem. You can get it from the "
-                 << "sun-java6-fonts package on Ubuntu.";
-  } else {
-    if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) lucida_sans_file))
-      LOG(FATAL) << "Failed to load font " << lucida_sans_file;
+  // We special case these fonts because they're only needed in a few layout tests.
+  static const char* const optional_fonts[] = {
+    "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf",
+    "/usr/share/fonts/truetype/kochi/kochi-gothic.ttf",
+    "/usr/share/fonts/truetype/kochi/kochi-mincho.ttf",
+  };
+  for (size_t i = 0; i < arraysize(optional_fonts); ++i) {
+    const char* font = optional_fonts[i];
+    if (access(font, R_OK) < 0) {
+      LOG(WARNING) << "You are missing " << font << ". "
+                   << "Without this, some layout tests will fail."
+                   << "It's not a major problem.  See the build instructions "
+                   << "for more information on where to get all the data.";
+    } else {
+      if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) font))
+        LOG(FATAL) << "Failed to load font " << font;
+    }
   }
 
   // Also load the layout-test-specific "Ahem" font.

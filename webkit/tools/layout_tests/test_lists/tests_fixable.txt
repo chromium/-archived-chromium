@@ -1109,12 +1109,6 @@ LINUX : LayoutTests/fast/text/cg-vs-atsui.html = FAIL
 LINUX : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
 LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
 
-// Missing CJK fonts.
-LINUX : LayoutTests/fast/text/international/001.html = FAIL
-LINUX : LayoutTests/fast/text/international/002.html = FAIL
-LINUX : LayoutTests/fast/text/international/003.html = FAIL
-LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
-
 // Missing text -- slow font path unimplemented?
 LINUX : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-control-chars-treated-as-ZWS.html = FAIL
@@ -1757,7 +1751,6 @@ WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 WIN : LayoutTests/fast/text/international/001.html = FAIL
 WIN : LayoutTests/fast/text/international/002.html = FAIL
 WIN : LayoutTests/fast/text/international/003.html = FAIL
-WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // 2008/12/13 - Turning off some Friday night test regressions until
 // they can be looked at.
@@ -1868,4 +1861,3 @@ LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 // Merge 39606:39660 - new tests
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
-
