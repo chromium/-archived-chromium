@@ -5,6 +5,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencie
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media", "build\media.vcproj", "{6AE76406-B03B-11DD-94B1-80B556D89593}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media_player", "build\media_player.vcproj", "{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
+		{6AE76406-B03B-11DD-94B1-80B556D89593} = {6AE76406-B03B-11DD-94B1-80B556D89593}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media_unittests", "build\media_unittests.vcproj", "{C8C6183C-B03C-11DD-B471-DFD256D89593}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
@@ -63,6 +69,10 @@ Global
 		{C8C6183C-B03C-11DD-B471-DFD256D89593}.Debug|Win32.Build.0 = Debug|Win32
 		{C8C6183C-B03C-11DD-B471-DFD256D89593}.Release|Win32.ActiveCfg = Release|Win32
 		{C8C6183C-B03C-11DD-B471-DFD256D89593}.Release|Win32.Build.0 = Release|Win32
+		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Debug|Win32.Build.0 = Debug|Win32
+		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Release|Win32.ActiveCfg = Release|Win32
+		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
