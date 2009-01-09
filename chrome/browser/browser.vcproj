@@ -2246,11 +2246,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\extensions\extension_protocol.cc"
+				RelativePath=".\extensions\extension_protocols.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\extensions\extension_protocol.h"
+				RelativePath=".\extensions\extension_protocols.h"
 				>
 			</File>
 			<File

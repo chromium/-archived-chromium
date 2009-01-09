@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/extensions/extension_protocol.h"
+#include "chrome/browser/extensions/extension_protocols.h"
 
 #include "base/string_util.h"
 #include "chrome/browser/net/chrome_url_request_context.h"

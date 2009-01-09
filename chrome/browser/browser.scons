@@ -196,7 +196,7 @@ if env.Bit('windows'):
       'drag_utils.cc',
       'encoding_menu_controller_delegate.cc',
       'encryptor.cc',
-      'extensions/extension_protocol.cc',
+      'extensions/extension_protocols.cc',
       'external_protocol_handler.cc',
       'external_tab_container.cc',
       'fav_icon_helper.cc',

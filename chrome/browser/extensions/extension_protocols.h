@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOL_H_
-#define CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOL_H_
+#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOLS_H_
+#define CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOLS_H_
 
 #include "base/file_path.h"
 
@@ -16,4 +16,4 @@ FilePath GetPathForExtensionResource(const FilePath& extension_path,
 // Registers support for the extension URL scheme.
 void RegisterExtensionProtocols();
 
-#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOL_H_
+#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOLS_H_

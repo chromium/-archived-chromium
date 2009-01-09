@@ -46,7 +46,7 @@
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
-#include "chrome/browser/extensions/extension_protocol.h"
+#include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics_service.h"

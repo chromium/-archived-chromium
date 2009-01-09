@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/extensions/extension_protocol.h"
+#include "chrome/browser/extensions/extension_protocols.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class ExtensionProtocolTest : public testing::Test {
+class ExtensionProtocolsTest : public testing::Test {
 };
 
-TEST(ExtensionProtocolTest, GetPathForExtensionResource) {
+TEST(ExtensionProtocolsTest, GetPathForExtensionResource) {
 #if defined(OS_WIN)
   FilePath extension_path(FILE_PATH_LITERAL("C:\\myextension"));
   EXPECT_EQ(std::wstring(L"C:\\myextension\\foo\\bar.gif"),
