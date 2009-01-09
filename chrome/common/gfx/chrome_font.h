@@ -30,6 +30,7 @@ typedef SkTypeface* NativeFont;
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 
 // ChromeFont provides a wrapper around an underlying font. Copy and assignment
 // operators are explicitly allowed, and cheap.
@@ -93,10 +94,10 @@ class ChromeFont {
 
   NativeFont nativeFont() const;
 
-#if defined(OS_WIN)
   // Creates a font with the default name and style.
   ChromeFont();
 
+#if defined(OS_WIN)
   // Creates a ChromeFont from the specified HFONT. The supplied HFONT is
   // effectively copied.
   static ChromeFont CreateFont(HFONT hfont);
@@ -165,7 +166,6 @@ class ChromeFont {
     DISALLOW_COPY_AND_ASSIGN(HFontRef);
   };
 
-
   // Returns the base font ref. This should ONLY be invoked on the
   // UI thread.
   static HFontRef* GetBaseFontRef();
@@ -183,19 +183,24 @@ class ChromeFont {
 #elif defined(OS_LINUX)
   explicit ChromeFont(SkTypeface* typeface, const std::wstring& name,
                       int size, int style);
-  // Calculate and cache the font metrics
+  // Calculate and cache the font metrics.
   void calculateMetrics();
+  // Make |this| a copy of |other|.
+  void CopyChromeFont(const ChromeFont& other);
+
+  // The default font, used for the default constructor.
+  static ChromeFont* default_font_;
 
   // These two both point to the same SkTypeface. We use the SkAutoUnref to
   // handle the reference counting, but without @typeface_ we would have to
   // cast the SkRefCnt from @typeface_helper_ every time.
-  SkAutoUnref typeface_helper_;
+  scoped_ptr<SkAutoUnref> typeface_helper_;
   SkTypeface *typeface_;
 
   // Additional information about the face
-  const std::wstring font_name_;
-  const int font_size_;
-  const int style_;
+  std::wstring font_name_;
+  int font_size_;
+  int style_;
 
   // Cached metrics, generated at construction
   int height_;

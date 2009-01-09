@@ -120,6 +120,7 @@ if env.Bit('windows'):
 elif env.Bit('linux'):
   input_files.extend([
       'gfx/chrome_canvas_skia.cc',
+      'gfx/chrome_font_gtk.cc',
       'gfx/chrome_font_skia.cc',
   ])
 

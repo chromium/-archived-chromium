@@ -10,20 +10,13 @@
 #include "skia/include/SkTypeface.h"
 #include "skia/include/SkPaint.h"
 
-ChromeFont::ChromeFont(const ChromeFont& other)
-  : typeface_helper_(other.typeface_),
-    typeface_(other.typeface_),
-    font_name_(other.font_name_),
-    font_size_(other.font_size_),
-    style_(other.style_),
-    height_(other.height_),
-    ascent_(other.ascent_),
-    avg_width_(other.avg_width_) {
+ChromeFont::ChromeFont(const ChromeFont& other) {
+  CopyChromeFont(other);
 }
 
 ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_name,
                        int font_size, int style)
-    : typeface_helper_(tf),
+    : typeface_helper_(new SkAutoUnref(tf)),
       typeface_(tf),
       font_name_(font_name),
       font_size_(font_size),
@@ -55,6 +48,17 @@ void ChromeFont::calculateMetrics() {
 
     avg_width_ = static_cast<int>(ceilf(SkScalarToFloat(width)));
   }
+}
+
+void ChromeFont::CopyChromeFont(const ChromeFont& other) {
+  typeface_helper_.reset(new SkAutoUnref(other.typeface_));
+  typeface_ = other.typeface_;
+  font_name_ = other.font_name_;
+  font_size_ = other.font_size_;
+  style_ = other.style_;
+  height_ = other.height_;
+  ascent_ = other.ascent_;
+  avg_width_ = other.avg_width_;
 }
 
 int ChromeFont::height() const {
