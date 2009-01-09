@@ -52,9 +52,9 @@ void SplitDicLine(const std::string& line, std::vector<std::string>* output) {
 // contains the number of words or not. If it does, skip the first line. If it
 // does not, then the first line contains a word.
 bool PopulateWordSet(WordSet* word_set, FILE* file, AffReader* aff_reader,
-                     const char* file_type, 
+                     const char* file_type, const char* encoding,
                      bool file_has_word_count_in_the_first_line) {
-  printf("Extracting words from %s file...\n", file_type);
+  printf("Extracting words from %s file\nEncoding: %s\n", file_type, encoding);
 
   int line_number = 0;
   while (!feof(file)) {
@@ -82,9 +82,12 @@ bool PopulateWordSet(WordSet* word_set, FILE* file, AffReader* aff_reader,
     // The first part is the word, the second (optional) part is the affix. We
     // always use UTF-8 as the encoding to simplify life.
     std::string utf8word;
-    if (!aff_reader->EncodingToUTF8(split[0], &utf8word)) {
+    std::string encoding_string(encoding);
+    if (encoding_string == "UTF-8") {
+      utf8word = split[0];
+    } else if (!aff_reader->EncodingToUTF8(split[0], &utf8word)) {
       printf("Unable to convert line %d from %s to UTF-8 in the %s file\n",
-             line_number, aff_reader->encoding(), file_type);
+             line_number, encoding, file_type);
       return false;
     }
 
@@ -140,14 +143,16 @@ bool DicReader::Read(AffReader* aff_reader) {
 
   // Add words from the dic file to the word set.
   // Note that the first line is the word count in the file.
-  if (!PopulateWordSet(&word_set, file_, aff_reader, "dic", true))
+  if (!PopulateWordSet(&word_set, file_, aff_reader, "dic", 
+                       aff_reader->encoding(), true))
     return false;
 
-  // Add words from the dic delta file to the word set, if it exists.
+  // Add words from the .dic_delta file to the word set, if it exists.
   // The first line is the first word to add. Word count line is not present.
+  // NOTE: These additional words should be encoded as UTF-8.
   if (additional_words_file_ != NULL) {
     PopulateWordSet(&word_set, additional_words_file_, aff_reader, "dic delta",
-                    false);
+                    "UTF-8", false);
   }
 
   // Make sure the words are sorted, they may be unsorted in the input.
