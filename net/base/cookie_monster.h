@@ -265,6 +265,10 @@ class CookieMonster::ParsedCookie {
   bool IsSecure() const { return secure_index_ != 0; }
   bool IsHttpOnly() const { return httponly_index_ != 0; }
 
+  // Return the number of attributes, for example, returning 2 for:
+  //   "BLAH=hah; path=/; domain=.google.com"
+  size_t NumberOfAttributes() const { return pairs_.size() - 1; }
+
   // For debugging only!
   std::string DebugString() const;
 

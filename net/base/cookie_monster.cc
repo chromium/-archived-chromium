@@ -904,7 +904,6 @@ void CookieMonster::ParsedCookie::ParseTokenValuePairs(
   static const char kTerminator[]      = "\n\r\0";
   static const int  kTerminatorLen     = sizeof(kTerminator) - 1;
   static const char kWhitespace[]      = " \t";
-  static const char kQuoteTerminator[] = "\"";
   static const char kValueSeparator[]  = ";";
   static const char kTokenSeparator[]  = ";=";
 
@@ -987,36 +986,35 @@ void CookieMonster::ParsedCookie::ParseTokenValuePairs(
     // value_start should point at the first character of the value.
     value_start = it;
 
-    // The value is double quoted, process <quoted-string>.
-    if (it != end && *it == '"') {
-      // Skip over the first double quote, and parse until
-      // a terminating double quote or the end.
-      for (++it; it != end && !CharIsA(*it, kQuoteTerminator); ++it) {
-        // Allow an escaped \" in a double quoted string.
-        if (*it == '\\') {
-          ++it;
-          if (it == end)
-            break;
-        }
-      }
+    // It is unclear exactly how quoted string values should be handled.
+    // Major browsers do different things, for example, Firefox supports
+    // semicolons embedded in a quoted value, while IE does not.  Looking at
+    // the specs, RFC 2109 and 2965 allow for a quoted-string as the value.
+    // However, these specs were apparently written after browsers had
+    // implemented cookies, and they seem very distant from the reality of
+    // what is actually implemented and used on the web.  The original spec
+    // from Netscape is possibly what is closest to the cookies used today.
+    // This spec didn't have explicit support for double quoted strings, and
+    // states that ; is not allowed as part of a value.  We had originally
+    // implement the Firefox behavior (A="B;C"; -> A="B;C";).  However, since
+    // there is no standard that makes sense, we decided to follow the behavior
+    // of IE and Safari, which is closer to the original Netscape proposal.
+    // This means that A="B;C" -> A="B;.  This also makes the code much simpler
+    // and reduces the possibility for invalid cookies, where other browsers
+    // like Opera currently reject those invalid cookies (ex A="B" "C";).
 
-      SeekTo(&it, end, kValueSeparator);
-      // We could seek to the end, that's ok.
-      value_end = it;
-    } else {
-      // The value is non-quoted, process <token-value>.
-      // Just look for ';' to terminate ('=' allowed).
-      // We can hit the end, maybe they didn't terminate.
-      SeekTo(&it, end, kValueSeparator);
+    // Just look for ';' to terminate ('=' allowed).
+    // We can hit the end, maybe they didn't terminate.
+    SeekTo(&it, end, kValueSeparator);
 
-      // Ignore any whitespace between the value and the value separator
-      if (it != value_start) {  // Could have an empty value
-        --it;
-        SeekBackPast(&it, value_start, kWhitespace);
-        ++it;
-      }
+    // Will be pointed at the ; seperator or the end.
+    value_end = it;
 
-      value_end = it;
+    // Ignore any unwanted whitespace after the value.
+    if (value_end != value_start) {  // Could have an empty value
+      --value_end;
+      SeekBackPast(&value_end, value_start, kWhitespace);
+      ++value_end;
     }
 
     // OK, we're finished with a Token/Value.

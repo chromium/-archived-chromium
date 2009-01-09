@@ -32,16 +32,47 @@ TEST(ParsedCookieTest, TestBasic) {
 }
 
 TEST(ParsedCookieTest, TestQuoted) {
-  net::CookieMonster::ParsedCookie pc("a=\"b=;\"; path=\"/\"");
-  EXPECT_TRUE(pc.IsValid());
-  EXPECT_FALSE(pc.IsSecure());
-  EXPECT_TRUE(pc.HasPath());
-  EXPECT_EQ("a", pc.Name());
-  EXPECT_EQ("\"b=;\"", pc.Value());
-  // If a path was quoted, the path attribute keeps the quotes.  This will
-  // make the cookie effectively useless, but path parameters aren't supposed
-  // to be quoted.  Bug 1261605.
-  EXPECT_EQ("\"/\"", pc.Path());
+  // These are some quoting cases which the major browsers all
+  // handle differently.  I've tested Internet Explorer 6, Opera 9.6,
+  // Firefox 3, and Safari Windows 3.2.1.  We originally tried to match
+  // Firefox closely, however we now match Internet Explorer and Safari.
+  const char* values[] = {
+    // Trailing whitespace after a quoted value.  The whitespace after
+    // the quote is stripped in all browsers.
+    "\"zzz \"  ",              "\"zzz \"",
+    // Handling a quoted value with a ';', like FOO="zz;pp"  ;
+    // IE and Safari: "zz;
+    // Firefox and Opera: "zz;pp"
+    "\"zz;pp\" ;",             "\"zz",
+    // Handling a value with multiple quoted parts, like FOO="zzz "   "ppp" ;
+    // IE and Safari: "zzz "   "ppp";
+    // Firefox: "zzz ";
+    // Opera: <rejects cookie>
+    "\"zzz \"   \"ppp\" ",     "\"zzz \"   \"ppp\"",
+    // A quote in a value that didn't start quoted.  like FOO=A"B ;
+    // IE, Safari, and Firefox: A"B;
+    // Opera: <rejects cookie>
+    "A\"B",                    "A\"B",
+  };
+
+  for (size_t i = 0; i < arraysize(values); i += 2) {
+    std::string input(values[i]);
+    std::string expected(values[i + 1]);
+
+    net::CookieMonster::ParsedCookie pc(
+        "aBc=" + input + " ; path=\"/\"  ; httponly ");
+    EXPECT_TRUE(pc.IsValid());
+    EXPECT_FALSE(pc.IsSecure());
+    EXPECT_TRUE(pc.IsHttpOnly());
+    EXPECT_TRUE(pc.HasPath());
+    EXPECT_EQ("aBc", pc.Name());
+    EXPECT_EQ(expected, pc.Value());
+
+    // If a path was quoted, the path attribute keeps the quotes.  This will
+    // make the cookie effectively useless, but path parameters aren't supposed
+    // to be quoted.  Bug 1261605.
+    EXPECT_EQ("\"/\"", pc.Path());
+  }
 }
 
 TEST(ParsedCookieTest, TestNameless) {
@@ -63,6 +94,7 @@ TEST(ParsedCookieTest, TestAttributeCase) {
   EXPECT_EQ("/", pc.Path());
   EXPECT_EQ("", pc.Name());
   EXPECT_EQ("BLAHHH", pc.Value());
+  EXPECT_EQ(3U, pc.NumberOfAttributes());
 }
 
 TEST(ParsedCookieTest, TestDoubleQuotedNameless) {
@@ -73,6 +105,7 @@ TEST(ParsedCookieTest, TestDoubleQuotedNameless) {
   EXPECT_EQ("/", pc.Path());
   EXPECT_EQ("", pc.Name());
   EXPECT_EQ("\"BLA\\\"HHH\"", pc.Value());
+  EXPECT_EQ(2U, pc.NumberOfAttributes());
 }
 
 TEST(ParsedCookieTest, QuoteOffTheEnd) {
@@ -80,6 +113,7 @@ TEST(ParsedCookieTest, QuoteOffTheEnd) {
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ("a", pc.Name());
   EXPECT_EQ("\"B", pc.Value());
+  EXPECT_EQ(0U, pc.NumberOfAttributes());
 }
 
 TEST(ParsedCookieTest, MissingName) {
@@ -87,6 +121,7 @@ TEST(ParsedCookieTest, MissingName) {
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ("", pc.Name());
   EXPECT_EQ("ABC", pc.Value());
+  EXPECT_EQ(0U, pc.NumberOfAttributes());
 }
 
 TEST(ParsedCookieTest, MissingValue) {
@@ -96,6 +131,7 @@ TEST(ParsedCookieTest, MissingValue) {
   EXPECT_EQ("", pc.Value());
   EXPECT_TRUE(pc.HasPath());
   EXPECT_EQ("/wee", pc.Path());
+  EXPECT_EQ(1U, pc.NumberOfAttributes());
 }
 
 TEST(ParsedCookieTest, Whitespace) {
@@ -107,6 +143,9 @@ TEST(ParsedCookieTest, Whitespace) {
   EXPECT_FALSE(pc.HasDomain());
   EXPECT_TRUE(pc.IsSecure());
   EXPECT_TRUE(pc.IsHttpOnly());
+  // We parse anything between ; as attributes, so we end up with two
+  // attributes with an empty string name and value.
+  EXPECT_EQ(4U, pc.NumberOfAttributes());
 }
 TEST(ParsedCookieTest, MultipleEquals) {
   net::CookieMonster::ParsedCookie pc("  A=== BC  ;secure;;;   httponly");
@@ -117,19 +156,34 @@ TEST(ParsedCookieTest, MultipleEquals) {
   EXPECT_FALSE(pc.HasDomain());
   EXPECT_TRUE(pc.IsSecure());
   EXPECT_TRUE(pc.IsHttpOnly());
+  EXPECT_EQ(4U, pc.NumberOfAttributes());
 }
 
-TEST(ParsedCookieTest, TrailingWhitespace) {
-  net::CookieMonster::ParsedCookie pc("ANCUUID=zohNumRKgI0oxyhSsV3Z7D; "
-                                      "expires=Sun, 18-Apr-2027 21:06:29 GMT; "
+TEST(ParsedCookieTest, QuotedTrailingWhitespace) {
+  net::CookieMonster::ParsedCookie pc("ANCUUID=\"zohNumRKgI0oxyhSsV3Z7D\"  ; "
+                                      "expires=Sun, 18-Apr-2027 21:06:29 GMT ; "
                                       "path=/  ;  ");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ("ANCUUID", pc.Name());
+  // Stripping whitespace after the quotes matches all other major browsers.
+  EXPECT_EQ("\"zohNumRKgI0oxyhSsV3Z7D\"", pc.Value());
   EXPECT_TRUE(pc.HasExpires());
   EXPECT_TRUE(pc.HasPath());
   EXPECT_EQ("/", pc.Path());
-  // TODO should export like NumAttributes() and make sure that the
-  // trailing whitespace doesn't end up as an empty attribute or something.
+  EXPECT_EQ(2U, pc.NumberOfAttributes());
+}
+
+TEST(ParsedCookieTest, TrailingWhitespace) {
+  net::CookieMonster::ParsedCookie pc("ANCUUID=zohNumRKgI0oxyhSsV3Z7D  ; "
+                                      "expires=Sun, 18-Apr-2027 21:06:29 GMT ; "
+                                      "path=/  ;  ");
+  EXPECT_TRUE(pc.IsValid());
+  EXPECT_EQ("ANCUUID", pc.Name());
+  EXPECT_EQ("zohNumRKgI0oxyhSsV3Z7D", pc.Value());
+  EXPECT_TRUE(pc.HasExpires());
+  EXPECT_TRUE(pc.HasPath());
+  EXPECT_EQ("/", pc.Path());
+  EXPECT_EQ(2U, pc.NumberOfAttributes());
 }
 
 TEST(ParsedCookieTest, TooManyPairs) {
