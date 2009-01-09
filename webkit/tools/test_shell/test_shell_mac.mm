@@ -497,6 +497,7 @@ void TestShell::TestFinished() {
     puts("#TEST_TIMED_OUT\n");
     puts("#EOF\n");
     fflush(stdout);
+    RestoreUsersColorProfile();
     abort();
   }
 
