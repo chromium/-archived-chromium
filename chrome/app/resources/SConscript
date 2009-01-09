@@ -4,85 +4,9 @@
 
 Import(['env', 'env_res'])
 
+AddTargetGroup('all_languages', 'resource dlls for languages can be built')
+
 env_res = env_res.Clone()
-
-env_res.Append(
-    CPPPATH = [
-        '.',
-        '$CHROME_SRC_DIR/chrome/Debug/obj/chrome_dll',
-        '$CHROME_SRC_DIR',
-        '$CHROME_SRC_DIR/chrome/Debug/obj',
-    ],
-    RCFLAGS = [
-        ['/l', '0x409'],
-        ['/I', '$TARGET_ROOT/grit_derived_sources'],
-    ],
-)
-
-rc_files = [
-    'locale_settings_ar.rc',
-    'locale_settings_bg.rc',
-    'locale_settings_bn.rc',
-    'locale_settings_ca.rc',
-    'locale_settings_cs.rc',
-    'locale_settings_da.rc',
-    'locale_settings_de.rc',
-    'locale_settings_el.rc',
-    'locale_settings_en-GB.rc',
-    'locale_settings_en-US.rc',
-    'locale_settings_es-419.rc',
-    'locale_settings_es.rc',
-    'locale_settings_et.rc',
-    'locale_settings_fi.rc',
-    'locale_settings_fil.rc',
-    'locale_settings_fr.rc',
-    'locale_settings_gu.rc',
-    'locale_settings_he.rc',
-    'locale_settings_hi.rc',
-    'locale_settings_hr.rc',
-    'locale_settings_hu.rc',
-    'locale_settings_id.rc',
-    'locale_settings_it.rc',
-    'locale_settings_ja.rc',
-    'locale_settings_kn.rc',
-    'locale_settings_ko.rc',
-    'locale_settings_lt.rc',
-    'locale_settings_lv.rc',
-    'locale_settings_ml.rc',
-    'locale_settings_mr.rc',
-    'locale_settings_nb.rc',
-    'locale_settings_nl.rc',
-    'locale_settings_or.rc',
-    'locale_settings_pl.rc',
-    'locale_settings_pt-BR.rc',
-    'locale_settings_pt-PT.rc',
-    'locale_settings_ro.rc',
-    'locale_settings_ru.rc',
-    'locale_settings_sk.rc',
-    'locale_settings_sl.rc',
-    'locale_settings_sr.rc',
-    'locale_settings_sv.rc',
-    'locale_settings_ta.rc',
-    'locale_settings_te.rc',
-    'locale_settings_th.rc',
-    'locale_settings_tr.rc',
-    'locale_settings_uk.rc',
-    'locale_settings_vi.rc',
-    'locale_settings_zh-CN.rc',
-    'locale_settings_zh-TW.rc',
-]
-
-
-resources = []
-for rc in rc_files:
-  res = env_res.RES(rc)
-  resources.extend(res)
-  # TODO(sgk):  find out why this implicit dependency isn't discovered
-  env.Depends(res, rc.replace('locale_settings',
-      '$TARGET_ROOT/grit_derived_sources/google_chrome_strings'))
-  env.Depends(res, rc.replace('locale_settings',
-      '$TARGET_ROOT/grit_derived_sources/chromium_strings'))
-
 
 env.Append(
     LINKFLAGS = [
@@ -104,32 +28,92 @@ env.Append(
     no_import_lib = True,       # We don't need the .lib and .exp.
 )
 
-import re
-extract_lang = re.compile(r'locale_settings_(.*)\.res')
+env_res.Append(
+    CPPPATH = [
+        '.',
+        '$CHROME_SRC_DIR/chrome/Debug/obj/chrome_dll',
+        '$CHROME_SRC_DIR',
+        '$CHROME_SRC_DIR/chrome/Debug/obj',
+    ],
+    RCFLAGS = [
+        ['/l', '0x409'],
+        ['/I', '$TARGET_ROOT/grit_derived_sources'],
+    ],
+)
+
+env_dll = env.Clone(COMPONENT_LIBRARY_GROUPS = ['all_languages'])
+
+locale_list = [
+    'ar',
+    'bg',
+    'bn',
+    'ca',
+    'cs',
+    'da',
+    'de',
+    'el',
+    'en-GB',
+    'en-US',
+    'es-419',
+    'es',
+    'et',
+    'fi',
+    'fil',
+    'fr',
+    'gu',
+    'he',
+    'hi',
+    'hr',
+    'hu',
+    'id',
+    'it',
+    'ja',
+    'kn',
+    'ko',
+    'lt',
+    'lv',
+    'ml',
+    'mr',
+    'nb',
+    'nl',
+    'or',
+    'pl',
+    'pt-BR',
+    'pt-PT',
+    'ro',
+    'ru',
+    'sk',
+    'sl',
+    'sr',
+    'sv',
+    'ta',
+    'te',
+    'th',
+    'tr',
+    'uk',
+    'vi',
+    'zh-CN',
+    'zh-TW',
+]
+
+gcs_rc = '$TARGET_ROOT/grit_derived_sources/google_chrome_strings_%s.rc'
+cs_rc = '$TARGET_ROOT/grit_derived_sources/chromium_strings_%s.rc'
+gr_res = '$TARGET_ROOT/grit_derived_sources/generated_resources_%s.res'
+ws_res = '$TARGET_ROOT/grit_derived_sources/webkit_strings_%s.res'
 
 locale_dlls = []
 
-env_lang = env.Clone()
-AddTargetGroup('all_languages', 'resource dlls for languages can be built')
-env_lang['COMPONENT_LIBRARY_GROUPS'] = ['all_languages']
+for locale in locale_list:
+  res = env_res.RES('locale_settings_%s.rc' % locale)
 
-for locale_settings_res in resources:
-  s = str(locale_settings_res)
-  #lang = '$CHROME_DIR/locales/' + extract_lang.match(s).group(1)
-  lang = extract_lang.match(s).group(1)
-  g_r_res = s.replace('locale_settings',
-                      '$TARGET_ROOT/grit_derived_sources/generated_resources')
-  w_s_res = s.replace('locale_settings',
-                      '$TARGET_ROOT/grit_derived_sources/webkit_strings')
+  # TODO(sgk):  find out why this implicit dependency isn't discovered
+  env.Depends(res, gcs_rc % locale)
+  env.Depends(res, cs_rc % locale)
 
-  dll = env_lang.ChromeSharedLibrary(
-      lang,
-      [
-          g_r_res,
-          w_s_res,
-          locale_settings_res,
-      ])
-
+  dll = env_dll.ChromeSharedLibrary(locale,
+                                    [ gr_res % locale,
+                                      ws_res % locale,
+                                      res ])
   locale_dlls.append(dll)
 
 i = env.Install('$DESTINATION_ROOT/locales/', locale_dlls)
