@@ -40,6 +40,8 @@
 /* Begin PBXBuildFile section */
 		3CF1E7470F09B352009BC1A7 /* Threading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E7460F09B352009BC1A7 /* Threading.cpp */; };
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
+		4D114BB60F17F0D5009F37AA /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
+		4D114BBB0F17F0DB009F37AA /* TextBreakIteratorInternalICUChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52880F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4D7FAB940F156764004F1B19 /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FAB870F156634004F1B19 /* ByteArray.cpp */; };
@@ -629,7 +631,6 @@
 		938446340F16B0570075F4C5 /* SharedTimerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52820F002F680073C62D /* SharedTimerChromium.cpp */; };
 		938446350F16B0570075F4C5 /* SimpleFontData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E903B0D7F3CC2001ECF42 /* SimpleFontData.cpp */; };
 		938446360F16B0570075F4C5 /* SimpleFontDataMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90180D7F3CC1001ECF42 /* SimpleFontDataMac.mm */; };
-		938446380F16B0570075F4C5 /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
 		938446390F16B0570075F4C5 /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52C30F0030780073C62D /* SkiaUtils.cpp */; };
 		9384463A0F16B0570075F4C5 /* SmartReplace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B490D7F3AFA001ECF42 /* SmartReplace.cpp */; };
 		9384463B0F16B0570075F4C5 /* SmartReplaceCF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B4B0D7F3AFA001ECF42 /* SmartReplaceCF.cpp */; };
@@ -1261,7 +1262,6 @@
 		938448B00F16B06E0075F4C5 /* XMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095C50DAFF00100F72082 /* XMLNames.cpp */; };
 		938448B10F16B06E0075F4C5 /* XPathGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095C70DAFF00100F72082 /* XPathGrammar.cpp */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
-		93AF52A30F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52880F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
 		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
@@ -9081,7 +9081,7 @@
 				938446340F16B0570075F4C5 /* SharedTimerChromium.cpp in Sources */,
 				938446350F16B0570075F4C5 /* SimpleFontData.cpp in Sources */,
 				938446360F16B0570075F4C5 /* SimpleFontDataMac.mm in Sources */,
-				938446380F16B0570075F4C5 /* SkewTransformOperation.cpp in Sources */,
+				4D114BB60F17F0D5009F37AA /* SkewTransformOperation.cpp in Sources */,
 				938446390F16B0570075F4C5 /* SkiaUtils.cpp in Sources */,
 				9384463A0F16B0570075F4C5 /* SmartReplace.cpp in Sources */,
 				9384463B0F16B0570075F4C5 /* SmartReplaceCF.cpp in Sources */,
@@ -9316,7 +9316,7 @@
 				938447200F16B0570075F4C5 /* Text.cpp in Sources */,
 				938447210F16B0570075F4C5 /* TextBoundariesICU.cpp in Sources */,
 				938447220F16B0570075F4C5 /* TextBreakIteratorICU.cpp in Sources */,
-				93AF52A30F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp in Sources */,
+				4D114BBB0F17F0DB009F37AA /* TextBreakIteratorInternalICUChromium.cpp in Sources */,
 				938447240F16B0570075F4C5 /* TextBreakIteratorInternalICUMac.mm in Sources */,
 				938447250F16B0570075F4C5 /* TextCodec.cpp in Sources */,
 				938447260F16B0570075F4C5 /* TextCodecICU.cpp in Sources */,
@@ -9409,8 +9409,6 @@
 				9384477C0F16B0570075F4C5 /* XSLTExtensions.cpp in Sources */,
 				9384477D0F16B0570075F4C5 /* XSLTProcessor.cpp in Sources */,
 				9384477E0F16B0570075F4C5 /* XSLTUnicodeSort.cpp in Sources */,
-				938446380F16B0570075F4C5 /* SkewTransformOperation.cpp in Sources */,
-				93AF52A30F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
