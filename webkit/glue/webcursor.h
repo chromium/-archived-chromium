@@ -5,6 +5,7 @@
 #ifndef WEBKIT_GLUE_WEBCURSOR_H_
 #define WEBKIT_GLUE_WEBCURSOR_H_
 
+#include "base/basictypes.h"
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 
@@ -40,6 +41,11 @@ class WebCursor {
  public:
   WebCursor();
   explicit WebCursor(const WebCore::PlatformCursor& platform_cursor);
+  ~WebCursor();
+
+  // Copy constructor/assignment operator combine.
+  WebCursor(const WebCursor& other);
+  const WebCursor& operator=(const WebCursor& other);
 
   // Serialization / De-serialization
   bool Deserialize(const Pickle* pickle, void** iter);
@@ -55,18 +61,16 @@ class WebCursor {
   bool IsEqual(const WebCursor& other) const;
 
 #if defined(OS_WIN)
-  // If the underlying cursor type is not a custom cursor, this functions uses
-  // the LoadCursor API to load the cursor and returns it.  The caller SHOULD
-  // NOT pass the resulting handling to DestroyCursor.  Returns NULL on error.
-  HCURSOR GetCursor(HINSTANCE module_handle) const;
+  // Returns a HCURSOR representing the current WebCursor instance.
+  // The ownership of the HCURSOR (does not apply to external cursors) remains
+  // with the WebCursor instance.
+  HCURSOR GetCursor(HINSTANCE module_handle);
 
-  // If the underlying cursor type is a custom cursor, this function generates
-  // a cursor and returns it.  The responsiblity of freeing the cursor handle
-  // lies with the caller.  Returns NULL on error.
-  HCURSOR GetCustomCursor() const;
+  // Initialize this from the given Windows cursor. The caller must ensure that
+  // the HCURSOR remains valid by not invoking the DestroyCursor/DestroyIcon
+  // APIs on it.
+  void InitFromExternalCursor(HCURSOR handle);
 
-  // Initialize this from the given Windows cursor.
-  void InitFromCursor(HCURSOR handle);
 #elif defined(OS_LINUX)
   // Return the stock GdkCursorType for this cursor, or GDK_CURSOR_IS_PIXMAP
   // if it's a custom cursor.
@@ -80,6 +84,29 @@ class WebCursor {
 #endif
 
  private:
+  // Copies the contents of the WebCursor instance passed in.
+  void Copy(const WebCursor& other);
+
+  // Cleans up the WebCursor instance.
+  void Clear();
+
+  // Platform specific initialization goes here.
+  void InitPlatformData();
+
+  // Platform specific Serialization / De-serialization
+  bool SerializePlatformData(Pickle* pickle) const;
+  bool DeserializePlatformData(const Pickle* pickle, void** iter);
+
+  // Returns true if the platform data in the current cursor object
+  // matches that of the cursor passed in.
+  bool IsPlatformDataEqual(const WebCursor& other) const ;
+
+  // Copies platform specific data from the WebCursor instance passed in.
+  void CopyPlatformData(const WebCursor& other);
+
+  // Platform specific cleanup.
+  void CleanupPlatformData();
+
   void SetCustomData(WebCore::Image* image);
 
   // WebCore::PlatformCursor type.
@@ -91,6 +118,14 @@ class WebCursor {
   // Platform-inspecific because it can be serialized.
   gfx::Size custom_size_;
   std::vector<char> custom_data_;
+
+#if defined(OS_WIN)
+  // An externally generated HCURSOR. We assume that it remains valid, i.e we
+  // don't attempt to copy the HCURSOR.
+  HCURSOR external_cursor_;
+  // A custom cursor created from custom bitmap data by Webkit.
+  HCURSOR custom_cursor_;
+#endif  // OS_WIN
 };
 
 #endif  // WEBKIT_GLUE_WEBCURSOR_H_

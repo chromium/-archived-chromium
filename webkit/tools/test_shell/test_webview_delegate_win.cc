@@ -36,8 +36,6 @@
 // WebViewDelegate -----------------------------------------------------------
 
 TestWebViewDelegate::~TestWebViewDelegate() {
-  if (custom_cursor_)
-    DestroyIcon(custom_cursor_);
   RevokeDragDrop(shell_->webViewWnd());
 }
 
@@ -89,17 +87,9 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
                                     const WebCursor& cursor) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    if (custom_cursor_) {
-      DestroyIcon(custom_cursor_);
-      custom_cursor_ = NULL;
-    }
-    if (cursor.IsCustom()) {
-      custom_cursor_ = cursor.GetCustomCursor();
-      host->SetCursor(custom_cursor_);
-    } else {
-      HINSTANCE mod_handle = GetModuleHandle(NULL);
-      host->SetCursor(cursor.GetCursor(mod_handle));
-    }
+    current_cursor_ = cursor;
+    HINSTANCE mod_handle = GetModuleHandle(NULL);
+    host->SetCursor(current_cursor_.GetCursor(mod_handle));
   }
 }
 

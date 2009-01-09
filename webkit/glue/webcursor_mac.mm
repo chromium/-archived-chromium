@@ -170,3 +170,26 @@ void WebCursor::SetCustomData(WebCore::Image* image) {
   CGContextDrawImage(context.get(), rect, image_ptr);
 }
 
+void WebCursor::InitPlatformData() {
+  return;
+}
+
+bool WebCursor::SerializePlatformData(Pickle* pickle) const {
+  return true;
+}
+
+bool WebCursor::DeserializePlatformData(const Pickle* pickle, void** iter) {
+  return true;
+}
+
+bool WebCursor::IsPlatformDataEqual(const WebCursor& other) const {
+  return true;
+}
+
+void WebCursor::CleanupPlatformData() {
+  return;
+}
+
+void WebCursor::CopyPlatformData(const WebCursor& other) {
+  return;
+}

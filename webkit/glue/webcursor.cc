@@ -14,6 +14,7 @@
 
 WebCursor::WebCursor()
     : type_(WebCore::PlatformCursor::typePointer) {
+  InitPlatformData();
 }
 
 WebCursor::WebCursor(const WebCore::PlatformCursor& platform_cursor)
@@ -21,10 +22,31 @@ WebCursor::WebCursor(const WebCore::PlatformCursor& platform_cursor)
       hotspot_(platform_cursor.hotSpot().x(), platform_cursor.hotSpot().y()) {
   if (IsCustom())
     SetCustomData(platform_cursor.customImage().get());
+
+  InitPlatformData();
+}
+
+WebCursor::~WebCursor() {
+  Clear();
+}
+
+WebCursor::WebCursor(const WebCursor& other) {
+  InitPlatformData();
+  Copy(other);
+}
+
+const WebCursor& WebCursor::operator=(const WebCursor& other) {
+  if (this == &other)
+    return *this;
+
+  Clear();
+  Copy(other);
+  return *this;
 }
 
 bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
   int type, hotspot_x, hotspot_y, size_x, size_y, data_len;
+
   const char* data;
 
   // Leave |this| unmodified unless we are going to return success.
@@ -48,7 +70,7 @@ bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
     memcpy(&custom_data_[0], data, data_len);
   }
 
-  return true;
+  return DeserializePlatformData(pickle, iter);
 }
 
 bool WebCursor::Serialize(Pickle* pickle) const {
@@ -62,7 +84,10 @@ bool WebCursor::Serialize(Pickle* pickle) const {
   const char* data = NULL;
   if (!custom_data_.empty())
     data = &custom_data_[0];
-  return pickle->WriteData(data, custom_data_.size());
+  if (!pickle->WriteData(data, custom_data_.size()))
+    return false;
+
+  return SerializePlatformData(pickle);
 }
 
 bool WebCursor::IsCustom() const {
@@ -70,12 +95,33 @@ bool WebCursor::IsCustom() const {
 }
 
 bool WebCursor::IsEqual(const WebCursor& other) const {
-  if (!IsCustom())
-    return type_ == other.type_;
+  if (type_ != other.type_)
+    return false;
+
+  if (!IsPlatformDataEqual(other))
+    return false;
 
   return hotspot_ == other.hotspot_ &&
          custom_size_ == other.custom_size_ &&
          custom_data_ == other.custom_data_;
+}
+
+void WebCursor::Clear() {
+  type_ = WebCore::PlatformCursor::typePointer;
+  hotspot_.set_x(0);
+  hotspot_.set_y(0);
+  custom_size_.set_width(0);
+  custom_size_.set_height(0);
+  custom_data_.clear();
+  CleanupPlatformData();
+}
+
+void WebCursor::Copy(const WebCursor& other) {
+  type_ = other.type_;
+  hotspot_ = other.hotspot_;
+  custom_size_ = other.custom_size_;
+  custom_data_ = other.custom_data_;
+  CopyPlatformData(other);
 }
 
 #if !defined(OS_MACOSX)
@@ -83,6 +129,9 @@ bool WebCursor::IsEqual(const WebCursor& other) const {
 // versions are PLATFORM(SKIA). We'll keep this Skia implementation here for
 // common use and put the Mac implementation in webcursor_mac.mm.
 void WebCursor::SetCustomData(WebCore::Image* image) {
+  if (!image)
+    return;
+
   WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
   if (!image_ptr)
     return;

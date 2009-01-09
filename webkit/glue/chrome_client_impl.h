@@ -120,6 +120,7 @@ public:
                            bool focus_on_show);
 
   void SetCursor(const WebCursor& cursor);
+  void SetCursorForPlugin(const WebCursor& cursor);
 
   virtual void enableSuddenTermination();
   virtual void disableSuddenTermination();
@@ -133,6 +134,8 @@ private:
   bool scrollbars_visible_;
   bool menubar_visible_;
   bool resizable_;
+  // Set to true if the next SetCursor is to be ignored.
+  bool ignore_next_set_cursor_;
 };
 
 #endif // WEBKIT_GLUE_CHROME_CLIENT_IMPL_H__

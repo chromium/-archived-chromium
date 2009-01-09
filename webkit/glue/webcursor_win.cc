@@ -9,6 +9,7 @@
 #undef LOG
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
+#include "base/pickle.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_resources.h"
@@ -131,24 +132,27 @@ static PlatformCursor::Type ToPlatformCursorType(HCURSOR cursor) {
     if (cursor == kStandardCursors[i].cursor)
       return kStandardCursors[i].type;
   }
-  return PlatformCursor::typePointer;
+  return PlatformCursor::typeCustom;
 }
 
-HCURSOR WebCursor::GetCursor(HINSTANCE module_handle) const {
-  if (IsCustom())
-    return NULL;
+HCURSOR WebCursor::GetCursor(HINSTANCE module_handle){
+  if (!IsCustom()) {
+    const wchar_t* cursor_id =
+        ToCursorID(static_cast<PlatformCursor::Type>(type_));
 
-  LPCWSTR cursor_id = ToCursorID(static_cast<PlatformCursor::Type>(type_));
+    if (IsSystemCursorID(cursor_id))
+      module_handle = NULL;
 
-  if (IsSystemCursorID(cursor_id))
-    module_handle = NULL;
+    return LoadCursor(module_handle, cursor_id);
+  }
 
-  return LoadCursor(module_handle, cursor_id);
-}
+  if (custom_cursor_) {
+    DCHECK(external_cursor_ == NULL);
+    return custom_cursor_;
+  }
 
-HCURSOR WebCursor::GetCustomCursor() const {
-  if (!IsCustom())
-    return NULL;
+  if (external_cursor_)
+    return external_cursor_;
 
   BITMAPINFO cursor_bitmap_info = {0};
   gfx::CreateBitmapHeader(
@@ -176,16 +180,61 @@ HCURSOR WebCursor::GetCustomCursor() const {
   ii.hbmMask = mask;
   ii.hbmColor = bitmap_handle;
 
-  HCURSOR cursor_handle = CreateIconIndirect(&ii);
+  custom_cursor_ = CreateIconIndirect(&ii);
 
   DeleteObject(mask); 
   DeleteObject(bitmap_handle); 
   DeleteDC(workingDC);
   ReleaseDC(0, dc);
-  return cursor_handle;
+  return custom_cursor_;
 }
 
-void WebCursor::InitFromCursor(HCURSOR cursor) {
-  // TODO(iyengar) Add support for custom cursors.
-  *this = WebCursor(ToPlatformCursorType(cursor));
+void WebCursor::InitFromExternalCursor(HCURSOR cursor) {
+  WebCore::PlatformCursor::Type cursor_type = ToPlatformCursorType(cursor);
+
+  *this = WebCursor(cursor_type);
+
+  if (cursor_type == WebCore::PlatformCursor::typeCustom) {
+    external_cursor_ = cursor;
+  }
+}
+
+void WebCursor::InitPlatformData() {
+  external_cursor_ = NULL;
+  custom_cursor_ = NULL;
+}
+
+bool WebCursor::SerializePlatformData(Pickle* pickle) const {
+  // There are some issues with converting certain HCURSORS to bitmaps. The
+  // HCURSOR being a user object can be marshaled as is.
+  return pickle->WriteIntPtr(reinterpret_cast<intptr_t>(external_cursor_));
+}
+
+bool WebCursor::DeserializePlatformData(const Pickle* pickle, void** iter) {
+  return pickle->ReadIntPtr(iter, 
+                            reinterpret_cast<intptr_t*>(&external_cursor_));
+}
+
+bool WebCursor::IsPlatformDataEqual(const WebCursor& other) const {
+  if (!IsCustom())
+    return true;
+
+  return (external_cursor_ == other.external_cursor_);
+}
+
+void WebCursor::CopyPlatformData(const WebCursor& other) {
+  external_cursor_ = other.external_cursor_;
+  // The custom_cursor_ member will be initialized to a HCURSOR the next time
+  // the GetCursor member function is invoked on this WebCursor instance. The
+  // cursor is created using the data in the custom_data_ vector.
+  custom_cursor_ = NULL;
+}
+
+void WebCursor::CleanupPlatformData() {
+  external_cursor_ = NULL;
+
+  if (custom_cursor_) {
+    DestroyIcon(custom_cursor_);
+    custom_cursor_ = NULL;
+  }
 }

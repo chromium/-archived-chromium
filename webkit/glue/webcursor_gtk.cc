@@ -169,3 +169,27 @@ GdkCursor* WebCursor::GetCustomCursor() const {
 
   return cursor;
 }
+
+void WebCursor::InitPlatformData() {
+  return;
+}
+
+bool WebCursor::SerializePlatformData(Pickle* pickle) const {
+  return true;
+}
+
+bool WebCursor::DeserializePlatformData(const Pickle* pickle, void** iter) {
+  return true;
+}
+
+bool WebCursor::IsPlatformDataEqual(const WebCursor& other) const {
+  return true;
+}
+
+void WebCursor::CleanupPlatformData() {
+  return;
+}
+
+void WebCursor::CopyPlatformData(const WebCursor& other) {
+  return;
+}

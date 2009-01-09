@@ -57,7 +57,8 @@ ChromeClientImpl::ChromeClientImpl(WebViewImpl* webview)
       statusbar_visible_(true),
       scrollbars_visible_(true),
       menubar_visible_(true),
-      resizable_(true) {
+      resizable_(true),
+      ignore_next_set_cursor_(false) {
 }
 
 ChromeClientImpl::~ChromeClientImpl() {
@@ -472,9 +473,22 @@ void ChromeClientImpl::popupOpened(WebCore::FramelessScrollView* popup_view,
 }
 
 void ChromeClientImpl::SetCursor(const WebCursor& cursor) {
+  if (ignore_next_set_cursor_) {
+    ignore_next_set_cursor_ = false;
+    return;
+  }
+
   WebViewDelegate* d = webview_->delegate();
   if (d)
     d->SetCursor(webview_, cursor);
+}
+
+void ChromeClientImpl::SetCursorForPlugin(const WebCursor& cursor) {
+  SetCursor(cursor);
+  // Currently, Widget::setCursor is always called after this function in
+  // EventHandler.cpp and since we don't want that we set a flag indicating
+  // that the next SetCursor call is to be ignored.
+  ignore_next_set_cursor_ = true;
 }
 
 void ChromeClientImpl::enableSuddenTermination() {

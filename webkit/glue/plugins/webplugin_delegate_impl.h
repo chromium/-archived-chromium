@@ -93,6 +93,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES = 16,
     PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
     PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,
+    PLUGIN_QUIRK_PATCH_SETCURSOR = 128,
   };
 
   int quirks() { return quirks_; }
@@ -264,17 +265,23 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // The plugin module handle.
   HMODULE plugin_module_handle_;
 
-  // Indicates whether we IAT patched the TrackPopupMenu function.
-  static bool track_popup_menu_patched_;
-
-  // Helper object for patching the import table of Silverlight.
-  static iat_patch::IATPatchFunction iat_patch_helper_;
+  // Helper object for patching the TrackPopupMenu API
+  static iat_patch::IATPatchFunction iat_patch_track_popup_menu_;
 
   // TrackPopupMenu interceptor. Parameters are the same as the Win32 function
   // TrackPopupMenu.
   static BOOL WINAPI TrackPopupMenuPatch(HMENU menu, unsigned int flags, int x,
                                          int y, int reserved, HWND window,
                                          const RECT* rect);
+
+  // SetCursor interceptor for windowless plugins.
+  static HCURSOR WINAPI SetCursorPatch(HCURSOR cursor);
+
+  // Helper object for patching the SetCursor API
+  static iat_patch::IATPatchFunction iat_patch_set_cursor_;
+
+  // Holds the current cursor set by the windowless plugin.
+  WebCursor current_windowless_cursor_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateImpl);
 };
