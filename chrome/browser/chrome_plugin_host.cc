@@ -278,6 +278,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
 
   // views::WindowDelegate implementation:
   virtual bool IsModal() const { return false; }
+  virtual std::wstring GetWindowTitle() const { return L"Google Gears"; }
 
   // HtmlDialogContentsDelegate implementation:
   virtual GURL GetDialogContentURL() const { return params_.url; }

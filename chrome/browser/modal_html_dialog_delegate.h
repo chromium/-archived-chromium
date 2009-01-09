@@ -29,6 +29,7 @@ class ModalHtmlDialogDelegate
 
   // views::WindowDelegate implementation:
   virtual bool IsModal() const;
+  virtual std::wstring GetWindowTitle() const { return L"Google Gears"; }
 
   // ModalHtmlDialogContents::ModalHTMLDialogContentsDelegate implementation:
   virtual GURL GetDialogContentURL() const;

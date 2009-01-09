@@ -46,7 +46,7 @@ bool HtmlDialogView::IsModal() const {
 }
 
 std::wstring HtmlDialogView::GetWindowTitle() const {
-  return L"Google Gears";
+  return delegate_->GetWindowTitle();
 }
 
 void HtmlDialogView::WindowClosing() {
