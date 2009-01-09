@@ -115,7 +115,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   scoped_ptr<WorkItemList> work_item_list(WorkItem::CreateWorkItemList());
   // Test incremental install failure
   if (!CreateApKey(work_item_list.get(), L""))
-    GTEST_FATAL_FAILURE("Failed to create ap key.");
+    FAIL() << "Failed to create ap key.";
   dist->UpdateDiffInstallStatus(false, true, installer_util::INSTALL_FAILED);
   EXPECT_STREQ(ReadApKeyValue().c_str(), L"-full");
   work_item_list->Rollback();
@@ -123,7 +123,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   work_item_list.reset(WorkItem::CreateWorkItemList());
   // Test incremental install success
   if (!CreateApKey(work_item_list.get(), L""))
-    GTEST_FATAL_FAILURE("Failed to create ap key.");
+    FAIL() << "Failed to create ap key.";
   dist->UpdateDiffInstallStatus(false, true,
                                 installer_util::FIRST_INSTALL_SUCCESS);
   EXPECT_STREQ(ReadApKeyValue().c_str(), L"");
@@ -132,7 +132,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   work_item_list.reset(WorkItem::CreateWorkItemList());
   // Test full install failure
   if (!CreateApKey(work_item_list.get(), L"-full"))
-    GTEST_FATAL_FAILURE("Failed to create ap key.");
+    FAIL() << "Failed to create ap key.";
   dist->UpdateDiffInstallStatus(false, false, installer_util::INSTALL_FAILED);
   EXPECT_STREQ(ReadApKeyValue().c_str(), L"");
   work_item_list->Rollback();
@@ -140,7 +140,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   work_item_list.reset(WorkItem::CreateWorkItemList());
   // Test full install success
   if (!CreateApKey(work_item_list.get(), L"-full"))
-    GTEST_FATAL_FAILURE("Failed to create ap key.");
+    FAIL() << "Failed to create ap key.";
   dist->UpdateDiffInstallStatus(false, false,
                                 installer_util::FIRST_INSTALL_SUCCESS);
   EXPECT_STREQ(ReadApKeyValue().c_str(), L"");
@@ -156,7 +156,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   if (!key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS)){
     work_item_list->AddCreateRegKeyWorkItem(reg_root, reg_key);
     if (!work_item_list->Do())
-      GTEST_FATAL_FAILURE("Failed to create ClientState key.");
+      FAIL() << "Failed to create ClientState key.";
   } else if (key.DeleteValue(google_update::kRegApField)) {
     ap_key_deleted = true;
   }
@@ -176,7 +176,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   if (ap_key_deleted) {
     work_item_list.reset(WorkItem::CreateWorkItemList());
     if (!CreateApKey(work_item_list.get(), ap_key_value))
-      GTEST_FATAL_FAILURE("Failed to restore ap key.");
+      FAIL() << "Failed to restore ap key.";
   }
 
 }
