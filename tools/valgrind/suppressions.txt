@@ -1,0 +1,183 @@
+{
+   Uninitialized value in deflate
+   Memcheck:Cond
+   fun:longest_match
+   fun:deflate_slow
+   fun:MOZ_Z_deflate
+}
+{
+   dlopen leak; not our problem.
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:PR_LoadLibraryWithFlags
+   obj:*
+}
+{
+   Leak inside GTK?
+   Memcheck:Leak
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   fun:g_type_register_fundamental
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   fun:g_type_init_with_debug_flags
+   fun:g_type_init
+   fun:gdk_pre_parse_libgtk_only
+   obj:/usr/lib32/libgtk-x11-2.0.so.0.1200.9
+   fun:g_option_context_parse
+   fun:gtk_parse_args
+}
+{
+   Leak inside GTK?
+   Memcheck:Leak
+   fun:memalign
+   fun:posix_memalign
+   obj:/usr/lib32/libglib-2.0.so.0.1600.3
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:g_type_create_instance
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   fun:g_object_newv
+   fun:g_object_new_valist
+   fun:g_object_new
+   fun:gdk_display_open
+   fun:gdk_display_open_default_libgtk_only
+}
+{
+   Fontconfig leak?
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoad
+   fun:FcConfigParseAndLoad
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoad
+   fun:FcInitLoadConfig
+   fun:FcInitLoadConfigAndFonts
+   fun:FcInit
+}
+{
+   Fontconfig Leak?
+   Memcheck:Leak
+   fun:malloc
+   fun:FcStrCopy
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoad
+   fun:FcConfigParseAndLoad
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libfontconfig.so.1.3.0
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib32/libexpat.so.1.5.2
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoad
+   fun:FcInitLoadConfig
+   fun:FcInitLoadConfigAndFonts
+   fun:FcInit
+}
+{
+   SECMOD leak
+   Memcheck:Leak
+   fun:calloc
+   fun:PR_Calloc
+   obj:/usr/lib32/nss/libnssckbi.so
+   obj:/usr/lib32/nss/libnssckbi.so
+   obj:/usr/lib32/nss/libnssckbi.so
+   obj:/usr/lib32/nss/libnssckbi.so
+   obj:/usr/lib32/nss/libnssckbi.so
+   obj:/usr/lib32/nss/libnssckbi.so
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   fun:SECMOD_LoadModule
+   fun:SECMOD_LoadUserModule
+}
+{
+   SECMOD leak?
+   Memcheck:Leak
+   fun:malloc
+   fun:PR_Malloc
+   fun:PL_ArenaAllocate
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   fun:SECMOD_LoadUserModule
+}
+{
+   NSS leak part 3.
+   Memcheck:Leak
+   fun:calloc
+   fun:PR_Calloc
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib32/libnss3.so.1d
+   fun:NSS_NoDB_Init
+}
+{
+   GTK leak?
+   Memcheck:Leak
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   fun:g_type_register_fundamental
+   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
+   fun:g_type_init_with_debug_flags
+   fun:g_type_init
+   fun:gdk_pre_parse_libgtk_only
+   obj:/usr/lib32/libgtk-x11-2.0.so.0.1200.9
+   fun:g_option_context_parse
+   fun:gtk_parse_args
+   fun:gtk_init_check
+}
+{
+   (Probable memory leak in Skia)
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SkFontHost15ResolveTypefaceEj
+   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
+   fun:_ZN24SkScalerContext_FreeType19generateFontMetricsEPN7SkPaint11FontMetricsES2_
+   fun:_ZN15SkScalerContext14getFontMetricsEPN7SkPaint11FontMetricsES2_
+   fun:_ZN12SkGlyphCacheC1EPK12SkDescriptor
+   fun:_ZN12SkGlyphCache10VisitCacheEPK12SkDescriptorPFbPKS_PvES5_
+}
+{
+   Error in ICU
+   Memcheck:Overlap
+   fun:memcpy
+   fun:init_resb_result
+}
