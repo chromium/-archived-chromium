@@ -2261,6 +2261,14 @@
 				RelativePath=".\extensions\extensions_service.h"
 				>
 			</File>
+			<File
+				RelativePath=".\extensions\user_script_master.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\user_script_master.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Renderer Host"
@@ -2418,14 +2426,6 @@
 		</File>
 		<File
 			RelativePath=".\google_update.h"
-			>
-		</File>
-		<File
-			RelativePath=".\greasemonkey_master.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\greasemonkey_master.h"
 			>
 		</File>
 		<File

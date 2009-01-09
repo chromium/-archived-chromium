@@ -495,11 +495,11 @@ enum NotificationType {
   // Personalization -----------------------------------------------------------
   NOTIFY_PERSONALIZATION,
 
-  // Greasemonkey user scripts -------------------------------------------------
+  // User Scripts --------------------------------------------------------------
 
   // Sent when there are new user scripts available.
   // The details are a pointer to SharedMemory containing the new scripts.
-  NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
+  NOTIFY_USER_SCRIPTS_LOADED,
 
   // Extensions ----------------------------------------------------------------
 

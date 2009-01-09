@@ -114,7 +114,7 @@ unit_test_files.extend([
   '$CHROME_DIR/common/l10n_util_unittest.cc',
   '$CHROME_DIR/common/property_bag_unittest.cc',
   '$CHROME_DIR/common/unzip_unittest.cc',
-  '$CHROME_DIR/renderer/greasemonkey_slave_unittest.cc',
+  '$CHROME_DIR/renderer/user_script_slave_unittest.cc',
   '$CHROME_DIR/browser/history/visit_database_unittest.cc',
 ])
 
@@ -170,9 +170,9 @@ if env.Bit('windows'):
       '$CHROME_DIR/browser/download/download_manager_unittest.cc',
       '$CHROME_DIR/browser/download/download_request_manager_unittest.cc',
       '$CHROME_DIR/browser/download/save_package_unittest.cc',
+      '$CHROME_DIR/browser/extensions/user_script_master_unittest.cc',
       '$CHROME_DIR/browser/encryptor_unittest.cc',
       '$CHROME_DIR/browser/google_url_tracker_unittest.cc',
-      '$CHROME_DIR/browser/greasemonkey_master_unittest.cc',
       '$CHROME_DIR/browser/history/expire_history_backend_unittest.cc',
       '$CHROME_DIR/browser/history/history_backend_unittest.cc',
       '$CHROME_DIR/browser/history/history_querying_unittest.cc',

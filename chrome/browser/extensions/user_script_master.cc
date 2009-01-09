@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/greasemonkey_master.h"
+#include "chrome/browser/extensions/user_script_master.h"
 
 #include <vector>
 
@@ -25,10 +25,10 @@
 // on the file thread.
 // It must be created on, and its public API must only be called from,
 // the master's thread.
-class GreasemonkeyMaster::ScriptReloader
-    : public base::RefCounted<GreasemonkeyMaster::ScriptReloader> {
+class UserScriptMaster::ScriptReloader
+    : public base::RefCounted<UserScriptMaster::ScriptReloader> {
  public:
-  ScriptReloader(GreasemonkeyMaster* master)
+  ScriptReloader(UserScriptMaster* master)
        : master_(master), master_message_loop_(MessageLoop::current()) {}
 
   // Start a scan for scripts.
@@ -64,7 +64,7 @@ class GreasemonkeyMaster::ScriptReloader
 
   // A pointer back to our master.
   // May be NULL if DisownMaster() is called.
-  GreasemonkeyMaster* master_;
+  UserScriptMaster* master_;
 
   // The message loop to call our master back on.
   // Expected to always outlive us.
@@ -73,7 +73,7 @@ class GreasemonkeyMaster::ScriptReloader
   DISALLOW_COPY_AND_ASSIGN(ScriptReloader);
 };
 
-void GreasemonkeyMaster::ScriptReloader::StartScan(
+void UserScriptMaster::ScriptReloader::StartScan(
     MessageLoop* work_loop,
     const FilePath& script_dir) {
   // Add a reference to ourselves to keep ourselves alive while we're running.
@@ -81,11 +81,11 @@ void GreasemonkeyMaster::ScriptReloader::StartScan(
   AddRef();
   work_loop->PostTask(FROM_HERE,
       NewRunnableMethod(this,
-                        &GreasemonkeyMaster::ScriptReloader::RunScan,
+                        &UserScriptMaster::ScriptReloader::RunScan,
                         script_dir));
 }
 
-void GreasemonkeyMaster::ScriptReloader::NotifyMaster(
+void UserScriptMaster::ScriptReloader::NotifyMaster(
     base::SharedMemory* memory) {
   if (!master_) {
     // The master went away, so these new scripts aren't useful anymore.
@@ -99,17 +99,17 @@ void GreasemonkeyMaster::ScriptReloader::NotifyMaster(
   Release();
 }
 
-void GreasemonkeyMaster::ScriptReloader::RunScan(const FilePath script_dir) {
+void UserScriptMaster::ScriptReloader::RunScan(const FilePath script_dir) {
   base::SharedMemory* shared_memory = GetNewScripts(script_dir);
 
   // Post the new scripts back to the master's message loop.
   master_message_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this,
-                        &GreasemonkeyMaster::ScriptReloader::NotifyMaster,
+                        &UserScriptMaster::ScriptReloader::NotifyMaster,
                         shared_memory));
 }
 
-base::SharedMemory* GreasemonkeyMaster::ScriptReloader::GetNewScripts(
+base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
     const FilePath& script_dir) {
   std::vector<std::wstring> scripts;
 
@@ -161,7 +161,7 @@ base::SharedMemory* GreasemonkeyMaster::ScriptReloader::GetNewScripts(
 }
 
 
-GreasemonkeyMaster::GreasemonkeyMaster(MessageLoop* worker_loop,
+UserScriptMaster::UserScriptMaster(MessageLoop* worker_loop,
                                        const FilePath& script_dir)
     : user_script_dir_(new FilePath(script_dir)),
       dir_watcher_(new DirectoryWatcher),
@@ -174,12 +174,12 @@ GreasemonkeyMaster::GreasemonkeyMaster(MessageLoop* worker_loop,
   }
 }
 
-GreasemonkeyMaster::~GreasemonkeyMaster() {
+UserScriptMaster::~UserScriptMaster() {
   if (script_reloader_)
     script_reloader_->DisownMaster();
 }
 
-void GreasemonkeyMaster::NewScriptsAvailable(base::SharedMemory* handle) {
+void UserScriptMaster::NewScriptsAvailable(base::SharedMemory* handle) {
   // Ensure handle is deleted or released.
   scoped_ptr<base::SharedMemory> handle_deleter(handle);
 
@@ -194,13 +194,13 @@ void GreasemonkeyMaster::NewScriptsAvailable(base::SharedMemory* handle) {
     // We've got scripts ready to go.
     shared_memory_.swap(handle_deleter);
 
-    NotificationService::current()->Notify(NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
+    NotificationService::current()->Notify(NOTIFY_USER_SCRIPTS_LOADED,
         NotificationService::AllSources(),
         Details<base::SharedMemory>(handle));
   }
 }
 
-void GreasemonkeyMaster::OnDirectoryChanged(const FilePath& path) {
+void UserScriptMaster::OnDirectoryChanged(const FilePath& path) {
   if (script_reloader_.get()) {
     // We're already scanning for scripts.  We note that we should rescan when
     // we get the chance.
@@ -211,7 +211,7 @@ void GreasemonkeyMaster::OnDirectoryChanged(const FilePath& path) {
   StartScan();
 }
 
-void GreasemonkeyMaster::StartScan() {
+void UserScriptMaster::StartScan() {
   if (!script_reloader_)
     script_reloader_ = new ScriptReloader(this);
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_GREASEMONKEY_SLAVE_H_
-#define CHROME_RENDERER_GREASEMONKEY_SLAVE_H_
+#ifndef CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_SLAVE_H_
+#define CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_SLAVE_H_
 
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
@@ -13,10 +13,10 @@
 #include "webkit/glue/webframe.h"
 
 
-// Parsed representation of a Greasemonkey script.
-class GreasemonkeyScript {
+// Parsed representation of a user script.
+class UserScript {
  public:
-  GreasemonkeyScript(const StringPiece& script_url)
+  UserScript(const StringPiece& script_url)
     : url_(script_url) {}
 
   // Gets the script body that should be injected into matching content.
@@ -37,12 +37,12 @@ class GreasemonkeyScript {
   bool MatchesUrl(const GURL& url);
 
  private:
-  FRIEND_TEST(GreasemonkeySlaveTest, EscapeGlob);
-  FRIEND_TEST(GreasemonkeySlaveTest, Parse1);
-  FRIEND_TEST(GreasemonkeySlaveTest, Parse2);
-  FRIEND_TEST(GreasemonkeySlaveTest, Parse3);
+  FRIEND_TEST(UserScriptSlaveTest, EscapeGlob);
+  FRIEND_TEST(UserScriptSlaveTest, Parse1);
+  FRIEND_TEST(UserScriptSlaveTest, Parse2);
+  FRIEND_TEST(UserScriptSlaveTest, Parse3);
 
-  // Helper function to convert the Greasemonkey glob format to the patterns
+  // Helper function to convert the user script glob format to the patterns
   // used internally to test URLs.
   static std::string EscapeGlob(const std::string& glob);
 
@@ -69,16 +69,16 @@ class GreasemonkeyScript {
 };
 
 
-// Manages installed GreasemonkeyScripts for a render process.
-class GreasemonkeySlave {
+// Manages installed UserScripts for a render process.
+class UserScriptSlave {
  public:
-  GreasemonkeySlave();
+  UserScriptSlave();
 
   // Update the parsed scripts from shared memory.
   bool UpdateScripts(base::SharedMemoryHandle shared_memory);
 
   // Inject the appropriate scripts into a frame based on its URL.
-  // TODO(aa): Extract a GreasemonkeyFrame interface out of this to improve
+  // TODO(aa): Extract a UserScriptFrame interface out of this to improve
   // testability.
   bool InjectScripts(WebFrame* frame);
 
@@ -87,9 +87,9 @@ class GreasemonkeySlave {
   scoped_ptr<base::SharedMemory> shared_memory_;
 
   // Parsed script data.
-  std::vector<GreasemonkeyScript> scripts_;
+  std::vector<UserScript> scripts_;
 
-  DISALLOW_COPY_AND_ASSIGN(GreasemonkeySlave);
+  DISALLOW_COPY_AND_ASSIGN(UserScriptSlave);
 };
 
-#endif  // CHROME_RENDERER_GREASEMONKEY_SLAVE_H_
+#endif  // CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_SLAVE_H_

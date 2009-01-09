@@ -129,7 +129,7 @@ extern const wchar_t kEnableP13n[];
 
 extern const wchar_t kSdchFilter[];
 
-extern const wchar_t kEnableGreasemonkey[];
+extern const wchar_t kEnableUserScripts[];
 extern const wchar_t kEnableExtensions[];
 
 extern const wchar_t kIncognito[];

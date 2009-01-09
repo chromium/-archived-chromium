@@ -3,20 +3,20 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "chrome/renderer/greasemonkey_slave.h"
+#include "chrome/renderer/user_script_slave.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-TEST(GreasemonkeySlaveTest, EscapeGlob) {
-  EXPECT_EQ("", GreasemonkeyScript::EscapeGlob(""));
-  EXPECT_EQ("*", GreasemonkeyScript::EscapeGlob("*"));
-  EXPECT_EQ("www.google.com", GreasemonkeyScript::EscapeGlob("www.google.com"));
-  EXPECT_EQ("*google.com*", GreasemonkeyScript::EscapeGlob("*google.com*"));
+TEST(UserScriptSlaveTest, EscapeGlob) {
+  EXPECT_EQ("", UserScript::EscapeGlob(""));
+  EXPECT_EQ("*", UserScript::EscapeGlob("*"));
+  EXPECT_EQ("www.google.com", UserScript::EscapeGlob("www.google.com"));
+  EXPECT_EQ("*google.com*", UserScript::EscapeGlob("*google.com*"));
   EXPECT_EQ("foo\\\\bar\\?hot=dog",
-            GreasemonkeyScript::EscapeGlob("foo\\bar?hot=dog"));
+            UserScript::EscapeGlob("foo\\bar?hot=dog"));
 }
 
-TEST(GreasemonkeySlaveTest, Parse1) {
+TEST(UserScriptSlaveTest, Parse1) {
   const std::string text(
     "// This is my awesome script\n"
     "// It does stuff.\n"
@@ -34,7 +34,7 @@ TEST(GreasemonkeySlaveTest, Parse1) {
     "\n"
     "alert('hoo!');\n");
 
-  GreasemonkeyScript script("foo");
+  UserScript script("foo");
   script.Parse(text);
   EXPECT_EQ(3U, script.include_patterns_.size());
   EXPECT_EQ(text, script.GetBody());
@@ -45,10 +45,10 @@ TEST(GreasemonkeySlaveTest, Parse1) {
   EXPECT_FALSE(script.MatchesUrl(GURL("http://www.hotmail.com")));
 }
 
-TEST(GreasemonkeySlaveTest, Parse2) {
+TEST(UserScriptSlaveTest, Parse2) {
   const std::string text("default to @include *");
 
-  GreasemonkeyScript script("foo");
+  UserScript script("foo");
   script.Parse(text);
   EXPECT_EQ(1U, script.include_patterns_.size());
   EXPECT_EQ(text, script.GetBody());
@@ -56,13 +56,13 @@ TEST(GreasemonkeySlaveTest, Parse2) {
   EXPECT_TRUE(script.MatchesUrl(GURL("bar")));
 }
 
-TEST(GreasemonkeySlaveTest, Parse3) {
+TEST(UserScriptSlaveTest, Parse3) {
   const std::string text(
     "// ==UserScript==\n"
     "// @include *foo*\n"
     "// ==/UserScript=="); // no trailing newline
 
-  GreasemonkeyScript script("foo");
+  UserScript script("foo");
   script.Parse(text);
   EXPECT_EQ(1U, script.include_patterns_.size());
   EXPECT_EQ(text, script.GetBody());

@@ -1055,18 +1055,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TestGreasemonkey"
-			>
-			<File
-				RelativePath="..\..\browser\greasemonkey_master_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\renderer\greasemonkey_slave_unittest.cc"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="TestExtension"
 			>
 			<File
@@ -1079,6 +1067,14 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\extensions\extensions_service_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\extensions\user_script_master_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\renderer\user_script_slave_unittest.cc"
 				>
 			</File>
 		</Filter>

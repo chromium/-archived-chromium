@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/renderer/greasemonkey_slave.h"
+#include "chrome/renderer/user_script_slave.h"
 
 #include "base/logging.h"
 #include "base/pickle.h"
@@ -10,9 +10,9 @@
 #include "googleurl/src/gurl.h"
 
 
-// GreasemonkeyScript
+// UserScript
 
-void GreasemonkeyScript::Parse(const StringPiece& script_text) {
+void UserScript::Parse(const StringPiece& script_text) {
   ParseMetadata(script_text);
 
   // TODO(aa): Set body to just the part after the metadata block? This would
@@ -22,7 +22,7 @@ void GreasemonkeyScript::Parse(const StringPiece& script_text) {
   body_ = script_text;
 }
 
-bool GreasemonkeyScript::MatchesUrl(const GURL& url) {
+bool UserScript::MatchesUrl(const GURL& url) {
   for (std::vector<std::string>::iterator pattern = include_patterns_.begin();
        pattern != include_patterns_.end(); ++pattern) {
     if (MatchPattern(url.spec(), *pattern)) {
@@ -33,7 +33,7 @@ bool GreasemonkeyScript::MatchesUrl(const GURL& url) {
   return false;
 }
 
-void GreasemonkeyScript::ParseMetadata(const StringPiece& script_text) {
+void UserScript::ParseMetadata(const StringPiece& script_text) {
   // http://wiki.greasespot.net/Metadata_block
   StringPiece line;
   size_t line_start = 0;
@@ -78,17 +78,17 @@ void GreasemonkeyScript::ParseMetadata(const StringPiece& script_text) {
   }
 
   // If no @include patterns were specified, default to @include *.
-  // This is what Greasemonkey for Firefox does.
+  // This is what Greasemonkey does.
   if (include_patterns_.size() == 0) {
     AddInclude("*");
   }
 }
 
-void GreasemonkeyScript::AddInclude(const std::string &glob_pattern) {
+void UserScript::AddInclude(const std::string &glob_pattern) {
   include_patterns_.push_back(EscapeGlob(glob_pattern));
 }
 
-std::string GreasemonkeyScript::EscapeGlob(const std::string& input_pattern) {
+std::string UserScript::EscapeGlob(const std::string& input_pattern) {
   std::string output_pattern;
 
   for (size_t i = 0; i < input_pattern.length(); ++i) {
@@ -109,11 +109,11 @@ std::string GreasemonkeyScript::EscapeGlob(const std::string& input_pattern) {
 }
 
 
-// GreasemonkeySlave
-GreasemonkeySlave::GreasemonkeySlave() : shared_memory_(NULL) {
+// UserScriptSlave
+UserScriptSlave::UserScriptSlave() : shared_memory_(NULL) {
 }
 
-bool GreasemonkeySlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
+bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
   scripts_.clear();
 
   // Create the shared memory object (read only).
@@ -149,16 +149,16 @@ bool GreasemonkeySlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
     pickle.ReadData(&iter, &url, &url_length);
     pickle.ReadData(&iter, &body, &body_length);
 
-    scripts_.push_back(GreasemonkeyScript(StringPiece(url, url_length)));
-    GreasemonkeyScript& script = scripts_.back();
+    scripts_.push_back(UserScript(StringPiece(url, url_length)));
+    UserScript& script = scripts_.back();
     script.Parse(StringPiece(body, body_length));
   }
 
   return true;
 }
 
-bool GreasemonkeySlave::InjectScripts(WebFrame* frame) {
-  for (std::vector<GreasemonkeyScript>::iterator script = scripts_.begin();
+bool UserScriptSlave::InjectScripts(WebFrame* frame) {
+  for (std::vector<UserScript>::iterator script = scripts_.begin();
        script != scripts_.end(); ++script) {
     if (script->MatchesUrl(frame->GetURL())) {
       frame->ExecuteJavaScript(script->GetBody().as_string(),

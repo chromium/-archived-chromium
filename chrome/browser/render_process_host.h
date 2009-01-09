@@ -205,12 +205,12 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // set of visited links.
   void InitVisitedLinks();
 
-  // Initialize support for Greasemonkey scripts. Send the renderer process its
-  // initial set of scripts and listen for updates to scripts.
-  void InitGreasemonkeyScripts();
+  // Initialize support for user scripts. Send the renderer process its initial
+  // set of scripts and listen for updates to scripts.
+  void InitUserScripts();
 
-  // Sends the renderer process a new set of Greasemonkey scripts.
-  void SendGreasemonkeyScriptsUpdate(base::SharedMemory* shared_memory);
+  // Sends the renderer process a new set of user scripts.
+  void SendUserScriptsUpdate(base::SharedMemory* shared_memory);
 
   // Gets a handle to the renderer process, normalizing the case where we were
   // started with --single-process.

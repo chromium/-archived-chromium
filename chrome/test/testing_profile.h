@@ -70,7 +70,7 @@ class TestingProfile : public Profile {
   virtual ExtensionsService* GetExtensionsService() {
     return NULL;
   }
-  virtual GreasemonkeyMaster* GetGreasemonkeyMaster() {
+  virtual UserScriptMaster* GetUserScriptMaster() {
     return NULL;
   }
   virtual HistoryService* GetHistoryService(ServiceAccessType access) {

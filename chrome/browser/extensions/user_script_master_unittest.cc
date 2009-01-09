@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/greasemonkey_master.h"
+#include "chrome/browser/extensions/user_script_master.h"
 
 #include <fstream>
 
@@ -16,17 +16,17 @@
 
 // Test bringing up a master on a specific directory, putting a script in there, etc.
 
-class GreasemonkeyMasterTest : public testing::Test,
-                               public NotificationObserver {
+class UserScriptMasterTest : public testing::Test,
+                             public NotificationObserver {
  public:
-  GreasemonkeyMasterTest() : shared_memory_(NULL) {}
+  UserScriptMasterTest() : shared_memory_(NULL) {}
 
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
     std::wstring path_str;
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &path_str));
     script_dir_ = FilePath(path_str).Append(
-        FILE_PATH_LITERAL("GreasemonkeyTest"));
+        FILE_PATH_LITERAL("UserScriptTest"));
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(script_dir_.value(), true);
@@ -34,13 +34,13 @@ class GreasemonkeyMasterTest : public testing::Test,
 
     // Register for all user script notifications.
     NotificationService::current()->AddObserver(this,
-        NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
+        NOTIFY_USER_SCRIPTS_LOADED,
         NotificationService::AllSources());
   }
 
   virtual void TearDown() {
     NotificationService::current()->RemoveObserver(this,
-        NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
+        NOTIFY_USER_SCRIPTS_LOADED,
         NotificationService::AllSources());
 
     // Clean up test directory.
@@ -51,7 +51,7 @@ class GreasemonkeyMasterTest : public testing::Test,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK(type == NOTIFY_GREASEMONKEY_SCRIPTS_LOADED);
+    DCHECK(type == NOTIFY_USER_SCRIPTS_LOADED);
 
     shared_memory_ = Details<base::SharedMemory>(details).ptr();
     if (MessageLoop::current() == &message_loop_)
@@ -69,12 +69,12 @@ class GreasemonkeyMasterTest : public testing::Test,
 };
 
 // Test that we *don't* get spurious notifications.
-TEST_F(GreasemonkeyMasterTest, NoScripts) {
+TEST_F(UserScriptMasterTest, NoScripts) {
   // Set shared_memory_ to something non-NULL, so we can check it became NULL.
   shared_memory_ = reinterpret_cast<base::SharedMemory*>(1);
 
-  scoped_refptr<GreasemonkeyMaster> master(
-      new GreasemonkeyMaster(MessageLoop::current(), script_dir_));
+  scoped_refptr<UserScriptMaster> master(
+      new UserScriptMaster(MessageLoop::current(), script_dir_));
   message_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask);
   message_loop_.Run();
 
@@ -84,9 +84,9 @@ TEST_F(GreasemonkeyMasterTest, NoScripts) {
 }
 
 // Test that we get notified about new scripts after they're added.
-TEST_F(GreasemonkeyMasterTest, NewScripts) {
-  scoped_refptr<GreasemonkeyMaster> master(
-      new GreasemonkeyMaster(MessageLoop::current(), script_dir_));
+TEST_F(UserScriptMasterTest, NewScripts) {
+  scoped_refptr<UserScriptMaster> master(
+      new UserScriptMaster(MessageLoop::current(), script_dir_));
 
   FilePath path = script_dir_.Append(FILE_PATH_LITERAL("script.user.js"));
 
@@ -101,15 +101,15 @@ TEST_F(GreasemonkeyMasterTest, NewScripts) {
 }
 
 // Test that we get notified about scripts if they're already in the test dir.
-TEST_F(GreasemonkeyMasterTest, ExistingScripts) {
+TEST_F(UserScriptMasterTest, ExistingScripts) {
   FilePath path = script_dir_.Append(FILE_PATH_LITERAL("script.user.js"));
   std::ofstream file;
   file.open(WideToUTF8(path.value()).c_str());
   file << "some content";
   file.close();
 
-  scoped_refptr<GreasemonkeyMaster> master(
-      new GreasemonkeyMaster(MessageLoop::current(), script_dir_));
+  scoped_refptr<UserScriptMaster> master(
+      new UserScriptMaster(MessageLoop::current(), script_dir_));
 
   message_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask);
   message_loop_.Run();

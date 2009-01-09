@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_GREASEMONKEY_MASTER_H_
-#define CHROME_BROWSER_GREASEMONKEY_MASTER_H_
+#ifndef CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_MASTER_H_
+#define CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_MASTER_H_
 
 #include "base/directory_watcher.h"
 #include "base/file_path.h"
@@ -13,16 +13,16 @@
 
 class MessageLoop;
 
-// Manages a segment of shared memory that contains the Greasemonkey scripts the
-// user has installed.  Lives on the UI thread.
-class GreasemonkeyMaster : public base::RefCounted<GreasemonkeyMaster>,
-                           public DirectoryWatcher::Delegate {
+// Manages a segment of shared memory that contains the user scripts the user
+// has installed.  Lives on the UI thread.
+class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
+                         public DirectoryWatcher::Delegate {
  public:
   // For testability, the constructor takes the MessageLoop to run the
   // script-reloading worker on as well as the path the scripts live in.
   // These are normally the file thread and a directory inside the profile.
-  GreasemonkeyMaster(MessageLoop* worker, const FilePath& script_dir);
-  ~GreasemonkeyMaster();
+  UserScriptMaster(MessageLoop* worker, const FilePath& script_dir);
+  ~UserScriptMaster();
 
   // Gets the segment of shared memory for the scripts.
   base::SharedMemory* GetSharedMemory() const {
@@ -70,7 +70,7 @@ class GreasemonkeyMaster : public base::RefCounted<GreasemonkeyMaster>,
   // finishes.  This boolean tracks whether another scan is pending.
   bool pending_scan_;
 
-  DISALLOW_COPY_AND_ASSIGN(GreasemonkeyMaster);
+  DISALLOW_COPY_AND_ASSIGN(UserScriptMaster);
 };
 
-#endif  // CHROME_BROWSER_GREASEMONKEY_MASTER_H_
+#endif  // CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_MASTER_H_

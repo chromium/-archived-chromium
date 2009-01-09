@@ -202,14 +202,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\greasemonkey_slave.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\greasemonkey_slave.h"
-			>
-		</File>
-		<File
 			RelativePath=".\localized_error.cc"
 			>
 		</File>
@@ -283,6 +275,14 @@
 		</File>
 		<File
 			RelativePath=".\renderer_resources.h"
+			>
+		</File>
+		<File
+			RelativePath=".\user_script_slave.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\user_script_slave.h"
 			>
 		</File>
 		<File

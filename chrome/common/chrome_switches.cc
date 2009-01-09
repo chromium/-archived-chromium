@@ -333,8 +333,8 @@ const wchar_t kEnableP13n[]                    = L"enable-p13n";
 // SDCH is currently only supported server-side for searches on google.com.
 const wchar_t kSdchFilter[]                    = L"enable-sdch";
 
-// Enable Greasemonkey script support.
-const wchar_t kEnableGreasemonkey[] = L"enable-user-scripts";
+// Enable user script support.
+const wchar_t kEnableUserScripts[]             = L"enable-user-scripts";
 
 // Enable extensions.
 const wchar_t kEnableExtensions[]              = L"enable-extensions";

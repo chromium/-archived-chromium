@@ -30,6 +30,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/render_widget_helper.h"
@@ -39,7 +40,6 @@
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
-#include "chrome/browser/greasemonkey_master.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -167,8 +167,7 @@ RenderProcessHost::RenderProcessHost(Profile* profile)
       profile->GetPrefs()->GetBoolean(prefs::kBlockPopups));
 
   NotificationService::current()->AddObserver(this,
-      NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
-      NotificationService::AllSources());
+      NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
 
   // Note: When we create the RenderProcessHost, it's technically backgrounded,
   //       because it has no visible listeners.  But the process doesn't
@@ -191,8 +190,7 @@ RenderProcessHost::~RenderProcessHost() {
   profile_->GetPrefs()->RemovePrefObserver(prefs::kBlockPopups, this);
 
   NotificationService::current()->RemoveObserver(this,
-      NOTIFY_GREASEMONKEY_SCRIPTS_LOADED,
-      NotificationService::AllSources());
+      NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
 }
 
 void RenderProcessHost::Unregister() {
@@ -278,7 +276,7 @@ bool RenderProcessHost::Init() {
     switches::kDisablePopupBlocking,
     switches::kUseLowFragHeapCrt,
     switches::kGearsInRenderer,
-    switches::kEnableGreasemonkey,
+    switches::kEnableUserScripts,
     switches::kEnableVideo,
   };
 
@@ -436,7 +434,7 @@ bool RenderProcessHost::Init() {
   SetBackgrounded(backgrounded_);
 
   InitVisitedLinks();
-  InitGreasemonkeyScripts();
+  InitUserScripts();
 
   if (max_page_id_ != -1)
     channel_->Send(new ViewMsg_SetNextPageID(max_page_id_ + 1));
@@ -465,9 +463,9 @@ void RenderProcessHost::InitVisitedLinks() {
   }
 }
 
-void RenderProcessHost::InitGreasemonkeyScripts() {
+void RenderProcessHost::InitUserScripts() {
   CommandLine command_line;
-  if (!command_line.HasSwitch(switches::kEnableGreasemonkey)) {
+  if (!command_line.HasSwitch(switches::kEnableUserScripts)) {
     return;
   }
 
@@ -477,28 +475,28 @@ void RenderProcessHost::InitGreasemonkeyScripts() {
   // - File IO should be asynchronous (see VisitedLinkMaster), but how do we
   //   get scripts to the first renderer without blocking startup? Should we
   //   cache some information across restarts?
-  GreasemonkeyMaster* greasemonkey_master = profile_->GetGreasemonkeyMaster();
-  if (!greasemonkey_master) {
+  UserScriptMaster* user_script_master = profile_->GetUserScriptMaster();
+  if (!user_script_master) {
     return;
   }
 
-  if (!greasemonkey_master->ScriptsReady()) {
+  if (!user_script_master->ScriptsReady()) {
     // No scripts ready.  :(
     return;
   }
 
   // Update the renderer process with the current scripts.
-  SendGreasemonkeyScriptsUpdate(greasemonkey_master->GetSharedMemory());
+  SendUserScriptsUpdate(user_script_master->GetSharedMemory());
 }
 
-void RenderProcessHost::SendGreasemonkeyScriptsUpdate(
+void RenderProcessHost::SendUserScriptsUpdate(
     base::SharedMemory *shared_memory) {
   base::SharedMemoryHandle handle_for_process = NULL;
   shared_memory->ShareToProcess(GetRendererProcessHandle(),
                                 &handle_for_process);
   DCHECK(handle_for_process);
   if (handle_for_process) {
-    channel_->Send(new ViewMsg_Greasemonkey_NewScripts(handle_for_process));
+    channel_->Send(new ViewMsg_UserScripts_NewScripts(handle_for_process));
   }
 }
 
@@ -819,12 +817,12 @@ void RenderProcessHost::Observe(NotificationType type,
       }
       break;
     }
-    case NOTIFY_GREASEMONKEY_SCRIPTS_LOADED: {
+    case NOTIFY_USER_SCRIPTS_LOADED: {
       base::SharedMemory* shared_memory =
           Details<base::SharedMemory>(details).ptr();
       DCHECK(shared_memory);
       if (shared_memory) {
-        SendGreasemonkeyScriptsUpdate(shared_memory);
+        SendUserScriptsUpdate(shared_memory);
       }
       break;
     }
