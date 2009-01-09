@@ -21,6 +21,9 @@ const FilePath::CharType FilePath::kSeparators[] = FILE_PATH_LITERAL("/");
 const FilePath::CharType FilePath::kCurrentDirectory[] = FILE_PATH_LITERAL(".");
 const FilePath::CharType FilePath::kParentDirectory[] = FILE_PATH_LITERAL("..");
 
+const FilePath::CharType FilePath::kExtensionSeparator = FILE_PATH_LITERAL('.');
+
+
 namespace {
 
 // If this FilePath contains a drive letter specification, returns the
@@ -38,10 +41,8 @@ FilePath::StringType::size_type FindDriveLetter(
        (path[0] >= L'a' && path[0] <= L'z'))) {
     return 1;
   }
-  return FilePath::StringType::npos;
-#else  // FILE_PATH_USES_DRIVE_LETTERS
-  return FilePath::StringType::npos;
 #endif  // FILE_PATH_USES_DRIVE_LETTERS
+  return FilePath::StringType::npos;
 }
 
 bool IsPathAbsolute(const FilePath::StringType& path) {
@@ -136,7 +137,83 @@ FilePath FilePath::BaseName() const {
   return new_path;
 }
 
-FilePath FilePath::Append(const FilePath::StringType& component) const {
+FilePath::StringType FilePath::Extension() const {
+  // BaseName() calls StripTrailingSeparators, so cases like /foo.baz/// work.
+  StringType base = BaseName().value();
+
+  // Special case "." and ".."
+  if (base == kCurrentDirectory || base == kParentDirectory)
+    return StringType();
+
+  const StringType::size_type last_dot = base.rfind(kExtensionSeparator);
+  if (last_dot == StringType::npos)
+    return StringType();
+  return StringType(base, last_dot);
+}
+
+FilePath FilePath::RemoveExtension() const {
+  StringType ext = Extension();
+  // It's important to check Extension() since that verifies that the
+  // kExtensionSeparator actually appeared in the last path component.
+  if (ext.empty())
+    return FilePath(path_);
+  // Since Extension() verified that the extension is in fact in the last path
+  // component, this substr will effectively strip trailing separators.
+  const StringType::size_type last_dot = path_.rfind(kExtensionSeparator);
+  return FilePath(path_.substr(0, last_dot));
+}
+
+FilePath FilePath::InsertBeforeExtension(const StringType& suffix) const {
+  if (suffix.empty())
+    return FilePath(path_);
+
+  if (path_.empty())
+    return FilePath();
+
+  StringType base = BaseName().value();
+  if (base.empty())
+    return FilePath();
+  if (*(base.end() - 1) == kExtensionSeparator) {
+    // Special case "." and ".."
+    if (base == kCurrentDirectory || base == kParentDirectory) {
+      return FilePath();
+    }
+  }
+
+  StringType ext = Extension();
+  StringType ret = RemoveExtension().value();
+  ret.append(suffix);
+  ret.append(ext);
+  return FilePath(ret);
+}
+
+FilePath FilePath::ReplaceExtension(const StringType& extension) const {
+  if (path_.empty())
+    return FilePath();
+
+  StringType base = BaseName().value();
+  if (base.empty())
+    return FilePath();
+  if (*(base.end() - 1) == kExtensionSeparator) {
+    // Special case "." and ".."
+    if (base == kCurrentDirectory || base == kParentDirectory) {
+      return FilePath();
+    }
+  }
+
+  FilePath no_ext = RemoveExtension();
+  // If the new extension is "" or ".", then just remove the current extension.
+  if (extension.empty() || extension == StringType(1, kExtensionSeparator))
+    return no_ext;
+
+  StringType str = no_ext.value();
+  if (extension[0] != kExtensionSeparator)
+    str.append(1, kExtensionSeparator);
+  str.append(extension);
+  return FilePath(str);
+}
+
+FilePath FilePath::Append(const StringType& component) const {
   DCHECK(!IsPathAbsolute(component));
   if (path_.compare(kCurrentDirectory) == 0) {
     // Append normally doesn't do any normalization, but as a special case,

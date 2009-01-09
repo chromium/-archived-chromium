@@ -406,3 +406,162 @@ TEST_F(FilePathTest, Contains) {
 
   // Note: whether 
 }
+
+TEST_F(FilePathTest, Extension) {
+  FilePath base_dir(FILE_PATH_LITERAL("base_dir"));
+
+  FilePath jpg = base_dir.Append(FILE_PATH_LITERAL("foo.jpg"));
+  EXPECT_EQ(jpg.Extension(), FILE_PATH_LITERAL(".jpg"));
+
+  FilePath base = jpg.BaseName().RemoveExtension();
+  EXPECT_EQ(base.value(), FILE_PATH_LITERAL("foo"));
+
+  FilePath path_no_ext = base_dir.Append(base);
+  EXPECT_EQ(jpg.RemoveExtension().value(), path_no_ext.value());
+
+  EXPECT_EQ(path_no_ext.value(), path_no_ext.RemoveExtension().value());
+  EXPECT_EQ(path_no_ext.Extension(), FILE_PATH_LITERAL(""));
+}
+
+TEST_F(FilePathTest, Extension2) {
+  const struct UnaryTestData cases[] = {
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+    { FPL("C:\\a\\b\\c.ext"),        FPL(".ext") },
+    { FPL("C:\\a\\b\\c."),           FPL(".") },
+    { FPL("C:\\a\\b\\c"),            FPL("") },
+    { FPL("C:\\a\\b\\"),             FPL("") },
+    { FPL("C:\\a\\b.\\"),            FPL(".") },
+    { FPL("C:\\a\\b\\c.ext1.ext2"),  FPL(".ext2") },
+    { FPL("C:\\foo.bar\\\\\\"),      FPL(".bar") },
+    { FPL("C:\\foo.bar\\.."),        FPL("") },
+    { FPL("C:\\foo.bar\\..\\\\"),    FPL("") },
+#endif
+    { FPL("/foo/bar/baz.ext"),       FPL(".ext") },
+    { FPL("/foo/bar/baz."),          FPL(".") },
+    { FPL("/foo/bar/baz.."),         FPL(".") },
+    { FPL("/foo/bar/baz"),           FPL("") },
+    { FPL("/foo/bar/"),              FPL("") },
+    { FPL("/foo/bar./"),             FPL(".") },
+    { FPL("/foo/bar/baz.ext1.ext2"), FPL(".ext2") },
+    { FPL("."),                      FPL("") },
+    { FPL(".."),                     FPL("") },
+    { FPL("./foo"),                  FPL("") },
+    { FPL("./foo.ext"),              FPL(".ext") },
+    { FPL("/foo.ext1/bar.ext2"),     FPL(".ext2") },
+    { FPL("/foo.bar////"),           FPL(".bar") },
+    { FPL("/foo.bar/.."),            FPL("") },
+    { FPL("/foo.bar/..////"),        FPL("") },
+  };
+  for (unsigned int i = 0; i < arraysize(cases); ++i) {
+    FilePath path(cases[i].input);
+    FilePath::StringType extension = path.Extension();
+    EXPECT_STREQ(cases[i].expected, extension.c_str()) << "i: " << i <<
+        ", path: " << path.value();
+  }
+}
+
+TEST_F(FilePathTest, InsertBeforeExtension) {
+  const struct BinaryTestData cases[] = {
+    { { FPL(""),                FPL("") },        FPL("") },
+    { { FPL(""),                FPL("txt") },     FPL("") },
+    { { FPL("."),               FPL("txt") },     FPL("") },
+    { { FPL(".."),              FPL("txt") },     FPL("") },
+    { { FPL("foo.dll"),         FPL("txt") },     FPL("footxt.dll") },
+    { { FPL("."),               FPL("") },        FPL(".") },
+    { { FPL("foo.dll"),         FPL(".txt") },    FPL("foo.txt.dll") },
+    { { FPL("foo"),             FPL("txt") },     FPL("footxt") },
+    { { FPL("foo"),             FPL(".txt") },    FPL("foo.txt") },
+    { { FPL("foo.baz.dll"),     FPL("txt") },     FPL("foo.baztxt.dll") },
+    { { FPL("foo.baz.dll"),     FPL(".txt") },    FPL("foo.baz.txt.dll") },
+    { { FPL("foo.dll"),         FPL("") },        FPL("foo.dll") },
+    { { FPL("foo.dll"),         FPL(".") },       FPL("foo..dll") },
+    { { FPL("foo"),             FPL("") },        FPL("foo") },
+    { { FPL("foo"),             FPL(".") },       FPL("foo.") },
+    { { FPL("foo.baz.dll"),     FPL("") },        FPL("foo.baz.dll") },
+    { { FPL("foo.baz.dll"),     FPL(".") },       FPL("foo.baz..dll") },
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+    { { FPL("\\"),              FPL("") },        FPL("\\") },
+    { { FPL("\\"),              FPL("txt") },     FPL("\\txt") },
+    { { FPL("\\."),             FPL("txt") },     FPL("") },
+    { { FPL("\\.."),            FPL("txt") },     FPL("") },
+    { { FPL("\\."),             FPL("") },        FPL("\\.") },
+    { { FPL("C:\\bar\\foo.dll"), FPL("txt") },
+        FPL("C:\\bar\\footxt.dll") },
+    { { FPL("C:\\bar.baz\\foodll"), FPL("txt") },
+        FPL("C:\\bar.baz\\foodlltxt") },
+    { { FPL("C:\\bar.baz\\foo.dll"), FPL("txt") },
+        FPL("C:\\bar.baz\\footxt.dll") },
+    { { FPL("C:\\bar.baz\\foo.dll.exe"), FPL("txt") },
+        FPL("C:\\bar.baz\\foo.dlltxt.exe") },
+    { { FPL("C:\\bar.baz\\foo"), FPL("") },
+        FPL("C:\\bar.baz\\foo") },
+    { { FPL("C:\\bar.baz\\foo.exe"), FPL("") },
+        FPL("C:\\bar.baz\\foo.exe") },
+    { { FPL("C:\\bar.baz\\foo.dll.exe"), FPL("") },
+        FPL("C:\\bar.baz\\foo.dll.exe") },
+    { { FPL("C:\\bar\\baz\\foo.exe"), FPL(" (1)") },
+        FPL("C:\\bar\\baz\\foo (1).exe") },
+    { { FPL("C:\\foo.baz\\\\"), FPL(" (1)") },    FPL("C:\\foo (1).baz") },
+    { { FPL("C:\\foo.baz\\..\\"), FPL(" (1)") },  FPL("") },
+#endif
+    { { FPL("/"),               FPL("") },        FPL("/") },
+    { { FPL("/"),               FPL("txt") },     FPL("/txt") },
+    { { FPL("/."),              FPL("txt") },     FPL("") },
+    { { FPL("/.."),             FPL("txt") },     FPL("") },
+    { { FPL("/."),              FPL("") },        FPL("/.") },
+    { { FPL("/bar/foo.dll"),    FPL("txt") },     FPL("/bar/footxt.dll") },
+    { { FPL("/bar.baz/foodll"), FPL("txt") },     FPL("/bar.baz/foodlltxt") },
+    { { FPL("/bar.baz/foo.dll"), FPL("txt") },    FPL("/bar.baz/footxt.dll") },
+    { { FPL("/bar.baz/foo.dll.exe"), FPL("txt") },
+        FPL("/bar.baz/foo.dlltxt.exe") },
+    { { FPL("/bar.baz/foo"),    FPL("") },        FPL("/bar.baz/foo") },
+    { { FPL("/bar.baz/foo.exe"), FPL("") },       FPL("/bar.baz/foo.exe") },
+    { { FPL("/bar.baz/foo.dll.exe"), FPL("") },   FPL("/bar.baz/foo.dll.exe") },
+    { { FPL("/bar/baz/foo.exe"), FPL(" (1)") },   FPL("/bar/baz/foo (1).exe") },
+    { { FPL("/bar/baz/..////"), FPL(" (1)") },    FPL("") },
+  };
+  for (unsigned int i = 0; i < arraysize(cases); ++i) {
+    FilePath path(cases[i].inputs[0]);
+    FilePath result = path.InsertBeforeExtension(cases[i].inputs[1]);
+    EXPECT_EQ(cases[i].expected, result.value()) << "i: " << i <<
+        ", path: " << path.value() << ", insert: " << cases[i].inputs[1];
+  }
+}
+
+TEST_F(FilePathTest, ReplaceExtension) {
+  const struct BinaryTestData cases[] = {
+    { { FPL(""),              FPL("") },      FPL("") },
+    { { FPL(""),              FPL("txt") },   FPL("") },
+    { { FPL("."),             FPL("txt") },   FPL("") },
+    { { FPL(".."),            FPL("txt") },   FPL("") },
+    { { FPL("."),             FPL("") },      FPL("") },
+    { { FPL("foo.dll"),       FPL("txt") },   FPL("foo.txt") },
+    { { FPL("foo..dll"),      FPL("txt") },   FPL("foo..txt") },
+    { { FPL("foo.dll"),       FPL(".txt") },  FPL("foo.txt") },
+    { { FPL("foo"),           FPL("txt") },   FPL("foo.txt") },
+    { { FPL("foo."),          FPL("txt") },   FPL("foo.txt") },
+    { { FPL("foo.."),         FPL("txt") },   FPL("foo..txt") },
+    { { FPL("foo"),           FPL(".txt") },  FPL("foo.txt") },
+    { { FPL("foo.baz.dll"),   FPL("txt") },   FPL("foo.baz.txt") },
+    { { FPL("foo.baz.dll"),   FPL(".txt") },  FPL("foo.baz.txt") },
+    { { FPL("foo.dll"),       FPL("") },      FPL("foo") },
+    { { FPL("foo.dll"),       FPL(".") },     FPL("foo") },
+    { { FPL("foo"),           FPL("") },      FPL("foo") },
+    { { FPL("foo"),           FPL(".") },     FPL("foo") },
+    { { FPL("foo.baz.dll"),   FPL("") },      FPL("foo.baz") },
+    { { FPL("foo.baz.dll"),   FPL(".") },     FPL("foo.baz") },
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+    { { FPL("C:\\foo.bar\\foo"),    FPL("baz") }, FPL("C:\\foo.bar\\foo.baz") },
+    { { FPL("C:\\foo.bar\\..\\\\"), FPL("baz") }, FPL("") },
+#endif
+    { { FPL("/foo.bar/foo"),        FPL("baz") }, FPL("/foo.bar/foo.baz") },
+    { { FPL("/foo.bar/..////"),     FPL("baz") }, FPL("") },
+  };
+  for (unsigned int i = 0; i < arraysize(cases); ++i) {
+    FilePath path(cases[i].inputs[0]);
+    FilePath replaced = path.ReplaceExtension(cases[i].inputs[1]);
+    EXPECT_EQ(cases[i].expected, replaced.value()) << "i: " << i <<
+        ", path: " << path.value() << ", replace: " << cases[i].inputs[1];
+  }
+}
+

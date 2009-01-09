@@ -75,13 +75,12 @@ void TrimFilename(std::wstring* path);
 // Deprecated. Use FilePath::BaseName instead.
 std::wstring GetFilenameFromPath(const std::wstring& path);
 
-// Returns "jpg" for path "C:\pics\jojo.jpg", or an empty string if
-// the file has no extension.
+// Deprecated compatibility function.  Use FilePath::Extension.
 FilePath::StringType GetFileExtensionFromPath(const FilePath& path);
 // Deprecated temporary compatibility function.
 std::wstring GetFileExtensionFromPath(const std::wstring& path);
 
-// Returns 'jojo' for path "C:\pics\jojo.jpg".
+// Deprecated compatibility function.  Use FilePath::RemoveExtension.
 std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path);
 
 // Returns the directory component of a path, without the trailing
@@ -104,18 +103,15 @@ bool AbsolutePath(FilePath* path);
 // Deprecated temporary compatibility function.
 bool AbsolutePath(std::wstring* path);
 
-// Inserts |suffix| after the file name portion of |path| but before the
-// extension.
-// Examples:
-// path == "C:\pics\jojo.jpg" suffix == " (1)", returns "C:\pics\jojo (1).jpg"
-// path == "jojo.jpg"         suffix == " (1)", returns "jojo (1).jpg"
-// path == "C:\pics\jojo"     suffix == " (1)", returns "C:\pics\jojo (1)"
-// path == "C:\pics.old\jojo" suffix == " (1)", returns "C:\pics.old\jojo (1)"
+// Returns true if this FilePath represents a parent dir of |other|. Both
+// paths are normalized before doing the comparison, but neither |this| nor
+// |other| are modified.
+bool PathContains(const FilePath& path, const FilePath& other);
+
+// Deprecated compatibility function.  Use FilePath::InsertBeforeExtension.
 void InsertBeforeExtension(FilePath* path, const FilePath::StringType& suffix);
 
-// Replaces the extension of |file_name| with |extension|.  If |file_name|
-// does not have an extension, them |extension| is added.  If |extension| is
-// empty, then the extension is removed from |file_name|.
+// Deprecated compatibility function.  Use FilePath::ReplaceExtension.
 void ReplaceExtension(FilePath* file_name,
                       const FilePath::StringType& extension);
 

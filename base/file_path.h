@@ -109,6 +109,9 @@ class FilePath {
   // A special path component meaning "the parent directory."
   static const CharType kParentDirectory[];
 
+  // The character used to identify a file extension.
+  static const CharType kExtensionSeparator;
+
   FilePath() {}
   FilePath(const FilePath& that) : path_(that.path_) {}
   explicit FilePath(const StringType& path) : path_(path) {}
@@ -146,6 +149,36 @@ class FilePath {
   // the root directory, returns a FilePath identifying the root directory;
   // this is the only situation in which BaseName will return an absolute path.
   FilePath BaseName() const;
+
+  // Returns ".jpg" for path "C:\pics\jojo.jpg", or an empty string if
+  // the file has no extension.  If non-empty, Extension() will always start
+  // with precisely one ".".  The following code should always work regardless
+  // of the value of path.
+  // new_path = path.RemoveExtension().value().append(path.Extension());
+  // ASSERT(new_path == path.value());
+  // NOTE: this is different from the original file_util implementation which
+  // returned the extension without a leading "." ("jpg" instead of ".jpg")
+  StringType Extension() const;
+
+  // Returns "C:\pics\jojo" for path "C:\pics\jojo.jpg"
+  // NOTE: this is slightly different from the similar file_util implementation
+  // which returned simply 'jojo'.
+  FilePath RemoveExtension() const;
+
+  // Inserts |suffix| after the file name portion of |path| but before the
+  // extension.  Returns "" if BaseName() == "." or "..".
+  // Examples:
+  // path == "C:\pics\jojo.jpg" suffix == " (1)", returns "C:\pics\jojo (1).jpg"
+  // path == "jojo.jpg"         suffix == " (1)", returns "jojo (1).jpg"
+  // path == "C:\pics\jojo"     suffix == " (1)", returns "C:\pics\jojo (1)"
+  // path == "C:\pics.old\jojo" suffix == " (1)", returns "C:\pics.old\jojo (1)"
+  FilePath InsertBeforeExtension(const StringType& suffix) const;
+
+  // Replaces the extension of |file_name| with |extension|.  If |file_name|
+  // does not have an extension, them |extension| is added.  If |extension| is
+  // empty, then the extension is removed from |file_name|.
+  // Returns "" if BaseName() == "." or "..".
+  FilePath ReplaceExtension(const StringType& extension) const;
 
   // Returns a FilePath by appending a separator and the supplied path
   // component to this object's path.  Append takes care to avoid adding
