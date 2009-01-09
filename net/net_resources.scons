@@ -24,20 +24,18 @@ env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
 generated = env.GRIT('$TARGET_ROOT/grit_derived_sources/dummy_net_res',
                      'base/net_resources.grd')
 
+# This dat file needed by net_resources is generated.
+tld_names_clean = env.Command(
+    '$TARGET_ROOT/grit_derived_sources/effective_tld_names_clean.dat',
+    input_files,
+    '${SOURCES[1]} ${SOURCES[0]} $TARGET')
+
 if env.Bit('windows'):
   env.Prepend(
       RCFLAGS = [
           '/l 0x409',
       ],
   )
-
-  # TODO(port): Need to figure out what to do with external resources
-  # on linux (and mac?).
-  # This dat file needed by net_resources.rc is generated.
-  tld_names_clean = env.Command(
-      '$TARGET_ROOT/grit_derived_sources/effective_tld_names_clean.dat',
-      input_files,
-      '${SOURCES[1]} ${SOURCES[0]} $TARGET')
 
   for g in [g for g in generated if str(g).endswith('.rc')]:
     net_res = env.RES(g)

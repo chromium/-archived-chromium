@@ -16,7 +16,6 @@
 //  * Canonicalizes each rule's domain by converting it to a GURL and back.
 //  * Adds explicit rules for true TLDs found in any rule.
 
-#include <windows.h>
 #include <set>
 #include <string>
 
@@ -24,34 +23,32 @@
 #include "base/file_util.h"
 #include "base/icu_util.h"
 #include "base/logging.h"
+#include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 
-static const wchar_t* const kLogFileName = L"tld_cleanup.log";
 typedef std::set<std::string> StringSet;
 
 // Writes the list of domain rules contained in the 'rules' set to the
 // 'outfile', with each rule terminated by a LF.  The file must already have
 // been created with write access.
-bool WriteRules(const StringSet& rules, HANDLE outfile) {
+bool WriteRules(const StringSet& rules, FilePath outfile) {
   std::string data;
   for (StringSet::const_iterator iter = rules.begin();
        iter != rules.end();
        ++iter) {
     data.append(*iter);
-    data.append(1, '\n');
+    data.append("\n");
   }
 
-  unsigned long written = 0;
-  BOOL success = WriteFile(outfile,
-                           data.data(),
-                           static_cast<long>(data.size()),
-                           &written,
-                           NULL);
-  return (success && written == static_cast<long>(data.size()));
+  int written = file_util::WriteFile(outfile.ToWStringHack(), data.data(),
+                                     data.size());
+
+  return written == static_cast<int>(data.size());
 }
 
 // These result codes should be in increasing order of severity.
@@ -142,19 +139,6 @@ NormalizeResult NormalizeFile(const std::wstring& in_filename,
     return kSuccess;
   }
 
-  HANDLE outfile(CreateFile(out_filename.c_str(),
-                            GENERIC_WRITE,
-                            0,
-                            NULL,
-                            CREATE_ALWAYS,
-                            FILE_ATTRIBUTE_NORMAL,
-                            NULL));
-  if (outfile == INVALID_HANDLE_VALUE) {
-    fwprintf(stderr, L"Unable to write file %ls\n", out_filename.c_str());
-    // We return success since we've already reported the error.
-    return kSuccess;
-  }
-
   // We do a lot of string assignment during parsing, but simplicity is more
   // important than performance here.
   std::string rule;
@@ -197,7 +181,7 @@ NormalizeResult NormalizeFile(const std::wstring& in_filename,
       line_start = data.size();
   }
 
-  if (!WriteRules(rules, outfile)) {
+  if (!WriteRules(rules, FilePath::FromWStringHack(out_filename))) {
     LOG(ERROR) << "Error(s) writing " << out_filename;
     result = kError;
   }
@@ -224,10 +208,14 @@ int main(int argc, const char* argv[]) {
       logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
 #endif
 
-  std::wstring log_filename;
+#if defined(OS_LINUX)
+  CommandLine::SetArgcArgv(argc, argv);
+#endif
+
+  FilePath log_filename;
   PathService::Get(base::DIR_EXE, &log_filename);
-  file_util::AppendToPath(&log_filename, kLogFileName);
-  logging::InitLogging(log_filename.c_str(),
+  log_filename = log_filename.Append(FILE_PATH_LITERAL("tld_cleanup.log"));
+  logging::InitLogging(log_filename.value().c_str(),
                        destination,
                        logging::LOCK_LOG_FILE,
                        logging::DELETE_OLD_LOG_FILE);
@@ -237,12 +225,11 @@ int main(int argc, const char* argv[]) {
   NormalizeResult result = NormalizeFile(UTF8ToWide(argv[1]),
                                          UTF8ToWide(argv[2]));
   if (result != kSuccess) {
-    fwprintf(stderr, L"Errors or warnings processing file.  See log in %ls.",
-             kLogFileName);
+    fprintf(stderr,
+            "Errors or warnings processing file.  See log in tld_cleanup.log.");
   }
 
   if (result == kError)
     return 1;
   return 0;
 }
-
