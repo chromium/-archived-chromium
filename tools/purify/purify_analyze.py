@@ -404,6 +404,7 @@ class PurifyAnalyze:
     if echo == None:
       echo = self._echo
     logging.info("summary of Purify messages:")
+    self._ReportFixableMessages()
     for key in self._message_lists:
       list = self._message_lists[key]
       unique = list.UniqueMessages()
@@ -612,6 +613,32 @@ class PurifyAnalyze:
         f.write("\n")
       f.close()
     return True
+
+  def _ReportFixableMessages(self):
+    ''' Collects all baseline files for the executable being tested, including
+    lists of flakey results, and logs the total number of messages in them.
+    '''
+    # TODO(pamg): As long as we're looking at all the files, we could use the
+    # information to report any message types that no longer happen at all.
+    fixable = 0
+    flakey = 0
+    paths = [os.path.join(self._data_dir, x)
+             for x in os.listdir(self._data_dir)]
+    for path in paths:
+      # We only care about this executable's files, and not its gtest filters.
+      if (not os.path.basename(path).startswith(self._name) or
+          not path.endswith(".txt") or
+          path.endswith("gtest.txt") or
+          not os.path.isfile(path)):
+        continue
+      msgs = self._MessageHashesFromFile(path)
+      if path.find("flakey") == -1:
+        fixable += len(msgs)
+      else:
+        flakey += len(msgs)
+
+    logging.info("Fixable errors: %s" % fixable)
+    logging.info("Flakey errors: %s" % flakey)
 
   def _MessageHashesFromFile(self, filename):
     ''' Reads a file of normalized messages (see SaveResults) and creates a
