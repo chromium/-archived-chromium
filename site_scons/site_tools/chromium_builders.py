@@ -53,12 +53,10 @@ __builtin__.ChromeFileList = ChromeFileList
 
 def compilable_files(sources):
   if not hasattr(sources, 'entries'):
-    return [x for x in sources if not str(x).endswith('.h')
-                               and not str(x).endswith('.dat')]
+    return [x for x in sources if not str(x).endswith('.h')]
   result = []
   for top, folders, nonfolders in MSVS.FileListWalk(sources):
-    result.extend([x for x in nonfolders if not str(x).endswith('.h')
-                                         and not str(x).endswith('.dat')])
+    result.extend([x for x in nonfolders if not str(x).endswith('.h')])
   return result
 
 def ChromeProgram(env, target, source, *args, **kw):

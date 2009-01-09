@@ -23,61 +23,16 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = ChromeFileList([
+input_files = [
     'tld_cleanup.cc',
-])
+]
 
 env.ChromeProgram('tld_cleanup', input_files)
 
-p = env.ChromeMSVSProject('$NET_DIR/build/tld_cleanup.vcproj',
-                          guid='{E13045CD-7E1F-4A41-9B18-8D288B2E7B41}',
-                          dependencies = [
-                              '$BASE_DIR/build/base.vcproj',
-                              '$ICU38_DIR/build/icu.vcproj',
-                              '$GOOGLEURL_DIR/build/googleurl.vcproj',
-                          ],
-                          # TODO: restore when we can derive all info,
-                          # on all platforms, from the windows build targets.
-                          #buildtargets=TODO,
-                          files=input_files,
-                          tools=[
-                              'VCPreBuildEventTool',
-                              'VCCustomBuildTool',
-                              'VCXMLDataGeneratorTool',
-                              'VCWebServiceProxyGeneratorTool',
-                              'VCMIDLTool',
-                              'VCCLCompilerTool',
-                              'VCManagedResourceCompilerTool',
-                              'VCResourceCompilerTool',
-                              'VCPreLinkEventTool',
-                              MSVSTool('VCLinkerTool',
-                                       SubSystem='1'),
-                              'VCALinkTool',
-                              'VCManifestTool',
-                              'VCXDCMakeTool',
-                              'VCBscMakeTool',
-                              'VCFxCopTool',
-                              'VCAppVerifierTool',
-                              'VCWebDeploymentTool',
-                              'VCPostBuildEventTool',
-                          ],
-                          ConfigurationType='1')
-
-
-p.AddConfig('Debug|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/debug.vsprops',
-            ])
-
-p.AddConfig('Release|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/release.vsprops',
-            ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/net/build/tld_cleanup.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)
+env.ChromeMSVSProject('$NET_DIR/build/tld_cleanup.vcproj',
+                dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
+                    '$ICU38_DIR/build/icu.vcproj',
+                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                ],
+                guid='{E13045CD-7E1F-4A41-9B18-8D288B2E7B41}')
