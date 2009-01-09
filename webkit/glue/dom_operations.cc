@@ -297,6 +297,8 @@ static bool FillFormImpl(FormElements* fe, const FormData& data, bool submit) {
       submit_found = true;
       continue;
     }
+    if (!it->second->value().isEmpty())  // Don't overwrite pre-filled values.
+      continue;
     it->second->setValue(StdWStringToString(data_map[it->first]));
     it->second->setAutofilled(true);
     it->second->onChange();
