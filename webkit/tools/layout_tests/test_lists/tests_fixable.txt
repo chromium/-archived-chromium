@@ -281,7 +281,7 @@ DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html 
 // Bug 4363: These tests are disabled until <audio> and <video> tags are
 // supported.
 DEFER SKIP : LayoutTests/media = TIMEOUT
-DEFER : LayoutTests/fast/media = PASS FAIL
+DEFER SKIP : LayoutTests/fast/media = PASS FAIL
 DEFER : LayoutTests/http/tests/media = FAIL
 
 // Bug 850287: Need better Thai line-breaking.  Not a high priority, because
