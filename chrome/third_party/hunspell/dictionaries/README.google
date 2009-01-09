@@ -5,56 +5,55 @@ This Folder contains the following:
 .bdic files
 .dic_delta files
 
-The .bdic files are binary files, generated from the corresponding .dic and .aff files, using convert_dict (chrome\tools\convert_dict). These binary files are used by the spellchecker. The .dic_delta files are used to add words which are not there in the .dic files. The final binary file, .bdic, is generated with words from the .dic and additional words from the .dic_delta file.
+The .bdic files are binary files, generated from the corresponding .dic and .aff files, using convert_dict (chrome\tools\convert_dict). These binary files are used by the spellchecker. The .dic_delta files are used to add words which are not there in the .dic files. Irrespective of the encoding of the corresponding .dic file, the .dic_delta files are encoded as UTF-8.
 
-In order to get the current-most bdic file versions, it is a good idea to rebuild them using convert_dict from the .dic, .aff and .dic_delta files in this folder.
+The final binary file, .bdic, is generated with words from the .dic and additional words from the .dic_delta file. In order to get the current-most bdic file versions, it is a good idea to rebuild them using convert_dict from the .dic, .aff and .dic_delta files in this folder.
 
-The following 20 dictionaries have been appended with additional words using the .dic_delta files (January 5th 2009):
+The following 19 dictionaries have been appended with additional words using the .dic_delta files (January 5th 2009):
 
-en-US: 	Added words
+en_US: 	Added words
 
-fr-FR: 	Added words
+fr_FR: 	Added words
 
-it-IT:	Added words
-	     	Added NOSUGGEST flag = ! to .aff file
+it_IT:	Added words
+	     	Added NOSUGGEST flag = % to .aff file
 		Added three words to .dic file with the ! flag to mark them forbidden/nosuggest.
 
-de-DE_neu: 	Added words.
+de_DE_neu: 	Added words.
 
-pt-PT: 	Added words
+pt_PT: 	Added words
 
-pt-BR: 	Added words
+pt_BR: 	Added words
 
-ru-RU:	Added words
-	     	Added NOSUGGEST flag = ! to .aff file
+pl_PL:	Added words.
+
+da_DK:	Added words.
+
+ro_RO:	Added words.
+
+id_ID:	Added words.
+
+cs_CZ:	Added words.
+
+nb_NO:	Added words.
+
+vi_VN:	Added words.
+
+lt_LT:	Added words.
+		Added NOSUGGEST flag = ! to .aff file
 		Added some words to .dic file with the ! flag to mark them forbidden/nosuggest.
 
-pl-PL:	Added words.
 
-da-DK:	Added words.
+sk_SK:	Added words.
 
-ro-RO:	Added words.
-
-id-ID:	Added words.
-
-cs-CZ:	Added words.
-
-nb-NO:	Added words.
-
-vi-VN:	Added words.
-
-lt-LT:	Added words.
-
-sk-SK:	Added words.
-
-sl-SI:	Added words
+sl_SI:	Added words
      		Added NOSUGGEST flag = ! to .aff file
 		Added five words to .dic file with the ! flag to mark them forbidden/nosuggest.
 
-ca-ES:	Added words
+ca_ES:	Added words
      		Added NOSUGGEST flag = ! to .aff file
 		Added two words to .dic file with the ! flag to mark them forbidden/nosuggest.
 
-lv-LV:	Added words.
+lv_LV:	Added words.
 
-hr-HR:	Added words.
+hr_HR:	Added words.
