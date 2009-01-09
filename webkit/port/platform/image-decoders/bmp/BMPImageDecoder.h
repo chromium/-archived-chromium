@@ -13,6 +13,8 @@ namespace WebCore {
 class BMPImageDecoder : public BMPImageReader
 {
 public:
+    virtual String filenameExtension() const { return "bmp"; }
+
     // BMPImageReader
     virtual void decodeImage(SharedBuffer* data);
 

@@ -22,6 +22,8 @@ public:
         m_andMaskState = NOT_YET_DECODED;
     }
 
+    virtual String filenameExtension() const { return "ico"; }
+
     // BMPImageReader
     virtual void decodeImage(SharedBuffer* data);
     virtual RGBA32Buffer* frameBufferAtIndex(size_t index);

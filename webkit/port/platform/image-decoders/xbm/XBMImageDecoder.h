@@ -38,6 +38,9 @@ class XBMImageDecoder : public ImageDecoder
 public:
     XBMImageDecoder();
     virtual ~XBMImageDecoder() {}
+
+    virtual String filenameExtension() const { return "xbm"; }
+
     virtual void setData(SharedBuffer* data, bool allDataReceived);
     // Whether or not the size information has been decoded yet.
     virtual bool isSizeAvailable() const;

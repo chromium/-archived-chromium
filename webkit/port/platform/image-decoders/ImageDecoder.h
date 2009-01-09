@@ -30,6 +30,7 @@
 #include "IntRect.h"
 #include "ImageSource.h"
 #include "NativeImageSkia.h"
+#include "PlatformString.h"
 #include "SharedBuffer.h"
 #include <wtf/PassRefPtr.h>
 #include <wtf/RefCounted.h>
@@ -227,6 +228,9 @@ class ImageDecoder
 public:
     ImageDecoder() : m_failed(false), m_sizeAvailable(false)  {}
     virtual ~ImageDecoder() {}
+
+    // The the filename extension usually associated with an undecoded image of this type.
+    virtual String filenameExtension() const = 0;
 
     // All specific decoder plugins must do something with the data they are given.
     virtual void setData(SharedBuffer* data, bool allDataReceived) { m_data = data; }
