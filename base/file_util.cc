@@ -276,6 +276,33 @@ bool CloseFile(FILE* file) {
   return fclose(file) == 0;
 }
 
+bool ContainsPath(const FilePath &parent, const FilePath& child) {
+  FilePath abs_parent = FilePath(parent);
+  FilePath abs_child = FilePath(child);
+
+  if (!file_util::AbsolutePath(&abs_parent) ||
+      !file_util::AbsolutePath(&abs_child))
+    return false;
+
+#if defined(OS_WIN)
+  // file_util::AbsolutePath() does not flatten case on Windows, so we must do
+  // a case-insensitive compare.
+  if (!StartsWith(abs_child.value(), abs_parent.value(), false))
+#else
+  if (!StartsWithASCII(abs_child.value(), abs_parent.value(), true))
+#endif
+    return false;
+
+  // file_util::AbsolutePath() normalizes '/' to '\' on Windows, so we only need
+  // to check kSeparators[0].
+  if (abs_child.value().length() <= abs_parent.value().length() ||
+      abs_child.value()[abs_parent.value().length()] !=
+          FilePath::kSeparators[0])
+    return false;
+
+  return true;
+}
+
 ///////////////////////////////////////////////
 // MemoryMappedFile
 

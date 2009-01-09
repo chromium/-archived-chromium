@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/file_path.h"
-#include "base/file_util.h"
 #include "base/logging.h"
 
 // These includes are just for the *Hack functions, and should be removed
@@ -255,31 +254,6 @@ FilePath FilePath::Append(const FilePath& component) const {
 
 bool FilePath::IsAbsolute() const {
   return IsPathAbsolute(path_);
-}
-
-bool FilePath::Contains(const FilePath &other) const {
-  FilePath parent = FilePath(*this);
-  FilePath child = FilePath(other);
-
-  if (!file_util::AbsolutePath(&parent) || !file_util::AbsolutePath(&child))
-    return false;
-
-#if defined(OS_WIN)
-  // file_util::AbsolutePath() does not flatten case on Windows, so we must do
-  // a case-insensitive compare.
-  if (!StartsWith(child.value(), parent.value(), false))
-#else
-  if (!StartsWithASCII(child.value(), parent.value(), true))
-#endif
-    return false;
-
-  // file_util::AbsolutePath() normalizes '/' to '\' on Windows, so we only need
-  // to check kSeparators[0].
-  if (child.value().length() <= parent.value().length() ||
-      child.value()[parent.value().length()] != kSeparators[0])
-    return false;
-
-  return true;
 }
 
 #if defined(OS_POSIX)

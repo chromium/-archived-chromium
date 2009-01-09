@@ -364,49 +364,6 @@ TEST_F(FilePathTest, IsAbsolute) {
   }
 }
 
-TEST_F(FilePathTest, Contains) {
-  FilePath data_dir;
-  ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &data_dir));
-  data_dir = data_dir.Append(FILE_PATH_LITERAL("FilePathTest"));
-
-  // Create a fresh, empty copy of this directory.
-  file_util::Delete(data_dir, true);
-  file_util::CreateDirectory(data_dir);
-
-  FilePath foo(data_dir.Append(FILE_PATH_LITERAL("foo")));
-  FilePath bar(foo.Append(FILE_PATH_LITERAL("bar.txt")));
-  FilePath baz(data_dir.Append(FILE_PATH_LITERAL("baz.txt")));
-  FilePath foobar(data_dir.Append(FILE_PATH_LITERAL("foobar.txt")));
-
-  // Annoyingly, the directories must actually exist in order for realpath(),
-  // which Contains() relies on in posix, to work.
-  file_util::CreateDirectory(foo);
-  std::string data("hello");
-  file_util::WriteFile(bar.ToWStringHack(), data.c_str(), data.length());
-  file_util::WriteFile(baz.ToWStringHack(), data.c_str(), data.length());
-  file_util::WriteFile(foobar.ToWStringHack(), data.c_str(), data.length());
-
-  EXPECT_TRUE(foo.Contains(bar));
-  EXPECT_FALSE(foo.Contains(baz));
-  EXPECT_FALSE(foo.Contains(foobar));
-  EXPECT_FALSE(foo.Contains(foo));
-
-// Platform-specific concerns
-  FilePath foo_caps(data_dir.Append(FILE_PATH_LITERAL("FOO")));
-#if defined(OS_WIN)
-  EXPECT_TRUE(foo.Contains(foo_caps.Append(FILE_PATH_LITERAL("bar.txt"))));
-  EXPECT_TRUE(foo.Contains(
-      FilePath(foo.value() + FILE_PATH_LITERAL("/bar.txt"))));
-#elif defined(OS_LINUX)
-  EXPECT_FALSE(foo.Contains(foo_caps.Append(FILE_PATH_LITERAL("bar.txt"))));
-#else
-  // We can't really do this test on osx since the case-sensitivity of the
-  // filesystem is configurable.
-#endif
-
-  // Note: whether 
-}
-
 TEST_F(FilePathTest, Extension) {
   FilePath base_dir(FILE_PATH_LITERAL("base_dir"));
 
@@ -564,4 +521,3 @@ TEST_F(FilePathTest, ReplaceExtension) {
         ", path: " << path.value() << ", replace: " << cases[i].inputs[1];
   }
 }
-

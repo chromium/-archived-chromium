@@ -15,12 +15,8 @@ TEST(ExtensionProtocolsTest, GetPathForExtensionResource) {
             GetPathForExtensionResource(extension_path, "/foo/bar.gif").value());
   EXPECT_EQ(std::wstring(L"C:\\myextension\\"),
             GetPathForExtensionResource(extension_path, "/").value());
-  // TODO(aa): This one is a bit weird, but is what net::FileURLToFilePath()
-  // returns for this input. Investigate adding more validation.
   EXPECT_EQ(std::wstring(L"C:\\myextension\\c:\\foo.gif"),
             GetPathForExtensionResource(extension_path, "/c:/foo.gif").value());
-  EXPECT_EQ(std::wstring(L"C:\\myextension\\foo.gif"),
-            GetPathForExtensionResource(extension_path, "//foo.gif").value());
   EXPECT_EQ(std::wstring(L""),
             GetPathForExtensionResource(extension_path, "/../foo.gif").value());
 #else
@@ -29,8 +25,6 @@ TEST(ExtensionProtocolsTest, GetPathForExtensionResource) {
             GetPathForExtensionResource(extension_path, "/foo/bar.gif").value());
   EXPECT_EQ(std::wstring("/myextension/"),
             GetPathForExtensionResource(extension_path, "/").value());
-  EXPECT_EQ(std::wstring("/myextension/foo.gif"),
-            GetPathForExtensionResource(extension_path, "//foo.gif").value());
   EXPECT_EQ(std::wstring(""),
             GetPathForExtensionResource(extension_path, "/../foo.gif").value());
 #endif

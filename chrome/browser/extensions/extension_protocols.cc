@@ -40,12 +40,12 @@ FilePath GetPathForExtensionResource(const FilePath& extension_path,
   if (!net::FileURLToFilePath(file_url, &ret_val))
     return FilePath();
 
-  if (!file_util::AbsolutePath(&ret_val))
-    return FilePath();
-
   // Double-check that the path we ended up with is actually inside the
-  // extension root.
-  if (!extension_path.Contains(ret_val))
+  // extension root. We can do this with a simple prefix match because:
+  // a) We control the prefix on both sides, and they should match.
+  // b) GURL normalizes things like "../" and "//" before it gets to us.
+  if (ret_val.value().find(extension_path.value() +
+                           FilePath::kSeparators[0]) != 0)
     return FilePath();
 
   return ret_val;

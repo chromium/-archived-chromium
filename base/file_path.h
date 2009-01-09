@@ -195,11 +195,6 @@ class FilePath {
   // platforms, an absolute path begins with a separator character.
   bool IsAbsolute() const;
 
-  // Returns true if this FilePath represents a parent dir of |other|. Both
-  // paths are normalized before doing the comparison, but neither |this| nor
-  // |other| are modified.
-  bool Contains(const FilePath& other) const;
-
   // Returns a copy of this FilePath that does not end with a trailing
   // separator.
   FilePath StripTrailingSeparators() const;

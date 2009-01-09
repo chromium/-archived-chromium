@@ -103,10 +103,9 @@ bool AbsolutePath(FilePath* path);
 // Deprecated temporary compatibility function.
 bool AbsolutePath(std::wstring* path);
 
-// Returns true if this FilePath represents a parent dir of |other|. Both
-// paths are normalized before doing the comparison, but neither |this| nor
-// |other| are modified.
-bool PathContains(const FilePath& path, const FilePath& other);
+// Returns true if |parent| contains |child|. Both paths are converted to
+// absolute paths before doing the comparison.
+bool ContainsPath(const FilePath& parent, const FilePath& child);
 
 // Deprecated compatibility function.  Use FilePath::InsertBeforeExtension.
 void InsertBeforeExtension(FilePath* path, const FilePath::StringType& suffix);
