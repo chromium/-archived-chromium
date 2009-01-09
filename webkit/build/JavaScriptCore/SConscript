@@ -163,6 +163,7 @@ wtf_inputs = [
 if env.Bit('windows'):
   wtf_inputs.extend([
       '$WTF_DIR/ThreadingWin.cpp',
+      '$WTF_DIR/ThreadSpecificWin.cpp',
   ])
 elif env.Bit('linux'):
   wtf_inputs.extend([
