@@ -219,6 +219,7 @@
 		E43A77130F16614E00ABD5D1 /* provisional_load_details.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8E70E9D4839009A6919 /* provisional_load_details.cc */; };
 		E43A77170F16616E00ABD5D1 /* download_resource_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A77160F16616E00ABD5D1 /* download_resource_handler.cc */; };
 		E43A771C0F1661AF00ABD5D1 /* chrome_url_data_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A771A0F1661AF00ABD5D1 /* chrome_url_data_manager.cc */; };
+		E43A78750F17A95400ABD5D1 /* sandbox_init_wrapper.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A78730F17A95400ABD5D1 /* sandbox_init_wrapper.cc */; };
 		E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E45060F10EE87D41003BE099 /* chrome_exe_main.mm */; };
 		E45062680EE890C2003BE099 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
 		E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
@@ -1601,6 +1602,10 @@
 		E43A77160F16616E00ABD5D1 /* download_resource_handler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = download_resource_handler.cc; path = renderer_host/download_resource_handler.cc; sourceTree = "<group>"; };
 		E43A771A0F1661AF00ABD5D1 /* chrome_url_data_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = chrome_url_data_manager.cc; path = dom_ui/chrome_url_data_manager.cc; sourceTree = "<group>"; };
 		E43A771B0F1661AF00ABD5D1 /* chrome_url_data_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = chrome_url_data_manager.h; path = dom_ui/chrome_url_data_manager.h; sourceTree = "<group>"; };
+		E43A78240F17985E00ABD5D1 /* scoped_ole_initializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_ole_initializer.h; sourceTree = "<group>"; };
+		E43A78480F179E7E00ABD5D1 /* main_function_params.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main_function_params.h; sourceTree = "<group>"; };
+		E43A78730F17A95400ABD5D1 /* sandbox_init_wrapper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sandbox_init_wrapper.cc; sourceTree = "<group>"; };
+		E43A78740F17A95400ABD5D1 /* sandbox_init_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sandbox_init_wrapper.h; sourceTree = "<group>"; };
 		E45060E40EE87B86003BE099 /* Chromium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chromium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45060E60EE87B86003BE099 /* app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "app-Info.plist"; sourceTree = "<group>"; };
 		E45060F10EE87D41003BE099 /* chrome_exe_main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = chrome_exe_main.mm; sourceTree = "<group>"; };
@@ -2558,6 +2563,7 @@
 				B562C8420ED49C830077A23F /* mach_ipc_mac.mm */,
 				B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */,
 				B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */,
+				E43A78480F179E7E00ABD5D1 /* main_function_params.h */,
 				4D7BFBD10E9D4C9F009A6919 /* message_router.cc */,
 				4D7BFBD20E9D4C9F009A6919 /* message_router.h */,
 				4D7BFBD30E9D4C9F009A6919 /* mru_cache.h */,
@@ -2602,6 +2608,8 @@
 				4D7BFBF60E9D4C9F009A6919 /* resource_dispatcher.cc */,
 				4D7BFBF70E9D4C9F009A6919 /* resource_dispatcher.h */,
 				4D7BFBF80E9D4C9F009A6919 /* resource_dispatcher_unittest.cc */,
+				E43A78730F17A95400ABD5D1 /* sandbox_init_wrapper.cc */,
+				E43A78740F17A95400ABD5D1 /* sandbox_init_wrapper.h */,
 				4D7BFBF90E9D4C9F009A6919 /* scoped_vector.h */,
 				4D7BFBFA0E9D4C9F009A6919 /* security_filter_peer.cc */,
 				4D7BFBFB0E9D4C9F009A6919 /* security_filter_peer.h */,
@@ -2791,6 +2799,7 @@
 				E45060F10EE87D41003BE099 /* chrome_exe_main.mm */,
 				E450610A0EE87FB6003BE099 /* nibs */,
 				E45062D40EE89659003BE099 /* resources */,
+				E43A78240F17985E00ABD5D1 /* scoped_ole_initializer.h */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -3680,6 +3689,7 @@
 				B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */,
 				B5E98B140F0574A8000A37D6 /* render_messages.cc in Sources */,
 				E45076A90F153619003BE099 /* resource_dispatcher.cc in Sources */,
+				E43A78750F17A95400ABD5D1 /* sandbox_init_wrapper.cc in Sources */,
 				4D7BFC7F0E9D4D2E009A6919 /* slide_animation.cc in Sources */,
 				4D7BFC840E9D4D32009A6919 /* sqlite_compiled_statement.cc in Sources */,
 				4D7BFC8B0E9D4D35009A6919 /* sqlite_utils.cc in Sources */,

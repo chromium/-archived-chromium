@@ -71,6 +71,7 @@ input_files.extend([
   'property_bag.cc',
   'render_messages.cc',
   'resource_dispatcher.cc',
+  'sandbox_init_wrapper.cc',
   'slide_animation.cc',
   'sqlite_compiled_statement.cc',
   'sqlite_utils.cc',

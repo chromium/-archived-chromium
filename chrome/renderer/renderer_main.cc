@@ -13,6 +13,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/main_function_params.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/test/injection_test_dll.h"
@@ -44,8 +45,11 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 }
 
 // mainline routine for running as the Rendererer process
-int RendererMain(CommandLine &parsed_command_line,
-                 sandbox::TargetServices* target_services) {
+int RendererMain(const MainFunctionParams& parameters) {
+  CommandLine& parsed_command_line = parameters.command_line_;
+  sandbox::TargetServices* target_services = 
+      parameters.sandbox_info_.TargetServices();
+
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::renderer_main());
 

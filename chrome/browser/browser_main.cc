@@ -5,7 +5,11 @@
 #include "build/build_config.h"
 
 #include "base/command_line.h"
+#include "chrome/common/main_function_params.h"
+
+#if defined(OS_WIN)
 #include "sandbox/src/sandbox.h"
+#endif
 
 // TODO(port): several win-only methods have been pulled out of this, but
 // BrowserMain() as a whole needs to be broken apart so that it's usable by
@@ -141,8 +145,11 @@ StringPiece NetResourceProvider(int key) {
 }  // namespace
 
 // Main routine for running as the Browser process.
-int BrowserMain(CommandLine &parsed_command_line,
-                sandbox::BrokerServices* broker_services) {
+int BrowserMain(const MainFunctionParams& parameters) {
+  CommandLine& parsed_command_line = parameters.command_line_;
+  sandbox::BrokerServices* broker_services = 
+      parameters.sandbox_info_.BrokerServices();
+  
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
   // to browser_shutdown::Shutdown or BrowserProcess::EndSession.
@@ -503,8 +510,7 @@ int StartPlatformMessageLoop();
 // TODO(port): merge this with above. Just a stub for now, not meant as a place
 // to duplicate code.
 // Main routine for running as the Browser process.
-int BrowserMain(CommandLine &parsed_command_line,
-                sandbox::BrokerServices* broker_services) {
+int BrowserMain(const MainFunctionParams& parameters) {
   return StartPlatformMessageLoop();
 }
 

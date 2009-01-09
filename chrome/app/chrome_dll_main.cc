@@ -14,10 +14,6 @@
 #include <atlapp.h>
 #include <malloc.h>
 #include <new.h>
-#elif defined(OS_MACOSX)
-extern "C" {
-#include <sandbox.h>
-}
 #endif
 
 #include "base/at_exit.h"
@@ -32,22 +28,25 @@ extern "C" {
 #include "base/win_util.h"
 #include "chrome/browser/render_process_host.h"
 #endif
+#include "chrome/app/scoped_ole_initializer.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/main_function_params.h"
 #if defined(OS_WIN)
 #include "chrome/common/resource_bundle.h"
 #endif
-#include "sandbox/src/sandbox.h"
+#include "chrome/common/sandbox_init_wrapper.h"
 #if defined(OS_WIN)
+#include "sandbox/src/sandbox.h"
 #include "tools/memory_watcher/memory_watcher.h"
 #endif
 
-extern int BrowserMain(CommandLine&, sandbox::BrokerServices*);
-extern int RendererMain(CommandLine&, sandbox::TargetServices*);
-extern int PluginMain(CommandLine&, sandbox::TargetServices*);
+extern int BrowserMain(const MainFunctionParams&);
+extern int RendererMain(const MainFunctionParams&);
+extern int PluginMain(const MainFunctionParams&);
 
 #if defined(OS_WIN)
 // TODO(erikkay): isn't this already defined somewhere?
@@ -115,21 +114,6 @@ void ChromeAssert(const std::string& str) {
 
 #endif  // OS_WIN
 
-// Called before/after the call to BrowseMain() to handle platform-specific
-// setup/teardown.
-void PreBrowserMain() {
-#if defined(OS_WIN)
-  int ole_result = OleInitialize(NULL);
-  DCHECK(ole_result == S_OK);
-#endif
-}
-
-void PostBrowserMain() {
-#if defined(OS_WIN)
-  OleUninitialize();
-#endif
-}
-
 // Register the invalid param handler and pure call handler to be able to
 // notify breakpad when it happens.
 void RegisterInvalidParamHandler() {
@@ -178,32 +162,6 @@ void EnableHeapProfiler(const CommandLine& parsed_command_line) {
     if (!LoadMemoryProfiler())
       exit(-1);
 #endif
-}
-
-// Checks if the sandbox is enabled in this process and initializes it if this
-// is the case. Sandboxing is only valid on render and plugin processes. It's
-// meaningless for the browser process.
-void InitializeSandbox(const CommandLine& parsed_command_line,
-                       const std::wstring process_type,
-                       sandbox::BrokerServices* broker_services,
-                       sandbox::TargetServices* target_services) {
-  if (target_services && !parsed_command_line.HasSwitch(switches::kNoSandbox)) {
-    if ((process_type == switches::kRendererProcess) ||
-        (process_type == switches::kPluginProcess &&
-         parsed_command_line.HasSwitch(switches::kSafePlugins))) {
-#if defined(OS_WIN)
-      target_services->Init();
-#elif defined(OS_MACOSX)
-      // TODO(pinkerton): note, this leaks |error_buff|. What do we want to
-      // do with the error? Pass it back to main?
-      char* error_buff;
-      int error = sandbox_init(kSBXProfilePureComputation, SANDBOX_NAMED,
-                               &error_buff);
-      if (error)
-        exit(-1);
-#endif
-    }
-  }  
 }
 
 void CommonSubprocessInit() {
@@ -274,22 +232,16 @@ int ChromeMain(int argc, const char** argv) {
 
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
-    
-  sandbox::BrokerServices* broker_services = NULL;
-  sandbox::TargetServices* target_services = NULL;
-#if defined(OS_WIN)
-  if (sandbox_info) {
-    target_services = sandbox_info->target_services;
-    broker_services = sandbox_info->broker_services;
-  }
-#endif
-
+  
   // Checks if the sandbox is enabled in this process and initializes it if this
   // is the case. The crash handler depends on this so it has to be done before
   // its initialization.
-  InitializeSandbox(parsed_command_line, process_type, broker_services,
-                    target_services);
-
+  SandboxInitWrapper sandbox_wrapper;
+#if defined(OS_WIN)
+  sandbox_wrapper.SetServices(sandbox_info);
+#endif
+  sandbox_wrapper.InitializeSandbox(parsed_command_line, process_type);
+  
 #if defined(OS_WIN)
   _Module.Init(NULL, instance);
 #endif
@@ -333,20 +285,21 @@ int ChromeMain(int argc, const char** argv) {
 
   startup_timer.Stop();  // End of Startup Time Measurement.
 
+  MainFunctionParams main_params(parsed_command_line, sandbox_wrapper);
+  
   // TODO(port): turn on these main() functions as they've been de-winified.
   int rv = -1;
   if (process_type == switches::kRendererProcess) {
 #if defined(OS_WIN)
-    rv = RendererMain(parsed_command_line, target_services);
+    rv = RendererMain(main_params);
 #endif
   } else if (process_type == switches::kPluginProcess) {
 #if defined(OS_WIN)
-    rv = PluginMain(parsed_command_line, target_services);
+    rv = PluginMain(main_params);
 #endif
   } else if (process_type.empty()) {
-    PreBrowserMain();
-    rv = BrowserMain(parsed_command_line, broker_services);
-    PostBrowserMain();
+    ScopedOleInitializer ole_initializer;
+    rv = BrowserMain(main_params);
   } else {
     NOTREACHED() << "Unknown process type";
   }

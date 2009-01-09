@@ -8,14 +8,18 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/main_function_params.h"
 #include "chrome/common/win_util.h"
 #include "chrome/plugin/plugin_process.h"
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
 
 // mainline routine for running as the plugin process
-int PluginMain(CommandLine &parsed_command_line,
-               sandbox::TargetServices* target_services) {
+int PluginMain(const MainFunctionParams& parameters) {
+  CommandLine& parsed_command_line = parameters.command_line_;
+  sandbox::TargetServices* target_services = 
+      parameters.sandbox_info_.TargetServices();
+
   // The main thread of the plugin services IO.
   MessageLoopForIO main_message_loop;
   std::wstring app_name = chrome::kBrowserAppName;

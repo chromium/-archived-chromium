@@ -622,6 +622,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\sandbox_init_wrapper.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\sandbox_init_wrapper.h"
+			>
+		</File>
+		<File
 			RelativePath=".\scoped_vector.h"
 			>
 		</File>
