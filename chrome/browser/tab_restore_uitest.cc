@@ -40,16 +40,15 @@ class TabRestoreUITest : public UITest {
 
     // Get a handle to the restored tab.
     int restored_tab_count;
-    ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count,
-                                                       &restored_tab_count,
-                                                       5000));
+    ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(
+        tab_count, &restored_tab_count, action_max_timeout_ms()));
     ASSERT_EQ(tab_count + 1, restored_tab_count);
 
     // Wait for the restored tab to finish loading.
     scoped_ptr<TabProxy> restored_tab_proxy(
         browser_proxy->GetTab(restored_tab_count - 1));
     ASSERT_TRUE(restored_tab_proxy->WaitForTabToBeRestored(
-        action_timeout_ms()));
+        action_max_timeout_ms()));
   }
 
   GURL url1_;
