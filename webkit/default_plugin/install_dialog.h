@@ -9,7 +9,7 @@
 #include <atlwin.h>
 #include <string>
 
-#include "webkit/glue/webkit_resources.h"
+#include "webkit/default_plugin/default_plugin_resources.h"
 
 class PluginInstallerImpl;
 

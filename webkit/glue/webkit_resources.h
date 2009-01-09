@@ -29,13 +29,3 @@
 #define IDC_PAN_SOUTH_WEST              2114
 #define IDC_PAN_WEST                    2115
 #define IDC_PAN_NORTH_WEST              2116
-
-#define IDD_DEFAULT_PLUGIN_INSTALL_DIALOG     2208
-#define IDI_DEFAULT_PLUGIN_ICON               2209
-#define IDB_GET_THE_PLUGIN                    2210
-#define IDC_PLUGIN_MAIN_LABEL                 2211
-#define IDC_PLUGIN_INSTALL_LABEL              2212
-#define IDC_PLUGIN_URL_LABEL                  2213
-#define IDC_PLUGIN_INSTALL_CONFIRMATION_LABEL 2214
-#define IDC_PLUGIN_NAME                       2215
-#define IDC_PLUGIN_NAME_VALUE                 2216

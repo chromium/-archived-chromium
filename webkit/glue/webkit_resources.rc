@@ -24,7 +24,6 @@ IDR_TEXTAREA_RESIZER       BINDATA "webkit\\glue\\resources\\textarea_resize_cor
 //
 // Cursor
 //
-
 IDC_ALIAS               CURSOR    "webkit\\glue\\resources\\aliasb.cur"
 IDC_CELL                CURSOR    "webkit\\glue\\resources\\cell.cur"
 IDC_COLRESIZE           CURSOR    "webkit\\glue\\resources\\col_resize.cur"
@@ -42,24 +41,3 @@ IDC_PAN_SOUTH           CURSOR    "webkit\\glue\\resources\\pan_south.cur"
 IDC_PAN_SOUTH_WEST      CURSOR    "webkit\\glue\\resources\\pan_south_west.cur"
 IDC_PAN_WEST            CURSOR    "webkit\\glue\\resources\\pan_west.cur"
 IDC_PAN_NORTH_WEST      CURSOR    "webkit\\glue\\resources\\pan_north_west.cur"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog template for the plugin installation dialog.
-//
-IDD_DEFAULT_PLUGIN_INSTALL_DIALOG DIALOGEX 0, 0, 240, 130
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Plug-in Needed"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "",IDB_GET_THE_PLUGIN,32,100,81,14
-    PUSHBUTTON      "",IDCANCEL,133,100,74,14
-    LTEXT           "",IDC_PLUGIN_INSTALL_CONFIRMATION_LABEL,17,50,204,27
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon used by the default plugin window.
-//
-IDI_DEFAULT_PLUGIN_ICON            ICON             "webkit\\default_plugin\\default_plugin.ico"

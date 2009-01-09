@@ -235,6 +235,10 @@ END
 
 #include "installer_util_strings.rc"
 
+// We include these resources because all ICON types need to be in the
+// same .rc file.  See:
+// http://www.technewsgroups.net/group/microsoft.public.dotnet.general/topic2111.aspx
+#include "webkit\\default_plugin\\default_plugin_resources.rc"
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -245,5 +249,3 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-
-

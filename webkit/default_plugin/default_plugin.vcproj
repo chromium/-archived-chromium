@@ -134,6 +134,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\default_plugin_resources.h"
+			>
+		</File>
+		<File
 			RelativePath=".\default_plugin_shared.h"
 			>
 		</File>
