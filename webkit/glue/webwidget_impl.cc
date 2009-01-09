@@ -242,6 +242,12 @@ PlatformWidget WebWidgetImpl::platformWindow() const {
   return delegate_->GetContainingView(const_cast<WebWidgetImpl*>(this));
 }
 
+void WebWidgetImpl::scrollRectIntoView(
+    const WebCore::IntRect&, const WebCore::ScrollView*) const {
+  // Nothing to be done here since we do not have the concept of a container
+  // that implements its own scrolling.
+}
+
 //-----------------------------------------------------------------------------
 // WebCore::FramelessScrollViewClient
 

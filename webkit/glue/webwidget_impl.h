@@ -84,7 +84,8 @@ class WebWidgetImpl : public WebWidget,
   virtual WebCore::IntPoint screenToWindow(const WebCore::IntPoint&) const;
   virtual WebCore::IntRect windowToScreen(const WebCore::IntRect&) const;
   virtual PlatformWidget platformWindow() const;
-  virtual void contentsSizeChanged(WebCore::Frame*, const WebCore::IntSize&) const {}
+  virtual void scrollRectIntoView(const WebCore::IntRect&,
+                                  const WebCore::ScrollView*) const;
 
   // WebCore::FramelessScrollViewClient methods:
   virtual void popupClosed(WebCore::FramelessScrollView* popup_view);
