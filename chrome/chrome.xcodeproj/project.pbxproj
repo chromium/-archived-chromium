@@ -74,7 +74,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		0082A7540F16987A000AA0EF /* user_script_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0082A7510F16987A000AA0EF /* user_script_master.cc */; };
 		4D640CF30EAE86E300EBCFC0 /* about_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CBD0EAE868600EBCFC0 /* about_handler.cc */; };
 		4D640CF40EAE86EA00EBCFC0 /* render_dns_queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE40EAE86A500EBCFC0 /* render_dns_queue.cc */; };
 		4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CDC0EAE868600EBCFC0 /* visitedlink_slave.cc */; };
@@ -3649,7 +3648,6 @@
 				4D7BFB610E9D4C4B009A6919 /* units_unittest.cc in Sources */,
 				B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */,
 				4D7BFB420E9D4C35009A6919 /* visit_tracker_unittest.cc in Sources */,
-				0082A7540F16987A000AA0EF /* user_script_master.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
