@@ -82,10 +82,17 @@ class ChromeTests:
     '''Generates the default command array that most tests will use.'''
     module_dir = os.path.join(self._source_dir, module)
 
-    # For now, the suppressions files are all the same across all modules. Copy
-    # the code in the purify version of chrome_tests.py if we ever need
-    # per-module suppressions again...
-    self._data_dir = google.path_utils.ScriptDir()
+    # We need multiple data dirs, the current script directory and a module
+    # specific one. The global suppression file lives in our directory, and the
+    # module specific suppression file lives with the module.
+    self._data_dirs = [google.path_utils.ScriptDir()]
+
+    if module == "chrome":
+      # unfortunately, not all modules have the same directory structure
+      self._data_dirs.append(os.path.join(module_dir, "test", "data",
+                                          "valgrind"))
+    else:
+      self._data_dirs.append(os.path.join(module_dir, "data", "valgrind"))
 
     if not self._options.build_dir:
       dir_chrome = os.path.join(self._source_dir, "chrome", "Hammer")
@@ -114,7 +121,10 @@ class ChromeTests:
           self._options.build_dir = dir_chrome
 
     cmd = list(self._command_preamble)
-    cmd.append("--data_dir=%s" % self._data_dir)
+    for directory in self._data_dirs:
+      suppression_file = os.path.join(directory, "suppressions.txt")
+      if os.path.exists(suppression_file):
+        cmd.append("--suppressions=%s" % suppression_file)
     if self._options.baseline:
       cmd.append("--baseline")
     if self._options.verbose:
@@ -135,14 +145,15 @@ class ChromeTests:
     and append the command-line option to cmd.
     '''
     filters = []
-    filename = os.path.join(self._data_dir, name + ".gtest.txt")
-    if os.path.exists(filename):
-      f = open(filename, 'r')
-      for line in f.readlines():
-        if line.startswith("#") or line.startswith("//") or line.isspace():
-          continue
-        line = line.rstrip()
-        filters.append(line)
+    for directory in self._data_dirs:
+      filename = os.path.join(directory, name + ".gtest.txt")
+      if os.path.exists(filename):
+        f = open(filename, 'r')
+        for line in f.readlines():
+          if line.startswith("#") or line.startswith("//") or line.isspace():
+            continue
+          line = line.rstrip()
+          filters.append(line)
     gtest_filter = self._options.gtest_filter
     if len(filters):
       if gtest_filter:

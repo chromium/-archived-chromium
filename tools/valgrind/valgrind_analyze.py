@@ -97,7 +97,7 @@ class ValgrindError:
                  " (")
 
       if frame[SRC_FILE_DIR] != "":
-        output += (frame[SRC_FILE_DIR] + "/" + frame[SRC_FILE_DIR] + ":" +
+        output += (frame[SRC_FILE_DIR] + "/" + frame[SRC_FILE_NAME] + ":" +
                    frame[SRC_LINE])
       else:
         output += frame[OBJECT_FILE]

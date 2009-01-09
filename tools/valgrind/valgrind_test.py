@@ -31,7 +31,7 @@ class Valgrind():
   TMP_DIR = "valgrind.tmp"
 
   def __init__(self):
-    self._data_dir = None
+    self._suppressions_files = []
 
   def CreateOptionParser(self):
     self._parser = optparse.OptionParser("usage: %prog [options] <program to "
@@ -45,8 +45,9 @@ class Valgrind():
     self._parser.add_option("", "--source_dir",
                             help="path to top of source tree for this build"
                                  "(used to normalize source paths in baseline)")
-    self._parser.add_option("", "--data_dir", default=".",
-                            help="path to where purify data files live")
+    self._parser.add_option("", "--suppressions", default=["."],
+                            action="append",
+                            help="path to a valgrind suppression file")
     self._parser.add_option("", "--generate_suppressions", action="store_true",
                             default=False,
                             help="Skip analysis and generate suppressions")
@@ -56,7 +57,7 @@ class Valgrind():
     self.CreateOptionParser()
     self._options, self._args = self._parser.parse_args()
     self._timeout = int(self._options.timeout)
-    self._data_dir = self._options.data_dir
+    self._suppressions = self._options.suppressions
     self._generate_suppressions = self._options.generate_suppressions
     self._source_dir = self._options.source_dir
     return True
@@ -78,10 +79,13 @@ class Valgrind():
     else:
       proc += ["--xml=yes"]
 
-    suppressions = os.path.join(self._data_dir, "suppressions.txt")
-    if os.path.exists(suppressions):
-      proc += ["--suppressions=%s" % suppressions]
-    else:
+    suppression_count = 0
+    for suppression_file in self._suppressions:
+      if os.path.exists(suppression_file):
+        suppression_count += 1
+        proc += ["--suppressions=%s" % suppression_file]
+
+    if not suppression_count:
       logging.warning("WARNING: NOT USING SUPPRESSIONS!")
 
     proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"] + self._args
