@@ -281,7 +281,7 @@ DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html 
 // Bug 4363: These tests are disabled until <audio> and <video> tags are
 // supported.
 DEFER SKIP : LayoutTests/media = TIMEOUT
-DEFER : LayoutTests/fast/media = FAIL
+DEFER : LayoutTests/fast/media = PASS FAIL
 DEFER : LayoutTests/http/tests/media = FAIL
 
 // Bug 850287: Need better Thai line-breaking.  Not a high priority, because
@@ -825,10 +825,12 @@ WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
 
 // These tests don't work on the open source buildbot because there's no font
 // covering YinYang sign. See bug # 2304.
-WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
-WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
-WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
-// No glyph for U+FFFD (Replacement Character : black diamond with question mark) in them
+LINUX WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+LINUX WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+LINUX WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+
+// No glyph for U+FFFD (Replacement Character : black diamond with
+// question mark) in them
 LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 DEFER WIN : LayoutTests/fast/text/zero-width-characters.html = FAIL
