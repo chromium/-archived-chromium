@@ -465,8 +465,8 @@ TEST_F(AutomationProxyTest, NavigateToURLAsync) {
   GURL newurl = net::FilePathToFileURL(filename);
 
   ASSERT_TRUE(tab->NavigateToURLAsync(newurl));
-  std::string value = WaitUntilCookieNonEmpty(tab.get(), newurl,
-                                              "foo", 250, 5*1000);
+  std::string value = WaitUntilCookieNonEmpty(tab.get(), newurl, "foo", 250,
+                                              action_max_timeout_ms());
   ASSERT_STREQ("baz", value.c_str());
 }
 
@@ -791,7 +791,8 @@ TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
   scoped_ptr<AutocompleteEditProxy> edit2(
       automation()->GetAutocompleteEditForBrowser(browser2.get()));
   ASSERT_TRUE(edit2.get());
-  EXPECT_TRUE(browser2->GetTab(0)->WaitForTabToBeRestored(action_timeout_ms()));
+  EXPECT_TRUE(browser2->GetTab(0)->WaitForTabToBeRestored(
+      action_max_timeout_ms()));
   const std::wstring text_to_set1 = L"Lollerskates";
   const std::wstring text_to_set2 = L"Roflcopter";
   std::wstring actual_text1, actual_text2;
