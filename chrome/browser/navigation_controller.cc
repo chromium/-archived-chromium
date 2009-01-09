@@ -1013,6 +1013,13 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
   if (from_contents && from_contents != contents) {
     if (from_contents->delegate())
       from_contents->delegate()->ReplaceContents(from_contents, contents);
+
+    if (from_contents->type() != contents->type()) {
+      // The entry we just discarded needed a different TabContents type. We no
+      // longer need it but we can't destroy it just yet because the TabContents
+      // is very likely involved in the current stack.
+      ScheduleTabContentsCollection(from_contents->type());
+    }
   }
 
   NavigationEntry temp_entry(*pending_entry_);
