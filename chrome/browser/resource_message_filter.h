@@ -78,7 +78,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
  private:
   void OnMsgCreateWindow(int opener_id, bool user_gesture, int* route_id,
                          HANDLE* modal_dialog_event);
-  void OnMsgCreateWidget(int opener_id, bool focus_on_show, int* route_id);
+  void OnMsgCreateWidget(int opener_id, bool activatable, int* route_id);
   void OnRequestResource(const IPC::Message& msg, int request_id,
                          const ViewHostMsg_Resource_Request& request);
   void OnCancelRequest(int request_id);

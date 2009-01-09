@@ -113,7 +113,7 @@ class RenderWidgetHelper :
 
   void CreateNewWindow(int opener_id, bool user_gesture, int* route_id,
                        HANDLE* modal_dialog_event, HANDLE render_process);
-  void CreateNewWidget(int opener_id, bool focus_on_show, int* route_id);
+  void CreateNewWidget(int opener_id, bool activatable, int* route_id);
 
  private:
   // A class used to proxy a paint message.  PaintMsgProxy objects are created

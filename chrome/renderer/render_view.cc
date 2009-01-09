@@ -1814,10 +1814,10 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 }
 
 WebWidget* RenderView::CreatePopupWidget(WebView* webview,
-                                         bool focus_on_show) {
+                                         bool activatable) {
   RenderWidget* widget = RenderWidget::Create(routing_id_,
                                               render_thread_,
-                                              focus_on_show);
+                                              activatable);
   return widget->webwidget();
 }
 

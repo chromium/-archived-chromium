@@ -943,14 +943,6 @@ void WebViewImpl::SetBackForwardListSize(int size) {
 
 void WebViewImpl::SetFocus(bool enable) {
   if (enable) {
-    // Hide the popup menu if any.
-    // TODO(jcampan): bug #3844: we should do that when we lose focus.  The
-    // reason we are not doing it is because when clicking on the autofill
-    // popup, the page first loses focus before the mouse click is sent to the
-    // popup.  So if we close when the focus is lost, the mouse click does not
-    // do anything.
-    HideAutoCompletePopup();
-
     // Getting the focused frame will have the side-effect of setting the main
     // frame as the focused frame if it is not already focused.  Otherwise, if
     // there is already a focused frame, then this does nothing.
@@ -967,6 +959,8 @@ void WebViewImpl::SetFocus(bool enable) {
     }
     ime_accept_events_ = true;
   } else {
+    HideAutoCompletePopup();
+
     // Clear out who last had focus. If someone has focus, the refs will be
     // updated below.
     ReleaseFocusReferences();
@@ -1509,7 +1503,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
           adoptRef(new AutocompletePopupMenuClient(this, input_elem,
                                                    suggestions,
                                                    default_suggestion_index));
-      // Autocomplete popup does not get focused.  We need the page to still
+      // The autocomplete popup is not activated.  We need the page to still
       // have focus so the user can keep typing when the popup is showing.
       autocomplete_popup_ =
           WebCore::PopupContainer::create(autocomplete_popup_client_.get(),

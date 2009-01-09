@@ -522,7 +522,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWidgetWithRoute,
                       int /* route_id */,
-                      bool /* focus on show */)
+                      bool /* activatable */)
 
   // These two messages are sent to the parent RenderViewHost to display the
   // page/widget that was created by CreateView/CreateWidget.  routing_id

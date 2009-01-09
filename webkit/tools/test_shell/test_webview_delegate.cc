@@ -94,7 +94,7 @@ WebView* TestWebViewDelegate::CreateWebView(WebView* webview,
 }
 
 WebWidget* TestWebViewDelegate::CreatePopupWidget(WebView* webview,
-                                                  bool focus_on_show) {
+                                                  bool activatable) {
   return shell_->CreatePopupWidget(webview);
 }
 

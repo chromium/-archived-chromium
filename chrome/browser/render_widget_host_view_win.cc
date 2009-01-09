@@ -76,7 +76,7 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
       shutdown_factory_(this),
       parent_hwnd_(NULL),
       is_loading_(false),
-      focus_on_show_(true) {
+      activatable_(true) {
   render_widget_host_->set_view(this);
   renderer_accessible_ =
       CommandLine().HasSwitch(switches::kEnableRendererAccessibility);
@@ -162,7 +162,7 @@ void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
 
   render_widget_host_->ForwardMouseEvent(event);
 
-  if (event.type == WebInputEvent::MOUSE_DOWN) {
+  if (activatable_ && event.type == WebInputEvent::MOUSE_DOWN) {
     // This is a temporary workaround for bug 765011 to get focus when the
     // mouse is clicked. This happens after the mouse down event is sent to
     // the renderer because normally Windows does a WM_SETFOCUS after
@@ -765,7 +765,7 @@ LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
 
 LRESULT RenderWidgetHostViewWin::OnMouseActivate(UINT, WPARAM, LPARAM,
                                                  BOOL& handled) {
-  if (!focus_on_show_)
+  if (!activatable_)
     return MA_NOACTIVATE;
 
   HWND focus_window = GetFocus();

@@ -50,7 +50,7 @@ class WebContentsViewWin : public WebContentsView,
   virtual WebContents* CreateNewWindowInternal(
       int route_id, HANDLE modal_dialog_event);
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
-                                                        bool focus_on_show);
+                                                        bool activatable);
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
                                          WindowOpenDisposition disposition,
                                          const gfx::Rect& initial_pos,

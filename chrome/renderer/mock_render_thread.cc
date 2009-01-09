@@ -128,7 +128,7 @@ void MockRenderThread::OnMessageReceived(const IPC::Message& msg) {
 
 // The Widget expects to be returned valid route_id.
 void MockRenderThread::OnMsgCreateWidget(int opener_id,
-                                         bool focus_on_show,
+                                         bool activatable,
                                          int* route_id) {
   opener_id_ = opener_id;
   *route_id = routing_id_;

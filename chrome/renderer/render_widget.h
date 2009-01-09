@@ -32,7 +32,7 @@ class RenderWidget : public IPC::Channel::Listener,
   // RenderThreadBase implementation, mostly commonly g_render_thread.
   static RenderWidget* Create(int32 opener_id,
                               RenderThreadBase* render_thread,
-                              bool focus_on_show);
+                              bool activatable);
 
   // The routing ID assigned by the RenderProcess. Will be MSG_ROUTING_NONE if
   // not yet assigned a view ID, in which case, the process MUST NOT send
@@ -89,7 +89,7 @@ class RenderWidget : public IPC::Channel::Listener,
   // without ref-counting is an error.
   friend class base::RefCounted<RenderWidget>;
 
-  RenderWidget(RenderThreadBase* render_thread, bool focus_on_show);
+  RenderWidget(RenderThreadBase* render_thread, bool activatable);
   virtual ~RenderWidget();
 
   // Initializes this view with the given opener.  CompleteInit must be called
@@ -265,8 +265,8 @@ class RenderWidget : public IPC::Channel::Listener,
   bool ime_control_updated_;
   bool ime_control_busy_;
 
-  // Whether the window for this RenderWidget should be focused when shown.
-  bool focus_on_show_;
+  // Whether the window for this RenderWidget can be activated.
+  bool activatable_;
 
   // Holds all the needed plugin window moves for a scroll.
   std::vector<WebPluginGeometry> plugin_window_moves_;

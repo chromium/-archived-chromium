@@ -94,7 +94,7 @@ class MockRenderThread : public RenderThreadBase {
 
   // The Widget expects to be returned valid route_id.
   void OnMsgCreateWidget(int opener_id,
-                         bool focus_on_show,
+                         bool activatable,
                          int* route_id);
 
   // Routing id what will be assigned to the Widget.

@@ -65,10 +65,10 @@ class RenderWidgetHostViewWin :
     close_on_deactivate_ = close_on_deactivate;
   }
 
-  void set_focus_on_show(bool focus) {
-    focus_on_show_ = focus;
+  void set_activatable(bool activatable) {
+    activatable_ = activatable;
   }
-  bool focus_on_show() const { return focus_on_show_; }
+  bool activatable() const { return activatable_; }
 
   void set_parent_hwnd(HWND parent) { parent_hwnd_ = parent; }
 
@@ -263,8 +263,9 @@ class RenderWidgetHostViewWin :
   // value returns true for is_null() if we are not recording whiteout times.
   base::TimeTicks whiteout_start_time_;
 
-  // Whether the window should get focus when shown. Default is true.
-  bool focus_on_show_;
+  // Whether the window can be activated. Autocomplete popup windows for example
+  // cannot be activated.  Default is true.
+  bool activatable_;
 
   // Whether the renderer is made accessible.
   // TODO(jcampan): http://b/issue?id=1432077 This is a temporary work-around

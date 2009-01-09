@@ -737,11 +737,10 @@ void RenderViewHost::OnMsgCreateWindow(int route_id,
     view->CreateNewWindow(route_id, modal_dialog_event);
 }
 
-void RenderViewHost::OnMsgCreateWidget(int route_id,
-                                       bool focus_on_show) {
+void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (view)
-    view->CreateNewWidget(route_id, focus_on_show);
+    view->CreateNewWidget(route_id, activatable);
 }
 
 void RenderViewHost::OnMsgShowView(int route_id,

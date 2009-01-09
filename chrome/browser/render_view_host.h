@@ -410,7 +410,7 @@ class RenderViewHost : public RenderWidgetHost {
 
   // IPC message handlers:
   void OnMsgCreateWindow(int route_id, HANDLE modal_dialog_event);
-  void OnMsgCreateWidget(int route_id, bool focus_on_show);
+  void OnMsgCreateWidget(int route_id, bool activatable);
   void OnMsgShowView(int route_id,
                      WindowOpenDisposition disposition,
                      const gfx::Rect& initial_pos,

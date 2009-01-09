@@ -236,9 +236,9 @@ void ResourceMessageFilter::OnMsgCreateWindow(int opener_id,
 }
 
 void ResourceMessageFilter::OnMsgCreateWidget(int opener_id,
-                                              bool focus_on_show,
+                                              bool activatable,
                                               int* route_id) {
-  render_widget_helper_->CreateNewWidget(opener_id, focus_on_show, route_id);
+  render_widget_helper_->CreateNewWidget(opener_id, activatable, route_id);
 }
 
 void ResourceMessageFilter::OnRequestResource(

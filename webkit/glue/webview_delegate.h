@@ -114,8 +114,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // This method is called to create a new WebWidget to act as a popup
   // (like a drop-down menu).
-  virtual WebWidget* CreatePopupWidget(WebView* webview,
-                                       bool focus_on_show) {
+  virtual WebWidget* CreatePopupWidget(WebView* webview, bool activatable) {
     return NULL;
   }
 
