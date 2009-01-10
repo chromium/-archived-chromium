@@ -1344,8 +1344,6 @@ LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 LayoutTests/fast/css/computed-style.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 
-LINUX WIN : LayoutTests/editing/inserting/insert-before-link-1.html = FAIL
-
 // MERGE 38653:38729: New tests
 LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
