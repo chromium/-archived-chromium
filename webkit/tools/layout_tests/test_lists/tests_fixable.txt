@@ -1685,9 +1685,9 @@ LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 // WebKit Merge 38850:38900 new tests
 
 // Linux pixeltest failure: There should be two lines of text
-LINUX WIN : LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
+LINUX : LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
 // Linux pixeltest failure: There should be two lines of text
-LINUX WIN : LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
+LINUX : LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
 LayoutTests/fast/dom/dom-constructors.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
