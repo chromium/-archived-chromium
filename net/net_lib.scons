@@ -8,7 +8,7 @@ Configuration for building net.lib / libnet.a.
 
 Import('env')
 
-env = env.Clone()
+env = env.Clone(COMPONENT_STATIC=True)
 
 env.ApplySConscript([
     '$GRIT_DIR/build/using_generated_resources.scons',
@@ -17,105 +17,269 @@ env.ApplySConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ])
 
-# These net files work on *all* platforms; files that don't work
-# cross-platform live below.
-input_files = [
+input_files = ChromeFileList([
+  MSVSFilter('base', [
     'base/address_list.cc',
+    'base/address_list.h',
+    'base/auth.h',
     'base/auth_cache.cc',
+    'base/auth_cache.h',
     'base/base64.cc',
+    'base/base64.h',
     'base/bzip2_filter.cc',
+    'base/bzip2_filter.h',
+    'base/cert_status_flags.h',
+    'base/client_socket.h',
     'base/client_socket_factory.cc',
+    'base/client_socket_factory.h',
     'base/client_socket_handle.cc',
+    'base/client_socket_handle.h',
     'base/client_socket_pool.cc',
+    'base/client_socket_pool.h',
+    'base/completion_callback.h',
     'base/cookie_monster.cc',
+    'base/cookie_monster.h',
     'base/cookie_policy.cc',
+    'base/cookie_policy.h',
     'base/data_url.cc',
+    'base/data_url.h',
     'base/directory_lister.cc',
+    'base/directory_lister.h',
     'base/dns_resolution_observer.cc',
+    'base/dns_resolution_observer.h',
+    'base/effective_tld_names.dat',
     'base/escape.cc',
+    'base/escape.h',
     'base/ev_root_ca_metadata.cc',
+    'base/ev_root_ca_metadata.h',
+    'base/file_stream.h',
+    'base/file_stream_win.cc',
     'base/filter.cc',
+    'base/filter.h',
     'base/gzip_filter.cc',
+    'base/gzip_filter.h',
     'base/gzip_header.cc',
+    'base/gzip_header.h',
     'base/host_resolver.cc',
+    'base/host_resolver.h',
     'base/listen_socket.cc',
+    'base/listen_socket.h',
+    'base/load_flags.h',
     'base/mime_sniffer.cc',
+    'base/mime_sniffer.h',
     'base/mime_util.cc',
+    'base/mime_util.h',
+    'base/net_error_list.h',
     'base/net_errors.cc',
+    'base/net_errors.h',
     'base/net_module.cc',
+    'base/net_module.h',
+    'base/net_resources.h',
     'base/net_util.cc',
+    'base/net_util.h',
+    'base/net_util_win.cc',
+    'base/platform_mime_util.h',
+    'base/platform_mime_util_win.cc',
+    'build/precompiled_net.cc',
+    'build/precompiled_net.h',
     'base/registry_controlled_domain.cc',
+    'base/registry_controlled_domain.h',
+    'base/scoped_cert_chain_context.h',
     'base/sdch_filter.cc',
+    'base/sdch_filter.h',
     'base/sdch_manager.cc',
+    'base/sdch_manager.h',
+    'base/socket.h',
+    'base/ssl_client_socket.h',
+    'base/ssl_client_socket_win.cc',
+    'base/ssl_client_socket_win.h',
     'base/ssl_config_service.cc',
+    'base/ssl_config_service.h',
+    'base/ssl_info.h',
+    'base/ssl_test_util.cc',
+    'base/tcp_client_socket.h',
+    'base/tcp_client_socket_win.cc',
     'base/telnet_server.cc',
+    'base/telnet_server.h',
     'base/upload_data.cc',
+    'base/upload_data.h',
     'base/upload_data_stream.cc',
+    'base/upload_data_stream.h',
+    'base/wininet_util.cc',
+    'base/wininet_util.h',
+    'base/winsock_init.cc',
+    'base/winsock_init.h',
     'base/x509_certificate.cc',
-    'disk_cache/backend_impl.cc',
-    'disk_cache/block_files.cc',
-    'disk_cache/entry_impl.cc',
-    'disk_cache/eviction.cc',
-    'disk_cache/file_lock.cc',
-    'disk_cache/hash.cc',
-    'disk_cache/mem_backend_impl.cc',
-    'disk_cache/mem_entry_impl.cc',
-    'disk_cache/mem_rankings.cc',
-    'disk_cache/rankings.cc',
-    'disk_cache/stats.cc',
-    'disk_cache/stats_histogram.cc',
-    'disk_cache/trace.cc',
-    'ftp/ftp_network_layer.cc',
-    'ftp/ftp_network_transaction.cc',
+    'base/x509_certificate.h',
+    'base/x509_certificate_win.cc',
+  ]),
+  MSVSFilter('url_request', [
+    'url_request/mime_sniffer_proxy.cc',
+    'url_request/mime_sniffer_proxy.h',
+    'url_request/url_request.cc',
+    'url_request/url_request.h',
+    'url_request/url_request_about_job.cc',
+    'url_request/url_request_about_job.h',
+    'url_request/url_request_context.h',
+    'url_request/url_request_error_job.cc',
+    'url_request/url_request_error_job.h',
+    'url_request/url_request_file_dir_job.cc',
+    'url_request/url_request_file_dir_job.h',
+    'url_request/url_request_file_job.cc',
+    'url_request/url_request_file_job.h',
+    'url_request/url_request_filter.cc',
+    'url_request/url_request_filter.h',
+    'url_request/url_request_ftp_job.cc',
+    'url_request/url_request_ftp_job.h',
+    'url_request/url_request_http_job.cc',
+    'url_request/url_request_http_job.h',
+    'url_request/url_request_inet_job.cc',
+    'url_request/url_request_inet_job.h',
+    'url_request/url_request_job.cc',
+    'url_request/url_request_job.h',
+    'url_request/url_request_job_manager.cc',
+    'url_request/url_request_job_manager.h',
+    'url_request/url_request_job_metrics.cc',
+    'url_request/url_request_job_metrics.h',
+    'url_request/url_request_job_tracker.cc',
+    'url_request/url_request_job_tracker.h',
+    'url_request/url_request_simple_job.cc',
+    'url_request/url_request_simple_job.h',
+    'url_request/url_request_status.h',
+    'url_request/url_request_test_job.cc',
+    'url_request/url_request_test_job.h',
+    'url_request/url_request_view_cache_job.cc',
+    'url_request/url_request_view_cache_job.h',
+  ]),
+  MSVSFilter('http', [
     'http/cert_status_cache.cc',
+    'http/cert_status_cache.h',
+    'http/http_atom_list.h',
+    'http/http_cache.cc',
+    'http/http_cache.h',
+    'http/http_chunked_decoder.cc',
+    'http/http_chunked_decoder.h',
+    'http/http_network_layer.cc',
+    'http/http_network_layer.h',
+    'http/http_network_session.h',
+    'http/http_network_transaction.cc',
+    'http/http_network_transaction.h',
+    'http/http_request_info.h',
+    'http/http_response_headers.cc',
+    'http/http_response_headers.h',
+    'http/http_response_info.h',
+    'http/http_transaction.h',
+    'http/http_transaction_factory.h',
+    'http/http_transaction_winhttp.cc',
+    'http/http_transaction_winhttp.h',
+    'http/http_util.cc',
+    'http/http_util.h',
     'http/http_auth.cc',
+    'http/http_auth.h',
     'http/http_auth_cache.cc',
+    'http/http_auth_cache.h',
+    'http/http_auth_handler.h',
     'http/http_auth_handler.cc',
     'http/http_auth_handler_basic.cc',
+    'http/http_auth_handler_basic.h',
     'http/http_auth_handler_digest.cc',
-    'http/http_cache.cc',
-    'http/http_chunked_decoder.cc',
-    'http/http_network_layer.cc',
-    'http/http_network_transaction.cc',
-    'http/http_response_headers.cc',
-    'http/http_transaction_winhttp.cc',
-    'http/http_util.cc',
+    'http/http_auth_handler_digest.h',
+    'http/http_auth.cc',
+    'http/http_auth.h',
+    'http/http_auth_handler.h',
+    'http/http_auth_handler.cc',
+    'http/http_auth_handler_basic.cc',
+    'http/http_auth_handler_basic.h',
+    'http/http_auth_handler_digest.cc',
+    'http/http_auth_handler_digest.h',
     'http/http_vary_data.cc',
+    'http/http_vary_data.h',
     'http/winhttp_request_throttle.cc',
+    'http/winhttp_request_throttle.h',
+  ]),
+  MSVSFilter('disk_cache', [
+    'disk_cache/addr.h',
+    'disk_cache/backend_impl.cc',
+    'disk_cache/backend_impl.h',
+    'disk_cache/block_files.cc',
+    'disk_cache/block_files.h',
+    'disk_cache/cache_util.h',
+    'disk_cache/cache_util_win.cc',
+    'disk_cache/disk_cache.h',
+    'disk_cache/disk_format.h',
+    'disk_cache/entry_impl.cc',
+    'disk_cache/entry_impl.h',
+    'disk_cache/errors.h',
+    'disk_cache/eviction.cc',
+    'disk_cache/eviction.h',
+    'disk_cache/file.h',
+    'disk_cache/file_block.h',
+    'disk_cache/file_lock.cc',
+    'disk_cache/file_lock.h',
+    'disk_cache/file_win.cc',
+    'disk_cache/hash.cc',
+    'disk_cache/hash.h',
+    'disk_cache/mapped_file.h',
+    'disk_cache/mapped_file_win.cc',
+    'disk_cache/mem_backend_impl.cc',
+    'disk_cache/mem_backend_impl.h',
+    'disk_cache/mem_entry_impl.cc',
+    'disk_cache/mem_entry_impl.h',
+    'disk_cache/mem_rankings.cc',
+    'disk_cache/mem_rankings.h',
+    'disk_cache/rankings.cc',
+    'disk_cache/rankings.h',
+    'disk_cache/stats.cc',
+    'disk_cache/stats.h',
+    'disk_cache/stats_histogram.cc',
+    'disk_cache/stats_histogram.h',
+    'disk_cache/storage_block-inl.h',
+    'disk_cache/storage_block.h',
+    'disk_cache/trace.cc',
+    'disk_cache/trace.h',
+  ]),
+  MSVSFilter('proxy', [
+    'proxy/proxy_config_service_fixed.h',
+    'proxy/proxy_config_service_win.cc',
+    'proxy/proxy_config_service_win.h',
+    'proxy/proxy_resolver_winhttp.cc',
+    'proxy/proxy_resolver_winhttp.h',
     'proxy/proxy_script_fetcher.cc',
+    'proxy/proxy_script_fetcher.h',
     'proxy/proxy_service.cc',
-    'url_request/mime_sniffer_proxy.cc',
-    'url_request/url_request.cc',
-    'url_request/url_request_about_job.cc',
-    'url_request/url_request_error_job.cc',
-    'url_request/url_request_file_dir_job.cc',
-    'url_request/url_request_file_job.cc',
-    'url_request/url_request_filter.cc',
-    'url_request/url_request_ftp_job.cc',
-    'url_request/url_request_http_job.cc',
-    'url_request/url_request_job.cc',
-    'url_request/url_request_job_manager.cc',
-    'url_request/url_request_job_metrics.cc',
-    'url_request/url_request_job_tracker.cc',
-    'url_request/url_request_simple_job.cc',
-    'url_request/url_request_test_job.cc',
-    'url_request/url_request_view_cache_job.cc',
-]
+    'proxy/proxy_service.h',
+  ]),
+  MSVSFilter('ftp', [
+    'ftp/ftp_network_layer.cc',
+    'ftp/ftp_network_layer.h',
+    'ftp/ftp_network_session.h',
+    'ftp/ftp_network_transaction.cc',
+    'ftp/ftp_network_transaction.h',
+    'ftp/ftp_request_info.h',
+    'ftp/ftp_response_info.h',
+    'ftp/ftp_transaction.h',
+    'ftp/ftp_transaction_factory.h',
+  ]),
+])
 
 if env.Bit('posix'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
-  to_be_ported_files = [
+  input_files.Remove(
       'base/ssl_config_service.cc',
       'http/http_transaction_winhttp.cc',
       'http/winhttp_request_throttle.cc',
       'url_request/url_request_ftp_job.cc',
-  ]
-  for remove in to_be_ported_files:
-      input_files.remove(remove)
+  )
 
-if env.Bit('windows'):
-  input_files.extend([
+if not env.Bit('windows'):
+  # Remove windows-specific files on non-Windows platforms.
+  # TODO(sgk):
+  # Remove the windows-specific files from the input_files list above
+  # and turn this back in to an add-on-Windows list (like we used to)
+  # once we're comfortable re-ordering the files in the generated
+  # .vcproj file(s).
+  input_files.Remove(
       'base/file_stream_win.cc',
       'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
@@ -124,16 +288,17 @@ if env.Bit('windows'):
       'base/wininet_util.cc',
       'base/winsock_init.cc',
       'base/x509_certificate_win.cc',
+      'build/precompiled_net.cc',
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
       'proxy/proxy_config_service_win.cc',
       'proxy/proxy_resolver_winhttp.cc',
       'url_request/url_request_inet_job.cc',
-  ])
+  )
 
 if env.Bit('mac'):
-  input_files.extend([
+  input_files.Extend([
       'base/platform_mime_util_mac.cc',
       'base/ssl_client_socket_mac.cc',
       'base/x509_certificate_mac.cc',
@@ -141,7 +306,7 @@ if env.Bit('mac'):
   ])
 
 if env.Bit('linux'):
-  input_files.extend([
+  input_files.Extend([
       'base/nss_memio.c',
       # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
       'base/platform_mime_util_linux.cc',
@@ -150,7 +315,7 @@ if env.Bit('linux'):
   ])
 
 if env.Bit('posix'):
-  input_files.extend([
+  input_files.Extend([
       'base/file_stream_posix.cc',
       'base/net_util_posix.cc',
       'base/tcp_client_socket_libevent.cc',
@@ -163,17 +328,108 @@ if env.Bit('windows'):
   # TODO(bradnelson): This step generates file precompiled_net.pch.ib_tag
   #                   possibly only on incredibuild, scons doesn't know this.
   env_p = env.Clone()
-  env_p.Append(CCFLAGS='/Ylnet')
+  # TODO(sgk):  for now, add the same _LIB flag that Hammer adds to
+  #             the other .obj files
+  env_p.Append(CCFLAGS='/Ylnet',
+               CPPDEFINES=['_LIB'])
   pch, obj = env_p.PCH('precompiled_net.pch', 'build/precompiled_net.cc')
   env['PCH'] = pch
   env['PCHSTOP'] = 'precompiled_net.h'
   env.Append(CCPCHFLAGS = ['/FIprecompiled_net.h'])
-  input_files += [obj]
+  input_files.Replace('build/precompiled_net.cc', obj)
 
-env.ChromeLibrary('net', input_files)
+lib = env.ChromeLibrary('net', input_files)
 
-env.ChromeMSVSProject('$NET_DIR/build/net.vcproj',
-                dependencies = [
-                    '$NET_DIR/build/tld_cleanup.vcproj'
-                ],
-                guid='{326E9795-E760-410A-B69A-3F79DB3F5243}')
+p = env.ChromeMSVSProject('$NET_DIR/build/net.vcproj',
+                          guid='{326E9795-E760-410A-B69A-3F79DB3F5243}',
+                          dependencies = [
+                              '$NET_DIR/build/tld_cleanup.vcproj'
+                          ],
+                          # TODO: restore when we can derive all info,
+                          # on all platforms, from the windows build targets.
+                          #buildtargets=[lib[0]],
+                          files=input_files,
+                          ConfigurationType='4')
+
+p.AddToolFile('build/convert_tld_data.rules')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
+                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
+                '$(SolutionDir)../sdch/using_sdch.vsprops',
+                '$(SolutionDir)../tools/grit/build/using_generated_resources.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'Convert TLD Data File',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                MSVSTool('VCCLCompilerTool',
+                         PrecompiledHeaderThrough='precompiled_net.h',
+                         ForcedIncludeFiles='precompiled_net.h',
+                         UsePrecompiledHeader='2'),
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                'VCLibrarianTool',
+                'VCALinkTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCPostBuildEventTool',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
+                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
+                '$(SolutionDir)../sdch/using_sdch.vsprops',
+                '$(SolutionDir)../tools/grit/build/using_generated_resources.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'Convert TLD Data File',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                'VCCLCompilerTool',
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                'VCLibrarianTool',
+                'VCALinkTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCPostBuildEventTool',
+            ])
+
+# TODO(sgk):  remove when we can derive this information
+p.AddFileConfig('build/precompiled_net.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])
+
+# TODO(sgk):  remove when we can derive this information
+p.AddFileConfig('build/precompiled_net.cc',
+                'Release|Win32',
+                ExcludedFromBuild='true',
+                tools=[
+                    'VCCLCompilerTool',
+                ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/net/build/net.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)

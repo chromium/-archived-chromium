@@ -34,7 +34,46 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('support', [
+    'build/precompiled_net$OBJSUFFIX',
+    'build/precompiled_net.h',
+    'base/run_all_unittests.cc',
+  ]),
+  MSVSFilter('tests', [
+   MSVSFilter('disk_cache', [
+    'disk_cache/addr_unittest.cc',
+    'disk_cache/backend_unittest.cc',
+    'disk_cache/block_files_unittest.cc',
+    'disk_cache/disk_cache_test_base.cc',
+    'disk_cache/disk_cache_test_base.h',
+    'disk_cache/disk_cache_test_util.cc',
+    'disk_cache/disk_cache_test_util.h',
+    'disk_cache/entry_unittest.cc',
+    'disk_cache/mapped_file_unittest.cc',
+    'disk_cache/storage_block_unittest.cc',
+    ]),
+   MSVSFilter('http', [
+    'http/http_auth_cache_unittest.cc',
+    'http/http_auth_handler_basic_unittest.cc',
+    'http/http_auth_handler_digest_unittest.cc',
+    'http/http_auth_unittest.cc',
+    'http/http_cache_unittest.cc',
+    'http/http_chunked_decoder_unittest.cc',
+    'http/http_network_layer_unittest.cc',
+    'http/http_network_transaction_unittest.cc',
+    'http/http_response_headers_unittest.cc',
+    'http/http_transaction_unittest.cc',
+    'http/http_transaction_unittest.h',
+    'http/http_transaction_winhttp_unittest.cc',
+    'http/http_util_unittest.cc',
+    'http/http_vary_data_unittest.cc',
+    'http/winhttp_request_throttle_unittest.cc',
+    ]),
+   MSVSFilter('base', [
     'base/auth_cache_unittest.cc',
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
@@ -49,83 +88,157 @@ input_files = [
     'base/gzip_filter_unittest.cc',
     'base/host_resolver_unittest.cc',
     'base/listen_socket_unittest.cc',
+    'base/listen_socket_unittest.h',
     'base/mime_sniffer_unittest.cc',
     'base/mime_util_unittest.cc',
     'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
-    'base/run_all_unittests.cc',
-    'base/ssl_test_util.cc',
+    'base/sdch_filter_unittest.cc',
     'base/ssl_client_socket_unittest.cc',
+    'base/ssl_config_service_unittest.cc',
     'base/tcp_client_socket_unittest.cc',
     'base/telnet_server_unittest.cc',
     'base/test_completion_callback_unittest.cc',
+    'base/wininet_util_unittest.cc',
     'base/x509_certificate_unittest.cc',
-    'disk_cache/addr_unittest.cc',
-    'disk_cache/backend_unittest.cc',
-    'disk_cache/block_files_unittest.cc',
-    'disk_cache/disk_cache_test_base.cc',
-    'disk_cache/disk_cache_test_util.cc',
-    'disk_cache/entry_unittest.cc',
-    'disk_cache/mapped_file_unittest.cc',
-    'disk_cache/storage_block_unittest.cc',
-    'http/http_auth_cache_unittest.cc',
-    'http/http_auth_handler_basic_unittest.cc',
-    'http/http_auth_handler_digest_unittest.cc',
-    'http/http_auth_unittest.cc',
-    'http/http_cache_unittest.cc',
-    'http/http_chunked_decoder_unittest.cc',
-    'http/http_network_layer_unittest.cc',
-    'http/http_network_transaction_unittest.cc',
-    'http/http_response_headers_unittest.cc',
-    'http/http_transaction_unittest.cc',
-    'http/http_util_unittest.cc',
-    'http/http_vary_data_unittest.cc',
+    ]),
+   MSVSFilter('url_request', [
+    'url_request/url_request_unittest.cc',
+    'url_request/url_request_unittest.h',
+    ]),
+   MSVSFilter('proxy', [
     'proxy/proxy_script_fetcher_unittest.cc',
     'proxy/proxy_service_unittest.cc',
-    'url_request/url_request_unittest.cc',
-]
+    ]),
+  ]),
+])
 
-if env.Bit('windows'):
-  input_files.extend([
+if not env.Bit('windows'):
+  input_files.Remove(
       'base/wininet_util_unittest.cc',
+      'build/precompiled_net$OBJSUFFIX',
       'http/http_transaction_winhttp_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
-  ])
+  )
 
 if env.Bit('linux'):
   # TODO(port):
-  to_be_ported_files = [
+  input_files.Remove(
       'base/sdch_filter_unittest.cc',
       'base/ssl_config_service_unittest.cc',
-  ]
-  input_files = list(set(input_files) - set(to_be_ported_files))
+  )
 
 if env.Bit('mac'):
-  input_files.extend([
+  input_files.Extend([
       '../base/platform_test_mac$OBJSUFFIX',
   ])
 
   # TODO(port):
-  to_be_ported_files = [
+  input_files.Remove(
       'base/x509_certificate_unittest.cc',
       'base/sdch_filter_unittest.cc',
       'base/ssl_config_service_unittest.cc',
       'url_request/url_request_unittest.cc',
-  ]
-  input_files = list(set(input_files) - set(to_be_ported_files))
+  )
 
-env.ChromeTestProgram('net_unittests', input_files)
+net_unittests = env.ChromeTestProgram('net_unittests', input_files)
 
-env.ChromeMSVSProject('$NET_DIR/build/net_unittests.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/base.vcproj',
-                    '$BZIP2_DIR/bzip2.vcproj',
-                    '$NET_DIR/build/net.vcproj',
-                    '$MODP_B64_DIR/modp_b64.vcproj',
-                    '$ZLIB_DIR/zlib.vcproj',
-                    '$ICU38_DIR/build/icu.vcproj',
-                    '$TESTING_DIR/gtest.vcproj',
-                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
-                    '$SDCH_DIR/sdch.vcproj',
-                ],
-                guid='{E99DA267-BE90-4F45-88A1-6919DB2C7567}')
+p = env.ChromeMSVSProject('$NET_DIR/build/net_unittests.vcproj',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$BZIP2_DIR/bzip2.vcproj',
+                              '$NET_DIR/build/net.vcproj',
+                              '$MODP_B64_DIR/modp_b64.vcproj',
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$TESTING_DIR/gtest.vcproj',
+                              '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                              '$SDCH_DIR/sdch.vcproj',
+                          ],
+                          guid='{E99DA267-BE90-4F45-88A1-6919DB2C7567}',
+                          # TODO: restore when we can derive all info,
+                          # on all platforms, from the windows build targets.
+                          #buildtargets=net_unittests,
+                          files=input_files,
+                          ConfigurationType='1')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                MSVSTool('VCCLCompilerTool',
+                         PrecompiledHeaderThrough='precompiled_net.h',
+                         ForcedIncludeFiles='precompiled_net.h',
+                         PreprocessorDefinitions='UNIT_TEST',
+                         UsePrecompiledHeader='2'),
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                'VCLinkerTool',
+                'VCALinkTool',
+                'VCManifestTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCAppVerifierTool',
+                'VCWebDeploymentTool',
+                'VCPostBuildEventTool',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                MSVSTool('VCCLCompilerTool',
+                         PreprocessorDefinitions='UNIT_TEST'),
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                'VCLinkerTool',
+                'VCALinkTool',
+                'VCManifestTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCAppVerifierTool',
+                'VCWebDeploymentTool',
+                'VCPostBuildEventTool',
+            ])
+
+# TODO: Remove when we can derive this information
+p.AddFileConfig('build/precompiled_net.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])
+
+# TODO: Remove when we can derive this information
+p.AddFileConfig('build/precompiled_net.cc',
+                'Release|Win32',
+                ExcludedFromBuild='true',
+                tools=[
+                    'VCCLCompilerTool',
+                ])
+
+env.AlwaysBuild(p)
+
+i = env.Command('$CHROME_SRC_DIR/net/build/net_unittests.vcproj', p,
+                Copy('$TARGET', '$SOURCE'))
+Alias('msvs', i)

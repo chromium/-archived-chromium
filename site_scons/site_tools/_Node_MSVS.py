@@ -39,6 +39,8 @@ import xml.dom.minidom
 import SCons.Node.FS
 import SCons.Script
 
+from SCons.Debug import Trace
+TODO = 0
 
 # Initialize random number generator
 random.seed()
@@ -264,7 +266,7 @@ def MSVSFolder(env, item, *args, **kw):
 
 class MSVSConfig(object):
   """Visual Studio configuration."""
-  def __init__(self, Name, config_type, tools=[], **attrs):
+  def __init__(self, Name, config_type, tools=None, **attrs):
     """Initializes the configuration.
 
     Args:
@@ -278,21 +280,12 @@ class MSVSConfig(object):
         ips = ';'.join(ips)
       attrs['InheritedPropertySheets'] = ips.replace('/', '\\')
 
-    tools = tools or []
-    if not SCons.Util.is_List(tools):
-      tools = [tools]
-    tool_objects = []
-    for t in tools:
-      if not isinstance(t, MSVSTool):
-        t = MSVSTool(t)
-      tool_objects.append(t)
-
     self.Name = Name
     self.config_type = config_type
-    self.tools = tool_objects
+    self.tools = tools
     self.attrs = attrs
 
-  def CreateElement(self, doc):
+  def CreateElement(self, doc, project):
     """Creates an element for the configuration.
 
     Args:
@@ -305,8 +298,20 @@ class MSVSConfig(object):
     node.setAttribute('Name', self.Name)
     for k, v in self.attrs.items():
       node.setAttribute(k, v)
-    for t in self.tools:
+
+    tools = self.tools
+    if tools is None:
+        tools = project.tools or []
+    if not SCons.Util.is_List(tools):
+      tools = [tools]
+    tool_objects = []
+    for t in tools:
+      if not isinstance(t, MSVSTool):
+        t = MSVSTool(t)
+      tool_objects.append(t)
+    for t in tool_objects:
         node.appendChild(t.CreateElement(doc))
+
     return node
 
 
@@ -398,6 +403,17 @@ class MSVSTool(object):
       node.setAttribute(k, v)
     return node
 
+  def _format(self):
+    """Formats a tool specification for debug printing"""
+    xml_impl = xml.dom.getDOMImplementation()
+    doc = xml_impl.createDocument(None, 'VisualStudioProject', None)
+    return self.CreateElement(doc).toprettyxml()
+
+  def diff(self, other):
+    for key, value in self.attrs.items():
+      if other.attrs[key] == value:
+        del self.attrs[key]
+
 
 class MSVSToolFile(object):
   """Visual Studio tool file specification."""
@@ -429,6 +445,7 @@ class _MSVSProject(SCons.Node.FS.File):
   """Visual Studio project."""
 
   entry_type_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
+  initialized = False
 
   def initialize(self, env, path, name = None,
                                  dependencies = None,
@@ -438,7 +455,8 @@ class _MSVSProject(SCons.Node.FS.File):
                                  root_namespace = None,
                                  relative_path_prefix = '',
                                  tools = None,
-                                 configurations = None):
+                                 configurations = None,
+                                 **attrs):
     """Initializes the project.
 
     Args:
@@ -464,32 +482,51 @@ class _MSVSProject(SCons.Node.FS.File):
       configurations: A list of MSVSConfig objects representing
           configurations built by this project.
     """
-    self.msvs_path = path
-    self.msvs_node = env.File(path)
     if name is None:
       if buildtargets:
         name = os.path.splitext(buildtargets[0].name)[0]
       else:
         name = os.path.splitext(os.path.basename(path))[0]
-    self.msvs_name = name
-    self.root_namespace = root_namespace or self.msvs_name
-    self.buildtargets = buildtargets
-    self.relative_path_prefix = relative_path_prefix
-    self.tools = tools
+    if not root_namespace:
+        root_namespace or name
 
+    if self.initialized:
+      # TODO(sgk):  fill in
+      if self.msvs_name != name:
+        pass
+      if self.root_namespace != root_namespace:
+        pass
+      if self.relative_path_prefix != relative_path_prefix:
+        pass
+      if self.guid != guid:
+        pass
+      #if self.env != env:
+      #  pass
+    else:
+      self.buildtargets = []
+      self.configurations = []
+      self.dependencies = []
+      self.file_configurations = {}
+      self.files = MSVSFiles([])
+      self.tool_files = []
+      self.file_lists = []
+      self.initialized = True
+
+    self.attrs = attrs
     self.env = env
     self.guid = guid
+    self.msvs_name = name
+    self.msvs_path = path
+    self.relative_path_prefix = relative_path_prefix
+    self.root_namespace = root_namespace or self.msvs_name
+    self.tools = tools
 
-    self.dependencies = list(dependencies or [])
-    self.configurations = list(configurations or [])
-    self.file_configurations = {}
-    self.tool_files = []
+    self.buildtargets.extend(buildtargets)
+    self.configurations.extend(configurations or [])
+    self.dependencies.extend(list(dependencies or []))
+    self.AddFiles(files)
 
-    if not isinstance(files, MSVSFiles):
-      files = MSVSFiles(self.args2nodes(files))
-    self.files = files
-
-    env.Command(self, [], MSVSSolutionAction)
+    env.Command(self, [], MSVSProjectAction)
 
   def args2nodes(self, entries):
     result = []
@@ -505,7 +542,7 @@ class _MSVSProject(SCons.Node.FS.File):
       elif hasattr(entry, 'sources') and entry.sources:
         result.extend(entry.sources)
       else:
-        result.append(entry)
+        result.append(entry.srcnode())
     return result
 
   def FindFile(self, node):
@@ -523,9 +560,11 @@ class _MSVSProject(SCons.Node.FS.File):
             file_list.extend(f.entries)
           else:
             flat_file_dict[f] = True
+            flat_file_dict[f.srcnode()] = True
             if hasattr(f, 'sources'):
               for s in f.sources:
                 flat_file_dict[s] = True
+                flat_file_dict[s.srcnode()] = True
       self.flat_file_dict = flat_file_dict
 
     return flat_file_dict.get(node)
@@ -555,7 +594,7 @@ class _MSVSProject(SCons.Node.FS.File):
       return sln.rel_path(self).replace('/', '\\')
 
   def get_rel_path(self, node):
-      result = self.relative_path_prefix + self.msvs_node.rel_path(node)
+      result = self.relative_path_prefix + self.rel_path(node)
       return result.replace('/', '\\')
 
   def AddConfig(self, Name, tools=None, **attrs):
@@ -570,6 +609,16 @@ class _MSVSProject(SCons.Node.FS.File):
       # No tool list specifically for this configuration,
       # use the Project's as a default.
       tools = self.tools
+    if not attrs.has_key('ConfigurationType'):
+      # No ConfigurationType specifically for this configuration,
+      # use the Project's as a default.
+      try:
+        attrs['ConfigurationType'] = self.attrs['ConfigurationType']
+      except KeyError:
+        pass
+    if attrs.has_key('InheritedPropertySheets'):
+      ips = attrs['InheritedPropertySheets']
+      attrs['InheritedPropertySheets'] = self.env.subst(ips)
     c = MSVSConfig(Name, 'Configuration', tools=tools, **attrs)
     self.configurations.append(c)
 
@@ -583,9 +632,35 @@ class _MSVSProject(SCons.Node.FS.File):
     later add files to a Filter object which was passed into a previous call
     to AddFiles(), it will not be reflected in this project.
     """
-    # TODO(rspangler) This also doesn't handle adding files to an existing
-    # filter.  That is, it doesn't merge the trees.
-    self.files.extend(self.args2nodes(files))
+    self.file_lists.append(self.args2nodes(files))
+
+  def _FilesToSourceFiles(self, files):
+    file_list = files[:]
+    result = []
+    while file_list:
+      entry = file_list.pop(0)
+      if not isinstance(entry, (list, UserList.UserList)):
+        entry = [entry]
+      for f in entry:
+        if hasattr(f, 'entries'):
+          self._FilesToSourceFiles(f.entries)
+          result.append(f)
+        else:
+          if f.sources:
+            flist = f.sources
+          else:
+            flist = [f]
+          for x in flist:
+            result.append(x.srcnode())
+    files[:] = result
+
+  def _MergeFiles(self, dest_list, src_list):
+    for f in src_list:
+      if f not in dest_list:
+        dest_list.append(f)
+        continue
+      #if hasattr(f, 'entries'):
+      #  self._FilesToSourceFiles(f.entries)
 
   def AddFileConfig(self, path, Name, tools=None, **attrs):
     """Adds a configuration to a file.
@@ -599,9 +674,8 @@ class _MSVSProject(SCons.Node.FS.File):
     Raises:
       ValueError: Relative path does not match any file added via AddFiles().
     """
+    # Store as the VariantDir node, not as the source node.
     node = self.env.File(path)
-    if not self.FindFile(node):
-      raise ValueError('AddFileConfig: file "%s" not in project' % path)
     c = MSVSConfig(Name, 'FileConfiguration', tools=tools, **attrs)
     config_list = self.file_configurations.get(node)
     if config_list is None:
@@ -655,7 +729,7 @@ class _MSVSProject(SCons.Node.FS.File):
     configs = self.doc.createElement('Configurations')
     root.appendChild(configs)
     for c in self.configurations:
-        configs.appendChild(c.CreateElement(self.doc))
+        configs.appendChild(c.CreateElement(self.doc, self))
 
     # Add empty References section
     root.appendChild(self.doc.createElement('References'))
@@ -681,10 +755,194 @@ class _MSVSProject(SCons.Node.FS.File):
     node = self.doc.createElement('File')
     node.setAttribute('RelativePath', self.get_rel_path(file))
     for c in self.file_configurations.get(file, []):
-      node.appendChild(c.CreateElement(self.doc))
+      node.appendChild(c.CreateElement(self.doc, self))
     return node
 
-  def _AddFileConfigurationDifferences(self, target, source, base_env, file_env):
+  def VCCLCompilerTool(self, args):
+    default_attrs = {
+      'BufferSecurityCheck' : "false",
+      'CompileAs' : 0,                          # default
+      'DebugInformationFormat' : 0,             # TODO(???)
+      'DisableSpecificWarnings' : [],
+      'EnableFiberSafeOptimizations' : "false",
+      'EnableFunctionLevelLinking' : "false",
+      'EnableIntrinsicFunctions' : "false",
+      'FavorSizeOrSpeed' : 0,                   # favorNone
+      'InlineFunctionExpansion' : 1,            # expandDisable
+      'MinimalRebuild' : "false",
+      'OmitFramePointers' : "false",
+      'Optimization' : 1,                       # optimizeDisabled TODO(???)
+      'PreprocessorDefinitions' : [],
+      'RuntimeLibrary' : TODO,
+      'RuntimeTypeInfo' : "false",
+      'StringPooling' : "false",
+      'SuppressStartupBanner' : "false",
+      'WarningAsError' : "false",
+      'WarningLevel' : 1,                       # warningLevel_1
+      'WholeProgramOptimization' : "false",
+    }
+
+    tool = MSVSTool('VCCLCompilerTool', **default_attrs)
+    attrs = tool.attrs
+
+    for arg in args:
+      if arg in ('/c',):
+        continue
+      if arg.startswith('/Fo'):
+        continue
+      if arg.startswith('/D'):
+        attrs['PreprocessorDefinitions'].append(arg[2:])
+      elif arg == '/EH':
+        attrs['ExceptionHandling'] = 0
+      elif arg == '/GF':
+        attrs['StringPooling'] = "true"
+      elif arg == '/GL':
+        attrs['WholeProgramOptimization'] = "true"
+      elif arg == '/GM':
+        attrs['MinimalRebuild'] = "true"
+      elif arg == '/GR-':
+        attrs['RuntimeTypeInfo'] = "true"
+      elif arg == '/Gs':
+        attrs['BufferSecurityCheck'] = "true"
+      elif arg == '/Gs-':
+        attrs['BufferSecurityCheck'] = "false"
+      elif arg == '/GT':
+        attrs['EnableFiberSafeOptimizations'] = "true"
+      elif arg == '/Gy':
+        attrs['EnableFunctionLevelLinking'] = "true"
+      elif arg == '/MD':
+        attrs['RuntimeLibrary'] = 1             # rtMultiThreadedDebug
+      elif arg == '/MDd':
+        attrs['RuntimeLibrary'] = 2             # rtMultiThreadedDebugDLL
+      elif arg == '/MT':
+        attrs['RuntimeLibrary'] = 0             # rtMultiThreaded
+      elif arg == '/MTd':
+        attrs['RuntimeLibrary'] = 3             # rtMultiThreadedDLL
+      elif arg == '/nologo':
+        attrs['SuppressStartupBanner'] = "true"
+      elif arg == '/O1':
+        attrs['InlineFunctionExpansion'] = 4    # optimizeMinSpace
+      elif arg == '/O2':
+        attrs['InlineFunctionExpansion'] = 3    # optimizeMaxSpeed
+      elif arg == '/Ob1':
+        attrs['InlineFunctionExpansion'] = 2    # expandOnlyInline
+      elif arg == '/Ob2':
+        attrs['InlineFunctionExpansion'] = 0    # expandAnySuitable
+      elif arg == '/Od':
+        attrs['Optimization'] = 0
+      elif arg == '/Oi':
+        attrs['EnableIntrinsicFunctions'] = "true"
+      elif arg == '/Os':
+        attrs['FavorSizeOrSpeed'] = 1           # favorSize
+      elif arg == '/Ot':
+        attrs['FavorSizeOrSpeed'] = 2           # favorSpeed
+      elif arg == '/Ox':
+        attrs['Optimization'] = 2               # optimizeFull
+      elif arg == '/Oy':
+        attrs['OmitFramePointers'] = "true"
+      elif arg == '/Oy-':
+        attrs['TODO'] = "true"
+      elif arg in ('/Tc', '/TC'):
+        attrs['CompileAs'] = 1 # compileAsC
+      elif arg in ('/Tp', '/TP'):
+        attrs['CompileAs'] = 2 # compileAsCPlusPlus
+      elif arg == '/WX':
+        attrs['WarnAsError'] = "true"
+      elif arg.startswith('/W'):
+        attrs['WarningLevel'] = int(arg[2:])    # 0 through 4
+      elif arg.startswith('/wd'):
+        attrs['DisableSpecificWarnings'].append(str(arg[3:]))
+      elif arg == '/Z7':
+        attrs['DebugInformationFormat'] = 3 # debugOldSytleInfo TODO(???)
+      elif arg == '/Zd':
+        attrs['DebugInformationFormat'] = 0 # debugDisabled
+      elif arg == '/Zi':
+        attrs['DebugInformationFormat'] = 2 # debugEnabled TODO(???)
+      elif arg == '/ZI':
+        attrs['DebugInformationFormat'] = 1 # debugEditAndContinue TODO(???)
+
+    cppdefines = attrs['PreprocessorDefinitions']
+    if cppdefines:
+      attrs['PreprocessorDefinitions'] = ';'.join(cppdefines)
+    warnings = attrs['DisableSpecificWarnings']
+    if warnings:
+      warnings = SCons.Util.uniquer(warnings)
+      attrs['DisableSpecificWarnings'] = ';'.join(warnings)
+
+    return tool
+
+  def VCLibrarianTool(self, args):
+    default_attrs = {
+      'LinkTimeCodeGeneration' : "false",
+      'SuppressStartupBanner' : "false",
+    }
+
+    tool = MSVSTool('VCLibrarianTool', **default_attrs)
+    attrs = tool.attrs
+
+    for arg in args:
+      if arg.startswith('/OUT'):
+        continue
+      if arg == '/ltcg':
+        attrs['LinkTimeCodeGeneration'] = "true"
+      elif arg == '/nologo':
+        attrs['SuppressStartupBanner'] = "true"
+
+    return tool
+
+  def VCLinkerTool(self, args):
+    default_attrs = {
+      'LinkIncremental' : "false",
+      'LinkTimeCodeGeneration' : "false",
+      'EnableCOMDATFolding' : TODO,
+      'OptimizeForWindows98' : TODO,
+      'OptimizeReferences' : TODO,
+      'Profile' : "false",
+      'SuppressStartupBanner' : "false",
+    }
+
+    tool = MSVSTool('VCLinkerTool', **default_attrs)
+    attrs = tool.attrs
+
+    for arg in args:
+      if arg == '':
+        continue
+      if arg == '/INCREMENTAL':
+        attrs['LinkIncremental'] = "true"
+      elif arg == '/INCREMENTAL:NO':
+        attrs['LinkIncremental'] = "false"
+      elif arg == '/LTCG':
+        attrs['LinkTimeCodeGeneration'] = "true"
+      elif arg == '/nologo':
+        attrs['SuppressStartupBanner'] = "true"
+      elif arg == '/OPT:NOICF':
+        attrs['EnableCOMDATFolding'] = 2 #
+      elif arg == '/OPT:NOWIN98':
+        attrs['OptimizeForWindows98'] = 1 #
+      elif arg == '/OPT:REF':
+        attrs['OptimizeReferences'] = 2 #
+      elif arg == '/PROFILE':
+        attrs['Profile'] = "true"
+
+    return tool
+
+  command_to_tool_map = {
+    'cl' : 'VCCLCompilerTool',
+    'cl.exe' : 'VCCLCompilerTool',
+    'lib' : 'VCLibrarianTool',
+    'lib.exe' : 'VCLibrarianTool',
+    'link' : 'VCLinkerTool',
+    'link.exe' : 'VCLinkerTool',
+  }
+
+  def cl_to_tool(self, args):
+    command = os.path.basename(args[0])
+    method_name = self.command_to_tool_map.get(command)
+    if not method_name:
+      return None
+    return getattr(self, method_name)(args[1:])
+
+  def _AddFileConfigurationDifferences(self, target, source, base_env, file_env, name):
     """Adds a per-file configuration.
 
     Args:
@@ -696,7 +954,18 @@ class _MSVSProject(SCons.Node.FS.File):
       file_env: The construction environment for the target, containing
           the per-target settings.
     """
-    pass
+    executor = target.get_executor()
+    base_cl = map(str, base_env.subst_list(executor)[0])
+    file_cl = map(str, file_env.subst_list(executor)[0])
+    if base_cl == file_cl:
+      return
+
+    base_tool = self.cl_to_tool(base_cl)
+    file_tool = self.cl_to_tool(file_cl)
+
+    file_tool.diff(base_tool)
+
+    self.AddFileConfig(source, name, tools=[file_tool])
 
   def _AddFileConfigurations(self, env):
     """Adds per-file configurations for the buildtarget's sources.
@@ -707,25 +976,53 @@ class _MSVSProject(SCons.Node.FS.File):
     if not self.buildtargets:
       return
 
-    bt = self.buildtargets[0]
-    additional_files = []
-    for t in bt.sources:
+    for bt in self.buildtargets:
+      executor = bt.get_executor()
+      build_env = bt.get_build_env()
+      bt_cl = map(str, build_env.subst_list(executor)[0])
+      tool = self.cl_to_tool(bt_cl)
+      default_tool = self.cl_to_tool([bt_cl[0]])
+      if default_tool:
+        tool.diff(default_tool)
+      else:
+        print "no tool for %r" % bt_cl[0]
+      for t in bt.sources:
         e = t.get_build_env()
+        additional_files = SCons.Util.UniqueList()
         for s in t.sources:
-          s = env.arg2nodes([s])[0]
+          s = env.arg2nodes([s])[0].srcnode()
           if not self.FindFile(s):
             additional_files.append(s)
-          if not env is e:
-            self._AddFileConfigurationDifferences(t, s, env, e)
-    self.AddFiles(additional_files)
+          if not build_env is e:
+            # TODO(sgk):  This test may be bogus, but it works for now.
+            # We're trying to figure out if the file configuration
+            # differences need to be added one per build target, or one
+            # per configuration for the entire project.  The assumption
+            # is that if the number of buildtargets configured matches
+            # the number of project configurations, that we use those
+            # in preference to the project configurations.
+            if len(self.buildtargets) == len(self.configurations):
+              self._AddFileConfigurationDifferences(t, s, build_env, e, e.subst('$MSVSCONFIGURATIONNAME'))
+            else:
+              for config in self.configurations:
+                self._AddFileConfigurationDifferences(t, s, build_env, e, config.Name)
+        self._MergeFiles(self.files, additional_files)
 
   def Write(self, env):
     """Writes the project file."""
+    for flist in self.file_lists:
+      self._FilesToSourceFiles(flist)
+      self._MergeFiles(self.files, flist)
+    for k, v in self.file_configurations.items():
+      self.file_configurations[str(k)] = v
+      k = self.env.File(k).srcnode()
+      self.file_configurations[k] = v
+      self.file_configurations[str(k)] = v
     self._AddFileConfigurations(env)
 
     self.Create()
 
-    f = open(str(self.msvs_node), 'wt')
+    f = open(str(self), 'wt')
     f.write(self.formatMSVSProjectXML(self.doc))
     f.close()
 
@@ -789,6 +1086,11 @@ class _MSVSProject(SCons.Node.FS.File):
       'Tool' : [
           'Name',
           'DisableSpecificWarnings',
+
+          'PreprocessorDefinitions',
+          'UsePrecompiledHeader',
+          'PrecompiledHeaderThrough',
+          'ForcedIncludeFiles',
       ],
       'VisualStudioProject' : [
           'ProjectType',
@@ -1062,6 +1364,7 @@ def MSVSSolution(env, item, *args, **kw):
 
 import __builtin__
 
+__builtin__.MSVSConfig = MSVSConfig
 __builtin__.MSVSFilter = MSVSFilter
 __builtin__.MSVSProject = MSVSProject
 __builtin__.MSVSSolution = MSVSSolution
