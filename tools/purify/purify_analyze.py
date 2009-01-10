@@ -629,6 +629,7 @@ class PurifyAnalyze:
       if (not os.path.basename(path).startswith(self._name) or
           not path.endswith(".txt") or
           path.endswith("gtest.txt") or
+          path.endswith("_ignore.txt") or
           not os.path.isfile(path)):
         continue
       msgs = self._MessageHashesFromFile(path)
