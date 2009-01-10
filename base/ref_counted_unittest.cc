@@ -5,8 +5,21 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/ref_counted.h"
 
+namespace {
+
 class SelfAssign : public base::RefCounted<SelfAssign> {
 };
+
+class CheckDerivedMemberAccess : public scoped_refptr<SelfAssign> {
+ public:
+  CheckDerivedMemberAccess() {
+    // This shouldn't compile if we don't have access to the member variable.
+    SelfAssign** pptr = &ptr_;
+    EXPECT_EQ(*pptr, ptr_);
+  }
+};
+
+}  // end namespace
 
 TEST(RefCountedUnitTest, TestSelfAssignment) {
   SelfAssign* p = new SelfAssign;
@@ -15,3 +28,6 @@ TEST(RefCountedUnitTest, TestSelfAssignment) {
   EXPECT_EQ(var.get(), p);
 }
 
+TEST(RefCountedUnitTest, ScopedRefPtrMemberAccess) {
+  CheckDerivedMemberAccess check;
+}

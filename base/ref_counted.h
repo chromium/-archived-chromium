@@ -222,7 +222,7 @@ class scoped_refptr {
     swap(&r.ptr_);
   }
 
- private:
+ protected:
   T* ptr_;
 };
 
