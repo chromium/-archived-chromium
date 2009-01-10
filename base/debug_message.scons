@@ -32,6 +32,7 @@ env.ChromeMSVSProject('$BASE_DIR/build/debug_message.vcproj',
                 guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}')
 
 p = env.ChromeMSVSProject('build/debug_message.vcproj',
+                          dest='$CHROME_SRC_DIR/base/build/debug_message.vcproj',
                           guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}',
                           files=input_files,
                           root_namespace='DebugMessage',
@@ -69,9 +70,3 @@ p.AddConfig('Release|Win32',
                 '$(SolutionDir)../build/common.vsprops',
                 '$(SolutionDir)../build/release.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/base/build/debug_message.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

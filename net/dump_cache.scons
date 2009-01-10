@@ -35,11 +35,12 @@ if env.Bit('windows'):
   env.ChromeTestProgram('dump_cache', input_files)
 
 p = env.ChromeMSVSProject('$NET_DIR/build/dump_cache.vcproj',
+                          dest='$CHROME_SRC_DIR/net/build/dump_cache.vcproj',
                           guid='{4A14E455-2B7C-4C0F-BCC2-35A9666C186F}',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
-                              '$ICU38_DIR/build/icu.vcproj',
                               '$NET_DIR/build/net.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
                           ],
                           # TODO: restore when we can derive all info,
                           # on all platforms, from the windows build targets.
@@ -80,9 +81,3 @@ p.AddConfig('Release|Win32',
                 '$(SolutionDir)../build/common.vsprops',
                 '$(SolutionDir)../build/release.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/net/build/dump_cache.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

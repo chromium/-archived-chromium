@@ -109,6 +109,7 @@ tools = env.ChromeMSVSFolder('sandbox_tools',
 
 
 solution = env.ChromeMSVSSolution('$SANDBOX_DIR/sandbox.sln',
+                            dest='$CHROME_SRC_DIR/sandbox/sandbox.sln',
                             entries = [
                                 '$SANDBOX_DIR/src/sandbox.vcproj',
                                 ('$SANDBOX_DIR/tests/unit_tests/' +
@@ -134,9 +135,3 @@ solution = env.ChromeMSVSSolution('$SANDBOX_DIR/sandbox.sln',
                                 'Release|Win32',
                             ],
                             websiteProperties=False)
-
-env.AlwaysBuild(solution)
-
-i = env.Command('$CHROME_SRC_DIR/sandbox/sandbox.sln', solution,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

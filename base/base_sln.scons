@@ -26,6 +26,7 @@ env.ChromeMSVSFolder('base dependencies',
 
 
 solution = env.ChromeMSVSSolution('base.sln',
+                                  dest='$CHROME_SRC_DIR/base/base.sln',
                                   entries = [
                                       '$BASE_DIR/build/base.vcproj',
                                       '$BASE_DIR/build/base_unittests.vcproj',
@@ -43,9 +44,3 @@ solution = env.ChromeMSVSSolution('base.sln',
                                       'Debug|Win32',
                                       'Release|Win32',
                                   ])
-
-env.AlwaysBuild(solution)
-
-i = env.Command('$CHROME_SRC_DIR/base/base.sln', solution,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

@@ -963,6 +963,9 @@ class _MSVSProject(SCons.Node.FS.File):
     base_tool = self.cl_to_tool(base_cl)
     file_tool = self.cl_to_tool(file_cl)
 
+    if not base_tool or not_file_tool:
+      return
+
     file_tool.diff(base_tool)
 
     self.AddFileConfig(source, name, tools=[file_tool])
@@ -985,7 +988,12 @@ class _MSVSProject(SCons.Node.FS.File):
       if default_tool:
         tool.diff(default_tool)
       else:
-        print "no tool for %r" % bt_cl[0]
+        # TODO(sgk):  print a message unconditionally is too
+        # verbose for things like Python function actions,
+        # but doing nothing runs the risk of burying problems.
+        # Work out a better solution.
+        #print "no tool for %r" % bt_cl[0]
+        pass
       for t in bt.sources:
         e = t.get_build_env()
         additional_files = SCons.Util.UniqueList()

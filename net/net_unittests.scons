@@ -144,6 +144,7 @@ if env.Bit('mac'):
 net_unittests = env.ChromeTestProgram('net_unittests', input_files)
 
 p = env.ChromeMSVSProject('$NET_DIR/build/net_unittests.vcproj',
+                          dest='$CHROME_SRC_DIR/net/build/net_unittests.vcproj',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
                               '$BZIP2_DIR/bzip2.vcproj',
@@ -236,9 +237,3 @@ p.AddFileConfig('build/precompiled_net.cc',
                 tools=[
                     'VCCLCompilerTool',
                 ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/net/build/net_unittests.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

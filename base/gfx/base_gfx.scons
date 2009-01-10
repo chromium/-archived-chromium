@@ -59,6 +59,7 @@ elif env.Bit('linux'):
 env.ChromeLibrary('base_gfx', input_files)
 
 p = env.ChromeMSVSProject('../build/base_gfx.vcproj',
+                          dest='$CHROME_SRC_DIR/base/build/base_gfx.vcproj',
                           guid='{A508ADD3-CECE-4E0F-8448-2F5E454DF551}',
                           files=input_files,
                           tools=[
@@ -94,9 +95,3 @@ p.AddConfig('Release|Win32',
                 './base_gfx.vsprops',
                 '../../skia/using_skia.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/base/build/base_gfx.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

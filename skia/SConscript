@@ -303,7 +303,7 @@ input_files = ChromeFileList([
     'sgl/SkTSearch.cpp',
     'sgl/SkTSort.h',
     'sgl/SkTypeface_fake.cpp',
-    'sgl/SkUnPreMultiply.cpp',
+    #'sgl/SkUnPreMultiply.cpp',
     'sgl/SkUtils.cpp',
     'sgl/SkWriter32.cpp',
     'sgl/SkXfermode.cpp',
@@ -460,6 +460,7 @@ if env.Bit('windows'):
 env.ChromeLibrary('skia', input_files)
 
 p = env.ChromeMSVSProject('skia.vcproj',
+                          dest='$CHROME_SRC_DIR/skia/skia.vcproj',
                           guid='{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}',
                           files=input_files,
                           relative_path_prefix=r'./',
@@ -510,9 +511,3 @@ p.AddFileConfig(
     tools=[
         MSVSTool('VCCLCompilerTool'),
     ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/skia/skia.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

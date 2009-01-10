@@ -377,9 +377,12 @@ if env.Bit('linux'):
 env.ChromeLibrary('base', input_files)
 
 p = env.ChromeMSVSProject('build/base.vcproj',
+                          dest='$CHROME_SRC_DIR/base/build/base.vcproj',
                           guid='{1832A374-8A74-4F9E-B536-69A699B3E165}',
                           dependencies=[
                               'build/debug_message.vcproj',
+                              # Necessary for chrome.sln.
+                              '$ICU38_DIR/build/icu.vcproj',
                           ],
                           files=input_files,
                           tools=[
@@ -443,9 +446,3 @@ p.AddFileConfig(
     tools=[
         MSVSTool('VCCLCompilerTool', DisableSpecificWarnings='4102'),
     ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/base/build/base.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

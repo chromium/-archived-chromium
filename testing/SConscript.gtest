@@ -24,31 +24,51 @@ if env.Bit('windows'):
   )
 
 input_files = ChromeFileList([
-    'gtest/include/gtest/internal/gtest-death-test-internal.h',
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('src', [
     'gtest/src/gtest-death-test.cc',
-    'gtest/include/gtest/gtest-death-test.h',
     'gtest/src/gtest-filepath.cc',
-    'gtest/include/gtest/internal/gtest-filepath.h',
     'gtest/src/gtest-internal-inl.h',
-    'gtest/include/gtest/internal/gtest-internal.h',
-    'gtest/include/gtest/gtest-message.h',
     'gtest/src/gtest-port.cc',
-    'gtest/include/gtest/internal/gtest-port.h',
-    'gtest/include/gtest/gtest-spi.h',
-    'gtest/include/gtest/internal/gtest-string.h',
+    'gtest/src/gtest-test-part.cc',
     'gtest/src/gtest.cc',
+  ]),
+  MSVSFilter('include', [
+    'gtest/include/gtest/gtest-death-test.h',
+    'gtest/include/gtest/gtest-message.h',
+    'gtest/include/gtest/gtest-param-test.h',
+    'gtest/include/gtest/gtest-spi.h',
+    'gtest/include/gtest/gtest-test-part.h',
+    'gtest/include/gtest/gtest-typed-test.h',
     'gtest/include/gtest/gtest.h',
     'gtest/include/gtest/gtest_pred_impl.h',
     'gtest/include/gtest/gtest_prod.h',
-    'gtest/src/gtest-test-part.cc',
-    'multiprocess_func_list.cc',
+    MSVSFilter('internal', [
+      'gtest/include/gtest/internal/gtest-death-test-internal.h',
+      'gtest/include/gtest/internal/gtest-filepath.h',
+      'gtest/include/gtest/internal/gtest-internal.h',
+      'gtest/include/gtest/internal/gtest-linked_ptr.h',
+      'gtest/include/gtest/internal/gtest-param-util-generated.h',
+      'gtest/include/gtest/internal/gtest-param-util.h',
+      'gtest/include/gtest/internal/gtest-port.h',
+      'gtest/include/gtest/internal/gtest-string.h',
+      'gtest/include/gtest/internal/gtest-type-util.h',
+    ]),
+  ]),
+  'multiprocess_func_list.cc',
+  'multiprocess_func_list.h',
+  'platform_test.h',
 ])
 
 env.ChromeLibrary('gtest', input_files)
 
 p = env.ChromeMSVSProject('gtest.vcproj',
+                          dest='$CHROME_SRC_DIR/testing/gtest.vcproj',
                           guid='{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}',
                           files=input_files,
+                          relative_path_prefix=r'./',
                           tools = [
                               'VCPreBuildEventTool',
                               'VCCustomBuildTool',
@@ -65,24 +85,17 @@ p = env.ChromeMSVSProject('gtest.vcproj',
                               'VCBscMakeTool',
                               'VCFxCopTool',
                               'VCPostBuildEventTool',
-                          ])
+                          ],
+                          ConfigurationType = '4')
 
 p.AddConfig('Debug|Win32',
-            ConfigurationType = '4',
             InheritedPropertySheets = [
                 '$(SolutionDir)../build/debug.vsprops',
                 './using_gtest.vsprops',
             ])
 
 p.AddConfig('Release|Win32',
-            ConfigurationType = '4',
             InheritedPropertySheets = [
                 '$(SolutionDir)../build/release.vsprops',
                 './using_gtest.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/testing/gtest.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

@@ -168,6 +168,7 @@ if env.Bit('mac'):
 env.ChromeTestProgram('base_unittests', input_files)
 
 p = env.ChromeMSVSProject('build/base_unittests.vcproj',
+                          dest='$CHROME_SRC_DIR/base/build/base_unittests.vcproj',
                           guid='{27A30967-4BBA-48D1-8522-CDE95F7B1CEC}',
                           dependencies=[
                               '$BASE_DIR/build/base.vcproj',
@@ -216,12 +217,6 @@ p.AddConfig('Release|Win32',
                 './base_unittests.vsprops',
                 '$(SolutionDir)../testing/using_gtest.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/base/build/base_unittests.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)
 
 # TODO(sgk) should this be moved into base.lib like everything else?  This will
 # require updating a bunch of other SConscripts which link directly against

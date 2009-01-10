@@ -65,6 +65,7 @@ input_files = ChromeFileList([
 env.ChromeLibrary('libpng', input_files)
 
 p = env.ChromeMSVSProject('libpng.vcproj',
+                          dest='$CHROME_SRC_DIR/third_party/libpng/libpng.vcproj',
                           guid='{C564F145-9172-42C3-BFCB-6014CA97DBCD}',
                           files=input_files,
                           relative_path_prefix='./',
@@ -92,9 +93,3 @@ p.AddConfig('Release|Win32',
                 '$(SolutionDir)../build/external_code.vsprops',
                 '$(SolutionDir)../third_party/libpng/using_libpng.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/third_party/libpng/libpng.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

@@ -38,9 +38,15 @@ env.ChromeMSVSProject('$CHROME_DIR/browser/resources/browser_resources.vcproj',
                 guid='{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}')
 
 env.ChromeMSVSProject('$CHROME_DIR/installer/gcapi/gcapi_dll.vcproj',
+                dependencies = [
+                    '$GOOGLE_UPDATE_DIR/ondemand_updates.vcproj',
+                ],
                 guid='{B802A2FE-E4E2-4F5A-905A-D5128875C954}')
 
 env.ChromeMSVSProject('$CHROME_DIR/installer/gcapi/gcapi_lib.vcproj',
+                dependencies = [
+                    '$GOOGLE_UPDATE_DIR/ondemand_updates.vcproj',
+                ],
                 guid='{CD2FD73A-6AAB-4886-B887-760D18E8B635}')
 
 env.ChromeMSVSProject('$CHROME_DIR/installer/gcapi/gcapi_test.vcproj',
@@ -271,6 +277,7 @@ env.ChromeMSVSFolder('Libraries',
                    '../tools/memory_watcher/memory_watcher.vcproj',
                    '$MODP_B64_DIR/modp_b64.vcproj',
                    '$NET_DIR/build/net.vcproj',
+                   '$NET_DIR/build/net_resources.vcproj',
                    '$SANDBOX_DIR/src/sandbox.vcproj',
                    '$SDCH_DIR/sdch.vcproj',
                    '$SKIA_DIR/skia.vcproj',
@@ -362,6 +369,7 @@ env.ChromeMSVSFolder('WebKit (ours)',
 
 
 solution = env.ChromeMSVSSolution('chrome.sln',
+                 dest='$CHROME_SRC_DIR/chrome/chrome.sln',
                  entries = [
                      env.ChromeMSVSFolder('App'),
                      env.ChromeMSVSFolder('Browser'),
@@ -531,14 +539,9 @@ solution = env.ChromeMSVSSolution('chrome.sln',
                      '$CHROME_DIR/installer/gcapi/gcapi_lib.vcproj',
                      '$CHROME_DIR/installer/gcapi/gcapi_dll.vcproj',
                      '$CHROME_DIR/installer/gcapi/gcapi_test.vcproj',
+                     '$NET_DIR/build/net_resources.vcproj',
                  ],
                  variants = [
                      'Debug|Win32',
                      'Release|Win32',
                  ])
-
-env.AlwaysBuild(solution)
-
-i = env.Command('$CHROME_SRC_DIR/chrome/chrome.sln', solution,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

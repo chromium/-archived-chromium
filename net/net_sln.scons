@@ -40,6 +40,7 @@ env.ChromeMSVSFolder('net tools',
 
 
 solution = env.ChromeMSVSSolution('net.sln',
+                            dest='$CHROME_SRC_DIR/net/net.sln',
                             entries = [
                                 'net dependencies',
                                 '$GOOGLEURL_DIR/build/googleurl.vcproj',
@@ -60,15 +61,10 @@ solution = env.ChromeMSVSSolution('net.sln',
                                 '$TESTING_DIR/gtest.vcproj',
                                 '$SDCH_DIR/sdch.vcproj',
                                 '$NET_DIR/build/dump_cache.vcproj',
+                                '$NET_DIR/build/net_resources.vcproj',
 
                             ],
                             variants = [
                                 'Debug|Win32',
                                 'Release|Win32',
                             ])
-
-env.AlwaysBuild(solution)
-
-i = env.Command('$CHROME_SRC_DIR/net/net.sln', solution,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

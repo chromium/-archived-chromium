@@ -41,6 +41,7 @@ env.ChromeMSVSFolder('webkit dependencies',
                    '$V8_DIR/tools/visual_studio/v8_base.vcproj',
                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
                    '$SDCH_DIR/sdch.vcproj',
+                   '$NET_DIR/build/net_resources.vcproj',
                ],
                guid='{2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}')
 
@@ -97,6 +98,7 @@ env.ChromeMSVSFolder('webkit (ours)',
 
 
 solution = env.ChromeMSVSSolution('webkit.sln',
+                            dest='$CHROME_SRC_DIR/webkit/webkit.sln',
                             entries = [
                                'webkit dependencies',
                                '$WEBKIT_DIR/build/glue/glue.vcproj',
@@ -160,9 +162,3 @@ solution = env.ChromeMSVSSolution('webkit.sln',
                                 'Debug|Win32',
                                 'Release|Win32',
                             ])
-
-env.AlwaysBuild(solution)
-
-i = env.Command('$CHROME_SRC_DIR/webkit/webkit.sln', solution,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

@@ -341,9 +341,11 @@ if env.Bit('windows'):
 lib = env.ChromeLibrary('net', input_files)
 
 p = env.ChromeMSVSProject('$NET_DIR/build/net.vcproj',
+                          dest='$CHROME_SRC_DIR/net/build/net.vcproj',
                           guid='{326E9795-E760-410A-B69A-3F79DB3F5243}',
                           dependencies = [
-                              '$NET_DIR/build/tld_cleanup.vcproj'
+                              '$NET_DIR/build/net_resources.vcproj',
+                              '$NET_DIR/build/tld_cleanup.vcproj',
                           ],
                           # TODO: restore when we can derive all info,
                           # on all platforms, from the windows build targets.
@@ -355,12 +357,8 @@ p.AddToolFile('build/convert_tld_data.rules')
 
 p.AddConfig('Debug|Win32',
             InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
                 '$(SolutionDir)../build/debug.vsprops',
-                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
-                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
-                '$(SolutionDir)../sdch/using_sdch.vsprops',
-                '$(SolutionDir)../tools/grit/build/using_generated_resources.vsprops',
+                './net.vsprops',
             ],
             tools=[
                 'VCPreBuildEventTool',
@@ -386,12 +384,8 @@ p.AddConfig('Debug|Win32',
 
 p.AddConfig('Release|Win32',
             InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
                 '$(SolutionDir)../build/release.vsprops',
-                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
-                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
-                '$(SolutionDir)../sdch/using_sdch.vsprops',
-                '$(SolutionDir)../tools/grit/build/using_generated_resources.vsprops',
+                './net.vsprops',
             ],
             tools=[
                 'VCPreBuildEventTool',
@@ -427,9 +421,3 @@ p.AddFileConfig('build/precompiled_net.cc',
                 tools=[
                     'VCCLCompilerTool',
                 ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/net/build/net.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

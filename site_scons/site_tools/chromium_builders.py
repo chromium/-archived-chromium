@@ -8,6 +8,8 @@ wrappers around Hammer builders.  This gives us a central place for any
 customization we need to make to the different things we build.
 """
 
+from SCons.Script import *
+
 import SCons.Node
 import _Node_MSVS as MSVS
 
@@ -103,12 +105,34 @@ def ChromeMSVSFolder(env, *args, **kw):
 def ChromeMSVSProject(env, *args, **kw):
   if not env.Bit('msvs'):
     return Null()
-  return env.MSVSProject(*args, **kw)
+  try:
+    dest = kw['dest']
+  except KeyError:
+    dest = None
+  else:
+    del kw['dest']
+  result = env.MSVSProject(*args, **kw)
+  env.AlwaysBuild(result)
+  if dest:
+    i = env.Command(dest, result, Copy('$TARGET', '$SOURCE'))
+    Alias('msvs', i)
+  return result
 
 def ChromeMSVSSolution(env, *args, **kw):
   if not env.Bit('msvs'):
     return Null()
-  return env.MSVSSolution(*args, **kw)
+  try:
+    dest = kw['dest']
+  except KeyError:
+    dest = None
+  else:
+    del kw['dest']
+  result = env.MSVSSolution(*args, **kw)
+  env.AlwaysBuild(result)
+  if dest:
+    i = env.Command(dest, result, Copy('$TARGET', '$SOURCE'))
+    Alias('msvs', i)
+  return result
 
 def generate(env):
   env.AddMethod(ChromeProgram)

@@ -27,7 +27,18 @@ if env.Bit('windows'):
       ],
   )
 
+minizip_filter = MSVSFilter('minizip', [
+    'contrib/minizip/ioapi.c',
+    'contrib/minizip/ioapi.h',
+    'contrib/minizip/iowin32.c',
+    'contrib/minizip/iowin32.h',
+    'contrib/minizip/unzip.c',
+    'contrib/minizip/unzip.h'
+])
+
 input_files = ChromeFileList([
+    minizip_filter,
+
     'adler32.c',
     'compress.c',
     'crc32.c',
@@ -51,17 +62,13 @@ input_files = ChromeFileList([
     'zlib.h',
     'zutil.c',
     'zutil.h',
-    'contrib/minizip/ioapi.c',
-    'contrib/minizip/ioapi.h',
-    'contrib/minizip/unzip.c',
-    'contrib/minizip/unzip.h'
 ])
 
-if env.Bit('windows'):
-  input_files.extend([
+if not env.Bit('windows'):
+  input_files.Remove(
       'contrib/minizip/iowin32.c',
       'contrib/minizip/iowin32.h',
-  ])
+  )
 
 if env.Bit('posix'):
   env.Append(
@@ -74,6 +81,7 @@ if env.Bit('posix'):
 env.ChromeLibrary('zlib', input_files)
 
 p = env.ChromeMSVSProject('zlib.vcproj',
+                          dest='$CHROME_SRC_DIR/third_party/zlib/zlib.vcproj',
                           guid='{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}',
                           files=input_files,
                           relative_path_prefix=r'./',
@@ -99,9 +107,3 @@ p.AddConfig('Release|Win32',
                 '$(SolutionDir)../build/external_code.vsprops',
                 './zlib.vsprops'
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/third_party/zlib/zlib.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

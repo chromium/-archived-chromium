@@ -61,6 +61,7 @@ env.ChromeMSVSProject('$NET_DIR/build/net_perftests.vcproj',
 # TODO########################################################################
 
 p = env.ChromeMSVSProject('$NET_DIR/build/net_perftests.vcproj',
+                          dest='$CHROME_SRC_DIR/net/build/net_perftests.vcproj',
                           guid='{AAC78796-B9A2-4CD9-BF89-09B03E92BF73}',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
@@ -113,9 +114,3 @@ p.AddConfig('Release|Win32',
                 '$(SolutionDir)../build/release.vsprops',
                 '$(SolutionDir)../testing/using_gtest.vsprops',
             ])
-
-env.AlwaysBuild(p)
-
-i = env.Command('$CHROME_SRC_DIR/net/build/net_perftests.vcproj', p,
-                Copy('$TARGET', '$SOURCE'))
-Alias('msvs', i)

@@ -51,6 +51,7 @@ env.Alias('webkit', i)
 
 env.ChromeMSVSProject('$WEBKIT_DIR/activex_shim_dll/activex_shim_dll.vcproj',
                 dependencies = [
+                    '$BASE_DIR/build/base.vcproj',
                     '$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
                 ],
                 guid='{494E414B-1655-48CE-996D-6413ECFB7829}')

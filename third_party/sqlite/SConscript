@@ -138,6 +138,9 @@ if env.Bit('windows'):
 env.ChromeLibrary('sqlite', input_files)
 
 env.ChromeMSVSProject('$SQLITE_DIR/sqlite.vcproj',
+                dependencies = [
+                    '$ICU38_DIR/build/icu.vcproj',
+                ],
                 guid='{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}')
 
 # TODO(tc): There should be a target to build the stand alone sqlite shell.
