@@ -57,17 +57,21 @@ class CoMemReleaser {
   DISALLOW_COPY_AND_ASSIGN(CoMemReleaser);
 };
 
-// Initializes COM in the constructor, and uninitializes COM in the
+// Initializes COM in the constructor (STA), and uninitializes COM in the
 // destructor.
 class ScopedCOMInitializer {
  public:
-  ScopedCOMInitializer() {
-    CoInitialize(NULL);
+  ScopedCOMInitializer();
+  ~ScopedCOMInitializer();
+
+  // Returns the error code from CoInitialize(NULL)
+  // (called in constructor)
+  inline HRESULT error_code() const {
+    return hr_;
   }
 
-  ~ScopedCOMInitializer() {
-    CoUninitialize();
-  }
+ protected:
+  HRESULT hr_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ScopedCOMInitializer);

@@ -82,6 +82,15 @@ UINT_PTR CALLBACK SaveAsDialogHook(HWND dialog, UINT message,
 
 }  // namespace
 
+ScopedCOMInitializer::ScopedCOMInitializer() : hr_(CoInitialize(NULL)) {
+  DCHECK(hr_ != RPC_E_CHANGED_MODE) << "thread already initialized as MTA";
+}
+
+ScopedCOMInitializer::~ScopedCOMInitializer() {
+  if (SUCCEEDED(hr_))
+    CoUninitialize();
+}
+
 std::wstring FormatSystemTime(const SYSTEMTIME& time,
                               const std::wstring& format) {
   // If the format string is empty, just use the default format.
