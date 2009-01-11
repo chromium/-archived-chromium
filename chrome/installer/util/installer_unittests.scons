@@ -53,16 +53,16 @@ if env.Bit('windows'):
 
 input_files = [
     '../setup/setup_constants$OBJSUFFIX',
-    '../util/copy_tree_work_item_unittest.cc',
-    '../util/create_dir_work_item_unittest.cc',
-    '../util/create_reg_key_work_item_unittest.cc',
-    '../util/delete_reg_value_work_item_unittest.cc',
-    '../util/delete_tree_work_item_unittest.cc',
-    '../util/google_chrome_distribution_unittest.cc',
-    '../util/helper_unittest.cc',
-    '../util/run_all_unittests.cc',
-    '../util/set_reg_value_work_item_unittest.cc',
-    '../util/work_item_list_unittest.cc',
+    'copy_tree_work_item_unittest.cc',
+    'create_dir_work_item_unittest.cc',
+    'create_reg_key_work_item_unittest.cc',
+    'delete_reg_value_work_item_unittest.cc',
+    'delete_tree_work_item_unittest.cc',
+    'google_chrome_distribution_unittest.cc',
+    'helper_unittest.cc',
+    'run_all_unittests.cc',
+    'set_reg_value_work_item_unittest.cc',
+    'work_item_list_unittest.cc',
 ]
 
 # TODO(port):

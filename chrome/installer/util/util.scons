@@ -37,6 +37,7 @@ input_files = [
     'google_update_constants.cc',
     'google_update_settings.cc',
     'helper.cc',
+    'html_dialog_impl.cc',
     'install_util.cc',
     'l10n_string_util.cc',
     'logging_installer.cc',
