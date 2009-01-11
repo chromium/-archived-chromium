@@ -61,8 +61,13 @@ class CoMemReleaser {
 // destructor.
 class ScopedCOMInitializer {
  public:
-  ScopedCOMInitializer();
-  ~ScopedCOMInitializer();
+  ScopedCOMInitializer() : hr_(CoInitialize(NULL)) {
+  }
+
+  ScopedCOMInitializer::~ScopedCOMInitializer() {
+    if (SUCCEEDED(hr_))
+      CoUninitialize();
+  }
 
   // Returns the error code from CoInitialize(NULL)
   // (called in constructor)
