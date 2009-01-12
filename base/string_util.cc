@@ -1009,13 +1009,13 @@ std::wstring DoubleToWString(double value) {
   return ASCIIToWide(DoubleToString(value));
 }
 
-inline void StringAppendV(std::string* dst, const char* format, va_list ap) {
+void StringAppendV(std::string* dst, const char* format, va_list ap) {
   StringAppendVT<char>(dst, format, ap);
 }
 
-inline void StringAppendV(std::wstring* dst,
-                          const wchar_t* format,
-                          va_list ap) {
+void StringAppendV(std::wstring* dst,
+                   const wchar_t* format,
+                   va_list ap) {
   StringAppendVT<wchar_t>(dst, format, ap);
 }
 
