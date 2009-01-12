@@ -318,13 +318,18 @@ std::wstring GetLocalName(const std::wstring& locale_code_wstr,
     return name_local;
 }
 
-#if defined(OS_WIN)
-// TODO(port): re-enable.
 std::wstring GetString(int message_id) {
+#if defined(OS_WIN)
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
   return rb.GetLocalizedString(message_id);
+#else
+  NOTIMPLEMENTED();  // TODO(port): Real implementation of GetString.
+  return L"";
+#endif
 }
 
+#if defined(OS_WIN)
+// TODO(port): re-enable.
 static std::wstring GetStringF(int message_id,
                                const std::wstring& a,
                                const std::wstring& b,

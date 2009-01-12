@@ -23,14 +23,13 @@ class UserScriptMasterTest : public testing::Test,
 
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
-    std::wstring path_str;
-    ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &path_str));
-    script_dir_ = FilePath(path_str).Append(
-        FILE_PATH_LITERAL("UserScriptTest"));
+    FilePath tmp_dir;
+    ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &tmp_dir));
+    script_dir_ = tmp_dir.Append(FILE_PATH_LITERAL("UserScriptTest"));
 
     // Create a fresh, empty copy of this directory.
-    file_util::Delete(script_dir_.value(), true);
-    file_util::CreateDirectory(script_dir_.value());
+    file_util::Delete(script_dir_, true);
+    file_util::CreateDirectory(script_dir_);
 
     // Register for all user script notifications.
     NotificationService::current()->AddObserver(this,
@@ -44,8 +43,8 @@ class UserScriptMasterTest : public testing::Test,
         NotificationService::AllSources());
 
     // Clean up test directory.
-    ASSERT_TRUE(file_util::Delete(script_dir_.value(), true));
-    ASSERT_FALSE(file_util::PathExists(script_dir_.value()));
+    ASSERT_TRUE(file_util::Delete(script_dir_, true));
+    ASSERT_FALSE(file_util::PathExists(script_dir_));
   }
 
   virtual void Observe(NotificationType type,
@@ -90,10 +89,10 @@ TEST_F(UserScriptMasterTest, NewScripts) {
 
   FilePath path = script_dir_.Append(FILE_PATH_LITERAL("script.user.js"));
 
-  std::ofstream file;
-  file.open(WideToUTF8(path.value()).c_str());
-  file << "some content";
-  file.close();
+  FILE* file = file_util::OpenFile(path, "w");
+  const char content[] = "some content";
+  fwrite(content, 1, arraysize(content), file);
+  file_util::CloseFile(file);
 
   message_loop_.Run();
 
@@ -103,10 +102,11 @@ TEST_F(UserScriptMasterTest, NewScripts) {
 // Test that we get notified about scripts if they're already in the test dir.
 TEST_F(UserScriptMasterTest, ExistingScripts) {
   FilePath path = script_dir_.Append(FILE_PATH_LITERAL("script.user.js"));
-  std::ofstream file;
-  file.open(WideToUTF8(path.value()).c_str());
-  file << "some content";
-  file.close();
+
+  FILE* file = file_util::OpenFile(path, "w");
+  const char content[] = "some content";
+  fwrite(content, 1, arraysize(content), file);
+  file_util::CloseFile(file);
 
   scoped_refptr<UserScriptMaster> master(
       new UserScriptMaster(MessageLoop::current(), script_dir_));

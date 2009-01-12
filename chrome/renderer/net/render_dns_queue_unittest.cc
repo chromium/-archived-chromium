@@ -19,8 +19,8 @@ class DnsQueueTest : public testing::Test {
 // value in sync with the Push value.
 class DnsQueueSequentialTester {
  public:
-  DnsQueueSequentialTester::DnsQueueSequentialTester(
-    DnsQueue& buffer, int32 read_counter = 0, int32 write_counter = 0);
+  DnsQueueSequentialTester(DnsQueue& buffer, int32 read_counter = 0,
+                           int32 write_counter = 0);
 
   // Return of false means buffer was full, or would not take entry.
   bool Push(void);  // Push the string value of next number.
@@ -129,34 +129,34 @@ TEST(DnsQueueTest, SizeCheck) {
   std::string string;
   DnsQueue buffer(buffer_size);
 
-  EXPECT_EQ(0, buffer.Size());
+  EXPECT_EQ(0U, buffer.Size());
   EXPECT_FALSE(buffer.Pop(&string));
   EXPECT_EQ(DnsQueue::SUCCESSFUL_PUSH, buffer.Push(input_string));
-  EXPECT_EQ(1, buffer.Size());
+  EXPECT_EQ(1U, buffer.Size());
   EXPECT_EQ(DnsQueue::SUCCESSFUL_PUSH, buffer.Push("Hi There"));
-  EXPECT_EQ(2, buffer.Size());
+  EXPECT_EQ(2U, buffer.Size());
   EXPECT_TRUE(buffer.Pop(&string));
-  EXPECT_EQ(1, buffer.Size());
+  EXPECT_EQ(1U, buffer.Size());
   EXPECT_TRUE(buffer.Pop(&string));
-  EXPECT_EQ(0, buffer.Size());
+  EXPECT_EQ(0U, buffer.Size());
   EXPECT_EQ(DnsQueue::SUCCESSFUL_PUSH, buffer.Push(input_string));
-  EXPECT_EQ(1, buffer.Size());
+  EXPECT_EQ(1U, buffer.Size());
 
   // Check to see that the first string, if repeated, is discarded.
   EXPECT_EQ(DnsQueue::REDUNDANT_PUSH, buffer.Push(input_string));
-  EXPECT_EQ(1, buffer.Size());
+  EXPECT_EQ(1U, buffer.Size());
 }
 
 TEST(DnsQueueTest, FillThenEmptyCheck) {
   // Use a big buffer so we'll get a bunch of writes in.
   // This tests to be sure the buffer holds many strings.
   // We also make sure they all come out intact.
-  const int buffer_size = 1000;
-  int byte_usage_counter = 1;  // Separation character between pointer.
+  const size_t buffer_size = 1000;
+  size_t byte_usage_counter = 1;  // Separation character between pointer.
   DnsQueue buffer(buffer_size);
   DnsQueueSequentialTester tester(buffer);
 
-  int write_success;
+  size_t write_success;
   for (write_success = 0; write_success < buffer_size; write_success++) {
     if (!tester.Push())
       break;
@@ -173,7 +173,7 @@ TEST(DnsQueueTest, FillThenEmptyCheck) {
   EXPECT_GE(byte_usage_counter, buffer_size - 4)
       << "Buffer does not appear to have filled";
 
-  EXPECT_GE(write_success, 10) << "Couldn't even write 10 one digit strings "
+  EXPECT_GE(write_success, 10U) << "Couldn't even write 10 one digit strings "
       "in " << buffer_size << " byte buffer";
 
 
@@ -182,19 +182,19 @@ TEST(DnsQueueTest, FillThenEmptyCheck) {
       break;
     write_success--;
   }
-  EXPECT_EQ(write_success, 0) << "Push and Pop count were different";
+  EXPECT_EQ(write_success, 0U) << "Push and Pop count were different";
 
   EXPECT_FALSE(tester.Pop()) << "Read from empty buffer succeeded";
 }
 
 TEST(DnsQueueTest, ClearCheck) {
   // Use a big buffer so we'll get a bunch of writes in.
-  const int buffer_size = 1000;
+  const size_t buffer_size = 1000;
   DnsQueue buffer(buffer_size);
   std::string string("ABC");
   DnsQueueSequentialTester tester(buffer);
 
-  int write_success;
+  size_t write_success;
   for (write_success = 0; write_success < buffer_size; write_success++) {
     if (!tester.Push())
       break;
@@ -202,9 +202,9 @@ TEST(DnsQueueTest, ClearCheck) {
   }
 
   buffer.Clear();
-  EXPECT_EQ(buffer.Size(), 0);
+  EXPECT_EQ(buffer.Size(), 0U);
 
-  int write_success2;
+  size_t write_success2;
   for (write_success2 = 0; write_success2 < buffer_size; write_success2++) {
     if (!tester.Push())
       break;
@@ -216,9 +216,9 @@ TEST(DnsQueueTest, ClearCheck) {
     EXPECT_TRUE(buffer.Pop(&string));
   }
 
-  EXPECT_EQ(buffer.Size(), 0);
+  EXPECT_EQ(buffer.Size(), 0U);
   buffer.Clear();
-  EXPECT_EQ(buffer.Size(), 0);
+  EXPECT_EQ(buffer.Size(), 0U);
 }
 
 TEST(DnsQueueTest, WrapOnVariousSubstrings) {

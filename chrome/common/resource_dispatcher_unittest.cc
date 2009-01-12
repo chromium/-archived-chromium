@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "base/process.h"
 #include "base/ref_counted.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/resource_dispatcher.h"
@@ -109,7 +110,8 @@ class ResourceDispatcherTest : public testing::Test,
       char* put_data_here = static_cast<char*>(shared_mem.memory());
       memcpy(put_data_here, test_page_contents, test_page_contents_len);
       base::SharedMemoryHandle dup_handle;
-      EXPECT_TRUE(shared_mem.GiveToProcess(GetCurrentProcess(), &dup_handle));
+      EXPECT_TRUE(shared_mem.GiveToProcess(
+          base::Process::Current().handle(), &dup_handle));
       dispatcher_->OnReceivedData(request_id, dup_handle, test_page_contents_len);
 
       message_queue_.erase(message_queue_.begin());
