@@ -280,6 +280,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scoped_comptr_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\scoped_ptr_unittest.cc"
 				>
 			</File>
