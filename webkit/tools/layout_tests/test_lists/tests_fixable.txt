@@ -1325,7 +1325,7 @@ LayoutTests/security/block-test.html = FAIL
 
 // MERGE 38500:39550: New tests
 // Needs to be rebaselined on linux/mac.
-LINUX MAC : LayoutTests/transitions/transition-drt-api.html = TIMEOUT
+LINUX MAC : LayoutTests/transitions/transition-drt-api.html = FAIL
 // Missing expected results
 SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 
