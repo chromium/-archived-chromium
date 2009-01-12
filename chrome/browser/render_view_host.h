@@ -371,6 +371,9 @@ class RenderViewHost : public RenderWidgetHost {
   // Does the associated view have an onunload or onbeforeunload handler?
   bool HasUnloadListener() { return has_unload_listener_; }
 
+  // If the associated view can be terminated without any side effects
+  bool CanTerminate() const;
+
   // Clears the has_unload_listener_ bit since the unload handler has fired
   // and we're necessarily leaving the page.
   void UnloadListenerHasFired() { has_unload_listener_ = false; }

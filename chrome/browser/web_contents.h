@@ -314,6 +314,8 @@ class WebContents : public TabContents,
       int32 page_id,
       const webkit_glue::WebApplicationInfo& info);
   virtual void OnEnterOrSpace();
+  virtual bool CanTerminate() const;
+
 
   // SelectFileDialog::Listener ------------------------------------------------
 

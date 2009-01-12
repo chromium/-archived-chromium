@@ -377,6 +377,9 @@ class RenderViewHostDelegate {
   // page. This is used to avoid uninitiated user downloads (aka carpet
   // bombing), see DownloadRequestManager for details.
   virtual void OnEnterOrSpace() { }
+
+  // If this view can be terminated without any side effects
+  virtual bool CanTerminate() const { return true; }
 };
 
 #endif  // CHROME_BROWSER_RENDER_VIEW_HOST_DELEGATE_H__

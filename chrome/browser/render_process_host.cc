@@ -546,7 +546,7 @@ bool RenderProcessHost::FastShutdownIfPossible() {
     if (!widget || !widget->IsRenderView())
       continue;
     RenderViewHost* rvh = static_cast<RenderViewHost*>(widget);
-    if (rvh->HasUnloadListener()) {
+    if (!rvh->CanTerminate()) {
       // NOTE: It's possible that an onunload listener may be installed
       // while we're shutting down, so there's a small race here.  Given that
       // the window is small, it's unlikely that the web page has much

@@ -608,6 +608,13 @@ void RenderViewHost::LoadStateChanged(const GURL& url,
   delegate_->LoadStateChanged(url, load_state);
 }
 
+bool RenderViewHost::CanTerminate() const {
+  if (!delegate_->CanTerminate())
+    return false;
+
+  return has_unload_listener_;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RenderViewHost, IPC message handlers:
 

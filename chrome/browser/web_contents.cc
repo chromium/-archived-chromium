@@ -1341,6 +1341,10 @@ void WebContents::OnEnterOrSpace() {
     drm->OnUserGesture(this);
 }
 
+bool WebContents::CanTerminate() const {
+  return !delegate()->IsExternalTabContainer();
+}
+
 void WebContents::FileSelected(const std::wstring& path, void* params) {
   render_view_host()->FileSelected(path);
 }
