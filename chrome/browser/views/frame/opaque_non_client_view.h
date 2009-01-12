@@ -70,9 +70,6 @@ class OpaqueNonClientView : public views::NonClientView,
   virtual void SetAccessibleName(const std::wstring& name);
 
  private:
-  // Updates the system menu icon button.
-  void SetWindowIcon(SkBitmap window_icon);
-
   // Returns the height of the non-client area at the top of the window (the
   // title bar, etc).
   int CalculateNonClientTopHeight() const;
@@ -85,6 +82,7 @@ class OpaqueNonClientView : public views::NonClientView,
   void PaintTitleBar(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
   void PaintClientEdge(ChromeCanvas* canvas);
+  void PaintMaximizedClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();
