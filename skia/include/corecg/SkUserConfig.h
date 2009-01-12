@@ -150,13 +150,14 @@ typedef unsigned uint32_t;
 
 #endif
 
-#ifndef NDEBUG
-  #define SK_DEBUG
-  #undef SK_RELEASE
-#else
+// FIXME(brettw) re-enable this when we fix the crashes.
+//#ifndef NDEBUG
+//  #define SK_DEBUG
+//  #undef SK_RELEASE
+//#else
   #define SK_RELEASE
   #undef SK_DEBUG
-#endif
+//#endif
 
 // ===== End Chrome-specific definitions =====
 
