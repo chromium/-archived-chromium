@@ -8,9 +8,9 @@
 #define WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H__
 
 #include <string>
-#include <vector>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/webplugin.h"
 
@@ -33,7 +33,6 @@ namespace NPAPI
 
 #define kDefaultPluginLibraryName L"default_plugin"
 
-class PluginLib;
 class PluginInstance;
 
 // The PluginList is responsible for loading our NPAPI based plugins. It does
@@ -57,35 +56,6 @@ class PluginList : public base::RefCounted<PluginList> {
   // static because we want to be able to add to it without searching the disk
   // for plugins.  Must be called before the plugins have been loaded.
   static void AddExtraPluginPath(const FilePath& plugin_path);
-
-  virtual ~PluginList();
-
-  // Find a plugin to by mime type, and clsid.
-  // If clsid is empty, we will just find the plugin that supports mime type.
-  // Otherwise, if mime_type is application/x-oleobject etc that supported by
-  // by our activex shim, we need to check if the specified ActiveX exists. 
-  // If not we will not return the activex shim, instead we will let the
-  // default plugin handle activex installation.
-  // The allow_wildcard parameter controls whether this function returns
-  // plugins which support wildcard mime types (* as the mime type)
-  PluginLib* FindPlugin(const std::string &mime_type, const std::string& clsid,
-                        bool allow_wildcard);
-
-  // Find a plugin to by extension. Returns the corresponding mime type
-  PluginLib* FindPlugin(const GURL &url, std::string* actual_mime_type);
-
-  // Check if we have any plugin for a given type.
-  // mime_type must be all lowercase.
-  bool SupportsType(const std::string &mime_type);
-
-  // Returns true if the given WebPluginInfo supports a given file extension.
-  // extension should be all lower case.
-  // If mime_type is not NULL, it will be set to the mime type if found.
-  // The mime type which corresponds to the extension is optionally returned
-  // back.
-  static bool SupportsExtension(const WebPluginInfo& info,
-                                const std::string &extension,
-                                std::string* actual_mime_type);
 
   // Shutdown all plugins.  Should be called at process teardown.
   void Shutdown();
@@ -123,14 +93,40 @@ class PluginList : public base::RefCounted<PluginList> {
   void LoadPlugin(const FilePath& filename);
 
   // Returns true if we should load the given plugin, or false otherwise.
-  bool ShouldLoadPlugin(const FilePath& filename);
+  bool ShouldLoadPlugin(const std::string& filename);
 
   // Load internal plugins. Right now there is only one: activex_shim.
   void LoadInternalPlugins();
 
-  // Find a plugin by filename.  Returns -1 if it's not found, otherwise its
-  // index in plugins_.
-  int FindPluginFile(const std::wstring& filename);
+  // Find a plugin by mime type, and clsid.
+  // If clsid is empty, we will just find the plugin that supports mime type.
+  // Otherwise, if mime_type is application/x-oleobject etc that's supported by
+  // by our activex shim, we need to check if the specified ActiveX exists. 
+  // If not we will not return the activex shim, instead we will let the
+  // default plugin handle activex installation.
+  // The allow_wildcard parameter controls whether this function returns
+  // plugins which support wildcard mime types (* as the mime type)
+  bool FindPlugin(const std::string &mime_type, const std::string& clsid,
+                  bool allow_wildcard, WebPluginInfo* info);
+
+  // Find a plugin by extension. Returns the corresponding mime type.
+  bool FindPlugin(const GURL &url, std::string* actual_mime_type,
+                  WebPluginInfo* info);
+
+  // Returns true if the given WebPluginInfo supports "mime-type".
+  // mime_type should be all lower case.
+  static bool SupportsType(const WebPluginInfo& info,
+                           const std::string &mime_type,
+                           bool allow_wildcard);
+
+  // Returns true if the given WebPluginInfo supports a given file extension.
+  // extension should be all lower case.
+  // If mime_type is not NULL, it will be set to the mime type if found.
+  // The mime type which corresponds to the extension is optionally returned
+  // back.
+  static bool SupportsExtension(const WebPluginInfo& info,
+                                const std::string &extension,
+                                std::string* actual_mime_type);
 
   // The application path where we expect to find plugins.
   static FilePath GetPluginAppDirectory();
@@ -169,7 +165,10 @@ class PluginList : public base::RefCounted<PluginList> {
 
   static scoped_refptr<PluginList> singleton_;
   bool plugins_loaded_;
-  std::vector<scoped_refptr<PluginLib> > plugins_;
+
+  // Maps from the name of the plugin file (NOT path) to WebPluginInfo.
+  typedef base::hash_map<std::string, WebPluginInfo> PluginMap;
+  PluginMap plugins_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginList);
 };

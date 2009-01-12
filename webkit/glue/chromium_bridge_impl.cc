@@ -325,9 +325,9 @@ bool ChromiumBridge::plugins(bool refresh, Vector<PluginInfo*>* results) {
     rv->desc = webkit_glue::StdWStringToString(plugin.desc);
     rv->file =
 #if defined(OS_WIN)
-      webkit_glue::StdWStringToString(plugin.file.BaseName().value());
+      webkit_glue::StdWStringToString(plugin.path.BaseName().value());
 #elif defined(OS_POSIX)
-      webkit_glue::StdStringToString(plugin.file.BaseName().value());
+      webkit_glue::StdStringToString(plugin.path.BaseName().value());
 #endif
     for (size_t j = 0; j < plugin.mime_types.size(); ++ j) {
       MimeClassInfo* new_mime = new MimeClassInfo();

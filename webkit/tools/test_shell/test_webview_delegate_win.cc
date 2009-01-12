@@ -57,9 +57,9 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
     return NULL;
 
   if (actual_mime_type && !actual_mime_type->empty())
-    return WebPluginDelegateImpl::Create(info.file, *actual_mime_type, hwnd);
+    return WebPluginDelegateImpl::Create(info.path, *actual_mime_type, hwnd);
   else
-    return WebPluginDelegateImpl::Create(info.file, mime_type, hwnd);
+    return WebPluginDelegateImpl::Create(info.path, mime_type, hwnd);
 }
 
 void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {

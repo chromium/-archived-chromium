@@ -759,7 +759,7 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
     // to worry about future standard change that may conflict with the
     // variable definition.
     scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
-    if (plugin->plugin_lib()->plugin_info().file.value() ==
+    if (plugin->plugin_lib()->plugin_info().path.value() ==
           kDefaultPluginLibraryName) {
       plugin->webplugin()->OnMissingPluginStatus(
           variable - default_plugin::kMissingPluginStatusStart);

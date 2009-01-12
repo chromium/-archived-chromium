@@ -17,10 +17,11 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "base/time.h"
+#include "net/base/mime_util.h"
 #include "webkit/activex_shim/activex_shared.h"
+#include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
-#include "webkit/glue/plugins/plugin_lib.h"
 #include "googleurl/src/gurl.h"
 
 using base::TimeDelta;
@@ -42,10 +43,10 @@ static const TCHAR kRegistryPath[] = _T("Path");
 static const TCHAR kRegistryMozillaPlugins[] = _T("SOFTWARE\\MozillaPlugins");
 static const TCHAR kRegistryFirefoxInstalled[] = 
     _T("SOFTWARE\\Mozilla\\Mozilla Firefox");
-static const TCHAR kMozillaActiveXPlugin[] = _T("npmozax.dll");
-static const TCHAR kNewWMPPlugin[] = _T("np-mswmp.dll");
-static const TCHAR kOldWMPPlugin[] = _T("npdsplay.dll");
-static const TCHAR kYahooApplicationStatePlugin[] = _T("npystate.dll");
+static const char  kMozillaActiveXPlugin[] = "npmozax.dll";
+static const char  kNewWMPPlugin[] = "np-mswmp.dll";
+static const char  kOldWMPPlugin[] = "npdsplay.dll";
+static const char  kYahooApplicationStatePlugin[] = "npystate.dll";
 static const TCHAR kRegistryJava[] =
     _T("Software\\JavaSoft\\Java Runtime Environment");
 static const TCHAR kRegistryBrowserJavaVersion[] = _T("BrowserJavaVersion");
@@ -78,10 +79,6 @@ PluginList::PluginList() :
   dont_load_new_wmp_ = command_line.HasSwitch(kUseOldWMPPluginSwitch);
   use_internal_activex_shim_ =
       !command_line.HasSwitch(kNoNativeActiveXShimSwitch);
-}
-
-PluginList::~PluginList() {
-  plugins_.clear();
 }
 
 void PluginList::LoadPlugins(bool refresh) {
@@ -122,9 +119,11 @@ void PluginList::LoadPlugins(bool refresh) {
   LoadWindowsMediaPlugins();
 
   if (webkit_glue::IsDefaultPluginEnabled()) {
-    scoped_refptr<PluginLib> default_plugin = PluginLib::CreatePluginLib(
-        FilePath(kDefaultPluginLibraryName));
-    plugins_.push_back(default_plugin);
+    WebPluginInfo info;
+    if (PluginLib::ReadWebPluginInfo(FilePath(kDefaultPluginLibraryName),
+                                     &info)) {
+      plugins_[WideToUTF8(kDefaultPluginLibraryName)] = info;
+    }
   }
 
   TimeTicks end_time = TimeTicks::Now();
@@ -155,15 +154,42 @@ void PluginList::LoadPlugins(const FilePath &path) {
   FindClose(find_handle);
 }
 
+
+// Compares Windows style version strings (i.e. 1,2,3,4).  Returns true if b's
+// version is newer than a's, or false if it's equal or older.
+bool IsNewerVersion(const std::wstring& a, const std::wstring& b) {
+  std::vector<std::wstring> a_ver, b_ver;
+  SplitString(a, ',', &a_ver);
+  SplitString(b, ',', &b_ver);
+  if (a_ver.size() != b_ver.size())
+    return false;
+  for (size_t i = 0; i < a_ver.size(); i++) {
+    int cur_a = StringToInt(a_ver[i]);
+    int cur_b = StringToInt(b_ver[i]);
+    if (cur_a > cur_b)
+      return false;
+    if (cur_a < cur_b)
+      return true;
+  }
+  return false;
+}
+
 void PluginList::LoadPlugin(const FilePath &path) {
-  if (!ShouldLoadPlugin(path.BaseName()))
+  WebPluginInfo plugin_info;
+  if (!PluginLib::ReadWebPluginInfo(path, &plugin_info))
     return;
 
-  scoped_refptr<PluginLib> new_plugin = PluginLib::CreatePluginLib(path);
-  if (!new_plugin.get())
+  // Canonicalize names on Windows in case different versions of the plugin
+  // have different case in the version string.
+  std::string filename_lc = StringToLowerASCII(plugin_info.filename);
+  if (!ShouldLoadPlugin(filename_lc))
     return;
 
-  const WebPluginInfo& plugin_info = new_plugin->plugin_info();
+  PluginMap::const_iterator iter = plugins_.find(filename_lc);
+  if (iter != plugins_.end() &&
+      !IsNewerVersion(iter->second.version, plugin_info.version))
+    return;  // The loaded version is newer.
+
   for (size_t i = 0; i < plugin_info.mime_types.size(); ++i) {
     // TODO: don't load global handlers for now.
     // WebKit hands to the Plugin before it tries
@@ -172,50 +198,41 @@ void PluginList::LoadPlugin(const FilePath &path) {
     if (mime_type == "*" ) {
 #ifndef NDEBUG
       // Make an exception for NPSPY.
-      if (plugin_info.file.value().find(L"npspy.dll") != std::wstring::npos) {
-        // Put it at the beginning so it's used before the real plugin.
-        plugins_.insert(plugins_.begin(), new_plugin.get());
-      }
+      if (filename_lc == "npspy.dll")
+        break;
 #endif
-      continue;
-    }
-
-    if (!SupportsType(mime_type)) {
-      plugins_.push_back(new_plugin);
       return;
     }
   }
+
+  plugins_[filename_lc] = plugin_info;
 }
 
-bool PluginList::ShouldLoadPlugin(const FilePath& filename) {
-  // Canonicalize names.
-  std::wstring filename_lc = StringToLowerASCII(filename.value());
-  
+bool PluginList::ShouldLoadPlugin(const std::string& filename) {
   // Depends on XPCOM.
-  if (filename_lc == kMozillaActiveXPlugin)
+  if (filename == kMozillaActiveXPlugin)
     return false;
 
   // Disable the yahoo application state plugin as it crashes the plugin
   // process on return from NPObjectStub::OnInvoke. Please refer to
   // http://b/issue?id=1372124 for more information.
-  if (filename_lc == kYahooApplicationStatePlugin)
+  if (filename == kYahooApplicationStatePlugin)
     return false;
 
   // We will use activex shim to handle embeded wmp media.
   if (use_internal_activex_shim_) {
-    if (filename_lc == kNewWMPPlugin || filename_lc == kOldWMPPlugin)
+    if (filename == kNewWMPPlugin || filename == kOldWMPPlugin)
       return false;
   } else {
     // If both the new and old WMP plugins exist, only load the new one.
-    if (filename_lc == kNewWMPPlugin) {
+    if (filename == kNewWMPPlugin) {
       if (dont_load_new_wmp_)
         return false;
 
-      int old_plugin = FindPluginFile(kOldWMPPlugin);
-      if (old_plugin != -1)
-        plugins_.erase(plugins_.begin() + old_plugin);
-    } else if (filename_lc == kOldWMPPlugin) {
-      if (FindPluginFile(kNewWMPPlugin) != -1)
+      if (plugins_.find(kOldWMPPlugin) != plugins_.end())
+        plugins_.erase(kOldWMPPlugin);
+    } else if (filename == kOldWMPPlugin) {
+      if (plugins_.find(kOldWMPPlugin) != plugins_.end())
         return false;
     }
   }
@@ -224,73 +241,94 @@ bool PluginList::ShouldLoadPlugin(const FilePath& filename) {
 }
 
 void PluginList::LoadInternalPlugins() {
-  if (use_internal_activex_shim_) {
-    scoped_refptr<PluginLib> new_plugin = PluginLib::CreatePluginLib(
-        FilePath(kActiveXShimFileName));
-    plugins_.push_back(new_plugin);
-    
-    new_plugin = PluginLib::CreatePluginLib(
-        FilePath(kActivexShimFileNameForMediaPlayer));
-    plugins_.push_back(new_plugin);
-  }
-}
+  if (!use_internal_activex_shim_)
+    return;
 
-int PluginList::FindPluginFile(const std::wstring& filename) {
-  std::string filename_narrow = WideToASCII(filename);
-  for (size_t i = 0; i < plugins_.size(); ++i) {
-    if (LowerCaseEqualsASCII(
-          plugins_[i]->plugin_info().file.BaseName().value(),
-            filename_narrow.c_str())) {
-      return static_cast<int>(i);
-    }
+  WebPluginInfo info;
+  if (PluginLib::ReadWebPluginInfo(FilePath(kActiveXShimFileName),
+                                   &info)) {
+    plugins_[WideToUTF8(kActiveXShimFileName)] = info;
   }
 
-  return -1;
-}
+  if (PluginLib::ReadWebPluginInfo(FilePath(kActivexShimFileNameForMediaPlayer),
+                                   &info)) {
+    plugins_[WideToUTF8(kActivexShimFileNameForMediaPlayer)] = info;
+  }
+}  
 
-PluginLib* PluginList::FindPlugin(const std::string& mime_type,
-                                  const std::string& clsid,
-                                  bool allow_wildcard) {
+bool PluginList::FindPlugin(const std::string& mime_type,
+                            const std::string& clsid,
+                            bool allow_wildcard,
+                            WebPluginInfo* info) {
   DCHECK(mime_type == StringToLowerASCII(mime_type));
 
-  for (size_t idx = 0; idx < plugins_.size(); ++idx) {
-    if (plugins_[idx]->SupportsType(mime_type, allow_wildcard)) {
-      if (!clsid.empty() && 
-          plugins_[idx]->plugin_info().file.value() == kActiveXShimFileName) {
+  PluginMap::const_iterator default_iter = plugins_.end();
+  for (PluginMap::const_iterator iter = plugins_.begin();
+       iter != plugins_.end(); ++iter) {
+    if (SupportsType(iter->second, mime_type, allow_wildcard)) {
+      if (iter->second.path.value() == kDefaultPluginLibraryName) {
+        // Only use the default plugin if it's the only one that's found.
+        default_iter = iter;
+        continue;
+      }
+
+      if (!clsid.empty() && iter->second.path.value() == kActiveXShimFileName) {
         // Special handling for ActiveX shim. If ActiveX is not installed, we
         // should use the default plugin to show the installation UI.
         if (!activex_shim::IsActiveXInstalled(clsid))
           continue;
       }
-      return plugins_[idx];
+      *info = iter->second;
+      return true;
     }
   }
 
-  return NULL;
+  if (default_iter != plugins_.end()) {
+    *info = default_iter->second;
+    return true;
+  }
+
+  return false;
 }
 
-PluginLib* PluginList::FindPlugin(const GURL &url, std::string* actual_mime_type) {
+bool PluginList::FindPlugin(const GURL &url, std::string* actual_mime_type,
+                            WebPluginInfo* info) {
   std::wstring path = base::SysNativeMBToWide(url.path());
   std::wstring extension_wide = file_util::GetFileExtensionFromPath(path);
   if (extension_wide.empty())
-    return NULL;
+    return false;
 
   std::string extension =
       StringToLowerASCII(base::SysWideToNativeMB(extension_wide));
 
-  for (size_t idx = 0; idx < plugins_.size(); ++idx) {
-    if (SupportsExtension(plugins_[idx]->plugin_info(), extension, actual_mime_type)) {
-      return plugins_[idx];
+  for (PluginMap::const_iterator iter = plugins_.begin();
+       iter != plugins_.end(); ++iter) {
+    if (SupportsExtension(iter->second, extension, actual_mime_type)) {
+      *info = iter->second;
+      return true;
     }
   }
 
-  return NULL;
+  return false;
 }
 
-bool PluginList::SupportsType(const std::string &mime_type) {
-  DCHECK(mime_type == StringToLowerASCII(mime_type));
-  bool allow_wildcard = true;
-  return (FindPlugin(mime_type, "", allow_wildcard ) != 0);
+bool PluginList::SupportsType(const WebPluginInfo& info,
+                              const std::string &mime_type,
+                              bool allow_wildcard) {
+  // Webkit will ask for a plugin to handle empty mime types.
+  if (mime_type.empty())
+    return false;
+
+  for (size_t i = 0; i < info.mime_types.size(); ++i) {
+    const WebPluginMimeType& mime_info = info.mime_types[i];
+    if (net::MatchesMimeType(mime_info.mime_type, mime_type)) {
+      if (!allow_wildcard && mime_info.mime_type == "*") {
+        continue;
+      }
+      return true;
+    }
+  }
+  return false;
 }
 
 bool PluginList::SupportsExtension(const WebPluginInfo& info,
@@ -315,9 +353,12 @@ bool PluginList::GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   if (refresh)
     LoadPlugins(true);
 
+  int i = 0;
   plugins->resize(plugins_.size());
-  for (size_t i = 0; i < plugins->size(); ++i)
-    (*plugins)[i] = plugins_[i]->plugin_info();
+  for (PluginMap::const_iterator iter = plugins_.begin();
+       iter != plugins_.end(); ++iter) {
+    (*plugins)[i++] = iter->second;
+  }
 
   return true;
 }
@@ -328,32 +369,25 @@ bool PluginList::GetPluginInfo(const GURL& url,
                                bool allow_wildcard,
                                WebPluginInfo* info,
                                std::string* actual_mime_type) {
-  scoped_refptr<PluginLib> plugin = FindPlugin(mime_type, clsid, 
-                                               allow_wildcard);
-
-  if (plugin.get() == NULL ||
-      (plugin->plugin_info().file.value() == kDefaultPluginLibraryName
-        && clsid.empty())) {
-    scoped_refptr<PluginLib> default_plugin = plugin;
-    plugin = FindPlugin(url, actual_mime_type);
-    // url matches may not return the default plugin if no match is found.
-    if (plugin.get() == NULL && default_plugin.get() != NULL)
-      plugin = default_plugin;
+  bool found = FindPlugin(mime_type, clsid, allow_wildcard, info);
+  if (!found ||
+      (info->path.value() == kDefaultPluginLibraryName && clsid.empty())) {
+    WebPluginInfo info2;
+    if (FindPlugin(url, actual_mime_type, &info2)) {
+      found = true;
+      *info = info2;
+    }
   }
 
-  if (plugin.get() == NULL)
-    return false;
-
-  *info = plugin->plugin_info();
-  return true;
+  return found;
 }
 
 bool PluginList::GetPluginInfoByPath(const FilePath& plugin_path,
                                      WebPluginInfo* info) {
-  for (size_t i = 0; i < plugins_.size(); ++i) {
-    if (wcsicmp(plugins_[i]->plugin_info().file.value().c_str(),
-                plugin_path.value().c_str()) == 0) {
-      *info = plugins_[i]->plugin_info();
+  for (PluginMap::const_iterator iter = plugins_.begin();
+       iter != plugins_.end(); ++iter) {
+    if (iter->second.path == plugin_path) {
+      *info = iter->second;
       return true;
     }
   }

@@ -154,7 +154,7 @@ FilePath PluginService::GetPluginPath(const GURL& url,
   NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
                                                 allow_wildcard, &info,
                                                 actual_mime_type);
-  return info.file;
+  return info.path;
 }
 
 bool PluginService::GetPluginInfoByPath(const FilePath& plugin_path,

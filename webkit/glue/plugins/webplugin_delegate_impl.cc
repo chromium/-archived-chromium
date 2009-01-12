@@ -145,16 +145,16 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
   memset(&window_, 0, sizeof(window_));
 
   const WebPluginInfo& plugin_info = instance_->plugin_lib()->plugin_info();
-  std::wstring filename = plugin_info.file.BaseName().value();
+  std::string filename = StringToLowerASCII(plugin_info.filename);
 
   if (instance_->mime_type() == "application/x-shockwave-flash" ||
-      filename == L"npswf32.dll") {
+      filename == "npswf32.dll") {
     // Flash only requests windowless plugins if we return a Mozilla user
     // agent.
     instance_->set_use_mozilla_user_agent();
     quirks_ |= PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE;
     quirks_ |= PLUGIN_QUIRK_PATCH_SETCURSOR;
-  } else if (filename == L"nppdf32.dll") {
+  } else if (filename == "nppdf32.dll") {
     // Check for the version number above or equal 9.
     std::vector<std::wstring> version;
     SplitString(plugin_info.version, L'.', &version);
@@ -169,7 +169,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     // Windows Media Player needs two NPP_SetWindow calls.
     quirks_ |= PLUGIN_QUIRK_SETWINDOW_TWICE;
   } else if (instance_->mime_type() == "audio/x-pn-realaudio-plugin" ||
-             filename == L"nppl3260.dll") {
+             filename == "nppl3260.dll") {
     quirks_ |= PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY;
   } else if (plugin_info.name.find(L"VLC Multimedia Plugin") !=
              std::wstring::npos) {
@@ -178,14 +178,14 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     quirks_ |= PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY;
     // VLC 0.8.6d and 0.8.6e crash if multiple instances are created.
     quirks_ |= PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES;
-  } else if (filename == L"npctrl.dll") {
+  } else if (filename == "npctrl.dll") {
     // Explanation for this quirk can be found in
     // WebPluginDelegateImpl::Initialize.
     quirks_ |= PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU;
     quirks_ |= PLUGIN_QUIRK_PATCH_SETCURSOR;
   }
 
-  plugin_module_handle_ = ::GetModuleHandle(filename.c_str());
+  plugin_module_handle_ = ::GetModuleHandle(plugin_info.path.value().c_str());
 }
 
 WebPluginDelegateImpl::~WebPluginDelegateImpl() {
@@ -393,7 +393,7 @@ void WebPluginDelegateImpl::DidManualLoadFail() {
 }
 
 FilePath WebPluginDelegateImpl::GetPluginPath() {
-  return instance()->plugin_lib()->plugin_info().file;
+  return instance()->plugin_lib()->plugin_info().path;
 }
 
 void WebPluginDelegateImpl::InstallMissingPlugin() {

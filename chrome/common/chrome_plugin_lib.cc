@@ -53,23 +53,15 @@ ChromePluginLib* ChromePluginLib::Create(const FilePath& filename,
   }
   DCHECK(IsPluginThread());
 
-#if defined(OS_WIN)
-  // Lower case to match how PluginLib::CreatePluginLib stores the path. See
-  // there for the rationale behind this.
-  FilePath filename_lc(StringToLowerASCII(filename.value()));
-#else
-  FilePath filename_lc = filename;
-#endif  // OS_WIN
-
-  PluginMap::const_iterator iter = g_loaded_libs->find(filename_lc);
+  PluginMap::const_iterator iter = g_loaded_libs->find(filename);
   if (iter != g_loaded_libs->end())
     return iter->second;
 
-  scoped_refptr<ChromePluginLib> plugin(new ChromePluginLib(filename_lc));
+  scoped_refptr<ChromePluginLib> plugin(new ChromePluginLib(filename));
   if (!plugin->CP_Initialize(bfuncs))
     return NULL;
 
-  (*g_loaded_libs)[filename_lc] = plugin;
+  (*g_loaded_libs)[filename] = plugin;
   return plugin;
 }
 
