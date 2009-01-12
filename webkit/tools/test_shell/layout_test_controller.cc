@@ -597,8 +597,8 @@ void LayoutTestController::pauseTransitionAtTimeOnElementWithId(
     double time = args[1].ToDouble();
     std::string element_id = args[2].ToString();
 
-    webkit_glue::PauseTransitionAtTimeOnElementWithId(
-        shell_->webView(), property_name, time, element_id);
+    result->Set(webkit_glue::PauseTransitionAtTimeOnElementWithId(
+        shell_->webView(), property_name, time, element_id));
   } else {
     result->Set(false);
   }

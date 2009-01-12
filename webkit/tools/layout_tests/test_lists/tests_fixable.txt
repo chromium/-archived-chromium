@@ -1324,7 +1324,8 @@ LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 LayoutTests/security/block-test.html = FAIL
 
 // MERGE 38500:39550: New tests
-LayoutTests/transitions/transition-drt-api.html = TIMEOUT
+// Needs to be rebaselined on linux/mac.
+LINUX MAC : LayoutTests/transitions/transition-drt-api.html = TIMEOUT
 // Missing expected results
 SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 
