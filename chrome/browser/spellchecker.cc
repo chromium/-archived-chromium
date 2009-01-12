@@ -301,14 +301,14 @@ void SpellChecker::set_file_is_downloading(bool value) {
 std::wstring SpellChecker::GetVersionedFileName(const Language& language,
                                                 const std::wstring& dict_dir) {
   // The default version string currently in use.
-  static const wchar_t kDefaultVersionString[] = L"-1-1";
+  static const wchar_t kDefaultVersionString[] = L"-1-2";
 
   // Use this struct to insert version strings for dictionary files which have
-  // special version strings, other than the default version string.
-  // For de-DE, we are currently using de-DE-1-1-1 for versioning, because
-  // de-DE-1-1.bdic, in the download server, corresponds to a less used
-  // dictionary. This version, i.e., de-DE-1-1-1.bdic, is actually renamed
-  // from de-DE-neu-1-1.bic.
+  // special version strings, other than the default version string. For eight
+  // languages (included below in the struct), the version is kept at 1-1. The
+  // others (19 of them) have been updated to new default version 1-2 which 
+  // contains many new words.
+  // TODO (sidchat): Work on these 8 languages to bring them upto version 1-2.
   static const struct {
     // The language input.
     const char* language;
@@ -316,7 +316,14 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& language,
     // The corresponding version.
     const char* version;
   } special_version_string[] = {
-    {"de-DE", "-1-1-1"},
+    {"en-GB", "-1-1"},
+    {"es-ES", "-1-1"},
+    {"nl-NL", "-1-1"},
+    {"ru-RU", "-1-1"},
+    {"sv-SE", "-1-1"},
+    {"he-IL", "-1-1"},
+    {"el-GR", "-1-1"},
+    {"hi-IN", "-1-1"}
   };
 
   // Generate the bdict file name using default version string or special 
