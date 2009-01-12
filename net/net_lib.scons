@@ -37,6 +37,7 @@ input_files = ChromeFileList([
     'base/client_socket_pool.cc',
     'base/client_socket_pool.h',
     'base/completion_callback.h',
+    'base/connection_type_histograms.cc',
     'base/cookie_monster.cc',
     'base/cookie_monster.h',
     'base/cookie_policy.cc',

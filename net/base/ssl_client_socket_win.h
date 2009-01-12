@@ -63,6 +63,7 @@ class SSLClientSocketWin : public SSLClientSocket {
   int DoPayloadWriteComplete(int result);
 
   int DidCompleteHandshake();
+  static void LogConnectionTypeMetrics(PCCERT_CHAIN_CONTEXT chain_context);
   int VerifyServerCert();
 
   CompletionCallbackImpl<SSLClientSocketWin> io_callback_;

@@ -9,6 +9,7 @@
 #include "base/lock.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
+#include "net/base/connection_type_histograms.h"
 #include "net/base/net_errors.h"
 #include "net/base/scoped_cert_chain_context.h"
 #include "net/base/ssl_info.h"
@@ -1021,6 +1022,44 @@ int SSLClientSocketWin::DidCompleteHandshake() {
   return VerifyServerCert();
 }
 
+// static
+void SSLClientSocketWin::LogConnectionTypeMetrics(
+    PCCERT_CHAIN_CONTEXT chain_context) {
+  UpdateConnectionTypeHistograms(CONNECTION_SSL);
+
+  PCERT_SIMPLE_CHAIN first_chain = chain_context->rgpChain[0];
+  int num_elements = first_chain->cElement;
+  PCERT_CHAIN_ELEMENT* element = first_chain->rgpElement;
+  bool has_md5 = false;
+  bool has_md2 = false;
+  bool has_md4 = false;
+
+  // Each chain starts with the end entity certificate and ends with the root
+  // CA certificate.  Do not inspect the signature algorithm of the root CA
+  // certificate because the signature on the trust anchor is not important.
+  for (int i = 0; i < num_elements - 1; ++i) {
+    PCCERT_CONTEXT cert = element[i]->pCertContext;
+    const char* algorithm = cert->pCertInfo->SignatureAlgorithm.pszObjId;
+    if (strcmp(algorithm, szOID_RSA_MD5RSA) == 0) {
+      // md5WithRSAEncryption: 1.2.840.113549.1.1.4
+      has_md5 = true;
+    } else if (strcmp(algorithm, szOID_RSA_MD2RSA) == 0) {
+      // md2WithRSAEncryption: 1.2.840.113549.1.1.2
+      has_md2 = true;
+    } else if (strcmp(algorithm, szOID_RSA_MD4RSA) == 0) {
+      // md4WithRSAEncryption: 1.2.840.113549.1.1.3
+      has_md4 = true;
+    }
+  }
+
+  if (has_md5)
+    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5);
+  if (has_md2)
+    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2);
+  if (has_md4)
+    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD4);
+}
+
 // Set server_cert_status_ and return OK or a network error.
 int SSLClientSocketWin::VerifyServerCert() {
   DCHECK(server_cert_);
@@ -1057,6 +1096,8 @@ int SSLClientSocketWin::VerifyServerCert() {
     return MapSecurityError(GetLastError());
   }
   ScopedCertChainContext scoped_chain_context(chain_context);
+
+  LogConnectionTypeMetrics(chain_context);
 
   server_cert_status_ |= MapCertChainErrorStatusToCertStatus(
       chain_context->TrustStatus.dwErrorStatus);

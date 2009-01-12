@@ -10,6 +10,7 @@
 #include "base/trace_event.h"
 #include "build/build_config.h"
 #include "net/base/client_socket_factory.h"
+#include "net/base/connection_type_histograms.h"
 #include "net/base/dns_resolution_observer.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_flags.h"
@@ -62,6 +63,8 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
 
 int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
                                   CompletionCallback* callback) {
+  UpdateConnectionTypeHistograms(CONNECTION_ANY);
+
   request_ = request_info;
 
   next_state_ = STATE_RESOLVE_PROXY;
@@ -1054,7 +1057,7 @@ int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
 void HttpNetworkTransaction::AddAuthorizationHeader(HttpAuth::Target target) {
   // If we have no authentication information, check if we can select
   // a cache entry preemptively (based on the path).
-  if(!HaveAuth(target) && !SelectPreemptiveAuth(target))
+  if (!HaveAuth(target) && !SelectPreemptiveAuth(target))
     return;
 
   DCHECK(HaveAuth(target));
@@ -1114,7 +1117,7 @@ void HttpNetworkTransaction::InvalidateRejectedAuthFromCache(
   // Note: we require the username/password to match before invalidating
   // since the entry in the cache may be newer than what we used last time.
   session_->auth_cache()->Remove(AuthOrigin(target),
-                                 auth_handler_[target]->realm(), 
+                                 auth_handler_[target]->realm(),
                                  auth_identity_[target].username,
                                  auth_identity_[target].password);
 }

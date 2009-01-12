@@ -209,6 +209,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\connection_type_histograms.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\connection_type_histograms.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\cookie_monster.cc"
 				>
 			</File>

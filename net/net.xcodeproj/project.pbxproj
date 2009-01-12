@@ -184,6 +184,7 @@
 		E4CE9C260E8C027900D5378C /* http_network_layer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED335C0E5A194700A747DB /* http_network_layer_unittest.cc */; };
 		E4CE9C2E0E8C02ED00D5378C /* http_transaction_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334A0E5A194700A747DB /* http_transaction_unittest.cc */; };
 		E4CE9C380E8C035C00D5378C /* http_network_transaction_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33590E5A194700A747DB /* http_network_transaction_unittest.cc */; };
+		B4DD1C3523B3890B287055E6 /* connection_type_histograms.cc in Sources */ = {isa = PBXBuildFile; fileRef = F17062083BCE6F0A42F4C479 /* connection_type_histograms.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -702,6 +703,8 @@
 		E4AFA6420E5241B400201347 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
 		E4AFA6450E5241D300201347 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = base/base.xcodeproj; sourceTree = "<group>"; };
 		E4BA04540E25613300BE02C6 /* libnet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnet.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F17062083BCE6F0A42F4C479 /* connection_type_histograms.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection_type_histograms.cc; sourceTree = "<group>"; };
+		D4726BC70CCE10F4FF2A5E12 /* connection_type_histograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = connection_type_histograms.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -903,6 +906,8 @@
 				7BED326B0E5A181C00A747DB /* client_socket_pool.h */,
 				7BED326A0E5A181C00A747DB /* client_socket_pool_unittest.cc */,
 				7BED32680E5A181C00A747DB /* completion_callback.h */,
+				F17062083BCE6F0A42F4C479 /* connection_type_histograms.cc */,
+				D4726BC70CCE10F4FF2A5E12 /* connection_type_histograms.h */,
 				7BED32690E5A181C00A747DB /* cookie_monster.cc */,
 				7BED32670E5A181C00A747DB /* cookie_monster.h */,
 				7BED32650E5A181C00A747DB /* cookie_monster_perftest.cc */,
@@ -1472,6 +1477,7 @@
 				E4CE9C0D0E8BFFFA00D5378C /* client_socket_factory.cc in Sources */,
 				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
 				7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */,
+				B4DD1C3523B3890B287055E6 /* connection_type_histograms.cc in Sources */,
 				7B8B5A430E5CD1FD002F9A97 /* cookie_monster.cc in Sources */,
 				7B85040C0E5B2DD800730B43 /* cookie_policy.cc in Sources */,
 				7B85040D0E5B2DD800730B43 /* data_url.cc in Sources */,
