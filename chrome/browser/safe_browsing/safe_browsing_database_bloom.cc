@@ -141,6 +141,7 @@ bool SafeBrowsingDatabaseBloom::Close() {
   if (!db_)
     return true;
 
+  insert_transaction_.reset();
   statement_cache_.reset();  // Must free statements before closing DB.
   bool result = sqlite3_close(db_) == SQLITE_OK;
   db_ = NULL;
@@ -236,8 +237,6 @@ bool SafeBrowsingDatabaseBloom::CreateTables() {
 bool SafeBrowsingDatabaseBloom::ResetDatabase() {
   hash_cache_->clear();
   ClearUpdateCaches();
-
-  insert_transaction_.reset();
 
   bool rv = Close();
   DCHECK(rv);
@@ -420,7 +419,6 @@ bool SafeBrowsingDatabaseBloom::UpdateStarted() {
   insert_transaction_.reset(new SQLTransaction(db_));
   if (insert_transaction_->Begin() != SQLITE_OK) {
     DCHECK(false) << "Safe browsing database couldn't start transaction";
-    insert_transaction_.reset();
     Close();
     return false;
   }
@@ -431,7 +429,6 @@ void SafeBrowsingDatabaseBloom::UpdateFinished(bool update_succeeded) {
   if (update_succeeded)
     BuildBloomFilter();
 
-  insert_transaction_.reset();
   Close();
 
   // We won't need the chunk caches until the next update (which will read them
