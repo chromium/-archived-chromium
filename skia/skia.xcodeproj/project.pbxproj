@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A70A3BAE0ED7385F00C31871 /* bitmap_platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BA80ED7385F00C31871 /* bitmap_platform_device_mac.cc */; };
 		A74368B90EE61BBF003562CC /* convolver.cc in Sources */ = {isa = PBXBuildFile; fileRef = A74368B70EE61BBF003562CC /* convolver.cc */; };
+		A7B44ED10F181AA90077C3F1 /* google_logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7B44ED00F181AA90077C3F1 /* google_logging.cc */; };
 		A74368BA0EE61BBF003562CC /* image_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = A74368B80EE61BBF003562CC /* image_operations.cc */; };
 		A70A3BAF0ED7385F00C31871 /* platform_canvas_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BAA0ED7385F00C31871 /* platform_canvas_mac.cc */; };
 		A70A3BB00ED7385F00C31871 /* platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = A70A3BAC0ED7385F00C31871 /* platform_device_mac.cc */; };
@@ -140,6 +141,7 @@
 		32DBCF5E0370ADEE00C91783 /* skia_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_Prefix.pch; sourceTree = "<group>"; };
 		7B4DF4490E5B5E5C004D7619 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7B4DF44A0E5B5E5C004D7619 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
+		A7B44ED00F181AA90077C3F1 /* google_logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = google_logging.cc; path = ext/google_logging.cc; sourceTree = "<group>"; };
 		7B4DF44B0E5B5E5C004D7619 /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
 		7B4DF44C0E5B5E5C004D7619 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
 		7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
@@ -515,6 +517,7 @@
 				A74368B70EE61BBF003562CC /* convolver.cc */,
 				A70A3BA80ED7385F00C31871 /* bitmap_platform_device_mac.cc */,
 				A70A3BA90ED7385F00C31871 /* bitmap_platform_device_mac.h */,
+				A7B44ED00F181AA90077C3F1 /* google_logging.cc */,
 				A74368B80EE61BBF003562CC /* image_operations.cc */,
 				A70A3BAA0ED7385F00C31871 /* platform_canvas_mac.cc */,
 				A70A3BAB0ED7385F00C31871 /* platform_canvas_mac.h */,
@@ -962,6 +965,7 @@
 			files = (
 				A70A3BAE0ED7385F00C31871 /* bitmap_platform_device_mac.cc in Sources */,
 				A74368B90EE61BBF003562CC /* convolver.cc in Sources */,
+				A7B44ED10F181AA90077C3F1 /* google_logging.cc in Sources */,
 				A74368BA0EE61BBF003562CC /* image_operations.cc in Sources */,
 				A70A3BAF0ED7385F00C31871 /* platform_canvas_mac.cc in Sources */,
 				A70A3BB00ED7385F00C31871 /* platform_device_mac.cc in Sources */,

@@ -86,6 +86,14 @@
 #define SK_SCALAR_IS_FLOAT
 #undef SK_SCALAR_IS_FIXED
 
+// Log the file and line number for assertions.
+#define SkDebugf(...) SkDebugf_FileLine(__FILE__, __LINE__, __VA_ARGS__)
+void SkDebugf_FileLine(const char* file, int line, const char* format, ...);
+#include <stdio.h>
+#define SK_DEBUGBREAK(cond) do { if (!(cond)) { \
+    SkDebugf("%s:%d: failed assertion \"%s\"\n", \
+    __FILE__, __LINE__, #cond); SK_CRASH(); } } while (false)
+
 #if defined(SK_BUILD_FOR_WIN32)
 
 #define SK_BUILD_FOR_WIN
@@ -102,6 +110,10 @@ typedef unsigned uint32_t;
 #define SK_R32_SHIFT    16
 #define SK_G32_SHIFT    8
 #define SK_B32_SHIFT    0
+
+// VC doesn't support __restrict__, so make it a NOP.
+#undef SK_RESTRICT
+#define SK_RESTRICT
 
 // Skia uses this deprecated bzero function to fill zeros into a string.
 #define bzero(str, len) memset(str, 0, len)
@@ -138,16 +150,14 @@ typedef unsigned uint32_t;
 
 #endif
 
-// Don't use skia debug mode even when compiled as debug, because we don't
-// care about debugging this library, only our app.
-#undef SK_DEBUG
-#undef SK_SUPPORT_UNITTEST
-#define SK_RELEASE
-#undef SK_RESTRICT
-#define SK_RESTRICT
-#define SkDebugf(...)  ((void)0)
+#ifndef NDEBUG
+  #define SK_DEBUG
+  #undef SK_RELEASE
+#else
+  #define SK_RELEASE
+  #undef SK_DEBUG
+#endif
 
 // ===== End Chrome-specific definitions =====
 
 #endif
-

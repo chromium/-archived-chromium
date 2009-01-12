@@ -96,11 +96,15 @@
     // Chrome already defines WIN32_LEAN_AND_MEAN so no need to define it here.
 
     #include <windows.h>
-    // End Chrome-specific changes
 
+    #include <stdio.h>
     #ifndef SK_DEBUGBREAK
-        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) DebugBreak(); } while (false)
+        #define SK_DEBUGBREAK(cond) do { if (!(cond)) { \
+            SkDebugf("%s:%d: failed assertion \"%s\"\n", \
+            __FILE__, __LINE__, #cond); SK_CRASH(); } } while (false)
     #endif
+
+    // End Chrome-specific changes
 
     #ifdef SK_BUILD_FOR_WIN32
         #define strcasecmp(a, b)        stricmp(a, b)

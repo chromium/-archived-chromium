@@ -375,6 +375,7 @@ input_files = ChromeFileList([
     'ext/bitmap_platform_device.h',
     'ext/bitmap_platform_device_win.cc',
     'ext/bitmap_platform_device_win.h',
+    'ext/google_logging.cc',
     'ext/image_operations.cc',
     'ext/image_operations.h',
     'ext/platform_canvas.h',

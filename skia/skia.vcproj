@@ -1353,14 +1353,6 @@
 			Name="ext"
 			>
 			<File
-				RelativePath=".\ext\convolver.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ext\convolver.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ext\bitmap_platform_device.h"
 				>
 			</File>
@@ -1370,6 +1362,18 @@
 			</File>
 			<File
 				RelativePath=".\ext\bitmap_platform_device_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\convolver.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\convolver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\google_logging.cc"
 				>
 			</File>
 			<File
