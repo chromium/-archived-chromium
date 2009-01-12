@@ -14,6 +14,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/observer_list.h"
@@ -202,7 +203,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                     URLRequestContext* request_context,
                     IPC::Message* sync_result);
 
-  // Initiate a download from the browser process (as opposed to a resource
+  // Initiates a download from the browser process (as opposed to a resource
   // request from the renderer).
   void BeginDownload(const GURL& url,
                      const GURL& referrer,
@@ -210,7 +211,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                      int render_view_id,
                      URLRequestContext* request_context);
 
-  // Initiate a save file from the browser process (as opposed to a resource
+  // Initiates a save file from the browser process (as opposed to a resource
   // request from the renderer).
   void BeginSaveFile(const GURL& url,
                      const GURL& referrer,
@@ -301,12 +302,12 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     return r;
   }
 
-  // Add an observer.  The observer will be called on the IO thread.  To
+  // Adds an observer.  The observer will be called on the IO thread.  To
   // observe resource events on the UI thread, subscribe to the
   // NOTIFY_RESOURCE_* notifications of the notification service.
   void AddObserver(Observer* obs);
 
-  // Remove an observer.
+  // Removes an observer.
   void RemoveObserver(Observer* obs);
 
   // Retrieves a URLRequest.  Must be called from the IO thread.
@@ -317,15 +318,40 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   bool ShouldDownload(const std::string& mime_type,
                       const std::string& content_disposition);
 
-  // Notify our observers that a request has been cancelled.
+  // Notifies our observers that a request has been cancelled.
   void NotifyResponseCompleted(URLRequest* request, int render_process_host_id);
 
   void RemovePendingRequest(int render_process_host_id, int request_id);
 
+  // Causes all new requests for the render view identified by
+  // |render_process_host_id| and |render_view_id| to be blocked (not being
+  // started) until ResumeBlockedRequestsForRenderView or
+  // CancelBlockedRequestsForRenderView is called.
+  void BlockRequestsForRenderView(int render_process_host_id,
+                                  int render_view_id);
+
+  // Resumes any blocked request for the specified RenderView.
+  void ResumeBlockedRequestsForRenderView(int render_process_host_id,
+                                          int render_view_id);
+
+  // Cancels any blocked request for the specified RenderView.
+  void CancelBlockedRequestsForRenderView(int render_process_host_id,
+                                          int render_view_id);
+
  private:
+  FRIEND_TEST(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies);
   class ShutdownTask;
 
   friend class ShutdownTask;
+
+  struct BlockedRequest {
+    BlockedRequest(URLRequest* url_request, bool mixed_content)
+        : url_request(url_request),
+          mixed_content(mixed_content) {
+    }
+    URLRequest* url_request;
+    bool mixed_content;
+  };
 
   // A shutdown helper that runs on the IO thread.
   void OnShutdown();
@@ -396,6 +422,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   void MaybeUpdateUploadProgress(ExtraRequestInfo *info, URLRequest *request);
 
+  // Resumes or cancels (if |cancel_requests| is true) any blocked requests.
+  void ProcessBlockedRequestsForRenderView(int render_process_host_id,
+                                           int render_view_id,
+                                           bool cancel_requests);
+
   PendingRequestList pending_requests_;
 
   // We cache the UI message loop so we can create new UI-related objects on it.
@@ -439,6 +470,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   // True if the resource dispatcher host has been shut down.
   bool is_shutdown_;
+
+  typedef std::vector<BlockedRequest> BlockedRequestsList;
+  typedef std::pair<int, int> ProcessRendererIDs;
+  typedef std::map<ProcessRendererIDs, BlockedRequestsList*> BlockedRequestMap;
+  BlockedRequestMap blocked_requests_map_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceDispatcherHost);
 };

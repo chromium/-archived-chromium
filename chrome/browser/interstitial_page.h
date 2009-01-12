@@ -26,6 +26,8 @@ class WebContents;
 // through a navigation, the WebContents closing them or the tab containing them
 // being closed.
 
+enum ResourceRequestAction;
+
 class InterstitialPage : public NotificationObserver,
                          public RenderViewHostDelegate {
  public:
@@ -34,7 +36,7 @@ class InterstitialPage : public NotificationObserver,
   // case a temporary navigation entry is created with the URL |url| and
   // added to the navigation controller (so the interstitial page appears as a
   // new navigation entry). |new_navigation| should be false when the
-  // interstitial was triggered by a loading a sub-resource in a page. 
+  // interstitial was triggered by a loading a sub-resource in a page.
   InterstitialPage(WebContents* tab, bool new_navigation, const GURL& url);
   virtual ~InterstitialPage();
 
@@ -117,6 +119,11 @@ class InterstitialPage : public NotificationObserver,
   // - any command sent by the RenderViewHost will be ignored.
   void Disable();
 
+  // Executes the passed action on the ResourceDispatcher (on the IO thread).
+  // Used to block/resume/cancel requests for the RenderViewHost hidden by this
+  // interstitial.
+  void TakeActionOnResourceDispatcher(ResourceRequestAction action);
+
   // The tab in which we are displayed.
   WebContents* tab_;
 
@@ -146,6 +153,8 @@ class InterstitialPage : public NotificationObserver,
   // The original title of the tab that should be reverted to when the
   // interstitial is hidden.
   std::wstring original_tab_title_;
+
+  MessageLoop* ui_loop_;
 
   // We keep a map of the various blocking pages shown as the UI tests need to
   // be able to retrieve them.

@@ -17,6 +17,55 @@
 #include "chrome/views/window_delegate.h"
 #include "net/base/escape.h"
 
+enum ResourceRequestAction {
+  BLOCK,
+  RESUME,
+  CANCEL
+};
+
+namespace {
+
+class ResourceRequestTask : public Task {
+ public:
+  ResourceRequestTask(RenderViewHost* render_view_host,
+                      ResourceRequestAction action)
+      : action_(action),
+        process_id_(render_view_host->process()->host_id()),
+        render_view_host_id_(render_view_host->routing_id()),
+        resource_dispatcher_host_(
+            g_browser_process->resource_dispatcher_host()) {
+  }
+
+  virtual void Run() {
+    switch (action_) {
+      case BLOCK:
+        resource_dispatcher_host_->BlockRequestsForRenderView(
+            process_id_, render_view_host_id_);
+        break;
+      case RESUME:
+        resource_dispatcher_host_->ResumeBlockedRequestsForRenderView(
+            process_id_, render_view_host_id_);
+        break;
+      case CANCEL:
+        resource_dispatcher_host_->CancelBlockedRequestsForRenderView(
+            process_id_, render_view_host_id_);
+        break;
+      default:
+        NOTREACHED();
+    }
+  }
+
+ private:
+  ResourceRequestAction action_;
+  int process_id_;
+  int render_view_host_id_;
+  ResourceDispatcherHost* resource_dispatcher_host_;
+
+  DISALLOW_COPY_AND_ASSIGN(ResourceRequestTask);
+};
+
+}  // namespace
+
 // static
 InterstitialPage::InterstitialPageMap*
     InterstitialPage::tab_to_interstitial_page_ =  NULL;
@@ -30,7 +79,8 @@ InterstitialPage::InterstitialPage(WebContents* tab,
       enabled_(true),
       new_navigation_(new_navigation),
       render_view_host_(NULL),
-      should_revert_tab_title_(false) {
+      should_revert_tab_title_(false),
+      ui_loop_(MessageLoop::current()) {
   InitInterstitialPageMap();
   // It would be inconsistent to create an interstitial with no new navigation
   // (which is the case when the interstitial was triggered by a sub-resource on
@@ -50,6 +100,16 @@ void InterstitialPage::Show() {
   // If an interstitial is already showing, close it before showing the new one.
   if (tab_->interstitial_page())
     tab_->interstitial_page()->DontProceed();
+
+  // Block the resource requests for the render view host while it is hidden.
+  TakeActionOnResourceDispatcher(BLOCK);
+  // We need to be notified when the RenderViewHost is destroyed so we can
+  // cancel the blocked requests.  We cannot do that on
+  // NOTIFY_TAB_CONTENTS_DESTROYED as at that point the RenderViewHost has
+  // already been destroyed.
+  notification_registrar_.Add(
+      this, NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
+      Source<RenderWidgetHost>(tab_->render_view_host()));
 
   // Update the tab_to_interstitial_page_ map.
   InterstitialPageMap::const_iterator iter =
@@ -101,25 +161,38 @@ void InterstitialPage::Hide() {
 void InterstitialPage::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  if (type == NOTIFY_NAV_ENTRY_PENDING) {
-    // We are navigating away from the interstitial.  Make sure clicking on the
-    // interstitial will have no effect.
-    Disable();
-    return;
-  }
-  DCHECK(type == NOTIFY_TAB_CONTENTS_DESTROYED ||
-         type == NOTIFY_NAV_ENTRY_COMMITTED);
-  if (!action_taken_) {
-    // We are navigating away from the interstitial or closing a tab with an
-    // interstitial.  Default to DontProceed(). We don't just call Hide as
-    // subclasses will almost certainly override DontProceed to do some work
-    // (ex: close pending connections).
-    DontProceed();
-  } else {
-    // User decided to proceed and either the navigation was committed or the
-    // tab was closed before that.
-    Hide();
-    // WARNING: we are now deleted!
+  switch (type) {
+    case NOTIFY_NAV_ENTRY_PENDING:
+      // We are navigating away from the interstitial.  Make sure clicking on
+      // the interstitial will have no effect.
+      Disable();
+      break;
+    case NOTIFY_RENDER_WIDGET_HOST_DESTROYED:
+      if (!action_taken_) {
+        // The RenderViewHost is being destroyed (as part of the tab being
+        // closed), make sure we clear the blocked requests.
+        DCHECK(Source<RenderViewHost>(source).ptr() ==
+               tab_->render_view_host());
+        TakeActionOnResourceDispatcher(CANCEL);
+      }
+      break;
+    case NOTIFY_TAB_CONTENTS_DESTROYED:
+    case NOTIFY_NAV_ENTRY_COMMITTED:
+      if (!action_taken_) {
+        // We are navigating away from the interstitial or closing a tab with an
+        // interstitial.  Default to DontProceed(). We don't just call Hide as
+        // subclasses will almost certainly override DontProceed to do some work
+        // (ex: close pending connections).
+        DontProceed();
+      } else {
+        // User decided to proceed and either the navigation was committed or
+        // the tab was closed before that.
+        Hide();
+        // WARNING: we are now deleted!
+      }
+      break;
+    default:
+      NOTREACHED();
   }
 }
 
@@ -150,6 +223,15 @@ void InterstitialPage::Proceed() {
   // Resumes the throbber.
   tab_->SetIsLoading(true, NULL);
 
+  // If this is a new navigation, the old page is going away, so we cancel any
+  // blocked requests for it.  If it is not a new navigation, then it means the
+  // interstitial was shown as a result of a resource loading in the page.
+  // Since the user wants to proceed, we'll let any blocked request go through.
+  if (new_navigation_)
+    TakeActionOnResourceDispatcher(CANCEL);
+  else
+    TakeActionOnResourceDispatcher(RESUME);
+
   // No need to hide if we are a new navigation, we'll get hidden when the
   // navigation is committed.
   if (!new_navigation_) {
@@ -162,6 +244,16 @@ void InterstitialPage::DontProceed() {
   DCHECK(!action_taken_);
   Disable();
   action_taken_ = true;
+
+  // If this is a new navigation, we are returning to the original page, so we
+  // resume blocked requests for it.  If it is not a new navigation, then it
+  // means the interstitial was shown as a result of a resource loading in the
+  // page and we won't return to the original page, so we cancel blocked
+  // requests in that case.
+  if (new_navigation_)
+    TakeActionOnResourceDispatcher(RESUME);
+  else
+    TakeActionOnResourceDispatcher(CANCEL);
 
   if (new_navigation_) {
     // Since no navigation happens we have to discard the transient entry
@@ -234,6 +326,21 @@ void InterstitialPage::UpdateTitle(RenderViewHost* render_view_host,
 
 void InterstitialPage::Disable() {
   enabled_ = false;
+}
+
+void InterstitialPage::TakeActionOnResourceDispatcher(
+    ResourceRequestAction action) {
+  DCHECK(MessageLoop::current() == ui_loop_) << 
+      "TakeActionOnResourceDispatcher should be called on the main thread.";
+  // The tab might not have a render_view_host if it was closed (in which case,
+  // we have taken care of the blocked requests when processing
+  // NOTIFY_RENDER_WIDGET_HOST_DESTROYED.
+  // Also we need to test there is an IO thread, as when unit-tests we don't
+  // have one.
+  if (tab_->render_view_host() && g_browser_process->io_thread()) {
+    g_browser_process->io_thread()->message_loop()->PostTask(
+        FROM_HERE, new ResourceRequestTask(tab_->render_view_host(), action));
+  }
 }
 
 // static

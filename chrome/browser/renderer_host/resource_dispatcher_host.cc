@@ -136,6 +136,23 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
 ResourceDispatcherHost::~ResourceDispatcherHost() {
   AsyncResourceHandler::GlobalCleanup();
   STLDeleteValues(&pending_requests_);
+
+  // Clear blocked requests if any left.
+  // Note that we have to do this in 2 passes as we cannot call
+  // CancelBlockedRequestsForRenderView while iterating over
+  // blocked_requests_map_, as it modifies it.
+  std::set<ProcessRendererIDs> ids;
+  for (BlockedRequestMap::const_iterator iter = blocked_requests_map_.begin();
+       iter != blocked_requests_map_.end(); ++iter) {
+    std::pair<std::set<ProcessRendererIDs>::iterator, bool> result =
+        ids.insert(iter->first);
+    // We should not have duplicates.
+    DCHECK(result.second);
+  }
+  for (std::set<ProcessRendererIDs>::const_iterator iter = ids.begin();
+       iter != ids.end(); ++iter) {
+    CancelBlockedRequestsForRenderView(iter->first, iter->second);
+  }
 }
 
 void ResourceDispatcherHost::Initialize() {
@@ -611,6 +628,31 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(
     if (iter != pending_requests_.end())
       RemovePendingRequest(iter);
   }
+
+  // Now deal with blocked requests if any.
+  if (render_view_id != -1) {
+    if (blocked_requests_map_.find(std::pair<int, int>(render_process_host_id,
+                                                       render_view_id)) !=
+        blocked_requests_map_.end()) {
+      CancelBlockedRequestsForRenderView(render_process_host_id,
+                                         render_view_id);
+    }
+  } else {
+    // We have to do all render views for the process |render_process_host_id|.
+    // Note that we have to do this in 2 passes as we cannot call
+    // CancelBlockedRequestsForRenderView while iterating over
+    // blocked_requests_map_, as it modifies it.
+    std::set<int> render_view_ids;
+    for (BlockedRequestMap::const_iterator iter = blocked_requests_map_.begin();
+         iter != blocked_requests_map_.end(); ++iter) {
+      if (iter->first.first == render_process_host_id)
+        render_view_ids.insert(iter->first.second);
+    }
+    for (std::set<int>::const_iterator iter = render_view_ids.begin();
+        iter != render_view_ids.end(); ++iter) {
+      CancelBlockedRequestsForRenderView(render_process_host_id, *iter);
+    }
+  }
 }
 
 // Cancels the request and removes it from the list.
@@ -779,6 +821,16 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
 void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
                                                   bool mixed_content) {
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
+
+  std::pair<int, int> pair_id(info->render_process_host_id,
+                              info->render_view_id);
+  BlockedRequestMap::const_iterator iter = blocked_requests_map_.find(pair_id);
+  if (iter != blocked_requests_map_.end()) {
+    // The request should be blocked.
+    iter->second->push_back(BlockedRequest(request, mixed_content));
+    return;
+  }
+
   GlobalRequestID global_id(info->render_process_host_id, info->request_id);
   pending_requests_[global_id] = request;
   if (mixed_content) {
@@ -1214,4 +1266,55 @@ void ResourceDispatcherHost::MaybeUpdateUploadProgress(ExtraRequestInfo *info,
     info->last_upload_ticks = TimeTicks::Now();
     info->last_upload_position = position;
   }
+}
+
+void ResourceDispatcherHost::BlockRequestsForRenderView(
+    int render_process_host_id,
+    int render_view_id) {
+  std::pair<int, int> key(render_process_host_id, render_view_id);
+  DCHECK(blocked_requests_map_.find(key) == blocked_requests_map_.end()) <<
+      "BlockRequestsForRenderView called  multiple time for the same RVH";
+  blocked_requests_map_[key] = new BlockedRequestsList();
+}
+
+void ResourceDispatcherHost::ResumeBlockedRequestsForRenderView(
+    int render_process_host_id,
+    int render_view_id) {
+  ProcessBlockedRequestsForRenderView(render_process_host_id,
+                                      render_view_id, false);
+}
+
+void ResourceDispatcherHost::CancelBlockedRequestsForRenderView(
+    int render_process_host_id,
+    int render_view_id) {
+  ProcessBlockedRequestsForRenderView(render_process_host_id,
+                                      render_view_id, true);
+}
+
+void ResourceDispatcherHost::ProcessBlockedRequestsForRenderView(
+    int render_process_host_id,
+    int render_view_id,
+    bool cancel_requests) {
+  BlockedRequestMap::iterator iter =
+      blocked_requests_map_.find(std::pair<int, int>(render_process_host_id,
+                                                     render_view_id));
+  if (iter == blocked_requests_map_.end()) {
+    NOTREACHED();
+    return;
+  }
+
+  BlockedRequestsList* requests = iter->second;
+
+  // Removing the vector from the map unblocks any subsequent requests.
+  blocked_requests_map_.erase(iter);
+
+  for (BlockedRequestsList::iterator req_iter = requests->begin();
+       req_iter != requests->end(); ++req_iter) {
+    if (cancel_requests)
+      delete req_iter->url_request;
+    else
+      BeginRequestInternal(req_iter->url_request, req_iter->mixed_content);
+  }
+
+  delete requests;
 }
