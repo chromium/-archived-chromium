@@ -4,7 +4,6 @@
 
 #include "base/scoped_comptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "chrome/common/win_util.h"
 
 #if defined(OS_WIN)
 #include <shlobj.h>
