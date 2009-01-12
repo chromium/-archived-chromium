@@ -28,6 +28,14 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   EXPECT_EQ(Extension::kInvalidIdError, error);
   input_value.SetString(Extension::kIdKey, L"com.google.myextension");
 
+  // Test missing and invalid versions
+  EXPECT_FALSE(extension.InitFromValue(input_value, &error));
+  EXPECT_EQ(Extension::kInvalidVersionError, error);
+  input_value.SetInteger(Extension::kVersionKey, 42);
+  EXPECT_FALSE(extension.InitFromValue(input_value, &error));
+  EXPECT_EQ(Extension::kInvalidVersionError, error);
+  input_value.SetString(Extension::kVersionKey, L"1.0");
+
   // Test missing and invalid names
   EXPECT_FALSE(extension.InitFromValue(input_value, &error));
   EXPECT_EQ(Extension::kInvalidNameError, error);
@@ -64,6 +72,7 @@ TEST(ExtensionTest, InitFromValueValid) {
   // Test minimal extension
   input_value.SetInteger(Extension::kFormatVersionKey, 1);
   input_value.SetString(Extension::kIdKey, L"com.google.myextension");
+  input_value.SetString(Extension::kVersionKey, L"1.0");
   input_value.SetString(Extension::kNameKey, L"my extension");
 
   EXPECT_TRUE(extension.InitFromValue(input_value, &error));

@@ -30,6 +30,7 @@ class Extension {
   static const wchar_t* kNameKey;
   static const wchar_t* kDescriptionKey;
   static const wchar_t* kContentScriptsKey;
+  static const wchar_t* kVersionKey;
 
   // Error messages returned from InitFromValue().
   static const char* kInvalidFormatVersionError;
@@ -39,6 +40,7 @@ class Extension {
   static const char* kInvalidDescriptionError;
   static const char* kInvalidContentScriptsListError;
   static const char* kInvalidContentScriptError;
+  static const char* kInvalidVersionError;
 
   // The path to the folder the extension is stored in.
   const FilePath& path() const { return path_; }
@@ -50,6 +52,9 @@ class Extension {
   // updates will only be allowed if the extension can be validated using the
   // previous version's update key.
   const std::string& id() const { return id_; }
+
+  // The version number for the extension.
+  const std::string& version() const { return version_; }
 
   // A human-readable name of the extension.
   const std::string& name() const { return name_; }
@@ -74,6 +79,9 @@ class Extension {
 
   // The extension's ID.
   std::string id_;
+
+  // The extension's version.
+  std::string version_;
 
   // The extension's human-readable name.
   std::string name_;

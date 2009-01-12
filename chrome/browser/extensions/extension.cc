@@ -15,11 +15,12 @@ const wchar_t* Extension::kIdKey = L"id";
 const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kDescriptionKey = L"description";
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
+const wchar_t* Extension::kVersionKey = L"version";
 
 const char* Extension::kInvalidManifestError =
     "Manifest is missing or invalid.";
 const char* Extension::kInvalidFormatVersionError =
-    "Required key 'format_version' is missing or invalid";
+    "Required key 'format_version' is missing or invalid.";
 const char* Extension::kInvalidIdError =
     "Required key 'id' is missing or invalid.";
 const char* Extension::kInvalidNameError =
@@ -30,6 +31,8 @@ const char* Extension::kInvalidContentScriptsListError =
     "Invalid type for 'content_scripts' key.";
 const char* Extension::kInvalidContentScriptError =
     "Invalid type for content_scripts at index ";
+const char* Extension::kInvalidVersionError =
+    "Required key 'version' is missing or invalid.";
 
 bool Extension::InitFromValue(const DictionaryValue& source,
                               std::string* error) {
@@ -44,6 +47,12 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   // Initialize id.
   if (!source.GetString(kIdKey, &id_)) {
     *error = kInvalidIdError;
+    return false;
+  }
+
+  // Initialize version.
+  if (!source.GetString(kVersionKey, &version_)) {
+    *error = kInvalidVersionError;
     return false;
   }
 
@@ -94,6 +103,9 @@ void Extension::CopyToValue(DictionaryValue* destination) {
 
   // Copy id.
   destination->SetString(kIdKey, id_);
+
+  // Copy version.
+  destination->SetString(kVersionKey, version_);
 
   // Copy name.
   destination->SetString(kNameKey, name_);
