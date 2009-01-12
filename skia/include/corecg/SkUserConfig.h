@@ -154,6 +154,8 @@ typedef unsigned uint32_t;
 //#ifndef NDEBUG
 //  #define SK_DEBUG
 //  #undef SK_RELEASE
+// REMOVE ME
+#undef SK_SUPPORT_UNITTEST
 //#else
   #define SK_RELEASE
   #undef SK_DEBUG
