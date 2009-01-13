@@ -74,15 +74,12 @@ static const Entity xml_built_in_entity_codes[] = {
   {"quot", 0x0022}
 };
 
-static const int xml_entity_codes_length =
-    arraysize(xml_built_in_entity_codes);
-
-static EntityMapData html_entity_map_singleton(
-    wordlist, sizeof(wordlist) / sizeof(Entity), true);
-static EntityMapData xml_entity_map_singleton(
-    xml_built_in_entity_codes, xml_entity_codes_length, false);
-
 const char* EntityMap::GetEntityNameByCode(char16 code, bool is_html) {
+  static EntityMapData html_entity_map_singleton(
+      wordlist, sizeof(wordlist) / sizeof(Entity), true);
+  static EntityMapData xml_entity_map_singleton(
+      xml_built_in_entity_codes, arraysize(xml_built_in_entity_codes), false);
+
   const EntityMapType* entity_map;
   if (is_html)
     entity_map = html_entity_map_singleton.GetEntityMapData();
