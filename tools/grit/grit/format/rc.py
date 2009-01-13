@@ -406,9 +406,6 @@ class RcInclude(interface.ItemFormatter):
     if not begin_item:
       return ''
 
-    if item.attrs['headeronly'] == 'true':
-      return ''
-    
     assert isinstance(lang, types.StringTypes)
     from grit.node import structure
     from grit.node import include

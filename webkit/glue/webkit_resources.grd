@@ -14,10 +14,6 @@
       <include name="IDR_PAN_SCROLL_ICON" file="resources\pan_icon.png" type="BINDATA" />
       <include name="IDR_TEXTAREA_RESIZER" file="resources\textarea_resize_corner.png" type="BINDATA" />
 
-      <!-- The editor delete button is only used in layout tests so the
-           actual resource isn't in webkit_resources.rc.  This resource
-           should not be used outside of layout tests. -->
-      <include name="IDR_EDITOR_DELETE_BUTTON" headeronly="true" file="" type="BINDATA" />
       <include name="IDC_ALIAS" file="resources\aliasb.cur" type="CURSOR" />
       <include name="IDC_CELL" file="resources\cell.cur" type="CURSOR" />
       <include name="IDC_COLRESIZE" file="resources\col_resize.cur" type="CURSOR" />

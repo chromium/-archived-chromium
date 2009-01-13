@@ -536,20 +536,6 @@ std::string GetDataResource(int resource_id) {
     // that computes feed previews in feed_preview.cc:MakeFeedPreview. 
     // This fixes issue #932714.    
     return std::string("Feed preview for {{URL}}");
-  case IDR_EDITOR_DELETE_BUTTON: {
-    // Use webkit's delete button image.
-    static std::string delete_button_data;
-    if (delete_button_data.empty()) {
-      FilePath path = GetResourcesFilePath();
-      path = path.Append(FILE_PATH_LITERAL("deleteButton.png"));
-      bool success = file_util::ReadFileToString(path.ToWStringHack(),
-                                                 &delete_button_data);
-      if (!success) {
-        LOG(FATAL) << "Failed reading: " << path.value();
-      }
-    }
-    return delete_button_data;
-  }
   case IDR_TEXTAREA_RESIZER: {
     // Use webkit's text area resizer image.
     static std::string resize_corner_data;

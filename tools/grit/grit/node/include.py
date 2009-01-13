@@ -27,7 +27,6 @@ class IncludeNode(base.Node):
       'generateid': 'true', 
       'filenameonly': 'false',
       'relativepath': 'false',
-      'headeronly': 'false',
       }
 
   def ItemFormatter(self, t):
