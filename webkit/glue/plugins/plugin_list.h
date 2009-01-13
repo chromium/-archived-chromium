@@ -7,10 +7,11 @@
 #ifndef WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H__
 #define WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H__
 
+#include <set>
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
-#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/webplugin.h"
 
@@ -87,13 +88,13 @@ class PluginList : public base::RefCounted<PluginList> {
   void LoadPlugins(bool refresh);
 
   // Load all plugins from a specific directory
-  void LoadPlugins(const FilePath& path);
+  void LoadPluginsFromDir(const FilePath& path);
 
   // Load a specific plugin with full path.
   void LoadPlugin(const FilePath& filename);
 
   // Returns true if we should load the given plugin, or false otherwise.
-  bool ShouldLoadPlugin(const std::string& filename);
+  bool ShouldLoadPlugin(const FilePath& path);
 
   // Load internal plugins. Right now there is only one: activex_shim.
   void LoadInternalPlugins();
@@ -129,33 +130,34 @@ class PluginList : public base::RefCounted<PluginList> {
                                 std::string* actual_mime_type);
 
   // The application path where we expect to find plugins.
-  static FilePath GetPluginAppDirectory();
+  static void GetAppDirectory(std::set<FilePath>* plugin_dirs);
 
   // The executable path where we expect to find plugins.
-  static FilePath GetPluginExeDirectory();
+  static void GetExeDirectory(std::set<FilePath>* plugin_dirs);
 
-  // Load plugins from the Firefox install path.  This is kind of
-  // a kludge, but it helps us locate the flash player for users that
+  // Get plugin directory locations from the Firefox install path.  This is kind
+  // of a kludge, but it helps us locate the flash player for users that
   // already have it for firefox.  Not having to download yet-another-plugin
   // is a good thing.
-  void LoadFirefoxPlugins();
+  void GetFirefoxDirectory(std::set<FilePath>* plugin_dirs);
 
-  // Hardcoded logic to detect and load acrobat plugins
-  void LoadAcrobatPlugins();
+  // Hardcoded logic to detect Acrobat plugins locations.
+  void GetAcrobatDirectory(std::set<FilePath>* plugin_dirs);
 
-  // Hardcoded logic to detect and load quicktime plugins
-  void LoadQuicktimePlugins();
+  // Hardcoded logic to detect QuickTime plugin location.
+  void GetQuicktimeDirectory(std::set<FilePath>* plugin_dirs);
 
-  // Hardcoded logic to detect and load Windows Media Player plugins
-  void LoadWindowsMediaPlugins();
+  // Hardcoded logic to detect Windows Media Player plugin location.
+  void GetWindowsMediaDirectory(std::set<FilePath>* plugin_dirs);
 
-  // Hardcoded logic to detect and load Java plugins
-  void LoadJavaPlugin();
+  // Hardcoded logic to detect Java plugin location.
+  void GetJavaDirectory(std::set<FilePath>* plugin_dirs);
 
 #if defined(OS_WIN)
-  // Search the registry at the given path and load plugins listed there.
-  void LoadPluginsInRegistryFolder(HKEY root_key,
-                                   const std::wstring& registry_folder);
+  // Search the registry at the given path and detect plugin directories.
+  void GetPluginsInRegistryDirectory(HKEY root_key,
+                                     const std::wstring& registry_folder,
+                                     std::set<FilePath>* plugin_dirs);
 #endif
 
   // true if we shouldn't load the new WMP plugin.
@@ -166,9 +168,8 @@ class PluginList : public base::RefCounted<PluginList> {
   static scoped_refptr<PluginList> singleton_;
   bool plugins_loaded_;
 
-  // Maps from the name of the plugin file (NOT path) to WebPluginInfo.
-  typedef base::hash_map<std::string, WebPluginInfo> PluginMap;
-  PluginMap plugins_;
+  // Contains information about the available plugins.
+  std::vector<WebPluginInfo> plugins_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginList);
 };

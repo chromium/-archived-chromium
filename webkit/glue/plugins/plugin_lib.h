@@ -28,8 +28,7 @@ class PluginInstance;
 // This struct fully describes a plugin. For external plugins, it's read in from
 // the version info of the dll; For internal plugins, it's predefined.
 struct PluginVersionInfo {
-  std::wstring filename;
-  std::wstring path;
+  FilePath path;
   std::wstring product_name;
   std::wstring file_description;
   std::wstring file_version;

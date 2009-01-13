@@ -43,10 +43,10 @@ static const TCHAR kRegistryPath[] = _T("Path");
 static const TCHAR kRegistryMozillaPlugins[] = _T("SOFTWARE\\MozillaPlugins");
 static const TCHAR kRegistryFirefoxInstalled[] = 
     _T("SOFTWARE\\Mozilla\\Mozilla Firefox");
-static const char  kMozillaActiveXPlugin[] = "npmozax.dll";
-static const char  kNewWMPPlugin[] = "np-mswmp.dll";
-static const char  kOldWMPPlugin[] = "npdsplay.dll";
-static const char  kYahooApplicationStatePlugin[] = "npystate.dll";
+static const TCHAR kMozillaActiveXPlugin[] = _T("npmozax.dll");
+static const TCHAR kNewWMPPlugin[] = _T("np-mswmp.dll");
+static const TCHAR kOldWMPPlugin[] = _T("npdsplay.dll");
+static const TCHAR kYahooApplicationStatePlugin[] = _T("npystate.dll");
 static const TCHAR kRegistryJava[] =
     _T("Software\\JavaSoft\\Java Runtime Environment");
 static const TCHAR kRegistryBrowserJavaVersion[] = _T("BrowserJavaVersion");
@@ -92,37 +92,44 @@ void PluginList::LoadPlugins(bool refresh) {
 
   LoadInternalPlugins();
 
+  std::set<FilePath> directories_to_scan;
+
+
   // Load any plugins listed in the registry
   if (extra_plugin_paths_) {
-    for (size_t i = 0; i < extra_plugin_paths_->size(); ++i) {
-      LoadPlugin((*extra_plugin_paths_)[i]);
-    }
+    for (size_t i = 0; i < extra_plugin_paths_->size(); ++i)
+      directories_to_scan.insert((*extra_plugin_paths_)[i].DirName());
   }
 
   // Load from the application-specific area
-  LoadPlugins(GetPluginAppDirectory());
+  GetAppDirectory(&directories_to_scan);
 
   // Load from the executable area
-  LoadPlugins(GetPluginExeDirectory());
+  GetExeDirectory(&directories_to_scan);
 
   // Load Java
-  LoadJavaPlugin();
+  GetJavaDirectory(&directories_to_scan);
 
   // Load firefox plugins too.  This is mainly to try to locate 
   // a pre-installed Flash player.
-  LoadFirefoxPlugins();
+  GetFirefoxDirectory(&directories_to_scan);
 
   // Firefox hard-codes the paths of some popular plugins to ensure that
   // the plugins are found.  We are going to copy this as well.
-  LoadAcrobatPlugins();
-  LoadQuicktimePlugins();
-  LoadWindowsMediaPlugins();
+  GetAcrobatDirectory(&directories_to_scan);
+  GetQuicktimeDirectory(&directories_to_scan);
+  GetWindowsMediaDirectory(&directories_to_scan);
+
+  for (std::set<FilePath>::const_iterator iter = directories_to_scan.begin();
+       iter != directories_to_scan.end(); ++iter) {
+    LoadPluginsFromDir(*iter);
+  }
 
   if (webkit_glue::IsDefaultPluginEnabled()) {
     WebPluginInfo info;
     if (PluginLib::ReadWebPluginInfo(FilePath(kDefaultPluginLibraryName),
                                      &info)) {
-      plugins_[WideToUTF8(kDefaultPluginLibraryName)] = info;
+      plugins_.push_back(info);
     }
   }
 
@@ -131,7 +138,7 @@ void PluginList::LoadPlugins(bool refresh) {
   DLOG(INFO) << "Loaded plugin list in " << elapsed.InMilliseconds() << " ms.";
 }
 
-void PluginList::LoadPlugins(const FilePath &path) {
+void PluginList::LoadPluginsFromDir(const FilePath &path) {
   WIN32_FIND_DATA find_file_data;
   HANDLE find_handle;
 
@@ -179,16 +186,15 @@ void PluginList::LoadPlugin(const FilePath &path) {
   if (!PluginLib::ReadWebPluginInfo(path, &plugin_info))
     return;
 
-  // Canonicalize names on Windows in case different versions of the plugin
-  // have different case in the version string.
-  std::string filename_lc = StringToLowerASCII(plugin_info.filename);
-  if (!ShouldLoadPlugin(filename_lc))
+  if (!ShouldLoadPlugin(plugin_info.path))
     return;
 
-  PluginMap::const_iterator iter = plugins_.find(filename_lc);
-  if (iter != plugins_.end() &&
-      !IsNewerVersion(iter->second.version, plugin_info.version))
-    return;  // The loaded version is newer.
+  for (size_t i = 0; i < plugins_.size(); ++i) {
+    if (plugins_[i].path.BaseName() == path.BaseName() &&
+        !IsNewerVersion(plugins_[i].version, plugin_info.version)) {
+      return;  // The loaded version is newer.
+    }
+  }
 
   for (size_t i = 0; i < plugin_info.mime_types.size(); ++i) {
     // TODO: don't load global handlers for now.
@@ -198,17 +204,18 @@ void PluginList::LoadPlugin(const FilePath &path) {
     if (mime_type == "*" ) {
 #ifndef NDEBUG
       // Make an exception for NPSPY.
-      if (filename_lc == "npspy.dll")
+      if (path.BaseName().value() == L"npspy.dll")
         break;
 #endif
       return;
     }
   }
 
-  plugins_[filename_lc] = plugin_info;
+  plugins_.push_back(plugin_info);
 }
 
-bool PluginList::ShouldLoadPlugin(const std::string& filename) {
+bool PluginList::ShouldLoadPlugin(const FilePath& path) {
+  std::wstring filename = StringToLowerASCII(path.BaseName().value());
   // Depends on XPCOM.
   if (filename == kMozillaActiveXPlugin)
     return false;
@@ -229,11 +236,17 @@ bool PluginList::ShouldLoadPlugin(const std::string& filename) {
       if (dont_load_new_wmp_)
         return false;
 
-      if (plugins_.find(kOldWMPPlugin) != plugins_.end())
-        plugins_.erase(kOldWMPPlugin);
+      for (size_t i = 0; i < plugins_.size(); ++i) {
+        if (plugins_[i].path.BaseName().value() == kOldWMPPlugin) {
+          plugins_.erase(plugins_.begin() + i);
+          break;
+        }
+      }
     } else if (filename == kOldWMPPlugin) {
-      if (plugins_.find(kOldWMPPlugin) != plugins_.end())
-        return false;
+      for (size_t i = 0; i < plugins_.size(); ++i) {
+        if (plugins_[i].path.BaseName().value() == kNewWMPPlugin)
+          return false;
+      }
     }
   }
 
@@ -247,12 +260,12 @@ void PluginList::LoadInternalPlugins() {
   WebPluginInfo info;
   if (PluginLib::ReadWebPluginInfo(FilePath(kActiveXShimFileName),
                                    &info)) {
-    plugins_[WideToUTF8(kActiveXShimFileName)] = info;
+    plugins_.push_back(info);
   }
 
   if (PluginLib::ReadWebPluginInfo(FilePath(kActivexShimFileNameForMediaPlayer),
                                    &info)) {
-    plugins_[WideToUTF8(kActivexShimFileNameForMediaPlayer)] = info;
+    plugins_.push_back(info);
   }
 }  
 
@@ -262,30 +275,17 @@ bool PluginList::FindPlugin(const std::string& mime_type,
                             WebPluginInfo* info) {
   DCHECK(mime_type == StringToLowerASCII(mime_type));
 
-  PluginMap::const_iterator default_iter = plugins_.end();
-  for (PluginMap::const_iterator iter = plugins_.begin();
-       iter != plugins_.end(); ++iter) {
-    if (SupportsType(iter->second, mime_type, allow_wildcard)) {
-      if (iter->second.path.value() == kDefaultPluginLibraryName) {
-        // Only use the default plugin if it's the only one that's found.
-        default_iter = iter;
-        continue;
-      }
-
-      if (!clsid.empty() && iter->second.path.value() == kActiveXShimFileName) {
+  for (size_t i = 0; i < plugins_.size(); ++i) {
+    if (SupportsType(plugins_[i], mime_type, allow_wildcard)) {
+      if (!clsid.empty() && plugins_[i].path.value() == kActiveXShimFileName) {
         // Special handling for ActiveX shim. If ActiveX is not installed, we
         // should use the default plugin to show the installation UI.
         if (!activex_shim::IsActiveXInstalled(clsid))
           continue;
       }
-      *info = iter->second;
+      *info = plugins_[i];
       return true;
     }
-  }
-
-  if (default_iter != plugins_.end()) {
-    *info = default_iter->second;
-    return true;
   }
 
   return false;
@@ -301,10 +301,9 @@ bool PluginList::FindPlugin(const GURL &url, std::string* actual_mime_type,
   std::string extension =
       StringToLowerASCII(base::SysWideToNativeMB(extension_wide));
 
-  for (PluginMap::const_iterator iter = plugins_.begin();
-       iter != plugins_.end(); ++iter) {
-    if (SupportsExtension(iter->second, extension, actual_mime_type)) {
-      *info = iter->second;
+  for (size_t i = 0; i < plugins_.size(); ++i) {
+    if (SupportsExtension(plugins_[i], extension, actual_mime_type)) {
+      *info = plugins_[i];
       return true;
     }
   }
@@ -353,12 +352,7 @@ bool PluginList::GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   if (refresh)
     LoadPlugins(true);
 
-  int i = 0;
-  plugins->resize(plugins_.size());
-  for (PluginMap::const_iterator iter = plugins_.begin();
-       iter != plugins_.end(); ++iter) {
-    (*plugins)[i++] = iter->second;
-  }
+  *plugins = plugins_;
 
   return true;
 }
@@ -384,10 +378,9 @@ bool PluginList::GetPluginInfo(const GURL& url,
 
 bool PluginList::GetPluginInfoByPath(const FilePath& plugin_path,
                                      WebPluginInfo* info) {
-  for (PluginMap::const_iterator iter = plugins_.begin();
-       iter != plugins_.end(); ++iter) {
-    if (iter->second.path == plugin_path) {
-      *info = iter->second;
+  for (size_t i = 0; i < plugins_.size(); ++i) {
+    if (plugins_[i].path == plugin_path) {
+      *info = plugins_[i];
       return true;
     }
   }
@@ -399,22 +392,24 @@ void PluginList::Shutdown() {
   // TODO
 }
 
-FilePath PluginList::GetPluginAppDirectory() {
+void PluginList::GetAppDirectory(std::set<FilePath>* plugin_dirs) {
   std::wstring app_path;
   // TODO(avi): use PathService directly
-  if (webkit_glue::GetApplicationDirectory(&app_path))
-    app_path.append(L"\\plugins");
+  if (!webkit_glue::GetApplicationDirectory(&app_path))
+    return;
 
-  return FilePath(app_path);
+  app_path.append(L"\\plugins");
+  plugin_dirs->insert(FilePath(app_path));
 }
 
-FilePath PluginList::GetPluginExeDirectory() {
+void PluginList::GetExeDirectory(std::set<FilePath>* plugin_dirs) {
   std::wstring exe_path;
   // TODO(avi): use PathService directly
-  if (webkit_glue::GetExeDirectory(&exe_path))
-    exe_path.append(L"\\plugins");
+  if (!webkit_glue::GetExeDirectory(&exe_path))
+    return;
 
-  return FilePath(exe_path);
+  exe_path.append(L"\\plugins");
+  plugin_dirs->insert(FilePath(exe_path));
 }
 
 // Gets the installed path for a registered app.
@@ -448,51 +443,48 @@ static void GetFirefoxInstalledPaths(std::vector<FilePath>* out) {
   }
 }
 
-void PluginList::LoadFirefoxPlugins() {
+void PluginList::GetFirefoxDirectory(std::set<FilePath>* plugin_dirs) {
   std::vector<FilePath> paths;
   GetFirefoxInstalledPaths(&paths);
   for (unsigned int i = 0; i < paths.size(); ++i) {
-    FilePath path = paths[i].Append(L"plugins");
-    LoadPlugins(path);
+    plugin_dirs->insert(paths[i].Append(L"plugins"));
   }
 
-  LoadPluginsInRegistryFolder(HKEY_CURRENT_USER, kRegistryMozillaPlugins);
-  LoadPluginsInRegistryFolder(HKEY_LOCAL_MACHINE, kRegistryMozillaPlugins);
+  GetPluginsInRegistryDirectory(
+      HKEY_CURRENT_USER, kRegistryMozillaPlugins, plugin_dirs);
+  GetPluginsInRegistryDirectory(
+      HKEY_LOCAL_MACHINE, kRegistryMozillaPlugins, plugin_dirs);
 
   std::wstring firefox_app_data_plugin_path;
   if (PathService::Get(base::DIR_APP_DATA, &firefox_app_data_plugin_path)) {
     firefox_app_data_plugin_path += L"\\Mozilla\\plugins";
-    LoadPlugins(FilePath(firefox_app_data_plugin_path));
+    plugin_dirs->insert(FilePath(firefox_app_data_plugin_path));
   }
 }
 
-void PluginList::LoadAcrobatPlugins() {
+void PluginList::GetAcrobatDirectory(std::set<FilePath>* plugin_dirs) {
   FilePath path;
   if (!GetInstalledPath(kRegistryAcrobatReader, &path) &&
       !GetInstalledPath(kRegistryAcrobat, &path)) {
     return;
   }
 
-  path = path.Append(L"Browser");
-  LoadPlugins(path);
+  plugin_dirs->insert(path.Append(L"Browser"));
 }
 
-void PluginList::LoadQuicktimePlugins() {
+void PluginList::GetQuicktimeDirectory(std::set<FilePath>* plugin_dirs) {
   FilePath path;
-  if (GetInstalledPath(kRegistryQuickTime, &path)) {
-    path = path.Append(L"plugins");
-    LoadPlugins(path);
-  }
+  if (GetInstalledPath(kRegistryQuickTime, &path))
+    plugin_dirs->insert(path.Append(L"plugins"));
 }
 
-void PluginList::LoadWindowsMediaPlugins() {
+void PluginList::GetWindowsMediaDirectory(std::set<FilePath>* plugin_dirs) {
   FilePath path;
-  if (GetInstalledPath(kRegistryWindowsMedia, &path)) {
-    LoadPlugins(path);
-  }
+  if (GetInstalledPath(kRegistryWindowsMedia, &path))
+    plugin_dirs->insert(path);
 }
 
-void PluginList::LoadJavaPlugin() {
+void PluginList::GetJavaDirectory(std::set<FilePath>* plugin_dirs) {
   // Load the new NPAPI Java plugin
   // 1. Open the main JRE key under HKLM
   RegKey java_key(HKEY_LOCAL_MACHINE, kRegistryJava, KEY_QUERY_VALUE);
@@ -517,14 +509,15 @@ void PluginList::LoadJavaPlugin() {
 
       // 5. We don't know the exact name of the DLL but it's in the form
       //    NP*.dll so just invoke LoadPlugins on this path.
-      LoadPlugins(FilePath(java_plugin_directory));
+      plugin_dirs->insert(FilePath(java_plugin_directory));
     }
   }
 }
 
-void PluginList::LoadPluginsInRegistryFolder(
+void PluginList::GetPluginsInRegistryDirectory(
     HKEY root_key,
-    const std::wstring& registry_folder) {
+    const std::wstring& registry_folder,
+    std::set<FilePath>* plugin_dirs) {
   for (RegistryKeyIterator iter(root_key, registry_folder.c_str());
        iter.Valid(); ++iter) {
     // Use the registry to gather plugin across the file system.
@@ -535,7 +528,7 @@ void PluginList::LoadPluginsInRegistryFolder(
 
     std::wstring path;
     if (key.ReadValue(kRegistryPath, &path))
-      LoadPlugin(FilePath(path));
+      plugin_dirs->insert(FilePath(path).DirName());
   }
 }
 

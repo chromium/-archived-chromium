@@ -33,8 +33,7 @@ const char kPluginInstancesActiveCounter[] = "PluginInstancesActive";
 
 static const InternalPluginInfo g_internal_plugins[] = {
   {
-    {kActiveXShimFileName,
-     kActiveXShimFileName,
+    {FilePath(kActiveXShimFileName),
      L"ActiveX Plug-in",
      L"ActiveX Plug-in provides a shim to support ActiveX controls",
      L"1, 0, 0, 1",
@@ -47,8 +46,7 @@ static const InternalPluginInfo g_internal_plugins[] = {
     activex_shim::ActiveX_Shim_NP_Shutdown
   },
   {
-    {kActivexShimFileNameForMediaPlayer,
-     kActivexShimFileNameForMediaPlayer,
+    {FilePath(kActivexShimFileNameForMediaPlayer),
      kActivexShimFileNameForMediaPlayer,
      L"Windows Media Player",
      L"1, 0, 0, 1",
@@ -63,8 +61,7 @@ static const InternalPluginInfo g_internal_plugins[] = {
     activex_shim::ActiveX_Shim_NP_Shutdown
   },
   {
-    {kDefaultPluginLibraryName,
-     kDefaultPluginLibraryName,
+    {FilePath(kDefaultPluginLibraryName),
      L"Default Plug-in",
      L"Provides functionality for installing third-party plug-ins",
      L"1, 0, 0, 1",
@@ -129,9 +126,8 @@ PluginLib::PluginLib(const WebPluginInfo& info)
   g_loaded_libs->push_back(this);
 
   internal_ = false;
-  std::wstring wide_filename = UTF8ToWide(info.filename);
   for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
-    if (wide_filename == g_internal_plugins[i].version_info.filename) {
+    if (info.path == g_internal_plugins[i].version_info.path) {
       internal_ = true;
       NP_Initialize_ = g_internal_plugins[i].np_initialize;
       NP_GetEntryPoints_ = g_internal_plugins[i].np_getentrypoints;
@@ -345,7 +341,6 @@ bool PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi,
   info->name = pvi.product_name;
   info->desc = pvi.file_description;
   info->version = pvi.file_version;
-  info->filename = WideToUTF8(pvi.filename);
   info->path = FilePath(pvi.path);
 
   for (size_t i = 0; i < mime_types.size(); ++i) {
@@ -377,7 +372,7 @@ bool PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi,
  bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
                                    WebPluginInfo* info) {
   for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
-    if (filename.value() == g_internal_plugins[i].version_info.filename)
+    if (filename == g_internal_plugins[i].version_info.path)
       return CreateWebPluginInfo(g_internal_plugins[i].version_info, info);
   }
 
@@ -391,18 +386,14 @@ bool PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi,
   if (!version_info.get())
     return false;
 
-  std::wstring original_filename = version_info->original_filename();
-  std::wstring file_version = version_info->file_version();
-
   PluginVersionInfo pvi;
   version_info->GetValue(L"MIMEType", &pvi.mime_types);
   version_info->GetValue(L"FileExtents", &pvi.file_extents);
   version_info->GetValue(L"FileOpenName", &pvi.file_open_names);
   pvi.product_name = version_info->product_name();
   pvi.file_description = version_info->file_description();
-  pvi.file_version = file_version;
-  pvi.filename = original_filename;
-  pvi.path = filename.value();
+  pvi.file_version = version_info->file_version();
+  pvi.path = filename;
 
   return CreateWebPluginInfo(pvi, info);
 }

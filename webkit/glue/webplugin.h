@@ -39,11 +39,6 @@ struct WebPluginInfo {
   // The name of the plugin (i.e. Flash).
   std::wstring name;
 
-  // The UTF8 filename of the plugin, without the path.  This may be in a
-  // different case than FilePath on some systems.  On Windows this comes from
-  // the DLL's version information.
-  std::string filename;
-
   // The path to the plugin file (DLL/bundle/library).
   FilePath path;
 

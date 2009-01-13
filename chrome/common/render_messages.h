@@ -1122,7 +1122,6 @@ struct ParamTraits<WebPluginInfo> {
   typedef WebPluginInfo param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.name);
-    WriteParam(m, p.filename);
     WriteParam(m, p.path);
     WriteParam(m, p.version);
     WriteParam(m, p.desc);
@@ -1131,7 +1130,6 @@ struct ParamTraits<WebPluginInfo> {
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->name) &&
-      ReadParam(m, iter, &r->filename) &&
       ReadParam(m, iter, &r->path) &&
       ReadParam(m, iter, &r->version) &&
       ReadParam(m, iter, &r->desc) &&
@@ -1141,7 +1139,6 @@ struct ParamTraits<WebPluginInfo> {
     l->append(L"(");
     LogParam(p.name, l);
     l->append(L", ");
-    LogParam(p.filename, l);
     l->append(L", ");
     LogParam(p.path, l);
     l->append(L", ");

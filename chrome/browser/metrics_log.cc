@@ -458,7 +458,8 @@ void MetricsLog::WritePluginList(
     // Plugin name and filename are hashed for the privacy of those
     // testing unreleased new extensions.
     WriteAttribute("name", CreateBase64Hash(WideToUTF8(iter->name)));
-    WriteAttribute("filename", CreateBase64Hash(iter->filename));
+    WriteAttribute("filename",
+        CreateBase64Hash(WideToUTF8(iter->path.BaseName().ToWStringHack())));
     WriteAttribute("version", WideToUTF8(iter->version));
   }
 }
