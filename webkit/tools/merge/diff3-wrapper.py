@@ -3,7 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Wrapper around BeyondCompare so it can be used as svn's diff3-cmd tool.
+"""Wrapper around BeyondCompare or kdiff3 so it can be used as svn's diff3-cmd
+tool.
 
 The basic idea here is based heavily off of diffwrap.py at:
 http://svnbook.red-bean.com/en/1.5/svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.diff3.ex-1
@@ -94,9 +95,14 @@ def main(args):
   # Return an errorcode of 0 on successful merge, 1 if unresolved conflicts
   # remain in the result.  Any other errorcode will be treated as fatal.
   merged_file_contents = open(mine).read()
+
+  # Ensure that the file doesn't use CRLF, in case the diff program converted
+  # line endings.
+  merged_file_contents.replace('\r\n', '\n')
+
   # For reasons I don't understand, an extra line break gets added at the end
   # of the file. Strip it.
-  merged_file_contents = merged_file_contents[:len(merged_file_contents)-1]
+  merged_file_contents = merged_file_contents[:-1]
   print merged_file_contents
   sys.exit(value)
 
