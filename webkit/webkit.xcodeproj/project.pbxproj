@@ -41,7 +41,6 @@
 		3CF1E7470F09B352009BC1A7 /* Threading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E7460F09B352009BC1A7 /* Threading.cpp */; };
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		4D114BB60F17F0D5009F37AA /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
-		4D114BBB0F17F0DB009F37AA /* TextBreakIteratorInternalICUChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52880F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4D7FAB940F156764004F1B19 /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7FAB870F156634004F1B19 /* ByteArray.cpp */; };
@@ -4052,7 +4051,6 @@
 		93AF52840F002F680073C62D /* SSLKeyGeneratorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSLKeyGeneratorChromium.cpp; path = chromium/SSLKeyGeneratorChromium.cpp; sourceTree = "<group>"; };
 		93AF52850F002F680073C62D /* SystemTimeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SystemTimeChromium.cpp; path = chromium/SystemTimeChromium.cpp; sourceTree = "<group>"; };
 		93AF52860F002F680073C62D /* TemporaryLinkStubs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TemporaryLinkStubs.cpp; path = chromium/TemporaryLinkStubs.cpp; sourceTree = "<group>"; };
-		93AF52880F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextBreakIteratorInternalICUChromium.cpp; path = chromium/TextBreakIteratorInternalICUChromium.cpp; sourceTree = "<group>"; };
 		93AF52890F002F680073C62D /* WidgetChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WidgetChromium.cpp; path = chromium/WidgetChromium.cpp; sourceTree = "<group>"; };
 		93AF52A50F002F830073C62D /* ChromiumBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChromiumBridge.h; path = chromium/ChromiumBridge.h; sourceTree = "<group>"; };
 		93AF52A70F002FC80073C62D /* IconChromiumMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IconChromiumMac.cpp; path = chromium/IconChromiumMac.cpp; sourceTree = "<group>"; };
@@ -7748,7 +7746,6 @@
 				93AF52840F002F680073C62D /* SSLKeyGeneratorChromium.cpp */,
 				93AF52850F002F680073C62D /* SystemTimeChromium.cpp */,
 				93AF52860F002F680073C62D /* TemporaryLinkStubs.cpp */,
-				93AF52880F002F680073C62D /* TextBreakIteratorInternalICUChromium.cpp */,
 				93AF52890F002F680073C62D /* WidgetChromium.cpp */,
 			);
 			name = chromium;
@@ -9316,7 +9313,6 @@
 				938447200F16B0570075F4C5 /* Text.cpp in Sources */,
 				938447210F16B0570075F4C5 /* TextBoundariesICU.cpp in Sources */,
 				938447220F16B0570075F4C5 /* TextBreakIteratorICU.cpp in Sources */,
-				4D114BBB0F17F0DB009F37AA /* TextBreakIteratorInternalICUChromium.cpp in Sources */,
 				938447240F16B0570075F4C5 /* TextBreakIteratorInternalICUMac.mm in Sources */,
 				938447250F16B0570075F4C5 /* TextCodec.cpp in Sources */,
 				938447260F16B0570075F4C5 /* TextCodecICU.cpp in Sources */,

@@ -2104,6 +2104,14 @@
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\WidthIterator.h"
 					>
 				</File>
+				<Filter
+					Name="chromium"
+					>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\chromium\TextBreakIteratorInternalICUChromium.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="sql"
@@ -2350,10 +2358,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\TemporaryLinkStubs.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\TextBreakIteratorInternalICUChromium.cpp"
 					>
 				</File>
 				<File

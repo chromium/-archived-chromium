@@ -483,7 +483,6 @@ input_files = [
     '$WEBCORE_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/SystemTimeChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/TemporaryLinkStubs.cpp',
-    '$WEBCORE_DIR/platform/chromium/TextBreakIteratorInternalICUChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/WidgetChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
 
@@ -558,6 +557,8 @@ input_files = [
     '$WEBCORE_DIR/platform/text/TextEncodingRegistry.cpp',
     '$WEBCORE_DIR/platform/text/TextStream.cpp',
     '$WEBCORE_DIR/platform/text/UnicodeRange.cpp',
+
+    '$WEBCORE_DIR/platform/text/chromium/TextBreakIteratorInternalICUChromium.cpp',
 
     '$WEBCORE_DIR/plugins/MimeType.cpp',
     '$WEBCORE_DIR/plugins/MimeTypeArray.cpp',
