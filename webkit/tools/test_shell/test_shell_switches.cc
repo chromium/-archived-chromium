@@ -45,15 +45,12 @@ const wchar_t kDumpStatsTable[] = L"stats";
 // Use a specified cache directory.
 const wchar_t kCacheDir[] = L"cache-dir";
 
-// When being run through a memory profiler, trigger memory in use dumps at 
+// When being run through a memory profiler, trigger memory in use dumps at
 // startup and just prior to shutdown.
 const wchar_t kDebugMemoryInUse[] = L"debug-memory-in-use";
 
 // Enable cookies on the file:// scheme.  --layout-tests also enables this.
 const wchar_t kEnableFileCookies[] = L"enable-file-cookies";
-
-// Enable the winhttp network stack.
-const wchar_t kUseWinHttp[] = L"winhttp";
 
 // Enable tracing events (see base/trace_event.h)
 const wchar_t kEnableTracing[] = L"enable-tracing";

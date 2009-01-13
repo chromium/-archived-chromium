@@ -315,9 +315,6 @@ const wchar_t kGearsPluginPathOverride[]       = L"gears-plugin-path";
 // Switch to load Gears in the renderer process.
 const wchar_t kGearsInRenderer[]               = L"gears-in-renderer";
 
-// Enable winhttp HTTP stack.
-const wchar_t kUseWinHttp[]                    = L"winhttp";
-
 // Enable the fastback page cache.
 const wchar_t kEnableFastback[]                = L"enable-fastback";
 
@@ -346,7 +343,7 @@ const wchar_t kIncognito[]                     = L"incognito";
 // problems on some computers during updates.
 const wchar_t kUseOldSafeBrowsing[]            = L"old-safe-browsing";
 
-// Turns on the accessibility in the renderer.  Off by default until 
+// Turns on the accessibility in the renderer.  Off by default until
 // http://b/issue?id=1432077 is fixed.
 const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";
 

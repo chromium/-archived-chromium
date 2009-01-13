@@ -147,9 +147,9 @@ StringPiece NetResourceProvider(int key) {
 // Main routine for running as the Browser process.
 int BrowserMain(const MainFunctionParams& parameters) {
   CommandLine& parsed_command_line = parameters.command_line_;
-  sandbox::BrokerServices* broker_services = 
+  sandbox::BrokerServices* broker_services =
       parameters.sandbox_info_.BrokerServices();
-  
+
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
   // to browser_shutdown::Shutdown or BrowserProcess::EndSession.
@@ -179,13 +179,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   PlatformThread::SetName(thread_name);
   main_message_loop.set_thread_name(thread_name);
   bool already_running = Upgrade::IsBrowserAlreadyRunning();
-
-#if defined(OS_WIN)
-  // Make the selection of network stacks early on before any consumers try to
-  // issue HTTP requests.
-  if (parsed_command_line.HasSwitch(switches::kUseWinHttp))
-    net::HttpNetworkLayer::UseWinHttp(true);
-#endif
 
   std::wstring user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);

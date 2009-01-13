@@ -8,37 +8,18 @@
 #include "net/base/client_socket_factory.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_network_transaction.h"
-#if defined(OS_WIN)
-#include "net/http/http_transaction_winhttp.h"
-#endif
 
 namespace net {
 
 //-----------------------------------------------------------------------------
 
-#if defined(OS_WIN)
-// static
-bool HttpNetworkLayer::use_winhttp_ = false;
-#endif
-
 // static
 HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
     ProxyService* proxy_service) {
   DCHECK(proxy_service);
-#if defined(OS_WIN)
-  if (use_winhttp_)
-    return new HttpTransactionWinHttp::Factory(proxy_service);
-#endif
 
   return new HttpNetworkLayer(proxy_service);
 }
-
-#if defined(OS_WIN)
-// static
-void HttpNetworkLayer::UseWinHttp(bool value) {
-  use_winhttp_ = value;
-}
-#endif
 
 //-----------------------------------------------------------------------------
 

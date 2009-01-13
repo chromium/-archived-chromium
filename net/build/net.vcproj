@@ -685,14 +685,6 @@
 			Name="http"
 			>
 			<File
-				RelativePath="..\http\cert_status_cache.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\cert_status_cache.h"
-				>
-			</File>
-			<File
 				RelativePath="..\http\http_atom_list.h"
 				>
 			</File>
@@ -754,14 +746,6 @@
 			</File>
 			<File
 				RelativePath="..\http\http_transaction_factory.h"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_transaction_winhttp.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_transaction_winhttp.h"
 				>
 			</File>
 			<File
@@ -850,14 +834,6 @@
 			</File>
 			<File
 				RelativePath="..\http\http_vary_data.h"
-				>
-			</File>
-			<File
-				RelativePath="..\http\winhttp_request_throttle.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\winhttp_request_throttle.h"
 				>
 			</File>
 		</Filter>

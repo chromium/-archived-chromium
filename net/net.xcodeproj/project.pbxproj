@@ -141,7 +141,6 @@
 		82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */; };
 		82113A280E84360200E3848F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82113A270E84360200E3848F /* Security.framework */; };
 		82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82113BBC0E892E5800E3848F /* x509_certificate.cc */; };
-		821F207B0E5CD342003C7E38 /* cert_status_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33610E5A194700A747DB /* cert_status_cache.cc */; };
 		821F207F0E5CD3C6003C7E38 /* http_vary_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33520E5A194700A747DB /* http_vary_data.cc */; };
 		821F20A30E5CD407003C7E38 /* mime_sniffer_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A60E5A198600A747DB /* mime_sniffer_proxy.cc */; };
 		821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A90E5A198600A747DB /* url_request_view_cache_job.cc */; };
@@ -626,12 +625,10 @@
 		7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_chunked_decoder_unittest.cc; sourceTree = "<group>"; };
 		7BED33580E5A194700A747DB /* http_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_util_unittest.cc; sourceTree = "<group>"; };
 		7BED33590E5A194700A747DB /* http_network_transaction_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_network_transaction_unittest.cc; sourceTree = "<group>"; };
-		7BED335A0E5A194700A747DB /* cert_status_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cert_status_cache.h; sourceTree = "<group>"; };
 		7BED335C0E5A194700A747DB /* http_network_layer_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_network_layer_unittest.cc; sourceTree = "<group>"; };
 		7BED335D0E5A194700A747DB /* http_network_transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_network_transaction.h; sourceTree = "<group>"; };
 		7BED335E0E5A194700A747DB /* http_chunked_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_chunked_decoder.cc; sourceTree = "<group>"; };
 		7BED33600E5A194700A747DB /* http_atom_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_atom_list.h; sourceTree = "<group>"; };
-		7BED33610E5A194700A747DB /* cert_status_cache.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cert_status_cache.cc; sourceTree = "<group>"; };
 		7BED33620E5A194700A747DB /* http_network_layer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_network_layer.cc; sourceTree = "<group>"; };
 		7BED33630E5A194700A747DB /* http_request_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_request_info.h; sourceTree = "<group>"; };
 		7BED33640E5A194700A747DB /* http_chunked_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_chunked_decoder.h; sourceTree = "<group>"; };
@@ -1068,8 +1065,6 @@
 		7BED33390E5A193400A747DB /* http */ = {
 			isa = PBXGroup;
 			children = (
-				7BED33610E5A194700A747DB /* cert_status_cache.cc */,
-				7BED335A0E5A194700A747DB /* cert_status_cache.h */,
 				7BED33600E5A194700A747DB /* http_atom_list.h */,
 				0435A4650E8DD69C00E4DF08 /* http_auth.cc */,
 				0435A4670E8DD6B300E4DF08 /* http_auth.h */,
@@ -1473,7 +1468,6 @@
 				7B8503FC0E5B2DA200730B43 /* block_files.cc in Sources */,
 				7BA0172F0E5A244D00044150 /* bzip2_filter.cc in Sources */,
 				7B8504050E5B2DBD00730B43 /* cache_util_posix.cc in Sources */,
-				821F207B0E5CD342003C7E38 /* cert_status_cache.cc in Sources */,
 				E4CE9C0D0E8BFFFA00D5378C /* client_socket_factory.cc in Sources */,
 				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
 				7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */,

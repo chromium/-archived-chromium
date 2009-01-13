@@ -19,7 +19,6 @@
 #include "net/base/net_errors.h"
 #include "net/proxy/proxy_config_service_fixed.h"
 #if defined(OS_WIN)
-#include "net/http/http_transaction_winhttp.h"
 #include "net/proxy/proxy_config_service_win.h"
 #include "net/proxy/proxy_resolver_winhttp.h"
 #elif defined(OS_MACOSX)

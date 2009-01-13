@@ -271,19 +271,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\http\http_transaction_winhttp_unittest.cc"
-					>
-				</File>
-				<File
 					RelativePath="..\http\http_util_unittest.cc"
 					>
 				</File>
 				<File
 					RelativePath="..\http\http_vary_data_unittest.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\http\winhttp_request_throttle_unittest.cc"
 					>
 				</File>
 			</Filter>

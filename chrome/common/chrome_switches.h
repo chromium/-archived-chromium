@@ -119,8 +119,6 @@ extern const wchar_t kGearsPluginPathOverride[];
 
 extern const wchar_t kGearsInRenderer[];
 
-extern const wchar_t kUseWinHttp[];
-
 extern const wchar_t kEnableFastback[];
 
 extern const wchar_t kJavaScriptDebuggerPath[];

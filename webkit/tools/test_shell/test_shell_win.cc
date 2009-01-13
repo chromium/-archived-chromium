@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "webkit/tools/test_shell/test_shell.h"
+
 #include <windows.h>
 #include <atlbase.h>
 #include <commdlg.h>
 #include <objbase.h>
 #include <shlwapi.h>
-#include <wininet.h>
-
-#include "webkit/tools/test_shell/test_shell.h"
+#include <wininet.h>  // For INTERNET_MAX_URL_LENGTH
 
 #include "base/command_line.h"
 #include "base/memory_debug.h"
@@ -143,11 +143,6 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   }
 
   CommandLine parsed_command_line;
-  // Make the selection of network stacks early on before any consumers try to
-  // issue HTTP requests.
-  if (parsed_command_line.HasSwitch(test_shell::kUseWinHttp))
-    net::HttpNetworkLayer::UseWinHttp(true);
-
   if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
     std::wstring dir(
         parsed_command_line.GetSwitchValue(test_shell::kCrashDumps));
@@ -223,7 +218,7 @@ bool TestShell::RunFileTest(const char *filename, const TestParams& params) {
       static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
   shell->ResetTestController();
 
-  // ResetTestController may have closed the window we were holding on to. 
+  // ResetTestController may have closed the window we were holding on to.
   // Grab the first window again.
   hwnd = *(TestShell::windowList()->begin());
   shell = static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
@@ -272,7 +267,8 @@ bool TestShell::RunFileTest(const char *filename, const TestParams& params) {
       // which we handle here.
       if (!should_dump_as_text) {
         // Plain text pages should be dumped as text
-        std::wstring mime_type = webFrame->GetDataSource()->GetResponseMimeType();
+        std::wstring mime_type =
+            webFrame->GetDataSource()->GetResponseMimeType();
         should_dump_as_text = (mime_type == L"text/plain");
       }
       if (should_dump_as_text) {
@@ -297,7 +293,7 @@ bool TestShell::RunFileTest(const char *filename, const TestParams& params) {
         printf("%s", WideToUTF8(bfDump).c_str());
       }
     }
-    
+
     if (params.dump_pixels && !should_dump_as_text) {
       // Image output: we write the image data to the file given on the
       // command line (for the dump pixels argument), and the MD5 sum to
@@ -342,8 +338,8 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 // TestShell implementation
 
 void TestShell::PlatformCleanUp() {
-  // When the window is destroyed, tell the Edit field to forget about us, 
-  // otherwise we will crash. 
+  // When the window is destroyed, tell the Edit field to forget about us,
+  // otherwise we will crash.
   win_util::SetWindowProc(m_editWnd, default_edit_wnd_proc_);
   win_util::SetWindowUserData(m_editWnd, NULL);
 }
@@ -358,7 +354,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
 
   HWND hwnd;
   int x = 0;
-  
+
   hwnd = CreateWindow(L"BUTTON", L"Back",
                       WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
                       x, 0, BUTTON_WIDTH, URLBAR_HEIGHT,
@@ -386,7 +382,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   // this control is positioned by ResizeSubViews
   m_editWnd = CreateWindow(L"EDIT", 0,
                            WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT |
-                           ES_AUTOVSCROLL | ES_AUTOHSCROLL, 
+                           ES_AUTOVSCROLL | ES_AUTOHSCROLL,
                            x, 0, 0, 0, m_mainWnd, 0, instance_handle_, 0);
 
   default_edit_wnd_proc_ =
@@ -398,7 +394,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
       WebViewHost::Create(m_mainWnd, delegate_.get(), *TestShell::web_prefs_));
   webView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
-  
+
   // Load our initial content.
   if (!startingURL.empty())
     LoadURL(startingURL.c_str());
@@ -456,8 +452,8 @@ void TestShell::WaitTestFinished() {
 
   // Create a watchdog thread which just sets a timer and
   // kills the process if it times out.  This catches really
-  // bad hangs where the shell isn't coming back to the 
-  // message loop.  If the watchdog is what catches a 
+  // bad hangs where the shell isn't coming back to the
+  // message loop.  If the watchdog is what catches a
   // timeout, it can't do anything except terminate the test
   // shell, which is unfortunate.
   finished_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -481,7 +477,7 @@ void TestShell::WaitTestFinished() {
   SetEvent(finished_event_);
 
   // Wait to join the watchdog thread.  (up to 1s, then quit)
-  WaitForSingleObject(thread_handle, 1000);  
+  WaitForSingleObject(thread_handle, 1000);
 }
 
 void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
@@ -649,7 +645,7 @@ LRESULT CALLBACK TestShell::EditWndProc(HWND hwnd, UINT message,
     case WM_CHAR:
       if (wParam == VK_RETURN) {
         wchar_t strPtr[MAX_URL_LENGTH + 1];  // Leave room for adding a NULL;
-        *((LPWORD)strPtr) = MAX_URL_LENGTH; 
+        *((LPWORD)strPtr) = MAX_URL_LENGTH;
         LRESULT strLen = SendMessage(hwnd, EM_GETLINE, 0, (LPARAM)strPtr);
         if (strLen > 0) {
           strPtr[strLen] = 0;  // EM_GETLINE doesn't NULL terminate.

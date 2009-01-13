@@ -25,21 +25,12 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   // and allows other implementations to be substituted.
   static HttpTransactionFactory* CreateFactory(ProxyService* proxy_service);
 
-#if defined(OS_WIN)
-  // If value is true, then WinHTTP will be used.
-  static void UseWinHttp(bool value);
-#endif
-
   // HttpTransactionFactory methods:
   virtual HttpTransaction* CreateTransaction();
   virtual HttpCache* GetCache();
   virtual void Suspend(bool suspend);
 
  private:
-#if defined(OS_WIN)
-  static bool use_winhttp_;
-#endif
-
   // The proxy service being used for the session.
   ProxyService* proxy_service_;
 

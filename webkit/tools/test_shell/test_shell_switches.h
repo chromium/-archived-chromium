@@ -25,7 +25,6 @@ extern const wchar_t kDumpStatsTable[];
 extern const wchar_t kCacheDir[];
 extern const wchar_t kDebugMemoryInUse[];
 extern const wchar_t kEnableFileCookies[];
-extern const wchar_t kUseWinHttp[];
 extern const wchar_t kEnableTracing[];
 extern const wchar_t kAllowScriptsToCloseWindows[];
 extern const wchar_t kCheckLayoutTestSystemDeps[];
