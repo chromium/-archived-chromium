@@ -1230,12 +1230,12 @@ LayoutTests/fast/js/primitive-method-this.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
 LINUX WIN : LayoutTests/fast/table/empty-row-crash.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
-LINUX WIN : LayoutTests/scrollbars/basic-scrollbar.html = FAIL
-LINUX WIN : LayoutTests/scrollbars/disabled-scrollbar.html = FAIL
-LINUX WIN : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
+LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL
+LINUX : LayoutTests/scrollbars/disabled-scrollbar.html = FAIL
+LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
-LINUX WIN : LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
-LINUX WIN : LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
+LINUX : LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
+LINUX : LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
 LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 
 // The extra output may be legitimate; the extra setSelectionRange line is
