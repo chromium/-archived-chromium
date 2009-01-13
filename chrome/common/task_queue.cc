@@ -44,4 +44,3 @@ void TaskQueue::Clear() {
 bool TaskQueue::Empty() const {
   return queue_.empty();
 }
-
