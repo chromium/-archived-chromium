@@ -74,11 +74,15 @@ typedef struct gz_stream {
 
 
 local gzFile gz_open      OF((const char *path, const char *mode, int  fd));
+#ifndef NO_GZCOMPRESS  // Google Gears addition, to avoid compile warning
 local int do_flush        OF((gzFile file, int flush));
+#endif
 local int    get_byte     OF((gz_stream *s));
 local void   check_header OF((gz_stream *s));
 local int    destroy      OF((gz_stream *s));
+#ifndef NO_GZCOMPRESS  // Google Gears addition, to avoid compile warning
 local void   putLong      OF((FILE *file, uLong x));
+#endif
 local uLong  getLong      OF((gz_stream *s));
 
 /* ===========================================================================
@@ -914,6 +918,7 @@ int ZEXPORT gzdirect (file)
     return s->transparent;
 }
 
+#ifndef NO_GZCOMPRESS  // Google Gears addition, to avoid compile warning
 /* ===========================================================================
    Outputs a long in LSB order to the given file
 */
@@ -927,6 +932,7 @@ local void putLong (file, x)
         x >>= 8;
     }
 }
+#endif
 
 /* ===========================================================================
    Reads a long in LSB order from the given gz_stream. Sets z_err in case
@@ -971,7 +977,8 @@ int ZEXPORT gzclose (file)
     return destroy((gz_stream*)file);
 }
 
-#ifdef STDC
+// Google Gears modification: strerror is not present on WinCE.
+#if defined(STDC) && !defined(_WIN32_WCE)
 #  define zstrerror(errnum) strerror(errnum)
 #else
 #  define zstrerror(errnum) ""
