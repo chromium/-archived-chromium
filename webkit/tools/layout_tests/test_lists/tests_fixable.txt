@@ -617,11 +617,12 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
 
-// MAC: these two seem to pass in release, but not debug
+// MAC: these two seem to pass in release, but not debug on local machines,
+// but fail on the mac build bots.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
+MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL PASS
+MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL PASS
 
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
@@ -869,7 +870,7 @@ LINUX WIN : LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
 LINUX WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
 
 // Problems with getImageData and toDataURL: http://crbug.com/2972
-LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
+LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
@@ -1212,7 +1213,7 @@ LINUX MAC : pending/plugins/destroy-stream-twice.html = TIMEOUT
 LINUX MAC : pending/plugins/iframe-shims.html = FAIL
 
 // Depends on event_sending_controller fixes.
-MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL
+MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
 
 // NEW FOR MERGE 36102:37604
 
@@ -1308,7 +1309,7 @@ MAC WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.h
 
 // MERGE 38097:38305 REGRESSIONS
 // Bug 5051: several steps of this test fail for an unknown reason.
-LINUX WIN : LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
+LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
 // Bug 5053: fails (maybe V8?)
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 
@@ -1323,8 +1324,8 @@ LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 LayoutTests/security/block-test.html = FAIL
 
 // MERGE 38500:39550: New tests
-// Needs to be rebaselined on linux/mac.
-LINUX MAC : LayoutTests/transitions/transition-drt-api.html = FAIL
+// Needs to be rebaselined on linux.
+LINUX : LayoutTests/transitions/transition-drt-api.html = FAIL
 // Missing expected results
 SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 
@@ -1579,11 +1580,10 @@ MAC : LayoutTests/fast/forms/button-spacebar-click.html = FAIL
 MAC : LayoutTests/fast/forms/focus-control-to-page.html = FAIL
 
 // event failures
-MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
+MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL CRASH
 
-// history
-MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS FAIL
+// history (currently flaky on Linx & Mac platforms)
+LINUX MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS FAIL
 
 // selection
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
@@ -1602,6 +1602,7 @@ MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
 MAC : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
 MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
+MAC : LayoutTests/svg/custom/circle-move-invalidation.svg = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
 MAC : LayoutTests/editing/deleting/5408255.html = FAIL
@@ -1640,19 +1641,20 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
 // Crashing...
 
-// window.open crashes
-MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT
+// window.open crashes (some of these are flakey, in that they don't always
+// crash, and are noted as such)
+MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
+MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
-MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH
-MAC RELEASE : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
-MAC RELEASE : LayoutTests/fast/history/history_reload.html = CRASH
+MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH PASS
+MAC : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
+MAC : LayoutTests/fast/history/history_reload.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT
-MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH
-MAC RELEASE : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
 
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
@@ -1664,14 +1666,53 @@ MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PA
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH TIMEOUT PASS
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
 
 //  no html tags, bad html (unmatched tags)
-MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
+MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH PASS
 // Script -- onload hooks
-MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH
+MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH TIMEOUT
+
+// This needs a new mac baseline, but waiting until we get scroll bars fixed
+// since that change will also mean a rebase.
+MAC : chrome/fonts/impact.html = FAIL
+
+// Not really sure why these are failing at the moment
+MAC : LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
+MAC : LayoutTests/fast/dom/isindex-002.html = FAIL
+MAC : LayoutTests/fast/events/init-events.html = FAIL
+
+// This tests has a comment about order isn't really defined and could change,
+// maybe we just need to update to this order?
+MAC : LayoutTests/fast/events/drag-in-frames.html = FAIL
+
+// These two have a different object type in the dom dump?
+MAC : LayoutTests/fast/images/embed-image.html = FAIL
+MAC : LayoutTests/fast/images/object-image.html = FAIL
+
+// These may just need to rebase for v8
+MAC : LayoutTests/fast/js/array-every.html = FAIL
+MAC : LayoutTests/fast/js/large-expressions.html = FAIL
+MAC : LayoutTests/fast/js/regexp-overflow.html = FAIL
+
+// Parsing issue?
+MAC :  LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
+
+// Rebase for our network stack?
+MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
+MAC : LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
+
+// The following are flaky in that some times the timeout or crash, but we think
+// it is because of bugs in other parts of the code and not specific to what
+// these tests are doing.  The are being noted here so we can get the buildbots
+// green so new mac regressions are caught much quicker.
+// (there are a few others marked w/ multiple status like this in other parts of
+// the file, but they were left there as the comments in those areas are valid.)
+MAC : LayoutTests/animations/animation-end-event-destroy-renderer.html = TIMEOUT PASS
+MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS
 
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
@@ -1817,7 +1858,8 @@ LINUX : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
 // returns 'undefined'. Upstream change removed the CanvasPixelArray
 // and this property should be implemented anew now.
 // See http://trac.webkit.org/changeset/39625
-LayoutTests/fast/canvas/canvas-ImageData-behaviour.html = FAIL
+LINUX WIN : LayoutTests/fast/canvas/canvas-ImageData-behaviour.html = FAIL
+MAC : LayoutTests/fast/canvas/canvas-ImageData-behaviour.html = FAIL CRASH
 LayoutTests/fast/canvas/canvas-alphaImageData-behavior.html = FAIL
 LayoutTests/fast/canvas/canvas-gradient-without-path.html = FAIL
 LayoutTests/fast/canvas/canvas-invalid-fillstyle.html = FAIL
@@ -1838,8 +1880,8 @@ LayoutTests/fast/canvas/gradient-with-clip.html = FAIL
 LayoutTests/fast/canvas/pattern-with-transform.html = FAIL
 
 // Merge 39606:39660 - tests were modified upstream, perhaps need a rebaseline.
-LayoutTests/svg/custom/pointer-events-path.svg = FAIL
-LayoutTests/svg/custom/pointer-events-text.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // Merge 39606:39660 - new tests
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
