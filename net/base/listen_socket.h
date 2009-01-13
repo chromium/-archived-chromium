@@ -8,8 +8,8 @@
 // happen in that loop's thread always and that all other methods (including
 // constructors and destructors) should also be called from the same thread.
 
-#ifndef NET_BASE_SOCKET_H_
-#define NET_BASE_SOCKET_H_
+#ifndef NET_BASE_LISTEN_SOCKET_H_
+#define NET_BASE_LISTEN_SOCKET_H_
 
 #if defined(OS_WIN)
 #include <winsock2.h>
@@ -109,4 +109,5 @@ class ListenSocket : public base::RefCountedThreadSafe<ListenSocket>,
   DISALLOW_EVIL_CONSTRUCTORS(ListenSocket);
 };
 
-#endif  // NET_BASE_SOCKET_H_
+#endif  // NET_BASE_LISTEN_SOCKET_H_
+
