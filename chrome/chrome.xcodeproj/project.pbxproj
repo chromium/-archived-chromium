@@ -301,6 +301,7 @@
 		E45076E50F153AB6003BE099 /* unzip.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45076E40F153AB6003BE099 /* unzip.cc */; };
 		E450775F0F154036003BE099 /* mru_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD40E9D4C9F009A6919 /* mru_cache_unittest.cc */; };
 		E45077620F15405C003BE099 /* notification_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBDB0E9D4C9F009A6919 /* notification_service_unittest.cc */; };
+		E46C42130F1D3DD200B393B8 /* user_script_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0082A7510F16987A000AA0EF /* user_script_master.cc */; };
 		E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADF0E9D49DE009A6919 /* safe_browsing_database_bloom.cc */; };
 		E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE10E9D49DE009A6919 /* safe_browsing_database_impl.cc */; };
 		E48FB9760EC4EA320052B72B /* url_request_failed_dns_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB96E0EC4EA270052B72B /* url_request_failed_dns_job.cc */; };
@@ -3737,6 +3738,7 @@
 				E48FB97A0EC4EA4A0052B72B /* url_request_mock_net_error_job.cc in Sources */,
 				E48FB97C0EC4EA540052B72B /* url_request_slow_download_job.cc in Sources */,
 				4D7BF9C20E9D489E009A6919 /* user_metrics.cc in Sources */,
+				E46C42130F1D3DD200B393B8 /* user_script_master.cc in Sources */,
 				4D7BFA3E0E9D491B009A6919 /* visit_database.cc in Sources */,
 				4D7BFA430E9D491E009A6919 /* visit_tracker.cc in Sources */,
 				4D7BFA480E9D4922009A6919 /* visitsegment_database.cc in Sources */,
