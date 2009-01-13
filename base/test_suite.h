@@ -10,11 +10,14 @@
 // any gtest based tests that are linked into your executable.
 
 #include "base/at_exit.h"
+#include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
+#include "base/file_path.h"
 #include "base/icu_util.h"
 #include "base/logging.h"
 #include "base/multiprocess_test.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/multiprocess_func_list.h"
 
@@ -27,16 +30,31 @@
 class TestSuite {
  public:
   TestSuite(int argc, char** argv) {
+    base::ScopedNSAutoreleasePool scoped_pool;
+
+    base::EnableTerminationOnHeapCorruption();
     CommandLine::SetArgcArgv(argc, argv);
     testing::InitGoogleTest(&argc, argv);
 #if defined(OS_LINUX)
     gtk_init_check(&argc, &argv);
 #endif
+
+    FilePath exe;
+    PathService::Get(base::FILE_EXE, &exe);
+    FilePath log_filename = exe.ReplaceExtension(FILE_PATH_LITERAL("log"));
+    logging::InitLogging(log_filename.value().c_str(),
+                         logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+                         logging::LOCK_LOG_FILE,
+                         logging::DELETE_OLD_LOG_FILE);
+    // we want process and thread IDs because we may have multiple processes
+    logging::SetLogItems(true, true, false, true);
   }
 
   virtual ~TestSuite() {}
 
   int Run() {
+    base::ScopedNSAutoreleasePool scoped_pool;
+
     Initialize();
     std::wstring client_func = CommandLine().GetSwitchValue(kRunClientProcess);
     // Check to see if we are being run as a client process.

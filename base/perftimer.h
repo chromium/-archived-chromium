@@ -7,6 +7,7 @@
 
 #include <string>
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/time.h"
 
 // ----------------------------------------------------------------------
@@ -14,7 +15,7 @@
 // called at the beginning and end (respectively) of running all the
 // performance tests. The init function returns true on success.
 // ----------------------------------------------------------------------
-bool InitPerfLog(const char* log_file);
+bool InitPerfLog(const FilePath& log_path);
 void FinalizePerfLog();
 
 // ----------------------------------------------------------------------

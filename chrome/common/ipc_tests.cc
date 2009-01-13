@@ -16,8 +16,7 @@
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "base/perftimer.h"
-#include "base/process_util.h"
-#include "base/scoped_nsautorelease_pool.h"
+#include "base/perf_test_suite.h"
 #include "base/test_suite.h"
 #include "base/thread.h"
 #include "chrome/common/chrome_switches.h"
@@ -435,41 +434,11 @@ MULTIPROCESS_TEST_MAIN(RunReflector) {
 
 #endif  // PERFORMANCE_TEST
 
-#if defined(OS_WIN)
-// All fatal log messages (e.g. DCHECK failures) imply unit test failures
-static void IPCTestAssertHandler(const std::string& str) {
-  FAIL() << str;
-}
-
-// Disable crash dialogs so that it doesn't gum up the buildbot
-static void SuppressErrorDialogs() {
-  UINT new_flags = SEM_FAILCRITICALERRORS |
-                   SEM_NOGPFAULTERRORBOX |
-                   SEM_NOOPENFILEERRORBOX;
-
-  // Preserve existing error mode, as discussed at http://t/dmea
-  UINT existing_flags = SetErrorMode(new_flags);
-  SetErrorMode(existing_flags | new_flags);
-}
-#endif  // defined(OS_WIN)
-
 int main(int argc, char** argv) {
-  base::ScopedNSAutoreleasePool scoped_pool;
-  base::EnableTerminationOnHeapCorruption();
-
-#if defined(OS_WIN)
-  // suppress standard crash dialogs and such unless a debugger is present.
-  if (!IsDebuggerPresent()) {
-    SuppressErrorDialogs();
-    logging::SetLogAssertHandler(IPCTestAssertHandler);
-  }
-#endif  // defined(OS_WIN)
-
-  int retval = TestSuite(argc, argv).Run();
-
 #ifdef PERFORMANCE_TEST
-  if (!InitPerfLog("ipc_perf_child.log"))
-    return 1;
+  int retval = PerfTestSuite(argc, argv).Run();
+#else
+  int retval = TestSuite(argc, argv).Run();
 #endif
   return retval;
 }

@@ -16,6 +16,7 @@
 #elif defined(OS_LINUX)
 #include "base/base_paths_linux.h"
 #endif
+#include "base/path_service.h"
 
 namespace base {
 

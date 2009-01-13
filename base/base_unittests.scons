@@ -50,6 +50,7 @@ input_files = ChromeFileList([
   MSVSFilter('support', [
     'multiprocess_test.h',
     'no_windows2000_unittest.h',
+    'perf_test_suite.h',
     'run_all_unittests.cc',
     'test_suite.h',
   ]),

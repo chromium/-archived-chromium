@@ -8,19 +8,20 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 
 static FILE* perf_log_file = NULL;
 
-bool InitPerfLog(const char* log_file) {
+bool InitPerfLog(const FilePath& log_file) {
   if (perf_log_file) {
     // trying to initialize twice
     NOTREACHED();
     return false;
   }
 
-  perf_log_file = file_util::OpenFile(std::string(log_file), "w");
+  perf_log_file = file_util::OpenFile(log_file, "w");
   return perf_log_file != NULL;
 }
 

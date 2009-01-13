@@ -158,11 +158,13 @@ MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
     }
   }
 
+  // InitLogging always opens a file at startup.
+  int expected_num_open_fds = 1;
 #if defined(OS_LINUX)
   // On Linux, '/etc/localtime' is opened before the test's main() enters.
-  const int expected_num_open_fds = 1;
-  num_open_files -= expected_num_open_fds;
+  expected_num_open_fds += 1;
 #endif  // defined(OS_LINUX)
+  num_open_files -= expected_num_open_fds;
 
   write(write_pipe, &num_open_files, sizeof(num_open_files));
   close(write_pipe);

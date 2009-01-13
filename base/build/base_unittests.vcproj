@@ -152,6 +152,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\perf_test_suite.h"
+				>
+			</File>
+			<File
 				RelativePath="..\run_all_unittests.cc"
 				>
 			</File>
