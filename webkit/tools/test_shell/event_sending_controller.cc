@@ -18,6 +18,9 @@
 
 #include <queue>
 
+// TODO(darin): This is very wrong.  We should not be including WebCore headers
+// directly like this!!
+#include "config.h"
 #include "KeyboardCodes.h"
 
 #include "base/logging.h"
