@@ -3161,7 +3161,6 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
 // 1) EventTargetNode; 2) XMLHttpRequest; 3) MessagePort; 4) SVGElementInstance;
 // 5) XMLHttpRequestUpload
 // check EventTarget.h for new type conversion methods
-// also make sure to sync with V8EventListener::GetThisObject (v8_events.cpp)
 v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
 {
   if (!target)

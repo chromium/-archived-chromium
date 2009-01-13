@@ -146,6 +146,24 @@ void V8AbstractEventListener::DisposeListenerObject() {
 }
 
 
+v8::Local<v8::Object> V8AbstractEventListener::GetReceiverObject(
+    Event* event,
+    bool isWindowEvent) {
+  if (!m_listener.IsEmpty() && !m_listener->IsFunction()) {
+    return v8::Local<v8::Object>::New(m_listener);
+  }
+  
+  if (isWindowEvent) {
+    return v8::Context::GetCurrent()->Global();
+  }
+
+  EventTarget* target = event->currentTarget();
+  v8::Handle<v8::Value> value = V8Proxy::EventTargetToV8Object(target);
+  if (value.IsEmpty()) return v8::Local<v8::Object>();
+  return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
+}
+
+
 V8EventListener::V8EventListener(Frame* frame, v8::Local<v8::Object> listener,
                                  bool isInline)
   : V8AbstractEventListener(frame, isInline) {
@@ -191,68 +209,22 @@ v8::Local<v8::Value>
 V8EventListener::CallListenerFunction(v8::Handle<v8::Value> jsevent,
                                       Event* event, bool isWindowEvent) {
   v8::Local<v8::Function> handler_func = GetListenerFunction();
-  if (handler_func.IsEmpty()) return v8::Local<v8::Value>();
+  v8::Local<v8::Object> receiver = GetReceiverObject(event, isWindowEvent);
+  if (handler_func.IsEmpty() || receiver.IsEmpty()) {
+    return v8::Local<v8::Value>();
+  }
 
-  v8::Local<v8::Object> this_obj = GetThisObject(event, isWindowEvent);
-  v8::Handle<v8::Value> parameters[1] = {jsevent};
+  v8::Handle<v8::Value> parameters[1] = { jsevent };
 
   V8Proxy* proxy = V8Proxy::retrieve(m_frame);
-  ASSERT(proxy);
-
-  return proxy->CallFunction(handler_func, this_obj, 1, parameters);
-}
-
-
-v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
-                                                     bool isWindowEvent) {
-  if (!m_listener.IsEmpty() && !m_listener->IsFunction()) {
-    return v8::Local<v8::Object>::New(m_listener);
-  }
-
-  if (isWindowEvent) {
-      return v8::Context::GetCurrent()->Global();
-  }
-
-  // make sure to sync type conversions with V8Proxy::EventTargetToV8Object
-  EventTarget* target = event->currentTarget();
-  if (target->toNode()) {
-    v8::Handle<v8::Value> value =
-        V8Proxy::NodeToV8Object(target->toNode());
-    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
-
-  } else if (target->toXMLHttpRequest()) {
-    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
-        V8ClassIndex::XMLHTTPREQUEST, target->toXMLHttpRequest());
-    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
-
-  } else if (target->toXMLHttpRequestUpload()) {
-    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
-        V8ClassIndex::XMLHTTPREQUESTUPLOAD, target->toXMLHttpRequestUpload());
-    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
-  
-  } else if (target->toMessagePort()) {
-    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
-        V8ClassIndex::MESSAGEPORT, target->toMessagePort());
-    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
-
-#if ENABLE(SVG)
-  } else if (target->toSVGElementInstance()) {
-    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
-        V8ClassIndex::SVGELEMENTINSTANCE, target->toSVGElementInstance());
-    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
-#endif
-
-  } else {
-    ASSERT(false);
-    return v8::Local<v8::Object>();
-  }
+  return proxy->CallFunction(handler_func, receiver, 1, parameters);
 }
 
 
 // ------- V 8 X H R E v e n t L i s t e n e r -----------------
 
 static void WeakObjectEventListenerCallback(v8::Persistent<v8::Value> obj,
-                                    void* para) {
+                                            void* para) {
   V8ObjectEventListener* listener = static_cast<V8ObjectEventListener*>(para);
 
   // Remove the wrapper
@@ -274,8 +246,8 @@ static void WeakObjectEventListenerCallback(v8::Persistent<v8::Value> obj,
 
 
 V8ObjectEventListener::V8ObjectEventListener(Frame* frame,
-                                       v8::Local<v8::Object> listener,
-                                       bool isInline)
+                                             v8::Local<v8::Object> listener,
+                                             bool isInline)
     : V8EventListener(frame, listener, isInline) {
   // make m_listener weak.
   m_listener.MakeWeak(this, WeakObjectEventListenerCallback);
@@ -315,20 +287,6 @@ V8LazyEventListener::~V8LazyEventListener() {
     m_wrapped_function.Dispose();
     m_wrapped_function.Clear();
   }
-}
-
-
-v8::Local<v8::Object> V8LazyEventListener::GetThisObject(Event* event,
-                                                         bool isWindowEvent) {
-  if (isWindowEvent) {
-    return v8::Context::GetCurrent()->Global();
-  }
-
-  v8::Handle<v8::Value> value =
-    V8Proxy::NodeToV8Object(event->currentTarget()->toNode());
-  ASSERT(!value.IsEmpty());
-
-  return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
 }
 
 
@@ -409,14 +367,16 @@ v8::Local<v8::Function> V8LazyEventListener::GetListenerFunction() {
 v8::Local<v8::Value>
 V8LazyEventListener::CallListenerFunction(v8::Handle<v8::Value> jsevent,
                                           Event* event, bool isWindowEvent) {
-  v8::Local<v8::Object> this_obj = GetThisObject(event, isWindowEvent);
   v8::Local<v8::Function> handler_func = GetWrappedListenerFunction();
-  if (handler_func.IsEmpty()) return v8::Local<v8::Value>();
+  v8::Local<v8::Object> receiver = GetReceiverObject(event, isWindowEvent);
+  if (handler_func.IsEmpty() || receiver.IsEmpty()) {
+    return v8::Local<v8::Value>();
+  }
 
-  v8::Handle<v8::Value> parameters[1] = {jsevent};
+  v8::Handle<v8::Value> parameters[1] = { jsevent };
 
   V8Proxy* proxy = V8Proxy::retrieve(m_frame);
-  return proxy->CallFunction(handler_func, this_obj, 1, parameters);
+  return proxy->CallFunction(handler_func, receiver, 1, parameters);
 }
 
 

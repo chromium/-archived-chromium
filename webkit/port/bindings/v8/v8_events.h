@@ -49,9 +49,14 @@ class V8AbstractEventListener : public EventListener {
 
 
   // Call listener function.
-  virtual v8::Local<v8::Value>
-    CallListenerFunction(v8::Handle<v8::Value> jsevent,
-                         Event* event, bool isWindowEvent) = 0;
+  virtual v8::Local<v8::Value> CallListenerFunction(
+      v8::Handle<v8::Value> jsevent,
+      Event* event,
+      bool isWindowEvent) = 0;
+
+  // Get the receiver object to use for event listener call.
+  v8::Local<v8::Object> GetReceiverObject(Event* event,
+                                          bool isWindowEvent);
 
   // Frame to which the event listener is attached to.
   // An event listener must be destroyed before its owner
@@ -97,7 +102,6 @@ class V8EventListener : public V8AbstractEventListener {
   // Call listener function.
   virtual v8::Local<v8::Value> CallListenerFunction(
       v8::Handle<v8::Value> jsevent, Event* event, bool isWindowEvent);
-  v8::Local<v8::Object> GetThisObject(Event* event, bool isWindowEvent);
   v8::Local<v8::Function> GetListenerFunction();
 };
 
@@ -151,7 +155,6 @@ class V8LazyEventListener : public V8AbstractEventListener {
   virtual v8::Local<v8::Value> CallListenerFunction(
       v8::Handle<v8::Value> jsevent, Event* event, bool isWindowEvent);
 
-  v8::Local<v8::Object> GetThisObject(Event* event, bool isWindowEvent);
   v8::Local<v8::Function> GetListenerFunction();
 };
 
