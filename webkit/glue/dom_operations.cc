@@ -843,4 +843,21 @@ bool PauseTransitionAtTimeOnElementWithId(WebView* view,
                                            time);
 }
 
+bool ElementDoesAutoCompleteForElementWithId(WebView* view,
+                                             const std::string& element_id) {
+  WebFrame* web_frame = view->GetMainFrame();
+  if (!web_frame)
+    return false;
+
+  WebCore::Frame* frame = static_cast<WebFrameImpl*>(web_frame)->frame();
+  WebCore::Element* element =
+      frame->document()->getElementById(StdStringToString(element_id));
+  if (!element || !element->hasLocalName(WebCore::HTMLNames::inputTag))
+    return false;
+
+  WebCore::HTMLInputElement* input_element =
+      static_cast<WebCore::HTMLInputElement*>(element);
+  return input_element->autoComplete();
+}
+
 } // webkit_glue

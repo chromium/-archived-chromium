@@ -187,6 +187,12 @@ bool PauseTransitionAtTimeOnElementWithId(WebView* view,
                                           double time,
                                           const std::string& element_id);
 
+// Returns true if the element with |element_id| as its id has autocomplete
+// on.
+bool ElementDoesAutoCompleteForElementWithId(WebView* view,
+                                             const std::string& element_id);
+
+
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_DOM_OPERATIONS_H__

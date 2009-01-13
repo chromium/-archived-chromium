@@ -938,8 +938,6 @@ LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache
 LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 // Bug 4360: times out because this uses dom storage which we don't implement.
 DEFER SKIP : LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
-// Fails because we don't implement form autocomplete.
-LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
 
