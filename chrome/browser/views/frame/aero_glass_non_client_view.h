@@ -18,6 +18,8 @@ class AeroGlassNonClientView : public views::NonClientView {
   AeroGlassNonClientView(AeroGlassFrame* frame, BrowserView* browser_view);
   virtual ~AeroGlassNonClientView();
 
+  // Retrieve the bounds for the specified |tabstrip|, in the coordinate system
+  // of the non-client view (which whould be window coordinates).
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
  protected:

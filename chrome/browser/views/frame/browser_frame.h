@@ -33,8 +33,7 @@ class BrowserFrame {
   // Sizes the frame assuming the contents view's bounds are as specified.
   virtual void SizeToContents(const gfx::Rect& contents_bounds) = 0;
 
-  // Returns the bounds that should be used to size and position the specified
-  // TabStrip. The coordinate system is that of the window's client area.
+  // Retrieve the bounds for the specified |tabstrip|, in window coordinates.
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
 
   // Updates the current frame of the Throbber animation, if applicable.

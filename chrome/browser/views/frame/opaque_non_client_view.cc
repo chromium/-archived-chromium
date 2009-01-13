@@ -375,9 +375,15 @@ static const int kOTRBottomSpacing = 2;
 // The number of pixels to crop off the top of the OTR image when the window is
 // maximized.
 static const int kOTRZoomedTopCrop = 4;
+// Horizontal distance between the right edge of the OTR avatar icon and the
+// left edge of the tabstrip.
+static const int kOTRTabStripSpacing = 2;
+// Horizontal distance between the right edge of the new tab icon and the left
+// edge of the window minimize icon when the window is restored.
+static const int kNewTabIconMinimizeSpacing = 5;
 // Horizontal distance between the right edge of the new tab icon and the left
 // edge of the window minimize icon when the window is maximized.
-static const int kNewTabIconWindowControlsSpacing = 10;
+static const int kNewTabIconMinimizeZoomedSpacing = 16;
 
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, public:
@@ -481,8 +487,7 @@ OpaqueNonClientView::~OpaqueNonClientView() {
 gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
     const gfx::Rect& client_bounds) {
   int top_height = CalculateNonClientTopHeight();
-  int horizontal_border = frame_->IsMaximized() ?
-      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
+  int horizontal_border = HorizontalBorderSize();
   int window_x = std::max(0, client_bounds.x() - horizontal_border);
   int window_y = std::max(0, client_bounds.y() - top_height);
   int window_w = client_bounds.width() + (2 * horizontal_border);
@@ -492,12 +497,14 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
 }
 
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
-  int tabstrip_x = otr_avatar_bounds_.right();
-  int tabstrip_width = minimize_button_->x() - tabstrip_x;
-  if (frame_->IsMaximized())
-    tabstrip_width -= kNewTabIconWindowControlsSpacing;
-  return gfx::Rect(tabstrip_x, 0, std::max(0, tabstrip_width),
-                   tabstrip->GetPreferredHeight());
+  int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
+      (otr_avatar_bounds_.right() + kOTRTabStripSpacing) :
+      HorizontalBorderSize();
+  int tabstrip_width = minimize_button_->x() - tabstrip_x -
+      (frame_->IsMaximized() ?
+      kNewTabIconMinimizeZoomedSpacing : kNewTabIconMinimizeSpacing);
+  return gfx::Rect(tabstrip_x, CalculateNonClientTopHeight(),
+                   std::max(0, tabstrip_width), tabstrip->GetPreferredHeight());
 }
 
 void OpaqueNonClientView::UpdateWindowIcon() {
@@ -541,8 +548,7 @@ void OpaqueNonClientView::ButtonPressed(views::BaseButton* sender) {
 gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
                                                          int height) const {
   int top_margin = CalculateNonClientTopHeight();
-  int horizontal_border = frame_->IsMaximized() ?
-      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
+  int horizontal_border = HorizontalBorderSize();
   return gfx::Rect(horizontal_border, top_margin,
       std::max(0, width - (2 * horizontal_border)),
       std::max(0, height - top_margin - kWindowVerticalBorderBottomSize));
@@ -551,9 +557,7 @@ gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
 gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
-  int horizontal_border = frame_->IsMaximized() ?
-      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
-  return gfx::Size(width + (2 * horizontal_border),
+  return gfx::Size(width + (2 * HorizontalBorderSize()),
       height + CalculateNonClientTopHeight() + kWindowVerticalBorderBottomSize);
 }
 
@@ -586,9 +590,7 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
       window_icon_->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
     return HTSYSMENU;
 
-  int horizontal_border = frame_->IsMaximized() ?
-      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
-  int window_component = GetHTComponentForFrame(point, horizontal_border,
+  int window_component = GetHTComponentForFrame(point, HorizontalBorderSize(),
       kResizeAreaCornerSize, kWindowVerticalBorderTopSize,
       frame_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
@@ -665,10 +667,8 @@ void OpaqueNonClientView::Layout() {
 }
 
 gfx::Size OpaqueNonClientView::GetPreferredSize() {
-  int horizontal_border = frame_->IsMaximized() ?
-      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
   gfx::Size prefsize(frame_->client_view()->GetPreferredSize());
-  prefsize.Enlarge(2 * horizontal_border,
+  prefsize.Enlarge(2 * HorizontalBorderSize(),
       CalculateNonClientTopHeight() + kWindowVerticalBorderBottomSize);
   return prefsize;
 }
@@ -733,6 +733,11 @@ int OpaqueNonClientView::CalculateNonClientTopHeight() const {
   if (frame_->window_delegate()->ShouldShowWindowTitle())
     return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
   return frame_->IsMaximized() ? kNoTitleZoomedTopSpacing : kNoTitleTopSpacing;
+}
+
+int OpaqueNonClientView::HorizontalBorderSize() const {
+  return frame_->IsMaximized() ?
+      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
 }
 
 void OpaqueNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
@@ -839,8 +844,8 @@ void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
 void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
   if (browser_view_->ShouldShowOffTheRecordAvatar()) {
     int src_y = frame_->IsMaximized() ? kOTRZoomedTopCrop : 0;
-    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(),
-        0, src_y, otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), 
+    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(), 0, src_y,
+        otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), 
         MirroredLeftPointForRect(otr_avatar_bounds_), otr_avatar_bounds_.y(),
         otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
   }
@@ -1005,11 +1010,6 @@ void OpaqueNonClientView::LayoutTitleBar() {
 }
 
 void OpaqueNonClientView::LayoutOTRAvatar() {
-  if (!browser_view_->ShouldShowOffTheRecordAvatar()) {
-    otr_avatar_bounds_.SetRect(0, 0, 0, 0);
-    return;
-  }
-
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   int non_client_height = CalculateNonClientTopHeight();
   int otr_bottom = non_client_height + browser_view_->GetTabStripHeight() -

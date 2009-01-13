@@ -769,15 +769,13 @@ bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
     }
 
     gfx::Rect window_rect = frame_->GetWindowBoundsForClientBounds(*bounds);
-    window_rect.set_origin(gfx::Point(bounds->x(), bounds->y()));
+    window_rect.set_origin(bounds->origin());
 
     // When we are given x/y coordinates of 0 on a created popup window,
     // assume none were given by the window.open() command.
     if (window_rect.x() == 0 && window_rect.y() == 0) {
-      gfx::Point origin = GetNormalBounds().origin();
-      origin.set_x(origin.x() + kWindowTilePixels);
-      origin.set_y(origin.y() + kWindowTilePixels);
-      window_rect.set_origin(origin);
+      window_rect.set_origin(GetNormalBounds().origin());
+      window_rect.Offset(kWindowTilePixels, kWindowTilePixels);
     }
 
     *bounds = window_rect;
@@ -1036,6 +1034,9 @@ views::DropTargetEvent* BrowserView::MapEventToTabStrip(
 int BrowserView::LayoutTabStrip() {
   if (IsTabStripVisible()) {
     gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+    gfx::Point tabstrip_origin = tabstrip_bounds.origin();
+    ConvertPointToView(GetParent(), this, &tabstrip_origin);
+    tabstrip_bounds.set_origin(tabstrip_origin);
     tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
                          tabstrip_bounds.width(), tabstrip_bounds.height());
     return tabstrip_bounds.bottom();

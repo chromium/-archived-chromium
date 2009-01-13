@@ -31,8 +31,8 @@ class OpaqueNonClientView : public views::NonClientView,
   // Retrieve the bounds of the window for the specified contents bounds.
   gfx::Rect GetWindowBoundsForClientBounds(const gfx::Rect& client_bounds);
 
-  // Retrieve the bounds (in ClientView coordinates) that the specified
-  // |tabstrip| will be laid out within.
+  // Retrieve the bounds for the specified |tabstrip|, in the coordinate system
+  // of the non-client view (which whould be window coordinates).
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
   // Updates the window icon/throbber.
@@ -73,6 +73,10 @@ class OpaqueNonClientView : public views::NonClientView,
   // Returns the height of the non-client area at the top of the window (the
   // title bar, etc).
   int CalculateNonClientTopHeight() const;
+
+  // Returns the current thickness of the horizontal border that makes up the
+  // window edge.
+  int HorizontalBorderSize() const;
 
   // Paint various sub-components of this view.
   void PaintFrameBorder(ChromeCanvas* canvas);
