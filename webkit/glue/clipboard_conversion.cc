@@ -22,23 +22,23 @@ WebDropData ChromiumDataObjectToWebDropData(
     WebCore::ChromiumDataObject* data_object) {
   WebDropData drop_data;
   drop_data.url = KURLToGURL(data_object->url);
-  drop_data.url_title = StringToStdWString(data_object->url_title);
+  drop_data.url_title = StringToStdWString(data_object->urlTitle);
 
   for (size_t i = 0; i < data_object->filenames.size(); ++i) {
     drop_data.filenames.push_back(StringToStdWString(
         data_object->filenames[i]));
   }
 
-  drop_data.plain_text = StringToStdWString(data_object->plain_text);
+  drop_data.plain_text = StringToStdWString(data_object->plainText);
 
-  drop_data.text_html = StringToStdWString(data_object->text_html);
-  drop_data.html_base_url = KURLToGURL(data_object->html_base_url);
+  drop_data.text_html = StringToStdWString(data_object->textHtml);
+  drop_data.html_base_url = KURLToGURL(data_object->htmlBaseUrl);
 
   drop_data.file_description_filename = StringToStdWString(
-      data_object->file_content_filename);
-  if (data_object->file_content) {
-    drop_data.file_contents.assign(data_object->file_content->data(),
-        data_object->file_content->size());
+      data_object->fileContentFilename);
+  if (data_object->fileContent) {
+    drop_data.file_contents.assign(data_object->fileContent->data(),
+        data_object->fileContent->size());
   }
 
   return drop_data;
@@ -49,21 +49,21 @@ PassRefPtr<WebCore::ChromiumDataObject> WebDropDataToChromiumDataObject(
   RefPtr<WebCore::ChromiumDataObject> data_object =
       WebCore::ChromiumDataObject::create();
   data_object->url = GURLToKURL(drop_data.url);
-  data_object->url_title = StdWStringToString(drop_data.url_title);
+  data_object->urlTitle = StdWStringToString(drop_data.url_title);
 
   for (size_t i = 0; i < drop_data.filenames.size(); ++i) {
     data_object->filenames.append(StdWStringToString(drop_data.filenames[i]));
   }
 
-  data_object->plain_text = StdWStringToString(drop_data.plain_text);
+  data_object->plainText = StdWStringToString(drop_data.plain_text);
 
-  data_object->text_html = StdWStringToString(drop_data.text_html);
-  data_object->html_base_url = GURLToKURL(drop_data.html_base_url);
+  data_object->textHtml = StdWStringToString(drop_data.text_html);
+  data_object->htmlBaseUrl = GURLToKURL(drop_data.html_base_url);
 
-  data_object->file_content_filename = StdWStringToString(
+  data_object->fileContentFilename = StdWStringToString(
       drop_data.file_description_filename);
   if (!drop_data.file_contents.empty()) {
-    data_object->file_content =
+    data_object->fileContent =
         WebCore::SharedBuffer::create(drop_data.file_contents.data(),
                                       drop_data.file_contents.size());
   }

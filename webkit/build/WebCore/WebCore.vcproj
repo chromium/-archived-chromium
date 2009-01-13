@@ -1596,6 +1596,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\opentype\OpenTypeUtilities.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\opentype\OpenTypeUtilities.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\PlatformIcon.h"
 						>
 					</File>
@@ -1625,14 +1633,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\UniscribeHelperTextRun.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\opentype\OpenTypeUtilities.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\opentype\OpenTypeUtilities.h"
 						>
 					</File>
 				</Filter>
@@ -2185,14 +2185,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\ChromiumUtilsWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\ChromiumUtilsWin.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\ClipboardChromium.cpp"
 					>
 				</File>
@@ -2366,6 +2358,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\WidgetChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\WindowsVersion.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\WindowsVersion.h"
 					>
 				</File>
 			</Filter>

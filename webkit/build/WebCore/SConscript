@@ -881,10 +881,10 @@ input_files = [
 if env.Bit('windows'):
   # Windows specific implementations.
   input_files.extend([
-    '$WEBCORE_DIR/platform/chromium/ChromiumUtilsWin.cpp',
     '$WEBCORE_DIR/platform/chromium/FileSystemChromiumWin.cpp',
     '$WEBCORE_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
     '$WEBCORE_DIR/platform/chromium/SoundChromiumWin.cpp',
+    '$WEBCORE_DIR/platform/chromium/WindowsVersion.cpp',
 
     '$WEBCORE_DIR/platform/graphics/chromium/FontCacheChromiumWin.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontPlatformDataChromiumWin.cpp',
