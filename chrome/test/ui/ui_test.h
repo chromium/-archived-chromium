@@ -320,6 +320,8 @@ class UITest : public testing::Test {
 
   int action_max_timeout_ms() const { return action_max_timeout_ms_; }
 
+  std::wstring ui_test_name() const { return ui_test_name_; }
+
   // Count the number of active browser processes.  This function only counts
   // browser processes that share the same profile directory as the current
   // process.  The count includes browser sub-processes.
@@ -451,6 +453,8 @@ class UITest : public testing::Test {
   int command_execution_timeout_ms_;
   int action_timeout_ms_;
   int action_max_timeout_ms_;
+
+  std::wstring ui_test_name_;
 };
 
 // These exist only to support the gTest assertion macros, and

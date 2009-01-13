@@ -139,6 +139,8 @@ extern const wchar_t kEnableRendererAccessibility[];
 
 extern const wchar_t kEnableVideo[];
 
+extern const wchar_t kTestName[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__

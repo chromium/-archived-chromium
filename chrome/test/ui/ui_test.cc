@@ -119,6 +119,17 @@ void UITest::SetUp() {
                         L"of the app before testing.");
   }
 
+  // Pass the test case name to chrome.exe on the command line to help with
+  // parsing Purify output.
+  const testing::TestInfo* const test_info =
+      testing::UnitTest::GetInstance()->current_test_info();
+  if (test_info) {
+    std::string test_name = test_info->test_case_name();
+    test_name += ".";
+    test_name += test_info->name();
+    ui_test_name_ = ASCIIToWide(test_name);
+  }
+
   InitializeTimeouts();
   LaunchBrowserAndServer();
 }
@@ -298,6 +309,11 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
 #ifdef WAIT_FOR_DEBUGGER_ON_OPEN
   CommandLine::AppendSwitch(&command_line, switches::kDebugOnStart);
 #endif
+
+  if (!ui_test_name_.empty())
+    CommandLine::AppendSwitchWithValue(&command_line,
+                                       switches::kTestName,
+                                       ui_test_name_);
 
   DebugFlags::ProcessDebugFlags(&command_line, DebugFlags::UNKNOWN, false);
   command_line.append(L" " + arguments);
