@@ -5,9 +5,10 @@
 #include "webkit/glue/plugins/plugin_instance.h"
 
 #include "base/file_util.h"
+#include "base/lazy_instance.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/thread_local_storage.h"
+#include "base/thread_local.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
@@ -20,11 +21,13 @@
 #endif
 #include "net/base/escape.h"
 
-namespace NPAPI
-{
+namespace NPAPI {
 
-// TODO(evanm): don't rely on static initialization.
-ThreadLocalStorage::Slot PluginInstance::plugin_instance_tls_index_;
+// Use TLS to store the PluginInstance object during its creation.  We need to
+// pass this instance to the service manager (MozillaExtensionApi) created as a
+// result of NPN_GetValue in the context of NP_Initialize.
+static base::LazyInstance<base::ThreadLocalPointer<PluginInstance> > lazy_tls(
+    base::LINKER_INITIALIZED);
 
 PluginInstance::PluginInstance(PluginLib *plugin, const std::string &mime_type)
     : plugin_(plugin),
@@ -421,16 +424,13 @@ void PluginInstance::OnPluginThreadAsyncCall(void (*func)(void *),
 
 PluginInstance* PluginInstance::SetInitializingInstance(
     PluginInstance* instance) {
-  PluginInstance* old_instance =
-      static_cast<PluginInstance*>(plugin_instance_tls_index_.Get());
-  plugin_instance_tls_index_.Set(instance);
+  PluginInstance* old_instance = lazy_tls.Pointer()->Get();
+  lazy_tls.Pointer()->Set(instance);
   return old_instance;
 }
 
 PluginInstance* PluginInstance::GetInitializingInstance() {
-  PluginInstance* instance =
-      static_cast<PluginInstance*>(plugin_instance_tls_index_.Get());
-  return instance;
+  return lazy_tls.Pointer()->Get();
 }
 
 NPError PluginInstance::GetServiceManager(void** service_manager) {

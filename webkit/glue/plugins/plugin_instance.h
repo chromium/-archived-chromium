@@ -16,7 +16,6 @@
 #include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "base/thread_local_storage.h"
 #include "webkit/glue/plugins/nphostapi.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
@@ -236,11 +235,6 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   scoped_refptr<MozillaExtensionApi>       mozilla_extenstions_;
 #endif
   MessageLoop*                             message_loop_;
-  // Using TLS to store PluginInstance object during its creation.
-  // We need to pass this instance to the service manager
-  // (MozillaExtensionApi) created as a result of NPN_GetValue
-  // in the context of NP_Initialize.
-  static ThreadLocalStorage::Slot          plugin_instance_tls_index_;
   scoped_refptr<PluginStreamUrl>           plugin_data_stream_;
   GURL                                     instance_url_;
 
