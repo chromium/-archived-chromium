@@ -5,27 +5,28 @@
 #include "chrome/browser/importer/toolbar_importer.h"
 
 #include <limits>
+
 #include "base/string_util.h"
 #include "base/rand_util.h"
 #include "base/registry.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/libxml_utils.h"
-#include "net/base/data_url.h"
 #include "net/base/cookie_monster.h"
+#include "net/base/data_url.h"
 
 #include "generated_resources.h"
 
 //
 // ToolbarImporterUtils
 //
-static const std::string kGoogleDomainUrl = "http://.google.com/";
+static const char* kGoogleDomainUrl = "http://.google.com/";
 static const wchar_t kSplitStringToken = L';';
-static const std::string kGoogleDomainSecureCookieId = "SID=";
+static const char* kGoogleDomainSecureCookieId = "SID=";
 
 bool ToolbarImporterUtils::IsGoogleGAIACookieInstalled() {
   URLRequestContext* context = Profile::GetDefaultRequestContext();
-  net::CookieMonster* store= context->cookie_store();
+  net::CookieMonster* store = context->cookie_store();
   GURL url(kGoogleDomainUrl);
   net::CookieMonster::CookieOptions options;
   options.set_include_httponly();  // The SID cookie might be httponly.
@@ -37,7 +38,7 @@ bool ToolbarImporterUtils::IsGoogleGAIACookieInstalled() {
        ++current) {
     size_t position = (*current).find(kGoogleDomainSecureCookieId);
     if (0 == position)
-        return true;
+      return true;
   }
   return false;
 }
@@ -45,38 +46,44 @@ bool ToolbarImporterUtils::IsGoogleGAIACookieInstalled() {
 //
 // Toolbar5Importer
 //
-const std::string Toolbar5Importer::kXmlApiReplyXmlTag = "xml_api_reply";
-const std::string Toolbar5Importer::kBookmarksXmlTag = "bookmarks";
-const std::string Toolbar5Importer::kBookmarkXmlTag = "bookmark";
-const std::string Toolbar5Importer::kTitleXmlTag = "title";
-const std::string Toolbar5Importer::kUrlXmlTag = "url";
-const std::string Toolbar5Importer::kTimestampXmlTag = "timestamp";
-const std::string Toolbar5Importer::kLabelsXmlTag = "labels";
-const std::string Toolbar5Importer::kLabelsXmlCloseTag = "/labels";
-const std::string Toolbar5Importer::kLabelXmlTag = "label";
-const std::string Toolbar5Importer::kAttributesXmlTag = "attributes";
+const char Toolbar5Importer::kXmlApiReplyXmlTag[] = "xml_api_reply";
+const char Toolbar5Importer::kBookmarksXmlTag[] = "bookmarks";
+const char Toolbar5Importer::kBookmarkXmlTag[] = "bookmark";
+const char Toolbar5Importer::kTitleXmlTag[] = "title";
+const char Toolbar5Importer::kUrlXmlTag[] = "url";
+const char Toolbar5Importer::kTimestampXmlTag[] = "timestamp";
+const char Toolbar5Importer::kLabelsXmlTag[] = "labels";
+const char Toolbar5Importer::kLabelsXmlCloseTag[] = "/labels";
+const char Toolbar5Importer::kLabelXmlTag[] = "label";
+const char Toolbar5Importer::kAttributesXmlTag[] = "attributes";
 
-const std::string Toolbar5Importer::kRandomNumberToken = "{random_number}";
-const std::string Toolbar5Importer::kAuthorizationToken = "{auth_token}";
-const std::string Toolbar5Importer::kAuthorizationTokenPrefix = "/*";
-const std::string Toolbar5Importer::kAuthorizationTokenSuffix = "*/";
-const std::string Toolbar5Importer::kMaxNumToken = "{max_num}";
-const std::string Toolbar5Importer::kMaxTimestampToken = "{max_timestamp}";
+const char Toolbar5Importer::kRandomNumberToken[] = "{random_number}";
+const char Toolbar5Importer::kAuthorizationToken[] = "{auth_token}";
+const char Toolbar5Importer::kAuthorizationTokenPrefix[] = "/*";
+const char Toolbar5Importer::kAuthorizationTokenSuffix[] = "*/";
+const char Toolbar5Importer::kMaxNumToken[] = "{max_num}";
+const char Toolbar5Importer::kMaxTimestampToken[] = "{max_timestamp}";
 
-const std::string Toolbar5Importer::kT5AuthorizationTokenUrl =
+const char Toolbar5Importer::kT5AuthorizationTokenUrl[] =
     "http://www.google.com/notebook/token?zx={random_number}";
-const std::string Toolbar5Importer::kT5FrontEndUrlTemplate =
-    "http://www.google.com/notebook/toolbar?cmd=list&tok={auth_token}& "
+const char Toolbar5Importer::kT5FrontEndUrlTemplate[] =
+    "http://www.google.com/notebook/toolbar?cmd=list&tok={auth_token}&"
     "num={max_num}&min={max_timestamp}&all=0&zx={random_number}";
 
 // Importer methods.
-Toolbar5Importer::Toolbar5Importer() : writer_(NULL),
-                                       state_(NOT_USED),
-                                       items_to_import_(NONE),
-                                       token_fetcher_(NULL),
-                                       data_fetcher_(NULL) {
+
+// The constructor should set the initial state to NOT_USED.
+Toolbar5Importer::Toolbar5Importer()
+    : writer_(NULL),
+      state_(NOT_USED),
+      items_to_import_(NONE),
+      token_fetcher_(NULL),
+      data_fetcher_(NULL) {
 }
 
+// The destructor insures that the fetchers are currently not being used, as
+// their thread-safe implementation requires that they are cancelled from the
+// thread in which they were constructed.
 Toolbar5Importer::~Toolbar5Importer() {
   DCHECK(!token_fetcher_);
   DCHECK(!data_fetcher_);
@@ -100,7 +107,7 @@ void Toolbar5Importer::StartImport(ProfileInfo profile_info,
   ContinueImport();
 }
 
-// The public cancel method servers two functions, as a callback from the UI
+// The public cancel method serves two functions, as a callback from the UI
 // as well as an internal callback in case of cancel.  An internal callback
 // is required since the URLFetcher must be destroyed from the thread it was
 // created.
@@ -135,8 +142,9 @@ void Toolbar5Importer::OnURLFetchComplete(
   }
 
   if (200 != response_code) {  // HTTP/Ok
-    // Display to the user an error dialog and cancel the import
-    EndImportBookmarks(false);
+    // Cancelling here will update the UI and bypass the rest of bookmark
+    // import.
+    EndImportBookmarks();
     return;
   }
 
@@ -145,11 +153,11 @@ void Toolbar5Importer::OnURLFetchComplete(
       GetBookmarkDataFromServer(data);
       break;
     case GET_BOOKMARKS:
-      GetBookmarsFromServerDataResponse(data);
+      GetBookmarksFromServerDataResponse(data);
       break;
     default:
       NOTREACHED() << "Invalid state.";
-      EndImportBookmarks(false);
+      EndImportBookmarks();
       break;
   }
 }
@@ -162,19 +170,26 @@ void Toolbar5Importer::ContinueImport() {
   // of its item before its task finishes and re-enters this method.
   if (NONE == items_to_import_) {
     EndImport();
+    return;
   }
   if ((items_to_import_ & FAVORITES) && !cancelled()) {
     items_to_import_ &= ~FAVORITES;
     BeginImportBookmarks();
+    return;
   }
   // TODO(brg): Import history, autocomplete, other toolbar information
-  // for 2.0
+  // in a future release.
+
+  // This code should not be reached, but gracefully handles the possibility
+  // that StartImport was called with unsupported items_to_import.
+  if (!cancelled())
+    EndImport();
 }
 
 void Toolbar5Importer::EndImport() {
   if (state_ != DONE) {
     state_ = DONE;
-    // By spec the fetcher's must be destroyed within the same
+    // By spec the fetchers must be destroyed within the same
     // thread they are created.  The importer is destroyed in the ui_thread
     // so when we complete in the file_thread we destroy them first.
     if (NULL != token_fetcher_) {
@@ -196,20 +211,20 @@ void Toolbar5Importer::BeginImportBookmarks() {
   GetAuthenticationFromServer();
 }
 
-void Toolbar5Importer::EndImportBookmarks(bool success) {
+void Toolbar5Importer::EndImportBookmarks() {
   NotifyItemEnded(FAVORITES);
   ContinueImport();
 }
 
 
-// Notebook FE connection managers.
+// Notebook front-end connection manager implementation follows.
 void Toolbar5Importer::GetAuthenticationFromServer() {
   if (cancelled()) {
     EndImport();
     return;
   }
 
-  // Authentication is a token string retreived from the authentication server
+  // Authentication is a token string retrieved from the authentication server
   // To access it we call the url below with a random number replacing the
   // value in the string.
   state_ = GET_AUTHORIZATION_TOKEN;
@@ -221,9 +236,9 @@ void Toolbar5Importer::GetAuthenticationFromServer() {
   // Retrieve authorization token from the network.
   std::string url_string(kT5AuthorizationTokenUrl);
   url_string.replace(url_string.find(kRandomNumberToken),
-                     kRandomNumberToken.size(),
+                     arraysize(kRandomNumberToken) - 1,
                      random_string);
-  GURL  url(url_string);
+  GURL url(url_string);
 
   token_fetcher_ = new  URLFetcher(url, URLFetcher::GET, this);
   token_fetcher_->set_request_context(Profile::GetDefaultRequestContext());
@@ -241,7 +256,7 @@ void Toolbar5Importer::GetBookmarkDataFromServer(const std::string& response) {
   // Parse and verify the authorization token from the response.
   std::string token;
   if (!ParseAuthenticationTokenResponse(response, &token)) {
-    EndImportBookmarks(false);
+    EndImportBookmarks();
     return;
   }
 
@@ -251,19 +266,19 @@ void Toolbar5Importer::GetBookmarkDataFromServer(const std::string& response) {
   int random = base::RandInt(0, std::numeric_limits<int>::max());
   std::string random_string = UintToString(random);
   conn_string.replace(conn_string.find(kRandomNumberToken),
-                      kRandomNumberToken.size(),
+                      arraysize(kRandomNumberToken) - 1,
                       random_string);
   conn_string.replace(conn_string.find(kAuthorizationToken),
-                      kAuthorizationToken.size(),
+                      arraysize(kAuthorizationToken) - 1,
                       token);
-  GURL  url(conn_string);
+  GURL url(conn_string);
 
   data_fetcher_ = new URLFetcher(url, URLFetcher::GET, this);
   data_fetcher_->set_request_context(Profile::GetDefaultRequestContext());
   data_fetcher_->Start();
 }
 
-void Toolbar5Importer::GetBookmarsFromServerDataResponse(
+void Toolbar5Importer::GetBookmarksFromServerDataResponse(
     const std::string& response) {
   if (cancelled()) {
     EndImport();
@@ -272,15 +287,14 @@ void Toolbar5Importer::GetBookmarsFromServerDataResponse(
 
   state_ = PARSE_BOOKMARKS;
 
-  bool retval = false;
   XmlReader reader;
   if (reader.Load(response) && !cancelled()) {
     // Construct Bookmarks
     std::vector<ProfileWriter::BookmarkEntry> bookmarks;
-    retval = ParseBookmarksFromReader(&reader, &bookmarks);
-    if (retval) AddBookMarksToChrome(bookmarks);
+    if (ParseBookmarksFromReader(&reader, &bookmarks))
+      AddBookmarksToChrome(bookmarks);
   }
-  EndImportBookmarks(retval);
+  EndImportBookmarks();
 }
 
 bool Toolbar5Importer::ParseAuthenticationTokenResponse(
@@ -292,12 +306,12 @@ bool Toolbar5Importer::ParseAuthenticationTokenResponse(
   size_t position = token->find(kAuthorizationTokenPrefix);
   if (0 != position)
     return false;
-  token->replace(position, kAuthorizationTokenPrefix.size(), "");
+  token->replace(position, arraysize(kAuthorizationTokenPrefix) - 1, "");
 
   position = token->find(kAuthorizationTokenSuffix);
-  if (token->size() != (position + kAuthorizationTokenSuffix.size()))
+  if (token->size() != (position + (arraysize(kAuthorizationTokenSuffix) - 1)))
     return false;
-  token->replace(position, kAuthorizationTokenSuffix.size(), "");
+  token->replace(position, arraysize(kAuthorizationTokenSuffix) - 1, "");
 
   return true;
 }
@@ -326,11 +340,11 @@ bool Toolbar5Importer::ParseBookmarksFromReader(
   while (LocateNextTagWithStopByName(reader, kBookmarkXmlTag,
                                      kBookmarksXmlTag)) {
     ProfileWriter::BookmarkEntry bookmark_entry;
-    std::vector<BOOKMARK_FOLDER> folders;
+    std::vector<BookmarkFolderType> folders;
     if (ExtractBookmarkInformation(reader, &bookmark_entry, &folders)) {
       // For each folder we create a new bookmark entry.  Duplicates will
-      // be detected whence we attempt to creaete the bookmark in the profile.
-      for (std::vector<BOOKMARK_FOLDER>::iterator folder = folders.begin();
+      // be detected when we attempt to create the bookmark in the profile.
+      for (std::vector<BookmarkFolderType>::iterator folder = folders.begin();
           folder != folders.end();
           ++folder) {
         bookmark_entry.path = *folder;
@@ -388,7 +402,7 @@ bool Toolbar5Importer::LocateNextTagWithStopByName(XmlReader* reader,
 bool Toolbar5Importer::ExtractBookmarkInformation(
     XmlReader* reader,
     ProfileWriter::BookmarkEntry* bookmark_entry,
-    std::vector<BOOKMARK_FOLDER>* bookmark_folders) {
+    std::vector<BookmarkFolderType>* bookmark_folders) {
   DCHECK(reader);
   DCHECK(bookmark_entry);
   DCHECK(bookmark_folders);
@@ -509,7 +523,7 @@ bool Toolbar5Importer::ExtractTimeFromXmlReader(
 
 bool Toolbar5Importer::ExtractFoldersFromXmlReader(
     XmlReader* reader,
-    std::vector<BOOKMARK_FOLDER>* bookmark_folders) {
+    std::vector<BookmarkFolderType>* bookmark_folders) {
   DCHECK(reader);
   DCHECK(bookmark_folders);
 
@@ -566,7 +580,7 @@ bool Toolbar5Importer::ExtractFoldersFromXmlReader(
 }
 
 // Bookmark creation
-void  Toolbar5Importer::AddBookMarksToChrome(
+void  Toolbar5Importer::AddBookmarksToChrome(
     const std::vector<ProfileWriter::BookmarkEntry>& bookmarks) {
   if (!bookmarks.empty() && !cancelled()) {
     int options = ProfileWriter::ADD_IF_UNIQUE |

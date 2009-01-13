@@ -4,14 +4,6 @@
 
 // The functionality provided here allows the user to import their bookmarks
 // (favorites) from Google Toolbar.
-//
-// Currently the only configuration information we need is to check whether or
-// not the user currently has their GAIA cookie.  This is done by the functions
-// exposed through the ToolbarImportUtils namespace.
-//
-// Toolbar5Importer is a class which exposes the functionality needed to
-// communicate with the Google Toolbar v5 front-end, negotiate the download of
-// Toolbar bookmarks, parse them, and install them on the client.
 
 #ifndef CHROME_BROWSER_IMPORTER_TOOLBAR_IMPORTER_H__
 #define CHROME_BROWSER_IMPORTER_TOOLBAR_IMPORTER_H__
@@ -24,17 +16,28 @@
 
 class XmlReader;
 
+// Currently the only configuration information we need is to check whether or
+// not the user currently has their GAIA cookie.  This is done by the function
+// exposed through the ToolbarImportUtils namespace.
 namespace ToolbarImporterUtils {
 bool IsGoogleGAIACookieInstalled();
 }  // namespace ToolbarImporterUtils
 
-class Toolbar5Importer : public URLFetcher::Delegate,
-                         public Importer {
+// Toolbar5Importer is a class which exposes the functionality needed to
+// communicate with the Google Toolbar v5 front-end, negotiate the download of
+// Toolbar bookmarks, parse them, and install them on the client.
+// Toolbar5Importer should not have StartImport called more than once.  Futher
+// if StartImport is called, then the class must not be destroyed until it
+// has either completed or Toolbar5Importer->Cancel() has been called.
+class Toolbar5Importer : public URLFetcher::Delegate, public Importer {
  public:
   Toolbar5Importer();
   virtual ~Toolbar5Importer();
 
-  // Importer view calls this method to being the process.
+  // Importer view calls this method to begin the process.  The items parameter
+  // should only either be NONE or FAVORITES, since as of right now these are
+  // the only items this importer supports.  This method provides implementation
+  // of Importer::StartImport.
   virtual void StartImport(ProfileInfo profile_info,
                            uint16 items,
                            ProfileWriter* writer,
@@ -47,7 +50,7 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   virtual void Cancel();
 
   // URLFetcher::Delegate method called back from the URLFetcher object.
-  void OnURLFetchComplete(const URLFetcher* source,
+  virtual void OnURLFetchComplete(const URLFetcher* source,
                           const GURL& url,
                           const URLRequestStatus& status,
                           int response_code,
@@ -57,8 +60,8 @@ class Toolbar5Importer : public URLFetcher::Delegate,
  private:
   FRIEND_TEST(Toolbar5ImporterTest, BookmarkParse);
 
-  // Internal state
-  enum INTERNAL_STATE {
+  // Internal states of the toolbar importer.
+  enum InternalStateEnum {
     NOT_USED = -1,
     INITIALIZED,
     GET_AUTHORIZATION_TOKEN,
@@ -67,50 +70,56 @@ class Toolbar5Importer : public URLFetcher::Delegate,
     DONE
   };
 
-  typedef std::vector<std::wstring> BOOKMARK_FOLDER;
+  typedef std::vector<std::wstring> BookmarkFolderType;
 
-  // URLs for connecting to the toolbar front end
-  static const std::string kT5AuthorizationTokenUrl;
-  static const std::string kT5FrontEndUrlTemplate;
+  // URLs for connecting to the toolbar front end are defined below.
+  static const char kT5AuthorizationTokenUrl[];
+  static const char kT5FrontEndUrlTemplate[];
 
-  // Token replacement tags
-  static const std::string kRandomNumberToken;
-  static const std::string kAuthorizationToken;
-  static const std::string kAuthorizationTokenPrefix;
-  static const std::string kAuthorizationTokenSuffix;
-  static const std::string kMaxNumToken;
-  static const std::string kMaxTimestampToken;
+  // Token replacement tags are defined below.
+  static const char kRandomNumberToken[];
+  static const char kAuthorizationToken[];
+  static const char kAuthorizationTokenPrefix[];
+  static const char kAuthorizationTokenSuffix[];
+  static const char kMaxNumToken[];
+  static const char kMaxTimestampToken[];
 
-  // XML tag names
-  static const std::string kXmlApiReplyXmlTag;
-  static const std::string kBookmarksXmlTag;
-  static const std::string kBookmarkXmlTag;
-  static const std::string kTitleXmlTag;
-  static const std::string kUrlXmlTag;
-  static const std::string kTimestampXmlTag;
-  static const std::string kLabelsXmlTag;
-  static const std::string kLabelsXmlCloseTag;
-  static const std::string kLabelXmlTag;
-  static const std::string kAttributesXmlTag;
+  // XML tag names are defined below.
+  static const char kXmlApiReplyXmlTag[];
+  static const char kBookmarksXmlTag[];
+  static const char kBookmarkXmlTag[];
+  static const char kTitleXmlTag[];
+  static const char kUrlXmlTag[];
+  static const char kTimestampXmlTag[];
+  static const char kLabelsXmlTag[];
+  static const char kLabelsXmlCloseTag[];
+  static const char kLabelXmlTag[];
+  static const char kAttributesXmlTag[];
 
-  // Flow control
+  // Flow control for asynchronous import is controlled by the methods below.
+  // ContinueImport is called back by each import action taken.  BeginXXX
+  // and EndXXX are responsible for updating the state of the asynchronous
+  // import.  EndImport is responsible for state cleanup and notifying the
+  // caller that import has completed.
   void ContinueImport();
   void EndImport();
   void BeginImportBookmarks();
-  void EndImportBookmarks(bool success);
+  void EndImportBookmarks();
 
-  // Network I/O
+  // Network I/O is done by the methods below.  These three methods are called
+  // in the order provided.  The last two are called back with the HTML
+  // response provided by the Toolbar server.
   void GetAuthenticationFromServer();
   void GetBookmarkDataFromServer(const std::string& response);
-  void GetBookmarsFromServerDataResponse(const std::string& response);
+  void GetBookmarksFromServerDataResponse(const std::string& response);
 
-  // XML Parsing
+  // XML Parsing is implemented with the methods below.
   bool ParseAuthenticationTokenResponse(const std::string& response,
                                         std::string* token);
 
   static bool ParseBookmarksFromReader(
       XmlReader* reader,
-      std::vector< ProfileWriter::BookmarkEntry >* bookmarks);
+      std::vector<ProfileWriter::BookmarkEntry>* bookmarks);
 
   static bool LocateNextOpenTag(XmlReader* reader);
   static bool LocateNextTagByName(XmlReader* reader, const std::string& tag);
@@ -122,7 +131,7 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   static bool ExtractBookmarkInformation(
       XmlReader* reader,
       ProfileWriter::BookmarkEntry* bookmark_entry,
-      std::vector<BOOKMARK_FOLDER>* bookmark_folders);
+      std::vector<BookmarkFolderType>* bookmark_folders);
   static bool ExtractNamedValueFromXmlReader(XmlReader* reader,
                                              const std::string& name,
                                              std::string* buffer);
@@ -134,24 +143,25 @@ class Toolbar5Importer : public URLFetcher::Delegate,
                                        ProfileWriter::BookmarkEntry* entry);
   static bool ExtractFoldersFromXmlReader(
       XmlReader* reader,
-      std::vector<BOOKMARK_FOLDER>* bookmark_folders);
+      std::vector<BookmarkFolderType>* bookmark_folders);
 
-  // Bookmark creation
-  void AddBookMarksToChrome(
+  // Bookmark creation is done by the method below.
+  void AddBookmarksToChrome(
       const std::vector<ProfileWriter::BookmarkEntry>& bookmarks);
 
-  // Hosts the writer used in this importer.
+  // The writer used in this importer is stored in writer_.
   ProfileWriter* writer_;
 
-  // Internal state
-  INTERNAL_STATE state_;
+  // Internal state is stored in state_.
+  InternalStateEnum state_;
 
-  // Bitmask of Importer::ImportItem
+  // Bitmask of Importer::ImportItem is stored in items_to_import_.
   uint16  items_to_import_;
 
   // The fetchers need to be available to cancel the network call on user cancel
-  URLFetcher * token_fetcher_;
-  URLFetcher * data_fetcher_;
+  // hence they are stored as member variables.
+  URLFetcher* token_fetcher_;
+  URLFetcher* data_fetcher_;
 
   DISALLOW_COPY_AND_ASSIGN(Toolbar5Importer);
 };

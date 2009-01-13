@@ -13,18 +13,33 @@
 
 
 namespace toolbar_importer_unittest {
-static const std::wstring kTitle = L"MyTitle";
-static const std::wstring kUrl = L"http://www.google.com/";
-static const std::wstring kTimestamp = L"1153328691085181";
-static const std::wstring kFolder = L"Google";
-static const std::wstring kFolder2 = L"Homepage";
-static const std::wstring kFolderArray[3] = {L"Google", L"Search", L"Page"};
+static const wchar_t* kTitle = L"MyTitle";
+static const wchar_t* kUrl = L"http://www.google.com/";
+static const wchar_t* kTimestamp = L"1153328691085181";
+static const wchar_t* kFolder = L"Google";
+static const wchar_t* kFolder2 = L"Homepage";
+static const wchar_t* kFolderArray[3] = {L"Google", L"Search", L"Page"};
 
-static const std::wstring kOtherTitle = L"MyOtherTitle";
-static const std::wstring kOtherUrl = L"http://www.google.com/mail";
-static const std::wstring kOtherFolder = L"Mail";
+static const wchar_t* kOtherTitle = L"MyOtherTitle";
+static const wchar_t* kOtherUrl = L"http://www.google.com/mail";
+static const wchar_t* kOtherFolder = L"Mail";
 
-static const std::string kGoodBookMark =
+// Since the following is very dense to read I enumerate the test cases here.
+// 1. Correct bookmark structure with one label.
+// 2. Correct bookmark structure with no labels.
+// 3. Correct bookmark structure with two labels.
+// 4. Correct bookmark structure with a folder->label translation by toolbar.
+// 5. Correct bookmark structure with no favicon.
+// 6. Two correct bookmarks.
+// The following are error cases by removing sections from the xml:
+// 7. Empty string passed as xml.
+// 8. No <bookmarks> section in the xml.
+// 9. No <bookmark> section below the <bookmarks> section.
+// 10. No <title> in a <bookmark> section.
+// 11. No <url> in a <bookmark> section.
+// 12. No <timestamp> in a <bookmark> section.
+// 13. No <labels> in a <bookmark> section.
+static const char* kGoodBookmark =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -45,7 +60,7 @@ static const std::string kGoodBookMark =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kGoodBookMarkNoLabel =
+static const char* kGoodBookmarkNoLabel =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -66,7 +81,7 @@ static const std::string kGoodBookMarkNoLabel =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kGoodBookMarkTwoLabels =
+static const char* kGoodBookmarkTwoLabels =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -87,7 +102,7 @@ static const std::string kGoodBookMarkTwoLabels =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kGoodBookMarkFolderLabel =
+static const char* kGoodBookmarkFolderLabel =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -108,7 +123,7 @@ static const std::string kGoodBookMarkFolderLabel =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kGoodBookMarkNoFavicon =
+static const char* kGoodBookmarkNoFavicon =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -126,7 +141,7 @@ static const std::string kGoodBookMarkNoFavicon =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kGoodBookMark2Items =
+static const char* kGoodBookmark2Items =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -168,8 +183,8 @@ static const std::string kGoodBookMark2Items =
     "</value> </attribute> </attributes> "
     "</bookmark>"
     "</bookmarks>";
-static const std::string kEmptyString = "";
-static const std::string kBadBookMarkNoBookmarks =
+static const char* kEmptyString = "";
+static const char* kBadBookmarkNoBookmarks =
     " <bookmark> "
     "<title>MyTitle</title> "
     "<url>http://www.google.com/</url> "
@@ -189,7 +204,7 @@ static const std::string kBadBookMarkNoBookmarks =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kBadBookMarkNoBookmark =
+static const char* kBadBookmarkNoBookmark =
     " <bookmarks>"
     "<title>MyTitle</title> "
     "<url>http://www.google.com/</url> "
@@ -209,7 +224,7 @@ static const std::string kBadBookMarkNoBookmark =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kBadBookMarkNoTitle =
+static const char* kBadBookmarkNoTitle =
     " <bookmarks>"
     " <bookmark> "
     "<url>http://www.google.com/</url> "
@@ -229,7 +244,7 @@ static const std::string kBadBookMarkNoTitle =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kBadBookMarkNoUrl =
+static const char* kBadBookmarkNoUrl =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -249,7 +264,7 @@ static const std::string kBadBookMarkNoUrl =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kBadBookMarkNoTimestamp =
+static const char* kBadBookmarkNoTimestamp =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -269,7 +284,7 @@ static const std::string kBadBookMarkNoTimestamp =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-static const std::string kBadBookMarkNoLabels =
+static const char* kBadBookmarkNoLabels =
     " <bookmarks>"
     " <bookmark> "
     "<title>MyTitle</title> "
@@ -291,41 +306,21 @@ static const std::string kBadBookMarkNoLabels =
     "</bookmark> </bookmarks>";
 }  // namespace toolbar_importer_unittest
 
-// Since the above is very dense to read I enumerate the test cases here.
-// 1. Correct bookmark structure with one label
-// 2. "" with no labels
-// 3. "" with two labels
-// 4. "" with a folder->label translation done by toolbar
-// 5. "" with no favicon
-// 6. Two correct bookmarks.
-// The following are error cases by removing sections:
-// 7. Empty string
-// 8. No <bookmarks>
-// 9. No <bookmark>
-// 10. No <title>
-// 11. No <url>
-// 12. No <timestamp>
-// 13. No <labels>
+// The parsing tests for Toolbar5Importer use the string above.  For a
+// description of all the tests run please see the comments immediately before
+// the string constants above.
 TEST(Toolbar5ImporterTest, BookmarkParse) {
-//  bool ParseBookmarksFromReader(
-//    XmlReader* reader,
-//    std::vector<ProfileWriter::BookmarkEntry>* bookmarks,
-//    std::vector< history::ImportedFavIconUsage >* favicons);
-
   XmlReader reader;
   std::vector<ProfileWriter::BookmarkEntry> bookmarks;
 
   const GURL url(toolbar_importer_unittest::kUrl);
   const GURL other_url(toolbar_importer_unittest::kOtherUrl);
 
-  // Test case 1 - Basic bookmark, single lables
+  // Test case 1 is parsing a basic bookmark with a single label.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookMark));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookmark));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // verificaiton
   EXPECT_EQ(bookmarks.size(), 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
@@ -333,28 +328,22 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
   EXPECT_EQ(2, bookmarks[0].path.size());
   EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
 
-  // Test case 2 - No labels
+  // Test case 2 is parsing a single bookmark with no label.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookMarkNoLabel));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookmarkNoLabel));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // verificaiton
   EXPECT_EQ(bookmarks.size(), 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
   EXPECT_EQ(bookmarks[0].url, url);
   EXPECT_EQ(1, bookmarks[0].path.size());
 
-  // Test case 3 - Two labels
+  // Test case 3 is parsing a single bookmark with two labels.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookMarkTwoLabels));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookmarkTwoLabels));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // verificaiton
   EXPECT_EQ(2, bookmarks.size());
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_FALSE(bookmarks[1].in_toolbar);
@@ -365,14 +354,12 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
   EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
   EXPECT_EQ(toolbar_importer_unittest::kFolder2, bookmarks[1].path[1]);
 
-  // Test case 4 - Label with a colon (file name translation).
+  // Test case 4 is parsing a single bookmark which has a label with a colon,
+  // this test file name translation between Toolbar and Chrome.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookMarkFolderLabel));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookmarkFolderLabel));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // verificaiton
   EXPECT_EQ(bookmarks.size(), 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
@@ -385,14 +372,11 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
   EXPECT_TRUE(toolbar_importer_unittest::kFolderArray[2] ==
       bookmarks[0].path[3]);
 
-  // Test case 5 - No favicon
+  // Test case 5 is parsing a single bookmark without a favicon URL.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookMarkNoFavicon));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookmarkNoFavicon));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // verificaiton
   EXPECT_EQ(1, bookmarks.size());
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
@@ -400,14 +384,11 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
   EXPECT_EQ(2, bookmarks[0].path.size());
   EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
 
-  // Test case 6 - Two bookmarks
+  // Test case 6 is parsing two bookmarks.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookMark2Items));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kGoodBookmark2Items));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // verificaiton
   EXPECT_EQ(2, bookmarks.size());
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_FALSE(bookmarks[1].in_toolbar);
@@ -420,52 +401,40 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
   EXPECT_EQ(2, bookmarks[0].path.size());
   EXPECT_EQ(toolbar_importer_unittest::kOtherFolder, bookmarks[1].path[1]);
 
-  // Test case 7 - Empty string
+  // Test case 7 is parsing an empty string for bookmarks.
   bookmarks.clear();
 
   EXPECT_FALSE(reader.Load(toolbar_importer_unittest::kEmptyString));
 
-  // Test case 8 - No <bookmarks> section.
+  // Test case 8 is testing the error when no <bookmarks> section is present.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookMarkNoBookmarks));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookmarkNoBookmarks));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // Test case 9 - No <bookmark> section
+  // Test case 9 tests when no <bookmark> section is present.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookMarkNoBookmark));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookmarkNoBookmark));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
 
-  // Test case 10 - No title.
+  // Test case 10 tests when a bookmark has no <title> section.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookMarkNoTitle));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookmarkNoTitle));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
 
-  // Test case 11 - No URL.
+  // Test case 11 tests when a bookmark has no <url> section.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookMarkNoUrl));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookmarkNoUrl));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // Test case 12 - No timestamp.
+  // Test case 12 tests when a bookmark has no <timestamp> section.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookMarkNoTimestamp));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookmarkNoTimestamp));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 
-  // Test case 13
+  // Test case 13 tests when a bookmark has no <labels> section.
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookMarkNoLabels));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(
-    &reader,
-    &bookmarks));
+  EXPECT_TRUE(reader.Load(toolbar_importer_unittest::kBadBookmarkNoLabels));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
 }
