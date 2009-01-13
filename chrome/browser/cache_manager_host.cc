@@ -23,10 +23,6 @@ static const unsigned int kReviseAllocationDelayMS = 200 /* milliseconds */;
 // The default size limit of the in-memory cache is 8 MB
 static const int kDefaultMemoryCacheSize = 8 * 1024 * 1024;
 
-// The amount of idle time before we consider a tab to be "inactive"
-const TimeDelta CacheManagerHost::kRendererInactiveThreshold =
-    TimeDelta::FromMinutes(5);
-
 namespace {
 
 int GetDefaultCacheSize() {
@@ -367,7 +363,7 @@ void CacheManagerHost::FindInactiveRenderers() {
     StatsMap::iterator elmt = stats_.find(*iter);
     DCHECK(elmt != stats_.end());
     TimeDelta idle = Time::Now() - elmt->second.access;
-    if (idle >= kRendererInactiveThreshold) {
+    if (idle >= TimeDelta::FromMinutes(kRendererInactiveThresholdMinutes)) {
       // Moved to inactive status.  This invalidates our iterator.
       inactive_renderers_.insert(*iter);
       active_renderers_.erase(*iter);

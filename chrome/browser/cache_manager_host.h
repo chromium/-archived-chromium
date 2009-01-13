@@ -68,7 +68,7 @@ class CacheManagerHost {
 
  protected:
   // The amount of idle time before we consider a tab to be "inactive"
-  static const base::TimeDelta kRendererInactiveThreshold;
+  static const int kRendererInactiveThresholdMinutes = 5;
 
   // Keep track of some renderer information.
   struct RendererInfo : CacheManager::UsageStats {

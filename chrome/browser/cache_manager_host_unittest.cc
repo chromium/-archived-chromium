@@ -10,6 +10,7 @@
 #include "webkit/glue/cache_manager.h"
 
 using base::Time;
+using base::TimeDelta;
 
 class CacheManagerHostTest : public testing::Test {
  protected:
@@ -28,8 +29,8 @@ class CacheManagerHostTest : public testing::Test {
   }
 
   static void SimulateInactivity(CacheManagerHost* h, int renderer_id) {
-    stats(h)[renderer_id].access = Time::Now() -
-      CacheManagerHost::kRendererInactiveThreshold;
+    stats(h)[renderer_id].access = Time::Now() - TimeDelta::FromMinutes(
+        CacheManagerHost::kRendererInactiveThresholdMinutes);
     h->FindInactiveRenderers();
   }
 
