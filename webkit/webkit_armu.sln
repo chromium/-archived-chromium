@@ -12,6 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glue", "build\glue\glue.vcp
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{0B469837-3D46-484A-AFB3-C5A6C68730B9} = {0B469837-3D46-484A-AFB3-C5A6C68730B9}
 		{1C16337B-ACF3-4D03-AA90-851C5B5EADA6} = {1C16337B-ACF3-4D03-AA90-851C5B5EADA6}
 		{2E2D3301-2EC4-4C0F-B889-87073B30F673} = {2E2D3301-2EC4-4C0F-B889-87073B30F673}
 		{2F7EDFA2-EE27-4D83-8454-9EFBD5779203} = {2F7EDFA2-EE27-4D83-8454-9EFBD5779203}
@@ -395,12 +396,22 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net_resources", "..\net\bui
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "webkit_resources", "build\webkit_resources\webkit_resources.vcproj", "{0B469837-3D46-484A-AFB3-C5A6C68730B9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B469837-3D46-484A-AFB3-C5A6C68730B9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0B469837-3D46-484A-AFB3-C5A6C68730B9}.Debug|Win32.Build.0 = Debug|Win32
+		{0B469837-3D46-484A-AFB3-C5A6C68730B9}.Release|Win32.ActiveCfg = Release|Win32
+		{0B469837-3D46-484A-AFB3-C5A6C68730B9}.Release|Win32.Build.0 = Release|Win32
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}.Debug|Win32.Build.0 = Debug|Win32
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}.Release|Win32.ActiveCfg = Release|Win32
@@ -571,6 +582,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0655DC38-C685-436C-8D99-7CF64CB2CC35} = {2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}
+		{0B469837-3D46-484A-AFB3-C5A6C68730B9} = {4BC2C9E2-78FA-446A-B6E0-85689A2B4D3D}
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6} = {4A249B49-19FB-4BD1-B017-718E7A4448EF}
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}

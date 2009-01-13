@@ -18,3 +18,11 @@ then
       -i "${PROJECT_DIR}/glue/webkit_strings.grd" build \
       -o "${GRIT_DIR}"
 fi
+
+if [ "${GRIT_DIR}/webkit_resources.h" -ot \
+     "${PROJECT_DIR}/glue/webkit_resources.grd" ]
+then
+  python "${PROJECT_DIR}/../tools/grit/grit.py" \
+      -i "${PROJECT_DIR}/glue/webkit_resources.grd" build \
+      -o "${GRIT_DIR}"
+fi

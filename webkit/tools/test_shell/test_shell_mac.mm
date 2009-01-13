@@ -26,7 +26,6 @@
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webkit_resources.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"

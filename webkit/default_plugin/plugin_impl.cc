@@ -18,7 +18,6 @@
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/default_plugin/plugin_main.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webkit_resources.h"
 // This file is generated when the webkit_strings.grd file is compiled.
 // The path is the chrome/webkit/<debug\release>/obj/localized_strings
 // folder. This path is added to the include path in the associated vsprops

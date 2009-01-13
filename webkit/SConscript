@@ -227,6 +227,7 @@ sconscript_dirs = env.ChromiumLoadComponentSConscripts(
   JavaScriptCore_pcre = 'SConscript.javascriptcore_pcre',
   WebCore_config_h = 'build/JSConfig/SConscript',
   JavaScriptCore = 'build/JavaScriptCore/SConscript',
+  webkit_resources = 'build/webkit_resources/SConscript',
   webkit_strings = 'build/localized_strings/SConscript',
   bindings = 'build/port/SConscript',
   V8Bindings = 'build/V8Bindings/SConscript',
