@@ -165,11 +165,31 @@
 			Name="audio"
 			>
 			<File
+				RelativePath="..\audio\win\audio_manager_win.h"
+				>
+			</File>
+			<File
 				RelativePath="..\audio\audio_output.h"
 				>
 			</File>
 			<File
 				RelativePath="..\audio\win\audio_output_win.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\audio\simple_sources.h"
+				>
+			</File>
+			<File
+				RelativePath="..\audio\win\simple_sources_win.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\audio\win\waveout_output_win.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\audio\win\waveout_output_win.h"
 				>
 			</File>
 		</Filter>
