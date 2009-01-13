@@ -963,7 +963,7 @@ LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html
 // Linux pixeltest failure: Font mismatch
 LINUX WIN : LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
 // Linux pixeltest failure: Font mismatch
-LINUX WIN : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
+LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
 chrome/fast/forms/basic-textareas-quirks.html = FAIL
 
 // This test seems to fail on the builders but not locally.
