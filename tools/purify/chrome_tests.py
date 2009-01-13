@@ -134,8 +134,14 @@ class ChromeTests:
 
   def SimpleTest(self, module, name):
     cmd = self._DefaultCommand(module, name)
-    self._ReadGtestFilterFile(name, cmd)
-    return common.RunSubprocess(cmd, 0)
+    if not self._options.run_singly:
+      self._ReadGtestFilterFile(name, cmd)
+      cmd.append("--gtest_print_time")
+      return common.RunSubprocess(cmd, 0)
+    else:
+      exe = cmd[-1]
+      script = ["python.exe", "test_runner.py", exe]
+      return self.ScriptedTest(module, exe, name, script, multi=True)
 
   def ScriptedTest(self, module, exe, name, script, multi=False, cmd_args=None,
                    out_dir_extra=None):
@@ -176,6 +182,7 @@ class ChromeTests:
       script[0] = os.path.join(self._options.build_dir, script[0])
     cmd.extend(script)
     self._ReadGtestFilterFile(name, cmd)
+    cmd.append("--gtest_print_time")
     return common.RunSubprocess(cmd, 0)
 
   def InstrumentDll(self):
@@ -310,6 +317,10 @@ def _main(argv):
                     help="verbose output - enable debug log messages")
   parser.add_option("", "--no-reinstrument", action="store_true", default=False,
                     help="Don't force a re-instrumentation for ui_tests")
+  parser.add_option("", "--run-singly", action="store_true", default=False,
+                    help="run tests independently of each other so that they "
+                         "don't interfere with each other and so that errors " 
+                         "can be accurately attributed to their source");
   options, args = parser.parse_args()
 
   if options.verbose:
