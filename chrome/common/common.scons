@@ -116,6 +116,7 @@ if env.Bit('windows'):
   input_files.extend([
       'gfx/chrome_font_win.cc',
       'ipc_channel_win.cc',
+      'resource_bundle_win.cc',
   ])
 elif env.Bit('linux'):
   input_files.extend([

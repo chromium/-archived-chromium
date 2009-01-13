@@ -614,6 +614,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\resource_bundle_win.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\resource_dispatcher.cc"
 			>
 		</File>

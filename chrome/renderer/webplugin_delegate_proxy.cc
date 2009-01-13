@@ -687,8 +687,8 @@ void WebPluginDelegateProxy::PaintSadPlugin(HDC hdc, const gfx::Rect& rect) {
                         paint);
 
   if (!sad_plugin_) {
-    sad_plugin_ = ResourceBundle::LoadBitmap(
-        _AtlBaseModule.GetResourceInstance(), IDR_SAD_PLUGIN);
+    sad_plugin_ = ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_SAD_PLUGIN);
   }
 
   if (sad_plugin_) {
