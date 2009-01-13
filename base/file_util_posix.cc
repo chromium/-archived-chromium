@@ -139,8 +139,13 @@ bool CopyDirectory(const FilePath& from_path,
   while (!error && (ent = fts_read(fts)) != NULL) {
     // ent->fts_path is the source path, including from_path, so paste
     // the suffix after from_path onto to_path to create the target_path.
-    const std::string target_path =
-        to_path.value() + &ent->fts_path[from_path.value().size()];
+    std::string suffix(&ent->fts_path[from_path.value().size()]);
+    // Strip the leading '/' (if any).
+    if (!suffix.empty()) {
+      DCHECK(suffix[0] == '/');
+      suffix.erase(0, 1);
+    }
+    const FilePath target_path = to_path.Append(suffix);
     switch (ent->fts_info) {
       case FTS_D:  // Preorder directory.
         // If we encounter a subdirectory in a non-recursive copy, prune it
@@ -152,17 +157,15 @@ bool CopyDirectory(const FilePath& from_path,
         }
 
         // Try creating the target dir, continuing on it if it exists already.
-        if (mkdir(target_path.c_str(), 0777) != 0) {
+        if (mkdir(target_path.value().c_str(), 0777) != 0) {
           if (errno != EEXIST)
             error = errno;
         }
         break;
       case FTS_F:     // Regular file.
       case FTS_NSOK:  // File, no stat info requested.
-        // TODO(port): use a native file path rather than all these
-        // conversions.
         errno = 0;
-        if (!CopyFile(UTF8ToWide(ent->fts_path), UTF8ToWide(target_path)))
+        if (!CopyFile(FilePath(ent->fts_path), target_path))
           error = errno ? errno : EINVAL;
         break;
       case FTS_DP:   // Postorder directory.

@@ -67,8 +67,7 @@ TEST_F(ProcessUtilTest, KillSlowChild) {
   EXPECT_EQ(oldcount+1, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
   FILE *fp = fopen("SlowChildProcess.die", "w");
   fclose(fp);
-  // TODO(port): do something less racy here
-  PlatformThread::Sleep(1000);
+  EXPECT_TRUE(base::WaitForSingleProcess(handle, 5000));
   EXPECT_EQ(oldcount, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
 }
 #endif
