@@ -283,11 +283,34 @@ a.thumbnail {
 .recent-window-container {
   line-height:16px;
   display:block;
-  margin:3px 0px 3px 22px;
+  margin:3px 0px 3px 0px;
 }
 .recent-window-container img {
   margin:0 3px -2px 3px;
 }
+.recent-window-hover-container {
+  position:absolute;
+  border:1px solid #999;
+  -webkit-box-shadow: 5px 5px 10px #ccc;
+  background-color:white;
+  width: 157px;
+  left: 20px;
+  white-space:nowrap;
+  opacity:.9;
+}
+.recent-window-hover-container .recent-bookmark {
+  text-decoration:none;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  margin: 3px 0 0 5px;
+}
+.recently-closed-window-link {
+  'text-decoration:none';
+}
+.recently-close-window-text {
+  text-decoration:underline;
+}
+
 html[dir='rtl'] .recent-bookmark {
   background-position:right;
   padding-left:0px;
@@ -319,6 +342,9 @@ html[dir='rtl'] #managesearcheslink {
 }
 #recentlyBookmarked {
   background-color:#e1ecfe;
+}
+#recentlyClosedContainer {
+  position:relative;
 }
 #searches input {
   border:1px solid #7f9db9;
@@ -446,6 +472,32 @@ function DOM(elem, attrs) {
     elem[attr] = attrs[attr];
   }
   return elem;
+}
+
+/**
+ * Partially applies this function to a particular 'this object' and zero or
+ * more arguments. The result is a new function with some arguments of the first
+ * function pre-filled and the value of |this| 'pre-specified'.<br><br>
+ *
+ * Remaining arguments specified at call-time are appended to the pre-
+ * specified ones.<br><br>
+ *
+ * @param {Function} fn A function to partially apply.
+ * @param {Object} selfObj Specifies the object which |this| should point to
+ *     when the function is run.
+ * @param {Object} var_args Additional arguments that are partially
+ *     applied to the function.
+ *
+ * @return {!Function} A partially-applied form of the function bind() was
+ *     invoked as a method of. 
+ */
+function bind(fn, selfObj, var_args) {
+  var boundArgs = Array.prototype.slice.call(arguments, 2);
+  return function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift.apply(args, boundArgs);
+    return fn.apply(selfObj, args);
+  }
 }
 
 /* Return the DOM element for a "most visited" entry.
@@ -641,19 +693,13 @@ function renderRecentlyClosedTabs(entries) {
       
       if (entry.type == "tab") {
         // Closed tab.
-        link = DOM('a', {href:entry.url, className:'recent-bookmark', title:entry.title});
-        link.style.backgroundImage = 'url("chrome://favicon/' + entry.url + '")';
-        link.appendChild(document.createTextNode(entry.title));
+        link = createRecentBookmark('a', entry);
         container.appendChild(link);
       } else {
         // Closed window.
         var linkSpanContainer = DOM('div', { className: 'recent-window-container'});
+
         var linkSpan = DOM('span');
-        link = DOM('a', { href: "window",
-                          title: localStrings.getString('closedWindow') } );
-        link.appendChild(
-            document.createTextNode(localStrings.getString('closedwindow')));
-        linkSpan.appendChild(link);
         linkSpan.appendChild(document.createTextNode(" ("));
         for (var windowIndex = 0; windowIndex < entry.tabs.length; windowIndex++) {
           var tab = entry.tabs[windowIndex];
@@ -661,8 +707,21 @@ function renderRecentlyClosedTabs(entries) {
           linkSpan.appendChild(tabImg);
         }
         linkSpan.appendChild(document.createTextNode(")"));
-        linkSpanContainer.appendChild(linkSpan);
+
+        link = DOM('a', { href: 'window',
+                          className: 'recently-closed-window-link',
+                          title: localStrings.getString('closedWindow') } );
+        windowSpan = DOM('span', {className: 'recently-close-window-text'});
+        windowSpan.appendChild(
+            document.createTextNode(localStrings.getString('closedwindow')));
+        link.appendChild(windowSpan);
+        link.appendChild(linkSpan);
+        linkSpanContainer.appendChild(link);
         container.appendChild(linkSpanContainer);
+        
+        // The card takes care of appending itself to the DOM, so no need to
+        // keep a reference to it.
+        new RecentlyClosedHoverCard(linkSpanContainer, entry);
       }
 
       link.onclick = function(sessionId) {
@@ -679,6 +738,109 @@ function renderRecentlyClosedTabs(entries) {
 
   logEvent('renderRecentlyClosedTabs done');
 }
+
+/**
+ * Creates an item to go in the recent bookmarks or recently closed lists.
+ *
+ * @param {String} tagName Tagname for the DOM element to create.
+ * @param {Object} data Object with title and url to popuplate the element.
+ *
+ * @return {Node} The element containing the bookmark.
+ */
+function createRecentBookmark(tagName, data) {
+  var link = DOM(tagName, {className:'recent-bookmark', title:data.title});
+  if (tagName == 'a')
+    link.href = data.url;
+  link.style.backgroundImage = 'url("chrome://favicon/' + data.url + '")';
+  link.appendChild(document.createTextNode(data.title));
+  return link;
+}
+
+/**
+ * A hover card for windows in the recently closed list to show more details.
+ *
+ * @param {Node} target The element the hover card is for.
+ * @param {Object} data Object containing all the data for the card.
+ */
+function RecentlyClosedHoverCard(target, data) {
+  this.target_ = target;
+  this.data_ = data;
+  this.target_.onmouseover = bind(this.setShowTimeout_, this);
+  this.target_.onmouseout = bind(this.setHideTimeout_, this);
+}
+
+/** Timeout set when closing the card. */
+RecentlyClosedHoverCard.closeTimeout_;
+
+/** Timeout set when opening the card. */
+RecentlyClosedHoverCard.openTimeout_;
+
+/**
+ * Clears the timer for hiding the card.
+ */
+RecentlyClosedHoverCard.clearHideTimeout_ = function() {
+  clearTimeout(RecentlyClosedHoverCard.closeTimeout_);
+};
+
+/**
+ * Clears the timer for opening the card.
+ */
+RecentlyClosedHoverCard.clearOpenTimeout_ = function() {
+  clearTimeout(RecentlyClosedHoverCard.openTimeout_);
+};
+
+/**
+ * Creates and shows the card.
+ */
+RecentlyClosedHoverCard.prototype.show_ = function() {
+  if (!this.container_) {
+    this.container_ = DOM('div', {className: 'recent-window-hover-container'});
+    for (var i = 0; i < this.data_.tabs.length; i++) {
+      var tab = this.data_.tabs[i];
+      var item = createRecentBookmark('span', tab);
+      this.container_.appendChild(item);
+    }
+    this.target_.parentNode.insertBefore(this.container_,
+        this.target_.nextSibling);
+    this.container_.onmouseover = RecentlyClosedHoverCard.clearHideTimeout_;
+    this.container_.onmouseout = bind(this.setHideTimeout_, this);
+  }
+  this.container_.style.display = '';
+};
+
+/**
+ * Hides the card.
+ */
+RecentlyClosedHoverCard.prototype.hide_ = function() {
+  this.container_.style.display = 'none';
+};
+
+/**
+ * Clears any open timers and sets the open timer.
+ * If the card is already showing then we only need to clear
+ * the hide timer.
+ */
+RecentlyClosedHoverCard.prototype.setShowTimeout_ = function() {
+  if (this.container && this.container_.style.display != 'none') {
+    // If we're already showing the hovercard, make sure we don't hide it again
+    // onmouseover.
+    RecentlyClosedHoverCard.clearHideTimeout_();
+    return;
+  }
+
+  RecentlyClosedHoverCard.clearOpenTimeout_();
+  RecentlyClosedHoverCard.openTimeout_ = 
+      setTimeout(bind(this.show_, this), 200);
+};
+
+/**
+ * Clears the open timer and sets the close one.
+ */
+RecentlyClosedHoverCard.prototype.setHideTimeout_ = function() {
+  RecentlyClosedHoverCard.clearOpenTimeout_();
+  RecentlyClosedHoverCard.closeTimeout_ = 
+      setTimeout(bind(this.hide_, this), 200);
+};
 
 function viewLog() {
   var lines = [];
