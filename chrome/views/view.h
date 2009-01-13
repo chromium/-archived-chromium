@@ -5,9 +5,13 @@
 #ifndef CHROME_VIEWS_VIEW_H_
 #define CHROME_VIEWS_VIEW_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <atlbase.h>	 
 #include <atlapp.h>	 
 #include <atlmisc.h>	 
+#endif  // defined(OS_WIN)
 
 #include <map>
 #include <vector>
@@ -554,6 +558,9 @@ class View : public AcceleratorTarget {
   // successful.
   virtual bool GetAccessibleName(std::wstring* name) { return false; }
 
+#if defined(OS_WIN)
+  // TODO(port): Make these functions using VARIANT portable.
+
   // Returns the MSAA role of the current view. The role is what assistive
   // technologies (ATs) use to determine what behavior to expect from a given
   // control. Sets the input VARIANT appropriately, and returns true if
@@ -563,6 +570,7 @@ class View : public AcceleratorTarget {
   // Returns the MSAA state of the current view. Sets the input VARIANT
   // appropriately, and returns true if a change was performed successfully.
   virtual bool GetAccessibleState(VARIANT* state) { return false; }
+#endif  // defined(OS_WIN)
 
   // Assigns a keyboard shortcut string description to the given control. Needed
   // as a View does not know which shortcut will be associated with it until it
@@ -891,10 +899,14 @@ class View : public AcceleratorTarget {
   // insets is returned.
   gfx::Insets GetInsets() const;
 
+#if defined(OS_WIN)
+  // TODO(port): Make GetCursorForPoint portable.
+
   // Return the cursor that should be used for this view or NULL if
   // the default cursor should be used. The provided point is in the
   // receiver's coordinate system.
   virtual HCURSOR GetCursorForPoint(Event::EventType event_type, int x, int y);
+#endif  // defined(OS_WIN)
 
   // Convenience to test whether a point is within this view's bounds
   virtual bool HitTest(const gfx::Point& l) const;

@@ -6,17 +6,17 @@ Import('env')
 
 env = env.Clone()
 
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_DIR/tools/build/win',
-        '$CHROME_SRC_DIR',
-    ],
-    CCFLAGS = [
-        '/TP',
-        #'/Wp64',
-    ],
-)
+if env.Bit('windows'):
+  env.Prepend(
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
+          '$CHROME_SRC_DIR',
+      ],
+      CCFLAGS = [
+          '/TP',
+          #'/Wp64',
+      ],
+  )
 
 env.Append(
     CPPPATH = [
@@ -91,6 +91,129 @@ input_files = [
     'window.cc',
     'window_delegate.cc',
 ]
+
+if env.Bit('linux'):
+  # TODO(port): Port to Linux.
+  remove_files = [
+      'accelerator.cc',
+      'accelerator_handler.cc',
+      'accessibility/accessible_wrapper.cc',
+      'accessibility/view_accessibility.cc',
+      'aero_tooltip_manager.cc',
+      'background.cc',
+      'base_button.cc',
+      'bitmap_scroll_bar.cc',
+      'button.cc',
+      'button_dropdown.cc',
+      'checkbox.cc',
+      'chrome_menu.cc',
+      'client_view.cc',
+      'combo_box.cc',
+      'custom_frame_window.cc',
+      'dialog_delegate.cc',
+      'dialog_client_view.cc',
+      'decision.cc',
+      'event.cc',
+      'external_focus_tracker.cc',
+      'focus_manager.cc',
+      'group_table_view.cc',
+      'hwnd_view.cc',
+      'label.cc',
+      'link.cc',
+      'menu.cc',
+      'menu_button.cc',
+      'message_box_view.cc',
+      'native_button.cc',
+      'native_control.cc',
+      'native_scroll_bar.cc',
+      'non_client_view.cc',
+      'painter.cc',
+      'radio_button.cc',
+      'resize_corner.cc',
+      'root_view.cc',
+      'root_view_drop_target.cc',
+      'scroll_view.cc',
+      'separator.cc',
+      'single_split_view.cc',
+      'tabbed_pane.cc',
+      'table_view.cc',
+      'text_button.cc',
+      'text_field.cc',
+      'throbber.cc',
+      'tooltip_manager.cc',
+      'tree_view.cc',
+      'view.cc',
+      'widget_win.cc',
+      'window.cc',
+      'window_delegate.cc',
+  ]
+  for file in remove_files:
+    input_files.remove(file)
+
+if env.Bit('mac'):
+  # TODO(port): Port to Mac.
+  remove_files = [
+      'accelerator.cc',
+      'accelerator_handler.cc',
+      'accessibility/accessible_wrapper.cc',
+      'accessibility/view_accessibility.cc',
+      'aero_tooltip_manager.cc',
+      'background.cc',
+      'base_button.cc',
+      'bitmap_scroll_bar.cc',
+      'border.cc',
+      'button.cc',
+      'button_dropdown.cc',
+      'checkbox.cc',
+      'chrome_menu.cc',
+      'client_view.cc',
+      'combo_box.cc',
+      'custom_frame_window.cc',
+      'dialog_delegate.cc',
+      'dialog_client_view.cc',
+      'decision.cc',
+      'event.cc',
+      'external_focus_tracker.cc',
+      'focus_manager.cc',
+      'grid_layout.cc',
+      'group_table_view.cc',
+      'hwnd_view.cc',
+      'image_view.cc',
+      'label.cc',
+      'layout_manager.cc',
+      'link.cc',
+      'menu.cc',
+      'menu_button.cc',
+      'message_box_view.cc',
+      'native_button.cc',
+      'native_control.cc',
+      'native_scroll_bar.cc',
+      'non_client_view.cc',
+      'painter.cc',
+      'radio_button.cc',
+      'repeat_controller.cc',
+      'resize_corner.cc',
+      'root_view.cc',
+      'root_view_drop_target.cc',
+      'scroll_bar.cc',
+      'scroll_view.cc',
+      'separator.cc',
+      'single_split_view.cc',
+      'tabbed_pane.cc',
+      'table_view.cc',
+      'text_button.cc',
+      'text_field.cc',
+      'throbber.cc',
+      'tooltip_manager.cc',
+      'tree_view.cc',
+      'view.cc',
+      'view_storage.cc',
+      'widget_win.cc',
+      'window.cc',
+      'window_delegate.cc',
+  ]
+  for file in remove_files:
+    input_files.remove(file)
 
 env.ChromeLibrary('views', input_files)
 

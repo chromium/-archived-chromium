@@ -430,7 +430,9 @@ if env_flat.Bit('windows'):
   # determines implicit dependencies from .rc files.
   env_flat.Depends(browser_res, flats_out)
 
-sconscript_files = []
+sconscript_files = [
+    'views/SConscript',
+]
 
 if not env.WantSystemLib('hunspell'):
   sconscript_files.append('third_party/hunspell/SConscript')
@@ -443,7 +445,6 @@ if env.Bit('windows'):
       'app/resources/SConscript',
       'app/theme/SConscript',
       'browser/views/SConscript',
-      'views/SConscript',
   ])
 
 env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])

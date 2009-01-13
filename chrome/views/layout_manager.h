@@ -5,9 +5,7 @@
 #ifndef CHROME_VIEWS_LAYOUT_MANAGER_H__
 #define CHROME_VIEWS_LAYOUT_MANAGER_H__
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
+#include "chrome/views/view.h"
 
 namespace gfx {
 class Size;

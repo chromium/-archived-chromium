@@ -5,8 +5,6 @@
 #ifndef CHROME_VIEWS_IMAGE_VIEW_H__
 #define CHROME_VIEWS_IMAGE_VIEW_H__
 
-#include <windows.h>
-
 #include "chrome/views/view.h"
 #include "SkBitmap.h"
 

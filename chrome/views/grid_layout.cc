@@ -21,7 +21,7 @@ class LayoutElement {
   template <class T>
   static void ResetSizes(std::vector<T*>* elements) {
     // Reset the layout width of each column.
-    for (std::vector<T*>::iterator i = elements->begin();
+    for (typename std::vector<T*>::iterator i = elements->begin();
          i != elements->end(); ++i) {
       (*i)->ResetSize();
     }
@@ -33,7 +33,7 @@ class LayoutElement {
   static void CalculateLocationsFromSize(std::vector<T*>* elements) {
     // Reset the layout width of each column.
     int location = 0;
-    for (std::vector<T*>::iterator i = elements->begin();
+    for (typename std::vector<T*>::iterator i = elements->begin();
          i != elements->end(); ++i) {
       (*i)->SetLocation(location);
       location += (*i)->Size();
@@ -50,7 +50,7 @@ class LayoutElement {
 
     float total_percent = 0;
     int resize_count = 0;
-    for (std::vector<T*>::iterator i = elements->begin();
+    for (typename std::vector<T*>::iterator i = elements->begin();
          i != elements->end(); ++i) {
       total_percent += (*i)->ResizePercent();
       resize_count++;
@@ -61,7 +61,7 @@ class LayoutElement {
     }
     int remaining = delta;
     int resized = resize_count;
-    for (std::vector<T*>::iterator i = elements->begin();
+    for (typename std::vector<T*>::iterator i = elements->begin();
          i != elements->end(); ++i) {
       T* element = *i;
       if (element->ResizePercent() > 0) {
@@ -317,8 +317,8 @@ struct ViewState {
   View* const view;
   const int start_col;
   const int start_row;
-  const int row_span;
   const int col_span;
+  const int row_span;
   const GridLayout::Alignment h_align;
   const GridLayout::Alignment v_align;
 

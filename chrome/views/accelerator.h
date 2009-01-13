@@ -38,7 +38,7 @@ class Accelerator {
 
   ~Accelerator() { };
 
-  Accelerator& Accelerator::operator=(const Accelerator& accelerator) {
+  Accelerator& operator=(const Accelerator& accelerator) {
     if (this != &accelerator) {
       key_code_ = accelerator.key_code_;
       modifiers_ = accelerator.modifiers_;

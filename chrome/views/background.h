@@ -5,7 +5,11 @@
 #ifndef CHROME_VIEWS_BACKGROUND_H__
 #define CHROME_VIEWS_BACKGROUND_H__
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif  // defined(OS_WIN)
 
 #include "base/basictypes.h"
 #include "SkColor.h"
@@ -67,12 +71,19 @@ class Background {
   // controls.  Unfortunately alpha=0 is not an option.
   void SetNativeControlColor(SkColor color);
 
+#if defined(OS_WIN)
+  // TODO(port): Make GetNativeControlBrush portable (currently uses HBRUSH).
+
   // Get the brush that was specified by SetNativeControlColor
   HBRUSH GetNativeControlBrush() const { return native_control_brush_; };
+#endif  // defined(OS_WIN)
 
  private:
+#if defined(OS_WIN)
+  // TODO(port): Create portable replacement for HBRUSH.
   HBRUSH native_control_brush_;
-  DISALLOW_EVIL_CONSTRUCTORS(Background);
+#endif  // defined(OS_WIN)
+  DISALLOW_COPY_AND_ASSIGN(Background);
 };
 
 }  // namespace views
