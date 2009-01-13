@@ -4,7 +4,9 @@
 
 #include "chrome/common/resource_bundle.h"
 
+#if defined(OS_WIN)
 #include <atlbase.h>
+#endif
 
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
@@ -86,6 +88,7 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
     bitmap.reset(LoadBitmap(theme_data_, resource_id));
 
 #if defined(OS_WIN)
+  // TODO(port): refactor to remove this.
   // If we did not find the bitmap in the theme DLL, try the current one.
   if (!bitmap.get())
     bitmap.reset(LoadBitmap(_AtlBaseModule.GetModuleInstance(), resource_id));

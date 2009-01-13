@@ -19,6 +19,11 @@
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
 
+#if defined(OS_LINUX)
+namespace base {
+  class DataPack;
+};
+#endif
 class ChromeFont;
 class SkBitmap;
 class StringPiece;

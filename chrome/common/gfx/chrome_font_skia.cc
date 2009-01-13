@@ -14,6 +14,11 @@ ChromeFont::ChromeFont(const ChromeFont& other) {
   CopyChromeFont(other);
 }
 
+ChromeFont& ChromeFont::operator=(const ChromeFont& other) {
+  CopyChromeFont(other);
+  return *this;
+}
+
 ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_name,
                        int font_size, int style)
     : typeface_helper_(new SkAutoUnref(tf)),

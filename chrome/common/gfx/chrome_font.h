@@ -115,8 +115,10 @@ class ChromeFont {
     return dlus * font_ref_->height() / 8;
   }
 #elif defined(OS_LINUX)
-  // We need a copy constructor to deal with the Skia reference counting.
+  // We need a copy constructor and assignment operator to deal with
+  // the Skia reference counting.
   ChromeFont(const ChromeFont& other);
+  ChromeFont& operator=(const ChromeFont& other);
   // Setup a Skia context to use the current typeface
   void PaintSetup(SkPaint* paint) const;
 #endif
