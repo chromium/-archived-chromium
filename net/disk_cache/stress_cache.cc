@@ -10,16 +10,6 @@
 // The child application has two threads: one to exercise the cache in an
 // infinite loop, and another one to asynchronously kill the process.
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
-#include <windows.h>
-#elif defined(OS_POSIX)
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#endif
-
 #include <string>
 #include <vector>
 
@@ -61,32 +51,12 @@ int RunSlave(int iteration) {
     return kError;
   }
 
-  // TODO: Find a good place for this kind of code in process_util.
-#if defined(OS_WIN)
-  WaitForSingleObject(handle, INFINITE);
-  int code;
-  bool ok = GetExitCodeProcess(handle,
-                               reinterpret_cast<LPDWORD>(&code)) ? true :
-                                                                   false;
-  CloseHandle(handle);
-  if (!ok) {
+  int exit_code;
+  if (!base::WaitForExitCode(handle, &exit_code)) {
     printf("Unable to get return code\n");
     return kError;
   }
-  return code;
-#elif defined(OS_POSIX)
-  int status;
-  wait(&status);
-
-  if (WIFSIGNALED(status))
-    return kError;
-
-  if (WIFEXITED(status))
-    return WEXITSTATUS(status);
-
-  NOTREACHED();
-  return kError;
-#endif
+  return exit_code;
 }
 
 // Main loop for the master process.

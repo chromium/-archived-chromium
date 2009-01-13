@@ -147,6 +147,12 @@ bool KillProcess(int process_id, int exit_code, bool wait);
 // process hasn't terminated yet.
 bool DidProcessCrash(ProcessHandle handle);
 
+// Waits for process to exit. In POSIX systems, if the process hasn't been
+// signaled then puts the exit code in |exit_code|; otherwise it's considered
+// a failure. On Windows |exit_code| is always filled. Returns true on success,
+// and closes |handle| in any case.
+bool WaitForExitCode(ProcessHandle handle, int* exit_code);
+
 // Wait for all the processes based on the named executable to exit.  If filter
 // is non-null, then only processes selected by the filter are waited on.
 // Returns after all processes have exited or wait_milliseconds have expired.

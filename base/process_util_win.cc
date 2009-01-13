@@ -10,6 +10,7 @@
 
 #include "base/histogram.h"
 #include "base/logging.h"
+#include "base/scoped_handle_win.h"
 #include "base/scoped_ptr.h"
 
 namespace {
@@ -223,6 +224,19 @@ bool DidProcessCrash(ProcessHandle handle) {
                                       LinearHistogram::kHexRangePrintingFlag);
   mid_significant_histogram.Add((exitcode >> 12) & 0xFF);
 
+  return true;
+}
+
+bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
+  ScopedHandle closer(handle);  // Ensure that we always close the handle.
+  if (::WaitForSingleObject(handle, INFINITE) != WAIT_OBJECT_0) {
+    NOTREACHED();
+    return false;
+  }
+  DWORD temp_code;  // Don't clobber out-parameters in case of failure.
+  if (!::GetExitCodeProcess(handle, &temp_code))
+    return false;
+  *exit_code = temp_code;
   return true;
 }
 

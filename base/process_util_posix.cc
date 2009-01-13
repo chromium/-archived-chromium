@@ -4,6 +4,7 @@
 
 #include "base/process_util.h"
 
+#include <errno.h>
 #include <signal.h>
 #include <sys/resource.h>
 #include <sys/time.h>
@@ -94,6 +95,25 @@ void EnableTerminationOnHeapCorruption() {
 void RaiseProcessToHighPriority() {
   // On POSIX, we don't actually do anything here.  We could try to nice() or
   // setpriority() or sched_getscheduler, but these all require extra rights.
+}
+
+bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
+  int status;
+  while (waitpid(handle, &status, 0) == -1) {
+    if (errno != EINTR) {
+      NOTREACHED();
+      return false;
+    }
+  }
+
+  if (WIFEXITED(status)) {
+    *exit_code = WEXITSTATUS(status);
+    return true;
+  }
+
+  // If it didn't exit cleanly, it must have been signaled.
+  DCHECK(WIFSIGNALED(status));
+  return false;
 }
 
 bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {

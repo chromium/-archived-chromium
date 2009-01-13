@@ -31,8 +31,8 @@ input_files = ChromeFileList([
 ])
 
 
-if not env.AnyBits('linux', 'mac'):
-  # TODO(port): port to linux and mac?
+if not env.Bit('mac'):
+  # TODO(port): port to mac?
   env.ChromeTestProgram('crash_cache', input_files)
 
 p = env.ChromeMSVSProject('$NET_DIR/build/crash_cache.vcproj',
