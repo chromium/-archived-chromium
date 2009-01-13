@@ -1692,10 +1692,10 @@ MAC : LayoutTests/fast/events/drag-in-frames.html = FAIL
 MAC : LayoutTests/fast/images/embed-image.html = FAIL
 MAC : LayoutTests/fast/images/object-image.html = FAIL
 
-// These may just need to rebase for v8
-MAC : LayoutTests/fast/js/array-every.html = FAIL
+// We get a different result here than win from the JS expression evaluation.
+// Need to talk to someone on the V8 team about it. This used to work and
+// has regressed.
 MAC : LayoutTests/fast/js/large-expressions.html = FAIL
-MAC : LayoutTests/fast/js/regexp-overflow.html = FAIL
 
 // Parsing issue?
 MAC :  LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
