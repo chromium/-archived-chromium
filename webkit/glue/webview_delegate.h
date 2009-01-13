@@ -90,7 +90,7 @@ class WebFileChooserCallback {
  public:
   WebFileChooserCallback() {}
   virtual ~WebFileChooserCallback() {}
-  virtual void OnFileChoose(const std::wstring& file_name) { }
+  virtual void OnFileChoose(const std::vector<std::wstring>& file_names) { }
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebFileChooserCallback);
@@ -538,7 +538,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // populated with the given initial_filename string.  The WebViewDelegate
   // will own the WebFileChooserCallback object and is responsible for
   // freeing it.
-  virtual void RunFileChooser(const std::wstring& initial_filename,
+  virtual void RunFileChooser(bool multi_select,
+                              const std::wstring& title,
+                              const std::wstring& initial_filename,
+                              const std::wstring& filter,
                               WebFileChooserCallback* file_chooser) {
     delete file_chooser;
   }

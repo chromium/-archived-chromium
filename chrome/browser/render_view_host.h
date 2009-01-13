@@ -365,6 +365,10 @@ class RenderViewHost : public RenderWidgetHost {
   // an Open File dialog for the form.
   void FileSelected(const std::wstring& path);
 
+  // Notifies the Listener that many files have been chosen by the user from
+  // an Open File dialog for the form.
+  void MultiFilesSelected(const std::vector<std::wstring>& files);
+
   // Notifies the RenderViewHost that its load state changed.
   void LoadStateChanged(const GURL& url, net::LoadState load_state);
 
@@ -469,7 +473,10 @@ class RenderViewHost : public RenderWidgetHost {
 #endif
   void OnMsgGoToEntryAtOffset(int offset);
   void OnMsgSetTooltipText(const std::wstring& tooltip_text);
-  void OnMsgRunFileChooser(const std::wstring& default_file);
+  void OnMsgRunFileChooser(bool multiple_files,
+                           const std::wstring& title,
+                           const std::wstring& default_file,
+                           const std::wstring& filter);
   void OnMsgRunJavaScriptMessage(const std::wstring& message,
                                  const std::wstring& default_prompt,
                                  const int flags,

@@ -600,7 +600,19 @@ void RenderViewHost::InstallMissingPlugin() {
 void RenderViewHost::FileSelected(const std::wstring& path) {
   RendererSecurityPolicy::GetInstance()->GrantUploadFile(process()->host_id(),
                                                          path);
-  Send(new ViewMsg_RunFileChooserResponse(routing_id_, path));
+  std::vector<std::wstring> files;
+  files.push_back(path);
+  Send(new ViewMsg_RunFileChooserResponse(routing_id_, files));
+}
+
+void RenderViewHost::MultiFilesSelected(
+         const std::vector<std::wstring>& files) {
+  for (std::vector<std::wstring>::const_iterator file = files.begin();
+       file != files.end(); ++file) {
+    RendererSecurityPolicy::GetInstance()->GrantUploadFile(
+      process()->host_id(), *file);
+  }
+  Send(new ViewMsg_RunFileChooserResponse(routing_id_, files));
 }
 
 void RenderViewHost::LoadStateChanged(const GURL& url,
@@ -1057,8 +1069,13 @@ void RenderViewHost::OnMsgSetTooltipText(const std::wstring& tooltip_text) {
   }
 }
 
-void RenderViewHost::OnMsgRunFileChooser(const std::wstring& default_file) {
-  delegate_->RunFileChooser(default_file);
+void RenderViewHost::OnMsgRunFileChooser(bool multiple_files,
+                                         const std::wstring& title,
+                                         const std::wstring& default_file,
+                                         const std::wstring& filter) {
+  std::wstring real_filter = filter;
+  std::replace(real_filter.begin(), real_filter.end(), '|', '\0');
+  delegate_->RunFileChooser(multiple_files, title, default_file, real_filter);
 }
 
 void RenderViewHost::OnMsgRunJavaScriptMessage(

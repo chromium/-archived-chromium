@@ -259,7 +259,10 @@ class RenderViewHostDelegate {
                                    int* forward_list_count) { }
 
   // A file chooser should be shown.
-  virtual void RunFileChooser(const std::wstring& default_file) { }
+  virtual void RunFileChooser(bool multiple_files,
+                              const std::wstring& title,
+                              const std::wstring& default_file,
+                              const std::wstring& filter) { }
 
   // A javascript message, confirmation or prompt should be shown.
   virtual void RunJavaScriptMessage(const std::wstring& message,

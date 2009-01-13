@@ -269,7 +269,10 @@ class WebContents : public TabContents,
   virtual void GoToEntryAtOffset(int offset);
   virtual void GetHistoryListCount(int* back_list_count,
                                    int* forward_list_count);
-  virtual void RunFileChooser(const std::wstring& default_file);
+  virtual void RunFileChooser(bool multiple_files,
+                              const std::wstring& title,
+                              const std::wstring& default_file,
+                              const std::wstring& filter);
   virtual void RunJavaScriptMessage(const std::wstring& message,
                                     const std::wstring& default_prompt,
                                     const int flags,
@@ -320,6 +323,8 @@ class WebContents : public TabContents,
   // SelectFileDialog::Listener ------------------------------------------------
 
   virtual void FileSelected(const std::wstring& path, void* params);
+  virtual void MultiFilesSelected(const std::vector<std::wstring>& files,
+                                  void* params);
   virtual void FileSelectionCanceled(void* params);
 
   // RenderViewHostManager::Delegate -------------------------------------------

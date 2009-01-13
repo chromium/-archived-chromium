@@ -136,7 +136,10 @@ class RenderView : public RenderWidget,
                                       int64 node_id);
   virtual void UpdateTargetURL(WebView* webview,
                                const GURL& url);
-  virtual void RunFileChooser(const std::wstring& default_filename,
+  virtual void RunFileChooser(bool multi_select,
+                              const std::wstring& title,
+                              const std::wstring& initial_filename,
+                              const std::wstring& filter,
                               WebFileChooserCallback* file_chooser);
   virtual void AddMessageToConsole(WebView* webview,
                                    const std::wstring& message,
@@ -457,7 +460,7 @@ class RenderView : public RenderWidget,
       int client_x, int client_y, int screen_x, int screen_y, bool ended);
   void OnDragSourceSystemDragEnded();
   void OnInstallMissingPlugin();
-  void OnFileChooserResponse(const std::wstring& file_name);
+  void OnFileChooserResponse(const std::vector<std::wstring>& file_names);
   void OnEnableViewSourceMode();
   void OnUpdateBackForwardListCount(int back_list_count,
                                     int forward_list_count);

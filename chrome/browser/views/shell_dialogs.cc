@@ -215,6 +215,10 @@ class SelectFileDialogImpl : public SelectFileDialog,
   // Notifies the listener that a folder was chosen. Run on the ui thread.
   void FileSelected(const std::wstring& path, void* params, RunState run_state);
 
+  // Notifies listener that multiple files were chosen. Run on the ui thread.
+  void MultiFilesSelected(const std::vector<std::wstring>& paths, void* params,
+                         RunState run_state);
+
   // Notifies the listener that no file was chosen (the action was canceled).
   // Run on the ui thread.
   void FileNotSelected(void* params, RunState run_state);
@@ -234,6 +238,13 @@ class SelectFileDialogImpl : public SelectFileDialog,
                          const std::wstring& filters,
                          HWND owner,
                          std::wstring* path);
+
+  // Runs an Open file dialog box that supports multi-select, with similar
+  // semantics for input paramaters as RunOpenFileDialog.
+  bool RunOpenMultiFileDialog(const std::wstring& title,
+                              const std::wstring& filter,
+                              HWND owner,
+                              std::vector<std::wstring>* paths);
 
   // The callback function for when the select folder dialog is opened.
   static int CALLBACK BrowseCallbackProc(HWND window, UINT message,
@@ -297,6 +308,13 @@ void SelectFileDialogImpl::ExecuteSelectFile(
     DisableOwner(run_state.owner);
   } else if (type == SELECT_OPEN_FILE) {
     success = RunOpenFileDialog(title, filter, run_state.owner, &path);
+  } else if (type == SELECT_OPEN_MULTI_FILE) {
+    std::vector<std::wstring> paths;
+    if (RunOpenMultiFileDialog(title, filter, run_state.owner, &paths)) {
+      ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
+          &SelectFileDialogImpl::MultiFilesSelected, paths, params, run_state));
+      return;
+    }
   }
 
   if (success) {
@@ -313,6 +331,15 @@ void SelectFileDialogImpl::FileSelected(const std::wstring& selected_folder,
                                         RunState run_state) {
   if (listener_)
     listener_->FileSelected(selected_folder, params);
+  EndRun(run_state);
+}
+
+void SelectFileDialogImpl::MultiFilesSelected(
+  const std::vector<std::wstring>& selected_files,
+  void* params,
+  RunState run_state) {
+  if (listener_)
+    listener_->MultiFilesSelected(selected_files, params);
   EndRun(run_state);
 }
 
@@ -416,6 +443,58 @@ bool SelectFileDialogImpl::RunOpenFileDialog(
   DisableOwner(owner);
   if (success)
     *path = filename;
+  return success;
+}
+
+bool SelectFileDialogImpl::RunOpenMultiFileDialog(
+    const std::wstring& title,
+    const std::wstring& filter,
+    HWND owner,
+    std::vector<std::wstring>* paths) {
+  OPENFILENAME ofn;
+  // We must do this otherwise the ofn's FlagsEx may be initialized to random
+  // junk in release builds which can cause the Places Bar not to show up!
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = owner;
+
+  wchar_t filename[MAX_PATH] = L"";
+
+  ofn.lpstrFile = filename;
+  ofn.nMaxFile = MAX_PATH;
+  // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
+  // without having to close Chrome first.
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER
+               | OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT;
+
+  if (!filter.empty()) {
+    ofn.lpstrFilter = filter.c_str();
+  }
+  bool success = !!GetOpenFileName(&ofn);
+  DisableOwner(owner);
+  if (success) {
+    std::vector<std::wstring> files;
+    const wchar_t* selection = ofn.lpstrFile;
+    while (*selection) {  // Empty string indicates end of list.
+      files.push_back(selection);
+      // Skip over filename and null-terminator.
+      selection += files.back().length() + 1;
+    }
+    if (files.empty()) {
+      success = false;
+    } else if (files.size() == 1) {
+      // When there is one file, it contains the path and filename.
+      paths->swap(files);
+    } else {
+      // Otherwise, the first string is the path, and the remainder are
+      // filenames.
+      std::vector<std::wstring>::iterator path = files.begin();
+      for (std::vector<std::wstring>::iterator file = path + 1;
+           file != files.end(); ++file) {
+        paths->push_back(*path + L'\\' + *file);
+      }
+    }
+  }
   return success;
 }
 

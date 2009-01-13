@@ -30,7 +30,7 @@ extern "C" {
 // The current version of the API, used by the 'version' field of CPPluginFuncs
 // and CPBrowserFuncs.
 #define CP_MAJOR_VERSION 0
-#define CP_MINOR_VERSION 8
+#define CP_MINOR_VERSION 9
 #define CP_VERSION       ((CP_MAJOR_VERSION << 8) | (CP_MINOR_VERSION))
 
 #define CP_GET_MAJOR_VERSION(version) ((version & 0xff00) >> 8)
@@ -390,12 +390,28 @@ typedef CPError (STDCALL *CPB_PluginThreadAsyncCallFunc)(CPID id,
                                                          void (*func)(void *),
                                                          void *user_data);
 
+// This function creates an open file dialog.  The process is granted access
+// to any files that are selected.  |multiple_files| determines if more than
+// one file can be selected.
+typedef CPError (STDCALL *CPB_OpenFileDialogFunc)(CPID id,
+                                                  CPBrowsingContext context,
+                                                  bool multiple_files,
+                                                  const char *title,
+                                                  const char *filter,
+                                                  void *user_data);
+
 // Informs the plugin of raw data having been sent from another process.
 typedef void (STDCALL *CPP_OnMessageFunc)(void *data, uint32 data_len);
 
 // Informs the plugin of raw data having been sent from another process.
 typedef void (STDCALL *CPP_OnSyncMessageFunc)(void *data, uint32 data_len,
                                               void **retval, uint32 *retval_len);
+
+// Informs the plugin that the file dialog has completed, and contains the
+// results.
+typedef void (STDCALL *CPP_OnFileDialogResultFunc)(void *data,
+                                                   const char **files,
+                                                   uint32 files_len);
 
 // Function table for issuing requests using via the other side's network stack.
 // For the plugin, this functions deal with issuing requests through the
@@ -440,6 +456,7 @@ typedef struct _CPPluginFuncs {
   CPP_HtmlDialogClosedFunc html_dialog_closed;
   CPP_HandleCommandFunc handle_command;
   CPP_OnSyncMessageFunc on_sync_message;
+  CPP_OnFileDialogResultFunc on_file_dialog_result;
 } CPPluginFuncs;
 
 // Function table CPB functions (functions provided by host to plugin).
@@ -469,6 +486,7 @@ typedef struct _CPBrowserFuncs {
   CPB_HandleCommandFunc handle_command;
   CPB_SendSyncMessageFunc send_sync_message;
   CPB_PluginThreadAsyncCallFunc plugin_thread_async_call;
+  CPB_OpenFileDialogFunc open_file_dialog;
 } CPBrowserFuncs;
 
 

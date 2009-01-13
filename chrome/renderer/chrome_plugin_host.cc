@@ -534,6 +534,60 @@ CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
   return CPERR_SUCCESS;
 }
 
+class PluginOpenFileDialogListener : public WebFileChooserCallback {
+ public:
+  PluginOpenFileDialogListener(CPID cpid, void *user_data)
+    : cpid_(cpid), user_data_(user_data) {
+  }
+  virtual void OnFileChoose(const std::vector<std::wstring>& file_names) {
+    ChromePluginLib *chrome_plugin = ChromePluginLib::FromCPID(cpid_);
+    if (chrome_plugin) {
+      if (!file_names.empty()) {
+        std::vector<std::string> utf8_files;
+        std::vector<const char *> ret_files;
+        for (std::vector<std::wstring>::const_iterator ix = file_names.begin();
+             ix != file_names.end(); ++ix) {
+            utf8_files.push_back(WideToUTF8(*ix));
+            ret_files.push_back(utf8_files.back().c_str());
+        }
+
+        chrome_plugin->functions().on_file_dialog_result(user_data_,
+                                                         &ret_files.at(0),
+                                                         ret_files.size());
+      } else {
+        chrome_plugin->functions().on_file_dialog_result(user_data_, 0, 0);
+      }
+    }
+  }
+
+ private:
+   CPID cpid_;
+   void *user_data_;
+};
+
+CPError STDCALL CPB_OpenFileDialog(CPID id,
+                                   CPBrowsingContext context,
+                                   bool multiple_files,
+                                   const char *title,
+                                   const char *filter,
+                                   void *user_data) {
+  CHECK(ChromePluginLib::IsPluginThread());
+
+  WebPlugin* webplugin = WebPluginFromContext(context);
+  WebFrame* webframe = webplugin->GetWebFrame();
+  WebView* webview = webframe->GetView();
+  WebViewDelegate* webviewdelegate = webview->GetDelegate();
+
+  PluginOpenFileDialogListener *listener =
+    new PluginOpenFileDialogListener(id, user_data);
+
+  webviewdelegate->RunFileChooser(multiple_files, UTF8ToWide(title),
+                                  std::wstring(), UTF8ToWide(filter),
+                                  listener);
+
+  return CPERR_SUCCESS;
+}
+
 }  // namespace
 
 CPBrowserFuncs* GetCPBrowserFuncsForRenderer() {
@@ -564,6 +618,7 @@ CPBrowserFuncs* GetCPBrowserFuncsForRenderer() {
     browser_funcs.handle_command = CPB_HandleCommand;
     browser_funcs.send_sync_message = CPB_SendSyncMessage;
     browser_funcs.plugin_thread_async_call = CPB_PluginThreadAsyncCall;
+    browser_funcs.open_file_dialog = CPB_OpenFileDialog;
 
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;

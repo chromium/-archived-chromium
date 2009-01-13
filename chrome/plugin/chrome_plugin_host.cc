@@ -544,6 +544,18 @@ CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
   return CPERR_SUCCESS;
 }
 
+CPError STDCALL CPB_OpenFileDialog(CPID id,
+                                   CPBrowsingContext context,
+                                   bool multiple_files,
+                                   const char *title,
+                                   const char *filter,
+                                   void *user_data) {
+  NOTREACHED() <<
+    "Open file dialog should only be called from the renderer process.";
+
+  return CPERR_FAILURE;
+}
+
 }  // namespace
 
 CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
@@ -574,6 +586,7 @@ CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
     browser_funcs.handle_command = CPB_HandleCommand;
     browser_funcs.send_sync_message = CPB_SendSyncMessage;
     browser_funcs.plugin_thread_async_call = CPB_PluginThreadAsyncCall;
+    browser_funcs.open_file_dialog = CPB_OpenFileDialog;
 
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;

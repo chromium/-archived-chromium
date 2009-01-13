@@ -1744,7 +1744,10 @@ void RenderView::UpdateTargetURL(WebView* webview, const GURL& url) {
   }
 }
 
-void RenderView::RunFileChooser(const std::wstring& default_filename,
+void RenderView::RunFileChooser(bool multi_select,
+                                const std::wstring& title,
+                                const std::wstring& default_filename,
+                                const std::wstring& filter,
                                 WebFileChooserCallback* file_chooser) {
   if (file_chooser_.get()) {
     // TODO(brettw): bug 1235154: This should be a synchronous message to deal
@@ -1757,7 +1760,8 @@ void RenderView::RunFileChooser(const std::wstring& default_filename,
     return;
   }
   file_chooser_.reset(file_chooser);
-  Send(new ViewHostMsg_RunFileChooser(routing_id_, default_filename));
+  Send(new ViewHostMsg_RunFileChooser(routing_id_, multi_select, title,
+                                      default_filename, filter));
 }
 
 void RenderView::AddMessageToConsole(WebView* webview,
@@ -2569,8 +2573,9 @@ void RenderView::OnInstallMissingPlugin() {
   first_default_plugin_->InstallMissingPlugin();
 }
 
-void RenderView::OnFileChooserResponse(const std::wstring& file_name) {
-  file_chooser_->OnFileChoose(file_name);
+void RenderView::OnFileChooserResponse(
+         const std::vector<std::wstring>& file_names) {
+  file_chooser_->OnFileChoose(file_names);
   file_chooser_.reset();
 }
 

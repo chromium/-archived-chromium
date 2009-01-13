@@ -993,12 +993,17 @@ void WebContents::GetHistoryListCount(int* back_list_count,
   }
 }
 
-void WebContents::RunFileChooser(const std::wstring& default_file) {
+void WebContents::RunFileChooser(bool multiple_files,
+                                 const std::wstring& title,
+                                 const std::wstring& default_file,
+                                 const std::wstring& filter) {
   HWND toplevel_hwnd = GetAncestor(GetContainerHWND(), GA_ROOT);
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
-  select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
-                                  std::wstring(), default_file, std::wstring(),
+  SelectFileDialog::Type dialog_type =
+    multiple_files ? SelectFileDialog::SELECT_OPEN_MULTI_FILE :
+                     SelectFileDialog::SELECT_OPEN_FILE;
+  select_file_dialog_->SelectFile(dialog_type, title, default_file, filter,
                                   std::wstring(), toplevel_hwnd, NULL);
 }
 
@@ -1352,10 +1357,16 @@ void WebContents::FileSelected(const std::wstring& path, void* params) {
   render_view_host()->FileSelected(path);
 }
 
+void WebContents::MultiFilesSelected(const std::vector<std::wstring>& files,
+                                     void* params) {
+  render_view_host()->MultiFilesSelected(files);
+}
+
+
 void WebContents::FileSelectionCanceled(void* params) {
-  // If the user cancels choosing a file to upload we need to pass back the
-  // empty string.
-  render_view_host()->FileSelected(std::wstring());
+  // If the user cancels choosing a file to upload we pass back an
+  // empty vector.
+  render_view_host()->MultiFilesSelected(std::vector<std::wstring>());
 }
 
 void WebContents::BeforeUnloadFiredFromRenderManager(

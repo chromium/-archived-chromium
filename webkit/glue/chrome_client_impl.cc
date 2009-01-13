@@ -42,8 +42,14 @@ class WebFileChooserCallbackImpl : public WebFileChooserCallback {
       : file_chooser_(file_chooser) {
   }
 
-  void OnFileChoose(const std::wstring& file_name) {
-    file_chooser_->chooseFile(webkit_glue::StdWStringToString(file_name));
+  void OnFileChoose(const std::vector<std::wstring>& file_names) {
+    assert(file_names.size() <= 1);
+    if (file_names.empty()) {
+      file_chooser_->chooseFile(webkit_glue::StdWStringToString(L""));
+    } else {
+      file_chooser_->chooseFile(
+        webkit_glue::StdWStringToString(file_names.front().c_str()));
+    }
   }
 
  private:
@@ -457,7 +463,8 @@ void ChromeClientImpl::runOpenPanel(WebCore::Frame* frame,
     suggestion = webkit_glue::StringToStdWString(fileChooser->filenames()[0]);
 
   WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
-  delegate->RunFileChooser(suggestion, chooser);
+  delegate->RunFileChooser(false, std::wstring(), suggestion,
+                           std::wstring(), chooser);
 }
 
 void ChromeClientImpl::popupOpened(WebCore::FramelessScrollView* popup_view,

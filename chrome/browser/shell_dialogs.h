@@ -37,7 +37,8 @@ class SelectFileDialog
   enum Type {
     SELECT_FOLDER,
     SELECT_SAVEAS_FILE,
-    SELECT_OPEN_FILE
+    SELECT_OPEN_FILE,
+    SELECT_OPEN_MULTI_FILE
   };
 
   virtual ~SelectFileDialog() {}
@@ -51,6 +52,11 @@ class SelectFileDialog
     // file/folder path is in |selected_path|. |params| is contextual passed to
     // SelectFile.
     virtual void FileSelected(const std::wstring& path, void* params) = 0;
+
+    // Notifies the Listener that many files have been selected. The
+    // files are in |files|. |params| is contextual passed to SelectFile.
+    virtual void MultiFilesSelected(
+      const std::vector<std::wstring>& files, void* params) {};
 
     // Notifies the Listener that the file/folder selection was aborted (via
     // the  user canceling or closing the selection dialog box, for example).

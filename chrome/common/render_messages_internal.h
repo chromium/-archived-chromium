@@ -378,7 +378,7 @@ IPC_BEGIN_MESSAGES(View, 1)
   IPC_MESSAGE_ROUTED0(ViewMsg_InstallMissingPlugin)
 
   IPC_MESSAGE_ROUTED1(ViewMsg_RunFileChooserResponse,
-                      std::wstring /* file_name */)
+                      std::vector<std::wstring> /* selected files */)
 
   // Used to instruct the RenderView to go into "view source" mode.
   IPC_MESSAGE_ROUTED0(ViewMsg_EnableViewSourceMode)
@@ -852,8 +852,11 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   // Asks the browser to display the file chooser.  The result is returned in a
   // ViewHost_RunFileChooserResponse message.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_RunFileChooser,
-                      std::wstring /* Default file name */)
+  IPC_MESSAGE_ROUTED4(ViewHostMsg_RunFileChooser,
+                      bool /* multiple_files */,
+                      std::wstring /* title */,
+                      std::wstring /* Default file name */,
+                      std::wstring /* filter */)
 
   // Notification that password forms have been seen that are candidates for
   // filling/submitting by the password manager

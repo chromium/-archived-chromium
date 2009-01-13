@@ -98,6 +98,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnPluginSyncMessage(const FilePath& plugin_path,
                            const std::vector<uint8>& message,
                            std::vector<uint8> *retval);
+  void OnPluginFileDialog(const IPC::Message& msg,
+                          bool multiple_files,
+                          const std::wstring& title,
+                          const std::wstring& filter,
+                          uint32 user_data);
 
   // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
   // implementation for more details
