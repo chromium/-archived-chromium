@@ -34,5 +34,5 @@ if env_res.Bit('windows'):
   for g in [g for g in generated if str(g).endswith('.rc')]:
     env_res.RES(g)
 
-env.ChromeMSVSProject('$WEBKIT_DIR/build/localized_resources/localized_resources.vcproj',
+env.ChromeMSVSProject('$WEBKIT_DIR/build/webkit_resources/webkit_resources.vcproj',
                 guid='{0B469837-3D46-484A-AFB3-C5A6C68730B9}')
