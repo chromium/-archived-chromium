@@ -94,13 +94,6 @@ void PluginList::LoadPlugins(bool refresh) {
 
   std::set<FilePath> directories_to_scan;
 
-
-  // Load any plugins listed in the registry
-  if (extra_plugin_paths_) {
-    for (size_t i = 0; i < extra_plugin_paths_->size(); ++i)
-      directories_to_scan.insert((*extra_plugin_paths_)[i].DirName());
-  }
-
   // Load from the application-specific area
   GetAppDirectory(&directories_to_scan);
 
@@ -123,6 +116,11 @@ void PluginList::LoadPlugins(bool refresh) {
   for (std::set<FilePath>::const_iterator iter = directories_to_scan.begin();
        iter != directories_to_scan.end(); ++iter) {
     LoadPluginsFromDir(*iter);
+  }
+
+  if (extra_plugin_paths_) {
+    for (size_t i = 0; i < extra_plugin_paths_->size(); ++i)
+      LoadPlugin((*extra_plugin_paths_)[i]);
   }
 
   if (webkit_glue::IsDefaultPluginEnabled()) {
