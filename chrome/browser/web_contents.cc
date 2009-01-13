@@ -1342,6 +1342,9 @@ void WebContents::OnEnterOrSpace() {
 }
 
 bool WebContents::CanTerminate() const {
+  if (!delegate())
+    return true;
+
   return !delegate()->IsExternalTabContainer();
 }
 
@@ -1358,7 +1361,8 @@ void WebContents::FileSelectionCanceled(void* params) {
 void WebContents::BeforeUnloadFiredFromRenderManager(
     bool proceed,
     bool* proceed_to_fire_unload) {
-  delegate()->BeforeUnloadFired(this, proceed, proceed_to_fire_unload);
+  if (delegate())
+    delegate()->BeforeUnloadFired(this, proceed, proceed_to_fire_unload);
 }
 
 void WebContents::UpdateRenderViewSizeForRenderManager() {
