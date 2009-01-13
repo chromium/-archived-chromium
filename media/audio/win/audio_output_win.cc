@@ -3,22 +3,31 @@
 // found in the LICENSE file.
 
 #include <windows.h>
+#include <mmsystem.h>
 
 #include "base/basictypes.h"
 #include "media/audio/audio_output.h"
+#include "media/audio/win/audio_manager_win.h"
+#include "media/audio/win/waveout_output_win.h"
 
 // A do-nothing audio stream. It behaves like a regular audio stream but does
 // not have any side effect, except possibly the creation and tear-down of
 // of a thread. It is useful to test code that uses audio streams such as
 // audio sources.
-class AudioOutputStreamWinMock : public AudioOutputStream {
+class AudioOutputStreamMockWin : public AudioOutputStream {
  public:
-  AudioOutputStreamWinMock()
-      : callback_(NULL),
+  explicit AudioOutputStreamMockWin(AudioManagerWin* manager)
+      : manager_(manager),
+        callback_(NULL),
         buffer_(NULL),
         packet_size_(0),
-        left_volume_(0.0),
-        right_volume_(0.0) {
+        left_volume_(1.0),
+        right_volume_(1.0) {
+  }
+
+  virtual ~AudioOutputStreamMockWin() {
+    delete[] buffer_;
+    packet_size_ = 0;
   }
 
   virtual bool Open(size_t packet_size) {
@@ -31,6 +40,7 @@ class AudioOutputStreamWinMock : public AudioOutputStream {
 
   virtual void Start(AudioSourceCallback* callback)  {
     callback_ = callback;
+    memset(buffer_, 0, packet_size_);
     callback_->OnMoreData(this, buffer_, packet_size_);
   }
 
@@ -52,16 +62,15 @@ class AudioOutputStreamWinMock : public AudioOutputStream {
   virtual void Close() {
     callback_->OnClose(this);
     callback_ = NULL;
-    delete this;
+    manager_->ReleaseStream(this);
   }
 
- protected:
-  virtual ~AudioOutputStreamWinMock() {
-    delete[] buffer_;
-    packet_size_ = 0;
+  char* buffer() {
+    return buffer_;
   }
 
  private:
+  AudioManagerWin* manager_;
   AudioSourceCallback* callback_;
   char* buffer_;
   size_t packet_size_;
@@ -69,35 +78,63 @@ class AudioOutputStreamWinMock : public AudioOutputStream {
   double right_volume_;
 };
 
-class AudioManagerWin : public AudioManager {
- public:
-  virtual AudioOutputStream* MakeAudioStream(Format format, int channels,
-                                             int sample_rate,
-                                             char bits_per_sample) {
-    if (format == AUDIO_MOCK)
-      return new AudioOutputStreamWinMock();
-    return NULL;
-  }
+namespace {
+AudioOutputStreamMockWin* g_last_mock_stream = NULL;
 
-  virtual void MuteAll() {
-  }
+void ReplaceLastMockStream(AudioOutputStreamMockWin* newer) {
+  if (g_last_mock_stream)
+    delete g_last_mock_stream;
+  g_last_mock_stream = newer;
+}
 
-  virtual void UnMuteAll() {
-  }
+}  // namespace.
 
- protected:
-  virtual ~AudioManagerWin() {
+// Factory for the implementations of AudioOutputStream. Two implementations
+// should suffice most windows user's needs.
+// - PCMWaveOutAudioOutputStream: Based on the waveOutWrite API (in progress)
+// - PCMDXSoundAudioOutputStream: Based on DirectSound or XAudio (future work).
+
+AudioOutputStream* AudioManagerWin::MakeAudioStream(Format format, int channels,
+                                                    int sample_rate,
+                                                    char bits_per_sample) {
+  if (format == AUDIO_MOCK) {
+    return new AudioOutputStreamMockWin(this);
+  } else if (format == AUDIO_PCM_LINEAR) {
+    return new PCMWaveOutAudioOutputStream(this, channels, sample_rate,
+                                           bits_per_sample, WAVE_MAPPER);
   }
-};
+  return NULL;
+}
+
+void AudioManagerWin::ReleaseStream(PCMWaveOutAudioOutputStream* stream) {
+  if (stream)
+    delete stream;
+}
+
+void AudioManagerWin::ReleaseStream(AudioOutputStreamMockWin *stream) {
+  // Note that we keep the last mock stream so GetLastMockBuffer() works.
+  ReplaceLastMockStream(stream);
+}
+
+const void* AudioManagerWin::GetLastMockBuffer() {
+  return (g_last_mock_stream) ? g_last_mock_stream->buffer() : NULL;
+}
+
+void AudioManagerWin::MuteAll() {
+}
+
+void AudioManagerWin::UnMuteAll() {
+}
+
+AudioManagerWin::~AudioManagerWin() {
+  ReplaceLastMockStream(NULL);
+}
 
 // TODO(cpu): Decide how to manage the lifetime of the AudioManager singleton.
 // Right now we are leaking it.
-AudioManager* GetAudioManager() {
+AudioManager* AudioManager::GetAudioManager() {
   static AudioManagerWin* audio_manager = NULL;
   if (!audio_manager)
     audio_manager = new AudioManagerWin();
   return audio_manager;
 }
-
-
-

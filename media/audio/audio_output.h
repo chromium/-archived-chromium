@@ -33,6 +33,7 @@
 // Specifically for this case we avoid supporting complex formats such as MP3
 // or WMA. Complex format decoding should be done by the renderers.
 
+
 // Models an audio stream that gets rendered to the audio hardware output.
 // Because we support more audio streams than physically available channels
 // a given AudioOutputStream might or might not talk directly to hardware.
@@ -106,6 +107,13 @@ class AudioManager {
     AUDIO_MOCK         // Creates a dummy AudioOutputStream object.
   };
 
+  // Telephone quality sample rate, mostly for speech-only audio.
+  static const int kTelephoneSampleRate = 8000;
+  // CD sampling rate is 44.1 KHz or conveniently 2x2x3x3x5x5x7x7.
+  static const int kAudioCDSampleRate = 44100;
+  // Digital Audio Tape sample rate.
+  static const int kAudioDATSampleRate = 48000;
+
   // Factory for all the supported stream formats. At this moment |channels|
   // can be 1 (mono) or 2 (stereo). The |sample_rate| is in hertz and can be
   // any value supported by the underlying platform. For some future formats
@@ -123,13 +131,19 @@ class AudioManager {
   virtual void MuteAll() = 0;
   virtual void UnMuteAll() = 0;
 
+  // For testing purposes only. Returns the internal buffer of the last
+  // AUDIO_MOCK AudioOutputStream closed. Returns NULL if none closed yet.
+  // The buffer size is the same as passed to AudioOutputStream::Open().
+  virtual const void* GetLastMockBuffer() = 0;
+
+  // Get AudioManager singleton.
+  // TODO(cpu): Define threading requirements for interacting with AudioManager.
+  static AudioManager* GetAudioManager();
+
  protected:
   virtual ~AudioManager() {}
 };
 
-// Get AudioManager singleton.
-// TODO(cpu): Define threading requirements for interacting with AudioManager.
-AudioManager* GetAudioManager();
 
 #endif  // MEDIA_AUDIO_AUDIO_OUTPUT_H_
 
