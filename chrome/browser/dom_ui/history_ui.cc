@@ -26,7 +26,7 @@ using base::Time;
 
 // HistoryUI is accessible from chrome://history, and the raw HTML is
 // accessed from chrome://history.
-static const std::string kHistoryHost = "history";
+static const char kHistoryHost[] = "history";
 
 // Maximum number of search results to return in a given search. We should 
 // eventually remove this.
