@@ -1,12 +1,12 @@
 layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 450x500
-  RenderSVGRoot {svg} at (90,36) size 249x436
+  RenderSVGRoot {svg} at (90,36) size 249x437
     RenderSVGHiddenContainer {defs} at (0,0) size 0x0
       RenderSVGText {text} at (0,0) size 42x19 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-15) size 42x19
           chunk 1 text run 1 at (0.00,0.00) startOffset 0 endOffset 6 width 42.00: "sample"
-    RenderSVGContainer {g} at (90,36) size 249x436
+    RenderSVGContainer {g} at (90,36) size 249x437
       RenderSVGText {text} at (141,50) size 168x17 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-14) size 168x17
           chunk 1 (middle anchor) text run 1 at (141.00,50.00) startOffset 0 endOffset 26 width 168.00: "Text Layout Properties (2)"
@@ -93,15 +93,15 @@ layer at (0,0) size 450x500
           chunk 14 text run 1 at (0.00,60.00) startOffset 13 endOffset 14 width 9.00: "a"
           chunk 15 text run 1 at (0.00,40.00) startOffset 14 endOffset 15 width 7.00: "r"
           chunk 16 text run 1 at (0.00,20.00) startOffset 15 endOffset 16 width 9.00: "e"
-      RenderSVGText {text} at (154,450) size 142x20 contains 1 chunk(s)
+      RenderSVGText {text} at (154,450) size 142x21 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-13) size 60x17
           chunk 1 (middle anchor) text run 1 at (154.00,450.00) startOffset 0 endOffset 10 width 60.00: "Text with "
-        RenderSVGTSpan {tspan} at (0,0) size 44x20
-          RenderSVGInlineText {#text} at (59,-15) size 44x20
+        RenderSVGTSpan {tspan} at (0,0) size 45x21
+          RenderSVGInlineText {#text} at (59,-15) size 45x21
             chunk 1 (middle anchor) text run 2 at (214.00,450.00) startOffset 0 endOffset 7 width 41.00: "rotated"
         RenderSVGInlineText {#text} at (101,-13) size 41x17
           chunk 1 (middle anchor) text run 3 at (255.00,450.00) startOffset 0 endOffset 7 width 41.00: " glyphs"
-      RenderSVGText {text} at (166,465) size 123x20 contains 1 chunk(s)
-        RenderSVGInlineText {#text} at (-2,-13) size 123x20
+      RenderSVGText {text} at (166,465) size 124x21 contains 1 chunk(s)
+        RenderSVGInlineText {#text} at (-2,-13) size 124x21
           chunk 1 (middle anchor) text run 1 at (166.00,465.00) startOffset 0 endOffset 19 width 118.00: "More rotated glyphs"
     RenderSVGContainer {use} at (0,0) size 0x0

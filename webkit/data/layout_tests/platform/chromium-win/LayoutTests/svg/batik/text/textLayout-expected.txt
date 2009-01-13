@@ -44,9 +44,9 @@ layer at (0,0) size 450x500
       RenderSVGText {text} at (102,150) size 246x12 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-10) size 246x12
           chunk 1 (middle anchor) text run 1 at (102.50,150.00) startOffset 0 endOffset 59 width 245.00: "Letter Spacing Adjustment and Explicit Length Specification"
-      RenderSVGContainer {g} at (40,159) size 111x38
-        RenderSVGText {text} at (40,180) size 111x27 contains 1 chunk(s)
-          RenderSVGInlineText {#text} at (0,-21) size 111x27
+      RenderSVGContainer {g} at (40,159) size 112x38
+        RenderSVGText {text} at (40,180) size 112x27 contains 1 chunk(s)
+          RenderSVGInlineText {#text} at (0,-21) size 112x27
             chunk 1 text run 1 at (40.00,180.00) startOffset 0 endOffset 6 width 67.00: "sample"
         RenderSVGText {text} at (40,195) size 58x10 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-8) size 58x10
@@ -116,9 +116,9 @@ layer at (0,0) size 450x500
       RenderSVGText {text} at (171,320) size 108x12 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-10) size 108x12
           chunk 1 (middle anchor) text run 1 at (171.00,320.00) startOffset 0 endOffset 23 width 108.00: "Word Spacing Adjustment"
-      RenderSVGContainer {g} at (40,337) size 349x30
-        RenderSVGText {text} at (40,350) size 349x17 contains 1 chunk(s)
-          RenderSVGInlineText {#text} at (0,-13) size 349x17
+      RenderSVGContainer {g} at (40,337) size 350x30
+        RenderSVGText {text} at (40,350) size 350x17 contains 1 chunk(s)
+          RenderSVGInlineText {#text} at (0,-13) size 350x17
             chunk 1 text run 1 at (40.00,350.00) startOffset 0 endOffset 29 width 189.00: "Wide separation between words"
         RenderSVGText {text} at (40,365) size 131x10 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-8) size 131x10

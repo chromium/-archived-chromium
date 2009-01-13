@@ -385,7 +385,7 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 // There's no baseline at all for this!
 DEFER SKIP : LayoutTests/svg/batik/text/smallFonts.svg = FAIL
 DEFER : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+DEFER LINUX : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
 
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
@@ -516,7 +516,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
+LINUX : LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
@@ -666,12 +666,12 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-tspan-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textLayout.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textLayout2.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/textLayout.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/textLayout2.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textLength.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-linking.svg = FAIL
