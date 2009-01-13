@@ -1022,6 +1022,7 @@ bool HttpCache::ReadResponseInfo(disk_cache::Entry* disk_entry,
   if (!pickle.ReadInt64(&iter, &time_val))
     return false;
   response_info->request_time = Time::FromInternalValue(time_val);
+  response_info->was_cached = true;  // Set status to show cache resurrection.
 
   // read response-time
   if (!pickle.ReadInt64(&iter, &time_val))

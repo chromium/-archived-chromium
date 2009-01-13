@@ -45,8 +45,8 @@ class URLRequest {
   // information with a URLRequest. Use user_data() and set_user_data()
   class UserData {
    public:
-    UserData() {};
-    virtual ~UserData() {};
+    UserData() {}
+    virtual ~UserData() {}
   };
 
   // Callback function implemented by protocol handlers to create new jobs.
@@ -90,7 +90,7 @@ class URLRequest {
   class Delegate {
    public:
     virtual ~Delegate() {}
-    
+
     // Called upon a server-initiated redirect.  The delegate may call the
     // request's Cancel method to prevent the redirect from being followed.
     // Since there may be multiple chained redirects, there may also be more
@@ -296,6 +296,9 @@ class URLRequest {
     return response_info_.response_time;
   }
 
+  // Indicate if this response was fetched from disk cache.
+  bool was_cached() const { return response_info_.was_cached; }
+
   // Get all response headers, as a HttpResponseHeaders object.  See comments
   // in HttpResponseHeaders class as to the format of the data.
   net::HttpResponseHeaders* response_headers() const {
@@ -446,7 +449,7 @@ class URLRequest {
   GURL url_;
   GURL original_url_;
   GURL policy_url_;
-  std::string method_; // "GET", "POST", etc. Should be all uppercase.
+  std::string method_;  // "GET", "POST", etc. Should be all uppercase.
   std::string referrer_;
   std::string extra_request_headers_;
   int load_flags_;  // Flags indicating the request type for the load;

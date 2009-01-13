@@ -41,24 +41,18 @@ SdchFilter::~SdchFilter() {
 
   if (base::Time() != connect_time() && base::Time() != time_of_last_read_) {
     base::TimeDelta duration = time_of_last_read_ - connect_time();
-    // Note: connect_time may be somewhat incorrect if this is cached data, as
-    // it will reflect the time the connect was done for the original read :-(.
-    // To avoid any chances of overflow, and since SDCH is meant to primarilly
-    // handle short downloads, we'll restrict what results we log to effectively
-    // discard bogus large numbers.  Note that IF the number is large enough, it
-    // would DCHECK in histogram as the square of the value is summed.  The
-    // relatively precise histogram only properly covers the range 1ms to 10
+    // Note: connect_time is *only* set if this was NOT cached data, so the
+    // latency duration should only apply to the network read of the content.
+    // We clip our logging at 10 minutes to prevent anamolous data from being
+    // considered (per suggestion from Jake Brutlag).
+    // The relatively precise histogram only properly covers the range 1ms to 10
     // seconds, so the discarded data would not be that readable anyway.
-    if (180 >= duration.InSeconds()) {
+    if (10 >= duration.InMinutes()) {
       if (DECODING_IN_PROGRESS == decoding_status_)
-        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Transit_Latency_M", duration);
+        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Network_Decode_Latency_M", duration);
       if (PASS_THROUGH == decoding_status_)
-        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Transit_Pass-through_Latency_M",
+        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Network_Pass-through_Latency_M",
                                    duration);
-      // Look at sizes of the 20% of blocks that arrive with large latency.
-      if (15 < duration.InSeconds())
-        UMA_HISTOGRAM_COUNTS(L"Sdch.Transit_Belated_Final_Block_Size",
-                             size_of_last_read_);
     }
   }
 

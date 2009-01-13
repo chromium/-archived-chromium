@@ -15,6 +15,15 @@ namespace net {
 
 class HttpResponseInfo {
  public:
+  // The following is only defined if the request_time memmber is set.
+  // If this response was resurrected from cache, then this bool is set, and
+  // request_time may corresponds to a time "far" in the past.  Note that
+  // stale content (perhaps un-cacheable) may be fetched from cache subject to
+  // the load flags specified on the request info.  For example, this is done
+  // when a user presses the back button to re-render pages, or at startup, when
+  // reloading previously visited pages (without going over the network).
+  bool was_cached;
+
   // The time at which the request was made that resulted in this response.
   // For cached responses, this time could be "far" in the past.
   base::Time request_time;

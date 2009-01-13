@@ -61,7 +61,8 @@ void URLRequestJob::SetupFilter() {
       // Approximate connect time with request_time. If it is not cached, then
       // this is a good approximation for when the first bytes went on the
       // wire.
-      filter_->SetConnectTime(request_->response_info_.request_time);
+      if (!request_->response_info_.was_cached)
+        filter_->SetConnectTime(request_->response_info_.request_time);
     }
   }
 }

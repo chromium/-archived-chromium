@@ -172,7 +172,7 @@ class HttpTransactionWinHttp::Session
                                  WINHTTP_FLAG_SECURE_PROTOCOL_TLS1
   };
 
-  Session(ProxyService* proxy_service);
+  explicit Session(ProxyService* proxy_service);
 
   // Opens the primary WinHttp session handle.
   bool Init(const std::string& user_agent);
@@ -1232,6 +1232,7 @@ int HttpTransactionWinHttp::SendRequest() {
   }
 
   response_.request_time = Time::Now();
+  response_.was_cached = false;
 
   DWORD total_size = 0;
   if (request_->upload_data) {

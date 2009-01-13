@@ -28,7 +28,7 @@ using std::string;
 using std::wstring;
 
 // Max number of http redirects to follow.  Same number as gecko.
-const static int kMaxRedirects = 20;
+static const int kMaxRedirects = 20;
 
 static URLRequestJobManager* GetJobManager() {
   return Singleton<URLRequestJobManager>::get();
@@ -218,6 +218,7 @@ void URLRequest::Start() {
 
   is_pending_ = true;
   response_info_.request_time = Time::Now();
+  response_info_.was_cached = false;
 
   // Don't allow errors to be sent from within Start().
   // TODO(brettw) this may cause NotifyDone to be sent synchronously,
@@ -307,7 +308,7 @@ std::string URLRequest::StripPostSpecificHeaders(const std::string& headers) {
 
   std::string stripped_headers;
   net::HttpUtil::HeadersIterator it(headers.begin(), headers.end(), "\r\n");
-  
+
   while (it.GetNext()) {
     bool is_post_specific = false;
     for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kPostHeaders); ++i) {

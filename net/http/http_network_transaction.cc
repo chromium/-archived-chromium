@@ -560,8 +560,10 @@ int HttpNetworkTransaction::DoWriteHeaders() {
 
   // Record our best estimate of the 'request time' as the time when we send
   // out the first bytes of the request headers.
-  if (request_headers_bytes_sent_ == 0)
+  if (request_headers_bytes_sent_ == 0) {
     response_.request_time = Time::Now();
+    response_.was_cached = false;
+  }
 
   const char* buf = request_headers_.data() + request_headers_bytes_sent_;
   int buf_len = static_cast<int>(request_headers_.size() -
