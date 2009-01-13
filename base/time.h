@@ -342,6 +342,38 @@ inline Time TimeDelta::operator+(Time t) const {
   return Time(t.us_ + delta_);
 }
 
+// Inline the TimeDelta factory methods, for fast TimeDelta construction.
+
+// static
+inline TimeDelta TimeDelta::FromDays(int64 days) {
+  return TimeDelta(days * Time::kMicrosecondsPerDay);
+}
+
+// static
+inline TimeDelta TimeDelta::FromHours(int64 hours) {
+  return TimeDelta(hours * Time::kMicrosecondsPerHour);
+}
+
+// static
+inline TimeDelta TimeDelta::FromMinutes(int64 minutes) {
+  return TimeDelta(minutes * Time::kMicrosecondsPerMinute);
+}
+
+// static
+inline TimeDelta TimeDelta::FromSeconds(int64 secs) {
+  return TimeDelta(secs * Time::kMicrosecondsPerSecond);
+}
+
+// static
+inline TimeDelta TimeDelta::FromMilliseconds(int64 ms) {
+  return TimeDelta(ms * Time::kMicrosecondsPerMillisecond);
+}
+
+// static
+inline TimeDelta TimeDelta::FromMicroseconds(int64 us) {
+  return TimeDelta(us);
+}
+
 // TimeTicks ------------------------------------------------------------------
 
 class TimeTicks {

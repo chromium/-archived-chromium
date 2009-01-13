@@ -12,36 +12,6 @@ namespace base {
 
 // TimeDelta ------------------------------------------------------------------
 
-// static
-TimeDelta TimeDelta::FromDays(int64 days) {
-  return TimeDelta(days * Time::kMicrosecondsPerDay);
-}
-
-// static
-TimeDelta TimeDelta::FromHours(int64 hours) {
-  return TimeDelta(hours * Time::kMicrosecondsPerHour);
-}
-
-// static
-TimeDelta TimeDelta::FromMinutes(int64 minutes) {
-  return TimeDelta(minutes * Time::kMicrosecondsPerMinute);
-}
-
-// static
-TimeDelta TimeDelta::FromSeconds(int64 secs) {
-  return TimeDelta(secs * Time::kMicrosecondsPerSecond);
-}
-
-// static
-TimeDelta TimeDelta::FromMilliseconds(int64 ms) {
-  return TimeDelta(ms * Time::kMicrosecondsPerMillisecond);
-}
-
-// static
-TimeDelta TimeDelta::FromMicroseconds(int64 us) {
-  return TimeDelta(us);
-}
-
 int TimeDelta::InDays() const {
   return static_cast<int>(delta_ / Time::kMicrosecondsPerDay);
 }
