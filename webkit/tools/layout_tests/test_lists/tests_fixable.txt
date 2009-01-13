@@ -7,7 +7,7 @@ DEFER : LayoutTests/editing/execCommand/copy-without-selection.html = FAIL
 
 // onload race condition due to poorly designed test.
 // Works fine when run stand-alone.  Not needed for Beta.
-// Also skipped by Apple on Windows, due to intermittent failure 
+// Also skipped by Apple on Windows, due to intermittent failure
 // (rdar://5313536)
 DEFER LINUX WIN : LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL TIMEOUT
 
@@ -265,11 +265,12 @@ DEFER : LayoutTests/fast/forms/box-shadow-override.html = FAIL
 
 // These tests are not valid: the so-called expected results are not known to
 // be correct.  See bug 849072.
-// TODO(ojan): They are *our* tests. 
+// TODO(ojan): They are *our* tests.
 // It seems silly to skip our own tests when we can change/delete them.
 // I'm marking them as deferred for now, but we should do something with them.
 DEFER SKIP : chrome/http/mime = PASS
 
+// Bug 4360
 // We don't support the storage APIs.  Some of the them hang.
 DEFER SKIP : LayoutTests/storage = PASS
 SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
@@ -369,15 +370,15 @@ DEFER LINUX WIN : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
 DEFER WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // BUG: 992321
-// The failures listed below have never passed in Chromium and need to be 
+// The failures listed below have never passed in Chromium and need to be
 // investigated, categorized, and (one hopes) fixed.
 
 // The following tests fail because SVG animation is not yet implemented
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 
-// These test fail full text diff (but not simplified diff) most likely due 
-// to differing implementations of SVG fonts. They may or may not represent real 
+// These test fail full text diff (but not simplified diff) most likely due
+// to differing implementations of SVG fonts. They may or may not represent real
 // bugs which need fixin'
 
 // pixeltest failure: font baseline should be on the path, not the centerline
@@ -441,7 +442,7 @@ DEFER LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
 // Apple's expected results include this error. Actually, Apple's expected
 // results include the error twice, because (apparently unique among console
 // debugging messages) it's generated during rendering. The problem is that
-// we end up invoking the renderer twice when we're doing pixel tests, once 
+// we end up invoking the renderer twice when we're doing pixel tests, once
 // otherwise, so we get different results depending on whether pixel tests are
 // enabled. (Neither matches Apple's exactly... when we have pixel tests on,
 // the duplicate error message ends up at the end of the file, while Apple's
@@ -534,7 +535,7 @@ LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
 WIN : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 WIN : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
-// Flaky on both release and debug. 
+// Flaky on both release and debug.
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
 LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
@@ -807,7 +808,7 @@ DEFER : LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL P
 DEFER DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
 
 // Bug: 1166644
-// Fails on webkit windows as well. 
+// Fails on webkit windows as well.
 DEFER WIN LINUX : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // Bug: 1344760
@@ -893,7 +894,7 @@ LINUX WIN : LayoutTests/fast/backgrounds/mask-composite.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
 LINUX WIN : LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
 LINUX WIN : LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
-  
+
 // This test finishes while in the middle of a CSS animation. This is
 // intentional, but it makes pixel results unreliable.
 // http://bugs.webkit.org/show_bug.cgi?id=21491
@@ -935,8 +936,8 @@ LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
-// Times out because this uses dom storage which we don't implement.
-LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
+// Bug 4360: times out because this uses dom storage which we don't implement.
+DEFER SKIP : LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
 // Fails because we don't implement form autocomplete.
 LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
@@ -1765,8 +1766,8 @@ LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 // Needs to be rebaselined on Mac.
 MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
 
-// Skipped as this tests window.sessionStorage, which we don't support. Enable
-// once we turn on DOM_STORAGE.
+// Bug 4360: skipped as this tests window.sessionStorage, which we don't
+// support. Enable once we turn on DOM_STORAGE.
 SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 
 // This is failing because of an additional console message.
@@ -1814,9 +1815,9 @@ MAC WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
 // Crashes on the buildbot reliably(?) but not locally, even under Valgrind.
 LINUX : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
 
-// Merge 39606:39660 - these tests fail now because inageData.data 
-// returns 'undefined'. Upstream change removed the CanvasPixelArray 
-// and this property should be implemented anew now. 
+// Merge 39606:39660 - these tests fail now because inageData.data
+// returns 'undefined'. Upstream change removed the CanvasPixelArray
+// and this property should be implemented anew now.
 // See http://trac.webkit.org/changeset/39625
 LayoutTests/fast/canvas/canvas-ImageData-behaviour.html = FAIL
 LayoutTests/fast/canvas/canvas-alphaImageData-behavior.html = FAIL
