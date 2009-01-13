@@ -294,31 +294,31 @@ static const int kWindowControlsRightOffset = 4;
 // The distance between the top of the window and the top of the window
 // controls' images when the window is maximized.  We extend the clickable area
 // all the way to the top of the window to obey Fitts' Law.
-static const int kWindowControlsTopZoomedExtraHeight = 5;
+static const int kWindowControlsZoomedTopExtraHeight = 5;
 // The distance between the right edge of the window and the right edge of the
 // right-most window control when the window is maximized.
-static const int kWindowControlsRightZoomedOffset = 7;
+static const int kWindowControlsZoomedRightOffset = 7;
 // The distance between the left edge of the window and the left edge of the
 // window icon when a title-bar is showing and the window is restored.
 static const int kWindowIconLeftOffset = 5;
 // The distance between the left edge of the window and the left edge of the
 // window icon when a title-bar is showing and the window is maximized.
-static const int kWindowIconLeftZoomedOffset = 6;
+static const int kWindowIconZoomedLeftOffset = 6;
 // The distance between the top edge of the window and the top edge of the
 // window icon when a title-bar is showing and the window is restored.
 static const int kWindowIconTopOffset = 6;
 // The distance between the top edge of the window and the top edge of the
 // window icon when a title-bar is showing and the window is maximized.
-static const int kWindowIconTopZoomedOffset = 8;
+static const int kWindowIconZoomedTopOffset = 8;
 // The distance between the window icon and the window title when a title-bar
 // is showing.
 static const int kWindowIconTitleSpacing = 4;
 // The distance between the top of the window and the title text when a
-// title-bar is showing.
+// title-bar is showing and the window is restored.
 static const int kTitleTopOffset = 6;
 // The distance between the top of the window and the title text when a
 // title-bar is showing and the window is maximized.
-static const int kTitleTopZoomedOffset = 8;
+static const int kTitleZoomedTopOffset = 8;
 // The distance between the right edge of the title text bounding box and the
 // left edge of the distributor logo.
 static const int kTitleLogoSpacing = 5;
@@ -360,11 +360,21 @@ static const int kDistributorLogoHorizontalOffset = 7;
 // The vertical distance of the top of the distributor logo from the top edge
 // of the window.
 static const int kDistributorLogoVerticalOffset = 3;
-// The distance between the left edge of the window and the OTR avatar icon.
-static const int kOTRAvatarIconMargin = 9;
-// The distance between the top edge of the window and the OTR avatar icon when
+// The distance between the left edge of the window and the OTR avatar icon when
+// the window is restored.
+static const int kOTRLeftOffset = 7;
+// The distance between the left edge of the window and the OTR avatar icon when
 // the window is maximized.
-static const int kNoTitleOTRZoomedTopSpacing = 3;
+static const int kOTRZoomedLeftOffset = 6;
+// The distance between the top edge of the client area and the OTR avatar icon
+// when the window is maximized.
+static const int kOTRZoomedTopSpacing = 2;
+// The distance between the bottom of the OTR avatar icon and the bottom of the
+// tabstrip.
+static const int kOTRBottomSpacing = 2;
+// The number of pixels to crop off the top of the OTR image when the window is
+// maximized.
+static const int kOTRZoomedTopCrop = 4;
 // Horizontal distance between the right edge of the new tab icon and the left
 // edge of the window minimize icon when the window is maximized.
 static const int kNewTabIconWindowControlsSpacing = 10;
@@ -636,10 +646,10 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
     PaintMaximizedFrameBorder(canvas);
   else
     PaintFrameBorder(canvas);
-  PaintOTRAvatar(canvas);
   PaintDistributorLogo(canvas);
   PaintTitleBar(canvas);
   PaintToolbarBackground(canvas);
+  PaintOTRAvatar(canvas);
   if (frame_->IsMaximized())
     PaintMaximizedClientEdge(canvas);
   else
@@ -648,9 +658,9 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
 
 void OpaqueNonClientView::Layout() {
   LayoutWindowControls();
-  LayoutOTRAvatar();
   LayoutDistributorLogo();
   LayoutTitleBar();
+  LayoutOTRAvatar();
   LayoutClientView();
 }
 
@@ -782,13 +792,6 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
       bottom_edge->height());
 }
 
-void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
-  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
-    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(),
-        MirroredLeftPointForRect(otr_avatar_bounds_), otr_avatar_bounds_.y());
-  }
-}
-
 void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
@@ -831,6 +834,16 @@ void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
   canvas->DrawBitmapInt(
       *resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT),
       toolbar_bounds.right(), toolbar_bounds.y());
+}
+
+void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
+  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
+    int src_y = frame_->IsMaximized() ? kOTRZoomedTopCrop : 0;
+    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(),
+        0, src_y, otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), 
+        MirroredLeftPointForRect(otr_avatar_bounds_), otr_avatar_bounds_.y(),
+        otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
+  }
 }
 
 void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
@@ -917,16 +930,16 @@ void OpaqueNonClientView::LayoutWindowControls() {
   // drawn flush with the screen edge, they still obey Fitts' Law.
   bool is_maximized = frame_->IsMaximized();
   int top_offset = is_maximized ? 0 : kWindowControlsTopOffset;
-  int top_extra_height = is_maximized ? kWindowControlsTopZoomedExtraHeight : 0;
+  int top_extra_height = is_maximized ? kWindowControlsZoomedTopExtraHeight : 0;
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   close_button_->SetBounds(
       (width() - close_button_size.width() - (is_maximized ?
-          kWindowControlsRightZoomedOffset : kWindowControlsRightOffset)),
+          kWindowControlsZoomedRightOffset : kWindowControlsRightOffset)),
       top_offset,
       (is_maximized ?
           // We extend the maximized close button to the screen corner to obey
           // Fitts' Law.
-          (close_button_size.width() + kWindowControlsRightZoomedOffset) :
+          (close_button_size.width() + kWindowControlsZoomedRightOffset) :
           close_button_size.width()),
       (close_button_size.height() + top_extra_height));
 
@@ -959,19 +972,6 @@ void OpaqueNonClientView::LayoutWindowControls() {
       minimize_button_size.height() + top_extra_height);
 }
 
-void OpaqueNonClientView::LayoutOTRAvatar() {
-  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
-    SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
-    int otr_y = browser_view_->GetTabStripHeight() - otr_avatar_icon.height() +
-        2 + (frame_->IsMaximized() ?
-        kNoTitleOTRZoomedTopSpacing : kNoTitleTopSpacing);
-    otr_avatar_bounds_.SetRect(kOTRAvatarIconMargin, otr_y,
-        otr_avatar_icon.width(), otr_avatar_icon.height());
-  } else {
-    otr_avatar_bounds_.SetRect(0, 0, 0, 0);
-  }
-}
-
 void OpaqueNonClientView::LayoutDistributorLogo() {
   logo_bounds_.SetRect(minimize_button_->x() - distributor_logo_.width() -
       kDistributorLogoHorizontalOffset, kDistributorLogoVerticalOffset,
@@ -982,9 +982,9 @@ void OpaqueNonClientView::LayoutTitleBar() {
   // Size the window icon, even if it is hidden so we can size the title based
   // on its position.
   int left_offset = frame_->IsMaximized() ?
-      kWindowIconLeftZoomedOffset : kWindowIconLeftOffset;
+      kWindowIconZoomedLeftOffset : kWindowIconLeftOffset;
   int top_offset = frame_->IsMaximized() ?
-      kWindowIconTopZoomedOffset : kWindowIconTopOffset;
+      kWindowIconZoomedTopOffset : kWindowIconTopOffset;
   views::WindowDelegate* d = frame_->window_delegate();
   int icon_size = d->ShouldShowWindowIcon() ? kWindowIconSize : 0;
   icon_bounds_.SetRect(left_offset, top_offset, icon_size, icon_size);
@@ -998,10 +998,33 @@ void OpaqueNonClientView::LayoutTitleBar() {
     int title_left =
         icon_right + (d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0);
     int top_offset = frame_->IsMaximized() ?
-        kTitleTopZoomedOffset : kTitleTopOffset;
+        kTitleZoomedTopOffset : kTitleTopOffset;
     title_bounds_.SetRect(title_left, top_offset,
         std::max(0, title_right - icon_right), title_font_.height());
   }
+}
+
+void OpaqueNonClientView::LayoutOTRAvatar() {
+  if (!browser_view_->ShouldShowOffTheRecordAvatar()) {
+    otr_avatar_bounds_.SetRect(0, 0, 0, 0);
+    return;
+  }
+
+  SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
+  int non_client_height = CalculateNonClientTopHeight();
+  int otr_bottom = non_client_height + browser_view_->GetTabStripHeight() -
+      kOTRBottomSpacing;
+  int otr_x, otr_y, otr_height;
+  if (frame_->IsMaximized()) {
+    otr_x = kOTRZoomedLeftOffset;
+    otr_y = non_client_height + kOTRZoomedTopSpacing;
+    otr_height = otr_bottom - otr_y;
+  } else {
+    otr_x = kOTRLeftOffset; 
+    otr_height = otr_avatar_icon.height();
+    otr_y = otr_bottom - otr_height;
+  }
+  otr_avatar_bounds_.SetRect(otr_x, otr_y, otr_avatar_icon.width(), otr_height);
 }
 
 void OpaqueNonClientView::LayoutClientView() {

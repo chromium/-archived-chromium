@@ -77,18 +77,18 @@ class OpaqueNonClientView : public views::NonClientView,
   // Paint various sub-components of this view.
   void PaintFrameBorder(ChromeCanvas* canvas);
   void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
-  void PaintOTRAvatar(ChromeCanvas* canvas);
   void PaintDistributorLogo(ChromeCanvas* canvas);
   void PaintTitleBar(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
+  void PaintOTRAvatar(ChromeCanvas* canvas);
   void PaintClientEdge(ChromeCanvas* canvas);
   void PaintMaximizedClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();
-  void LayoutOTRAvatar();
   void LayoutDistributorLogo();
   void LayoutTitleBar();
+  void LayoutOTRAvatar();
   void LayoutClientView();
 
   // Returns the set of resources to use to paint this view.
