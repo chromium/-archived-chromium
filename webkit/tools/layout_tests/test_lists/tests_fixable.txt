@@ -1847,9 +1847,7 @@ LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 
 // Merge 39520:39606 -- new test.
-WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
-// Crashes on the buildbot reliably(?) but not locally, even under Valgrind.
-LINUX : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
+LINUX WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
 // Crashes on mac also from time to time, but probably not because of this test
 // more because of the general problems.
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
