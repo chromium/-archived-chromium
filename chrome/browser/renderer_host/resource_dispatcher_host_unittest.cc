@@ -7,6 +7,7 @@
 #include "base/message_loop.h"
 #include "chrome/browser/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/render_messages.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
@@ -102,6 +103,10 @@ class ResourceDispatcherHostTest : public testing::Test,
   virtual void TearDown() {
     URLRequest::RegisterProtocolFactory("test", NULL);
     RendererSecurityPolicy::GetInstance()->Remove(0);
+
+    // The plugin lib is automatically loaded during these test 
+    // and we want a clean environment for other tests.
+    ChromePluginLib::UnloadAllPlugins();
 
     // Flush the message loop to make Purify happy.
     message_loop_.RunAllPending();
