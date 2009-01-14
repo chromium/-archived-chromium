@@ -9,6 +9,7 @@
 #include <windows.h>
 
 #include <string>
+#include <vector>
 
 #include "base/ref_counted.h"
 
