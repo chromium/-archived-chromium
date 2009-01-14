@@ -63,6 +63,7 @@ input_files.extend([
   'logging_chrome.cc',
   'message_router.cc',
   'net/cookie_monster_sqlite.cc',
+  'net/url_request_intercept_job.cc',
   'notification_registrar.cc',
   'notification_service.cc',
   'pref_member.cc',
@@ -82,6 +83,7 @@ input_files.extend([
   'thumbnail_score.cc',
   'unzip.cc',
   'visitedlink_common.cc',
+  'worker_thread_ticker.cc',
 ])
 
 if env.Bit('windows'):
@@ -91,9 +93,7 @@ if env.Bit('windows'):
       'chrome_plugin_lib.cc',
       'chrome_plugin_util.cc',
       'chrome_process_filter.cc',
-      'classfactory.cc',
       'drag_drop_types.cc',
-      'gfx/chrome_canvas_win.cc',
       'gfx/emf.cc',
       'gfx/icon_util.cc',
       'gfx/path.cc',
@@ -101,19 +101,19 @@ if env.Bit('windows'):
       'ipc_logging.cc',
       'ipc_sync_channel.cc',
       'jstemplate_builder.cc',
-      'net/url_request_intercept_job.cc',
       'os_exchange_data.cc',
       'plugin_messages.cc',
       'process_watcher.cc',
       'security_filter_peer.cc',
       'win_safe_util.cc',
       'win_util.cc',
-      'worker_thread_ticker.cc',
   ])
 
 if env.Bit('windows'):
   # Windows specific files
   input_files.extend([
+      'classfactory.cc',
+      'gfx/chrome_canvas_win.cc',
       'gfx/chrome_font_win.cc',
       'ipc_channel_win.cc',
       'resource_bundle_win.cc',

@@ -798,6 +798,10 @@
 			RelativePath="..\..\browser\window_sizer_unittest.cc"
 			>
 		</File>
+    <File
+      RelativePath="..\..\common\worker_thread_ticker_unittest.cc"
+      >
+    </File>
 	</Files>
 	<Globals>
 	</Globals>

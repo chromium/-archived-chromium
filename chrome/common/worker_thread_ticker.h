@@ -5,20 +5,17 @@
 #ifndef CHROME_COMMON_WORKER_THREAD_TICKER_H__
 #define CHROME_COMMON_WORKER_THREAD_TICKER_H__
 
-#include <windows.h>
-#include <atlbase.h>
 #include <vector>
 
 #include "base/lock.h"
+#include "base/thread.h"
 
-// This class provides the follwoing functionality:
+// This class provides the following functionality:
 // It invokes a set of registered handlers at periodic intervals in
 // the context of an arbitrary worker thread.
-// This functionality is similar to a waitable timer except that the
-// timer in this case is a low-resolution timer (millisecond granularity)
-// and it does not require the caller to be in an alertable wait state.
-// The callbacks are invoked in the context of an arbitrary worker thread
-// from the system thread pool
+// The timer runs on a separate thread, so it will run even if the current
+// thread is hung. Similarly, the callbacks will be called on a separate
+// thread so they won't block the main thread.
 class WorkerThreadTicker {
  public:
   // This callback interface to be implemented by clients of this
@@ -30,7 +27,7 @@ class WorkerThreadTicker {
   };
 
   // tick_interval is the periodic interval in which to invoke the
-  // registered handlers
+  // registered handlers (in milliseconds)
   explicit WorkerThreadTicker(int tick_interval);
 
   ~WorkerThreadTicker();
@@ -52,7 +49,9 @@ class WorkerThreadTicker {
   // done because this is inherently risky.
   // Returns false is the ticker is not running
   bool Stop();
-  bool IsRunning() const;
+  bool IsRunning() const {
+    return is_running_;
+  }
 
   void set_tick_interval(int tick_interval) {
     tick_interval_ = tick_interval;
@@ -63,30 +62,26 @@ class WorkerThreadTicker {
   }
 
  private:
+  class TimerTask;
+
+  void ScheduleTimerTask();
+
   // A list type that holds all registered callback interfaces
   typedef std::vector<Callback*> TickHandlerListType;
 
-  // This is the callback function registered with the
-  // RegisterWaitForSingleObject API. It gets invoked in a system worker thread
-  // periodically at intervals of tick_interval_ miliiseconds
-  static void CALLBACK TickCallback(WorkerThreadTicker* this_ticker,
-                                    BOOLEAN timer_or_wait_fired);
+  // Lock to protect is_running_ and tick_handler_list_
+  Lock lock_;
 
-  // Helper that invokes all registered handlers
-  void InvokeHandlers();
+  base::Thread timer_thread_;
+  bool is_running_;
 
-  // A dummy event to be used by the RegisterWaitForSingleObject API
-  CHandle dummy_event_;
-  // The wait handle returned by the RegisterWaitForSingleObject API
-  HANDLE wait_handle_;
   // The interval at which the callbacks are to be invoked
   int tick_interval_;
-  // Lock for the tick_handler_list_ list
-  Lock tick_handler_list_lock_;
+
   // A list that holds all registered callback interfaces
   TickHandlerListType tick_handler_list_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WorkerThreadTicker);
+  DISALLOW_COPY_AND_ASSIGN(WorkerThreadTicker);
 };
 
 #endif  // CHROME_COMMON_WORKER_THREAD_TICKER_H__

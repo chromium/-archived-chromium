@@ -2,13 +2,40 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
-#include "base/logging.h"
 #include "chrome/common/worker_thread_ticker.h"
 
+#include <algorithm>
+
+#include "base/logging.h"
+#include "base/task.h"
+#include "base/time.h"
+#include "base/thread.h"
+
+class WorkerThreadTicker::TimerTask : public Task {
+ public:
+  TimerTask(WorkerThreadTicker* ticker) : ticker_(ticker) {
+  }
+
+  virtual void Run() {
+    // When the ticker is running, the handler list CANNOT be modified.
+    // So we can do the enumeration safely without a lock
+    TickHandlerListType* handlers = &ticker_->tick_handler_list_;
+    for (TickHandlerListType::const_iterator i = handlers->begin();
+         i != handlers->end(); ++i) {
+      (*i)->OnTick();
+    }
+
+    ticker_->ScheduleTimerTask();
+  }
+
+ private:
+  WorkerThreadTicker* ticker_;
+};
+
 WorkerThreadTicker::WorkerThreadTicker(int tick_interval)
-    : tick_interval_(tick_interval),
-      wait_handle_(NULL) {
+    : timer_thread_("worker_thread_ticker"),
+      is_running_(false),
+      tick_interval_(tick_interval) {
 }
 
 WorkerThreadTicker::~WorkerThreadTicker() {
@@ -17,19 +44,18 @@ WorkerThreadTicker::~WorkerThreadTicker() {
 
 bool WorkerThreadTicker::RegisterTickHandler(Callback *tick_handler) {
   DCHECK(tick_handler);
-  AutoLock lock(tick_handler_list_lock_);
+  AutoLock lock(lock_);
   // You cannot change the list of handlers when the timer is running.
   // You need to call Stop first.
-  if (IsRunning()) {
+  if (IsRunning())
     return false;
-  }
   tick_handler_list_.push_back(tick_handler);
   return true;
 }
 
 bool WorkerThreadTicker::UnregisterTickHandler(Callback *tick_handler) {
   DCHECK(tick_handler);
-  AutoLock lock(tick_handler_list_lock_);
+  AutoLock lock(lock_);
   // You cannot change the list of handlers when the timer is running.
   // You need to call Stop first.
   if (IsRunning()) {
@@ -48,69 +74,27 @@ bool WorkerThreadTicker::UnregisterTickHandler(Callback *tick_handler) {
 bool WorkerThreadTicker::Start() {
   // Do this in a lock because we don't want 2 threads to
   // call Start at the same time
-  AutoLock lock(tick_handler_list_lock_);
-  if (IsRunning()) {
+  AutoLock lock(lock_);
+  if (IsRunning())
     return false;
-  }
-  bool ret = false;
-  HANDLE event = CreateEvent(NULL, FALSE, FALSE, NULL);
-  if (!event) {
-    NOTREACHED();
-  } else {
-    if (!RegisterWaitForSingleObject(
-            &wait_handle_,
-            event,
-            reinterpret_cast<WAITORTIMERCALLBACK>(TickCallback),
-            this,
-            tick_interval_,
-            WT_EXECUTEDEFAULT)) {
-      NOTREACHED();
-      CloseHandle(event);
-    } else {
-      dummy_event_.Attach(event);
-      ret = true;
-    }
-  }
-  return ret;
+  is_running_ = true;
+  timer_thread_.Start();
+  ScheduleTimerTask();
+  return true;
 }
 
 bool WorkerThreadTicker::Stop() {
   // Do this in a lock because we don't want 2 threads to
   // call Stop at the same time
-  AutoLock lock(tick_handler_list_lock_);
-  if (!IsRunning()) {
+  AutoLock lock(lock_);
+  if (!IsRunning())
     return false;
-  }
-  DCHECK(wait_handle_);
-
-  // Wait for the callbacks to be done. Passing
-  // INVALID_HANDLE_VALUE to UnregisterWaitEx achieves this.
-  UnregisterWaitEx(wait_handle_, INVALID_HANDLE_VALUE);
-  wait_handle_ = NULL;
-  dummy_event_.Close();
+  is_running_ = false;
+  timer_thread_.Stop();
   return true;
 }
 
-bool WorkerThreadTicker::IsRunning() const {
-  return (wait_handle_ != NULL);
+void WorkerThreadTicker::ScheduleTimerTask() {
+  timer_thread_.message_loop()->PostDelayedTask(FROM_HERE, new TimerTask(this),
+                                                tick_interval_);
 }
-
-void WorkerThreadTicker::InvokeHandlers() {
-  // When the ticker is running, the handler list CANNOT be modified.
-  // So we can do the enumeration safely without a lock
-  TickHandlerListType::iterator index = tick_handler_list_.begin();
-  while (index != tick_handler_list_.end()) {
-    (*index)->OnTick();
-    index++;
-  }
-}
-
-void CALLBACK WorkerThreadTicker::TickCallback(WorkerThreadTicker* this_ticker,
-                                               BOOLEAN timer_or_wait_fired) {
-  DCHECK(NULL != this_ticker);
-  if (NULL != this_ticker) {
-    this_ticker->InvokeHandlers();
-  }
-}
-
-

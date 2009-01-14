@@ -26,8 +26,8 @@ URLRequestInterceptJob::URLRequestInterceptJob(URLRequest* request,
     : URLRequestJob(request),
       cprequest_(cprequest),
       plugin_(plugin),
-      read_buffer_(NULL),
-      got_headers_(false) {
+      got_headers_(false),
+      read_buffer_(NULL) {
   cprequest_->data = this;  // see FromCPRequest().
 
   NotificationService::current()->AddObserver(
