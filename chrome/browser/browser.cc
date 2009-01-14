@@ -659,6 +659,11 @@ void Browser::NewTab() {
     Browser* b = GetOrCreateTabbedBrowser();
     b->AddBlankTab(true);
     b->window()->Show();
+    // The call to AddBlankTab above did not set the focus to the tab as its
+    // window was not active, so we have to do it explicitly.
+    // See http://crbug.com/6380.
+    TabContents* tab = b->GetSelectedTabContents();
+    tab->RestoreFocus();
   }
 }
 
