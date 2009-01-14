@@ -1665,6 +1665,13 @@ MAC :  LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
 MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
 
+// Regression w/ radios?
+MAC : LayoutTests/fast/forms/radio_checked_name.html = FAIL
+
+// Some times it fails because the animation starts before the first dom dump
+// so the text doesn't match.
+MAC : LayoutTests/svg/hixie/perf/007.xml = FAIL PASS
+
 // The following are flaky in that some times the timeout or crash, but we think
 // it is because of bugs in other parts of the code and not specific to what
 // these tests are doing.  The are being noted here so we can get the buildbots
@@ -1689,7 +1696,7 @@ MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
 MAC : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 MAC : LayoutTests/fast/borders/svg-as-border-image-2.html = CRASH PASS
-MAC : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH PASS
+MAC : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH PASS FAIL
 MAC : LayoutTests/fast/canvas/pointInPath.html = CRASH PASS
 
 // -----------------------------------------------------------------
