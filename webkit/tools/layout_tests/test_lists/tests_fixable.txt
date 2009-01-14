@@ -1126,8 +1126,6 @@ LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
 // should disable this in libxml.
 LINUX MAC : LayoutTests/fast/xsl/transform-xhr-doc.xhtml = FAIL
 
-// Linux pixeltest failure: Large areas of the page are missing
-LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 
 // Mysterious off-by-one on the y axis -- font metrics?
 LINUX : LayoutTests/css1/box_properties/acid_test.html = FAIL
@@ -1286,10 +1284,6 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.htm
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
-// Linux pixeltest failure: Large areas of the page are missing
-WIN DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
-MAC DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
-
 // NEW FOR MERGE 37604:38097
 LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
@@ -1908,6 +1902,13 @@ LayoutTests/fast/events/space-scroll-event.html = FAIL
 WIN LINUX : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+
+// Release failures are Merge 39829:39744 regressions
+// Linux pixeltest failure: Large areas of the page are missing
+LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
+WIN : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
+MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
+
 
 // 12-Jan-2009 Regressions:
 // I'm turning these off to green the build until I can look at them tomorrow. For the
