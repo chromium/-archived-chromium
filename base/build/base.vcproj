@@ -686,6 +686,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\scoped_bstr.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\scoped_bstr.h"
+			>
+		</File>
+		<File
 			RelativePath="..\scoped_clipboard_writer.cc"
 			>
 		</File>

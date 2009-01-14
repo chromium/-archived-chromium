@@ -284,6 +284,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scoped_bstr_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\scoped_comptr_unittest.cc"
 				>
 			</File>
