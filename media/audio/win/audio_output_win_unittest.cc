@@ -177,7 +177,7 @@ TEST(WinAudioTest, PCMWaveStreamGetAndClose) {
 }
 
 // Test that it can be opened and closed.
-TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
+TEST(WinAudioTest, DISABLED_PCMWaveStreamOpenAndClose) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   AudioOutputStream* oas =
@@ -189,7 +189,7 @@ TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
 
 // Test that it uses the double buffers correctly. Because it uses the actual
 // audio device, you might hear a short pop noise for a short time.
-TEST(WinAudioTest, PCMWaveStreamDoubleBuffer) {
+TEST(WinAudioTest, DISABLED_PCMWaveStreamDoubleBuffer) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   AudioOutputStream* oas =
@@ -209,7 +209,7 @@ TEST(WinAudioTest, PCMWaveStreamDoubleBuffer) {
 // This test produces actual audio for 1.5 seconds on the default wave
 // device at 44.1K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
-TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
+TEST(WinAudioTest, DISABLED_PCMWaveStreamPlay200HzTone44Kss) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   AudioOutputStream* oas =
@@ -231,7 +231,7 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
 // This test produces actual audio for for 1.5 seconds on the default wave
 // device at 22K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
-TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
+TEST(WinAudioTest, DISABLED_PCMWaveStreamPlay200HzTone22Kss) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   AudioOutputStream* oas =
