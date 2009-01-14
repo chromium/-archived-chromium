@@ -1335,7 +1335,7 @@ SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 
 // MERGE 38625:38653: Expectations changed upstream
-LINUX WIN : LayoutTests/editing/deleting/delete-to-end-of-paragraph.html = FAIL
+LINUX : LayoutTests/editing/deleting/delete-to-end-of-paragraph.html = FAIL
 LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
 // MERGE 38625:38653: Regressions
