@@ -1451,6 +1451,7 @@
 		04C3AFC40EF1E4430046D578 /* NavigatorBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigatorBase.h; sourceTree = "<group>"; };
 		04C3AFC50EF1E45F0046D578 /* WorkerNavigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerNavigator.cpp; sourceTree = "<group>"; };
 		04C3AFC70EF1E4650046D578 /* WorkerNavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerNavigator.h; sourceTree = "<group>"; };
+		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
 		3CBAF5EB0EFC892100E752CB /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
 		3CBAF5EC0EFC892100E752CB /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
 		3CBAF5ED0EFC892100E752CB /* AnimationList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationList.cpp; sourceTree = "<group>"; };
@@ -4071,6 +4072,7 @@
 		93AF52C40F0030780073C62D /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkiaUtils.h; path = skia/SkiaUtils.h; sourceTree = "<group>"; };
 		93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webkit_glue_mac.mm; sourceTree = "<group>"; };
 		93AF57B70F0199880073C62D /* PlatformScreenChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlatformScreenChromium.cpp; path = chromium/PlatformScreenChromium.cpp; sourceTree = "<group>"; };
+		9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrAndFlags.h; sourceTree = "<group>"; };
 		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSSelectorList.cpp; sourceTree = "<group>"; };
 		A80DD9160EE4A85900728DDE /* PurgeableBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PurgeableBuffer.h; sourceTree = "<group>"; };
 		A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PurgeableBufferMac.cpp; sourceTree = "<group>"; };
@@ -4268,6 +4270,7 @@
 		B5C323740E9C1D6C00F0296C /* HTMLPlugInElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLPlugInElement.h; sourceTree = "<group>"; };
 		B5C3237A0E9C1DA900F0296C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
 		B5C3237B0E9C1DA900F0296C /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
+		CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurrentTime.cpp; sourceTree = "<group>"; };
 		E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefCountedLeakCounter.cpp; sourceTree = "<group>"; };
 		E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollatorICU.cpp; sourceTree = "<group>"; };
 		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Collator.h; sourceTree = "<group>"; };
@@ -4286,9 +4289,6 @@
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
-		9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrAndFlags.h; sourceTree = "<group>"; };
-		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
-		CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurrentTime.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -9724,9 +9724,9 @@
 					"$(DIR_WEBCORE)/platform/cf",
 					"$(DIR_WEBCORE)/platform/graphics",
 					"$(DIR_WEBCORE)/platform/graphics/mac",
+					"$(DIR_WEBCORE)/platform/graphics/cg",
 					"$(DIR_WEBCORE)/platform/graphics/chromium",
 					"$(DIR_WEBCORE)/platform/graphics/skia",
-					"$(DIR_WEBCORE)/platform/graphics/cg",
 					"$(DIR_WEBCORE)/platform/graphics/transforms",
 					"$(DIR_WEBCORE)/platform/mac",
 					"$(DIR_WEBCORE)/platform/network",
@@ -9854,9 +9854,9 @@
 					"$(DIR_WEBCORE)/platform/cf",
 					"$(DIR_WEBCORE)/platform/graphics",
 					"$(DIR_WEBCORE)/platform/graphics/mac",
+					"$(DIR_WEBCORE)/platform/graphics/cg",
 					"$(DIR_WEBCORE)/platform/graphics/chromium",
 					"$(DIR_WEBCORE)/platform/graphics/skia",
-					"$(DIR_WEBCORE)/platform/graphics/cg",
 					"$(DIR_WEBCORE)/platform/graphics/transforms",
 					"$(DIR_WEBCORE)/platform/mac",
 					"$(DIR_WEBCORE)/platform/network",
