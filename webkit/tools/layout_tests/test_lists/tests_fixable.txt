@@ -894,7 +894,7 @@ LayoutTests/editing/selection/move-left-right.html = FAIL
 
 LayoutTests/accessibility = FAIL
 // Linux pixeltest failure: Image scaling is terrible
-LINUX WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
+LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 // Border radius not anti-aliased.
 WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
 // Linux pixeltest failure: We can't do gradient filled text
@@ -1919,4 +1919,21 @@ LayoutTests/plugins/npruntime.html = TIMEOUT
 LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 
+// Merge 39880:39894 - regressions
+LayoutTests/animations/change-keyframes-name.html = FAIL
+LayoutTests/editing/execCommand/paste-1.html = FAIL
+// Note: this failed before the merge on Windows, just not crashed.
+WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = CRASH
+WIN : LayoutTests/fast/css/css2-system-fonts.html = FAIL
+LayoutTests/fast/dom/anchor-toString.html = FAIL
+WIN : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
+LayoutTests/fast/js/numeric-conversion.html = FAIL
+WIN : LayoutTests/fast/lists/001.html = FAIL
+LayoutTests/fast/text/basic/006.html = FAIL
+WIN : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
+WIN : LayoutTests/fast/text/line-breaks.html = FAIL
+LayoutTests/fast/text/text-shadow-extreme-value.html = FAIL
+LayoutTests/fast/text/whitespace/026.html = FAIL
+LayoutTests/http/tests/security/dataTransfer-set-data-file-url.html = FAIL
+WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 
