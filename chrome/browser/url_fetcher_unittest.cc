@@ -6,7 +6,14 @@
 #include "base/time.h"
 #include "chrome/browser/url_fetcher.h"
 #include "chrome/browser/url_fetcher_protect.h"
+#if defined(OS_LINUX)
+// TODO(port): ugly hack for linux
+namespace ChromePluginLib { 
+	void UnloadAllPlugins() {} 
+}
+#else
 #include "chrome/common/chrome_plugin_lib.h"
+#endif
 #include "net/base/ssl_test_util.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
