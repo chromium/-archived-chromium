@@ -160,6 +160,18 @@
 				RelativePath="..\base\media_format.h"
 				>
 			</File>
+			<File
+				RelativePath="..\base\pipeline.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\pipeline_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\pipeline_impl.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="audio"
