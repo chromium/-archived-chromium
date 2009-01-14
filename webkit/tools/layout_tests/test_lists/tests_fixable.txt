@@ -489,15 +489,14 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 // Linux pixeltest failure: background is all blue instead of white.
 WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
 // Radial gradients are broken.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
@@ -1905,3 +1904,5 @@ LINUX : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
 // Another 12-Jan-2009 regression.
 LINUX : chrome/fonts/courier.html = FAIL
 
+// TODO(mmoss): rebaseline this when patterns are drawn correctly.
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
