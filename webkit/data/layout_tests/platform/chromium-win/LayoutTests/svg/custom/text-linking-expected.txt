@@ -19,10 +19,10 @@ layer at (0,0) size 800x600
             chunk 1 text run 1 at (100.00,100.00) startOffset 0 endOffset 26 width 163.00: "Referenced character data "
           RenderSVGInlineText {#text} at (163,-15) size 59x19
             chunk 1 text run 2 at (263.00,100.00) startOffset 0 endOffset 12 width 59.00: "tref in link"
-    RenderSVGText {text} at (101,140) size 92x30 contains 1 chunk(s)
-      RenderSVGInline {a} at (0,0) size 92x30
-        RenderSVGTextPath {textPath} at (0,0) size 92x30
-          RenderSVGInlineText {#text} at (-4,-16) size 92x30
+    RenderSVGText {text} at (101,140) size 93x30 contains 1 chunk(s)
+      RenderSVGInline {a} at (0,0) size 93x30
+        RenderSVGTextPath {textPath} at (0,0) size 93x30
+          RenderSVGInlineText {#text} at (-4,-16) size 93x30
             chunk 1 text run 1 at (101.96,140.00) startOffset 0 endOffset 16 width 88.00: "textPath in link"
     RenderSVGText {text} at (100,200) size 102x19 contains 1 chunk(s)
       RenderSVGInline {a} at (0,0) size 102x19

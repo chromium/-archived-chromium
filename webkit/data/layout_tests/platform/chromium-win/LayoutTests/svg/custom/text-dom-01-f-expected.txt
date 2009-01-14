@@ -4,12 +4,12 @@ layer at (0,0) size 480x360
   RenderSVGRoot {svg} at (0.50,0.50) size 479x359
     RenderSVGContainer {g} at (30,15) size 405x268
       RenderSVGContainer {g} at (30,15) size 405x268
-        RenderPath {rect} at (126,16) size 8x17 [fill={[type=SOLID] [color=#ADD8E6]}] [data="M126.00,16.00 L134.00,16.00 L134.00,33.00 L126.00,33.00"]
-        RenderPath {rect} at (92.88,20.10) size 14.14x14.14 [fill={[type=SOLID] [color=#ADD8E6]}] [data="M92.88,20.10 L107.02,20.10 L107.02,34.24 L92.88,34.24"]
+        RenderPath {rect} at (126,16) size 8x17 [fill={[type=SOLID] [color=#ADD8E6]}] [data="M126.00,16.00 L134.00,16.00 L134.00,33.00 L126.00,33.00 Z"]
+        RenderPath {rect} at (92.88,20.10) size 14.14x14.14 [fill={[type=SOLID] [color=#ADD8E6]}] [data="M92.88,20.10 L107.02,20.10 L107.02,34.24 L92.88,34.24 Z"]
         RenderPath {line} at (63,29.50) size 354x1 [stroke={[type=SOLID] [color=#FF0000]}] [fill={[type=SOLID] [color=#000000]}] [data="M63.00,30.00 L417.00,30.00"]
         RenderPath {line} at (133.50,15) size 1x15 [stroke={[type=SOLID] [color=#FF0000]}] [fill={[type=SOLID] [color=#000000]}] [data="M134.00,30.00 L134.00,15.00"]
         RenderPath {line} at (125.50,15) size 1x15 [stroke={[type=SOLID] [color=#FF0000]}] [fill={[type=SOLID] [color=#000000]}] [data="M126.00,30.00 L126.00,15.00"]
-        RenderPath {line} at (190,29.50) size 60x1 [stroke={[type=SOLID] [color=#00FF00]}] [fill={[type=SOLID] [color=#000000]}] [data="M190.00,30.00 L250.00,30.00"]
+        RenderPath {line} at (190,29.50) size 56x1 [stroke={[type=SOLID] [color=#00FF00]}] [fill={[type=SOLID] [color=#000000]}] [data="M190.00,30.00 L246.00,30.00"]
         RenderSVGText {text} at (63,30) size 354x22 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-14) size 32x17
             chunk 1 (middle anchor) text run 1 at (63.00,30.00) startOffset 0 endOffset 5 width 32.00: "This "
@@ -41,7 +41,7 @@ layer at (0,0) size 480x360
             chunk 1 text run 1 at (30.00,180.00) startOffset 0 endOffset 48 width 301.00: ".getStartPositionOfChar(11) result ('e'): 126,30"
         RenderSVGText {text} at (30,200) size 310x17 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-14) size 310x17
-            chunk 1 text run 1 at (30.00,200.00) startOffset 0 endOffset 50 width 310.00: ".getSubStringLength(22,9) result ('interface'): 60"
+            chunk 1 text run 1 at (30.00,200.00) startOffset 0 endOffset 50 width 310.00: ".getSubStringLength(22,9) result ('interface'): 56"
         RenderSVGText {text} at (30,220) size 405x17 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-14) size 405x17
             chunk 1 text run 1 at (30.00,220.00) startOffset 0 endOffset 64 width 405.00: ".selectSubString(18,3) result: the word 'the' should be selected"
@@ -57,6 +57,6 @@ layer at (0,0) size 480x360
     RenderSVGText {text} at (10,340) size 261x46 contains 1 chunk(s)
       RenderSVGInlineText {#text} at (0,-36) size 261x46
         chunk 1 text run 1 at (10.00,340.00) startOffset 0 endOffset 16 width 261.00: "$Revision: 1.1 $"
-    RenderPath {rect} at (0.50,0.50) size 479x359 [stroke={[type=SOLID] [color=#000000]}] [data="M1.00,1.00 L479.00,1.00 L479.00,359.00 L1.00,359.00"]
-selection start: position 11 of child 2 {#text} of child 7 {text} of child 3 {g} of child 35 {g} of child 0 {svg} of document
-selection end:   position 14 of child 2 {#text} of child 7 {text} of child 3 {g} of child 35 {g} of child 0 {svg} of document
+    RenderPath {rect} at (0.50,0.50) size 479x359 [stroke={[type=SOLID] [color=#000000]}] [data="M1.00,1.00 L479.00,1.00 L479.00,359.00 L1.00,359.00 Z"]
+selection start: position 11 of child 2 {#text} of child 7 {text} of child 3 {g} of child 35 {g} of child 1 {svg} of document
+selection end:   position 14 of child 2 {#text} of child 7 {text} of child 3 {g} of child 35 {g} of child 1 {svg} of document

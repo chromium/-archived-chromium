@@ -355,19 +355,36 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 // SVG TESTS
 // -----------------------------------------------------------------
 
-// Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
-DEFER LINUX WIN : LayoutTests/svg/custom/font-face-simple.svg = FAIL
-
-LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
+// These were recently rebaselined on Windows and probably just need a
+// rebaseline on other platforms as well.
+DEFER LINUX : LayoutTests/svg/custom/font-face-simple.svg = FAIL
+DEFER LINUX : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
+DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
+LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
+LINUX : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
+LINUX : LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
+LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
+LINUX MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
+LINUX : LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
+LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
+LINUX : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
+LINUX : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
+LINUX : LayoutTests/svg/custom/text-linking.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
+LINUX : LayoutTests/svg/custom/invalid-css.svg = FAIL
+LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+LINUX : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+LINUX : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
 
 // Bug 1198880
 DEFER LINUX WIN : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
-
-// Bug: 1303
-// Dynamic font support (@font-face) for Windows was ported from the
-// upstream (http://trac.webkit.org/projects/webkit/changeset/31507)
-// SVG test still fails, though.
-DEFER WIN : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // BUG: 992321
 // The failures listed below have never passed in Chromium and need to be
@@ -417,13 +434,11 @@ DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
-DEFER LINUX WIN : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
 DEFER LINUX WIN : LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
 DEFER LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
 DEFER LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
 DEFER LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL   // 2 numbers differ, by an absolute total of 0.04
 DEFER LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = FAIL   // 6 numbers differ, by an absolute total of 5.00
-DEFER LINUX WIN : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
 DEFER : LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers differ, by an absolute total of 4.69
 DEFER LINUX WIN : LayoutTests/svg/hixie/perf/001.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
 DEFER LINUX WIN : LayoutTests/svg/hixie/perf/002.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
@@ -526,57 +541,36 @@ LINUX WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-WIN : LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
-WIN : LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
 // Size is off by 0.01.  Maybe a rounding difference?
 LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
 WIN : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 WIN : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
 // Flaky on both release and debug.
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
 LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
 // Difference between numeric precision in output.
-LINUX WIN : LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/gradient-rotated-bbox.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/group-opacity.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
-// Linux pixeltest failure: Failing to draw gradients
-LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 // Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/large-bounding-box-percents.svg = FAIL
 LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
 LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
 LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
-WIN : LayoutTests/svg/custom/text-dom-removal.svg = FAIL
 
-// Windows fails to draw anything here
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
-// This one passes even though nothing is drawn.
-// LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
 
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 // Output differs by 0.01.  Maybe a rounding difference?
-LINUX WIN : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
 LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 
 // Crash in DEBUG only
@@ -673,12 +667,9 @@ LINUX WIN : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
 LINUX : LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/custom/text-linking.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-xy-updates.svg = FAIL
-WIN : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
 LINUX WIN : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
 LINUX WIN : LayoutTests/svg/text/kerning.svg = FAIL
 LINUX WIN : LayoutTests/svg/text/multichar-glyph.svg = FAIL
@@ -729,7 +720,6 @@ WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
 
 // WebKit Merge 38950:39000 failures:
 LINUX WIN : LayoutTests/svg/custom/fill-fallback.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/invalid-css.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/resource-client-removal.svg = FAIL
 
@@ -747,20 +737,11 @@ DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-heigh
 // now fixed.  They are already rebaselined compared to the webkit
 // standard, and are now off by a small number of pixels from the
 // platform rebaseline, so they could probably just be re-rebaselined.
-WIN : LayoutTests/svg/custom/empty-merge.svg = FAIL
-WIN : LayoutTests/svg/custom/feDisplacementMap-01.svg = FAIL
-WIN : LayoutTests/svg/custom/fractional-rects.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/gradient-add-stops.svg = FAIL
 WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
-WIN : LayoutTests/svg/custom/rounded-rects.svg = FAIL
-WIN : LayoutTests/svg/custom/use-forward-refs.svg = FAIL
-WIN : LayoutTests/svg/custom/use-nested-transform.svg = FAIL
 
 // Same as above, but only regressed on win.
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
-
-// Our pixel results have darker red and green.
-LINUX WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 
 // The pattern we generate is wrong.
 LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
@@ -1871,10 +1852,6 @@ WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
 // Crashes from time to time, but probably not because of this test
 // more because of the general problems.
 LINUX MAC : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
-
-// Merge 39606:39660 - tests were modified upstream, perhaps need a rebaseline.
-LINUX WIN : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // Merge 39606:39660 - new tests
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
