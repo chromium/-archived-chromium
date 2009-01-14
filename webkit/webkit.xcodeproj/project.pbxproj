@@ -131,7 +131,6 @@
 		938444410F16B0570075F4C5 /* CanvasRenderingContext2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8BEA0D7F3B62001ECF42 /* CanvasRenderingContext2D.cpp */; };
 		938444420F16B0570075F4C5 /* CanvasStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8BED0D7F3B62001ECF42 /* CanvasStyle.cpp */; };
 		938444430F16B0570075F4C5 /* CDATASection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E89C50D7F3A7C001ECF42 /* CDATASection.cpp */; };
-		938444440F16B0570075F4C5 /* CgSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96CE0D7F3EDA001ECF42 /* CgSupport.cpp */; };
 		938444450F16B0570075F4C5 /* ChangeVersionWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1637D90EBFA4FB008F024E /* ChangeVersionWrapper.cpp */; };
 		938444460F16B0570075F4C5 /* CharacterData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E89C80D7F3A7C001ECF42 /* CharacterData.cpp */; };
 		938444470F16B0570075F4C5 /* ChildNodeList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E89CB0D7F3A7C001ECF42 /* ChildNodeList.cpp */; };
@@ -558,7 +557,6 @@
 		938445EC0F16B0570075F4C5 /* RenderPart.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E956B0D7F3E95001ECF42 /* RenderPart.cpp */; };
 		938445ED0F16B0570075F4C5 /* RenderPartObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E956D0D7F3E95001ECF42 /* RenderPartObject.cpp */; };
 		938445EE0F16B0570075F4C5 /* RenderPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E956F0D7F3E95001ECF42 /* RenderPath.cpp */; };
-		938445EF0F16B0570075F4C5 /* RenderPathCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */; };
 		938445F00F16B0570075F4C5 /* RenderReplaced.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E95710D7F3E95001ECF42 /* RenderReplaced.cpp */; };
 		938445F10F16B0570075F4C5 /* RenderReplica.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831070E9BD5B000CEC344 /* RenderReplica.cpp */; };
 		938445F20F16B0570075F4C5 /* RenderScrollbar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24960EB7BFC500BEC658 /* RenderScrollbar.cpp */; };
@@ -3427,9 +3425,6 @@
 		7B5E96C00D7F3EDA001ECF42 /* ColorDistance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ColorDistance.cpp; path = ../ColorDistance.cpp; sourceTree = "<group>"; };
 		7B5E96C10D7F3EDA001ECF42 /* ColorDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ColorDistance.h; path = ../ColorDistance.h; sourceTree = "<group>"; };
 		7B5E96C20D7F3EDA001ECF42 /* GradientAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GradientAttributes.h; path = ../GradientAttributes.h; sourceTree = "<group>"; };
-		7B5E96CE0D7F3EDA001ECF42 /* CgSupport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CgSupport.cpp; sourceTree = "<group>"; };
-		7B5E96CF0D7F3EDA001ECF42 /* CgSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CgSupport.h; sourceTree = "<group>"; };
-		7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderPathCg.cpp; sourceTree = "<group>"; };
 		7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerCg.cpp; sourceTree = "<group>"; };
 		7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerPatternCg.cpp; sourceTree = "<group>"; };
 		7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceFilterCg.cpp; sourceTree = "<group>"; };
@@ -6600,9 +6595,6 @@
 		7B5E96CD0D7F3EDA001ECF42 /* cg */ = {
 			isa = PBXGroup;
 			children = (
-				7B5E96CE0D7F3EDA001ECF42 /* CgSupport.cpp */,
-				7B5E96CF0D7F3EDA001ECF42 /* CgSupport.h */,
-				7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */,
 				7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */,
 				7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */,
 				7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */,
@@ -8587,7 +8579,6 @@
 				938444410F16B0570075F4C5 /* CanvasRenderingContext2D.cpp in Sources */,
 				938444420F16B0570075F4C5 /* CanvasStyle.cpp in Sources */,
 				938444430F16B0570075F4C5 /* CDATASection.cpp in Sources */,
-				938444440F16B0570075F4C5 /* CgSupport.cpp in Sources */,
 				938444450F16B0570075F4C5 /* ChangeVersionWrapper.cpp in Sources */,
 				938444460F16B0570075F4C5 /* CharacterData.cpp in Sources */,
 				938444470F16B0570075F4C5 /* ChildNodeList.cpp in Sources */,
@@ -9014,7 +9005,6 @@
 				938445EC0F16B0570075F4C5 /* RenderPart.cpp in Sources */,
 				938445ED0F16B0570075F4C5 /* RenderPartObject.cpp in Sources */,
 				938445EE0F16B0570075F4C5 /* RenderPath.cpp in Sources */,
-				938445EF0F16B0570075F4C5 /* RenderPathCg.cpp in Sources */,
 				938445F00F16B0570075F4C5 /* RenderReplaced.cpp in Sources */,
 				938445F10F16B0570075F4C5 /* RenderReplica.cpp in Sources */,
 				938445F20F16B0570075F4C5 /* RenderScrollbar.cpp in Sources */,
