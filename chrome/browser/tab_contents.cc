@@ -320,11 +320,14 @@ void TabContents::CloseAllSuppressedPopups() {
 }
 
 void TabContents::Focus() {
+  HWND container_hwnd = GetContainerHWND();
+  if (!container_hwnd)
+    return;
+
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetContainerHWND());
+      views::FocusManager::GetFocusManager(container_hwnd);
   DCHECK(focus_manager);
-  views::View* v =
-      focus_manager->GetViewForWindow(GetContainerHWND(), true);
+  views::View* v = focus_manager->GetViewForWindow(container_hwnd, true);
   DCHECK(v);
   if (v)
     v->RequestFocus();

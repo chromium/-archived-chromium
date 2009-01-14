@@ -1333,6 +1333,9 @@ void BrowserView::LoadingAnimationCallback() {
 
 void BrowserView::InitHangMonitor() {
   PrefService* pref_service = g_browser_process->local_state();
+  if (!pref_service)
+    return;
+
   int plugin_message_response_timeout =
       pref_service->GetInteger(prefs::kPluginMessageResponseTimeout);
   int hung_plugin_detect_freq =

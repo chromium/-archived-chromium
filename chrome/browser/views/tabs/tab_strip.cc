@@ -848,7 +848,8 @@ void TabStrip::TabInsertedAt(TabContents* contents,
 
   // Don't animate the first tab, it looks weird, and don't animate anything
   // if the containing window isn't visible yet.
-  if (GetTabCount() > 1 && IsWindowVisible(GetWidget()->GetHWND())) {
+  if (GetTabCount() > 1 && GetWidget() &&
+      IsWindowVisible(GetWidget()->GetHWND())) {
     StartInsertTabAnimation(index);
   } else {
     Layout();

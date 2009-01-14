@@ -82,6 +82,13 @@ class Browser : public TabStripModelDelegate,
   const std::vector<std::wstring>& user_data_dir_profiles() const {
     return g_browser_process->user_data_dir_profiles();
   }
+  // Sets the BrowserWindow. This is intended for testing and generally not
+  // useful outside of testing. Use CreateBrowserWindow outside of testing, or
+  // the static convenience methods that create a BrowserWindow for you.
+  void set_window(BrowserWindow* window) {
+    DCHECK(!window_);
+    window_ = window;
+  }
   BrowserWindow* window() const { return window_; }
   ToolbarModel* toolbar_model() { return &toolbar_model_; }
   const SessionID& session_id() const { return session_id_; }

@@ -115,6 +115,9 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
       key.append(app_name_);
     }
 
+    if (!g_browser_process->local_state())
+      return false;
+
     const DictionaryValue* wp_pref =
         g_browser_process->local_state()->GetDictionary(key.c_str());
     int top = 0, left = 0, bottom = 0, right = 0;

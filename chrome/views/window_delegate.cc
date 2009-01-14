@@ -29,7 +29,7 @@ void WindowDelegate::SaveWindowPlacement(const gfx::Rect& bounds,
                                          bool maximized,
                                          bool always_on_top) {
   std::wstring window_name = GetWindowName();
-  if (window_name.empty())
+  if (window_name.empty() || !g_browser_process->local_state())
     return;
 
   DictionaryValue* window_preferences =
@@ -72,6 +72,9 @@ bool WindowDelegate::GetSavedMaximizedState(bool* maximized) const {
 }
 
 bool WindowDelegate::GetSavedAlwaysOnTopState(bool* always_on_top) const {
+  if (!g_browser_process->local_state())
+    return false;
+
   std::wstring window_name = GetWindowName();
   if (window_name.empty())
     return false;

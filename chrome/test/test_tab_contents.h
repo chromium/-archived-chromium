@@ -97,6 +97,10 @@ class TestTabContentsFactory : public TabContentsFactory {
 
   const std::string& scheme() const { return scheme_; }
 
+  GURL test_url_with_path(const std::string& path) const {
+    return GURL(scheme() + ":" + path);
+  }
+
   TabContentsType type() const { return type_; }
 
  private:

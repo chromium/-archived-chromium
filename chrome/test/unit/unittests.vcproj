@@ -154,6 +154,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\browser_with_test_window_test.h"
+				>
+			</File>
+			<File
+				RelativePath="..\browser_with_test_window_test.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\chrome_test_suite.h"
 				>
 			</File>
@@ -175,6 +183,10 @@
 			</File>
 			<File
 				RelativePath=".\run_all_unittests.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\test_browser_window.h"
 				>
 			</File>
 			<File
@@ -312,6 +324,10 @@
 		</File>
 		<File
 			RelativePath="..\..\browser\bookmarks\bookmark_utils_unittest.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\..\browser\browser_commands_unittest.cc"
 			>
 		</File>
 		<File

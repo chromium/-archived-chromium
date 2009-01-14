@@ -123,49 +123,6 @@ TEST_F(BrowserTest, WindowsSessionEnd) {
   ASSERT_TRUE(exited_cleanly);
 }
 
-// Tests the accelerators for tab navigation. Specifically IDC_SELECT_NEXT_TAB,
-// IDC_SELECT_PREV_TAB, IDC_SELECT_TAB_0, and IDC_SELECT_LAST_TAB.
-TEST_F(BrowserTest, TabNavigationAccelerators) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
-  ASSERT_TRUE(window.get());
-
-  // Create two new tabs. This way we'll have at least three tabs to navigate
-  // to.
-  int old_tab_count = -1;
-  ASSERT_TRUE(window->GetTabCount(&old_tab_count));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  int new_tab_count;
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count,
-                                              &new_tab_count,
-                                              action_max_timeout_ms()));
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  old_tab_count = new_tab_count;
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count,
-                                              &new_tab_count,
-                                              action_max_timeout_ms()));
-  ASSERT_GE(new_tab_count, 2);
-
-  // Activate the second tab.
-  ASSERT_TRUE(window->ActivateTab(1));
-
-  // Navigate to the first tab using an accelerator.
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_TAB_0));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(0, action_max_timeout_ms()));
-
-  // Navigate to the second tab using the next accelerators.
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_NEXT_TAB));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(1, action_max_timeout_ms()));
-
-  // Navigate back to the first tab using the previous accelerators.
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_PREVIOUS_TAB));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(0, action_max_timeout_ms()));
-
-  // Navigate to the last tab using the select last accelerator.
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_SELECT_LAST_TAB));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(new_tab_count - 1,
-                                               action_max_timeout_ms()));
-}
-
 TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   int start_index;
@@ -181,53 +138,6 @@ TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
       javascript_tab->NavigateToURLAsync(GURL("javascript:alert('Alert!')")));
   ASSERT_TRUE(window->WaitForTabToBecomeActive(javascript_tab_index,
                                                action_max_timeout_ms()));
-}
-
-TEST_F(BrowserTest, DuplicateTab) {
-  std::wstring path_prefix = test_data_directory_;
-  file_util::AppendToPath(&path_prefix, L"session_history");
-  path_prefix += FilePath::kSeparators[0];
-  GURL url1 = net::FilePathToFileURL(path_prefix + L"bot1.html");
-  GURL url2 = net::FilePathToFileURL(path_prefix + L"bot2.html");
-  GURL url3 = GURL("about:blank");
-
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
-
-  // Navigate to the three urls, then go back.
-  scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(0));
-  tab_proxy->NavigateToURL(url1);
-  tab_proxy->NavigateToURL(url2);
-  tab_proxy->NavigateToURL(url3);
-  ASSERT_TRUE(tab_proxy->GoBack());
-
-  int initial_window_count;
-  ASSERT_TRUE(automation()->GetBrowserWindowCount(&initial_window_count));
-
-  // Duplicate the tab.
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_DUPLICATE_TAB));
-
-  // The duplicated tab should not end up in a new window.
-  int window_count;
-  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
-  ASSERT_TRUE(window_count == initial_window_count);
-
-  tab_proxy.reset(browser_proxy->GetTab(1));
-  ASSERT_TRUE(tab_proxy != NULL);
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
-
-  // Verify the stack of urls.
-  GURL url;
-  ASSERT_TRUE(tab_proxy->GetCurrentURL(&url));
-  ASSERT_EQ(url2, url);
-
-  ASSERT_TRUE(tab_proxy->GoForward());
-  ASSERT_TRUE(tab_proxy->GetCurrentURL(&url));
-  ASSERT_EQ(url3, url);
-
-  ASSERT_TRUE(tab_proxy->GoBack());
-  ASSERT_TRUE(tab_proxy->GoBack());
-  ASSERT_TRUE(tab_proxy->GetCurrentURL(&url));
-  ASSERT_EQ(url1, url);
 }
 
 // Test that scripts can fork a new renderer process for a tab in a particular
