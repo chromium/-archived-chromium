@@ -1291,7 +1291,7 @@ LayoutTests/fast/frames/cross-site-this.html = FAIL
 LINUX : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 
 // MERGE 38389:38450
-LINUX WIN : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
+LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
 LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
 // Started failing with r5743 (darin)
