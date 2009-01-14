@@ -4,10 +4,10 @@
 
 #include "skia/ext/bitmap_platform_device_mac.h"
 
-#include "base/logging.h"
 #include "skia/ext/skia_utils_mac.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkTypes.h"
 #include "SkUtils.h"
 
 namespace skia {
@@ -89,7 +89,7 @@ void PlatformDeviceMac::LoadPathToCGContext(CGContextRef context,
       }
       case SkPath::kDone_Verb:  // iter.next returns 0 points
       default: {
-        NOTREACHED();
+        SkASSERT(false);
         break;
       }
     }
@@ -110,7 +110,7 @@ void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
   CGContextConcatCTM(context, orig_cg_matrix_inv);
 
   // assert that we have indeed returned to the identity Matrix.
-  DCHECK(CGAffineTransformIsIdentity(CGContextGetCTM(context)));
+  SkASSERT(CGAffineTransformIsIdentity(CGContextGetCTM(context)));
 
   // Convert xform to CG-land.
   // Our coordinate system is flipped to match WebKit's so we need to modify
@@ -154,7 +154,7 @@ void PlatformDeviceMac::LoadClippingRegionToCGContext(
     // transform so apply it manually.
     path.transform(transformation);
     // TODO(playmobil): Implement.
-    NOTREACHED();
+    SkASSERT(false);
     // LoadPathToDC(context, path);
     // hrgn = PathToRegion(context);
   }

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_SKIA_UTILS_H_
-#define BASE_GFX_SKIA_UTILS_H_
+#ifndef SKIA_EXT_SKIA_UTILS_H_
+#define SKIA_EXT_SKIA_UTILS_H_
 
 #include "SkColor.h"
 #include "SkShader.h"

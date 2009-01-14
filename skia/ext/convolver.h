@@ -7,8 +7,6 @@
 
 #include <vector>
 
-#include "base/basictypes.h"
-
 // avoid confusion with Mac OS X's math library (Carbon)
 #if defined(__APPLE__)
 #undef FloatToFixed

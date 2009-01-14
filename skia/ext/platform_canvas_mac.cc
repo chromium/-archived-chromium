@@ -4,8 +4,8 @@
 
 #include "skia/ext/platform_canvas_mac.h"
 
-#include "base/logging.h"
 #include "skia/ext/bitmap_platform_device_mac.h"
+#include "SkTypes.h"
 
 namespace skia {
 
@@ -55,24 +55,24 @@ PlatformDeviceMac& PlatformCanvasMac::getTopPlatformDevice() const {
 }
 
 SkDevice* PlatformCanvasMac::createDevice(SkBitmap::Config config,
-                                       int width,
-                                       int height,
-                                       bool is_opaque, bool isForLayer) {
-  DCHECK(config == SkBitmap::kARGB_8888_Config);
+                                          int width,
+                                          int height,
+                                          bool is_opaque, bool isForLayer) {
+  SkASSERT(config == SkBitmap::kARGB_8888_Config);
   return createPlatformDevice(width, height, is_opaque, NULL);
 }
 
 SkDevice* PlatformCanvasMac::createPlatformDevice(int width,
-                                               int height,
-                                               bool is_opaque,
-                                               CGContextRef context) {
+                                                  int height,
+                                                  bool is_opaque,
+                                                  CGContextRef context) {
   SkDevice* device = BitmapPlatformDeviceMac::Create(context, width, height,
-                                                  is_opaque);
+                                                     is_opaque);
   return device;
 }
 
 SkDevice* PlatformCanvasMac::setBitmapDevice(const SkBitmap&) {
-  NOTREACHED();
+  SkASSERT(false);
   return NULL;
 }
 

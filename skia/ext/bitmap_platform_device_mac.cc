@@ -8,9 +8,9 @@
 
 #include "SkMatrix.h"
 #include "SkRegion.h"
+#include "SkTypes.h"
 #include "SkUtils.h"
 
-#include "base/logging.h"
 #include "skia/ext/skia_utils_mac.h"
 
 namespace skia {
@@ -46,8 +46,7 @@ bool Constrain(int available_size, int* position, int *size) {
 
 }  // namespace
 
-class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
-    : public base::RefCounted<BitmapPlatformDeviceMacData> {
+class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData : public SkRefCnt {
  public:
   explicit BitmapPlatformDeviceMacData(CGContextRef bitmap);
 
@@ -58,7 +57,7 @@ class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
   }
 
   void ReleaseBitmapContext() {
-    DCHECK(bitmap_context_);
+    SkASSERT(bitmap_context_);
     CGContextRelease(bitmap_context_);
     bitmap_context_ = NULL;
   }
@@ -95,7 +94,9 @@ class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
       CGContextRelease(bitmap_context_);
   }
 
-  DISALLOW_COPY_AND_ASSIGN(BitmapPlatformDeviceMacData);
+  // Disallow copy & assign.
+  BitmapPlatformDeviceMacData(const BitmapPlatformDeviceMacData&);
+  BitmapPlatformDeviceMacData& operator=(const BitmapPlatformDeviceMacData&);
 };
 
 BitmapPlatformDeviceMac::\
@@ -103,7 +104,7 @@ BitmapPlatformDeviceMac::\
     CGContextRef bitmap)
     : bitmap_context_(bitmap),
       config_dirty_(true) {  // Want to load the config next time.
-  DCHECK(bitmap_context_);
+  SkASSERT(bitmap_context_);
   // Initialize the clip region to the entire bitmap.
 
   SkIRect rect;
@@ -203,14 +204,17 @@ BitmapPlatformDeviceMac::BitmapPlatformDeviceMac(
     : PlatformDeviceMac(
           const_cast<BitmapPlatformDeviceMac&>(other).accessBitmap(true)),
       data_(other.data_) {
+  data_->ref();
 }
 
 BitmapPlatformDeviceMac::~BitmapPlatformDeviceMac() {
+  data_->unref();
 }
 
 BitmapPlatformDeviceMac& BitmapPlatformDeviceMac::operator=(
     const BitmapPlatformDeviceMac& other) {
   data_ = other.data_;
+  data_->ref();
   return *this;
 }
 

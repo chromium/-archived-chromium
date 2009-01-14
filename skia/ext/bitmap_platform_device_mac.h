@@ -81,12 +81,13 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
   // starts accessing pixel data.
   virtual void onAccessBitmap(SkBitmap*);
 
-  // Data associated with this device, guaranteed non-null.
-  scoped_refptr<BitmapPlatformDeviceMacData> data_;
-
   virtual void processPixels(int x, int y,
                              int width, int height,
                              adjustAlpha adjustor);
+
+  // Data associated with this device, guaranteed non-null. We hold a reference
+  // to this object.
+  BitmapPlatformDeviceMacData* data_;
 };
 
 }  // namespace skia

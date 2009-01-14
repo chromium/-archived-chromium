@@ -127,7 +127,7 @@ void ConvolveHorizontally(const unsigned char* src_data,
     const unsigned char* row_to_filter = &src_data[filter_offset * 4];
 
     // Apply the filter to the row to get the destination pixel in |accum|.
-    int32 accum[4] = {0};
+    int accum[4] = {0};
     for (int filter_x = 0; filter_x < filter_length; filter_x++) {
       ConvolusionFilter1D::Fixed cur_filter = filter_values[filter_x];
       accum[0] += cur_filter * row_to_filter[filter_x * 4 + 0];
@@ -174,7 +174,7 @@ void ConvolveVertically(const ConvolusionFilter1D::Fixed* filter_values,
     int byte_offset = out_x * 4;
 
     // Apply the filter to one column of pixels.
-    int32 accum[4] = {0};
+    int accum[4] = {0};
     for (int filter_y = 0; filter_y < filter_length; filter_y++) {
       ConvolusionFilter1D::Fixed cur_filter = filter_values[filter_y];
       accum[0] += cur_filter * source_data_rows[filter_y][byte_offset + 0];

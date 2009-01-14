@@ -6,8 +6,6 @@
 
 #include <cairo/cairo.h>
 
-#include "base/logging.h"
-
 namespace skia {
 
 // -----------------------------------------------------------------------------
@@ -32,7 +30,10 @@ class BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinuxData
     cairo_surface_destroy(surface_);
   }
 
-  DISALLOW_EVIL_CONSTRUCTORS(BitmapPlatformDeviceLinuxData);
+  // Disallow copy & assign.
+  BitmapPlatformDeviceLinuxData(const BitmapPlatformDeviceLinuxData&);
+  BitmapPlatformDeviceLinuxData& operator=(
+      const BitmapPlatformDeviceLinuxData&);
 };
 
 // We use this static factory function instead of the regular constructor so
