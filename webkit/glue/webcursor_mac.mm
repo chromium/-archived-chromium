@@ -59,7 +59,7 @@ NSCursor* CreateCustomCursor(const std::vector<char>& custom_data,
 
 // We're matching Safari's cursor choices; see platform/mac/CursorMac.mm
 NSCursor* WebCursor::GetCursor() const {
-  switch (Type_) {
+  switch (type_) {
     case PlatformCursor::TypePointer:
       return [NSCursor arrowCursor];
     case PlatformCursor::TypeCross:
