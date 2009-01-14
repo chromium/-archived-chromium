@@ -170,6 +170,8 @@ TEST(WinAudioTest, SineWaveAudio16MonoTest) {
 TEST(WinAudioTest, PCMWaveStreamGetAndClose) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
   AudioOutputStream* oas =
       audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 2, 8000, 16);
   ASSERT_TRUE(NULL != oas);
@@ -177,9 +179,11 @@ TEST(WinAudioTest, PCMWaveStreamGetAndClose) {
 }
 
 // Test that it can be opened and closed.
-TEST(WinAudioTest, DISABLED_PCMWaveStreamOpenAndClose) {
+TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
   AudioOutputStream* oas =
       audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 2, 8000, 16);
   ASSERT_TRUE(NULL != oas);
@@ -189,9 +193,11 @@ TEST(WinAudioTest, DISABLED_PCMWaveStreamOpenAndClose) {
 
 // Test that it uses the double buffers correctly. Because it uses the actual
 // audio device, you might hear a short pop noise for a short time.
-TEST(WinAudioTest, DISABLED_PCMWaveStreamDoubleBuffer) {
+TEST(WinAudioTest, PCMWaveStreamDoubleBuffer) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
   AudioOutputStream* oas =
       audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1, 16000, 16);
   ASSERT_TRUE(NULL != oas);
@@ -209,9 +215,11 @@ TEST(WinAudioTest, DISABLED_PCMWaveStreamDoubleBuffer) {
 // This test produces actual audio for 1.5 seconds on the default wave
 // device at 44.1K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
-TEST(WinAudioTest, DISABLED_PCMWaveStreamPlay200HzTone44Kss) {
+TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
   AudioOutputStream* oas =
       audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
                                  AudioManager::kAudioCDSampleRate, 16);
@@ -231,9 +239,11 @@ TEST(WinAudioTest, DISABLED_PCMWaveStreamPlay200HzTone44Kss) {
 // This test produces actual audio for for 1.5 seconds on the default wave
 // device at 22K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
-TEST(WinAudioTest, DISABLED_PCMWaveStreamPlay200HzTone22Kss) {
+TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
   AudioOutputStream* oas =
       audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
                                  AudioManager::kAudioCDSampleRate/2, 16);

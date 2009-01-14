@@ -20,6 +20,7 @@ class AudioManagerWin : public AudioManager {
  public:
   AudioManagerWin() {}
   // Implementation of AudioManager.
+  virtual bool HasAudioDevices();
   virtual AudioOutputStream* MakeAudioStream(Format format, int channels,
                                              int sample_rate,
                                              char bits_per_sample);

@@ -89,6 +89,11 @@ void ReplaceLastMockStream(AudioOutputStreamMockWin* newer) {
 
 }  // namespace.
 
+
+bool AudioManagerWin::HasAudioDevices() {
+  return (::waveOutGetNumDevs() != 0);  
+}
+
 // Factory for the implementations of AudioOutputStream. Two implementations
 // should suffice most windows user's needs.
 // - PCMWaveOutAudioOutputStream: Based on the waveOutWrite API (in progress)

@@ -114,6 +114,10 @@ class AudioManager {
   // Digital Audio Tape sample rate.
   static const int kAudioDATSampleRate = 48000;
 
+  // Returns true if the OS reports existence of audio devices. This does not
+  // guarantee that the existing devices support all formats and sample rates.
+  virtual bool HasAudioDevices() = 0;
+
   // Factory for all the supported stream formats. At this moment |channels|
   // can be 1 (mono) or 2 (stereo). The |sample_rate| is in hertz and can be
   // any value supported by the underlying platform. For some future formats
