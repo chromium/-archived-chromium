@@ -9,12 +9,15 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
-void SkDebugf_FileLine(const char* file, int line, const char* format, ...) {
+void SkDebugf_FileLine(const char* file, int line, bool fatal,
+                       const char* format, ...) {
   va_list ap;
   va_start(ap, format);
 
   std::string msg;
   StringAppendV(&msg, format, ap);
 
-  logging::LogMessage(file, line, logging::LOG_ERROR).stream() << msg;
+  logging::LogMessage(file, line,
+                      fatal ? logging::LOG_FATAL : logging::LOG_INFO).stream()
+      << msg;
 }

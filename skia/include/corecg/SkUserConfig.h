@@ -87,12 +87,16 @@
 #undef SK_SCALAR_IS_FIXED
 
 // Log the file and line number for assertions.
-#define SkDebugf(...) SkDebugf_FileLine(__FILE__, __LINE__, __VA_ARGS__)
-void SkDebugf_FileLine(const char* file, int line, const char* format, ...);
-#include <stdio.h>
+#define SkDebugf(...) SkDebugf_FileLine(__FILE__, __LINE__, false, __VA_ARGS__)
+void SkDebugf_FileLine(const char* file, int line, bool fatal,
+                       const char* format, ...);
+
+// Marking the debug print as "fatal" will cause a debug break, so we don't need
+// a separate crash call here.
 #define SK_DEBUGBREAK(cond) do { if (!(cond)) { \
-    SkDebugf("%s:%d: failed assertion \"%s\"\n", \
-    __FILE__, __LINE__, #cond); SK_CRASH(); } } while (false)
+    SkDebugf_FileLine(__FILE__, __LINE__, true, \
+    "%s:%d: failed assertion \"%s\"\n", \
+    __FILE__, __LINE__, #cond); } } while (false)
 
 #if defined(SK_BUILD_FOR_WIN32)
 
@@ -150,12 +154,20 @@ typedef unsigned uint32_t;
 
 #endif
 
-// FIXME(brettw) re-enable this when we fix the crashes.
+// The default crash macro writes to badbeef which can cause some strange
+// problems. Instead, pipe this through to the logging function as a fatal
+// assertion.
+#define SK_CRASH() SkDebugf_FileLine(__FILE__, __LINE__, true, "SK_CRASH")
+
+// TODO(brettw) bug 6373: Re-enable Skia assertions. This is blocked on fixing
+// some of our transparency handling which generates purposely-invalid colors,
+// in turn causing assertions.
 //#ifndef NDEBUG
 //  #define SK_DEBUG
 //  #undef SK_RELEASE
-// REMOVE ME
-#undef SK_SUPPORT_UNITTEST
+  #undef SK_SUPPORT_UNITTEST  // This is only necessary in debug mode since
+                              // we've disabled assertions. When we re-enable
+                              // them, this line can be removed.
 //#else
   #define SK_RELEASE
   #undef SK_DEBUG
