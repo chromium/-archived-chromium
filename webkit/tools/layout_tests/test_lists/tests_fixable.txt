@@ -1927,6 +1927,14 @@ LINUX : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
 LINUX : chrome/fonts/courier.html = FAIL
 
 
-
 // TODO(mmoss): rebaseline this when patterns are drawn correctly.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+
+// Merge 39830:39880 - new tests
+LayoutTests/plugins/npruntime.html = TIMEOUT
+
+// Merge 39830:39880 - regressions 
+LayoutTests/editing/selection/5057506.html = FAIL
+LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
+
+
