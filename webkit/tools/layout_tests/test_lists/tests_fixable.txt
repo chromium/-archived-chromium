@@ -1223,8 +1223,6 @@ LayoutTests/fast/forms/selection-functions.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
-// Caret may be off, but it may just need rebaselining.
-WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LINUX WIN : LayoutTests/fast/events/mouse-click-events.html = FAIL
 WIN : LayoutTests/fast/flexbox/009.html = FAIL
