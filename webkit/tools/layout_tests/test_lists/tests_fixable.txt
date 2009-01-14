@@ -1866,7 +1866,7 @@ LayoutTests/fast/canvas/canvas-strokeRect.html = FAIL
 LayoutTests/fast/canvas/canvas-transparency-and-composite.html = FAIL
 LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
 LayoutTests/fast/canvas/gradient-with-clip.html = FAIL
-LayoutTests/fast/canvas/pattern-with-transform.html = FAIL
+LINUX WIN : LayoutTests/fast/canvas/pattern-with-transform.html = FAIL
 WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
 // Crashes from time to time, but probably not because of this test
 // more because of the general problems.
