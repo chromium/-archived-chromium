@@ -875,11 +875,9 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   // When we don't have a toolbar to draw a top edge for us, draw a top edge.
   gfx::Rect client_area_bounds = browser_view_->GetClientAreaBounds();
   if (!browser_view_->IsToolbarVisible()) {
-    // This hack is necessary because the top center bitmap is shorter than the
-    // top left and right bitmaps.  We need their top edges to line up, and we
+    // This is necessary because the top center bitmap is shorter than the top
+    // left and right bitmaps.  We need their top edges to line up, and we
     // need the left and right edges to start below the corners' bottoms.
-    // TODO(pkasting): If we just make the bitmaps the same height, a la the
-    // bottom corners/center, we can remove this hack.
     int top_edge_y = client_area_top - app_top_center_.height();
     client_area_top = top_edge_y + app_top_left_.height();
     canvas->DrawBitmapInt(app_top_left_,
