@@ -16,6 +16,10 @@ GCC_WARN_ABOUT_MISSING_NEWLINE = YES
 OTHER_LDFLAGS = $(OTHER_LDFLAGS) $(CODECOVERAGE_OTHER_LDFLAGS)
 PREBINDING = NO
 
+// We're only supporting 10.5 and later
+SDKROOT = $(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk
+MACOSX_DEPLOYMENT_TARGET = 10.5
+
 // Each project file must set XCODEPROJ_DEPTH as a project-wide setting.  It
 // should contain a relative path to reach the src directory from the
 // directory containing the project.  For example, src/base/base.xcodeproj
