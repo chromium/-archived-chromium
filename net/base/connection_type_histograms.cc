@@ -17,21 +17,26 @@ namespace net {
 // of that type during that session.  In the second group (counter2), each
 // counter is the number of connections of that type the user has seen during
 // that session.
+//
+// Each histogram has an unused bucket at the end to allow seamless future
+// expansion.
 void UpdateConnectionTypeHistograms(ConnectionType type) {
   static bool had_connection_type[NUM_OF_CONNECTION_TYPES];
   static LinearHistogram counter1(L"Net.HadConnectionType",
-                                  1, NUM_OF_CONNECTION_TYPES - 1,
-                                  NUM_OF_CONNECTION_TYPES);
+                                  1, NUM_OF_CONNECTION_TYPES,
+                                  NUM_OF_CONNECTION_TYPES + 1);
   static LinearHistogram counter2(L"Net.ConnectionTypeCount",
-                                  1, NUM_OF_CONNECTION_TYPES - 1,
-                                  NUM_OF_CONNECTION_TYPES);
+                                  1, NUM_OF_CONNECTION_TYPES,
+                                  NUM_OF_CONNECTION_TYPES + 1);
 
   if (type >= 0 && type < NUM_OF_CONNECTION_TYPES) {
     if (!had_connection_type[type]) {
       had_connection_type[type] = true;
+      counter1.SetFlags(kUmaTargetedHistogramFlag);
       counter1.Add(type);
     }
   }
+  counter2.SetFlags(kUmaTargetedHistogramFlag);
   counter2.Add(type);
 }
 
