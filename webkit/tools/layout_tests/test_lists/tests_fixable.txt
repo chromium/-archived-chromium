@@ -1637,7 +1637,7 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 // window.open crashes (some of these are flakey, in that they don't always
 // crash, and are noted as such)
 MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH
+MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
@@ -1707,6 +1707,9 @@ MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
 MAC : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
+MAC : LayoutTests/fast/borders/svg-as-border-image-2.html = CRASH PASS
+MAC : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH PASS
+MAC : LayoutTests/fast/canvas/pointInPath.html = CRASH PASS
 
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
