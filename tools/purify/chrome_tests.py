@@ -182,7 +182,6 @@ class ChromeTests:
       script[0] = os.path.join(self._options.build_dir, script[0])
     cmd.extend(script)
     self._ReadGtestFilterFile(name, cmd)
-    cmd.append("--gtest_print_time")
     return common.RunSubprocess(cmd, 0)
 
   def InstrumentDll(self):
