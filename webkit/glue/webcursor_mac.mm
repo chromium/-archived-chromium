@@ -59,81 +59,81 @@ NSCursor* CreateCustomCursor(const std::vector<char>& custom_data,
 
 // We're matching Safari's cursor choices; see platform/mac/CursorMac.mm
 NSCursor* WebCursor::GetCursor() const {
-  switch (type_) {
-    case PlatformCursor::typePointer:
+  switch (Type_) {
+    case PlatformCursor::TypePointer:
       return [NSCursor arrowCursor];
-    case PlatformCursor::typeCross:
+    case PlatformCursor::TypeCross:
       return LoadCursor("crossHairCursor", 11, 11);
-    case PlatformCursor::typeHand:
+    case PlatformCursor::TypeHand:
       return LoadCursor("linkCursor", 6, 1);
-    case PlatformCursor::typeIBeam:
+    case PlatformCursor::TypeIBeam:
       return [NSCursor IBeamCursor];
-    case PlatformCursor::typeWait:
+    case PlatformCursor::TypeWait:
       return LoadCursor("waitCursor", 7, 7);
-    case PlatformCursor::typeHelp:
+    case PlatformCursor::TypeHelp:
       return LoadCursor("helpCursor", 8, 8);
-    case PlatformCursor::typeEastResize:
-    case PlatformCursor::typeEastPanning:
+    case PlatformCursor::TypeEastResize:
+    case PlatformCursor::TypeEastPanning:
       return LoadCursor("eastResizeCursor", 14, 7);
-    case PlatformCursor::typeNorthResize:
-    case PlatformCursor::typeNorthPanning:
+    case PlatformCursor::TypeNorthResize:
+    case PlatformCursor::TypeNorthPanning:
       return LoadCursor("northResizeCursor", 7, 1);
-    case PlatformCursor::typeNorthEastResize:
-    case PlatformCursor::typeNorthEastPanning:
+    case PlatformCursor::TypeNorthEastResize:
+    case PlatformCursor::TypeNorthEastPanning:
       return LoadCursor("northEastResizeCursor", 14, 1);
-    case PlatformCursor::typeNorthWestResize:
-    case PlatformCursor::typeNorthWestPanning:
+    case PlatformCursor::TypeNorthWestResize:
+    case PlatformCursor::TypeNorthWestPanning:
       return LoadCursor("northWestResizeCursor", 0, 0);
-    case PlatformCursor::typeSouthResize:
-    case PlatformCursor::typeSouthPanning:
+    case PlatformCursor::TypeSouthResize:
+    case PlatformCursor::TypeSouthPanning:
       return LoadCursor("southResizeCursor", 7, 14);
-    case PlatformCursor::typeSouthEastResize:
-    case PlatformCursor::typeSouthEastPanning:
+    case PlatformCursor::TypeSouthEastResize:
+    case PlatformCursor::TypeSouthEastPanning:
       return LoadCursor("southEastResizeCursor", 14, 14);
-    case PlatformCursor::typeSouthWestResize:
-    case PlatformCursor::typeSouthWestPanning:
+    case PlatformCursor::TypeSouthWestResize:
+    case PlatformCursor::TypeSouthWestPanning:
       return LoadCursor("southWestResizeCursor", 1, 14);
-    case PlatformCursor::typeWestResize:
-    case PlatformCursor::typeWestPanning:
+    case PlatformCursor::TypeWestResize:
+    case PlatformCursor::TypeWestPanning:
       return LoadCursor("westResizeCursor", 1, 7);
-    case PlatformCursor::typeNorthSouthResize:
+    case PlatformCursor::TypeNorthSouthResize:
       return LoadCursor("northSouthResizeCursor", 7, 7);
-    case PlatformCursor::typeEastWestResize:
+    case PlatformCursor::TypeEastWestResize:
       return LoadCursor("eastWestResizeCursor", 7, 7);
-    case PlatformCursor::typeNorthEastSouthWestResize:
+    case PlatformCursor::TypeNorthEastSouthWestResize:
       return LoadCursor("northEastSouthWestResizeCursor", 7, 7);
-    case PlatformCursor::typeNorthWestSouthEastResize:
+    case PlatformCursor::TypeNorthWestSouthEastResize:
       return LoadCursor("northWestSouthEastResizeCursor", 7, 7);
-    case PlatformCursor::typeColumnResize:
+    case PlatformCursor::TypeColumnResize:
       return [NSCursor resizeLeftRightCursor];
-    case PlatformCursor::typeRowResize:
+    case PlatformCursor::TypeRowResize:
       return [NSCursor resizeUpDownCursor];
-    case PlatformCursor::typeMiddlePanning:
-    case PlatformCursor::typeMove:
+    case PlatformCursor::TypeMiddlePanning:
+    case PlatformCursor::TypeMove:
       return LoadCursor("moveCursor", 7, 7);
-    case PlatformCursor::typeVerticalText:
+    case PlatformCursor::TypeVerticalText:
       return LoadCursor("verticalTextCursor", 7, 7);
-    case PlatformCursor::typeCell:
+    case PlatformCursor::TypeCell:
       return LoadCursor("cellCursor", 7, 7);
-    case PlatformCursor::typeContextMenu:
+    case PlatformCursor::TypeContextMenu:
       return LoadCursor("contextMenuCursor", 3, 2);
-    case PlatformCursor::typeAlias:
+    case PlatformCursor::TypeAlias:
       return LoadCursor("aliasCursor", 11, 3);
-    case PlatformCursor::typeProgress:
+    case PlatformCursor::TypeProgress:
       return LoadCursor("progressCursor", 3, 2);
-    case PlatformCursor::typeNoDrop:
+    case PlatformCursor::TypeNoDrop:
       return LoadCursor("noDropCursor", 3, 1);
-    case PlatformCursor::typeCopy:
+    case PlatformCursor::TypeCopy:
       return LoadCursor("copyCursor", 3, 2);
-    case PlatformCursor::typeNone:
+    case PlatformCursor::TypeNone:
       return LoadCursor("noneCursor", 7, 7);
-    case PlatformCursor::typeNotAllowed:
+    case PlatformCursor::TypeNotAllowed:
       return LoadCursor("notAllowedCursor", 11, 11);
-    case PlatformCursor::typeZoomIn:
+    case PlatformCursor::TypeZoomIn:
       return LoadCursor("zoomInCursor", 7, 7);
-    case PlatformCursor::typeZoomOut:
+    case PlatformCursor::TypeZoomOut:
       return LoadCursor("zoomOutCursor", 7, 7);
-    case PlatformCursor::typeCustom:
+    case PlatformCursor::TypeCustom:
       return CreateCustomCursor(custom_data_, custom_size_, hotspot_);
   }
   NOTREACHED();

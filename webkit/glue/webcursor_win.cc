@@ -20,87 +20,87 @@ using WebCore::PlatformCursor;
 
 static LPCWSTR ToCursorID(PlatformCursor::Type type) {
   switch (type) {
-    case PlatformCursor::typePointer:
+    case PlatformCursor::TypePointer:
       return IDC_ARROW;
-    case PlatformCursor::typeCross:
+    case PlatformCursor::TypeCross:
       return IDC_CROSS;
-    case PlatformCursor::typeHand:
+    case PlatformCursor::TypeHand:
       return IDC_HAND;
-    case PlatformCursor::typeIBeam:
+    case PlatformCursor::TypeIBeam:
       return IDC_IBEAM;
-    case PlatformCursor::typeWait:
+    case PlatformCursor::TypeWait:
       return IDC_WAIT;
-    case PlatformCursor::typeHelp:
+    case PlatformCursor::TypeHelp:
       return IDC_HELP;
-    case PlatformCursor::typeEastResize:
+    case PlatformCursor::TypeEastResize:
       return IDC_SIZEWE;
-    case PlatformCursor::typeNorthResize:
+    case PlatformCursor::TypeNorthResize:
       return IDC_SIZENS;
-    case PlatformCursor::typeNorthEastResize:
+    case PlatformCursor::TypeNorthEastResize:
       return IDC_SIZENESW;
-    case PlatformCursor::typeNorthWestResize:
+    case PlatformCursor::TypeNorthWestResize:
       return IDC_SIZENWSE;
-    case PlatformCursor::typeSouthResize:
+    case PlatformCursor::TypeSouthResize:
       return IDC_SIZENS;
-    case PlatformCursor::typeSouthEastResize:
+    case PlatformCursor::TypeSouthEastResize:
       return IDC_SIZENWSE;
-    case PlatformCursor::typeSouthWestResize:
+    case PlatformCursor::TypeSouthWestResize:
       return IDC_SIZENESW;
-    case PlatformCursor::typeWestResize:
+    case PlatformCursor::TypeWestResize:
       return IDC_SIZEWE;
-    case PlatformCursor::typeNorthSouthResize:
+    case PlatformCursor::TypeNorthSouthResize:
       return IDC_SIZENS;
-    case PlatformCursor::typeEastWestResize:
+    case PlatformCursor::TypeEastWestResize:
       return IDC_SIZEWE;
-    case PlatformCursor::typeNorthEastSouthWestResize:
+    case PlatformCursor::TypeNorthEastSouthWestResize:
       return IDC_SIZENESW;
-    case PlatformCursor::typeNorthWestSouthEastResize:
+    case PlatformCursor::TypeNorthWestSouthEastResize:
       return IDC_SIZENWSE;
-    case PlatformCursor::typeColumnResize:
+    case PlatformCursor::TypeColumnResize:
       return MAKEINTRESOURCE(IDC_COLRESIZE);
-    case PlatformCursor::typeRowResize:
+    case PlatformCursor::TypeRowResize:
       return MAKEINTRESOURCE(IDC_ROWRESIZE);
-    case PlatformCursor::typeMiddlePanning:
+    case PlatformCursor::TypeMiddlePanning:
       return MAKEINTRESOURCE(IDC_PAN_MIDDLE);
-    case PlatformCursor::typeEastPanning:
+    case PlatformCursor::TypeEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_EAST);
-    case PlatformCursor::typeNorthPanning:
+    case PlatformCursor::TypeNorthPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH);
-    case PlatformCursor::typeNorthEastPanning:
+    case PlatformCursor::TypeNorthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_EAST);
-    case PlatformCursor::typeNorthWestPanning:
+    case PlatformCursor::TypeNorthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_WEST);
-    case PlatformCursor::typeSouthPanning:
+    case PlatformCursor::TypeSouthPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH);
-    case PlatformCursor::typeSouthEastPanning:
+    case PlatformCursor::TypeSouthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_EAST);
-    case PlatformCursor::typeSouthWestPanning:
+    case PlatformCursor::TypeSouthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_WEST);
-    case PlatformCursor::typeWestPanning:
+    case PlatformCursor::TypeWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_WEST);
-    case PlatformCursor::typeMove:
+    case PlatformCursor::TypeMove:
       return IDC_SIZEALL;
-    case PlatformCursor::typeVerticalText:
+    case PlatformCursor::TypeVerticalText:
       return MAKEINTRESOURCE(IDC_VERTICALTEXT);
-    case PlatformCursor::typeCell:
+    case PlatformCursor::TypeCell:
       return MAKEINTRESOURCE(IDC_CELL);
-    case PlatformCursor::typeContextMenu:
+    case PlatformCursor::TypeContextMenu:
       return MAKEINTRESOURCE(IDC_ARROW);
-    case PlatformCursor::typeAlias:
+    case PlatformCursor::TypeAlias:
       return MAKEINTRESOURCE(IDC_ALIAS);
-    case PlatformCursor::typeProgress:
+    case PlatformCursor::TypeProgress:
       return IDC_APPSTARTING;
-    case PlatformCursor::typeNoDrop:
+    case PlatformCursor::TypeNoDrop:
       return IDC_NO;
-    case PlatformCursor::typeCopy:
+    case PlatformCursor::TypeCopy:
       return MAKEINTRESOURCE(IDC_COPYCUR);
-    case PlatformCursor::typeNone:
+    case PlatformCursor::TypeNone:
       return IDC_ARROW;
-    case PlatformCursor::typeNotAllowed:
+    case PlatformCursor::TypeNotAllowed:
       return IDC_NO;
-    case PlatformCursor::typeZoomIn:
+    case PlatformCursor::TypeZoomIn:
       return MAKEINTRESOURCE(IDC_ZOOMIN);
-    case PlatformCursor::typeZoomOut:
+    case PlatformCursor::TypeZoomOut:
       return MAKEINTRESOURCE(IDC_ZOOMOUT);
   }
   NOTREACHED();
@@ -116,25 +116,25 @@ static PlatformCursor::Type ToPlatformCursorType(HCURSOR cursor) {
     HCURSOR cursor;
     PlatformCursor::Type type;
   } kStandardCursors[] = {
-    { LoadCursor(NULL, IDC_ARROW),       PlatformCursor::typePointer },
-    { LoadCursor(NULL, IDC_IBEAM),       PlatformCursor::typeIBeam },
-    { LoadCursor(NULL, IDC_WAIT),        PlatformCursor::typeWait },
-    { LoadCursor(NULL, IDC_CROSS),       PlatformCursor::typeCross },
-    { LoadCursor(NULL, IDC_SIZENWSE),    PlatformCursor::typeNorthWestResize },
-    { LoadCursor(NULL, IDC_SIZENESW),    PlatformCursor::typeNorthEastResize },
-    { LoadCursor(NULL, IDC_SIZEWE),      PlatformCursor::typeEastWestResize },
-    { LoadCursor(NULL, IDC_SIZENS),      PlatformCursor::typeNorthSouthResize },
-    { LoadCursor(NULL, IDC_SIZEALL),     PlatformCursor::typeMove },
-    { LoadCursor(NULL, IDC_NO),          PlatformCursor::typeNotAllowed },
-    { LoadCursor(NULL, IDC_HAND),        PlatformCursor::typeHand },
-    { LoadCursor(NULL, IDC_APPSTARTING), PlatformCursor::typeProgress },
-    { LoadCursor(NULL, IDC_HELP),        PlatformCursor::typeHelp },
+    { LoadCursor(NULL, IDC_ARROW),       PlatformCursor::TypePointer },
+    { LoadCursor(NULL, IDC_IBEAM),       PlatformCursor::TypeIBeam },
+    { LoadCursor(NULL, IDC_WAIT),        PlatformCursor::TypeWait },
+    { LoadCursor(NULL, IDC_CROSS),       PlatformCursor::TypeCross },
+    { LoadCursor(NULL, IDC_SIZENWSE),    PlatformCursor::TypeNorthWestResize },
+    { LoadCursor(NULL, IDC_SIZENESW),    PlatformCursor::TypeNorthEastResize },
+    { LoadCursor(NULL, IDC_SIZEWE),      PlatformCursor::TypeEastWestResize },
+    { LoadCursor(NULL, IDC_SIZENS),      PlatformCursor::TypeNorthSouthResize },
+    { LoadCursor(NULL, IDC_SIZEALL),     PlatformCursor::TypeMove },
+    { LoadCursor(NULL, IDC_NO),          PlatformCursor::TypeNotAllowed },
+    { LoadCursor(NULL, IDC_HAND),        PlatformCursor::TypeHand },
+    { LoadCursor(NULL, IDC_APPSTARTING), PlatformCursor::TypeProgress },
+    { LoadCursor(NULL, IDC_HELP),        PlatformCursor::TypeHelp },
   };
   for (int i = 0; i < arraysize(kStandardCursors); i++) {
     if (cursor == kStandardCursors[i].cursor)
       return kStandardCursors[i].type;
   }
-  return PlatformCursor::typeCustom;
+  return PlatformCursor::TypeCustom;
 }
 
 HCURSOR WebCursor::GetCursor(HINSTANCE module_handle){
@@ -196,7 +196,7 @@ void WebCursor::InitFromExternalCursor(HCURSOR cursor) {
 
   *this = WebCursor(cursor_type);
 
-  if (cursor_type == WebCore::PlatformCursor::typeCustom) {
+  if (cursor_type == WebCore::PlatformCursor::TypeCustom) {
     external_cursor_ = cursor;
   }
 }

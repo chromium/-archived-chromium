@@ -13,7 +13,7 @@
 #include "base/pickle.h"
 
 WebCursor::WebCursor()
-    : type_(WebCore::PlatformCursor::typePointer) {
+    : type_(WebCore::PlatformCursor::TypePointer) {
   InitPlatformData();
 }
 
@@ -91,7 +91,7 @@ bool WebCursor::Serialize(Pickle* pickle) const {
 }
 
 bool WebCursor::IsCustom() const {
-  return type_ == WebCore::PlatformCursor::typeCustom;
+  return type_ == WebCore::PlatformCursor::TypeCustom;
 }
 
 bool WebCursor::IsEqual(const WebCursor& other) const {
@@ -107,7 +107,7 @@ bool WebCursor::IsEqual(const WebCursor& other) const {
 }
 
 void WebCursor::Clear() {
-  type_ = WebCore::PlatformCursor::typePointer;
+  type_ = WebCore::PlatformCursor::TypePointer;
   hotspot_.set_x(0);
   hotspot_.set_y(0);
   custom_size_.set_width(0);
