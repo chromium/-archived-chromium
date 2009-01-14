@@ -5,6 +5,7 @@
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 
 #include <windows.h>
+#include <atlbase.h>
 
 #include "base/logging.h"
 #include "chrome/app/result_codes.h"
