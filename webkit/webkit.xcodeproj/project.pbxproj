@@ -1307,6 +1307,7 @@
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
+		FBBBF2E4099C8EA9BDAF80F9 /* CurrentTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4290,6 +4291,9 @@
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
+		9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrAndFlags.h; sourceTree = "<group>"; };
+		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
+		CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurrentTime.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4707,6 +4711,8 @@
 				7B5E85B60D7F28F5001ECF42 /* Assertions.cpp */,
 				7B5E85B70D7F28F5001ECF42 /* Assertions.h */,
 				4DB7F51F0E9BD3FB00C66CE0 /* AVLTree.h */,
+				CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */,
+				20EF92D9CD4E55999674A63E /* CurrentTime.h */,
 				7B5E85B80D7F28F5001ECF42 /* Deque.h */,
 				7B5E85B90D7F28F5001ECF42 /* DisallowCType.h */,
 				4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */,
@@ -4737,6 +4743,7 @@
 				7B5E85CC0D7F28F5001ECF42 /* OwnPtr.h */,
 				7B5E85CE0D7F28F5001ECF42 /* PassRefPtr.h */,
 				7B5E85CF0D7F28F5001ECF42 /* Platform.h */,
+				9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */,
 				4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */,
 				4112E7040EFB0A26001E0E7A /* RandomNumber.h */,
 				7B5E85D00D7F28F5001ECF42 /* RefCounted.h */,
@@ -8190,6 +8197,7 @@
 				7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */,
 				4D7FAB940F156764004F1B19 /* ByteArray.cpp in Sources */,
 				E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */,
+				FBBBF2E4099C8EA9BDAF80F9 /* CurrentTime.cpp in Sources */,
 				4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */,
 				7B5E862C0D7F2B56001ECF42 /* FastMalloc.cpp in Sources */,
 				7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */,

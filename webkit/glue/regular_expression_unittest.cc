@@ -35,7 +35,7 @@ struct Match {
 TEST(RegexTest, Basic) {
   // Just make sure we're not completely broken.
   const String pattern("the quick brown fox");
-  RegularExpression regex(pattern, /* case sensitive */ true);
+  RegularExpression regex(pattern, WebCore::TextCaseSensitive);
   EXPECT_EQ(0, regex.match("the quick brown fox"));
   EXPECT_EQ(1, regex.match(" the quick brown fox"));
   EXPECT_EQ(3, regex.match("foothe quick brown foxbar"));
@@ -50,7 +50,7 @@ TEST(RegexTest, Unicode) {
   // Test 1
   wstring wstr_pattern(L"\x6240\x6709\x7f51\x9875");
   String pattern = StdWStringToString(wstr_pattern);
-  RegularExpression regex(pattern, /* case sensitive */ false);
+  RegularExpression regex(pattern, WebCore::TextCaseInsensitive);
 
   EXPECT_EQ(0, regex.match(StdWStringToString(wstr_pattern)));
   EXPECT_EQ(1, regex.match(StdWStringToString(
@@ -63,7 +63,7 @@ TEST(RegexTest, Unicode) {
   // Test 2, mixed length
   wstr_pattern = L":[ \x2000]+:";
   pattern = StdWStringToString(wstr_pattern);
-  regex = RegularExpression(pattern, /* case sensitive */ false);
+  regex = RegularExpression(pattern, WebCore::TextCaseInsensitive);
   
   const Match matches[] = {
     { L":  :", 0, 4 },
@@ -82,7 +82,7 @@ TEST(RegexTest, Unicode) {
   // Test 3, empty match
   wstr_pattern = L"|x";
   pattern = StdWStringToString(wstr_pattern);
-  regex = RegularExpression(pattern, /* case sensitive */ false);
+  regex = RegularExpression(pattern, WebCore::TextCaseInsensitive);
   
   const Match matches2[] = {
     { L"", 0, 0 },

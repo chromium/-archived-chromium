@@ -1889,6 +1889,26 @@ SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 SKIP : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT
 SKIP : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT
 
+
+// Merge 39744:39829 - new tests
+LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
+LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/focus2.html = FAIL
+LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
+
+// Merge 39744:39829 - regression likely due to bad implementation of RenderPath::strokeContains in PathSkia.cpp
+LayoutTests/fast/canvas/pointInPath.html = FAIL
+LayoutTests/svg/custom/path-bad-data.svg = FAIL
+
+// Merge 39744:39829 - regressions
+LayoutTests/editing/pasteboard/4947130.html = FAIL
+WIN LINUX : LayoutTests/editing/selection/drag-text-delay.html = FAIL
+LayoutTests/fast/events/space-scroll-event.html = FAIL
+
+WIN LINUX : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
+WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+
 // 12-Jan-2009 Regressions:
 // I'm turning these off to green the build until I can look at them tomorrow. For the
 // most part they probably just need to be rebaselined due to recent Skia SVG changes.
@@ -1903,6 +1923,8 @@ LINUX : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
 
 // Another 12-Jan-2009 regression.
 LINUX : chrome/fonts/courier.html = FAIL
+
+
 
 // TODO(mmoss): rebaseline this when patterns are drawn correctly.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL

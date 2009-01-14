@@ -154,6 +154,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\CurrentTime.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\CurrentTime.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Deque.h"
 			>
 		</File>
@@ -243,6 +251,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Platform.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\PtrAndFlags.h"
 			>
 		</File>
 		<File
