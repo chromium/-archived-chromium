@@ -267,8 +267,10 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   if (!DeleteFilesAndFolders(exe_path, system_uninstall, installed_version))
     return installer_util::UNINSTALL_FAILED;
 
-  LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
-  dist->DoPostUninstallOperations(installed_version);
+  if (!force_uninstall) {
+    LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
+    dist->DoPostUninstallOperations(installed_version);
+  }
   return installer_util::UNINSTALL_SUCCESSFUL;
 }
 
