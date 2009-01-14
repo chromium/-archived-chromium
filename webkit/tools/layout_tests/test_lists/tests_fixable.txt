@@ -1030,7 +1030,7 @@ WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
 WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
 
 // Linux: color off by one.  Rounding error?
-LINUX MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
+LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
 // Linux: off-by-ones imply font metrics.
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
@@ -1599,7 +1599,6 @@ MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
 MAC : LayoutTests/svg/custom/circle-move-invalidation.svg = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
-MAC : LayoutTests/editing/deleting/5408255.html = FAIL
 MAC : LayoutTests/editing/pasteboard/5006779.html = FAIL
 
 // not loading local files
@@ -1884,19 +1883,19 @@ SKIP : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIME
 
 
 // Merge 39744:39829 - new tests
-LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
+WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
 LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 WIN LINUX : LayoutTests/fast/forms/focus2.html = FAIL
-LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
+WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
 // Merge 39744:39829 - regression likely due to bad implementation of RenderPath::strokeContains in PathSkia.cpp
-LayoutTests/fast/canvas/pointInPath.html = FAIL
+WIN LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
 LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
 // Merge 39744:39829 - regressions
-LayoutTests/editing/pasteboard/4947130.html = FAIL
+WIN LINUX : LayoutTests/editing/pasteboard/4947130.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/drag-text-delay.html = FAIL
-LayoutTests/fast/events/space-scroll-event.html = FAIL
+WIN LINUX : LayoutTests/fast/events/space-scroll-event.html = FAIL
 
 WIN LINUX : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
