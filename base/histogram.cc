@@ -432,7 +432,8 @@ LinearHistogram::LinearHistogram(const wchar_t* name,
   DCHECK(ValidateBucketRanges());
 }
 
-void LinearHistogram::SetRangeDescriptions(const DescriptionPair descriptions[]) {
+void LinearHistogram::SetRangeDescriptions(
+    const DescriptionPair descriptions[]) {
   for (int i =0; descriptions[i].description; ++i) {
     bucket_description_[descriptions[i].sample] = descriptions[i].description;
   }
@@ -552,7 +553,10 @@ bool StatisticsRecorder::Register(const Histogram& histogram) {
     return false;
   const std::string name = histogram.histogram_name();
   AutoLock auto_lock(*lock_);
-  DCHECK(histograms_->end() == histograms_->find(name));  // Only register once.
+
+  DCHECK(histograms_->end() == histograms_->find(name)) << name << "is already"
+      "registered as a histogram.  Only one histogram may be registered with a"
+      " given name";
   (*histograms_)[name] = &histogram;
   return true;
 }
