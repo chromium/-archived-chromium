@@ -1313,7 +1313,8 @@ LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
 // Bug 5053: fails (maybe V8?)
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 
-LINUX WIN : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
+// Expected output changed upstream and needs to be rebaselined on Linux.
+LINUX : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 
 // MERGE 38389:38450
 LINUX WIN : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
