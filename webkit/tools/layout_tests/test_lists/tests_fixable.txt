@@ -1840,11 +1840,6 @@ LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 // started with r7379
 WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 
-// Merge 39520:39606 -- new test.
-LINUX WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
-// Crashes on mac also from time to time, but probably not because of this test
-// more because of the general problems.
-MAC : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
 
 // Merge 39606:39660 - these tests fail now because inageData.data
 // returns 'undefined'. Upstream change removed the CanvasPixelArray
@@ -1870,6 +1865,10 @@ LayoutTests/fast/canvas/canvas-transparency-and-composite.html = FAIL
 LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
 LayoutTests/fast/canvas/gradient-with-clip.html = FAIL
 LayoutTests/fast/canvas/pattern-with-transform.html = FAIL
+WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
+// Crashes from time to time, but probably not because of this test
+// more because of the general problems.
+LINUX MAC : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
 
 // Merge 39606:39660 - tests were modified upstream, perhaps need a rebaseline.
 LINUX WIN : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
