@@ -146,7 +146,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
 
   const WebPluginInfo& plugin_info = instance_->plugin_lib()->plugin_info();
   std::string filename =
-      WideToASCII(StringToLowerASCII(plugin_info.path.BaseName().value()));
+      WideToUTF8(StringToLowerASCII(plugin_info.path.BaseName().value()));
 
   if (instance_->mime_type() == "application/x-shockwave-flash" ||
       filename == "npswf32.dll") {
