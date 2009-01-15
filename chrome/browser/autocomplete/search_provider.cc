@@ -9,7 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/l10n_util.h"

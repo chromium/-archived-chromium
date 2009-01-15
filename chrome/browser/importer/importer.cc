@@ -21,7 +21,7 @@
 #include "chrome/browser/importer/firefox_profile_lock.h"
 #include "chrome/browser/importer/ie_importer.h"
 #include "chrome/browser/importer/toolbar_importer.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/views/importer_lock_view.h"
 #include "chrome/browser/webdata/web_data_service.h"

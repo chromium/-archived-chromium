@@ -4,8 +4,8 @@
 
 #include "base/message_loop.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
-#include "chrome/browser/search_engines/template_url.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url.h"
+#include "chrome/browser/template_url_model.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

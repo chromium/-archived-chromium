@@ -10,7 +10,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/options_window.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"

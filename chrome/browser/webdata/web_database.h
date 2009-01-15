@@ -10,7 +10,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/meta_table_helper.h"
-#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/template_url.h"
 #include "chrome/common/sqlite_utils.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/autofill_form.h"

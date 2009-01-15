@@ -10,7 +10,7 @@
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/password_manager/ie7_password.h"
-#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/template_url.h"
 #include "chrome/common/chrome_constants.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/autofill_form.h"

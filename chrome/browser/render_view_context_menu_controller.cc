@@ -18,7 +18,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/browser/views/page_info_window.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

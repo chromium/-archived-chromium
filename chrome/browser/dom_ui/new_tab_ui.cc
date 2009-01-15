@@ -18,7 +18,7 @@
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/template_url.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/keyword_editor_view.h"

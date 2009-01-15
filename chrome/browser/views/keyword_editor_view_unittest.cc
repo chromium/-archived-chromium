@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/profile.h"
-#include "chrome/browser/search_engines/template_url.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"

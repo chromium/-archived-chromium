@@ -15,7 +15,7 @@
 #include "base/values.h"
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/password_manager/encryptor.h"
-#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/template_url.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/scoped_vector.h"
 #include "webkit/glue/password_form.h"

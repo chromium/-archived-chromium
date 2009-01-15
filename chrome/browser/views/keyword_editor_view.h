@@ -9,7 +9,7 @@
 #include <map>
 
 #include "base/logging.h"
-#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/table_view.h"
