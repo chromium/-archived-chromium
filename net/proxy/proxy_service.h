@@ -144,12 +144,6 @@ class ProxyService {
   // so it falls back to direct connect.
   static ProxyService* CreateNull();
 
-  // TODO(eroman): remove once WinHTTP is gone.
-  // Get the ProxyInfo used to create this proxy service (only used by WinHTTP).
-  const ProxyInfo* proxy_info() const {
-    return proxy_info_.get();
-  }
-
  private:
   friend class PacRequest;
 
@@ -182,9 +176,6 @@ class ProxyService {
   // We store the proxy config and a counter that is incremented each time
   // the config changes.
   ProxyConfig config_;
-
-  // TODO(eroman): remove this once WinHTTP stack is gone.
-  scoped_ptr<ProxyInfo> proxy_info_;
 
   // Indicates that the configuration is bad and should be ignored.
   bool config_is_bad_;
