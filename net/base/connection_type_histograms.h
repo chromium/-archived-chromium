@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -23,6 +23,8 @@ enum ConnectionType {
                            // the certificate chain (excluding root)
   CONNECTION_SSL_MD4 = 4,  // An SSL connection with an MD4 certificate in
                            // the certificate chain (excluding root)
+  CONNECTION_SSL_MD5_CA = 5,  // An SSL connection with an MD5 CA certificate
+                              // in the certificate chain (excluding root)
   NUM_OF_CONNECTION_TYPES
 };
 

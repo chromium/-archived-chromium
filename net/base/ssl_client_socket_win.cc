@@ -1033,16 +1033,20 @@ void SSLClientSocketWin::LogConnectionTypeMetrics(
   bool has_md5 = false;
   bool has_md2 = false;
   bool has_md4 = false;
+  bool has_md5_ca = false;
 
-  // Each chain starts with the end entity certificate and ends with the root
-  // CA certificate.  Do not inspect the signature algorithm of the root CA
-  // certificate because the signature on the trust anchor is not important.
+  // Each chain starts with the end entity certificate (i = 0) and ends with
+  // the root CA certificate (i = num_elements - 1).  Do not inspect the
+  // signature algorithm of the root CA certificate because the signature on
+  // the trust anchor is not important.
   for (int i = 0; i < num_elements - 1; ++i) {
     PCCERT_CONTEXT cert = element[i]->pCertContext;
     const char* algorithm = cert->pCertInfo->SignatureAlgorithm.pszObjId;
     if (strcmp(algorithm, szOID_RSA_MD5RSA) == 0) {
       // md5WithRSAEncryption: 1.2.840.113549.1.1.4
       has_md5 = true;
+      if (i != 0)
+        has_md5_ca = true;
     } else if (strcmp(algorithm, szOID_RSA_MD2RSA) == 0) {
       // md2WithRSAEncryption: 1.2.840.113549.1.1.2
       has_md2 = true;
@@ -1058,6 +1062,8 @@ void SSLClientSocketWin::LogConnectionTypeMetrics(
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2);
   if (has_md4)
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD4);
+  if (has_md5_ca)
+    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5_CA);
 }
 
 // Set server_cert_status_ and return OK or a network error.
