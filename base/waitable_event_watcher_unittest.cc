@@ -40,17 +40,17 @@ void RunTest_BasicSignal(MessageLoop::Type message_loop_type) {
   WaitableEvent event(true, false);
 
   WaitableEventWatcher watcher;
-  EXPECT_EQ(NULL, watcher.GetWatchedObject());
+  EXPECT_EQ(NULL, watcher.GetWatchedEvent());
 
   QuitDelegate delegate;
   watcher.StartWatching(&event, &delegate);
-  EXPECT_EQ(&event, watcher.GetWatchedObject());
+  EXPECT_EQ(&event, watcher.GetWatchedEvent());
 
   event.Signal();
 
   MessageLoop::current()->Run();
 
-  EXPECT_EQ(NULL, watcher.GetWatchedObject());
+  EXPECT_EQ(NULL, watcher.GetWatchedEvent());
 }
 
 void RunTest_BasicCancel(MessageLoop::Type message_loop_type) {
