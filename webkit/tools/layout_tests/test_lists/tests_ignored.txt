@@ -83,7 +83,7 @@ SKIP : LayoutTests/http/tests/webarchive = FAIL PASS
 LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 
 // Mac-specific stuff
-// Don't run the platform/mac* tests
+// Run the platform/mac* tests, but only to check for crashes.
 LayoutTests/platform = FAIL PASS
 
 // Ignored because we do not have OBJC bindings
@@ -221,3 +221,8 @@ SKIP : LayoutTests/fast/encoding/char-decoding-mac.html = FAIL
 
 // WebKit QT Build-specific tests
 SKIP : LayoutTests/platform/qt/view/fixed-layout-size.html = FAIL
+
+// These don't have pixel results and rely on ObjC bindings. Don't run until they have pixel results.
+SKIP : LayoutTests/platform/mac/editing/pasteboard/dataTransfer-set-data-file-url.html = FAIL
+SKIP : LayoutTests/http/tests/security/dataTransfer-set-data-file-url.html = FAIL
+
