@@ -1901,7 +1901,6 @@ LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 
 // Merge 39880:39894 - new tests
 LayoutTests/http/tests/security/dataTransfer-set-data-file-url.html = FAIL
-LayoutTests/platform/mac/editing/pasteboard/dataTransfer-set-data-file-url.html = FAIL
 
 // Merge 39880:39894 - regressions
 // Note: this failed before the merge on Windows, just not crashed (brettw saw
