@@ -111,25 +111,25 @@ void RunTest_OutlivesMessageLoop(MessageLoop::Type message_loop_type) {
 
 //-----------------------------------------------------------------------------
 
-TEST(ObjectWatcherTest, BasicSignal) {
+TEST(WaitableEventWatcherTest, BasicSignal) {
   RunTest_BasicSignal(MessageLoop::TYPE_DEFAULT);
   RunTest_BasicSignal(MessageLoop::TYPE_IO);
   RunTest_BasicSignal(MessageLoop::TYPE_UI);
 }
 
-TEST(ObjectWatcherTest, BasicCancel) {
+TEST(WaitableEventWatcherTest, BasicCancel) {
   RunTest_BasicCancel(MessageLoop::TYPE_DEFAULT);
   RunTest_BasicCancel(MessageLoop::TYPE_IO);
   RunTest_BasicCancel(MessageLoop::TYPE_UI);
 }
 
-TEST(ObjectWatcherTest, CancelAfterSet) {
+TEST(WaitableEventWatcherTest, CancelAfterSet) {
   RunTest_CancelAfterSet(MessageLoop::TYPE_DEFAULT);
   RunTest_CancelAfterSet(MessageLoop::TYPE_IO);
   RunTest_CancelAfterSet(MessageLoop::TYPE_UI);
 }
 
-TEST(ObjectWatcherTest, OutlivesMessageLoop) {
+TEST(WaitableEventWatcherTest, OutlivesMessageLoop) {
   RunTest_OutlivesMessageLoop(MessageLoop::TYPE_DEFAULT);
   RunTest_OutlivesMessageLoop(MessageLoop::TYPE_IO);
   RunTest_OutlivesMessageLoop(MessageLoop::TYPE_UI);
