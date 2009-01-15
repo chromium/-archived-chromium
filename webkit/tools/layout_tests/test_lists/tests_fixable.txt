@@ -1111,6 +1111,9 @@ LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 // Linux pixel tests: the select arrow is clipping wrong on one line.
 LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
+// Internationalization / complex characters / etc
+LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
+
 // Depends on plugin support.
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
@@ -1921,30 +1924,3 @@ LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html 
 LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
 LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
-LINUX : LayoutTests/css2.1/t0805-c5518-brdr-t-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5519-brdr-r-00-a.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5520-brdr-b-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5521-brdr-l-00-a.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5521-brdr-l-01-e.html = FAIL
-LINUX : LayoutTests/css2.1/t0805-c5521-ibrdr-l-00-a.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c414-flt-02-c.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c414-flt-03-c.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c414-flt-04-c.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltblck-01-d.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltcont-00-d-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-00-c-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-02-c-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwidth-03-c-g.html = FAIL
-LINUX : LayoutTests/css2.1/t0905-c5525-fltwrap-00-b.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c414-flt-01-b.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c414-flt-03-b-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c414-flt-ln-01-d-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c5525-flt-l-00-b-g.html = FAIL
-LINUX : LayoutTests/css2.1/t090501-c5525-flt-r-00-b-g.html = FAIL
-LINUX : LayoutTests/css2.1/t100304-c43-rpl-bbx-01-d-g.html = FAIL
-LINUX : LayoutTests/css2.1/t1205-c566-list-stl-01-c-g.html = FAIL
-LINUX : LayoutTests/editing/deleting/5144139-2.html = FAIL
-LINUX : LayoutTests/editing/execCommand/5119244.html = FAIL
-
