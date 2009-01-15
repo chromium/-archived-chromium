@@ -360,27 +360,15 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 DEFER LINUX : LayoutTests/svg/custom/font-face-simple.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
-LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
-LINUX : LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
 LINUX : LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
-LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 LINUX MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
-LINUX : LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
 LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
 LINUX : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
-LINUX : LayoutTests/svg/custom/width-full-percentage.svg = FAIL
-LINUX : LayoutTests/svg/custom/text-linking.svg = FAIL
-LINUX : LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
 LINUX : LayoutTests/svg/custom/invalid-css.svg = FAIL
-LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 LINUX : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 LINUX : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
-LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
-LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
-LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
-LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
-LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
+
 LINUX : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
 LINUX : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
 
