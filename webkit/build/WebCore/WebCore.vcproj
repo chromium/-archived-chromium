@@ -2237,10 +2237,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\EditorChromium.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\FileChooserChromium.cpp"
 					>
 				</File>
@@ -4815,6 +4811,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\Editor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\chromium\EditorChromium.cpp"
 				>
 			</File>
 			<File

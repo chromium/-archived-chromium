@@ -1910,3 +1910,5 @@ WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL | CRASH
 LayoutTests/fast/js/numeric-conversion.html = FAIL
 LayoutTests/http/tests/security/dataTransfer-set-data-file-url.html = FAIL
 
+// Merge 39894:39913 - regressions
+LayoutTests/plugins/netscape-throw-exception.html = FAIL

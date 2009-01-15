@@ -171,6 +171,8 @@ input_files = [
     '$WEBCORE_DIR/dom/XMLTokenizer.cpp',
     '$WEBCORE_DIR/dom/XMLTokenizerLibxml2.cpp',
 
+    '$WEBCORE_DIR/editing/chromium/EditorChromium.cpp',
+
     '$WEBCORE_DIR/editing/AppendNodeCommand.cpp',
     '$WEBCORE_DIR/editing/ApplyStyleCommand.cpp',
     '$WEBCORE_DIR/editing/BreakBlockquoteCommand.cpp',
@@ -468,7 +470,6 @@ input_files = [
     '$WEBCORE_DIR/platform/chromium/CursorChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/DragDataChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/DragImageChromium.cpp',
-    '$WEBCORE_DIR/platform/chromium/EditorChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/FileChooserChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/FileSystemChromium.cpp',
     '$WEBCORE_DIR/platform/chromium/FramelessScrollView.cpp',
