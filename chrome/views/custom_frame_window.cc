@@ -1319,10 +1319,18 @@ void CustomFrameWindow::ResetWindowRegion() {
   HRGN current_rgn = CreateRectRgn(0, 0, 0, 0);
   int current_rgn_result = GetWindowRgn(GetHWND(), current_rgn);
 
-  HRGN new_region = NULL;
-  if (!IsMaximized()) {
-    CRect window_rect;
-    GetWindowRect(&window_rect);
+  CRect window_rect;
+  GetWindowRect(&window_rect);
+  HRGN new_region;
+  if (IsMaximized()) {
+    HMONITOR monitor = MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
+    MONITORINFO mi;
+    mi.cbSize = sizeof mi;
+    GetMonitorInfo(monitor, &mi);
+    CRect work_rect = mi.rcWork;
+    work_rect.OffsetRect(-window_rect.left, -window_rect.top);
+    new_region = CreateRectRgnIndirect(&work_rect);
+  } else {
     gfx::Path window_mask;
     non_client_view_->GetWindowMask(gfx::Size(window_rect.Width(),
                                               window_rect.Height()),
@@ -1330,11 +1338,10 @@ void CustomFrameWindow::ResetWindowRegion() {
     new_region = window_mask.CreateHRGN();
   }
 
-  if (current_rgn_result == ERROR ||
-      !EqualRgn(current_rgn, new_region)) {
+  if (current_rgn_result == ERROR || !EqualRgn(current_rgn, new_region)) {
     // SetWindowRgn takes ownership of the HRGN created by CreateHRGN.
     SetWindowRgn(new_region, TRUE);
-  } else if (new_region) {
+  } else {
     DeleteObject(new_region);
   }
 
