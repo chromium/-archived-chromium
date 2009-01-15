@@ -911,9 +911,6 @@ DEFER SKIP : LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
 // same behavior as Chromium. Not required for beta so marking as deferred.
 DEFER LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 
-// Flaky and wrong pattern output.
-LINUX WIN : LayoutTests/fast/canvas/patternfill-repeat.html = FAIL CRASH
-
 // This test assumes we're using unix paths and looks for a file:///test
 // path.  We correctly return file:///C:/test on Windows.  We should fix
 // upstream
@@ -1889,10 +1886,6 @@ LINUX WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Another 12-Jan-2009 regression.
 LINUX : chrome/fonts/courier.html = FAIL
-
-
-// TODO(mmoss): rebaseline this when patterns are drawn correctly.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 
 // Merge 39830:39880 - new tests
 LayoutTests/plugins/npruntime.html = TIMEOUT
