@@ -518,9 +518,9 @@ class PurifyAnalyze:
     sys.stderr.flush()
     sys.stdout.flush()
     logging.info("summary of Purify bugs:")
-    # This is a specialized set of counters for layout tests, with some
+    # This is a specialized set of counters for unit tests, with some
     # unfortunate hard-coded knowledge.
-    layout_test_counts = {}
+    test_counts = {}
     for key in self._message_lists:
       bug = {}
       list = self._message_lists[key]
@@ -538,10 +538,11 @@ class PurifyAnalyze:
         this_bug = bug[msg._title]
         this_bug["total"] += msg._count
         this_bug["count"] += 1
-        this_bug["programs"].add(msg.Program())
-        # try to summarize the problem areas for layout tests
+        prog = msg.Program()
         if self._name == "layout":
-          prog = msg.Program()
+          # For layout tests, use the last argument, which is the URL that's
+          # passed into test_shell.
+          this_bug["programs"].add(prog)
           prog_args = prog.split(" ")
           if len(prog_args):
             path = prog_args[-1].replace('\\', '/')
@@ -553,9 +554,24 @@ class PurifyAnalyze:
               if index >= 0:
                 # the port number is 8000 or 9000, but length is the same
                 path = "http: " + path[(index + len("127.0.0.1:8000/")):]
-            path = "/".join(path.split('/')[0:-1])
-            count = 1 + layout_test_counts.get(path, 0)
-            layout_test_counts[path] = count
+            count = 1 + test_counts.get(path, 0)
+            test_counts[path] = count
+        elif self._name == "ui":
+          # ui_tests.exe appends a --test-name= argument to chrome.exe
+          prog_args = prog.split(" ")
+          arg_prefix = "--test-name="
+          test_name = "UNKNOWN"
+          for arg in prog_args:            
+            index = arg.find(arg_prefix)
+            if index >= 0:
+              test_name = arg[len(arg_prefix):]
+              count = 1 + test_counts.get(test_name, 0)
+              test_counts[test_name] = count
+              break
+          this_bug["programs"].add(test_name)
+        else:
+          this_bug["programs"].add(prog)
+
       for title in bug:
         b = bug[title]
         print "[%s] %s" % (key, title)
@@ -567,15 +583,16 @@ class PurifyAnalyze:
         print "Sample error details:"
         print "====================="
         print b["message"].NormalizedStr(verbose=True)
-    if len(layout_test_counts):
+    if len(test_counts):
       print
-      print "Layout test error counts"
+      print "test error counts"
       print "========================"
-      paths = layout_test_counts.keys()
-      paths.sort()
-      for path in paths:
-        print "%s: %d" % (path, layout_test_counts[path])
+      tests = test_counts.keys()
+      tests.sort()
+      for test in tests:
+        print "%s: %d" % (test, test_counts[test])
     # make sure stdout is flushed to avoid weird overlaps with logging
+    print
     sys.stdout.flush()
 
   def SaveLatestStrings(self, string_list, key, fname_extra=""):
