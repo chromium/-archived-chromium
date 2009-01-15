@@ -1,14 +1,22 @@
 # Fails in cache_uitest.cc:69. Increasing the timeouts doesn't seem to help.
+# Bug: http://crbug.com/6491
 CacheTest.Private
 CacheTest.Public
 
 # These tests seem to stall out and not complete. Adjusting various timeouts
 # didn't seem to help, but more investigation is needed.
+# Bug: http://crbug.com/6492
 UnloadTest.BrowserCloseBeforeUnloadOK
 UnloadTest.BrowserCloseBeforeUnloadCancel
 
 # These tests stall out, more investigation needed.
+# Bug: http://crbug.com/6493
 NPAPITester.ManyPlugins
-SessionHistoryTest.FrameBackForward
-SessionHistoryTest.BasicBackForward
+
+# Tests which stall out due to various interactions with testserver.py.
+# Bug: http://crbug.com/6494
+SessionHistoryTest.*
+
+# Bug: http://crbug.com/6495
+SessionRestoreUITest.*
 
