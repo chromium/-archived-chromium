@@ -89,6 +89,8 @@ if env.Bit('linux'):
   remove_files = [
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',
+    'plugins/plugin_lib.cc',
+    'plugins/plugin_list.cc',
     'plugins/plugin_stream.cc',
     'plugins/plugin_stream_url.cc',
     'plugins/plugin_string_stream.cc',
