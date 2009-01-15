@@ -1406,14 +1406,6 @@
 			Name="WebData"
 			>
 			<File
-				RelativePath=".\encryptor.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\encryptor.h"
-				>
-			</File>
-			<File
 				RelativePath=".\webdata\web_data_service.cc"
 				>
 			</File>
