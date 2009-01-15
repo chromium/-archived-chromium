@@ -43,12 +43,18 @@ class WebFileChooserCallbackImpl : public WebFileChooserCallback {
   }
 
   void OnFileChoose(const std::vector<std::wstring>& file_names) {
-    assert(file_names.size() <= 1);
     if (file_names.empty()) {
-      file_chooser_->chooseFile(webkit_glue::StdWStringToString(L""));
-    } else {
+      file_chooser_->chooseFile(WebCore::String(""));
+    } else if (file_names.size() == 1) {
       file_chooser_->chooseFile(
-        webkit_glue::StdWStringToString(file_names.front().c_str()));
+        webkit_glue::StdWStringToString(file_names.front()));
+    } else {
+      Vector<WebCore::String> paths;
+      for (std::vector<std::wstring>::const_iterator filename =
+             file_names.begin(); filename != file_names.end(); ++filename) {
+        paths.append(webkit_glue::StdWStringToString(*filename));
+      }
+      file_chooser_->chooseFiles(paths);
     }
   }
 
@@ -458,12 +464,14 @@ void ChromeClientImpl::runOpenPanel(WebCore::Frame* frame,
   if (!delegate)
     return;
 
+  bool multiple_files = fileChooser->allowsMultipleFiles();
+
   std::wstring suggestion;
   if (fileChooser->filenames().size() > 0)
     suggestion = webkit_glue::StringToStdWString(fileChooser->filenames()[0]);
 
   WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
-  delegate->RunFileChooser(false, std::wstring(), suggestion,
+  delegate->RunFileChooser(multiple_files, std::wstring(), suggestion,
                            std::wstring(), chooser);
 }
 
