@@ -61,10 +61,10 @@ static const int kToolbarTabStripVerticalOverlap = 3;
 static const int kTabShadowSize = 2;
 // The height of the status bubble.
 static const int kStatusBubbleHeight = 20;
-// The distance of the status bubble from the left edge of the window.
-static const int kStatusBubbleHorizontalOffset = 3;
-// The distance of the status bubble from the bottom edge of the window.
-static const int kStatusBubbleVerticalOffset = 2;
+// The overlap of the status bubble with the left edge of the window.
+static const int kStatusBubbleHorizontalOverlap = 2;
+// The overlap of the status bubble with the bottom edge of the window.
+static const int kStatusBubbleVerticalOverlap = 2;
 // An offset distance between certain toolbars and the toolbar that preceded
 // them in layout.
 static const int kSeparationLineHeight = 1;
@@ -178,7 +178,9 @@ gfx::Rect BrowserView::GetToolbarBounds() const {
 
 gfx::Rect BrowserView::GetClientAreaBounds() const {
   gfx::Rect container_bounds = contents_container_->bounds();
-  container_bounds.Offset(x(), y());
+  gfx::Point container_origin = container_bounds.origin();
+  ConvertPointToView(this, GetParent(), &container_origin);
+  container_bounds.set_origin(container_origin);
   return container_bounds;
 }
 
@@ -1127,10 +1129,11 @@ int BrowserView::LayoutDownloadShelf() {
 }
 
 void BrowserView::LayoutStatusBubble(int top) {
-  int status_bubble_y =
-      top - kStatusBubbleHeight + kStatusBubbleVerticalOffset + y();
-  status_bubble_->SetBounds(kStatusBubbleHorizontalOffset, status_bubble_y,
-                            width() / 3, kStatusBubbleHeight);
+  gfx::Point origin(-kStatusBubbleHorizontalOverlap,
+                    top - kStatusBubbleHeight + kStatusBubbleVerticalOverlap);
+  ConvertPointToView(this, GetParent(), &origin);
+  status_bubble_->SetBounds(origin.x(), origin.y(), width() / 3,
+                            kStatusBubbleHeight);
 }
 
 bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
