@@ -19,6 +19,8 @@ class PerfTestSuite : public TestSuite {
   }
 
   virtual void Initialize() {
+    TestSuite::Initialize();
+
     // Initialize the perf timer log
     FilePath log_path;
     std::wstring log_file = CommandLine().GetSwitchValue(L"log-file");
@@ -36,8 +38,6 @@ class PerfTestSuite : public TestSuite {
     // aim at 1% precision, it is not necessary to run at realtime level.
     if (!DebugUtil::BeingDebugged())
       base::RaiseProcessToHighPriority();
-
-    TestSuite::Initialize();
   }
 
   virtual void Shutdown() {

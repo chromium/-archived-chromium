@@ -30,28 +30,20 @@
 class TestSuite {
  public:
   TestSuite(int argc, char** argv) {
-    base::ScopedNSAutoreleasePool scoped_pool;
-
     base::EnableTerminationOnHeapCorruption();
     CommandLine::SetArgcArgv(argc, argv);
     testing::InitGoogleTest(&argc, argv);
 #if defined(OS_LINUX)
     gtk_init_check(&argc, &argv);
 #endif
-
-    FilePath exe;
-    PathService::Get(base::FILE_EXE, &exe);
-    FilePath log_filename = exe.ReplaceExtension(FILE_PATH_LITERAL("log"));
-    logging::InitLogging(log_filename.value().c_str(),
-                         logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
-                         logging::LOCK_LOG_FILE,
-                         logging::DELETE_OLD_LOG_FILE);
-    // we want process and thread IDs because we may have multiple processes
-    logging::SetLogItems(true, true, false, true);
+    // Don't add additional code to this constructor.  Instead add it to
+    // Initialize().  See bug 6436.
   }
 
   virtual ~TestSuite() {}
 
+  // Don't add additional code to this method.  Instead add it to
+  // Initialize().  See bug 6436.
   int Run() {
     base::ScopedNSAutoreleasePool scoped_pool;
 
@@ -71,7 +63,7 @@ class TestSuite {
   }
 
  protected:
-  // All fatal log messages (e.g. DCHECK failures) imply unit test failures
+  // All fatal log messages (e.g. DCHECK failures) imply unit test failures.
   static void UnitTestAssertHandler(const std::string& str) {
     FAIL() << str;
   }
@@ -94,6 +86,18 @@ class TestSuite {
   // instead of putting complex code in your constructor/destructor.
 
   virtual void Initialize() {
+    // Initialize logging.
+    FilePath exe;
+    PathService::Get(base::FILE_EXE, &exe);
+    FilePath log_filename = exe.ReplaceExtension(FILE_PATH_LITERAL("log"));
+    logging::InitLogging(log_filename.value().c_str(),
+                         logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+                         logging::LOCK_LOG_FILE,
+                         logging::DELETE_OLD_LOG_FILE);
+    // We want process and thread IDs because we may have multiple processes.
+    // Note: temporarily enabled timestamps in an effort to catch bug 6361.
+    logging::SetLogItems(true, true, true, true);
+
 #if defined(OS_WIN)
     // In some cases, we do not want to see standard error dialogs.
     if (!IsDebuggerPresent() &&
