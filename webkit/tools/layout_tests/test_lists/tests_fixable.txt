@@ -1924,6 +1924,6 @@ LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
 
 // Merge 39913:39933 - new tests
 // This is bug 6475, css/WebKitCSSMatrix.idl needs to be added to the build.
-LayoutTests/transforms/3d/cssmatrix-interface.xhtml = FAIL
+LayoutTests/transforms/2d/cssmatrix-interface.xhtml = FAIL
 
 
