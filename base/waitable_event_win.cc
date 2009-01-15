@@ -13,22 +13,27 @@
 namespace base {
 
 WaitableEvent::WaitableEvent(bool manual_reset, bool signaled)
-    : event_(CreateEvent(NULL, manual_reset, signaled, NULL)) {
+    : handle_(CreateEvent(NULL, manual_reset, signaled, NULL)) {
   // We're probably going to crash anyways if this is ever NULL, so we might as
   // well make our stack reports more informative by crashing here.
-  CHECK(event_);
+  CHECK(handle_);
+}
+
+WaitableEvent::WaitableEvent(HANDLE handle)
+    : handle_(handle) {
+  CHECK(handle) << "Tried to create WaitableEvent from NULL handle";
 }
 
 WaitableEvent::~WaitableEvent() {
-  CloseHandle(event_);
+  CloseHandle(handle_);
 }
 
 void WaitableEvent::Reset() {
-  ResetEvent(event_);
+  ResetEvent(handle_);
 }
 
 void WaitableEvent::Signal() {
-  SetEvent(event_);
+  SetEvent(handle_);
 }
 
 bool WaitableEvent::IsSignaled() {
@@ -36,7 +41,7 @@ bool WaitableEvent::IsSignaled() {
 }
 
 bool WaitableEvent::Wait() {
-  DWORD result = WaitForSingleObject(event_, INFINITE);
+  DWORD result = WaitForSingleObject(handle_, INFINITE);
   // It is most unexpected that this should ever fail.  Help consumers learn
   // about it if it should ever fail.
   DCHECK(result == WAIT_OBJECT_0) << "WaitForSingleObject failed";
@@ -49,7 +54,7 @@ bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
   // is in milliseconds.  If there are 5.5ms left, should the delay be 5 or 6?
   // It should be 6 to avoid returning too early.
   double timeout = ceil(max_time.InMillisecondsF());
-  DWORD result = WaitForSingleObject(event_, static_cast<DWORD>(timeout));
+  DWORD result = WaitForSingleObject(handle_, static_cast<DWORD>(timeout));
   switch (result) {
     case WAIT_OBJECT_0:
       return true;
@@ -60,6 +65,27 @@ bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
   // about it if it should ever fail.
   NOTREACHED() << "WaitForSingleObject failed";
   return false;
+}
+
+// static
+size_t WaitableEvent::WaitMany(WaitableEvent** events, size_t count) {
+  HANDLE handles[MAXIMUM_WAIT_OBJECTS];
+  CHECK(count <= MAXIMUM_WAIT_OBJECTS)
+      << "Can only wait on " << MAXIMUM_WAIT_OBJECTS << " with WaitMany";
+
+  for (size_t i = 0; i < count; ++i)
+    handles[i] = events[i]->handle();
+
+  DWORD result =
+      WaitForMultipleObjects(count, handles,
+                             FALSE,      // don't wait for all the objects
+                             INFINITE);  // no timeout
+  if (result < WAIT_OBJECT_0 || result >= WAIT_OBJECT_0 + count) {
+    NOTREACHED() << "WaitForMultipleObjects failed: " << GetLastError();
+    return 0;
+  }
+
+  return result - WAIT_OBJECT_0;
 }
 
 }  // namespace base

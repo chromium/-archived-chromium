@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/thread.h"
+#include "base/waitable_event.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/chrome_thread.h"
@@ -127,7 +128,7 @@ BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
       memory_model_ = MEDIUM_MEMORY_MODEL;
   }
 
-  shutdown_event_ = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+  shutdown_event_ = new base::WaitableEvent(true, false);
 }
 
 BrowserProcessImpl::~BrowserProcessImpl() {

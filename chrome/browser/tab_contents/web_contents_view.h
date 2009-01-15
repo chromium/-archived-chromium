@@ -24,6 +24,10 @@ class WebContents;
 struct WebDropData;
 class WebKeyboardEvent;
 
+namespace base {
+class WaitableEvent;
+}
+
 // The WebContentsView is an interface that is implemented by the platform-
 // dependent web contents views. The WebContents uses this interface to talk to
 // them. View-related messages will also get forwarded directly to this class
@@ -152,8 +156,8 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // created objects so that they can be associated with the given routes. When
   // they are shown later, we'll look them up again and pass the objects to
   // the Show functions rather than the route ID.
-  virtual WebContents* CreateNewWindowInternal(int route_id,
-                                               HANDLE modal_dialog_event) = 0;
+  virtual WebContents* CreateNewWindowInternal
+      (int route_id, base::WaitableEvent* modal_dialog_event) = 0;
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
                                                         bool activatable) = 0;
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
@@ -167,7 +171,8 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // We implement these functions on RenderViewHostDelegate::View directly and
   // do some book-keeping associated with the request. The request is then
   // forwarded to *Internal which does platform-specific work.
-  virtual void CreateNewWindow(int route_id, HANDLE modal_dialog_event);
+  virtual void CreateNewWindow(int route_id,
+                               base::WaitableEvent* modal_dialog_event);
   virtual void CreateNewWidget(int route_id, bool activatable);
   virtual void ShowCreatedWindow(int route_id,
                                  WindowOpenDisposition disposition,

@@ -320,6 +320,7 @@ if not env.Bit('windows'):
       'third_party/purify/pure_api.c',
       'time_win.cc',
       'waitable_event_win.cc',
+      'waitable_event_watcher_win.cc',
       'win_util.cc',
       'wmi_util.cc',
       'worker_pool.cc',
@@ -343,7 +344,8 @@ if env.Bit('posix'):
       'thread_local_storage_posix.cc',
       'thread_local_posix.cc',
       'time_posix.cc',
-      'waitable_event_generic.cc',
+      'waitable_event_posix.cc',
+      'waitable_event_watcher_posix.cc',
   ])
 
 if env.Bit('mac'):

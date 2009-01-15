@@ -9,8 +9,9 @@
 #endif
 #include <stack>
 
-#include "chrome/common/ipc_sync_message.h"
 #include "base/logging.h"
+#include "base/waitable_event.h"
+#include "chrome/common/ipc_sync_message.h"
 
 namespace IPC {
 
@@ -20,7 +21,7 @@ uint32 SyncMessage::next_id_ = 0;
 #if defined(OS_WIN)
 // TODO(playmobil): reinstantiate once ObjectWatcher is ported.
 // A dummy handle used by EnableMessagePumping.
-HANDLE dummy_event = ::CreateEvent(NULL, TRUE, TRUE, NULL);
+base::WaitableEvent* dummy_event = new base::WaitableEvent(true, true);
 #endif
 
 SyncMessage::SyncMessage(
@@ -29,11 +30,8 @@ SyncMessage::SyncMessage(
     PriorityValue priority,
     MessageReplyDeserializer* deserializer)
     : Message(routing_id, type, priority),
-      deserializer_(deserializer)
-#if defined(OS_WIN)
-      // TODO(playmobil): reinstantiate once ObjectWatcher is ported.
-      , pump_messages_event_(NULL)
-#endif
+      deserializer_(deserializer),
+      pump_messages_event_(NULL)
       {
   set_sync();
   set_unblock(true);

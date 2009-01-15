@@ -24,6 +24,10 @@ class RenderViewHostFactory;
 class RenderWidgetHost;
 class WebContentsView;
 
+namespace base {
+class WaitableEvent;
+}
+
 // WebContents represents the contents of a tab that shows web pages. It embeds
 // a RenderViewHost (via RenderViewHostManager) to actually display the page.
 class WebContents : public TabContents,
@@ -41,7 +45,7 @@ class WebContents : public TabContents,
               SiteInstance* instance,
               RenderViewHostFactory* render_view_factory,
               int routing_id,
-              HANDLE modal_dialog_event);
+              base::WaitableEvent* modal_dialog_event);
 
   static void RegisterUserPrefs(PrefService* prefs);
 

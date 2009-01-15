@@ -22,6 +22,9 @@ struct NPIdentifier_Param;
 struct NPVariant_Param;
 typedef void *NPIdentifier;
 
+namespace base {
+class WaitableEvent;
+}
 
 // Needs to be called early in the plugin process lifetime, before any
 // plugin instances are initialized.
@@ -52,7 +55,7 @@ void CreateNPVariantParam(const NPVariant& variant,
 void CreateNPVariant(const NPVariant_Param& param,
                      PluginChannelBase* channel,
                      NPVariant* result,
-                     HANDLE modal_dialog_event);
+                     base::WaitableEvent* modal_dialog_event);
 
 // Given a plugin's HWND, returns an event associated with the WebContents
 // that's set when inside a messagebox.  This tells the plugin process that

@@ -954,6 +954,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\waitable_event_watcher.h"
+			>
+		</File>
+		<File
+			RelativePath="..\waitable_event_watcher_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\waitable_event_win.cc"
 			>
 		</File>

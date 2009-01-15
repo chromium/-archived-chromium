@@ -2,19 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "chrome/common/ipc_sync_channel.h"
 
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/thread_local.h"
-#include "chrome/common/child_process.h"
+#include "base/message_loop.h"
+#include "base/waitable_event.h"
+#include "base/waitable_event_watcher.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_sync_message.h"
 
+#if !defined(OS_WIN)
+#define INFINITE -1
+#endif
+
 using base::TimeDelta;
 using base::TimeTicks;
+using base::WaitableEvent;
 
 namespace IPC {
 // When we're blocked in a Send(), we need to process incoming synchronous
@@ -33,8 +38,6 @@ namespace IPC {
 // The messages are stored in this queue object that's shared among all
 // SyncChannel objects on the same thread (since one object can receive a
 // sync message while another one is blocked).
-
-class SyncChannel::ReceivedSyncMsgQueue;
 
 class SyncChannel::ReceivedSyncMsgQueue :
     public base::RefCountedThreadSafe<ReceivedSyncMsgQueue> {
@@ -70,7 +73,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
       message_queue_.push_back(QueuedMessage(new Message(msg), context));
     }
 
-    SetEvent(dispatch_event_);
+    dispatch_event_.Signal();
     if (!was_task_pending) {
       listener_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
           this, &ReceivedSyncMsgQueue::DispatchMessagesTask));
@@ -143,7 +146,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
     }
   }
 
-  HANDLE dispatch_event() { return dispatch_event_; }
+  WaitableEvent* dispatch_event() { return &dispatch_event_; }
   MessageLoop* listener_message_loop() { return listener_message_loop_; }
 
   // Holds a pointer to the per-thread ReceivedSyncMsgQueue object.
@@ -167,9 +170,9 @@ class SyncChannel::ReceivedSyncMsgQueue :
   // See the comment in SyncChannel::SyncChannel for why this event is created
   // as manual reset.
   ReceivedSyncMsgQueue() :
-      dispatch_event_(CreateEvent(NULL, TRUE, FALSE, NULL)),
-      task_pending_(false),
+      dispatch_event_(true, false),
       listener_message_loop_(MessageLoop::current()),
+      task_pending_(false),
       listener_count_(0) {
   }
 
@@ -181,14 +184,14 @@ class SyncChannel::ReceivedSyncMsgQueue :
   };
 
   typedef std::deque<QueuedMessage> SyncMessageQueue;
-  SyncMessageQueue message_queue_;  
+  SyncMessageQueue message_queue_;
 
   std::vector<QueuedMessage> received_replies_;
 
   // Set when we got a synchronous message that we must respond to as the
   // sender needs its reply before it can reply to our original synchronous
   // message.
-  ScopedHandle dispatch_event_;
+  WaitableEvent dispatch_event_;
   MessageLoop* listener_message_loop_;
   Lock message_lock_;
   bool task_pending_;
@@ -202,10 +205,10 @@ SyncChannel::SyncContext::SyncContext(
     Channel::Listener* listener,
     MessageFilter* filter,
     MessageLoop* ipc_thread,
-    HANDLE shutdown_event)
+    WaitableEvent* shutdown_event)
     : ChannelProxy::Context(listener, filter, ipc_thread),
-      shutdown_event_(shutdown_event),
-      received_sync_msgs_(ReceivedSyncMsgQueue::AddContext()){
+      received_sync_msgs_(ReceivedSyncMsgQueue::AddContext()),
+      shutdown_event_(shutdown_event) {
 }
 
 SyncChannel::SyncContext::~SyncContext() {
@@ -217,13 +220,13 @@ SyncChannel::SyncContext::~SyncContext() {
 // we know how to deserialize the reply.  Returns a handle that's set when
 // the reply has arrived.
 void SyncChannel::SyncContext::Push(SyncMessage* sync_msg) {
-  // The event is created as manual reset because in between SetEvent and
+  // The event is created as manual reset because in between Signal and
   // OnObjectSignalled, another Send can happen which would stop the watcher
   // from being called.  The event would get watched later, when the nested
   // Send completes, so the event will need to remain set.
   PendingSyncMsg pending(SyncMessage::GetMessageId(*sync_msg),
                          sync_msg->GetReplyDeserializer(),
-                         CreateEvent(NULL, TRUE, FALSE, NULL));
+                         new WaitableEvent(true, false));
   AutoLock auto_lock(deserializers_lock_);
   deserializers_.push_back(pending);
 }
@@ -234,7 +237,8 @@ bool SyncChannel::SyncContext::Pop() {
     AutoLock auto_lock(deserializers_lock_);
     PendingSyncMsg msg = deserializers_.back();
     delete msg.deserializer;
-    CloseHandle(msg.done_event);
+    delete msg.done_event;
+    msg.done_event = NULL;
     deserializers_.pop_back();
     result = msg.send_result;
   }
@@ -250,12 +254,12 @@ bool SyncChannel::SyncContext::Pop() {
   return result;
 }
 
-HANDLE SyncChannel::SyncContext::GetSendDoneEvent() {
+WaitableEvent* SyncChannel::SyncContext::GetSendDoneEvent() {
   AutoLock auto_lock(deserializers_lock_);
   return deserializers_.back().done_event;
 }
 
-HANDLE SyncChannel::SyncContext::GetDispatchEvent() {
+WaitableEvent* SyncChannel::SyncContext::GetDispatchEvent() {
   return received_sync_msgs_->dispatch_event();
 }
 
@@ -274,7 +278,7 @@ bool SyncChannel::SyncContext::TryToUnblockListener(const Message* msg) {
     deserializers_.back().send_result = deserializers_.back().deserializer->
         SerializeOutputParameters(*msg);
   }
-  SetEvent(deserializers_.back().done_event);
+  deserializers_.back().done_event->Signal();
 
   return true;
 }
@@ -327,7 +331,7 @@ void SyncChannel::SyncContext::OnSendTimeout(int message_id) {
   PendingSyncMessageQueue::iterator iter;
   for (iter = deserializers_.begin(); iter != deserializers_.end(); iter++) {
     if (iter->id == message_id) {
-      SetEvent(iter->done_event);
+      iter->done_event->Signal();
       break;
     }
   }
@@ -337,11 +341,11 @@ void SyncChannel::SyncContext::CancelPendingSends() {
   AutoLock auto_lock(deserializers_lock_);
   PendingSyncMessageQueue::iterator iter;
   for (iter = deserializers_.begin(); iter != deserializers_.end(); iter++)
-    SetEvent(iter->done_event);
+    iter->done_event->Signal();
 }
 
-void SyncChannel::SyncContext::OnObjectSignaled(HANDLE object) {
-  DCHECK(object == shutdown_event_);
+void SyncChannel::SyncContext::OnWaitableEventSignaled(WaitableEvent* event) {
+  DCHECK(event == shutdown_event_);
   // Process shut down before we can get a reply to a synchronous message.
   // Cancel pending Send calls, which will end up setting the send done event.
   CancelPendingSends();
@@ -351,7 +355,8 @@ void SyncChannel::SyncContext::OnObjectSignaled(HANDLE object) {
 SyncChannel::SyncChannel(
     const std::wstring& channel_id, Channel::Mode mode,
     Channel::Listener* listener, MessageFilter* filter,
-    MessageLoop* ipc_message_loop, bool create_pipe_now, HANDLE shutdown_event)
+    MessageLoop* ipc_message_loop, bool create_pipe_now,
+    WaitableEvent* shutdown_event)
     : ChannelProxy(
           channel_id, mode, ipc_message_loop,
           new SyncContext(listener, filter, ipc_message_loop, shutdown_event),
@@ -362,7 +367,7 @@ SyncChannel::SyncChannel(
   // message loop running under it or not, so we wouldn't know whether to
   // stop or keep watching.  So we always watch it, and create the event as
   // manual reset since the object watcher might otherwise reset the event
-  // when we're doing a WaitForMultipleObjects.
+  // when we're doing a WaitMany.
   dispatch_watcher_.StartWatching(sync_context()->GetDispatchEvent(), this);
 }
 
@@ -381,7 +386,7 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
 
   // *this* might get deleted in WaitForReply.
   scoped_refptr<SyncContext> context(sync_context());
-  if (WaitForSingleObject(context->shutdown_event(), 0) == WAIT_OBJECT_0) {
+  if (context->shutdown_event()->IsSignaled()) {
     delete message;
     return false;
   }
@@ -390,7 +395,7 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
   SyncMessage* sync_msg = static_cast<SyncMessage*>(message);
   context->Push(sync_msg);
   int message_id = SyncMessage::GetMessageId(*sync_msg);
-  HANDLE pump_messages_event = sync_msg->pump_messages_event();
+  WaitableEvent* pump_messages_event = sync_msg->pump_messages_event();
 
   ChannelProxy::Send(message);
 
@@ -409,22 +414,25 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
   return context->Pop();
 }
 
-void SyncChannel::WaitForReply(HANDLE pump_messages_event) {
+void SyncChannel::WaitForReply(WaitableEvent* pump_messages_event) {
   while (true) {
-    HANDLE objects[] = { sync_context()->GetDispatchEvent(),
-                         sync_context()->GetSendDoneEvent(),
-                         pump_messages_event };
-    uint32 count = pump_messages_event ? 3: 2;
-    DWORD result = WaitForMultipleObjects(count, objects, FALSE, INFINITE);
-    if (result == WAIT_OBJECT_0) {
+    WaitableEvent* objects[] = {
+      sync_context()->GetDispatchEvent(),
+      sync_context()->GetSendDoneEvent(),
+      pump_messages_event
+    };
+
+    unsigned count = pump_messages_event ? 3: 2;
+    unsigned result = WaitableEvent::WaitMany(objects, count);
+    if (result == 0 /* dispatch event */) {
       // We're waiting for a reply, but we received a blocking synchronous
       // call.  We must process it or otherwise a deadlock might occur.
-      ResetEvent(sync_context()->GetDispatchEvent());
+      sync_context()->GetDispatchEvent()->Reset();
       sync_context()->DispatchMessages();
       continue;
     }
 
-    if (result == WAIT_OBJECT_0 + 2)
+    if (result == 2 /* pump_messages_event */)
       WaitForReplyWithNestedMessageLoop();  // Start a nested message loop.
 
     break;
@@ -432,7 +440,7 @@ void SyncChannel::WaitForReply(HANDLE pump_messages_event) {
 }
 
 void SyncChannel::WaitForReplyWithNestedMessageLoop() {
-  HANDLE old_done_event = send_done_watcher_.GetWatchedObject();
+  WaitableEvent* old_done_event = send_done_watcher_.GetWatchedEvent();
   send_done_watcher_.StopWatching();
   send_done_watcher_.StartWatching(sync_context()->GetSendDoneEvent(), this);
   bool old_state = MessageLoop::current()->NestableTasksAllowed();
@@ -443,17 +451,17 @@ void SyncChannel::WaitForReplyWithNestedMessageLoop() {
     send_done_watcher_.StartWatching(old_done_event, this);
 }
 
-void SyncChannel::OnObjectSignaled(HANDLE object) {
-  HANDLE dispatch_event = sync_context()->GetDispatchEvent();
-  if (object == dispatch_event) {
+void SyncChannel::OnWaitableEventSignaled(WaitableEvent* event) {
+  WaitableEvent* dispatch_event = sync_context()->GetDispatchEvent();
+  if (event == dispatch_event) {
     // The call to DispatchMessages might delete this object, so reregister
     // the object watcher first.
-    ResetEvent(dispatch_event);
+    dispatch_event->Reset();
     dispatch_watcher_.StartWatching(dispatch_event, this);
     sync_context()->DispatchMessages();
   } else {
     // We got the reply, timed out or the process shutdown.
-    DCHECK(object == sync_context()->GetSendDoneEvent());
+    DCHECK(event == sync_context()->GetSendDoneEvent());
     MessageLoop::current()->Quit();
   }
 }

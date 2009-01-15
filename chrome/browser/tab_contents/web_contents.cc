@@ -178,7 +178,7 @@ WebContents::WebContents(Profile* profile,
                          SiteInstance* site_instance,
                          RenderViewHostFactory* render_view_factory,
                          int routing_id,
-                         HANDLE modal_dialog_event)
+                         base::WaitableEvent* modal_dialog_event)
     : TabContents(TAB_CONTENTS_WEB),
       view_(new WebContentsViewWin(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(

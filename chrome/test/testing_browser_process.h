@@ -15,17 +15,17 @@
 #include <string>
 
 #include "base/string_util.h"
+#include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/notification_service.h"
 #include "base/logging.h"
 
 class TestingBrowserProcess : public BrowserProcess {
  public:
-  TestingBrowserProcess() {
-#if defined(OS_WIN)
-    shutdown_event_ = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-#endif
+  TestingBrowserProcess()
+      : shutdown_event_(new base::WaitableEvent(true, false)) {
   }
+
   virtual ~TestingBrowserProcess() {
   }
 
@@ -122,15 +122,11 @@ class TestingBrowserProcess : public BrowserProcess {
 
   virtual MemoryModel memory_model() { return HIGH_MEMORY_MODEL; }
 
-#if defined(OS_WIN)
-  virtual HANDLE shutdown_event() { return shutdown_event_; }
-#endif
+  virtual base::WaitableEvent* shutdown_event() { return shutdown_event_.get(); }
 
  private:
   NotificationService notification_service_;
-#if defined(OS_WIN)
-  HANDLE shutdown_event_;
-#endif
+  scoped_ptr<base::WaitableEvent> shutdown_event_;
   DISALLOW_COPY_AND_ASSIGN(TestingBrowserProcess);
 };
 

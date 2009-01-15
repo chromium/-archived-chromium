@@ -167,7 +167,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return memory_model_;
   }
 
-  virtual HANDLE shutdown_event() { return shutdown_event_; }
+  virtual base::WaitableEvent* shutdown_event() { return shutdown_event_; }
 
  private:
   void CreateResourceDispatcherHost();
@@ -242,7 +242,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   bool using_new_frames_;
 
   // An event that notifies when we are shutting-down.
-  HANDLE shutdown_event_;
+  base::WaitableEvent* shutdown_event_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcessImpl);
 };

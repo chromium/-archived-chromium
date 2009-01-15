@@ -5,19 +5,20 @@
 #ifndef CHROME_COMMON_IPC_SYNC_SENDER_H__
 #define CHROME_COMMON_IPC_SYNC_SENDER_H__
 
-#include <windows.h>
 #include <string>
 #include <deque>
 #include "base/basictypes.h"
 #include "base/lock.h"
-#include "base/object_watcher.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
+#include "base/waitable_event.h"
+#include "base/waitable_event_watcher.h"
 #include "chrome/common/ipc_channel_proxy.h"
 
 namespace IPC {
 
 class SyncMessage;
+class MessageReplyDeserializer;
 
 // This is similar to IPC::ChannelProxy, with the added feature of supporting
 // sending synchronous messages.
@@ -26,12 +27,12 @@ class SyncMessage;
 // is running and it's used to send a message, then it will use the invalid
 // message loop pointer to proxy it to the ipc thread.
 class SyncChannel : public ChannelProxy,
-                    public base::ObjectWatcher::Delegate {
+                    public base::WaitableEventWatcher::Delegate {
  public:
   SyncChannel(const std::wstring& channel_id, Channel::Mode mode,
               Channel::Listener* listener, MessageFilter* filter,
               MessageLoop* ipc_message_loop, bool create_pipe_now,
-              HANDLE shutdown_event);
+              base::WaitableEvent* shutdown_event);
   ~SyncChannel();
 
   virtual bool Send(Message* message);
@@ -50,12 +51,12 @@ class SyncChannel : public ChannelProxy,
   // can be deleted while it's being used in a different thread.  See
   // ChannelProxy::Context for more information.
   class SyncContext : public Context,
-                      public base::ObjectWatcher::Delegate {
+                      public base::WaitableEventWatcher::Delegate {
    public:
     SyncContext(Channel::Listener* listener,
                 MessageFilter* filter,
                 MessageLoop* ipc_thread,
-                HANDLE shutdown_event);
+                base::WaitableEvent* shutdown_event);
 
     ~SyncContext();
 
@@ -69,11 +70,11 @@ class SyncChannel : public ChannelProxy,
 
     // Returns an event that's set when the send is complete, timed out or the
     // process shut down.
-    HANDLE GetSendDoneEvent();
+    base::WaitableEvent* GetSendDoneEvent();
 
     // Returns an event that's set when an incoming message that's not the reply
     // needs to get dispatched (by calling SyncContext::DispatchMessages).
-    HANDLE GetDispatchEvent();
+    base::WaitableEvent* GetDispatchEvent();
 
     void DispatchMessages();
 
@@ -86,7 +87,7 @@ class SyncChannel : public ChannelProxy,
     // times out.
     void OnSendTimeout(int message_id);
 
-    HANDLE shutdown_event() { return shutdown_event_; }
+    base::WaitableEvent* shutdown_event() { return shutdown_event_; }
 
    private:
     // IPC::ChannelProxy methods that we override.
@@ -103,17 +104,18 @@ class SyncChannel : public ChannelProxy,
     // Cancels all pending Send calls.
     void CancelPendingSends();
 
-    // ObjectWatcher::Delegate implementation.
-    virtual void OnObjectSignaled(HANDLE object);
+    // WaitableEventWatcher::Delegate implementation.
+    virtual void OnWaitableEventSignaled(base::WaitableEvent* arg);
 
     // When sending a synchronous message, this structure contains an object that
     // knows how to deserialize the response.
     struct PendingSyncMsg {
-      PendingSyncMsg(int id, IPC::MessageReplyDeserializer* d, HANDLE e) :
+      PendingSyncMsg(int id, IPC::MessageReplyDeserializer* d,
+                     base::WaitableEvent* e) :
           id(id), deserializer(d), done_event(e), send_result(false) { }
       int id;
       IPC::MessageReplyDeserializer* deserializer;
-      HANDLE done_event;
+      base::WaitableEvent* done_event;
       bool send_result;
     };
 
@@ -123,19 +125,19 @@ class SyncChannel : public ChannelProxy,
 
     scoped_refptr<ReceivedSyncMsgQueue> received_sync_msgs_;
 
-    HANDLE shutdown_event_;
-    base::ObjectWatcher shutdown_watcher_;
+    base::WaitableEvent* shutdown_event_;
+    base::WaitableEventWatcher shutdown_watcher_;
   };
 
  private:
-  // ObjectWatcher::Delegate implementation.
-  virtual void OnObjectSignaled(HANDLE object);
+  // WaitableEventWatcher::Delegate implementation.
+  virtual void OnWaitableEventSignaled(base::WaitableEvent* arg);
 
   SyncContext* sync_context() { return reinterpret_cast<SyncContext*>(context()); }
 
   // Both these functions wait for a reply, timeout or process shutdown.  The
   // latter one also runs a nested message loop in the meantime.
-  void WaitForReply(HANDLE pump_messages_event);
+  void WaitForReply(base::WaitableEvent* pump_messages_event);
 
   // Runs a nested message loop until a reply arrives, times out, or the process
   // shuts down.
@@ -144,8 +146,8 @@ class SyncChannel : public ChannelProxy,
   bool sync_messages_with_no_timeout_allowed_;
 
   // Used to signal events between the IPC and listener threads.
-  base::ObjectWatcher send_done_watcher_;
-  base::ObjectWatcher dispatch_watcher_;
+  base::WaitableEventWatcher send_done_watcher_;
+  base::WaitableEventWatcher dispatch_watcher_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SyncChannel);
 };

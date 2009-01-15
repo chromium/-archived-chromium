@@ -12,6 +12,10 @@
 #include "base/basictypes.h"
 #include "chrome/common/ipc_message.h"
 
+namespace base {
+class WaitableEvent;
+}
+
 namespace IPC {
 
 class MessageReplyDeserializer;
@@ -26,15 +30,13 @@ class SyncMessage : public Message {
   // for deleting the deserializer when they're done.
   MessageReplyDeserializer* GetReplyDeserializer();
 
-// TODO(playmobil): reimplement on POSIX.
-#if defined(OS_WIN)
   // If this message can cause the receiver to block while waiting for user
   // input (i.e. by calling MessageBox), then the caller needs to pump window
   // messages and dispatch asynchronous messages while waiting for the reply.
-  // If this handle is passed in, then window messages will start being pumped
+  // If this event is passed in, then window messages will start being pumped
   // when it's set.  Note that this behavior will continue even if the event is
-  // later reset.  The handle must be valid until after the Send call returns.
-  void set_pump_messages_event(HANDLE event) {
+  // later reset.  The event must be valid until after the Send call returns.
+  void set_pump_messages_event(base::WaitableEvent* event) {
     pump_messages_event_ = event;
     if (event) {
       header()->flags |= PUMPING_MSGS_BIT;
@@ -47,8 +49,9 @@ class SyncMessage : public Message {
   // or set_pump_messages_event but not both.
   void EnableMessagePumping();
 
-  HANDLE pump_messages_event() const { return pump_messages_event_; }
-#endif  // defined(OS_WIN)
+  base::WaitableEvent* pump_messages_event() const {
+    return pump_messages_event_;
+  }
 
   // Returns true if the message is a reply to the given request id.
   static bool IsMessageReplyTo(const Message& msg, int request_id);
@@ -73,9 +76,7 @@ class SyncMessage : public Message {
   static bool WriteSyncHeader(Message* msg, const SyncHeader& header);
 
   MessageReplyDeserializer* deserializer_;
-#if defined(OS_WIN)
-  HANDLE pump_messages_event_;
-#endif
+  base::WaitableEvent* pump_messages_event_;
 
   static uint32 next_id_;  // for generation of unique ids
 };

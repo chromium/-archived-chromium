@@ -23,6 +23,10 @@ struct PluginHostMsg_RouteToFrame_Params;
 class RenderView;
 class SkBitmap;
 
+namespace base {
+class WaitableEvent;
+}
+
 namespace skia {
 class PlatformCanvasWin;
 }
@@ -167,7 +171,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Event passed in by the plugin process and is used to decide if
   // messages need to be pumped in the NPP_HandleEvent sync call.
-  ScopedHandle modal_loop_pump_messages_event_;
+  scoped_ptr<base::WaitableEvent> modal_loop_pump_messages_event_;
 
   // Bitmap for crashed plugin
   SkBitmap* sad_plugin_;

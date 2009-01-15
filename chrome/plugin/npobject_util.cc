@@ -200,7 +200,7 @@ void CreateNPVariantParam(const NPVariant& variant,
 void CreateNPVariant(const NPVariant_Param& param,
                      PluginChannelBase* channel,
                      NPVariant* result,
-                     HANDLE modal_dialog_event) {
+                     base::WaitableEvent* modal_dialog_event) {
   switch (param.type) {
     case NPVARIANT_PARAM_VOID:
       result->type = NPVariantType_Void;

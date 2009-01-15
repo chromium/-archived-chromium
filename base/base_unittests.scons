@@ -112,6 +112,7 @@ input_files = ChromeFileList([
     'tuple_unittest.cc',
     'values_unittest.cc',
     'waitable_event_unittest.cc',
+    'waitable_event_watcher_unittest.cc',
     'watchdog_unittest.cc',
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',

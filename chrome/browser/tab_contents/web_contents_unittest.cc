@@ -82,7 +82,7 @@ class TestRenderViewHost : public RenderViewHost {
       SiteInstance* instance,
       RenderViewHostDelegate* delegate,
       int routing_id,
-      HANDLE modal_dialog_event)
+      base::WaitableEvent* modal_dialog_event)
       : RenderViewHost(instance, delegate, routing_id, modal_dialog_event),
         is_loading(false),
         is_created(false),
@@ -156,7 +156,7 @@ class TestRenderViewHostFactory : public RenderViewHostFactory {
       SiteInstance* instance,
       RenderViewHostDelegate* delegate,
       int routing_id,
-      HANDLE modal_dialog_event) {
+      base::WaitableEvent* modal_dialog_event) {
     return new TestRenderViewHost(
         instance, delegate, routing_id, modal_dialog_event);
   }
@@ -217,7 +217,7 @@ class TestWebContents : public WebContents {
   RenderViewHost* CreateRenderViewHost(SiteInstance* instance,
                                        RenderViewHostDelegate* delegate,
                                        int routing_id,
-                                       HANDLE modal_dialog_event) {
+                                       base::WaitableEvent* modal_dialog_event) {
     return new TestRenderViewHost(
         instance, delegate, routing_id, modal_dialog_event);
   }

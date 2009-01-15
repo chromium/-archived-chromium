@@ -16,7 +16,8 @@ void WebContentsView::RenderWidgetHostDestroyed(RenderWidgetHost* host) {
   }
 }
 
-void WebContentsView::CreateNewWindow(int route_id, HANDLE modal_dialog_event) {
+void WebContentsView::CreateNewWindow(int route_id,
+                                      base::WaitableEvent* modal_dialog_event) {
   // Save the created window associated with the route so we can show it later.
   pending_contents_[route_id] = CreateNewWindowInternal(route_id,
                                                         modal_dialog_event);

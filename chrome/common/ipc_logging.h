@@ -5,12 +5,13 @@
 #ifndef CHROME_COMMON_IPC_LOGGING_H_
 #define CHROME_COMMON_IPC_LOGGING_H_
 
-#include "base/lock.h"
-#include "base/object_watcher.h"
-#include "base/singleton.h"
 #include "chrome/common/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
+
+#include "base/lock.h"
+#include "base/object_watcher.h"
+#include "base/singleton.h"
 
 class MessageLoop;
 

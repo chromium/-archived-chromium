@@ -4,6 +4,7 @@
 
 #include "chrome/plugin/npobject_proxy.h"
 
+#include "base/waitable_event.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_util.h"
@@ -48,7 +49,7 @@ NPObjectProxy::NPObjectProxy(
     PluginChannelBase* channel,
     int route_id,
     void* npobject_ptr,
-    HANDLE modal_dialog_event)
+    base::WaitableEvent* modal_dialog_event)
     : channel_(channel),
       route_id_(route_id),
       npobject_ptr_(npobject_ptr),
@@ -67,7 +68,7 @@ NPObjectProxy::~NPObjectProxy() {
 NPObject* NPObjectProxy::Create(PluginChannelBase* channel,
                                 int route_id,
                                 void* npobject_ptr,
-                                HANDLE modal_dialog_event) {
+                                base::WaitableEvent* modal_dialog_event) {
   NPObjectWrapper* obj = reinterpret_cast<NPObjectWrapper*>(
       NPN_CreateObject(0, &npclass_proxy_));
   obj->proxy = new NPObjectProxy(
@@ -178,7 +179,7 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
   // messages are pumped).
   msg->set_pump_messages_event(proxy->modal_dialog_event_);
 
-  HANDLE modal_dialog_event_handle = proxy->modal_dialog_event_;
+  base::WaitableEvent* modal_dialog_event_handle = proxy->modal_dialog_event_;
 
   proxy->Send(msg);
 
@@ -237,7 +238,7 @@ bool NPObjectProxy::NPGetProperty(NPObject *obj,
   CreateNPIdentifierParam(name, &name_param);
 
   NPVariant_Param param;
-  HANDLE modal_dialog_event_handle = proxy->modal_dialog_event_;
+  base::WaitableEvent* modal_dialog_event_handle = proxy->modal_dialog_event_;
   scoped_refptr<PluginChannelBase> channel(proxy->channel_);
   proxy->Send(new NPObjectMsg_GetProperty(
       proxy->route_id(), name_param, &param, &result));
@@ -367,7 +368,7 @@ bool NPObjectProxy::NPNEvaluate(NPP npp,
   // the reasoning behind setting the pump messages event in the sync message.
   msg->set_pump_messages_event(proxy->modal_dialog_event_);
   scoped_refptr<PluginChannelBase> channel(proxy->channel_);
-  HANDLE modal_dialog_event_handle = proxy->modal_dialog_event_;
+  base::WaitableEvent* modal_dialog_event_handle = proxy->modal_dialog_event_;
   proxy->Send(msg);
   // Send may delete proxy.
   proxy = NULL;

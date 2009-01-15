@@ -10,6 +10,9 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 
+namespace base {
+  class WaitableEvent;
+};
 
 class ChildProcess;
 
@@ -53,7 +56,7 @@ class ChildProcess {
   // up waiting.
   // For example, see the renderer code used to implement
   // webkit_glue::GetCookies.
-  static HANDLE GetShutDownEvent();
+  static base::WaitableEvent* GetShutDownEvent();
 
   // You must call Init after creating this object before it will be valid
   ChildProcess();
@@ -80,7 +83,7 @@ class ChildProcess {
   // Derived classes can override this to handle any cleanup, called by
   // GlobalCleanup.
   virtual void Cleanup() {}
-  static HANDLE shutdown_event_;
+  static base::WaitableEvent* shutdown_event_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ChildProcess);
 };

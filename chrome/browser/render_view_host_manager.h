@@ -69,7 +69,7 @@ class RenderViewHostManager {
   void Init(Profile* profile,
             SiteInstance* site_instance,
             int routing_id,
-            HANDLE modal_dialog_event);
+            base::WaitableEvent* modal_dialog_event);
 
   // Schedules all RenderViewHosts for destruction.
   void Shutdown();
@@ -179,7 +179,7 @@ class RenderViewHostManager {
   // factory is NULL).
   RenderViewHost* CreateRenderViewHost(SiteInstance* instance,
                                        int routing_id,
-                                       HANDLE modal_dialog_event);
+                                       base::WaitableEvent* modal_dialog_event);
 
   // Replaces the currently shown render_view_host_ with the RenderViewHost in
   // the field pointed to by |new_render_view_host|, and then NULLs the field.

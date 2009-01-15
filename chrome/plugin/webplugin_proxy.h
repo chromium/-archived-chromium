@@ -8,11 +8,16 @@
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
+#include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/timer.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/chrome_plugin_api.h"
 #include "webkit/glue/webplugin.h"
+
+namespace base {
+class WaitableEvent;
+}
 
 class PluginChannel;
 class WebPluginDelegateImpl;
@@ -126,7 +131,7 @@ class WebPluginProxy : public WebPlugin {
   gfx::Rect damaged_rect_;
   bool waiting_for_paint_;
   uint32 cp_browsing_context_;
-  ScopedHandle modal_dialog_event_;
+  scoped_ptr<base::WaitableEvent> modal_dialog_event_;
 
   // Variables used for desynchronized windowless plugin painting.  See note in
   // webplugin_delegate_proxy.h for how this works.

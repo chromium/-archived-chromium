@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "base/string_util.h"
+#include "base/waitable_event.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cross_site_request_manager.h"
@@ -74,7 +75,7 @@ RenderViewHost* RenderViewHost::FromID(int render_process_id,
 RenderViewHost::RenderViewHost(SiteInstance* instance,
                                RenderViewHostDelegate* delegate,
                                int routing_id,
-                               HANDLE modal_dialog_event)
+                               base::WaitableEvent* modal_dialog_event)
     : RenderWidgetHost(instance->GetProcess(), routing_id),
       instance_(instance),
       enable_dom_ui_bindings_(false),
@@ -93,9 +94,9 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
-    modal_dialog_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+    modal_dialog_event = new base::WaitableEvent(true, false);
 
-  modal_dialog_event_.Set(modal_dialog_event);
+  modal_dialog_event_.reset(modal_dialog_event);
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateHostPersonalization(this);
 #endif
@@ -134,7 +135,7 @@ bool RenderViewHost::CreateRenderView() {
     renderer_process_handle = GetCurrentProcess();
 
   BOOL result = DuplicateHandle(GetCurrentProcess(),
-      modal_dialog_event_.Get(),
+      modal_dialog_event_->handle(),
       renderer_process_handle,
       &modal_dialog_event,
       SYNCHRONIZE,
@@ -498,7 +499,7 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
   }
 
   if (--modal_dialog_count_ == 0)
-    ResetEvent(modal_dialog_event_.Get());
+    modal_dialog_event_->Reset();
   ViewHostMsg_RunJavaScriptMessage::WriteReplyParams(reply_msg, success, prompt);
   Send(reply_msg);
 }
@@ -509,7 +510,7 @@ void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
     StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
 
   if (--modal_dialog_count_ == 0)
-    ResetEvent(modal_dialog_event_.Get());
+    modal_dialog_event_->Reset();
 
   ViewHostMsg_ShowModalHTMLDialog::WriteReplyParams(reply_msg, json_retval);
   Send(reply_msg);
@@ -742,7 +743,7 @@ void RenderViewHost::Shutdown() {
   // If we are being run modally (see RunModal), then we need to cleanup.
   if (run_modal_reply_msg_) {
     if (--modal_dialog_count_ == 0)
-      ResetEvent(modal_dialog_event_.Get());
+      modal_dialog_event_->Reset();
     Send(run_modal_reply_msg_);
     run_modal_reply_msg_ = NULL;
   }
@@ -753,7 +754,8 @@ void RenderViewHost::OnMsgCreateWindow(int route_id,
                                        HANDLE modal_dialog_event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (view)
-    view->CreateNewWindow(route_id, modal_dialog_event);
+    view->CreateNewWindow(route_id,
+                          new base::WaitableEvent(modal_dialog_event));
 }
 
 void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {
@@ -781,7 +783,7 @@ void RenderViewHost::OnMsgShowWidget(int route_id,
 void RenderViewHost::OnMsgRunModal(IPC::Message* reply_msg) {
   DCHECK(!run_modal_reply_msg_);
   if (modal_dialog_count_++ == 0)
-    SetEvent(modal_dialog_event_.Get());
+    modal_dialog_event_->Reset();
   run_modal_reply_msg_ = reply_msg;
 
   // TODO(darin): Bug 1107929: Need to inform our delegate to show this view in
@@ -1085,7 +1087,7 @@ void RenderViewHost::OnMsgRunJavaScriptMessage(
     IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
-    SetEvent(modal_dialog_event_.Get());
+    modal_dialog_event_->Signal();
   bool did_suppress_message = false;
   delegate_->RunJavaScriptMessage(message, default_prompt, flags, reply_msg,
                                   &are_javascript_messages_suppressed_);
@@ -1095,7 +1097,7 @@ void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const std::wstring& message,
                                                  IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
-    SetEvent(modal_dialog_event_.Get());
+    modal_dialog_event_->Signal();
   delegate_->RunBeforeUnloadConfirm(message, reply_msg);
 }
 
@@ -1104,7 +1106,7 @@ void RenderViewHost::OnMsgShowModalHTMLDialog(
     IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
-    SetEvent(modal_dialog_event_.Get());
+    modal_dialog_event_->Signal();
   delegate_->ShowModalHTMLDialog(url, width, height, json_arguments, reply_msg);
 }
 

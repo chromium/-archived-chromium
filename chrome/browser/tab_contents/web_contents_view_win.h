@@ -48,7 +48,7 @@ class WebContentsViewWin : public WebContentsView,
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual WebContents* CreateNewWindowInternal(
-      int route_id, HANDLE modal_dialog_event);
+      int route_id, base::WaitableEvent* modal_dialog_event);
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
                                                         bool activatable);
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,

@@ -22,6 +22,10 @@ class WebContents;
 struct WebDropData;
 enum WindowOpenDisposition;
 
+namespace base {
+class WaitableEvent;
+}
+
 namespace IPC {
 class Message;
 }
@@ -56,7 +60,10 @@ class RenderViewHostDelegate {
     //
     // Note: this is not called "CreateWindow" because that will clash with
     // the Windows function which is actually a #define.
-    virtual void CreateNewWindow(int route_id, HANDLE modal_dialog_event) = 0;
+    //
+    // NOTE: this takes ownership of @modal_dialog_event
+    virtual void CreateNewWindow(int route_id,
+                                 base::WaitableEvent* modal_dialog_event) = 0;
 
     // The page is trying to open a new widget (e.g. a select popup). The
     // widget should be created associated with the given route, but it should

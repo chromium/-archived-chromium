@@ -36,6 +36,7 @@ class SuspendController;
 
 namespace base {
 class Thread;
+class WaitableEvent;
 }
 namespace sandbox {
 class BrokerServices;
@@ -128,10 +129,10 @@ class BrowserProcess {
     ResourceDispatcherHost* rdh = resource_dispatcher_host();
     return rdh ? rdh->download_request_manager() : NULL;
   }
+#endif
 
   // Returns an event that is signaled when the browser shutdown.
-  virtual HANDLE shutdown_event() = 0;
-#endif
+  virtual base::WaitableEvent* shutdown_event() = 0;
 
   // Returns a reference to the user-data-dir based profiles vector.
   std::vector<std::wstring>& user_data_dir_profiles() {

@@ -198,8 +198,10 @@ void RenderThread::OnCreateNewView(HWND parent_hwnd,
                                    int32 view_id) {
   // TODO(darin): once we have a RenderThread per RenderView, this will need to
   // change to assert that we are not creating more than one view.
+  base::WaitableEvent* waitable_event =
+      new base::WaitableEvent(modal_dialog_event);
   RenderView::Create(
-      this, parent_hwnd, modal_dialog_event, MSG_ROUTING_NONE, webkit_prefs,
+      this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
 }
 

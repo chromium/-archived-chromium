@@ -197,7 +197,7 @@ RenderView::~RenderView() {
 RenderView* RenderView::Create(
     RenderThreadBase* render_thread,
     HWND parent_hwnd,
-    HANDLE modal_dialog_event,
+    base::WaitableEvent* modal_dialog_event,
     int32 opener_id,
     const WebPreferences& webkit_prefs,
     SharedRenderViewCounter* counter,
@@ -245,7 +245,7 @@ void RenderView::JSOutOfMemory() {
 }
 
 void RenderView::Init(HWND parent_hwnd,
-                      HANDLE modal_dialog_event,
+                      base::WaitableEvent* modal_dialog_event,
                       int32 opener_id,
                       const WebPreferences& webkit_prefs,
                       SharedRenderViewCounter* counter,
@@ -287,7 +287,7 @@ void RenderView::Init(HWND parent_hwnd,
   }
 
   host_window_ = parent_hwnd;
-  modal_dialog_event_.Set(modal_dialog_event);
+  modal_dialog_event_.reset(modal_dialog_event);
 
   CommandLine command_line;
   enable_dom_automation_ =
@@ -1648,7 +1648,7 @@ bool RenderView::RunJavaScriptMessage(int type,
   IPC::SyncMessage* msg = new ViewHostMsg_RunJavaScriptMessage(
       routing_id_, message, default_value, type, &success, result);
 
-  msg->set_pump_messages_event(modal_dialog_event_);
+  msg->set_pump_messages_event(modal_dialog_event_.get());
   Send(msg);
 
   return success;
@@ -1669,7 +1669,7 @@ bool RenderView::RunBeforeUnloadConfirm(WebView* webview,
   IPC::SyncMessage* msg = new ViewHostMsg_RunBeforeUnloadConfirm(
       routing_id_, message, &success,  &ignored_result);
 
-  msg->set_pump_messages_event(modal_dialog_event_);
+  msg->set_pump_messages_event(modal_dialog_event_.get());
   Send(msg);
 
   return success;
@@ -1716,7 +1716,7 @@ void RenderView::ShowModalHTMLDialog(const GURL& url, int width, int height,
   IPC::SyncMessage* msg = new ViewHostMsg_ShowModalHTMLDialog(
       routing_id_, url, width, height, json_arguments, json_retval);
 
-  msg->set_pump_messages_event(modal_dialog_event_);
+  msg->set_pump_messages_event(modal_dialog_event_.get());
   Send(msg);
 }
 
@@ -1803,8 +1803,10 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 
   // The WebView holds a reference to this new RenderView
   const WebPreferences& prefs = webview->GetPreferences();
+  base::WaitableEvent* waitable_event =
+      new base::WaitableEvent(modal_dialog_event);
   RenderView* view = RenderView::Create(render_thread_,
-                                        NULL, modal_dialog_event, routing_id_,
+                                        NULL, waitable_event, routing_id_,
                                         prefs, shared_popup_counter_,
                                         routing_id);
   view->set_opened_by_user_gesture(user_gesture);
@@ -1938,7 +1940,7 @@ void RenderView::RunModal(WebWidget* webwidget) {
 
   IPC::SyncMessage* msg = new ViewHostMsg_RunModal(routing_id_);
 
-  msg->set_pump_messages_event(modal_dialog_event_);
+  msg->set_pump_messages_event(modal_dialog_event_.get());
   Send(msg);
 }
 

@@ -15,6 +15,10 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 
+namespace base {
+class WaitableEvent;
+}
+
 RenderViewHostManager::RenderViewHostManager(
     RenderViewHostFactory* render_view_factory,
     RenderViewHostDelegate* render_view_delegate,
@@ -37,7 +41,7 @@ RenderViewHostManager::~RenderViewHostManager() {
 void RenderViewHostManager::Init(Profile* profile,
                                  SiteInstance* site_instance,
                                  int routing_id,
-                                 HANDLE modal_dialog_event) {
+                                 base::WaitableEvent* modal_dialog_event) {
   // Create a RenderViewHost, once we have an instance.  It is important to
   // immediately give this SiteInstance to a RenderViewHost so that it is
   // ref counted.
@@ -55,7 +59,7 @@ void RenderViewHostManager::Shutdown() {
   render_view_host_->Shutdown();
   render_view_host_ = NULL;
 }
-  
+
 RenderViewHost* RenderViewHostManager::Navigate(const NavigationEntry& entry) {
   RenderViewHost* dest_render_view_host = UpdateRendererStateNavigate(entry);
   if (!dest_render_view_host)
@@ -347,7 +351,7 @@ bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
 RenderViewHost* RenderViewHostManager::CreateRenderViewHost(
     SiteInstance* instance,
     int routing_id,
-    HANDLE modal_dialog_event) {
+    base::WaitableEvent* modal_dialog_event) {
   if (render_view_factory_) {
     return render_view_factory_->CreateRenderViewHost(
         instance, render_view_delegate_, routing_id, modal_dialog_event);

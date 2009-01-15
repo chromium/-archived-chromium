@@ -326,7 +326,7 @@ void WebContentsViewWin::ShowContextMenu(
 
 WebContents* WebContentsViewWin::CreateNewWindowInternal(
     int route_id,
-    HANDLE modal_dialog_event) {
+    base::WaitableEvent* modal_dialog_event) {
   // Create the new web contents. This will automatically create the new
   // WebContentsView. In the future, we may want to create the view separately.
   WebContents* new_contents =

@@ -10,13 +10,14 @@
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/string_util.h"
+#include "base/waitable_event.h"
 #include "chrome/common/chrome_switches.h"
 #include "webkit/glue/webkit_glue.h"
 
 ChildProcess* ChildProcess::child_process_;
 MessageLoop* ChildProcess::main_thread_loop_;
 static base::AtomicRefCount ref_count;
-HANDLE ChildProcess::shutdown_event_;
+base::WaitableEvent* ChildProcess::shutdown_event_;
 
 
 ChildProcess::ChildProcess() {
@@ -51,7 +52,7 @@ void ChildProcess::OnFinalRelease() {
   main_thread_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
 }
 
-HANDLE ChildProcess::GetShutDownEvent() {
+base::WaitableEvent* ChildProcess::GetShutDownEvent() {
   return shutdown_event_;
 }
 
@@ -74,7 +75,7 @@ bool ChildProcess::GlobalInit(const std::wstring &channel_name,
   main_thread_loop_ = MessageLoop::current();
 
   // An event that will be signalled when we shutdown.
-  shutdown_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
+  shutdown_event_ = new base::WaitableEvent(true, false);
 
   child_process_ = factory->Create(channel_name);
 
@@ -92,7 +93,7 @@ void ChildProcess::GlobalCleanup() {
   // background threads.
   // For example, in the renderer the RenderThread instances will be able to
   // notice shutdown before the render process begins waiting for them to exit.
-  SetEvent(shutdown_event_);
+  shutdown_event_->Signal();
 
   // Destroy the child process first to force all background threads to
   // terminate before we bring down other resources.  (We null pointers
@@ -103,7 +104,7 @@ void ChildProcess::GlobalCleanup() {
 
   main_thread_loop_ = NULL;
 
-  CloseHandle(shutdown_event_);
+  delete shutdown_event_;
   shutdown_event_ = NULL;
 }
 
