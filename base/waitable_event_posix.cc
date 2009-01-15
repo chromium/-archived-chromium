@@ -303,7 +303,7 @@ size_t WaitableEvent::WaitMany(WaitableEvent** raw_waitables,
 // -----------------------------------------------------------------------------
 // static
 unsigned WaitableEvent::EnqueueMany
-    (std::pair<WaitableEvent*, unsigned>* waitables,
+    (std::pair<WaitableEvent*, size_t>* waitables,
      unsigned count, Waiter* waiter) {
   if (!count)
     return 0;
