@@ -382,6 +382,7 @@ LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
+LINUX : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
 
 // Bug 1198880
 DEFER LINUX WIN : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
@@ -670,7 +671,6 @@ LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/text-xy-updates.svg = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
 LINUX WIN : LayoutTests/svg/text/kerning.svg = FAIL
 LINUX WIN : LayoutTests/svg/text/multichar-glyph.svg = FAIL
 LINUX WIN : LayoutTests/svg/text/text-align-05-b.svg = FAIL
@@ -714,9 +714,6 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
-
-// MERGE 38760:38800: Expectations changed upstream
-WIN : LayoutTests/svg/hixie/data-types/001.xml = FAIL
 
 // WebKit Merge 38950:39000 failures:
 LINUX WIN : LayoutTests/svg/custom/fill-fallback.svg = FAIL
