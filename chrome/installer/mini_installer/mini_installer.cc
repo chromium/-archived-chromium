@@ -274,11 +274,6 @@ bool UnpackBinaryResources(HMODULE module, const wchar_t* base_path,
 // so that they can be passed on to setup.exe. We do not return any error from
 // this method and simply skip making any changes in case of error.
 void AppendCommandLineFlags(wchar_t* buffer, int size) {
-  int args_num;
-  wchar_t** args = ::CommandLineToArgvW(::GetCommandLine(), &args_num);
-  if (args_num <= 0)
-    return;
-
   wchar_t full_exe_path[MAX_PATH];
   int len = ::GetModuleFileNameW(NULL, full_exe_path, MAX_PATH);
   if (len <= 0 && len >= MAX_PATH)
@@ -288,18 +283,26 @@ void AppendCommandLineFlags(wchar_t* buffer, int size) {
   if (exe_name == NULL)
     return;
 
-  int start = 1;
-  if (args_num > 0 && !StrEndsWith(args[0], exe_name))
-    start = 0;
+  int args_num;
+  wchar_t* cmd_line = ::GetCommandLine();
+  wchar_t** args = ::CommandLineToArgvW(cmd_line, &args_num);
+  if (args_num <= 0)
+    return;
 
-  for (int i = start; i < args_num; ++i) {
-    if (size < lstrlen(args[i]) + 1)
-      break;
-
-    ::lstrcat(buffer, L" ");
-    ::lstrcat(buffer, args[i]);
-    size = size - (lstrlen(args[i]) + 1);
+  wchar_t* cmd_to_append = NULL;
+  if (!StrEndsWith(args[0], exe_name)) {
+    // Current executable name not in the command line so just append
+    // the whole command line.
+    cmd_to_append = cmd_line;
+  } else if (args_num > 1 ) {
+    wchar_t* tmp = StrStr(cmd_line, exe_name);
+    tmp = StrStr(tmp, L" ");
+    cmd_to_append = tmp;
   }
+
+  if (size > ::lstrlen(cmd_to_append))
+    ::lstrcat(buffer, cmd_to_append);
+
   LocalFree(args);
 }
 
