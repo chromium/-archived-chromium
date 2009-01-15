@@ -24,7 +24,7 @@
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
-#include "chrome/browser/password_manager.h"
+#include "chrome/browser/password_manager/password_manager.h"
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
