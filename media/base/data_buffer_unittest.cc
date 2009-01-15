@@ -26,7 +26,7 @@ TEST(DataBufferTest, Basic) {
   buffer = new DataBuffer(data, kBufferSize, kDataSize, 1337, 1667);  
   ASSERT_TRUE(buffer.get());
 
-  // Test StreamSampleInterface.
+  // Test StreamSample implementation.
   EXPECT_EQ(1337, buffer->GetTimestamp());
   EXPECT_EQ(1667, buffer->GetDuration());
   buffer->SetTimestamp(1234);
@@ -34,12 +34,12 @@ TEST(DataBufferTest, Basic) {
   EXPECT_EQ(1234, buffer->GetTimestamp());
   EXPECT_EQ(5678, buffer->GetDuration());
 
-  // Test BufferInterface.
+  // Test Buffer implementation.
   ASSERT_EQ(data, buffer->GetData());
   EXPECT_EQ(kDataSize, buffer->GetDataSize());
   EXPECT_STREQ(kData, buffer->GetData());
 
-  // Test WritableBufferInterface.
+  // Test WritableBuffer implementation.
   ASSERT_EQ(data, buffer->GetWritableData());
   EXPECT_EQ(kBufferSize, buffer->GetBufferSize());
   copied = base::strlcpy(data, kNewData, kBufferSize);

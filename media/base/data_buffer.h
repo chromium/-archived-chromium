@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// A simple implementation of WritableBufferInterface that takes ownership of
+// A simple implementation of WritableBuffer that takes ownership of
 // the given data pointer.
 //
 // DataBuffer assumes that memory was allocated with new char[].
@@ -14,22 +14,22 @@
 
 namespace media {
 
-class DataBuffer : public WritableBufferInterface {
+class DataBuffer : public WritableBuffer {
  public:
   DataBuffer(char* data, size_t buffer_size, size_t data_size,
              int64 timestamp, int64 duration);
 
-  // StreamSampleInterface
+  // StreamSample implementation.
   virtual int64 GetTimestamp() const;
   virtual void SetTimestamp(int64 timestamp);
   virtual int64 GetDuration() const;
   virtual void SetDuration(int64 duration);
 
-  // BufferInterface
+  // Buffer implementation.
   virtual const char* GetData() const;
   virtual size_t GetDataSize() const;
 
-  // WritableBufferInterface
+  // WritableBuffer implementation.
   virtual char* GetWritableData();
   virtual size_t GetBufferSize() const;
   virtual void SetDataSize(size_t data_size);

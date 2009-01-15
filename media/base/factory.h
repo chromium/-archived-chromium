@@ -14,8 +14,8 @@
 //   filter_factory->AddFactory(new TypeFilterFactory<YourAudioDecoder>());
 //   filter_factory->AddFactory(new TypeFilterFactory<YourAudioRenderer>());
 //   etc...
-//   AudioDecoderInterface* filter;
-//   if (filter_factory->Create<AudioDecoderInterface>(media_format, &filter) {
+//   AudioDecoder* filter;
+//   if (filter_factory->Create<AudioDecoder>(media_format, &filter) {
 //     do stuff with the filter...
 //   }
 //
@@ -39,16 +39,16 @@ namespace media {
 
 class FilterFactoryCollection;
 
-class FilterFactory : base::RefCountedThreadSafe<FilterFactory> {
+class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
  public:
   // Creates a filter implementing the specified interface.  Hides the casting
   // and FilterType constants from the callers and produces cleaner code:
-  //   AudioDecoderInterface* filter = NULL;
-  //   bool success = Create<AudioDecoderInterface>(media_format, &filter);
+  //   AudioDecoder* filter = NULL;
+  //   bool success = Create<AudioDecoder>(media_format, &filter);
   template <class T>
   bool Create(const MediaFormat* media_format, T** filter_out) {
     return Create(T::kFilterType, media_format,
-                  reinterpret_cast<MediaFilterInterface**>(filter_out));
+                  reinterpret_cast<MediaFilter**>(filter_out));
   }
 
  protected:
@@ -61,9 +61,9 @@ class FilterFactory : base::RefCountedThreadSafe<FilterFactory> {
   // reason, |filter_out| is assigned NULL and false it returned.
   //
   // It is assumed that |filter_out| can be safely casted to the corresponding
-  // interface type (i.e., FILTER_AUDIO_DECODER -> AudioDecoderInterface).
+  // interface type (i.e., FILTER_AUDIO_DECODER -> AudioDecoder).
   virtual bool Create(FilterType filter_type, const MediaFormat* media_format,
-                      MediaFilterInterface** filter_out) = 0;
+                      MediaFilter** filter_out) = 0;
 
   friend class base::RefCountedThreadSafe<FilterFactory>;
   virtual ~FilterFactory() {}
@@ -86,7 +86,7 @@ class TypeFilterFactory : public FilterFactory {
   // Attempts to create a filter of the template type.  Assumes a static method
   // Create is declared.
   virtual bool Create(FilterType filter_type, const MediaFormat* media_format,
-                      MediaFilterInterface** filter_out) {
+                      MediaFilter** filter_out) {
     T* typed_out;
     if (T::kFilterType == filter_type && T::Create(media_format, &typed_out)) {
       *filter_out = typed_out;
@@ -113,7 +113,7 @@ class FilterFactoryCollection : public FilterFactory {
  protected:
   // Attempts to create a filter by walking down the list of filter factories.
   bool Create(FilterType filter_type, const MediaFormat* media_format,
-              MediaFilterInterface** filter_out) {
+              MediaFilter** filter_out) {
     for (FactoryVector::iterator factory = factories_.begin();
          factory != factories_.end();
          ++factory) {

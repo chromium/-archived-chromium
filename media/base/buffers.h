@@ -31,8 +31,7 @@
 
 namespace media {
 
-class StreamSampleInterface :
-    public base::RefCountedThreadSafe<StreamSampleInterface> {
+class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
  public:
   // Returns the timestamp of this buffer in microseconds.
   virtual int64 GetTimestamp() const = 0;
@@ -47,12 +46,12 @@ class StreamSampleInterface :
   virtual void SetDuration(int64 duration) = 0;
 
  protected:
-  friend class base::RefCountedThreadSafe<StreamSampleInterface>;
-  virtual ~StreamSampleInterface() {}
+  friend class base::RefCountedThreadSafe<StreamSample>;
+  virtual ~StreamSample() {}
 };
 
 
-class BufferInterface : public StreamSampleInterface {
+class Buffer : public StreamSample {
  public:
   // Returns a read only pointer to the buffer data.
   virtual const char* GetData() const = 0;
@@ -62,7 +61,7 @@ class BufferInterface : public StreamSampleInterface {
 };
 
 
-class WritableBufferInterface : public BufferInterface  {
+class WritableBuffer : public Buffer  {
  public:
   // Returns a read-write pointer to the buffer data.
   virtual char* GetWritableData() = 0;
@@ -112,7 +111,7 @@ struct VideoSurface {
 };
 
 
-class VideoFrameInterface : public StreamSampleInterface {
+class VideoFrame : public StreamSample {
  public:
   // Locks the underlying surface and fills out the given VideoSurface and
   // returns true if successful, false otherwise.  Any additional calls to Lock
@@ -126,7 +125,7 @@ class VideoFrameInterface : public StreamSampleInterface {
 
 
 template <class BufferType>
-class AssignableInterface {
+class Assignable {
  public:
   // Assigns a buffer to the owner.
   virtual void SetBuffer(BufferType* buffer) = 0;
@@ -136,20 +135,20 @@ class AssignableInterface {
 };
 
 
-// Template for easily creating AssignableInterface buffers.  Pass in the
-// pointer of the object to receive the OnAssignment callback.
-template <class OwnerType, class BufferType>
-class AssignableBuffer : public AssignableInterface<BufferType>,
-    public base::RefCountedThreadSafe<AssignableBuffer<OwnerType, BufferType> > {
+// Template for easily creating Assignable buffers.  Pass in the pointer of the
+// object to receive the OnAssignment callback.
+template <class TOwner, class TBuffer>
+class AssignableBuffer : public Assignable<TBuffer>,
+    public base::RefCountedThreadSafe< AssignableBuffer<TOwner, TBuffer> > {
  public:
-  explicit AssignableBuffer(OwnerType* owner)
-    : owner_(owner),
-      buffer_(NULL) {
+  explicit AssignableBuffer(TOwner* owner)
+      : owner_(owner),
+        buffer_(NULL) {
     DCHECK(owner_);
   }
 
-  // AssignableBufferInterface<BufferType>
-  virtual void SetBuffer(BufferType* buffer) {
+  // AssignableBuffer<TBuffer> implementation.
+  virtual void SetBuffer(TBuffer* buffer) {
     buffer_ = buffer;
   }
 
@@ -158,8 +157,8 @@ class AssignableBuffer : public AssignableInterface<BufferType>,
   }
 
  private:
-  OwnerType* owner_;
-  scoped_refptr<BufferType> buffer_;
+  TOwner* owner_;
+  scoped_refptr<TBuffer> buffer_;
 
   DISALLOW_COPY_AND_ASSIGN(AssignableBuffer);
 };

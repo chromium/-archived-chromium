@@ -30,14 +30,14 @@
 
 namespace media {
 
-template <class BufferType> class AssignableInterface;
-class BufferInterface;
-class DecoderInterface;
-class DemuxerStreamInterface;
-class FilterHostInterface;
+template <class TBuffer> class Assignable;
+class Buffer;
+class Decoder;
+class DemuxerStream;
+class FilterHost;
 class MediaFormat;
-class VideoFrameInterface;
-class WritableBufferInterface;
+class VideoFrame;
+class WritableBuffer;
 
 // Identifies the type of filter implementation.  Used in conjunction with some
 // template wizardry to enforce strongly typed operations.  More or less a
@@ -53,18 +53,17 @@ enum FilterType {
 };
 
 
-class MediaFilterInterface :
-    public base::RefCountedThreadSafe<MediaFilterInterface> {
+class MediaFilter : public base::RefCountedThreadSafe<MediaFilter> {
  public:
-  virtual void SetFilterHost(FilterHostInterface* filter_host) = 0;
+  virtual void SetFilterHost(FilterHost* filter_host) = 0;
 
  protected:
-  friend class base::RefCountedThreadSafe<MediaFilterInterface>;
-  virtual ~MediaFilterInterface() {}
+  friend class base::RefCountedThreadSafe<MediaFilter>;
+  virtual ~MediaFilter() {}
 };
 
 
-class DataSourceInterface : public MediaFilterInterface {
+class DataSource : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_DATA_SOURCE;
   static const size_t kReadError = static_cast<size_t>(-1);
@@ -92,76 +91,76 @@ class DataSourceInterface : public MediaFilterInterface {
 };
 
 
-class DemuxerInterface : public MediaFilterInterface {
+class Demuxer : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_DEMUXER;
 
   // Initializes this filter, returns true if successful, false otherwise. 
-  virtual bool Initialize(DataSourceInterface* data_source) = 0;
+  virtual bool Initialize(DataSource* data_source) = 0;
 
   // Returns the number of streams available
   virtual size_t GetNumberOfStreams() = 0;
 
   // Returns the stream for the given index, NULL otherwise
-  virtual DemuxerStreamInterface* GetStream(int stream_id) = 0;
+  virtual DemuxerStream* GetStream(int stream_id) = 0;
 };
 
 
-class DemuxerStreamInterface {
+class DemuxerStream {
  public:
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
 
   // Schedules a read and takes ownership of the given buffer.
-  virtual void Read(AssignableInterface<BufferInterface>* buffer) = 0;
+  virtual void Read(Assignable<Buffer>* buffer) = 0;
 };
 
 
-class VideoDecoderInterface : public MediaFilterInterface {
+class VideoDecoder : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_VIDEO_DECODER;
 
   // Initializes this filter, returns true if successful, false otherwise.
-  virtual bool Initialize(DemuxerStreamInterface* demuxer_stream) = 0;
+  virtual bool Initialize(DemuxerStream* demuxer_stream) = 0;
 
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
 
   // Schedules a read and takes ownership of the given buffer.
-  virtual void Read(AssignableInterface<VideoFrameInterface>* video_frame) = 0;
+  virtual void Read(Assignable<VideoFrame>* video_frame) = 0;
 };
 
 
-class AudioDecoderInterface : public MediaFilterInterface {
+class AudioDecoder : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_AUDIO_DECODER;
 
   // Initializes this filter, returns true if successful, false otherwise.
-  virtual bool Initialize(DemuxerStreamInterface* demuxer_stream) = 0;
+  virtual bool Initialize(DemuxerStream* demuxer_stream) = 0;
 
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
 
   // Schedules a read and takes ownership of the given buffer.
-  virtual void Read(AssignableInterface<BufferInterface>* buffer) = 0;
+  virtual void Read(Assignable<Buffer>* buffer) = 0;
 };
 
 
-class VideoRendererInterface : public MediaFilterInterface {
+class VideoRenderer : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_VIDEO_RENDERER;
 
   // Initializes this filter, returns true if successful, false otherwise.
-  virtual bool Initialize(VideoDecoderInterface* decoder) = 0;
+  virtual bool Initialize(VideoDecoder* decoder) = 0;
 };
 
 
-class AudioRendererInterface : public MediaFilterInterface {
+class AudioRenderer : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_AUDIO_RENDERER;
 
   // Initializes this filter, returns true if successful, false otherwise.
-  virtual bool Initialize(AudioDecoderInterface* decoder) = 0;
+  virtual bool Initialize(AudioDecoder* decoder) = 0;
 };
 
 } // namespace media

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Implementation of FilterHostInterface.
+// Implementation of FilterHost.
 
 #ifndef MEDIA_BASE_FILTER_HOST_IMPL_H_
 #define MEDIA_BASE_FILTER_HOST_IMPL_H_
@@ -12,11 +12,11 @@
 
 namespace media {
 
-class FilterHostImpl : public FilterHostInterface {
+class FilterHostImpl : public FilterHost {
  public:
   FilterHostImpl();
 
-  // FilterHostInterface implementation.
+  // FilterHost implementation.
   virtual int64 GetTime() const;
   virtual void SetTime(int64 time);
   virtual int64 GetDuration() const;

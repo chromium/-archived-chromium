@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// FilterHostInterface describes an interface for individual filters to access
-// and modify global playback information.  Every filter is given a filter host
+// FilterHost describes an interface for individual filters to access and
+// modify global playback information.  Every filter is given a filter host
 // reference as part of initialization.
 //
 // This interface is intentionally verbose to cover the needs for the different
@@ -14,9 +14,9 @@
 // to synchronize video with audio.  An audio and video decoder would typically
 // have no need to call either SetTime or GetTime.
 //
-// Filter state is managed by the FilterHostInterface implementor, with the
-// filter receiving notifications from the host when a state transition is
-// starting and the filter notifying the host when the filter has completed the
+// Filter state is managed by the FilterHost implementor, with the filter
+// receiving notifications from the host when a state transition is starting
+// and the filter notifying the host when the filter has completed the
 // transition.  The state transition is broken into two steps since some state
 // transitions may be blocking or long running.  The host provides PostTask to
 // help filters schedule such tasks.
@@ -46,7 +46,7 @@
 
 namespace media {
 
-class FilterHostInterface {
+class FilterHost {
  public:
   // Returns the global time.
   virtual int64 GetTime() const = 0;
@@ -129,7 +129,7 @@ class FilterHostInterface {
   virtual void SetErrorCallback(Callback1<int>::Type* callback) = 0;
 
  protected:
-  virtual ~FilterHostInterface() {}
+  virtual ~FilterHost() {}
 };
 
 }  // namespace media
