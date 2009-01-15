@@ -247,6 +247,7 @@ input_files = ChromeFileList([
     'values.h',
     'waitable_event.h',
     'waitable_event_win.cc',
+    'waitable_event_watcher_win.cc',
     'watchdog.cc',
     'watchdog.h',
     'win_util.cc',

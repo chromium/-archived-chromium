@@ -31,8 +31,6 @@ class DecrementCountDelegate : public WaitableEventWatcher::Delegate {
   int* counter_;
 };
 
-}  // namespace
-
 void RunTest_BasicSignal(MessageLoop::Type message_loop_type) {
   MessageLoop message_loop(message_loop_type);
 
@@ -108,6 +106,8 @@ void RunTest_OutlivesMessageLoop(MessageLoop::Type message_loop_type) {
     }
   }
 }
+
+}  // namespace
 
 //-----------------------------------------------------------------------------
 
