@@ -320,6 +320,8 @@ class UITest : public testing::Test {
 
   int action_max_timeout_ms() const { return action_max_timeout_ms_; }
 
+  int sleep_timeout_ms() const { return sleep_timeout_ms_; }
+
   std::wstring ui_test_name() const { return ui_test_name_; }
 
   // Count the number of active browser processes.  This function only counts
@@ -453,6 +455,7 @@ class UITest : public testing::Test {
   int command_execution_timeout_ms_;
   int action_timeout_ms_;
   int action_max_timeout_ms_;
+  int sleep_timeout_ms_;
 
   std::wstring ui_test_name_;
 };

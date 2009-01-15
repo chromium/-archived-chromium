@@ -296,7 +296,8 @@ class ChromeTests:
                               "--single-process",
                               "--ui-test-timeout=180000",
                               "--ui-test-action-timeout=80000",
-                              "--ui-test-action-max-timeout=180000"],
+                              "--ui-test-action-max-timeout=180000",
+			      "--ui-test-sleep-timeout=40000"],
                              multi=True)
 
 

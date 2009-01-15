@@ -68,6 +68,7 @@ std::wstring UITest::js_flags_ = L"";
 const wchar_t kUiTestTimeout[] = L"ui-test-timeout";
 const wchar_t kUiTestActionTimeout[] = L"ui-test-action-timeout";
 const wchar_t kUiTestActionMaxTimeout[] = L"ui-test-action-max-timeout";
+const wchar_t kUiTestSleepTimeout[] = L"ui-test-sleep-timeout";
 
 const wchar_t kExtraChromeFlagsSwitch[] = L"extra-chrome-flags";
 
@@ -103,7 +104,8 @@ UITest::UITest()
       use_existing_browser_(default_use_existing_browser_),
       command_execution_timeout_ms_(kMaxTestExecutionTime),
       action_timeout_ms_(kWaitForActionMsec),
-      action_max_timeout_ms_(kWaitForActionMaxMsec) {
+      action_max_timeout_ms_(kWaitForActionMaxMsec),
+      sleep_timeout_ms_(kWaitForActionMsec) {
   PathService::Get(chrome::DIR_APP, &browser_directory_);
   PathService::Get(chrome::DIR_TEST_DATA, &test_data_directory_);
 #if defined(OS_WIN)
@@ -192,6 +194,13 @@ void UITest::InitializeTimeouts() {
         CommandLine().GetSwitchValue(kUiTestActionMaxTimeout);
     int max_timeout = StringToInt(action_max_str);
     action_max_timeout_ms_ = std::max(kWaitForActionMaxMsec, max_timeout);
+  }
+
+  if (CommandLine().HasSwitch(kUiTestSleepTimeout)) {
+    std::wstring sleep_timeout_str =
+        CommandLine().GetSwitchValue(kUiTestSleepTimeout);
+    int sleep_timeout = StringToInt(sleep_timeout_str);
+    sleep_timeout_ms_ = std::max(kWaitForActionMsec, sleep_timeout);
   }
 }
 
