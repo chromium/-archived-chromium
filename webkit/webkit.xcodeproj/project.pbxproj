@@ -68,6 +68,16 @@
 		7BF891EA0E7311B1000BAF8A /* pcre_ucp_searchfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E40E7311B1000BAF8A /* pcre_ucp_searchfuncs.cpp */; };
 		7BF891EB0E7311B1000BAF8A /* pcre_xclass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E50E7311B1000BAF8A /* pcre_xclass.cpp */; };
 		7BF892080E7314E9000BAF8A /* pcre_exec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E10E7311B1000BAF8A /* pcre_exec.cpp */; };
+		823E8F330F1CF88B00CD2F6C /* plugin_lib.cc in Sources */ = {isa = PBXBuildFile; fileRef = 823E8F320F1CF88B00CD2F6C /* plugin_lib.cc */; };
+		823E8FE60F1D22E900CD2F6C /* plugin_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = 823E8F340F1CF89200CD2F6C /* plugin_list.cc */; };
+		8255CEA40F16971200E53C11 /* plugin_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405DF0D92E3FF0006B936 /* plugin_host.cc */; };
+		8255CEA50F16971300E53C11 /* plugin_instance.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405E10D92E3FF0006B936 /* plugin_instance.cc */; };
+		8255CEA60F16971300E53C11 /* plugin_lib_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405E30D92E3FF0006B936 /* plugin_lib_mac.mm */; };
+		8255CEA70F16971400E53C11 /* plugin_list_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405E50D92E3FF0006B936 /* plugin_list_mac.mm */; };
+		8255CEA80F16971400E53C11 /* plugin_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405E90D92E3FF0006B936 /* plugin_stream.cc */; };
+		8255CEA90F16971500E53C11 /* plugin_stream_url.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405E70D92E3FF0006B936 /* plugin_stream_url.cc */; };
+		8255CEC20F16971600E53C11 /* plugin_string_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405EB0D92E3FF0006B936 /* plugin_string_stream.cc */; };
+		8255CEE00F16972C00E53C11 /* plugin_stream_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8255CEDF0F16972C00E53C11 /* plugin_stream_posix.cc */; };
 		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
@@ -3851,6 +3861,8 @@
 		7BFD8E660DAFE7630084BC4B /* libjsbindings.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsbindings.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		820A61930DE7592C00871E2D /* WebCoreURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreURLResponse.h; sourceTree = "<group>"; };
 		820A61940DE7592C00871E2D /* WebCoreURLResponse.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreURLResponse.mm; sourceTree = "<group>"; };
+		823E8F320F1CF88B00CD2F6C /* plugin_lib.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_lib.cc; sourceTree = "<group>"; };
+		823E8F340F1CF89200CD2F6C /* plugin_list.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_list.cc; sourceTree = "<group>"; };
 		825404EB0D92E3DA0006B936 /* alt_404_page_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alt_404_page_resource_fetcher.cc; sourceTree = "<group>"; };
 		825404EC0D92E3DA0006B936 /* alt_404_page_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = alt_404_page_resource_fetcher.h; sourceTree = "<group>"; };
 		825404ED0D92E3DA0006B936 /* alt_error_page_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alt_error_page_resource_fetcher.cc; sourceTree = "<group>"; };
@@ -3968,9 +3980,9 @@
 		825405E00D92E3FF0006B936 /* plugin_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugin_host.h; sourceTree = "<group>"; };
 		825405E10D92E3FF0006B936 /* plugin_instance.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_instance.cc; sourceTree = "<group>"; };
 		825405E20D92E3FF0006B936 /* plugin_instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugin_instance.h; sourceTree = "<group>"; };
-		825405E30D92E3FF0006B936 /* plugin_lib.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_lib.cc; sourceTree = "<group>"; };
+		825405E30D92E3FF0006B936 /* plugin_lib_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = plugin_lib_mac.mm; sourceTree = "<group>"; };
 		825405E40D92E3FF0006B936 /* plugin_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugin_lib.h; sourceTree = "<group>"; };
-		825405E50D92E3FF0006B936 /* plugin_list.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_list.cc; sourceTree = "<group>"; };
+		825405E50D92E3FF0006B936 /* plugin_list_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = plugin_list_mac.mm; sourceTree = "<group>"; };
 		825405E60D92E3FF0006B936 /* plugin_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugin_list.h; sourceTree = "<group>"; };
 		825405E70D92E3FF0006B936 /* plugin_stream_url.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_stream_url.cc; sourceTree = "<group>"; };
 		825405E80D92E3FF0006B936 /* plugin_stream_url.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugin_stream_url.h; sourceTree = "<group>"; };
@@ -3980,6 +3992,7 @@
 		825405EC0D92E3FF0006B936 /* plugin_string_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugin_string_stream.h; sourceTree = "<group>"; };
 		825405ED0D92E3FF0006B936 /* webplugin_delegate_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_delegate_impl.cc; sourceTree = "<group>"; };
 		825405EE0D92E3FF0006B936 /* webplugin_delegate_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webplugin_delegate_impl.h; sourceTree = "<group>"; };
+		8255CEDF0F16972C00E53C11 /* plugin_stream_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_stream_posix.cc; sourceTree = "<group>"; };
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObject.cpp; sourceTree = "<group>"; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObject.h; sourceTree = "<group>"; };
 		82C260660DCBA013005CFE91 /* BMPImageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMPImageReader.h; sourceTree = "<group>"; };
@@ -7629,12 +7642,15 @@
 				825405E00D92E3FF0006B936 /* plugin_host.h */,
 				825405E10D92E3FF0006B936 /* plugin_instance.cc */,
 				825405E20D92E3FF0006B936 /* plugin_instance.h */,
-				825405E30D92E3FF0006B936 /* plugin_lib.cc */,
+				823E8F320F1CF88B00CD2F6C /* plugin_lib.cc */,
 				825405E40D92E3FF0006B936 /* plugin_lib.h */,
-				825405E50D92E3FF0006B936 /* plugin_list.cc */,
+				825405E30D92E3FF0006B936 /* plugin_lib_mac.mm */,
+				823E8F340F1CF89200CD2F6C /* plugin_list.cc */,
 				825405E60D92E3FF0006B936 /* plugin_list.h */,
+				825405E50D92E3FF0006B936 /* plugin_list_mac.mm */,
 				825405E90D92E3FF0006B936 /* plugin_stream.cc */,
 				825405EA0D92E3FF0006B936 /* plugin_stream.h */,
+				8255CEDF0F16972C00E53C11 /* plugin_stream_posix.cc */,
 				825405E70D92E3FF0006B936 /* plugin_stream_url.cc */,
 				825405E80D92E3FF0006B936 /* plugin_stream_url.h */,
 				825405EB0D92E3FF0006B936 /* plugin_string_stream.cc */,
@@ -9446,6 +9462,16 @@
 				E456283A0E269DCB005E4685 /* multipart_response_delegate.cc in Sources */,
 				538D819B0EC371EA00278C31 /* password_autocomplete_listener.cc in Sources */,
 				E45627100E268F03005E4685 /* password_form_dom_manager.cc in Sources */,
+				8255CEA40F16971200E53C11 /* plugin_host.cc in Sources */,
+				8255CEA50F16971300E53C11 /* plugin_instance.cc in Sources */,
+				823E8F330F1CF88B00CD2F6C /* plugin_lib.cc in Sources */,
+				8255CEA60F16971300E53C11 /* plugin_lib_mac.mm in Sources */,
+				823E8FE60F1D22E900CD2F6C /* plugin_list.cc in Sources */,
+				8255CEA70F16971400E53C11 /* plugin_list_mac.mm in Sources */,
+				8255CEA80F16971400E53C11 /* plugin_stream.cc in Sources */,
+				8255CEE00F16972C00E53C11 /* plugin_stream_posix.cc in Sources */,
+				8255CEA90F16971500E53C11 /* plugin_stream_url.cc in Sources */,
+				8255CEC20F16971600E53C11 /* plugin_string_stream.cc in Sources */,
 				E45626F80E268F03005E4685 /* resource_fetcher.cc in Sources */,
 				E45627160E268F26005E4685 /* resource_handle_impl.cc in Sources */,
 				E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */,

@@ -6,6 +6,8 @@
 // TODO : Support NP_SEEK mode
 // TODO : Support SEEKABLE=true in NewStream
 
+#include "config.h"
+
 #include "webkit/glue/plugins/plugin_stream.h"
 
 #include "base/string_util.h"

@@ -76,7 +76,7 @@ void PluginThread::Init() {
   resource_dispatcher_ = new ResourceDispatcher(this);
 
   // Preload the library to avoid loading, unloading then reloading
-  preloaded_plugin_module_ = NPAPI::PluginLib::LoadPluginHelper(
+  preloaded_plugin_module_ = NPAPI::PluginLib::LoadNativeLibrary(
       plugin_process_->plugin_path());
 
   ChromePluginLib::Create(plugin_process_->plugin_path(),

@@ -57,6 +57,8 @@ input_files = [
   'password_form_dom_manager.cc',
   'plugins/plugin_host.cc',
   'plugins/plugin_instance.cc',
+  'plugins/plugin_lib.cc',
+  'plugins/plugin_list.cc',
   'plugins/plugin_stream.cc',
   'plugins/plugin_stream_url.cc',
   'plugins/plugin_string_stream.cc',
@@ -88,8 +90,8 @@ if env.Bit('linux'):
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',
     'plugins/plugin_stream.cc',
-    'plugins/plugin_string_stream.cc',
     'plugins/plugin_stream_url.cc',
+    'plugins/plugin_string_stream.cc',
   ]
   for file in remove_files:
     input_files.remove(file)
@@ -103,14 +105,14 @@ if env.Bit('windows'):
     '$PENDING_DIR/AccessibleDocument.cpp',
     'glue_accessibility.cc',
     'plugins/mozilla_extensions.cc',
-    'plugins/plugin_lib.cc',
-    'plugins/plugin_list.cc',
     'plugins/webplugin_delegate_impl.cc',
     'webdropdata.cc',
   ])
 
 if env.Bit('windows'):
   input_files.extend([
+    'plugins/plugin_lib_win.cc',
+    'plugins/plugin_list_win.cc',
     'plugins/plugin_stream_win.cc',
     'webcursor_win.cc',
     'webinputevent_win.cc',
@@ -124,6 +126,8 @@ elif env.Bit('linux'):
   ])
 elif env.Bit('mac'):
   input_files.extend([
+    'plugins/plugin_lib_mac.mm',
+    'plugins/plugin_list_mac.mm',
     'webcursor_mac.mm',
   ])
 

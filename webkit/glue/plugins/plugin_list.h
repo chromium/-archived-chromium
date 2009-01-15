@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/webplugin.h"
 
@@ -20,19 +21,7 @@ class GURL;
 namespace NPAPI
 {
 
-// Used by plugins_test when testing the older WMP plugin to force the new
-// plugin to not get loaded.
-#define kUseOldWMPPluginSwitch L"use-old-wmp"
-// Used for testing ActiveX shim. By default it's off. If this flag is specified
-// we will use the native ActiveX shim.
-#define kNoNativeActiveXShimSwitch L"no-activex"
-// Internal file name for activex shim, used as a unique identifier.
-#define kActiveXShimFileName L"activex-shim"
-// Internal file name for windows media player.
-#define kActivexShimFileNameForMediaPlayer \
-    L"Microsoft® Windows Media Player Firefox Plugin"
-
-#define kDefaultPluginLibraryName L"default_plugin"
+#define kDefaultPluginLibraryName FILE_PATH_LITERAL("default_plugin")
 
 class PluginInstance;
 
@@ -68,7 +57,7 @@ class PluginList : public base::RefCounted<PluginList> {
   // The mime type which corresponds to the URL is optionally returned
   // back.
   // The allow_wildcard parameter controls whether this function returns
-  // plugins which support wildcard mime types (* as the mime type)
+  // plugins which support wildcard mime types (* as the mime type).
   bool GetPluginInfo(const GURL& url,
                      const std::string& mime_type,
                      const std::string& clsid,
@@ -77,7 +66,7 @@ class PluginList : public base::RefCounted<PluginList> {
                      std::string* actual_mime_type);
 
   // Get plugin info by plugin path. Returns true if the plugin is found and
-  // WebPluginInfo has been filled in |info|
+  // WebPluginInfo has been filled in |info|.
   bool GetPluginInfoByPath(const FilePath& plugin_path,
                            WebPluginInfo* info);
  private:
@@ -94,9 +83,9 @@ class PluginList : public base::RefCounted<PluginList> {
   void LoadPlugin(const FilePath& filename);
 
   // Returns true if we should load the given plugin, or false otherwise.
-  bool ShouldLoadPlugin(const FilePath& path);
+  bool ShouldLoadPlugin(const WebPluginInfo& info);
 
-  // Load internal plugins. Right now there is only one: activex_shim.
+  // Load internal plugins.
   void LoadInternalPlugins();
 
   // Find a plugin by mime type, and clsid.
@@ -129,42 +118,32 @@ class PluginList : public base::RefCounted<PluginList> {
                                 const std::string &extension,
                                 std::string* actual_mime_type);
 
-  // The application path where we expect to find plugins.
-  static void GetAppDirectory(std::set<FilePath>* plugin_dirs);
+  //
+  // Platform functions
+  //
 
-  // The executable path where we expect to find plugins.
-  static void GetExeDirectory(std::set<FilePath>* plugin_dirs);
-
-  // Get plugin directory locations from the Firefox install path.  This is kind
-  // of a kludge, but it helps us locate the flash player for users that
-  // already have it for firefox.  Not having to download yet-another-plugin
-  // is a good thing.
-  void GetFirefoxDirectory(std::set<FilePath>* plugin_dirs);
-
-  // Hardcoded logic to detect Acrobat plugins locations.
-  void GetAcrobatDirectory(std::set<FilePath>* plugin_dirs);
-
-  // Hardcoded logic to detect QuickTime plugin location.
-  void GetQuicktimeDirectory(std::set<FilePath>* plugin_dirs);
-
-  // Hardcoded logic to detect Windows Media Player plugin location.
-  void GetWindowsMediaDirectory(std::set<FilePath>* plugin_dirs);
-
-  // Hardcoded logic to detect Java plugin location.
-  void GetJavaDirectory(std::set<FilePath>* plugin_dirs);
-
+  // Do any initialization.
+  void PlatformInit();
+  
+  // Get the ordered list of directories from which to load plugins
+  void GetPluginDirectories(std::vector<FilePath>* plugin_dirs);
+  
+  //
+  // Command-line switches
+  //
+  
 #if defined(OS_WIN)
-  // Search the registry at the given path and detect plugin directories.
-  void GetPluginsInRegistryDirectory(HKEY root_key,
-                                     const std::wstring& registry_folder,
-                                     std::set<FilePath>* plugin_dirs);
-#endif
-
   // true if we shouldn't load the new WMP plugin.
   bool dont_load_new_wmp_;
 
+  // true if we should use our internal ActiveX shim
   bool use_internal_activex_shim_;
+#endif
 
+  //
+  // Internals
+  //
+  
   static scoped_refptr<PluginList> singleton_;
   bool plugins_loaded_;
 

@@ -681,6 +681,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\plugins\plugin_constants_win.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\plugins\plugin_host.cc"
 				>
 			</File>
@@ -705,11 +709,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\plugins\plugin_lib_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\plugins\plugin_list.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\..\glue\plugins\plugin_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\plugins\plugin_list_win.cc"
 				>
 			</File>
 			<File

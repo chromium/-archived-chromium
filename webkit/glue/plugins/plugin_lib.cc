@@ -6,75 +6,18 @@
 
 #include "webkit/glue/plugins/plugin_lib.h"
 
-#include "base/file_util.h"
-#include "base/file_version_info.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/path_service.h"
 #include "base/stats_counters.h"
-#include "base/string_util.h"
-#include "base/sys_string_conversions.h"
-#include "base/task.h"
-#include "webkit/activex_shim/npp_impl.h"
-#include "webkit/default_plugin/plugin_main.h"
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_host.h"
-#include "webkit/glue/plugins/plugin_list.h"
-
 
 namespace NPAPI
 {
 
 const char kPluginLibrariesLoadedCounter[] = "PluginLibrariesLoaded";
 const char kPluginInstancesActiveCounter[] = "PluginInstancesActive";
-
-static const InternalPluginInfo g_internal_plugins[] = {
-  {
-    {FilePath(kActiveXShimFileName),
-     L"ActiveX Plug-in",
-     L"ActiveX Plug-in provides a shim to support ActiveX controls",
-     L"1, 0, 0, 1",
-     L"application/x-oleobject|application/oleobject",
-     L"*|*",
-     L""
-    },
-    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
-    activex_shim::ActiveX_Shim_NP_Initialize,
-    activex_shim::ActiveX_Shim_NP_Shutdown
-  },
-  {
-    {FilePath(kActivexShimFileNameForMediaPlayer),
-     kActivexShimFileNameForMediaPlayer,
-     L"Windows Media Player",
-     L"1, 0, 0, 1",
-     L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
-         L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
-         L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
-     L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
-     L""
-    },
-    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
-    activex_shim::ActiveX_Shim_NP_Initialize,
-    activex_shim::ActiveX_Shim_NP_Shutdown
-  },
-  {
-    {FilePath(kDefaultPluginLibraryName),
-     L"Default Plug-in",
-     L"Provides functionality for installing third-party plug-ins",
-     L"1, 0, 0, 1",
-     L"*",
-     L"",
-     L""
-    },
-    default_plugin::NP_GetEntryPoints,
-    default_plugin::NP_Initialize,
-    default_plugin::NP_Shutdown
-  },
-};
-
 
 // A list of all the instantiated plugins.
 static std::vector<scoped_refptr<PluginLib> >* g_loaded_libs;
@@ -117,7 +60,7 @@ void PluginLib::ShutdownAllPlugins() {
 
 PluginLib::PluginLib(const WebPluginInfo& info)
     : web_plugin_info_(info),
-      module_(0),
+      library_(0),
       initialized_(false),
       saved_data_(0),
       instance_count_(0) {
@@ -125,13 +68,17 @@ PluginLib::PluginLib(const WebPluginInfo& info)
   memset((void*)&plugin_funcs_, 0, sizeof(plugin_funcs_));
   g_loaded_libs->push_back(this);
 
+  const InternalPluginInfo* internal_plugins;
+  size_t internal_plugin_count;
+  GetInternalPlugins(&internal_plugins, &internal_plugin_count);
+
   internal_ = false;
-  for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
-    if (info.path == g_internal_plugins[i].version_info.path) {
+  for (size_t i = 0; i < internal_plugin_count; ++i) {
+    if (info.path == internal_plugins[i].version_info.path) {
       internal_ = true;
-      NP_Initialize_ = g_internal_plugins[i].np_initialize;
-      NP_GetEntryPoints_ = g_internal_plugins[i].np_getentrypoints;
-      NP_Shutdown_ = g_internal_plugins[i].np_shutdown;
+      NP_Initialize_ = internal_plugins[i].np_initialize;
+      NP_GetEntryPoints_ = internal_plugins[i].np_getentrypoints;
+      NP_Shutdown_ = internal_plugins[i].np_shutdown;
       break;
     }
   }
@@ -200,30 +147,31 @@ void PluginLib::CloseInstance() {
 
 bool PluginLib::Load() {
   bool rv = false;
-  HMODULE module = 0;
+  NativeLibrary library = 0;
 
   if (!internal_) {
-    if (module_ != 0)
+    if (library_ != 0)
       return rv;
 
-    module = LoadPluginHelper(web_plugin_info_.path);
-    if (module == 0)
+    library = LoadNativeLibrary(web_plugin_info_.path);
+    if (library == 0)
       return rv;
 
     rv = true;  // assume success now
 
-    NP_Initialize_ = (NP_InitializeFunc)GetProcAddress(
-        module, "NP_Initialize");
+    NP_Initialize_ = (NP_InitializeFunc)GetFunctionPointerFromNativeLibrary(
+        library, FUNCTION_NAME("NP_Initialize"));
     if (NP_Initialize_ == 0)
       rv = false;
 
-    NP_GetEntryPoints_ = (NP_GetEntryPointsFunc)GetProcAddress(
-        module, "NP_GetEntryPoints");
+    NP_GetEntryPoints_ =
+        (NP_GetEntryPointsFunc)GetFunctionPointerFromNativeLibrary(
+        library, FUNCTION_NAME("NP_GetEntryPoints"));
     if (NP_GetEntryPoints_ == 0)
       rv = false;
 
-    NP_Shutdown_ = (NP_ShutdownFunc)GetProcAddress(
-        module, "NP_Shutdown");
+    NP_Shutdown_ = (NP_ShutdownFunc)GetFunctionPointerFromNativeLibrary(
+        library, FUNCTION_NAME("NP_Shutdown"));
     if (NP_Shutdown_ == 0)
       rv = false;
   } else {
@@ -239,39 +187,20 @@ bool PluginLib::Load() {
 
   if (!internal_) {
     if (rv)
-      module_ = module;
+      library_ = library;
     else
-      FreeLibrary(module);
+      UnloadNativeLibrary(library);
   }
 
   return rv;
 }
 
-HMODULE PluginLib::LoadPluginHelper(const FilePath plugin_file) {
-  // Switch the current directory to the plugin directory as the plugin
-  // may have dependencies on dlls in this directory.
-  bool restore_directory = false;
-  std::wstring current_directory;
-  if (PathService::Get(base::DIR_CURRENT, &current_directory)) {
-    FilePath plugin_path = plugin_file.DirName();
-    if (!plugin_path.value().empty()) {
-      PathService::SetCurrentDirectory(plugin_path.value());
-      restore_directory = true;
-    }
-  }
-
-  HMODULE module = LoadLibrary(plugin_file.value().c_str());
-  if (restore_directory)
-    PathService::SetCurrentDirectory(current_directory);
-
-  return module;
-}
-
 // This class implements delayed NP_Shutdown and FreeLibrary on the plugin dll.
 class FreePluginLibraryTask : public Task {
  public:
-  FreePluginLibraryTask(HMODULE module, NP_ShutdownFunc shutdown_func)
-      : module_(module),
+  FreePluginLibraryTask(PluginLib::NativeLibrary library,
+                        NP_ShutdownFunc shutdown_func)
+      : library_(library),
         NP_Shutdown_(shutdown_func) {
   }
 
@@ -281,20 +210,20 @@ class FreePluginLibraryTask : public Task {
     if (NP_Shutdown_)
       NP_Shutdown_();
 
-    if (module_) {
-      FreeLibrary(module_);
-      module_ = NULL;
+    if (library_) {
+      PluginLib::UnloadNativeLibrary(library_);
+      library_ = NULL;
     }
   }
 
  private:
-  HMODULE module_;
+  PluginLib::NativeLibrary library_;
   NP_ShutdownFunc NP_Shutdown_;
   DISALLOW_EVIL_CONSTRUCTORS(FreePluginLibraryTask);
 };
 
 void PluginLib::Unload() {
-  if (!internal_ && module_) {
+  if (!internal_ && library_) {
     // In case of single process mode, a plugin can delete itself
     // by executing a script. So delay the unloading of the library
     // so that the plugin will have a chance to unwind.
@@ -309,14 +238,14 @@ void PluginLib::Unload() {
 
     if (defer_unload) {
       FreePluginLibraryTask* free_library_task =
-          new FreePluginLibraryTask(module_, NP_Shutdown_);
+          new FreePluginLibraryTask(library_, NP_Shutdown_);
       MessageLoop::current()->PostTask(FROM_HERE, free_library_task);
     } else {
       Shutdown();
-      FreeLibrary(module_);
+      UnloadNativeLibrary(library_);
     }
 
-    module_ = 0;
+    library_ = 0;
   }
 }
 
@@ -325,77 +254,6 @@ void PluginLib::Shutdown() {
     NP_Shutdown();
     initialized_ = false;
   }
-}
-
-bool PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi,
-                                    WebPluginInfo* info) {
-  std::vector<std::string> mime_types, file_extensions;
-  std::vector<std::wstring> descriptions;
-  SplitString(base::SysWideToNativeMB(pvi.mime_types), '|', &mime_types);
-  SplitString(base::SysWideToNativeMB(pvi.file_extents), '|', &file_extensions);
-  SplitString(pvi.file_open_names, '|', &descriptions);
-
-  if (mime_types.empty())
-    return false;
-
-  info->name = pvi.product_name;
-  info->desc = pvi.file_description;
-  info->version = pvi.file_version;
-  info->path = FilePath(pvi.path);
-
-  for (size_t i = 0; i < mime_types.size(); ++i) {
-    WebPluginMimeType mime_type;
-    mime_type.mime_type = StringToLowerASCII(mime_types[i]);
-    if (file_extensions.size() > i)
-      SplitString(file_extensions[i], ',', &mime_type.file_extensions);
-
-    if (descriptions.size() > i) {
-      mime_type.description = descriptions[i];
-
-      // Remove the extension list from the description.
-      size_t ext = mime_type.description.find(L"(*");
-      if (ext != std::wstring::npos) {
-        if (ext > 1 && mime_type.description[ext -1] == ' ')
-          ext--;
-
-        mime_type.description.erase(ext);
-      }
-    }
-
-    info->mime_types.push_back(mime_type);
-  }
-
-  return true;
-}
-
-
- bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
-                                   WebPluginInfo* info) {
-  for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
-    if (filename == g_internal_plugins[i].version_info.path)
-      return CreateWebPluginInfo(g_internal_plugins[i].version_info, info);
-  }
-
-  // On windows, the way we get the mime types for the library is
-  // to check the version information in the DLL itself.  This
-  // will be a string of the format:  <type1>|<type2>|<type3>|...
-  // For example:
-  //     video/quicktime|audio/aiff|image/jpeg
-  scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfo(filename.value()));
-  if (!version_info.get())
-    return false;
-
-  PluginVersionInfo pvi;
-  version_info->GetValue(L"MIMEType", &pvi.mime_types);
-  version_info->GetValue(L"FileExtents", &pvi.file_extents);
-  version_info->GetValue(L"FileOpenName", &pvi.file_open_names);
-  pvi.product_name = version_info->product_name();
-  pvi.file_description = version_info->file_description();
-  pvi.file_version = version_info->file_version();
-  pvi.path = filename;
-
-  return CreateWebPluginInfo(pvi, info);
 }
 
 }  // namespace NPAPI

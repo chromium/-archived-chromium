@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 
+#include "config.h"
+
 #include "webkit/glue/plugins/plugin_stream_url.h"
 
 #include "webkit/glue/glue_util.h"

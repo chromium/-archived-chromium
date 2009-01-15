@@ -50,7 +50,7 @@ struct InternalPluginInfo {
 // manager for new PluginInstances.
 class PluginLib : public base::RefCounted<PluginLib> {
  public:
-  static PluginLib* PluginLib::CreatePluginLib(const FilePath& filename);
+  static PluginLib* CreatePluginLib(const FilePath& filename);
   virtual ~PluginLib();
 
   // Creates a WebPluginInfo structure given a plugin's path.  On success
@@ -88,16 +88,10 @@ class PluginLib : public base::RefCounted<PluginLib> {
   // NPAPI method to shutdown a Plugin.
   void NP_Shutdown(void);
 
-#if defined(OS_WIN)
-  // Helper function to load a plugin.
-  // Returns the module handle on success.
-  static HMODULE LoadPluginHelper(const FilePath plugin_file);
-#endif
-
   int instance_count() const { return instance_count_; }
 
  private:
-  // Creates a new PluginLib
+  // Creates a new PluginLib.
   PluginLib(const WebPluginInfo& info);
 
   // Attempts to load the plugin from the library.
@@ -109,17 +103,42 @@ class PluginLib : public base::RefCounted<PluginLib> {
 
   // Shutdown the plugin library.
   void Shutdown();
-
-  // Creates WebPluginInfo structure based on read in or built in
-  // PluginVersionInfo.
-  static bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
-                                  WebPluginInfo* info);
-
+  
+  //
+  // Platform functions
+  //
+  
+  // Gets the list of internal plugins.
+  static void GetInternalPlugins(const InternalPluginInfo** plugins,
+                                 size_t* count);
+  
+ public:
+#if defined(OS_WIN)
+  typedef HMODULE NativeLibrary;
+  typedef char* NativeLibraryFunctionNameType;
+#define FUNCTION_NAME(x) x
+#elif defined(OS_MACOSX)
+  typedef CFBundleRef NativeLibrary;
+  typedef CFStringRef NativeLibraryFunctionNameType;
+#define FUNCTION_NAME(x) CFSTR(x)
+#endif  // OS_*
+  
+  // Loads a native library from disk. NOTE: You must release it with
+  // UnloadNativeLibrary when you're done.
+  static NativeLibrary LoadNativeLibrary(const FilePath& library_path);
+  
+  // Unloads a native library.
+  static void UnloadNativeLibrary(NativeLibrary library);
+  
+ private:
+  // Gets a function pointer from a native library.
+  static void* GetFunctionPointerFromNativeLibrary(
+      NativeLibrary library,
+      NativeLibraryFunctionNameType name);
+ 
   bool internal_;  // Whether this an internal plugin.
   WebPluginInfo web_plugin_info_;  // supported mime types, description
-#if defined(OS_WIN)
-  HMODULE module_;  // the opened DLL handle
-#endif
+  NativeLibrary library_;  // the opened library reference
   NPPluginFuncs plugin_funcs_;  // the struct of plugin side functions
   bool initialized_;  // is the plugin initialized
   NPSavedData *saved_data_;  // persisted plugin info for NPAPI
