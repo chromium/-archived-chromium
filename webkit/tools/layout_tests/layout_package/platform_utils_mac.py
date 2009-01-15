@@ -133,6 +133,9 @@ class PlatformUtility(object):
     """
     return 'wdiff'
 
+  def ImageCompareExecutablePath(self, target):
+    return PathFromBase('xcodebuild', target, 'image_diff')
+
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
     return 'TestShell'

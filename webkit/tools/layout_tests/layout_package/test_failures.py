@@ -194,7 +194,7 @@ class FailureMissingImage(FailureWithType):
 
 class FailureImageHashMismatch(FailureWithType):
   """Image hashes didn't match."""
-  OUT_FILENAMES = ["-actual-win.png", "-expected.png"]
+  OUT_FILENAMES = ["-actual-win.png", "-expected.png", "-diff-win.png"]
 
   @staticmethod
   def Message():

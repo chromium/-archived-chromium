@@ -83,7 +83,7 @@ class SimplifiedTextDiff(text_diff.TestTextDiff):
 
     return text
 
-  def CompareOutput(self, filename, proc, output, test_args):
+  def CompareOutput(self, filename, proc, output, test_args, target):
     """Implementation of CompareOutput that removes most numbers before
     computing the diff.
 

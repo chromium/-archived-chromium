@@ -45,7 +45,7 @@ class TestTextDiff(test_type_base.TestTypeBase):
     # Normalize line endings
     return expected.strip("\r\n").replace("\r\n", "\n") + "\n"
 
-  def CompareOutput(self, filename, proc, output, test_args):
+  def CompareOutput(self, filename, proc, output, test_args, target):
     """Implementation of CompareOutput that checks the output text against the
     expected text from the LayoutTest directory."""
     failures = []

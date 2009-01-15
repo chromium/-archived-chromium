@@ -46,6 +46,7 @@ class TestTypeBase(object):
   FILENAME_SUFFIX_EXPECTED = "-expected"
   FILENAME_SUFFIX_DIFF = "-diff-win"
   FILENAME_SUFFIX_WDIFF = "-wdiff-win.html"
+  FILENAME_SUFFIX_COMPARE = "-diff-win.png"
 
   def __init__(self, platform, root_output_dir):
     """Initialize a TestTypeBase object.
@@ -119,7 +120,7 @@ class TestTypeBase(object):
     """
     return os.path.splitext(filename)[0] + modifier
 
-  def CompareOutput(self, filename, proc, output, test_args):
+  def CompareOutput(self, filename, proc, output, test_args, target):
     """Method that compares the output from the test with the expected value.
     
     This is an abstract method to be implemented by all sub classes.
@@ -129,6 +130,7 @@ class TestTypeBase(object):
       proc: a reference to the test_shell process
       output: a string containing the output of the test
       test_args: a TestArguments object holding optional additional arguments
+      target: Debug or Release
     
     Return:
       a list of TestFailure objects, empty if the test passes

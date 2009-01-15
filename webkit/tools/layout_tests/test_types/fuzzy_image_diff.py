@@ -17,7 +17,7 @@ from layout_package import test_failures
 from test_types import test_type_base
 
 class FuzzyImageDiff(test_type_base.TestTypeBase):
-  def CompareOutput(self, filename, proc, output, test_args):
+  def CompareOutput(self, filename, proc, output, test_args, target):
     """Implementation of CompareOutput that checks the output image and
     checksum against the expected files from the LayoutTest directory.
     """

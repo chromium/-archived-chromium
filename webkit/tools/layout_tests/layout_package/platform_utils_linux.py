@@ -164,6 +164,11 @@ class PlatformUtility(object):
     """
     return 'wdiff'
 
+  def ImageCompareExecutablePath(self, target):
+    """Path to the image_diff binary."""
+    # See mmoss TODO below.
+    return PathFromBase('chrome', 'Hammer', 'image_diff')
+
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
     return 'test_shell'

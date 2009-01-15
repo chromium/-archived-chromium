@@ -27,7 +27,7 @@ import test_failures
 # test_shell.exe.
 DEFAULT_TEST_TIMEOUT_MS = 10 * 1000
 
-def ProcessOutput(proc, filename, test_uri, test_types, test_args):
+def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
   """Receives the output from a test_shell process, subjects it to a number
   of tests, and returns a list of failure types the test produced.
 
@@ -36,6 +36,7 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
     filename: path of the test file being run
     test_types: list of test types to subject the output to
     test_args: arguments to be passed to each test
+    target: Debug or Release
 
   Returns: a list of failure objects for the test being processed
   """
@@ -82,7 +83,8 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
   for test_type in test_types:
     new_failures = test_type.CompareOutput(filename, proc,
                                            ''.join(outlines),
-                                           local_test_args)
+                                           local_test_args,
+                                           target)
     # Don't add any more failures if we already have a crash or timeout, so
     # we don't double-report those tests.
     if not crash_or_timeout:
@@ -254,7 +256,8 @@ class TestShellThread(threading.Thread):
 
     # ...and read the response
     return ProcessOutput(self._test_shell_proc, filename, test_uri,
-                         self._test_types, self._test_args)
+                         self._test_types, self._test_args,
+                         self._options.target)
 
 
   def _EnsureTestShellIsRunning(self):

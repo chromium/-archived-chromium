@@ -13,10 +13,16 @@ import errno
 import logging
 import os
 import shutil
+import subprocess
 
 from layout_package import path_utils
+from layout_package import platform_utils
 from layout_package import test_failures
 from test_types import test_type_base
+
+# Cache whether we have the image_diff executable available.
+_compare_available = True
+_compare_msg_printed = False
 
 class ImageDiff(test_type_base.TestTypeBase):
   def _CopyOutputPNGs(self, filename, actual_png, expected_png):
@@ -53,7 +59,48 @@ class ImageDiff(test_type_base.TestTypeBase):
     self._SaveBaselineData(filename, png_data, ".png")
     self._SaveBaselineData(filename, checksum, ".checksum")
 
-  def CompareOutput(self, filename, proc, output, test_args):
+  def _CreateImageDiff(self, filename, target):
+    """Creates the visual diff of the expected/actual PNGs.
+
+    Args:
+      filename: the name of the test
+      target: Debug or Release
+    """
+    diff_filename = self.OutputFilename(filename,
+      self.FILENAME_SUFFIX_COMPARE)
+    actual_filename = self.OutputFilename(filename,
+      self.FILENAME_SUFFIX_ACTUAL + '.png')
+    expected_win_filename = self.OutputFilename(filename,
+      self.FILENAME_SUFFIX_EXPECTED + '.png')
+    platform_util = platform_utils.PlatformUtility('')
+
+    global _compare_available
+    cmd = ''
+
+    try:
+      executable = platform_util.ImageCompareExecutablePath(target)
+      cmd = [executable, '--diff', actual_filename, expected_win_filename,
+             diff_filename]
+    except Exception, e:
+      _compare_available = False
+
+    if _compare_available:
+      try:
+        subprocess.call(cmd)
+      except OSError, e:
+        if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+          _compare_available = False
+        else:
+          raise e
+
+    global _compare_msg_printed
+
+    if not _compare_available and not _compare_msg_printed:
+      _compare_msg_printed = True
+      print('image_diff not found. Make sure you have a ' + target +
+            ' build of the image_diff executable.')
+
+  def CompareOutput(self, filename, proc, output, test_args, target):
     """Implementation of CompareOutput that checks the output image and
     checksum against the expected files from the LayoutTest directory.
     """
@@ -102,10 +149,11 @@ class ImageDiff(test_type_base.TestTypeBase):
 
     # If anything was wrong, write the output files.
     if len(failures):
-      self.WriteOutputFiles(filename, '', '.checksum', test_args.hash,
-                            expected_hash, diff=False)
       self._CopyOutputPNGs(filename, test_args.png_path,
-                          expected_png_file)
+                           expected_png_file)
+      self._CreateImageDiff(filename, target)
+      self.WriteOutputFiles(filename, '', '.checksum', test_args.hash,
+                            expected_hash, diff=False, wdiff=False)
 
     return failures
 
