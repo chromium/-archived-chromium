@@ -1198,11 +1198,14 @@ LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
 LINUX : LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
-LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 
-// The extra output may be legitimate; the extra setSelectionRange line is
-// printed if that property is on a button. This is either a small problem in
-// test shell or a big problem in V8.
+// The handling of the selection functions on HTMLInputElements differ
+// from the Firefox behavior.  We should follow Firefox and I believe
+// that WebKit should as well.  I have submitted a patch to fix this
+// upstream after which it will be easy to fix in the v8 bindings as
+// well.
+//
+// https://bugs.webkit.org/show_bug.cgi?id=23300
 LayoutTests/fast/forms/selection-functions.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
@@ -1249,7 +1252,6 @@ chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // NEW FOR MERGE 37604:38097
 LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
-LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/fast/profiler = FAIL TIMEOUT

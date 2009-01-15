@@ -47,6 +47,7 @@ kde\crash-2-expected.txt
 V8 prints "Stack overflow" to console.
 
 cyclic-prototypes-expected.txt
+exception-thrown-from-new
 --------------------------
 Exception text is different in v8
 
