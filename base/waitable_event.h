@@ -136,8 +136,8 @@ class WaitableEvent {
   // second element is the index of the WaitableEvent in the original,
   // unsorted, array.
   typedef std::pair<WaitableEvent*, size_t> WaiterAndIndex;
-  static unsigned EnqueueMany(WaiterAndIndex* waitables,
-                              size_t count, Waiter* waiter);
+  static size_t EnqueueMany(WaiterAndIndex* waitables,
+                            size_t count, Waiter* waiter);
 
   Lock lock_;
   bool signaled_;

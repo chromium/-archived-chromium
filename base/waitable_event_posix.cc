@@ -302,9 +302,9 @@ size_t WaitableEvent::WaitMany(WaitableEvent** raw_waitables,
 //   which was signaled, from the end of the array.
 // -----------------------------------------------------------------------------
 // static
-unsigned WaitableEvent::EnqueueMany
+size_t WaitableEvent::EnqueueMany
     (std::pair<WaitableEvent*, size_t>* waitables,
-     unsigned count, Waiter* waiter) {
+     size_t count, Waiter* waiter) {
   if (!count)
     return 0;
 
@@ -316,7 +316,7 @@ unsigned WaitableEvent::EnqueueMany
       return count;
     }
 
-    const unsigned r = EnqueueMany(waitables + 1, count - 1, waiter);
+    const size_t r = EnqueueMany(waitables + 1, count - 1, waiter);
     if (r) {
       waitables[0].first->lock_.Release();
     } else {
