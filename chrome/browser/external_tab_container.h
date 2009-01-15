@@ -11,7 +11,7 @@
 #include <atlmisc.h>
 
 #include "base/basictypes.h"
-#include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"

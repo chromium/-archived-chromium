@@ -6,7 +6,7 @@
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "skia/include/SkBitmap.h"
 

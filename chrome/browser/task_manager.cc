@@ -12,7 +12,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/task_manager_resource_providers.h"
-#include "chrome/browser/tab_util.h"
+#include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"

@@ -21,7 +21,7 @@
 #include "chrome/browser/controller.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/url_fixer_upper.h"

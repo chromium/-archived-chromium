@@ -40,7 +40,7 @@
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"

@@ -9,7 +9,7 @@
 #include "chrome/browser/debugger/debugger_io.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
 
 class TabContentsReference : public NotificationObserver {

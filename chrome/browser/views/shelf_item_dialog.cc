@@ -9,7 +9,7 @@
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/text_elider.h"

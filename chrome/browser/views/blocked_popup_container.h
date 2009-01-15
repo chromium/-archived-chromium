@@ -14,8 +14,8 @@
 #include <vector>
 
 #include "base/gfx/rect.h"
-#include "chrome/browser/constrained_window.h"
-#include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/constrained_window.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/views/base_button.h"

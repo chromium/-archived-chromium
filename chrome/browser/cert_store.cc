@@ -8,7 +8,7 @@
 #include <functional>
 
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/stl_util-inl.h"
 
 template <typename T>

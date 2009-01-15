@@ -10,7 +10,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/controller.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/common/gfx/chrome_font.h"

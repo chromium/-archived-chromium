@@ -586,14 +586,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\site_instance.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\site_instance.h"
-				>
-			</File>
-			<File
 				RelativePath=".\spellcheck_worditerator.cc"
 				>
 			</File>
@@ -803,48 +795,8 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Tab Contents"
+			Name="Tab Contents (Old)"
 			>
-			<File
-				RelativePath=".\about_internets_status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\about_internets_status_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\constrained_window.h"
-				>
-			</File>
-			<File
-				RelativePath=".\infobar_delegate.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\infobar_delegate.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_status_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\network_status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\network_status_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\page_navigator.h"
-				>
-			</File>
 			<File
 				RelativePath=".\render_view_context_menu.cc"
 				>
@@ -887,70 +839,6 @@
 			</File>
 			<File
 				RelativePath=".\ssl_manager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\status_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents_delegate.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents_factory.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_util.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_util.h"
-				>
-			</File>
-			<File
-				RelativePath=".\view_source_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\view_source_contents.h"
-				>
-			</File>
-			<File
-				RelativePath=".\web_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_contents.h"
-				>
-			</File>
-			<File
-				RelativePath=".\web_contents_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_contents_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\web_contents_view_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_contents_view_win.h"
 				>
 			</File>
 		</Filter>
@@ -1046,31 +934,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\navigation_controller.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_controller.h"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_entry.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_entry.h"
-				>
-			</File>
-			<File
 				RelativePath=".\options_window.h"
-				>
-			</File>
-			<File
-				RelativePath=".\provisional_load_details.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\provisional_load_details.h"
 				>
 			</File>
 			<File
@@ -1653,22 +1517,6 @@
 				RelativePath=".\drag_utils.h"
 				>
 			</File>
-			<File
-				RelativePath=".\web_drag_source.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_drag_source.h"
-				>
-			</File>
-			<File
-				RelativePath=".\web_drop_target.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_drop_target.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Tabs"
@@ -1935,14 +1783,6 @@
 			</File>
 			<File
 				RelativePath=".\history_tab_ui.h"
-				>
-			</File>
-			<File
-				RelativePath=".\native_ui_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\native_ui_contents.h"
 				>
 			</File>
 		</Filter>
@@ -2368,6 +2208,330 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Tab Contents"
+			>
+			<File
+				RelativePath=".\tab_contents\about_internets_status_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\about_internets_status_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\constrained_window.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\infobar_delegate.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\infobar_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\interstitial_page.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\interstitial_page.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\ipc_status_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\ipc_status_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\native_ui_contents.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\native_ui_contents.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\navigation_controller.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\navigation_controller.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\navigation_entry.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\navigation_entry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\network_status_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\network_status_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\page_navigator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\provisional_load_details.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\provisional_load_details.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\site_instance.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\site_instance.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\status_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\status_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_factory.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_factory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_type.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_util.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_util.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\view_source_contents.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\view_source_contents.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_contents.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_contents.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_contents_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_contents_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_contents_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_contents_view_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_drag_source.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_drag_source.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_drop_target.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tab_contents\web_drop_target.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\browser_trial.cc"
 			>
@@ -2426,14 +2590,6 @@
 		</File>
 		<File
 			RelativePath=".\google_update.h"
-			>
-		</File>
-		<File
-			RelativePath=".\interstitial_page.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\interstitial_page.h"
 			>
 		</File>
 		<File

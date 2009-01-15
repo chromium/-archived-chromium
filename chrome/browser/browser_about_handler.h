@@ -11,7 +11,7 @@
 
 #include "base/basictypes.h"
 #include "base/image_util.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 
 class GURL;

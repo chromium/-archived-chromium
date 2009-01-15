@@ -5,7 +5,7 @@
 #include "chrome/browser/views/download_started_animation.h"
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/widget_win.h"
 

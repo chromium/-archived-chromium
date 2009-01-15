@@ -8,7 +8,7 @@
 #include <string>
 
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
-#include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/views/dom_view.h"
 
 class Browser;

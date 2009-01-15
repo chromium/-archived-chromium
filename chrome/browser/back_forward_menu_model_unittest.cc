@@ -6,11 +6,11 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "chrome/browser/navigation_controller.h"
-#include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile_manager.h"
-#include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tab_contents_factory.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 const TabContentsType kHTTPTabContentsType =

@@ -8,7 +8,7 @@
 #define CHROME_BROWSER_DOM_UI_CONTENTS_H__
 
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "webkit/glue/webpreferences.h"
 
 class DOMUI;

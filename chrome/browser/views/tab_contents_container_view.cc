@@ -10,9 +10,9 @@
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_view_host_manager.h"
 #include "chrome/browser/render_widget_host_view.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/web_contents.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/widget.h"
 

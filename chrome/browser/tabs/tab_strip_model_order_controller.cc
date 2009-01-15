@@ -4,7 +4,7 @@
 
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
 
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/pref_names.h"
 

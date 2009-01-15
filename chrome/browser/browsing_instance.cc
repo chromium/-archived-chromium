@@ -5,7 +5,7 @@
 #include "chrome/browser/browsing_instance.h"
 
 #include "base/command_line.h"
-#include "chrome/browser/site_instance.h"
+#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/chrome_switches.h"
 
 /*static*/

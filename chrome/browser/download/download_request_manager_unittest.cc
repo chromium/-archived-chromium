@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/test/test_tab_contents.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"

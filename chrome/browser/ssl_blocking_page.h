@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "chrome/browser/interstitial_page.h"
+#include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/views/decision.h"
 

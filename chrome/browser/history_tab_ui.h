@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_HISTORY_TAB_UI_H__
 #define CHROME_BROWSER_HISTORY_TAB_UI_H__
 
-#include "chrome/browser/native_ui_contents.h"
+#include "chrome/browser/tab_contents/native_ui_contents.h"
 
 class BaseHistoryModel;
 class HistoryView;

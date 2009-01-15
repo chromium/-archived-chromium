@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_PLUGIN_INSTALLER_H_
 #define CHROME_BROWSER_PLUGIN_INSTALLER_H_
 
-#include "chrome/browser/infobar_delegate.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
 
 class WebContents;
 

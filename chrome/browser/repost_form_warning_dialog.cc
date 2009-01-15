@@ -5,7 +5,7 @@
 #include "chrome/browser/repost_form_warning_dialog.h"
 
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"

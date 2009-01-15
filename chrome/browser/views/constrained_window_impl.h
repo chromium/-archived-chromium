@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_
 
 #include "base/gfx/rect.h"
-#include "chrome/browser/constrained_window.h"
-#include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/constrained_window.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/views/custom_frame_window.h"
 
 class ConstrainedTabContentsWindowDelegate;

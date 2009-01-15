@@ -4,7 +4,7 @@
 
 #include "chrome/browser/sessions/session_types.h"
 
-#include "chrome/browser/navigation_entry.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 
 // TabNavigation --------------------------------------------------------------
 

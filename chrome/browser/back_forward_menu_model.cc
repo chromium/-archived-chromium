@@ -6,9 +6,9 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/history_tab_ui.h"
-#include "chrome/browser/navigation_controller.h"
-#include "chrome/browser/navigation_entry.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/l10n_util.h"
 #include "net/base/registry_controlled_domain.h"

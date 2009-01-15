@@ -7,7 +7,7 @@
 #include "base/gfx/png_decoder.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "net/base/base64.h"
 #include "net/base/data_url.h"

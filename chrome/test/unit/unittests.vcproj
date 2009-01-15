@@ -154,11 +154,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\browser_with_test_window_test.h"
+				RelativePath="..\browser_with_test_window_test.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\browser_with_test_window_test.cc"
+				RelativePath="..\browser_with_test_window_test.h"
 				>
 			</File>
 			<File
@@ -779,7 +779,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\web_contents_unittest.cc"
+			RelativePath="..\..\browser\tab_contents\web_contents_unittest.cc"
 			>
 		</File>
 		<File
@@ -798,10 +798,10 @@
 			RelativePath="..\..\browser\window_sizer_unittest.cc"
 			>
 		</File>
-    <File
-      RelativePath="..\..\common\worker_thread_ticker_unittest.cc"
-      >
-    </File>
+		<File
+			RelativePath="..\..\common\worker_thread_ticker_unittest.cc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

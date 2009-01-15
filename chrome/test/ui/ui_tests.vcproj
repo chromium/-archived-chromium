@@ -346,7 +346,7 @@
 			Name="TestViewSource"
 			>
 			<File
-				RelativePath="..\..\browser\view_source_uitest.cc"
+				RelativePath="..\..\browser\tab_contents\view_source_uitest.cc"
 				>
 			</File>
 		</Filter>

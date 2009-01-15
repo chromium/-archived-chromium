@@ -4,8 +4,8 @@
 
 #include "chrome/browser/views/infobars/infobar_container.h"
 
-#include "chrome/browser/infobar_delegate.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/infobars/infobars.h"
 #include "chrome/common/notification_types.h"

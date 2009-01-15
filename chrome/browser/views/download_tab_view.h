@@ -10,7 +10,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/icon_manager.h"
-#include "chrome/browser/native_ui_contents.h"
+#include "chrome/browser/tab_contents/native_ui_contents.h"
 #include "chrome/views/event.h"
 #include "chrome/views/label.h"
 #include "chrome/views/link.h"

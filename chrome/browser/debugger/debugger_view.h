@@ -11,7 +11,7 @@
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_VIEW_H__
 
 #include "base/gfx/size.h"
-#include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/views/view.h"
 #include "chrome/views/text_field.h"
 

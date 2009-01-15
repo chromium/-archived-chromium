@@ -9,7 +9,7 @@
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/browser/page_navigator.h"
+#include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

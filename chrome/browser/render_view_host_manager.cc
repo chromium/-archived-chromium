@@ -6,12 +6,12 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "chrome/browser/navigation_controller.h"
-#include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/render_widget_host_view.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_view_host_delegate.h"
-#include "chrome/browser/site_instance.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 

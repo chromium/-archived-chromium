@@ -4,12 +4,12 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/constrained_window.h"
 #include "chrome/browser/debugger/debugger_host_impl.h"
 #include "chrome/browser/debugger/debugger_view.h"
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/constrained_window.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "generated_resources.h"
 

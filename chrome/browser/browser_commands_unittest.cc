@@ -5,8 +5,8 @@
 #include "chrome/app/chrome_dll_resource.h" 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/navigation_controller.h"
-#include "chrome/browser/navigation_entry.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/test/browser_with_test_window_test.h"
 
 typedef BrowserWithTestWindowTest BrowserCommandsTest;

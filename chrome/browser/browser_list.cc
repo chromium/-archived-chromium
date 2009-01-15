@@ -12,7 +12,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/window.h"
 

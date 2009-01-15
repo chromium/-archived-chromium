@@ -8,11 +8,11 @@
 #include "chrome/browser/sessions/tab_restore_service.h"
 
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/navigation_controller.h"
-#include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/scoped_vector.h"
 #include "chrome/common/stl_util-inl.h"
 

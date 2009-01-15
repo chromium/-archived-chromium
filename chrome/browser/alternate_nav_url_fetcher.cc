@@ -4,9 +4,9 @@
 
 #include "chrome/browser/alternate_nav_url_fetcher.h"
 
-#include "chrome/browser/navigation_controller.h"
-#include "chrome/browser/navigation_entry.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 

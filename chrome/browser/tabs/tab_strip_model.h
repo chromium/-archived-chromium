@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "base/observer_list.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/site_instance.h"
+#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_member.h"

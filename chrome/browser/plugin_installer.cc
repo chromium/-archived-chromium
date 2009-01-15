@@ -6,7 +6,7 @@
 
 #include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "webkit/default_plugin/default_plugin_shared.h"

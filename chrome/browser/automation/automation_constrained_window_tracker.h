@@ -8,7 +8,7 @@
 #include "chrome/browser/automation/automation_resource_tracker.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/constrained_window.h"
+#include "chrome/browser/tab_contents/constrained_window.h"
 
 class AutomationConstrainedWindowTracker
   : public AutomationResourceTracker<ConstrainedWindow*> {

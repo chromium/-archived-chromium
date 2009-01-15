@@ -5,7 +5,7 @@
 #include "chrome/browser/views/tabs/dragged_tab_view.h"
 
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"

@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_TEST_TEST_TAB_CONTENTS_H_
 
 #include "base/string_util.h"
-#include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tab_contents_factory.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_factory.h"
 
 // TabContents typed created by TestTabContentsFactory.
 class TestTabContents : public TabContents {

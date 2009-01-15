@@ -12,7 +12,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_DOM_UI_HOST_H__
 #define CHROME_BROWSER_DOM_UI_DOM_UI_HOST_H__
 
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "webkit/glue/webpreferences.h"
 
 class DOMMessageDispatcher;

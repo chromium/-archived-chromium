@@ -11,7 +11,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 
 DebuggerNode::DebuggerNode() : valid_(true), observing_(false), data_(NULL) {

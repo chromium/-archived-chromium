@@ -9,7 +9,7 @@
 #include "base/message_loop.h"
 #include "base/timer.h"
 #include "chrome/browser/dock_info.h"
-#include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
 #include "chrome/common/notification_service.h"

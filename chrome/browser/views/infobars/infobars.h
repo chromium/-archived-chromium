@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_INFOBARS_INFOBARS_H_
 #define CHROME_BROWSER_VIEWS_INFOBARS_INFOBARS_H_
 
-#include "chrome/browser/infobar_delegate.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/views/base_button.h"
 #include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
@@ -20,8 +20,8 @@ class Label;
 }
 
 // This file contains implementations for some general purpose InfoBars. See
-// chrome/browser/infobar_delegate.h for the delegate interface(s) that you must
-// implement to use these.
+// chrome/browser/tab_contents/infobar_delegate.h for the delegate interface(s)
+// that you must implement to use these.
 
 class InfoBar : public views::View,
                 public views::BaseButton::ButtonListener,
