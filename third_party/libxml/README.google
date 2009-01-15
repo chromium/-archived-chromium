@@ -31,4 +31,6 @@ To import a new snapshot of libxml:
 - Update google.patch
 - 'cd linux && sh ../configure --without-iconv' to re-generate config.h and
   include/libxml/xmlversion.h.
+- run build/generate-win32-headers.bat to re-generate config.h and
+  include/libxml/xmlversion.h for the windows build
 - Update this README to reflect the new version number.

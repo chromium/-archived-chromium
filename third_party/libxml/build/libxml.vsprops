@@ -8,5 +8,6 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		DisableSpecificWarnings="4101;4133"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\libxml\win32&quot;;&quot;$(SolutionDir)..\third_party\libxml\win32\include&quot;"
 	/>
 </VisualStudioPropertySheet>

@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\libxml\include&quot;"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\libxml\include&quot;;&quot;$(SolutionDir)..\third_party\libxml\win32\include&quot;"
 		PreprocessorDefinitions="LIBXML_STATIC"
 	/>
 	<Tool

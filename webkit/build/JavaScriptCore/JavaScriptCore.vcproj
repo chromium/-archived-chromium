@@ -419,6 +419,7 @@
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSByteArray.h"
 				>
+      </File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSCell.cpp"
 				>

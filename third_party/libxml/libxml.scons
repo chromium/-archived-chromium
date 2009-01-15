@@ -127,34 +127,12 @@ env.ChromeMSVSProject('$LIBXML_DIR/build/libxml_config.vcproj',
 
 if env.Bit('windows'):
   config_files = [
-      # The configure.js script must be first in this list; the
-      # env.Command() call below executes the first list element.
-
-      'win32/configure.js',
-      'win32/Makefile.msvc',
-
-      'config.h.in',
-      'configure.in',
-      'libxml-2.0-uninstalled.pc.in',
-      'libxml-2.0.pc.in',
-      'libxml.spec.in',
-      'xml2-config.in',
-      'xml2Conf.sh.in',
-
-      'include/libxml/xmlversion.h.in',
-      'include/win32config.h',
+      'config.h',
+      'include/libxml/xmlversion.h',
   ]
-
-  copied_files = []
   for cf in config_files:
-    result = env.Command('DerivedSources/' + cf, cf, Copy('$TARGET', '$SOURCE'))
-    copied_files.extend(result)
-
-  env.Command(['DerivedSources/config.h',
-               'DerivedSources/include/libxml/xmlversion.h'],
-              copied_files,
-              'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
-              CONFIG_OPTIONS='compiler=msvc iconv=no icu=yes')
+    result = env.Command('DerivedSources/' + cf, 'win32/' + cf,
+                         Copy('$TARGET', '$SOURCE'))
 elif env.Bit('linux'):
   config_files = [
       'config.h',
