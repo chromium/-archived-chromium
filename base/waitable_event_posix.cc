@@ -271,7 +271,7 @@ size_t WaitableEvent::WaitMany(WaitableEvent** raw_waitables,
   // The address of the WaitableEvent which fired is stored in the SyncWaiter.
   WaitableEvent *const signaled_event = sw.signaled_event();
   // This will store the index of the raw_waitables which fired.
-  size_t signaled_index;
+  size_t signaled_index = 0;
 
   // Take the locks of each WaitableEvent in turn (except the signaled one) and
   // remove our SyncWaiter from the wait-list
