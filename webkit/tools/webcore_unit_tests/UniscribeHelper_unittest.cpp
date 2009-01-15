@@ -90,13 +90,13 @@ TEST_F(UniscribeTest, TooBig)
         UniscribeHelper uniscribe(
             input.characters(), static_cast<int>(input.length()),
             false, hfont, scriptCache, &m_properties);
-        uniscribe.InitWithOptionalLengthProtection(false);
+        uniscribe.initWithOptionalLengthProtection(false);
 
         // There should be one shaping entry, with nothing in it.
         ASSERT_EQ(1, uniscribe.m_shapes.size());
         EXPECT_EQ(0, uniscribe.m_shapes[0].m_glyphs.size());
         EXPECT_EQ(0, uniscribe.m_shapes[0].m_logs.size());
-        EXPECT_EQ(0, uniscribe.m_shapes[0].m_visattr.size());
+        EXPECT_EQ(0, uniscribe.m_shapes[0].m_visualAttributes.size());
         EXPECT_EQ(0, uniscribe.m_shapes[0].m_advance.size());
         EXPECT_EQ(0, uniscribe.m_shapes[0].m_offsets.size());
         EXPECT_EQ(0, uniscribe.m_shapes[0].m_justify.size());
@@ -110,11 +110,11 @@ TEST_F(UniscribeTest, TooBig)
 
         // Check that the various querying functions handle the empty case
         // properly.
-        EXPECT_EQ(0, uniscribe.Width());
-        EXPECT_EQ(0, uniscribe.FirstGlyphForCharacter(0));
-        EXPECT_EQ(0, uniscribe.FirstGlyphForCharacter(1000));
-        EXPECT_EQ(0, uniscribe.XToCharacter(0));
-        EXPECT_EQ(0, uniscribe.XToCharacter(1000));
+        EXPECT_EQ(0, uniscribe.width());
+        EXPECT_EQ(0, uniscribe.firstGlyphForCharacter(0));
+        EXPECT_EQ(0, uniscribe.firstGlyphForCharacter(1000));
+        EXPECT_EQ(0, uniscribe.xToCharacter(0));
+        EXPECT_EQ(0, uniscribe.xToCharacter(1000));
     }
 
     // Now test the very large string and make sure it is handled properly by
@@ -123,17 +123,17 @@ TEST_F(UniscribeTest, TooBig)
         UniscribeHelper uniscribe(
             input.characters(), static_cast<int>(input.length()),
             false, hfont, scriptCache, &m_properties);
-        uniscribe.InitWithOptionalLengthProtection(true);
+        uniscribe.initWithOptionalLengthProtection(true);
 
         // There should be 0 runs and shapes.
         EXPECT_EQ(0, uniscribe.m_runs.size());
         EXPECT_EQ(0, uniscribe.m_shapes.size());
         EXPECT_EQ(0, uniscribe.m_screenOrder.size());
 
-        EXPECT_EQ(0, uniscribe.Width());
-        EXPECT_EQ(0, uniscribe.FirstGlyphForCharacter(0));
-        EXPECT_EQ(0, uniscribe.FirstGlyphForCharacter(1000));
-        EXPECT_EQ(0, uniscribe.XToCharacter(0));
-        EXPECT_EQ(0, uniscribe.XToCharacter(1000));
+        EXPECT_EQ(0, uniscribe.width());
+        EXPECT_EQ(0, uniscribe.firstGlyphForCharacter(0));
+        EXPECT_EQ(0, uniscribe.firstGlyphForCharacter(1000));
+        EXPECT_EQ(0, uniscribe.xToCharacter(0));
+        EXPECT_EQ(0, uniscribe.xToCharacter(1000));
     }
 }
