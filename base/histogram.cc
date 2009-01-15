@@ -554,9 +554,9 @@ bool StatisticsRecorder::Register(const Histogram& histogram) {
   const std::string name = histogram.histogram_name();
   AutoLock auto_lock(*lock_);
 
-  DCHECK(histograms_->end() == histograms_->find(name)) << name << "is already"
-      "registered as a histogram.  Only one histogram may be registered with a"
-      " given name";
+  DCHECK(histograms_->end() == histograms_->find(name)) << name << " is already"
+      "registered as a histogram.  Check for duplicate use of the name, or a "
+      "race where a static initializer could be run by several threads.";
   (*histograms_)[name] = &histogram;
   return true;
 }
