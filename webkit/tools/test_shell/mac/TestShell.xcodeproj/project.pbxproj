@@ -194,6 +194,8 @@
 		E456292F0E26B4FE005E4685 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		E45629300E26B4FE005E4685 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
 		E456296A0E26B64D005E4685 /* simple_resource_loader_bridge.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45629690E26B64D005E4685 /* simple_resource_loader_bridge.cc */; };
+		F431EA4A0F1D141300E8D37F /* DumpRenderTreePasteboard.m in Sources */ = {isa = PBXBuildFile; fileRef = F431EA480F1D141300E8D37F /* DumpRenderTreePasteboard.m */; };
+		F4B3CA3B0F1D1AE100B9CA77 /* DumpRenderTreePasteboard.m in Sources */ = {isa = PBXBuildFile; fileRef = F431EA480F1D141300E8D37F /* DumpRenderTreePasteboard.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -822,6 +824,8 @@
 		E456295B0E26B5F8005E4685 /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = third_party/bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
 		E45629680E26B64D005E4685 /* simple_resource_loader_bridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simple_resource_loader_bridge.h; sourceTree = "<group>"; };
 		E45629690E26B64D005E4685 /* simple_resource_loader_bridge.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simple_resource_loader_bridge.cc; sourceTree = "<group>"; };
+		F431EA480F1D141300E8D37F /* DumpRenderTreePasteboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DumpRenderTreePasteboard.m; sourceTree = "<group>"; };
+		F431EA490F1D141300E8D37F /* DumpRenderTreePasteboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DumpRenderTreePasteboard.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1156,6 +1160,8 @@
 		7BFDF4FD0E37AB4200F1D7D8 /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				F431EA480F1D141300E8D37F /* DumpRenderTreePasteboard.m */,
+				F431EA490F1D141300E8D37F /* DumpRenderTreePasteboard.h */,
 				29B97316FDCFA39411CA2CEA /* main.mm */,
 				ABA65EFD0DD50BFF003A4FC8 /* test_shell_webview.h */,
 				ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */,
@@ -1844,14 +1850,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93AF4F340EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp in Sources */,
 				E4506B8A0EF02BEF003BE099 /* bookmarklet_unittest.cc in Sources */,
 				E4506B8C0EF02BFF003BE099 /* context_menu_unittest.cc in Sources */,
 				E4506B910EF02C44003BE099 /* cpp_bound_class_unittest.cc in Sources */,
 				E4506B930EF02C4B003BE099 /* cpp_variant_unittest.cc in Sources */,
 				E4506B950EF02C53003BE099 /* dom_operations_unittest.cc in Sources */,
 				E4506B970EF02C5B003BE099 /* dom_serializer_unittest.cc in Sources */,
+				F4B3CA3B0F1D1AE100B9CA77 /* DumpRenderTreePasteboard.m in Sources */,
 				E45067B90EF015BF003BE099 /* event_sending_controller.cc in Sources */,
+				93AF4F350EFAFE2C0073C62D /* GKURL_unittest.cpp in Sources */,
 				E4506B990EF02C67003BE099 /* glue_serialize_unittest.cc in Sources */,
+				93AF4F360EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp in Sources */,
 				E4506B9B0EF02C6D003BE099 /* iframe_redirect_unittest.cc in Sources */,
 				E45069F00EF017D0003BE099 /* image_decoder_unittest.cc in Sources */,
 				E45069FB0EF01895003BE099 /* keyboard_unittest.cc in Sources */,
@@ -1880,9 +1890,6 @@
 				E4506BE00EF03318003BE099 /* webframe_unittest.cc in Sources */,
 				E45067C70EF01689003BE099 /* webview_host.mm in Sources */,
 				E45067C80EF0168B003BE099 /* webwidget_host.mm in Sources */,
-				93AF4F340EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp in Sources */,
-				93AF4F350EFAFE2C0073C62D /* GKURL_unittest.cpp in Sources */,
-				93AF4F360EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp in Sources */,
 				93AF4F370EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1891,6 +1898,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F431EA4A0F1D141300E8D37F /* DumpRenderTreePasteboard.m in Sources */,
 				E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */,
 				E45629170E26B4FE005E4685 /* layout_test_controller.cc in Sources */,
 				E45629150E26B4FE005E4685 /* main.mm in Sources */,

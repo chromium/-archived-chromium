@@ -4,6 +4,7 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 #import <Cocoa/Cocoa.h>
+#import <objc/objc-runtime.h>
 #include <sys/stat.h>
 
 #include "webkit/tools/test_shell/test_shell.h"
@@ -36,6 +37,8 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
 #import "skia/include/SkBitmap.h"
+
+#import "mac/DumpRenderTreePasteboard.h"
 
 #define MAX_LOADSTRING 100
 
@@ -124,6 +127,69 @@ void TestShell::PlatformShutdown() {
   }
   // assert if we have anything left over, that would be bad.
   DCHECK(window_map_.Get().size() == 0);
+  
+  // Dump the pasteboards we built up.
+  [DumpRenderTreePasteboard releaseLocalPasteboards];
+}
+
+#if OBJC_API_VERSION == 2
+static void SwizzleAllMethods(Class imposter, Class original) {
+  unsigned int imposterMethodCount = 0;
+  Method* imposterMethods = class_copyMethodList(imposter, &imposterMethodCount);
+  
+  unsigned int originalMethodCount = 0;
+  Method* originalMethods = class_copyMethodList(original, &originalMethodCount);
+  
+  for (unsigned int i = 0; i < imposterMethodCount; i++) {
+    SEL imposterMethodName = method_getName(imposterMethods[i]);
+    
+    // Attempt to add the method to the original class.  If it fails, the method
+    // already exists and we should instead exchange the implementations.
+    if (class_addMethod(original,
+                        imposterMethodName,
+                        method_getImplementation(originalMethods[i]),
+                        method_getTypeEncoding(originalMethods[i]))) {
+      continue;
+    }
+    
+    unsigned int j = 0;
+    for (; j < originalMethodCount; j++) {
+      SEL originalMethodName = method_getName(originalMethods[j]);
+      if (sel_isEqual(imposterMethodName, originalMethodName)) {
+        break;
+      }
+    }
+    
+    // If class_addMethod failed above then the method must exist on the
+    // original class.
+    DCHECK(j < originalMethodCount) << "method wasn't found?";
+    method_exchangeImplementations(imposterMethods[i], originalMethods[j]);
+  }
+  
+  if (imposterMethods) {
+    free(imposterMethods);
+  }
+  if (originalMethods) {
+    free(originalMethods);
+  }
+}
+#endif
+
+static void SwizzleNSPasteboard(void) {
+  // We replace NSPaseboard w/ the shim (from WebKit) that avoids having
+  // sideeffects w/ whatever the user does at the same time.
+  
+  Class imposterClass = objc_getClass("DumpRenderTreePasteboard");
+  Class originalClass = objc_getClass("NSPasteboard");
+#if OBJC_API_VERSION == 0
+  class_poseAs(imposterClass, originalClass);
+#else
+  // Swizzle instance methods...
+  SwizzleAllMethods(imposterClass, originalClass);
+  // and then class methods.
+  SwizzleAllMethods(object_getClass(imposterClass),
+                    object_getClass(originalClass));
+#endif
 }
 
 static void SetDefaultsToLayoutTestValues(void) {
@@ -281,6 +347,7 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   layout_test_mode_ = layout_test_mode;
   
   if (layout_test_mode_) {
+    SwizzleNSPasteboard();
     SetDefaultsToLayoutTestValues();
     // If we could check the command line to see if we're doing pixel tests,
     // then we only install the color profile in that case.
