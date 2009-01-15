@@ -1908,7 +1908,6 @@ LayoutTests/fast/js/numeric-conversion.html = FAIL
 // Merge 39894:39913 - regressions
 LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
-
 // Merge 39744:39913? - regressions
 WIN : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
@@ -1922,3 +1921,9 @@ LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html 
 LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
 LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
+
+// Merge 39913:39933 - new tests
+// This is bug 6475, css/WebKitCSSMatrix.idl needs to be added to the build.
+LayoutTests/transforms/3d/cssmatrix-interface.xhtml = FAIL
+
+

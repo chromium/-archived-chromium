@@ -1270,6 +1270,7 @@
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
 		A7FBE6100F1EC18A00BB13F2 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */; };
+		A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */; };
 		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
 		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
@@ -4087,6 +4088,8 @@
 		9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrAndFlags.h; sourceTree = "<group>"; };
 		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSSelectorList.cpp; sourceTree = "<group>"; };
 		A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditorChromium.cpp; path = chromium/EditorChromium.cpp; sourceTree = "<group>"; };
+		A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebKitCSSMatrix.cpp; sourceTree = "<group>"; };
+		A7FBE65B0F1FDFDB00BB13F2 /* WebKitCSSMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitCSSMatrix.h; sourceTree = "<group>"; };
 		A80DD9160EE4A85900728DDE /* PurgeableBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PurgeableBuffer.h; sourceTree = "<group>"; };
 		A80DD9180EE4A87900728DDE /* PurgeableBufferMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PurgeableBufferMac.cpp; sourceTree = "<group>"; };
 		AB332F4B0E95497E0020F882 /* AnimationController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationController.cpp; path = animation/AnimationController.cpp; sourceTree = "<group>"; };
@@ -4955,6 +4958,8 @@
 				4DB7EFB80E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.h */,
 				4DB7EFB90E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.cpp */,
 				4DB7EFBA0E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.h */,
+				A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */,
+				A7FBE65B0F1FDFDB00BB13F2 /* WebKitCSSMatrix.h */,
 				4DB7EFBB0E9BA0F300C66CE0 /* WebKitCSSTransformValue.cpp */,
 				4DB7EFBC0E9BA0F300C66CE0 /* WebKitCSSTransformValue.h */,
 			);
@@ -9379,6 +9384,7 @@
 				9384474C0F16B0570075F4C5 /* WebKitAnimationEvent.cpp in Sources */,
 				9384474D0F16B0570075F4C5 /* WebKitCSSKeyframeRule.cpp in Sources */,
 				9384474E0F16B0570075F4C5 /* WebKitCSSKeyframesRule.cpp in Sources */,
+				A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */,
 				9384474F0F16B0570075F4C5 /* WebKitCSSTransformValue.cpp in Sources */,
 				938447500F16B0570075F4C5 /* WebKitTransitionEvent.cpp in Sources */,
 				938447510F16B0570075F4C5 /* WheelEvent.cpp in Sources */,

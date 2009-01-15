@@ -95,6 +95,7 @@ input_files = [
     '$WEBCORE_DIR/css/SVGCSSStyleSelector.cpp',
     '$WEBCORE_DIR/css/WebKitCSSKeyframeRule.cpp',
     '$WEBCORE_DIR/css/WebKitCSSKeyframesRule.cpp',
+    '$WEBCORE_DIR/css/WebKitCSSMatrix.cpp',
     '$WEBCORE_DIR/css/WebKitCSSTransformValue.cpp',
 
     '$WEBCORE_DIR/dom/ActiveDOMObject.cpp',
