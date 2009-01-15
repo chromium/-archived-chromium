@@ -8,8 +8,8 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/template_url.h"
-#include "chrome/browser/template_url_model.h"
+#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/l10n_util.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"

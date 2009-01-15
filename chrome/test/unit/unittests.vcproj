@@ -687,19 +687,19 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\template_url_model_unittest.cc"
+			RelativePath="..\..\browser\search_engines\template_url_model_unittest.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\template_url_parser_unittest.cc"
+			RelativePath="..\..\browser\search_engines\template_url_parser_unittest.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\template_url_prepopulate_data_unittest.cc"
+			RelativePath="..\..\browser\search_engines\template_url_prepopulate_data_unittest.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\template_url_unittest.cc"
+			RelativePath="..\..\browser\search_engines\template_url_unittest.cc"
 			>
 		</File>
 		<File

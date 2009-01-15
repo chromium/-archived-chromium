@@ -8,8 +8,8 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/spellchecker.h"
-#include "chrome/browser/template_url_model.h"
 #include "chrome/common/l10n_util.h"
 #include "webkit/glue/context_node_types.h"
 
