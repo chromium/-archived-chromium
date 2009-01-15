@@ -675,8 +675,8 @@ class View : public AcceleratorTarget {
   // If source and dst are not in the same View hierarchy, the result is
   // undefined.
   // Source can be NULL in which case it means the screen coordinate system
-  static void ConvertPointToView(View* src,
-                                 View* dst,
+  static void ConvertPointToView(const View* src,
+                                 const View* dst,
                                  gfx::Point* point);
 
   // Convert a point from the coordinate system of a View to that of the
@@ -1173,13 +1173,15 @@ class View : public AcceleratorTarget {
   // Takes care of registering/unregistering accelerators if
   // |register_accelerators| true and calls ViewHierarchyChanged().
   void ViewHierarchyChangedImpl(bool register_accelerators,
-                                bool is_add, View *parent, View *child);
+                                bool is_add,
+                                View* parent,
+                                View* child);
 
   // This is the actual implementation for ConvertPointToView()
   // Attempts a parent -> child conversion and then a
   // child -> parent conversion if try_other_direction is true
-  static void ConvertPointToView(View* src,
-                                 View *dst,
+  static void ConvertPointToView(const View* src,
+                                 const View* dst,
                                  gfx::Point* point,
                                  bool try_other_direction);
 

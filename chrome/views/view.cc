@@ -668,11 +668,15 @@ void View::GetHitTestMask(gfx::Path* mask) const {
   DCHECK(mask);
 }
 
-void View::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
+void View::ViewHierarchyChanged(bool is_add,
+                                View* parent,
+                                View* child) {
 }
 
 void View::ViewHierarchyChangedImpl(bool register_accelerators,
-                                    bool is_add, View *parent, View *child) {
+                                    bool is_add,
+                                    View* parent,
+                                    View* child) {
   if (register_accelerators) {
     if (is_add) {
       // If you get this registration, you are part of a subtree that has been
@@ -1253,18 +1257,22 @@ bool View::EnumerateFloatingViewsForInterval(int low_bound, int high_bound,
 }
 
 // static
-void View::ConvertPointToView(View* src, View* dst, gfx::Point* point) {
+void View::ConvertPointToView(const View* src,
+                              const View* dst,
+                              gfx::Point* point) {
   ConvertPointToView(src, dst, point, true);
 }
 
 // static
-void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
+void View::ConvertPointToView(const View* src,
+                              const View* dst,
+                              gfx::Point* point,
                               bool try_other_direction) {
   // src can be NULL
   DCHECK(dst);
   DCHECK(point);
 
-  View* v;
+  const View* v;
   gfx::Point offset;
 
   for (v = dst; v && v != src; v = v->GetParent()) {
