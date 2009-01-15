@@ -242,12 +242,9 @@ bool MimeUtil::IsViewSourceMimeType(const char* mime_type) const {
 
 // Mirrors WebViewImpl::CanShowMIMEType()
 bool MimeUtil::IsSupportedMimeType(const std::string& mime_type) const {
-  if (mime_type.compare(0, 5, "text/") == 0 ||
-      (mime_type.compare(0, 6, "image/") == 0 &&
-       IsSupportedImageMimeType(mime_type.c_str())) ||
-      IsSupportedNonImageMimeType(mime_type.c_str()))
-    return true;
-  return false;
+  return (mime_type.compare(0, 6, "image/") == 0 &&
+          IsSupportedImageMimeType(mime_type.c_str())) ||
+         IsSupportedNonImageMimeType(mime_type.c_str());
 }
 
 bool MimeUtil::MatchesMimeType(const std::string &mime_type_pattern,
