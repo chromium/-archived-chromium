@@ -12,6 +12,7 @@ import optparse
 import re
 import tempfile
 import random
+import subprocess
 
 random.seed()  # Seed the generator
 
@@ -66,6 +67,25 @@ def NewUUID():
     elements.append(hex(random.randint(0, 15))[-1].upper())
   return ''.join(elements)
 
+def CygwinPathClean(path):
+  """Folks use Cygwin shells with standard Win32 Python which can't handle
+  Cygwin paths. Run everything through cygpath if we can (conveniently
+  cygpath does the right thing with normal Win32 paths).
+  """
+  # Look for Unix-like path with Win32 Python
+  if sys.platform == 'win32' and path.startswith('/'):
+    cygproc = subprocess.Popen(('cygpath', '-a', '-w', path),
+                               stdout=subprocess.PIPE)
+    (stdout_content, stderr_content) = cygproc.communicate()
+    return stdout_content.rstrip()
+  # Convert all paths to cygpaths if we're using cygwin python
+  if sys.platform == 'cygwin':
+    cygproc = subprocess.Popen(('cygpath', '-a', '-u', path),
+                               stdout=subprocess.PIPE)
+    (stdout_content, stderr_content) = cygproc.communicate()
+    return stdout_content.rstrip()
+  # Fallthrough for all other cases
+  return path
 
 class XcodeProject(object):
   """Class for reading/writing Xcode project files.
@@ -429,7 +449,17 @@ class XcodeProject(object):
     if abs_path.startswith(self.source_root_path + os.path.sep):
       return abs_path[len(self.source_root_path + os.path.sep):]
     else:
-      return None
+      # Try to construct a relative path (bodged from ActiveState recipe
+      # 302594 since we can't assume Python 2.5 with os.path.relpath()
+      source_root_parts = self.source_root_path.split(os.path.sep)
+      target_parts = abs_path.split(os.path.sep)
+      for i in range(min(len(source_root_parts), len(target_parts))):
+        if source_root_parts[i] <> target_parts[i]: break
+      else:
+        i += 1
+      rel_parts = [os.path.pardir] * (len(source_root_parts) - i)
+      rel_parts.extend(target_parts[i:])
+      return os.path.join(*rel_parts)
 
   def RelativeGroupPath(self, abs_path):
     """Convert a path to a group-relative path if possible
@@ -494,7 +524,7 @@ class XcodeProject(object):
     else:
       raise RuntimeError('Unknown source file extension "%s"' % extension)
 
-    # Is group-relative possible?
+    # Is group-relative possible for an existing group?
     parent_group = self.RelativeGroupPath(os.path.abspath(path))
     if parent_group:
       new_file_ref = PBXFileReference(NewUUID(),
@@ -1106,7 +1136,7 @@ def Main():
   # Xcode project file
   if not options.project:
     option_parser.error('Xcode project file must be specified.')
-  project_path = os.path.abspath(options.project)
+  project_path = os.path.abspath(CygwinPathClean(options.project))
   if project_path.endswith('.xcodeproj'):
     project_path = os.path.join(project_path, 'project.pbxproj')
   if not project_path.endswith(os.sep + 'project.pbxproj'):
@@ -1167,6 +1197,7 @@ def Main():
       option_parser.error(
         'remove_source does not support removal from a single target')
     for source_path in args[1:]:
+      source_path = CygwinPathClean(source_path)
       found = False
       for file_ref in project.FileReferences():
         # Try undecorated path, abs_path and our prettified paths
@@ -1195,6 +1226,7 @@ def Main():
     sources_phase = project.SourcesBuildPhaseForTarget(target)
     # Loop new sources
     for source_path in args[1:]:
+      source_path = CygwinPathClean(source_path)
       if not os.path.exists(os.path.abspath(source_path)):
         option_parser.error('File "%s" not found' % source_path)
       # Don't generate duplicate file references if we don't need them
