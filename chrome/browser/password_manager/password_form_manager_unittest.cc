@@ -4,8 +4,8 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
-#include "chrome/browser/password_form_manager.h"
-#include "chrome/browser/password_manager.h"
+#include "chrome/browser/password_manager/password_form_manager.h"
+#include "chrome/browser/password_manager/password_manager.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/test/testing_profile.h"
 #include "webkit/glue/password_form.h"

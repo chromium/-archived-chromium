@@ -1678,27 +1678,53 @@
 			Name="Password Manager"
 			>
 			<File
-				RelativePath=".\ie7_password.cc"
+				RelativePath=".\password_manager\encryptor.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\password_manager\encryptor.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ie7_password.h"
+				RelativePath=".\password_manager\ie7_password.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\password_form_manager.cc"
+				RelativePath=".\password_manager\ie7_password.h"
 				>
 			</File>
 			<File
-				RelativePath=".\password_form_manager.h"
+				RelativePath=".\password_manager\password_form_manager.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager.cc"
+				RelativePath=".\password_manager\password_form_manager.h"
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager.h"
+				RelativePath=".\password_manager\password_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_manager.h"
 				>
 			</File>
 		</Filter>

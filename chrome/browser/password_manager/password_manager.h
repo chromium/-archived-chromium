@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_PASSWORD_MANAGER_H__
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/password_form_manager.h"
+#include "chrome/browser/password_manager/password_form_manager.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/views/login_view.h"
 #include "chrome/common/pref_member.h"

@@ -16,7 +16,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_types.h"
 #if defined(OS_WIN)
-#include "chrome/browser/ie7_password.h"
+#include "chrome/browser/password_manager/ie7_password.h"
 #endif
 #include "chrome/browser/profile.h"
 #include "chrome/browser/template_url.h"

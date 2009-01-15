@@ -375,7 +375,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\encryptor_unittest.cc"
+			RelativePath="..\..\browser\password_manager\encryptor_unittest.cc"
 			>
 		</File>
 		<File
@@ -547,7 +547,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\password_form_manager_unittest.cc"
+			RelativePath="..\..\browser\password_manager\password_form_manager_unittest.cc"
 			>
 		</File>
 		<File

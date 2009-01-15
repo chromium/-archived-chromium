@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 #include "base/time.h"
-#include "chrome/browser/ie7_password.h"
+#include "chrome/browser/password_manager/ie7_password.h"
 #include "chrome/common/sqlite_utils.h"
 
 bool WebDatabase::AddIE7Login(const IE7PasswordInfo& info) {
