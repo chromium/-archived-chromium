@@ -71,8 +71,10 @@ input_files = ChromeFileList([
     'http/http_util_unittest.cc',
     'http/http_vary_data_unittest.cc',
     ]),
+   MSVSFilter('ftp', [
+    'ftp/ftp_auth_cache_unittest.cc',
+    ]),
    MSVSFilter('base', [
-    'base/auth_cache_unittest.cc',
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
     'base/client_socket_pool_unittest.cc',

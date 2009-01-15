@@ -127,7 +127,7 @@ void URLRequestFtpJob::SendRequest() {
     have_auth = true;
     username = WideToUTF8(server_auth_->username);
     password = WideToUTF8(server_auth_->password);
-    request_->context()->ftp_auth_cache()->Add(request_->url().host(),
+    request_->context()->ftp_auth_cache()->Add(request_->url().GetOrigin(),
                                                server_auth_.get());
   } else {
     if (request_->url().has_username()) {
@@ -169,18 +169,17 @@ void URLRequestFtpJob::OnIOComplete(const AsyncResult& result) {
       case ERROR_INTERNET_INCORRECT_USER_NAME:
         // fall through
       case ERROR_INTERNET_INCORRECT_PASSWORD: {
-        // TODO(eroman): shouldn't the port be part of the key?
-        std::string cache_key = request_->url().host();
+        GURL origin = request_->url().GetOrigin();
         if (server_auth_ != NULL &&
             server_auth_->state == net::AUTH_STATE_HAVE_AUTH) {
-          request_->context()->ftp_auth_cache()->Remove(cache_key);
+          request_->context()->ftp_auth_cache()->Remove(origin);
         } else {
           server_auth_ = new net::AuthData();
         }
         server_auth_->state = net::AUTH_STATE_NEED_AUTH;
 
         scoped_refptr<net::AuthData> cached_auth =
-            request_->context()->ftp_auth_cache()->Lookup(cache_key);
+            request_->context()->ftp_auth_cache()->Lookup(origin);
 
         if (cached_auth) {
           // Retry using cached auth data.

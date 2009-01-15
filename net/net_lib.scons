@@ -22,8 +22,6 @@ input_files = ChromeFileList([
     'base/address_list.cc',
     'base/address_list.h',
     'base/auth.h',
-    'base/auth_cache.cc',
-    'base/auth_cache.h',
     'base/base64.cc',
     'base/base64.h',
     'base/bzip2_filter.cc',
@@ -245,6 +243,8 @@ input_files = ChromeFileList([
     'proxy/proxy_service.h',
   ]),
   MSVSFilter('ftp', [
+    'ftp/ftp_auth_cache.cc',
+    'ftp/ftp_auth_cache.h',
     'ftp/ftp_network_layer.cc',
     'ftp/ftp_network_layer.h',
     'ftp/ftp_network_session.h',

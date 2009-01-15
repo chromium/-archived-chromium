@@ -43,6 +43,35 @@ static void ResetLoginHandlerForRequest(URLRequest* request) {
 }
 
 // ----------------------------------------------------------------------------
+// LoginHandler
+
+// Get the signon_realm under which this auth info should be stored.
+//
+// The format of the signon_realm for proxy auth is:
+//     proxy-host/auth-realm
+// The format of the signon_realm for server auth is:
+//     url-scheme://url-host[:url-port]/auth-realm
+//
+// Be careful when changing this function, since you could make existing
+// saved logins un-retrievable.
+
+// static
+std::string LoginHandler::GetSignonRealm(const GURL& url,
+    const net::AuthChallengeInfo& auth_info) {
+  std::string signon_realm;
+  if (auth_info.is_proxy) {
+    signon_realm = WideToASCII(auth_info.host);
+    signon_realm.append("/");
+  } else {
+    // Take scheme, host, and port from the url.
+    signon_realm = url.GetOrigin().spec();
+    // This ends with a "/".
+  }
+  signon_realm.append(WideToUTF8(auth_info.realm));
+  return signon_realm;
+}
+
+// ----------------------------------------------------------------------------
 // LoginHandlerImpl
 
 // This class simply forwards the authentication from the LoginView (on
@@ -358,11 +387,8 @@ class LoginDialogTask : public Task {
       dialog_form.scheme = PasswordForm::SCHEME_OTHER;
     }
     dialog_form.origin = origin_url;
-    // TODO(timsteele): Shouldn't depend on HttpKey since a change to the
-    // format would result in not being able to retrieve existing logins
-    // for a site. Refactor HttpKey behavior to be more reusable.
-    dialog_form.signon_realm =
-        net::AuthCache::HttpKey(dialog_form.origin, *auth_info_);
+    dialog_form.signon_realm = LoginHandler::GetSignonRealm(dialog_form.origin,
+                                                            *auth_info_);
     password_manager_input->push_back(dialog_form);
     // Set the password form for the handler (by copy).
     handler_->set_password_form(dialog_form);

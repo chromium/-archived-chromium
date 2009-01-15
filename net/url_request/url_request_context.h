@@ -15,8 +15,8 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "net/base/auth_cache.h"
 #include "net/base/cookie_policy.h"
+#include "net/ftp/ftp_auth_cache.h"
 #include "net/http/http_transaction_factory.h"
 
 namespace net {
@@ -50,8 +50,8 @@ class URLRequestContext :
   // Gets the cookie policy for this context.
   net::CookiePolicy* cookie_policy() { return &cookie_policy_; }
 
-  // Gets the FTP realm authentication cache for this context.
-  net::AuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
+  // Gets the FTP authentication cache for this context.
+  net::FtpAuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
 
   // Gets the UA string to use for this context.
   const std::string& user_agent() const { return user_agent_; }
@@ -73,7 +73,7 @@ class URLRequestContext :
   net::HttpTransactionFactory* http_transaction_factory_;
   net::CookieMonster* cookie_store_;
   net::CookiePolicy cookie_policy_;
-  net::AuthCache ftp_auth_cache_;
+  net::FtpAuthCache ftp_auth_cache_;
   std::string user_agent_;
   std::string accept_language_;
   std::string accept_charset_;

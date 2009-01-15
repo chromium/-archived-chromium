@@ -149,14 +149,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\auth_cache.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\base\auth_cache.h"
-				>
-			</File>
-			<File
 				RelativePath="..\base\base64.cc"
 				>
 			</File>
@@ -1040,6 +1032,14 @@
 		<Filter
 			Name="ftp"
 			>
+			<File
+				RelativePath="..\ftp\ftp_auth_cache.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ftp\ftp_auth_cache.h"
+				>
+			</File>
 			<File
 				RelativePath="..\ftp\ftp_network_layer.cc"
 				>

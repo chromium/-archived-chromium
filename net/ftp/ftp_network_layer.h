@@ -19,7 +19,7 @@ class FtpNetworkLayer : public FtpTransactionFactory {
 
   // FtpTransactionFactory methods:
   virtual FtpTransaction* CreateTransaction();
-  virtual AuthCache* GetAuthCache();
+  virtual FtpAuthCache* GetAuthCache();
   virtual void Suspend(bool suspend);
 
  private:

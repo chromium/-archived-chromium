@@ -26,7 +26,7 @@ FtpTransaction* FtpNetworkLayer::CreateTransaction() {
       session_, ClientSocketFactory::GetDefaultFactory());
 }
 
-AuthCache* FtpNetworkLayer::GetAuthCache() {
+FtpAuthCache* FtpNetworkLayer::GetAuthCache() {
   return session_->auth_cache();
 }
 

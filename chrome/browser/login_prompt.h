@@ -13,9 +13,10 @@ namespace net {
 class AuthChallengeInfo;
 }
 
-class URLRequest;
+class GURL;
 class MessageLoop;
 class TabContents;
+class URLRequest;
 
 // This is the interface for the class that routes authentication info to
 // the URLRequest that needs it.  Used by the automation proxy for testing.
@@ -35,6 +36,10 @@ class LoginHandler {
   // Notify the handler that the request was cancelled.
   // This function can only be called from the IO thread.
   virtual void OnRequestCancelled() = 0;
+
+  // Get the signon_realm under which the identity should be saved.
+  static std::string GetSignonRealm(const GURL& url,
+                                    const net::AuthChallengeInfo& auth_info);
 };
 
 // Details to provide the NotificationObserver.  Used by the automation proxy

@@ -283,10 +283,6 @@
 				Name="base"
 				>
 				<File
-					RelativePath="..\base\auth_cache_unittest.cc"
-					>
-				</File>
-				<File
 					RelativePath="..\base\base64_unittest.cc"
 					>
 				</File>
@@ -388,6 +384,14 @@
 				</File>
 				<File
 					RelativePath="..\base\x509_certificate_unittest.cc"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ftp"
+				>
+				<File
+					RelativePath="..\ftp\ftp_auth_cache_unittest.cc"
 					>
 				</File>
 			</Filter>

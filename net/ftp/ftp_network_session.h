@@ -6,7 +6,7 @@
 #define NET_FTP_FTP_NETWORK_SESSION_H_
 
 #include "base/ref_counted.h"
-#include "net/base/auth_cache.h"
+#include "net/ftp/ftp_auth_cache.h"
 
 namespace net {
 
@@ -15,10 +15,10 @@ class FtpNetworkSession : public base::RefCounted<FtpNetworkSession> {
  public:
   FtpNetworkSession() {}
 
-  AuthCache* auth_cache() { return &auth_cache_; }
+  FtpAuthCache* auth_cache() { return &auth_cache_; }
 
  private:
-  AuthCache auth_cache_;
+  FtpAuthCache auth_cache_;
 };
 
 }  // namespace net
