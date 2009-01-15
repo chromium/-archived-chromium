@@ -291,34 +291,30 @@ static const int kWindowControlsTopOffset = 1;
 // The distance between the right edge of the window and the right edge of the
 // right-most window control when the window is restored.
 static const int kWindowControlsRightOffset = 4;
-// The distance between the top of the window and the top of the window
-// controls' images when the window is maximized.  We extend the clickable area
-// all the way to the top of the window to obey Fitts' Law.
-static const int kWindowControlsZoomedTopExtraHeight = 5;
-// The distance between the right edge of the window and the right edge of the
-// right-most window control when the window is maximized.
-static const int kWindowControlsZoomedRightOffset = 7;
+// The distance between the bottom of the window's top border and the top of the
+// window controls' images when the window is maximized.  We extend the
+// clickable area all the way to the top of the window to obey Fitts' Law.
+static const int kWindowControlsZoomedTopExtraHeight = 1;
+// The distance between right edge of the right-most window control and the left
+// edge of the window's right border when the window is maximized.
+static const int kWindowControlsZoomedRightOffset = 3;
 // The distance between the left edge of the window and the left edge of the
 // window icon when a title-bar is showing and the window is restored.
 static const int kWindowIconLeftOffset = 5;
-// The distance between the left edge of the window and the left edge of the
-// window icon when a title-bar is showing and the window is maximized.
-static const int kWindowIconZoomedLeftOffset = 6;
+// The distance between the right edge of the window's left border and the left
+// edge of the window icon when a title-bar is showing and the window is
+// maximized.
+static const int kWindowIconZoomedLeftOffset = 2;
 // The distance between the top edge of the window and the top edge of the
-// window icon when a title-bar is showing and the window is restored.
-static const int kWindowIconTopOffset = 6;
-// The distance between the top edge of the window and the top edge of the
-// window icon when a title-bar is showing and the window is maximized.
-static const int kWindowIconZoomedTopOffset = 8;
+// window icon and title when a title-bar is showing and the window is restored.
+static const int kWindowIconAndTitleTopOffset = 6;
+// The distance between the bottom edge of the window's top border and the top
+// edge of the window icon and title when a title-bar is showing and the window
+// is maximized.
+static const int kWindowIconAndTitleZoomedTopOffset = 4;
 // The distance between the window icon and the window title when a title-bar
 // is showing.
 static const int kWindowIconTitleSpacing = 4;
-// The distance between the top of the window and the title text when a
-// title-bar is showing and the window is restored.
-static const int kTitleTopOffset = 6;
-// The distance between the top of the window and the title text when a
-// title-bar is showing and the window is maximized.
-static const int kTitleZoomedTopOffset = 8;
 // The distance between the right edge of the title text bounding box and the
 // left edge of the distributor logo.
 static const int kTitleLogoSpacing = 5;
@@ -328,29 +324,24 @@ static const int kTitleBottomSpacing = 6;
 // The distance between the top edge of the window and the TabStrip when there
 // is no title-bar showing, and the window is restored.
 static const int kNoTitleTopSpacing = 15;
-// The distance between the top edge of the window and the TabStrip when there
-// is no title-bar showing, and the window is maximized.
-static const int kNoTitleZoomedTopSpacing = 4;
-// The number of pixels to shave off the bottom of the images making up the top
+// The number of pixels to crop off the bottom of the images making up the top
 // client edge when the window is maximized, so we only draw a shadowed titlebar
 // and not a grey client area border below it.
-static const int kClientEdgeZoomedOffset = 1;
+static const int kClientEdgeZoomedBottomCrop = 1;
 // The amount of horizontal and vertical distance from a corner of the window
 // within which a mouse-drive resize operation will resize the window in two
 // dimensions.
 static const int kResizeAreaCornerSize = 16;
 // The width of the sizing border on the left and right edge of the window.
 static const int kWindowHorizontalBorderSize = 5;
-// The width of the sizing border on the left and right edge of the window when
-// the window is maximized.
-static const int kWindowHorizontalBorderZoomedSize = 4;
 // The height of the sizing border at the top edge of the window
 static const int kWindowVerticalBorderTopSize = 3;
-// The height of the sizing border on the bottom edge of the window.
+// The height of the sizing border on the bottom edge of the window when the
+// window is restored.
 static const int kWindowVerticalBorderBottomSize = 5;
-// The distance between the bottom edge of the window image and the true bottom
-// edge of the window when the window is maximized.
-static const int kWindowBottomZoomedSpacing = 4;
+// The additional height beyond the system-provided thickness of the border on
+// the bottom edge of the window when the window is maximized.
+static const int kWindowVerticalBorderZoomedBottomSize = 1;
 // The width and height of the window icon that appears at the top left of
 // pop-up and app windows.
 static const int kWindowIconSize = 16;
@@ -363,9 +354,9 @@ static const int kDistributorLogoVerticalOffset = 3;
 // The distance between the left edge of the window and the OTR avatar icon when
 // the window is restored.
 static const int kOTRLeftOffset = 7;
-// The distance between the left edge of the window and the OTR avatar icon when
-// the window is maximized.
-static const int kOTRZoomedLeftOffset = 6;
+// The distance between the right edge of the window's left border and the OTR
+// avatar icon when the window is maximized.
+static const int kOTRZoomedLeftOffset = 2;
 // The distance between the top edge of the client area and the OTR avatar icon
 // when the window is maximized.
 static const int kOTRZoomedTopSpacing = 2;
@@ -492,7 +483,7 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
   int window_y = std::max(0, client_bounds.y() - top_height);
   int window_w = client_bounds.width() + (2 * horizontal_border);
   int window_h =
-      client_bounds.height() + top_height + kWindowVerticalBorderBottomSize;
+      client_bounds.height() + top_height + VerticalBorderBottomSize();
   return gfx::Rect(window_x, window_y, window_w, window_h);
 }
 
@@ -551,14 +542,14 @@ gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
   int horizontal_border = HorizontalBorderSize();
   return gfx::Rect(horizontal_border, top_margin,
       std::max(0, width - (2 * horizontal_border)),
-      std::max(0, height - top_margin - kWindowVerticalBorderBottomSize));
+      std::max(0, height - top_margin - VerticalBorderBottomSize()));
 }
 
 gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
   return gfx::Size(width + (2 * HorizontalBorderSize()),
-      height + CalculateNonClientTopHeight() + kWindowVerticalBorderBottomSize);
+      height + CalculateNonClientTopHeight() + VerticalBorderBottomSize());
 }
 
 CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
@@ -634,16 +625,6 @@ void OpaqueNonClientView::ResetWindowControls() {
 // OpaqueNonClientView, views::View overrides:
 
 void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
-  // Clip the content area out of the rendering.
-  gfx::Rect contents_bounds = browser_view_->GetClientAreaBounds();
-  SkRect clip;
-  clip.set(SkIntToScalar(contents_bounds.x()),
-           SkIntToScalar(contents_bounds.y()),
-           SkIntToScalar(contents_bounds.right()),
-           SkIntToScalar(contents_bounds.bottom()));
-  canvas->clipRect(clip, SkRegion::kDifference_Op);
-
-  // Render the remaining portions of the non-client area.
   if (frame_->IsMaximized())
     PaintMaximizedFrameBorder(canvas);
   else
@@ -669,7 +650,7 @@ void OpaqueNonClientView::Layout() {
 gfx::Size OpaqueNonClientView::GetPreferredSize() {
   gfx::Size prefsize(frame_->client_view()->GetPreferredSize());
   prefsize.Enlarge(2 * HorizontalBorderSize(),
-      CalculateNonClientTopHeight() + kWindowVerticalBorderBottomSize);
+      CalculateNonClientTopHeight() + VerticalBorderBottomSize());
   return prefsize;
 }
 
@@ -730,14 +711,23 @@ void OpaqueNonClientView::SetAccessibleName(const std::wstring& name) {
 // OpaqueNonClientView, private:
 
 int OpaqueNonClientView::CalculateNonClientTopHeight() const {
-  if (frame_->window_delegate()->ShouldShowWindowTitle())
-    return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
-  return frame_->IsMaximized() ? kNoTitleZoomedTopSpacing : kNoTitleTopSpacing;
+  if (frame_->window_delegate()->ShouldShowWindowTitle()) {
+    int top_offset = frame_->IsMaximized() ? (GetSystemMetrics(SM_CYSIZEFRAME) +
+        kWindowIconAndTitleZoomedTopOffset) : kWindowIconAndTitleTopOffset;
+    return top_offset + title_font_.height() + kTitleBottomSpacing;
+  }
+  return frame_->IsMaximized() ?
+      GetSystemMetrics(SM_CYSIZEFRAME) : kNoTitleTopSpacing;
 }
 
 int OpaqueNonClientView::HorizontalBorderSize() const {
   return frame_->IsMaximized() ?
-      kWindowHorizontalBorderZoomedSize : kWindowHorizontalBorderSize;
+      GetSystemMetrics(SM_CXSIZEFRAME) : kWindowHorizontalBorderSize;
+}
+
+int OpaqueNonClientView::VerticalBorderBottomSize() const {
+  return frame_->IsMaximized() ? (GetSystemMetrics(SM_CYSIZEFRAME) +
+      kWindowVerticalBorderZoomedBottomSize) : kWindowVerticalBorderBottomSize;
 }
 
 void OpaqueNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
@@ -787,13 +777,14 @@ void OpaqueNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
 
 void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_MAXIMIZED_TOP_EDGE);
-  canvas->TileImageInt(*top_edge, 0, kNoTitleZoomedTopSpacing, width(),
+  int frame_thickness = GetSystemMetrics(SM_CYSIZEFRAME);
+  canvas->TileImageInt(*top_edge, 0, frame_thickness, width(),
                        top_edge->height());
 
   SkBitmap* bottom_edge =
       resources()->GetPartBitmap(FRAME_MAXIMIZED_BOTTOM_EDGE);
   canvas->TileImageInt(*bottom_edge, 0,
-      height() - bottom_edge->height() - kWindowBottomZoomedSpacing, width(),
+      height() - bottom_edge->height() - frame_thickness, width(),
       bottom_edge->height());
 }
 
@@ -873,7 +864,7 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   int client_area_top = frame_->client_view()->y() + toolbar_bounds.bottom();
 
   // When we don't have a toolbar to draw a top edge for us, draw a top edge.
-  gfx::Rect client_area_bounds = browser_view_->GetClientAreaBounds();
+  gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
   if (!browser_view_->IsToolbarVisible()) {
     // This is necessary because the top center bitmap is shorter than the top
     // left and right bitmaps.  We need their top edges to line up, and we
@@ -890,7 +881,7 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   }
 
   int client_area_bottom =
-      std::max(client_area_top, height() - kWindowVerticalBorderBottomSize);
+      std::max(client_area_top, height() - VerticalBorderBottomSize());
   int client_area_height = client_area_bottom - client_area_top;
   SkBitmap* right = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_RIGHT);
   canvas->TileImageInt(*right, client_area_bounds.right(), client_area_top,
@@ -919,7 +910,7 @@ void OpaqueNonClientView::PaintMaximizedClientEdge(ChromeCanvas* canvas) {
   if (browser_view_->IsToolbarVisible())
     return;  // The toolbar draws its own client edge, which is sufficient.
 
-  int edge_height = app_top_center_.height() - kClientEdgeZoomedOffset;
+  int edge_height = app_top_center_.height() - kClientEdgeZoomedBottomCrop;
   canvas->TileImageInt(app_top_center_, 0,
       frame_->client_view()->y() - edge_height, width(), edge_height);
 }
@@ -933,11 +924,15 @@ void OpaqueNonClientView::LayoutWindowControls() {
   // drawn flush with the screen edge, they still obey Fitts' Law.
   bool is_maximized = frame_->IsMaximized();
   int top_offset = is_maximized ? 0 : kWindowControlsTopOffset;
-  int top_extra_height = is_maximized ? kWindowControlsZoomedTopExtraHeight : 0;
+  int top_extra_height = is_maximized ?
+      (GetSystemMetrics(SM_CYSIZEFRAME) + kWindowControlsZoomedTopExtraHeight) :
+      0;
+  int right_offset = is_maximized ?
+      (GetSystemMetrics(SM_CXSIZEFRAME) + kWindowControlsZoomedRightOffset) :
+      kWindowControlsRightOffset;
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   close_button_->SetBounds(
-      (width() - close_button_size.width() - (is_maximized ?
-          kWindowControlsZoomedRightOffset : kWindowControlsRightOffset)),
+      (width() - close_button_size.width() - right_offset),
       top_offset,
       (is_maximized ?
           // We extend the maximized close button to the screen corner to obey
@@ -985,9 +980,11 @@ void OpaqueNonClientView::LayoutTitleBar() {
   // Size the window icon, even if it is hidden so we can size the title based
   // on its position.
   int left_offset = frame_->IsMaximized() ?
-      kWindowIconZoomedLeftOffset : kWindowIconLeftOffset;
+      (GetSystemMetrics(SM_CXSIZEFRAME) + kWindowIconZoomedLeftOffset) :
+      kWindowIconLeftOffset;
   int top_offset = frame_->IsMaximized() ?
-      kWindowIconZoomedTopOffset : kWindowIconTopOffset;
+      (GetSystemMetrics(SM_CYSIZEFRAME) + kWindowIconAndTitleZoomedTopOffset) :
+      kWindowIconAndTitleTopOffset;
   views::WindowDelegate* d = frame_->window_delegate();
   int icon_size = d->ShouldShowWindowIcon() ? kWindowIconSize : 0;
   icon_bounds_.SetRect(left_offset, top_offset, icon_size, icon_size);
@@ -1000,8 +997,6 @@ void OpaqueNonClientView::LayoutTitleBar() {
     int icon_right = icon_bounds_.right();
     int title_left =
         icon_right + (d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0);
-    int top_offset = frame_->IsMaximized() ?
-        kTitleZoomedTopOffset : kTitleTopOffset;
     title_bounds_.SetRect(title_left, top_offset,
         std::max(0, title_right - icon_right), title_font_.height());
   }
@@ -1014,7 +1009,7 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
       kOTRBottomSpacing;
   int otr_x, otr_y, otr_height;
   if (frame_->IsMaximized()) {
-    otr_x = kOTRZoomedLeftOffset;
+    otr_x = GetSystemMetrics(SM_CXSIZEFRAME) + kOTRZoomedLeftOffset;
     otr_y = non_client_height + kOTRZoomedTopSpacing;
     otr_height = otr_bottom - otr_y;
   } else {

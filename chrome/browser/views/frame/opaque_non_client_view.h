@@ -74,9 +74,13 @@ class OpaqueNonClientView : public views::NonClientView,
   // title bar, etc).
   int CalculateNonClientTopHeight() const;
 
-  // Returns the current thickness of the horizontal border that makes up the
-  // window edge.
+  // Returns the current thickness of the border that makes up the window left
+  // and right edges.
   int HorizontalBorderSize() const;
+
+  // Returns the current thickness of the border that makes up the window bottom
+  // edge.
+  int VerticalBorderBottomSize() const;
 
   // Paint various sub-components of this view.
   void PaintFrameBorder(ChromeCanvas* canvas);
