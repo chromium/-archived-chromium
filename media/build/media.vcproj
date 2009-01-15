@@ -137,6 +137,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\factory.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\filter_host.h"
 				>
 			</File>
