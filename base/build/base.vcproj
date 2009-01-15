@@ -686,11 +686,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\scoped_bstr.cc"
+			RelativePath="..\scoped_bstr_win.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\scoped_bstr.h"
+			RelativePath="..\scoped_bstr_win.h"
 			>
 		</File>
 		<File
@@ -702,7 +702,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\scoped_comptr.h"
+			RelativePath="..\scoped_comptr_win.h"
 			>
 		</File>
 		<File

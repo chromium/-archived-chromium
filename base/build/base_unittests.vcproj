@@ -284,11 +284,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\scoped_bstr_unittest.cc"
+				RelativePath="..\scoped_bstr_win_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\scoped_comptr_unittest.cc"
+				RelativePath="..\scoped_comptr_win_unittest.cc"
 				>
 			</File>
 			<File

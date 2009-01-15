@@ -2,17 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_SCOPED_COMPTR_H_
-#define BASE_SCOPED_COMPTR_H_
+#ifndef BASE_SCOPED_COMPTR_WIN_H_
+#define BASE_SCOPED_COMPTR_WIN_H_
+
+#include <unknwn.h>
 
 #include "base/logging.h"
 #include "base/ref_counted.h"
 
-#if defined(OS_WIN)
-#include <unknwn.h>
-
-// Utility template to prevent users of scoped_comptr from calling AddRef and/or
-// Release() without going through the scoped_comptr class.
+// Utility template to prevent users of ScopedComPtr from calling AddRef and/or
+// Release() without going through the ScopedComPtr class.
 template <class Interface>
 class BlockIUnknownMethods : public Interface {
  private:
@@ -25,29 +24,29 @@ class BlockIUnknownMethods : public Interface {
 // Uses scoped_refptr for the basic smart pointer functionality
 // and adds a few IUnknown specific services.
 template <class Interface, const IID* interface_id = &__uuidof(Interface)>
-class scoped_comptr : public scoped_refptr<Interface> {
+class ScopedComPtr : public scoped_refptr<Interface> {
  public:
   typedef scoped_refptr<Interface> ParentClass;
 
-  scoped_comptr() {
+  ScopedComPtr() {
   }
 
-  explicit scoped_comptr(Interface* p) : ParentClass(p) {
+  explicit ScopedComPtr(Interface* p) : ParentClass(p) {
   }
 
-  explicit scoped_comptr(const scoped_comptr<Interface, interface_id>& p)
+  explicit ScopedComPtr(const ScopedComPtr<Interface, interface_id>& p)
       : ParentClass(p) {
   }
 
-  ~scoped_comptr() {
+  ~ScopedComPtr() {
     // We don't want the smart pointer class to be bigger than the pointer
     // it wraps.
-    COMPILE_ASSERT(sizeof(scoped_comptr<Interface, interface_id>) ==
+    COMPILE_ASSERT(sizeof(ScopedComPtr<Interface, interface_id>) ==
                    sizeof(Interface*), ScopedComPtrSize);
   }
 
   // Explicit Release() of the held object.  Useful for reuse of the
-  // scoped_comptr instance.
+  // ScopedComPtr instance.
   // Note that this function equates to IUnknown::Release and should not
   // be confused with e.g. scoped_ptr::release().
   void Release() {
@@ -114,10 +113,10 @@ class scoped_comptr : public scoped_refptr<Interface> {
     if (!other || !ptr_)
       return false;
 
-    scoped_comptr<IUnknown> my_identity;
+    ScopedComPtr<IUnknown> my_identity;
     QueryInterface(my_identity.Receive());
 
-    scoped_comptr<IUnknown> other_identity;
+    ScopedComPtr<IUnknown> other_identity;
     other->QueryInterface(other_identity.Receive());
 
     return static_cast<IUnknown*>(my_identity) ==
@@ -127,12 +126,12 @@ class scoped_comptr : public scoped_refptr<Interface> {
   // Provides direct access to the interface.
   // Here we use a well known trick to make sure we block access to
   // IUknown methods so that something bad like this doesn't happen:
-  //    scoped_comptr<IUnknown> p(Foo());
+  //    ScopedComPtr<IUnknown> p(Foo());
   //    p->Release();
   //    ... later the destructor runs, which will Release() again.
   // and to get the benefit of the DCHECKs we add to QueryInterface.
   // There's still a way to call these methods if you absolutely must
-  // by statically casting the scoped_comptr instance to the wrapped interface
+  // by statically casting the ScopedComPtr instance to the wrapped interface
   // and then making the call... but generally that shouldn't be necessary.
   BlockIUnknownMethods<Interface>* operator->() const {
     DCHECK(ptr_ != NULL);
@@ -146,6 +145,4 @@ class scoped_comptr : public scoped_refptr<Interface> {
   }
 };
 
-#endif  // #if defined(OS_WIN)
-
-#endif  // BASE_SCOPED_COMPTR_H_
+#endif  // BASE_SCOPED_COMPTR_WIN_H_

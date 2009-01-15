@@ -2,11 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/scoped_bstr.h"
+#include "base/scoped_bstr_win.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#if defined(OS_WIN)
-#include <oleauto.h>  // VarBstrCmp
 
 namespace {
 
@@ -94,5 +91,3 @@ TEST(StackBstrTest, StackBstr) {
   EXPECT_EQ(SysStringLen(StackBstr(one_more_test)),
             lstrlenW(one_more_test));
 }
-
-#endif  // defined(OS_WIN)

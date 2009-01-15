@@ -2,13 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_SCOPED_BSTR_H_
-#define BASE_SCOPED_BSTR_H_
+#ifndef BASE_SCOPED_BSTR_WIN_H_
+#define BASE_SCOPED_BSTR_WIN_H_
 
 #include "base/basictypes.h"  // needed to pick up OS_WIN
 
-
-#if defined(OS_WIN)
 #include "base/logging.h"
 
 #include <windows.h>
@@ -142,6 +140,4 @@ class StackBstrT {
 #define StackBstrVar(str, var) \
   StackBstrT<sizeof(str)> var(str)
 
-#endif  // #if defined(OS_WIN)
-
-#endif  // BASE_SCOPED_BSTR_H_
+#endif  // BASE_SCOPED_BSTR_WIN_H_

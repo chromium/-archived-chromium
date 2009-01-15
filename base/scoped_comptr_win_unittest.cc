@@ -2,31 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/scoped_comptr.h"
-#include "testing/gtest/include/gtest/gtest.h"
-
-#if defined(OS_WIN)
 #include <shlobj.h>
 
+#include "base/scoped_comptr_win.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
 TEST(ScopedComPtrTest, ScopedComPtr) {
-  EXPECT_TRUE(memcmp(&scoped_comptr<IUnknown>::iid(), &IID_IUnknown,
+  EXPECT_TRUE(memcmp(&ScopedComPtr<IUnknown>::iid(), &IID_IUnknown,
                      sizeof(IID)) == 0);
 
   EXPECT_TRUE(SUCCEEDED(::CoInitialize(NULL)));
 
   {
-    scoped_comptr<IUnknown> unk;
+    ScopedComPtr<IUnknown> unk;
     EXPECT_TRUE(SUCCEEDED(unk.CreateInstance(CLSID_ShellLink)));
-    scoped_comptr<IUnknown> unk2;
+    ScopedComPtr<IUnknown> unk2;
     unk2.Attach(unk.Detach());
     EXPECT_TRUE(unk == NULL);
     EXPECT_TRUE(unk2 != NULL);
 
-    scoped_comptr<IMalloc> mem_alloc;
+    ScopedComPtr<IMalloc> mem_alloc;
     EXPECT_TRUE(SUCCEEDED(CoGetMalloc(1, mem_alloc.Receive())));
 
-    // test scoped_comptr& constructor
-    scoped_comptr<IMalloc> copy1(mem_alloc);
+    // test ScopedComPtr& constructor
+    ScopedComPtr<IMalloc> copy1(mem_alloc);
     EXPECT_TRUE(copy1.IsSameObject(mem_alloc));
     EXPECT_FALSE(copy1.IsSameObject(unk2));  // unk2 is valid but different
     EXPECT_FALSE(copy1.IsSameObject(unk));  // unk is NULL
@@ -34,7 +33,7 @@ TEST(ScopedComPtrTest, ScopedComPtr) {
     EXPECT_FALSE(copy1.IsSameObject(unk2));  // unk2 is valid, copy1 is not
 
     // test Interface* constructor
-    scoped_comptr<IMalloc> copy2(static_cast<IMalloc*>(mem_alloc));
+    ScopedComPtr<IMalloc> copy2(static_cast<IMalloc*>(mem_alloc));
     EXPECT_TRUE(copy2.IsSameObject(mem_alloc));
 
     EXPECT_TRUE(SUCCEEDED(unk.QueryFrom(mem_alloc)));
@@ -46,5 +45,3 @@ TEST(ScopedComPtrTest, ScopedComPtr) {
 
   ::CoUninitialize();
 }
-
-#endif  // defined(OS_WIN)

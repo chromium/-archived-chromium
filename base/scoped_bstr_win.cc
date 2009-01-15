@@ -2,12 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/scoped_bstr.h"
+#include "base/scoped_bstr_win.h"
 
 #include "base/logging.h"
 
-
-#if defined(OS_WIN)
 
 ScopedBstr::ScopedBstr(const wchar_t* non_bstr)
     : bstr_(SysAllocString(non_bstr)) {
@@ -66,5 +64,3 @@ uint32 ScopedBstr::Length() const {
 uint32 ScopedBstr::ByteLength() const {
   return SysStringByteLen(bstr_);
 }
-
-#endif  // defined(OS_WIN)
