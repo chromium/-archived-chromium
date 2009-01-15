@@ -129,7 +129,7 @@ void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
 // pasteboard. This flavor has no data.
 void Clipboard::WriteWebSmartPaste() {
   NSPasteboard* pb = GetPasteboard();
-  [pb addTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+  [pb addTypes:[NSArray arrayWithObject:GetWebKitSmartPasteFormatType()] owner:nil];
   [pb setData:nil forType:GetWebKitSmartPasteFormatType()];
 }
 
