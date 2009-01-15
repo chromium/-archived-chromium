@@ -486,6 +486,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\main_function_params.h"
+			>
+		</File>
+		<File
 			RelativePath=".\message_router.cc"
 			>
 		</File>
