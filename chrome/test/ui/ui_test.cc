@@ -495,7 +495,7 @@ bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
       return true;  // Got the download shelf.
 
     // Give it a chance to catch up.
-    Sleep(kWaitForActionMaxMsec / kCycles);
+    PlatformThread::Sleep(action_max_timeout_ms() / kCycles);
   }
   return false;
 }

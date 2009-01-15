@@ -52,7 +52,7 @@ class SessionRestoreUITest : public UITest {
     int window_count;
     ASSERT_TRUE(automation()->WaitForWindowCountToChange(initial_count,
                                                          &window_count,
-                                                         kWaitForActionMsec));
+                                                         action_timeout_ms()));
     ASSERT_EQ(initial_count - 1, window_count);
   }
 
@@ -78,7 +78,7 @@ class SessionRestoreUITest : public UITest {
     ASSERT_EQ(0, active_tab_index);
 
     scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetActiveTab());
-    ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+    ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
     ASSERT_TRUE(tab_proxy->GetCurrentURL(url));
   }
@@ -106,7 +106,7 @@ TEST_F(SessionRestoreUITest, Basic) {
               window_count == 1);
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(0));
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
   ASSERT_EQ(url2, GetActiveTabURL());
   tab_proxy->GoBack();
@@ -129,7 +129,7 @@ TEST_F(SessionRestoreUITest, RestoresForwardAndBackwardNavs) {
               window_count == 1);
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(0));
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
   ASSERT_TRUE(GetActiveTabURL() == url2);
   ASSERT_TRUE(tab_proxy->GoForward());
@@ -168,7 +168,7 @@ TEST_F(SessionRestoreUITest, RestoresCrossSiteForwardAndBackwardNavs) {
   int tab_count;
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count) && tab_count == 1);
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(0));
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_max_timeout_ms()));
 
   // Check that back and forward work as expected.
   GURL url;
@@ -217,13 +217,13 @@ TEST_F(SessionRestoreUITest, TwoTabsSecondSelected) {
   ASSERT_EQ(1, active_tab_index);
 
   tab_proxy.reset(browser_proxy->GetActiveTab());
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
   ASSERT_TRUE(GetActiveTabURL() == url2);
 
   ASSERT_TRUE(browser_proxy->ActivateTab(0));
   tab_proxy.reset(browser_proxy->GetActiveTab());
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
   ASSERT_TRUE(GetActiveTabURL() == url1);
 }
@@ -271,7 +271,7 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_INCOGNITO_WINDOW));
   int window_count;
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       kWaitForActionMsec) &&
+                                                       action_timeout_ms()) &&
               window_count == 2);
 
   // Close the first window.
@@ -288,7 +288,7 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
 
   // A new window should appear;
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       kWaitForActionMsec) &&
+                                                       action_timeout_ms()) &&
               window_count == 2);
 
   // And it shouldn't have url1 in it.
@@ -296,7 +296,7 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
   ASSERT_TRUE(browser_proxy.get());
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(0));
   ASSERT_TRUE(tab_proxy.get());
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
   GURL url;
   ASSERT_TRUE(tab_proxy->GetCurrentURL(&url));
   ASSERT_TRUE(url != url1);
@@ -318,7 +318,7 @@ TEST_F(SessionRestoreUITest, DISABLED_TwoWindowsCloseOneRestoreOnlyOne) {
   ASSERT_TRUE(automation()->OpenNewBrowserWindow(SW_SHOWNORMAL));
   int window_count;
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       kWaitForActionMsec) &&
+                                                       action_timeout_ms()) &&
               window_count == 2);
 
   // Close it.
@@ -351,7 +351,7 @@ TEST_F(SessionRestoreUITest,
   LaunchBrowser(app_launch_arguments, false);
   int window_count;
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       kWaitForActionMsec));
+                                                       action_timeout_ms()));
   ASSERT_EQ(2, window_count);
 
   // Close the first window.
@@ -363,7 +363,7 @@ TEST_F(SessionRestoreUITest,
                             switches::kRestoreLastSession);
   LaunchBrowser(restore_launch_arguments, false);
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       kWaitForActionMsec));
+                                                       action_timeout_ms()));
   ASSERT_EQ(2, window_count);
   GURL url;
   AssertWindowHasOneTab(1, &url);
@@ -393,7 +393,7 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   int new_tab_count;
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
-                                                     kWaitForActionMsec));
+                                                     action_timeout_ms()));
   scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(new_tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
@@ -401,7 +401,7 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   tab_count = new_tab_count;
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
-                                                     kWaitForActionMsec));
+                                                     action_timeout_ms()));
   last_tab.reset(browser_proxy->GetTab(new_tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
@@ -423,10 +423,10 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
 
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(restored_tab_count - 2));
   ASSERT_TRUE(tab_proxy.get() != NULL);
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
   tab_proxy.reset(browser_proxy->GetTab(restored_tab_count - 1));
   ASSERT_TRUE(tab_proxy.get() != NULL);
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 
   ASSERT_EQ(expected_process_count, GetBrowserProcessCount());
 }
