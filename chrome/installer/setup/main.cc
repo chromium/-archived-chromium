@@ -369,23 +369,31 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
         install_status = installer::InstallOrUpdateChrome(
             cmd_line.program(), archive_to_copy, temp_path, options,
             *installer_version, installed_version);
+
+        int install_msg_base = IDS_INSTALL_FAILED_BASE;
+        std::wstring chrome_exe;
+        if (install_status != installer_util::INSTALL_FAILED) {
+          chrome_exe = installer::GetChromeInstallPath(system_install);
+          if (chrome_exe.empty()) {
+            // If we failed to construct install path, it means the OS call to
+            // get %ProgramFiles% or %AppData% failed. Report this as failure.
+            install_msg_base = IDS_INSTALL_OS_ERROR_BASE;
+            install_status = installer_util::OS_ERROR;
+          } else {
+            file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
+            chrome_exe = L"\"" + chrome_exe + L"\"";
+            install_msg_base = 0;
+          }
+        }
+        InstallUtil::WriteInstallerResult(system_install, install_status,
+                                          install_msg_base, &chrome_exe);
         if (install_status == installer_util::FIRST_INSTALL_SUCCESS) {
           LOG(INFO) << "First install successful.";
           CopyPreferenceFileForFirstRun(options, cmd_line);
           // We never want to launch Chrome in system level install mode.
-          if ((options & installer_util::DO_NOT_LAUNCH_CHROME) ||
-              (options & installer_util::SYSTEM_LEVEL)) {
-            std::wstring chrome_exe =
-                installer::GetChromeInstallPath(system_install);
-            if (!chrome_exe.empty()) {
-              file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
-              chrome_exe = L"\"" + chrome_exe + L"\"";
-              InstallUtil::WriteInstallerResult(system_install, install_status,
-                                                0, &chrome_exe);
-            }
-          } else {
+          if (!(options & installer_util::DO_NOT_LAUNCH_CHROME) &&
+              !(options & installer_util::SYSTEM_LEVEL))
             installer::LaunchChrome(system_install);
-          }
         } else if (install_status == installer_util::NEW_VERSION_UPDATED) {
           // This is temporary hack and will be deleted after one release.
           UpdateChromeOpenCmd(system_install);

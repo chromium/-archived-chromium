@@ -198,9 +198,6 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
   std::wstring install_path(GetChromeInstallPath(system_install));
   if (install_path.empty()) {
     LOG(ERROR) << "Could not get installation destination path.";
-    InstallUtil::WriteInstallerResult(system_install,
-                                      installer_util::INSTALL_FAILED,
-                                      IDS_INSTALL_FAILED_BASE, NULL);
     return installer_util::INSTALL_FAILED;
   } else {
     LOG(INFO) << "install destination path: " << install_path;
@@ -217,9 +214,6 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
   installer_util::InstallStatus result;
   if (!install_success) {
     LOG(ERROR) << "Install failed.";
-    InstallUtil::WriteInstallerResult(system_install,
-                                     installer_util::INSTALL_FAILED,
-                                     IDS_INSTALL_FAILED_BASE, NULL);
     result = installer_util::INSTALL_FAILED;
   } else {
     if (!installed_version) {
