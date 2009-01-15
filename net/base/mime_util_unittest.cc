@@ -65,11 +65,6 @@ TEST(MimeUtilTest, LookupTypes) {
   EXPECT_EQ(false, net::IsSupportedImageMimeType("image/lolcat"));
   EXPECT_EQ(true, net::IsSupportedNonImageMimeType("text/html"));
   EXPECT_EQ(false, net::IsSupportedNonImageMimeType("text/virus"));
-
-  EXPECT_EQ(true, net::IsSupportedMimeType("image/jpeg"));
-  EXPECT_EQ(false, net::IsSupportedMimeType("image/lolcat"));
-  EXPECT_EQ(true, net::IsSupportedMimeType("text/html"));
-  EXPECT_EQ(false, net::IsSupportedMimeType("text/virus"));
 }
 
 TEST(MimeUtilTest, MatchesMimeType) {
