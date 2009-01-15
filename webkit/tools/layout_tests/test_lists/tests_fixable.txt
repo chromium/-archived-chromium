@@ -256,7 +256,8 @@ LayoutTests/plugins/bindings-test.html = FAIL CRASH
 // Bug 871718: These tests load data: URLs into frames and sets queries on then.
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
-DEFER : LayoutTests/fast/encoding/char-encoding.html = FAIL
+// Mac currently passes this
+DEFER LINUX WIN: LayoutTests/fast/encoding/char-encoding.html = FAIL
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
@@ -1561,7 +1562,6 @@ MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
 MAC : LayoutTests/svg/custom/circle-move-invalidation.svg = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
-MAC : LayoutTests/editing/pasteboard/5006779.html = FAIL
 
 // not loading local files
 MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
@@ -1596,15 +1596,15 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
 // Crashing...
 
-// window.open crashes (some of these are flakey, in that they don't always
+// window.open crashes (some of these are flaky, in that they don't always
 // crash, and are noted as such)
 MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH PASS
-MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH PASS
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
-MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH PASS
+MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS
 MAC : LayoutTests/fast/history/history_reload.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT FAIL
@@ -1661,14 +1661,15 @@ MAC : LayoutTests/svg/hixie/perf/007.xml = FAIL PASS
 // the file, but they were left there as the comments in those areas are valid.)
 MAC : LayoutTests/animations/animation-end-event-destroy-renderer.html = TIMEOUT PASS
 MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS
-MAC : chrome/http/tests/misc/set-window-opener-to-null.html = CRASH PASS
+MAC : chrome/http/tests/misc/set-window-opener-to-null.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH TIMEOUT
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH TIMEOUT
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
@@ -1679,6 +1680,8 @@ MAC : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 MAC : LayoutTests/fast/borders/svg-as-border-image-2.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH PASS FAIL
 MAC : LayoutTests/fast/canvas/pointInPath.html = CRASH PASS
+MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/navigation/error404-subframeload.html = TIMEOUT PASS
 
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
@@ -1873,7 +1876,7 @@ WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = F
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 WIN : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
-MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
+MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
 
 // 12-Jan-2009 Regressions:
@@ -1891,7 +1894,7 @@ LINUX : chrome/fonts/courier.html = FAIL
 LayoutTests/plugins/npruntime.html = TIMEOUT
 
 // Merge 39830:39880 - regressions 
-LayoutTests/editing/selection/5057506.html = FAIL
+LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 
 // Merge 39880:39894 - regressions
