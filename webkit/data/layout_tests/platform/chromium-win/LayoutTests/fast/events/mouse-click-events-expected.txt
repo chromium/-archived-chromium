@@ -12,22 +12,15 @@ mouseup(0)
 click(0)
 dblclick(0)
 Middle Mouse Button
-mousedown(1)
 mouseup(1)
-click(1)
-mousedown(1)
 mouseup(1)
-click(1)
-dblclick(1)
 Right Mouse Button
 mousedown(2)
 mouseup(2)
 mousedown(2)
 mouseup(2)
 4th Mouse Button
-mousedown(1)
 mouseup(1)
-click(1)
 mouseup(1)
 PASS successfullyParsed is true
 

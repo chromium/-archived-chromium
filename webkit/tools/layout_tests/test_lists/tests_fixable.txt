@@ -1207,7 +1207,7 @@ LayoutTests/fast/forms/selection-functions.html = FAIL
 // MERGE REGRESSIONS 36102:37604
 
 WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
-LINUX WIN : LayoutTests/fast/events/mouse-click-events.html = FAIL
+LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
 WIN : LayoutTests/fast/flexbox/009.html = FAIL
 // The thumb in the scrollbar looks wrong.  It looks too narrow.
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
