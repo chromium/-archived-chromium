@@ -92,7 +92,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
   // loads the html file on disk, rather than just getting a response from
   // the TestServer.
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
@@ -160,7 +160,7 @@ TEST_F(RedirectTest, DISABLED_ClientServerServer) {
   NavigateToURL(first_url);
 
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
@@ -231,7 +231,7 @@ TEST_F(RedirectTest, ClientFragments) {
 
   NavigateToURL(first_url);
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
@@ -279,7 +279,7 @@ TEST_F(RedirectTest,
   std::wstring final_url_title = L"Title Of Awesomeness";
   // Wait till the final page has been loaded.
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetTabTitle(&tab_title));

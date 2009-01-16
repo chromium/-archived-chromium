@@ -398,7 +398,7 @@ bool AutomatedUITest::OpenAndActivateNewBrowserWindow() {
     return false;
   }
   bool is_timeout;
-  if (!browser->ActivateTabWithTimeout(0, kWaitForActionMaxMsec,
+  if (!browser->ActivateTabWithTimeout(0, action_max_timeout_ms(),
                                        &is_timeout)) {
     AddWarningAttribute("failed_to_activate_tab");
     return false;
@@ -439,7 +439,8 @@ bool AutomatedUITest::CloseActiveTab() {
   int browser_windows_count;
   int tab_count;
   bool is_timeout;
-  browser->GetTabCountWithTimeout(&tab_count, kWaitForActionMaxMsec,
+  browser->GetTabCountWithTimeout(&tab_count,
+                                  action_max_timeout_ms(),
                                   &is_timeout);
   automation()->GetBrowserWindowCount(&browser_windows_count);
   // Avoid quitting the application by not closing the last window.
@@ -447,8 +448,9 @@ bool AutomatedUITest::CloseActiveTab() {
     int new_tab_count;
     return_value = browser->RunCommand(IDC_CLOSE_TAB);
     // Wait for the tab to close before we continue.
-    if (!browser->WaitForTabCountToChange(
-        tab_count, &new_tab_count, kWaitForActionMaxMsec)) {
+    if (!browser->WaitForTabCountToChange(tab_count,
+                                          &new_tab_count,
+                                          action_max_timeout_ms())) {
       AddWarningAttribute("tab_count_failed_to_change");
       return false;
     }
@@ -456,8 +458,9 @@ bool AutomatedUITest::CloseActiveTab() {
     int new_window_count;
     return_value = browser->RunCommand(IDC_CLOSE_TAB);
     // Wait for the window to close before we continue.
-    if (!automation()->WaitForWindowCountToChange(
-        browser_windows_count, &new_window_count, kWaitForActionMaxMsec)) {
+    if (!automation()->WaitForWindowCountToChange(browser_windows_count,
+                                                  &new_window_count,
+                                                  action_max_timeout_ms())) {
       AddWarningAttribute("window_count_failed_to_change");
       return false;
     }
@@ -504,7 +507,7 @@ bool AutomatedUITest::Navigate() {
   }
   bool did_timeout;
   scoped_ptr<TabProxy> tab(
-      browser->GetActiveTabWithTimeout(kWaitForActionMaxMsec, &did_timeout));
+      browser->GetActiveTabWithTimeout(action_max_timeout_ms(), &did_timeout));
   // TODO(devint): This might be masking a bug. I can't think of many
   // valid cases where we would get a browser window, but not be able
   // to return an active tab. Yet this has happened and has triggered crashes.
@@ -519,7 +522,9 @@ bool AutomatedUITest::Navigate() {
   }
   GURL test_url(url);
   did_timeout = false;
-  tab->NavigateToURLWithTimeout(test_url, kMaxTestExecutionTime, &did_timeout);
+  tab->NavigateToURLWithTimeout(test_url,
+                                command_execution_timeout_ms(),
+                                &did_timeout);
 
   if (did_timeout) {
     AddWarningAttribute("timeout");
@@ -537,13 +542,15 @@ bool AutomatedUITest::NewTab() {
   int old_tab_count;
   int new_tab_count;
   bool is_timeout;
-  browser->GetTabCountWithTimeout(&old_tab_count, kWaitForActionMaxMsec,
-      &is_timeout);
+  browser->GetTabCountWithTimeout(&old_tab_count,
+                                  action_max_timeout_ms(),
+                                  &is_timeout);
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.
   bool return_value = RunCommand(IDC_NEW_TAB);
-  if (!browser->WaitForTabCountToChange(
-      old_tab_count, &new_tab_count, kWaitForActionMaxMsec)) {
+  if (!browser->WaitForTabCountToChange(old_tab_count,
+                                        &new_tab_count,
+                                        action_max_timeout_ms())) {
     AddWarningAttribute("tab_count_failed_to_change");
     return false;
   }
@@ -746,7 +753,8 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
     return false;
   }
   int tab_count;
-  browser->GetTabCountWithTimeout(&tab_count, kWaitForActionMaxMsec,
+  browser->GetTabCountWithTimeout(&tab_count,
+                                  action_max_timeout_ms(),
                                   &is_timeout);
   // As far as we're concerned, if we can't get a view for a tab, it doesn't
   // exist, so cap tab_count at the number of tab view ids there are.
@@ -754,7 +762,7 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
 
   int tab_index;
   if (!browser->GetActiveTabIndexWithTimeout(&tab_index,
-                                             kWaitForActionMaxMsec,
+                                             action_max_timeout_ms(),
                                              &is_timeout)) {
     AddWarningAttribute("no_active_tab");
     return false;
@@ -763,7 +771,7 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
   gfx::Rect dragged_tab_bounds;
   if (!window->GetViewBoundsWithTimeout(VIEW_ID_TAB_0 + tab_index,
                                         &dragged_tab_bounds, false,
-                                        kWaitForActionMaxMsec,
+                                        action_max_timeout_ms(),
                                         &is_timeout)) {
     AddWarningAttribute("no_tab_view_found");
     return false;
@@ -794,7 +802,7 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
   if (!browser->SimulateDragWithTimeout(dragged_tab_point,
                                         destination_point,
                                         views::Event::EF_LEFT_BUTTON_DOWN,
-                                        kWaitForActionMaxMsec,
+                                        action_max_timeout_ms(),
                                         &is_timeout, false)) {
     AddWarningAttribute("failed_to_simulate_drag");
     return false;
@@ -820,7 +828,7 @@ WindowProxy* AutomatedUITest::GetAndActivateWindowForBrowser(
   WindowProxy* window = automation()->GetWindowForBrowser(browser);
 
   bool did_timeout;
-  if (!browser->BringToFrontWithTimeout(kWaitForActionMaxMsec, &did_timeout)) {
+  if (!browser->BringToFrontWithTimeout(action_max_timeout_ms(), &did_timeout)) {
     AddWarningAttribute("failed_to_bring_window_to_front");
     return NULL;
   }

@@ -38,10 +38,10 @@
 using base::TimeTicks;
 
 // Delay to let browser complete a requested action.
-const int UITest::kWaitForActionMsec = 2000;
-const int UITest::kWaitForActionMaxMsec = 10000;
+static const int kWaitForActionMsec = 2000;
+static const int kWaitForActionMaxMsec = 10000;
 // Delay to let the browser complete the test.
-const int UITest::kMaxTestExecutionTime = 30000;
+static const int kMaxTestExecutionTime = 30000;
 
 const wchar_t UITest::kFailedNoCrashService[] =
     L"NOTE: This test is expected to fail if crash_service.exe is not "
@@ -85,7 +85,7 @@ bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
   for (int i = 0; i < 10; ++i) {
     if (file_util::Delete(file, recurse))
       return true;
-    PlatformThread::Sleep(kWaitForActionMaxMsec / 10);
+    PlatformThread::Sleep(action_max_timeout_ms() / 10);
   }
   return false;
 }
@@ -520,7 +520,7 @@ bool UITest::WaitForFindWindowVisibilityChange(TabProxy* tab,
       return true;  // Find window visibility change complete.
 
     // Give it a chance to catch up.
-    Sleep(kWaitForActionMaxMsec / kCycles);
+    Sleep(sleep_timeout_ms() / kCycles);
   }
   return false;
 }
@@ -537,7 +537,7 @@ bool UITest::WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
       return true;  // Bookmark bar visibility change complete.
 
     // Give it a chance to catch up.
-    Sleep(kWaitForActionMaxMsec / kCycles);
+    Sleep(sleep_timeout_ms() / kCycles);
   }
   return false;
 }
@@ -671,7 +671,7 @@ std::string UITest::WaitUntilCookieNonEmpty(TabProxy* tab,
 
 void UITest::WaitUntilTabCount(int tab_count) {
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms() / 10);
     if (GetTabCount() == tab_count)
       break;
   }

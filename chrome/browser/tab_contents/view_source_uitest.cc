@@ -49,7 +49,7 @@ TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
   url = GURL("view-source:" + url.spec());
   scoped_ptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
-  Sleep(kWaitForActionMsec);
+  Sleep(sleep_timeout_ms());
 
   // Try to retrieve the cookie that the page sets
   // It should not be there (because we are in view-source mode

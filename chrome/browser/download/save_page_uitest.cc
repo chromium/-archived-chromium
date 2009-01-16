@@ -29,7 +29,7 @@ class SavePageTest : public UITest {
         exist = true;
         break;
       }
-      Sleep(kWaitForActionMaxMsec / 20);
+      Sleep(sleep_timeout_ms());
     }
     EXPECT_TRUE(exist);
 

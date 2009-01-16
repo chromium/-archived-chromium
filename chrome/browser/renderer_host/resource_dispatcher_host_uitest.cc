@@ -65,7 +65,7 @@ TEST_F(ResourceDispatcherTest, DoNotSniffHTMLFromImageGIF) {
 TEST_F(ResourceDispatcherTest, SniffNoContentTypeNoData) {
   CheckTitleTest(L"content-sniffer-test3.html",
                  L"Content Sniffer Test 3");
-  Sleep(kWaitForActionMaxMsec / 2);
+  Sleep(sleep_timeout_ms() * 2);
   EXPECT_EQ(1, GetTabCount());
 
   // Make sure the download shelf is not showing.
@@ -132,7 +132,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
   // (the bug would make this step hang the renderer).
   bool timed_out = false;
   tab->NavigateToURLWithTimeout(server->TestServerPageW(L"files/title2.html"),
-                                kWaitForActionMaxMsec,
+                                action_max_timeout_ms(),
                                 &timed_out);
   EXPECT_FALSE(timed_out);
 
@@ -190,7 +190,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   // Cause the renderer to crash.
   expected_crashes_ = 1;
   tab->NavigateToURLAsync(GURL("about:crash"));
-  Sleep(kWaitForActionMsec);  // Wait for browser to notice the renderer crash.
+  Sleep(sleep_timeout_ms());  // Wait for browser to notice the renderer crash.
 
   // Navigate to a new cross-site page.  The browser should not wait around for
   // the old renderer's on{before}unload handlers to run.
@@ -215,7 +215,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
   file_util::AppendToPath(&test_file, L"title2.html");
   bool timed_out = false;
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(test_file),
-                                kWaitForActionMaxMsec,
+                                action_max_timeout_ms(),
                                 &timed_out);
   EXPECT_FALSE(timed_out);
   EXPECT_EQ(L"Title Of Awesomeness", GetActiveTabTitle());
@@ -248,7 +248,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   // reason as ErrorPageTest::DNSError.  See bug 1199491.
   tab->NavigateToURL(GURL(URLRequestFailedDnsJob::kTestUrl));
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     if (GetActiveTabTitle() != L"set cookie on unload") {
       // Success, bail out.
       break;
@@ -272,7 +272,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   std::wstring redirect_url = L"javascript:window.location='" +
       ASCIIToWide(test_url.possibly_invalid_spec()) + L"'";
   tab->NavigateToURLAsync(GURL(redirect_url));
-  Sleep(kWaitForActionMsec);  // Wait for JavaScript redirect to happen.
+  Sleep(sleep_timeout_ms());  // Wait for JavaScript redirect to happen.
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
 }

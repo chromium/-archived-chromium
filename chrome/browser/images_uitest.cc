@@ -19,7 +19,7 @@ TEST_F(ImagesTest, AnimatedGIFs) {
 
   // Let the GIFs fully animate.
   for (int i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     if (page_title == GetActiveTabTitle())
       break;
   }

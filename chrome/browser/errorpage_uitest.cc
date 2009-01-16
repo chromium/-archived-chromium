@@ -20,7 +20,7 @@ TEST_F(ErrorPageTest, DNSError) {
   int i;
   std::wstring title;
   for (i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     title = GetActiveTabTitle();
     if (title.find(test_host) != std::wstring::npos) {
       // Success, bail out.
@@ -49,7 +49,7 @@ TEST_F(ErrorPageTest, IFrame404) {
   int i;
   std::wstring title;
   for (i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     title = GetActiveTabTitle();
     if (title == L"SUCCESS") {
       // Success, bail out.

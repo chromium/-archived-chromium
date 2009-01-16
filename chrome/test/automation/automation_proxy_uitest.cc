@@ -489,7 +489,7 @@ TEST_F(AutomationProxyTest, AcceleratorNewTab) {
   std::wstring title;
   int i;
   for (i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     ASSERT_TRUE(tab->GetTabTitle(&title));
     if (title == L"Destinations" || title == L"New Tab")
       break;
@@ -626,7 +626,7 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   std::wstring title;
   int i;
   for (i = 0; i < 10; ++i) {
-    Sleep(kWaitForActionMaxMsec / 10);
+    Sleep(sleep_timeout_ms());
     ASSERT_TRUE(tab->GetTabTitle(&title));
     if (title == L"Destinations")
       break;

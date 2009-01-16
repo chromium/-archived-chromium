@@ -102,8 +102,6 @@ bool save_debug_log = false;
 std::wstring chrome_log_path;
 std::wstring v8_log_path;
 
-int kWaitForActionMsec = 4000;
-
 class PageLoadTest : public UITest {
  public:
   enum NavigationResult {
@@ -160,13 +158,13 @@ class PageLoadTest : public UITest {
                 automation()->GetWindowForBrowser(browser.get()));
             if (window.get()) {
               bool activation_timeout;
-              browser->BringToFrontWithTimeout(kWaitForActionMsec,
+              browser->BringToFrontWithTimeout(action_max_timeout_ms(),
                                                &activation_timeout);
               if (!activation_timeout) {
                 window->SimulateOSKeyPress(VK_NEXT, 0);
-                Sleep(kWaitForActionMsec);
+                Sleep(sleep_timeout_ms());
                 window->SimulateOSKeyPress(VK_NEXT, 0);
-                Sleep(kWaitForActionMsec);
+                Sleep(sleep_timeout_ms());
               }
             }
           }

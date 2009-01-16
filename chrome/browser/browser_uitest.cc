@@ -65,7 +65,7 @@ TEST_F(BrowserTest, NoTitle) {
   file_util::AppendToPath(&test_file, L"title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
-  Sleep(kWaitForActionMsec);  // The browser lazily updates the title.
+  Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
 
   EXPECT_EQ(WindowCaptionFromPageTitle(L"title1.html"), GetWindowTitle());
   EXPECT_EQ(L"title1.html", GetActiveTabTitle());
@@ -78,7 +78,7 @@ TEST_F(BrowserTest, Title) {
   file_util::AppendToPath(&test_file, L"title2.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
-  Sleep(kWaitForActionMsec);  // The browser lazily updates the title.
+  Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
 
   const std::wstring test_title(L"Title Of Awesomeness");
   EXPECT_EQ(WindowCaptionFromPageTitle(test_title), GetWindowTitle());

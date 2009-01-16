@@ -14,7 +14,7 @@ class IFrameTest : public UITest {
     file_util::AppendToPath(&test_file, url);
 
     NavigateToURL(net::FilePathToFileURL(test_file));
-    Sleep(kWaitForActionMsec);  // The browser lazily updates the title.
+    Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
 
     // Make sure the navigation succeeded.
     EXPECT_EQ(std::wstring(page_title), GetActiveTabTitle());
