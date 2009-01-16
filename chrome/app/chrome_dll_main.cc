@@ -22,6 +22,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #if defined(OS_WIN)
@@ -195,6 +196,13 @@ int ChromeMain(int argc, const char** argv) {
   // The exit manager is in charge of calling the dtors of singleton objects.
   base::AtExitManager exit_manager;
 
+  // TODO(pinkerton): We need this pool here for all the objects created 
+  // before we get to the UI event loop, but we don't want to leave them
+  // hanging around until the app quits. We should add a "flush" to the class
+  // which just cycles the pool under the covers and then call that just
+  // before we invoke the main UI loop near the bottom of this function.
+  base::ScopedNSAutoreleasePool autorelease_pool;
+
   // Initialize the command line.
 #if defined(OS_POSIX)
   CommandLine::SetArgcArgv(argc, argv);
@@ -303,13 +311,6 @@ int ChromeMain(int argc, const char** argv) {
   } else {
     NOTREACHED() << "Unknown process type";
   }
-
-  // TODO(pinkerton): nothing after this point will be hit on Mac if this is the
-  // browser process, as NSApplicationMain doesn't return. There are a couple of
-  // possible solutions, including breaking this up into pre/post code (won't
-  // work for stack-based objects) or making sure we fall out of the runloop
-  // ourselves, then manually call |-NSApp terminate:|. We'll most likely 
-  // need to do the latter.
 
   if (!process_type.empty()) {
 #if defined(OS_WIN)

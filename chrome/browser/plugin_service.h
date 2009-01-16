@@ -176,6 +176,7 @@ class PluginProcessHostIterator {
   PluginProcessHostIterator& operator=(
       const PluginProcessHostIterator& instance) {
       iterator_ = instance.iterator_;
+      return *this;
   }
 
   const PluginProcessHost* operator->() const {

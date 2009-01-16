@@ -23,8 +23,8 @@ PluginService* PluginService::GetInstance() {
 
 PluginService::PluginService()
     : main_message_loop_(MessageLoop::current()),
-      ui_locale_(g_browser_process->GetApplicationLocale()),
       resource_dispatcher_host_(NULL),
+      ui_locale_(g_browser_process->GetApplicationLocale()),
       plugin_shutdown_handler_(new ShutdownHandler) {
   // Have the NPAPI plugin list search for Chrome plugins as well.
   ChromePluginLib::RegisterPluginsWithNPAPI();

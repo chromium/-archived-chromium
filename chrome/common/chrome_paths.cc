@@ -35,8 +35,12 @@ bool GetDefaultUserDataDirectory(std::wstring* result) {
   file_util::AppendToPath(result, chrome::kBrowserAppName);
   file_util::AppendToPath(result, chrome::kUserDataDirname);
   return true;
-#else  // defined(OS_WIN)
-  // TODO(port): Decide what to do on other platforms.
+#elif defined(OS_MACOSX)
+  if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
+    return false;
+  return true;
+#elif defined(OS_LINUX)
+  // TODO(port): Decide what to do on linux.
   NOTIMPLEMENTED();
   return false;
 #endif  // defined(OS_WIN)

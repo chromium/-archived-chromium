@@ -4,11 +4,41 @@
 
 #include "build/build_config.h"
 
-#include "base/command_line.h"
-#include "chrome/common/main_function_params.h"
+#include <algorithm>
 
-#if defined(OS_WIN)
-#include "sandbox/src/sandbox.h"
+#include "base/command_line.h"
+#include "base/field_trial.h"
+#include "base/file_util.h"
+#include "base/histogram.h"
+#include "base/lazy_instance.h"
+#include "base/path_service.h"
+#include "base/process_util.h"
+#include "base/string_piece.h"
+#include "base/string_util.h"
+#include "base/system_monitor.h"
+#include "base/tracked_objects.h"
+#include "base/values.h"
+#include "chrome/app/result_codes.h"
+#include "chrome/browser/browser_main_win.h"
+#include "chrome/browser/browser_process.h"
+#include "chrome/browser/plugin_service.h"
+#include "chrome/browser/shell_integration.h"
+#include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/jstemplate_builder.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/main_function_params.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
+
+#include "chromium_strings.h"
+#include "generated_resources.h"
+
+#if defined(OS_POSIX)
+// TODO(port): get rid of this include. It's used just to provide declarations
+// and stub definitions for classes we encouter during the porting effort.
+#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 // TODO(port): several win-only methods have been pulled out of this, but
@@ -21,25 +51,12 @@
 #include <windows.h>
 #include <shellapi.h>
 
-#include <algorithm>
-
-#include "base/file_util.h"
-#include "base/histogram.h"
-#include "base/lazy_instance.h"
-#include "base/path_service.h"
-#include "base/process_util.h"
 #include "base/registry.h"
-#include "base/string_piece.h"
-#include "base/string_util.h"
-#include "base/system_monitor.h"
-#include "base/tracked_objects.h"
 #include "base/win_util.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/browser_main_win.h"
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/browser_shutdown.h"
@@ -53,22 +70,13 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/sdch_dictionary_fetcher.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/rlz/rlz.h"
-#include "chrome/browser/shell_integration.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
-#include "chrome/common/chrome_constants.h"
-#include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/env_vars.h"
-#include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/helper.h"
@@ -81,10 +89,30 @@
 #include "net/base/sdch_manager.h"
 #include "net/base/winsock_init.h"
 #include "net/http/http_network_layer.h"
+#include "sandbox/src/sandbox.h"
 
-#include "chromium_strings.h"
-#include "generated_resources.h"
 #include "net_resources.h"
+
+#endif
+
+namespace Platform {
+
+void WillInitializeMainMessageLoop(const CommandLine & command_line);
+void WillTerminate();
+
+#if defined(OS_WIN) || defined(OS_LINUX)
+// Perform any platform-specific work that needs to be done before the main
+// message loop is created and initialized. 
+void WillInitializeMainMessageLoop(const CommandLine & command_line) {
+}
+
+// Perform platform-specific work that needs to be done after the main event
+// loop has ended.
+void WillTerminate() {
+}
+#endif
+
+}  // namespace Platform
 
 namespace {
 
@@ -103,6 +131,7 @@ void HandleErrorTestParameters(const CommandLine& command_line) {
   }
 }
 
+#if defined(OS_WIN)
 // The net module doesn't have access to this HTML or the strings that need to
 // be localized.  The Chrome locale will never change while we're running, so
 // it's safe to have a static string that we always return a pointer into.
@@ -141,14 +170,13 @@ StringPiece NetResourceProvider(int key) {
 
   return ResourceBundle::GetSharedInstance().GetRawDataResource(key);
 }
+#endif
 
 }  // namespace
 
 // Main routine for running as the Browser process.
 int BrowserMain(const MainFunctionParams& parameters) {
   CommandLine& parsed_command_line = parameters.command_line_;
-  sandbox::BrokerServices* broker_services =
-      parameters.sandbox_info_.BrokerServices();
 
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
@@ -163,6 +191,11 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // destroyed after the main_message_loop.
   tracked_objects::AutoTracking tracking_objects;
 #endif
+
+  // Do platform-specific things (such as finishing initiailizing Cocoa)
+  // prior to instantiating the message loop. This could be turned into a
+  // broadcast notification.
+  Platform::WillInitializeMainMessageLoop(parsed_command_line);
 
   MessageLoop main_message_loop(MessageLoop::TYPE_UI);
 
@@ -258,13 +291,17 @@ int BrowserMain(const MainFunctionParams& parameters) {
         parent_local_state.GetString(prefs::kApplicationLocale));
   }
 
+#if defined(OS_WIN)
   ResourceBundle::InitSharedInstance(
       local_state->GetString(prefs::kApplicationLocale));
   // We only load the theme dll in the browser process.
   ResourceBundle::GetSharedInstance().LoadThemeResources();
+#endif
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {
     // Display a warning if the user is running windows 2000.
+    // TODO(port). We should probably change this to a "check for minimum
+    // requirements" function, implemented by each platform.
     CheckForWin2000();
   }
 
@@ -278,6 +315,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   ProfileManager* profile_manager = browser_process->profile_manager();
   Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
   if (!profile) {
+#if defined(OS_WIN)
     user_data_dir = UserDataDirDialog::RunUserDataDirDialog(user_data_dir);
     // Flush the message loop which lets the UserDataDirDialog close.
     MessageLoop::current()->Run();
@@ -297,6 +335,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     }
 
     return ResultCodes::NORMAL_EXIT;
+#endif
   }
 
   PrefService* user_prefs = profile->GetPrefs();
@@ -313,10 +352,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // unless we detect another chrome browser running.
   if (parsed_command_line.HasSwitch(switches::kUninstall)) {
     if (already_running) {
+#if defined(OS_WIN)
       const std::wstring text = l10n_util::GetString(IDS_UNINSTALL_CLOSE_APP);
       const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
       win_util::MessageBox(NULL, text, caption,
                            MB_OK | MB_ICONWARNING | MB_TOPMOST);
+#endif
       return ResultCodes::UNINSTALL_CHROME_ALIVE;
     } else {
       return DoUninstallTasks();
@@ -380,6 +421,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // testing against a bunch of special cases that are taken care early on.
   PrepareRestartOnCrashEnviroment(parsed_command_line);
 
+#if defined(OS_WIN)
   // Initialize Winsock.
   net::EnsureWinsockInit();
 
@@ -408,7 +450,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   RegisterURLRequestChromeJob();
   RegisterExtensionProtocols();
 
+  sandbox::BrokerServices* broker_services =
+      parameters.sandbox_info_.BrokerServices();
   browser_process->InitBrokerServices(broker_services);
+#endif
 
   // In unittest mode, this will do nothing.  In normal mode, this will create
   // the global GoogleURLTracker instance, which will promptly go to sleep for
@@ -428,6 +473,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Have Chrome plugins write their data to the profile directory.
   PluginService::GetInstance()->SetChromePluginDataDir(profile->GetPath());
 
+#if defined(OS_WIN)
   // Initialize the CertStore.
   CertStore::Initialize();
 
@@ -441,6 +487,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
         WideToASCII(parsed_command_line.GetSwitchValue(switches::kSdchFilter));
   }
   sdch_manager.EnableSdchSupport(switch_domain);
+#endif
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
@@ -467,10 +514,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
   }
   InstallJankometer(parsed_command_line);
 
+#if defined(OS_WIN)
   if (parsed_command_line.HasSwitch(switches::kDebugPrint)) {
     browser_process->print_job_manager()->set_debug_dump_path(
         parsed_command_line.GetSwitchValue(switches::kDebugPrint));
   }
+#endif
 
   HandleErrorTestParameters(parsed_command_line);
 
@@ -479,8 +528,14 @@ int BrowserMain(const MainFunctionParams& parameters) {
   int result_code = ResultCodes::NORMAL_EXIT;
   if (BrowserInit::ProcessCommandLine(parsed_command_line, L"", local_state,
                                       true, profile, &result_code)) {
+#if defined(OS_WIN)
     MessageLoopForUI::current()->Run(browser_process->accelerator_handler());
+#elif defined(OS_POSIX)
+    MessageLoopForUI::current()->Run();
+#endif
   }
+
+  Platform::WillTerminate();
 
   if (metrics)
     metrics->Stop();
@@ -493,24 +548,3 @@ int BrowserMain(const MainFunctionParams& parameters) {
   return result_code;
 }
 
-#elif defined(OS_POSIX)
-
-// Call to kick off the main message loop. The implementation for this on Mac
-// must reside in another file because it has to call Cocoa functions and thus
-// cannot live in a .cc file.
-int StartPlatformMessageLoop();
-
-// TODO(port): merge this with above. Just a stub for now, not meant as a place
-// to duplicate code.
-// Main routine for running as the Browser process.
-int BrowserMain(const MainFunctionParams& parameters) {
-  return StartPlatformMessageLoop();
-}
-
-#if defined(OS_LINUX)
-void StartPlatformMessageLoop() {
-  return 0;
-}
-#endif
-
-#endif

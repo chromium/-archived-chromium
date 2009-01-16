@@ -298,6 +298,8 @@
 		E450775F0F154036003BE099 /* mru_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD40E9D4C9F009A6919 /* mru_cache_unittest.cc */; };
 		E45077620F15405C003BE099 /* notification_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBDB0E9D4C9F009A6919 /* notification_service_unittest.cc */; };
 		E46C42130F1D3DD200B393B8 /* user_script_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0082A7510F16987A000AA0EF /* user_script_master.cc */; };
+		E46C46C50F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C46C40F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp */; };
+		E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C45990F1F88D100B393B8 /* app_controller_mac.mm */; };
 		E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADF0E9D49DE009A6919 /* safe_browsing_database_bloom.cc */; };
 		E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE10E9D49DE009A6919 /* safe_browsing_database_impl.cc */; };
 		E48FB9760EC4EA320052B72B /* url_request_failed_dns_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB96E0EC4EA270052B72B /* url_request_failed_dns_job.cc */; };
@@ -920,6 +922,7 @@
 		09E89F13F9048F95F68B4887 /* metrics_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metrics_service.cc; path = browser/metrics/metrics_service.cc; sourceTree = SOURCE_ROOT; };
 		11525634D3FBF3508C475B46 /* metrics_response.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metrics_response.cc; path = browser/metrics/metrics_response.cc; sourceTree = SOURCE_ROOT; };
 		187598100CC57B863A3BDD57 /* metrics_log_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metrics_log_unittest.cc; path = browser/metrics/metrics_log_unittest.cc; sourceTree = SOURCE_ROOT; };
+		26D97CE692D919FEB1521E43 /* ssl_error_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ssl_error_info.cc; path = browser/ssl/ssl_error_info.cc; sourceTree = SOURCE_ROOT; };
 		28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = template_url_parser.cc; path = browser/search_engines/template_url_parser.cc; sourceTree = SOURCE_ROOT; };
 		3CCF8AA8A56FF8FE59F0C299 /* template_url.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = template_url.cc; path = browser/search_engines/template_url.cc; sourceTree = SOURCE_ROOT; };
 		4D640CBD0EAE868600EBCFC0 /* about_handler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = about_handler.cc; sourceTree = "<group>"; };
@@ -1702,6 +1705,10 @@
 		E45076E30F153AB6003BE099 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unzip.h; sourceTree = "<group>"; };
 		E45076E40F153AB6003BE099 /* unzip.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unzip.cc; sourceTree = "<group>"; };
 		E45076E80F153B06003BE099 /* unzip_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unzip_unittest.cc; sourceTree = "<group>"; };
+		E46C45980F1F88D100B393B8 /* app_controller_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_controller_mac.h; sourceTree = "<group>"; };
+		E46C45990F1F88D100B393B8 /* app_controller_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = app_controller_mac.mm; sourceTree = "<group>"; };
+		E46C46C30F1F9AE200B393B8 /* temp_scaffolding_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = temp_scaffolding_stubs.h; sourceTree = "<group>"; };
+		E46C46C40F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = temp_scaffolding_stubs.cpp; sourceTree = "<group>"; };
 		E48FB9610EC4EA270052B72B /* automation_autocomplete_edit_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_autocomplete_edit_tracker.h; sourceTree = "<group>"; };
 		E48FB9620EC4EA270052B72B /* automation_browser_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_browser_tracker.h; sourceTree = "<group>"; };
 		E48FB9630EC4EA270052B72B /* automation_constrained_window_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_constrained_window_tracker.h; sourceTree = "<group>"; };
@@ -1731,7 +1738,6 @@
 		EA72C084DB3FC0FC595E525E /* template_url_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = template_url_model.cc; path = browser/search_engines/template_url_model.cc; sourceTree = SOURCE_ROOT; };
 		EFB2D9BDD612A100477ECCBD /* user_metrics.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = user_metrics.cc; path = browser/metrics/user_metrics.cc; sourceTree = SOURCE_ROOT; };
 		F145A671557D09F55DCD580A /* metrics_response_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metrics_response_unittest.cc; path = browser/metrics/metrics_response_unittest.cc; sourceTree = SOURCE_ROOT; };
-		26D97CE692D919FEB1521E43 /* ssl_error_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ssl_error_info.cc; path = browser/ssl/ssl_error_info.cc; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2015,6 +2021,8 @@
 				E450761C0F150DF9003BE099 /* webdata */,
 				4D7BF8240E9D4839009A6919 /* alternate_nav_url_fetcher.cc */,
 				4D7BF8250E9D4839009A6919 /* alternate_nav_url_fetcher.h */,
+				E46C45980F1F88D100B393B8 /* app_controller_mac.h */,
+				E46C45990F1F88D100B393B8 /* app_controller_mac.mm */,
 				4D7BF8260E9D4839009A6919 /* app_modal_dialog_queue.cc */,
 				4D7BF8270E9D4839009A6919 /* app_modal_dialog_queue.h */,
 				4D7BF8280E9D4839009A6919 /* back_forward_menu_model.cc */,
@@ -2629,6 +2637,8 @@
 				4D7BFC020E9D4C9F009A6919 /* stl_util-inl.h */,
 				4D7BFC030E9D4C9F009A6919 /* task_queue.cc */,
 				4D7BFC040E9D4C9F009A6919 /* task_queue.h */,
+				E46C46C30F1F9AE200B393B8 /* temp_scaffolding_stubs.h */,
+				E46C46C40F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp */,
 				4D7BFC060E9D4C9F009A6919 /* throb_animation.cc */,
 				4D7BFC070E9D4C9F009A6919 /* throb_animation.h */,
 				4D7BFC080E9D4C9F009A6919 /* thumbnail_score.cc */,
@@ -3703,6 +3713,7 @@
 				4D7BF9AC0E9D4880009A6919 /* page_state.cc in Sources */,
 				4D7BFA280E9D490C009A6919 /* page_usage_data.cc in Sources */,
 				4D7BFAF10E9D49EB009A6919 /* protocol_parser.cc in Sources */,
+				B6CCB9FA0F1EC33100106F0D /* provisional_load_details.cc in Sources */,
 				E4F324500EE5CF7C002533CE /* query_parser.cc in Sources */,
 				E4F3247A0EE5D17E002533CE /* referrer.cc in Sources */,
 				4D7BF9B10E9D4888009A6919 /* renderer_security_policy.cc in Sources */,
@@ -3741,7 +3752,6 @@
 				4D7BFA430E9D491E009A6919 /* visit_tracker.cc in Sources */,
 				4D7BFA480E9D4922009A6919 /* visitsegment_database.cc in Sources */,
 				E45076200F150E0C003BE099 /* web_database.cc in Sources */,
-				B6CCB9FA0F1EC33100106F0D /* provisional_load_details.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3821,6 +3831,7 @@
 				4D7BFC840E9D4D32009A6919 /* sqlite_compiled_statement.cc in Sources */,
 				4D7BFC8B0E9D4D35009A6919 /* sqlite_utils.cc in Sources */,
 				4D7BFC920E9D4D3A009A6919 /* task_queue.cc in Sources */,
+				E46C46C50F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp in Sources */,
 				4D7BFC970E9D4D3E009A6919 /* throb_animation.cc in Sources */,
 				4D7BFC9C0E9D4D46009A6919 /* thumbnail_score.cc in Sources */,
 				E45076AB0F153629003BE099 /* time_format.cc in Sources */,
@@ -3851,6 +3862,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */,
 				E45062EB0EE9877F003BE099 /* chrome_dll_main.cc in Sources */,
 				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
 			);
