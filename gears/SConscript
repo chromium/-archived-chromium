@@ -74,7 +74,9 @@ vars.AddVariables(
     EnumVariable('MODE',
         'Type of binary to generate', 'dbg', ['dbg', 'opt']),
     BoolVariable('OFFICIAL_BUILD',
-        'Create a binary suitable for public release', 0)
+        'Create a binary suitable for public release', 0),
+    BoolVariable('GEARS_STATIC_LIB',
+        'Create a static library for linking with Chrome', 0),
 )
 vars.Update(env)
 
@@ -349,15 +351,24 @@ if env['OFFICIAL_BUILD']:
       CPPDEFINES = 'OFFICIAL_BUILD=1',
       M4FLAGS = '-DOFFICIAL_BUILD=1',
   )
+if env['GEARS_STATIC_LIB']:
+  env.Append(
+      CPPDEFINES = 'GEARS_STATIC_LIB=1',
+  )
 
 # TODO: if USING_LIBPNG
 env.Append(
     CPPDEFINES = [
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',
-        'GEARS_PNG_BUILD',
     ]
 )
+if not env['GEARS_STATIC_LIB']:
+  # If we're not linking with Chrome, don't prefix all the symbols with
+  # webkit_.
+  env.Append(CPPDEFINES = ['GEARS_PNG_BUILD'])
+
+
 # TODO: if USING_ZLIB
 env.Append(
     CPPDEFINES = [
@@ -468,7 +479,6 @@ if env['OS'] in ['win32', 'wince']:
       ],
       CPPFLAGS = [
           '/nologo',
-          '/Zc:wchar_t-',
           '/c',
           '/W3',
           '/WX',
@@ -600,6 +610,15 @@ if env['OS'] in ['win32', 'wince']:
           '/OPT:ICF',
         ],
     )
+  if not env['GEARS_STATIC_LIB']:
+    # Build with 2-byte wchar_t's only if we're building a DLL.  To link with
+    # Chrome, we need 4-byte wchar_t.
+    env.Append(
+        CPPFLAGS = [
+          '/Zc:wchar_t-',
+        ],
+    )
+        
 #--------------------------- LINUX ---------------------------
 elif env['OS'] == 'linux':
   env.Append(

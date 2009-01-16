@@ -324,10 +324,18 @@ bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
 }
 
 void PluginList::LoadInternalPlugins() {
+  WebPluginInfo info;
+
+  #ifdef GEARS_STATIC_LIB
+  if (PluginLib::ReadWebPluginInfo(FilePath(kGearsPluginLibraryName),
+                                   &info)) {
+    plugins_.push_back(info);
+  }
+#endif
+
   if (!use_internal_activex_shim_)
     return;
 
-  WebPluginInfo info;
   if (PluginLib::ReadWebPluginInfo(FilePath(kActiveXShimFileName),
                                    &info)) {
     plugins_.push_back(info);

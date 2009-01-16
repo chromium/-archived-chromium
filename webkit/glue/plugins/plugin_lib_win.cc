@@ -15,6 +15,13 @@
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
+#ifdef GEARS_STATIC_LIB
+// defined in gears/base/common/module.cc
+NPError API_CALL Gears_NP_GetEntryPoints(NPPluginFuncs* funcs);
+NPError API_CALL Gears_NP_Initialize(NPNetscapeFuncs* funcs);
+NPError API_CALL Gears_NP_Shutdown(void);
+#endif
+
 namespace NPAPI
 {
 
@@ -60,6 +67,21 @@ static const InternalPluginInfo g_internal_plugins[] = {
     default_plugin::NP_Initialize,
     default_plugin::NP_Shutdown
   },
+#ifdef GEARS_STATIC_LIB
+  {
+    {FilePath(kGearsPluginLibraryName),
+     L"Gears",
+     L"Statically linked Gears",
+     L"1, 0, 0, 1",
+     L"application/x-googlegears",
+     L"",
+     L""
+    },
+    Gears_NP_GetEntryPoints,
+    Gears_NP_Initialize,
+    Gears_NP_Shutdown
+  },
+#endif
 };
 
 static const size_t g_internal_plugins_size = arraysize(g_internal_plugins);
@@ -116,6 +138,8 @@ bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
   SplitString(base::SysWideToNativeMB(pvi.mime_types), '|', &mime_types);
   SplitString(base::SysWideToNativeMB(pvi.file_extents), '|', &file_extensions);
   SplitString(pvi.file_open_names, '|', &descriptions);
+
+  info->mime_types.clear();
 
   if (mime_types.empty())
     return false;

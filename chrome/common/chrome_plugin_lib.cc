@@ -36,6 +36,12 @@ static PluginMap* g_loaded_libs;
 static DWORD g_plugin_thread_id = 0;
 static MessageLoop* g_plugin_thread_loop = NULL;
 
+#ifdef GEARS_STATIC_LIB
+// defined in gears/base/chrome/module_cr.cc
+CPError STDCALL Gears_CP_Initialize(CPID id, const CPBrowserFuncs *bfuncs,
+                                    CPPluginFuncs *pfuncs);
+#endif
+
 static bool IsSingleProcessMode() {
   // We don't support ChromePlugins in single-process mode.
   CommandLine command_line;
@@ -231,6 +237,14 @@ int ChromePluginLib::CP_Test(void* param) {
 
 bool ChromePluginLib::Load() {
   DCHECK(module_ == 0);
+#ifdef GEARS_STATIC_LIB
+  FilePath path;
+  if (filename_.BaseName().value().find(FILE_PATH_LITERAL("gears")) == 0) {
+    CP_Initialize_ = &Gears_CP_Initialize;
+    return true;
+  }
+#endif
+
   module_ = LoadLibrary(filename_.value().c_str());
   if (module_ == 0)
     return false;

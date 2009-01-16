@@ -22,6 +22,7 @@ namespace NPAPI
 {
 
 #define kDefaultPluginLibraryName FILE_PATH_LITERAL("default_plugin")
+#define kGearsPluginLibraryName FILE_PATH_LITERAL("gears")
 
 class PluginInstance;
 

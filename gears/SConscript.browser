@@ -503,14 +503,17 @@ outputs['MODULE'] = env.InstallAs('${SHLIBPREFIX}gears${SHLIBSUFFIX}', module)
 if env['OS'] in ['win32', 'wince'] and env['MODE'] == 'dbg':
   outputs['MODULE_PDB'] = env.InstallAs('gears.pdb',
       'gears-$OS-$ARCH-$MODE-${BROWSER}.pdb')
-  env.Alias('gears', outputs['MODULE_PDB'])
-env.Alias('gears', outputs['MODULE'])
 
-if env['OS'] == 'win32' and env['BROWSER'] == 'NPAPI':
-  lib = env.ChromeLibrary('gears-static',
-      env.SharedObject(GetInputs('$BROWSER_CPPSRCS')) +
-      GetInputs('$BROWSER_LINKSRCS'))
-  env.Alias('gears-static', lib)
+if env['GEARS_STATIC_LIB']:
+  if env['OS'] == 'win32' and env['BROWSER'] == 'NPAPI':
+    lib = env.ChromeLibrary('gears-static',
+        env.SharedObject(GetInputs('$BROWSER_CPPSRCS')) +
+        GetInputs('$BROWSER_LINKSRCS'))
+    env.Alias('gears', lib)
+else:
+  env.Alias('gears', outputs['MODULE'])
+  if 'MODULE_PDB' in outputs:
+    env.Alias('gears', outputs['MODULE_PDB'])
 
 if env['OS'] == 'wince':
   env.Append(WINCE_SETUP_LINKSRCS = [
