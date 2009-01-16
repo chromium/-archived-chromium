@@ -6,6 +6,7 @@
 
 #include "base/basictypes.h"
 #include "base/debug_util.h"
+#include "logging.h"
 
 namespace {
 
