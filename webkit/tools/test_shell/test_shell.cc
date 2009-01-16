@@ -379,7 +379,6 @@ void TestShell::ResetWebPreferences() {
 #endif
         web_prefs_->standard_font_family = web_prefs_->serif_font_family;
         web_prefs_->fixed_font_family = L"Courier";
-        web_prefs_->serif_font_family = L"Times";
         web_prefs_->sans_serif_font_family = L"Helvetica";
 
         web_prefs_->default_encoding = L"ISO-8859-1";
