@@ -1228,7 +1228,6 @@ LINUX WIN : LayoutTests/fast/frames/invalid.html = FAIL
 LINUX WIN : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 // Linux pixeltest failure: Looks like we're screwing up the scollbar
 LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
-LayoutTests/fast/html/keygen.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 WIN : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
