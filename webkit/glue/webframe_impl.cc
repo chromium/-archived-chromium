@@ -805,7 +805,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
                                    start_in_selection);
   if (found) {
 #if defined(OS_WIN)
-    WebCore::RenderThemeWin::setFindInPageMode(true);
+    WebCore::RenderThemeChromiumWin::setFindInPageMode(true);
 #endif
     // Store which frame was active. This will come in handy later when we
     // change the active match ordinal below.
@@ -1213,7 +1213,7 @@ void WebFrameImpl::StopFinding(bool clear_selection) {
   CancelPendingScopingEffort();
 
 #if defined(OS_WIN)
-  WebCore::RenderThemeWin::setFindInPageMode(false);
+  WebCore::RenderThemeChromiumWin::setFindInPageMode(false);
 #endif
 
   // Remove all markers for matches found and turn off the highlighting.

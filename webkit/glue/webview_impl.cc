@@ -1269,7 +1269,7 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
 #if defined(OS_WIN)
   // RenderTheme is a singleton that needs to know the default font size to
   // draw some form controls.  We let it know each time the size changes.
-  WebCore::RenderThemeWin::setDefaultFontSize(preferences.default_font_size);
+  WebCore::RenderThemeChromiumWin::setDefaultFontSize(preferences.default_font_size);
 #endif
 }
 
