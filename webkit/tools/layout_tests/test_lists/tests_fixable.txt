@@ -304,6 +304,12 @@ DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
 // error in the header of the following test.
 DEFER SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
+// It looks like the upstream test is incorrectly using font-family: Times
+// instead of font-family: times new roman.  This broke when we recently moved
+// more of our font default settings to 'times new roman' from 'Times'.  This
+// should be fixed upstream.  https://bugs.webkit.org/show_bug.cgi?id=16348
+LINUX WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
+
 // We don't support dynamic fonts on Linux.
 // Once we have the sandbox working, we should re-evaluate this.
 DEFER LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
