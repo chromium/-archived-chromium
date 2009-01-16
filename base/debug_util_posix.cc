@@ -2,8 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
 #include "base/debug_util.h"
 
+#if defined(OS_LINUX)
+#include <unistd.h>
+#include <execinfo.h>
+#endif
+
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysctl.h>
@@ -89,4 +96,38 @@ bool DebugUtil::BeingDebugged() {
 // static
 void DebugUtil::BreakDebugger() {
   asm ("int3");
+}
+
+#if defined(OS_LINUX)
+
+StackTrace::StackTrace() {
+  static const unsigned kMaxCallers = 256;
+
+  void* callers[kMaxCallers];
+  int count = backtrace(callers, kMaxCallers);
+  trace_.resize(count);
+  memcpy(&trace_[0], callers, sizeof(void*) * count);
+}
+
+void StackTrace::PrintBacktrace() {
+  fflush(stderr);
+  backtrace_symbols_fd(&trace_[0], trace_.size(), STDERR_FILENO);
+}
+
+#elif defined(OS_MACOSX)
+
+// TODO(port): complete this code
+StackTrace::StackTrace() { }
+
+StackTrace::PrintBacktrace() {
+  NOTIMPLEMENTED();
+}
+
+#endif  // defined(OS_MACOSX)
+
+const void *const *StackTrace::Addresses(size_t* count) {
+  *count = trace_.size();
+  if (trace_.size())
+    return &trace_[0];
+  return NULL;
 }

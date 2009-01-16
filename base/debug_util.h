@@ -9,6 +9,29 @@
 #ifndef BASE_DEBUG_UTIL_H_
 #define BASE_DEBUG_UTIL_H_
 
+#include "base/basictypes.h"
+
+#include <vector>
+
+// A stacktrace can be helpful in debugging. For example, you can include a
+// stacktrace member in a object (probably around #ifndef NDEBUG) so that you
+// can later see where the given object was created from.
+class StackTrace {
+ public:
+  // Create a stacktrace from the current location
+  StackTrace();
+  // Get an array of instruction pointer values.
+  //   count: (output) the number of elements in the returned array
+  const void *const *Addresses(size_t* count);
+  // Print a backtrace to stderr
+  void PrintBacktrace();
+
+ private:
+  std::vector<void*> trace_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(StackTrace);
+};
+
 class DebugUtil {
  public:
   // Starts the registered system-wide JIT debugger to attach it to specified
@@ -27,4 +50,3 @@ class DebugUtil {
 };
 
 #endif  // BASE_DEBUG_UTIL_H_
-
