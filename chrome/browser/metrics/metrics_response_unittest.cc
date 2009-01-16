@@ -4,8 +4,8 @@
 
 #include <string>
 
-#include "chrome/browser/metrics_response.h"
-#include "chrome/browser/metrics_service.h"
+#include "chrome/browser/metrics/metrics_response.h"
+#include "chrome/browser/metrics/metrics_service.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

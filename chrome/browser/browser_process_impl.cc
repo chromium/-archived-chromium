@@ -15,7 +15,7 @@
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/icon_manager.h"
-#include "chrome/browser/metrics_service.h"
+#include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/profile_manager.h"

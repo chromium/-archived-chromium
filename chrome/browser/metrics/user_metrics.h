@@ -7,6 +7,8 @@
 
 #include <string>
 
+class Profile;
+
 // This module provides some helper functions for logging actions tracked by
 // the user metrics system.
 

@@ -88,8 +88,9 @@ if not env.Bit('mac'):
       'importer/firefox_profile_lock.cc',
       'importer/mork_reader.cc',
       'meta_table_helper.cc',
-      'metrics_log.cc',
-      'metrics_response.cc',
+      'metrics/metrics_log.cc',
+      'metrics/metrics_response.cc',
+      'metrics/user_metrics.cc',
       'net/chrome_url_request_context.cc',
       'net/dns_host_info.cc',
       'net/referrer.cc',
@@ -126,7 +127,6 @@ if not env.Bit('mac'):
       'ssl_error_info.cc',
       'url_fetcher.cc',
       'url_fetcher_protect.cc',
-      'user_metrics.cc',
       'webdata/web_database.cc',
   ])
 
@@ -218,7 +218,7 @@ if env.Bit('windows'):
       'jsmessage_box_handler.cc',
       'login_prompt.cc',
       'memory_details.cc',
-      'metrics_service.cc',
+      'metrics/metrics_service.cc',
       'modal_html_dialog_delegate.cc',
       'net/dns_global.cc',
       'net/dns_master.cc',

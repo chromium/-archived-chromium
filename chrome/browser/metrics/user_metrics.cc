@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/user_metrics.h"
 #include "chrome/common/notification_service.h"
 
 void UserMetrics::RecordAction(const wchar_t* action, Profile* profile) {

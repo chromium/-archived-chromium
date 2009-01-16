@@ -8,7 +8,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/first_run.h"
-#include "chrome/browser/user_metrics.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"

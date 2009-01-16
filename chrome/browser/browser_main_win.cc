@@ -14,7 +14,7 @@
 #include "base/win_util.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/first_run.h"
-#include "chrome/browser/metrics_service.h"
+#include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/common/l10n_util.h"

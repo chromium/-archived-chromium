@@ -5,7 +5,7 @@
 #include "chrome/browser/views/options/options_page_view.h"
 
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/user_metrics.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/widget.h"
 

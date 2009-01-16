@@ -9,7 +9,7 @@
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/user_metrics.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/dragged_tab_view.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"

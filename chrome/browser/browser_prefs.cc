@@ -11,7 +11,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/google_url_tracker.h"
-#include "chrome/browser/metrics_service.h"
+#include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/password_manager/password_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/session_startup_pref.h"

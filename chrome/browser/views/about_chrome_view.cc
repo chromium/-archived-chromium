@@ -15,7 +15,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
-#include "chrome/browser/user_metrics.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/restart_message_box.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"

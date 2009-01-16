@@ -156,7 +156,7 @@
 
 #include <windows.h>
 
-#include "chrome/browser/metrics_service.h"
+#include "chrome/browser/metrics/metrics_service.h"
 
 #include "base/file_path.h"
 #include "base/histogram.h"

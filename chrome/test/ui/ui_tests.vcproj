@@ -422,7 +422,7 @@
 			Name="TestMetricsService"
 			>
 			<File
-				RelativePath="..\..\browser\metrics_service_uitest.cc"
+				RelativePath="..\..\browser\metrics\metrics_service_uitest.cc"
 				>
 			</File>
 		</Filter>

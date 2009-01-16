@@ -422,30 +422,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\metrics_log.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\metrics_log.h"
-				>
-			</File>
-			<File
-				RelativePath=".\metrics_response.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\metrics_response.h"
-				>
-			</File>
-			<File
-				RelativePath=".\metrics_service.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\metrics_service.h"
-				>
-			</File>
-			<File
 				RelativePath=".\plugin_process_host.cc"
 				>
 			</File>
@@ -631,14 +607,6 @@
 			</File>
 			<File
 				RelativePath=".\user_data_manager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\user_metrics.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\user_metrics.h"
 				>
 			</File>
 			<File
@@ -2641,6 +2609,42 @@
 			</File>
 			<File
 				RelativePath=".\search_engines\template_url_prepopulate_data.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Metrics"
+			>
+			<File
+				RelativePath=".\metrics\metrics_log.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\metrics_log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\metrics_response.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\metrics_response.h"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\metrics_service.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\metrics_service.h"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\user_metrics.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\metrics\user_metrics.h"
 				>
 			</File>
 		</Filter>

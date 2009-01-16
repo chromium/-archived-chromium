@@ -4,7 +4,7 @@
 
 #include <libxml/parser.h>
 
-#include "chrome/browser/metrics_response.h"
+#include "chrome/browser/metrics/metrics_response.h"
 
 // State to pass around during SAX parsing.
 struct SAXState {

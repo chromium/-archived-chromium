@@ -6,7 +6,7 @@
 
 #include "base/string_util.h"
 #include "base/time.h"
-#include "chrome/browser/metrics_log.h"
+#include "chrome/browser/metrics/metrics_log.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

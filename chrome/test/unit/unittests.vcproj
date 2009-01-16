@@ -499,11 +499,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\metrics_log_unittest.cc"
+			RelativePath="..\..\browser\metrics\metrics_log_unittest.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\metrics_response_unittest.cc"
+			RelativePath="..\..\browser\metrics\metrics_response_unittest.cc"
 			>
 		</File>
 		<File

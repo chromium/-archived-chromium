@@ -21,7 +21,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gears_integration.h"
-#include "chrome/browser/metrics_service.h"
+#include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/views/options/cookies_view.h"
