@@ -22,6 +22,12 @@ namespace gfx {
 // string is returned. |languages| is a comma separted list of ISO 639
 // language codes and is used to determine what characters are understood
 // by a user. It should come from |prefs::kAcceptLanguages|.
+//
+// Note: in RTL locales, if the URL returned by this function is going to be
+// displayed in the UI, then it is likely that the string needs to be marked
+// as an LTR string (using l10n_util::WrapStringWithLTRFormatting()) so that it
+// is displayed properly in an RTL context. Please refer to
+// http://crbug.com/6487 for more information.
 std::wstring ElideUrl(const GURL& url,
                       const ChromeFont& font,
                       int available_pixel_width,

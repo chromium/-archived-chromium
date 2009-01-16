@@ -71,9 +71,12 @@ std::wstring JavascriptMessageBoxHandler::GetWindowTitle() const {
   GURL clean_url = url.ReplaceComponents(replacements);
 
   // TODO(brettw) it should be easier than this to do the correct language
-  // handling without getting the accept language from the profil.
+  // handling without getting the accept language from the profile.
   std::wstring base_address = gfx::ElideUrl(clean_url, ChromeFont(), 0,
       web_contents_->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages));
+  // Force URL to have LTR directionality.
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    l10n_util::WrapStringWithLTRFormatting(&base_address);
   return l10n_util::GetStringF(IDS_JAVASCRIPT_MESSAGEBOX_TITLE, base_address);
 }
 
