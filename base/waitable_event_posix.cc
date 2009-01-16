@@ -35,13 +35,16 @@ namespace base {
 // This is just an abstract base class for waking the two types of waiters
 // -----------------------------------------------------------------------------
 WaitableEvent::WaitableEvent(bool manual_reset, bool initially_signaled)
-    : signaled_(false),
+    : signaled_(initially_signaled),
       manual_reset_(manual_reset) {
-  DCHECK(!initially_signaled) << "Not implemented";
 }
 
 WaitableEvent::~WaitableEvent() {
-  DCHECK(waiters_.empty()) << "Deleting WaitableEvent with listeners!";
+  if (!waiters_.empty()) {
+    LOG(ERROR) << "Destroying a WaitableEvent (" << this << ") with "
+               << waiters_.size() << " waiters";
+    NOTREACHED() << "Aborting.";
+  }
 }
 
 void WaitableEvent::Reset() {
@@ -88,7 +91,8 @@ class SyncWaiter : public WaitableEvent::Waiter {
       : fired_(false),
         cv_(cv),
         lock_(lock),
-        signaling_event_(NULL) { }
+        signaling_event_(NULL) {
+  }
 
   bool Fire(WaitableEvent *signaling_event) {
     lock_->Acquire();
@@ -144,6 +148,7 @@ class SyncWaiter : public WaitableEvent::Waiter {
 
 bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
   const Time end_time(Time::Now() + max_time);
+  const bool finite_time = max_time.ToInternalValue() >= 0;
 
   lock_.Acquire();
     if (signaled_) {
@@ -169,32 +174,31 @@ bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
   // again before unlocking it.
 
   for (;;) {
-    if (sw.fired()) {
+    const Time current_time(Time::Now());
+
+    if (sw.fired() || (finite_time && current_time >= end_time)) {
+      const bool return_value = sw.fired();
+
+      // We can't acquire @lock_ before releasing @lock (because of locking
+      // order), however, inbetween the two a signal could be fired and @sw
+      // would accept it, however we will still return false, so the signal
+      // would be lost on an auto-reset WaitableEvent. Thus we call Disable
+      // which makes sw::Fire return false.
+      sw.Disable();
       lock.Release();
-      return true;
+
+      lock_.Acquire();
+        Dequeue(&sw, &sw);
+      lock_.Release();
+
+      return return_value;
     }
 
-    if (max_time.ToInternalValue() < 0) {
-      cv.Wait();
-    } else {
-      const Time current_time(Time::Now());
-      if (current_time >= end_time) {
-        // We can't acquire @lock_ before releasing @lock (because of locking
-        // order), however, inbetween the two a signal could be fired and @sw
-        // would accept it, however we will still return false, so the signal
-        // would be lost on an auto-reset WaitableEvent. Thus we call Disable
-        // which makes sw::Fire return false.
-        sw.Disable();
-        lock.Release();
-
-        lock_.Acquire();
-          Dequeue(&sw, &sw);
-        lock_.Release();
-        return false;
-      }
+    if (finite_time) {
       const TimeDelta max_wait(end_time - current_time);
-
       cv.TimedWait(max_wait);
+    } else {
+      cv.Wait();
     }
   }
 }

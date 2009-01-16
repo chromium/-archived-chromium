@@ -80,6 +80,7 @@ class AsyncWaiter : public WaitableEvent::Waiter {
     return tag == flag_.get();
   }
 
+ private:
   MessageLoop *const message_loop_;
   Task *const cb_task_;
   scoped_refptr<Flag> flag_;
@@ -101,12 +102,12 @@ class AsyncCallbackTask : public Task {
 
   void Run() {
     // Runs in MessageLoop thread.
-    if (!flag_->value())
+    if (!flag_->value()) {
+      // This is to let the WaitableEventWatcher know that the event has occured
+      // because it needs to be able to return NULL from GetWatchedObject
+      flag_->Set();
       delegate_->OnWaitableEventSignaled(event_);
-
-    // This is to let the WaitableEventWatcher know that the event has occured
-    // because it needs to be able to return NULL from GetWatchedEvent
-    flag_->Set();
+    }
 
     // We are deleted by the MessageLoop
   }
@@ -137,6 +138,18 @@ bool WaitableEventWatcher::StartWatching
   MessageLoop *const current_ml = MessageLoop::current();
   DCHECK(current_ml) << "Cannot create WaitableEventWatcher without a "
                         "current MessageLoop";
+
+  // A user may call StartWatching from within the callback function. In this
+  // case, we won't know that we have finished watching, expect that the Flag
+  // will have been set in AsyncCallbackTask::Run()
+  if (cancel_flag_.get() && cancel_flag_->value()) {
+    if (message_loop_) {
+      message_loop_->RemoveDestructionObserver(this);
+      message_loop_ = NULL;
+    }
+
+    cancel_flag_ = NULL;
+  }
 
   DCHECK(!cancel_flag_.get()) << "StartWatching called while still watching";
 
@@ -173,6 +186,13 @@ void WaitableEventWatcher::StopWatching() {
 
   if (!cancel_flag_.get())  // if not currently watching...
     return;
+
+  if (cancel_flag_->value()) {
+    // In this case, the event has fired, but we haven't figured that out yet.
+    // The WaitableEvent may have been deleted too.
+    cancel_flag_ = NULL;
+    return;
+  }
 
   if (!event_) {
     // We have no WaitableEvent. This means that we never enqueued a Waiter on
