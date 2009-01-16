@@ -1175,8 +1175,9 @@ MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
 
 // NEW FOR MERGE 36102:37604
 
-// Linux pixeltest failure: We don't draw the spelling markers at all
-LINUX WIN : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
+// We don't draw the spelling markers at all in test shell, and it's a low
+// priority, so I'm DEFERing.
+DEFER : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
 LINUX WIN : LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.html = FAIL
 LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
 LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
