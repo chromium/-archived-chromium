@@ -222,15 +222,29 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
         UpdateFinished(false);
       }
 
-      if (request_type_ == CHUNK_REQUEST && parsed_ok) {
-        chunk_request_urls_.pop_front();
-      } else if (request_type_ == GETKEY_REQUEST && initial_request_) {
-        // This is the first request we've made this session. Now that we have
-        // the keys, do the regular update request.
-        initial_request_ = false;
-        GetNextUpdate();
-        return;
+      switch (request_type_) {
+        case CHUNK_REQUEST:
+          if (parsed_ok)
+            chunk_request_urls_.pop_front();
+          break;
+        case GETKEY_REQUEST:
+          if (initial_request_) {
+            // This is the first request we've made this session. Now that we
+            // have the keys, do the regular update request.
+            initial_request_ = false;
+            GetNextUpdate();
+            return;
+          }
+          break;
+        case UPDATE_REQUEST:
+          if (chunk_request_urls_.empty() && parsed_ok) {
+            // We are up to date since the servers gave us nothing new, so we
+            // are done with this update cycle.
+            UpdateFinished(true);
+          }
+          break;
       }
+
     } else if (response_code >= 300) {
       // The SafeBrowsing service error: back off.
       must_back_off = true;
