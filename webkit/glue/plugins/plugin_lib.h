@@ -55,7 +55,7 @@ class PluginLib : public base::RefCounted<PluginLib> {
 
   // Creates a WebPluginInfo structure given a plugin's path.  On success
   // returns true, with the information being put into "info".  Returns false if
-  // the library couldn't be found, or if it's not a plugin.  
+  // the library couldn't be found, or if it's not a plugin.
   static bool ReadWebPluginInfo(const FilePath &filename, WebPluginInfo* info);
 
   // Unloads all the loaded plugin libraries and cleans up the plugin map.
@@ -103,15 +103,15 @@ class PluginLib : public base::RefCounted<PluginLib> {
 
   // Shutdown the plugin library.
   void Shutdown();
-  
+
   //
   // Platform functions
   //
-  
+
   // Gets the list of internal plugins.
   static void GetInternalPlugins(const InternalPluginInfo** plugins,
                                  size_t* count);
-  
+
  public:
 #if defined(OS_WIN)
   typedef HMODULE NativeLibrary;
@@ -122,20 +122,20 @@ class PluginLib : public base::RefCounted<PluginLib> {
   typedef CFStringRef NativeLibraryFunctionNameType;
 #define FUNCTION_NAME(x) CFSTR(x)
 #endif  // OS_*
-  
+
   // Loads a native library from disk. NOTE: You must release it with
   // UnloadNativeLibrary when you're done.
   static NativeLibrary LoadNativeLibrary(const FilePath& library_path);
-  
+
   // Unloads a native library.
   static void UnloadNativeLibrary(NativeLibrary library);
-  
+
  private:
   // Gets a function pointer from a native library.
   static void* GetFunctionPointerFromNativeLibrary(
       NativeLibrary library,
       NativeLibraryFunctionNameType name);
- 
+
   bool internal_;  // Whether this an internal plugin.
   WebPluginInfo web_plugin_info_;  // supported mime types, description
   NativeLibrary library_;  // the opened library reference

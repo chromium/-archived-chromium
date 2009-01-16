@@ -26,7 +26,7 @@ const TCHAR kRegistryWindowsMedia[] = _T("wmplayer.exe");
 const TCHAR kRegistryQuickTime[] = _T("QuickTimePlayer.exe");
 const TCHAR kRegistryPath[] = _T("Path");
 const TCHAR kRegistryMozillaPlugins[] = _T("SOFTWARE\\MozillaPlugins");
-const TCHAR kRegistryFirefoxInstalled[] = 
+const TCHAR kRegistryFirefoxInstalled[] =
     _T("SOFTWARE\\Mozilla\\Mozilla Firefox");
 const TCHAR kMozillaActiveXPlugin[] = _T("npmozax.dll");
 const TCHAR kNewWMPPlugin[] = _T("np-mswmp.dll");
@@ -100,7 +100,7 @@ void GetPluginsInRegistryDirectory(
 void GetFirefoxInstalledPaths(std::vector<FilePath>* out) {
   RegistryKeyIterator it(HKEY_LOCAL_MACHINE, kRegistryFirefoxInstalled);
   for (; it.Valid(); ++it) {
-    std::wstring full_path = std::wstring(kRegistryFirefoxInstalled) + L"\\" + 
+    std::wstring full_path = std::wstring(kRegistryFirefoxInstalled) + L"\\" +
                              it.Name() + L"\\Main";
     RegKey key(HKEY_LOCAL_MACHINE, full_path.c_str(), KEY_READ);
     std::wstring install_dir;
@@ -172,12 +172,12 @@ void GetJavaDirectory(std::set<FilePath>* plugin_dirs) {
   if (!java_version.empty()) {
     java_key.OpenKey(java_version.c_str(), KEY_QUERY_VALUE);
 
-    // 3. Install path of the JRE binaries is specified in "JavaHome" 
+    // 3. Install path of the JRE binaries is specified in "JavaHome"
     //    value under the Java version key.
     std::wstring java_plugin_directory;
     if (java_key.ReadValue(kRegistryJavaHome, &java_plugin_directory)) {
 
-      // 4. The new plugin resides under the 'bin/new_plugin' 
+      // 4. The new plugin resides under the 'bin/new_plugin'
       //    subdirectory.
       DCHECK(!java_plugin_directory.empty());
       java_plugin_directory.append(L"\\bin\\new_plugin");
@@ -193,7 +193,7 @@ void GetJavaDirectory(std::set<FilePath>* plugin_dirs) {
 
 namespace NPAPI
 {
-  
+
 void PluginList::PlatformInit() {
   CommandLine command_line;
   dont_load_new_wmp_ = command_line.HasSwitch(kUseOldWMPPluginSwitch);
@@ -214,7 +214,7 @@ void PluginList::GetPluginDirectories(std::vector<FilePath>* plugin_dirs) {
   // Load Java
   GetJavaDirectory(&dirs);
 
-  // Load firefox plugins too.  This is mainly to try to locate 
+  // Load firefox plugins too.  This is mainly to try to locate
   // a pre-installed Flash player.
   GetFirefoxDirectory(&dirs);
 
@@ -271,18 +271,18 @@ bool IsNewerVersion(const std::wstring& a, const std::wstring& b) {
 }
 
 bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
-  
+
   // Version check
-  
+
   for (size_t i = 0; i < plugins_.size(); ++i) {
     if (plugins_[i].path.BaseName() == info.path.BaseName() &&
         !IsNewerVersion(plugins_[i].version, info.version)) {
       return false;  // We already have a loaded plugin whose version is newer.
     }
   }
-  
+
   // Troublemakers
-  
+
   std::wstring filename = StringToLowerASCII(info.path.BaseName().value());
   // Depends on XPCOM.
   if (filename == kMozillaActiveXPlugin)
@@ -295,7 +295,7 @@ bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
     return false;
 
   // Special WMP handling
-  
+
   // We will use the ActiveX shim to handle embedded WMP media.
   if (use_internal_activex_shim_) {
     if (filename == kNewWMPPlugin || filename == kOldWMPPlugin)
@@ -337,7 +337,7 @@ void PluginList::LoadInternalPlugins() {
                                    &info)) {
     plugins_.push_back(info);
   }
-}  
+}
 
 } // namespace NPAPI
 

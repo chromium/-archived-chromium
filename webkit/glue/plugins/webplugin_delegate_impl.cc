@@ -277,7 +277,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
   // and remember the cursor being set. This is shipped over to the browser
   // in the HandleEvent call, which ensures that the cursor does not change
   // when a windowless plugin instance changes the cursor in a background tab.
-  if (windowless_ && !iat_patch_set_cursor_.is_patched() && 
+  if (windowless_ && !iat_patch_set_cursor_.is_patched() &&
       (quirks_ & PLUGIN_QUIRK_PATCH_SETCURSOR)) {
     iat_patch_set_cursor_.Patch(plugin_module_handle_, "user32.dll",
                                 "SetCursor",
@@ -862,7 +862,7 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
   delegate->last_message_ = message;
   delegate->is_calling_wndproc = true;
 
-  if (!delegate->user_gesture_message_posted_ && 
+  if (!delegate->user_gesture_message_posted_ &&
        IsUserGestureMessage(message)) {
     delegate->user_gesture_message_posted_ = true;
 
@@ -1075,7 +1075,7 @@ WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
   if (existing_stream) {
     NPAPI::PluginStream* plugin_stream =
         reinterpret_cast<NPAPI::PluginStream*>(existing_stream);
-    
+
     plugin_stream->CancelRequest();
 
     return plugin_stream->AsResourceClient();

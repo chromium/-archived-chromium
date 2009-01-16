@@ -6,7 +6,7 @@
 
 #include "base/basictypes.h"
 
-// url for "self".  
+// url for "self".
 #define SELF_URL "javascript:window.location+\"\""
 // The identifier for the self url stream.
 #define SELF_URL_STREAM_ID 1

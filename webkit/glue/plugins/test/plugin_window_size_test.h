@@ -9,7 +9,7 @@
 
 namespace NPAPIClient {
 
-// This class tests whether the plugin window has a non zero rect 
+// This class tests whether the plugin window has a non zero rect
 // on the second SetWindow call.
 class PluginWindowSizeTest : public PluginTest {
  public:

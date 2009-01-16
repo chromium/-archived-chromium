@@ -85,19 +85,19 @@ PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
       restore_directory = true;
     }
   }
-  
+
   HMODULE module = LoadLibrary(library_path.value().c_str());
   if (restore_directory)
     PathService::SetCurrentDirectory(current_directory);
-  
+
   return module;
 }
-  
+
 /* static */
 void PluginLib::UnloadNativeLibrary(NativeLibrary library) {
   FreeLibrary(library);
 }
-  
+
 /* static */
 void* PluginLib::GetFunctionPointerFromNativeLibrary(
     NativeLibrary library,

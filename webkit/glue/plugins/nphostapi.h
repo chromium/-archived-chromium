@@ -12,7 +12,7 @@
 #include "third_party/npapi/bindings/npruntime.h"
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
 //
@@ -30,7 +30,7 @@ typedef NPError      (*NPP_DestroyProcPtr)(NPP instance,
 typedef NPError      (*NPP_SetWindowProcPtr)(NPP instance,
                          NPWindow* window);
 typedef NPError      (*NPP_NewStreamProcPtr)(NPP instance,
-                         NPMIMEType type, 
+                         NPMIMEType type,
                          NPStream* stream,
                          NPBool seekable,
                          uint16* stype);
@@ -40,7 +40,7 @@ typedef NPError      (*NPP_DestroyStreamProcPtr)(NPP instance,
 typedef int32        (*NPP_WriteReadyProcPtr)(NPP instance,
                          NPStream* stream);
 typedef int32        (*NPP_WriteProcPtr)(NPP instance,
-                         NPStream* stream, 
+                         NPStream* stream,
                          int32 offset,
                          int32 len,
                          void* buffer);
@@ -52,7 +52,7 @@ typedef void         (*NPP_PrintProcPtr)(NPP instance,
 typedef int16        (*NPP_HandleEventProcPtr)(NPP instance,
                          void* event);
 typedef void         (*NPP_URLNotifyProcPtr)(NPP instance,
-                         const char* url, 
+                         const char* url,
                          NPReason reason,
                          void* notifyData);
 typedef void* JRIGlobalRef; //not using this right now
@@ -178,7 +178,7 @@ typedef bool         (*NPN_EnumerateProcPtr)(NPP npp,
                          NPObject *obj,
                          NPIdentifier **identifier,
                          uint32_t *count);
-typedef void         (*NPN_PluginThreadAsyncCallProcPtr)(NPP instance, 
+typedef void         (*NPN_PluginThreadAsyncCallProcPtr)(NPP instance,
                          void (*func)(void *),
                          void *userData);
 typedef bool         (*NPN_ConstructProcPtr)(NPP npp,

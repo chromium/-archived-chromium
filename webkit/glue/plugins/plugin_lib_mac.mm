@@ -37,15 +37,15 @@ PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
       true));
   if (!url)
     return NULL;
-  
+
   return CFBundleCreate(kCFAllocatorDefault, url.get());
 }
-  
+
 /* static */
 void PluginLib::UnloadNativeLibrary(NativeLibrary library) {
   CFRelease(library);
 }
-  
+
 /* static */
 void* PluginLib::GetFunctionPointerFromNativeLibrary(
     NativeLibrary library,
@@ -59,19 +59,19 @@ NSDictionary* GetMIMETypes(CFBundleRef bundle) {
   NSString* mime_filename =
       (NSString*)CFBundleGetValueForInfoDictionaryKey(bundle,
                      CFSTR("WebPluginMIMETypesFilename"));
-  
+
   if (mime_filename) {
-    
+
     // get the file
-    
+
     NSString* mime_path =
         [NSString stringWithFormat:@"%@/Library/Preferences/%@",
          NSHomeDirectory(), mime_filename];
     NSDictionary* mime_file_dict =
         [NSDictionary dictionaryWithContentsOfFile:mime_path];
-    
+
     // is it valid?
-    
+
     bool valid_file = false;
     if (mime_file_dict) {
       NSString* l10n_name =
@@ -80,12 +80,12 @@ NSDictionary* GetMIMETypes(CFBundleRef bundle) {
       if ([l10n_name isEqualToString:preferred_l10n])
         valid_file = true;
     }
-    
+
     if (valid_file)
       return [mime_file_dict objectForKey:@"WebPluginMIMETypes"];
-    
+
     // dammit, I didn't want to have to do this
-    
+
     typedef void (*CreateMIMETypesPrefsPtr)(void);
     CreateMIMETypesPrefsPtr create_prefs_file =
         (CreateMIMETypesPrefsPtr)CFBundleGetFunctionPointerForName(
@@ -93,15 +93,15 @@ NSDictionary* GetMIMETypes(CFBundleRef bundle) {
     if (!create_prefs_file)
       return nil;
     create_prefs_file();
-    
+
     // one more time
-    
+
     mime_file_dict = [NSDictionary dictionaryWithContentsOfFile:mime_path];
     if (mime_file_dict)
       return [mime_file_dict objectForKey:@"WebPluginMIMETypes"];
     else
       return nil;
-      
+
   } else {
     return (NSDictionary*)CFBundleGetValueForInfoDictionaryKey(bundle,
                               CFSTR("WebPluginMIMETypes"));
@@ -113,12 +113,12 @@ bool ReadPlistPluginInfo(const FilePath& filename, CFBundleRef bundle,
   NSDictionary* mime_types = GetMIMETypes(bundle);
   if (!mime_types)
     return false;  // no type info here; try elsewhere
-  
+
   for (NSString* mime_type in [mime_types allKeys]) {
     NSDictionary* mime_dict = [mime_types objectForKey:mime_type];
     NSString* mime_desc = [mime_dict objectForKey:@"WebPluginTypeDescription"];
     NSArray* mime_exts = [mime_dict objectForKey:@"WebPluginExtensions"];
-    
+
     WebPluginMimeType mime;
     mime.mime_type = base::SysNSStringToUTF8([mime_type lowercaseString]);
     if (mime_desc)
@@ -126,10 +126,10 @@ bool ReadPlistPluginInfo(const FilePath& filename, CFBundleRef bundle,
     for (NSString* ext in mime_exts)
       mime.file_extensions.push_back(
           base::SysNSStringToUTF8([ext lowercaseString]));
-    
+
     info->mime_types.push_back(mime);
   }
-  
+
   NSString* plugin_name =
       (NSString*)CFBundleGetValueForInfoDictionaryKey(bundle,
       CFSTR("WebPluginName"));
@@ -139,7 +139,7 @@ bool ReadPlistPluginInfo(const FilePath& filename, CFBundleRef bundle,
   NSString* plugin_desc =
       (NSString*)CFBundleGetValueForInfoDictionaryKey(bundle,
       CFSTR("WebPluginDescription"));
-  
+
   if (plugin_name)
     info->name = base::SysNSStringToWide(plugin_name);
   else
@@ -151,7 +151,7 @@ bool ReadPlistPluginInfo(const FilePath& filename, CFBundleRef bundle,
     info->desc = base::SysNSStringToWide(plugin_desc);
   else
     info->desc = UTF8ToWide(filename.BaseName().value());
-  
+
   return true;
 }
 
@@ -178,7 +178,7 @@ bool GetSTRResource(CFBundleRef bundle, short res_id,
   Handle res_handle = Get1Resource('STR#', res_id);
   if (!res_handle || !*res_handle)
     return false;
-  
+
   char* pointer = *res_handle;
   short num_strings = *(short*)pointer;
   pointer += sizeof(short);
@@ -192,30 +192,30 @@ bool GetSTRResource(CFBundleRef bundle, short res_id,
     contents->push_back(base::SysCFStringRefToUTF8(str.get()));
     pointer += 1+*pointer;
   }
-  
+
   return true;
 }
 
 bool ReadSTRPluginInfo(const FilePath& filename, CFBundleRef bundle,
                        WebPluginInfo* info) {
   ScopedBundleResourceFile res_file(bundle);
-  
+
   std::vector<std::string> type_strings;
   if (!GetSTRResource(bundle, kSTRTypeDefinitionResourceID, &type_strings))
     return false;
-  
+
   std::vector<std::string> type_descs;
   bool have_type_descs = GetSTRResource(bundle,
                                         kSTRTypeDescriptionResourceID,
                                         &type_descs);
-  
+
   std::vector<std::string> plugin_descs;
   bool have_plugin_descs = GetSTRResource(bundle,
                                           kSTRPluginDescriptionResourceID,
                                           &plugin_descs);
-  
+
   size_t num_types = type_strings.size()/2;
-  
+
   for (size_t i = 0; i < num_types; ++i) {
     WebPluginMimeType mime;
     mime.mime_type = StringToLowerASCII(type_strings[2*i]);
@@ -223,14 +223,14 @@ bool ReadSTRPluginInfo(const FilePath& filename, CFBundleRef bundle,
       mime.description = UTF8ToWide(type_descs[i]);
     SplitString(StringToLowerASCII(type_strings[2*i+1]), ',',
                 &mime.file_extensions);
-    
+
     info->mime_types.push_back(mime);
   }
-  
+
   NSString* plugin_vers =
       (NSString*)CFBundleGetValueForInfoDictionaryKey(bundle,
       CFSTR("CFBundleShortVersionString"));
-  
+
   if (have_plugin_descs && plugin_descs.size() > 1)
     info->name = UTF8ToWide(plugin_descs[1]);
   else
@@ -242,10 +242,10 @@ bool ReadSTRPluginInfo(const FilePath& filename, CFBundleRef bundle,
     info->desc = UTF8ToWide(plugin_descs[0]);
   else
     info->desc = UTF8ToWide(filename.BaseName().value());
-  
+
   return true;
 }
-  
+
 }  // anonymous namespace
 
 bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
@@ -333,33 +333,33 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
   // (2) <<pluginname>>
   //
   // Strictly speaking, only STR# 128 is required.
-  
+
   scoped_cftyperef<CFBundleRef> bundle(LoadNativeLibrary(filename));
   if (!bundle)
     return false;
-  
+
   // preflight
-  
+
   OSType type = 0;
   CFBundleGetPackageInfo(bundle.get(), &type, NULL);
   if (type != FOUR_CHAR_CODE('BRPL'))
     return false;
-  
+
   CFErrorRef error;
   Boolean would_load = CFBundlePreflightExecutable(bundle.get(), &error);
   if (!would_load)
     return false;
-  
+
   // get the info
-  
+
   if (ReadPlistPluginInfo(filename, bundle.get(), info))
     return true;
-  
+
   if (ReadSTRPluginInfo(filename, bundle.get(), info))
     return true;
-  
+
   // ... or not
-  
+
   return false;
 }
 

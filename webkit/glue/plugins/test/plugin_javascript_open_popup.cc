@@ -8,7 +8,7 @@
 namespace NPAPIClient {
 
 ExecuteJavascriptOpenPopupWithPluginTest::
-    ExecuteJavascriptOpenPopupWithPluginTest(NPP id, 
+    ExecuteJavascriptOpenPopupWithPluginTest(NPP id,
                                              NPNetscapeFuncs *host_functions)
     : PluginTest(id, host_functions),
       popup_window_test_started_(false) {

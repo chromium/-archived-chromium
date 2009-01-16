@@ -60,7 +60,7 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
       // - HTTP proxy: "111.111.111.111:11"
       // -.SOCKS proxy: "socks=111.111.111.111:11"
       // - Mixed proxy: "http=111.111.111.111:11; socks=222.222.222.222:22"
-      // 
+      //
       // We need to translate this into the following format:
       // i)   "DIRECT"  -- no proxy
       // ii)  "PROXY xxx.xxx.xxx.xxx"   -- use proxy
@@ -72,7 +72,7 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
         // Proxy is in the form: "111.111.111.111:11"
         winhttp_proxy.insert(0, "http ");
       } else {
-        // Proxy is in the following form. 
+        // Proxy is in the following form.
         // -.SOCKS proxy: "socks=111.111.111.111:11"
         // - Mixed proxy: "http=111.111.111.111:11; socks=222.222.222.222:22"
         // in this case just replace the '=' with a space
@@ -265,7 +265,7 @@ NS_IMETHODIMP MozillaExtensionApi::FindProxyForURL(
   std::string proxy = "DIRECT";
   FindProxyForUrl(aURL, &proxy);
 
-  // Allocate this using the NPAPI allocator. The plugin will call 
+  // Allocate this using the NPAPI allocator. The plugin will call
   // NPN_Free to free this.
   char* result = static_cast<char*>(NPN_MemAlloc(proxy.length() + 1));
   strncpy(result, proxy.c_str(), proxy.length() + 1);
@@ -357,7 +357,7 @@ NS_IMETHODIMP MozillaExtensionApi::SetCookie(
   if (!webplugin)
     return NS_ERROR_FAILURE;
 
-  std::string cookie(static_cast<const char*>(cookie_buffer), 
+  std::string cookie(static_cast<const char*>(cookie_buffer),
                      buffer_size);
   GURL cookies_url((std::string(url)));
   webplugin->SetCookie(cookies_url,

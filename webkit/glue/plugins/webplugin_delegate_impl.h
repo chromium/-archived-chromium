@@ -51,7 +51,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual void Print(HDC hdc);
   virtual void SetFocus();  // only called when windowless
 // only called when windowless
-  virtual bool HandleEvent(NPEvent* event, 
+  virtual bool HandleEvent(NPEvent* event,
                            WebCursor* cursor);
   virtual NPObject* GetPluginScriptableObject();
   virtual void DidFinishLoadWithReason(NPReason reason);
@@ -59,9 +59,9 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   virtual void FlushGeometryUpdates() {
   }
-  virtual void SendJavaScriptStream(const std::string& url, 
-                                    const std::wstring& result, 
-                                    bool success, bool notify_needed, 
+  virtual void SendJavaScriptStream(const std::string& url,
+                                    const std::wstring& result,
+                                    bool success, bool notify_needed,
                                     int notify_data);
   virtual void DidReceiveManualResponse(const std::string& url,
                                         const std::string& mime_type,
@@ -94,7 +94,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
     PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,
     PLUGIN_QUIRK_PATCH_SETCURSOR = 128,
-    PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 256,
   };
 
   int quirks() { return quirks_; }
@@ -116,7 +115,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
                               const gfx::Rect& clip_rect,
                               const std::vector<gfx::Rect>& cutout_rects,
                               bool visible);
-  // Create the native window. 
+  // Create the native window.
   // Returns true if the window is created (or already exists).
   // Returns false if unable to create the window.
   bool WindowedCreatePlugin();
@@ -176,7 +175,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   bool windowed_did_set_window_;
   gfx::Rect windowed_last_pos_;
 
-  // this is an optimization to avoid calling SetWindow to the plugin 
+  // this is an optimization to avoid calling SetWindow to the plugin
   // when it is not necessary.  Initially, we need to call SetWindow,
   // and after that we only need to call it when the geometry changes.
   // use this flag to indicate whether we really need it or not.
@@ -208,14 +207,14 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   bool initial_plugin_resize_done_;
 
   // Windowless plugins don't have keyboard focus causing issues with the
-  // plugin not receiving keyboard events if the plugin enters a modal 
+  // plugin not receiving keyboard events if the plugin enters a modal
   // loop like TrackPopupMenuEx or MessageBox, etc.
   // This is a basic issue with windows activation and focus arising due to
   // the fact that these windows are created by different threads. Activation
   // and focus are thread specific states, and if the browser has focus,
-  // the plugin may not have focus. 
-  // To fix a majority of these activation issues we create a dummy visible 
-  // child window to which we set focus whenever the windowless plugin 
+  // the plugin may not have focus.
+  // To fix a majority of these activation issues we create a dummy visible
+  // child window to which we set focus whenever the windowless plugin
   // receives a WM_LBUTTONDOWN/WM_RBUTTONDOWN message via NPP_HandleEvent.
   HWND dummy_window_for_activation_;
   bool CreateDummyWindowForActivation();

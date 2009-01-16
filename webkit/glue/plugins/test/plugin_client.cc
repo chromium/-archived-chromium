@@ -118,14 +118,14 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
              "npobject_lifetime_test") == 0) {
     new_test = new NPAPIClient::NPObjectLifetimeTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (base::strcasecmp(argv[name_index], 
+  } else if (base::strcasecmp(argv[name_index],
              "npobject_lifetime_test_second_instance") == 0) {
     new_test = new NPAPIClient::NPObjectLifetimeTestInstance2(instance,
       NPAPIClient::PluginClient::HostFunctions());
   } else if (base::strcasecmp(argv[name_index], "new_fails") == 0) {
     new_test = new NPAPIClient::NewFailsTest(instance,
         NPAPIClient::PluginClient::HostFunctions());
-  } else if (base::strcasecmp(argv[name_index], 
+  } else if (base::strcasecmp(argv[name_index],
              "npobject_delete_plugin_in_evaluate") == 0) {
     new_test = new NPAPIClient::NPObjectDeletePluginInNPN_Evaluate(instance,
       NPAPIClient::PluginClient::HostFunctions());

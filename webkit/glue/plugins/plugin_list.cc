@@ -141,7 +141,7 @@ bool PluginList::FindPlugin(const GURL &url, std::string* actual_mime_type,
   std::string::size_type last_dot = path.rfind('.');
   if (last_dot == std::string::npos)
     return false;
-  
+
   std::string extension = StringToLowerASCII(std::string(path, last_dot+1));
 
   for (size_t i = 0; i < plugins_.size(); ++i) {

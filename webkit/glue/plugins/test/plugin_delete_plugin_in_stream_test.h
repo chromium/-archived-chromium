@@ -9,7 +9,7 @@
 
 namespace NPAPIClient {
 
-// This class tests 
+// This class tests
 class DeletePluginInStreamTest : public PluginTest {
  public:
   // Constructor.

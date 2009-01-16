@@ -10,7 +10,7 @@
 namespace NPAPIClient {
 
 // The NPObjectLifeTime class tests the case where a plugin has an NPObject
-// which points to a different plugin instance on a different frame in the 
+// which points to a different plugin instance on a different frame in the
 // page and whether refcounts on this npobject are valid when the source frame
 // is destroyed.
 class NPObjectLifetimeTest : public PluginTest {
@@ -25,7 +25,7 @@ class NPObjectLifetimeTest : public PluginTest {
 
  protected:
   NPObject* other_plugin_instance_object_;
-  static void CALLBACK TimerProc(HWND window, UINT message, UINT timer_id, 
+  static void CALLBACK TimerProc(HWND window, UINT message, UINT timer_id,
                                  unsigned long elapsed_milli_seconds);
 };
 
@@ -58,7 +58,7 @@ class NPObjectDeletePluginInNPN_Evaluate : public PluginTest {
 
  protected:
   NPObject* plugin_instance_object_;
-  static void CALLBACK TimerProc(HWND window, UINT message, UINT timer_id, 
+  static void CALLBACK TimerProc(HWND window, UINT message, UINT timer_id,
                                  unsigned long elapsed_milli_seconds);
  private:
   bool npn_evaluate_timer_proc_set_;

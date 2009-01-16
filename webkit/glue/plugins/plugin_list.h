@@ -91,7 +91,7 @@ class PluginList : public base::RefCounted<PluginList> {
   // Find a plugin by mime type, and clsid.
   // If clsid is empty, we will just find the plugin that supports mime type.
   // Otherwise, if mime_type is application/x-oleobject etc that's supported by
-  // by our activex shim, we need to check if the specified ActiveX exists. 
+  // by our activex shim, we need to check if the specified ActiveX exists.
   // If not we will not return the activex shim, instead we will let the
   // default plugin handle activex installation.
   // The allow_wildcard parameter controls whether this function returns
@@ -124,14 +124,14 @@ class PluginList : public base::RefCounted<PluginList> {
 
   // Do any initialization.
   void PlatformInit();
-  
+
   // Get the ordered list of directories from which to load plugins
   void GetPluginDirectories(std::vector<FilePath>* plugin_dirs);
-  
+
   //
   // Command-line switches
   //
-  
+
 #if defined(OS_WIN)
   // true if we shouldn't load the new WMP plugin.
   bool dont_load_new_wmp_;
@@ -143,7 +143,7 @@ class PluginList : public base::RefCounted<PluginList> {
   //
   // Internals
   //
-  
+
   static scoped_refptr<PluginList> singleton_;
   bool plugins_loaded_;
 

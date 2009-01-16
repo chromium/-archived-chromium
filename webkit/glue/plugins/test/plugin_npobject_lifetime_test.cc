@@ -11,10 +11,10 @@ const int kNPObjectLifetimeTimerElapse = 2000;
 
 NPObject* NPObjectLifetimeTestInstance2::plugin_instance_object_ = NULL;
 
-NPObjectDeletePluginInNPN_Evaluate* 
+NPObjectDeletePluginInNPN_Evaluate*
     NPObjectDeletePluginInNPN_Evaluate::g_npn_evaluate_test_instance_ = NULL;
 
-NPObjectLifetimeTest::NPObjectLifetimeTest(NPP id, 
+NPObjectLifetimeTest::NPObjectLifetimeTest(NPP id,
                                            NPNetscapeFuncs *host_functions)
     : PluginTest(id, host_functions),
       other_plugin_instance_object_(NULL) {
@@ -34,15 +34,15 @@ NPError NPObjectLifetimeTest::SetWindow(NPWindow* pNPWindow) {
 }
 
 void CALLBACK NPObjectLifetimeTest::TimerProc(
-    HWND window, UINT message, UINT timer_id, 
+    HWND window, UINT message, UINT timer_id,
     unsigned long elapsed_milli_seconds) {
 
   KillTimer(window, kNPObjectLifetimeTimer);
-  NPObjectLifetimeTest* this_instance = 
+  NPObjectLifetimeTest* this_instance =
       reinterpret_cast<NPObjectLifetimeTest*>
           (::GetProp(window, L"Plugin_Instance"));
 
-  this_instance->other_plugin_instance_object_ = 
+  this_instance->other_plugin_instance_object_ =
       NPObjectLifetimeTestInstance2::plugin_instance_object_;
   this_instance->HostFunctions()->retainobject(
       this_instance->other_plugin_instance_object_);
@@ -56,7 +56,7 @@ void CALLBACK NPObjectLifetimeTest::TimerProc(
       reinterpret_cast<void*>(1));
 }
 
-void NPObjectLifetimeTest::URLNotify(const char* url, NPReason reason, 
+void NPObjectLifetimeTest::URLNotify(const char* url, NPReason reason,
                                      void* data) {
   // Create a "location" identifier.
   NPIdentifier identifier = HostFunctions()->getstringidentifier("location");
@@ -85,7 +85,7 @@ NPObjectLifetimeTestInstance2::~NPObjectLifetimeTestInstance2() {
 
 NPError NPObjectLifetimeTestInstance2::SetWindow(NPWindow* pNPWindow) {
   if (!plugin_instance_object_) {
-    if (!HostFunctions()->getvalue(id(), NPNVWindowNPObject, 
+    if (!HostFunctions()->getvalue(id(), NPNVWindowNPObject,
                                    &plugin_instance_object_)) {
       SetError("Failed to get NPObject for plugin instance2");
       SignalTestCompleted();
@@ -98,7 +98,7 @@ NPError NPObjectLifetimeTestInstance2::SetWindow(NPWindow* pNPWindow) {
 
 
 NPObjectDeletePluginInNPN_Evaluate::NPObjectDeletePluginInNPN_Evaluate(
-    NPP id, NPNetscapeFuncs *host_functions) 
+    NPP id, NPNetscapeFuncs *host_functions)
     : PluginTest(id, host_functions),
       plugin_instance_object_(NULL),
       npn_evaluate_timer_proc_set_(false) {
@@ -132,7 +132,7 @@ NPError NPObjectDeletePluginInNPN_Evaluate::SetWindow(NPWindow* np_window) {
 }
 
 void CALLBACK NPObjectDeletePluginInNPN_Evaluate::TimerProc(
-    HWND window, UINT message, UINT timer_id, 
+    HWND window, UINT message, UINT timer_id,
     unsigned long elapsed_milli_seconds) {
 
   KillTimer(window, kNPObjectLifetimeTimer);
@@ -151,7 +151,7 @@ void CALLBACK NPObjectDeletePluginInNPN_Evaluate::TimerProc(
   std::string script = "javascript:DeletePluginWithinScript()";
   NPString script_string;
   script_string.UTF8Characters = script.c_str();
-  script_string.UTF8Length = 
+  script_string.UTF8Length =
       static_cast<unsigned int>(script.length());
 
   NPVariant result_var;

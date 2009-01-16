@@ -16,8 +16,8 @@ ExecuteScriptDeleteTest::ExecuteScriptDeleteTest(
 
 int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
 
-  NPNetscapeFuncs* browser = NPAPIClient::PluginClient::HostFunctions();  
-  
+  NPNetscapeFuncs* browser = NPAPIClient::PluginClient::HostFunctions();
+
   NPBool supports_windowless = 0;
   NPError result = browser->getvalue(id(), NPNVSupportsWindowless,
                                      &supports_windowless);
@@ -28,20 +28,20 @@ int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
   }
 
   NPEvent* np_event = reinterpret_cast<NPEvent*>(event);
-  if (WM_PAINT == np_event->event && 
+  if (WM_PAINT == np_event->event &&
       base::strcasecmp(test_name_.c_str(),
                        "execute_script_delete_in_paint") == 0) {
     NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
     NPUTF8* targetString = NULL;
     browser->geturl(id(), urlString, targetString);
     SignalTestCompleted();
-  } else if (WM_MOUSEMOVE == np_event->event && 
+  } else if (WM_MOUSEMOVE == np_event->event &&
              base::strcasecmp(test_name_.c_str(),
                               "execute_script_delete_in_mouse_move") == 0) {
     std::string script = "javascript:DeletePluginWithinScript()";
     NPString script_string;
     script_string.UTF8Characters = script.c_str();
-    script_string.UTF8Length = 
+    script_string.UTF8Length =
         static_cast<unsigned int>(script.length());
 
     NPObject *window_obj = NULL;

@@ -7,13 +7,13 @@
 
 namespace NPAPIClient {
 
-PluginWindowSizeTest::PluginWindowSizeTest(NPP id, 
+PluginWindowSizeTest::PluginWindowSizeTest(NPP id,
                                            NPNetscapeFuncs *host_functions)
     : PluginTest(id, host_functions) {
 }
 
 NPError PluginWindowSizeTest::SetWindow(NPWindow* pNPWindow) {
-  if (!pNPWindow || 
+  if (!pNPWindow ||
       !::IsWindow(reinterpret_cast<HWND>(pNPWindow->window))) {
     SetError("Invalid arguments passed in");
     return NPERR_INVALID_PARAM;
@@ -24,7 +24,7 @@ NPError PluginWindowSizeTest::SetWindow(NPWindow* pNPWindow) {
   window_rect.top = pNPWindow->y;
   window_rect.right = pNPWindow->width;
   window_rect.bottom = pNPWindow->height;
-  
+
   if (!::IsRectEmpty(&window_rect)) {
     RECT client_rect = {0};
     ::GetClientRect(reinterpret_cast<HWND>(pNPWindow->window),

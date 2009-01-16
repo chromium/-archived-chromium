@@ -18,13 +18,13 @@ void GetPluginCommonDirectory(std::vector<FilePath>* plugin_dirs,
   // directories so we can't use Cocoa's NSSearchPathForDirectoriesInDomains().
   // Interestingly, Safari hard-codes the location (see
   // WebKit/WebKit/mac/Plugins/WebPluginDatabase.mm's +_defaultPlugInPaths).
-  FSRef ref;	
+  FSRef ref;
   OSErr err = FSFindFolder(user ? kLocalDomain : kUserDomain,
                            kInternetPlugInFolderType, false, &ref);
-  
+
   if (err)
     return;
- 	
+
   plugin_dirs->push_back(FilePath(mac_util::PathFromFSRef(ref)));
 }
 
@@ -32,7 +32,7 @@ void GetPluginPrivateDirectory(std::vector<FilePath>* plugin_dirs) {
   NSString* plugin_path = [[NSBundle mainBundle] builtInPlugInsPath];
   if (!plugin_path)
     return;
-  
+
   plugin_dirs->push_back(FilePath([plugin_path fileSystemRepresentation]));
 }
 
@@ -70,17 +70,17 @@ void PluginList::LoadPluginsFromDir(const FilePath &path) {
 }
 
 bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
-  
+
   // Hierarchy check
   // (we're loading plugins hierarchically from Library folders, so plugins we
   //  encounter earlier must override plugins we encounter later)
-  
+
   for (size_t i = 0; i < plugins_.size(); ++i) {
     if (plugins_[i].path.BaseName() == info.path.BaseName()) {
       return false;  // We already have a loaded plugin higher in the hierarchy.
     }
   }
-  
+
   return true;
 }
 
