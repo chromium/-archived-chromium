@@ -70,8 +70,10 @@ class Valgrind():
     Full execution command-line provided by subclassers via proc.'''
     logging.info("starting execution...")
     # note that self._args begins with the exe to be run
+    # TODO(erg): We probably want to get a version of valgrind that supports
+    # the "--track-origins" option...
     proc = ["valgrind", "--smc-check=all", "--leak-check=full",
-            "--track-origins=yes", "--num-callers=30"]
+            "--num-callers=30"]
 
     # Either generate suppressions or load them.
     if self._generate_suppressions:
