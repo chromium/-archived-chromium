@@ -105,7 +105,7 @@ def StartTestShell(command, args):
 class SingleTestThread(threading.Thread):
   """Thread wrapper for running a single test file."""
   def __init__(self, test_shell_command, shell_args, test_uri, filename,
-               test_types, test_args):
+               test_types, test_args, target):
     """
     Args:
       test_uri: full file:// or http:// URI of the test file to be run
@@ -120,6 +120,7 @@ class SingleTestThread(threading.Thread):
     self._filename = filename
     self._test_types = test_types
     self._test_args = test_args
+    self._target = target
     self._single_test_failures = []
 
   def run(self):
@@ -128,7 +129,8 @@ class SingleTestThread(threading.Thread):
                                                self._filename,
                                                self._test_uri,
                                                self._test_types,
-                                               self._test_args)
+                                               self._test_args,
+                                               self._target)
 
   def GetFailures(self):
     return self._single_test_failures
@@ -220,7 +222,8 @@ class TestShellThread(threading.Thread):
                               test_uri,
                               filename,
                               self._test_types,
-                              self._test_args)
+                              self._test_args,
+                              self._options.target)
     worker.start()
     worker.join(self._time_out_sec)
     if worker.isAlive():
