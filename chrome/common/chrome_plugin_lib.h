@@ -21,6 +21,7 @@ class MessageLoop;
 // issues a NOTIFY_CHROME_PLUGIN_UNLOADED notification.
 class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
  public:
+  static bool IsInitialized();
   static ChromePluginLib* Create(const FilePath& filename,
                                  const CPBrowserFuncs* bfuncs);
   static ChromePluginLib* Find(const FilePath& filename);

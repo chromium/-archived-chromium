@@ -43,6 +43,11 @@ static bool IsSingleProcessMode() {
 }
 
 // static
+bool ChromePluginLib::IsInitialized() {
+  return (g_loaded_libs != NULL);
+}
+
+// static
 ChromePluginLib* ChromePluginLib::Create(const FilePath& filename,
                                          const CPBrowserFuncs* bfuncs) {
   // Keep a map of loaded plugins to ensure we only load each library once.

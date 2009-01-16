@@ -177,6 +177,9 @@ void RenderThread::OnMessageReceived(const IPC::Message& msg) {
 
 void RenderThread::OnPluginMessage(const FilePath& plugin_path,
                                    const std::vector<uint8>& data) {
+  if (!ChromePluginLib::IsInitialized()) {
+    return;
+  }
   CHECK(ChromePluginLib::IsPluginThread());
   ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
   if (chrome_plugin) {
