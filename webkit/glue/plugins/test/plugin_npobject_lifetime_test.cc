@@ -113,9 +113,6 @@ NPObjectDeletePluginInNPN_Evaluate::~NPObjectDeletePluginInNPN_Evaluate() {
 }
 
 NPError NPObjectDeletePluginInNPN_Evaluate::SetWindow(NPWindow* np_window) {
-  if (!::IsWindowVisible(reinterpret_cast<HWND>(np_window->window)))
-    return NPERR_NO_ERROR;
-
   HWND window_handle = reinterpret_cast<HWND>(np_window->window);
   // We setup a timerproc to invoke NPN_Evaluate to destroy this plugin
   // instance. This is to ensure that we don't destroy the plugin instance

@@ -12,10 +12,11 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
-#include "chrome/plugin/plugin_channel.h"
-#include "chrome/plugin/webplugin_delegate_stub.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_util.h"
+#include "chrome/plugin/plugin_channel.h"
+#include "chrome/plugin/plugin_thread.h"
+#include "chrome/plugin/webplugin_delegate_stub.h"
 #include "skia/ext/platform_device.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 
@@ -37,7 +38,8 @@ WebPluginProxy::WebPluginProxy(
       delegate_(delegate),
       waiting_for_paint_(false),
 #pragma warning(suppress: 4355)  // can use this
-      runnable_method_factory_(this) {
+      runnable_method_factory_(this),
+      parent_window_(NULL) {
 
   HANDLE event;
   BOOL result = DuplicateHandle(channel->renderer_handle(),
@@ -54,6 +56,11 @@ WebPluginProxy::WebPluginProxy(
 WebPluginProxy::~WebPluginProxy() {
   if (cp_browsing_context_)
     GetContextMap().erase(cp_browsing_context_);
+
+  if (parent_window_) {
+    PluginThread::GetPluginThread()->Send(
+        new PluginProcessHostMsg_DestroyWindow(parent_window_));
+  }
 }
 
 bool WebPluginProxy::Send(IPC::Message* msg) {
@@ -70,6 +77,26 @@ void WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
                     &pump_messages_event_for_renderer,
                     0, FALSE, DUPLICATE_SAME_ACCESS);
     DCHECK(pump_messages_event_for_renderer != NULL);
+  } else {
+    DCHECK (window);
+    // To make scrolling windowed plugins fast, we create the page's direct
+    // child windows in the browser process.  This way no cross process messages
+    // are sent.
+    HWND old_parent = GetParent(window);
+    IPC::SyncMessage* msg = new PluginProcessHostMsg_CreateWindow(
+        old_parent, &parent_window_);
+
+    // Need to process window messages in the meantime to avoid a deadlock if
+    // the browser paints or sends any other (synchronous) WM_ message to the
+    // plugin window.
+    msg->EnableMessagePumping();
+    PluginThread::GetPluginThread()->Send(msg);
+
+    SetParent(window, parent_window_);
+
+    // We want the browser process to move this window which has a message loop
+    // in its process.
+    window = parent_window_;
   }
 
   Send(new PluginHostMsg_SetWindow(route_id_, window,
@@ -295,8 +322,6 @@ void WebPluginProxy::Paint(const gfx::Rect& rect) {
 void WebPluginProxy::UpdateGeometry(
     const gfx::Rect& window_rect,
     const gfx::Rect& clip_rect,
-    const std::vector<gfx::Rect>& cutout_rects,
-    bool visible,
     const base::SharedMemoryHandle& windowless_buffer,
     const base::SharedMemoryHandle& background_buffer) {
   gfx::Rect old = delegate_->rect();
@@ -304,7 +329,7 @@ void WebPluginProxy::UpdateGeometry(
 
   bool moved = delegate_->rect().x() != window_rect.x() ||
                delegate_->rect().y() != window_rect.y();
-  delegate_->UpdateGeometry(window_rect, clip_rect, cutout_rects, visible);
+  delegate_->UpdateGeometry(window_rect, clip_rect);
   if (windowless_buffer) {
     // The plugin's rect changed, so now we have a new buffer to draw into.
     SetWindowlessBuffer(windowless_buffer, background_buffer);
@@ -314,7 +339,7 @@ void WebPluginProxy::UpdateGeometry(
   }
   // Send over any pending invalidates which occured when the plugin was
   // off screen.
-  if (visible && delegate_->windowless() && !clip_rect.IsEmpty() &&
+  if (delegate_->windowless() && !clip_rect.IsEmpty() &&
       old_clip_rect.IsEmpty() && !damaged_rect_.IsEmpty()) {
     InvalidateRect(damaged_rect_);
   }

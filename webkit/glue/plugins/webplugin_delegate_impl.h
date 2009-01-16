@@ -44,9 +44,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
                           WebPlugin* plugin,
                           bool load_manually);
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect,
-                              const std::vector<gfx::Rect>& cutout_rects,
-                              bool visible);
+                              const gfx::Rect& clip_rect);
   virtual void Paint(HDC hdc, const gfx::Rect& rect);
   virtual void Print(HDC hdc);
   virtual void SetFocus();  // only called when windowless
@@ -99,12 +97,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   int quirks() { return quirks_; }
 
-  static void MoveWindow(HWND window,
-                         const gfx::Rect& window_rect,
-                         const gfx::Rect& clip_rect,
-                         const std::vector<gfx::Rect>& cutout_rects,
-                         bool visible);
-
  private:
   WebPluginDelegateImpl(gfx::NativeView containing_view,
                         NPAPI::PluginInstance *instance);
@@ -113,9 +105,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   //--------------------------
   // used for windowed plugins
   void WindowedUpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect,
-                              const std::vector<gfx::Rect>& cutout_rects,
-                              bool visible);
+                              const gfx::Rect& clip_rect);
   // Create the native window.
   // Returns true if the window is created (or already exists).
   // Returns false if unable to create the window.
@@ -127,9 +117,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // Reposition the native window to be in sync with the given geometry.
   // Returns true if the native window has moved or been clipped differently.
   bool WindowedReposition(const gfx::Rect& window_rect,
-                          const gfx::Rect& clip_rect,
-                          const std::vector<gfx::Rect>& cutout_rects,
-                          bool visible);
+                          const gfx::Rect& clip_rect);
 
   // Tells the plugin about the current state of the window.
   // See NPAPI NPP_SetWindow for more information.
@@ -201,11 +189,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   gfx::Rect clip_rect_;
   std::vector<gfx::Rect> cutout_rects_;
   int quirks_;
-
-  // We only move/size the plugin window once after its creation. The
-  // rest of the moves are controlled by the browser. This flag controls
-  // this behaviour.
-  bool initial_plugin_resize_done_;
 
   // Windowless plugins don't have keyboard focus causing issues with the
   // plugin not receiving keyboard events if the plugin enters a modal

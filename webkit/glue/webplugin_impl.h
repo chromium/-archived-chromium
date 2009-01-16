@@ -41,6 +41,7 @@ namespace WebCore {
   class ResourceHandle;
   class ResourceError;
   class ResourceResponse;
+  class ScrollView;
   class String;
   class Widget;
 }
@@ -66,6 +67,7 @@ class WebPluginContainer : public WebCore::Widget {
   virtual void handleEvent(WebCore::Event* event);
   virtual void frameRectsChanged();
   virtual void setParentVisible(bool visible);
+  virtual void setParent(WebCore::ScrollView* view);
 
 #if USE(JSC)
   virtual bool isPluginView() const;
@@ -325,11 +327,7 @@ class WebPluginImpl : public WebPlugin,
   WebFrameImpl* webframe_;
 
   WebPluginDelegate* delegate_;
-  bool force_geometry_update_;
   bool visible_;
-  // Set when we receive the first paint notification for a windowed
-  // plugin widget.
-  bool received_first_paint_notification_;
 
   WebPluginContainer* widget_;
 

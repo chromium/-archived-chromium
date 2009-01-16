@@ -48,13 +48,9 @@ class WebPluginDelegate {
   // plugin, relative to its containing window, to the coords given by
   // window_rect.  Its contents should be clipped to the coords given
   // by clip_rect, which are relative to the origin of the plugin
-  // window.  It's contents should also not overlap the given cutout
-  // rects.  The clip_rect and cutout_rects are in plugin-relative
-  // coordinates.
+  // window.  The clip_rect is in plugin-relative coordinates.
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect,
-                              const std::vector<gfx::Rect>& cutout_rects,
-                              bool visible) = 0;
+                              const gfx::Rect& clip_rect) = 0;
 
   // Tells the plugin to paint the damaged rect.  The HDC is only used for
   // windowless plugins.

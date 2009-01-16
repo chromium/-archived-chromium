@@ -436,6 +436,9 @@ void RenderWidgetHost::OnMsgScrollRect(
 
 void RenderWidgetHost::MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {
+  if (plugin_window_moves.empty())
+    return;
+
   HDWP defer_window_pos_info =
       ::BeginDeferWindowPos(static_cast<int>(plugin_window_moves.size()));
 
@@ -445,7 +448,10 @@ void RenderWidgetHost::MovePluginWindows(
   }
 
   for (size_t i = 0; i < plugin_window_moves.size(); ++i) {
-    unsigned long flags = 0;
+    // Don't invalidate now because that would result in cross process calls
+    // that make scrolling slow.  Instead the window is invalidated
+    // asynchronously by the plugin code.
+    unsigned long flags = SWP_NOREDRAW;
     const WebPluginGeometry& move = plugin_window_moves[i];
 
     if (move.visible)

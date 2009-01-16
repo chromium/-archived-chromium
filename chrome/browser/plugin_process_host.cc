@@ -347,6 +347,86 @@ class PluginResolveProxyHelper : RevocableStore::Revocable {
 };
 
 
+// Sends the reply to the create window message on the IO thread.
+class SendReplyTask : public Task {
+ public:
+  SendReplyTask(FilePath plugin_path, IPC::Message* reply_msg)
+      : plugin_path_(plugin_path), reply_msg_(reply_msg) { }
+
+  virtual void Run() {
+    PluginProcessHost* plugin =
+        PluginService::GetInstance()->FindPluginProcess(plugin_path_);
+    if (!plugin)
+      return;
+
+    plugin->Send(reply_msg_);
+  }
+
+ private:
+  FilePath plugin_path_;
+  IPC::Message* reply_msg_;
+};
+
+
+// Creates a child window of the given HWND on the UI thread.
+class CreateWindowTask : public Task {
+ public:
+  CreateWindowTask(
+      FilePath plugin_path, HWND parent, IPC::Message* reply_msg)
+      : plugin_path_(plugin_path), parent_(parent), reply_msg_(reply_msg) { }
+
+  virtual void Run() {
+    static ATOM window_class = 0;
+    if (!window_class) {
+      WNDCLASSEX wcex;
+      wcex.cbSize         = sizeof(WNDCLASSEX);
+      wcex.style          = CS_DBLCLKS;
+      wcex.lpfnWndProc    = DefWindowProc;
+      wcex.cbClsExtra     = 0;
+      wcex.cbWndExtra     = 0;
+      wcex.hInstance      = GetModuleHandle(NULL);
+      wcex.hIcon          = 0;
+      wcex.hCursor        = 0;
+      wcex.hbrBackground  = reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
+      wcex.lpszMenuName   = 0;
+      wcex.lpszClassName  = L"NativeWindowClassWrapper";
+      wcex.hIconSm        = 0;
+      window_class = RegisterClassEx(&wcex);
+    }
+
+    HWND window = CreateWindowEx(
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR,
+        MAKEINTATOM(window_class), 0,
+        WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+        0, 0, 0, 0, parent_, 0, GetModuleHandle(NULL), 0);
+
+    PluginProcessHostMsg_CreateWindow::WriteReplyParams(
+        reply_msg_, window);
+
+    g_browser_process->io_thread()->message_loop()->PostTask(
+        FROM_HERE, new SendReplyTask(plugin_path_, reply_msg_));
+  }
+
+ private:
+  FilePath plugin_path_;
+  HWND parent_;
+  IPC::Message* reply_msg_;
+};
+
+// Destroys the given window on the UI thread.
+class DestroyWindowTask : public Task {
+ public:
+  DestroyWindowTask(HWND window) : window_(window) { }
+
+  virtual void Run() {
+    DestroyWindow(window_);
+  }
+
+ private:
+  HWND window_;
+};
+
+
 PluginProcessHost::PluginProcessHost(PluginService* plugin_service)
     : process_(NULL),
       opening_channel_(false),
@@ -580,6 +660,9 @@ void PluginProcessHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginProcessHostMsg_ResolveProxy,
                                     OnResolveProxy)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginProcessHostMsg_CreateWindow,
+                                    OnCreateWindow)
+    IPC_MESSAGE_HANDLER(PluginProcessHostMsg_DestroyWindow, OnDestroyWindow)
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()
 
@@ -837,6 +920,17 @@ void PluginProcessHost::OnPluginMessage(
 
 void PluginProcessHost::OnGetPluginDataDir(std::wstring* retval) {
   *retval = plugin_service_->GetChromePluginDataDir();
+}
+
+void PluginProcessHost::OnCreateWindow(HWND parent, IPC::Message* reply_msg) {
+  // Need to create this window on the UI thread.
+  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
+      new CreateWindowTask(plugin_path_, parent, reply_msg));
+}
+
+void PluginProcessHost::OnDestroyWindow(HWND window) {
+  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
+      new DestroyWindowTask(window));
 }
 
 void PluginProcessHost::Shutdown() {

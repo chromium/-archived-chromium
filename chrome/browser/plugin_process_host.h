@@ -111,10 +111,11 @@ class PluginProcessHost : public IPC::Channel::Listener,
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);
   void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
-
   void OnPluginShutdownRequest();
   void OnPluginMessage(const std::vector<uint8>& data);
   void OnGetPluginDataDir(std::wstring* retval);
+  void OnCreateWindow(HWND parent, IPC::Message* reply_msg);
+  void OnDestroyWindow(HWND window);
 
   struct ChannelRequest {
     ChannelRequest(ResourceMessageFilter* renderer_message_filter,

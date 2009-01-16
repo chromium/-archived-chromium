@@ -134,6 +134,11 @@ bool WebPluginContainer::isPluginView() const {
 
 
 void WebPluginContainer::setFrameRect(const WebCore::IntRect& rect) {
+  // WebKit calls move every time it paints (see RenderWidget::paint).  No need
+  // to do expensive operations if we didn't actually move.
+  if (rect == frameRect())
+    return;
+
   WebCore::Widget::setFrameRect(rect);
   impl_->setFrameRect(rect);
 }
@@ -166,12 +171,8 @@ void WebPluginContainer::setFocus() {
 void WebPluginContainer::show() {
   // We don't want to force a geometry update when the plugin widget is
   // already visible as this involves a geometry update which may lead
-  // to unnecessary window moves in the plugin process. The only case
-  // where this does not apply is if the force_geometry_update_ flag
-  // is set, which occurs when a plugin is created and does not have
-  // a parent. We can send out geometry updates only when the plugin
-  // widget has a parent.
-  if (!impl_->visible_ || impl_->force_geometry_update_) {
+  // to unnecessary window moves in the plugin process.
+  if (!impl_->visible_) {
     impl_->show();
     WebCore::Widget::show();
     // This is to force an updategeometry call to the plugin process
@@ -181,9 +182,7 @@ void WebPluginContainer::show() {
 }
 
 void WebPluginContainer::hide() {
-  // Please refer to WebPluginContainer::show for the reasoning behind
-  // the if check below.
-  if (impl_->visible_ || impl_->force_geometry_update_) {
+  if (impl_->visible_) {
     impl_->hide();
     WebCore::Widget::hide();
     // This is to force an updategeometry call to the plugin process
@@ -216,6 +215,18 @@ void WebPluginContainer::setParentVisible(bool visible) {
     hide();
 }
 
+// We override this function so that if the plugin is windowed, we can call
+// NPP_SetWindow at the first possible moment.  This ensures that NPP_SetWindow
+// is called before the manual load data is sent to a plugin.  If this order is
+// reversed, Flash won't load videos.
+void WebPluginContainer::setParent(WebCore::ScrollView* view) {
+  WebCore::Widget::setParent(view);
+  if (view) {    
+    impl_->setFrameRect(frameRect());
+    impl_->delegate_->FlushGeometryUpdates();
+  }
+}
+
 void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
                                            WTF::Vector<WebCore::IntRect>*
                                            cutouts) const {
@@ -224,7 +235,6 @@ void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
 
 void WebPluginContainer::didReceiveResponse(
     const WebCore::ResourceResponse& response) {
-
   set_ignore_response_error(false);
 
   HttpResponseInfo http_response_info;
@@ -315,9 +325,7 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
       element_(element),
       webframe_(webframe),
       delegate_(delegate),
-      force_geometry_update_(false),
       visible_(false),
-      received_first_paint_notification_(false),
       widget_(NULL),
       plugin_url_(plugin_url),
       load_manually_(load_manually),
@@ -634,18 +642,11 @@ void WebPluginImpl::windowCutoutRects(
 }
 
 void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
+  if (!parent())
+    return;
+
   // Compute a new position and clip rect for ourselves relative to the
   // containing window.  We ask our delegate to reposition us accordingly.
-
-  // When the plugin is loaded we don't have a parent frame yet. We need
-  // to force the plugin window to get created in the plugin process,
-  // when the plugin widget position is updated. This occurs just after
-  // the plugin is loaded (See http://b/issue?id=892174).
-  if (!parent()) {
-    force_geometry_update_ = true;
-    return;
-  }
-
   WebCore::Frame* frame = element_->document()->frame();
   WebFrameImpl* webframe = WebFrameImpl::FromFrame(frame);
   WebViewImpl* webview = webframe->webview_impl();
@@ -660,7 +661,11 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
   std::vector<gfx::Rect> cutout_rects;
   CalculateBounds(rect, &window_rect, &clip_rect, &cutout_rects);
 
-  if (window_ && received_first_paint_notification_) {
+  delegate_->UpdateGeometry(
+      webkit_glue::FromIntRect(window_rect),
+      webkit_glue::FromIntRect(clip_rect));
+
+  if (window_) {
     // Let the WebViewDelegate know that the plugin window needs to be moved,
     // so that all the HWNDs are moved together.
     WebPluginGeometry move;
@@ -671,17 +676,6 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
     move.visible = visible_;
 
     webview->delegate()->DidMove(webview, move);
-  }
-
-  delegate_->UpdateGeometry(
-      webkit_glue::FromIntRect(window_rect),
-      webkit_glue::FromIntRect(clip_rect), cutout_rects,
-      windowless_ || received_first_paint_notification_ ? visible_ : false);
-
-  // delegate_ can go away as a result of above call, so check it first.
-  if (force_geometry_update_ && delegate_) {
-    force_geometry_update_ = false;
-    delegate_->FlushGeometryUpdates();
   }
 
   // Initiate a download on the plugin url. This should be done for the
@@ -708,31 +702,6 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
   // Don't paint anything if the plugin doesn't intersect the damage rect.
   if (!widget_->frameRect().intersects(damage_rect))
     return;
-
-  // A windowed plugin starts out by being invisible regardless of the style
-  // which webkit tells us. The paint notification from webkit indicates that
-  // the plugin widget is being shown and we need to make sure that
-  // it becomes visible.
-  // Please refer to https://bugs.webkit.org/show_bug.cgi?id=18901 for more
-  // details on this issue.
-  // TODO(iyengar): Remove this hack when this issue is fixed in webkit.
-  if (!received_first_paint_notification_) {
-    received_first_paint_notification_ = true;
-
-    if (!windowless_) {
-      WebCore::IntRect window_rect;
-      WebCore::IntRect clip_rect;
-      std::vector<gfx::Rect> cutout_rects;
-
-      CalculateBounds(widget_->frameRect(), &window_rect, &clip_rect,
-                      &cutout_rects);
-
-      delegate_->UpdateGeometry(webkit_glue::FromIntRect(window_rect),
-                                webkit_glue::FromIntRect(clip_rect),
-                                cutout_rects, visible_);
-      delegate_->FlushGeometryUpdates();
-    }
-  }
 
   gc->save();
 

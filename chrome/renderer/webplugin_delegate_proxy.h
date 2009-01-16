@@ -56,9 +56,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual bool Initialize(const GURL& url, char** argn, char** argv, int argc,
                           WebPlugin* plugin, bool load_manually);
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect,
-                              const std::vector<gfx::Rect>& cutout_rects,
-                              bool visible);
+                              const gfx::Rect& clip_rect);
   virtual void Paint(HDC hdc, const gfx::Rect& rect);
   virtual void Print(HDC hdc);
   virtual NPObject* GetPluginScriptableObject();
@@ -162,9 +160,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   gfx::Rect plugin_rect_;
   gfx::Rect deferred_clip_rect_;
-  std::vector<gfx::Rect> deferred_cutout_rects_;
   bool send_deferred_update_geometry_;
-  bool visible_;
 
   NPObject* npobject_;
   NPObjectStub* window_script_object_;

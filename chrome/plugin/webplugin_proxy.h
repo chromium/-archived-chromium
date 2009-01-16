@@ -86,8 +86,6 @@ class WebPluginProxy : public WebPlugin {
 
   void UpdateGeometry(const gfx::Rect& window_rect,
                       const gfx::Rect& clip_rect,
-                      const std::vector<gfx::Rect>& cutout_rects,
-                      bool visible,
                       const base::SharedMemoryHandle& windowless_buffer,
                       const base::SharedMemoryHandle& background_buffer);
 
@@ -132,6 +130,7 @@ class WebPluginProxy : public WebPlugin {
   bool waiting_for_paint_;
   uint32 cp_browsing_context_;
   scoped_ptr<base::WaitableEvent> modal_dialog_event_;
+  HWND parent_window_;
 
   // Variables used for desynchronized windowless plugin painting.  See note in
   // webplugin_delegate_proxy.h for how this works.
