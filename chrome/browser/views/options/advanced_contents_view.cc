@@ -685,8 +685,15 @@ void WebContentSection::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION));
   popup_blocked_notification_checkbox_->SetListener(this);
 
-  gears_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME));
+  if (l10n_util::GetTextDirection() == l10n_util::LEFT_TO_RIGHT) {
+    gears_label_ = new views::Label(
+        l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME));
+  } else {
+    // Add an RTL mark so that
+    // ":" in "Google Gears:" in Hebrew Chrome is displayed left-most.
+    gears_label_ = new views::Label(l10n_util::GetString(
+        IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME) + l10n_util::kRightToLeftMark);
+  }
   gears_settings_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON));
   gears_settings_button_->SetListener(this);

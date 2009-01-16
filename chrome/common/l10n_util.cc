@@ -313,7 +313,7 @@ std::wstring GetLocalName(const std::wstring& locale_code_wstr,
   name_local.resize(actual_size);
   // Add an RTL mark so parentheses are properly placed.
   if (is_for_ui && GetTextDirection() == RIGHT_TO_LEFT)
-    return name_local + L"\x200f";
+    return name_local + kRightToLeftMark;
   else
     return name_local;
 }
