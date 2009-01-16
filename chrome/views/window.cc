@@ -6,8 +6,6 @@
 
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-// TODO(beng): some day make this unfortunate dependency not exist.
-#include "chrome/browser/browser_list.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
@@ -36,7 +34,10 @@ static const int kMonitorEdgePadding = 10;
 // Window, public:
 
 Window::~Window() {
-  BrowserList::RemoveDependentWindow(this);
+  if (!IsAppWindow()) {
+    NotificationService::current()->RemoveObserver(
+        this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
+  }
 }
 
 // static
@@ -227,6 +228,19 @@ gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
                    GetLocalizedContentsHeight(row_resource_id));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Window, NotificationObserver implementation:
+
+void Window::Observe(NotificationType type,
+                     const NotificationSource& source,
+                     const NotificationDetails& details) {
+  // This window is closed when the last app window is closed.
+  DCHECK(type == NOTIFY_ALL_APPWINDOWS_CLOSED);
+  // Only registered as an observer when we're not an app window.
+  DCHECK(!IsAppWindow());
+  Close();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Window, protected:
 
@@ -251,7 +265,10 @@ Window::Window(WindowDelegate* window_delegate)
   // behavior before calling Init.
   set_window_style(0);
   set_window_ex_style(0);
-  BrowserList::AddDependentWindow(this);
+  if (!IsAppWindow()) {
+    NotificationService::current()->AddObserver(
+        this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
+  }
 }
 
 void Window::Init(HWND parent, const gfx::Rect& bounds) {
