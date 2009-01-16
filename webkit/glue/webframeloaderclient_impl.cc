@@ -27,7 +27,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "MouseEvent.h"
 #include "Page.h"
 #include "PlatformString.h"
-#include "PluginInfoStore.h"
+#include "PluginData.h"
 #include "RefPtr.h"
 #include "WindowFeatures.h"
 MSVC_POP_WARNING();
@@ -1176,7 +1176,7 @@ bool WebFrameLoaderClient::canShowMIMEType(const String& mime_type) const {
   // See if the type is handled by an installed plugin, if so, we can show it.
   // TODO(beng): (http://b/1085524) This is the place to stick a preference to
   //             disable full page plugins (optionally for certain types!)
-  return PluginInfoStore::supportsMIMEType(mime_type);
+  return webframe_->frame()->page()->pluginData()->supportsMimeType(mime_type);
 }
 
 bool WebFrameLoaderClient::representationExistsForURLScheme(const String& URLScheme) const {
@@ -1450,8 +1450,8 @@ Widget* WebFrameLoaderClient::createJavaAppletWidget(
 }
 
 ObjectContentType WebFrameLoaderClient::objectContentType(
-                                       const KURL& url,
-                                       const String& explicit_mime_type) {
+    const KURL& url,
+    const String& explicit_mime_type) {
   // This code is based on Apple's implementation from
   // WebCoreSupport/WebFrameBridge.mm.
 
@@ -1470,7 +1470,7 @@ ObjectContentType WebFrameLoaderClient::objectContentType(
   if (MIMETypeRegistry::isSupportedImageMIMEType(mime_type))
     return ObjectContentImage;
 
-  if (PluginInfoStore::supportsMIMEType(mime_type))
+  if (webframe_->frame()->page()->pluginData()->supportsMimeType(mime_type))
     return ObjectContentNetscapePlugin;
 
   if (MIMETypeRegistry::isSupportedNonImageMIMEType(mime_type))

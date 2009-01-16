@@ -515,7 +515,6 @@
 		938445B90F16B0570075F4C5 /* PluginData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938181460EF6D29000993F02 /* PluginData.cpp */; };
 		938445BA0F16B0570075F4C5 /* PluginDataChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A361D80F001E3800778012 /* PluginDataChromium.cpp */; };
 		938445BB0F16B0570075F4C5 /* PluginDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DD10D7F3C01001ECF42 /* PluginDocument.cpp */; };
-		938445BC0F16B0570075F4C5 /* PluginsChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A362D60F01695600778012 /* PluginsChromium.cpp */; };
 		938445BD0F16B0570075F4C5 /* PointerEventsHitRules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E95350D7F3E94001ECF42 /* PointerEventsHitRules.cpp */; };
 		938445BE0F16B0570075F4C5 /* PopupMenuChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF527E0F002F680073C62D /* PopupMenuChromium.cpp */; };
 		938445BF0F16B0570075F4C5 /* Position.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A3B0D7F3A7C001ECF42 /* Position.cpp */; };
@@ -1515,7 +1514,6 @@
 		41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EventHandlerChromium.cpp; path = chromium/EventHandlerChromium.cpp; sourceTree = "<group>"; };
 		41A3624D0F003B3000778012 /* FrameChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameChromium.cpp; path = chromium/FrameChromium.cpp; sourceTree = "<group>"; };
 		41A3624E0F003B3000778012 /* FrameChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FrameChromium.h; path = chromium/FrameChromium.h; sourceTree = "<group>"; };
-		41A362D60F01695600778012 /* PluginsChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginsChromium.cpp; path = ../third_party/WebKit/WebCore/plugins/chromium/PluginsChromium.cpp; sourceTree = SOURCE_ROOT; };
 		41A365580F01AB1700778012 /* InspectorController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InspectorController.cpp; sourceTree = "<group>"; };
 		41A3655F0F01AB3800778012 /* InspectorClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorClient.h; sourceTree = "<group>"; };
 		41A365600F01AB3800778012 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
@@ -7719,7 +7717,6 @@
 		938181420EF6D26400993F02 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
-				41A362D60F01695600778012 /* PluginsChromium.cpp */,
 				41A361D80F001E3800778012 /* PluginDataChromium.cpp */,
 			);
 			name = chromium;
@@ -8983,7 +8980,6 @@
 				938445B90F16B0570075F4C5 /* PluginData.cpp in Sources */,
 				938445BA0F16B0570075F4C5 /* PluginDataChromium.cpp in Sources */,
 				938445BB0F16B0570075F4C5 /* PluginDocument.cpp in Sources */,
-				938445BC0F16B0570075F4C5 /* PluginsChromium.cpp in Sources */,
 				938445BD0F16B0570075F4C5 /* PointerEventsHitRules.cpp in Sources */,
 				938445BE0F16B0570075F4C5 /* PopupMenuChromium.cpp in Sources */,
 				938445BF0F16B0570075F4C5 /* Position.cpp in Sources */,

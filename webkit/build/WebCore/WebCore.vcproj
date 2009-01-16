@@ -7289,49 +7289,17 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginData.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginDatabase.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginDebug.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginInfoStore.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginMainThreadScheduler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginPackage.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginQuirkSet.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginStream.h"
-				>
-			</File>
 			<Filter
-				Name="plugins"
+				Name="chromium"
 				>
-				<Filter
-					Name="chromium"
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginDataChromium.cpp"
 					>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginDataChromium.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginsChromium.cpp"
-						>
-					</File>
-				</Filter>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\chromium\PluginsChromium.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
