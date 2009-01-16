@@ -300,6 +300,9 @@
 		E46C42130F1D3DD200B393B8 /* user_script_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0082A7510F16987A000AA0EF /* user_script_master.cc */; };
 		E46C46C50F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C46C40F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp */; };
 		E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C45990F1F88D100B393B8 /* app_controller_mac.mm */; };
+		E46C4B3F0F21095400B393B8 /* url_request_intercept_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFCC20E9D4D6B009A6919 /* url_request_intercept_job.cc */; };
+		E46C4B490F21096300B393B8 /* worker_thread_ticker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFC140E9D4C9F009A6919 /* worker_thread_ticker.cc */; };
+		E46C4B4C0F21098F00B393B8 /* worker_thread_ticker_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E46C4B4B0F21098F00B393B8 /* worker_thread_ticker_unittest.cc */; };
 		E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADF0E9D49DE009A6919 /* safe_browsing_database_bloom.cc */; };
 		E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE10E9D49DE009A6919 /* safe_browsing_database_impl.cc */; };
 		E48FB9760EC4EA320052B72B /* url_request_failed_dns_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB96E0EC4EA270052B72B /* url_request_failed_dns_job.cc */; };
@@ -1709,6 +1712,7 @@
 		E46C45990F1F88D100B393B8 /* app_controller_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = app_controller_mac.mm; sourceTree = "<group>"; };
 		E46C46C30F1F9AE200B393B8 /* temp_scaffolding_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = temp_scaffolding_stubs.h; sourceTree = "<group>"; };
 		E46C46C40F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = temp_scaffolding_stubs.cpp; sourceTree = "<group>"; };
+		E46C4B4B0F21098F00B393B8 /* worker_thread_ticker_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_thread_ticker_unittest.cc; sourceTree = "<group>"; };
 		E48FB9610EC4EA270052B72B /* automation_autocomplete_edit_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_autocomplete_edit_tracker.h; sourceTree = "<group>"; };
 		E48FB9620EC4EA270052B72B /* automation_browser_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_browser_tracker.h; sourceTree = "<group>"; };
 		E48FB9630EC4EA270052B72B /* automation_constrained_window_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_constrained_window_tracker.h; sourceTree = "<group>"; };
@@ -2656,6 +2660,7 @@
 				4D7BFC110E9D4C9F009A6919 /* win_util.cc */,
 				4D7BFC120E9D4C9F009A6919 /* win_util.h */,
 				4D7BFC130E9D4C9F009A6919 /* win_util_unittest.cc */,
+				E46C4B4B0F21098F00B393B8 /* worker_thread_ticker_unittest.cc */,
 				4D7BFC140E9D4C9F009A6919 /* worker_thread_ticker.cc */,
 				4D7BFC150E9D4C9F009A6919 /* worker_thread_ticker.h */,
 			);
@@ -3787,6 +3792,7 @@
 				4D7BFB610E9D4C4B009A6919 /* units_unittest.cc in Sources */,
 				B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */,
 				4D7BFB420E9D4C35009A6919 /* visit_tracker_unittest.cc in Sources */,
+				E46C4B4C0F21098F00B393B8 /* worker_thread_ticker_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3836,7 +3842,9 @@
 				4D7BFC9C0E9D4D46009A6919 /* thumbnail_score.cc in Sources */,
 				E45076AB0F153629003BE099 /* time_format.cc in Sources */,
 				E45076E50F153AB6003BE099 /* unzip.cc in Sources */,
+				E46C4B3F0F21095400B393B8 /* url_request_intercept_job.cc in Sources */,
 				4D7BFCA30E9D4D48009A6919 /* visitedlink_common.cc in Sources */,
+				E46C4B490F21096300B393B8 /* worker_thread_ticker.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
