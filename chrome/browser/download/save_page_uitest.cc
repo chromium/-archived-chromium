@@ -146,8 +146,7 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
   EXPECT_TRUE(DieFileDie(dir, true));
 }
 
-// BUG 6514
-TEST_F(SavePageTest, DISABLED_CleanFilenameFromPageTitle) {
+TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
   std::wstring file_name = L"c.htm";
   std::wstring full_file_name = download_dir_ + L"test.htm";
   std::wstring dir = download_dir_ + L"test_files";
