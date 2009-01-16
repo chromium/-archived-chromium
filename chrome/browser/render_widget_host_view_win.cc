@@ -12,7 +12,7 @@
 #include "chrome/browser/browser_accessibility.h"
 #include "chrome/browser/browser_accessibility_manager.h"
 #include "chrome/browser/browser_trial.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 // TODO(beng): (Cleanup) we should not need to include this file... see comment
 //             in |DidBecomeSelected|.
 #include "chrome/browser/render_view_host.h"

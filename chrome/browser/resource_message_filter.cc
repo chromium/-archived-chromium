@@ -14,7 +14,7 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/plugin_service.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/common/chrome_plugin_lib.h"
@@ -159,8 +159,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
   IPC_END_MESSAGE_MAP_EX()
 
   if (!msg_is_ok) {
-    RenderProcessHost::BadMessageTerminateProcess(message.type(),
-                                                  render_handle_);
+    BrowserRenderProcessHost::BadMessageTerminateProcess(message.type(),
+                                                         render_handle_);
   }
 
   return handled;

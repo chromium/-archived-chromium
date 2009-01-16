@@ -7,6 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/security_style.h"
 #include "chrome/browser/tab_contents/site_instance.h"

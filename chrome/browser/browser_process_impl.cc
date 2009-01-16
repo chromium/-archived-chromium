@@ -19,7 +19,7 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/profile_manager.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"

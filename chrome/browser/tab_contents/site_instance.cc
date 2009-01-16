@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/site_instance.h"
 
+#include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "net/base/registry_controlled_domain.h"
 
 SiteInstance::~SiteInstance() {
@@ -28,7 +29,7 @@ RenderProcessHost* SiteInstance::GetProcess() {
 
     // Otherwise (or if that fails), create a new one.
     if (!process)
-      process = new RenderProcessHost(browsing_instance_->profile());
+      process = new BrowserRenderProcessHost(browsing_instance_->profile());
 
     // Update our host ID, so all pages in this SiteInstance will use
     // the correct process.

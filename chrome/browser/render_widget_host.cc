@@ -7,10 +7,11 @@
 #include "base/gfx/gdi_util.h"
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_widget_helper.h"
 #include "chrome/browser/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/mru_cache.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/view.h"
 #include "webkit/glue/webcursor.h"
@@ -267,7 +268,8 @@ RenderWidgetHost::BackingStoreManager::BackingStoreCache*
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHost
 
-RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process, int routing_id)
+RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
+                                   int routing_id)
     : process_(process),
       routing_id_(routing_id),
       resize_ack_pending_(false),
@@ -281,7 +283,7 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process, int routing_id)
       view_being_painted_(false),
       repaint_ack_pending_(false) {
   if (routing_id_ == MSG_ROUTING_NONE)
-    routing_id_ = process_->widget_helper()->GetNextRoutingID();
+    routing_id_ = process_->GetNextRoutingID();
 
   process_->Attach(this, routing_id_);
   // Because the widget initializes as is_hidden_ == false,
@@ -743,8 +745,7 @@ RenderWidgetHost::BackingStore* RenderWidgetHost::GetBackingStore() {
   if (resize_ack_pending_ || !backing_store) {
     IPC::Message msg;
     TimeDelta max_delay = TimeDelta::FromMilliseconds(kPaintMsgTimeoutMS);
-    if (process_->widget_helper()->WaitForPaintMsg(routing_id_, max_delay,
-                                                   &msg)) {
+    if (process_->WaitForPaintMsg(routing_id_, max_delay, &msg)) {
       suppress_view_updating_ = true;
       ViewHostMsg_PaintRect::Dispatch(
           &msg, this, &RenderWidgetHost::OnMsgPaintRect);

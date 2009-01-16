@@ -9,7 +9,7 @@
 #include "base/sys_info.h"
 #include "base/time.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -133,8 +133,7 @@ void CacheManagerHost::ObserveStats(int renderer_id,
   // See notification_types.h.
   NotificationService::current()->
       Notify(NOTIFY_WEB_CACHE_STATS_OBSERVED,
-             Source<RenderProcessHost>(
-                RenderProcessHost::FromID(renderer_id)),
+             Source<RenderProcessHost>(RenderProcessHost::FromID(renderer_id)),
              Details<CacheManager::UsageStats>(&stats_details));
 }
 

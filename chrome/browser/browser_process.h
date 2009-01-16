@@ -28,7 +28,6 @@ class MetricsService;
 class NotificationService;
 class PrefService;
 class ProfileManager;
-class RenderProcessHost;
 class DebuggerWrapper;
 class ResourceDispatcherHost;
 class WebAppInstallerService;

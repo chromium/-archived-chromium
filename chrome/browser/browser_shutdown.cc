@@ -16,7 +16,7 @@
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_widget_host.h"
 #include "chrome/common/chrome_paths.h"

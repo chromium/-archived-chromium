@@ -482,14 +482,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\render_process_host.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\render_process_host.h"
-				>
-			</File>
-			<File
 				RelativePath=".\render_view_host.cc"
 				>
 			</File>
@@ -2044,6 +2036,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\browser_render_process_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\browser_render_process_host.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\buffered_resource_handler.cc"
 				>
 			</File>
@@ -2076,26 +2076,16 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\render_process_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\render_process_host.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\resource_dispatcher_host.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\renderer_host\resource_dispatcher_host.h"

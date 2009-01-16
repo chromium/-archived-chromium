@@ -9,7 +9,7 @@
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/tab_contents/about_internets_status_view.h"
 #include "chrome/browser/tab_contents/ipc_status_view.h"

@@ -5,7 +5,7 @@
 #include "chrome/browser/browser_accessibility_manager.h"
 
 #include "chrome/browser/browser_accessibility.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/render_widget_host.h"
 
 // The time in ms after which we give up and return an error when processing an

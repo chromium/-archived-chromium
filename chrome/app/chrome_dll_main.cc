@@ -27,7 +27,7 @@
 #include "base/string_util.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #endif
 #include "chrome/app/scoped_ole_initializer.h"
 #include "chrome/common/chrome_constants.h"

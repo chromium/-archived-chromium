@@ -20,7 +20,6 @@
 #include "webkit/glue/cache_manager.h"
 
 class PrefService;
-class RenderProcessHost;
 
 class CacheManagerHost {
   // Unit tests are our friends.

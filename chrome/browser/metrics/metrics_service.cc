@@ -172,7 +172,7 @@
 #include "chrome/browser/plugin_process_info.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_paths.h"

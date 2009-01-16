@@ -10,7 +10,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/task_manager_resource_providers.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/views/standard_layout.h"

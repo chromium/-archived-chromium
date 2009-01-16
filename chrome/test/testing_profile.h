@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_TESTING_PROFILE_H__
-#define CHROME_TEST_TESTING_PROFILE_H__
+#ifndef CHROME_TEST_TESTING_PROFILE_H_
+#define CHROME_TEST_TESTING_PROFILE_H_
 
 #include "base/base_paths.h"
 #include "base/path_service.h"
@@ -207,4 +207,4 @@ class TestingProfile : public Profile {
   bool last_session_exited_cleanly_;
 };
 
-#endif  // CHROME_TEST_TESTING_PROFILE_H__
+#endif  // CHROME_TEST_TESTING_PROFILE_H_

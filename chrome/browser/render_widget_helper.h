@@ -86,21 +86,14 @@ class RenderWidgetHelper :
 
   // UI THREAD ONLY -----------------------------------------------------------
 
-  // Called on the UI thread to cancel any outstanding resource requests for
-  // the specified render widget.
+  // These three functions provide the backend implementation of the
+  // corresponding functions in RenderProcessHost. See those declarations
+  // for documentation.
   void CancelResourceRequests(int render_widget_id);
-
-  // Called on the UI thread to simulate a ClosePage_ACK message to the
-  // ResourceDispatcherHost.  Necessary for a cross-site request, in the case
-  // that the original RenderViewHost is not live and thus cannot run an
-  // onunload handler.
   void CrossSiteClosePageACK(int new_render_process_host_id,
                              int new_request_id);
-
-  // Called on the UI thread to wait for the next PaintRect message for the
-  // specified render widget.  Returns true if successful, and the msg out-
-  // param will contain a copy of the received PaintRect message.
-  bool WaitForPaintMsg(int render_widget_id, const base::TimeDelta& max_delay,
+  bool WaitForPaintMsg(int render_widget_id,
+                       const base::TimeDelta& max_delay,
                        IPC::Message* msg);
 
 

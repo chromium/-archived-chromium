@@ -13,6 +13,7 @@
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/password_manager/password_manager.h"
+#include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/spellchecker.h"
@@ -42,7 +43,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   MetricsLog::RegisterPrefs(local_state);
   MetricsService::RegisterPrefs(local_state);
   PageInfoWindow::RegisterPrefs(local_state);
-  RenderProcessHost::RegisterPrefs(local_state);
+  BrowserRenderProcessHost::RegisterPrefs(local_state);
   TaskManager::RegisterPrefs(local_state);
   ExternalProtocolHandler::RegisterPrefs(local_state);
   SafeBrowsingService::RegisterPrefs(local_state);

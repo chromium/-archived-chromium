@@ -5,7 +5,7 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "net/url_request/url_request.h"

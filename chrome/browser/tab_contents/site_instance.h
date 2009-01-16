@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SITE_INSTANCE_H__
-#define CHROME_BROWSER_SITE_INSTANCE_H__
+#ifndef CHROME_BROWSER_SITE_INSTANCE_H_
+#define CHROME_BROWSER_SITE_INSTANCE_H_
 
 #include "chrome/browser/browsing_instance.h"
-#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "googleurl/src/gurl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,5 +152,4 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   DISALLOW_EVIL_CONSTRUCTORS(SiteInstance);
 };
 
-#endif  //  CHROME_BROWSER_SITE_INSTANCE_H__
-
+#endif  // CHROME_BROWSER_SITE_INSTANCE_H_

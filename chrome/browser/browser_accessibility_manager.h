@@ -16,21 +16,6 @@ class BrowserAccessibility;
 class RenderProcessHost;
 class RenderWidgetHost;
 
-// Member variable structure, used in instance hashmap.
-struct UniqueMembers {
-  RenderWidgetHost* render_widget_host_;
-  HWND parent_hwnd_;
-
-  UniqueMembers(HWND parent_hwnd, RenderWidgetHost* render_widget_host)
-    : parent_hwnd_(parent_hwnd),
-      render_widget_host_(render_widget_host) {
-  }
-};
-
-typedef stdext::hash_map<int, UniqueMembers*> InstanceMap;
-typedef stdext::hash_map<RenderProcessHost*, BrowserAccessibility*>
-    RenderProcessHostMap;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // BrowserAccessibilityManager
@@ -91,6 +76,21 @@ class BrowserAccessibilityManager : public NotificationObserver {
   ~BrowserAccessibilityManager();
 
  private:
+  // Member variable structure, used in instance hashmap.
+  struct UniqueMembers {
+    RenderWidgetHost* render_widget_host_;
+    HWND parent_hwnd_;
+
+    UniqueMembers(HWND parent_hwnd, RenderWidgetHost* render_widget_host)
+      : parent_hwnd_(parent_hwnd),
+        render_widget_host_(render_widget_host) {
+    }
+  };
+
+  typedef stdext::hash_map<int, UniqueMembers*> InstanceMap;
+  typedef stdext::hash_map<RenderProcessHost*, BrowserAccessibility*>
+      RenderProcessHostMap;
+
   // Caching of the unique member variables used to handle browser accessibility
   // requests from multiple processes.
   InstanceMap instance_map_;

@@ -2,13 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Represents the browser side of the browser <--> renderer communication
-// channel. There will be one RenderProcessHost per renderer process.
+#include "chrome/browser/renderer_host/browser_render_process_host.h"
 
-#include "chrome/browser/render_process_host.h"
-
-#include <windows.h>
-#include <wininet.h>
 #include <algorithm>
 #include <sstream>
 #include <vector>
@@ -19,11 +14,9 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
-#include "base/rand_util.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
-#include "base/sys_info.h"
 #include "base/thread.h"
 #include "base/win_util.h"
 #include "chrome/app/result_codes.h"
@@ -41,7 +34,6 @@
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/debug_flags.h"
@@ -61,29 +53,6 @@
 #include "generated_resources.h"
 
 namespace {
-
-unsigned int GetMaxRendererProcessCount() {
-  // Defines the maximum number of renderer processes according to the amount
-  // of installed memory as reported by the OS. The table values are calculated
-  // by assuming that you want the renderers to use half of the installed ram
-  // and assuming that each tab uses ~25MB.
-  static const int kMaxRenderersByRamTier[] = {
-    4,                                  // less than 256MB
-    8,                                  // 256MB
-    12,                                 // 512MB
-    16,                                 // 768MB
-  };
-
-  static unsigned int max_count = 0;
-  if (!max_count) {
-    int memory_tier = base::SysInfo::AmountOfPhysicalMemoryMB() / 256;
-    if (memory_tier >= arraysize(kMaxRenderersByRamTier))
-      max_count = chrome::kMaxRendererProcessCount;
-    else
-      max_count = kMaxRenderersByRamTier[memory_tier];
-  }
-  return max_count;
-}
 
 // ----------------------------------------------------------------------------
 
@@ -121,9 +90,6 @@ class RendererMainThread : public base::Thread {
 // Used for a View_ID where the renderer has not been attached yet
 const int32 kInvalidViewID = -1;
 
-// the global list of all renderer processes
-IDMap<RenderProcessHost> all_hosts;
-
 // Get the path to the renderer executable, which is the same as the
 // current executable.
 bool GetRendererPath(std::wstring* cmd_line) {
@@ -136,30 +102,20 @@ const wchar_t* const kDesktopName = L"ChromeRendererDesktop";
 
 //------------------------------------------------------------------------------
 
-bool RenderProcessHost::run_renderer_in_process_ = false;
-
 // static
-void RenderProcessHost::RegisterPrefs(PrefService* prefs) {
+void BrowserRenderProcessHost::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kStartRenderersManually, false);
 }
 
-// static
-RenderProcessHost* RenderProcessHost::FromID(int render_process_id) {
-  return all_hosts.Lookup(render_process_id);
-}
-
-RenderProcessHost::RenderProcessHost(Profile* profile)
-    : profile_(profile),
-      max_page_id_(-1),
+BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
+    : RenderProcessHost(profile),
       visible_widgets_(0),
-      backgrounded_(true),
-      notified_termination_(false) {
-  host_id_ = all_hosts.Add(this);
-  DCHECK(host_id_ >= 0);  // We use a negative host_id_ in destruction.
-  widget_helper_ = new RenderWidgetHelper(host_id_);
+      backgrounded_(true) {
+  DCHECK(host_id() >= 0);  // We use a negative host_id_ in destruction.
+  widget_helper_ = new RenderWidgetHelper(host_id());
 
-  CacheManagerHost::GetInstance()->Add(host_id_);
-  RendererSecurityPolicy::GetInstance()->Add(host_id_);
+  CacheManagerHost::GetInstance()->Add(host_id());
+  RendererSecurityPolicy::GetInstance()->Add(host_id());
 
   PrefService* prefs = profile->GetPrefs();
   prefs->AddPrefObserver(prefs::kBlockPopups, this);
@@ -169,40 +125,31 @@ RenderProcessHost::RenderProcessHost(Profile* profile)
   NotificationService::current()->AddObserver(this,
       NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
 
-  // Note: When we create the RenderProcessHost, it's technically backgrounded,
+  // Note: When we create the BrowserRenderProcessHost, it's technically backgrounded,
   //       because it has no visible listeners.  But the process doesn't
   //       actually exist yet, so we'll Background it later, after creation.
 }
 
-RenderProcessHost::~RenderProcessHost() {
-  // Some tests hold RenderProcessHost in a scoped_ptr, so we must call
+BrowserRenderProcessHost::~BrowserRenderProcessHost() {
+  // Some tests hold BrowserRenderProcessHost in a scoped_ptr, so we must call
   // Unregister here as well as in response to Release().
   Unregister();
 
   // We may have some unsent messages at this point, but that's OK.
   channel_.reset();
 
-  if (process_.handle() && !run_renderer_in_process_) {
+  if (process_.handle() && !run_renderer_in_process()) {
     watcher_.StopWatching();
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
 
-  profile_->GetPrefs()->RemovePrefObserver(prefs::kBlockPopups, this);
+  profile()->GetPrefs()->RemovePrefObserver(prefs::kBlockPopups, this);
 
   NotificationService::current()->RemoveObserver(this,
       NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
 }
 
-void RenderProcessHost::Unregister() {
-  if (host_id_ >= 0) {
-    CacheManagerHost::GetInstance()->Remove(host_id_);
-    RendererSecurityPolicy::GetInstance()->Remove(host_id_);
-    all_hosts.Remove(host_id_);
-    host_id_ = -1;
-  }
-}
-
-bool RenderProcessHost::Init() {
+bool BrowserRenderProcessHost::Init() {
   // calling Init() more than once does nothing, this makes it more convenient
   // for the view host which may not be sure in some cases
   if (channel_.get())
@@ -215,10 +162,10 @@ bool RenderProcessHost::Init() {
       new ResourceMessageFilter(g_browser_process->resource_dispatcher_host(),
                                 PluginService::GetInstance(),
                                 g_browser_process->print_job_manager(),
-                                host_id_,
-                                profile_,
+                                host_id(),
+                                profile(),
                                 widget_helper_,
-                                profile_->GetSpellChecker());
+                                profile()->GetSpellChecker());
 
   CommandLine browser_command_line;
 
@@ -316,7 +263,7 @@ bool RenderProcessHost::Init() {
     CommandLine::AppendSwitchWithValue(&cmd_line, switches::kUserDataDir,
                                        profile_path);
 
-  bool run_in_process = RenderProcessHost::run_renderer_in_process();
+  bool run_in_process = run_renderer_in_process();
   if (run_in_process) {
     // Crank up a thread and run the initialization there.  With the way that
     // messages flow between the browser and renderer, this thread is required
@@ -341,7 +288,7 @@ bool RenderProcessHost::Init() {
       std::wstring message =
         L"Please start a renderer process using:\n" + cmd_line;
 
-      // We don't know the owner window for RenderProcessHost and therefore we
+      // We don't know the owner window for BrowserRenderProcessHost and therefore we
       // pass a NULL HWND argument.
       win_util::MessageBox(NULL,
                            message,
@@ -391,7 +338,7 @@ bool RenderProcessHost::Init() {
 
         if (!AddDllEvictionPolicy(policy)) {
           NOTREACHED();
-          return false;          
+          return false;
         }
 
         result = broker_service->SpawnTarget(renderer_path.c_str(),
@@ -407,7 +354,7 @@ bool RenderProcessHost::Init() {
 
         bool on_sandbox_desktop = (desktop != NULL);
         NotificationService::current()->Notify(
-            NOTIFY_RENDERER_PROCESS_IN_SBOX, Source<RenderProcessHost>(this),
+            NOTIFY_RENDERER_PROCESS_IN_SBOX, Source<BrowserRenderProcessHost>(this),
             Details<bool>(&on_sandbox_desktop));
 
         ResumeThread(target.hThread);
@@ -442,14 +389,68 @@ bool RenderProcessHost::Init() {
   return true;
 }
 
-base::ProcessHandle RenderProcessHost::GetRendererProcessHandle() {
-  if (run_renderer_in_process_)
+int BrowserRenderProcessHost::GetNextRoutingID() {
+  return widget_helper_->GetNextRoutingID();
+}
+
+void BrowserRenderProcessHost::CancelResourceRequests(int render_widget_id) {
+  widget_helper_->CancelResourceRequests(render_widget_id);
+}
+
+void BrowserRenderProcessHost::CrossSiteClosePageACK(
+    int new_render_process_host_id,
+    int new_request_id) {
+  widget_helper_->CrossSiteClosePageACK(new_render_process_host_id,
+                                        new_request_id);
+}
+
+bool BrowserRenderProcessHost::WaitForPaintMsg(int render_widget_id,
+                                               const base::TimeDelta& max_delay,
+                                               IPC::Message* msg) {
+  return widget_helper_->WaitForPaintMsg(render_widget_id, max_delay, msg);
+}
+
+void BrowserRenderProcessHost::ReceivedBadMessage(uint16 msg_type) {
+  BadMessageTerminateProcess(msg_type, process_.handle());
+}
+
+void BrowserRenderProcessHost::WidgetRestored() {
+  // Verify we were properly backgrounded.
+  DCHECK(backgrounded_ == (visible_widgets_ == 0));
+  visible_widgets_++;
+  SetBackgrounded(false);
+}
+
+void BrowserRenderProcessHost::WidgetHidden() {
+  // On startup, the browser will call Hide
+  if (backgrounded_)
+    return;
+
+  DCHECK(backgrounded_ == (visible_widgets_ == 0));
+  visible_widgets_--;
+  DCHECK(visible_widgets_ >= 0);
+  if (visible_widgets_ == 0) {
+    DCHECK(!backgrounded_);
+    SetBackgrounded(true);
+  }
+}
+
+void BrowserRenderProcessHost::AddWord(const std::wstring& word) {
+  base::Thread* io_thread = g_browser_process->io_thread();
+  if (profile()->GetSpellChecker()) {
+    io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        profile()->GetSpellChecker(), &SpellChecker::AddWord, word));
+  }
+}
+
+base::ProcessHandle BrowserRenderProcessHost::GetRendererProcessHandle() {
+  if (run_renderer_in_process())
     return base::Process::Current().handle();
   return process_.handle();
 }
 
-void RenderProcessHost::InitVisitedLinks() {
-  VisitedLinkMaster* visitedlink_master = profile_->GetVisitedLinkMaster();
+void BrowserRenderProcessHost::InitVisitedLinks() {
+  VisitedLinkMaster* visitedlink_master = profile()->GetVisitedLinkMaster();
   if (!visitedlink_master) {
     return;
   }
@@ -463,7 +464,7 @@ void RenderProcessHost::InitVisitedLinks() {
   }
 }
 
-void RenderProcessHost::InitUserScripts() {
+void BrowserRenderProcessHost::InitUserScripts() {
   CommandLine command_line;
   if (!command_line.HasSwitch(switches::kEnableUserScripts)) {
     return;
@@ -475,7 +476,7 @@ void RenderProcessHost::InitUserScripts() {
   // - File IO should be asynchronous (see VisitedLinkMaster), but how do we
   //   get scripts to the first renderer without blocking startup? Should we
   //   cache some information across restarts?
-  UserScriptMaster* user_script_master = profile_->GetUserScriptMaster();
+  UserScriptMaster* user_script_master = profile()->GetUserScriptMaster();
   if (!user_script_master) {
     return;
   }
@@ -489,7 +490,7 @@ void RenderProcessHost::InitUserScripts() {
   SendUserScriptsUpdate(user_script_master->GetSharedMemory());
 }
 
-void RenderProcessHost::SendUserScriptsUpdate(
+void BrowserRenderProcessHost::SendUserScriptsUpdate(
     base::SharedMemory *shared_memory) {
   base::SharedMemoryHandle handle_for_process = NULL;
   shared_memory->ShareToProcess(GetRendererProcessHandle(),
@@ -500,44 +501,14 @@ void RenderProcessHost::SendUserScriptsUpdate(
   }
 }
 
-void RenderProcessHost::Attach(IPC::Channel::Listener* listener,
-                               int routing_id) {
-  listeners_.AddWithID(listener, routing_id);
-}
-
-void RenderProcessHost::Release(int listener_id) {
-  DCHECK(listeners_.Lookup(listener_id) != NULL);
-  listeners_.Remove(listener_id);
-
-  // make sure that all associated resource requests are stopped.
-  widget_helper_->CancelResourceRequests(listener_id);
-
-  // when no other owners of this object, we can delete ourselves
-  if (listeners_.IsEmpty()) {
-    if (!notified_termination_) {
-      bool close_expected = true;
-      NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_TERMINATED,
-                                             Source<RenderProcessHost>(this),
-                                             Details<bool>(&close_expected));
-      notified_termination_ = true;
-    }
-    Unregister();
-    MessageLoop::current()->DeleteSoon(FROM_HERE, this);
-  }
-}
-
-void RenderProcessHost::ReportExpectingClose(int32 listener_id) {
-  listeners_expecting_close_.insert(listener_id);
-}
-
-bool RenderProcessHost::FastShutdownIfPossible() {
+bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   if (!process_.handle())
     return false;  // Render process is probably crashed.
-  if (RenderProcessHost::run_renderer_in_process())
+  if (BrowserRenderProcessHost::run_renderer_in_process())
     return false;  // Since process mode can't do fast shutdown.
 
   // Test if there's an unload listener
-  RenderProcessHost::listeners_iterator iter;
+  BrowserRenderProcessHost::listeners_iterator iter;
   // NOTE: This is a bit dangerous.  We know that for now, listeners are
   // always RenderWidgetHosts.  But in theory, they don't have to be.
   for (iter = listeners_begin(); iter != listeners_end(); ++iter) {
@@ -561,34 +532,19 @@ bool RenderProcessHost::FastShutdownIfPossible() {
   return true;
 }
 
-// Static. This function can be called from the IO Thread or from the UI thread.
-void RenderProcessHost::BadMessageTerminateProcess(uint16 msg_type,
-                                                   HANDLE process) {
-  LOG(ERROR) << "bad message " << msg_type << " terminating renderer.";
-  if (RenderProcessHost::run_renderer_in_process()) {
-    // In single process mode it is better if we don't suicide but just crash.
-    CHECK(false);
+bool BrowserRenderProcessHost::Send(IPC::Message* msg) {
+  if (!channel_.get()) {
+    delete msg;
+    return false;
   }
-  NOTREACHED();
-  ::TerminateProcess(process, ResultCodes::KILLED_BAD_MESSAGE);
+  return channel_->Send(msg);
 }
 
-void RenderProcessHost::UpdateMaxPageID(int32 page_id) {
-  if (page_id > max_page_id_)
-    max_page_id_ = page_id;
-}
-
-void RenderProcessHost::CrossSiteClosePageACK(int new_render_process_host_id,
-                                              int new_request_id) {
-  widget_helper_->CrossSiteClosePageACK(new_render_process_host_id,
-                                        new_request_id);
-}
-
-void RenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
+void BrowserRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
   if (msg.routing_id() == MSG_ROUTING_CONTROL) {
     // dispatch control messages
     bool msg_is_ok = true;
-    IPC_BEGIN_MESSAGE_MAP_EX(RenderProcessHost, msg, msg_is_ok)
+    IPC_BEGIN_MESSAGE_MAP_EX(BrowserRenderProcessHost, msg, msg_is_ok)
       IPC_MESSAGE_HANDLER(ViewHostMsg_PageContents, OnPageContents)
       IPC_MESSAGE_HANDLER(ViewHostMsg_UpdatedCacheStats,
                           OnUpdatedCacheStats)
@@ -604,7 +560,7 @@ void RenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
   }
 
   // dispatch incoming messages to the appropriate TabContents
-  IPC::Channel::Listener* listener = listeners_.Lookup(msg.routing_id());
+  IPC::Channel::Listener* listener = GetListenerByID(msg.routing_id());
   if (!listener) {
     if (msg.is_sync()) {
       // The listener has gone away, so we must respond or else the caller will
@@ -618,7 +574,7 @@ void RenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
   listener->OnMessageReceived(msg);
 }
 
-void RenderProcessHost::OnChannelConnected(int32 peer_pid) {
+void BrowserRenderProcessHost::OnChannelConnected(int32 peer_pid) {
   // process_ is not NULL if we created the renderer process
   if (!process_.handle()) {
     if (GetCurrentProcessId() == peer_pid) {
@@ -639,8 +595,20 @@ void RenderProcessHost::OnChannelConnected(int32 peer_pid) {
   }
 }
 
+// Static. This function can be called from the IO Thread or from the UI thread.
+void BrowserRenderProcessHost::BadMessageTerminateProcess(uint16 msg_type,
+                                                          HANDLE process) {
+  LOG(ERROR) << "bad message " << msg_type << " terminating renderer.";
+  if (BrowserRenderProcessHost::run_renderer_in_process()) {
+    // In single process mode it is better if we don't suicide but just crash.
+    CHECK(false);
+  }
+  NOTREACHED();
+  ::TerminateProcess(process, ResultCodes::KILLED_BAD_MESSAGE);
+}
+
 // indicates the renderer process has exited
-void RenderProcessHost::OnObjectSignaled(HANDLE object) {
+void BrowserRenderProcessHost::OnObjectSignaled(HANDLE object) {
   DCHECK(process_.handle());
   DCHECK(channel_.get());
   DCHECK_EQ(object, process_.handle());
@@ -671,16 +639,18 @@ void RenderProcessHost::OnObjectSignaled(HANDLE object) {
   // at this point, this object should be deleted
 }
 
-// Used to send responses to resource requests
-bool RenderProcessHost::Send(IPC::Message* msg) {
-  if (!channel_.get()) {
-    delete msg;
-    return false;
+void BrowserRenderProcessHost::Unregister() {
+  // RenderProcessHost::Unregister will clean up the host_id_, so we must
+  // do our cleanup that uses that variable before we call it.
+  if (host_id() >= 0) {
+    CacheManagerHost::GetInstance()->Remove(host_id());
+    RendererSecurityPolicy::GetInstance()->Remove(host_id());
   }
-  return channel_->Send(msg);
+
+  RenderProcessHost::Unregister();
 }
 
-void RenderProcessHost::OnPageContents(const GURL& url,
+void BrowserRenderProcessHost::OnPageContents(const GURL& url,
                                        int32 page_id,
                                        const std::wstring& contents) {
   Profile* p = profile();
@@ -692,57 +662,12 @@ void RenderProcessHost::OnPageContents(const GURL& url,
     hs->SetPageContents(url, contents);
 }
 
-void RenderProcessHost::OnUpdatedCacheStats(
+void BrowserRenderProcessHost::OnUpdatedCacheStats(
     const CacheManager::UsageStats& stats) {
   CacheManagerHost::GetInstance()->ObserveStats(host_id(), stats);
 }
 
-// static
-RenderProcessHost::iterator RenderProcessHost::begin() {
-  return all_hosts.begin();
-}
-
-// static
-RenderProcessHost::iterator RenderProcessHost::end() {
-  return all_hosts.end();
-}
-
-// static
-size_t RenderProcessHost::size() {
-  return all_hosts.size();
-}
-
-// Returns true if the given host is suitable for launching a new view
-// associated with the given profile.
-// TODO(jabdelmalek): do we want to avoid processes with hung renderers
-// or with a large memory consumption?
-static bool IsSuitableHost(Profile* profile, RenderProcessHost* host) {
-  return host->profile() == profile;
-}
-
-// static
-RenderProcessHost* RenderProcessHost::GetExistingProcessHost(Profile* profile) {
-  // First figure out which existing renderers we can use
-  std::vector<RenderProcessHost*> suitable_renderers;
-  suitable_renderers.reserve(all_hosts.size());
-
-  for (IDMap<RenderProcessHost>::const_iterator iter = all_hosts.begin();
-       iter != all_hosts.end(); ++iter) {
-    if (IsSuitableHost(profile, iter->second))
-      suitable_renderers.push_back(iter->second);
-  }
-
-  // Now pick a random suitable renderer, if we have any
-  if (!suitable_renderers.empty()) {
-    int suitable_count = static_cast<int>(suitable_renderers.size());
-    int random_index = base::RandInt(0, suitable_count - 1);
-    return suitable_renderers[random_index];
-  }
-
-  return NULL;
-}
-
-void RenderProcessHost::SetBackgrounded(bool backgrounded) {
+void BrowserRenderProcessHost::SetBackgrounded(bool backgrounded) {
   // If the process_ is NULL, the process hasn't been created yet.
   if (process_.handle()) {
     bool rv = process_.SetProcessBackgrounded(backgrounded);
@@ -772,39 +697,10 @@ void RenderProcessHost::SetBackgrounded(bool backgrounded) {
   backgrounded_ = backgrounded;
 }
 
-void RenderProcessHost::WidgetRestored() {
-  // Verify we were properly backgrounded.
-  DCHECK(backgrounded_ == (visible_widgets_ == 0));
-  visible_widgets_++;
-  SetBackgrounded(false);
-}
-
-void RenderProcessHost::WidgetHidden() {
-  // On startup, the browser will call Hide
-  if (backgrounded_)
-    return;
-
-  DCHECK(backgrounded_ == (visible_widgets_ == 0));
-  visible_widgets_--;
-  DCHECK(visible_widgets_ >= 0);
-  if (visible_widgets_ == 0) {
-    DCHECK(!backgrounded_);
-    SetBackgrounded(true);
-  }
-}
-
-void RenderProcessHost::AddWord(const std::wstring& word) {
-  base::Thread* io_thread = g_browser_process->io_thread();
-  if (profile_->GetSpellChecker()) {
-    io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        profile_->GetSpellChecker(), &SpellChecker::AddWord, word));
-  }
-}
-
 // NotificationObserver implementation.
-void RenderProcessHost::Observe(NotificationType type,
-                                const NotificationSource& source,
-                                const NotificationDetails& details) {
+void BrowserRenderProcessHost::Observe(NotificationType type,
+                                       const NotificationSource& source,
+                                       const NotificationDetails& details) {
   switch (type) {
     case NOTIFY_PREF_CHANGED: {
       std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
@@ -832,19 +728,3 @@ void RenderProcessHost::Observe(NotificationType type,
     }
   }
 }
-
-// static
-bool RenderProcessHost::ShouldTryToUseExistingProcessHost() {
-  unsigned int renderer_process_count =
-      static_cast<unsigned int>(all_hosts.size());
-
-  // NOTE: Sometimes it's necessary to create more render processes than
-  //       GetMaxRendererProcessCount(), for instance when we want to create
-  //       a renderer process for a profile that has no existing renderers.
-  //       This is OK in moderation, since the GetMaxRendererProcessCount()
-  //       is conservative.
-
-  return run_renderer_in_process() ||
-         (renderer_process_count >= GetMaxRendererProcessCount());
-}
-
