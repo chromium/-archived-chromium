@@ -50,7 +50,7 @@ class SavePageTest : public UITest {
 
     EXPECT_TRUE(DieFileDie(client_file, false));
   }
-
+SavePageTest
   virtual void SetUp() {
     UITest::SetUp();
     EXPECT_TRUE(file_util::CreateNewTempDirectory(L"", &save_dir_));
@@ -146,7 +146,8 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
   EXPECT_TRUE(DieFileDie(dir, true));
 }
 
-TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
+// BUG 6514
+TEST_F(SavePageTest, DISABLED_CleanFilenameFromPageTitle) {
   std::wstring file_name = L"c.htm";
   std::wstring full_file_name = download_dir_ + L"test.htm";
   std::wstring dir = download_dir_ + L"test_files";
