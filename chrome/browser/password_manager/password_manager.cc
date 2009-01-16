@@ -9,6 +9,8 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
@@ -17,14 +19,91 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+// After a successful *new* login attempt, we take the PasswordFormManager in
+// provisional_save_manager_ and move it to a SavePasswordInfoBarDelegate while
+// the user makes up their mind with the "save password" infobar. Note if the
+// login is one we already know about, the end of the line is
+// provisional_save_manager_ because we just update it on success and so such
+// forms never end up in an infobar.
+class SavePasswordInfoBarDelegate : public ConfirmInfoBarDelegate,
+                                    public NotificationObserver {
+ public:
+  SavePasswordInfoBarDelegate(TabContents* tab_contents,
+                              PasswordFormManager* form_to_save) :
+      ConfirmInfoBarDelegate(tab_contents),
+      form_to_save_(form_to_save) {
+    registrar_.Add(this, NOTIFY_TAB_CLOSED,
+                   Source<NavigationController>(tab_contents->controller()));
+  }
+
+   virtual ~SavePasswordInfoBarDelegate() { }  
+
+  // Overridden from ConfirmInfoBarDelegate:
+  virtual void InfoBarClosed() {
+    delete this;
+  }
+
+  virtual std::wstring GetMessageText() const {
+    return l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_PASSWORD_PROMPT);
+  }
+
+  virtual SkBitmap* GetIcon() const {
+    return ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_INFOBAR_SAVE_PASSWORD);
+  }
+
+  virtual int GetButtons() const {
+    return BUTTON_OK | BUTTON_CANCEL;
+  }
+
+  virtual std::wstring GetButtonLabel(InfoBarButton button) const {
+    if (button == BUTTON_OK)
+      return l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_BUTTON);
+    if (button == BUTTON_CANCEL)
+      return l10n_util::GetString(IDS_PASSWORD_MANAGER_BLACKLIST_BUTTON);
+    NOTREACHED();
+    return std::wstring();
+  }
+
+  virtual bool Accept() {
+    DCHECK(form_to_save_.get());
+    form_to_save_->Save();
+    return true;
+  }
+
+  virtual bool Cancel() {
+    DCHECK(form_to_save_.get());
+    form_to_save_->PermanentlyBlacklist();
+    return true;
+  }
+
+  // NotificationObserver
+  virtual void Observe(NotificationType type, const NotificationSource& source,
+                       const NotificationDetails& details) {
+    DCHECK(type == NOTIFY_TAB_CLOSED);
+    // We don't get InfoBarClosed notification when a tab is closed, so we need
+    // to clean up after ourselves now.
+    // TODO(timsteele): This should not be necessary; see http://crbug.com/6520
+    delete this;
+  }
+ 
+ private:
+  // The PasswordFormManager managing the form we're asking the user about,
+  // and should update as per her decision.
+  scoped_ptr<PasswordFormManager> form_to_save_;
+
+  NotificationRegistrar registrar_;
+
+  DISALLOW_COPY_AND_ASSIGN(SavePasswordInfoBarDelegate);
+};
+
 // static
 void PasswordManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kPasswordManagerEnabled, true);
 }
 
 PasswordManager::PasswordManager(WebContents* web_contents)
-    : ConfirmInfoBarDelegate(web_contents),
-      web_contents_(web_contents),
+    : web_contents_(web_contents),
       observer_(NULL),
       login_managers_deleter_(&pending_login_managers_) {
   password_manager_enabled_.Init(prefs::kPasswordManagerEnabled,
@@ -32,8 +111,6 @@ PasswordManager::PasswordManager(WebContents* web_contents)
 }
 
 PasswordManager::~PasswordManager() {
-  // Remove any InfoBars we may be showing.
-  web_contents_->RemoveInfoBar(this);
 }
 
 void PasswordManager::ProvisionallySavePassword(PasswordForm form) {
@@ -109,8 +186,9 @@ void PasswordManager::DidStopLoading() {
     return;
 
   if (provisional_save_manager_->IsNewLogin()) {
-    web_contents_->AddInfoBar(this);
-    pending_decision_manager_.reset(provisional_save_manager_.release());
+    web_contents_->AddInfoBar(
+        new SavePasswordInfoBarDelegate(web_contents_,
+                                        provisional_save_manager_.release())); 
   } else {
     // If the save is not a new username entry, then we just want to save this
     // data (since the user already has related data saved), so don't prompt.
@@ -177,43 +255,5 @@ void PasswordManager::Autofill(const PasswordForm& form_for_autofill,
         observer_->OnAutofillDataAvailable(preferred_match->username_value,
                                            preferred_match->password_value);
   }
-}
-
-// PasswordManager, ConfirmInfoBarDelegate implementation: ---------------------
-
-void PasswordManager::InfoBarClosed() {
-  pending_decision_manager_.reset(NULL);
-}
-
-std::wstring PasswordManager::GetMessageText() const {
-  return l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_PASSWORD_PROMPT);
-}
-
-SkBitmap* PasswordManager::GetIcon() const {
-  return ResourceBundle::GetSharedInstance().GetBitmapNamed(
-      IDR_INFOBAR_SAVE_PASSWORD);
-}
-
-int PasswordManager::GetButtons() const {
-  return BUTTON_OK | BUTTON_CANCEL;
-}
-
-std::wstring PasswordManager::GetButtonLabel(InfoBarButton button) const {
-  if (button == BUTTON_OK)
-    return l10n_util::GetString(IDS_PASSWORD_MANAGER_SAVE_BUTTON);
-  if (button == BUTTON_CANCEL)
-    return l10n_util::GetString(IDS_PASSWORD_MANAGER_BLACKLIST_BUTTON);
-  NOTREACHED();
-  return std::wstring();
-}
-
-bool PasswordManager::Accept() {
-  pending_decision_manager_->Save();
-  return true;
-}
-
-bool PasswordManager::Cancel() {
-  pending_decision_manager_->PermanentlyBlacklist();
-  return true;
 }
 

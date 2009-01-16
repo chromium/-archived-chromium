@@ -34,6 +34,8 @@
 #include "webkit/glue/resource_type.h"
 #include "generated_resources.h"
 
+// TODO(timsteele): SSLInfoBarDelegate can leak when a tab is closed, see
+// http://crbug.com/6520
 class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
  public:
    SSLInfoBarDelegate(TabContents* contents,

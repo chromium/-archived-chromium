@@ -52,6 +52,8 @@ namespace {
 
 // A delegate for the InfoBar shown when the previous session has crashed. The
 // bar deletes itself automatically after it is closed.
+// TODO(timsteele): This delegate can leak when a tab is closed, see
+// http://crbug.com/6520
 class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
  public:
   explicit SessionCrashedInfoBarDelegate(TabContents* contents)

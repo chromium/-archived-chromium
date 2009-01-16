@@ -21,6 +21,23 @@ class LinkInfoBarDelegate;
 // does not map to a specific InfoBar type. Instead, you must implement either
 // AlertInfoBarDelegate or ConfirmInfoBarDelegate, or override with your own
 // delegate for your own InfoBar variety.
+//
+// --- WARNING ---
+// When creating your InfoBarDelegate subclass, it is recommended that you
+// design it such that you instantiate a brand new delegate for every call to
+// AddInfoBar, rather than re-using/sharing a delegate object. Otherwise,
+// you need to consider the fact that more than one InfoBar instance can exist
+// and reference the same delegate -- even though it is also true that we only
+// ever fully show one infobar (they don't stack). The dual-references occur
+// because a second InfoBar can be added while the first one is in the process
+// of closing (the animations). This can cause problems because when the first
+// one does finally fully close InfoBarDelegate::InfoBarClosed() is called,
+// and the delegate is free to clean itself up or reset state, which may have
+// fatal consequences for the InfoBar that was in the process of opening (or is
+// now fully opened) -- it is referencing a delegate that may not even exist
+// anymore. 
+// As such, it is generally much safer to dedicate a delegate instance to
+// AddInfoBar!
 class InfoBarDelegate {
  public:
   // Returns true if the supplied |delegate| is equal to this one. Equality is
