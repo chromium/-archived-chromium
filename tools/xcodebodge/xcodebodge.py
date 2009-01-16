@@ -453,6 +453,11 @@ class XcodeProject(object):
       # 302594 since we can't assume Python 2.5 with os.path.relpath()
       source_root_parts = self.source_root_path.split(os.path.sep)
       target_parts = abs_path.split(os.path.sep)
+      # Guard against drive changes on Win32 and cygwin
+      if sys.platform == 'win32' and source_root_parts[0] <> target_parts[0]:
+        return None
+      if sys.platform == 'cygwin' and source_root_parts[2] <> target_parts[2]:
+        return None
       for i in range(min(len(source_root_parts), len(target_parts))):
         if source_root_parts[i] <> target_parts[i]: break
       else:
