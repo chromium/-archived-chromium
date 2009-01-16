@@ -277,9 +277,19 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
               WebInputEvent::CTRL_KEY,
           (event.modifiers & WebInputEvent::ALT_KEY) ==
               WebInputEvent::ALT_KEY);
+
+      // This is tricky: we want to set ignore_next_char_event_ if
+      // ProcessAccelerator returns true. But ProcessAccelerator might delete
+      // |this| if the accelerator is a "close tab" one. So we speculatively
+      // set the flag and fix it if no event was handled.
+      ignore_next_char_event_ = true;
       if (focus_manager->ProcessAccelerator(accelerator, false)) {
-        ignore_next_char_event_ = true;
+        // DANGER: |this| could be deleted now!
         return;
+      } else {
+        // ProcessAccelerator didn't handle the accelerator, so we know both
+        // that |this| is still valid, and that we didn't want to set the flag.
+        ignore_next_char_event_ = false;
       }
     }
   }
