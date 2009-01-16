@@ -304,11 +304,6 @@ DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
 // error in the header of the following test.
 DEFER SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
-// Failed with change http://codereview.chromium.org/12457 which changes
-// the fallback font to "times new roman" from "Times". Need to
-// verify if the current behavior is still correct.
-WIN : LayoutTests/fast/css/font-face-default-font.html = FAIL
-
 // We don't support dynamic fonts on Linux.
 // Once we have the sandbox working, we should re-evaluate this.
 DEFER LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
