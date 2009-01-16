@@ -12,7 +12,8 @@ To import a new snapshot of libxslt:
   distribution.
 - Copy the files into this directory, omitting files which have been omitted
   here.
-- Remove libxslt/xsltconfig.h and libexslt/exsltconfig.h.
+- Run build/generate-win32-headers.bat to re-generate the configuration
+  headers.
 - 'cd linux && sh ../configure --with-libxml-src=../../libxml/linux/' to
   re-generate configuration headers.
 - Perform the modification above.

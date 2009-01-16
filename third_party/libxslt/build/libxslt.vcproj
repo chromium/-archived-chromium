@@ -16,7 +16,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;.\libxslt.vsprops"
 			>
 			<Tool
 				Name="VCLibrarianTool"
@@ -28,7 +28,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;.\libxslt.vsprops"
 			>
 			<Tool
 				Name="VCLibrarianTool"
