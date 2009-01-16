@@ -237,6 +237,19 @@ void WebPluginProxy::HandleURLRequest(const char *method,
     return;
   }
 
+  if (!target && (0 == _strcmpi(method, "GET"))) {
+    // Please refer to https://bugzilla.mozilla.org/show_bug.cgi?id=366082
+    // for more details on this.
+    if (delegate_->quirks() &
+        WebPluginDelegateImpl::PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS) {
+      GURL request_url(url);
+      if (!request_url.SchemeIs("http") && !request_url.SchemeIs("https") &&
+          !request_url.SchemeIs("ftp")) {
+        return;
+      }
+    }
+  }
+
   PluginHostMsg_URLRequest_Params params;
   params.method = method;
   params.is_javascript_url = is_javascript_url;

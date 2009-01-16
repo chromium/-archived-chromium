@@ -94,6 +94,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
     PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,
     PLUGIN_QUIRK_PATCH_SETCURSOR = 128,
+    PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 256,
   };
 
   int quirks() { return quirks_; }

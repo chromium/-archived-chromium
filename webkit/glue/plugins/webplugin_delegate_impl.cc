@@ -165,6 +165,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
         quirks_ |= PLUGIN_QUIRK_DIE_AFTER_UNLOAD;
       }
     }
+    quirks_ |= PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS;
   } else if (plugin_info.name.find(L"Windows Media Player") !=
              std::wstring::npos) {
     // Windows Media Player needs two NPP_SetWindow calls.
