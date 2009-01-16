@@ -9,6 +9,7 @@
 // static
 std::queue<views::AppModalDialogDelegate*>*
     AppModalDialogQueue::app_modal_dialog_queue_ = NULL;
+views::AppModalDialogDelegate* AppModalDialogQueue::active_dialog_ = NULL;
 
 // static
 void AppModalDialogQueue::AddDialog(views::AppModalDialogDelegate* dialog) {
@@ -24,7 +25,7 @@ void AppModalDialogQueue::AddDialog(views::AppModalDialogDelegate* dialog) {
 // static
 void AppModalDialogQueue::ShowNextDialog() {
   app_modal_dialog_queue_->pop();
-  BrowserList::SetShowingAppModalDialog(NULL);
+  active_dialog_ = NULL;
   if (!app_modal_dialog_queue_->empty()) {
     ShowModalDialog(app_modal_dialog_queue_->front());
   } else {
@@ -43,7 +44,5 @@ void AppModalDialogQueue::ActivateModalDialog() {
 void AppModalDialogQueue::ShowModalDialog(
     views::AppModalDialogDelegate* dialog) {
   dialog->ShowModalDialog();
-  BrowserList::SetShowingAppModalDialog(dialog);
+  active_dialog_ = dialog;
 }
-
-

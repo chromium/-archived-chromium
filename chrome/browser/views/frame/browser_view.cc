@@ -250,7 +250,7 @@ void BrowserView::AddViewToDropList(views::View* view) {
 
 bool BrowserView::ActivateAppModalDialog() const {
   // If another browser is app modal, flash and activate the modal browser.
-  if (BrowserList::IsShowingAppModalDialog()) {
+  if (AppModalDialogQueue::HasActiveDialog()) {
     Browser* active_browser = BrowserList::GetLastActive();
     if (active_browser && (browser_ != active_browser)) {
       active_browser->window()->FlashFrame();

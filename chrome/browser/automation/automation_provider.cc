@@ -6,6 +6,7 @@
 
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h" 
+#include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
@@ -1086,7 +1087,7 @@ void AutomationProvider::GetBrowserWindowCount(const IPC::Message& message) {
 
 void AutomationProvider::GetShowingAppModalDialog(const IPC::Message& message) {
   views::AppModalDialogDelegate* dialog_delegate =
-      BrowserList::GetShowingAppModalDialog();
+      AppModalDialogQueue::active_dialog();
   Send(new AutomationMsg_ShowingAppModalDialogResponse(
            message.routing_id(), dialog_delegate != NULL,
            dialog_delegate ? dialog_delegate->GetDialogButtons() :
@@ -1098,7 +1099,7 @@ void AutomationProvider::ClickAppModalDialogButton(const IPC::Message& message,
   bool success = false;
 
   views::AppModalDialogDelegate* dialog_delegate =
-      BrowserList::GetShowingAppModalDialog();
+      AppModalDialogQueue::active_dialog();
   if (dialog_delegate &&
       (dialog_delegate->GetDialogButtons() & button) == button) {
     views::DialogClientView* client_view =

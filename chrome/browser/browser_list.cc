@@ -159,26 +159,6 @@ bool BrowserList::HasBrowserWithProfile(Profile* profile) {
 }
 
 // static
-views::AppModalDialogDelegate* BrowserList::app_modal_dialog_ = NULL;
-
-// static
-void BrowserList::SetShowingAppModalDialog(
-    views::AppModalDialogDelegate* dialog) {
-  DCHECK(!(app_modal_dialog_ && dialog));
-  app_modal_dialog_ = dialog;
-}
-
-// static
-views::AppModalDialogDelegate* BrowserList::GetShowingAppModalDialog() {
-  return app_modal_dialog_;
-}
-
-// static
-bool BrowserList::IsShowingAppModalDialog() {
-  return app_modal_dialog_ != NULL;
-}
-
-// static
 BrowserList::list_type BrowserList::last_active_browsers_;
 
 // static

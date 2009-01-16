@@ -10,11 +10,6 @@
 
 #include "chrome/browser/browser.h"
 
-namespace views {
-class AppModalDialogDelegate;
-};
-class WebContents;
-
 // Stores a list of all Browser objects.
 class BrowserList {
  public:
@@ -69,14 +64,6 @@ class BrowserList {
   // Returns true if there is at least one Browser with the specified profile.
   static bool HasBrowserWithProfile(Profile* profile);
 
-  // Sets the passed dialog delegate as the currently showing dialog.
-  static void SetShowingAppModalDialog(views::AppModalDialogDelegate* dialog);
-  static views::AppModalDialogDelegate* GetShowingAppModalDialog();
-
-  // True if the last active browser is application modal, false otherwise. See
-  // SetIsShowingAppModalDialog for more details.
-  static bool IsShowingAppModalDialog();
-
   static const_iterator begin() {
     return browsers_.begin();
   }
@@ -119,11 +106,9 @@ class BrowserList {
   static list_type browsers_;
   static std::vector<Observer*> observers_;
   static list_type last_active_browsers_;
-
-  // Set to the currently showing modal dialog delegate if any, NULL otherwise.
-  static views::AppModalDialogDelegate* app_modal_dialog_;
 };
 
+class WebContents;
 
 // Iterates through all web view hosts in all browser windows. Because the
 // renderers act asynchronously, getting a host through this interface does
