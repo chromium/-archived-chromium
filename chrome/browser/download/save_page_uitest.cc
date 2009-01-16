@@ -50,7 +50,7 @@ class SavePageTest : public UITest {
 
     EXPECT_TRUE(DieFileDie(client_file, false));
   }
-SavePageTest
+
   virtual void SetUp() {
     UITest::SetUp();
     EXPECT_TRUE(file_util::CreateNewTempDirectory(L"", &save_dir_));
