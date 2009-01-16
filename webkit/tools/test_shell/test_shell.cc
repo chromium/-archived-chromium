@@ -168,6 +168,18 @@ TestShell::~TestShell() {
   }
 }
 
+bool TestShell::CreateNewWindow(const std::wstring& startingURL,
+                                TestShell** result) {
+  TestShell* shell = new TestShell();
+  bool rv = shell->Initialize(startingURL);
+  if (rv) {
+    if (result)
+      *result = shell;
+    TestShell::windowList()->push_back(shell->m_mainWnd);
+  }
+  return rv;
+}
+
 void TestShell::ShutdownTestShell() {
 #if defined(OS_WIN) || defined(OS_MACOSX)
     PlatformShutdown();

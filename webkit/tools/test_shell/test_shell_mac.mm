@@ -66,8 +66,7 @@ base::LazyInstance <std::map<gfx::NativeWindow, TestShell *> >
 
 // Receives notification that the window is closing so that it can start the
 // tear-down process. Is responsible for deleting itself when done.
-@interface WindowCloseDelegate : NSObject {
-}
+@interface WindowCloseDelegate : NSObject
 @end
 
 @implementation WindowCloseDelegate
@@ -111,8 +110,11 @@ void TestShell::PlatformCleanUp() {
 // static
 void TestShell::DestroyAssociatedShell(gfx::NativeWindow handle) {
   TestShell* shell = window_map_.Get()[handle];
-  if (shell)
+  if (shell) {
     window_map_.Get().erase(handle);
+  } else {
+    LOG(ERROR) << "Failed to find shell for window during destroy";
+  }
   delete shell;
 }
 
@@ -431,6 +433,9 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
                                 defer:NO];
   [m_mainWnd setTitle:@"TestShell"];
   
+  // Add to our map
+  window_map_.Get()[m_mainWnd] = this;
+  
   // Create a window delegate to watch for when it's asked to go away. It will
   // clean itself up so we don't need to hold a reference.
   [m_mainWnd setDelegate:[[WindowCloseDelegate alloc] init]];
@@ -615,24 +620,23 @@ void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
 #endif
 }
 
-// static*
-bool TestShell::CreateNewWindow(const std::wstring& startingURL,
-                                TestShell** result) {
-  TestShell* shell = new TestShell();
-  bool rv = shell->Initialize(startingURL);
-  if (rv) {
-    if (result)
-      *result = shell;
-    TestShell::windowList()->push_back(shell->m_mainWnd);
-    window_map_.Get()[shell->m_mainWnd] = shell;
-  }
-  return rv;
-}
-
 // static
 void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
+  // This code is like -cleanup: on our window delegate.  This call needs to be
+  // able to force down a window for tests, so it closes down the window making
+  // sure it cleans up the window delegate and the test shells list of windows
+  // and map of windows to shells.
+
   TestShell::RemoveWindowFromList(windowHandle);
+  TestShell::DestroyAssociatedShell(windowHandle);
+
+  id windowDelegate = [windowHandle delegate];
+  DCHECK(windowDelegate);
+  [windowHandle setDelegate:nil];
+  [windowDelegate release];
+
   [windowHandle close];
+  [windowHandle autorelease];
 }
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
@@ -670,6 +674,8 @@ void TestShell::ResizeSubViews() {
     TestShell* shell = window_map_.Get()[window];
     if (shell)
       webkit_glue::DumpBackForwardList(shell->webView(), NULL, result);
+    else
+      LOG(ERROR) << "Failed to find shell for window during dump";
   }
 }
 
@@ -683,6 +689,7 @@ void TestShell::ResizeSubViews() {
 
   NSWindow* window = *(TestShell::windowList()->begin());
   TestShell* shell = window_map_.Get()[window];
+  DCHECK(shell);
   shell->ResetTestController();
 
   // ResetTestController may have closed the window we were holding on to. 

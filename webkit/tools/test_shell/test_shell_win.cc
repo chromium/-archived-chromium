@@ -150,18 +150,6 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   }
 }
 
-bool TestShell::CreateNewWindow(const std::wstring& startingURL,
-                                TestShell** result) {
-  TestShell* shell = new TestShell();
-  bool rv = shell->Initialize(startingURL);
-  if (rv) {
-    if (result)
-      *result = shell;
-    TestShell::windowList()->push_back(shell->m_mainWnd);
-  }
-  return rv;
-}
-
 void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
   // Do we want to tear down some of the machinery behind the scenes too?
   RemoveWindowFromList(windowHandle);

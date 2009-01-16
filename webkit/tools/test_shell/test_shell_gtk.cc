@@ -139,18 +139,6 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     LOG(FATAL) << "Failed to set the default font configuration";
 }
 
-// static
-bool TestShell::CreateNewWindow(const std::wstring& startingURL,
-                                TestShell** result) {
-  TestShell *shell = new TestShell();
-  if (!shell->Initialize(startingURL))
-    return false;
-  if (result)
-    *result = shell;
-  TestShell::windowList()->push_back(shell->m_mainWnd);
-  return true;
-}
-
 void TestShell::PlatformCleanUp() {
   // The GTK widgets will be destroyed, which will free the associated
   // objects.  So we don't need the scoped_ptr to free the webViewHost.
