@@ -129,13 +129,15 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
     return;
   }
 
-  MessageLoop* io_loop = g_browser_process->io_thread()->message_loop();
-  if (io_loop == NULL) {
+  // Put this work on the file thread since ShellExecute may block for a
+  // significant amount of time.
+  MessageLoop* loop = g_browser_process->file_thread()->message_loop();
+  if (loop == NULL) {
     return;
   }
 
   // Otherwise the protocol is white-listed, so go ahead and launch.
-  io_loop->PostTask(FROM_HERE,
+  loop->PostTask(FROM_HERE,
       NewRunnableFunction(
           &ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck,
           escaped_url));
