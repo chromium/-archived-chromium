@@ -328,8 +328,6 @@
 		E4F3258C0EE83767002533CE /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
 		E4F325C80EE83A45002533CE /* ipc_fuzzing_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAD0E9D4C9F009A6919 /* ipc_fuzzing_tests.cc */; };
 		E4F325D10EE83B71002533CE /* ipc_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBE0E9D4C9F009A6919 /* ipc_tests.cc */; };
-		F922CF8CE7BF09D4C5B1D89C /* metrics_log_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 187598100CC57B863A3BDD57 /* metrics_log_unittest.cc */; };
-		F9B538451524D56377E15A11 /* metrics_response_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = F145A671557D09F55DCD580A /* metrics_response_unittest.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3759,8 +3757,6 @@
 				4D7BFB510E9D4C3E009A6919 /* dns_host_info_unittest.cc in Sources */,
 				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
 				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,
-				F922CF8CE7BF09D4C5B1D89C /* metrics_log_unittest.cc in Sources */,
-				F9B538451524D56377E15A11 /* metrics_response_unittest.cc in Sources */,
 				B503E0FC0F01764800547DC6 /* user_script_slave_unittest.cc in Sources */,
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
 				B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */,
