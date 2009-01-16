@@ -119,7 +119,7 @@ void StackTrace::PrintBacktrace() {
 // TODO(port): complete this code
 StackTrace::StackTrace() { }
 
-StackTrace::PrintBacktrace() {
+void StackTrace::PrintBacktrace() {
   NOTIMPLEMENTED();
 }
 
