@@ -35,6 +35,7 @@
 
 /* Begin PBXBuildFile section */
 		4D1638790EBFA714008F024E /* libsqlite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D1638760EBFA6F7008F024E /* libsqlite.a */; };
+		4D4164FC0F212E6500F2F4A0 /* KeystoneGlue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4164FB0F212E6500F2F4A0 /* KeystoneGlue.m */; };
 		4D4C57FC0EF1A314002CA805 /* multipart_response_delegate_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506B9E0EF02C7E003BE099 /* multipart_response_delegate_unittest.cc */; };
 		4D4C58D90EF1A6D0002CA805 /* password_autocomplete_listener_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4506BA00EF02C85003BE099 /* password_autocomplete_listener_unittest.cc */; };
 		4DB687D70EAFE7C800AB2128 /* libxslt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB687D40EAFE79200AB2128 /* libxslt.a */; };
@@ -707,6 +708,8 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* TestShell_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestShell_Prefix.pch; sourceTree = "<group>"; };
 		4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sqlite.xcodeproj; path = third_party/sqlite/sqlite.xcodeproj; sourceTree = "<group>"; };
+		4D4164FA0F212E6500F2F4A0 /* KeystoneGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeystoneGlue.h; sourceTree = "<group>"; };
+		4D4164FB0F212E6500F2F4A0 /* KeystoneGlue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeystoneGlue.m; sourceTree = "<group>"; };
 		4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = third_party/libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
 		4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
 		4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../../../../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
@@ -1162,6 +1165,8 @@
 			children = (
 				F431EA480F1D141300E8D37F /* DumpRenderTreePasteboard.m */,
 				F431EA490F1D141300E8D37F /* DumpRenderTreePasteboard.h */,
+				4D4164FA0F212E6500F2F4A0 /* KeystoneGlue.h */,
+				4D4164FB0F212E6500F2F4A0 /* KeystoneGlue.m */,
 				29B97316FDCFA39411CA2CEA /* main.mm */,
 				ABA65EFD0DD50BFF003A4FC8 /* test_shell_webview.h */,
 				ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */,
@@ -1900,6 +1905,7 @@
 			files = (
 				F431EA4A0F1D141300E8D37F /* DumpRenderTreePasteboard.m in Sources */,
 				E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */,
+				4D4164FC0F212E6500F2F4A0 /* KeystoneGlue.m in Sources */,
 				E45629170E26B4FE005E4685 /* layout_test_controller.cc in Sources */,
 				E45629150E26B4FE005E4685 /* main.mm in Sources */,
 				53E50D280ECA1B21001784B4 /* simple_clipboard_impl.cc in Sources */,

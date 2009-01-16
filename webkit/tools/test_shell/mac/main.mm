@@ -25,6 +25,7 @@
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
+#import "webkit/tools/test_shell/mac/KeystoneGlue.h"
 
 #include "WebSystemInterface.h"
 
@@ -221,6 +222,9 @@ int main(const int argc, const char *argv[]) {
 
   // Default to a homepage if we're interactive
   if (!layout_test_mode) {
+    // If Keystone is available, set it up if needed and register with it.
+    [KeystoneGlue registerWithKeystone];
+
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     NSString *testShellPath =
         [resourcePath stringByAppendingPathComponent:@"test_shell/index.html"];
