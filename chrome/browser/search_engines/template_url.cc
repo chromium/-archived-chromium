@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/template_url.h"
+#include "chrome/browser/search_engines/template_url.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/google_url_tracker.h"
-#include "chrome/browser/template_url_model.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/l10n_util.h"
 #include "net/base/escape.h"

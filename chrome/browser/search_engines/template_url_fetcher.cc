@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/template_url_fetcher.h"
+#include "chrome/browser/search_engines/template_url_fetcher.h"
 
 #include "chrome/browser/profile.h"
-#include "chrome/browser/template_url.h"
-#include "chrome/browser/template_url_model.h"
-#include "chrome/browser/template_url_parser.h"
+#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/search_engines/template_url_parser.h"
 #include "chrome/browser/views/edit_keyword_controller.h"
 
 // RequestDelegate ------------------------------------------------------------

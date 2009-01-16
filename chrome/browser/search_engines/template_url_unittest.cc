@@ -5,7 +5,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/rlz/rlz.h"
-#include "chrome/browser/template_url.h"
+#include "chrome/browser/search_engines/template_url.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TemplateURLTest : public testing::Test {

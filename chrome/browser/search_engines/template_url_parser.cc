@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/template_url_parser.h"
+#include "chrome/browser/search_engines/template_url_parser.h"
 
 #include <map>
 #include <vector>
@@ -10,7 +10,7 @@
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "chrome/browser/template_url.h"
+#include "chrome/browser/search_engines/template_url.h"
 #include "googleurl/src/gurl.h"
 #include "libxml/parser.h"
 #include "libxml/xmlwriter.h"

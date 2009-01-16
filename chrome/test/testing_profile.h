@@ -12,8 +12,8 @@
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/sessions/session_service.h"
-#include "chrome/browser/template_url_model.h"
 #include "chrome/common/pref_service.h"
 
 class TestingProfile : public Profile {

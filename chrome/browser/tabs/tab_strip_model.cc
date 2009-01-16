@@ -533,7 +533,7 @@ bool TabStripModel::InternalCloseTabContentsAt(int index,
     // them. Once they have fired, we'll get a message back saying whether
     // to proceed closing the page or not, which sends us back to this method
     // with the HasUnloadListener bit cleared.
-    WebContents* web_contents = GetContentsAt(index)->AsWebContents();
+    WebContents* web_contents = detached_contents->AsWebContents();
     // If we hit this code path, the tab had better be a WebContents tab.
     DCHECK(web_contents);
     web_contents->render_view_host()->FirePageBeforeUnload();

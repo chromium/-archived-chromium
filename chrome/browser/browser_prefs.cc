@@ -19,7 +19,7 @@
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/task_manager.h"
-#include "chrome/browser/template_url_prepopulate_data.h"
+#include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/bookmark_table_view.h"
