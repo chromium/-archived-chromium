@@ -5,13 +5,9 @@
 #include "build/build_config.h"
 #include "base/debug_util.h"
 
-#if defined(OS_LINUX)
-#include <unistd.h>
 #include <execinfo.h>
-#endif
-
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/stat.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>
@@ -98,10 +94,8 @@ void DebugUtil::BreakDebugger() {
   asm ("int3");
 }
 
-#if defined(OS_LINUX)
-
 StackTrace::StackTrace() {
-  static const unsigned kMaxCallers = 256;
+  static const int kMaxCallers = 256;
 
   void* callers[kMaxCallers];
   int count = backtrace(callers, kMaxCallers);
@@ -112,22 +106,4 @@ StackTrace::StackTrace() {
 void StackTrace::PrintBacktrace() {
   fflush(stderr);
   backtrace_symbols_fd(&trace_[0], trace_.size(), STDERR_FILENO);
-}
-
-#elif defined(OS_MACOSX)
-
-// TODO(port): complete this code
-StackTrace::StackTrace() { }
-
-void StackTrace::PrintBacktrace() {
-  NOTIMPLEMENTED();
-}
-
-#endif  // defined(OS_MACOSX)
-
-const void *const *StackTrace::Addresses(size_t* count) {
-  *count = trace_.size();
-  if (trace_.size())
-    return &trace_[0];
-  return NULL;
 }

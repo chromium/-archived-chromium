@@ -106,11 +106,6 @@ void DebugUtil::BreakDebugger() {
 StackTrace::StackTrace() {
 }
 
-const void *const *StackTrace::Addresses(size_t* count) {
-  *count = 0;
-  return NULL;
-}
-
 void PrintBacktrace() {
   NOTIMPLEMENTED();
 }
