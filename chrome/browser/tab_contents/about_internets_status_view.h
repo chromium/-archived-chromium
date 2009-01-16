@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_ABOUT_INTERNETS_STATUS_VIEW_H__
-#define CHROME_BROWSER_ABOUT_INTERNETS_STATUS_VIEW_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_ABOUT_INTERNETS_STATUS_VIEW_H_
+#define CHROME_BROWSER_TAB_CONTENTS_ABOUT_INTERNETS_STATUS_VIEW_H_
 
 #include "base/scoped_handle.h"
 #include "chrome/browser/tab_contents/status_view.h"
@@ -41,5 +41,5 @@ class AboutInternetsStatusView : public StatusView {
   DISALLOW_EVIL_CONSTRUCTORS(AboutInternetsStatusView);
 };
 
-#endif  // CHROME_BROWSER_ABOUT_INTERNETS_STATUS_VIEW_H__
+#endif  // CHROME_BROWSER_TAB_CONTENTS_ABOUT_INTERNETS_STATUS_VIEW_H_
 

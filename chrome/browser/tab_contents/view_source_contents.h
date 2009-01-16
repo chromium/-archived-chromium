@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEW_SOURCE_CONTENTS_H__
-#define CHROME_BROWSER_VIEW_SOURCE_CONTENTS_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_VIEW_SOURCE_CONTENTS_H_
+#define CHROME_BROWSER_TAB_CONTENTS_VIEW_SOURCE_CONTENTS_H_
 
 #include "chrome/browser/tab_contents/web_contents.h"
 
@@ -23,5 +23,5 @@ class ViewSourceContents : public WebContents {
       const ViewHostMsg_FrameNavigate_Params& params) { }
 };
 
-#endif  // CHROME_BROWSER_VIEW_SOURCE_CONTENTS_H__
+#endif  // CHROME_BROWSER_TAB_CONTENTS_VIEW_SOURCE_CONTENTS_H_
 

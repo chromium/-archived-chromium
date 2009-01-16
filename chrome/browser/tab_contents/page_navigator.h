@@ -6,8 +6,8 @@
 // intention to navigate to a particular URL.  The implementing class should
 // perform the navigation.
 
-#ifndef CHROME_BROWSER_PAGE_NAVIGATOR_H__
-#define CHROME_BROWSER_PAGE_NAVIGATOR_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_PAGE_NAVIGATOR_H_
+#define CHROME_BROWSER_TAB_CONTENTS_PAGE_NAVIGATOR_H_
 
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -23,5 +23,5 @@ class PageNavigator {
                        PageTransition::Type transition) = 0;
 };
 
-#endif  // CHROME_BROWSER_PAGE_NAVIGATOR_H__
+#endif  // CHROME_BROWSER_TAB_CONTENTS_PAGE_NAVIGATOR_H_
 

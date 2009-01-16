@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_STATUS_VIEW_H__
-#define CHROME_BROWSER_STATUS_VIEW_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_STATUS_VIEW_H_
+#define CHROME_BROWSER_TAB_CONTENTS_STATUS_VIEW_H_
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -80,5 +80,5 @@ class StatusView : public TabContents,
   DISALLOW_EVIL_CONSTRUCTORS(StatusView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_STATUS_VIEW_H__
+#endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_STATUS_VIEW_H_
 

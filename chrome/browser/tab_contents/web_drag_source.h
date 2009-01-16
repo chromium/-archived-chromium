@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WEB_DRAG_SOURCE_H__
-#define CHROME_BROWSER_WEB_DRAG_SOURCE_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DRAG_SOURCE_H_
+#define CHROME_BROWSER_TAB_CONTENTS_WEB_DRAG_SOURCE_H_
 
 #include "base/base_drag_source.h"
 #include "base/basictypes.h"
@@ -42,8 +42,8 @@ class WebDragSource : public BaseDragSource {
   // initiated terminates).
   RenderViewHost* render_view_host_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebDragSource);
+  DISALLOW_COPY_AND_ASSIGN(WebDragSource);
 };
 
-#endif  // #ifndef CHROME_BROWSER_WEB_DRAG_SOURCE_H__
+#endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DRAG_SOURCE_H_
 

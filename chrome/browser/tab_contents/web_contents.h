@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WEB_CONTENTS_H_
-#define CHROME_BROWSER_WEB_CONTENTS_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
+#define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 
 #include "base/hash_tables.h"
 #include "chrome/browser/download/save_package.h"
@@ -573,4 +573,4 @@ class WebContents : public TabContents,
   DISALLOW_COPY_AND_ASSIGN(WebContents);
 };
 
-#endif  // CHROME_BROWSER_WEB_CONTENTS_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WEB_DROP_TARGET_H__
-#define CHROME_BROWSER_WEB_DROP_TARGET_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DROP_TARGET_H_
+#define CHROME_BROWSER_TAB_CONTENTS_WEB_DROP_TARGET_H_
 
 #include "base/base_drop_target.h"
 #include "base/scoped_ptr.h"
@@ -70,5 +70,5 @@ class WebDropTarget : public BaseDropTarget {
   DISALLOW_EVIL_CONSTRUCTORS(WebDropTarget);
 };
 
-#endif  // #ifndef CHROME_BROWSER_WEB_DROP_TARGET_H__
+#endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DROP_TARGET_H_
 

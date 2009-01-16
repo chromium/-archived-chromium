@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_INTERSTITIAL_PAGE_H_
-#define CHROME_BROWSER_INTERSTITIAL_PAGE_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_INTERSTITIAL_PAGE_H_
+#define CHROME_BROWSER_TAB_CONTENTS_INTERSTITIAL_PAGE_H_
 
 #include <string>
 
@@ -164,5 +164,5 @@ class InterstitialPage : public NotificationObserver,
   DISALLOW_COPY_AND_ASSIGN(InterstitialPage);
 };
 
-#endif  // #ifndef CHROME_BROWSER_INTERSTITIAL_PAGE_H_
+#endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_INTERSTITIAL_PAGE_H_
  

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_H__
-#define CHROME_BROWSER_CONSTRAINED_WINDOW_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_CONSTRAINED_WINDOW_H_
+#define CHROME_BROWSER_TAB_CONTENTS_CONSTRAINED_WINDOW_H_
 
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -65,4 +65,4 @@ class ConstrainedWindow {
   virtual const gfx::Rect& GetCurrentBounds() const = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_H__
+#endif  // #ifndef CHROME_TAB_CONTENTS_BROWSER_CONSTRAINED_WINDOW_H_

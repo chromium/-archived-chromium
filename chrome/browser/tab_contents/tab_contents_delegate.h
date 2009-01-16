@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
-#define CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_
+#define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_
 
 // TODO(maruel):  Remove once UINT and HWND are replaced / typedef.
 #include <windows.h>
@@ -147,4 +147,4 @@ class TabContentsDelegate : public PageNavigator {
   virtual bool IsExternalTabContainer() const { return false; }
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_

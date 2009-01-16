@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_UTIL_H__
-#define CHROME_BROWSER_TAB_UTIL_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_UTIL_H_
+#define CHROME_BROWSER_TAB_CONTENTS_TAB_UTIL_H_
 
 class URLRequest;
 class WebContents;
@@ -22,5 +22,5 @@ WebContents* GetWebContentsByID(int render_process_host_id, int routing_id);
 
 }  // namespace tab_util
 
-#endif  // CHROME_BROWSER_TAB_UTIL_H__
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_UTIL_H_
 

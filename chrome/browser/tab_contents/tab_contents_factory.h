@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_FACTORY_H_
-#define CHROME_BROWSER_TAB_CONTENTS_FACTORY_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_FACTORY_H_
+#define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_FACTORY_H_
 
 #include <string>
 #include "chrome/browser/tab_contents/tab_contents_type.h"
@@ -25,4 +25,4 @@ class TabContentsFactory {
   virtual bool CanHandleURL(const GURL& url) = 0;
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_FACTORY_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_FACTORY_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_IPC_STATUS_VIEW_H__
-#define CHROME_BROWSER_IPC_STATUS_VIEW_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_IPC_STATUS_VIEW_H_
+#define CHROME_BROWSER_TAB_CONTENTS_IPC_STATUS_VIEW_H_
 
 #include <set>
 
@@ -80,10 +80,10 @@ class IPCStatusView : public StatusView,
   HWND settings_dialog_;
   std::set<int> disabled_messages_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(IPCStatusView);
+  DISALLOW_COPY_AND_ASSIGN(IPCStatusView);
 };
 
 #endif // IPC_MESSAGE_LOG_ENABLED
 
-#endif  // #ifndef CHROME_BROWSER_IPC_STATUS_VIEW_H__
+#endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_IPC_STATUS_VIEW_H_
 

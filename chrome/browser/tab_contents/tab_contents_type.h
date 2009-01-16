@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_TYPE_H__
-#define CHROME_BROWSER_TAB_CONTENTS_TYPE_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_TYPE_H__
+#define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_TYPE_H__
 
 // The different kinds of tab contents we support. This is declared outside of
 // TabContents to eliminate the circular dependency between NavigationEntry
@@ -27,5 +27,5 @@ enum TabContentsType {
   TAB_CONTENTS_NUM_TYPES
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_TYPE_H__
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_TYPE_H__
 

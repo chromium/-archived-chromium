@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WEB_CONTENTS_VIEW_WIN_H_
-#define CHROME_BROWSER_WEB_CONTENTS_VIEW_WIN_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_
+#define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_
 
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
@@ -125,4 +125,4 @@ class WebContentsViewWin : public WebContentsView,
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewWin);
 };
 
-#endif  // CHROME_BROWSER_WEB_CONTENTS_VIEW_WIN_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_
