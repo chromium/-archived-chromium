@@ -180,6 +180,7 @@
 		89F23C9E0E78D5FD006B2466 /* macro-assembler-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1540E719B8F00D62E90 /* macro-assembler-arm.cc */; };
 		89F23C9F0E78D604006B2466 /* simulator-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF17D0E719B8F00D62E90 /* simulator-arm.cc */; };
 		89F23CA00E78D609006B2466 /* stub-cache-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF18A0E719B8F00D62E90 /* stub-cache-arm.cc */; };
+		3C865CE6CC0CD2BDB5DF2DB9 /* regexp-stack.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -471,6 +472,8 @@
 		8980D6A60EE7C3C500C07135 /* regexp-macro-assembler-tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-macro-assembler-tracer.h"; sourceTree = "<group>"; };
 		8980D6A70EE7C3C500C07135 /* regexp-macro-assembler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "regexp-macro-assembler.cc"; sourceTree = "<group>"; };
 		8980D6A80EE7C3C500C07135 /* regexp-macro-assembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-macro-assembler.h"; sourceTree = "<group>"; };
+		563A6BC35D56A5B2C6828CDA /* regexp-stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-stack.h"; sourceTree = "<group>"; };
+		0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "regexp-stack.cc"; sourceTree = "<group>"; };
 		8980D6AB0EE7C3F500C07135 /* bytecodes-irregexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "bytecodes-irregexp.h"; sourceTree = "<group>"; };
 		8980D6B00EE7C41A00C07135 /* codegen-arm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "codegen-arm.h"; sourceTree = "<group>"; };
 		8980D6B10EE7C41A00C07135 /* codegen-ia32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "codegen-ia32.h"; sourceTree = "<group>"; };
@@ -725,6 +728,8 @@
 				8980D6A60EE7C3C500C07135 /* regexp-macro-assembler-tracer.h */,
 				8980D6A70EE7C3C500C07135 /* regexp-macro-assembler.cc */,
 				8980D6A80EE7C3C500C07135 /* regexp-macro-assembler.h */,
+				0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */,
+				563A6BC35D56A5B2C6828CDA /* regexp-stack.h */,
 				897FF16F0E719B8F00D62E90 /* rewriter.cc */,
 				897FF1700E719B8F00D62E90 /* rewriter.h */,
 				897FF1710E719B8F00D62E90 /* runtime.cc */,
@@ -1117,6 +1122,7 @@
 				8980D6BF0EE7C4C600C07135 /* regexp-macro-assembler-irregexp.cc in Sources */,
 				8980D6C00EE7C4C900C07135 /* regexp-macro-assembler-tracer.cc in Sources */,
 				8980D6C10EE7C4CB00C07135 /* regexp-macro-assembler.cc in Sources */,
+				3C865CE6CC0CD2BDB5DF2DB9 /* regexp-stack.cc in Sources */,
 				89A88E190E71A6970043BA31 /* rewriter.cc in Sources */,
 				89A88E1A0E71A69B0043BA31 /* runtime.cc in Sources */,
 				89A88E1B0E71A69D0043BA31 /* scanner.cc in Sources */,
