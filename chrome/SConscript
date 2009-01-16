@@ -44,9 +44,9 @@ if env_res.Bit('windows'):
   debugger_res = env_res.RES('browser/debugger/resources/debugger_resources.rc')
   renderer_res = env_res.RES('renderer/renderer_resources.rc')
   test_data_res = env_res.RES('test/data/resource.rc')
-  webkit_res = env_res.RES('$WEBKIT_DIR/glue/webkit_resources.rc')
 
   net_res = '$TARGET_ROOT/grit_derived_sources/net_resources.res'
+  webkit_res = '$TARGET_ROOT/grit_derived_sources/webkit_resources.res'
 
   dll_resources = [
       browser_res,
