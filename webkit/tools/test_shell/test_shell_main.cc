@@ -380,7 +380,13 @@ int main(int argc, char* argv[]) {
 
       shell->CallJSGC();
       shell->CallJSGC();
-      if (shell) delete shell;
+      if (shell) {
+        // When we finish the last test, cleanup the LayoutTestController.
+        // It may have references to not-yet-cleaned up windows.  By
+        // cleaning up here we help purify reports.
+        shell->ResetTestController();
+        delete shell;
+      }
     } else {
       MessageLoop::current()->Run();
     }
