@@ -32,7 +32,7 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_service.h"
-#include "chrome/browser/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

@@ -8,7 +8,7 @@
 #include <string>
 
 #include "chrome/browser/tab_contents/interstitial_page.h"
-#include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/views/decision.h"
 
 // This class is responsible for showing/hiding the interstitial page that is

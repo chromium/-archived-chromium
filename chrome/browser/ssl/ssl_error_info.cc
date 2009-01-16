@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
 
 #include "base/string_util.h"
 #include "chrome/browser/cert_store.h"

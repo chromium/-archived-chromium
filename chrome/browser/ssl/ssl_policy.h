@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_SSL_POLICY_H__
 #define CHROME_BROWSER_SSL_POLICY_H__
 
-#include "chrome/browser/ssl_blocking_page.h"
-#include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_blocking_page.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 
 // The basic SSLPolicy.  This class contains default implementations of all
 // the SSLPolicy entry points.  It is expected that subclasses will override

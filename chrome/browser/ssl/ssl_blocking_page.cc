@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/ssl_blocking_page.h"
+#include "chrome/browser/ssl/ssl_blocking_page.h"
 
 #include "base/string_piece.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_resources.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/dom_operation_notification_details.h"
-#include "chrome/browser/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"

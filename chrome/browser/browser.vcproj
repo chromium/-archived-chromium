@@ -753,22 +753,6 @@
 				RelativePath=".\security_style.h"
 				>
 			</File>
-			<File
-				RelativePath=".\ssl_error_info.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl_error_info.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl_manager.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl_manager.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Browser Window"
@@ -915,14 +899,6 @@
 			</File>
 			<File
 				RelativePath=".\renderer_security_policy.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl_policy.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl_policy.h"
 				>
 			</File>
 		</Filter>
@@ -2648,6 +2624,114 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="SSL"
+			>
+			<File
+				RelativePath=".\ssl\ssl_blocking_page.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_blocking_page.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_error_info.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_error_info.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_manager.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_policy.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_policy.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\browser_trial.cc"
 			>
@@ -2730,14 +2814,6 @@
 		</File>
 		<File
 			RelativePath=".\plugin_installer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ssl_blocking_page.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\ssl_blocking_page.h"
 			>
 		</File>
 		<File

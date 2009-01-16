@@ -5,7 +5,7 @@
 #include "chrome/browser/toolbar_model.h"
 
 #include "chrome/browser/cert_store.h"
-#include "chrome/browser/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

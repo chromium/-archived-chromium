@@ -438,7 +438,7 @@
 			Name="TestSSL"
 			>
 			<File
-				RelativePath="..\..\browser\ssl_uitest.cc"
+				RelativePath="..\..\browser\ssl\ssl_uitest.cc"
 				>
 			</File>
 		</Filter>

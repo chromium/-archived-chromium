@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/ssl_policy.h"
+#include "chrome/browser/ssl/ssl_policy.h"
 
 #include "base/singleton.h"
 #include "base/string_piece.h"
@@ -10,7 +10,7 @@
 #include "chrome/browser/browser_resources.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"

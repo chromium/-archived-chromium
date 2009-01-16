@@ -16,7 +16,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/spellchecker.h"
-#include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"

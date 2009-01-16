@@ -5,7 +5,7 @@
 
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 
-#include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 
 ProvisionalLoadDetails::ProvisionalLoadDetails(bool is_main_frame,
                                                bool is_in_page_navigation,

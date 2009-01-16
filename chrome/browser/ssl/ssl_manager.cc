@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -12,8 +12,8 @@
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/resource_request_details.h"
-#include "chrome/browser/ssl_error_info.h"
-#include "chrome/browser/ssl_policy.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_policy.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

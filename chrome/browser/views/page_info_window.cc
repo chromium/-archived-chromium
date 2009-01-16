@@ -15,7 +15,7 @@
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
