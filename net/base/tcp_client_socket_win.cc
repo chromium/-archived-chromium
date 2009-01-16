@@ -87,8 +87,11 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   WSAEventSelect(socket_, overlapped_.hEvent, FD_CONNECT);
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
-    TRACE_EVENT_END("socket.connect", this, "");
     // Connected without waiting!
+    CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
+    BOOL ok = WSAResetEvent(overlapped_.hEvent);
+    CHECK(ok);
+    TRACE_EVENT_END("socket.connect", this, "");
     return OK;
   }
 

@@ -21,7 +21,6 @@
 namespace net {
 
 class ClientSocketFactory;
-class HostResolver;
 class HttpChunkedDecoder;
 class HttpNetworkSession;
 class UploadDataStream;
