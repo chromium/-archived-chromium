@@ -20,7 +20,7 @@
 #include "base/scoped_ptr.h"
 #include "base/values.h"
 #include "chrome/browser/metrics/metrics_log.h"
-#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/common/notification_service.h"
 #include "webkit/glue/webplugin.h"
 

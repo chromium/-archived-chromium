@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <windows.h>
 
-#include "chrome/browser/url_fixer_upper.h"
+#include "chrome/browser/net/url_fixer_upper.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"

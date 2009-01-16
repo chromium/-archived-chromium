@@ -4,8 +4,8 @@
 
 #include "base/thread.h"
 #include "base/time.h"
-#include "chrome/browser/url_fetcher.h"
-#include "chrome/browser/url_fetcher_protect.h"
+#include "chrome/browser/net/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher_protect.h"
 #if defined(OS_LINUX)
 // TODO(port): ugly hack for linux
 namespace ChromePluginLib { 

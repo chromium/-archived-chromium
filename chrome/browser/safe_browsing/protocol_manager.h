@@ -17,7 +17,7 @@
 #include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
-#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/safe_browsing/chunk_range.h"
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"

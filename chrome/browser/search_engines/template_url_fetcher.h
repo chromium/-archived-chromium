@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_TEMPLATE_URL_FETCHER_H__
 #define CHROME_BROWSER_TEMPLATE_URL_FETCHER_H__
 
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/url_fetcher.h"
 #include "chrome/common/scoped_vector.h"
 
 class GURL;

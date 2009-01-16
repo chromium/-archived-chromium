@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H__
 #define CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H__
 
-#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/views/combo_box.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"

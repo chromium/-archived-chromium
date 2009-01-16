@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/common/notification_service.h"
 
 class PrefService;

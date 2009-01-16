@@ -14,7 +14,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/task.h"
-#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "net/base/sdch_manager.h"
 
 class SdchDictionaryFetcher : public URLFetcher::Delegate,

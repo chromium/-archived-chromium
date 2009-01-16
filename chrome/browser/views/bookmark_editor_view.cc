@@ -10,7 +10,7 @@
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/url_fixer_upper.h"
+#include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"

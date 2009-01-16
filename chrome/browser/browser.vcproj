@@ -570,30 +570,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\url_fetcher.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\url_fetcher.h"
-				>
-			</File>
-			<File
-				RelativePath=".\url_fetcher_protect.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\url_fetcher_protect.h"
-				>
-			</File>
-			<File
-				RelativePath=".\url_fixer_upper.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\url_fixer_upper.h"
-				>
-			</File>
-			<File
 				RelativePath=".\user_data_manager.cc"
 				>
 			</File>
@@ -1757,6 +1733,84 @@
 			</File>
 			<File
 				RelativePath=".\net\sdch_dictionary_fetcher.h"
+				>
+			</File>
+			<File
+				RelativePath=".\net\url_fetcher.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\net\url_fetcher.h"
+				>
+			</File>
+			<File
+				RelativePath=".\net\url_fetcher_protect.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\net\url_fetcher_protect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\net\url_fixer_upper.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\net\url_fixer_upper.h"
 				>
 			</File>
 		</Filter>

@@ -9,12 +9,12 @@
 
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/url_fetcher.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"

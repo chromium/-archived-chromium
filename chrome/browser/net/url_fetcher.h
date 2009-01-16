@@ -12,7 +12,7 @@
 
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/url_fetcher_protect.h"
+#include "chrome/browser/net/url_fetcher_protect.h"
 #include "net/url_request/url_request.h"
 
 class URLRequestContext;

@@ -95,6 +95,8 @@ if not env.Bit('mac'):
       'net/dns_host_info.cc',
       'net/referrer.cc',
       'net/sdch_dictionary_fetcher.cc',
+      'net/url_fetcher.cc',
+      'net/url_fetcher_protect.cc',
       'page_state.cc',
       'printing/page_number.cc',
       'printing/page_range.cc',
@@ -125,8 +127,6 @@ if not env.Bit('mac'):
       'spellcheck_worditerator.cc',
       'spellchecker.cc',
       'ssl/ssl_error_info.cc',
-      'url_fetcher.cc',
-      'url_fetcher_protect.cc',
       'webdata/web_database.cc',
   ])
 
@@ -223,6 +223,7 @@ if env.Bit('windows'):
       'net/dns_global.cc',
       'net/dns_master.cc',
       'net/dns_slave.cc',
+      'net/url_fixer_upper.cc',
       'google_update.cc',
       'password_manager/encryptor.cc',
       'password_manager/ie7_password.cc',
@@ -295,7 +296,6 @@ if env.Bit('windows'):
       'task_manager.cc',
       'task_manager_resource_providers.cc',
       'toolbar_model.cc',
-      'url_fixer_upper.cc',
       'user_data_manager.cc',
       'visitedlink_master.cc',
       'web_app.cc',

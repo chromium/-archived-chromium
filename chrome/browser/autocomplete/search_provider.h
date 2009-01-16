@@ -17,8 +17,8 @@
 
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/browser/url_fetcher.h"
 
 class Profile;
 class Value;

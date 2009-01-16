@@ -743,11 +743,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\url_fetcher_unittest.cc"
+			RelativePath="..\..\browser\net\url_fetcher_unittest.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\browser\url_fixer_upper_unittest.cc"
+			RelativePath="..\..\browser\net\url_fixer_upper_unittest.cc"
 			>
 		</File>
 		<File

@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "chrome/browser/importer/importer.h"
-#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/net/url_fetcher.h"
 
 class XmlReader;
 

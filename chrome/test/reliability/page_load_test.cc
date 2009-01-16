@@ -40,7 +40,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "chrome/browser/url_fixer_upper.h"
+#include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
