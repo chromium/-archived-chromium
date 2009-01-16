@@ -171,9 +171,10 @@ are exported to translation interchange files (e.g. XMB files), etc.
           oldname = None
       else:
         encoding = 'utf_16'
-      outfile = util.WrapOutputStream(
-        self.fo_create(output.GetOutputFilename(), 'wb'),
-        encoding)
+      outfile = self.fo_create(output.GetOutputFilename(), 'wb')
+
+      if output.GetType() != 'data_package':
+        outfile = util.WrapOutputStream(outfile, encoding)
       
       # Set the context, for conditional inclusion of resources
       self.res.SetOutputContext(output.GetLanguage(), self.defines)

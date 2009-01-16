@@ -5,6 +5,7 @@
       <emit emit_type='prepend'></emit>
     </output>
     <output filename="webkit_resources.rc" type="rc_all" />
+    <output filename="webkit_resources.pak" type="data_package" />
   </outputs>
   <release seq="1">
     <includes>

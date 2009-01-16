@@ -72,6 +72,12 @@ class ReleaseNode(base.Node):
     '''Returns the sequence number of this release.'''
     return self.attribs['seq']
 
+  def ItemFormatter(self, t):
+    if t == 'data_package':
+      from grit.format import data_pack
+      return data_pack.DataPack()
+    else:
+      return super(type(self), self).ItemFormatter(t)
 
 class GritNode(base.Node):
   '''The <grit> root element.'''

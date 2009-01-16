@@ -46,6 +46,18 @@ class IncludeNode(base.Node):
     '''
     return self.FilenameToOpen()
 
+  def GetDataPackPair(self):
+    '''Returns a (id, string) pair that represents the resource id and raw
+    bytes of the data.  This is used to generate the data pack data file.
+    '''
+    from grit.format import rc_header
+    id_map = rc_header.Item.tids_
+    id = id_map[self.GetTextualIds()[0]]
+    file = open(self.FilenameToOpen(), 'rb')
+    data = file.read()
+    file.close()
+    return id, data
+
   # static method
   def Construct(parent, name, type, file, translateable=True, 
       filenameonly=False, relativepath=False):
