@@ -17,7 +17,7 @@ class RevocableStore {
   // store wishes to revoke its items, it sets |store_| to null.  Items are
   // permitted to release their reference to the |StoreRef| when they no longer
   // require the store.
-  class StoreRef : public base::RefCounted<StoreRef> {
+  class StoreRef : public base::RefCountedThreadSafe<StoreRef> {
    public:
     StoreRef(RevocableStore* store) : store_(store) { }
 
