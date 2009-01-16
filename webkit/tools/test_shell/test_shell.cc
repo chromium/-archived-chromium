@@ -288,13 +288,15 @@ void TestShell::ResetWebPreferences() {
     // fonts.
     if (web_prefs_) {
         *web_prefs_ = WebPreferences();
-        // NOTE: case matters here, this must be 'times new roman', else some
-        // layout tests fail.
-        web_prefs_->standard_font_family = L"times new roman";
-        web_prefs_->fixed_font_family = L"Courier";
+#if defined(OS_MACOSX)
+        web_prefs_->serif_font_family = L"Times";
+#else
         // NOTE: case matters here, this must be 'times new roman', else some
         // layout tests fail.
         web_prefs_->serif_font_family = L"times new roman";
+#endif
+        web_prefs_->standard_font_family = web_prefs_->serif_font_family;
+        web_prefs_->fixed_font_family = L"Courier";
         web_prefs_->sans_serif_font_family = L"Helvetica";
         // These two fonts are picked from the intersection of
         // Win XP font list and Vista font list :
