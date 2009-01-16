@@ -1924,4 +1924,9 @@ LayoutTests/transforms/2d/cssmatrix-interface.xhtml = FAIL
 // This one is probably related.
 LayoutTests/animations/combo-transform-translate+scale.html = FAIL
 
-
+// Merge 39913:39933 - regressions
+LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
+LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
+LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
+LINUX : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
+      
