@@ -67,4 +67,29 @@ TEST(FtpAuthCacheTest, LookupWithPort) {
   EXPECT_EQ(data2.get(), cache.Lookup(origin2));
 }
 
+TEST(FtpAuthCacheTest, NormalizedKey) {
+  // GURL is automatically canonicalized. Hence the following variations in
+  // url format should all map to the same entry (case insensitive host,
+  // default port of 21).
 
+  FtpAuthCache cache;
+
+  scoped_refptr<AuthData> data1(new AuthData());
+  scoped_refptr<AuthData> data2(new AuthData());
+
+  // Add.
+  cache.Add(GURL("ftp://HoSt:21"), data1.get());
+
+  // Lookup.
+  EXPECT_EQ(data1.get(), cache.Lookup(GURL("ftp://HoSt:21")));
+  EXPECT_EQ(data1.get(), cache.Lookup(GURL("ftp://host:21")));
+  EXPECT_EQ(data1.get(), cache.Lookup(GURL("ftp://host")));
+
+  // Overwrite.
+  cache.Add(GURL("ftp://host"), data2.get());
+  EXPECT_EQ(data2.get(), cache.Lookup(GURL("ftp://HoSt:21")));
+
+  // Remove
+  cache.Remove(GURL("ftp://HOsT"));
+  EXPECT_EQ(NULL, cache.Lookup(GURL("ftp://host")));
+}
