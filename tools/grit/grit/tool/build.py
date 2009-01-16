@@ -156,6 +156,14 @@ are exported to translation interchange files (e.g. XMB files), etc.
     
     for output in self.res.GetOutputFiles():
       self.VerboseOut('Creating %s...' % output.GetFilename())
+
+      # Don't build data package files on mac/windows because it's not used and
+      # there are project dependency issues.  We still need to create the file
+      # to satisfy build dependencies.
+      if output.GetType() == 'data_package' and sys.platform != 'linux2':
+        f = open(output.GetOutputFilename(), 'wb')
+        f.close()
+
       # Microsoft's RC compiler can only deal with single-byte or double-byte
       # files (no UTF-8), so we make all RC files UTF-16 to support all
       # character sets.

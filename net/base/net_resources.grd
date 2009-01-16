@@ -5,6 +5,7 @@
       <emit emit_type='prepend'></emit>
     </output>
     <output filename="net_resources.rc" type="rc_all" />
+    <output filename="net_resources.pak" type="data_package" />
   </outputs>
   <translations />
   <release seq="1">

@@ -22,12 +22,13 @@ class DataPack(interface.ItemFormatter):
   def Format(self, item, lang='en', begin_item=True, output_dir='.'):
     if not begin_item:
       return ''
+
     assert isinstance(item, misc.ReleaseNode)
 
     nodes = DataPack.GetDataNodes(item)
     data = {}
     for node in nodes:
-      id, value = node.GetDataPackPair()
+      id, value = node.GetDataPackPair(output_dir)
       data[id] = value
     return DataPack.WriteDataPack(data)
 

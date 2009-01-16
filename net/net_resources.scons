@@ -18,17 +18,18 @@ input_files = [
     'tools/tld_cleanup/tld_cleanup$PROGSUFFIX',
 ]
 
-sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
-env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
-# This dummy target is used to tell the emitter where to put the target files.
-generated = env.GRIT('$TARGET_ROOT/grit_derived_sources/dummy_net_res',
-                     'base/net_resources.grd')
-
 # This dat file needed by net_resources is generated.
 tld_names_clean = env.Command(
     '$TARGET_ROOT/grit_derived_sources/effective_tld_names_clean.dat',
     input_files,
     '${SOURCES[1]} ${SOURCES[0]} $TARGET')
+
+sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
+env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
+# This dummy target is used to tell the emitter where to put the target files.
+generated = env.GRIT('$TARGET_ROOT/grit_derived_sources/dummy_net_res',
+                     ['base/net_resources.grd'] + tld_names_clean)
+
 
 if env.Bit('windows'):
   env.Prepend(

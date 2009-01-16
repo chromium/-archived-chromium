@@ -6,6 +6,7 @@
 '''Handling of the <include> element.
 '''
 
+import os
 
 import grit.format.rc_header
 import grit.format.rc
@@ -46,16 +47,23 @@ class IncludeNode(base.Node):
     '''
     return self.FilenameToOpen()
 
-  def GetDataPackPair(self):
+  def GetDataPackPair(self, output_dir):
     '''Returns a (id, string) pair that represents the resource id and raw
     bytes of the data.  This is used to generate the data pack data file.
     '''
     from grit.format import rc_header
     id_map = rc_header.Item.tids_
     id = id_map[self.GetTextualIds()[0]]
-    file = open(self.FilenameToOpen(), 'rb')
+    filename = self.FilenameToOpen()
+    if not os.path.exists(filename):
+      # Try to open the file relative to the output dir if it's not relative to
+      # the grd file.
+      filename = os.path.join(output_dir, self.attrs['file'])
+
+    file = open(filename, 'rb')
     data = file.read()
     file.close()
+
     return id, data
 
   # static method
