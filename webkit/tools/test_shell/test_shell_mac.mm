@@ -110,11 +110,10 @@ void TestShell::PlatformCleanUp() {
 
 // static
 void TestShell::DestroyAssociatedShell(gfx::NativeWindow handle) {
-  WindowMap::iterator it = window_map_.Get().find(handle);
-  if (it != window_map_.Get().end()) {
-    delete it->second;
+  TestShell* shell = window_map_.Get()[handle];
+  if (shell)
     window_map_.Get().erase(handle);
-  }
+  delete shell;
 }
 
 // static
@@ -514,10 +513,6 @@ void TestShell::TestFinished() {
     return;  // reached when running under test_shell_tests
   
   test_is_pending_ = false;
-  NSWindow* window = *(TestShell::windowList()->begin());
-  WindowMap::iterator it = window_map_.Get().find(window);
-  if (it != window_map_.Get().end())
-    TestShell::Dump(it->second);
   MessageLoop::current()->Quit();
 }
 
@@ -637,7 +632,6 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 // static
 void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
   TestShell::RemoveWindowFromList(windowHandle);
-  TestShell::DestroyAssociatedShell(windowHandle);
   [windowHandle close];
 }
 
@@ -673,13 +667,14 @@ void TestShell::ResizeSubViews() {
   for (WindowList::iterator iter = TestShell::windowList()->begin();
        iter != TestShell::windowList()->end(); iter++) {
     NSWindow* window = *iter;
-    WindowMap::iterator it = window_map_.Get().find(window);
-    if (it != window_map_.Get().end())
-      webkit_glue::DumpBackForwardList(it->second->webView(), NULL, result);
+    TestShell* shell = window_map_.Get()[window];
+    if (shell)
+      webkit_glue::DumpBackForwardList(shell->webView(), NULL, result);
   }
 }
 
-/* static */ bool TestShell::RunFileTest(const TestParams& params) {
+/* static */ bool TestShell::RunFileTest(const char* filename,
+                                         const TestParams& params) {
   // Load the test file into the first available window.
   if (TestShell::windowList()->empty()) {
     LOG(ERROR) << "No windows open.";
@@ -714,18 +709,71 @@ void TestShell::ResizeSubViews() {
   [shell->m_mainWnd orderOut:nil];
   shell->ResizeSubViews();
 
-  if (strstr(params.test_url.c_str(), "loading/"))
+  if (strstr(filename, "loading/"))
     shell->layout_test_controller()->SetShouldDumpFrameLoadCallbacks(true);
 
   shell->test_is_preparing_ = true;
 
-  shell->set_test_params(&params);
-  std::wstring wstr = UTF8ToWide(params.test_url.c_str());
-  shell->LoadURL(wstr.c_str());
+  shell->LoadURL(UTF8ToWide(filename).c_str());
 
   shell->test_is_preparing_ = false;
   shell->WaitTestFinished();
-  shell->set_test_params(NULL);
+
+  // Echo the url in the output so we know we're not getting out of sync.
+  printf("#URL:%s\n", filename);
+
+  // Dump the requested representation.
+  WebFrame* webFrame = shell->webView()->GetMainFrame();
+  if (webFrame) {
+    bool should_dump_as_text =
+        shell->layout_test_controller_->ShouldDumpAsText();
+    bool dumped_anything = false;
+    if (params.dump_tree) {
+      dumped_anything = true;
+      // Text output: the test page can request different types of output
+      // which we handle here.
+      if (!should_dump_as_text) {
+        // Plain text pages should be dumped as text
+        std::string mime_type =
+            WideToUTF8(webFrame->GetDataSource()->GetResponseMimeType());
+        should_dump_as_text = (mime_type == "text/plain");
+      }
+      if (should_dump_as_text) {
+        bool recursive = shell->layout_test_controller_->
+            ShouldDumpChildFramesAsText();
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpFramesAsText(webFrame, recursive)).
+            c_str());
+      } else {
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpRenderer(webFrame)).c_str());
+
+        bool recursive = shell->layout_test_controller_->
+            ShouldDumpChildFrameScrollPositions();
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpFrameScrollPosition(webFrame, recursive)).
+            c_str());
+      }
+
+      if (shell->layout_test_controller_->ShouldDumpBackForwardList()) {
+        std::wstring bfDump;
+        DumpBackForwardList(&bfDump);
+        printf("%s", WideToUTF8(bfDump).c_str());
+      }
+    }
+    
+    if (params.dump_pixels && !should_dump_as_text) {
+      // Image output: we write the image data to the file given on the
+      // command line (for the dump pixels argument), and the MD5 sum to
+      // stdout.
+      dumped_anything = true;
+      std::string md5sum = DumpImage(webFrame, params.pixel_file_name);
+      printf("#MD5:%s\n", md5sum.c_str());
+    }
+    if (dumped_anything)
+      printf("#EOF\n");
+    fflush(stdout);
+  }
 
   return true;
 }

@@ -321,13 +321,11 @@ int main(const int argc, const char *argv[]) {
             continue;
           
           SetCurrentTestName(filenameBuffer);
-          params.test_url = filenameBuffer;
-          if (!TestShell::RunFileTest(params))
+          if (!TestShell::RunFileTest(filenameBuffer, params))
             break;
         }
       } else {
-        params.test_url = WideToUTF8(uri).c_str();
-        TestShell::RunFileTest(params);
+        TestShell::RunFileTest(WideToUTF8(uri).c_str(), params);
       }
     } else {
       main_message_loop.Run();

@@ -115,7 +115,6 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf",
     "/usr/share/fonts/truetype/kochi/kochi-gothic.ttf",
     "/usr/share/fonts/truetype/kochi/kochi-mincho.ttf",
-    "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf",
   };
   for (size_t i = 0; i < arraysize(optional_fonts); ++i) {
     const char* font = optional_fonts[i];
@@ -340,10 +339,6 @@ void TestShell::TestFinished() {
     return;
 
   test_is_pending_ = false;
-  GtkWidget* window = *(TestShell::windowList()->begin());
-  TestShell* shell = static_cast<TestShell*>(g_object_get_data(G_OBJECT(window),
-                                             "test-shell"));
-  TestShell::Dump(shell);
   MessageLoop::current()->Quit();
 }
 
@@ -440,7 +435,8 @@ void TestShell::ResizeSubViews() {
   }
 }
 
-/* static */ bool TestShell::RunFileTest(const TestParams& params) {
+/* static */ bool TestShell::RunFileTest(const char *filename,
+                                         const TestParams& params) {
   // Load the test file into the first available window.
   if (TestShell::windowList()->empty()) {
     LOG(ERROR) << "No windows open.";
@@ -476,19 +472,74 @@ void TestShell::ResizeSubViews() {
 
   shell->ResizeSubViews();
 
-  if (strstr(params.test_url.c_str(), "loading/") ||
-      strstr(params.test_url.c_str(), "loading\\"))
+  if (strstr(filename, "loading/") || strstr(filename, "loading\\"))
     shell->layout_test_controller()->SetShouldDumpFrameLoadCallbacks(true);
 
   shell->test_is_preparing_ = true;
 
-  shell->set_test_params(&params);
-  std::wstring wstr = UTF8ToWide(params.test_url.c_str());
+  const std::wstring wstr = UTF8ToWide(filename);
   shell->LoadURL(wstr.c_str());
 
   shell->test_is_preparing_ = false;
   shell->WaitTestFinished();
-  shell->set_test_params(NULL);
+
+  // Echo the url in the output so we know we're not getting out of sync.
+  printf("#URL:%s\n", filename);
+
+  // Dump the requested representation.
+  WebFrame* webFrame = shell->webView()->GetMainFrame();
+  if (webFrame) {
+    bool should_dump_as_text =
+        shell->layout_test_controller_->ShouldDumpAsText();
+    bool dumped_anything = false;
+    if (params.dump_tree) {
+      dumped_anything = true;
+      // Text output: the test page can request different types of output
+      // which we handle here.
+      if (!should_dump_as_text) {
+        // Plain text pages should be dumped as text
+        std::wstring mime_type = webFrame->GetDataSource()->GetResponseMimeType();
+        should_dump_as_text = (mime_type == L"text/plain");
+      }
+      if (should_dump_as_text) {
+        bool recursive = shell->layout_test_controller_->
+            ShouldDumpChildFramesAsText();
+        std::string data_utf8 = WideToUTF8(
+            webkit_glue::DumpFramesAsText(webFrame, recursive));
+        if (fwrite(data_utf8.c_str(), 1, data_utf8.size(), stdout) !=
+            data_utf8.size()) {
+          LOG(FATAL) << "Short write to stdout, disk full?";
+        }
+      } else {
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpRenderer(webFrame)).c_str());
+
+        bool recursive = shell->layout_test_controller_->
+            ShouldDumpChildFrameScrollPositions();
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpFrameScrollPosition(webFrame, recursive)).
+            c_str());
+      }
+
+      if (shell->layout_test_controller_->ShouldDumpBackForwardList()) {
+        std::wstring bfDump;
+        DumpBackForwardList(&bfDump);
+        printf("%s", WideToUTF8(bfDump).c_str());
+      }
+    }
+
+    if (params.dump_pixels && !should_dump_as_text) {
+      // Image output: we write the image data to the file given on the
+      // command line (for the dump pixels argument), and the MD5 sum to
+      // stdout.
+      dumped_anything = true;
+      std::string md5sum = DumpImage(webFrame, params.pixel_file_name);
+      printf("#MD5:%s\n", md5sum.c_str());
+    }
+    if (dumped_anything)
+      printf("#EOF\n");
+    fflush(stdout);
+  }
 
   return true;
 }

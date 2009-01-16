@@ -64,8 +64,6 @@ public:
 
       // Filename we dump pixels to (when pixel testing is enabled).
       std::wstring pixel_file_name;
-      // URL of the test.
-      std::string test_url;
     };
 
     TestShell();
@@ -196,18 +194,13 @@ public:
     // window JavaScript objects so they can be accessed by layout tests.
     virtual void BindJSObjectsToWindow(WebFrame* frame);
 
-    // Runs a layout test.  Loads a single file (specified in params.test_url)
-    // into the first available window, then dumps the requested text
-    // representation to stdout. Returns false if the test cannot be run
-    // because no windows are open.
-    static bool RunFileTest(const TestParams& params);
+    // Runs a layout test.  Loads a single file into the first available
+    // window, then dumps the requested text representation to stdout.
+    // Returns false if the test cannot be run because no windows are open.
+    static bool RunFileTest(const char* filename, const TestParams& params);
 
     // Writes the back-forward list data for every open window into result.
     static void DumpBackForwardList(std::wstring* result);
-
-    // Dumps the output from given test as text and/or image depending on
-    // the flags set.
-    static void Dump(TestShell* shell);
 
     // Writes the image captured from the given web frame to the given file.
     // The returned string is the ASCII-ized MD5 sum of the image.
@@ -250,11 +243,6 @@ public:
 
     void set_is_modal(bool value) { is_modal_ = value; }
     bool is_modal() const { return is_modal_; }
-
-    const TestParams* test_params() { return test_params_; }
-    void set_test_params(const TestParams* test_params) {
-      test_params_ = test_params;
-    }
 
 #if defined(OS_MACOSX)
     // handle cleaning up a shell given the associated window
@@ -299,8 +287,8 @@ private:
     // A set of all our windows.
     static WindowList* window_list_;
 #if defined(OS_MACOSX)
-    typedef std::map<gfx::NativeWindow, TestShell *> WindowMap;
-    static base::LazyInstance<WindowMap> window_map_;
+    static base::LazyInstance<std::map<gfx::NativeWindow, TestShell *> >
+        window_map_;
 #endif
 
 #if defined(OS_WIN)
@@ -322,8 +310,6 @@ private:
     scoped_ptr<TestNavigationController> navigation_controller_;
 
     scoped_refptr<TestWebViewDelegate> delegate_;
-
-    const TestParams* test_params_;
 
     // True while a test is preparing to run
     bool test_is_preparing_;
