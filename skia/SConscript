@@ -415,6 +415,11 @@ if env.Bit('linux'):
 
   env.Append(CCFLAGS = ['-Wno-unused-function'])
 
+if not env['COMPONENT_STATIC']:
+  # SkUnPreMultiply is commented out in the sgl list above, but we need to link
+  # it into the shared library.
+  input_files.append('sgl/SkUnPreMultiply.cpp')
+
 if env.Bit('posix'):
   input_files.append('ports/SkThread_pthread.cpp')
   input_files.append('ports/SkTime_Unix.cpp')
