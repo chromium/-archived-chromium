@@ -42,9 +42,6 @@ static void ResetLoginHandlerForRequest(URLRequest* request) {
   info->login_handler = NULL;
 }
 
-// ----------------------------------------------------------------------------
-// LoginHandler
-
 // Get the signon_realm under which this auth info should be stored.
 //
 // The format of the signon_realm for proxy auth is:
@@ -55,9 +52,8 @@ static void ResetLoginHandlerForRequest(URLRequest* request) {
 // Be careful when changing this function, since you could make existing
 // saved logins un-retrievable.
 
-// static
-std::string LoginHandler::GetSignonRealm(const GURL& url,
-    const net::AuthChallengeInfo& auth_info) {
+std::string GetSignonRealm(const GURL& url,
+                           const net::AuthChallengeInfo& auth_info) {
   std::string signon_realm;
   if (auth_info.is_proxy) {
     signon_realm = WideToASCII(auth_info.host);
@@ -387,8 +383,7 @@ class LoginDialogTask : public Task {
       dialog_form.scheme = PasswordForm::SCHEME_OTHER;
     }
     dialog_form.origin = origin_url;
-    dialog_form.signon_realm = LoginHandler::GetSignonRealm(dialog_form.origin,
-                                                            *auth_info_);
+    dialog_form.signon_realm = GetSignonRealm(dialog_form.origin, *auth_info_);
     password_manager_input->push_back(dialog_form);
     // Set the password form for the handler (by copy).
     handler_->set_password_form(dialog_form);

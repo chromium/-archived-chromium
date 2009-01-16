@@ -36,20 +36,16 @@ class LoginHandler {
   // Notify the handler that the request was cancelled.
   // This function can only be called from the IO thread.
   virtual void OnRequestCancelled() = 0;
-
-  // Get the signon_realm under which the identity should be saved.
-  static std::string GetSignonRealm(const GURL& url,
-                                    const net::AuthChallengeInfo& auth_info);
 };
 
 // Details to provide the NotificationObserver.  Used by the automation proxy
 // for testing.
 class LoginNotificationDetails {
-public:
+ public:
   LoginNotificationDetails(LoginHandler* handler) : handler_(handler) {}
   LoginHandler* handler() const { return handler_; }
 
-private:
+ private:
   LoginNotificationDetails() {}
 
   LoginHandler* handler_;  // Where to send the response.
@@ -70,5 +66,10 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop);
 
-#endif // CHROME_BROWSER_LOGIN_PROMPT_H__
+
+// Get the signon_realm under which the identity should be saved.
+std::string GetSignonRealm(const GURL& url,
+                           const net::AuthChallengeInfo& auth_info);
+
+#endif  // CHROME_BROWSER_LOGIN_PROMPT_H__
 

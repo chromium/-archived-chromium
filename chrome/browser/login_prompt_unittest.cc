@@ -8,7 +8,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 
-TEST(LoginHandlerTest, GetSignonRealm) {
+TEST(LoginPromptTest, GetSignonRealm) {
   scoped_refptr<net::AuthChallengeInfo> auth_info = new net::AuthChallengeInfo;
   auth_info->is_proxy = false;  // server auth
   // auth_info->host is intentionally left empty.
@@ -36,7 +36,7 @@ TEST(LoginHandlerTest, GetSignonRealm) {
   };
 
   for (size_t i = 0; i < arraysize(url); i++) {
-    std::string key = LoginHandler::GetSignonRealm(GURL(url[i]), *auth_info);
+    std::string key = GetSignonRealm(GURL(url[i]), *auth_info);
     EXPECT_EQ(expected[i], key);
   }
 }
