@@ -4,9 +4,32 @@
 
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
 
+#include "base/histogram.h"
 #include "net/base/mime_sniffer.h"
 #include "chrome/browser/renderer_host/download_throttling_resource_handler.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+
+namespace {
+
+void RecordSnifferMetrics(bool sniffing_blocked,
+                          bool we_would_like_to_sniff,
+                          const std::string& mime_type) {
+  static BooleanHistogram nosniff_usage(L"nosniff.usage");
+  nosniff_usage.SetFlags(kUmaTargetedHistogramFlag);
+  nosniff_usage.AddBoolean(sniffing_blocked);
+
+  if (sniffing_blocked) {
+    static BooleanHistogram nosniff_otherwise(L"nosniff.otherwise");
+    nosniff_otherwise.SetFlags(kUmaTargetedHistogramFlag);
+    nosniff_otherwise.AddBoolean(we_would_like_to_sniff);
+
+    static BooleanHistogram nosniff_empty_mime_type(L"nosniff.empty_mime_type");
+    nosniff_empty_mime_type.SetFlags(kUmaTargetedHistogramFlag);
+    nosniff_empty_mime_type.AddBoolean(mime_type.empty());
+  }
+}
+
+}  // namespace
 
 BufferedResourceHandler::BufferedResourceHandler(ResourceHandler* handler,
                                                  ResourceDispatcherHost* host,
@@ -92,8 +115,14 @@ bool BufferedResourceHandler::DelayResponse() {
   std::string content_type_options;
   request_->GetResponseHeaderByName("x-content-type-options",
                                     &content_type_options);
-  if (content_type_options != "nosniff" &&
-      net::ShouldSniffMimeType(request_->url(), mime_type)) {
+
+  const bool sniffing_blocked = (content_type_options == "nosniff");
+  const bool we_would_like_to_sniff =
+      net::ShouldSniffMimeType(request_->url(), mime_type);
+
+  RecordSnifferMetrics(sniffing_blocked, we_would_like_to_sniff, mime_type);
+
+  if (!sniffing_blocked && we_would_like_to_sniff) {
     // We're going to look at the data before deciding what the content type
     // is.  That means we need to delay sending the ResponseStarted message
     // over the IPC channel.

@@ -370,6 +370,18 @@ class LinearHistogram : public Histogram {
   DISALLOW_EVIL_CONSTRUCTORS(LinearHistogram);
 };
 
+//------------------------------------------------------------------------------
+
+// BooleanHistogram is a histogram for booleans.
+class BooleanHistogram : public LinearHistogram {
+ public:
+  BooleanHistogram(const wchar_t* name) : LinearHistogram(name, 0, 2, 3) {}
+
+  virtual void AddBoolean(bool value) { Add(value ? 1 : 0); }
+
+ private:
+  DISALLOW_EVIL_CONSTRUCTORS(BooleanHistogram);
+};
 
 //------------------------------------------------------------------------------
 // This section provides implementation for ThreadSafeHistogram.
