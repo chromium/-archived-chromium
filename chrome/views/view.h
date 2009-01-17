@@ -1132,12 +1132,6 @@ class View : public AcceleratorTarget {
     int start_y;
   };
 
-  // Returns how much the mouse needs to move in one direction to start a
-  // drag. These methods cache in a platform-appropriate way. These values are
-  // used by the public static method ExceededDragThreshold().
-  static int GetHorizontalDragThreshold();
-  static int GetVerticalDragThreshold();
-
   // RootView invokes these. These in turn invoke the appropriate OnMouseXXX
   // method. If a drag is detected, DoDrag is invoked.
   bool ProcessMousePressed(const MouseEvent& e, DragInfo* drop_info);
@@ -1308,10 +1302,8 @@ class View : public AcceleratorTarget {
   // The menu controller.
   ContextMenuController* context_menu_controller_;
 
-#if defined(OS_WIN)
   // The accessibility implementation for this View.
   scoped_ptr<AccessibleWrapper> accessibility_;
-#endif
 
   DragController* drag_controller_;
 

@@ -16,15 +16,16 @@
 #include "base/string_util.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/os_exchange_data.h"
+#include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/background.h"
+#include "chrome/views/border.h"
 #include "chrome/views/layout_manager.h"
 #include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
-#if defined(OS_WIN)
 #include "chrome/views/tooltip_manager.h"
-#include "chrome/views/accessibility/accessible_wrapper.h"
-#endif
+#include "chrome/views/widget.h"
 #include "SkShader.h"
 
 namespace views {
@@ -69,22 +70,20 @@ class RestoreFocusTask : public Task {
 View::View()
     : id_(0),
       group_(-1),
-      enabled_(true),
-      focusable_(false),
       bounds_(0,0,0,0),
       parent_(NULL),
-      should_restore_focus_(false),
+      enabled_(true),
       is_visible_(true),
+      focusable_(false),
+      accessibility_(NULL),
       is_parent_owned_(true),
       notify_when_visible_bounds_in_root_changes_(false),
       registered_for_visible_bounds_notification_(false),
       next_focusable_view_(NULL),
       previous_focusable_view_(NULL),
+      should_restore_focus_(false),
       restore_focus_view_task_(NULL),
       context_menu_controller_(NULL),
-#if defined(OS_WIN)
-      accessibility_(NULL),
-#endif
       drag_controller_(NULL),
       ui_mirroring_is_enabled_for_rtl_languages_(true),
       flip_canvas_on_paint_for_rtl_ui_(false) {
@@ -177,6 +176,7 @@ gfx::Size View::GetMinimumSize() {
 int View::GetHeightForWidth(int w) {
   if (layout_manager_.get())
     return layout_manager_->GetPreferredHeightForWidth(this, w);
+
   return GetPreferredSize().height();
 }
 
@@ -281,7 +281,20 @@ void View::SetFocusable(bool focusable) {
   focusable_ = focusable;
 }
 
+FocusManager* View::GetFocusManager() {
+  Widget* widget = GetWidget();
+  if (!widget)
+    return NULL;
+
+  HWND hwnd = widget->GetHWND();
+  if (!hwnd)
+    return NULL;
+
+  return FocusManager::GetFocusManager(hwnd);
+}
+
 bool View::HasFocus() {
+  RootView* root_view = GetRootView();
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager)
     return focus_manager->GetFocusedView() == this;
@@ -495,12 +508,24 @@ void View::ProcessMouseReleased(const MouseEvent& e, bool canceled) {
     // from mouse released.
     gfx::Point location(e.location());
     ConvertPointToScreen(this, &location);
+    ContextMenuController* context_menu_controller = context_menu_controller_;
     OnMouseReleased(e, canceled);
     ShowContextMenu(location.x(), location.y(), true);
   } else {
     OnMouseReleased(e, canceled);
   }
   // WARNING: we may have been deleted.
+}
+
+void View::DoDrag(const MouseEvent& e, int press_x, int press_y) {
+  scoped_refptr<OSExchangeData> data = new OSExchangeData;
+  WriteDragData(press_x, press_y, data.get());
+
+  // Message the RootView to do the drag and drop. That way if we're removed
+  // the RootView can detect it and avoid calling us back.
+  RootView* root_view = GetRootView();
+  root_view->StartDragForViewFromMouseEvent(
+      this, data, GetDragOperations(press_x, press_y));
 }
 
 void View::AddChildView(View* v) {
@@ -1020,6 +1045,19 @@ void View::UnregisterAccelerators() {
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// View - accessibility
+//
+/////////////////////////////////////////////////////////////////////////////
+
+AccessibleWrapper* View::GetAccessibleWrapper() {
+  if (accessibility_.get() == NULL) {
+    accessibility_.reset(new AccessibleWrapper(this));
+  }
+  return accessibility_.get();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // View - floating views
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -1364,6 +1402,26 @@ bool View::IsVisibleInRootView() const {
     return false;
 }
 
+bool View::HitTest(const gfx::Point& l) const {
+  if (l.x() >= 0 && l.x() < static_cast<int>(width()) &&
+      l.y() >= 0 && l.y() < static_cast<int>(height())) {
+    if (HasHitTestMask()) {
+      gfx::Path mask;
+      GetHitTestMask(&mask);
+      ScopedHRGN rgn(mask.CreateHRGN());
+      return !!PtInRegion(rgn, l.x(), l.y());
+    }
+    // No mask, but inside our bounds.
+    return true;
+  }
+  // Outside our bounds.
+  return false;
+}
+
+HCURSOR View::GetCursorForPoint(Event::EventType event_type, int x, int y) {
+  return NULL;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // View - keyboard and focus
@@ -1424,10 +1482,32 @@ int View::OnPerformDrop(const DropTargetEvent& event) {
   return DragDropTypes::DRAG_NONE;
 }
 
+static int GetHorizontalDragThreshold() {
+  static int threshold = -1;
+  if (threshold == -1)
+    threshold = GetSystemMetrics(SM_CXDRAG) / 2;
+  return threshold;
+}
+
+static int GetVerticalDragThreshold() {
+  static int threshold = -1;
+  if (threshold == -1)
+    threshold = GetSystemMetrics(SM_CYDRAG) / 2;
+  return threshold;
+}
+
 // static
 bool View::ExceededDragThreshold(int delta_x, int delta_y) {
   return (abs(delta_x) > GetHorizontalDragThreshold() ||
           abs(delta_y) > GetVerticalDragThreshold());
+}
+
+void View::Focus() {
+  // Set the native focus to the root view window so it receives the keyboard
+  // messages.
+  FocusManager* focus_manager = GetFocusManager();
+  if (focus_manager)
+    focus_manager->FocusHWND(GetRootView()->GetWidget()->GetHWND());
 }
 
 bool View::CanProcessTabKeyEvents() {
@@ -1444,27 +1524,15 @@ bool View::GetTooltipTextOrigin(int x, int y, gfx::Point* loc) {
 }
 
 void View::TooltipTextChanged() {
-#if defined(OS_WIN)
   Widget* widget = GetWidget();
   if (widget && widget->GetTooltipManager())
     widget->GetTooltipManager()->TooltipTextChanged(this);
-#else
-  // TODO(port): Not actually windows specific; I just haven't ported this part
-  // yet.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void View::UpdateTooltip() {
-#if defined(OS_WIN)
   Widget* widget = GetWidget();
   if (widget && widget->GetTooltipManager())
     widget->GetTooltipManager()->UpdateTooltip();
-#else
-  // TODO(port): Not actually windows specific; I just haven't ported this part
-  // yet.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void View::SetParentOwned(bool f) {

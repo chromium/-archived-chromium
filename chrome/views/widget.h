@@ -5,10 +5,8 @@
 #ifndef CHROME_VIEWS_WIDGET_H_
 #define CHROME_VIEWS_WIDGET_H_
 
-#if defined(OS_WIN)
 // TODO(maruel):  Remove once HWND is abstracted.
 #include <windows.h>
-#endif
 
 namespace gfx {
 class Rect;
@@ -50,10 +48,8 @@ class Widget {
   // the window should also become the active window.
   virtual void MoveToFront(bool should_activate) = 0;
 
-#if defined(OS_WIN)
   // Returns the Window HWND associated with this Widget.
   virtual HWND GetHWND() const = 0;
-#endif
 
   // Forces a paint of a specified rectangle immediately.
   virtual void PaintNow(const gfx::Rect& update_rect) = 0;

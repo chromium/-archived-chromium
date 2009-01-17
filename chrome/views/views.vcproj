@@ -490,10 +490,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\root_view_win.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\scroll_bar.cc"
 			>
 		</File>
@@ -619,10 +615,6 @@
 		</File>
 		<File
 			RelativePath=".\view_storage.h"
-			>
-		</File>
-		<File
-			RelativePath=".\view_win.cc"
 			>
 		</File>
 		<File

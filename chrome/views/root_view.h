@@ -73,10 +73,8 @@ class RootView : public View,
   // Invoked by the Widget to discover what rectangle should be painted.
   const gfx::Rect& GetScheduledPaintRect();
 
-#if defined(OS_WIN)
   // Returns the region scheduled to paint clipped to the RootViews bounds.
   RECT GetScheduledPaintRectConstrainedToSize();
-#endif
 
   // Tree functions
 
@@ -169,17 +167,13 @@ class RootView : public View,
   // to invoke this. This is primarily intended for Widgets.
   void ClearPaintRect();
 
-#if defined(OS_WIN)
   // Invoked from the Widget to service a WM_PAINT call.
   void OnPaint(HWND hwnd);
-#endif
 
-#if defined(OS_WIN)
   // Returns the MSAA role of the current view. The role is what assistive
   // technologies (ATs) use to determine what behavior to expect from a given
   // control.
   bool GetAccessibleRole(VARIANT* role);
-#endif
 
   // Returns a brief, identifying string, containing a unique, readable name.
   bool GetAccessibleName(std::wstring* name);
@@ -254,14 +248,12 @@ class RootView : public View,
   // Updates the last_mouse_* fields from e.
   void SetMouseLocationAndFlags(const MouseEvent& e);
 
-#if defined(OS_WIN)
   // Starts a drag operation for the specified view. This blocks until done.
   // If the view has not been deleted during the drag, OnDragDone is invoked
   // on the view.
   void StartDragForViewFromMouseEvent(View* view,
                                       IDataObject* data,
                                       int operation);
-#endif
 
   // If a view is dragging, this returns it. Otherwise returns NULL.
   View* GetDragView();
@@ -292,10 +284,8 @@ class RootView : public View,
   // true if mouse_handler_ has been explicitly set
   bool explicit_mouse_handler_;
 
-#if defined(OS_WIN)
   // Previous cursor
   HCURSOR previous_cursor_;
-#endif
 
   // Default keyboard handler
   View* default_keyboard_hander_;
@@ -327,10 +317,8 @@ class RootView : public View,
   // wrapped inside native components, and is used for the focus traversal.
   View* focus_traversable_parent_view_;
 
-#if defined(OS_WIN)
   // Handles dnd for us.
   scoped_refptr<RootViewDropTarget> drop_target_;
-#endif
 
   // Storage of strings needed for accessibility.
   std::wstring accessible_name_;

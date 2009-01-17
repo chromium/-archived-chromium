@@ -59,24 +59,16 @@ class BackgroundPainter : public Background {
   DISALLOW_EVIL_CONSTRUCTORS(BackgroundPainter);
 };
 
-Background::Background()
-#if defined(OS_WIN)
-    : native_control_brush_(NULL)
-#endif
-{
+Background::Background() : native_control_brush_(NULL) {
 }
 
 Background::~Background() {
-#if defined(OS_WIN)
   DeleteObject(native_control_brush_);
-#endif
 }
 
 void Background::SetNativeControlColor(SkColor color) {
-#if defined(OS_WIN)
   DeleteObject(native_control_brush_);
   native_control_brush_ = CreateSolidBrush(skia::SkColorToCOLORREF(color));
-#endif
 }
 
 //static
