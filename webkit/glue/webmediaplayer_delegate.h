@@ -6,7 +6,10 @@
 #define WEBKIT_GLUE_WEBMEDIAPLAYER_DELEGATE_H_
 
 #include "base/gfx/platform_canvas.h"
+#include "webkit/glue/weberror.h"
 #include "webkit/glue/webmediaplayer.h"
+#include "webkit/glue/webresponse.h"
+#include "webkit/glue/weburlrequest.h"
 
 class GURL;
 
@@ -70,6 +73,14 @@ class WebMediaPlayerDelegate {
 
   virtual int64 GetBytesLoaded() const = 0;
   virtual int64 GetTotalBytes() const = 0;
+
+  // Data handlers called from WebMediaPlayer
+  virtual void WillSendRequest(WebRequest& request,
+                               const WebResponse& response) = 0;
+  virtual void DidReceiveData(const char* buf, size_t size) = 0;
+  virtual void DidReceiveResponse(const WebResponse& response) = 0;
+  virtual void DidFinishLoading() = 0;
+  virtual void DidFail(const WebError& error) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerDelegate);

@@ -74,6 +74,14 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate {
   virtual int64 GetBytesLoaded() const { return bytes_loaded_; }
   virtual int64 GetTotalBytes() const { return total_bytes_; }
 
+  // Data handlers.
+  virtual void WillSendRequest(WebRequest& request,
+               const WebResponse& response);
+  virtual void DidReceiveResponse(const WebResponse& response);
+  virtual void DidReceiveData(const char* buf, size_t size);
+  virtual void DidFinishLoading();
+  virtual void DidFail(const WebError& error);
+
   // Inline getters.
   webkit_glue::WebMediaPlayer* web_media_player() { return web_media_player_; }
 

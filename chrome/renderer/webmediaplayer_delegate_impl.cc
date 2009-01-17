@@ -36,7 +36,6 @@ void WebMediaPlayerDelegateImpl::Initialize(
 }
 
 void WebMediaPlayerDelegateImpl::Load(const GURL& url) {
-  // TODO(hclam): delegate to google's media player
 }
 
 void WebMediaPlayerDelegateImpl::CancelLoad() {
@@ -97,4 +96,28 @@ void WebMediaPlayerDelegateImpl::SetRect(const gfx::Rect& rect) {
 void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
                                        const gfx::Rect& rect) {
   // TODO(hclam): grab a frame from the internal player and draw it.
+}
+
+void WebMediaPlayerDelegateImpl::WillSendRequest(WebRequest& request,
+                                                 const WebResponse& response) {
+  // TODO(hclam): do we need to change the request?
+}
+
+void WebMediaPlayerDelegateImpl::DidReceiveResponse(
+    const WebResponse& response) {
+  // TODO(hclam): tell the video piepline to prepare for arriving bytes.
+}
+
+void WebMediaPlayerDelegateImpl::DidReceiveData(const char* buf, size_t size) {
+  // TODO(hclam): direct the data to video pipeline's data source
+}
+
+void WebMediaPlayerDelegateImpl::DidFinishLoading() {
+  // TODO(hclam): do appropriate actions related to load. We should wait
+  // for video pipeline to be initialized and fire a LOADED event.
+}
+
+void WebMediaPlayerDelegateImpl::DidFail(const WebError& error) {
+  // Simply fires a LOAD_FAILED event.
+  // TODO(hclam): will also need to fire a MediaError event.
 }

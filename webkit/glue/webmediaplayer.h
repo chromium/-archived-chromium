@@ -54,6 +54,12 @@ public:
   // Tell the media player to repaint itself.
   virtual void Repaint() = 0;
 
+  // Load a media resource.
+  virtual void LoadMediaResource(const GURL& url) = 0;
+
+  // Cancel loading the media resource.
+  virtual void CancelLoad() = 0;
+
 private:
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayer);
 };
