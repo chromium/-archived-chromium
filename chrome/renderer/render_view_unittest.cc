@@ -96,11 +96,11 @@ TEST_F(RenderViewTest, OnLoadAlternateHTMLText) {
 
   // We should have gotten two different types of start messages in the
   // following order.
-  ASSERT_EQ(2, render_thread_.message_count());
-  const IPC::Message* msg = render_thread_.GetMessageAt(0);
+  ASSERT_EQ(2, render_thread_.sink().message_count());
+  const IPC::Message* msg = render_thread_.sink().GetMessageAt(0);
   EXPECT_EQ(ViewHostMsg_DidStartLoading::ID, msg->type());
 
-  msg = render_thread_.GetMessageAt(1);
+  msg = render_thread_.sink().GetMessageAt(1);
   EXPECT_EQ(ViewHostMsg_DidStartProvisionalLoadForFrame::ID, msg->type());
   ViewHostMsg_DidStartProvisionalLoadForFrame::Param start_params;
   ViewHostMsg_DidStartProvisionalLoadForFrame::Read(msg, &start_params);
@@ -117,14 +117,14 @@ TEST_F(RenderViewTest, OnNavStateChanged) {
   LoadHTML("<input type=\"text\" id=\"elt_text\"></input>");
 
   // We should NOT have gotten a form state change notification yet.
-  EXPECT_FALSE(render_thread_.GetFirstMessageMatching(
+  EXPECT_FALSE(render_thread_.sink().GetFirstMessageMatching(
       ViewHostMsg_UpdateState::ID));
-  render_thread_.ClearMessages();
+  render_thread_.sink().ClearMessages();
 
   // Change the value of the input. We should have gotten an update state
   // notification. We need to spin the message loop to catch this update.
   ExecuteJavaScript("document.getElementById('elt_text').value = 'foo';");
   ProcessPendingMessages();
-  EXPECT_TRUE(render_thread_.GetUniqueMessageMatching(
+  EXPECT_TRUE(render_thread_.sink().GetUniqueMessageMatching(
       ViewHostMsg_UpdateState::ID));
 }

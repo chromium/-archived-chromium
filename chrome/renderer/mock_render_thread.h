@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "chrome/common/ipc_test_sink.h"
 #include "chrome/renderer/render_thread.h"
 
 // This class is very simple mock of RenderThread. It simulates an IPC channel
@@ -15,12 +16,11 @@
 // ViewMsg_Close : async, send to the Widget.
 class MockRenderThread : public RenderThreadBase {
  public:
-  // Encapusulates an IPC message and its associated data (which is not
-  // otherwise bound to the lifetime of the message).
-  typedef std::pair<IPC::Message, char*> MessagePair;
-
   MockRenderThread();
   virtual ~MockRenderThread();
+
+  // Provides access to the messages that have been received by this thread.
+  IPC::TestSink& sink() { return sink_; }
 
   // Called by the Widget. Not used in the test.
   virtual bool InSend() const {
@@ -60,29 +60,6 @@ class MockRenderThread : public RenderThreadBase {
     return widget_ ? true : false;
   }
 
-  // Returns the number of messages in the queue.
-  size_t message_count() const { return messages_.size(); }
-
-  // Clears the message queue of saved messages.
-  void ClearMessages();
-
-  // Returns the message at the given index in the queue. The index may be out
-  // of range, in which case the return value is NULL. The returned pointer will
-  // only be valid until another message is received or the list is cleared.
-  const IPC::Message* GetMessageAt(size_t index) const;
-
-  // Returns the first message with the given ID in the queue. If there is no
-  // message with the given ID, returns NULL. The returned pointer will only be
-  // valid until another message is received or the list is cleared.
-  const IPC::Message* GetFirstMessageMatching(uint16 id) const;
-
-  // Returns the message with the given ID in the queue. If there is no such
-  // message or there is more than one of that message, this will return NULL
-  // (with the expectation that you'll do an ASSERT_TRUE() on the result).
-  // The returned pointer will only be valid until another message is received
-  // or the list is cleared.
-  const IPC::Message* GetUniqueMessageMatching(uint16 id) const;
-
   // Simulates the Widget receiving a close message. This should result
   // on releasing the internal reference counts and destroying the internal
   // state.
@@ -97,6 +74,8 @@ class MockRenderThread : public RenderThreadBase {
                          bool activatable,
                          int* route_id);
 
+  IPC::TestSink sink_;
+
   // Routing id what will be assigned to the Widget.
   int32 routing_id_;
 
@@ -109,8 +88,6 @@ class MockRenderThread : public RenderThreadBase {
 
   // The last known good deserializer for sync messages.
   scoped_ptr<IPC::MessageReplyDeserializer> reply_deserializer_;
-
-  std::vector<MessagePair> messages_;
 };
 
 #endif  // CHROME_RENDERER_MOCK_RENDER_THREAD_H_

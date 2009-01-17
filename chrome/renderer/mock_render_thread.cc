@@ -17,8 +17,6 @@ MockRenderThread::MockRenderThread()
 }
 
 MockRenderThread::~MockRenderThread() {
-  // Don't leak the allocated message bodies.
-  ClearMessages();
 }
 
 // Called by the Widget. The routing_id must match the routing id assigned
@@ -60,62 +58,14 @@ bool MockRenderThread::Send(IPC::Message* msg) {
   return true;
 }
 
-void MockRenderThread::ClearMessages() {
-  for (size_t i = 0; i < messages_.size(); i++)
-    delete[] messages_[i].second;
-  messages_.clear();
-}
-
-const IPC::Message* MockRenderThread::GetMessageAt(size_t index) const {
-  if (index >= messages_.size())
-    return NULL;
-  return &messages_[index].first;
-}
-
-const IPC::Message* MockRenderThread::GetFirstMessageMatching(uint16 id) const {
-  for (size_t i = 0; i < messages_.size(); i++) {
-    if (messages_[i].first.type() == id)
-      return &messages_[i].first;
-  }
-  return NULL;
-}
-
-const IPC::Message* MockRenderThread::GetUniqueMessageMatching(
-    uint16 id) const {
-  size_t found_index = 0;
-  size_t found_count = 0;
-  for (size_t i = 0; i < messages_.size(); i++) {
-    if (messages_[i].first.type() == id) {
-      found_count++;
-      found_index = i;
-    }
-  }
-  if (found_count != 1)
-    return NULL;  // Didn't find a unique one.
-  return &messages_[found_index].first;
-}
-
 void MockRenderThread::SendCloseMessage() {
   ViewMsg_Close msg(routing_id_);
   widget_->OnMessageReceived(msg);
 }
 
 void MockRenderThread::OnMessageReceived(const IPC::Message& msg) {
-  // Copy the message into a pair. This is tricky since the message doesn't
-  // manage its data itself.
-  char* data_copy;
-  if (msg.size()) {
-    data_copy = new char[msg.size()];
-    memcpy(data_copy, msg.data(), msg.size());
-  } else {
-    // Dummy data so we can treat everything the same.
-    data_copy = new char[1];
-    data_copy[0] = 0;
-  }
-
-  // Save the message.
-  messages_.push_back(
-      std::make_pair(IPC::Message(data_copy, msg.size()), data_copy));
+  // Save the message in the sink.
+  sink_.OnMessageReceived(msg);
 
   // Some messages we do special handling.
   bool handled = true;
@@ -133,4 +83,3 @@ void MockRenderThread::OnMsgCreateWidget(int opener_id,
   opener_id_ = opener_id;
   *route_id = routing_id_;
 }
-
