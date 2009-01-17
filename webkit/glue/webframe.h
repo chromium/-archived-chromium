@@ -95,9 +95,11 @@ class WebFrame : public base::RefCounted<WebFrame> {
 
   // Executes a string of JavaScript in the web frame. The script_url param is
   // the URL where the script in question can be found, if any. The renderer may
-  // request this URL to show the developer the source of the error.
+  // request this URL to show the developer the source of the error.  The
+  // start_line parameter is the base line number to use for error reporting.
   virtual void ExecuteJavaScript(const std::string& js_code,
-                                 const GURL& script_url) = 0;
+                                 const GURL& script_url,
+                                 int start_line) = 0;
 
   // Returns a string representing the state of the previous page load for
   // later use when loading. The previous page is the page that was loaded

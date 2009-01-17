@@ -1552,11 +1552,12 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
 }
 
 void WebFrameImpl::ExecuteJavaScript(const std::string& js_code,
-                                     const GURL& script_url) {
+                                     const GURL& script_url,
+                                     int start_line) {
   WebCore::ScriptSourceCode source_code(
       webkit_glue::StdStringToString(js_code),
       webkit_glue::GURLToKURL(script_url),
-      1);  // base line number (for errors)
+      start_line);
   frame_->loader()->executeScript(source_code);
 }
 

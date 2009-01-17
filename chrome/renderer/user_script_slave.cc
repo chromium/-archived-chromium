@@ -7,8 +7,14 @@
 #include "base/logging.h"
 #include "base/pickle.h"
 #include "base/shared_memory.h"
+#include "chrome/common/resource_bundle.h"
+#include "chrome/renderer/renderer_resources.h" 
 #include "googleurl/src/gurl.h"
 
+// These two strings are injected before and after the Greasemonkey API and
+// user script to wrap it in an anonymous scope.
+static const char kUserScriptHead[] = "(function (unsafeWindow) {";
+static const char kUserScriptTail[] = "\n})(window);";
 
 // UserScript
 
@@ -110,7 +116,26 @@ std::string UserScript::EscapeGlob(const std::string& input_pattern) {
 
 
 // UserScriptSlave
-UserScriptSlave::UserScriptSlave() : shared_memory_(NULL) {
+UserScriptSlave::UserScriptSlave()
+    : shared_memory_(NULL),
+      user_script_start_line_(0) {
+  // TODO: Only windows supports resources and only windows supports user
+  // scrips, so only load the Greasemonkey API on windows.  Fix this when
+  // better cross platofrm support is available.
+#if defined(OS_WIN)
+  api_js_ = ResourceBundle::GetSharedInstance().GetRawDataResource(
+                IDR_GREASEMONKEY_API_JS);
+#endif
+
+  // Count the number of lines that will be injected before the user script.
+  StringPiece::size_type pos = 0;
+  while ((pos = api_js_.find('\n', pos)) != StringPiece::npos) {
+    user_script_start_line_++;
+    pos++;
+  }
+
+  // Add one more line to account for the function that wraps everything.
+  user_script_start_line_++;
 }
 
 bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
@@ -161,8 +186,13 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame) {
   for (std::vector<UserScript>::iterator script = scripts_.begin();
        script != scripts_.end(); ++script) {
     if (script->MatchesUrl(frame->GetURL())) {
-      frame->ExecuteJavaScript(script->GetBody().as_string(),
-                               GURL(script->GetURL().as_string()));
+      std::string inject(kUserScriptHead);
+      inject.append(api_js_.as_string());
+      inject.append(script->GetBody().as_string());
+      inject.append(kUserScriptTail);
+      frame->ExecuteJavaScript(inject,
+                               GURL(script->GetURL().as_string()),
+                               -user_script_start_line_);
     }
   }
 

@@ -36,7 +36,9 @@ class RenderViewTest : public testing::Test {
   // Executes the given JavaScript in the context of the main frame. The input
   // is a NULL-terminated UTF-8 string.
   void ExecuteJavaScript(const char* js) {
-    GetMainFrame()->ExecuteJavaScript(js, GURL());
+    GetMainFrame()->ExecuteJavaScript(js,
+                                      GURL(), // script url
+                                      1); // base line number
   }
 
   // Loads the given HTML into the main frame as a data: URL.
