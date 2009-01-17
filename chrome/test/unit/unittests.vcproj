@@ -166,6 +166,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\common\ipc_test_sink.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\ipc_test_sink.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tools\build\win\precompiled_wtl.cc"
 				>
 				<FileConfiguration
