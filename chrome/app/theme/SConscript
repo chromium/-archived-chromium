@@ -17,12 +17,6 @@ env_res.Append(
     ],
 )
 
-res = [
-    env_res.RES('theme_resources.rc'),
-    env_res.RES('distribution_resources.rc'),
-]
-
-
 
 env.Append(
     LINKFLAGS = [
@@ -42,8 +36,59 @@ env.Append(
     ],
 )
 
+input_files = ChromeFileList([
+    'theme_resources.h',
+    'theme_resources.rc',
+    'distribution_resources.rc',
+])
+
+res = []
+res.extend(env_res.RES('theme_resources.rc'))
+res.extend(env_res.RES('distribution_resources.rc'))
+
 themes_default = env.ChromeSharedLibrary("default", res)
 env.Install("$DESTINATION_ROOT/themes", themes_default)
 
-# TODO(bradnelson): figure out why this was needed
-#env.AddPostAction(themes_default[1], Touch(themes_default[1:]))
+p = env.ChromeMSVSProject('theme_dll.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'app/theme/theme_dll.vcproj'),
+                          guid='{FD683DD6-D9BF-4B1B-AB6D-A3AC03EDAA4D}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='2')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/debug.vsprops',
+                './theme_dll.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/release.vsprops',
+                './theme_dll.vsprops',
+            ])

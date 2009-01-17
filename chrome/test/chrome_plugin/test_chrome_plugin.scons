@@ -41,22 +41,89 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'test_chrome_plugin.cc',
-]
+    'test_chrome_plugin.def',
+    'test_chrome_plugin.h',
+])
 
-if env.Bit('windows'):
-  input_files.extend([
+if not env.Bit('windows'):
+  input_files.Remove(
       'test_chrome_plugin.def',
-  ])
+  )
 
 env.ChromeSharedLibrary('test_chrome_plugin', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/test/chrome_plugin/test_chrome_plugin.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/base.vcproj',
-                    '$ICU38_DIR/build/icu.vcproj',
-                    '$ICU38_DIR/build/icudt.vcproj',
-                    '$GOOGLEURL_DIR/build/googleurl.vcproj',
-                ],
-                guid='{7F0A70F6-BE3F-4C19-B435-956AB8F30BA4}')
+p = env.ChromeMSVSProject('test_chrome_plugin.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/test/'
+                                + 'chrome_plugin/test_chrome_plugin.vcproj'),
+                          root_namespace='startup_tests',
+                          guid='{7F0A70F6-BE3F-4C19-B435-956AB8F30BA4}',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$ICU38_DIR/build/icudt.vcproj',
+                              '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          ConfigurationType='2')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/debug.vsprops',
+                './test_chrome_plugin.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                MSVSTool('VCCLCompilerTool',
+                         UsePrecompiledHeader='0'),
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                MSVSTool('VCLinkerTool',
+                         AdditionalDependencies='winmm.lib'),
+                'VCALinkTool',
+                'VCManifestTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCAppVerifierTool',
+                'VCWebDeploymentTool',
+                'VCPostBuildEventTool',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/release.vsprops',
+                './test_chrome_plugin.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                'VCCLCompilerTool',
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                MSVSTool('VCLinkerTool',
+                         AdditionalDependencies='winmm.lib'),
+                'VCALinkTool',
+                'VCManifestTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCAppVerifierTool',
+                'VCWebDeploymentTool',
+                'VCPostBuildEventTool',
+            ])

@@ -89,70 +89,189 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
-    '$CHROME_DIR/browser/browser_focus_uitest.cc',
-    '$CHROME_DIR/browser/views/bookmark_bar_view_test.cc',
-    '$CHROME_DIR/browser/views/constrained_window_impl_interactive_uitest.cc',
-    '$CHROME_DIR/browser/views/tabs/tab_dragging_test.cc',
-    '$CHROME_DIR/test/interactive_ui/npapi_interactive_test.cc',
-    '$CHROME_DIR/test/testing_profile$OBJSUFFIX',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('Common', [
     '$CHROME_DIR/test/ui/npapi_test_helper$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/npapi_test_helper.h',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
     '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',
+    '$CHROME_DIR/test/testing_profile$OBJSUFFIX',
+    '$CHROME_DIR/test/testing_profile.h',
     '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/ui_test.h',
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
-
     'view_event_test_base.cc',
-]
+    'view_event_test_base.h',
+  ]),
+  MSVSFilter('TestBookmarkBarView', [
+    '$CHROME_DIR/browser/views/bookmark_bar_view_test.cc',
+  ]),
+  MSVSFilter('TestFindInPage', [
+    '$CHROME_DIR/browser/views/find_bar_win_interactive_uitest.cc',
+  ]),
+  MSVSFilter('TestFocus', [
+    '$CHROME_DIR/browser/browser_focus_uitest.cc',
+    '$CHROME_DIR/browser/views/constrained_window_impl_interactive_uitest.cc',
+  ]),
+  MSVSFilter('TestTabDragging', [
+    '$CHROME_DIR/browser/views/tabs/tab_dragging_test.cc',
+  ]),
+  MSVSFilter('TestNPAPI', [
+    'npapi_interactive_test.cc',
+  ]),
+])
+
+if not env.Bit('windows'):
+  # Windows-specific.
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+      '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
+  )
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeTestProgram('interactive_ui_tests', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/test/interactive_ui/interactive_ui.vcproj',
-                      name='interactive_ui_tests',
-                      dependencies = [
-                          '$CHROME_DIR/test/automation/automation.vcproj',
-                          '$BASE_DIR/build/base.vcproj',
-                          '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
-                          '$CHROME_DIR/plugin/plugin.vcproj',
-                          '$LIBJPEG_DIR/libjpeg.vcproj',
-                          '$BZIP2_DIR/bzip2.vcproj',
-                          '$NET_DIR/build/net.vcproj',
-                          ('$WEBKIT_DIR/build/JavaScriptCore/' +
-                               'JavaScriptCore_pcre.vcproj'),
-                          '$WEBKIT_DIR/build/port/port.vcproj',
-                          '$CHROME_DIR/browser/debugger/debugger.vcproj',
-                          '$WEBKIT_DIR/default_plugin/default_plugin.vcproj',
-                          '$CHROME_DIR/browser/browser.vcproj',
-                          '$WEBKIT_DIR/build/V8Bindings/V8Bindings.vcproj',
-                          '$SQLITE_DIR/sqlite.vcproj',
-                          '$CHROME_DIR/views/views.vcproj',
-                          '$MODP_B64_DIR/modp_b64.vcproj',
-                          '$CHROME_DIR/app/chrome_exe.vcproj',
-                          ('$CHROME_DIR/test/chrome_plugin/' +
-                               'test_chrome_plugin.vcproj'),
-                          '$ZLIB_DIR/zlib.vcproj',
-                          '$CHROME_DIR/common/common.vcproj',
-                          '$ICU38_DIR/build/icu.vcproj',
-                          '$CHROME_DIR/renderer/renderer.vcproj',
-                          '$BASE_DIR/build/base_gfx.vcproj',
-                          '$WEBKIT_DIR/build/JavaScriptCore/WTF.vcproj',
-                          ('$CHROME_DIR/browser/resources/' +
-                               'browser_resources.vcproj'),
-                          '$RLZ_DIR/rlz.vcproj',
-                          '$TESTING_DIR/gtest.vcproj',
-                          '$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
-                          '$LIBPNG_DIR/libpng.vcproj',
-                          '$WEBKIT_DIR/build/glue/glue.vcproj',
-                          '$CHROME_DIR/app/locales/en-US.vcproj',
-                          '$SKIA_DIR/skia.vcproj',
-                          '$CHROME_DIR/third_party/hunspell/hunspell.vcproj',
-                          '$GOOGLEURL_DIR/build/googleurl.vcproj',
-                          '$CHROME_DIR/installer/util/util.vcproj',
-                          '$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
-                          '$SDCH_DIR/sdch.vcproj',
-                          '$CHROME_DIR/browser/views/browser_views.vcproj',
-                          '$LIBXSLT_DIR/build/libxslt.vcproj',
-                          '$CHROME_DIR/app/theme/theme_dll.vcproj',
-                      ],
-                      guid='{018D4F38-6272-448F-A864-976DA09F05D0}')
+p = env.ChromeMSVSProject('interactive_ui.vcproj',
+                          name='interactive_ui_tests',
+                          root_namespace='manual_ui',
+                          dest=('$CHROME_SRC_DIR/chrome/test/'
+                                + 'interactive_ui/interactive_ui.vcproj'),
+                          guid='{018D4F38-6272-448F-A864-976DA09F05D0}',
+                          dependencies = [
+                              '$CHROME_DIR/test/automation/automation.vcproj',
+                              '$BASE_DIR/build/base.vcproj',
+                              '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
+                              '$CHROME_DIR/plugin/plugin.vcproj',
+                              '$LIBJPEG_DIR/libjpeg.vcproj',
+                              '$BZIP2_DIR/bzip2.vcproj',
+                              '$NET_DIR/build/net.vcproj',
+                              ('$WEBKIT_DIR/build/JavaScriptCore/' +
+                                   'JavaScriptCore_pcre.vcproj'),
+                              '$WEBKIT_DIR/build/port/port.vcproj',
+                              '$CHROME_DIR/browser/debugger/debugger.vcproj',
+                              ('$WEBKIT_DIR/default_plugin/'
+                               + 'default_plugin.vcproj'),
+                              '$CHROME_DIR/browser/browser.vcproj',
+                              '$WEBKIT_DIR/build/V8Bindings/V8Bindings.vcproj',
+                              '$SQLITE_DIR/sqlite.vcproj',
+                              '$CHROME_DIR/views/views.vcproj',
+                              '$MODP_B64_DIR/modp_b64.vcproj',
+                              '$CHROME_DIR/app/chrome_exe.vcproj',
+                              ('$CHROME_DIR/test/chrome_plugin/' +
+                                   'test_chrome_plugin.vcproj'),
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$CHROME_DIR/common/common.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$CHROME_DIR/renderer/renderer.vcproj',
+                              '$BASE_DIR/build/base_gfx.vcproj',
+                              '$WEBKIT_DIR/build/JavaScriptCore/WTF.vcproj',
+                              ('$CHROME_DIR/browser/resources/' +
+                                   'browser_resources.vcproj'),
+                              '$RLZ_DIR/rlz.vcproj',
+                              '$TESTING_DIR/gtest.vcproj',
+                              '$V8_DIR/tools/visual_studio/v8_snapshot.vcproj',
+                              '$LIBPNG_DIR/libpng.vcproj',
+                              '$WEBKIT_DIR/build/glue/glue.vcproj',
+                              '$CHROME_DIR/app/locales/en-US.vcproj',
+                              '$SKIA_DIR/skia.vcproj',
+                              ('$CHROME_DIR/third_party/'
+                               + 'hunspell/hunspell.vcproj'),
+                              '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                              '$CHROME_DIR/installer/util/util.vcproj',
+                              '$WEBKIT_DIR/activex_shim/activex_shim.vcproj',
+                              '$SDCH_DIR/sdch.vcproj',
+                              '$CHROME_DIR/browser/views/browser_views.vcproj',
+                              '$LIBXSLT_DIR/build/libxslt.vcproj',
+                              '$CHROME_DIR/app/theme/theme_dll.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../../tools/build/win/precompiled_wtl.vsprops',
+                '../../tools/build/win/unit_test.vsprops',
+                '$(SolutionDir)../third_party/libpng/using_libpng.vsprops',
+                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                ('$(SolutionDir)../'
+                 + 'third_party/libxml/build/using_libxml.vsprops'),
+                '../../../third_party/icu38/build/using_icu.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+                '../../third_party/hunspell/using_hunspell.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                'VCCLCompilerTool',
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                'VCLinkerTool',
+                'VCALinkTool',
+                'VCManifestTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCAppVerifierTool',
+                'VCWebDeploymentTool',
+                'VCPostBuildEventTool',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '../../tools/build/win/unit_test.vsprops',
+                '$(SolutionDir)../third_party/libpng/using_libpng.vsprops',
+                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                ('$(SolutionDir)../'
+                 + 'third_party/libxml/build/using_libxml.vsprops'),
+                '../../../third_party/icu38/build/using_icu.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+                '../../third_party/hunspell/using_hunspell.vsprops',
+            ],
+            tools=[
+                'VCPreBuildEventTool',
+                'VCCustomBuildTool',
+                'VCXMLDataGeneratorTool',
+                'VCWebServiceProxyGeneratorTool',
+                'VCMIDLTool',
+                'VCCLCompilerTool',
+                'VCManagedResourceCompilerTool',
+                'VCResourceCompilerTool',
+                'VCPreLinkEventTool',
+                MSVSTool('VCLinkerTool',
+                         AdditionalDependencies='winmm.lib'),
+                'VCALinkTool',
+                'VCManifestTool',
+                'VCXDCMakeTool',
+                'VCBscMakeTool',
+                'VCFxCopTool',
+                'VCAppVerifierTool',
+                'VCWebDeploymentTool',
+                'VCPostBuildEventTool',
+            ])
+
+p.AddFileConfig('../../tools/build/win/precompiled_wtl.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

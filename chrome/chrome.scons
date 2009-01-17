@@ -12,6 +12,7 @@ Import('env')
 env.Append(
     COMPONENT_PROGRAM_GROUPS = ['chrome'],
     COMPONENT_TEST_PROGRAM_GROUPS = ['chrome'],
+    STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME = 1,
 )
 
 
@@ -19,7 +20,8 @@ env.Append(
 def chrome_version_emitter(target, source, env):
     source.append(env.File('$CHROME_SRC_DIR/chrome/VERSION'))
     # TODO(sgk):  parameterize for chromium-vs.-google_chrome
-    source.append(env.File('$CHROME_SRC_DIR/chrome/app/theme/google_chrome/BRANDING'))
+    source.append(env.File('$CHROME_SRC_DIR/chrome/'
+                           + 'app/theme/google_chrome/BRANDING'))
     return target, source
 
 b = Builder(action = '$CHROME_VERSION_RC_COM',
@@ -49,8 +51,12 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
     debugger            = 'browser/debugger/debugger.scons',
     common              = 'common/common.scons',
     ipc_tests           = 'common/ipc_tests.scons',
+    #gcapi_dll           = 'installer/gcapi/gcapi_dll.scons',
+    #gcapi_lib           = 'installer/gcapi/gcapi_lib.scons',
+    #gcapi_test          = 'installer/gcapi/gcapi_test.scons',
     mini_installer      = 'installer/mini_installer/mini_installer.scons',
     setup               = 'installer/setup/setup.scons',
+    #installer_unittests = 'installer/util/installer_unittests.scons',
     util                = 'installer/util/util.scons',
     installer_unittests = 'installer/util/installer_unittests.scons',
     plugin              = 'plugin/plugin.scons',

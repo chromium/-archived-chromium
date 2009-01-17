@@ -27,34 +27,69 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('automation', [
+    'automation/dom_automation_controller.cc',
+    'automation/dom_automation_controller.h',
+  ]),
+  MSVSFilter('net', [
+    'net/render_dns_master.cc',
+    'net/render_dns_master.h',
+    'net/render_dns_queue.cc',
+    'net/render_dns_queue.h',
+  ]),
     'about_handler.cc',
+    'about_handler.h',
     'chrome_plugin_host.cc',
+    'chrome_plugin_host.h',
     'debug_message_handler.cc',
+    'debug_message_handler.h',
     'dom_ui_bindings.cc',
+    'dom_ui_bindings.h',
     'external_host_bindings.cc',
+    'external_host_bindings.h',
     'external_js_object.cc',
+    'external_js_object.h',
     'localized_error.cc',
+    'localized_error.h',
     'plugin_channel_host.cc',
+    'plugin_channel_host.h',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
     'render_process.cc',
+    'render_process.h',
     'render_thread.cc',
+    'render_thread.h',
     'render_view.cc',
+    'render_view.h',
     'render_widget.cc',
+    'render_widget.h',
     'renderer_glue.cc',
     'renderer_main.cc',
+    'renderer_resources.h',
     'user_script_slave.cc',
+    'user_script_slave.h',
     'visitedlink_slave.cc',
+    'visitedlink_slave.h',
     'webmediaplayer_delegate_impl.cc',
+    'webmediaplayer_delegate_impl.h',
     'webplugin_delegate_proxy.cc',
-    'automation/dom_automation_controller.cc',
+    'webplugin_delegate_proxy.h',
+])
 
-    'net/render_dns_master.cc',
-    'net/render_dns_queue.cc',
-]
+if not env.Bit('windows'):
+  # Windows-specific.
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+      '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
+  )
 
 # TODO(port): Port these to Linux
 if env.Bit('linux'):
-  to_be_ported_files = [
+  input_files.Remove(
       'chrome_plugin_host.cc',
       'debug_message_handler.cc',
       'external_js_object.cc',
@@ -67,13 +102,11 @@ if env.Bit('linux'):
       'renderer_glue.cc',
       'renderer_main.cc',
       'webplugin_delegate_proxy.cc',
-  ]
-  for remove in to_be_ported_files:
-    input_files.remove(remove)
+  )
 
 # TODO(port): Port these to Mac
 if env.Bit('mac'):
-  to_be_ported_files = [
+  input_files.Remove(
       'chrome_plugin_host.cc',
       'debug_message_handler.cc',
       'external_js_object.cc',
@@ -86,17 +119,64 @@ if env.Bit('mac'):
       'renderer_glue.cc',
       'renderer_main.cc',
       'webplugin_delegate_proxy.cc',
-  ]
-  for remove in to_be_ported_files:
-    input_files.remove(remove)
+  )
 
 
 # TODO(port): Enable for Mac.
 if not env.Bit('mac'):
   env.ChromeLibrary('renderer', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/renderer/renderer.vcproj',
-                dependencies = [
-                    '$CHROME_DIR/app/generated_resources.vcproj',
-                ],
-                guid='{9301A569-5D2B-4D11-9332-B1E30AEACB8D}')
+# TODO########################################################################
+
+p = env.ChromeMSVSProject('renderer.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'renderer/renderer.vcproj'),
+                          guid='{9301A569-5D2B-4D11-9332-B1E30AEACB8D}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$CHROME_DIR/app/generated_resources.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                './renderer.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../tools/build/win/precompiled_wtl.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                './renderer.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])
+
+p.AddFileConfig('../tools/build/win/precompiled_wtl.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

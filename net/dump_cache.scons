@@ -37,6 +37,7 @@ if env.Bit('windows'):
 p = env.ChromeMSVSProject('$NET_DIR/build/dump_cache.vcproj',
                           dest='$CHROME_SRC_DIR/net/build/dump_cache.vcproj',
                           guid='{4A14E455-2B7C-4C0F-BCC2-35A9666C186F}',
+                          keyword='Win32Proj',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
                               '$NET_DIR/build/net.vcproj',

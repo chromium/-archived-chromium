@@ -42,24 +42,69 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
-    'main.cc',
+input_files = ChromeFileList([
     'crash_service.cc',
-]
+    'crash_service.h',
+    'main.cc',
+])
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeProgram('crash_service', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/tools/crash_service/crash_service.vcproj',
-                      dependencies = [
-                          '$BASE_DIR/build/base.vcproj',
-                          '$ZLIB_DIR/zlib.vcproj',
-                          '$CHROME_DIR/common/common.vcproj',
-                          '$ICU38_DIR/build/icu.vcproj',
-                          '$BREAKPAD_DIR/breakpad_sender.vcproj',
-                          '$BASE_DIR/build/base_gfx.vcproj',
-                          '$BREAKPAD_DIR/breakpad_handler.vcproj',
-                          '$SKIA_DIR/skia.vcproj',
-                      ],
-                      guid='{89C1C190-A5D1-4EC4-BD6A-67FF2195C7CC}')
+p = env.ChromeMSVSProject('crash_service.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'tools/crash_service/crash_service.vcproj'),
+                          guid='{89C1C190-A5D1-4EC4-BD6A-67FF2195C7CC}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$CHROME_DIR/common/common.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$BREAKPAD_DIR/breakpad_sender.vcproj',
+                              '$BASE_DIR/build/base_gfx.vcproj',
+                              '$BREAKPAD_DIR/breakpad_handler.vcproj',
+                              '$SKIA_DIR/skia.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../breakpad/using_breakpad.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../breakpad/using_breakpad.vsprops',
+            ])

@@ -33,11 +33,12 @@ input_files = ChromeFileList([
 
 if not env.Bit('mac'):
   # TODO(port): port to mac?
-  env.ChromeTestProgram('crash_cache', input_files)
+  x = env.ChromeTestProgram('crash_cache', input_files)
 
 p = env.ChromeMSVSProject('$NET_DIR/build/crash_cache.vcproj',
                           dest='$CHROME_SRC_DIR/net/build/crash_cache.vcproj',
                           guid='{B0EE0599-2913-46A0-A847-A3EC813658D3}',
+                          keyword='Win32Proj',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
                               '$NET_DIR/build/net.vcproj',

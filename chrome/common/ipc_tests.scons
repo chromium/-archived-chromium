@@ -74,22 +74,73 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'ipc_fuzzing_tests.cc',
     'ipc_tests.cc',
-
+    'ipc_tests.h',
     '$BASE_DIR/perftimer$OBJSUFFIX',
-]
+])
 
 ipc_tests = env.ChromeTestProgram('ipc_tests', input_files)
 i = env.Install('$TARGET_ROOT', ipc_tests)
 Alias('chrome', i)
 
-env.ChromeMSVSProject('$CHROME_DIR/common/ipc_tests.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/base.vcproj',
-                    '$CHROME_DIR/common/common.vcproj',
-                    '$ICU38_DIR/build/icu.vcproj',
-                    '$TESTING_DIR/gtest.vcproj',
-                ],
-                guid='{B92AE829-E1CD-4781-824A-DCB1603A1672}')
+p = env.ChromeMSVSProject('ipc_tests.vcproj',
+                          dest='$CHROME_SRC_DIR/chrome/common/ipc_tests.vcproj',
+                          guid='{B92AE829-E1CD-4781-824A-DCB1603A1672}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$CHROME_DIR/common/common.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$TESTING_DIR/gtest.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              MSVSTool('VCLinkerTool',
+                                       AdditionalDependencies=[
+                                           'shlwapi.lib',
+                                           'rpcrt4.lib',
+                                           'winmm.lib'
+                                       ],
+                                       SubSystem='1'),
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])

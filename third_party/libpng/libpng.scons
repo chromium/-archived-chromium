@@ -65,8 +65,10 @@ input_files = ChromeFileList([
 env.ChromeLibrary('libpng', input_files)
 
 p = env.ChromeMSVSProject('libpng.vcproj',
-                          dest='$CHROME_SRC_DIR/third_party/libpng/libpng.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/'
+                                + 'libpng/libpng.vcproj'),
                           guid='{C564F145-9172-42C3-BFCB-6014CA97DBCD}',
+                          keyword='Win32Proj',
                           files=input_files,
                           relative_path_prefix='./',
                           tools = [

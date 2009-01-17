@@ -38,6 +38,7 @@ import xml.dom.minidom
 
 import SCons.Node.FS
 import SCons.Script
+import SCons.Util
 
 from SCons.Debug import Trace
 TODO = 0
@@ -220,7 +221,7 @@ class _MSVSFolder(FileList):
 
   entry_type_guid = '{2150E333-8FDC-42A3-9474-1A3956D46DE8}'
 
-  def initialize(self, path, name = None, entries = None, guid = None, items = None):
+  def initialize(self, path, name=None, entries=None, guid=None, items=None):
     """Initializes the folder.
 
     Args:
@@ -385,6 +386,47 @@ class MSVSTool(object):
       Name: Tool name.
       **attrs: Tool attributes.
     """
+
+    val = attrs.get('AdditionalDependencies')
+    if val:
+      if isinstance(val, list):
+        val = ' '.join(val)
+      attrs['AdditionalDependencies'] = val.replace('/', '\\')
+
+    val = attrs.get('AdditionalIncludeDirectories')
+    if val:
+      if isinstance(val, list):
+        val = ';'.join(val)
+      attrs['AdditionalIncludeDirectories'] = val.replace('/', '\\')
+
+    val = attrs.get('AdditionalManifestFiles')
+    if val:
+      if isinstance(val, list):
+        val = ';'.join(val)
+      attrs['AdditionalManifestFiles'] = val.replace('/', '\\')
+
+    val = attrs.get('CommandLine')
+    if val:
+      if isinstance(val, list):
+        val = '\r\n'.join(val)
+      attrs['CommandLine'] = val.replace('/', '\\')
+
+    val = attrs.get('PreprocessorDefinitions')
+    if val:
+      if isinstance(val, list):
+        val = ';'.join(val)
+      attrs['PreprocessorDefinitions'] = val
+
+    for a in ('ImportLibrary',
+              'ObjectFile',
+              'OutputFile',
+              'Outputs',
+              'XMLDocumentationFileName'):
+      val = attrs.get(a)
+      if val:
+        val = val.replace('/', '\\')
+        attrs[a] = val
+
     self.Name = Name
     self.attrs = attrs
 
@@ -453,7 +495,10 @@ class _MSVSProject(SCons.Node.FS.File):
                                  buildtargets = [],
                                  files = [],
                                  root_namespace = None,
-                                 relative_path_prefix = '',
+                                 keyword = None,
+                                 relative_path_prefix = None,
+                                 local_directory_prefix = None,
+                                 relative_path_substitutions = [],
                                  tools = None,
                                  configurations = None,
                                  **attrs):
@@ -511,14 +556,28 @@ class _MSVSProject(SCons.Node.FS.File):
       self.tool_files = []
       self.file_lists = []
       self.initialized = True
+      self.keyword = None
+      self.local_directory_prefix = ''
+      self.relative_path_prefix = ''
+      self.relative_path_substitutions = []
+      self.root_namespace = name
 
     self.attrs = attrs
     self.env = env
     self.guid = guid
     self.msvs_name = name
     self.msvs_path = path
-    self.relative_path_prefix = relative_path_prefix
-    self.root_namespace = root_namespace or self.msvs_name
+    if relative_path_prefix:
+      self.relative_path_prefix = relative_path_prefix
+    if local_directory_prefix:
+      self.local_directory_prefix = local_directory_prefix
+    for left, right in relative_path_substitutions:
+      t = (left.replace('/', '\\'), right.replace('/', '\\'))
+      self.relative_path_substitutions.append(t)
+    if root_namespace:
+      self.root_namespace = root_namespace
+    if keyword:
+      self.keyword = keyword
     self.tools = tools
 
     self.buildtargets.extend(buildtargets)
@@ -533,7 +592,7 @@ class _MSVSProject(SCons.Node.FS.File):
     for entry in entries:
       if SCons.Util.is_String(entry):
         entry = self.env.File(entry)
-        result.append(entry)
+        result.append(entry.srcnode())
       elif hasattr(entry, 'entries'):
         entry.entries = self.args2nodes(entry.entries)
         result.append(entry)
@@ -594,8 +653,16 @@ class _MSVSProject(SCons.Node.FS.File):
       return sln.rel_path(self).replace('/', '\\')
 
   def get_rel_path(self, node):
-      result = self.relative_path_prefix + self.rel_path(node)
-      return result.replace('/', '\\')
+      result = self.rel_path(node)
+      if self.relative_path_prefix:
+        if not result.startswith('..'):
+          result = self.relative_path_prefix + result
+      elif not os.path.split(result)[0]:
+        result = self.local_directory_prefix + result
+      result = result.replace('/', '\\')
+      for left, right in self.relative_path_substitutions:
+        result = result.replace(left, right)
+      return result
 
   def AddConfig(self, Name, tools=None, **attrs):
     """Adds a configuration to the parent node.
@@ -710,7 +777,8 @@ class _MSVSProject(SCons.Node.FS.File):
     root.setAttribute('Name', self.msvs_name)
     root.setAttribute('ProjectGUID', self.get_guid())
     root.setAttribute('RootNamespace', self.root_namespace)
-    root.setAttribute('Keyword', 'Win32Proj')
+    if self.keyword:
+      root.setAttribute('Keyword', self.keyword)
 
     # Add platform list
     platforms = self.doc.createElement('Platforms')
@@ -1095,6 +1163,11 @@ class _MSVSProject(SCons.Node.FS.File):
           'Name',
           'DisableSpecificWarnings',
 
+          'AdditionalIncludeDirectories',
+          'Description',
+          'CommandLine',
+          'OutputFile',
+          'ImportLibrary',
           'PreprocessorDefinitions',
           'UsePrecompiledHeader',
           'PrecompiledHeaderThrough',
@@ -1178,7 +1251,7 @@ MSVSSolutionAction = SCons.Script.Action(MSVSAction,
 class _MSVSSolution(SCons.Node.FS.File):
   """Visual Studio solution."""
 
-  def initialize(self, env, path, entries = None, variants = None, websiteProperties = True):
+  def initialize(self, env, path, entries=None, variants=None, websiteProperties=True):
     """Initializes the solution.
 
     Args:
@@ -1370,8 +1443,19 @@ def MSVSSolution(env, item, *args, **kw):
   LookupAdd(item, result)
   return result
 
+class Derived(SCons.Util.Proxy):
+  def srcnode(self, *args, **kw):
+    return self
+  def __getattr__(self, name):
+    if name == 'sources':
+      return []
+    return SCons.Util.Proxy.__getattr__(self, name)
+  def __hash__(self, *args, **kw):
+    return id(self)
+
 import __builtin__
 
+__builtin__.Derived = Derived
 __builtin__.MSVSConfig = MSVSConfig
 __builtin__.MSVSFilter = MSVSFilter
 __builtin__.MSVSProject = MSVSProject

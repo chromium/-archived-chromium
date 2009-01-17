@@ -370,11 +370,11 @@ input_files = ChromeFileList([
   ]),
 
   MSVSFilter('ext', [
-    'ext/convolver.cc',
-    'ext/convolver.h',
     'ext/bitmap_platform_device.h',
     'ext/bitmap_platform_device_win.cc',
     'ext/bitmap_platform_device_win.h',
+    'ext/convolver.cc',
+    'ext/convolver.h',
     'ext/google_logging.cc',
     'ext/image_operations.cc',
     'ext/image_operations.h',
@@ -468,6 +468,7 @@ env.ChromeLibrary('skia', input_files)
 p = env.ChromeMSVSProject('skia.vcproj',
                           dest='$CHROME_SRC_DIR/skia/skia.vcproj',
                           guid='{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}',
+                          keyword='Win32Proj',
                           files=input_files,
                           relative_path_prefix=r'./',
                           tools = [

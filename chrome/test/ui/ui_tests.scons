@@ -84,97 +84,308 @@ if env.Bit('windows'):
       ],
   )
 
-ui_test_files = [
-    'run_all_unittests.cc',
-    'ui_test.cc',
-    'ui_test_suite.cc',
-]
-
-if env.Bit('windows'):
-  # TODO(port): mark which of these work and which don't.
-  ui_test_files.extend([
-    'history_uitest.cc',
-    'inspector_controller_uitest.cc',
-    'layout_plugin_uitest.cpp',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('Common', [
     'npapi_test_helper.cc',
-    'npapi_uitest.cpp',
-    'omnibox_uitest.cc',
-
-    'sandbox_uitests.cc',
-
-    '$CHROME_DIR/app/chrome_main_uitest.cc',
-    '$CHROME_DIR/browser/browser_uitest.cc',
-    '$CHROME_DIR/browser/crash_recovery_uitest.cc',
-    '$CHROME_DIR/browser/download/download_uitest.cc',
-    '$CHROME_DIR/browser/download/save_page_uitest.cc',
-    '$CHROME_DIR/browser/errorpage_uitest.cc',
-    '$CHROME_DIR/browser/history/redirect_uitest.cc',
-    '$CHROME_DIR/browser/iframe_uitest.cc',
-    '$CHROME_DIR/browser/images_uitest.cc',
-    '$CHROME_DIR/browser/interstitial_page_uitest.cc',
-    '$CHROME_DIR/browser/locale_tests_uitest.cc',
-    '$CHROME_DIR/browser/login_prompt_uitest.cc',
-    '$CHROME_DIR/browser/metrics_service_uitest.cc',
-    '$CHROME_DIR/browser/printing/printing_layout_uitest.cc',
-    '$CHROME_DIR/browser/resource_dispatcher_host_uitest.cc',
-    '$CHROME_DIR/browser/sanity_uitest.cc',
-    '$CHROME_DIR/browser/session_history_uitest.cc',
-    '$CHROME_DIR/browser/sessions/session_restore_uitest.cc',
-    '$CHROME_DIR/browser/ssl_uitest.cc',
-    '$CHROME_DIR/browser/tab_restore_uitest.cc',
-    '$CHROME_DIR/browser/view_source_uitest.cc',
-    '$CHROME_DIR/common/logging_chrome_uitest.cc',
-    '$CHROME_DIR/common/net/cache_uitest.cc',
-    '$CHROME_DIR/common/pref_service_uitest.cc',
-    '$CHROME_DIR/test/accessibility/accessibility_tests.cc',
-    '$CHROME_DIR/test/accessibility/accessibility_util.cc',
-    '$CHROME_DIR/test/accessibility/browser_impl.cc',
-    '$CHROME_DIR/test/accessibility/keyboard_util.cc',
-    '$CHROME_DIR/test/accessibility/registry_util.cc',
-    '$CHROME_DIR/test/accessibility/tab_impl.cc',
-    '$CHROME_DIR/test/automation/automation_proxy_uitest.cc',
-    '$CHROME_DIR/test/perf/mem_usage.cc',
-    '$CHROME_DIR/test/reliability/page_load_test$OBJSUFFIX',
+    'npapi_test_helper.h',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
+    'run_all_unittests.cc',
+    '$CHROME_DIR/test/testing_browser_process.h',
+    'ui_test.cc',
+    'ui_test.h',
+    'ui_test_suite.cc',
+    'ui_test_suite.h',
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
-    ])
+    '$NET_DIR/url_request/url_request_test_job.h',
+  ]),
+  MSVSFilter('TestChromeMain', [
+    '$CHROME_DIR/app/chrome_main_uitest.cc',
+  ]),
+  MSVSFilter('TestErrorPage', [
+    '$CHROME_DIR/browser/errorpage_uitest.cc',
+  ]),
+  MSVSFilter('TestBrowser', [
+    '$CHROME_DIR/browser/browser_uitest.cc',
+    MSVSFilter('TestImages', [
+      '$CHROME_DIR/browser/images_uitest.cc',
+    ]),
+  ]),
+  MSVSFilter('TestChromeLogging', [
+    '$CHROME_DIR/common/logging_chrome_uitest.cc',
+  ]),
+  MSVSFilter('TestDownload', [
+    '$CHROME_DIR/browser/download/download_uitest.cc',
+  ]),
+  MSVSFilter('TestIFrame', [
+    '$CHROME_DIR/browser/iframe_uitest.cc',
+  ]),
+  MSVSFilter('TestCache', [
+    '$CHROME_DIR/common/net/cache_uitest.cc',
+  ]),
+  MSVSFilter('TestSanity', [
+    '$CHROME_DIR/browser/sanity_uitest.cc',
+  ]),
+  MSVSFilter('TestAutomationProxy', [
+    '$CHROME_DIR/test/automation/automation_proxy_uitest.cc',
+  ]),
+  MSVSFilter('TestNPAPI', [
+    'layout_plugin_uitest.cpp',
+    'npapi_uitest.cpp',
+  ]),
+  MSVSFilter('TestSessionHistory', [
+    '$CHROME_DIR/browser/session_history_uitest.cc',
+  ]),
+  MSVSFilter('TestSessionRestore', [
+    '$CHROME_DIR/browser/sessions/session_restore_uitest.cc',
+  ]),
+  MSVSFilter('TestTabRestore', [
+    '$CHROME_DIR/browser/tab_restore_uitest.cc',
+  ]),
+  MSVSFilter('TestUnload', [
+    '$CHROME_DIR/browser/unload_uitest.cc',
+  ]),
+  MSVSFilter('TestAuthentication', [
+    '$CHROME_DIR/browser/login_prompt_uitest.cc',
+  ]),
+  MSVSFilter('TestPreferences', [
+    '$CHROME_DIR/common/pref_service_uitest.cc',
+  ]),
+  MSVSFilter('TestViewSource', [
+    '$CHROME_DIR/browser/tab_contents/view_source_uitest.cc',
+  ]),
+  MSVSFilter('TestRedirects', [
+    '$CHROME_DIR/browser/history/redirect_uitest.cc',
+  ]),
+  MSVSFilter('TestResourceDispatcherHost', [
+    '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_uitest.cc',
+  ]),
+  MSVSFilter('TestFindInPage', [
+    '$CHROME_DIR/browser/views/find_bar_win_uitest.cc',
+  ]),
+  MSVSFilter('TestPageLoader', [
+    '$CHROME_DIR/test/perf/mem_usage.cc',
+    '$CHROME_DIR/test/perf/mem_usage.h',
+    '$CHROME_DIR/test/reliability/page_load_test$OBJSUFFIX',
+    '$CHROME_DIR/test/reliability/page_load_test.h',
+  ]),
+  MSVSFilter('TestSandbox', [
+    'sandbox_uitests.cc',
+  ]),
+  MSVSFilter('TestInspector', [
+    'inspector_controller_uitest.cc',
+  ]),
+  MSVSFilter('TestLocalizedBuilds', [
+    '$CHROME_DIR/browser/locale_tests_uitest.cc',
+  ]),
+  MSVSFilter('TestMetricsService', [
+    '$CHROME_DIR/browser/metrics/metrics_service_uitest.cc',
+  ]),
+  MSVSFilter('TestInterstitialPage', [
+    '$CHROME_DIR/browser/interstitial_page_uitest.cc',
+  ]),
+  MSVSFilter('TestSSL', [
+    '$CHROME_DIR/browser/ssl/ssl_uitest.cc',
+  ]),
+  MSVSFilter('TestAccessibility', [
+    '$CHROME_DIR/test/accessibility/accessibility_tests.cc',
+    MSVSFilter('Accessibility Client', [
+      '$CHROME_DIR/test/accessibility/accessibility_util.cc',
+      '$CHROME_DIR/test/accessibility/accessibility_util.h',
+      '$CHROME_DIR/test/accessibility/browser_impl.cc',
+      '$CHROME_DIR/test/accessibility/browser_impl.h',
+      '$CHROME_DIR/test/accessibility/constants.h',
+      '$CHROME_DIR/test/accessibility/keyboard_util.cc',
+      '$CHROME_DIR/test/accessibility/keyboard_util.h',
+      '$CHROME_DIR/test/accessibility/registry_util.cc',
+      '$CHROME_DIR/test/accessibility/registry_util.h',
+      '$CHROME_DIR/test/accessibility/tab_impl.cc',
+      '$CHROME_DIR/test/accessibility/tab_impl.h',
+    ]),
+  ]),
+  MSVSFilter('TestCrashRecovery', [
+    '$CHROME_DIR/browser/crash_recovery_uitest.cc',
+  ]),
+  MSVSFilter('TestPrinting', [
+    '$CHROME_DIR/browser/printing/printing_layout_uitest.cc',
+    '$CHROME_DIR/browser/printing/printing_test.h',
+  ]),
+  MSVSFilter('TestSavePage', [
+    '$CHROME_DIR/browser/download/save_page_uitest.cc',
+  ]),
+  MSVSFilter('TestOmnibox', [
+    'omnibox_uitest.cc',
+  ]),
+  MSVSFilter('TestHistory', [
+    'history_uitest.cc',
+  ]),
+])
 
+if not env.Bit('windows'):
+  # TODO(port): mark which of these work and which don't.
+  input_files.Remove(
+      'history_uitest.cc',
+      'inspector_controller_uitest.cc',
+      'layout_plugin_uitest.cpp',
+      'npapi_test_helper.cc',
+      'npapi_uitest.cpp',
+      'omnibox_uitest.cc',
+
+      'sandbox_uitests.cc',
+
+      '$CHROME_DIR/app/chrome_main_uitest.cc',
+      '$CHROME_DIR/browser/browser_uitest.cc',
+      '$CHROME_DIR/browser/crash_recovery_uitest.cc',
+      '$CHROME_DIR/browser/download/download_uitest.cc',
+      '$CHROME_DIR/browser/download/save_page_uitest.cc',
+      '$CHROME_DIR/browser/errorpage_uitest.cc',
+      '$CHROME_DIR/browser/history/redirect_uitest.cc',
+      '$CHROME_DIR/browser/iframe_uitest.cc',
+      '$CHROME_DIR/browser/images_uitest.cc',
+      '$CHROME_DIR/browser/interstitial_page_uitest.cc',
+      '$CHROME_DIR/browser/locale_tests_uitest.cc',
+      '$CHROME_DIR/browser/login_prompt_uitest.cc',
+      '$CHROME_DIR/browser/metrics/metrics_service_uitest.cc',
+      '$CHROME_DIR/browser/printing/printing_layout_uitest.cc',
+      '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_uitest.cc',
+      '$CHROME_DIR/browser/sanity_uitest.cc',
+      '$CHROME_DIR/browser/session_history_uitest.cc',
+      '$CHROME_DIR/browser/sessions/session_restore_uitest.cc',
+      '$CHROME_DIR/browser/ssl/ssl_uitest.cc',
+      '$CHROME_DIR/browser/tab_contents/view_source_uitest.cc',
+      '$CHROME_DIR/browser/tab_restore_uitest.cc',
+      '$CHROME_DIR/browser/unload_uitest.cc',
+      '$CHROME_DIR/common/logging_chrome_uitest.cc',
+      '$CHROME_DIR/common/net/cache_uitest.cc',
+      '$CHROME_DIR/common/pref_service_uitest.cc',
+      '$CHROME_DIR/test/accessibility/accessibility_tests.cc',
+      '$CHROME_DIR/test/accessibility/accessibility_util.cc',
+      '$CHROME_DIR/test/accessibility/browser_impl.cc',
+      '$CHROME_DIR/test/accessibility/keyboard_util.cc',
+      '$CHROME_DIR/test/accessibility/registry_util.cc',
+      '$CHROME_DIR/test/accessibility/tab_impl.cc',
+      '$CHROME_DIR/test/automation/automation_proxy_uitest.cc',
+      '$CHROME_DIR/test/perf/mem_usage.cc',
+      '$CHROME_DIR/test/reliability/page_load_test$OBJSUFFIX',
+      '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
+  )
+
+if not env.Bit('windows'):
   # Windows-specific tests.
-  ui_test_files.extend([
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+      '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
       '$CHROME_DIR/browser/views/find_bar_win_interactive_uitest.cc',
       '$CHROME_DIR/browser/views/find_bar_win_uitest.cc',
-  ])
+  )
 
-env.ChromeTestProgram('ui_tests', ui_test_files)
+env.ChromeTestProgram('ui_tests', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/test/ui/ui_tests.vcproj',
-                      dependencies = [
-                          ('$WEBKIT_DIR/glue/plugins/test/' +
-                               'npapi_test_plugin.vcproj'),
-                          '$CHROME_DIR/test/automation/automation.vcproj',
-                          '$BASE_DIR/build/base.vcproj',
-                          '$BZIP2_DIR/bzip2.vcproj',
-                          '$NET_DIR/build/net.vcproj',
-                          '$CHROME_DIR/browser/browser.vcproj',
-                          '$MODP_B64_DIR/modp_b64.vcproj',
-                          '$CHROME_DIR/app/chrome_exe.vcproj',
-                          '$ZLIB_DIR/zlib.vcproj',
-                          '$CHROME_DIR/common/common.vcproj',
-                          '$ICU38_DIR/build/icu.vcproj',
-                          '$CHROME_DIR/app/locales/he.vcproj',
-                          '$CHROME_DIR/app/locales/da.vcproj',
-                          '$BASE_DIR/build/base_gfx.vcproj',
-                          ('$WEBKIT_DIR/tools/npapi_layout_test_plugin/' +
-                               'npapi_layout_test_plugin.vcproj'),
-                          '$TESTING_DIR/gtest.vcproj',
-                          '$LIBPNG_DIR/libpng.vcproj',
-                          '$CHROME_DIR/app/locales/en-US.vcproj',
-                          '$SKIA_DIR/skia.vcproj',
-                          ('$CHROME_DIR/test/security_tests/' +
-                               'security_tests.vcproj'),
-                          '$CHROME_DIR/app/locales/zh-TW.vcproj',
-                          '$GOOGLEURL_DIR/build/googleurl.vcproj',
-                          '$SDCH_DIR/sdch.vcproj',
-                          '$LIBXML_DIR/build/libxml.vcproj',
-                          '$CHROME_DIR/browser/views/browser_views.vcproj',
-                      ],
-                      guid='{76235B67-1C27-4627-8A33-4B2E1EF93EDE}')
+p = env.ChromeMSVSProject('ui_tests.vcproj',
+                          dest='$CHROME_SRC_DIR/chrome/test/ui/ui_tests.vcproj',
+                          guid='{76235B67-1C27-4627-8A33-4B2E1EF93EDE}',
+                          dependencies = [
+                              ('$WEBKIT_DIR/glue/plugins/test/' +
+                                   'npapi_test_plugin.vcproj'),
+                              '$CHROME_DIR/test/automation/automation.vcproj',
+                              '$BASE_DIR/build/base.vcproj',
+                              '$BZIP2_DIR/bzip2.vcproj',
+                              '$NET_DIR/build/net.vcproj',
+                              '$CHROME_DIR/browser/browser.vcproj',
+                              '$MODP_B64_DIR/modp_b64.vcproj',
+                              '$CHROME_DIR/app/chrome_exe.vcproj',
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$CHROME_DIR/common/common.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$CHROME_DIR/app/locales/he.vcproj',
+                              '$CHROME_DIR/app/locales/da.vcproj',
+                              '$BASE_DIR/build/base_gfx.vcproj',
+                              ('$WEBKIT_DIR/tools/npapi_layout_test_plugin/'
+                               + 'npapi_layout_test_plugin.vcproj'),
+                              '$TESTING_DIR/gtest.vcproj',
+                              '$LIBPNG_DIR/libpng.vcproj',
+                              '$CHROME_DIR/app/locales/en-US.vcproj',
+                              '$SKIA_DIR/skia.vcproj',
+                              ('$CHROME_DIR/test/security_tests/'
+                               + 'security_tests.vcproj'),
+                              '$CHROME_DIR/app/locales/zh-TW.vcproj',
+                              '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                              '$SDCH_DIR/sdch.vcproj',
+                              '$LIBXML_DIR/build/libxml.vcproj',
+                              '$CHROME_DIR/browser/views/browser_views.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              MSVSTool('VCCLCompilerTool',
+                                       AdditionalIncludeDirectories=[
+                                         '"$(OutDir)/obj/generated_resources"',
+                                       ]),
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              MSVSTool('VCLinkerTool',
+                                       AdditionalDependencies='winmm.lib'),
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../../tools/build/win/precompiled_wtl.vsprops',
+                ('$(SolutionDir)../third_party/'
+                 + 'libxml/build/using_libxml.vsprops'),
+                ('$(SolutionDir)../third_party/'
+                 + 'libxslt/build/using_libxslt.vsprops'),
+                '../../tools/build/win/unit_test.vsprops',
+                '../../tools/build/win/ui_test.vsprops',
+                '../../tools/build/win/test_memory_usage.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
+                '$(SolutionDir)/tools/build/win/js_engine.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                ('$(SolutionDir)../third_party/'
+                 + 'libxml/build/using_libxml.vsprops'),
+                ('$(SolutionDir)../third_party/'
+                 + 'libxslt/build/using_libxslt.vsprops'),
+                '../../tools/build/win/unit_test.vsprops',
+                '../../tools/build/win/ui_test.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
+                '$(SolutionDir)/tools/build/win/js_engine.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddFileConfig('../../tools/build/win/precompiled_wtl.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

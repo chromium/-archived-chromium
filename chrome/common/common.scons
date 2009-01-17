@@ -39,57 +39,177 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = []
-
-input_files.extend([
-  'animation.cc',
-  'chrome_constants.cc',
-  'chrome_counters.cc',
-  'chrome_paths.cc',
-  'chrome_switches.cc',
-  'common_glue.cc',
-  'debug_flags.cc',
-  'env_vars.cc',
-  'gfx/chrome_canvas.cc',
-  'gfx/color_utils.cc',
-  'ipc_channel_proxy.cc',
-  'ipc_message.cc',
-  'ipc_message_utils.cc',
-  'ipc_sync_channel.cc',
-  'ipc_sync_message.cc',
-  'jpeg_codec.cc',
-  'json_value_serializer.cc',
-  'l10n_util.cc',
-  'libxml_utils.cc',
-  'logging_chrome.cc',
-  'message_router.cc',
-  'net/cookie_monster_sqlite.cc',
-  'net/url_request_intercept_job.cc',
-  'notification_registrar.cc',
-  'notification_service.cc',
-  'pref_member.cc',
-  'pref_names.cc',
-  'pref_service.cc',
-  'property_bag.cc',
-  'render_messages.cc',
-  'resource_bundle.cc',
-  'resource_dispatcher.cc',
-  'sandbox_init_wrapper.cc',
-  'slide_animation.cc',
-  'sqlite_compiled_statement.cc',
-  'sqlite_utils.cc',
-  'task_queue.cc',
-  'throb_animation.cc',
-  'time_format.cc',
-  'thumbnail_score.cc',
-  'unzip.cc',
-  'visitedlink_common.cc',
-  'worker_thread_ticker.cc',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('net', [
+    'net/cookie_monster_sqlite.cc',
+    'net/cookie_monster_sqlite.h',
+    'net/dns.h',
+    'net/url_request_intercept_job.cc',
+    'net/url_request_intercept_job.h',
+  ]),
+  MSVSFilter('gfx', [
+    'gfx/chrome_canvas.cc',
+    'gfx/chrome_canvas.h',
+    'gfx/chrome_canvas_skia.cc',
+    'gfx/chrome_canvas_win.cc',
+    'gfx/chrome_font.h',
+    'gfx/chrome_font_gtk.cc',
+    'gfx/chrome_font_skia.cc',
+    'gfx/chrome_font_win.cc',
+    'gfx/color_utils.cc',
+    'gfx/color_utils.h',
+    'gfx/emf.cc',
+    'gfx/emf.h',
+    'gfx/favicon_size.h',
+    'gfx/icon_util.cc',
+    'gfx/icon_util.h',
+    'gfx/insets.h',
+    'gfx/path.cc',
+    'gfx/path.h',
+    'gfx/text_elider.cc',
+    'gfx/text_elider.h',
+    'gfx/utils.h',
+  ]),
+  MSVSFilter('ipc', [
+    'ipc_channel.h',
+    'ipc_channel_posix.cc',
+    'ipc_channel_proxy.cc',
+    'ipc_channel_proxy.h',
+    'ipc_channel_win.cc',
+    'ipc_logging.cc',
+    'ipc_logging.h',
+    'ipc_message.cc',
+    'ipc_message.h',
+    'ipc_message_macros.h',
+    'ipc_message_utils.cc',
+    'ipc_message_utils.h',
+    'ipc_sync_channel.cc',
+    'ipc_sync_channel.h',
+    'ipc_sync_message.cc',
+    'ipc_sync_message.h',
+    'plugin_messages.cc',
+    'plugin_messages.h',
+    'plugin_messages_internal.h',
+    'render_messages.cc',
+    'render_messages.h',
+    'render_messages_internal.h',
+  ]),
+    'animation.cc',
+    'animation.h',
+    'child_process.cc',
+    'child_process.h',
+    'chrome_constants.cc',
+    'chrome_constants.h',
+    'chrome_counters.cc',
+    'chrome_counters.h',
+    'chrome_paths.cc',
+    'chrome_paths.h',
+    'chrome_plugin_api.h',
+    'chrome_plugin_lib.cc',
+    'chrome_plugin_lib.h',
+    'chrome_plugin_util.cc',
+    'chrome_plugin_util.h',
+    'chrome_process_filter.cc',
+    'chrome_process_filter.h',
+    'chrome_switches.cc',
+    'chrome_switches.h',
+    'classfactory.cc',
+    'classfactory.h',
+    'clipboard_service.h',
+    'common_glue.cc',
+    'common_resources.h',
+    'debug_flags.cc',
+    'debug_flags.h',
+    'drag_drop_types.cc',
+    'drag_drop_types.h',
+    'env_vars.cc',
+    'env_vars.h',
+    'filter_policy.h',
+    'gears_api.h',
+    'jpeg_codec.cc',
+    'jpeg_codec.h',
+    'json_value_serializer.cc',
+    'json_value_serializer.h',
+    'jstemplate_builder.cc',
+    'jstemplate_builder.h',
+    'l10n_util.cc',
+    'l10n_util.h',
+    'libxml_utils.cc',
+    'libxml_utils.h',
+    'logging_chrome.cc',
+    'logging_chrome.h',
+    'main_function_params.h',
+    'message_router.cc',
+    'message_router.h',
+    'mru_cache.h',
+    'navigation_types.h',
+    'notification_details.h',
+    'notification_registrar.cc',
+    'notification_registrar.h',
+    'notification_service.cc',
+    'notification_service.h',
+    'notification_source.h',
+    'notification_types.h',
+    'os_exchange_data.cc',
+    'os_exchange_data.h',
+    'page_transition_types.h',
+    'page_zoom.h',
+    '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled.h',
+    'pref_member.cc',
+    'pref_member.h',
+    'pref_names.cc',
+    'pref_names.h',
+    'pref_service.cc',
+    'pref_service.h',
+    'process_watcher.cc',
+    'process_watcher.h',
+    'property_bag.cc',
+    'property_bag.h',
+    'ref_counted_util.h',
+    'resource_bundle.cc',
+    'resource_bundle.h',
+    'resource_bundle_win.cc',
+    'resource_dispatcher.cc',
+    'resource_dispatcher.h',
+    'sandbox_init_wrapper.cc',
+    'sandbox_init_wrapper.h',
+    'scoped_vector.h',
+    'security_filter_peer.cc',
+    'security_filter_peer.h',
+    'slide_animation.cc',
+    'slide_animation.h',
+    'sqlite_compiled_statement.cc',
+    'sqlite_compiled_statement.h',
+    'sqlite_utils.cc',
+    'sqlite_utils.h',
+    'stl_util-inl.h',
+    'task_queue.cc',
+    'task_queue.h',
+    'throb_animation.cc',
+    'throb_animation.h',
+    'thumbnail_score.cc',
+    'thumbnail_score.h',
+    'time_format.cc',
+    'time_format.h',
+    'unzip.cc',
+    'unzip.h',
+    'visitedlink_common.cc',
+    'visitedlink_common.h',
+    'win_safe_util.cc',
+    'win_safe_util.h',
+    'win_util.cc',
+    'win_util.h',
+    'worker_thread_ticker.cc',
+    'worker_thread_ticker.h',
 ])
 
-if env.Bit('windows'):
+if not env.Bit('windows'):
   # TODO(port): Port these.
-  input_files.extend([
+  input_files.Remove(
       'child_process.cc',
       'chrome_plugin_lib.cc',
       'chrome_plugin_util.cc',
@@ -107,37 +227,85 @@ if env.Bit('windows'):
       'security_filter_peer.cc',
       'win_safe_util.cc',
       'win_util.cc',
-  ])
+  )
 
-if env.Bit('windows'):
+if not env.Bit('windows'):
   # Windows specific files
-  input_files.extend([
+  input_files.Remove(
       'classfactory.cc',
       'gfx/chrome_canvas_win.cc',
       'gfx/chrome_font_win.cc',
       'ipc_channel_win.cc',
       'resource_bundle_win.cc',
-  ])
-elif env.Bit('linux'):
-  input_files.extend([
+      '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
+  )
+
+if not env.Bit('linux'):
+  # Linux specific files
+  input_files.Remove(
       'gfx/chrome_canvas_skia.cc',
       'gfx/chrome_font_gtk.cc',
       'gfx/chrome_font_skia.cc',
-  ])
+  )
 
-if env.Bit('posix'):
-  input_files.extend([
+if not env.Bit('posix'):
+  input_files.Remove(
       'ipc_channel_posix.cc',
-  ])
-
+  )
 
 if not env.Bit('mac'):
   # TODO(port): This should be enabled for all platforms.
   env.ChromeLibrary('common', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/common/common.vcproj',
-                dependencies = [
-                    '$LIBXML_DIR/build/libxml_config.vcproj',
-                    '$CHROME_DIR/app/generated_resources.vcproj',
-                ],
-                guid='{899F1280-3441-4D1F-BA04-CCD6208D9146}')
+p = env.ChromeMSVSProject('common.vcproj',
+                          dest='$CHROME_SRC_DIR/chrome/common/common.vcproj',
+                          guid='{899F1280-3441-4D1F-BA04-CCD6208D9146}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$LIBXML_DIR/build/libxml_config.vcproj',
+                              '$CHROME_DIR/app/generated_resources.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                './common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../tools/build/win/precompiled.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                './common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])
+
+p.AddFileConfig('../tools/build/win/precompiled.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

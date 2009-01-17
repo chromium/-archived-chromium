@@ -57,9 +57,9 @@ input_files = ChromeFileList([
       'gtest/include/gtest/internal/gtest-type-util.h',
     ]),
   ]),
-  'multiprocess_func_list.cc',
-  'multiprocess_func_list.h',
-  'platform_test.h',
+    'multiprocess_func_list.cc',
+    'multiprocess_func_list.h',
+    'platform_test.h',
 ])
 
 env.ChromeLibrary('gtest', input_files)
@@ -67,6 +67,7 @@ env.ChromeLibrary('gtest', input_files)
 p = env.ChromeMSVSProject('gtest.vcproj',
                           dest='$CHROME_SRC_DIR/testing/gtest.vcproj',
                           guid='{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}',
+                          keyword='Win32Proj',
                           files=input_files,
                           relative_path_prefix=r'./',
                           tools = [

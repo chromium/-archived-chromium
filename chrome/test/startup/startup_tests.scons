@@ -59,34 +59,103 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('Common', [
+    '$CHROME_DIR/tools/build/win/precompiled.cc',
+    '$CHROME_DIR/tools/build/win/precompiled.h',
     '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',
+    '$CHROME_DIR/test/testing_browser_process.h',
     '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/ui_test.h',
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
+  ]),
+  MSVSFilter('TestStartup', [
     'feature_startup_test.cc',
     'startup_test.cc',
-]
+  ]),
+])
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeTestProgram('startup_tests', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/test/startup/startup_tests.vcproj',
-                      dependencies = [
-                          '$CHROME_DIR/test/automation/automation.vcproj',
-                          '$BASE_DIR/build/base.vcproj',
-                          '$NET_DIR/build/net.vcproj',
-                          '$CHROME_DIR/browser/browser.vcproj',
-                          '$MODP_B64_DIR/modp_b64.vcproj',
-                          '$CHROME_DIR/app/chrome_exe.vcproj',
-                          '$ZLIB_DIR/zlib.vcproj',
-                          '$CHROME_DIR/common/common.vcproj',
-                          '$ICU38_DIR/build/icu.vcproj',
-                          '$BASE_DIR/build/base_gfx.vcproj',
-                          '$TESTING_DIR/gtest.vcproj',
-                          '$LIBPNG_DIR/libpng.vcproj',
-                          '$SKIA_DIR/skia.vcproj',
-                          '$GOOGLEURL_DIR/build/googleurl.vcproj',
-                          '$CHROME_DIR/browser/views/browser_views.vcproj',
-                      ],
-                      guid='{D3E6C0FD-54C7-4FF2-9AE1-72F2DAFD820C}')
+p = env.ChromeMSVSProject('startup_tests.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'test/startup/startup_tests.vcproj'),
+                          guid='{D3E6C0FD-54C7-4FF2-9AE1-72F2DAFD820C}',
+                          dependencies = [
+                              '$CHROME_DIR/test/automation/automation.vcproj',
+                              '$BASE_DIR/build/base.vcproj',
+                              '$NET_DIR/build/net.vcproj',
+                              '$CHROME_DIR/browser/browser.vcproj',
+                              '$MODP_B64_DIR/modp_b64.vcproj',
+                              '$CHROME_DIR/app/chrome_exe.vcproj',
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$CHROME_DIR/common/common.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$BASE_DIR/build/base_gfx.vcproj',
+                              '$TESTING_DIR/gtest.vcproj',
+                              '$LIBPNG_DIR/libpng.vcproj',
+                              '$SKIA_DIR/skia.vcproj',
+                              '$GOOGLEURL_DIR/build/googleurl.vcproj',
+                              '$CHROME_DIR/browser/views/browser_views.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              MSVSTool('VCLinkerTool',
+                                       AdditionalDependencies='winmm.lib'),
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../../tools/build/win/precompiled.vsprops',
+                '../../tools/build/win/unit_test.vsprops',
+                '../../tools/build/win/ui_test.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '../../tools/build/win/unit_test.vsprops',
+                '../../tools/build/win/ui_test.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddFileConfig('../../tools/build/win/precompiled.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

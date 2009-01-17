@@ -30,71 +30,153 @@ env.Append(
     ],
 )
 
-input_files = [
-    'accelerator.cc',
-    'accelerator_handler.cc',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('Accessibility', [
     'accessibility/accessible_wrapper.cc',
+    'accessibility/accessible_wrapper.h',
     'accessibility/view_accessibility.cc',
+    'accessibility/view_accessibility.h',
+  ]),
+    'accelerator.cc',
+    'accelerator.h',
+    'accelerator_handler.cc',
+    'accelerator_handler.h',
     'aero_tooltip_manager.cc',
+    'aero_tooltip_manager.h',
+    'app_modal_dialog_delegate.h',
     'background.cc',
+    'background.h',
     'base_button.cc',
+    'base_button.h',
     'bitmap_scroll_bar.cc',
+    'bitmap_scroll_bar.h',
     'border.cc',
+    'border.h',
     'button.cc',
+    'button.h',
     'button_dropdown.cc',
+    'button_dropdown.h',
     'checkbox.cc',
+    'checkbox.h',
     'chrome_menu.cc',
+    'chrome_menu.h',
     'client_view.cc',
+    'client_view.h',
     'combo_box.cc',
+    'combo_box.h',
+    'controller.h',
     'custom_frame_window.cc',
-    'dialog_delegate.cc',
-    'dialog_client_view.cc',
+    'custom_frame_window.h',
     'decision.cc',
+    'decision.h',
+    'dialog_client_view.cc',
+    'dialog_client_view.h',
+    'dialog_delegate.cc',
+    'dialog_delegate.h',
     'event.cc',
+    'event.h',
     'external_focus_tracker.cc',
+    'external_focus_tracker.h',
     'focus_manager.cc',
+    'focus_manager.h',
     'grid_layout.cc',
+    'grid_layout.h',
     'group_table_view.cc',
+    'group_table_view.h',
+    'hwnd_notification_source.h',
     'hwnd_view.cc',
+    'hwnd_view.h',
     'image_view.cc',
+    'image_view.h',
     'label.cc',
+    'label.h',
     'layout_manager.cc',
+    'layout_manager.h',
     'link.cc',
+    'link.h',
     'menu.cc',
+    'menu.h',
     'menu_button.cc',
+    'menu_button.h',
     'message_box_view.cc',
+    'message_box_view.h',
     'native_button.cc',
+    'native_button.h',
     'native_control.cc',
+    'native_control.h',
     'native_scroll_bar.cc',
+    'native_scroll_bar.h',
     'non_client_view.cc',
+    'non_client_view.h',
     'painter.cc',
+    'painter.h',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
     'radio_button.cc',
+    'radio_button.h',
     'repeat_controller.cc',
+    'repeat_controller.h',
     'resize_corner.cc',
+    'resize_corner.h',
     'root_view.cc',
+    'root_view.h',
     'root_view_drop_target.cc',
+    'root_view_drop_target.h',
     'scroll_bar.cc',
+    'scroll_bar.h',
     'scroll_view.cc',
+    'scroll_view.h',
     'separator.cc',
+    'separator.h',
     'single_split_view.cc',
+    'single_split_view.h',
     'tabbed_pane.cc',
+    'tabbed_pane.h',
     'table_view.cc',
+    'table_view.h',
     'text_button.cc',
+    'text_button.h',
     'text_field.cc',
+    'text_field.h',
     'throbber.cc',
+    'throbber.h',
     'tooltip_manager.cc',
+    'tooltip_manager.h',
+    'tree_model.h',
+    'tree_node_iterator.h',
+    'tree_node_model.h',
     'tree_view.cc',
+    'tree_view.h',
     'view.cc',
+    'view.h',
     'view_constants.cc',
+    'view_constants.h',
+    'view_menu_delegate.h',
     'view_storage.cc',
+    'view_storage.h',
+    'widget.h',
     'widget_win.cc',
+    'widget_win.h',
     'window.cc',
+    'window.h',
     'window_delegate.cc',
-]
+    'window_delegate.h',
+    'window_resources.h',
+])
+
+if not env.Bit('windows'):
+  # Windows-specific.
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
+      '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
+  )
 
 if env.Bit('linux'):
   # TODO(port): Port to Linux.
-  remove_files = [
+  input_files.Remove(
       'accelerator.cc',
       'accelerator_handler.cc',
       'accessibility/accessible_wrapper.cc',
@@ -146,13 +228,11 @@ if env.Bit('linux'):
       'widget_win.cc',
       'window.cc',
       'window_delegate.cc',
-  ]
-  for file in remove_files:
-    input_files.remove(file)
+  )
 
 if env.Bit('mac'):
   # TODO(port): Port to Mac.
-  remove_files = [
+  input_files.Remove(
       'accelerator.cc',
       'accelerator_handler.cc',
       'accessibility/accessible_wrapper.cc',
@@ -211,14 +291,60 @@ if env.Bit('mac'):
       'widget_win.cc',
       'window.cc',
       'window_delegate.cc',
-  ]
-  for file in remove_files:
-    input_files.remove(file)
+  )
 
 env.ChromeLibrary('views', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/views/views.vcproj',
-                dependencies = [
-                    '$CHROME_DIR/app/generated_resources.vcproj',
-                ],
-                guid='{6F9258E5-294F-47B2-919D-17FFE7A8B751}')
+p = env.ChromeMSVSProject('views.vcproj',
+                          dest='$CHROME_SRC_DIR/chrome/views/views.vcproj',
+                          guid='{6F9258E5-294F-47B2-919D-17FFE7A8B751}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$CHROME_DIR/app/generated_resources.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          root_namespace = 'Views',
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                './views.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../tools/build/win/precompiled_wtl.vsprops',
+                '../../third_party/icu38/build/using_icu.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                './views.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '../../third_party/icu38/build/using_icu.vsprops',
+            ])
+
+p.AddFileConfig('../tools/build/win/precompiled_wtl.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

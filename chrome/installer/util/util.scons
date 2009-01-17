@@ -26,42 +26,115 @@ env.Prepend(
     ],
 )
 
-input_files = [
+input_files = ChromeFileList([
     'browser_distribution.cc',
+    'browser_distribution.h',
     'copy_tree_work_item.cc',
+    'copy_tree_work_item.h',
     'create_dir_work_item.cc',
+    'create_dir_work_item.h',
     'create_reg_key_work_item.cc',
+    'create_reg_key_work_item.h',
     'delete_reg_value_work_item.cc',
+    'delete_reg_value_work_item.h',
     'delete_tree_work_item.cc',
+    'delete_tree_work_item.h',
     'google_chrome_distribution.cc',
+    'google_chrome_distribution.h',
     'google_update_constants.cc',
+    'google_update_constants.h',
     'google_update_settings.cc',
+    'google_update_settings.h',
     'helper.cc',
+    'helper.h',
+    'html_dialog.h',
     'html_dialog_impl.cc',
     'install_util.cc',
+    'install_util.h',
     'l10n_string_util.cc',
+    'l10n_string_util.h',
     'logging_installer.cc',
+    'logging_installer.h',
     'lzma_util.cc',
+    'lzma_util.h',
     'master_preferences.cc',
+    'master_preferences.h',
     'set_reg_value_work_item.cc',
+    'set_reg_value_work_item.h',
     'shell_util.cc',
+    'shell_util.h',
     'util_constants.cc',
+    'util_constants.h',
     'version.cc',
+    'version.h',
     'work_item.cc',
+    'work_item.h',
     'work_item_list.cc',
-]
+    'work_item_list.h',
+])
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeLibrary('util', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/installer/util/util.vcproj',
-                      dependencies = [
-                          ('$CHROME_DIR/installer/util/prebuild/' + 
-                               'util_prebuild.vcproj'),
-                      ],
-                      guid='{EFBB1436-A63F-4CD8-9E99-B89226E782EC}')
+p = env.ChromeMSVSProject('util.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'installer/util/util.vcproj'),
+                          guid='{EFBB1436-A63F-4CD8-9E99-B89226E782EC}',
+                          dependencies = [
+                              ('$CHROME_DIR/installer/util/prebuild/' + 
+                                   'util_prebuild.vcproj'),
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
 
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)common/common.vsprops',
+                '$(SolutionDir)installer/util/using_util.vsprops',
+                '$(SolutionDir)../third_party/lzma_sdk/using_lzma_sdk.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)common/common.vsprops',
+                '$(SolutionDir)installer/util/using_util.vsprops',
+                '$(SolutionDir)../third_party/lzma_sdk/using_lzma_sdk.vsprops',
+            ])
+
+
+##############################################################################
+
+input_files = ChromeFileList([
+  'prebuild/create_string_rc.bat',
+  'prebuild/create_string_rc.py',
+])
 
 # TODO(port):
 if env.Bit('windows'):
@@ -76,3 +149,43 @@ if env.Bit('windows'):
                  '$CHROME_DIR/app/generated_resources.grd'] +
                  env.Glob('$CHROME_DIR/app/resources/*.xtb'),
                 "$PYTHON ${SOURCES[0]} ${TARGET.dir}")
+
+p = env.ChromeMSVSProject('prebuild/util_prebuild.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/installer/'
+                                + 'util/prebuild/util_prebuild.vcproj'),
+                          guid='{0026A376-C4F1-4575-A1BA-578C69F07013}',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              MSVSTool('VCCustomBuildTool',
+                                       CommandLine=('create_string_rc.bat '
+                                                    + '$(IntDir)'),
+                                       AdditionalDependencies=(
+                                           'create_string_rc.py;'
+                                           + '$(SolutionDir)/app/'
+                                           + 'generated_resources.grd'),
+                                       Outputs=('$(IntDir)/'
+                                                + 'installer_util_strings.rc;'
+                                                + '$(IntDir)/'
+                                                + 'installer_util_strings.h')),
+                              'VCMIDLTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='10')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])

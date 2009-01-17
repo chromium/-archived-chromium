@@ -51,20 +51,86 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
-    '../setup/setup_constants$OBJSUFFIX',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('support', [
+    'run_all_unittests.cc',
+  ]),
+  MSVSFilter('tests', [
     'copy_tree_work_item_unittest.cc',
     'create_dir_work_item_unittest.cc',
     'create_reg_key_work_item_unittest.cc',
     'delete_reg_value_work_item_unittest.cc',
     'delete_tree_work_item_unittest.cc',
-    'google_chrome_distribution_unittest.cc',
     'helper_unittest.cc',
-    'run_all_unittests.cc',
+    'google_chrome_distribution_unittest.cc',
     'set_reg_value_work_item_unittest.cc',
+    '../setup/setup_constants$OBJSUFFIX',
     'work_item_list_unittest.cc',
-]
+  ]),
+])
+
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeTestProgram('installer_unittests', input_files)
+
+p = env.ChromeMSVSProject('installer_unittests.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'installer/util/installer_unittests.vcproj'),
+                          guid='{903F8C1E-537A-4C9E-97BE-075147CBE769}',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$CHROME_DIR/common/common.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$TESTING_DIR/gtest.vcproj',
+                              '$CHROME_DIR/installer/util/util.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              MSVSTool('VCManifestTool',
+                                       AdditionalManifestFiles=(
+                                           '$(SolutionDir)installer/'
+                                           + 'mini_installer/'
+                                           + 'mini_installer.exe.manifest')),
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)/tools/build/win/unit_test.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)/tools/build/win/unit_test.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+            ])

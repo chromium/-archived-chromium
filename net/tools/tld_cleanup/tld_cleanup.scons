@@ -32,6 +32,7 @@ env.ChromeProgram('tld_cleanup', input_files)
 p = env.ChromeMSVSProject('$NET_DIR/build/tld_cleanup.vcproj',
                           dest='$CHROME_SRC_DIR/net/build/tld_cleanup.vcproj',
                           guid='{E13045CD-7E1F-4A41-9B18-8D288B2E7B41}',
+                          keyword='Win32Proj',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
                               '$ICU38_DIR/build/icu.vcproj',

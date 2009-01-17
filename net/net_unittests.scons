@@ -39,7 +39,8 @@ input_files = ChromeFileList([
   # reindent too much when we remove the explicit MSVSFilter() calls
   # in favor of generating the hierarchy to reflect the file system.
   MSVSFilter('support', [
-    'build/precompiled_net$OBJSUFFIX',
+    # Built from build/precomiled_net.cc, net_lib.scons.
+    'precompiled_net$OBJSUFFIX',
     'build/precompiled_net.h',
     'base/run_all_unittests.cc',
   ]),
@@ -71,9 +72,6 @@ input_files = ChromeFileList([
     'http/http_util_unittest.cc',
     'http/http_vary_data_unittest.cc',
     ]),
-   MSVSFilter('ftp', [
-    'ftp/ftp_auth_cache_unittest.cc',
-    ]),
    MSVSFilter('base', [
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
@@ -102,6 +100,9 @@ input_files = ChromeFileList([
     'base/wininet_util_unittest.cc',
     'base/x509_certificate_unittest.cc',
     ]),
+   MSVSFilter('ftp', [
+    'ftp/ftp_auth_cache_unittest.cc',
+    ]),
    MSVSFilter('url_request', [
     'url_request/url_request_unittest.cc',
     'url_request/url_request_unittest.h',
@@ -116,7 +117,7 @@ input_files = ChromeFileList([
 if not env.Bit('windows'):
   input_files.Remove(
       'base/wininet_util_unittest.cc',
-      'build/precompiled_net$OBJSUFFIX',
+      'precompiled_net$OBJSUFFIX',
   )
 
 if env.Bit('linux'):
@@ -143,6 +144,8 @@ net_unittests = env.ChromeTestProgram('net_unittests', input_files)
 
 p = env.ChromeMSVSProject('$NET_DIR/build/net_unittests.vcproj',
                           dest='$CHROME_SRC_DIR/net/build/net_unittests.vcproj',
+                          guid='{E99DA267-BE90-4F45-88A1-6919DB2C7567}',
+                          keyword='Win32Proj',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
                               '$BZIP2_DIR/bzip2.vcproj',
@@ -154,7 +157,6 @@ p = env.ChromeMSVSProject('$NET_DIR/build/net_unittests.vcproj',
                               '$GOOGLEURL_DIR/build/googleurl.vcproj',
                               '$SDCH_DIR/sdch.vcproj',
                           ],
-                          guid='{E99DA267-BE90-4F45-88A1-6919DB2C7567}',
                           # TODO: restore when we can derive all info,
                           # on all platforms, from the windows build targets.
                           #buildtargets=net_unittests,

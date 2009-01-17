@@ -53,41 +53,57 @@ class ChromeFileList(MSVS.FileList):
 import __builtin__
 __builtin__.ChromeFileList = ChromeFileList
 
-def compilable_files(sources):
+non_compilable_suffixes = {
+    'LINUX' : set([
+        '.h',
+        '.dat',
+        '.rc',
+    ]),
+    'WINDOWS' : set([
+        '.h',
+        '.dat',
+    ]),
+}
+
+def compilable(env, file):
+  base, ext = os.path.splitext(str(file))
+  if ext in non_compilable_suffixes[env['TARGET_PLATFORM']]:
+    return False
+  return True
+
+def compilable_files(env, sources):
   if not hasattr(sources, 'entries'):
-    return [x for x in sources if not str(x).endswith('.h')
-                               and not str(x).endswith('.dat')]
+    return [x for x in sources if compilable(env, x)]
   result = []
   for top, folders, nonfolders in MSVS.FileListWalk(sources):
-    result.extend([x for x in nonfolders if not str(x).endswith('.h')
-                                         and not str(x).endswith('.dat')])
+    result.extend([x for x in nonfolders if compilable(env, x)])
   return result
 
 def ChromeProgram(env, target, source, *args, **kw):
-  source = compilable_files(source)
+  source = compilable_files(env, source)
   result = env.ComponentProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
     env.Precious(result)
   return result
 
 def ChromeTestProgram(env, target, source, *args, **kw):
-  source = compilable_files(source)
+  source = compilable_files(env, source)
   result = env.ComponentTestProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
     env.Precious(*result)
   return result
 
 def ChromeLibrary(env, target, source, *args, **kw):
-  source = compilable_files(source)
+  source = compilable_files(env, source)
   return env.ComponentLibrary(target, source, *args, **kw)
 
 def ChromeStaticLibrary(env, target, source, *args, **kw):
-  source = compilable_files(source)
+  source = compilable_files(env, source)
   kw['COMPONENT_STATIC'] = True
   return env.ComponentLibrary(target, source, *args, **kw)
 
 def ChromeSharedLibrary(env, target, source, *args, **kw):
-  source = compilable_files(source)
+  source = compilable_files(env, source)
   kw['COMPONENT_STATIC'] = False
   result = [env.ComponentLibrary(target, source, *args, **kw)[0]]
   if env.get('INCREMENTAL'):

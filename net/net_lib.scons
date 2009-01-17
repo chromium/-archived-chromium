@@ -36,6 +36,7 @@ input_files = ChromeFileList([
     'base/client_socket_pool.h',
     'base/completion_callback.h',
     'base/connection_type_histograms.cc',
+    'base/connection_type_histograms.h',
     'base/cookie_monster.cc',
     'base/cookie_monster.h',
     'base/cookie_policy.cc',
@@ -336,6 +337,7 @@ lib = env.ChromeLibrary('net', input_files)
 p = env.ChromeMSVSProject('$NET_DIR/build/net.vcproj',
                           dest='$CHROME_SRC_DIR/net/build/net.vcproj',
                           guid='{326E9795-E760-410A-B69A-3F79DB3F5243}',
+                          keyword='Win32Proj',
                           dependencies = [
                               '$NET_DIR/build/net_resources.vcproj',
                               '$NET_DIR/build/tld_cleanup.vcproj',

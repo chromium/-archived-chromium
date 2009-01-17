@@ -70,17 +70,46 @@ if env.Bit('linux'):
       ],
   )
 
-input_files = [
-    'google/bdict_reader.cc',
-    'src/hunspell/affentry.cxx',
-    'src/hunspell/affixmgr.cxx',
-    'src/hunspell/csutil.cxx',
-    'src/hunspell/dictmgr.cxx',
-    'src/hunspell/hashmgr.cxx',
-    'src/hunspell/hunspell.cxx',
-    'src/hunspell/suggestmgr.cxx',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('parsers', [
     'src/parsers/textparser.cxx',
-]
+    'src/parsers/textparser.hxx',
+  ]),
+  MSVSFilter('hunspell', [
+    'src/hunspell/affentry.cxx',
+    'src/hunspell/affentry.hxx',
+    'src/hunspell/affixmgr.cxx',
+    'src/hunspell/affixmgr.hxx',
+    'src/hunspell/atypes.hxx',
+    'src/hunspell/baseaffix.hxx',
+    'src/hunspell/csutil.cxx',
+    'src/hunspell/csutil.hxx',
+    'src/hunspell/dictmgr.cxx',
+    'src/hunspell/dictmgr.hxx',
+    'src/hunspell/hashmgr.cxx',
+    'src/hunspell/hashmgr.hxx',
+    'src/hunspell/htypes.hxx',
+    'src/hunspell/hunspell.cxx',
+    'src/hunspell/hunspell.h',
+    'src/hunspell/hunspell.hxx',
+    'src/hunspell/langnum.hxx',
+    'src/hunspell/suggestmgr.cxx',
+    'src/hunspell/suggestmgr.hxx',
+    'src/hunspell/utf_info.hxx',
+  ]),
+  MSVSFilter('Dictionaries', [
+    'dictionaries/en-US-1-2.bdic',
+  ]),
+  MSVSFilter('google', [
+    'google/bdict.h',
+    'google/bdict_affentry.h',
+    'google/bdict_reader.cc',
+    'google/bdict_reader.h',
+  ]),
+])
 
 env.ChromeLibrary('hunspell', input_files)
 
@@ -94,5 +123,53 @@ dictionaries = [
 i = env.Install('$DESTINATION_ROOT/Dictionaries', dictionaries)
 env.Alias('chrome_Dictionaries', i)
 
-env.ChromeMSVSProject('$CHROME_DIR/third_party/hunspell/hunspell.vcproj',
-                guid='{D5E8DCB2-9C61-446F-8BEE-B18CA0E0936E}')
+
+p = env.ChromeMSVSProject('hunspell.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'third_party/hunspell/hunspell.vcproj'),
+                          guid='{D5E8DCB2-9C61-446F-8BEE-B18CA0E0936E}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'CopyDictionaries',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddToolFile('./copy_dictionary_files.rules')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '../../../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                './hunspell.vsprops',
+                './using_hunspell.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '../../../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                './hunspell.vsprops',
+                './using_hunspell.vsprops',
+            ])

@@ -219,8 +219,8 @@ input_files = ChromeFileList([
     'system_monitor.h',
     'system_monitor_win.cc',
     'task.h',
-    'test_file_util_win.cc',
     'test_file_util.h',
+    'test_file_util_win.cc',
     'thread.cc',
     'thread.h',
     'thread_collision_warner.cc',
@@ -246,8 +246,9 @@ input_files = ChromeFileList([
     'values.cc',
     'values.h',
     'waitable_event.h',
-    'waitable_event_win.cc',
+    'waitable_event_watcher.h',
     'waitable_event_watcher_win.cc',
+    'waitable_event_win.cc',
     'watchdog.cc',
     'watchdog.h',
     'win_util.cc',
@@ -388,6 +389,7 @@ env.ChromeLibrary('base', input_files)
 p = env.ChromeMSVSProject('build/base.vcproj',
                           dest='$CHROME_SRC_DIR/base/build/base.vcproj',
                           guid='{1832A374-8A74-4F9E-B536-69A699B3E165}',
+                          keyword='Win32Proj',
                           dependencies=[
                               'build/debug_message.vcproj',
                               # Necessary for chrome.sln.

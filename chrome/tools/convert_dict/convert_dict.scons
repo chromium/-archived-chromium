@@ -24,23 +24,72 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'aff_reader.cc',
+    'aff_reader.h',
+    '$CHROME_DIR/third_party/hunspell/google/bdict.h',
+    '$CHROME_DIR/third_party/hunspell/google/bdict_reader$OBJSUFFIX',
+    '$CHROME_DIR/third_party/hunspell/google/bdict_reader.h',
+    '$CHROME_DIR/third_party/hunspell/google/bdict_writer.cc',
+    '$CHROME_DIR/third_party/hunspell/google/bdict_writer.h',
     'convert_dict.cc',
     'dic_reader.cc',
+    'dic_reader.h',
     'hunspell_reader.cc',
-    '$CHROME_DIR/third_party/hunspell/google/bdict_reader$OBJSUFFIX',
-    '$CHROME_DIR/third_party/hunspell/google/bdict_writer.cc',
-]
+    'hunspell_reader.h',
+])
+
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeProgram('convert_dict', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/tools/convert_dict/convert_dict.vcproj',
-                      dependencies = [
-                          '$BASE_DIR/build/base.vcproj',
-                          '$ICU38_DIR/build/icu.vcproj',
-                          '$ICU38_DIR/build/icudt.vcproj',
-                      ],
-                      guid='{42ECD5EC-722F-41DE-B6B8-83764C8016DF}')
+p = env.ChromeMSVSProject('convert_dict.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'tools/convert_dict/convert_dict.vcproj'),
+                          guid='{42ECD5EC-722F-41DE-B6B8-83764C8016DF}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$ICU38_DIR/build/icudt.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+
+p.AddConfig('Debug|Win32',
+            CharacterSet='2',
+            InheritedPropertySheets=[
+                '../../../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            CharacterSet='2',
+            InheritedPropertySheets=[
+                '../../../build/release.vsprops',
+            ])

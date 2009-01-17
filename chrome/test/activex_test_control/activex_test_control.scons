@@ -40,16 +40,71 @@ if env.Bit('windows'):
 if env.Bit('windows'):
   env.TypeLibrary('activex_test_control.idl')
 
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('resource', [
+    'activex_test_control.rc',
+    'activex_test_control.rgs',
+    'chrome_test_control.bmp',
+    'chrome_test_control.rgs',
+  ]),
     'activex_test_control.cc',
     'activex_test_control.def',
+    'activex_test_control.idl',
     'chrome_test_control.cc',
-]
+    'chrome_test_control.h',
+    'chrome_test_control_cp.h',
+    'resource.h',
+])
 
 # TODO(port):
 if env.Bit('windows'):
   env.ChromeSharedLibrary('activex_test_control', input_files)
 
-env.ChromeMSVSProject(('$CHROME_DIR/test/activex_test_control/' +
-                          'activex_test_control.vcproj'),
-                      guid='{414D4D24-5D65-498B-A33F-3A29AD3CDEDC}')
+p = env.ChromeMSVSProject('activex_test_control.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/test/'
+                                + 'activex_test_control/'
+                                + 'activex_test_control.vcproj'),
+                          keyword='AtlProj',
+                          guid='{414D4D24-5D65-498B-A33F-3A29AD3CDEDC}',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='2')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                './activex_test_control.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                './activex_test_control.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])

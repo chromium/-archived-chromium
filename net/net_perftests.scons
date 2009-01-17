@@ -63,6 +63,7 @@ env.ChromeMSVSProject('$NET_DIR/build/net_perftests.vcproj',
 p = env.ChromeMSVSProject('$NET_DIR/build/net_perftests.vcproj',
                           dest='$CHROME_SRC_DIR/net/build/net_perftests.vcproj',
                           guid='{AAC78796-B9A2-4CD9-BF89-09B03E92BF73}',
+                          keyword='Win32Proj',
                           dependencies = [
                               '$BASE_DIR/build/base.vcproj',
                               '$NET_DIR/build/net.vcproj',

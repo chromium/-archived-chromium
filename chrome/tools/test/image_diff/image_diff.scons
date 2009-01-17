@@ -42,19 +42,49 @@ if env.Bit('windows'):
         ],
     )
 
-input_files = [
+input_files = ChromeFileList([
     'image_diff.cc',
-]
+])
 
 env.ChromeTestProgram('image_diff', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/tools/test/image_diff/image_diff.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/base.vcproj',
-                    '$ZLIB_DIR/zlib.vcproj',
-                    '$ICU38_DIR/build/icu.vcproj',
-                    '$BASE_DIR/build/base_gfx.vcproj',
-                    '$LIBPNG_DIR/libpng.vcproj',
-                    '$SKIA_DIR/skia.vcproj',
-                ],
-                guid='{50B079C7-CD01-42D3-B8C4-9F8D9322E822}')
+p = env.ChromeMSVSProject('image_diff.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'tools/test/image_diff/image_diff.vcproj'),
+                          guid='{50B079C7-CD01-42D3-B8C4-9F8D9322E822}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$ZLIB_DIR/zlib.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                              '$BASE_DIR/build/base_gfx.vcproj',
+                              '$LIBPNG_DIR/libpng.vcproj',
+                              '$SKIA_DIR/skia.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              MSVSTool('VCLinkerTool',
+                                       SubSystem='1'),
+                              'VCCLCompilerTool',
+                          ],
+                          ConfigurationType='1')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../third_party/libpng/using_libpng.vsprops',
+                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../third_party/libpng/using_libpng.vsprops',
+                '$(SolutionDir)../third_party/zlib/using_zlib.vsprops',
+            ])

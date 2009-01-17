@@ -28,12 +28,11 @@ if env.Bit('windows'):
   # if it's really Windows-specific.
   env.ChromeProgram('debug_message', input_files)
 
-env.ChromeMSVSProject('$BASE_DIR/build/debug_message.vcproj',
-                guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}')
-
 p = env.ChromeMSVSProject('build/debug_message.vcproj',
-                          dest='$CHROME_SRC_DIR/base/build/debug_message.vcproj',
+                          dest=('$CHROME_SRC_DIR/base/'
+                                + 'build/debug_message.vcproj'),
                           guid='{0E5474AC-5996-4B13-87C0-4AE931EE0815}',
+                          keyword='Win32Proj',
                           files=input_files,
                           root_namespace='DebugMessage',
                           tools = [

@@ -36,15 +36,55 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'flush_cache.cc',
-]
+])
 
 env.ChromeTestProgram('flush_cache', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/tools/perf/flush_cache/flush_cache.vcproj',
-                dependencies = [
-                    '$BASE_DIR/build/base.vcproj',
-                    '$ICU38_DIR/build/icu.vcproj',
-                ],
-                guid='{4539AFB3-B8DC-47F3-A491-6DAC8FD26657}')
+p = env.ChromeMSVSProject('flush_cache.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'tools/perf/flush_cache/flush_cache.vcproj'),
+                          guid='{4539AFB3-B8DC-47F3-A491-6DAC8FD26657}',
+                          dependencies = [
+                              '$BASE_DIR/build/base.vcproj',
+                              '$ICU38_DIR/build/icu.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])

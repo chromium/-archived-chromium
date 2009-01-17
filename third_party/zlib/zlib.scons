@@ -83,6 +83,7 @@ env.ChromeLibrary('zlib', input_files)
 p = env.ChromeMSVSProject('zlib.vcproj',
                           dest='$CHROME_SRC_DIR/third_party/zlib/zlib.vcproj',
                           guid='{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}',
+                          keyword='Win32Proj',
                           files=input_files,
                           relative_path_prefix=r'./',
                           tools = [

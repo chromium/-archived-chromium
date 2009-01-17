@@ -24,23 +24,45 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
-    'chrome_plugin_host.cc',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('NPObject', [
     'npobject_proxy.cc',
+    'npobject_proxy.h',
     'npobject_stub.cc',
+    'npobject_stub.h',
     'npobject_util.cc',
+    'npobject_util.h',
+  ]),
+    'chrome_plugin_host.cc',
+    'chrome_plugin_host.h',
     'plugin_channel.cc',
+    'plugin_channel.h',
     'plugin_channel_base.cc',
+    'plugin_channel_base.h',
     'plugin_main.cc',
     'plugin_process.cc',
+    'plugin_process.h',
     'plugin_thread.cc',
+    'plugin_thread.h',
+    '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled.h',
     'webplugin_delegate_stub.cc',
+    'webplugin_delegate_stub.h',
     'webplugin_proxy.cc',
-]
+    'webplugin_proxy.h',
+])
+
+if not env.Bit('windows'):
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
+  )
 
 if env.Bit('posix'):
   # TODO(port)
-  to_be_ported_files = [
+  input_files.Remove(
       'chrome_plugin_host.cc',
       'npobject_proxy.cc',
       'npobject_stub.cc',
@@ -52,11 +74,59 @@ if env.Bit('posix'):
       'plugin_thread.cc',
       'webplugin_delegate_stub.cc',
       'webplugin_proxy.cc',
-  ]
-  for remove in to_be_ported_files:
-    input_files.remove(remove)
+  )
 
 env.ChromeLibrary('plugin', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/plugin/plugin.vcproj',
-                guid='{20A560A0-2CD0-4D9E-A58B-1F24B99C087A}')
+p = env.ChromeMSVSProject('plugin.vcproj',
+                          dest='$CHROME_SRC_DIR/chrome/plugin/plugin.vcproj',
+                          guid='{20A560A0-2CD0-4D9E-A58B-1F24B99C087A}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+                '../tools/build/win/precompiled.vsprops',
+                '$(SolutionDir)../third_party/npapi/using_npapi.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../third_party/npapi/using_npapi.vsprops',
+                '$(SolutionDir)../skia/using_skia.vsprops',
+            ])
+
+p.AddFileConfig('../tools/build/win/precompiled.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

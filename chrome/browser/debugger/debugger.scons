@@ -25,49 +25,158 @@ env.Prepend(
     ],
 )
 
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('resources', [
+    'resources/debugger.css',
+    'resources/debugger.html',
+    'resources/debugger.js',
+    'resources/debugger_shell.js',
+  ]),
     'debugger_contents.cc',
+    'debugger_contents.h',
+    'debugger_host.h',
     'debugger_host_impl.cpp',
+    'debugger_host_impl.h',
+    'debugger_io.h',
     'debugger_io_socket.cc',
+    'debugger_io_socket.h',
     'debugger_node.cc',
+    'debugger_node.h',
     'debugger_shell.cc',
+    'debugger_shell.h',
+    'resources/debugger_resources.h',
     'debugger_view.cc',
+    'debugger_view.h',
     'debugger_window.cc',
+    'debugger_window.h',
     'debugger_wrapper.cc',
-]
+    'debugger_wrapper.h',
+])
 
 if env.Bit('linux'):
   # TODO(port): Port these.
-  remove_list = [
+  input_files.Remove(
       'debugger_contents.cc',
       'debugger_host_impl.cpp',
       'debugger_node.cc',
       'debugger_shell.cc',
       'debugger_view.cc',
       'debugger_window.cc',
-  ]
-  for file in remove_list:
-    input_files.remove(file)
+  )
 
 if env.Bit('mac'):
   # TODO(port): Port these.
-  remove_list = [
+  input_files.Remove(
       'debugger_contents.cc',
       'debugger_host_impl.cpp',
       'debugger_node.cc',
       'debugger_shell.cc',
       'debugger_view.cc',
       'debugger_window.cc',
-  ]
-  for file in remove_list:
-    input_files.remove(file)
+  )
 
 if not env.Bit('mac'):
   # TODO(port): Enable for Mac.
   env.ChromeLibrary('debugger', input_files)
 
-env.ChromeMSVSProject('$CHROME_DIR/browser/debugger/debugger.vcproj',
-                dependencies = [
-                    '$CHROME_DIR/app/generated_resources.vcproj',
-                ],
-                guid='{57823D8C-A317-4713-9125-2C91FDFD12D6}')
+
+p = env.ChromeMSVSProject('debugger.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'browser/debugger/debugger.vcproj'),
+                          guid='{57823D8C-A317-4713-9125-2C91FDFD12D6}',
+                          keyword='Win32Proj',
+                          dependencies = [
+                              '$CHROME_DIR/app/generated_resources.vcproj',
+                          ],
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                './debugger.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                './debugger.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])
+
+##############################################################################
+# TODO(sgk):  move to a separate debugger_disabled.scons file? ###############
+
+input_files = ChromeFileList([
+  'debugger_contents.cc',
+  'debugger_contents.h',
+  'debugger_shell.h',
+  'debugger_window.cc',
+  'debugger_window.h',
+  'debugger_wrapper.cc',
+  'debugger_wrapper.h',
+])
+
+p = env.ChromeMSVSProject('debugger_disabled.vcproj',
+                          dest=('$CHROME_SRC_DIR/chrome/'
+                                + 'browser/debugger/debugger_disabled.vcproj'),
+                          guid='{369B9881-3F2C-464D-A96C-E281405DF8F6}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/debug.vsprops',
+                './debugger_disabled.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/release.vsprops',
+                './debugger_disabled.vsprops',
+            ])

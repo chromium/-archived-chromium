@@ -14,7 +14,8 @@ def ChromiumLocaleProject(name, guid):
                                '$WEBKIT_DIR/build/localized_strings/localized_strings.vcproj',
                                '$CHROME_DIR/app/generated_resources.vcproj',
                            ],
-                           guid=guid)
+                           guid=guid,
+                           keyword='Win32Proj')
 
 ChromiumLocaleProject('$CHROME_DIR/app/locales/ar.vcproj',
                       guid='{3AB90E6A-56FF-4C9D-B918-AB76DDBF8BE8}')

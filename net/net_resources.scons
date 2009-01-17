@@ -44,10 +44,21 @@ if env.Bit('windows'):
     net_resources.extend(net_res)
     env.Depends(net_res, tld_names_clean)
 
+  input_files = ChromeFileList([
+      'base/net_resources.grd',
+      Derived(env.File('$TARGET_ROOT/grit_derived_sources/net_resources.h')),
+  ])
+
   p = env.ChromeMSVSProject('build/net_resources.vcproj',
-                            dest='$CHROME_SRC_DIR/net/build/net_resources.vcproj',
+                            dest=('$CHROME_SRC_DIR/net/'
+                                  + 'build/net_resources.vcproj'),
                             guid='{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}',
-                            buildtargets=net_resources,
+                            keyword='Win32Proj',
+                            #buildtargets=net_resources,
+                            files=input_files,
+                            relative_path_substitutions = [
+                              ('../../..', '$(OutDir)'),
+                            ],
                             ConfigurationType='10')
 
   p.AddToolFile('../tools/grit/build/grit_resources.rules')
