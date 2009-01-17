@@ -81,4 +81,3 @@ class AlternateNavURLFetcher : public NotificationObserver,
 };
 
 #endif  // CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H_
-
