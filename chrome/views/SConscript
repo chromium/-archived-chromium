@@ -92,7 +92,18 @@ input_files = [
     'window_delegate.cc',
 ]
 
+if env.Bit('windows'):
+  input_files += [
+    "root_view_win.cc",
+    "view_win.cc"
+  ]
+
 if env.Bit('linux'):
+  input_files += [
+    "root_view_gtk.cc",
+    "view_gtk.cc"
+  ]
+
   # TODO(port): Port to Linux.
   remove_files = [
       'accelerator.cc',
@@ -100,7 +111,6 @@ if env.Bit('linux'):
       'accessibility/accessible_wrapper.cc',
       'accessibility/view_accessibility.cc',
       'aero_tooltip_manager.cc',
-      'background.cc',
       'base_button.cc',
       'bitmap_scroll_bar.cc',
       'button.cc',
@@ -130,7 +140,6 @@ if env.Bit('linux'):
       'painter.cc',
       'radio_button.cc',
       'resize_corner.cc',
-      'root_view.cc',
       'root_view_drop_target.cc',
       'scroll_view.cc',
       'separator.cc',
@@ -142,7 +151,6 @@ if env.Bit('linux'):
       'throbber.cc',
       'tooltip_manager.cc',
       'tree_view.cc',
-      'view.cc',
       'widget_win.cc',
       'window.cc',
       'window_delegate.cc',
