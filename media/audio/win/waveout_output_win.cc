@@ -77,9 +77,10 @@ bool PCMWaveOutAudioOutputStream::Open(size_t buffer_size) {
                                   reinterpret_cast<DWORD_PTR>(WaveCallback),
                                   reinterpret_cast<DWORD_PTR>(this),
                                   CALLBACK_FUNCTION);
-  if (result != MMSYSERR_NOERROR)
+  if (result != MMSYSERR_NOERROR) {
+    fprintf(stderr, "waveOutOpen error %d\n", result);
     return false;
-
+  }
   // If we don't have a packet size we use 100ms.
   if (!buffer_size)
     buffer_size = format_.nAvgBytesPerSec / 10;
