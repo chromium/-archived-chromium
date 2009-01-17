@@ -53,9 +53,8 @@ class AeroGlassFrame : public BrowserFrame,
   virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
   virtual LRESULT OnNCHitTest(const CPoint& pt);
 
-  // Overridden from views::Window:
+  // Overridden from views::CustomFrameWindow:
   virtual int GetShowState() const;
-  virtual bool IsAppWindow() const { return true; }
 
  private:
   // Updates the DWM with the frame bounds.

@@ -43,7 +43,6 @@ class OpaqueFrame : public BrowserFrame,
   // Overridden from views::CustomFrameWindow:
   virtual void UpdateWindowIcon();
   virtual int GetShowState() const;
-  virtual bool IsAppWindow() const { return true; }
 
   // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);

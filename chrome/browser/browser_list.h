@@ -10,6 +10,12 @@
 
 #include "chrome/browser/browser.h"
 
+namespace views {
+class AppModalDialogDelegate;
+class Window;
+};
+class WebContents;
+
 // Stores a list of all Browser objects.
 class BrowserList {
  public:
@@ -34,6 +40,13 @@ class BrowserList {
   // THEN delete the object.
   static void AddBrowser(Browser* browser);
   static void RemoveBrowser(Browser* browser);
+
+  // Adds and removes non-browser dependent windows. These are windows that are
+  // top level, but whose lifetime is associated wtih the existence of at least
+  // one active Browser. When the last Browser is destroyed, all open dependent
+  // windows are closed.
+  static void AddDependentWindow(views::Window* window);
+  static void RemoveDependentWindow(views::Window* window);
 
   static void AddObserver(Observer* observer);
   static void RemoveObserver(Observer* observer);
@@ -100,12 +113,20 @@ class BrowserList {
   static bool IsOffTheRecordSessionActive();
 
  private:
+  // Closes all registered dependent windows.
+  static void CloseAllDependentWindows();
+
   // Helper method to remove a browser instance from a list of browsers
   static void RemoveBrowserFrom(Browser* browser, list_type* browser_list);
 
   static list_type browsers_;
   static std::vector<Observer*> observers_;
   static list_type last_active_browsers_;
+  typedef std::vector<views::Window*> DependentWindowList;
+  static DependentWindowList dependent_windows_;
+
+  // Set to the currently showing modal dialog delegate if any, NULL otherwise.
+  static views::AppModalDialogDelegate* app_modal_dialog_;
 };
 
 class WebContents;

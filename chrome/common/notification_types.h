@@ -155,11 +155,6 @@ enum NotificationType {
   // only valid for the duration of this call.
   NOTIFY_BROWSER_CLOSED,
 
-  // This message is sent when the last window considered to be an "application
-  // window" has been closed. Dependent/dialog/utility windows can use this as
-  // a way to know that they should also close. No source or details are passed.
-  NOTIFY_ALL_APPWINDOWS_CLOSED,
-
   // Indicates that a top window has been closed.  The source is the HWND that
   // was closed, no details are expected.
   NOTIFY_WINDOW_CLOSED,
