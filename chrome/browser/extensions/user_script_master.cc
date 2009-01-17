@@ -9,69 +9,66 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
-#include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "base/string_util.h"
+#include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
-// We reload user scripts on the file thread to prevent blocking the UI.
-// ScriptReloader lives on the file thread and does the reload
-// work, and then sends a message back to its master with a new SharedMemory*.
+// static
+void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+      const StringPiece& script_text, std::vector<std::string> *includes) {
+  // http://wiki.greasespot.net/Metadata_block
+  StringPiece line;
+  size_t line_start = 0;
+  size_t line_end = 0;
+  bool in_metadata = false;
 
-// ScriptReloader is the worker that manages running the script scan
-// on the file thread.
-// It must be created on, and its public API must only be called from,
-// the master's thread.
-class UserScriptMaster::ScriptReloader
-    : public base::RefCounted<UserScriptMaster::ScriptReloader> {
- public:
-  ScriptReloader(UserScriptMaster* master)
-       : master_(master), master_message_loop_(MessageLoop::current()) {}
+  static const StringPiece kUserScriptBegin("// ==UserScript==");
+  static const StringPiece kUserScriptEng("// ==/UserScript==");
+  static const StringPiece kIncludeDeclaration("// @include ");
 
-  // Start a scan for scripts.
-  // Will always send a message to the master upon completion.
-  void StartScan(MessageLoop* work_loop, const FilePath& script_dir);
+  while (line_start < script_text.length()) {
+    line_end = script_text.find('\n', line_start);
 
-  // The master is going away; don't call it back.
-  void DisownMaster() {
-    master_ = NULL;
+    // Handle the case where there is no trailing newline in the file.
+    if (line_end == std::string::npos) {
+      line_end = script_text.length() - 1;
+    }
+
+    line.set(script_text.data() + line_start, line_end - line_start);
+
+    if (!in_metadata) {
+      if (line.starts_with(kUserScriptBegin)) {
+        in_metadata = true;
+      }
+    } else {
+      if (line.starts_with(kUserScriptEng)) {
+        break;
+      }
+
+      if (line.starts_with(kIncludeDeclaration)) {
+        std::string pattern(line.data() + kIncludeDeclaration.length(),
+                            line.length() - kIncludeDeclaration.length());
+        std::string pattern_trimmed;
+        TrimWhitespace(pattern, TRIM_ALL, &pattern_trimmed);
+        includes->push_back(pattern_trimmed);
+      }
+
+      // TODO(aa): Handle more types of metadata.
+    }
+
+    line_start = line_end + 1;
   }
 
- private:
-  // Where functions are run:
-  //    master          file
-  //   StartScan   ->  RunScan
-  //                     GetNewScripts()
-  // NotifyMaster  <-  RunScan
-
-  // Runs on the master thread.
-  // Notify the master that new scripts are available.
-  void NotifyMaster(base::SharedMemory* memory);
-
-  // Runs on the File thread.
-  // Scan the script directory for scripts, calling NotifyMaster when done.
-  // The path is intentionally passed by value so its lifetime isn't tied
-  // to the caller.
-  void RunScan(const FilePath script_dir);
-
-  // Runs on the File thread.
-  // Scan the script directory for scripts, returning either a new SharedMemory
-  // or NULL on error.
-  base::SharedMemory* GetNewScripts(const FilePath& script_dir);
-
-  // A pointer back to our master.
-  // May be NULL if DisownMaster() is called.
-  UserScriptMaster* master_;
-
-  // The message loop to call our master back on.
-  // Expected to always outlive us.
-  MessageLoop* master_message_loop_;
-
-  DISALLOW_COPY_AND_ASSIGN(ScriptReloader);
-};
+  // If no @include patterns were specified, default to @include *.
+  // This is what Greasemonkey does.
+  if (includes->size() == 0) {
+    includes->push_back("*");
+  }
+}
 
 void UserScriptMaster::ScriptReloader::StartScan(
     MessageLoop* work_loop,
@@ -129,15 +126,26 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
   pickle.WriteSize(scripts.size());
   for (std::vector<std::wstring>::iterator path = scripts.begin();
        path != scripts.end(); ++path) {
-    std::string file_url = net::FilePathToFileURL(*path).spec();
+    std::string url(kUserScriptURLScheme);
+    url += ":/";
+    url += net::FilePathToFileURL(*path).ExtractFileName();
+
     std::string contents;
     // TODO(aa): Support unicode script files.
     file_util::ReadFileToString(*path, &contents);
 
+    std::vector<std::string> includes;
+    ParseMetadataHeader(contents, &includes);
+
     // Write scripts as 'data' so that we can read it out in the slave without
     // allocating a new string.
-    pickle.WriteData(file_url.c_str(), file_url.length());
+    pickle.WriteData(url.c_str(), url.length());
     pickle.WriteData(contents.c_str(), contents.length());
+    pickle.WriteSize(includes.size());
+    for (std::vector<std::string>::iterator iter = includes.begin();
+         iter != includes.end(); ++iter) {
+      pickle.WriteString(*iter);
+    }
   }
 
   // Create the shared memory object.
@@ -159,7 +167,6 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
 
   return shared_memory.release();
 }
-
 
 UserScriptMaster::UserScriptMaster(MessageLoop* worker_loop,
                                        const FilePath& script_dir)

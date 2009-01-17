@@ -16,28 +16,11 @@ TEST(UserScriptSlaveTest, EscapeGlob) {
             UserScript::EscapeGlob("foo\\bar?hot=dog"));
 }
 
-TEST(UserScriptSlaveTest, Parse1) {
-  const std::string text(
-    "// This is my awesome script\n"
-    "// It does stuff.\n"
-    "// ==UserScript==   trailing garbage\n"
-    "// @name foobar script\n"
-    "// @namespace http://www.google.com/\n"
-    "// @include *mail.google.com*\n"
-    "// \n"
-    "// @othergarbage\n"
-    "// @include *mail.yahoo.com*\r\n"
-    "// @include  \t *mail.msn.com*\n" // extra spaces after "@include" OK
-    "//@include not-recognized\n" // must have one space after "//"
-    "// ==/UserScript==  trailing garbage\n"
-    "\n"
-    "\n"
-    "alert('hoo!');\n");
-
-  UserScript script("foo");
-  script.Parse(text);
-  EXPECT_EQ(3U, script.include_patterns_.size());
-  EXPECT_EQ(text, script.GetBody());
+TEST(UserScriptSlaveTest, Match1) {
+  UserScript script("foo", "bar");
+  script.AddInclude("*mail.google.com*");
+  script.AddInclude("*mail.yahoo.com*");
+  script.AddInclude("*mail.msn.com*");
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.google.com/foo")));
   EXPECT_TRUE(script.MatchesUrl(GURL("http://mail.yahoo.com/bar")));
@@ -45,27 +28,16 @@ TEST(UserScriptSlaveTest, Parse1) {
   EXPECT_FALSE(script.MatchesUrl(GURL("http://www.hotmail.com")));
 }
 
-TEST(UserScriptSlaveTest, Parse2) {
-  const std::string text("default to @include *");
-
-  UserScript script("foo");
-  script.Parse(text);
-  EXPECT_EQ(1U, script.include_patterns_.size());
-  EXPECT_EQ(text, script.GetBody());
-  EXPECT_TRUE(script.MatchesUrl(GURL("foo")));
-  EXPECT_TRUE(script.MatchesUrl(GURL("bar")));
+TEST(UserScriptSlaveTest, Match2) {
+  UserScript script("foo", "bar");
+  script.AddInclude("*");
+  EXPECT_TRUE(script.MatchesUrl(GURL("http://foo.com/bar")));
+  EXPECT_TRUE(script.MatchesUrl(GURL("http://hot.com/dog")));
 }
 
-TEST(UserScriptSlaveTest, Parse3) {
-  const std::string text(
-    "// ==UserScript==\n"
-    "// @include *foo*\n"
-    "// ==/UserScript=="); // no trailing newline
-
-  UserScript script("foo");
-  script.Parse(text);
-  EXPECT_EQ(1U, script.include_patterns_.size());
-  EXPECT_EQ(text, script.GetBody());
+TEST(UserScriptSlaveTest, Match3) {
+  UserScript script("foo", "bar");
+  script.AddInclude("*foo*");
   EXPECT_TRUE(script.MatchesUrl(GURL("http://foo.com/bar")));
   EXPECT_FALSE(script.MatchesUrl(GURL("http://baz.org")));
 }

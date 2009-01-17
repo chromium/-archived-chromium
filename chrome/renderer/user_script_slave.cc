@@ -18,16 +18,6 @@ static const char kUserScriptTail[] = "\n})(window);";
 
 // UserScript
 
-void UserScript::Parse(const StringPiece& script_text) {
-  ParseMetadata(script_text);
-
-  // TODO(aa): Set body to just the part after the metadata block? This would
-  // significantly cut down on the size of the injected script in some cases.
-  // Would require remembering the line number the body begins at, for correct
-  // error line number reporting.
-  body_ = script_text;
-}
-
 bool UserScript::MatchesUrl(const GURL& url) {
   for (std::vector<std::string>::iterator pattern = include_patterns_.begin();
        pattern != include_patterns_.end(); ++pattern) {
@@ -37,57 +27,6 @@ bool UserScript::MatchesUrl(const GURL& url) {
   }
 
   return false;
-}
-
-void UserScript::ParseMetadata(const StringPiece& script_text) {
-  // http://wiki.greasespot.net/Metadata_block
-  StringPiece line;
-  size_t line_start = 0;
-  size_t line_end = 0;
-  bool in_metadata = false;
-
-  static const StringPiece kUserScriptBegin("// ==UserScript==");
-  static const StringPiece kUserScriptEng("// ==/UserScript==");
-  static const StringPiece kIncludeDeclaration("// @include ");
-
-  while (line_start < script_text.length()) {
-    line_end = script_text.find('\n', line_start);
-
-    // Handle the case where there is no trailing newline in the file.
-    if (line_end == std::string::npos) {
-      line_end = script_text.length() - 1;
-    }
-
-    line.set(script_text.data() + line_start, line_end - line_start);
-
-    if (!in_metadata) {
-      if (line.starts_with(kUserScriptBegin)) {
-        in_metadata = true;
-      }
-    } else {
-      if (line.starts_with(kUserScriptEng)) {
-        break;
-      }
-
-      if (line.starts_with(kIncludeDeclaration)) {
-        std::string pattern(line.data() + kIncludeDeclaration.length(),
-                            line.length() - kIncludeDeclaration.length());
-        std::string pattern_trimmed;
-        TrimWhitespace(pattern, TRIM_ALL, &pattern_trimmed);
-        AddInclude(pattern_trimmed);
-      }
-
-      // TODO(aa): Handle more types of metadata.
-    }
-
-    line_start = line_end + 1;
-  }
-
-  // If no @include patterns were specified, default to @include *.
-  // This is what Greasemonkey does.
-  if (include_patterns_.size() == 0) {
-    AddInclude("*");
-  }
 }
 
 void UserScript::AddInclude(const std::string &glob_pattern) {
@@ -160,12 +99,12 @@ bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
 
   // Unpickle scripts.
   void* iter = NULL;
-  int num_scripts = 0;
+  size_t num_scripts = 0;
   Pickle pickle(reinterpret_cast<char*>(shared_memory_->memory()),
                 pickle_size);
-  pickle.ReadInt(&iter, &num_scripts);
+  pickle.ReadSize(&iter, &num_scripts);
 
-  for (int i = 0; i < num_scripts; ++i) {
+  for (size_t i = 0; i < num_scripts; ++i) {
     const char* url = NULL;
     int url_length = 0;
     const char* body = NULL;
@@ -174,9 +113,17 @@ bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
     pickle.ReadData(&iter, &url, &url_length);
     pickle.ReadData(&iter, &body, &body_length);
 
-    scripts_.push_back(UserScript(StringPiece(url, url_length)));
+    scripts_.push_back(UserScript(StringPiece(url, url_length),
+                                  StringPiece(body, body_length)));
     UserScript& script = scripts_.back();
-    script.Parse(StringPiece(body, body_length));
+
+    size_t num_includes;
+    pickle.ReadSize(&iter, &num_includes);
+    for (size_t j = 0; j < num_includes; ++j) {
+      std::string include;
+      pickle.ReadString(&iter, &include);
+      script.AddInclude(include);
+    }
   }
 
   return true;

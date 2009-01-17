@@ -10,8 +10,8 @@
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_file_job.h"
 
-static const char kExtensionURLScheme[] = "chrome-extension";
-static const char kUserScriptURLScheme[] = "chrome-user-script";
+const char kExtensionURLScheme[] = "chrome-extension";
+const char kUserScriptURLScheme[] = "chrome-user-script";
 
 FilePath GetPathForExtensionResource(const FilePath& extension_path,
                                      const std::string& url_path) {

@@ -7,11 +7,11 @@
 
 #include "base/directory_watcher.h"
 #include "base/file_path.h"
+#include "base/message_loop.h"
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
-
-class MessageLoop;
+#include "base/string_piece.h"
 
 // Manages a segment of shared memory that contains the user scripts the user
 // has installed.  Lives on the UI thread.
@@ -39,7 +39,68 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   FilePath user_script_dir() const { return *user_script_dir_; }
 
  private:
-  class ScriptReloader;
+  FRIEND_TEST(UserScriptMasterTest, Parse1);
+  FRIEND_TEST(UserScriptMasterTest, Parse2);
+  FRIEND_TEST(UserScriptMasterTest, Parse3);
+
+  // We reload user scripts on the file thread to prevent blocking the UI.
+  // ScriptReloader lives on the file thread and does the reload
+  // work, and then sends a message back to its master with a new SharedMemory*.
+  // ScriptReloader is the worker that manages running the script scan
+  // on the file thread. It must be created on, and its public API must only be
+  // called from, the master's thread.
+  class ScriptReloader
+      : public base::RefCounted<UserScriptMaster::ScriptReloader> {
+   public:
+    // Parses the includes out of |script| and returns them in |includes|.
+    static void ParseMetadataHeader(const StringPiece& script,
+                                    std::vector<std::string>* includes);
+
+    ScriptReloader(UserScriptMaster* master)
+         : master_(master), master_message_loop_(MessageLoop::current()) {}
+
+    // Start a scan for scripts.
+    // Will always send a message to the master upon completion.
+    void StartScan(MessageLoop* work_loop, const FilePath& script_dir);
+
+    // The master is going away; don't call it back.
+    void DisownMaster() {
+      master_ = NULL;
+    }
+
+   private:
+    // Where functions are run:
+    //    master          file
+    //   StartScan   ->  RunScan
+    //                     GetNewScripts()
+    //                     ParseMetadataHeader()
+    // NotifyMaster  <-  RunScan
+
+    // Runs on the master thread.
+    // Notify the master that new scripts are available.
+    void NotifyMaster(base::SharedMemory* memory);
+
+    // Runs on the File thread.
+    // Scan the script directory for scripts, calling NotifyMaster when done.
+    // The path is intentionally passed by value so its lifetime isn't tied
+    // to the caller.
+    void RunScan(const FilePath script_dir);
+
+    // Runs on the File thread.
+    // Scan the script directory for scripts, returning either a
+    // new SharedMemory or NULL on error.
+    base::SharedMemory* GetNewScripts(const FilePath& script_dir);
+
+    // A pointer back to our master.
+    // May be NULL if DisownMaster() is called.
+    UserScriptMaster* master_;
+
+    // The message loop to call our master back on.
+    // Expected to always outlive us.
+    MessageLoop* master_message_loop_;
+
+    DISALLOW_COPY_AND_ASSIGN(ScriptReloader);
+  };
 
   // DirectoryWatcher::Delegate implementation.
   virtual void OnDirectoryChanged(const FilePath& path);

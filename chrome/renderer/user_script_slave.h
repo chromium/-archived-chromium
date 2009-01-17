@@ -16,21 +16,23 @@
 // Parsed representation of a user script.
 class UserScript {
  public:
-  UserScript(const StringPiece& script_url)
-    : url_(script_url) {}
-
-  // Gets the script body that should be injected into matching content.
-  const StringPiece& GetBody() const {
-    return body_;
-  }
+  UserScript(const StringPiece& script_url,
+             const StringPiece& body)
+    : url_(script_url), body_(body) {}
 
   // Gets a URL where this script can be found.
   const StringPiece& GetURL() const {
     return url_;
   }
 
-  // Parses the text content of a user script file.
-  void Parse(const StringPiece& script_text);
+  // Gets the script body that should be injected into matching content.
+  const StringPiece& GetBody() const {
+    return body_;
+  }
+
+  // Adds an include pattern that will be checked to determine whether to
+  // include a script on a given page.
+  void AddInclude(const std::string &glob_pattern);
 
   // Returns true if the script should be applied to the specified URL, false
   // otherwise.
@@ -38,29 +40,19 @@ class UserScript {
 
  private:
   FRIEND_TEST(UserScriptSlaveTest, EscapeGlob);
-  FRIEND_TEST(UserScriptSlaveTest, Parse1);
-  FRIEND_TEST(UserScriptSlaveTest, Parse2);
-  FRIEND_TEST(UserScriptSlaveTest, Parse3);
 
   // Helper function to convert the user script glob format to the patterns
   // used internally to test URLs.
   static std::string EscapeGlob(const std::string& glob);
 
-  // Parses the metadata block from the script.
-  void ParseMetadata(const StringPiece& script_text);
-
-  // Adds an include pattern that will be checked to determine whether to
-  // include a script on a given page.
-  void AddInclude(const std::string &glob_pattern);
+  // The url of the file the script came from. This references shared_memory_,
+  // and is valid until that memory is either deleted or Unmap()'d.
+  StringPiece url_;
 
   // The body of the script, which will be injected into content pages. This
   // references shared_memory_, and is valid until that memory is either
   // deleted or Unmap()'d.
   StringPiece body_;
-
-  // The url of the file the script came from. This references shared_memory_,
-  // and is valid until that memory is either deleted or Unmap()'d.
-  StringPiece url_;
 
   // List of patterns to test URLs against for this script. These patterns have
   // been escaped for use with MatchPattern() in string_utils ('?' and '\' are
