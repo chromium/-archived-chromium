@@ -14,6 +14,7 @@ env.SConscript([
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
     '$CHROME_SRC_DIR/build/using_v8.scons',
+    '$GRIT_DIR/build/using_generated_resources.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$LIBJPEG_DIR/using_libjpeg.scons',
@@ -22,6 +23,7 @@ env.SConscript([
     '$LIBXSLT_DIR/using_libxslt.scons',
     '$MODP_B64_DIR/using_modp_b64.scons',
     '$NET_DIR/using_net.scons',
+    '$NPAPI_DIR/using_npapi.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
@@ -373,7 +375,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/profile_manager_unittest.cc',
       '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_unittest.cc',
       '$CHROME_DIR/browser/renderer_security_policy_unittest.cc',
-      '$CHROME_DIR/browser/resource_dispatcher_host_unittest.cc',
       '$CHROME_DIR/browser/rlz/rlz_unittest.cc',
       '$CHROME_DIR/browser/safe_browsing/protocol_manager_unittest.cc',
       '$CHROME_DIR/browser/search_engines/template_url_model_unittest.cc',
