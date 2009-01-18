@@ -826,6 +826,7 @@ void RenderViewHost::OnMsgRendererGone() {
 // as part of a wider page load, the page_id will be the same as for the top
 // level frame.  If the user explicitly requests a subframe navigation, we will
 // get a new page_id because we need to create a new navigation entry for that
+
 // action.
 void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
   // Read the parameters out of the IPC message directly to avoid making another
