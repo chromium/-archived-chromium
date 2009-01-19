@@ -10,6 +10,8 @@
 #include "media/audio/simple_sources.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+namespace {
+
 // This class allows to find out if the callbacks are occurring as
 // expected and if any error has been reported.
 class TestSourceBasic : public AudioOutputStream::AudioSourceCallback {
@@ -64,6 +66,13 @@ class TestSourceBasic : public AudioOutputStream::AudioSourceCallback {
   int had_error_;
   int was_closed_;
 };
+
+bool IsRunningHeadless() {
+  return (0 != ::GetEnvironmentVariableW(L"CHROME_HEADLESS", NULL, 0));
+}
+
+}  // namespace.
+
 
 // Specializes TestSourceBasic to detect that the AudioStream is using
 // double buffering correctly.
@@ -165,9 +174,16 @@ TEST(WinAudioTest, SineWaveAudio16MonoTest) {
 
 // ===========================================================================
 // Validation of AudioManager::AUDIO_PCM_LINEAR
+//
+// The tests tend to fail in the build bots when somebody connects to them via
+// via remote-desktop because it installs an audio device that fails to open
+// at some point, possibly when the connection goes idle. So that is why we
+// skipped them in headless mode.
 
 // Test that can it be created and closed.
 TEST(WinAudioTest, PCMWaveStreamGetAndClose) {
+  if (IsRunningHeadless())
+    return;
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   if (!audio_man->HasAudioDevices())
@@ -180,6 +196,8 @@ TEST(WinAudioTest, PCMWaveStreamGetAndClose) {
 
 // Test that it can be opened and closed.
 TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
+  if (IsRunningHeadless())
+    return;
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   if (!audio_man->HasAudioDevices())
@@ -194,6 +212,8 @@ TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
 // Test that it uses the double buffers correctly. Because it uses the actual
 // audio device, you might hear a short pop noise for a short time.
 TEST(WinAudioTest, PCMWaveStreamDoubleBuffer) {
+  if (IsRunningHeadless())
+    return;
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   if (!audio_man->HasAudioDevices())
@@ -216,6 +236,8 @@ TEST(WinAudioTest, PCMWaveStreamDoubleBuffer) {
 // device at 44.1K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
 TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
+  if (IsRunningHeadless())
+    return;
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   if (!audio_man->HasAudioDevices())
@@ -240,6 +262,8 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
 // device at 22K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
 TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
+  if (IsRunningHeadless())
+    return;
   AudioManager* audio_man = AudioManager::GetAudioManager();
   ASSERT_TRUE(NULL != audio_man);
   if (!audio_man->HasAudioDevices())
