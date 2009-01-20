@@ -893,10 +893,6 @@ WIN : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = 
 // way.  Maybe this is just flaky because it's animating faster?
 LayoutTests/animations/big-rotation.html = FAIL PASS
 
-// Windows is probably getting the ex-height incorrect
-WIN : LayoutTests/css2.1/t040302-c61-ex-len-00-b-a.html = FAIL
-WIN : LayoutTests/css2.1/t040302-c61-rel-len-00-b-ag.html = FAIL
-
 // Missing a Georgian font for Linux
 LINUX : LayoutTests/css2.1/t1202-counter-09-b.html = FAIL
 LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
@@ -914,7 +910,7 @@ WIN : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
 
 // Uses ahem font and expects line heights to match some pixel value.
 // We should be able to pass this -- not sure what's wrong.
-LINUX WIN : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
+LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 
 // Many off-by-one-pixel bits.  Font metrics?
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-03-d-agi.html = FAIL
