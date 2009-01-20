@@ -561,8 +561,6 @@ input_files = ChromeFileList([
     'renderer_host/sync_resource_handler.h',
   ]),
   MSVSFilter('Tab Contents', [
-    'tab_contents/about_internets_status_view.cc',
-    'tab_contents/about_internets_status_view.h',
     'tab_contents/constrained_window.h',
     'tab_contents/infobar_delegate.cc',
     'tab_contents/infobar_delegate.h',
@@ -808,7 +806,6 @@ if not env.Bit('windows'):
       'ssl/ssl_blocking_page.cc',
       'ssl/ssl_manager.cc',
       'ssl/ssl_policy.cc',
-      'tab_contents/about_internets_status_view.cc',
       'tab_contents/infobar_delegate.cc',
       'tab_contents/interstitial_page.cc',
       'tab_contents/ipc_status_view.cc',
