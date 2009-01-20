@@ -1878,4 +1878,4 @@ LINUX WIN : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 LayoutTests/fast/dom/css-selectorText.html = FAIL
 
 // Passes locally but Text diff fails on the buildbots
-LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
+LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
