@@ -26,78 +26,69 @@ namespace NPAPI
 {
 
 // This struct fully describes a plugin. For external plugins, it's read in from
-// the version info of the dll; For internal plugins, it's predefined.
+// the version info of the dll; For internal plugins, it's predefined and
+// includes addresses of entry functions.
 struct PluginVersionInfo {
-  FilePath path;
+  std::wstring path;
   std::wstring product_name;
   std::wstring file_description;
   std::wstring file_version;
   std::wstring mime_types;
   std::wstring file_extents;
   std::wstring file_open_names;
-};
-
-// This struct contains information of an internal plugin and addresses of
-// entry functions.
-struct InternalPluginInfo {
-  PluginVersionInfo version_info;
   NP_GetEntryPointsFunc np_getentrypoints;
   NP_InitializeFunc np_initialize;
   NP_ShutdownFunc np_shutdown;
 };
 
-static const InternalPluginInfo g_internal_plugins[] = {
+static const PluginVersionInfo g_internal_plugins[] = {
   {
-    {FilePath(kActiveXShimFileName),
-     L"ActiveX Plug-in",
-     L"ActiveX Plug-in provides a shim to support ActiveX controls",
-     L"1, 0, 0, 1",
-     L"application/x-oleobject|application/oleobject",
-     L"*|*",
-     L""
-    },
+    kActiveXShimFileName,
+    L"ActiveX Plug-in",
+    L"ActiveX Plug-in provides a shim to support ActiveX controls",
+    L"1, 0, 0, 1",
+    L"application/x-oleobject|application/oleobject",
+    L"*|*",
+    L"",
     activex_shim::ActiveX_Shim_NP_GetEntryPoints,
     activex_shim::ActiveX_Shim_NP_Initialize,
     activex_shim::ActiveX_Shim_NP_Shutdown
   },
   {
-    {FilePath(kActiveXShimFileNameForMediaPlayer),
-     kActiveXShimFileNameForMediaPlayer,
-     L"Windows Media Player",
-     L"1, 0, 0, 1",
-     L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
-         L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
-         L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
-     L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
-     L""
-    },
+    kActiveXShimFileNameForMediaPlayer,
+    kActiveXShimFileNameForMediaPlayer,
+    L"Windows Media Player",
+    L"1, 0, 0, 1",
+    L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
+        L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
+        L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
+    L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
+    L"",
     activex_shim::ActiveX_Shim_NP_GetEntryPoints,
     activex_shim::ActiveX_Shim_NP_Initialize,
     activex_shim::ActiveX_Shim_NP_Shutdown
   },
   {
-    {FilePath(kDefaultPluginLibraryName),
-     L"Default Plug-in",
-     L"Provides functionality for installing third-party plug-ins",
-     L"1, 0, 0, 1",
-     L"*",
-     L"",
-     L""
-    },
+    kDefaultPluginLibraryName,
+    L"Default Plug-in",
+    L"Provides functionality for installing third-party plug-ins",
+    L"1, 0, 0, 1",
+    L"*",
+    L"",
+    L"",
     default_plugin::NP_GetEntryPoints,
     default_plugin::NP_Initialize,
     default_plugin::NP_Shutdown
   },
 #ifdef GEARS_STATIC_LIB
   {
-    {FilePath(kGearsPluginLibraryName),
-     L"Gears",
-     L"Statically linked Gears",
-     L"1, 0, 0, 1",
-     L"application/x-googlegears",
-     L"",
-     L""
-    },
+    kGearsPluginLibraryName,
+    L"Gears",
+    L"Statically linked Gears",
+    L"1, 0, 0, 1",
+    L"application/x-googlegears",
+    L"",
+    L"",
     Gears_NP_GetEntryPoints,
     Gears_NP_Initialize,
     Gears_NP_Shutdown
@@ -144,7 +135,10 @@ namespace {
 // Creates WebPluginInfo structure based on read in or built in
 // PluginVersionInfo.
 bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
-                         WebPluginInfo* info) {
+                         WebPluginInfo* info,
+                         NP_GetEntryPointsFunc* np_getentrypoints,
+                         NP_InitializeFunc* np_initialize,
+                         NP_ShutdownFunc* np_shutdown) {
   std::vector<std::string> mime_types, file_extensions;
   std::vector<std::wstring> descriptions;
   SplitString(base::SysWideToNativeMB(pvi.mime_types), '|', &mime_types);
@@ -183,6 +177,10 @@ bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
     info->mime_types.push_back(mime_type);
   }
 
+  *np_getentrypoints = pvi.np_getentrypoints;
+  *np_initialize = pvi.np_initialize;
+  *np_shutdown = pvi.np_shutdown;
+
   return true;
 }
 
@@ -194,18 +192,11 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
                                   NP_InitializeFunc* np_initialize,
                                   NP_ShutdownFunc* np_shutdown) {
   for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
-    if (filename == g_internal_plugins[i].version_info.path) {
-      bool rv = CreateWebPluginInfo(g_internal_plugins[i].version_info, info);
-      *np_getentrypoints = g_internal_plugins[i].np_getentrypoints;
-      *np_initialize = g_internal_plugins[i].np_initialize;
-      *np_shutdown = g_internal_plugins[i].np_shutdown;
-      return rv;
+    if (filename.value() == g_internal_plugins[i].path) {
+      return CreateWebPluginInfo(g_internal_plugins[i], info, np_getentrypoints,
+                                 np_initialize, np_shutdown);
     }
   }
-
-  *np_getentrypoints = NULL;
-  *np_initialize = NULL;
-  *np_shutdown = NULL;
 
   // On windows, the way we get the mime types for the library is
   // to check the version information in the DLL itself.  This
@@ -224,9 +215,13 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
   pvi.product_name = version_info->product_name();
   pvi.file_description = version_info->file_description();
   pvi.file_version = version_info->file_version();
-  pvi.path = filename;
+  pvi.path = filename.value();
+  pvi.np_getentrypoints = NULL;
+  pvi.np_initialize = NULL;
+  pvi.np_shutdown = NULL;
 
-  return CreateWebPluginInfo(pvi, info);
+  return CreateWebPluginInfo(
+      pvi, info, np_getentrypoints, np_initialize, np_shutdown);
 }
 
 }  // namespace NPAPI
