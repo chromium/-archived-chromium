@@ -73,27 +73,3 @@ TEST_F(CommandUpdaterTest, TestObservers) {
   command_updater.UpdateCommandEnabled(2, true);
   EXPECT_FALSE(observer.enabled());
 }
-
-TEST_F(CommandUpdaterTest, TestRemoveObserverForUnsupportedCommand) {
-  TestingCommandHandlerMock handler;
-  CommandUpdater command_updater(&handler);
-
-  // Test removing observers for commands that are unsupported
-  TestingCommandObserverMock observer;
-  command_updater.RemoveCommandObserver(3, &observer);
-}
-
-TEST_F(CommandUpdaterTest, TestAddingNullObserver) {
-  TestingCommandHandlerMock handler;
-  CommandUpdater command_updater(&handler);
-
-  // Test adding/removing NULL observers
-  command_updater.AddCommandObserver(4, NULL);
-}
-
-TEST_F(CommandUpdaterTest, TestRemovingNullObserver) {
-  TestingCommandHandlerMock handler;
-  CommandUpdater command_updater(&handler);
-
-  command_updater.RemoveCommandObserver(4, NULL);
-}
