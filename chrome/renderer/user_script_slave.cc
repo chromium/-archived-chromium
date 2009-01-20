@@ -13,7 +13,7 @@
 
 // These two strings are injected before and after the Greasemonkey API and
 // user script to wrap it in an anonymous scope.
-static const char kUserScriptHead[] = "(function (unsafeWindow) {";
+static const char kUserScriptHead[] = "(function (unsafeWindow) {\n";
 static const char kUserScriptTail[] = "\n})(window);";
 
 // UserScript
@@ -73,8 +73,10 @@ UserScriptSlave::UserScriptSlave()
     pos++;
   }
 
-  // Add one more line to account for the function that wraps everything.
-  user_script_start_line_++;
+  // NOTE: There is actually one extra line in the injected script because the
+  // function header includes a newline as well. But WebKit expects the
+  // numbering to be one-based, not zero-based, so actually *not* accounting for
+  // this extra line ends us up with the right offset.
 }
 
 bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
