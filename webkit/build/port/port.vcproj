@@ -20,11 +20,14 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			ConfigurationType="4"
+			ConfigurationType="10"
 			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;..\..\..\third_party\zlib\using_zlib.vsprops;.\port.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="Inspector image file copy"
 			/>
 			<Tool
 				Name="Inspector file copy"
@@ -33,43 +36,7 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="Inspector image file copy"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
 				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -77,11 +44,14 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			ConfigurationType="4"
+			ConfigurationType="10"
 			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;.\port.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="Inspector image file copy"
 			/>
 			<Tool
 				Name="Inspector file copy"
@@ -90,43 +60,7 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="Inspector image file copy"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
 				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
