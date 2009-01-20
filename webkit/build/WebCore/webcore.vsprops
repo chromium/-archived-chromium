@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="webcore"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\webkit_common.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\libjpeg\using_libjpeg.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;..\webkit_common.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"

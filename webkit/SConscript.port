@@ -25,14 +25,6 @@ elif env.Bit('linux'):
   )
 
 input_files = [
-    '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
-    '$PORT_DIR/platform/image-decoders/gif/GIFImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/gif/GIFImageReader.cpp',
-    '$PORT_DIR/platform/image-decoders/ico/ICOImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/jpeg/JPEGImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/png/PNGImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/xbm/XBMImageDecoder.cpp',
 ]
 
 if env.Bit('mac'):

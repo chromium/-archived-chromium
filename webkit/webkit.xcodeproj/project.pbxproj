@@ -54,10 +54,6 @@
 		538D819B0EC371EA00278C31 /* password_autocomplete_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 538D81990EC371EA00278C31 /* password_autocomplete_listener.cc */; };
 		53E8BE100EC36A4E00B3F8B0 /* dom_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405050D92E3DA0006B936 /* dom_operations.cc */; };
 		7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
-		7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2B0A450E3143EC00D4C6B7 /* GIFImageDecoder.cpp */; };
-		7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2B0A470E3143EC00D4C6B7 /* GIFImageReader.cpp */; };
-		7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2B0A4A0E3143EC00D4C6B7 /* JPEGImageDecoder.cpp */; };
-		7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2B0A4D0E3143EC00D4C6B7 /* PNGImageDecoder.cpp */; };
 		7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E85B60D7F28F5001ECF42 /* Assertions.cpp */; };
 		7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E85C30D7F28F5001ECF42 /* HashTable.cpp */; };
 		7B5E86090D7F28F5001ECF42 /* TCSystemAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E85D80D7F28F5001ECF42 /* TCSystemAlloc.cpp */; };
@@ -1269,6 +1265,14 @@
 		938448B10F16B06E0075F4C5 /* XPathGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095C70DAFF00100F72082 /* XPathGrammar.cpp */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
+		93EF1C090F214F260070601B /* BMPImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1BF80F214F260070601B /* BMPImageDecoder.cpp */; };
+		93EF1C0A0F214F260070601B /* BMPImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1BFA0F214F260070601B /* BMPImageReader.cpp */; };
+		93EF1C0B0F214F260070601B /* GIFImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1BFC0F214F260070601B /* GIFImageDecoder.cpp */; };
+		93EF1C0C0F214F260070601B /* GIFImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1BFE0F214F260070601B /* GIFImageReader.cpp */; };
+		93EF1C0D0F214F260070601B /* ICOImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C000F214F260070601B /* ICOImageDecoder.cpp */; };
+		93EF1C0E0F214F260070601B /* JPEGImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C030F214F260070601B /* JPEGImageDecoder.cpp */; };
+		93EF1C0F0F214F260070601B /* PNGImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C050F214F260070601B /* PNGImageDecoder.cpp */; };
+		93EF1C100F214F260070601B /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C070F214F260070601B /* XBMImageDecoder.cpp */; };
 		A7FBE6100F1EC18A00BB13F2 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */; };
 		A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */; };
 		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
@@ -1306,10 +1310,6 @@
 		E456270E0E268F03005E4685 /* webhistoryitem_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405410D92E3DA0006B936 /* webhistoryitem_impl.cc */; };
 		E45627100E268F03005E4685 /* password_form_dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051F0D92E3DA0006B936 /* password_form_dom_manager.cc */; };
 		E45627160E268F26005E4685 /* resource_handle_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405290D92E3DA0006B936 /* resource_handle_impl.cc */; };
-		E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260670DCBA013005CFE91 /* BMPImageReader.cpp */; };
-		E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260690DCBA013005CFE91 /* BMPImageDecoder.cpp */; };
-		E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */; };
-		E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */; };
 		E45628370E269DBB005E4685 /* feed_preview.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254050F0D92E3DA0006B936 /* feed_preview.cc */; };
 		E456283A0E269DCB005E4685 /* multipart_response_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051D0D92E3DA0006B936 /* multipart_response_delegate.cc */; };
 		E48A06DE0E3F840F00172919 /* image_resource_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06D80E3F840F00172919 /* image_resource_fetcher.cc */; };
@@ -2369,15 +2369,6 @@
 		7B0E59630DB3D195007D4907 /* PageURLRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PageURLRecord.h; path = icon/PageURLRecord.h; sourceTree = "<group>"; };
 		7B14AAA80DE3340400F4E646 /* CharsetData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CharsetData.cpp; sourceTree = "<group>"; };
 		7B27489D0E43815F009BCE03 /* libpcre.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpcre.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B2B0A3F0E3143CF00D4C6B7 /* ImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDecoder.h; sourceTree = "<group>"; };
-		7B2B0A450E3143EC00D4C6B7 /* GIFImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GIFImageDecoder.cpp; sourceTree = "<group>"; };
-		7B2B0A460E3143EC00D4C6B7 /* GIFImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GIFImageDecoder.h; sourceTree = "<group>"; };
-		7B2B0A470E3143EC00D4C6B7 /* GIFImageReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GIFImageReader.cpp; sourceTree = "<group>"; };
-		7B2B0A480E3143EC00D4C6B7 /* GIFImageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GIFImageReader.h; sourceTree = "<group>"; };
-		7B2B0A4A0E3143EC00D4C6B7 /* JPEGImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JPEGImageDecoder.cpp; sourceTree = "<group>"; };
-		7B2B0A4B0E3143EC00D4C6B7 /* JPEGImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JPEGImageDecoder.h; sourceTree = "<group>"; };
-		7B2B0A4D0E3143EC00D4C6B7 /* PNGImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PNGImageDecoder.cpp; sourceTree = "<group>"; };
-		7B2B0A4E0E3143EC00D4C6B7 /* PNGImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNGImageDecoder.h; sourceTree = "<group>"; };
 		7B2FB8860D81A9C90050E907 /* WebCorePrefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCorePrefix.h; sourceTree = "<group>"; };
 		7B5E85AE0D7F28CD001ECF42 /* libwtf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwtf.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B5E85B40D7F28F5001ECF42 /* AlwaysInline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlwaysInline.h; sourceTree = "<group>"; };
@@ -3997,14 +3988,6 @@
 		8255CEDF0F16972C00E53C11 /* plugin_stream_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_stream_posix.cc; sourceTree = "<group>"; };
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObject.cpp; sourceTree = "<group>"; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObject.h; sourceTree = "<group>"; };
-		82C260660DCBA013005CFE91 /* BMPImageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMPImageReader.h; sourceTree = "<group>"; };
-		82C260670DCBA013005CFE91 /* BMPImageReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BMPImageReader.cpp; sourceTree = "<group>"; };
-		82C260680DCBA013005CFE91 /* BMPImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMPImageDecoder.h; sourceTree = "<group>"; };
-		82C260690DCBA013005CFE91 /* BMPImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BMPImageDecoder.cpp; sourceTree = "<group>"; };
-		82C260700DCBA02A005CFE91 /* ICOImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICOImageDecoder.h; sourceTree = "<group>"; };
-		82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ICOImageDecoder.cpp; sourceTree = "<group>"; };
-		82C260760DCBA03E005CFE91 /* XBMImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBMImageDecoder.h; sourceTree = "<group>"; };
-		82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XBMImageDecoder.cpp; sourceTree = "<group>"; };
 		82F14D600ED230E700B36428 /* webcursor_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webcursor_mac.mm; sourceTree = "<group>"; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
@@ -4086,6 +4069,23 @@
 		93AF52C40F0030780073C62D /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkiaUtils.h; path = skia/SkiaUtils.h; sourceTree = "<group>"; };
 		93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webkit_glue_mac.mm; sourceTree = "<group>"; };
 		93AF57B70F0199880073C62D /* PlatformScreenChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlatformScreenChromium.cpp; path = chromium/PlatformScreenChromium.cpp; sourceTree = "<group>"; };
+		93EF1BF80F214F260070601B /* BMPImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BMPImageDecoder.cpp; path = "image-decoders/skia/BMPImageDecoder.cpp"; sourceTree = "<group>"; };
+		93EF1BF90F214F260070601B /* BMPImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BMPImageDecoder.h; path = "image-decoders/skia/BMPImageDecoder.h"; sourceTree = "<group>"; };
+		93EF1BFA0F214F260070601B /* BMPImageReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BMPImageReader.cpp; path = "image-decoders/skia/BMPImageReader.cpp"; sourceTree = "<group>"; };
+		93EF1BFB0F214F260070601B /* BMPImageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BMPImageReader.h; path = "image-decoders/skia/BMPImageReader.h"; sourceTree = "<group>"; };
+		93EF1BFC0F214F260070601B /* GIFImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GIFImageDecoder.cpp; path = "image-decoders/skia/GIFImageDecoder.cpp"; sourceTree = "<group>"; };
+		93EF1BFD0F214F260070601B /* GIFImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GIFImageDecoder.h; path = "image-decoders/skia/GIFImageDecoder.h"; sourceTree = "<group>"; };
+		93EF1BFE0F214F260070601B /* GIFImageReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GIFImageReader.cpp; path = "image-decoders/skia/GIFImageReader.cpp"; sourceTree = "<group>"; };
+		93EF1BFF0F214F260070601B /* GIFImageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GIFImageReader.h; path = "image-decoders/skia/GIFImageReader.h"; sourceTree = "<group>"; };
+		93EF1C000F214F260070601B /* ICOImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICOImageDecoder.cpp; path = "image-decoders/skia/ICOImageDecoder.cpp"; sourceTree = "<group>"; };
+		93EF1C010F214F260070601B /* ICOImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ICOImageDecoder.h; path = "image-decoders/skia/ICOImageDecoder.h"; sourceTree = "<group>"; };
+		93EF1C020F214F260070601B /* ImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageDecoder.h; path = "image-decoders/skia/ImageDecoder.h"; sourceTree = "<group>"; };
+		93EF1C030F214F260070601B /* JPEGImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JPEGImageDecoder.cpp; path = "image-decoders/skia/JPEGImageDecoder.cpp"; sourceTree = "<group>"; };
+		93EF1C040F214F260070601B /* JPEGImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JPEGImageDecoder.h; path = "image-decoders/skia/JPEGImageDecoder.h"; sourceTree = "<group>"; };
+		93EF1C050F214F260070601B /* PNGImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNGImageDecoder.cpp; path = "image-decoders/skia/PNGImageDecoder.cpp"; sourceTree = "<group>"; };
+		93EF1C060F214F260070601B /* PNGImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PNGImageDecoder.h; path = "image-decoders/skia/PNGImageDecoder.h"; sourceTree = "<group>"; };
+		93EF1C070F214F260070601B /* XBMImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XBMImageDecoder.cpp; path = "image-decoders/skia/XBMImageDecoder.cpp"; sourceTree = "<group>"; };
+		93EF1C080F214F260070601B /* XBMImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XBMImageDecoder.h; path = "image-decoders/skia/XBMImageDecoder.h"; sourceTree = "<group>"; };
 		9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrAndFlags.h; sourceTree = "<group>"; };
 		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSSelectorList.cpp; sourceTree = "<group>"; };
 		A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditorChromium.cpp; path = chromium/EditorChromium.cpp; sourceTree = "<group>"; };
@@ -4650,35 +4650,6 @@
 			children = (
 			);
 			path = icon;
-			sourceTree = "<group>";
-		};
-		7B2B0A440E3143EC00D4C6B7 /* gif */ = {
-			isa = PBXGroup;
-			children = (
-				7B2B0A450E3143EC00D4C6B7 /* GIFImageDecoder.cpp */,
-				7B2B0A460E3143EC00D4C6B7 /* GIFImageDecoder.h */,
-				7B2B0A470E3143EC00D4C6B7 /* GIFImageReader.cpp */,
-				7B2B0A480E3143EC00D4C6B7 /* GIFImageReader.h */,
-			);
-			path = gif;
-			sourceTree = "<group>";
-		};
-		7B2B0A490E3143EC00D4C6B7 /* jpeg */ = {
-			isa = PBXGroup;
-			children = (
-				7B2B0A4A0E3143EC00D4C6B7 /* JPEGImageDecoder.cpp */,
-				7B2B0A4B0E3143EC00D4C6B7 /* JPEGImageDecoder.h */,
-			);
-			path = jpeg;
-			sourceTree = "<group>";
-		};
-		7B2B0A4C0E3143EC00D4C6B7 /* png */ = {
-			isa = PBXGroup;
-			children = (
-				7B2B0A4D0E3143EC00D4C6B7 /* PNGImageDecoder.cpp */,
-				7B2B0A4E0E3143EC00D4C6B7 /* PNGImageDecoder.h */,
-			);
-			path = png;
 			sourceTree = "<group>";
 		};
 		7B5E77540D7F22D8001ECF42 = {
@@ -5691,16 +5662,11 @@
 			isa = PBXGroup;
 			children = (
 				3CBAF5EA0EFC892100E752CB /* animation */,
-				7B5E8F820D7F3CC1001ECF42 /* cf */,
-				93AF52620F002ED00073C62D /* chromium */,
-				7B5E8FA20D7F3CC1001ECF42 /* graphics */,
-				7B5E90D40D7F3CC2001ECF42 /* mac */,
-				7B5E91140D7F3CC2001ECF42 /* network */,
-				4D1637C20EBFA485008F024E /* sql */,
-				7B5E91A90D7F3CC2001ECF42 /* text */,
 				7B5E8F7D0D7F3CC1001ECF42 /* Arena.cpp */,
 				7B5E8F7E0D7F3CC1001ECF42 /* Arena.h */,
 				7B5E8F810D7F3CC1001ECF42 /* AutodrainedPool.h */,
+				7B5E8F820D7F3CC1001ECF42 /* cf */,
+				93AF52620F002ED00073C62D /* chromium */,
 				7B5E8F860D7F3CC1001ECF42 /* ContextMenu.cpp */,
 				7B5E8F870D7F3CC1001ECF42 /* ContextMenu.h */,
 				7B5E8F880D7F3CC1001ECF42 /* ContextMenuItem.h */,
@@ -5721,7 +5687,9 @@
 				4D1641150EC29D01008F024E /* GeolocationService.h */,
 				93AF525D0F002E930073C62D /* GKURL.cpp */,
 				93AF525E0F002E930073C62D /* GoogleURLPrivate.h */,
+				7B5E8FA20D7F3CC1001ECF42 /* graphics */,
 				4D1641160EC29D01008F024E /* HostWindow.h */,
+				93EF1BD10F214F050070601B /* image-decoders */,
 				7B5E90CD0D7F3CC2001ECF42 /* KURL.h */,
 				7B5E90CF0D7F3CC2001ECF42 /* Language.h */,
 				ABBD24950EB7BFC500BEC658 /* Length.cpp */,
@@ -5733,7 +5701,9 @@
 				7B5E90D00D7F3CC2001ECF42 /* LocalizedStrings.h */,
 				7B5E90D20D7F3CC2001ECF42 /* Logging.cpp */,
 				7B5E90D30D7F3CC2001ECF42 /* Logging.h */,
+				7B5E90D40D7F3CC2001ECF42 /* mac */,
 				7B5E91130D7F3CC2001ECF42 /* MIMETypeRegistry.h */,
+				7B5E91140D7F3CC2001ECF42 /* network */,
 				7B5E91530D7F3CC2001ECF42 /* NotImplemented.h */,
 				7B5E91540D7F3CC2001ECF42 /* Pasteboard.h */,
 				4D1641190EC29D01008F024E /* PlatformKeyboardEvent.h */,
@@ -5759,9 +5729,11 @@
 				7B5E91910D7F3CC2001ECF42 /* SharedBuffer.h */,
 				7B5E91920D7F3CC2001ECF42 /* SharedTimer.h */,
 				7B5E91930D7F3CC2001ECF42 /* Sound.h */,
+				4D1637C20EBFA485008F024E /* sql */,
 				7B5E919F0D7F3CC2001ECF42 /* SSLKeyGenerator.h */,
 				7B5E91A00D7F3CC2001ECF42 /* StaticConstructors.h */,
 				7B5E91A80D7F3CC2001ECF42 /* SystemTime.h */,
+				7B5E91A90D7F3CC2001ECF42 /* text */,
 				4D16411C0EC29D01008F024E /* Theme.h */,
 				4D16411D0EC29D01008F024E /* ThemeTypes.h */,
 				7B5E91F90D7F3CC3001ECF42 /* ThreadCheck.h */,
@@ -6775,7 +6747,6 @@
 			isa = PBXGroup;
 			children = (
 				822B1BE60DC778FF005C9A96 /* platform */,
-				938181210EF6D25700993F02 /* plugins */,
 			);
 			path = port;
 			sourceTree = "<group>";
@@ -7487,7 +7458,6 @@
 			isa = PBXGroup;
 			children = (
 				822B1BE70DC77910005C9A96 /* graphics */,
-				82C260620DCB9FFE005CFE91 /* image-decoders */,
 			);
 			path = platform;
 			sourceTree = "<group>";
@@ -7669,56 +7639,6 @@
 			path = plugins;
 			sourceTree = "<group>";
 		};
-		82C260620DCB9FFE005CFE91 /* image-decoders */ = {
-			isa = PBXGroup;
-			children = (
-				7B2B0A3F0E3143CF00D4C6B7 /* ImageDecoder.h */,
-				82C260640DCBA009005CFE91 /* bmp */,
-				7B2B0A440E3143EC00D4C6B7 /* gif */,
-				82C2606E0DCBA018005CFE91 /* ico */,
-				7B2B0A490E3143EC00D4C6B7 /* jpeg */,
-				7B2B0A4C0E3143EC00D4C6B7 /* png */,
-				82C260740DCBA032005CFE91 /* xbm */,
-			);
-			path = "image-decoders";
-			sourceTree = "<group>";
-		};
-		82C260640DCBA009005CFE91 /* bmp */ = {
-			isa = PBXGroup;
-			children = (
-				82C260660DCBA013005CFE91 /* BMPImageReader.h */,
-				82C260670DCBA013005CFE91 /* BMPImageReader.cpp */,
-				82C260680DCBA013005CFE91 /* BMPImageDecoder.h */,
-				82C260690DCBA013005CFE91 /* BMPImageDecoder.cpp */,
-			);
-			path = bmp;
-			sourceTree = "<group>";
-		};
-		82C2606E0DCBA018005CFE91 /* ico */ = {
-			isa = PBXGroup;
-			children = (
-				82C260700DCBA02A005CFE91 /* ICOImageDecoder.h */,
-				82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */,
-			);
-			path = ico;
-			sourceTree = "<group>";
-		};
-		82C260740DCBA032005CFE91 /* xbm */ = {
-			isa = PBXGroup;
-			children = (
-				82C260760DCBA03E005CFE91 /* XBMImageDecoder.h */,
-				82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */,
-			);
-			path = xbm;
-			sourceTree = "<group>";
-		};
-		938181210EF6D25700993F02 /* plugins */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = plugins;
-			sourceTree = "<group>";
-		};
 		938181420EF6D26400993F02 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
@@ -7811,6 +7731,38 @@
 				93AF52C20F0030780073C62D /* PlatformContextSkia.h */,
 				93AF52C30F0030780073C62D /* SkiaUtils.cpp */,
 				93AF52C40F0030780073C62D /* SkiaUtils.h */,
+			);
+			name = skia;
+			sourceTree = "<group>";
+		};
+		93EF1BD10F214F050070601B /* image-decoders */ = {
+			isa = PBXGroup;
+			children = (
+				93EF1BD20F214F0D0070601B /* skia */,
+			);
+			name = "image-decoders";
+			sourceTree = "<group>";
+		};
+		93EF1BD20F214F0D0070601B /* skia */ = {
+			isa = PBXGroup;
+			children = (
+				93EF1BF80F214F260070601B /* BMPImageDecoder.cpp */,
+				93EF1BF90F214F260070601B /* BMPImageDecoder.h */,
+				93EF1BFA0F214F260070601B /* BMPImageReader.cpp */,
+				93EF1BFB0F214F260070601B /* BMPImageReader.h */,
+				93EF1BFC0F214F260070601B /* GIFImageDecoder.cpp */,
+				93EF1BFD0F214F260070601B /* GIFImageDecoder.h */,
+				93EF1BFE0F214F260070601B /* GIFImageReader.cpp */,
+				93EF1BFF0F214F260070601B /* GIFImageReader.h */,
+				93EF1C000F214F260070601B /* ICOImageDecoder.cpp */,
+				93EF1C010F214F260070601B /* ICOImageDecoder.h */,
+				93EF1C020F214F260070601B /* ImageDecoder.h */,
+				93EF1C030F214F260070601B /* JPEGImageDecoder.cpp */,
+				93EF1C040F214F260070601B /* JPEGImageDecoder.h */,
+				93EF1C050F214F260070601B /* PNGImageDecoder.cpp */,
+				93EF1C060F214F260070601B /* PNGImageDecoder.h */,
+				93EF1C070F214F260070601B /* XBMImageDecoder.cpp */,
+				93EF1C080F214F260070601B /* XBMImageDecoder.h */,
 			);
 			name = skia;
 			sourceTree = "<group>";
@@ -9435,6 +9387,14 @@
 				9384477C0F16B0570075F4C5 /* XSLTExtensions.cpp in Sources */,
 				9384477D0F16B0570075F4C5 /* XSLTProcessor.cpp in Sources */,
 				9384477E0F16B0570075F4C5 /* XSLTUnicodeSort.cpp in Sources */,
+				93EF1C090F214F260070601B /* BMPImageDecoder.cpp in Sources */,
+				93EF1C0A0F214F260070601B /* BMPImageReader.cpp in Sources */,
+				93EF1C0B0F214F260070601B /* GIFImageDecoder.cpp in Sources */,
+				93EF1C0C0F214F260070601B /* GIFImageReader.cpp in Sources */,
+				93EF1C0D0F214F260070601B /* ICOImageDecoder.cpp in Sources */,
+				93EF1C0E0F214F260070601B /* JPEGImageDecoder.cpp in Sources */,
+				93EF1C0F0F214F260070601B /* PNGImageDecoder.cpp in Sources */,
+				93EF1C100F214F260070601B /* XBMImageDecoder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9506,18 +9466,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
-				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
-				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
-				7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */,
 				4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */,
-				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
-				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
-				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
-				E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9797,7 +9749,10 @@
 					"$(DIR_V8)/include",
 					"$(DIR_SKIA)/include",
 					"$(DIR_SKIA)/include/corecg",
+					"$(DIR_THIRD_PARTY)/libjpeg",
+					"$(DIR_THIRD_PARTY)/libpng",
 					"$(DIR_THIRD_PARTY)/libxml/include",
+					"$(DIR_THIRD_PARTY)/zlib",
 					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 					"$(DIR_WEBKIT)/JavaScriptCore",
@@ -9927,7 +9882,10 @@
 					"$(DIR_V8)/include",
 					"$(DIR_SKIA)/include",
 					"$(DIR_SKIA)/include/corecg",
+					"$(DIR_THIRD_PARTY)/libjpeg",
+					"$(DIR_THIRD_PARTY)/libpng",
 					"$(DIR_THIRD_PARTY)/libxml/include",
+					"$(DIR_THIRD_PARTY)/zlib",
 					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 					"$(DIR_WEBKIT)/JavaScriptCore",

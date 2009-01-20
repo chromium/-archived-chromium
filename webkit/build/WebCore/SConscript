@@ -515,6 +515,15 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/skia/SkiaUtils.cpp',
     '$WEBCORE_DIR/platform/graphics/skia/TransformationMatrixSkia.cpp',
 
+    '$WEBCORE_DIR/platform/image-decoders/skia/BMPImageDecoder.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/BMPImageReader.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/GIFImageDecoder.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/GIFImageReader.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/ICOImageDecoder.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/JPEGImageDecoder.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/PNGImageDecoder.cpp',
+    '$WEBCORE_DIR/platform/image-decoders/skia/XBMImageDecoder.cpp',
+
     '$WEBCORE_DIR/platform/network/AuthenticationChallengeBase.cpp',
     '$WEBCORE_DIR/platform/network/Credential.cpp',
     '$WEBCORE_DIR/platform/network/FormData.cpp',

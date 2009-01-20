@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="port"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\webkit_common.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\libjpeg\using_libjpeg.vsprops;..\..\..\third_party\zlib\using_zlib.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\webkit_common.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
