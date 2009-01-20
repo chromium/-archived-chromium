@@ -5,6 +5,7 @@
 #include "base/message_pump_libevent.h"
 
 #include <fcntl.h>
+#include <errno.h>
 
 #include "base/logging.h"
 #include "base/scoped_nsautorelease_pool.h"
@@ -81,12 +82,18 @@ MessagePumpLibevent::MessagePumpLibevent()
 
 bool MessagePumpLibevent::Init() {
   int fds[2];
-  if (pipe(fds))
+  if (pipe(fds)) {
+    DLOG(ERROR) << "pipe() failed, errno: " << errno;
     return false;
-  if (SetNonBlocking(fds[0]))
+  }
+  if (SetNonBlocking(fds[0])) {
+    DLOG(ERROR) << "SetNonBlocking for pipe fd[0] failed, errno: " << errno;
     return false;
-  if (SetNonBlocking(fds[1]))
+  }
+  if (SetNonBlocking(fds[1])) {
+    DLOG(ERROR) << "SetNonBlocking for pipe fd[1] failed, errno: " << errno;
     return false;
+  }
   wakeup_pipe_out_ = fds[0];
   wakeup_pipe_in_ = fds[1];
 
