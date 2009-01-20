@@ -13,6 +13,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<ToolFile
+			RelativePath="..\webkit_version.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -7366,6 +7369,14 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="version"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\Configurations\Version.xcconfig"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\precompiled_webkit.cc"
