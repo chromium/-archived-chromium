@@ -17,21 +17,21 @@
 // memory statistics, snapshotting the current stats of numerous histograms,
 // closing the logs, translating to XML text, and compressing the results for
 // transmission.  Transmission includes submitting a compressed log as data in a
-// URL-get, and retransmitting (or retaining at process termination) if the
+// URL-post, and retransmitting (or retaining at process termination) if the
 // attempted transmission failed.  Retention across process terminations is done
 // using the the PrefServices facilities.  The format for the retained
 // logs (ones that never got transmitted) is always the uncompressed textual
 // representation.
 //
-// Logs fall into one of two categories: "Initial logs," and "ongoing logs."
-// There is at most one initial log sent for each complete run of the chrome
+// Logs fall into one of two categories: "initial logs," and "ongoing logs."
+// There is at most one initial log sent for each complete run of the chromium
 // product (from startup, to browser shutdown).  An initial log is generally
 // transmitted some short time (1 minute?) after startup, and includes stats
 // such as recent crash info, the number and types of plugins, etc.  The
-// external server's response to the initial log conceptually tells
-// this MS if it should continue transmitting logs (during this session). The
-// server response can actually be much more detailed, and always includes (at
-// a minimum) how often additional ongoing logs should be sent.
+// external server's response to the initial log conceptually tells this MS if
+// it should continue transmitting logs (during this session). The server
+// response can actually be much more detailed, and always includes (at a
+// minimum) how often additional ongoing logs should be sent.
 //
 // After the above initial log, a series of ongoing logs will be transmitted.
 // The first ongoing log actually begins to accumulate information stating when
@@ -40,14 +40,15 @@
 // much in the way of user stats.   The most common interlog period (delay)
 // is 20 minutes. That time period starts when the first user action causes a
 // logging event.  This means that if there is no user action, there may be long
-// periods without any (ongoing) log transmissions.  Ongoing log typically
+// periods without any (ongoing) log transmissions.  Ongoing logs typically
 // contain very detailed records of user activities (ex: opened tab, closed
 // tab, fetched URL, maximized window, etc.)  In addition, just before an
 // ongoing log is closed out, a call is made to gather memory statistics.  Those
 // memory statistics are deposited into a histogram, and the log finalization
 // code is then called.  In the finalization, a call to a Histogram server
 // acquires a list of all local histograms that have been flagged for upload
-// to the UMA server.
+// to the UMA server.  The finalization also acquires a the most recent number
+// of page loads, along with any counts of renderer or plugin crashes.
 //
 // When the browser shuts down, there will typically be a fragment of an ongoing
 // log that has not yet been transmitted.  At shutdown time, that fragment
@@ -135,7 +136,7 @@
 // of old unsent logs (the appropriate list, depending on whether it is an
 // initial log, or an ongoing log).  An addition, any log that is currently
 // accumulating is also finalized, and pushed into the unsent log list.  With
-// those pushed performed, we regress back to the SEND_OLD_INITIAL_LOGS state in
+// those pushes performed, we regress back to the SEND_OLD_INITIAL_LOGS state in
 // case the user enables log recording again during this session.  This way
 // anything we have "pushed back" will be sent automatically if/when we progress
 // back to SENDING_CURRENT_LOG state.
@@ -149,7 +150,7 @@
 // twice.  For example, if a log file is sent, but not yet acknowledged by
 // the external server, and the user shuts down, then a copy of the log may be
 // saved for re-transmission.  These duplicates could be filtered out server
-// side, but are not expected to be a significantly statistical problem.
+// side, but are not expected to be a significant problem.
 //
 //
 //------------------------------------------------------------------------------
@@ -217,7 +218,7 @@ static const int kUnsentLogDelay = 15;  // 15 seconds
 // sending the next log.  If the channel is busy, such as when there is a
 // failure during an attempt to transmit a previous log, then a log may wait
 // (and continue to accrue now log entries) for a much greater period of time.
-static const int kMinSecondsPerLog = 20 * 60;  // twenty minutes
+static const int kMinSecondsPerLog = 90;  //                    20 * 60;  // Twenty minutes.
 
 // When we don't succeed at transmitting a log to a server, we progressively
 // wait longer and longer before sending the next log.  This backoff process
@@ -238,7 +239,7 @@ static const int kSaveStateInterval = 5 * 60;  // five minutes
 static const size_t kMaxInitialLogsPersisted = 20;
 
 // The number of ongoing logs we're willing to save persistently, and hope to
-// send during a this or future sessions.  Note that each log will be pretty
+// send during a this or future sessions.  Note that each log may be pretty
 // large, as presumably the related "initial" log wasn't sent (probably nothing
 // was, as the user was probably off-line).  As a result, the log probably kept
 // accumulating while the "initial" log was stalled (pending_), and couldn't be
@@ -246,7 +247,7 @@ static const size_t kMaxInitialLogsPersisted = 20;
 // A "standard shutdown" will create a small log, including just the data that
 // was not yet been transmitted, and that is normal (to have exactly one
 // ongoing_log_ at startup).
-static const size_t kMaxOngoingLogsPersisted = 4;
+static const size_t kMaxOngoingLogsPersisted = 8;
 
 
 // Handles asynchronous fetching of memory details.
@@ -480,7 +481,7 @@ void MetricsService::Observe(NotificationType type,
   HandleIdleSinceLastTransmission(false);
 
   if (current_log_)
-    DLOG(INFO) << "METRICS: NUMBER OF LOGS = " << current_log_->num_events();
+    DLOG(INFO) << "METRICS: NUMBER OF EVENTS = " << current_log_->num_events();
 }
 
 void MetricsService::HandleIdleSinceLastTransmission(bool in_idle) {
@@ -640,6 +641,7 @@ void MetricsService::SaveLocalState() {
   RecordCurrentState(pref);
   pref->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
 
+  // TODO(jar): Does this run down the batteries????
   ScheduleNextStateSave();
 }
 
@@ -739,6 +741,8 @@ void MetricsService::PushPendingLogsToUnsentLists() {
       unsent_initial_logs_.push_back(pending_log_text_);
       state_ = SEND_OLD_INITIAL_LOGS;
     } else {
+      // TODO(jar): Verify correctness in other states, including sending unsent
+      // iniitial logs.
       PushPendingLogTextToUnsentOngoingLogs();
     }
     DiscardPendingLog();
@@ -1144,7 +1148,7 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   current_fetch_.reset(NULL);  // We're not allowed to re-use it.
 
   // Confirm send so that we can move on.
-  DLOG(INFO) << "METRICS RESPONSE CODE: " << response_code << " status=" <<
+  LOG(INFO) << "METRICS RESPONSE CODE: " << response_code << " status=" <<
       StatusToString(status);
 
   // TODO(petersont): Refactor or remove the following so that we don't have to
@@ -1157,9 +1161,11 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   }
 
   if (response_code != 200) {
+    LOG(INFO) << "METRICS: transmission attempt returned a failure code: "
+      << response_code << ". Verify network connectivity";
     HandleBadResponseCode();
   } else {  // Success.
-    DLOG(INFO) << "METRICS RESPONSE DATA: " << data;
+    LOG(INFO) << "METRICS RESPONSE DATA: " << data;
     switch (state_) {
       case INITIAL_LOG_READY:
         state_ = SEND_OLD_INITIAL_LOGS;
@@ -1210,14 +1216,10 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
 }
 
 void MetricsService::HandleBadResponseCode() {
-  DLOG(INFO) << "METRICS: transmission attempt returned a failure code.  "
-      "Verify network connectivity";
-#ifndef NDEBUG
-  DLOG(INFO) << "Verify your metrics logs are formatted correctly.  "
+  LOG(INFO) << "Verify your metrics logs are formatted correctly.  "
       "Verify server is active at " << kMetricsURL;
-#endif
   if (!pending_log()) {
-    DLOG(INFO) << "METRICS: Recorder shutdown during log transmission.";
+    LOG(INFO) << "METRICS: Recorder shutdown during log transmission.";
   } else {
     // Send progressively less frequently.
     DCHECK(kBackoff > 1.0);
@@ -1230,7 +1232,7 @@ void MetricsService::HandleBadResponseCode() {
           TimeDelta::FromSeconds(kMinSecondsPerLog);
     }
 
-    DLOG(INFO) << "METRICS: transmission retry being scheduled in " <<
+    LOG(INFO) << "METRICS: transmission retry being scheduled in " <<
         interlog_duration_.InSeconds() << " seconds for " <<
         pending_log_text_;
   }
@@ -1240,11 +1242,11 @@ void MetricsService::GetSettingsFromResponseData(const std::string& data) {
   // We assume that the file is structured as a block opened by <response>
   // and that inside response, there is a block opened by tag <chrome_config>
   // other tags are ignored for now except the content of <chrome_config>.
-  DLOG(INFO) << "METRICS: getting settings from response data: " << data;
+  LOG(INFO) << "METRICS: getting settings from response data: " << data;
 
   int data_size = static_cast<int>(data.size());
   if (data_size < 0) {
-    DLOG(INFO) << "METRICS: server response data bad size: " << data_size <<
+    LOG(INFO) << "METRICS: server response data bad size: " << data_size <<
       "; aborting extraction of settings";
     return;
   }
@@ -1252,7 +1254,7 @@ void MetricsService::GetSettingsFromResponseData(const std::string& data) {
   DCHECK(doc);
   // If the document is malformed, we just use the settings that were there.
   if (!doc) {
-    DLOG(INFO) << "METRICS: reading xml from server response data failed";
+    LOG(INFO) << "METRICS: reading xml from server response data failed";
     return;
   }
 
