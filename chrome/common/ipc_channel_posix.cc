@@ -16,11 +16,16 @@
 #include <sys/un.h>
 #endif
 
+#include <string>
+#include <map>
+
 #include "base/command_line.h"
+#include "base/lock.h"
 #include "base/logging.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
+#include "base/singleton.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_message_utils.h"
@@ -30,12 +35,87 @@ namespace IPC {
 //------------------------------------------------------------------------------
 namespace {
 
+// When running as a browser, we install the client socket in a specific file
+// descriptor number (@kClientChannelFd). However, we also have to support the
+// case where we are running unittests in the same process.
+//
+// We do not support forking without execing.
+//
+// Case 1: normal running
+//   The IPC server object will install a mapping in PipeMap from the
+//   name which it was given to the client pipe. When forking the client, the
+//   GetClientFileDescriptorMapping will ensure that the socket is installed in
+//   the magic slot (@kClientChannelFd). The client will search for the
+//   mapping, but it won't find any since we are in a new process. Thus the
+//   magic fd number is returned. Once the client connects, the server will
+//   close it's copy of the client socket and remove the mapping.
+//
+// Case 2: unittests - client and server in the same process
+//   The IPC server will install a mapping as before. The client will search
+//   for a mapping and find out. It duplicates the file descriptor and
+//   connects. Once the client connects, the server will close the original
+//   copy of the client socket and remove the mapping. Thus, when the client
+//   object closes, it will close the only remaining copy of the client socket
+//   in the fd table and the server will see EOF on its side.
+//
+// TODO(port): a client process cannot connect to multiple IPC channels with
+// this scheme.
+
+class PipeMap {
+ public:
+  // Lookup a given channel id. Return -1 if not found.
+  int Lookup(const std::string& channel_id) {
+    AutoLock locked(lock_);
+
+    ChannelToFDMap::const_iterator i = map_.find(channel_id);
+    if (i == map_.end())
+      return -1;
+    return i->second;
+  }
+
+  // Remove the mapping for the given channel id. No error is signaled if the
+  // channel_id doesn't exist
+  void Remove(const std::string& channel_id) {
+    AutoLock locked(lock_);
+
+    ChannelToFDMap::iterator i = map_.find(channel_id);
+    if (i != map_.end())
+      map_.erase(i);
+  }
+
+  // Insert a mapping from @channel_id to @fd. It's a fatal error to insert a
+  // mapping if one already exists for the given channel_id
+  void Insert(const std::string& channel_id, int fd) {
+    AutoLock locked(lock_);
+    DCHECK(fd != -1);
+
+    ChannelToFDMap::const_iterator i = map_.find(channel_id);
+    CHECK(i == map_.end()) << "Creating second IPC server for '"
+                           << channel_id
+                           << "' while first still exists";
+    map_[channel_id] = fd;
+  }
+
+ private:
+  Lock lock_;
+  typedef std::map<std::string, int> ChannelToFDMap;
+  ChannelToFDMap map_;
+};
+
+// This is the file descriptor number that a client process expects to find its
+// IPC socket.
+static const int kClientChannelFd = 3;
+
 // Used to map a channel name to the equivalent FD # in the client process.
 int ChannelNameToClientFD(const std::string& channel_id) {
-  // TODO(playmobil): Support a smarter mapping that allows for a process to
-  // be a client of multiple channels.
-  const int kClientChannelID = 50;
-  return kClientChannelID;
+  // See the large block comment above PipeMap for the reasoning here.
+  const int fd = Singleton<PipeMap>()->Lookup(channel_id);
+  if (fd != -1)
+    return dup(fd);
+
+  // If we don't find an entry, we assume that the correct value has been
+  // inserted in the magic slot.
+  return kClientChannelFd;
 }
 
 //------------------------------------------------------------------------------
@@ -182,21 +262,19 @@ Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
 
 const std::wstring Channel::ChannelImpl::PipeName(
     const std::wstring& channel_id) const {
-  std::wostringstream ss;
   // TODO(playmobil): This should live in the Chrome user data directory.
   // TODO(playmobil): Cleanup any stale fifos.
-  ss << L"/var/tmp/chrome_" << channel_id;
-  return ss.str();
+  return L"/var/tmp/chrome_" + channel_id;
 }
 
 bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
                                       Mode mode) {
   DCHECK(server_listen_pipe_ == -1 && pipe_ == -1);
+  pipe_name_ = WideToUTF8(PipeName(channel_id));
 
   if (uses_fifo_) {
     // TODO(playmobil): Should we just change pipe_name to be a normal string
     // everywhere?
-    pipe_name_ = WideToUTF8(PipeName(channel_id));
 
     if (mode == MODE_SERVER) {
       if (!CreateServerFifo(pipe_name_, &server_listen_pipe_)) {
@@ -224,6 +302,8 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
       }
       pipe_ = pipe_fds[0];
       client_pipe_ = pipe_fds[1];
+
+      Singleton<PipeMap>()->Insert(pipe_name_, client_pipe_);
     } else {
       pipe_ = ChannelNameToClientFD(pipe_name_);
       DCHECK(pipe_ > 0);
@@ -291,16 +371,22 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
         if (errno == EAGAIN) {
           return true;
         } else {
-          LOG(ERROR) << "pipe error: " << strerror(errno);
+          LOG(ERROR) << "pipe error (" << pipe_ << "): " << strerror(errno);
           return false;
         }
       } else if (bytes_read == 0) {
         // The pipe has closed...
         Close();
-        return true;
+        return false;
       }
     }
     DCHECK(bytes_read);
+
+    if (client_pipe_ != -1) {
+      Singleton<PipeMap>()->Remove(pipe_name_);
+      close(client_pipe_);
+      client_pipe_ = -1;
+    }
 
     // Process messages from input buffer.
     const char *p;
@@ -433,13 +519,12 @@ void Channel::ChannelImpl::GetClientFileDescriptorMapping(int *src_fd,
                                                           int *dest_fd) {
   DCHECK(mode_ == MODE_SERVER);
   *src_fd = client_pipe_;
-  *dest_fd = ChannelNameToClientFD(pipe_name_);
+  *dest_fd = kClientChannelFd;
 }
 
 void Channel::ChannelImpl::OnClientConnected() {
+  // WARNING: this isn't actually called when a client connects.
   DCHECK(mode_ == MODE_SERVER);
-  close(client_pipe_);
-  client_pipe_ = -1;
 }
 
 // Called by libevent when we can read from th pipe without blocking.
@@ -516,6 +601,7 @@ void Channel::ChannelImpl::Close() {
     pipe_ = -1;
   }
   if (client_pipe_ != -1) {
+    Singleton<PipeMap>()->Remove(pipe_name_);
     close(client_pipe_);
     client_pipe_ = -1;
   }
