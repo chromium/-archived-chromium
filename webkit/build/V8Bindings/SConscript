@@ -306,6 +306,7 @@ inputs = [
     '$DERIVED_DIR/V8WebKitAnimationEvent.cpp',
     '$DERIVED_DIR/V8WebKitCSSKeyframeRule.cpp',
     '$DERIVED_DIR/V8WebKitCSSKeyframesRule.cpp',
+    '$DERIVED_DIR/V8WebKitCSSMatrix.cpp',
     '$DERIVED_DIR/V8WebKitCSSTransformValue.cpp',
     '$DERIVED_DIR/V8WebKitTransitionEvent.cpp',
     '$DERIVED_DIR/V8WheelEvent.cpp',

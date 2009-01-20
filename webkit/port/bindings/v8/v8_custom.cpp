@@ -106,6 +106,7 @@
 #include "Settings.h"
 #include "StyleSheetList.h"
 #include "TreeWalker.h"
+#include "WebKitCSSMatrix.h"
 #include "WindowFeatures.h"
 #include "XMLSerializer.h"
 #include "XPathEvaluator.h"
@@ -304,6 +305,33 @@ CALLBACK_FUNC_DECL(MessageChannelConstructor) {
   // Return the wrapper object which will be the result of the call to
   // new.
   return wrapper_object;
+}
+
+
+CALLBACK_FUNC_DECL(WebKitCSSMatrixConstructor) {
+  INC_STATS("DOM.WebKitCSSMatrix.Constructor");
+  String s;
+  if (args.Length() >= 1)
+    s = ToWebCoreString(args[0]);
+  
+  // Create the matrix.
+  ExceptionCode ec = 0;
+  RefPtr<WebKitCSSMatrix> matrix = WebKitCSSMatrix::create(s, ec);
+  if (ec != 0) {
+    V8Proxy::SetDOMException(ec);
+    return v8::Undefined();
+  }
+
+  // Transform the holder into a wrapper object for the matrix.
+  V8Proxy::SetDOMWrapper(args.Holder(),
+                         V8ClassIndex::ToInt(V8ClassIndex::WEBKITCSSMATRIX),
+                         matrix.get());
+  // Add the wrapper to the DOM object map.
+  matrix->ref();
+  V8Proxy::SetJSWrapperForDOMObject(
+      matrix.get(),
+      v8::Persistent<v8::Object>::New(args.Holder()));
+  return args.Holder();
 }
 
 

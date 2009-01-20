@@ -239,6 +239,7 @@ DECLARE_CALLBACK(DOMWindowOpen)
 
 DECLARE_CALLBACK(DOMParserConstructor)
 DECLARE_CALLBACK(MessageChannelConstructor)
+DECLARE_CALLBACK(WebKitCSSMatrixConstructor)
 DECLARE_CALLBACK(XMLHttpRequestConstructor)
 DECLARE_CALLBACK(XMLSerializerConstructor)
 DECLARE_CALLBACK(XPathEvaluatorConstructor)

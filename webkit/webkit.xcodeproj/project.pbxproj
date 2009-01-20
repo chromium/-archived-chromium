@@ -1248,6 +1248,7 @@
 		9384489D0F16B06E0075F4C5 /* V8WebKitAnimationEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */; };
 		9384489E0F16B06E0075F4C5 /* V8WebKitCSSKeyframeRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F9A40E9BEB9B00C66CE0 /* V8WebKitCSSKeyframeRule.cpp */; };
 		9384489F0F16B06E0075F4C5 /* V8WebKitCSSKeyframesRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F9A60E9BEB9B00C66CE0 /* V8WebKitCSSKeyframesRule.cpp */; };
+		25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */; };
 		938448A00F16B06E0075F4C5 /* V8WebKitCSSTransformValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */; };
 		938448A10F16B06E0075F4C5 /* V8WebKitTransitionEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299C10EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp */; };
 		938448A20F16B06E0075F4C5 /* V8WheelEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00936B0DAFEFE500F72082 /* V8WheelEvent.cpp */; };
@@ -1786,6 +1787,8 @@
 		4DB7F9A50E9BEB9B00C66CE0 /* V8WebKitCSSKeyframeRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitCSSKeyframeRule.h; sourceTree = "<group>"; };
 		4DB7F9A60E9BEB9B00C66CE0 /* V8WebKitCSSKeyframesRule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSKeyframesRule.cpp; sourceTree = "<group>"; };
 		4DB7F9A70E9BEB9B00C66CE0 /* V8WebKitCSSKeyframesRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitCSSKeyframesRule.h; sourceTree = "<group>"; };
+		688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = V8WebKitCSSMatrix.cpp; path = V8WebKitCSSMatrix.cpp; sourceTree = "<group>"; };
+		B4B7717F57DD81751BCEF85E /* V8WebKitCSSMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = V8WebKitCSSMatrix.h; path = V8WebKitCSSMatrix.h; sourceTree = "<group>"; };
 		4DB7F9D70E9BEC9500C66CE0 /* AuthenticationChallengeBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AuthenticationChallengeBase.cpp; sourceTree = "<group>"; };
 		4DB7F9D80E9BEC9500C66CE0 /* AuthenticationChallengeBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationChallengeBase.h; sourceTree = "<group>"; };
 		4DB7F9D90E9BEC9500C66CE0 /* NetworkStateNotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkStateNotifier.cpp; sourceTree = "<group>"; };
@@ -7414,6 +7417,8 @@
 				4DB7F9A50E9BEB9B00C66CE0 /* V8WebKitCSSKeyframeRule.h */,
 				4DB7F9A60E9BEB9B00C66CE0 /* V8WebKitCSSKeyframesRule.cpp */,
 				4DB7F9A70E9BEB9B00C66CE0 /* V8WebKitCSSKeyframesRule.h */,
+				688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */,
+				B4B7717F57DD81751BCEF85E /* V8WebKitCSSMatrix.h */,
 				4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */,
 				4DB299C00EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.h */,
 				4DB299C10EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp */,
@@ -8521,6 +8526,7 @@
 				9384489D0F16B06E0075F4C5 /* V8WebKitAnimationEvent.cpp in Sources */,
 				9384489E0F16B06E0075F4C5 /* V8WebKitCSSKeyframeRule.cpp in Sources */,
 				9384489F0F16B06E0075F4C5 /* V8WebKitCSSKeyframesRule.cpp in Sources */,
+				25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */,
 				938448A00F16B06E0075F4C5 /* V8WebKitCSSTransformValue.cpp in Sources */,
 				938448A10F16B06E0075F4C5 /* V8WebKitTransitionEvent.cpp in Sources */,
 				938448A20F16B06E0075F4C5 /* V8WheelEvent.cpp in Sources */,

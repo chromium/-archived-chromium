@@ -134,7 +134,6 @@
 #include "TextMetrics.h"
 #include "TimeRanges.h"
 #include "TreeWalker.h"
-#include "WebKitCSSTransformValue.h"
 #include "XMLHttpRequest.h"
 #include "XMLHttpRequestUpload.h"
 #include "XMLHttpRequestException.h"
@@ -147,6 +146,8 @@
 #include "WebKitAnimationEvent.h"
 #include "WebKitCSSKeyframeRule.h"
 #include "WebKitCSSKeyframesRule.h"
+#include "WebKitCSSMatrix.h"
+#include "WebKitCSSTransformValue.h"
 #include "WebKitTransitionEvent.h"
 #include "WheelEvent.h"
 #include "XMLHttpRequestProgressEvent.h"
@@ -1765,11 +1766,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
         break;
     }
 
-    // DOMParser, XMLSerializer, and XMLHttpRequest objects are created from
-    // JS world, but we setup the constructor function lazily in
-    // WindowNamedPropertyHandler::get.
+    // The following objects are created from JavaScript.
     case V8ClassIndex::DOMPARSER:
       desc->SetCallHandler(USE_CALLBACK(DOMParserConstructor));
+      break;
+    case V8ClassIndex::WEBKITCSSMATRIX:
+      desc->SetCallHandler(USE_CALLBACK(WebKitCSSMatrixConstructor));
       break;
     case V8ClassIndex::XMLSERIALIZER:
       desc->SetCallHandler(USE_CALLBACK(XMLSerializerConstructor));

@@ -1909,11 +1909,10 @@ LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
 LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
 
-// Merge 39913:39933 - new tests
-// This is bug 6475, css/WebKitCSSMatrix.idl needs to be added to the build.
+// This test passes but the expected results are wrong.  The layout test
+// got updated but the new expected results were committed later in
+// Changeset 39974. Once we merge change in, this test will pass.
 LayoutTests/transforms/2d/cssmatrix-interface.xhtml = FAIL
-// This one is probably related.
-LayoutTests/animations/combo-transform-translate+scale.html = FAIL
 
 // Merge 39913:39933 - regressions
 // See http://crbug.com/6482

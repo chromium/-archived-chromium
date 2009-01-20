@@ -176,6 +176,7 @@ idl_files = [
     'css/StyleSheetList.idl',
     'css/WebKitCSSKeyframeRule.idl',
     'css/WebKitCSSKeyframesRule.idl',
+    'css/WebKitCSSMatrix.idl',
     'css/WebKitCSSTransformValue.idl',
 
     'dom/Attr.idl',

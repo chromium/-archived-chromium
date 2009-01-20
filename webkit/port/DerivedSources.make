@@ -894,6 +894,7 @@ all : \
     V8WebKitAnimationEvent.h \
     V8WebKitCSSKeyframeRule.h \
     V8WebKitCSSKeyframesRule.h \
+    V8WebKitCSSMatrix.h \
     V8WebKitCSSTransformValue.h \
     V8WebKitTransitionEvent.h \
     V8WheelEvent.h \

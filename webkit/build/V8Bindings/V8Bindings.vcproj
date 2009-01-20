@@ -2232,6 +2232,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSMatrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSMatrix.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSTransformValue.cpp"
 				>
 			</File>
