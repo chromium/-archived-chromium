@@ -109,7 +109,7 @@ SKIP : LayoutTests/printing/media-queries-print.html = PASS
 
 // Uses Option-tab key to circle through form elements. Will not work on
 // Windows.
-LINUX WIN : LayoutTests/fast/events/frame-tab-focus.html = FAIL
+WIN : LayoutTests/fast/events/frame-tab-focus.html = FAIL
 
 // Bug 853268: Chrome doesn't call the willCacheResponse callback (a method
 // of ResourceHandleClient).  That function is Mac-specific.

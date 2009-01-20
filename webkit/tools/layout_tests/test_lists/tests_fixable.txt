@@ -257,7 +257,7 @@ LayoutTests/plugins/bindings-test.html = FAIL CRASH
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
 // Mac currently passes this
-DEFER LINUX WIN: LayoutTests/fast/encoding/char-encoding.html = FAIL
+DEFER WIN: LayoutTests/fast/encoding/char-encoding.html = FAIL
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
@@ -358,61 +358,33 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-DEFER LINUX : LayoutTests/svg/custom/font-face-simple.svg = FAIL
-DEFER LINUX : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-62-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
-LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL
+MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-01-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-02-t.svg = FAIL
-LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
+MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-08-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/script-handle-02-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/script-handle-03-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/script-handle-04-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-align-05-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-align-06-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-04-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-tspan-01-b.svg = FAIL
 
 // Pixel test passes. Texts differ by 1 on SVGRenderText bounding box.
 LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
@@ -444,7 +416,6 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 // There's no baseline at all for this!
 DEFER SKIP : LayoutTests/svg/batik/text/smallFonts.svg = FAIL
 DEFER : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
-DEFER LINUX : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
 
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
@@ -653,12 +624,9 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/textLayout.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/textLayout2.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textLength.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
@@ -910,8 +878,6 @@ DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.htm
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 
-// Linux pixeltest failure: Font mismatch
-LINUX : LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
 // Linux pixeltest failure: Font mismatch
 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
 chrome/fast/forms/basic-textareas-quirks.html = FAIL
@@ -1168,7 +1134,6 @@ MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
 // We don't draw the spelling markers at all in test shell, and it's a low
 // priority, so I'm DEFERing.
 DEFER LINUX WIN : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
-LINUX : LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.html = FAIL
 LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
 LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
 LayoutTests/fast/dom/constructors-cached.html = FAIL
@@ -1176,15 +1141,9 @@ LayoutTests/fast/js/arguments.html = FAIL
 LayoutTests/fast/js/construct-global-object.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
-LINUX : LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
-LINUX : LayoutTests/fast/table/empty-row-crash.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
-LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL
-LINUX : LayoutTests/scrollbars/disabled-scrollbar.html = FAIL
 LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
-LINUX : LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
-LINUX : LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
 
 // The handling of the selection functions on HTMLInputElements differ
 // from the Firefox behavior.  We should follow Firefox and I believe
@@ -1257,11 +1216,7 @@ LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
 // Bug 5053: fails (maybe V8?)
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 
-// Expected output changed upstream and needs to be rebaselined on Linux.
-LINUX : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
-
 // MERGE 38389:38450
-LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
 LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
 // Started failing with r5743 (darin)
@@ -1280,7 +1235,6 @@ SKIP : LayoutTests/animations/animation-drt-api.html = PASS
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 
 // MERGE 38625:38653: Expectations changed upstream
-LINUX : LayoutTests/editing/deleting/delete-to-end-of-paragraph.html = FAIL
 LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
 // MERGE 38625:38653: Regressions
@@ -1890,11 +1844,11 @@ LayoutTests/svg/custom/path-bad-data.svg = FAIL
 // Merge 39744:39829 - regressions
 WIN LINUX : LayoutTests/editing/pasteboard/4947130.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/drag-text-delay.html = FAIL
-WIN LINUX : LayoutTests/fast/events/space-scroll-event.html = FAIL
+WIN : LayoutTests/fast/events/space-scroll-event.html = FAIL
 
-WIN LINUX : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
-WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+WIN : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
+WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Release failures are Merge 39829:39744 regressions
 // Linux pixeltest failure: Large areas of the page are missing
