@@ -378,24 +378,17 @@ LINUX : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
-LINUX : LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-08-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
@@ -531,14 +524,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 // Linux pixeltest failure: background is all blue instead of white.
 WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
-LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
 // Radial gradients with offset focal points are not implemented in Skia.
 // See comment in WebCore/platform/graphics/skia/GradientSkia.cpp
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
@@ -550,7 +536,6 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
-LINUX : LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
@@ -570,7 +555,6 @@ LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
 LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
 // Difference between numeric precision in output.
-LINUX : LayoutTests/svg/custom/gradient-rotated-bbox.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 LINUX : LayoutTests/svg/custom/group-opacity.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
@@ -609,7 +593,6 @@ LINUX : LayoutTests/svg/carto.net/textbox.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/window.svg = FAIL
 LINUX : LayoutTests/svg/custom/coords-relative-units-transforms.svg = FAIL
 LINUX : LayoutTests/svg/custom/glyph-setting-d-attribute.svg = FAIL
-LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL
 LINUX : LayoutTests/svg/custom/svg-fonts-in-html.html = FAIL
 LINUX : LayoutTests/svg/custom/use-referencing-nonexisting-symbol.svg = FAIL
 LINUX : LayoutTests/svg/hixie/perf/003.xml = FAIL
@@ -669,7 +652,6 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
 
 // WebKit Merge 38950:39000 failures:
-LINUX : LayoutTests/svg/custom/fill-fallback.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
 
 // http://crbug.com/5294 and http://crbug.com/4618
