@@ -187,12 +187,6 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
   }
 #endif
 
-  if (LowerCaseEqualsASCII(url->path(), "internets")) {
-    // about:internets doesn't have an internal protocol, so don't modify |url|.
-    *result_type = TAB_CONTENTS_ABOUT_INTERNETS_STATUS_VIEW;
-    return true;
-  }
-
   // There are a few about URLs that we hand over to the renderer.
   // If the renderer wants them, let it have them.
   if (AboutHandler::WillHandle(*url))

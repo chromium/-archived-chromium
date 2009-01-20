@@ -1584,11 +1584,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\password_form_manager_win.cc"
+				RelativePath=".\password_manager\password_form_manager.h"
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\password_form_manager.h"
+				RelativePath=".\password_manager\password_form_manager_win.cc"
 				>
 			</File>
 			<File
@@ -2185,14 +2185,6 @@
 		<Filter
 			Name="Tab Contents"
 			>
-			<File
-				RelativePath=".\tab_contents\about_internets_status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\about_internets_status_view.h"
-				>
-			</File>
 			<File
 				RelativePath=".\tab_contents\constrained_window.h"
 				>

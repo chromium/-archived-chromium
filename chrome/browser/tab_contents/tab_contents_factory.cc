@@ -11,7 +11,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/debugger/debugger_contents.h"
-#include "chrome/browser/tab_contents/about_internets_status_view.h"
 #include "chrome/browser/tab_contents/ipc_status_view.h"
 #include "chrome/browser/tab_contents/native_ui_contents.h"
 #include "chrome/browser/tab_contents/network_status_view.h"
@@ -62,9 +61,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       break;
     case TAB_CONTENTS_NATIVE_UI:
       contents = new NativeUIContents(profile);
-      break;
-    case TAB_CONTENTS_ABOUT_INTERNETS_STATUS_VIEW:
-      contents = new AboutInternetsStatusView();
       break;
     case TAB_CONTENTS_VIEW_SOURCE:
       contents = new ViewSourceContents(profile, instance);
