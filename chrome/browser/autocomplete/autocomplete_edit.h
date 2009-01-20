@@ -21,7 +21,7 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompletePopupModel;
-class CommandController;
+class CommandUpdater;
 class Profile;
 class TabContents;
 namespace views {
@@ -466,7 +466,7 @@ class AutocompleteEditView
                        views::View* parent_view,
                        HWND hwnd,
                        Profile* profile,
-                       CommandController* command_controller,
+                       CommandUpdater* command_updater,
                        bool popup_window_mode);
   ~AutocompleteEditView();
 
@@ -810,7 +810,7 @@ class AutocompleteEditView
 
   // The object that handles additional command functionality exposed on the
   // edit, such as invoking the keyword editor.
-  CommandController* command_controller_;
+  CommandUpdater* command_updater_;
 
   // When true, the location bar view is read only and also is has a slightly
   // different presentation (font size / color). This is used for popups.

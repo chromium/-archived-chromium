@@ -5,15 +5,16 @@
 #include "chrome/browser/views/go_button.h"
 
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/l10n_util.h"
 
 #include "generated_resources.h"
 
 GoButton::GoButton(LocationBarView* location_bar,
-                   CommandController* controller) : ToggleButton(),
+                   CommandUpdater* command_updater) : ToggleButton(),
     location_bar_(location_bar),
-    controller_(controller),
+    command_updater_(command_updater),
     intended_mode_(MODE_GO),
     visible_mode_(MODE_GO),
     button_delay_(NULL),
@@ -27,14 +28,14 @@ GoButton::~GoButton() {
 
 void GoButton::NotifyClick(int mouse_event_flags) {
   if (visible_mode_ == MODE_STOP) {
-    controller_->ExecuteCommand(IDC_STOP);
+    command_updater_->ExecuteCommand(IDC_STOP);
 
     // The user has clicked, so we can feel free to update the button,
     // even if the mouse is still hovering.
     ChangeMode(MODE_GO);
   } else if (visible_mode_ == MODE_GO && stop_timer_.empty()) {
     // If the go button is visible and not within the doubleclick timer, go.
-    controller_->ExecuteCommand(IDC_GO);
+    command_updater_->ExecuteCommand(IDC_GO);
 
     // Figure out the system double-click time.
     if (button_delay_ == NULL)

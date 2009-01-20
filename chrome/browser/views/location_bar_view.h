@@ -9,7 +9,6 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
-#include "chrome/browser/controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/info_bubble.h"
@@ -19,6 +18,7 @@
 #include "chrome/views/label.h"
 #include "chrome/views/painter.h"
 
+class CommandUpdater;
 class GURL;
 class Profile;
 
@@ -46,7 +46,7 @@ class LocationBarView : public views::View,
   };
 
   LocationBarView(Profile* profile,
-                  CommandController* controller,
+                  CommandUpdater* command_updater,
                   ToolbarModel* model_,
                   Delegate* delegate,
                   bool popup_window_mode);
@@ -339,8 +339,8 @@ class LocationBarView : public views::View,
   // The Autocomplete Edit field.
   scoped_ptr<AutocompleteEditView> location_entry_;
 
-  // The command controller for this View.
-  CommandController* controller_;
+  // The CommandUpdater for the Browser object that corresponds to this View.
+  CommandUpdater* command_updater_;
 
   // The model.
   ToolbarModel* model_;

@@ -6,7 +6,6 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "chrome/browser/controller.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/checkbox.h"

@@ -60,10 +60,8 @@ static const int kMenuButtonOffset = 3;
 // Padding to the right of the location bar
 static const int kPaddingRight = 2;
 
-BrowserToolbarView::BrowserToolbarView(CommandController* controller,
-                                       Browser* browser)
-    : EncodingMenuControllerDelegate(browser, controller),
-      controller_(controller),
+BrowserToolbarView::BrowserToolbarView(Browser* browser)
+    : EncodingMenuControllerDelegate(browser),
       model_(browser->toolbar_model()),
       back_(NULL),
       forward_(NULL),
@@ -78,11 +76,15 @@ BrowserToolbarView::BrowserToolbarView(CommandController* controller,
       tab_(NULL),
       profiles_helper_(new GetProfilesHelper(this)),
       profiles_menu_(NULL) {
+  browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
+  browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
+  browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
+  browser_->command_updater()->AddCommandObserver(IDC_HOME, this);
+  browser_->command_updater()->AddCommandObserver(IDC_STAR, this);
   back_menu_model_.reset(new BackForwardMenuModel(
       browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
   forward_menu_model_.reset(new BackForwardMenuModel(
       browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
-
   if (browser->type() == Browser::TYPE_NORMAL)
     display_mode_ = DISPLAYMODE_NORMAL;
   else
@@ -116,6 +118,7 @@ void BrowserToolbarView::CreateLeftSideControls() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   back_ = new views::ButtonDropDown(back_menu_model_.get());
+  back_->SetListener(this, IDC_BACK);
   back_->SetImageAlignment(views::Button::ALIGN_RIGHT,
                            views::Button::ALIGN_TOP);
   back_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_BACK));
@@ -126,9 +129,9 @@ void BrowserToolbarView::CreateLeftSideControls() {
   back_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_BACK));
   back_->SetID(VIEW_ID_BACK_BUTTON);
   AddChildView(back_);
-  controller_->AddManagedButton(back_, IDC_BACK);
 
   forward_ = new views::ButtonDropDown(forward_menu_model_.get());
+  forward_->SetListener(this, IDC_FORWARD);
   forward_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_FORWARD));
   forward_->SetImage(views::Button::BS_HOT, rb.GetBitmapNamed(IDR_FORWARD_H));
   forward_->SetImage(views::Button::BS_PUSHED,
@@ -139,9 +142,9 @@ void BrowserToolbarView::CreateLeftSideControls() {
   forward_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_FORWARD));
   forward_->SetID(VIEW_ID_FORWARD_BUTTON);
   AddChildView(forward_);
-  controller_->AddManagedButton(forward_, IDC_FORWARD);
 
   reload_ = new views::Button();
+  reload_->SetListener(this, IDC_RELOAD);
   reload_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_RELOAD));
   reload_->SetImage(views::Button::BS_HOT, rb.GetBitmapNamed(IDR_RELOAD_H));
   reload_->SetImage(views::Button::BS_PUSHED, rb.GetBitmapNamed(IDR_RELOAD_P));
@@ -149,9 +152,9 @@ void BrowserToolbarView::CreateLeftSideControls() {
   reload_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_RELOAD));
   reload_->SetID(VIEW_ID_RELOAD_BUTTON);
   AddChildView(reload_);
-  controller_->AddManagedButton(reload_, IDC_RELOAD);
 
   home_ = new views::Button();
+  home_->SetListener(this, IDC_HOME);
   home_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_HOME));
   home_->SetImage(views::Button::BS_HOT, rb.GetBitmapNamed(IDR_HOME_H));
   home_->SetImage(views::Button::BS_PUSHED, rb.GetBitmapNamed(IDR_HOME_P));
@@ -159,13 +162,13 @@ void BrowserToolbarView::CreateLeftSideControls() {
   home_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_HOME));
   home_->SetID(VIEW_ID_HOME_BUTTON);
   AddChildView(home_);
-  controller_->AddManagedButton(home_, IDC_HOME);
 }
 
 void BrowserToolbarView::CreateCenterStack(Profile *profile) {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   star_ = new ToolbarStarToggle(this);
+  star_->SetListener(this, IDC_STAR);
   star_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_STAR));
   star_->SetImage(views::Button::BS_HOT, rb.GetBitmapNamed(IDR_STAR_H));
   star_->SetImage(views::Button::BS_PUSHED, rb.GetBitmapNamed(IDR_STAR_P));
@@ -182,15 +185,15 @@ void BrowserToolbarView::CreateCenterStack(Profile *profile) {
   star_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_STAR));
   star_->SetID(VIEW_ID_STAR_BUTTON);
   AddChildView(star_);
-  controller_->AddManagedButton(star_, IDC_STAR);
 
-  location_bar_ = new LocationBarView(profile, controller_, model_, this,
+  location_bar_ = new LocationBarView(profile, browser_->command_updater(),
+                                      model_, this,
                                       display_mode_ == DISPLAYMODE_LOCATION);
   AddChildView(location_bar_);
   location_bar_->Init();
 
   // The Go button.
-  go_ = new GoButton(location_bar_, controller_);
+  go_ = new GoButton(location_bar_, browser_->command_updater());
   go_->SetImage(views::Button::BS_NORMAL, rb.GetBitmapNamed(IDR_GO));
   go_->SetImage(views::Button::BS_HOT, rb.GetBitmapNamed(IDR_GO_H));
   go_->SetImage(views::Button::BS_PUSHED, rb.GetBitmapNamed(IDR_GO_P));
@@ -748,6 +751,33 @@ void BrowserToolbarView::WriteDragData(views::View* sender,
 
 TabContents* BrowserToolbarView::GetTabContents() {
   return tab_;
+}
+
+void BrowserToolbarView::EnabledStateChangedForCommand(int id, bool enabled) {
+  views::Button* button = NULL;
+  switch (id) {
+    case IDC_BACK:
+      button = back_;
+      break;
+    case IDC_FORWARD:
+      button = forward_;
+      break;
+    case IDC_RELOAD:
+      button = reload_;
+      break;
+    case IDC_HOME:
+      button = home_;
+      break;
+    case IDC_STAR:
+      button = star_;
+      break;
+  }
+  if (button)
+    button->SetEnabled(enabled);
+}
+
+void BrowserToolbarView::ButtonPressed(views::BaseButton* sender) {
+  browser_->ExecuteCommand(sender->GetTag());
 }
 
 void BrowserToolbarView::Observe(NotificationType type,

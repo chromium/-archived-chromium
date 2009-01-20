@@ -12,6 +12,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -77,12 +78,12 @@ static std::wstring GetKeywordDescription(Profile* profile,
 }
 
 LocationBarView::LocationBarView(Profile* profile,
-                                 CommandController* controller,
+                                 CommandUpdater* command_updater,
                                  ToolbarModel* model,
                                  Delegate* delegate,
                                  bool popup_window_mode)
     : profile_(profile),
-      controller_(controller),
+      command_updater_(command_updater),
       model_(model),
       delegate_(delegate),
       disposition_(CURRENT_TAB),
@@ -126,7 +127,7 @@ void LocationBarView::Init() {
   views::Widget* widget = GetWidget();
   location_entry_.reset(new AutocompleteEditView(font_, this, model_, this,
                                                  widget->GetHWND(),
-                                                 profile_, controller_,
+                                                 profile_, command_updater_,
                                                  popup_window_mode_));
 
   // View container for URL edit field.
@@ -319,9 +320,9 @@ void LocationBarView::OnAutocompleteAccept(
   disposition_ = disposition;
   transition_ = transition;
 
-  if (controller_) {
+  if (command_updater_) {
     if (!alternate_nav_url.is_valid()) {
-      controller_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
+      command_updater_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
       return;
     }
 
@@ -330,7 +331,7 @@ void LocationBarView::OnAutocompleteAccept(
     // The AlternateNavURLFetcher will listen for the pending navigation
     // notification that will be issued as a result of the "open URL." It
     // will automatically install itself into that navigation controller.
-    controller_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
+    command_updater_->ExecuteCommand(IDC_OPEN_CURRENT_URL);
     if (fetcher->state() == AlternateNavURLFetcher::NOT_STARTED) {
       // I'm not sure this should be reachable, but I'm not also sure enough
       // that it shouldn't to stick in a NOTREACHED().  In any case, this is

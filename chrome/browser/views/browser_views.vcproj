@@ -450,14 +450,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\delay_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\delay_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\dom_view.cc"
 			>
 		</File>

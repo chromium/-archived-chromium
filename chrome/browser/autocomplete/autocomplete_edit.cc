@@ -18,7 +18,7 @@
 #include "chrome/browser/autocomplete/edit_drop_target.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/controller.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -659,7 +659,7 @@ AutocompleteEditView::AutocompleteEditView(
     views::View* parent_view,
     HWND hwnd,
     Profile* profile,
-    CommandController* command_controller,
+    CommandUpdater* command_updater,
     bool popup_window_mode)
     : model_(new AutocompleteEditModel(this, controller, profile)),
       popup_model_(new AutocompletePopupModel(font, this, model_.get(),
@@ -667,7 +667,7 @@ AutocompleteEditView::AutocompleteEditView(
       controller_(controller),
       parent_view_(parent_view),
       toolbar_model_(toolbar_model),
-      command_controller_(command_controller),
+      command_updater_(command_updater),
       popup_window_mode_(popup_window_mode),
       tracking_click_(false),
       tracking_double_click_(false),
@@ -1184,7 +1184,7 @@ bool AutocompleteEditView::IsCommandEnabled(int id) const {
     case IDS_PASTE_AND_GO: return CanPasteAndGo(GetClipboardText());
     case IDS_SELECT_ALL:   return !!CanSelectAll();
     case IDS_EDIT_SEARCH_ENGINES:
-      return command_controller_->IsCommandEnabled(IDC_EDIT_SEARCH_ENGINES);
+      return command_updater_->IsCommandEnabled(IDC_EDIT_SEARCH_ENGINES);
     default:               NOTREACHED(); return false;
   }
 }
@@ -1232,7 +1232,7 @@ void AutocompleteEditView::ExecuteCommand(int id) {
       break;
 
     case IDS_EDIT_SEARCH_ENGINES:
-      command_controller_->ExecuteCommand(IDC_EDIT_SEARCH_ENGINES);
+      command_updater_->ExecuteCommand(IDC_EDIT_SEARCH_ENGINES);
       break;
 
     default:

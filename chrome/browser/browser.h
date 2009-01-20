@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/controller.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/sessions/session_id.h"
@@ -33,7 +33,7 @@ class WebApp;
 class Browser : public TabStripModelDelegate,
                 public TabStripModelObserver,
                 public TabContentsDelegate,
-                public CommandHandler,
+                public CommandUpdater::CommandUpdaterDelegate,
                 public NotificationObserver,
                 public SelectFileDialog::Listener {
  public:
@@ -92,7 +92,7 @@ class Browser : public TabStripModelDelegate,
   BrowserWindow* window() const { return window_; }
   ToolbarModel* toolbar_model() { return &toolbar_model_; }
   const SessionID& session_id() const { return session_id_; }
-  CommandController* controller() { return &controller_; }
+  CommandUpdater* command_updater() { return &command_updater_; }
 
   // Setters /////////////////////////////////////////////////////////////////
 
@@ -112,13 +112,6 @@ class Browser : public TabStripModelDelegate,
 
   // Opens the a new application window for the specified WebApp.
   static void OpenWebApplication(Profile* profile, WebApp* app);
-
-  // Command API //////////////////////////////////////////////////////////////
-
-  // Please fix the incestuous nest that is */controller.h and eliminate the
-  // need for this retarded hack.
-  bool SupportsCommand(int id) const;
-  bool IsCommandEnabled(int id) const;
 
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
@@ -313,10 +306,7 @@ class Browser : public TabStripModelDelegate,
 
   // Interface implementations ////////////////////////////////////////////////
 
-  // Overridden from CommandHandler:
-  virtual bool GetContextualLabel(int id, std::wstring* out) const {
-    return false;
-  }
+  // Overridden from CommandUpdater::CommandUpdaterDelegate:
   virtual void ExecuteCommand(int id);
 
   // Overridden from TabStripModelDelegate:
@@ -536,8 +526,8 @@ class Browser : public TabStripModelDelegate,
   // This Browser's TabStripModel.
   TabStripModel tabstrip_model_;
 
-  // The Controller that updates all browser commands.
-  CommandController controller_;
+  // The CommandUpdater that manages the browser window commands.
+  CommandUpdater command_updater_;
 
   // An optional application name which is used to retrieve and save window
   // positions.

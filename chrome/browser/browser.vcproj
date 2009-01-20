@@ -762,11 +762,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\controller.cc"
+				RelativePath=".\command_updater.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\controller.h"
+				RelativePath=".\command_updater.h"
 				>
 			</File>
 			<File

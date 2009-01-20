@@ -149,7 +149,7 @@ Browser::Browser(Type type, Profile* profile)
       profile_(profile),
       window_(NULL),
       tabstrip_model_(this, profile),
-      controller_(this),
+      command_updater_(this),
       toolbar_model_(this),
       chrome_updater_factory_(this),
       is_attempting_to_close_browser_(false),
@@ -289,27 +289,6 @@ void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
   Browser* browser = Browser::CreateForApp(app_name, profile);
   browser->AddWebApplicationTab(profile, app, false);
   browser->window()->Show();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Browser, Command API:
-
-bool Browser::SupportsCommand(int id) const {
-  return controller_.SupportsCommand(id);
-}
-
-bool Browser::IsCommandEnabled(int id) const {
-  // No commands are enabled if there is not yet any selected tab.
-  // TODO(pkasting): It seems like we should not need this, because either
-  // most/all commands should not have been enabled yet anyway or the ones that
-  // are enabled should be global, or safe themselves against having no selected
-  // tab.  However, Ben says he tried removing this before and got lots of
-  // crashes, e.g. from Windows sending WM_COMMANDs at random times during
-  // window construction.  This probably could use closer examination someday.
-  if (!GetSelectedTabContents())
-    return false;
-
-  return controller_.IsCommandEnabled(id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1078,10 +1057,20 @@ Browser* Browser::GetBrowserForController(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Browser, CommandHandler implementation:
+// Browser, CommandUpdater::CommandUpdaterDelegate implementation:
 
 void Browser::ExecuteCommand(int id) {
-  DCHECK(IsCommandEnabled(id)) << "Invalid or disabled command";
+  // No commands are enabled if there is not yet any selected tab.
+  // TODO(pkasting): It seems like we should not need this, because either
+  // most/all commands should not have been enabled yet anyway or the ones that
+  // are enabled should be global, or safe themselves against having no selected
+  // tab.  However, Ben says he tried removing this before and got lots of
+  // crashes, e.g. from Windows sending WM_COMMANDs at random times during
+  // window construction.  This probably could use closer examination someday.
+  if (!GetSelectedTabContents())
+    return;
+
+  DCHECK(command_updater_.IsCommandEnabled(id)) << "Invalid/disabled command";
 
   // The order of commands in this switch statement must match the function
   // declaration order in browser.h!
@@ -1764,7 +1753,7 @@ void Browser::UpdateTargetURL(TabContents* source, const GURL& url) {
 }
 
 void Browser::ContentsZoomChange(bool zoom_in) {
-  controller_.ExecuteCommand(zoom_in ? IDC_ZOOM_PLUS : IDC_ZOOM_MINUS);
+  ExecuteCommand(zoom_in ? IDC_ZOOM_PLUS : IDC_ZOOM_MINUS);
 }
 
 bool Browser::IsApplication() const {
@@ -1890,128 +1879,132 @@ void Browser::InitCommandState() {
   // initialized here, otherwise they will be forever disabled.
 
   // Navigation commands
-  controller_.UpdateCommandEnabled(IDC_RELOAD, true);
+  command_updater_.UpdateCommandEnabled(IDC_RELOAD, true);
 
   // Window management commands
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   // TODO(pkasting): Perhaps the code that populates this submenu should do
   // this?
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_0, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_1, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_2, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_3, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_4, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_5, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_6, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_7, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_8, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSE_WINDOW, true);
-  controller_.UpdateCommandEnabled(IDC_NEW_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSE_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB, true);
-  controller_.UpdateCommandEnabled(IDC_EXIT, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_0, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_1, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_2, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_3, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_4, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_5, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_6, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_7, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_WINDOW_PROFILE_8, true);
+  command_updater_.UpdateCommandEnabled(IDC_CLOSE_WINDOW, true);
+  command_updater_.UpdateCommandEnabled(IDC_NEW_TAB, true);
+  command_updater_.UpdateCommandEnabled(IDC_CLOSE_TAB, true);
+  command_updater_.UpdateCommandEnabled(IDC_DUPLICATE_TAB, true);
+  command_updater_.UpdateCommandEnabled(IDC_EXIT, true);
 
   // Page-related commands
-  controller_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88591, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1252, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_GBK, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_GB18030, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_BIG5HKSCS, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_BIG5, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_THAI, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_KOREAN, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_SHIFTJIS, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO2022JP, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_EUCJP, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885915, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_MACINTOSH, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88592, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1250, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88595, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1251, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_KOI8R, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_KOI8U, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88597, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1253, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88594, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885913, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1257, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88593, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885910, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885914, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO885916, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1254, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88596, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1256, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_ISO88598, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1255, true);
-  controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
+  command_updater_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88591, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1252, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_GBK, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_GB18030, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_BIG5HKSCS, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_BIG5, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_THAI, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_KOREAN, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_SHIFTJIS, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO2022JP, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_EUCJP, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO885915, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_MACINTOSH, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88592, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1250, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88595, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1251, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_KOI8R, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_KOI8U, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88597, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1253, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88594, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO885913, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1257, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88593, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO885910, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO885914, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO885916, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1254, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88596, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1256, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88598, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1255, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
 
   // Clipboard commands
-  controller_.UpdateCommandEnabled(IDC_CUT, true);
-  controller_.UpdateCommandEnabled(IDC_COPY, true);
-  controller_.UpdateCommandEnabled(IDC_COPY_URL, true);
-  controller_.UpdateCommandEnabled(IDC_PASTE, true);
+  command_updater_.UpdateCommandEnabled(IDC_CUT, true);
+  command_updater_.UpdateCommandEnabled(IDC_COPY, true);
+  command_updater_.UpdateCommandEnabled(IDC_COPY_URL, true);
+  command_updater_.UpdateCommandEnabled(IDC_PASTE, true);
 
   // Show various bits of UI
-  controller_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
-  controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
-  controller_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
-  controller_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
-  controller_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
-  controller_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
+  command_updater_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
+  command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
+  command_updater_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
+  command_updater_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
+  command_updater_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
+  command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
+  command_updater_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
+  command_updater_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
 
   // Initialize other commands based on the window type.
   {
     bool normal_window = type() == TYPE_NORMAL;
 
     // Navigation commands
-    controller_.UpdateCommandEnabled(IDC_HOME, normal_window);
-    controller_.UpdateCommandEnabled(IDC_OPEN_CURRENT_URL, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_HOME, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_OPEN_CURRENT_URL, normal_window);
 
     // Window management commands
-    controller_.UpdateCommandEnabled(IDC_PROFILE_MENU, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_NEXT_TAB, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_PREVIOUS_TAB, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_0, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_1, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_2, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_3, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_4, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_5, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_6, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_TAB_7, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, normal_window);
-    controller_.UpdateCommandEnabled(IDC_RESTORE_TAB,
+    command_updater_.UpdateCommandEnabled(IDC_PROFILE_MENU, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_NEXT_TAB, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_PREVIOUS_TAB,
+                                          normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_0, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_1, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_2, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_3, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_4, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_5, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_6, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_TAB_7, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_RESTORE_TAB,
         normal_window && !profile_->IsOffTheRecord());
-    controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB, (type() == TYPE_POPUP));
+    command_updater_.UpdateCommandEnabled(IDC_SHOW_AS_TAB,
+                                          (type() == TYPE_POPUP));
 
     // Focus various bits of UI
-    controller_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, normal_window);
-    controller_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, normal_window);
-    controller_.UpdateCommandEnabled(IDC_FOCUS_SEARCH, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_FOCUS_SEARCH, normal_window);
 
     // Show various bits of UI
-    controller_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, normal_window);
-    controller_.UpdateCommandEnabled(IDC_DEBUGGER,
+    command_updater_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
         // The debugger doesn't work in single process mode.
         normal_window && !RenderProcessHost::run_renderer_in_process());
-    controller_.UpdateCommandEnabled(IDC_NEW_PROFILE, normal_window);
-    controller_.UpdateCommandEnabled(IDC_REPORT_BUG, normal_window);
-    controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, normal_window);
-    controller_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, normal_window);
-    controller_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, normal_window);
-    controller_.UpdateCommandEnabled(IDC_OPTIONS, normal_window);
-    controller_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, normal_window);
-    controller_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, normal_window);
-    controller_.UpdateCommandEnabled(IDC_ABOUT, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_NEW_PROFILE, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_REPORT_BUG, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA,
+                                          normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_OPTIONS, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES,
+                                          normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_ABOUT, normal_window);
   }
 }
 
@@ -2022,12 +2015,12 @@ void Browser::UpdateCommandsForTabState() {
 
   // Navigation commands
   NavigationController* nc = current_tab->controller();
-  controller_.UpdateCommandEnabled(IDC_BACK, nc->CanGoBack());
-  controller_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());
+  command_updater_.UpdateCommandEnabled(IDC_BACK, nc->CanGoBack());
+  command_updater_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());
 
   // Window management commands
-  controller_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
-                                   CanDuplicateContentsAt(selected_index()));
+  command_updater_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
+      CanDuplicateContentsAt(selected_index()));
 
   // Initialize commands available only for web content.
   {
@@ -2036,56 +2029,51 @@ void Browser::UpdateCommandsForTabState() {
 
     // Page-related commands
     // Only allow bookmarking for tabbed browsers.
-    controller_.UpdateCommandEnabled(IDC_STAR,
+    command_updater_.UpdateCommandEnabled(IDC_STAR,
         is_web_contents && (type() == TYPE_NORMAL));
     SetStarredButtonToggled(is_web_contents && web_contents->is_starred());
     // View-source should not be enabled if already in view-source mode.
-    controller_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
+    command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
         is_web_contents && (current_tab->type() != TAB_CONTENTS_VIEW_SOURCE) &&
         current_tab->controller()->GetActiveEntry());
-    controller_.UpdateCommandEnabled(IDC_PRINT, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_SAVE_PAGE,
+    command_updater_.UpdateCommandEnabled(IDC_PRINT, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_SAVE_PAGE,
         is_web_contents && SavePackage::IsSavableURL(current_tab->GetURL()));
-    controller_.UpdateCommandEnabled(IDC_ENCODING_MENU,
+    command_updater_.UpdateCommandEnabled(IDC_ENCODING_MENU,
         is_web_contents &&
         SavePackage::IsSavableContents(web_contents->contents_mime_type()) &&
         SavePackage::IsSavableURL(current_tab->GetURL()));
 
     // Find-in-page
-    controller_.UpdateCommandEnabled(IDC_FIND, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_FIND_NEXT, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_FIND, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_FIND_NEXT, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, is_web_contents);
 
     // Zoom
-    controller_.UpdateCommandEnabled(IDC_ZOOM_MENU, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_ZOOM_MENU, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_ZOOM_PLUS, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_ZOOM_MINUS, is_web_contents);
 
     // Show various bits of UI
-    controller_.UpdateCommandEnabled(IDC_JS_CONSOLE, is_web_contents);
-    controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
+    command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, is_web_contents);
+    command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
         is_web_contents && !current_tab->GetFavIcon().isNull());
   }
 }
 
 void Browser::UpdateStopGoState(bool is_loading) {
   GoButton* go_button = GetGoButton();
-  if (!go_button)
-    return;
-
-  go_button->ChangeMode(is_loading ?
-      GoButton::MODE_STOP : GoButton::MODE_GO);
-  controller_.UpdateCommandEnabled(IDC_GO, !is_loading);
-  controller_.UpdateCommandEnabled(IDC_STOP, is_loading);
+  if (go_button)
+    go_button->ChangeMode(is_loading ? GoButton::MODE_STOP : GoButton::MODE_GO);
+  command_updater_.UpdateCommandEnabled(IDC_GO, !is_loading);
+  command_updater_.UpdateCommandEnabled(IDC_STOP, is_loading);
 }
 
 void Browser::SetStarredButtonToggled(bool starred) {
   ToolbarStarToggle* star_button = window_->GetStarButton();
-  if (!star_button)
-    return;
-
-  star_button->SetToggled(starred);
+  if (star_button)
+    star_button->SetToggled(starred);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2189,7 +2177,7 @@ void Browser::ProcessPendingUIUpdates() {
 
       if (contents == GetSelectedTabContents()) {
         TabContents* current_tab = GetSelectedTabContents();
-        controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
+        command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
             current_tab->type() == TAB_CONTENTS_WEB &&
             !current_tab->GetFavIcon().isNull());
       }

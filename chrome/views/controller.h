@@ -7,15 +7,8 @@
 
 #include <string>
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Controller class
-//
-//   This is the Controller portion of a MVC pattern. It handles dispatching
-//   commands, maintaining enabled state, and updating the UI as that state
-//   changes.
-//
-///////////////////////////////////////////////////////////////////////////////
+// TODO(beng): remove this interface and fold it into MenuDelegate.
+
 class Controller {
  public:
   virtual ~Controller() { }

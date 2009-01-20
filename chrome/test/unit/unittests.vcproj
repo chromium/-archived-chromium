@@ -342,7 +342,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\controller_unittest.cc"
+				RelativePath="..\..\browser\command_updater_unittest.cc"
 				>
 			</File>
 			<File

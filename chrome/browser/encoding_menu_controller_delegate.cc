@@ -16,10 +16,8 @@
 
 #include "generated_resources.h"
 
-EncodingMenuControllerDelegate::EncodingMenuControllerDelegate(
-    Browser* browser, Controller* wrapped)
-    : BaseControllerDelegate(wrapped),
-      browser_(browser) {
+EncodingMenuControllerDelegate::EncodingMenuControllerDelegate(Browser* browser)
+    : browser_(browser) {
 }
 
 bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
@@ -79,6 +77,24 @@ bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
     default:
       return false;
   }
+}
+
+bool EncodingMenuControllerDelegate::SupportsCommand(int id) const {
+  return browser_->command_updater()->SupportsCommand(id);
+}
+
+bool EncodingMenuControllerDelegate::IsCommandEnabled(int id) const {
+  return browser_->command_updater()->IsCommandEnabled(id);
+}
+
+bool EncodingMenuControllerDelegate::GetContextualLabel(
+    int id,
+    std::wstring* out) const {
+  return false;
+}
+
+void EncodingMenuControllerDelegate::ExecuteCommand(int id) {
+  browser_->ExecuteCommand(id);
 }
 
 void EncodingMenuControllerDelegate::BuildEncodingMenu(

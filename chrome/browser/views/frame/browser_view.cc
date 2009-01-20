@@ -212,8 +212,8 @@ bool BrowserView::AcceleratorPressed(const views::Accelerator& accelerator) {
   DCHECK(iter != accelerator_table_->end());
 
   int command_id = iter->second;
-  if (browser_->SupportsCommand(command_id) &&
-      browser_->IsCommandEnabled(command_id)) {
+  if (browser_->command_updater()->SupportsCommand(command_id) &&
+      browser_->command_updater()->IsCommandEnabled(command_id)) {
     browser_->ExecuteCommand(command_id);
     return true;
   }
@@ -236,7 +236,8 @@ bool BrowserView::SystemCommandReceived(UINT notification_code,
                                         const gfx::Point& point) {
   bool handled = false;
 
-  if (browser_->SupportsCommand(notification_code)) {
+  if (browser_->command_updater()->SupportsCommand(notification_code) &&
+      browser_->command_updater()->IsCommandEnabled(notification_code)) {
     browser_->ExecuteCommand(notification_code);
     handled = true;
   }
@@ -285,8 +286,9 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
     // |command| can be zero on submenu items (IDS_ENCODING,
     // IDS_ZOOM) and on separators.
     if (command != 0) {
-      system_menu_->EnableMenuItemByID(command,
-                                       browser_->IsCommandEnabled(command));
+      system_menu_->EnableMenuItemByID(
+          command,
+          browser_->command_updater()->IsCommandEnabled(command));
     }
   }
 }
@@ -335,7 +337,7 @@ void BrowserView::Init() {
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
   AddChildView(tabstrip_);
 
-  toolbar_ = new BrowserToolbarView(browser_->controller(), browser_.get());
+  toolbar_ = new BrowserToolbarView(browser_.get());
   AddChildView(toolbar_);
   toolbar_->SetID(VIEW_ID_TOOLBAR);
   toolbar_->Init(browser_->profile());
@@ -730,8 +732,8 @@ bool BrowserView::ExecuteWindowsCommand(int command_id) {
   if (command_id_from_app_command != -1)
     command_id = command_id_from_app_command;
 
-  if (browser_->SupportsCommand(command_id)) {
-    if (browser_->IsCommandEnabled(command_id))
+  if (browser_->command_updater()->SupportsCommand(command_id)) {
+    if (browser_->command_updater()->IsCommandEnabled(command_id))
       browser_->ExecuteCommand(command_id);
     return true;
   }
@@ -1256,8 +1258,7 @@ void BrowserView::LoadAccelerators() {
 void BrowserView::BuildMenuForTabStriplessWindow(Menu* menu,
                                                  int insertion_index) {
   encoding_menu_delegate_.reset(new EncodingMenuControllerDelegate(
-      browser_.get(),
-      browser_->controller()));
+      browser_.get()));
 
   for (int i = 0; i < arraysize(kMenuLayout); ++i) {
     if (kMenuLayout[i].separator) {

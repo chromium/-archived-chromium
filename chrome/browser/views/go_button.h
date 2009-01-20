@@ -6,9 +6,9 @@
 #define CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 
 #include "chrome/views/button.h"
-#include "chrome/browser/controller.h"
 #include "base/task.h"
 
+class CommandUpdater;
 class LocationBarView;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,9 @@ class LocationBarView;
 
 class GoButton : public views::ToggleButton {
  public:
-  GoButton(LocationBarView* location_bar, CommandController* controller);
+  // TODO(beng): get rid of the command updater param and instead have a
+  //             delegate.
+  GoButton(LocationBarView* location_bar, CommandUpdater* command_updater);
   virtual ~GoButton();
 
   typedef enum Mode { MODE_GO = 0, MODE_STOP };
@@ -49,7 +51,7 @@ class GoButton : public views::ToggleButton {
   ScopedRunnableMethodFactory<GoButton> stop_timer_;
 
   LocationBarView* location_bar_;
-  CommandController* controller_;
+  CommandUpdater* command_updater_;
   ButtonListener* listener_;
 
   // The mode we should be in

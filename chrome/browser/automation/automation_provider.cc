@@ -922,7 +922,7 @@ void AutomationProvider::GoBack(const IPC::Message& message, int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     Browser* browser = FindAndActivateTab(tab);
-    if (browser && browser->IsCommandEnabled(IDC_BACK)) {
+    if (browser && browser->command_updater()->IsCommandEnabled(IDC_BACK)) {
       AddNavigationStatusListener(tab,
           new AutomationMsg_GoBackResponse(
               message.routing_id(), AUTOMATION_MSG_NAVIGATION_SUCCESS),
@@ -940,7 +940,7 @@ void AutomationProvider::GoForward(const IPC::Message& message, int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     Browser* browser = FindAndActivateTab(tab);
-    if (browser && browser->IsCommandEnabled(IDC_FORWARD)) {
+    if (browser && browser->command_updater()->IsCommandEnabled(IDC_FORWARD)) {
       AddNavigationStatusListener(tab,
           new AutomationMsg_GoForwardResponse(
               message.routing_id(), AUTOMATION_MSG_NAVIGATION_SUCCESS),
@@ -958,7 +958,7 @@ void AutomationProvider::Reload(const IPC::Message& message, int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     Browser* browser = FindAndActivateTab(tab);
-    if (browser && browser->IsCommandEnabled(IDC_RELOAD)) {
+    if (browser && browser->command_updater()->IsCommandEnabled(IDC_RELOAD)) {
       AddNavigationStatusListener(tab,
           new AutomationMsg_ReloadResponse(
               message.routing_id(), AUTOMATION_MSG_NAVIGATION_SUCCESS),
@@ -1182,8 +1182,8 @@ void AutomationProvider::ExecuteBrowserCommand(const IPC::Message& message,
   bool success = false;
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
-    if (browser->SupportsCommand(command) &&
-        browser->IsCommandEnabled(command)) {
+    if (browser->command_updater()->SupportsCommand(command) &&
+        browser->command_updater()->IsCommandEnabled(command)) {
       browser->ExecuteCommand(command);
       success = true;
     }
@@ -1651,7 +1651,7 @@ void AutomationProvider::GetTabProcessID(
 void AutomationProvider::ApplyAccelerator(int handle, int id) {
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
-    browser->controller()->ExecuteCommand(id);
+    browser->ExecuteCommand(id);
   }
 }
 
@@ -2211,7 +2211,7 @@ void AutomationProvider::IsPageMenuCommandEnabled(const IPC::Message& message,
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
     bool menu_item_enabled =
-        browser->controller()->IsCommandEnabled(message_num);
+        browser->command_updater()->IsCommandEnabled(message_num);
     Send(new AutomationMsg_IsPageMenuCommandEnabledResponse(
              message.routing_id(), menu_item_enabled));
   } else {
@@ -2246,7 +2246,7 @@ void AutomationProvider::SavePage(const IPC::Message& message,
   NavigationController* nav = tab_tracker_->GetResource(tab_handle);
   Browser* browser = FindAndActivateTab(nav);
   DCHECK(browser);
-  if (!browser->IsCommandEnabled(IDC_SAVE_PAGE)) {
+  if (!browser->command_updater()->IsCommandEnabled(IDC_SAVE_PAGE)) {
     Send(new AutomationMsg_SavePageResponse(message.routing_id(), false));
     return;
   }
@@ -2547,7 +2547,7 @@ void AutomationProvider::GetPageCurrentEncoding(const IPC::Message& message,
     Browser* browser = FindAndActivateTab(nav);
     DCHECK(browser);
 
-    if (browser->IsCommandEnabled(IDC_ENCODING_MENU)) {
+    if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
       TabContents* tab_contents = nav->active_contents();
       DCHECK(tab_contents->type() == TAB_CONTENTS_WEB);
       current_encoding = tab_contents->AsWebContents()->encoding();
@@ -2567,7 +2567,7 @@ void AutomationProvider::OverrideEncoding(const IPC::Message& message,
     Browser* browser = FindAndActivateTab(nav);
     DCHECK(browser);
 
-    if (browser->IsCommandEnabled(IDC_ENCODING_MENU)) {
+    if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
       TabContents* tab_contents = nav->active_contents();
       DCHECK(tab_contents->type() == TAB_CONTENTS_WEB);
       int selected_encoding_id =

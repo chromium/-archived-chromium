@@ -10,7 +10,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/back_forward_menu_model.h"
-#include "chrome/browser/controller.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/dom_view.h"
@@ -40,9 +40,11 @@ class BrowserToolbarView : public views::View,
                            public views::DragController,
                            public LocationBarView::Delegate,
                            public NotificationObserver,
-                           public GetProfilesHelper::Delegate {
+                           public GetProfilesHelper::Delegate,
+                           public CommandUpdater::CommandObserver,
+                           public views::BaseButton::ButtonListener {
  public:
-  BrowserToolbarView(CommandController* controller, Browser* browser);
+  explicit BrowserToolbarView(Browser* browser);
   virtual ~BrowserToolbarView();
 
   // Create the contents of the Browser Toolbar
@@ -116,6 +118,12 @@ class BrowserToolbarView : public views::View,
 
   Browser* browser() { return browser_; }
 
+  // Overridden from CommandUpdater::CommandObserver:
+  virtual void EnabledStateChangedForCommand(int id, bool enabled);
+
+  // Overridden from views::BaseButton::ButtonListener:
+  virtual void ButtonPressed(views::BaseButton* sender);
+
  private:
   // NotificationObserver
   virtual void Observe(NotificationType type,
@@ -158,9 +166,6 @@ class BrowserToolbarView : public views::View,
   bool IsDisplayModeNormal() const {
     return display_mode_ == DISPLAYMODE_NORMAL;
   }
-
-  // This View's Command Controller
-  CommandController* controller_;
 
   scoped_ptr<BackForwardMenuModel> back_menu_model_;
   scoped_ptr<BackForwardMenuModel> forward_menu_model_;
