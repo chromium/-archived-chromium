@@ -14,11 +14,9 @@
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/window.h"
 
 BrowserList::list_type BrowserList::browsers_;
 std::vector<BrowserList::Observer*> BrowserList::observers_;
-BrowserList::DependentWindowList BrowserList::dependent_windows_;
 
 // static
 void BrowserList::AddBrowser(Browser* browser) {
@@ -60,27 +58,12 @@ void BrowserList::RemoveBrowser(Browser* browser) {
 
   // If the last Browser object was destroyed, make sure we try to close any
   // remaining dependent windows too.
-  if (browsers_.empty())
-    CloseAllDependentWindows();
+  if (browsers_.empty()) {
+    NotificationService::current()->Notify(NOTIFY_ALL_APPWINDOWS_CLOSED,
+                                           NotificationService::AllSources(),
+                                           NotificationService::NoDetails());
+  }
 
-  g_browser_process->ReleaseModule();
-}
-
-// static
-void BrowserList::AddDependentWindow(views::Window* window) {
-  DependentWindowList::const_iterator existing =
-      find(dependent_windows_.begin(), dependent_windows_.end(), window);
-  DCHECK(existing == dependent_windows_.end());
-  dependent_windows_.push_back(window);
-  g_browser_process->AddRefModule();
-}
-
-// static
-void BrowserList::RemoveDependentWindow(views::Window* window) {
-  DependentWindowList::iterator existing =
-      find(dependent_windows_.begin(), dependent_windows_.end(), window);
-  DCHECK(existing != dependent_windows_.end());
-  dependent_windows_.erase(existing);
   g_browser_process->ReleaseModule();
 }
 
@@ -239,18 +222,6 @@ bool BrowserList::IsOffTheRecordSessionActive() {
       return true;
   }
   return false;
-}
-
-// static
-void BrowserList::CloseAllDependentWindows() {
-  // Note that |dependent_windows_| is guaranteed to be consistent for the
-  // duration of this operation because windows are not actually closed
-  // (destroyed, then deleted, and thus removed from this list) until we return
-  // to the message loop. So this basically just schedules a bunch of close
-  // operations to be performed asynchronously.
-  DependentWindowList::iterator window = dependent_windows_.begin();
-  for (; window != dependent_windows_.end(); ++window)
-    (*window)->Close();
 }
 
 // static
