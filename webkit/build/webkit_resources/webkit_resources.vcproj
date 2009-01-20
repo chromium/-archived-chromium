@@ -27,6 +27,9 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="WebKitVersion"
+			/>
+			<Tool
 				Name="GRIT Generated Resources"
 			/>
 			<Tool
@@ -48,6 +51,9 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="WebKitVersion"
+			/>
+			<Tool
 				Name="GRIT Generated Resources"
 			/>
 			<Tool
@@ -64,12 +70,17 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="Generated Files"
+			SourceControlFiles="false"
+			>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\glue\webkit_resources.grd"
-			>
-		</File>
-		<File
-			RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.h"
 			>
 		</File>
 	</Files>
