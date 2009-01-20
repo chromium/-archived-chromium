@@ -631,15 +631,8 @@ LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
 LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
-
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
-
-// MAC: these two seem to pass in release, but not debug on local machines,
-// but fail on the mac build bots.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL PASS
-MAC DEBUG : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL PASS
-
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
@@ -1648,6 +1641,32 @@ MAC : LayoutTests/fast/forms/radio_checked_name.html = FAIL
 // so the text doesn't match.
 MAC : LayoutTests/svg/hixie/perf/007.xml = FAIL PASS
 
+// To be figured out, probably timing due to the dual status
+MAC : LayoutTests/animations/combo-transform-translate+scale.html = PASS FAIL
+
+// All of these svg tests seem to be hit or miss on the mac.  the issue is they
+// seem not always take the dom snapshot at a consistent state, so some times
+// animations have started and sometimes they haven't.  It looks like win and
+// linux have rebaselined to what is most common cases for the build bots, but
+// we're not seeing that sorta stability on mac.  So for now we tag them as
+// pass & fail, but we really need to fix these tests upstream to have
+// a consistent behavior (and probably update win/linux expected values).
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-08-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-22-b.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-32-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL PASS
+
 // The following are flaky in that some times the timeout or crash, but we think
 // it is because of bugs in other parts of the code and not specific to what
 // these tests are doing.  The are being noted here so we can get the buildbots
@@ -1678,6 +1697,7 @@ MAC : LayoutTests/fast/canvas/pointInPath.html = CRASH PASS
 MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/navigation/error404-subframeload.html = TIMEOUT PASS
 MAC : LayoutTests/fast/dom/Window/element-constructors-on-window.html = CRASH FAIL PASS
+MAC : LayoutTests/fast/loader/charset-parse.html = PASS CRASH FAIL
 // This next few passes like 1 in 20 times, but it could be from corruption from previous tests that
 // is causing the problems.
 MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH PASS
@@ -1685,6 +1705,7 @@ MAC : LayoutTests/fast/dom/Window/console-functions.html = CRASH FAIL PASS
 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-get.html = CRASH FAIL PASS
 MAC : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = CRASH FAIL PASS
 MAC : LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH FAIL PASS
+MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH FAIL PASS
 
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
