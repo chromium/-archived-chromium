@@ -13,10 +13,6 @@
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_sync_message.h"
 
-#if !defined(OS_WIN)
-#define INFINITE -1
-#endif
-
 using base::TimeDelta;
 using base::TimeTicks;
 using base::WaitableEvent;
@@ -375,7 +371,7 @@ SyncChannel::~SyncChannel() {
 }
 
 bool SyncChannel::Send(Message* message) {
-  return SendWithTimeout(message, INFINITE);
+  return SendWithTimeout(message, base::kNoTimeout);
 }
 
 bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
@@ -391,7 +387,7 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
     return false;
   }
 
-  DCHECK(sync_messages_with_no_timeout_allowed_ || timeout_ms != INFINITE);
+  DCHECK(sync_messages_with_no_timeout_allowed_ || timeout_ms != base::kNoTimeout);
   SyncMessage* sync_msg = static_cast<SyncMessage*>(message);
   context->Push(sync_msg);
   int message_id = SyncMessage::GetMessageId(*sync_msg);
@@ -399,7 +395,7 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
 
   ChannelProxy::Send(message);
 
-  if (timeout_ms != INFINITE) {
+  if (timeout_ms != base::kNoTimeout) {
     // We use the sync message id so that when a message times out, we don't
     // confuse it with another send that is either above/below this Send in
     // the call stack.

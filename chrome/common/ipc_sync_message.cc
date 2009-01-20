@@ -18,11 +18,7 @@ namespace IPC {
 uint32 SyncMessage::next_id_ = 0;
 #define kSyncMessageHeaderSize 4
 
-#if defined(OS_WIN)
-// TODO(playmobil): reinstantiate once ObjectWatcher is ported.
-// A dummy handle used by EnableMessagePumping.
 base::WaitableEvent* dummy_event = new base::WaitableEvent(true, true);
-#endif
 
 SyncMessage::SyncMessage(
     int32 routing_id,
@@ -49,13 +45,10 @@ MessageReplyDeserializer* SyncMessage::GetReplyDeserializer() {
   return rv;
 }
 
-#if defined(OS_WIN)
-// TODO(playmobil): reinstantiate once ObjectWatcher is ported.
 void SyncMessage::EnableMessagePumping() {
   DCHECK(!pump_messages_event_);
   set_pump_messages_event(dummy_event);
 }
-#endif // defined(OS_WIN)
 
 bool SyncMessage::IsMessageReplyTo(const Message& msg, int request_id) {
   if (!msg.is_reply())

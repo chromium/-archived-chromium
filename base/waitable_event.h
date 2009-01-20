@@ -23,6 +23,9 @@
 
 namespace base {
 
+// This replaces INFINITE from Win32
+static const int kNoTimeout = -1;
+
 class TimeDelta;
 
 // A WaitableEvent can be a useful thread synchronization tool when you want to

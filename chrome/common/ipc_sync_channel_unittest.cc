@@ -4,15 +4,16 @@
 //
 // Unit test for SyncChannel.
 
-#include <windows.h>
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "base/thread.h"
+#include "base/waitable_event.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
@@ -27,6 +28,7 @@
 #include "chrome/common/ipc_sync_channel_unittest.h"
 
 using namespace IPC;
+using base::WaitableEvent;
 
 namespace {
 
@@ -46,27 +48,13 @@ class TestProcess : public ChildProcess {
   }
 };
 
-// Wrapper around an event handle.
-class Event {
- public:
-  Event() : handle_(CreateEvent(NULL, FALSE, FALSE, NULL)) { }
-  ~Event() { CloseHandle(handle_); }
-  void Set() { SetEvent(handle_); }
-  void Wait() { WaitForSingleObject(handle_, INFINITE); }
-  HANDLE handle() { return handle_; }
-
- private:
-  HANDLE handle_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(Event);
-};
-
 // Base class for a "process" with listener and IPC threads.
 class Worker : public Channel::Listener, public Message::Sender {
  public:
   // Will create a channel without a name.
   Worker(Channel::Mode mode, const std::string& thread_name)
-      : channel_name_(),
+      : done_(new WaitableEvent(false, false)),
+        channel_created_(new WaitableEvent(false, false)),
         mode_(mode),
         ipc_thread_((thread_name + "_ipc").c_str()),
         listener_thread_((thread_name + "_listener").c_str()),
@@ -74,7 +62,9 @@ class Worker : public Channel::Listener, public Message::Sender {
 
   // Will create a named channel and use this name for the threads' name.
   Worker(const std::wstring& channel_name, Channel::Mode mode)
-      : channel_name_(channel_name),
+      : done_(new WaitableEvent(false, false)),
+        channel_created_(new WaitableEvent(false, false)),
+        channel_name_(channel_name),
         mode_(mode),
         ipc_thread_((WideToUTF8(channel_name) + "_ipc").c_str()),
         listener_thread_((WideToUTF8(channel_name) + "_listener").c_str()),
@@ -83,12 +73,12 @@ class Worker : public Channel::Listener, public Message::Sender {
   // The IPC thread needs to outlive SyncChannel, so force the correct order of
   // destruction.
   virtual ~Worker() {
-    Event listener_done, ipc_done;
+    WaitableEvent listener_done(false, false), ipc_done(false, false);
     ListenerThread()->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &Worker::OnListenerThreadShutdown, listener_done.handle(),
-        ipc_done.handle()));
-    HANDLE handles[] = { listener_done.handle(), ipc_done.handle() };
-    WaitForMultipleObjects(2, handles, TRUE, INFINITE);
+        this, &Worker::OnListenerThreadShutdown, &listener_done,
+        &ipc_done));
+    listener_done.Wait();
+    ipc_done.Wait();
     ipc_thread_.Stop();
     listener_thread_.Stop();
   }
@@ -98,7 +88,7 @@ class Worker : public Channel::Listener, public Message::Sender {
   bool SendWithTimeout(Message* msg, int timeout_ms) {
     return channel_->SendWithTimeout(msg, timeout_ms);
   }
-  void WaitForChannelCreation() { channel_created_.Wait(); }
+  void WaitForChannelCreation() { channel_created_->Wait(); }
   void CloseChannel() {
     DCHECK(MessageLoop::current() == ListenerThread()->message_loop());
     channel_->Close();
@@ -133,12 +123,12 @@ class Worker : public Channel::Listener, public Message::Sender {
     return result;
   }
   Channel::Mode mode() { return mode_; }
-  HANDLE done_event() { return done_.handle(); }
+  WaitableEvent* done_event() { return done_.get(); }
 
  protected:
   // Derived classes need to call this when they've completed their part of
   // the test.
-  void Done() { done_.Set(); }
+  void Done() { done_->Signal(); }
   // Functions for dervied classes to implement if they wish.
   virtual void Run() { }
   virtual void OnAnswer(int* answer) { NOTREACHED(); }
@@ -172,21 +162,22 @@ class Worker : public Channel::Listener, public Message::Sender {
     channel_.reset(new SyncChannel(
         channel_name_, mode_, this, NULL, ipc_thread_.message_loop(), true,
         TestProcess::GetShutDownEvent()));
-    channel_created_.Set();
+    channel_created_->Signal();
     Run();
   }
 
-  void OnListenerThreadShutdown(HANDLE listener_event, HANDLE ipc_event) {
+  void OnListenerThreadShutdown(WaitableEvent* listener_event,
+                                WaitableEvent* ipc_event) {
     // SyncChannel needs to be destructed on the thread that it was created on.
     channel_.reset();
-    SetEvent(listener_event);
-    
+    listener_event->Signal();
+
     ipc_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &Worker::OnIPCThreadShutdown, ipc_event));
   }
 
-  void OnIPCThreadShutdown(HANDLE ipc_event) {
-    SetEvent(ipc_event);
+  void OnIPCThreadShutdown(WaitableEvent* ipc_event) {
+    ipc_event->Signal();
   }
 
   void OnMessageReceived(const Message& message) {
@@ -203,8 +194,8 @@ class Worker : public Channel::Listener, public Message::Sender {
     thread->StartWithOptions(options);
   }
 
-  Event done_;
-  Event channel_created_;
+  scoped_ptr<WaitableEvent> done_;
+  scoped_ptr<WaitableEvent> channel_created_;
   std::wstring channel_name_;
   Channel::Mode mode_;
   scoped_ptr<SyncChannel> channel_;
@@ -237,14 +228,11 @@ void RunTest(std::vector<Worker*> workers) {
   }
 
   // wait for all the workers to finish
-  std::vector<HANDLE> done_handles;
   for (size_t i = 0; i < workers.size(); ++i)
-    done_handles.push_back(workers[i]->done_event());
+    workers[i]->done_event()->Wait();
 
-  int count = static_cast<int>(done_handles.size());
-  WaitForMultipleObjects(count, &done_handles.front(), TRUE, INFINITE);
   STLDeleteContainerPointers(workers.begin(), workers.end());
-  
+
   TestProcess::GlobalCleanup();
 }
 
@@ -260,7 +248,7 @@ class SimpleServer : public Worker {
       : Worker(Channel::MODE_SERVER, "simpler_server"),
         pump_during_send_(pump_during_send) { }
   void Run() {
-    SendAnswerToLife(pump_during_send_, INFINITE, true);
+    SendAnswerToLife(pump_during_send_, base::kNoTimeout, true);
     Done();
   }
 
@@ -328,25 +316,25 @@ namespace {
 
 class NoHangServer : public Worker {
  public:
-  explicit NoHangServer(Event* got_first_reply, bool pump_during_send)
+  explicit NoHangServer(WaitableEvent* got_first_reply, bool pump_during_send)
       : Worker(Channel::MODE_SERVER, "no_hang_server"),
         got_first_reply_(got_first_reply),
         pump_during_send_(pump_during_send) { }
   void Run() {
-    SendAnswerToLife(pump_during_send_, INFINITE, true);
-    got_first_reply_->Set();
+    SendAnswerToLife(pump_during_send_, base::kNoTimeout, true);
+    got_first_reply_->Signal();
 
-    SendAnswerToLife(pump_during_send_, INFINITE, false);
+    SendAnswerToLife(pump_during_send_, base::kNoTimeout, false);
     Done();
   }
 
-  Event* got_first_reply_;
+  WaitableEvent* got_first_reply_;
   bool pump_during_send_;
 };
 
 class NoHangClient : public Worker {
  public:
-  explicit NoHangClient(Event* got_first_reply)
+  explicit NoHangClient(WaitableEvent* got_first_reply)
     : Worker(Channel::MODE_CLIENT, "no_hang_client"),
       got_first_reply_(got_first_reply) { }
 
@@ -360,11 +348,11 @@ class NoHangClient : public Worker {
     Done();
   }
 
-  Event* got_first_reply_;
+  WaitableEvent* got_first_reply_;
 };
 
 void NoHang(bool pump_during_send) {
-  Event got_first_reply;
+  WaitableEvent got_first_reply(false, false);
   std::vector<Worker*> workers;
   workers.push_back(new NoHangServer(&got_first_reply, pump_during_send));
   workers.push_back(new NoHangClient(&got_first_reply));
@@ -389,7 +377,7 @@ class UnblockServer : public Worker {
     : Worker(Channel::MODE_SERVER, "unblock_server"),
       pump_during_send_(pump_during_send) { }
   void Run() {
-    SendAnswerToLife(pump_during_send_, INFINITE, true);
+    SendAnswerToLife(pump_during_send_, base::kNoTimeout, true);
     Done();
   }
 
@@ -450,7 +438,7 @@ class RecursiveServer : public Worker {
 
   void OnDouble(int in, int* out) {
     *out = in * 2;
-    SendAnswerToLife(pump_second_, INFINITE, expected_send_result_);
+    SendAnswerToLife(pump_second_, base::kNoTimeout, expected_send_result_);
   }
 
   bool expected_send_result_, pump_first_, pump_second_;
@@ -557,20 +545,21 @@ class MultipleServer1 : public Worker {
 
 class MultipleClient1 : public Worker {
  public:
-  MultipleClient1(Event* client1_msg_received, Event* client1_can_reply) :
+  MultipleClient1(WaitableEvent* client1_msg_received,
+                  WaitableEvent* client1_can_reply) :
       Worker(L"test_channel1", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       client1_can_reply_(client1_can_reply) { }
 
   void OnDouble(int in, int* out) {
-    client1_msg_received_->Set();
+    client1_msg_received_->Signal();
     *out = in * 2;
     client1_can_reply_->Wait();
     Done();
   }
 
  private:
-  Event *client1_msg_received_, *client1_can_reply_;
+  WaitableEvent *client1_msg_received_, *client1_can_reply_;
 };
 
 class MultipleServer2 : public Worker {
@@ -586,7 +575,7 @@ class MultipleServer2 : public Worker {
 class MultipleClient2 : public Worker {
  public:
   MultipleClient2(
-    Event* client1_msg_received, Event* client1_can_reply,
+    WaitableEvent* client1_msg_received, WaitableEvent* client1_can_reply,
     bool pump_during_send)
     : Worker(L"test_channel2", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
@@ -595,13 +584,13 @@ class MultipleClient2 : public Worker {
 
   void Run() {
     client1_msg_received_->Wait();
-    SendAnswerToLife(pump_during_send_, INFINITE, true);
-    client1_can_reply_->Set();
+    SendAnswerToLife(pump_during_send_, base::kNoTimeout, true);
+    client1_can_reply_->Signal();
     Done();
   }
 
  private:
-  Event *client1_msg_received_, *client1_can_reply_;
+  WaitableEvent *client1_msg_received_, *client1_can_reply_;
   bool pump_during_send_;
 };
 
@@ -615,7 +604,8 @@ void Multiple(bool server_pump, bool client_pump) {
   // Server1 sends a sync msg to client1, which blocks the reply until
   // server2 (which runs on the same worker thread as server1) responds
   // to a sync msg from client2.
-  Event client1_msg_received, client1_can_reply;
+  WaitableEvent client1_msg_received(false, false);
+  WaitableEvent client1_can_reply(false, false);
 
   Worker* worker;
 
@@ -668,56 +658,57 @@ class QueuedReplyServer1 : public Worker {
 
 class QueuedReplyClient1 : public Worker {
  public:
-  QueuedReplyClient1(Event* client1_msg_received, Event* server2_can_reply) :
+  QueuedReplyClient1(WaitableEvent* client1_msg_received,
+                     WaitableEvent* server2_can_reply) :
       Worker(L"test_channel1", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       server2_can_reply_(server2_can_reply) { }
 
   void OnDouble(int in, int* out) {
-    client1_msg_received_->Set();
+    client1_msg_received_->Signal();
     *out = in * 2;
     server2_can_reply_->Wait();
     Done();
   }
 
  private:
-  Event *client1_msg_received_, *server2_can_reply_;
+  WaitableEvent *client1_msg_received_, *server2_can_reply_;
 };
 
 class QueuedReplyServer2 : public Worker {
  public:
-  explicit QueuedReplyServer2(Event* server2_can_reply) :
+  explicit QueuedReplyServer2(WaitableEvent* server2_can_reply) :
       Worker(L"test_channel2", Channel::MODE_SERVER),
       server2_can_reply_(server2_can_reply) { }
 
   void OnAnswer(int* result) {
-    server2_can_reply_->Set();
+    server2_can_reply_->Signal();
 
     // give client1's reply time to reach the server listener thread
-    Sleep(200);
+    PlatformThread::Sleep(200);
 
     *result = 42;
     Done();
   }
 
-  Event *server2_can_reply_;
+  WaitableEvent *server2_can_reply_;
 };
 
 class QueuedReplyClient2 : public Worker {
  public:
   explicit QueuedReplyClient2(
-    Event* client1_msg_received, bool pump_during_send)
+    WaitableEvent* client1_msg_received, bool pump_during_send)
     : Worker(L"test_channel2", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       pump_during_send_(pump_during_send){ }
 
   void Run() {
     client1_msg_received_->Wait();
-    SendAnswerToLife(pump_during_send_, INFINITE, true);
+    SendAnswerToLife(pump_during_send_, base::kNoTimeout, true);
     Done();
   }
 
-  Event *client1_msg_received_;
+  WaitableEvent *client1_msg_received_;
   bool pump_during_send_;
 };
 
@@ -728,7 +719,8 @@ void QueuedReply(bool server_pump, bool client_pump) {
   base::Thread worker_thread("QueuedReply");
   worker_thread.Start();
 
-  Event client1_msg_received, server2_can_reply;
+  WaitableEvent client1_msg_received(false, false);
+  WaitableEvent server2_can_reply(false, false);
 
   Worker* worker;
 
@@ -974,8 +966,8 @@ class NestedTask : public Task {
   NestedTask(Worker* server) : server_(server) { }
   void Run() {
     // Sleep a bit so that we wake up after the reply has been received.
-    Sleep(250);
-    server_->SendAnswerToLife(true, INFINITE, true);
+    PlatformThread::Sleep(250);
+    server_->SendAnswerToLife(true, base::kNoTimeout, true);
   }
 
   Worker* server_;

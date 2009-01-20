@@ -210,7 +210,6 @@ input_files = ChromeFileList([
 if not env.Bit('windows'):
   # TODO(port): Port these.
   input_files.Remove(
-      'child_process.cc',
       'chrome_plugin_lib.cc',
       'chrome_plugin_util.cc',
       'chrome_process_filter.cc',
