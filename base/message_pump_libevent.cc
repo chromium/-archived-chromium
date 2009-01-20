@@ -4,8 +4,8 @@
 
 #include "base/message_pump_libevent.h"
 
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include "base/logging.h"
 #include "base/scoped_nsautorelease_pool.h"
