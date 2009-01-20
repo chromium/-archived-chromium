@@ -25,6 +25,27 @@ NPError API_CALL Gears_NP_Shutdown(void);
 namespace NPAPI
 {
 
+// This struct fully describes a plugin. For external plugins, it's read in from
+// the version info of the dll; For internal plugins, it's predefined.
+struct PluginVersionInfo {
+  FilePath path;
+  std::wstring product_name;
+  std::wstring file_description;
+  std::wstring file_version;
+  std::wstring mime_types;
+  std::wstring file_extents;
+  std::wstring file_open_names;
+};
+
+// This struct contains information of an internal plugin and addresses of
+// entry functions.
+struct InternalPluginInfo {
+  PluginVersionInfo version_info;
+  NP_GetEntryPointsFunc np_getentrypoints;
+  NP_InitializeFunc np_initialize;
+  NP_ShutdownFunc np_shutdown;
+};
+
 static const InternalPluginInfo g_internal_plugins[] = {
   {
     {FilePath(kActiveXShimFileName),
@@ -83,15 +104,6 @@ static const InternalPluginInfo g_internal_plugins[] = {
   },
 #endif
 };
-
-static const size_t g_internal_plugins_size = arraysize(g_internal_plugins);
-
-/* static */
-void PluginLib::GetInternalPlugins(const InternalPluginInfo** plugins,
-                                   size_t* count) {
-  *plugins = g_internal_plugins;
-  *count = g_internal_plugins_size;
-}
 
 /* static */
 PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
@@ -177,11 +189,23 @@ bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
 }
 
 bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
-                                  WebPluginInfo* info) {
-  for (int i = 0; i < g_internal_plugins_size; ++i) {
-    if (filename == g_internal_plugins[i].version_info.path)
-      return CreateWebPluginInfo(g_internal_plugins[i].version_info, info);
+                                  WebPluginInfo* info,
+                                  NP_GetEntryPointsFunc* np_getentrypoints,
+                                  NP_InitializeFunc* np_initialize,
+                                  NP_ShutdownFunc* np_shutdown) {
+  for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
+    if (filename == g_internal_plugins[i].version_info.path) {
+      bool rv = CreateWebPluginInfo(g_internal_plugins[i].version_info, info);
+      *np_getentrypoints = g_internal_plugins[i].np_getentrypoints;
+      *np_initialize = g_internal_plugins[i].np_initialize;
+      *np_shutdown = g_internal_plugins[i].np_shutdown;
+      return rv;
+    }
   }
+
+  *np_getentrypoints = NULL;
+  *np_initialize = NULL;
+  *np_shutdown = NULL;
 
   // On windows, the way we get the mime types for the library is
   // to check the version information in the DLL itself.  This

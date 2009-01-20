@@ -326,25 +326,15 @@ bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
 void PluginList::LoadInternalPlugins() {
   WebPluginInfo info;
 
-  #ifdef GEARS_STATIC_LIB
-  if (PluginLib::ReadWebPluginInfo(FilePath(kGearsPluginLibraryName),
-                                   &info)) {
-    plugins_.push_back(info);
-  }
+#ifdef GEARS_STATIC_LIB
+  LoadPlugin(FilePath(kGearsPluginLibraryName));
 #endif
 
   if (!use_internal_activex_shim_)
     return;
 
-  if (PluginLib::ReadWebPluginInfo(FilePath(kActiveXShimFileName),
-                                   &info)) {
-    plugins_.push_back(info);
-  }
-
-  if (PluginLib::ReadWebPluginInfo(FilePath(kActiveXShimFileNameForMediaPlayer),
-                                   &info)) {
-    plugins_.push_back(info);
-  }
+  LoadPlugin(FilePath(kActiveXShimFileName));
+  LoadPlugin(FilePath(kActiveXShimFileNameForMediaPlayer));
 }
 
 } // namespace NPAPI

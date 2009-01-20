@@ -21,13 +21,6 @@ namespace NPAPI
 {
 
 /* static */
-void PluginLib::GetInternalPlugins(const InternalPluginInfo** plugins,
-                                   size_t* count) {
-  *plugins = NULL;
-  *count = 0;
-}
-
-/* static */
 PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
     const FilePath& library_path) {
   scoped_cftyperef<CFURLRef> url(CFURLCreateFromFileSystemRepresentation(
@@ -249,7 +242,14 @@ bool ReadSTRPluginInfo(const FilePath& filename, CFBundleRef bundle,
 }  // anonymous namespace
 
 bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
-                                  WebPluginInfo* info) {
+                                  WebPluginInfo* info,
+                                  NP_GetEntryPointsFunc* np_getentrypoints,
+                                  NP_InitializeFunc* np_initialize,
+                                  NP_ShutdownFunc* np_shutdown) {
+  *np_getentrypoints = NULL;
+  *np_initialize = NULL;
+  *np_shutdown = NULL;
+
   // TODO(avi): If an internal plugin is requested, immediately return with its
   // info.
   if (filename.value() == kDefaultPluginLibraryName)

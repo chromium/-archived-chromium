@@ -35,10 +35,15 @@ PluginLib* PluginLib::CreatePluginLib(const FilePath& filename) {
   }
 
   WebPluginInfo info;
-  if (!ReadWebPluginInfo(filename, &info))
+  NP_GetEntryPointsFunc np_getentrypoints;
+  NP_InitializeFunc np_initialize;
+  NP_ShutdownFunc np_shutdown;
+  if (!ReadWebPluginInfo(filename, &info, &np_getentrypoints, &np_initialize,
+                         &np_shutdown)) {
     return NULL;
+  }
 
-  return new PluginLib(info);
+  return new PluginLib(info, np_getentrypoints, np_initialize, np_shutdown);
 }
 
 void PluginLib::UnloadAllPlugins() {
@@ -58,7 +63,10 @@ void PluginLib::ShutdownAllPlugins() {
   }
 }
 
-PluginLib::PluginLib(const WebPluginInfo& info)
+PluginLib::PluginLib(const WebPluginInfo& info,
+                     NP_GetEntryPointsFunc np_getentrypoints,
+                     NP_InitializeFunc np_initialize,
+                     NP_ShutdownFunc np_shutdown)
     : web_plugin_info_(info),
       library_(0),
       initialized_(false),
@@ -68,19 +76,13 @@ PluginLib::PluginLib(const WebPluginInfo& info)
   memset((void*)&plugin_funcs_, 0, sizeof(plugin_funcs_));
   g_loaded_libs->push_back(this);
 
-  const InternalPluginInfo* internal_plugins;
-  size_t internal_plugin_count;
-  GetInternalPlugins(&internal_plugins, &internal_plugin_count);
-
-  internal_ = false;
-  for (size_t i = 0; i < internal_plugin_count; ++i) {
-    if (info.path == internal_plugins[i].version_info.path) {
-      internal_ = true;
-      NP_Initialize_ = internal_plugins[i].np_initialize;
-      NP_GetEntryPoints_ = internal_plugins[i].np_getentrypoints;
-      NP_Shutdown_ = internal_plugins[i].np_shutdown;
-      break;
-    }
+  if (np_getentrypoints && np_initialize && np_shutdown) {
+    internal_ = true;
+    NP_GetEntryPoints_ = np_getentrypoints;
+    NP_Initialize_ = np_initialize;    
+    NP_Shutdown_ = np_shutdown;
+  } else {
+    internal_ = false;
   }
 }
 
