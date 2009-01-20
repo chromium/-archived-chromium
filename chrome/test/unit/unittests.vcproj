@@ -519,6 +519,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\browser\renderer_host\mock_render_process_host.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\..\browser\renderer_host\mock_render_process_host.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\renderer\mock_render_thread.cc"
 			>
 		</File>
@@ -604,6 +612,10 @@
 		</File>
 		<File
 			RelativePath="..\..\renderer\net\render_dns_queue_unittest.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\..\browser\renderer_host\render_view_host_unittest.cc"
 			>
 		</File>
 		<File
@@ -708,6 +720,14 @@
 		</File>
 		<File
 			RelativePath="..\..\browser\search_engines\template_url_unittest.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\..\browser\renderer_host\test_render_view_host.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\..\browser\renderer_host\test_render_view_host.h"
 			>
 		</File>
 		<File

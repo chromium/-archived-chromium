@@ -4,6 +4,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -34,137 +35,6 @@ static void InitNavigateParams(ViewHostMsg_FrameNavigate_Params* params,
   params->is_post = false;
 }
 
-// Subclass the RenderViewHost's view so that we can call Show(), etc.,
-// without having side-effects.
-class TestRenderWidgetHostView : public RenderWidgetHostView {
- public:
-   TestRenderWidgetHostView() : is_showing_(false) {}
-
-  virtual RenderWidgetHost* GetRenderWidgetHost() const { return NULL; }
-  virtual void DidBecomeSelected() {}
-  virtual void WasHidden() {}
-  virtual void SetSize(const gfx::Size& size) {}
-  virtual HWND GetPluginHWND() { return NULL; }
-  virtual HANDLE ModalDialogEvent() { return NULL; }
-  virtual void ForwardMouseEventToRenderer(UINT message,
-                                           WPARAM wparam,
-                                           LPARAM lparam) {}
-  virtual void Focus() {}
-  virtual void Blur() {}
-  virtual bool HasFocus() { return true; }
-  virtual void AdvanceFocus(bool reverse) {}
-  virtual void Show() { is_showing_ = true; }
-  virtual void Hide() { is_showing_ = false; }
-  virtual gfx::Rect GetViewBounds() const { return gfx::Rect(); }
-  virtual void UpdateCursor(const WebCursor& cursor) {}
-  virtual void UpdateCursorIfOverSelf() {}
-  // Indicates if the page has finished loading.
-  virtual void SetIsLoading(bool is_loading) {}
-  virtual void IMEUpdateStatus(ViewHostMsg_ImeControl control,
-                               const gfx::Rect& caret_rect) {}
-  virtual void DidPaintRect(const gfx::Rect& rect) {}
-  virtual void DidScrollRect(const gfx::Rect& rect, int dx, int dy) {}
-  virtual void RendererGone() {}
-  virtual void Destroy() {}
-  virtual void PrepareToDestroy() {}
-  virtual void SetTooltipText(const std::wstring& tooltip_text) {}
- 
-  bool is_showing() const { return is_showing_; }
-
- private:
-  bool is_showing_;
-};
-
-// Subclass RenderViewHost so that it does not create a process.
-class TestRenderViewHost : public RenderViewHost {
- public:
-  TestRenderViewHost(
-      SiteInstance* instance,
-      RenderViewHostDelegate* delegate,
-      int routing_id,
-      base::WaitableEvent* modal_dialog_event)
-      : RenderViewHost(instance, delegate, routing_id, modal_dialog_event),
-        is_loading(false),
-        is_created(false),
-        immediate_before_unload(true),
-        delete_counter_(NULL) {
-    set_view(new TestRenderWidgetHostView());
-  }
-  ~TestRenderViewHost() {
-    // Track the delete if we've been asked to.
-    if (delete_counter_)
-      ++*delete_counter_;
-
-    // Since this isn't a traditional view, we have to delete it.
-    delete view_;
-  }
-
-  // If set, *delete_counter is incremented when this object destructs.
-  void set_delete_counter(int* delete_counter) {
-    delete_counter_ = delete_counter;
-  }
-
-  bool CreateRenderView() {
-    is_created = true;
-    return true;
-  }
-
-  bool IsRenderViewLive() const { return is_created; }
-
-  bool IsNavigationSuspended() { return navigations_suspended_; }
-
-  void NavigateToEntry(const NavigationEntry& entry, bool is_reload) {
-    is_loading = true;
-  }
-
-  void LoadAlternateHTMLString(const std::string& html_text,
-                               bool new_navigation,
-                               const GURL& display_url,
-                               const std::string& security_info) {
-    is_loading = true;
-  }
-
-  // Support for onbeforeunload, onunload
-  void FirePageBeforeUnload() {
-    is_waiting_for_unload_ack_ = true;
-    if (immediate_before_unload)
-      delegate()->ShouldClosePage(true);
-  }
-  void ClosePage(int new_render_process_host_id, int new_request_id) {
-    // Nothing to do here...  This would cause a ClosePage_ACK to be sent to
-    // ResourceDispatcherHost, so we can simulate that manually.
-  }
-  void TestOnMsgShouldClose(bool proceed) {
-    OnMsgShouldCloseACK(proceed);
-  }
-
-  bool is_loading;
-  bool is_created;
-  bool immediate_before_unload;
-  int* delete_counter_;
-};
-
-// Factory to create TestRenderViewHosts.
-class TestRenderViewHostFactory : public RenderViewHostFactory {
- public:
-  static TestRenderViewHostFactory* GetInstance() {
-    static TestRenderViewHostFactory instance;
-    return &instance;
-  }
-
-  virtual RenderViewHost* CreateRenderViewHost(
-      SiteInstance* instance,
-      RenderViewHostDelegate* delegate,
-      int routing_id,
-      base::WaitableEvent* modal_dialog_event) {
-    return new TestRenderViewHost(
-        instance, delegate, routing_id, modal_dialog_event);
-  }
-
- private:
-  TestRenderViewHostFactory() {}
-};
-
 // Subclass the TestingProfile so that it can return certain services we need.
 class WebContentsTestingProfile : public TestingProfile {
  public:
@@ -188,6 +58,9 @@ class WebContentsTestingProfile : public TestingProfile {
 
 // Subclass WebContents to ensure it creates TestRenderViewHosts and does
 // not do anything involving views.
+//
+// TODO(brettw) merge this with the TestRenderProcessHost to it can be used by
+// other tests as well.
 class TestWebContents : public WebContents {
  public:
   TestWebContents(Profile* profile, SiteInstance* instance)
@@ -213,15 +86,6 @@ class TestWebContents : public WebContents {
     return render_manager_.cross_navigation_pending_;
   }
 
-  // Ensure we create TestRenderViewHosts that don't spawn processes.
-  RenderViewHost* CreateRenderViewHost(SiteInstance* instance,
-                                       RenderViewHostDelegate* delegate,
-                                       int routing_id,
-                                       base::WaitableEvent* modal_dialog_event) {
-    return new TestRenderViewHost(
-        instance, delegate, routing_id, modal_dialog_event);
-  }
-
   // Overrides WebContents::ShouldTransitionCrossSite so that we can test both
   // alternatives without using command-line switches.
   bool ShouldTransitionCrossSite() { return transition_cross_site; }
@@ -230,7 +94,6 @@ class TestWebContents : public WebContents {
   void TestDidNavigate(TestRenderViewHost* render_view_host,
                        const ViewHostMsg_FrameNavigate_Params& params) {
     DidNavigate(render_view_host, params);
-    render_view_host->is_loading = false;
   }
 
   // Promote GetWebkitPrefs to public.
@@ -435,13 +298,11 @@ TEST_F(WebContentsTest, SimpleNavigation) {
   TestRenderViewHost* orig_rvh = contents->rvh();
   SiteInstance* instance1 = contents->GetSiteInstance();
   EXPECT_TRUE(contents->pending_rvh() == NULL);
-  EXPECT_FALSE(orig_rvh->is_loading);
 
   // Navigate to URL
   const GURL url("http://www.google.com");
   contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   EXPECT_FALSE(contents->cross_navigation_pending());
-  EXPECT_TRUE(orig_rvh->is_loading);
   EXPECT_EQ(instance1, orig_rvh->site_instance());
   // Controller's pending entry will have a NULL site instance until we assign
   // it in DidNavigate.
@@ -534,7 +395,7 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
   EXPECT_EQ(orig_rvh, contents->render_view_host());
 
   // Crash the renderer.
-  orig_rvh->is_created = false;
+  orig_rvh->set_render_view_created(false);
 
   // Navigate to new site.  We should not go into PENDING.
   const GURL url2("http://www.yahoo.com");
@@ -686,15 +547,14 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
 
   // Navigate to new site, but simulate an onbeforeunload denial.
   const GURL url2("http://www.yahoo.com");
-  orig_rvh->immediate_before_unload = false;
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
-  orig_rvh->TestOnMsgShouldClose(false);
+  orig_rvh->TestOnMessageReceived(ViewHostMsg_ShouldClose_ACK(0, false));
   EXPECT_FALSE(contents->cross_navigation_pending());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
 
   // Navigate again, but simulate an onbeforeunload approval.
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
-  orig_rvh->TestOnMsgShouldClose(true);
+  orig_rvh->TestOnMessageReceived(ViewHostMsg_ShouldClose_ACK(0, true));
   EXPECT_TRUE(contents->cross_navigation_pending());
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
 
