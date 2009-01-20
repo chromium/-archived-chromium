@@ -105,7 +105,8 @@ TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
 }
 
 // Visits a page over OK https:
-TEST_F(SSLUITest, TestOKHTTPS) {
+// Disabled as test causes hangs, see bug 6698 for details.
+TEST_F(SSLUITest, DISABLED_TestOKHTTPS) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -126,7 +127,8 @@ TEST_F(SSLUITest, TestOKHTTPS) {
 }
 
 // Visits a page with https error and proceed:
-TEST_F(SSLUITest, TestHTTPSExpiredCertAndProceed) {
+// Disabled as test causes hangs, see bug 6698 for details.
+TEST_F(SSLUITest, DISABLED_TestHTTPSExpiredCertAndProceed) {
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),

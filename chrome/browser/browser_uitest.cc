@@ -123,7 +123,8 @@ TEST_F(BrowserTest, DISABLED_WindowsSessionEnd) {
   ASSERT_TRUE(exited_cleanly);
 }
 
-TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
+// This test is flakey, see bug 5668 for details.
+TEST_F(BrowserTest, DISABLED_JavascriptAlertActivatesTab) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   int start_index;
   ASSERT_TRUE(window->GetActiveTabIndex(&start_index));
