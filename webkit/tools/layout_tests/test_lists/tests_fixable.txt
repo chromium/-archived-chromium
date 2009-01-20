@@ -360,6 +360,21 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
+LINUX : LayoutTests/svg/text/kerning.svg = FAIL
+LINUX : LayoutTests/svg/text/multichar-glyph.svg = FAIL
+LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-align-06-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
+DEFER LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+DEFER MAC LINUX : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
+LINUX : LayoutTests/svg/text/text-text-04-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-07-t.svg = FAIL
+DEFER LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
@@ -383,7 +398,10 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
+DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
 
 // Pixel test passes. Texts differ by 1 on SVGRenderText bounding box.
@@ -428,9 +446,6 @@ DEFER LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
 // This test is failing because Apple's results appear to be bogus. Will let them know.
 DEFER : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
@@ -487,10 +502,12 @@ DEFER : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
 DEFER : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 DEFER : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
 DEFER : LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
-DEFER : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
-// These consistently fail with image diffs.
-DEFER LINUX WIN : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
 
+// These two tests have a highlight color that is different from the Mac,
+// which is normal because selection color is different between Mac and Windows,
+// but even so it still doesn't look identical because there is still some
+// problem with the fill color for the text.
+DEFER LINUX WIN : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
 LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 
 // http://crbug.com/3244 : SVG masks aren't quite working yet.
@@ -533,7 +550,6 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 LINUX : LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
@@ -572,8 +588,6 @@ LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 
 
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
-// Output differs by 0.01.  Maybe a rounding difference?
-LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 
 // Crash in DEBUG only
 DEBUG LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
@@ -634,16 +648,6 @@ LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/text/kerning.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/multichar-glyph.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-align-05-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-align-06-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-04-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-05-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-07-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
 
@@ -661,8 +665,6 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
 

@@ -18,9 +18,9 @@ layer at (0,0) size 480x360
       RenderSVGText {text} at (360,190) size 52x35 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-28) size 52x35
           chunk 1 text run 1 at (360.00,190.00) startOffset 0 endOffset 3 width 52.00: "500"
-      RenderSVGText {text} at (360,225) size 61x35 contains 1 chunk(s)
-        RenderSVGInlineText {#text} at (0,-28) size 61x35
-          chunk 1 text run 1 at (360.00,225.00) startOffset 0 endOffset 3 width 61.00: "600"
+      RenderSVGText {text} at (360,225) size 56x35 contains 1 chunk(s)
+        RenderSVGInlineText {#text} at (0,-28) size 56x35
+          chunk 1 text run 1 at (360.00,225.00) startOffset 0 endOffset 3 width 56.00: "600"
       RenderSVGText {text} at (360,260) size 59x35 contains 1 chunk(s)
         RenderSVGInlineText {#text} at (0,-28) size 59x35
           chunk 1 text run 1 at (360.00,260.00) startOffset 0 endOffset 3 width 59.00: "700"
@@ -47,4 +47,4 @@ layer at (0,0) size 480x360
     RenderSVGText {text} at (10,340) size 261x46 contains 1 chunk(s)
       RenderSVGInlineText {#text} at (0,-36) size 261x46
         chunk 1 text run 1 at (10.00,340.00) startOffset 0 endOffset 16 width 261.00: "$Revision: 1.7 $"
-    RenderPath {rect} at (0.50,0.50) size 479x359 [stroke={[type=SOLID] [color=#000000]}] [data="M1.00,1.00 L479.00,1.00 L479.00,359.00 L1.00,359.00"]
+    RenderPath {rect} at (0.50,0.50) size 479x359 [stroke={[type=SOLID] [color=#000000]}] [data="M1.00,1.00 L479.00,1.00 L479.00,359.00 L1.00,359.00 Z"]
