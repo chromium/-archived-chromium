@@ -17,6 +17,7 @@
 #include "base/path_service.h"
 #include "base/resource_util.h"
 #include "base/stack_container.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "base/win_util.h"
@@ -109,6 +110,14 @@ bool MinidumpCallback(const wchar_t *dumpPath,
   _wrename(origPath->c_str(), newPath->c_str());
 
   return false;
+}
+
+StringPiece GetRawDataResource(HMODULE module, int resource_id) {
+  void* data_ptr;
+  size_t data_size;
+  return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
+                                         &data_size) ?
+      StringPiece(static_cast<char*>(data_ptr), data_size) : StringPiece();
 }
 
 }  // namespace
@@ -689,6 +698,12 @@ bool TestShell::PromptForSaveFile(const wchar_t* prompt_title,
 void TestShell::ShowStartupDebuggingDialog() {
   MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
 }
+
+// static
+StringPiece TestShell::NetResourceProvider(int key) {
+  return GetRawDataResource(::GetModuleHandle(NULL), key);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // WebKit glue functions

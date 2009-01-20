@@ -11,10 +11,12 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include "base/data_pack.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
@@ -614,6 +616,24 @@ void TestShell::ShowStartupDebuggingDialog() {
   gtk_window_set_title(GTK_WINDOW(dialog), "test_shell");
   gtk_dialog_run(GTK_DIALOG(dialog));  // Runs a nested message loop.
   gtk_widget_destroy(dialog);
+}
+
+// static
+StringPiece TestShell::NetResourceProvider(int key) {
+  static scoped_ptr<base::DataPack> resource_data_pack;
+
+  if (!resource_data_pack.get()) {
+    resource_data_pack.reset(new base::DataPack);
+    FilePath data_path;
+    PathService::Get(base::DIR_EXE, &data_path);
+    data_path = data_path.Append("test_shell.pak");
+    bool success = resource_data_pack->Load(data_path);
+    CHECK(success) << "failed to load test_shell.pak";
+  }
+
+  StringPiece res;
+  resource_data_pack->Get(key, &res);
+  return res;
 }
 
 //-----------------------------------------------------------------------------

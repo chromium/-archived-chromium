@@ -48,6 +48,7 @@
 typedef std::list<gfx::NativeWindow> WindowList;
 
 struct WebPreferences;
+class StringPiece;
 class TestNavigationEntry;
 class TestNavigationController;
 
@@ -251,6 +252,9 @@ public:
 
     // Show the "attach to me" dialog, for debugging test shell startup.
     static void ShowStartupDebuggingDialog();
+
+    // This is called indirectly by the network layer to access resources.
+    static StringPiece NetResourceProvider(int key);
 
 protected:
     bool Initialize(const std::wstring& startingURL);

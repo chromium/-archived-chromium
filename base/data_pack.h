@@ -39,6 +39,8 @@ class DataPack {
 
   // Number of resources in the data.
   size_t resource_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(DataPack);
 };
 
 }  // namespace base

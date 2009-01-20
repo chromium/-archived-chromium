@@ -194,6 +194,22 @@ env.Alias('webkit', i)
 if env.Bit('windows'):
   env.Depends(test_shell, '$V8_DIR/vc80.pdb')
 
+if env.Bit('linux'):
+  # Build the linux resource file.
+  env.Append(BUILDERS = { 'Repack' : Builder(
+      action = 'python $CHROME_SRC_DIR/tools/data_pack/repack.py $TARGET $SOURCES',
+  )})
+  test_shell_data = env.Repack(
+      '$TARGET_ROOT/test_shell.pak',
+      ['$TARGET_ROOT/grit_derived_sources/net_resources.pak',
+       '$TARGET_ROOT/grit_derived_sources/webkit_resources.pak',
+       ]
+  )
+  env.Depends(test_shell, test_shell_data)
+
+  i = env.Install('$DESTINATION_ROOT', test_shell_data)
+  env.Alias('webkit', i)
+
 test_files = [
     'image_decoder_unittest.cc',
     'keyboard_unittest.cc',

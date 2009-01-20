@@ -15,11 +15,13 @@
 #include "base/file_util.h"
 #include "base/gfx/size.h"
 #include "base/icu_util.h"
+#include "base/logging.h"
 #include "base/mac_util.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/stats_table.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
 #include "skia/ext/bitmap_platform_device.h"
@@ -857,6 +859,12 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 // static
 void TestShell::ShowStartupDebuggingDialog() {
   // TODO(port): Show a modal dialog here with an attach to me message.
+}
+
+StringPiece TestShell::NetResourceProvider(int key) {
+  // TODO(port): Return the requested resource.
+  NOTIMPLEMENTED();
+  return StringPiece();
 }
 
 //-----------------------------------------------------------------------------
