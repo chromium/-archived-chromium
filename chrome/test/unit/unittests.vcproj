@@ -822,10 +822,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\focus_manager_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\views\grid_layout_unittest.cc"
 				>
 			</File>
