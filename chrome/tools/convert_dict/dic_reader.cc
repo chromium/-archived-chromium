@@ -54,8 +54,6 @@ void SplitDicLine(const std::string& line, std::vector<std::string>* output) {
 bool PopulateWordSet(WordSet* word_set, FILE* file, AffReader* aff_reader,
                      const char* file_type, const char* encoding,
                      bool file_has_word_count_in_the_first_line) {
-  printf("Extracting words from %s file\nEncoding: %s\n", file_type, encoding);
-
   int line_number = 0;
   while (!feof(file)) {
     std::string line = ReadLine(file);
