@@ -9,7 +9,6 @@ TestRenderViewHost::TestRenderViewHost(SiteInstance* instance,
                                        int routing_id,
                                        base::WaitableEvent* modal_dialog_event)
     : RenderViewHost(instance, delegate, routing_id, modal_dialog_event),
-      immediate_before_unload(false),
       render_view_created_(false),
       delete_counter_(NULL) {
   set_view(new TestRenderWidgetHostView());
