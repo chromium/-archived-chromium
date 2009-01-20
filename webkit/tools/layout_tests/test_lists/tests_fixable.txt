@@ -357,6 +357,7 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/font-face-simple.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
@@ -565,7 +566,6 @@ LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
-LINUX WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
