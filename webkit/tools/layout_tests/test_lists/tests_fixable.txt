@@ -529,9 +529,6 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 // See comment in WebCore/platform/graphics/skia/GradientSkia.cpp
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
