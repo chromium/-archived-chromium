@@ -216,6 +216,7 @@ Filter::Filter()
       stream_data_len_(0),
       url_(),
       connect_time_(),
+      was_cached_(false),
       mime_type_(),
       next_filter_(NULL),
       last_status_(FILTER_NEED_MORE_DATA) {
