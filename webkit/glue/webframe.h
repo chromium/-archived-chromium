@@ -368,11 +368,6 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // Prints one page. |page| is 0-based.
   virtual bool SpoolPage(int page, skia::PlatformCanvas* canvas) = 0;
 
-  // Is this frame reloading with allowing stale data? This will be true when
-  // the encoding of the page is changed and it needs to be re-interpreted,
-  // but no additional loads should occur.
-  virtual bool IsReloadAllowingStaleData() const = 0;
-
   // Only for test_shell
   virtual int PendingFrameUnloadEventCount() const = 0;
 

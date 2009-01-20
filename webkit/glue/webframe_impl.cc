@@ -1818,15 +1818,6 @@ bool WebFrameImpl::SpoolPage(int page, skia::PlatformCanvas* canvas) {
   return true;
 }
 
-bool WebFrameImpl::IsReloadAllowingStaleData() const {
-  FrameLoader* loader = frame() ? frame()->loader() : NULL;
-  if (loader) {
-    return WebCore::FrameLoadTypeReloadAllowingStaleData ==
-           loader->policyLoadType();
-  }
-  return false;
-}
-
 int WebFrameImpl::PendingFrameUnloadEventCount() const {
   return frame()->eventHandler()->pendingFrameUnloadEventCount();
 }
