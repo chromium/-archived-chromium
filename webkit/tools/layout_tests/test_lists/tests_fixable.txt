@@ -375,6 +375,7 @@ LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
