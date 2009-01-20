@@ -75,6 +75,9 @@
 		8255CEC20F16971600E53C11 /* plugin_string_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405EB0D92E3FF0006B936 /* plugin_string_stream.cc */; };
 		8255CEE00F16972C00E53C11 /* plugin_stream_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8255CEDF0F16972C00E53C11 /* plugin_stream_posix.cc */; };
 		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
+		89F4A0B50F200C17000A326A /* CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0AB0F1FAA69000A326A /* CanvasPixelArray.cpp */; };
+		89F4A0D50F200D5B000A326A /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */; };
+		89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
 		938444080F16B0570075F4C5 /* AccessibilityImageMapLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F1E80E9BAE2900C66CE0 /* AccessibilityImageMapLink.cpp */; };
@@ -3989,6 +3992,11 @@
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObject.cpp; sourceTree = "<group>"; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObject.h; sourceTree = "<group>"; };
 		82F14D600ED230E700B36428 /* webcursor_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webcursor_mac.mm; sourceTree = "<group>"; };
+		89F4A0AB0F1FAA69000A326A /* CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasPixelArray.cpp; sourceTree = "<group>"; };
+		89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
+		89F4A0D40F200D59000A326A /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
+		89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArrayCustom.cpp; sourceTree = "<group>"; };
+		89F5A4650F1ED04A0084BC85 /* CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasPixelArray.h; sourceTree = "<group>"; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
 		934CC2290EDCC38400A658F2 /* RGBColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBColor.h; sourceTree = "<group>"; };
@@ -4582,6 +4590,8 @@
 		7B0095D00DAFF0DC00F72082 /* v8 */ = {
 			isa = PBXGroup;
 			children = (
+				89F4A0AB0F1FAA69000A326A /* CanvasPixelArray.cpp */,
+				89F5A4650F1ED04A0084BC85 /* CanvasPixelArray.h */,
 				7B0095D20DAFF0DC00F72082 /* dom_wrapper_map.h */,
 				B5B0D4190EC8FE4900EA3314 /* JSDOMBinding.h */,
 				B5B0D41A0EC8FE4900EA3314 /* JSDOMBinding.cpp */,
@@ -4628,6 +4638,7 @@
 				7B0095EC0DAFF0DD00F72082 /* v8_utility.h */,
 				7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */,
 				7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */,
+				89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */,
 				ABBD24780EB7B31B00BEC658 /* V8MessagePortCustom.cpp */,
 				4DB7F55A0E9BD66300C66CE0 /* V8SVGPODTypeWrapper.h */,
 				4DB7F55B0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp */,
@@ -6824,6 +6835,8 @@
 				7B0091440DAFEFE200F72082 /* V8CanvasGradient.h */,
 				7B0091450DAFEFE300F72082 /* V8CanvasPattern.cpp */,
 				7B0091460DAFEFE300F72082 /* V8CanvasPattern.h */,
+				89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */,
+				89F4A0D40F200D59000A326A /* V8CanvasPixelArray.h */,
 				7B0091470DAFEFE300F72082 /* V8CanvasRenderingContext2D.cpp */,
 				7B0091480DAFEFE300F72082 /* V8CanvasRenderingContext2D.h */,
 				7B0091490DAFEFE300F72082 /* V8CDATASection.cpp */,
@@ -8204,6 +8217,7 @@
 				9384478B0F16B06E0075F4C5 /* ScriptCallStack.cpp in Sources */,
 				9384478C0F16B06E0075F4C5 /* ScriptCallStack.cpp in Sources */,
 				9384478D0F16B06E0075F4C5 /* ScriptInstance.cpp in Sources */,
+				89F4A0B50F200C17000A326A /* CanvasPixelArray.cpp in Sources */,
 				9384478E0F16B06E0075F4C5 /* ScriptValue.cpp in Sources */,
 				9384478F0F16B06E0075F4C5 /* SVGElementFactory.cpp in Sources */,
 				938447900F16B06E0075F4C5 /* SVGNames.cpp in Sources */,
@@ -8356,6 +8370,8 @@
 				938448230F16B06E0075F4C5 /* V8Rect.cpp in Sources */,
 				938448240F16B06E0075F4C5 /* V8RGBColor.cpp in Sources */,
 				938448250F16B06E0075F4C5 /* V8Screen.cpp in Sources */,
+				89F4A0D50F200D5B000A326A /* V8CanvasPixelArray.cpp in Sources */,
+				89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */,
 				938448260F16B06E0075F4C5 /* V8StyleSheet.cpp in Sources */,
 				938448270F16B06E0075F4C5 /* V8StyleSheetList.cpp in Sources */,
 				938448280F16B06E0075F4C5 /* V8SVGAElement.cpp in Sources */,

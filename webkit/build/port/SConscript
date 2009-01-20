@@ -150,6 +150,7 @@ else:
 
 
 idl_files = [
+    'bindings/v8/CanvasPixelArray.idl',
     'bindings/v8/UndetectableHTMLCollection.idl',
 
     'css/Counter.idl',

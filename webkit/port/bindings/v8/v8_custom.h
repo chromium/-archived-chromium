@@ -22,6 +22,18 @@ void V8Custom::v8##NAME##AccessorSetter(v8::Local<v8::String> name, \
                                         v8::Local<v8::Value> value, \
                                         const v8::AccessorInfo& info)
 
+#define INDEXED_PROPERTY_GETTER(NAME)  \
+v8::Handle<v8::Value> V8Custom::v8##NAME##IndexedPropertyGetter(\
+    uint32_t index, const v8::AccessorInfo& info)
+
+#define INDEXED_PROPERTY_SETTER(NAME)  \
+v8::Handle<v8::Value> V8Custom::v8##NAME##IndexedPropertySetter(\
+    uint32_t index, v8::Local<v8::Value> value, const v8::AccessorInfo& info)
+
+#define INDEXED_PROPERTY_DELETER(NAME) \
+v8::Handle<v8::Boolean> V8Custom::v8##NAME##IndexedPropertyDeleter(\
+    uint32_t index, const v8::AccessorInfo& info)
+
 namespace WebCore {
 
 class Frame;
@@ -372,6 +384,10 @@ DECLARE_INDEXED_PROPERTY_GETTER(HTMLOptionsCollection)
 DECLARE_INDEXED_PROPERTY_SETTER(HTMLOptionsCollection)
 DECLARE_INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection)
 DECLARE_NAMED_PROPERTY_GETTER(HTMLCollection)
+
+// Canvas and supporting classes
+DECLARE_INDEXED_PROPERTY_GETTER(CanvasPixelArray)
+DECLARE_INDEXED_PROPERTY_SETTER(CanvasPixelArray)
 
 // MessagePort
 DECLARE_PROPERTY_ACCESSOR(MessagePortOnmessage)

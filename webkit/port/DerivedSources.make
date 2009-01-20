@@ -620,6 +620,7 @@ all : \
     HTMLEntityNames.c \
     V8Attr.h \
     V8BarInfo.h \
+    V8CanvasPixelArray.h \
     V8CDATASection.h \
     V8CSSCharsetRule.h \
     V8CSSFontFaceRule.h \

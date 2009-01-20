@@ -200,6 +200,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8CanvasPixelArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8CanvasPixelArray.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8CanvasRenderingContext2D.cpp"
 				>
 			</File>
@@ -2477,6 +2485,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\CanvasPixelArray.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\RGBColor.cpp"
 			>
 		</File>
@@ -2522,6 +2534,10 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\ScriptInstance.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\CanvasPixelArray.h"
 			>
 		</File>
 		<File
@@ -2598,6 +2614,10 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\v8_vectornodelist.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8CanvasPixelArrayCustom.cpp"
 			>
 		</File>
 		<File

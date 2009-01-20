@@ -53,6 +53,7 @@ inputs = [
     '$DERIVED_DIR/V8BarInfo.cpp',
     '$DERIVED_DIR/V8CanvasGradient.cpp',
     '$DERIVED_DIR/V8CanvasPattern.cpp',
+    '$DERIVED_DIR/V8CanvasPixelArray.cpp',
     '$DERIVED_DIR/V8CanvasRenderingContext2D.cpp',
     '$DERIVED_DIR/V8CDATASection.cpp',
     '$DERIVED_DIR/V8CharacterData.cpp',
@@ -322,6 +323,7 @@ inputs = [
     '$DERIVED_DIR/V8XPathResult.cpp',
     '$DERIVED_DIR/V8XSLTProcessor.cpp',
 
+    '$PORT_DIR/bindings/v8/CanvasPixelArray.cpp',
     '$PORT_DIR/bindings/v8/JSDOMBinding.cpp',
     '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
     '$PORT_DIR/bindings/v8/np_v8object.cpp',
@@ -340,6 +342,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/v8_npobject.cpp',
     '$PORT_DIR/bindings/v8/v8_proxy.cpp',
     '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
+    '$PORT_DIR/bindings/v8/V8CanvasPixelArrayCustom.cpp',
     '$PORT_DIR/bindings/v8/V8MessagePortCustom.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
 ]

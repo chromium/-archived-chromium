@@ -141,18 +141,6 @@ v8::Handle<v8::Value> V8Custom::v8##NAME##NamedPropertySetter(\
 v8::Handle<v8::Boolean> V8Custom::v8##NAME##NamedPropertyDeleter(\
     v8::Local<v8::String> name, const v8::AccessorInfo& info)
 
-#define INDEXED_PROPERTY_GETTER(NAME)  \
-v8::Handle<v8::Value> V8Custom::v8##NAME##IndexedPropertyGetter(\
-    uint32_t index, const v8::AccessorInfo& info)
-
-#define INDEXED_PROPERTY_SETTER(NAME)  \
-v8::Handle<v8::Value> V8Custom::v8##NAME##IndexedPropertySetter(\
-    uint32_t index, v8::Local<v8::Value> value, const v8::AccessorInfo& info)
-
-#define INDEXED_PROPERTY_DELETER(NAME) \
-v8::Handle<v8::Boolean> V8Custom::v8##NAME##IndexedPropertyDeleter(\
-    uint32_t index, const v8::AccessorInfo& info)
-
 #define NAMED_ACCESS_CHECK(NAME) \
 bool V8Custom::v8##NAME##NamedSecurityCheck(v8::Local<v8::Object> host, \
                                             v8::Local<v8::Value> key, \
@@ -713,6 +701,7 @@ NAMED_PROPERTY_GETTER(HTMLCollection) {
   String key = ToWebCoreString(name);
   return HTMLCollectionGetNamedItems(imp, key);
 }
+
 
 CALLBACK_FUNC_DECL(HTMLCollectionItem) {
   INC_STATS("DOM.HTMLCollection.item()");
@@ -3493,8 +3482,6 @@ NAMED_ACCESS_CHECK(Location) {
 #undef NAMED_ACCESS_CHECK
 #undef NAMED_PROPERTY_GETTER
 #undef NAMED_PROPERTY_SETTER
-#undef INDEXED_PROPERTY_GETTER
-#undef INDEXED_PROPERTY_SETTER
 
 
 // static

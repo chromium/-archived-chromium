@@ -50,6 +50,7 @@
 #include "BarInfo.h"
 #include "CanvasGradient.h"
 #include "CanvasPattern.h"
+#include "CanvasPixelArray.h"
 #include "CanvasRenderingContext2D.h"
 #include "CanvasStyle.h"
 #include "CharacterData.h"
@@ -1658,6 +1659,11 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           0,
           NodeCollectionIndexedPropertyEnumerator<HTMLFormElement>,
           v8::Integer::New(V8ClassIndex::NODE));
+      break;
+    case V8ClassIndex::CANVASPIXELARRAY:
+      desc->InstanceTemplate()->SetIndexedPropertyHandler(
+          USE_INDEXED_PROPERTY_GETTER(CanvasPixelArray),
+          USE_INDEXED_PROPERTY_SETTER(CanvasPixelArray));
       break;
     case V8ClassIndex::STYLESHEET:  // fall through
     case V8ClassIndex::CSSSTYLESHEET: {
