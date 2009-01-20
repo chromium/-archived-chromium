@@ -5,11 +5,14 @@
 #ifndef CHROME_VIEWS_FOCUS_MANAGER_H__
 #define CHROME_VIEWS_FOCUS_MANAGER_H__
 
+#include "base/basictypes.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 #include <vector>
 #include <map>
 
-#include "base/basictypes.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/accelerator.h"
 
@@ -136,8 +139,10 @@ class KeystrokeListener {
  public:
   // If this returns true, then the component handled the keystroke and ate
   // it.
+#if defined(OS_WIN)
   virtual bool ProcessKeyDown(HWND window, UINT message, WPARAM wparam,
                               LPARAM lparam) = 0;
+#endif
 };
 
 // This interface should be implemented by classes that want to be notified when
@@ -149,6 +154,7 @@ class FocusChangeListener {
 
 class FocusManager : public NotificationObserver {
  public:
+#if defined(OS_WIN)
   // Creates a FocusManager for the specified window. Top level windows
   // must invoked this when created.
   // The RootView specified should be the top RootView of the window.
@@ -167,7 +173,6 @@ class FocusManager : public NotificationObserver {
 
   static FocusManager* GetFocusManager(HWND window);
 
-
   // Message handlers (for messages received from registered windows).
   // Should return true if the message should be forwarded to the window
   // original proc function, false otherwise.
@@ -181,6 +186,7 @@ class FocusManager : public NotificationObserver {
   // OnPostActivate is called after WM_ACTIVATE has been propagated to the
   // DefWindowProc.
   bool OnPostActivate(HWND window, int activation_state, int minimized_state);
+#endif
 
   // Returns true is the specified is part of the hierarchy of the window
   // associated with this FocusManager.
@@ -202,17 +208,21 @@ class FocusManager : public NotificationObserver {
   // Note that this does not change the currently focused view.
   void ClearHWNDFocus();
 
+#if defined(OS_WIN)
   // Focus the specified |hwnd| without changing the focused view.
   void FocusHWND(HWND hwnd);
+#endif
 
   // Validates the focused view, clearing it if the window it belongs too is not
   // attached to the window hierarchy anymore.
   void ValidateFocusedView();
 
+#if defined(OS_WIN)
   // Returns the view associated with the specified window if any.
   // If |look_in_parents| is true, it goes up the window parents until it find
   // a view.
   static View* GetViewForWindow(HWND window, bool look_in_parents);
+#endif
 
   // Stores and restores the focused view. Used when the window becomes
   // active/inactive.
@@ -279,7 +289,9 @@ class FocusManager : public NotificationObserver {
       const Accelerator& accelerator) const;
 
  private:
+#if defined(OS_WIN)
   explicit FocusManager(HWND root, RootView* root_view);
+#endif
   ~FocusManager();
 
   // Returns the next focusable view.
@@ -307,8 +319,10 @@ class FocusManager : public NotificationObserver {
   // had focus.
   int stored_focused_view_storage_id_;
 
+#if defined(OS_WIN)
   // The window associated with this focus manager.
   HWND root_;
+#endif
 
   // Used to allow setting the focus on an HWND without changing the currently
   // focused view.

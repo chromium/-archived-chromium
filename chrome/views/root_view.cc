@@ -6,12 +6,16 @@
 
 #include <algorithm>
 
+#if defined(OS_WIN)
 #include "base/base_drag_source.h"
+#endif
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#if defined(OS_WIN)
 #include "chrome/views/root_view_drop_target.h"
+#endif
 #include "chrome/views/widget.h"
 
 namespace views {
@@ -52,20 +56,22 @@ const char RootView::kViewClassName[] = "chrome/views/RootView";
 /////////////////////////////////////////////////////////////////////////////
 
 RootView::RootView(Widget* widget)
-  : widget_(widget),
-    mouse_pressed_handler_(NULL),
+  : mouse_pressed_handler_(NULL),
     mouse_move_handler_(NULL),
-    explicit_mouse_handler_(FALSE),
-    previous_cursor_(NULL),
-    default_keyboard_hander_(NULL),
-    focus_on_mouse_pressed_(false),
-    ignore_set_focus_calls_(false),
-    focus_listener_(NULL),
-    focus_traversable_parent_(NULL),
-    focus_traversable_parent_view_(NULL),
+    widget_(widget),
     invalid_rect_urgent_(false),
     pending_paint_task_(NULL),
     paint_task_needed_(false),
+    explicit_mouse_handler_(false),
+#if defined(OS_WIN)
+    previous_cursor_(NULL),
+#endif
+    default_keyboard_hander_(NULL),
+    focus_listener_(NULL),
+    focus_on_mouse_pressed_(false),
+    ignore_set_focus_calls_(false),
+    focus_traversable_parent_(NULL),
+    focus_traversable_parent_view_(NULL),
     drag_view_(NULL)
 #ifndef NDEBUG
     ,
@@ -143,9 +149,13 @@ void RootView::ProcessPaint(ChromeCanvas* canvas) {
   ScopedProcessingPaint processing_paint(&is_processing_paint_);
 #endif
 
+#if defined(OS_WIN)
   // Clip the invalid rect to our bounds. If a view is in a scrollview
   // it could be a lot larger
   invalid_rect_ = gfx::Rect(GetScheduledPaintRectConstrainedToSize());
+#else
+  NOTIMPLEMENTED();
+#endif
 
   if (invalid_rect_.IsEmpty())
     return;
@@ -199,13 +209,6 @@ const gfx::Rect& RootView::GetScheduledPaintRect() {
   return invalid_rect_;
 }
 
-RECT RootView::GetScheduledPaintRectConstrainedToSize() {
-  if (invalid_rect_.IsEmpty())
-    return invalid_rect_.ToRECT();
-
-  return invalid_rect_.Intersect(GetLocalBounds(true)).ToRECT();
-}
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // RootView - tree
@@ -228,8 +231,12 @@ void RootView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
       mouse_pressed_handler_ = NULL;
     }
 
+#if defined(OS_WIN)
     if (drop_target_.get())
       drop_target_->ResetTargetViewIfEquals(child);
+#else
+    NOTIMPLEMENTED();
+#endif
 
     if (mouse_move_handler_ == child) {
       mouse_move_handler_ = NULL;
@@ -311,10 +318,14 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
   mouse_pressed_handler_ = NULL;
 
   if (focus_on_mouse_pressed_) {
+#if defined(OS_WIN)
     HWND hwnd = GetWidget()->GetHWND();
     if (::GetFocus() != hwnd) {
       ::SetFocus(hwnd);
     }
+#else
+    NOTIMPLEMENTED();
+#endif
   }
   return hit_disabled_view;
 }
@@ -382,23 +393,6 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
   }
 }
 
-void RootView::UpdateCursor(const MouseEvent& e) {
-  View *v = GetViewForPoint(e.location());
-
-  if (v && v != this) {
-    gfx::Point l(e.location());
-    View::ConvertPointToView(this, v, &l);
-    HCURSOR cursor = v->GetCursorForPoint(e.GetType(), l.x(), l.y());
-    if (cursor) {
-      ::SetCursor(cursor);
-      return;
-    }
-  }
-  if (previous_cursor_) {
-    SetCursor(previous_cursor_);
-  }
-}
-
 void RootView::OnMouseMoved(const MouseEvent& e) {
   View *v = GetViewForPoint(e.location());
   // Find the first enabled view.
@@ -427,6 +421,7 @@ void RootView::OnMouseMoved(const MouseEvent& e) {
                            0);
     mouse_move_handler_->OnMouseMoved(moved_event);
 
+#if defined(OS_WIN)
     HCURSOR cursor = mouse_move_handler_->GetCursorForPoint(
         moved_event.GetType(), moved_event.x(), moved_event.y());
     if (cursor) {
@@ -435,13 +430,20 @@ void RootView::OnMouseMoved(const MouseEvent& e) {
       ::SetCursor(previous_cursor_);
       previous_cursor_ = NULL;
     }
+#else
+    NOTIMPLEMENTED();
+#endif
   } else if (mouse_move_handler_ != NULL) {
     MouseEvent exited_event(Event::ET_MOUSE_EXITED, 0, 0, 0);
     mouse_move_handler_->OnMouseExited(exited_event);
+#if defined(OS_WIN)
     if (previous_cursor_) {
       ::SetCursor(previous_cursor_);
       previous_cursor_ = NULL;
     }
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
@@ -460,15 +462,25 @@ void RootView::SetMouseHandler(View *new_mh) {
 }
 
 void RootView::OnWidgetCreated() {
+#if defined(OS_WIN)
   DCHECK(!drop_target_.get());
   drop_target_ = new RootViewDropTarget(this);
+#else
+  // TODO(port): Port RootViewDropTarget and this goes away.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RootView::OnWidgetDestroyed() {
+#if defined(OS_WIN)
   if (drop_target_.get()) {
     RevokeDragDrop(GetWidget()->GetHWND());
     drop_target_ = NULL;
   }
+#else
+  // TODO(port): Port RootViewDropTarget and this goes away.
+  NOTIMPLEMENTED();
+#endif
   widget_ = NULL;
 }
 
@@ -487,6 +499,7 @@ void RootView::SetFocusListener(FocusListener* listener) {
 
 void RootView::FocusView(View* view) {
   if (view != GetFocusedView()) {
+#if defined(OS_WIN)
     FocusManager* focus_manager = GetFocusManager();
     DCHECK(focus_manager) << "No Focus Manager for Window " <<
         (GetWidget() ? GetWidget()->GetHWND() : 0);
@@ -498,6 +511,10 @@ void RootView::FocusView(View* view) {
 
     if (focus_listener_)
       focus_listener_->FocusChanged(prev_focused_view, view);
+#else
+    // TODO(port): Port the focus manager and this goes away.
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
@@ -799,6 +816,7 @@ void RootView::ProcessKeyEvent(const KeyEvent& event) {
   bool consumed = false;
 
   if (GetFocusedView()) {
+#if defined(OS_WIN)
     // Special case to handle right-click context menus triggered by the
     // keyboard.
     if ((event.GetCharacter() == VK_APPS) ||
@@ -810,6 +828,10 @@ void RootView::ProcessKeyEvent(const KeyEvent& event) {
         return;
       }
     }
+#else
+    // TODO(port): The above block needs the VK_* refactored out.
+    NOTIMPLEMENTED();
+#endif
 
     for (v = GetFocusedView();
          v && v != this && !consumed; v = v->GetParent()) {
@@ -908,38 +930,11 @@ void RootView::ClearPaintRect() {
   paint_task_needed_ = false;
 }
 
-void RootView::OnPaint(HWND hwnd) {
-  RECT original_dirty_region = GetScheduledPaintRectConstrainedToSize();
-  if (!IsRectEmpty(&original_dirty_region)) {
-    // Invoke InvalidateRect so that the dirty region of the window includes the
-    // region we need to paint. If we didn't do this and the region didn't
-    // include the dirty region, ProcessPaint would incorrectly mark everything
-    // as clean. This can happen if a WM_PAINT is generated by the system before
-    // the InvokeLater schedule by RootView is processed.
-    InvalidateRect(hwnd, &original_dirty_region, FALSE);
-  }
-  ChromeCanvasPaint canvas(hwnd);
-  if (!canvas.isEmpty()) {
-    const PAINTSTRUCT& ps = canvas.paintStruct();
-    SchedulePaint(gfx::Rect(ps.rcPaint), false);
-    if (NeedsPainting(false))
-      ProcessPaint(&canvas);
-  }
-}
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // RootView - accessibility
 //
 /////////////////////////////////////////////////////////////////////////////
-
-bool RootView::GetAccessibleRole(VARIANT* role) {
-  DCHECK(role);
-
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_APPLICATION;
-  return true;
-}
 
 bool RootView::GetAccessibleName(std::wstring* name) {
   if (!accessible_name_.empty()) {
@@ -951,24 +946,6 @@ bool RootView::GetAccessibleName(std::wstring* name) {
 
 void RootView::SetAccessibleName(const std::wstring& name) {
   accessible_name_.assign(name);
-}
-
-void RootView::StartDragForViewFromMouseEvent(
-    View* view,
-    IDataObject* data,
-    int operation) {
-  drag_view_ = view;
-  scoped_refptr<BaseDragSource> drag_source(new BaseDragSource);
-  DWORD effects;
-  DoDragDrop(data, drag_source,
-             DragDropTypes::DragOperationToDropEffect(operation), &effects);
-  // If the view is removed during the drag operation, drag_view_ is set to
-  // NULL.
-  if (drag_view_ == view) {
-    View* drag_view = drag_view_;
-    drag_view_ = NULL;
-    drag_view->OnDragDone();
-  }
 }
 
 View* RootView::GetDragView() {
