@@ -5,6 +5,7 @@
 #include <limits>
 
 #include "base/values.h"
+#include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class ValuesTest: public testing::Test {
@@ -53,6 +54,41 @@ TEST(ValuesTest, Basic) {
   std::wstring bookmark_url;
   ASSERT_TRUE(bookmark->GetString(L"url", &bookmark_url));
   ASSERT_EQ(std::wstring(L"http://froogle.com"), bookmark_url);
+}
+
+TEST(ValuesTest, List) {
+  scoped_ptr<ListValue> mixed_list(new ListValue());
+  mixed_list->Set(0, Value::CreateBooleanValue(true));
+  mixed_list->Set(1, Value::CreateIntegerValue(42));
+  mixed_list->Set(2, Value::CreateRealValue(88.8));
+  mixed_list->Set(3, Value::CreateStringValue("foo"));
+  ASSERT_EQ(4u, mixed_list->GetSize());
+ 
+  Value *value = NULL;
+  bool bool_value = false;
+  int int_value = 0;
+  double double_value = 0.0;
+  std::string string_value;
+
+  ASSERT_FALSE(mixed_list->Get(4, &value));
+
+  ASSERT_FALSE(mixed_list->GetInteger(0, &int_value));
+  ASSERT_EQ(0, int_value);
+  ASSERT_FALSE(mixed_list->GetReal(1, &double_value));
+  ASSERT_EQ(0.0, double_value);
+  ASSERT_FALSE(mixed_list->GetString(2, &string_value));
+  ASSERT_EQ("", string_value);
+  ASSERT_FALSE(mixed_list->GetBoolean(3, &bool_value));
+  ASSERT_EQ(false, bool_value);
+
+  ASSERT_TRUE(mixed_list->GetBoolean(0, &bool_value));
+  ASSERT_EQ(true, bool_value);
+  ASSERT_TRUE(mixed_list->GetInteger(1, &int_value));
+  ASSERT_EQ(42, int_value);
+  ASSERT_TRUE(mixed_list->GetReal(2, &double_value));
+  ASSERT_EQ(88.8, double_value);
+  ASSERT_TRUE(mixed_list->GetString(3, &string_value));
+  ASSERT_EQ("foo", string_value);
 }
 
 TEST(ValuesTest, BinaryValue) {

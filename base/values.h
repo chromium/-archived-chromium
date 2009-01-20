@@ -202,7 +202,7 @@ class DictionaryValue : public Value {
   virtual bool Equals(const Value* other) const;
 
   // Returns true if the current dictionary has a value for the given key.
-  bool HasKey(const std::wstring& key);
+  bool HasKey(const std::wstring& key) const;
 
   // Clears any current contents of this dictionary.
   void Clear();
@@ -286,7 +286,6 @@ class DictionaryValue : public Value {
 };
 
 // This type of Value represents a list of other Value values.
-// TODO(jhughes): Flesh this out.
 class ListValue : public Value {
  public:
   ListValue() : Value(TYPE_LIST) {}
@@ -317,7 +316,13 @@ class ListValue : public Value {
   // Convenience forms of Get().  Modifies value (and returns true) only if
   // the index is valid and the Value at that index can be returned in
   // the specified form.
+  bool GetBoolean(size_t index, bool* out_value) const;
+  bool GetInteger(size_t index, int* out_value) const;
+  bool GetReal(size_t index, double* out_value) const;
+  bool GetString(size_t index, std::string* out_value) const;
+  bool GetBinary(size_t index, BinaryValue** out_value) const;
   bool GetDictionary(size_t index, DictionaryValue** out_value) const;
+  bool GetList(size_t index, ListValue** out_value) const;
 
   // Removes the Value with the specified index from this list.
   // If |out_value| is non-NULL, the removed Value AND ITS OWNERSHIP will be

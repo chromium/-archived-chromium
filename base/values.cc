@@ -245,7 +245,7 @@ void DictionaryValue::Clear() {
   dictionary_.clear();
 }
 
-bool DictionaryValue::HasKey(const std::wstring& key) {
+bool DictionaryValue::HasKey(const std::wstring& key) const {
   ValueMap::const_iterator current_entry = dictionary_.find(key);
   DCHECK((current_entry == dictionary_.end()) || current_entry->second);
   return current_entry != dictionary_.end();
@@ -532,8 +532,51 @@ bool ListValue::Get(size_t index, Value** out_value) const {
   return true;
 }
 
-bool ListValue::GetDictionary(size_t index,
-                              DictionaryValue** out_value) const {
+bool ListValue::GetBoolean(size_t index, bool* bool_value) const {
+  Value* value;
+  if (!Get(index, &value))
+    return false;
+
+  return value->GetAsBoolean(bool_value);
+}
+
+bool ListValue::GetInteger(size_t index, int* out_value) const {
+  Value* value;
+  if (!Get(index, &value))
+    return false;
+
+  return value->GetAsInteger(out_value);
+}
+
+bool ListValue::GetReal(size_t index, double* out_value) const {
+  Value* value;
+  if (!Get(index, &value))
+    return false;
+
+  return value->GetAsReal(out_value);
+}
+
+bool ListValue::GetString(size_t index, std::string* out_value) const {
+  Value* value;
+  if (!Get(index, &value))
+    return false;
+
+  return value->GetAsString(out_value);
+}
+
+bool ListValue::GetBinary(size_t index, BinaryValue** out_value) const {
+  Value* value;
+  bool result = Get(index, &value);
+  if (!result || !value->IsType(TYPE_BINARY))
+    return false;
+
+  if (out_value)
+    *out_value = static_cast<BinaryValue*>(value);
+
+  return true;
+}
+
+bool ListValue::GetDictionary(size_t index, DictionaryValue** out_value) const {
   Value* value;
   bool result = Get(index, &value);
   if (!result || !value->IsType(TYPE_DICTIONARY))
@@ -541,6 +584,18 @@ bool ListValue::GetDictionary(size_t index,
 
   if (out_value)
     *out_value = static_cast<DictionaryValue*>(value);
+
+  return true;
+}
+
+bool ListValue::GetList(size_t index, ListValue** out_value) const {
+  Value* value;
+  bool result = Get(index, &value);
+  if (!result || !value->IsType(TYPE_LIST))
+    return false;
+
+  if (out_value)
+    *out_value = static_cast<ListValue*>(value);
 
   return true;
 }
