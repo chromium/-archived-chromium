@@ -1876,3 +1876,6 @@ LINUX WIN : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 // Merge 39953:39972 -- the test actually passes, but test_shell appears to eat
 // first few chars. See http://crbug.com/6518
 LayoutTests/fast/dom/css-selectorText.html = FAIL
+
+// Passes locally but Text diff fails on the buildbots
+LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
