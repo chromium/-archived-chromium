@@ -184,10 +184,11 @@ Filter* Filter::PrependNewFilter(FilterType type_id, int buffer_size,
       }
       break;
     }
-    case FILTER_TYPE_SDCH: {
+    case FILTER_TYPE_SDCH:
+    case FILTER_TYPE_SDCH_POSSIBLE: {
       scoped_ptr<SdchFilter> sdch_filter(new SdchFilter());
       if (sdch_filter->InitBuffer(buffer_size)) {
-        if (sdch_filter->InitDecoding()) {
+        if (sdch_filter->InitDecoding(type_id)) {
           first_filter = sdch_filter.release();
         }
       }
@@ -321,8 +322,9 @@ void Filter::SetMimeType(const std::string& mime_type) {
     next_filter_->SetMimeType(mime_type);
 }
 
-void Filter::SetConnectTime(const base::Time& time) {
+void Filter::SetConnectTime(const base::Time& time, bool was_cached) {
   connect_time_ = time;
+  was_cached_ = was_cached;
   if (next_filter_.get())
-    next_filter_->SetConnectTime(time);
+    next_filter_->SetConnectTime(time, was_cached_);
 }

@@ -61,8 +61,9 @@ class Filter {
     FILTER_TYPE_DEFLATE,
     FILTER_TYPE_GZIP,
     FILTER_TYPE_BZIP2,
-    FILTER_TYPE_GZIP_HELPING_SDCH,
+    FILTER_TYPE_GZIP_HELPING_SDCH,  // Gzip possible, but pass through allowed.
     FILTER_TYPE_SDCH,
+    FILTER_TYPE_SDCH_POSSIBLE,  // Sdch possible, but pass through allowed.
     FILTER_TYPE_UNSUPPORTED,
   };
 
@@ -121,7 +122,7 @@ class Filter {
   void SetMimeType(const std::string& mime_type);
   const std::string& mime_type() const { return mime_type_; }
 
-  void SetConnectTime(const base::Time& time);
+  void SetConnectTime(const base::Time& time, bool was_cached);
 
   // Translate the text of a filter name (from Content-Encoding header) into a
   // FilterType.
@@ -173,6 +174,8 @@ class Filter {
 
   base::Time connect_time() const { return connect_time_; }
 
+  bool was_cached() const { return was_cached_; }
+
   // Buffer to hold the data to be filtered.
   scoped_array<char> stream_buffer_;
 
@@ -191,8 +194,10 @@ class Filter {
   GURL url_;
 
   // To facilitate histogramming by individual filters, we store the connect
-  // time for the corresponding HTTP transaction.
+  // time for the corresponding HTTP transaction, as well as whether this time
+  // was recalled from a cached entry.
   base::Time connect_time_;
+  bool was_cached_;
 
   // To facilitate error recovery in SDCH filters, allow filter to know if
   // content is text/html by checking within this mime type (SDCH filter may

@@ -32,7 +32,7 @@ SdchManager* SdchManager::Global() {
 
 // static
 void SdchManager::SdchErrorRecovery(ProblemCodes problem) {
-  static LinearHistogram histogram(L"Sdch.ProblemCodes", MIN_PROBLEM_CODE,
+  static LinearHistogram histogram(L"Sdch.ProblemCodes_2", MIN_PROBLEM_CODE,
                                    MAX_PROBLEM_CODE - 1, MAX_PROBLEM_CODE);
   histogram.SetFlags(kUmaTargetedHistogramFlag);
   histogram.Add(problem);
@@ -41,8 +41,29 @@ void SdchManager::SdchErrorRecovery(ProblemCodes problem) {
 // static
 void SdchManager::ClearBlacklistings() {
   Global()->blacklisted_domains_.clear();
+  Global()->exponential_blacklist_count.clear();
 }
 
+// static
+void SdchManager::ClearDomainBlacklisting(std::string domain) {
+  Global()->blacklisted_domains_.erase(StringToLowerASCII(domain));
+}
+
+// static
+int SdchManager::BlackListDomainCount(std::string domain) {
+  if (Global()->blacklisted_domains_.end() ==
+      Global()->blacklisted_domains_.find(domain))
+    return 0;
+  return Global()->blacklisted_domains_[StringToLowerASCII(domain)];
+}
+
+// static
+int SdchManager::BlacklistDomainExponential(std::string domain) {
+  if (Global()->exponential_blacklist_count.end() ==
+      Global()->exponential_blacklist_count.find(domain))
+    return 0;
+  return Global()->exponential_blacklist_count[StringToLowerASCII(domain)];
+}
 
 //------------------------------------------------------------------------------
 SdchManager::SdchManager() : sdch_enabled_(false) {
@@ -61,14 +82,32 @@ SdchManager::~SdchManager() {
 }
 
 // static
-bool SdchManager::BlacklistDomain(const GURL& url) {
+void SdchManager::BlacklistDomain(const GURL& url) {
   if (!global_ )
-    return false;
-  UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.UptimeBeforeBlacklisting_M",
-       Time::Now() - FieldTrialList::application_start_time());
+    return;
+
   std::string domain(StringToLowerASCII(url.host()));
-  global_->blacklisted_domains_.insert(domain);
-  return true;
+  int count = global_->blacklisted_domains_[domain];
+  if (count > 0)
+    return;  // Domain is already blacklisted.
+
+  count = 1 + 2 * global_->exponential_blacklist_count[domain];
+  if (count > 0)
+    global_->exponential_blacklist_count[domain] = count;
+  else
+    count = INT_MAX;
+
+  global_->blacklisted_domains_[domain] = count;
+}
+
+// static
+void SdchManager::BlacklistDomainForever(const GURL& url) {
+  if (!global_ )
+    return;
+
+  std::string domain(StringToLowerASCII(url.host()));
+  global_->exponential_blacklist_count[domain] = INT_MAX;
+  global_->blacklisted_domains_[domain] = INT_MAX;
 }
 
 void SdchManager::EnableSdchSupport(const std::string& domain) {
@@ -77,7 +116,7 @@ void SdchManager::EnableSdchSupport(const std::string& domain) {
   global_->sdch_enabled_ = true;
 }
 
-const bool SdchManager::IsInSupportedDomain(const GURL& url) const {
+const bool SdchManager::IsInSupportedDomain(const GURL& url) {
   if (!sdch_enabled_ )
     return false;
   if (!supported_domain_.empty() &&
@@ -87,12 +126,18 @@ const bool SdchManager::IsInSupportedDomain(const GURL& url) const {
   if (blacklisted_domains_.empty())
     return true;
 
-  std::string domain = StringToLowerASCII(url.host());
-  bool was_blacklisted(blacklisted_domains_.end() !=
-                       blacklisted_domains_.find(domain));
-  if (was_blacklisted)
-    SdchErrorRecovery(DOMAIN_BLACKLIST_INCLUDES_TARGET);
-  return !was_blacklisted;
+  std::string domain(StringToLowerASCII(url.host()));
+  DomainCounter::iterator it = blacklisted_domains_.find(domain);
+  if (blacklisted_domains_.end() == it)
+    return true;
+
+  int count = it->second - 1;
+  if (count > 0)
+    blacklisted_domains_[domain] = count;
+  else
+    blacklisted_domains_.erase(domain);
+  SdchErrorRecovery(DOMAIN_BLACKLIST_INCLUDES_TARGET);
+  return false;
 }
 
 bool SdchManager::CanFetchDictionary(const GURL& referring_url,

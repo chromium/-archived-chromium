@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <limits.h>
 #include <ctype.h>
 #include <algorithm>
 
@@ -24,7 +25,8 @@ SdchFilter::SdchFilter()
       source_bytes_(0),
       output_bytes_(0),
       time_of_last_read_(),
-      size_of_last_read_(0) {
+      size_of_last_read_(0),
+      possible_pass_through_(false) {
 }
 
 SdchFilter::~SdchFilter() {
@@ -39,14 +41,15 @@ SdchFilter::~SdchFilter() {
       decoding_status_ = DECODING_ERROR;
   }
 
-  if (base::Time() != connect_time() && base::Time() != time_of_last_read_) {
+  if (!was_cached()
+      && base::Time() != connect_time()
+      && base::Time() != time_of_last_read_) {
     base::TimeDelta duration = time_of_last_read_ - connect_time();
-    // Note: connect_time is *only* set if this was NOT cached data, so the
-    // latency duration should only apply to the network read of the content.
     // We clip our logging at 10 minutes to prevent anamolous data from being
     // considered (per suggestion from Jake Brutlag).
-    // The relatively precise histogram only properly covers the range 1ms to 10
-    // seconds, so the discarded data would not be that readable anyway.
+    // The relatively precise histogram only properly covers the range 1ms to 3
+    // minutes, so the additional range is just gathered to calculate means and
+    // variance as is done in other settings.
     if (10 >= duration.InMinutes()) {
       if (DECODING_IN_PROGRESS == decoding_status_)
         UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Network_Decode_Latency_M", duration);
@@ -56,16 +59,19 @@ SdchFilter::~SdchFilter() {
     }
   }
 
-  UMA_HISTOGRAM_COUNTS(L"Sdch.Bytes read", source_bytes_);
   UMA_HISTOGRAM_COUNTS(L"Sdch.Bytes output", output_bytes_);
 
   if (dictionary_)
     dictionary_->Release();
 }
 
-bool SdchFilter::InitDecoding() {
+bool SdchFilter::InitDecoding(Filter::FilterType filter_type) {
   if (decoding_status_ != DECODING_UNINITIALIZED)
     return false;
+
+  // Handle case  where sdch filter is guessed, but not required.
+  if (FILTER_TYPE_SDCH_POSSIBLE == filter_type)
+    possible_pass_through_ = true;
 
   // Initialize decoder only after we have a dictionary in hand.
   decoding_status_ = WAITING_FOR_DICTIONARY_SELECTION;
@@ -104,19 +110,52 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
       DCHECK(DECODING_ERROR == decoding_status_);
       DCHECK(0 == dest_buffer_excess_index_);
       DCHECK(dest_buffer_excess_.empty());
-      if (!dictionary_hash_is_plausible_) {
+      if (possible_pass_through_) {
+        // We added the sdch coding tag, and it should not have been added.
+        // This can happen in server experiments, where the server decides
+        // not to use sdch, even though there is a dictionary.  To be
+        // conservative, we locally added the tentative sdch (fearing that a
+        // proxy stripped it!) and we must now recant (pass through).
+        SdchManager::SdchErrorRecovery(SdchManager::DISCARD_TENTATIVE_SDCH);
+        decoding_status_ = PASS_THROUGH;
+        dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
+      } else if (!dictionary_hash_is_plausible_) {
         // One of the first 9 bytes precluded consideration as a hash.
-        // This can't be an SDCH payload.
+        // This can't be an SDCH payload, even though the server said it was.
+        // This is a major error, as the server or proxy tagged this SDCH even
+        // though it is not!
+        // The good news is that error recovery is clear...
         SdchManager::SdchErrorRecovery(SdchManager::PASSING_THROUGH_NON_SDCH);
         decoding_status_ = PASS_THROUGH;
         dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
       } else {
-        SdchManager::BlacklistDomain(url());
+        // We don't have the dictionary that was demanded.
+        // With very low probability, random garbage data looked like a
+        // dictionary specifier (8 ASCII characters followed by a null), but
+        // that is sufficiently unlikely that we ignore it.
         if (std::string::npos == mime_type().find_first_of("text/html")) {
-          SdchManager::SdchErrorRecovery(SdchManager::UNRECOVERABLE_ERROR);
+          SdchManager::BlacklistDomainForever(url());
+          if (was_cached_)
+            SdchManager::SdchErrorRecovery(
+                SdchManager::CACHED_META_REFRESH_UNSUPPORTED);
+          else
+            SdchManager::SdchErrorRecovery(
+                SdchManager::META_REFRESH_UNSUPPORTED);
           return FILTER_ERROR;
         }
-        SdchManager::SdchErrorRecovery(SdchManager::META_REFRESH_RECOVERY);
+        // HTML content means we can issue a meta-refresh, and get the content
+        // again, perhaps without SDCH (to be safe).
+        if (was_cached_) {
+          // Cached content is probably a startup tab, so we'll just get fresh
+          // content and try again, without disabling sdch.
+          SdchManager::SdchErrorRecovery(
+              SdchManager::META_REFRESH_CACHED_RECOVERY);
+        } else {
+          // Since it wasn't in the cache, we definately need at lest some
+          // period of blacklisting to get the correct content.
+          SdchManager::BlacklistDomain(url());
+          SdchManager::SdchErrorRecovery(SdchManager::META_REFRESH_RECOVERY);
+        }
         decoding_status_ = META_REFRESH_RECOVERY;
         // Issue a meta redirect with SDCH disabled.
         dest_buffer_excess_ = kDecompressionErrorHtml;

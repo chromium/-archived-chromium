@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <limits.h>
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -739,8 +741,69 @@ TEST_F(SdchFilterTest, DomainBlacklisting) {
   EXPECT_TRUE(SdchManager::Global()->IsInSupportedDomain(google_url));
 
   SdchManager::BlacklistDomain(google_url);
-  EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(test_url));
   EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(google_url));
+}
+
+TEST_F(SdchFilterTest, DomainBlacklistingCaseSensitivity) {
+  GURL test_url("http://www.TesT.com");
+  GURL test2_url("http://www.tEst.com");
+
+  EXPECT_TRUE(SdchManager::Global()->IsInSupportedDomain(test_url));
+  EXPECT_TRUE(SdchManager::Global()->IsInSupportedDomain(test2_url));
+  SdchManager::BlacklistDomain(test_url);
+  EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(test2_url));
+}
+
+TEST_F(SdchFilterTest, BlacklistingReset) {
+  GURL gurl("http://mytest.DoMain.com");
+  std::string domain(gurl.host());
+
+  SdchManager::ClearBlacklistings();
+  EXPECT_EQ(SdchManager::BlackListDomainCount(domain), 0);
+  EXPECT_EQ(SdchManager::BlacklistDomainExponential(domain), 0);
+  EXPECT_TRUE(SdchManager::Global()->IsInSupportedDomain(gurl));
+}
+
+TEST_F(SdchFilterTest, BlacklistingSingleBlacklist) {
+  GURL gurl("http://mytest.DoMain.com");
+  std::string domain(gurl.host());
+  SdchManager::ClearBlacklistings();
+
+  SdchManager::Global()->BlacklistDomain(gurl);
+  EXPECT_EQ(SdchManager::BlackListDomainCount(domain), 1);
+  EXPECT_EQ(SdchManager::BlacklistDomainExponential(domain), 1);
+
+  // Check that any domain lookup reduces the blacklist counter.
+  EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(gurl));
+  EXPECT_EQ(SdchManager::BlackListDomainCount(domain), 0);
+  EXPECT_TRUE(SdchManager::Global()->IsInSupportedDomain(gurl));
+}
+
+TEST_F(SdchFilterTest, BlacklistingExponential) {
+  GURL gurl("http://mytest.DoMain.com");
+  std::string domain(gurl.host());
+  SdchManager::ClearBlacklistings();
+
+  int exponential = 1;
+  for (int i = 1; i < 100; ++i) {
+    SdchManager::Global()->BlacklistDomain(gurl);
+    EXPECT_EQ(SdchManager::BlacklistDomainExponential(domain), exponential);
+
+    EXPECT_EQ(SdchManager::BlackListDomainCount(domain), exponential);
+    EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(gurl));
+    EXPECT_EQ(SdchManager::BlackListDomainCount(domain), exponential - 1);
+
+    // Simulate a large number of domain checks (which eventually remove the
+    // blacklisting).
+    SdchManager::ClearDomainBlacklisting(domain);
+    EXPECT_EQ(SdchManager::BlackListDomainCount(domain), 0);
+    EXPECT_TRUE(SdchManager::Global()->IsInSupportedDomain(gurl));
+
+    // Predict what exponential backoff will be.
+    exponential = 1 + 2 * exponential;
+    if (exponential < 0)
+      exponential = INT_MAX;  // We don't wrap.
+  }
 }
 
 TEST_F(SdchFilterTest, CanSetExactMatchDictionary) {
@@ -840,3 +903,4 @@ TEST_F(SdchFilterTest, DictionaryTooLarge) {
   EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
               GURL("http://" + dictionary_domain)));
 }
+

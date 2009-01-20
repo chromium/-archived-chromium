@@ -33,7 +33,7 @@ class SdchFilter : public Filter {
   virtual ~SdchFilter();
 
   // Initializes filter decoding mode and internal control blocks.
-  bool InitDecoding();
+  bool InitDecoding(Filter::FilterType filter_type);
 
   // Decode the pre-filter data and writes the output into |dest_buffer|
   // The function returns FilterStatus. See filter.h for its description.
@@ -104,6 +104,10 @@ class SdchFilter : public Filter {
   // How large was the most recent non-zero size data chunk?
   int size_of_last_read_;
 
+  // Error recovery in content type may add an sdch filter type, in which case
+  // we should gracefully perform pass through if the format is incorrect, or
+  // an applicable dictionary can't be found.
+  bool possible_pass_through_;
 
   DISALLOW_COPY_AND_ASSIGN(SdchFilter);
 };

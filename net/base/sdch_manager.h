@@ -57,16 +57,16 @@ class SdchManager {
     MIN_PROBLEM_CODE,
 
     // Content-encoding correction problems.
-    ADDED_CONTENT_ENCODING,
-    FIXED_CONTENT_ENCODING,
-    FIXED_CONTENT_ENCODINGS,
+    ADDED_CONTENT_ENCODING = 1,
+    FIXED_CONTENT_ENCODING = 2,
+    FIXED_CONTENT_ENCODINGS = 3,
 
     // Content decoding errors.
-    DECODE_HEADER_ERROR,
-    DECODE_BODY_ERROR,
+    DECODE_HEADER_ERROR = 4,
+    DECODE_BODY_ERROR = 5,
 
     // More content-encoding correction problems.
-    OPTIONAL_GUNZIP_ENCODING_ADDED,
+    OPTIONAL_GUNZIP_ENCODING_ADDED = 6,
 
     // Dictionary selection for use problems.
     DICTIONARY_FOUND_HAS_WRONG_DOMAIN = 10,
@@ -75,11 +75,6 @@ class SdchManager {
     DICTIONARY_FOUND_HAS_WRONG_SCHEME = 13,
     DICTIONARY_HASH_NOT_FOUND = 14,
     DICTIONARY_HASH_MALFORMED = 15,
-
-    // Decode recovery methods.
-    META_REFRESH_RECOVERY = 16,
-    PASSING_THROUGH_NON_SDCH = 17,
-    UNRECOVERABLE_ERROR = 18,
 
     // Dictionary saving problems.
     DICTIONARY_HAS_NO_HEADER = 20,
@@ -108,9 +103,17 @@ class SdchManager {
     SDCH_CONTENT_ENCODE_FOR_NON_SDCH_REQUEST = 51,
 
     // Dictionary manager issues.
-    PLEASE_IGNORE_THIS_ENUM = 60,  // Erroneous use in Version 1.0 of Chrome.
     DOMAIN_BLACKLIST_INCLUDES_TARGET = 61,
 
+    // Problematic decode recovery methods.
+    META_REFRESH_RECOVERY = 70,            // Dictionary not found.
+    META_REFRESH_UNSUPPORTED = 71,         // Unrecoverable error.
+    CACHED_META_REFRESH_UNSUPPORTED = 72,  // As above, but pulled from cache.
+    PASSING_THROUGH_NON_SDCH = 73,  // Non-html tagged as sdch but malformed.
+
+    // Common decoded recovery methods.
+    META_REFRESH_CACHED_RECOVERY = 80,  // Probably startup tab loading.
+    DISCARD_TENTATIVE_SDCH = 81,        // Server decided not to use sdch.
 
     MAX_PROBLEM_CODE  // Used to bound histogram.
   };
@@ -203,19 +206,37 @@ class SdchManager {
 
   static bool sdch_enabled() { return global_ && global_->sdch_enabled_; }
 
-  // Prevent further advertising of SDCH on this domain (if SDCH is enabled).
-  // Used when filter errors are found from a given domain, to prevent further
-  // use of SDCH on that domain.
-  static bool BlacklistDomain(const GURL& url);
+  // Briefly prevent further advertising of SDCH on this domain (if SDCH is
+  // enabled). After enough calls to IsInSupportedDomain() the blacklisting
+  // will be removed.  Additional blacklists take exponentially more calls
+  // to IsInSupportedDomain() before the blacklisting is undone.
+  // Used when filter errors are found from a given domain, but it is plausible
+  // that the cause is temporary (such as application startup, where cached
+  // entries are used, but a dictionary is not yet loaded).
+  static void BlacklistDomain(const GURL& url);
 
-  // For testing only, tihs function resets enabling of sdch, and clears the
+  // Used when SEVERE filter errors are found from a given domain, to prevent
+  // further use of SDCH on that domain.
+  static void BlacklistDomainForever(const GURL& url);
+
+  // Unit test only, this function resets enabling of sdch, and clears the
   // blacklist.
   static void ClearBlacklistings();
 
+  // Unit test only, this function resets the blacklisting count for a domain.
+  static void ClearDomainBlacklisting(std::string domain);
+
+  // Unit test only: indicate how many more times a domain will be blacklisted.
+  static int BlackListDomainCount(std::string domain);
+
+  // Unit test only: Indicate what current blacklist increment is for a domain.
+  static int BlacklistDomainExponential(std::string domain);
+
   // Check to see if SDCH is enabled (globally), and the given URL is in a
   // supported domain (i.e., not blacklisted, and either the specific supported
-  // domain, or all domains were assumed supported).
-  const bool IsInSupportedDomain(const GURL& url) const;
+  // domain, or all domains were assumed supported).  If it is blacklist, reduce
+  // by 1 the number of times it will be reported as blacklisted.
+  const bool IsInSupportedDomain(const GURL& url);
 
   // Schedule the URL fetching to load a dictionary. This will generally return
   // long before the dictionary is actually loaded and added.
@@ -258,6 +279,8 @@ class SdchManager {
                            std::string* client_hash, std::string* server_hash);
 
  private:
+  typedef std::map<const std::string, int> DomainCounter;
+
   // A map of dictionaries info indexed by the hash that the server provides.
   typedef std::map<std::string, Dictionary*> DictionaryMap;
 
@@ -279,8 +302,13 @@ class SdchManager {
   // domain is supported.
   std::string supported_domain_;
 
-  // List domains where decode failures have required disabling sdch.
-  std::set<std::string> blacklisted_domains_;
+  // List domains where decode failures have required disabling sdch, along with
+  // count of how many additonal uses should be blacklisted.
+  DomainCounter blacklisted_domains_;
+
+  // Support exponential backoff in number of domain accesses before
+  // blacklisting expires.
+  DomainCounter exponential_blacklist_count;
 
   DISALLOW_COPY_AND_ASSIGN(SdchManager);
 };
