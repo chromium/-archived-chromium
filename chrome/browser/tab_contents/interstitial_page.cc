@@ -17,12 +17,6 @@
 #include "chrome/views/window_delegate.h"
 #include "net/base/escape.h"
 
-enum ResourceRequestAction {
-  BLOCK,
-  RESUME,
-  CANCEL
-};
-
 namespace {
 
 class ResourceRequestTask : public Task {

@@ -26,7 +26,11 @@ class WebContents;
 // through a navigation, the WebContents closing them or the tab containing them
 // being closed.
 
-enum ResourceRequestAction;
+enum ResourceRequestAction {
+  BLOCK,
+  RESUME,
+  CANCEL
+};
 
 class InterstitialPage : public NotificationObserver,
                          public RenderViewHostDelegate {

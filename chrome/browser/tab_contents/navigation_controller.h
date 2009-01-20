@@ -11,13 +11,13 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
 
 class GURL;
 class Profile;
 class TabContents;
+class SiteInstance;
 class WebContents;
 class TabContentsCollector;
 class TabNavigation;

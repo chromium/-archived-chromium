@@ -2,14 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "chrome/browser/webdata/web_data_service.h"
 
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/password_manager/ie7_password.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/common/chrome_constants.h"
 #include "webkit/glue/password_form.h"
@@ -23,10 +20,10 @@
 
 using base::Time;
 
-WebDataService::WebDataService() : should_commit_(false),
-                                   next_request_handle_(1),
-                                   thread_(NULL),
-                                   db_(NULL) {
+WebDataService::WebDataService() : thread_(NULL),
+                                   db_(NULL),
+                                   should_commit_(false),
+                                   next_request_handle_(1) {
 }
 
 WebDataService::~WebDataService() {
@@ -289,15 +286,6 @@ void WebDataService::AddLogin(const PasswordForm& form) {
                                  request));
 }
 
-void WebDataService::AddIE7Login(const IE7PasswordInfo& info) {
-  GenericRequest<IE7PasswordInfo>* request =
-      new GenericRequest<IE7PasswordInfo>(this, GetNextRequestHandle(), NULL,
-                                          info);
-  RegisterRequest(request);
-  ScheduleTask(NewRunnableMethod(this, &WebDataService::AddIE7LoginImpl,
-                                 request));
-}
-
 void WebDataService::UpdateLogin(const PasswordForm& form) {
   GenericRequest<PasswordForm>* request =
       new GenericRequest<PasswordForm>(this, GetNextRequestHandle(),
@@ -313,15 +301,6 @@ void WebDataService::RemoveLogin(const PasswordForm& form) {
                                       form);
   RegisterRequest(request);
   ScheduleTask(NewRunnableMethod(this, &WebDataService::RemoveLoginImpl,
-                                 request));
-}
-
-void WebDataService::RemoveIE7Login(const IE7PasswordInfo& info) {
-  GenericRequest<IE7PasswordInfo>* request =
-      new GenericRequest<IE7PasswordInfo>(this, GetNextRequestHandle(), NULL,
-                                          info);
-  RegisterRequest(request);
-  ScheduleTask(NewRunnableMethod(this, &WebDataService::RemoveIE7LoginImpl,
                                  request));
 }
 
@@ -363,18 +342,6 @@ WebDataService::Handle WebDataService::GetLogins(
                                        consumer, form);
   RegisterRequest(request);
   ScheduleTask(NewRunnableMethod(this, &WebDataService::GetLoginsImpl,
-                                 request));
-  return request->GetHandle();
-}
-
-WebDataService::Handle WebDataService::GetIE7Login(
-    const IE7PasswordInfo& info,
-    WebDataServiceConsumer* consumer) {
-  GenericRequest<IE7PasswordInfo>* request =
-      new GenericRequest<IE7PasswordInfo>(this, GetNextRequestHandle(),
-                                          consumer, info);
-  RegisterRequest(request);
-  ScheduleTask(NewRunnableMethod(this, &WebDataService::GetIE7LoginImpl,
                                  request));
   return request->GetHandle();
 }
@@ -517,14 +484,6 @@ void WebDataService::AddLoginImpl(GenericRequest<PasswordForm>* request) {
   request->RequestComplete();
 }
 
-void WebDataService::AddIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request) {
-  if (db_ && !request->IsCancelled()) {
-    if (db_->AddIE7Login(request->GetArgument()))
-      ScheduleCommit();
-  }
-  request->RequestComplete();
-}
-
 void WebDataService::UpdateLoginImpl(GenericRequest<PasswordForm>* request) {
   if (db_ && !request->IsCancelled()) {
     if (db_->UpdateLogin(request->GetArgument()))
@@ -536,15 +495,6 @@ void WebDataService::UpdateLoginImpl(GenericRequest<PasswordForm>* request) {
 void WebDataService::RemoveLoginImpl(GenericRequest<PasswordForm>* request) {
   if (db_ && !request->IsCancelled()) {
     if (db_->RemoveLogin(request->GetArgument()))
-      ScheduleCommit();
-  }
-  request->RequestComplete();
-}
-
-void WebDataService::RemoveIE7LoginImpl(
-    GenericRequest<IE7PasswordInfo>* request) {
-  if (db_ && !request->IsCancelled()) {
-    if (db_->RemoveIE7Login(request->GetArgument()))
       ScheduleCommit();
   }
   request->RequestComplete();
@@ -566,17 +516,6 @@ void WebDataService::GetLoginsImpl(GenericRequest<PasswordForm>* request) {
     db_->GetLogins(request->GetArgument(), &forms);
     request->SetResult(
         new WDResult<std::vector<PasswordForm*> >(PASSWORD_RESULT, forms));
-  }
-  request->RequestComplete();
-}
-
-void WebDataService::GetIE7LoginImpl(
-    GenericRequest<IE7PasswordInfo>* request) {
-  if (db_ && !request->IsCancelled()) {
-    IE7PasswordInfo result;
-    db_->GetIE7Login(request->GetArgument(), &result);
-    request->SetResult(
-        new WDResult<IE7PasswordInfo>(PASSWORD_IE7_RESULT, result));
   }
   request->RequestComplete();
 }

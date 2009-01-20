@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "base/string_util.h"
-#include "chrome/browser/password_manager/ie7_password.h"
 #include "chrome/browser/password_manager/password_manager.h"
 #include "chrome/browser/profile.h"
 #include "webkit/glue/password_form_dom_manager.h"
@@ -18,14 +17,14 @@ PasswordFormManager::PasswordFormManager(Profile* profile,
                                          PasswordManager* password_manager,
                                          const PasswordForm& observed_form,
                                          bool ssl_valid)
-    : observed_form_(observed_form),
-      password_manager_(password_manager),
-      profile_(profile),
+    : best_matches_deleter_(&best_matches_),
+      observed_form_(observed_form),
       is_new_login_(true),
+      password_manager_(password_manager),
       pending_login_query_(NULL),
       preferred_match_(NULL),
-      best_matches_deleter_(&best_matches_),
-      state_(PRE_MATCHING_PHASE) {
+      state_(PRE_MATCHING_PHASE),
+      profile_(profile) {
   DCHECK(profile_);
   if (observed_form_.origin.is_valid())
     SplitString(observed_form_.origin.path(), '/', &form_path_tokens_);
@@ -178,23 +177,6 @@ void PasswordFormManager::FetchMatchingLoginsFromWebDatabase() {
   pending_login_query_ = web_data_service->GetLogins(observed_form_, this);
 }
 
-void PasswordFormManager::FetchMatchingIE7LoginFromWebDatabase() {
-  DCHECK_EQ(state_, PRE_MATCHING_PHASE);
-  DCHECK(!pending_login_query_);
-  state_ = MATCHING_PHASE;
-  WebDataService* web_data_service =
-      profile_->GetWebDataService(Profile::EXPLICIT_ACCESS);
-  if (!web_data_service) {
-    NOTREACHED();
-   return;
-  }
-
-  IE7PasswordInfo info;
-  std::wstring url = ASCIIToWide(observed_form_.origin.spec());
-  info.url_hash = ie7_password::GetUrlHash(url);
-  pending_login_query_ = web_data_service->GetIE7Login(info, this);
-}
-
 bool PasswordFormManager::HasCompletedMatching() {
   return state_ == POST_MATCHING_PHASE;
 }
@@ -283,56 +265,6 @@ void PasswordFormManager::OnRequestDone(WebDataService::Handle h,
   // Now we determine if the user told us to ignore this site in the past.
   // If they haven't, we proceed to auto-fill.
   if (!preferred_match_->blacklisted_by_user) {
-    password_manager_->Autofill(observed_form_, best_matches_,
-                                preferred_match_);
-  }
-}
-
-void PasswordFormManager::OnIE7RequestDone(WebDataService::Handle h,
-    const WDTypedResult* result) {
-  // Get the result from the database into a usable form.
-  const WDResult<IE7PasswordInfo>* r =
-      static_cast<const WDResult<IE7PasswordInfo>*>(result);
-  IE7PasswordInfo result_value = r->GetValue();
-
-  state_ = POST_MATCHING_PHASE;
-
-  if (!result_value.encrypted_data.empty()) {
-    // We got a result.
-    // Delete the entry. If it's good we will add it to the real saved password
-    // table.
-    WebDataService* web_data_service =
-        profile_->GetWebDataService(Profile::EXPLICIT_ACCESS);
-    if (!web_data_service) {
-      NOTREACHED();
-     return;
-    }
-    web_data_service->RemoveIE7Login(result_value);
-
-    std::wstring username;
-    std::wstring password;
-    std::wstring url = ASCIIToWide(observed_form_.origin.spec());
-    if (!ie7_password::DecryptPassword(url, result_value.encrypted_data,
-                                       &username, &password)) {
-      return;
-    }
-
-    PasswordForm* auto_fill = new PasswordForm(observed_form_);
-    auto_fill->username_value = username;
-    auto_fill->password_value = password;
-    auto_fill->preferred = true;
-    auto_fill->ssl_valid = observed_form_.origin.SchemeIsSecure();
-    auto_fill->date_created = result_value.date_created;
-    // Add this PasswordForm to the saved password table.
-    web_data_service->AddLogin(*auto_fill);
-
-    if (IgnoreResult(*auto_fill)) {
-      delete auto_fill;
-      return;
-    }
-
-    best_matches_[auto_fill->username_value] = auto_fill;
-    preferred_match_ = auto_fill;
     password_manager_->Autofill(observed_form_, best_matches_,
                                 preferred_match_);
   }

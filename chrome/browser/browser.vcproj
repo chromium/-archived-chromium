@@ -1286,6 +1286,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webdata\web_data_service_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\webdata\web_database.cc"
 				>
 			</File>
@@ -1577,6 +1581,10 @@
 			</File>
 			<File
 				RelativePath=".\password_manager\password_form_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_form_manager_win.cc"
 				>
 			</File>
 			<File

@@ -16,7 +16,9 @@
 #include "chrome/common/scoped_vector.h"
 #include "webkit/glue/autofill_form.h"
 
+#if defined(OS_WIN)
 struct IE7PasswordInfo;
+#endif
 struct PasswordForm;
 class GURL;
 class ShutdownTask;
@@ -307,14 +309,8 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   // Adds |form| to the list of remembered password forms.
   void AddLogin(const PasswordForm& form);
 
-  // Adds |info| to the list of imported passwords from ie7/ie8.
-  void AddIE7Login(const IE7PasswordInfo& info);
-
   // Removes |form| from the list of remembered password forms.
   void RemoveLogin(const PasswordForm& form);
-
-  // Removes |info| from the list of imported passwords from ie7/ie8.
-  void RemoveIE7Login(const IE7PasswordInfo& info);
 
   // Removes all logins created in the specified daterange
   void RemoveLoginsCreatedBetween(const base::Time delete_begin,
@@ -329,13 +325,6 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   // The result will be null on failure. The |consumer| owns all PasswordForm's.
   Handle GetLogins(const PasswordForm& form, WebDataServiceConsumer* consumer);
 
-  // Get the login matching the information in |info|. |consumer| will be
-  // notified when the request is done. The result is of type
-  // WDResult<IE7PasswordInfo>.
-  // If there is no match, the fields of the IE7PasswordInfo will be empty.
-  Handle GetIE7Login(const IE7PasswordInfo& info,
-                     WebDataServiceConsumer* consumer);
-
   // Gets the complete list of password forms that have not been blacklisted and
   // are thus auto-fillable.
   // |consumer| will be notified when the request is done. The result is of
@@ -348,6 +337,21 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   // type WDResult<std::vector<PasswordForm*>>.
   // The result will be null on failure. The |consumer| owns all PasswordForm's.
   Handle GetAllLogins(WebDataServiceConsumer* consumer);
+
+#if defined(OS_WIN)
+  // Adds |info| to the list of imported passwords from ie7/ie8.
+  void AddIE7Login(const IE7PasswordInfo& info);
+
+  // Removes |info| from the list of imported passwords from ie7/ie8.
+  void RemoveIE7Login(const IE7PasswordInfo& info);
+ 
+  // Get the login matching the information in |info|. |consumer| will be
+  // notified when the request is done. The result is of type
+  // WDResult<IE7PasswordInfo>.
+  // If there is no match, the fields of the IE7PasswordInfo will be empty.
+  Handle GetIE7Login(const IE7PasswordInfo& info,
+                     WebDataServiceConsumer* consumer);
+#endif  // defined(OS_WIN)
 
   // Cancel any pending request. You need to call this method if your
   // WebDataServiceConsumer is about to be deleted.
@@ -429,16 +433,18 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   //
   //////////////////////////////////////////////////////////////////////////////
   void AddLoginImpl(GenericRequest<PasswordForm>* request);
-  void AddIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
   void UpdateLoginImpl(GenericRequest<PasswordForm>* request);
   void RemoveLoginImpl(GenericRequest<PasswordForm>* request);
-  void RemoveIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
   void RemoveLoginsCreatedBetweenImpl(
       GenericRequest2<base::Time, base::Time>* request);
   void GetLoginsImpl(GenericRequest<PasswordForm>* request);
-  void GetIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
   void GetAllAutofillableLoginsImpl(WebDataRequest* request);
   void GetAllLoginsImpl(WebDataRequest* request);
+#if defined(OS_WIN)
+  void AddIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
+  void RemoveIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
+  void GetIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
+#endif  // defined(OS_WIN)
 
   //////////////////////////////////////////////////////////////////////////////
   //

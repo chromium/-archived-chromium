@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/profile.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/plugin_messages.h"
