@@ -778,7 +778,7 @@ LINUX WIN : LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
 LINUX WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
 
 // Problems with getImageData and toDataURL: http://crbug.com/2972
-LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
+LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 LINUX WIN : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
@@ -1194,8 +1194,6 @@ LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL
 MAC WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
-// Bug 5051: several steps of this test fail for an unknown reason.
-LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
 // Bug 5053: fails (maybe V8?)
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 
@@ -1779,6 +1777,10 @@ LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 // started with r7379
 WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 
+// Merge 39520:39606 -- new test.
+WIN : LayoutTests/fast/canvas/set-colors.html = FAIL
+// Crashes on the buildbot reliably(?) but not locally, even under Valgrind.
+LINUX : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
 
 // Merge 39606:39660 - new tests
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
