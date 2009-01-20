@@ -1173,10 +1173,13 @@ bool WebFrameLoaderClient::canShowMIMEType(const String& mime_type) const {
           webkit_glue::CStringToStdString(mime_type.latin1())))
     return true;
 
+  // If Chrome is started with the --disable-plugins switch, pluginData is null.
+  WebCore::PluginData* plugin_data = webframe_->frame()->page()->pluginData();
+
   // See if the type is handled by an installed plugin, if so, we can show it.
   // TODO(beng): (http://b/1085524) This is the place to stick a preference to
   //             disable full page plugins (optionally for certain types!)
-  return webframe_->frame()->page()->pluginData()->supportsMimeType(mime_type);
+  return plugin_data && plugin_data->supportsMimeType(mime_type);
 }
 
 bool WebFrameLoaderClient::representationExistsForURLScheme(const String& URLScheme) const {
@@ -1470,7 +1473,9 @@ ObjectContentType WebFrameLoaderClient::objectContentType(
   if (MIMETypeRegistry::isSupportedImageMIMEType(mime_type))
     return ObjectContentImage;
 
-  if (webframe_->frame()->page()->pluginData()->supportsMimeType(mime_type))
+  // If Chrome is started with the --disable-plugins switch, pluginData is null.
+  PluginData* plugin_data = webframe_->frame()->page()->pluginData();
+  if (plugin_data && plugin_data->supportsMimeType(mime_type))
     return ObjectContentNetscapePlugin;
 
   if (MIMETypeRegistry::isSupportedNonImageMIMEType(mime_type))
