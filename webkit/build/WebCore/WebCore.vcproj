@@ -4443,7 +4443,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\InputElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\InputElement.h"
 				>
 			</File>
 			<File
@@ -4580,6 +4592,22 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Notation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionElement.h"
 				>
 			</File>
 			<File
@@ -7136,10 +7164,6 @@
 				<Filter
 					Name="skia"
 					>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerPatternSkia.cpp"
-						>
-					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerSkia.cpp"
 						>

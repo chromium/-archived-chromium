@@ -21,13 +21,13 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@1103",
 
   "src/webkit/data/layout_tests/LayoutTests":
-    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@40058",
+    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@40086",
 
   "src/third_party/WebKit/WebKit":
-    "http://svn.webkit.org/repository/webkit/trunk/WebKit@40058",
+    "http://svn.webkit.org/repository/webkit/trunk/WebKit@40086",
 
   "src/third_party/WebKit/WebKitLibraries":
-    "http://svn.webkit.org/repository/webkit/trunk/WebKitLibraries@40058",
+    "http://svn.webkit.org/repository/webkit/trunk/WebKitLibraries@40086",
 }
 
 
