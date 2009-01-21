@@ -334,15 +334,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Threading.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Threading.h"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ThreadingWin.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ThreadSpecific.h"
 			>
 		</File>
 		<File

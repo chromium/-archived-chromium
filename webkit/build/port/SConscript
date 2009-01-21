@@ -223,6 +223,8 @@ idl_files = [
     'dom/WebKitAnimationEvent.idl',
     'dom/WebKitTransitionEvent.idl',
     'dom/WheelEvent.idl',
+    'dom/Worker.idl',
+    'dom/WorkerLocation.idl',
 
     'html/CanvasGradient.idl',
     'html/CanvasPattern.idl',

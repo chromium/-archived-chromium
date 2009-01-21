@@ -354,6 +354,11 @@
 #include "V8TimeRanges.h"
 #endif
 
+#if ENABLE(WORKERS)
+#include "V8Worker.h"
+#include "V8WorkerLocation.h"
+#endif
+
 namespace WebCore {
 
 FunctionTemplateFactory V8ClassIndex::GetFactory(V8WrapperType type) {

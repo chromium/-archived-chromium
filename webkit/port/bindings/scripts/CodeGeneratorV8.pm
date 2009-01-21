@@ -262,6 +262,8 @@ sub GenerateHeader
         push(@headerContent, "\n#if ENABLE(SVG)\n");
     } elsif (IsVideoClassName($className)) {
         push(@headerContent, "\n#if ENABLE(VIDEO)\n");
+    } elsif (IsWorkerClassName($className)) {
+        push(@headerContent, "\n#if ENABLE(WORKERS)\n");
     }
     
     push(@headerContent, "\n#ifndef $className" . "_H");
@@ -310,6 +312,8 @@ END
         push(@headerContent, "\n#endif // ENABLE(SVG)\n");
     } elsif (IsVideoClassName($className)) {
         push(@headerContent, "\n#endif // ENABLE(VIDEO)\n");
+    } elsif (IsWorkerClassName($className)) {
+        push(@headerContent, "\n#endif // ENABLE(WORKERS)\n");
     }
 }
 
@@ -1000,6 +1004,8 @@ sub GenerateImplementation
         push(@implFixedHeader, "#if ENABLE(SVG)\n\n");
     } elsif (IsVideoClassName($className)) {
         push(@implFixedHeader, "#if ENABLE(VIDEO)\n\n");
+    } elsif (IsWorkerClassName($className)) {
+        push(@implFixedHeader, "#if ENABLE(WORKERS)\n\n");
     }
     
     if ($className =~ /^V8SVGAnimated/) {
@@ -1323,6 +1329,8 @@ END
         push(@implContent, "\n#endif // ENABLE(SVG)\n");
     } elsif (IsVideoClassName($className)) {
         push(@implContent, "\n#endif // ENABLE(VIDEO)\n");
+    } elsif (IsWorkerClassName($className)) {
+        push(@implContent, "\n#endif // ENABLE(WORKERS)\n");
     }
 }
 
@@ -1591,6 +1599,15 @@ sub IsVideoClassName
     return 1 if $class eq "V8HTMLVideoElement";
     return 1 if $class eq "V8MediaError";
     return 1 if $class eq "V8TimeRanges";
+
+    return 0;
+}
+
+sub IsWorkerClassName
+{
+    my $class = shift;
+    return 1 if $class eq "V8Worker";
+    return 1 if $class eq "V8WorkerLocation";
 
     return 0;
 }

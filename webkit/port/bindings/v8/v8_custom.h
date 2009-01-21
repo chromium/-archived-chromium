@@ -83,6 +83,13 @@ class V8Custom {
   static const int kMessagePortInternalFieldCount =
                       kDefaultWrapperInternalFieldCount + 2;
 
+#if ENABLE(WORKERS)
+  static const int kWorkerRequestCacheIndex =
+                      kDefaultWrapperInternalFieldCount + 0;
+  static const int kWorkerInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 1;
+#endif
+
   static const int kDOMWindowLocationIndex =
                       kDefaultWrapperInternalFieldCount + 0;
   static const int kDOMWindowNavigatorIndex =
@@ -404,6 +411,15 @@ DECLARE_CALLBACK(SVGMatrixInverse)
 DECLARE_CALLBACK(SVGMatrixRotateFromVector)
 DECLARE_CALLBACK(SVGElementInstanceAddEventListener)
 DECLARE_CALLBACK(SVGElementInstanceRemoveEventListener)
+#endif
+
+// Worker
+#if ENABLE(WORKERS)
+DECLARE_PROPERTY_ACCESSOR(WorkerOnmessage)
+DECLARE_PROPERTY_ACCESSOR(WorkerOnerror)
+DECLARE_CALLBACK(WorkerConstructor)
+DECLARE_CALLBACK(WorkerAddEventListener)
+DECLARE_CALLBACK(WorkerRemoveEventListener)
 #endif
 
 #undef DECLARE_INDEXED_ACCESS_CHECK

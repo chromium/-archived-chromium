@@ -130,8 +130,12 @@ class ScopedHDC {
 
  private:
   void Close() {
+#ifdef NOGDI
+    assert(false);
+#else
     if (hdc_)
       DeleteDC(hdc_);
+#endif  // NOGDI
   }
 
   HDC hdc_;

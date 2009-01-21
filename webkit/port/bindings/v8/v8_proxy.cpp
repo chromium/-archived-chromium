@@ -192,6 +192,11 @@
 #include "V8SVGPODTypeWrapper.h"
 #endif  // SVG
 
+#if ENABLE(WORKERS)
+#include "Worker.h"
+#include "WorkerLocation.h"
+#endif  // WORKERS
+
 #if ENABLE(XPATH)
 #include "XPathEvaluator.h"
 #endif
@@ -1771,6 +1776,18 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
             V8Custom::kMessagePortInternalFieldCount);
         break;
     }
+
+#if ENABLE(WORKERS)
+    case V8ClassIndex::WORKER: {
+        // Reserve one more internal field for keeping event listeners.
+        v8::Local<v8::ObjectTemplate> instance_template =
+            desc->InstanceTemplate();
+        instance_template->SetInternalFieldCount(
+            V8Custom::kWorkerInternalFieldCount);
+        desc->SetCallHandler(USE_CALLBACK(WorkerConstructor));
+        break;
+    }
+#endif  // WORKERS
 
     // The following objects are created from JavaScript.
     case V8ClassIndex::DOMPARSER:

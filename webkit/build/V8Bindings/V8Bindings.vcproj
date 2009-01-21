@@ -2280,6 +2280,22 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8Worker.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8Worker.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WorkerLocation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WorkerLocation.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8XMLHttpRequest.cpp"
 				>
 			</File>
@@ -2561,6 +2577,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\Threading.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\v8_binding.h"
 			>
 		</File>
@@ -2625,7 +2645,19 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\V8WorkerCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\WorkerScriptController.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\WorkerScriptController.h"
 			>
 		</File>
 	</Files>
