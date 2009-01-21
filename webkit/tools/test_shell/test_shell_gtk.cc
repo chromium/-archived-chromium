@@ -45,7 +45,10 @@ const FcChar8* FilePathAsFcChar(const FilePath& path) {
 }
 
 // Data resources on linux.  This is a pointer to the mmapped resources file.
-static base::DataPack* g_resource_data_pack;
+static base::DataPack* g_resource_data_pack = NULL;
+
+// Used to keep track of the temporary ahem file we extract to disk.
+static FilePath* g_ahem_path = NULL;
 
 }
 
@@ -60,8 +63,9 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   FilePath data_path;
   PathService::Get(base::DIR_EXE, &data_path);
   data_path = data_path.Append("test_shell.pak");
-  bool success = g_resource_data_pack->Load(data_path);
-  CHECK(success) << "failed to load test_shell.pak";
+  if (!g_resource_data_pack->Load(data_path)) {
+    LOG(FATAL) << "failed to load test_shell.pak";
+  }
 
   ResetWebPreferences();
 
@@ -73,22 +77,33 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   // To avoid this we initialise fontconfig here and install a configuration
   // which only knows about a few, select, fonts.
 
-  FilePath resources_path;
-  PathService::Get(base::DIR_SOURCE_ROOT, &resources_path);
-  resources_path = resources_path.Append("webkit/tools/test_shell/resources/");
-
-  // We have fontconfig parse a config file from our resources directory. This
+  // We have fontconfig parse a config file from our resources file. This
   // sets a number of aliases ("sans"->"Arial" etc), but doesn't include any
   // font directories.
+
+  // fontconfig only knows how to load font config configs from a file name, so
+  // we write to a temp file.
+  StringPiece font_config_xml;
+  g_resource_data_pack->Get(IDR_LINUX_FONT_CONFIG, &font_config_xml);
+  FilePath fontconfig_path;
+  if (!file_util::CreateTemporaryFileName(&fontconfig_path)) {
+    LOG(FATAL) << "failed to create temp font config file";
+  }
+  if (-1 == file_util::WriteFile(fontconfig_path.ToWStringHack(),
+                                 font_config_xml.data(),
+                                 font_config_xml.length())) {
+    LOG(FATAL) << "failed to write temp font config file";
+  }
 
   FcInit();
 
   FcConfig* fontcfg = FcConfigCreate();
-  FilePath fontconfig_path = resources_path.Append("linux-fontconfig-config");
   if (!FcConfigParseAndLoad(fontcfg, FilePathAsFcChar(fontconfig_path),
                             true)) {
     LOG(FATAL) << "Failed to parse fontconfig config file";
   }
+  // We can delete the temp file after font config has parsed it.
+  file_util::Delete(fontconfig_path, false);
 
   // This is the list of fonts that fontconfig will know about. It will try its
   // best to match based only on the fonts here in. The paths are where these
@@ -146,9 +161,18 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   }
 
   // Also load the layout-test-specific "Ahem" font.
-  FilePath ahem_path = resources_path.Append("AHEM____.TTF");
-  if (!FcConfigAppFontAddFile(fontcfg, FilePathAsFcChar(ahem_path))) {
-    LOG(FATAL) << "Failed to load font " << ahem_path.value().c_str();
+  StringPiece ahem_font;
+  g_resource_data_pack->Get(IDR_AHEM_FONT, &ahem_font);
+  g_ahem_path = new FilePath;
+  if (!file_util::CreateTemporaryFileName(g_ahem_path)) {
+    LOG(FATAL) << "failed to create temp ahem font";
+  }
+  if (-1 == file_util::WriteFile(g_ahem_path->ToWStringHack(), ahem_font.data(),
+                                 ahem_font.length())) {
+    LOG(FATAL) << "failed to write temp ahem font";
+  }
+  if (!FcConfigAppFontAddFile(fontcfg, FilePathAsFcChar(*g_ahem_path))) {
+    LOG(FATAL) << "Failed to load font " << g_ahem_path->value().c_str();
   }
 
   if (!FcConfigSetCurrent(fontcfg))
@@ -158,6 +182,12 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
 void TestShell::PlatformShutdown() {
   delete g_resource_data_pack;
   g_resource_data_pack = NULL;
+
+  if (g_ahem_path) {
+    file_util::Delete(*g_ahem_path, false);
+    delete g_ahem_path;
+    g_ahem_path = NULL;
+  }
 }
 
 void TestShell::PlatformCleanUp() {

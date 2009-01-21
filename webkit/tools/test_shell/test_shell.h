@@ -39,7 +39,6 @@
 #include "base/ref_counted.h"
 #include "webkit/tools/test_shell/event_sending_controller.h"
 #include "webkit/tools/test_shell/layout_test_controller.h"
-#include "webkit/tools/test_shell/resource.h"
 #include "webkit/tools/test_shell/text_input_controller.h"
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 #include "webkit/tools/test_shell/webview_host.h"

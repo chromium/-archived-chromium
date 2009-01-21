@@ -115,7 +115,7 @@ input_files = [
     'text_input_controller.cc',
 ]
 if env.Bit('windows'):
-  # TODO(port): Consider porting drag_delegate.cc and drop_delecate.cc.
+  # TODO(port): Consider porting drag_delegate.cc and drop_delegate.cc.
   input_files.extend([
       'drag_delegate.cc',
       'drop_delegate.cc',
@@ -175,7 +175,6 @@ exe_input_files = [
 ]
 
 if env.Bit('windows'):
-  # TODO(port): figure out what to do with resources.
   resources = [
       env_res.RES('resources/test_shell.rc'),
       '$TARGET_ROOT/grit_derived_sources/net_resources.res',
