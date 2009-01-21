@@ -45,7 +45,6 @@
 		419E80750F264BBC006564E0 /* CSSPropertyLonghand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E80730F264BBC006564E0 /* CSSPropertyLonghand.cpp */; };
 		4D114BB60F17F0D5009F37AA /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
-		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
 		4DB7F5290E9BD3FB00C66CE0 /* MainThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5210E9BD3FB00C66CE0 /* MainThread.cpp */; };
 		4DB7F52A0E9BD3FB00C66CE0 /* ThreadingPthreads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5270E9BD3FB00C66CE0 /* ThreadingPthreads.cpp */; };
@@ -1639,7 +1638,6 @@
 		4D329F8B0EB908A40041FB7E /* V8MessageChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8MessageChannel.h; sourceTree = "<group>"; };
 		4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dtoa.cpp; sourceTree = "<group>"; };
 		4D35557C0ED4ACF600FB28B1 /* dtoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dtoa.h; sourceTree = "<group>"; };
-		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsContextStub.cpp; sourceTree = "<group>"; };
 		4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitAnimationEvent.cpp; sourceTree = "<group>"; };
 		4DB299BE0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitAnimationEvent.h; sourceTree = "<group>"; };
 		4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSTransformValue.cpp; sourceTree = "<group>"; };
@@ -4506,14 +4504,6 @@
 			path = storage;
 			sourceTree = "<group>";
 		};
-		4DB044090EB161B600A5633C /* mac */ = {
-			isa = PBXGroup;
-			children = (
-				4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */,
-			);
-			path = mac;
-			sourceTree = "<group>";
-		};
 		4DB7F10F0E9BABEE00C66CE0 /* archive */ = {
 			isa = PBXGroup;
 			children = (
@@ -4656,7 +4646,6 @@
 				825404E50D92E3BB0006B936 /* glue */,
 				7B0091290DAFEF0E00F72082 /* jsbindings */,
 				7BF891DD0E73118C000BAF8A /* pcre */,
-				7B9375960D919010008B9587 /* port */,
 				7B5E87820D7F394A001ECF42 /* webcore */,
 				4DB7FE680E9BF67000C66CE0 /* webcoresysteminterface */,
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
@@ -6742,14 +6731,6 @@
 			path = xml;
 			sourceTree = "<group>";
 		};
-		7B9375960D919010008B9587 /* port */ = {
-			isa = PBXGroup;
-			children = (
-				822B1BE60DC778FF005C9A96 /* platform */,
-			);
-			path = port;
-			sourceTree = "<group>";
-		};
 		7B964AAB0E7EE4A0006D1A11 /* Projects */ = {
 			isa = PBXGroup;
 			children = (
@@ -7453,22 +7434,6 @@
 				7BF891FD0E731414000BAF8A /* chartables.c */,
 			);
 			path = pcre;
-			sourceTree = "<group>";
-		};
-		822B1BE60DC778FF005C9A96 /* platform */ = {
-			isa = PBXGroup;
-			children = (
-				822B1BE70DC77910005C9A96 /* graphics */,
-			);
-			path = platform;
-			sourceTree = "<group>";
-		};
-		822B1BE70DC77910005C9A96 /* graphics */ = {
-			isa = PBXGroup;
-			children = (
-				4DB044090EB161B600A5633C /* mac */,
-			);
-			path = graphics;
 			sourceTree = "<group>";
 		};
 		825404E50D92E3BB0006B936 /* glue */ = {
@@ -9471,7 +9436,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
