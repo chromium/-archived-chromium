@@ -151,7 +151,7 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     DCHECK(rc != 0);
   }
 
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
     std::wstring dir(
         parsed_command_line.GetSwitchValue(test_shell::kCrashDumps));

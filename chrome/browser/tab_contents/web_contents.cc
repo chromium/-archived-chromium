@@ -1218,7 +1218,7 @@ WebPreferences WebContents::GetWebkitPrefs() {
       prefs->GetBoolean(prefs::kWebKitShrinksStandaloneImagesToFit);
 
   {  // Command line switches are used for preferences with no user interface.
-    CommandLine command_line;
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
     web_prefs.developer_extras_enabled =
         !command_line.HasSwitch(switches::kDisableDevTools) &&
         prefs->GetBoolean(prefs::kWebKitDeveloperExtrasEnabled);

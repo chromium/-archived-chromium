@@ -32,17 +32,17 @@ class MemoryTest : public UITest {
 
     // For now, turn off plugins because they crash like crazy.
     // TODO(mbelshe): Fix Chrome to not crash with plugins.
-    CommandLine::AppendSwitch(&launch_arguments_, switches::kDisablePlugins);
+    launch_arguments_.AppendSwitch(switches::kDisablePlugins);
 
-    CommandLine::AppendSwitch(&launch_arguments_, switches::kEnableLogging);
+    launch_arguments_.AppendSwitch(switches::kEnableLogging);
 
     // Use the playback cache, but don't use playback events.
-    CommandLine::AppendSwitch(&launch_arguments_, switches::kPlaybackMode);
-    CommandLine::AppendSwitch(&launch_arguments_, switches::kNoEvents);
+    launch_arguments_.AppendSwitch(switches::kPlaybackMode);
+    launch_arguments_.AppendSwitch(switches::kNoEvents);
 
     // Get the specified user data dir (optional)
     std::wstring profile_dir =
-      CommandLine().GetSwitchValue(switches::kUserDataDir);
+      CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kUserDataDir);
 
     if (profile_dir.length() == 0) {
       // Compute the user-data-dir which contains our test cache.
@@ -63,9 +63,8 @@ class MemoryTest : public UITest {
       }
     }
 
-    CommandLine::AppendSwitchWithValue(&launch_arguments_,
-                                       switches::kUserDataDir,
-                                       user_data_dir_);
+    launch_arguments_.AppendSwitchWithValue(switches::kUserDataDir,
+                                            user_data_dir_);
   }
 
   ~MemoryTest() {

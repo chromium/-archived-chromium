@@ -79,7 +79,7 @@ AutomatedUITest::AutomatedUITest()
       post_action_delay_(0) {
   show_window_ = true;
   GetSystemTimeAsFileTime(&test_start_time_);
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kDebugModeSwitch))
     debug_logging_enabled_ = true;
   if (parsed_command_line.HasSwitch(kWaitSwitch)) {
@@ -95,7 +95,7 @@ AutomatedUITest::AutomatedUITest()
 AutomatedUITest::~AutomatedUITest() {}
 
 void AutomatedUITest::RunReproduction() {
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   xml_writer_.StartWriting();
   xml_writer_.StartElement("Report");
   std::string action_string =
@@ -863,7 +863,7 @@ bool AutomatedUITest::SimulateKeyPressInActiveWindow(wchar_t key, int flags) {
 
 bool AutomatedUITest::InitXMLReader() {
   std::wstring input_path;
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kInputFilePathSwitch))
     input_path = parsed_command_line.GetSwitchValue(kInputFilePathSwitch);
   else
@@ -877,7 +877,7 @@ bool AutomatedUITest::InitXMLReader() {
 bool AutomatedUITest::WriteReportToFile() {
   std::ofstream error_file;
   std::wstring path;
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kOutputFilePathSwitch))
     path = parsed_command_line.GetSwitchValue(kOutputFilePathSwitch);
   else
@@ -897,7 +897,7 @@ bool AutomatedUITest::WriteReportToFile() {
 void AutomatedUITest::AppendToOutputFile(const std::string &append_string) {
   std::ofstream error_file;
   std::wstring path;
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kOutputFilePathSwitch))
     path = parsed_command_line.GetSwitchValue(kOutputFilePathSwitch);
   else
@@ -1001,7 +1001,7 @@ bool AutomatedUITest::DidCrash(bool update_total_crashes) {
 }
 
 TEST_F(AutomatedUITest, TheOneAndOnlyTest) {
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kReproSwitch))
     RunReproduction();
   else

@@ -110,7 +110,7 @@ class StartupFileTest : public StartupTest {
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &file_url));
     file_util::AppendToPath(&file_url, L"empty.html");
     ASSERT_TRUE(file_util::PathExists(file_url));
-    launch_arguments_ += file_url;
+    launch_arguments_.AppendLooseValue(file_url);
 
     pages_ = WideToUTF8(file_url);
   }

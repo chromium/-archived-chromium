@@ -232,7 +232,7 @@ void RenderViewHostManager::OnJavaScriptMessageBoxClosed(
 bool RenderViewHostManager::ShouldTransitionCrossSite() {
   // True if we are using process-per-site-instance (default) or
   // process-per-site (kProcessPerSite).
-  return !CommandLine().HasSwitch(switches::kProcessPerTab);
+  return !CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab);
 }
 
 SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
@@ -254,7 +254,7 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
   // NOTE: This can be removed once we have a way to transition between
   //       RenderViews in response to a link click.
   //
-  if (CommandLine().HasSwitch(switches::kProcessPerSite) &&
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerSite) &&
       entry.transition_type() == PageTransition::GENERATED)
     return curr_instance;
 

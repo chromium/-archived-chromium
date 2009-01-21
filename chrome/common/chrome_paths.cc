@@ -49,8 +49,8 @@ bool GetDefaultUserDataDirectory(std::wstring* result) {
 bool GetGearsPluginPathFromCommandLine(std::wstring *path) {
 #ifndef NDEBUG
   // for debugging, support a cmd line based override
-  CommandLine command_line;
-  *path = command_line.GetSwitchValue(switches::kGearsPluginPathOverride);
+  *path = CommandLine::ForCurrentProcess()->GetSwitchValue(
+              switches::kGearsPluginPathOverride);
   return !path->empty();
 #else
   return false;

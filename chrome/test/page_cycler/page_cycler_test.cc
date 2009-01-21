@@ -38,9 +38,8 @@ class PageCyclerTest : public UITest {
     show_window_ = true;
 
     // Expose garbage collection for the page cycler tests.
-    CommandLine::AppendSwitchWithValue(&launch_arguments_,
-                                       switches::kJavaScriptFlags,
-                                       L"--expose_gc");
+    launch_arguments_.AppendSwitchWithValue(switches::kJavaScriptFlags,
+                                            L"--expose_gc");
   }
 
   // For HTTP tests, the name must be safe for use in a URL without escaping.

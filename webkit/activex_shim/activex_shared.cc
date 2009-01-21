@@ -88,8 +88,8 @@ static bool IsAllowAllActiveX() {
   static bool parsed_flag = false;
   static bool allow_all_activex = false;
   if (!parsed_flag) {
-    CommandLine command_line;
-    allow_all_activex = command_line.HasSwitch(kAllowAllActiveX);
+    allow_all_activex =
+        CommandLine::ForCurrentProcess()->HasSwitch(kAllowAllActiveX);
     parsed_flag = true;
   }
   return allow_all_activex;

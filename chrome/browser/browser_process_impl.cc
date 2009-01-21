@@ -82,7 +82,7 @@ class BrowserProcessSubThread : public ChromeThread {
 
 }  // namespace
 
-BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
+BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
     : created_resource_dispatcher_host_(false),
       created_metrics_service_(false),
       created_io_thread_(false),

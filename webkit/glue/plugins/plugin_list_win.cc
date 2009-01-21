@@ -195,7 +195,7 @@ namespace NPAPI
 {
 
 void PluginList::PlatformInit() {
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   dont_load_new_wmp_ = command_line.HasSwitch(kUseOldWMPPluginSwitch);
   use_internal_activex_shim_ =
       !command_line.HasSwitch(kNoNativeActiveXShimSwitch);

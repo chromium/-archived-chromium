@@ -204,10 +204,12 @@ int ChromeMain(int argc, const char** argv) {
   base::ScopedNSAutoreleasePool autorelease_pool;
 
   // Initialize the command line.
-#if defined(OS_POSIX)
-  CommandLine::SetArgcArgv(argc, argv);
+#if defined(OS_WIN)
+  CommandLine::Init(0, NULL);
+#else
+  CommandLine::Init(argc, argv);
 #endif
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
 
   SetupCRT(parsed_command_line);
   

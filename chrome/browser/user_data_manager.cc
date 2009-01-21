@@ -177,15 +177,14 @@ std::wstring UserDataManager::GetCommandForProfile(
   std::wstring user_data_dir = GetUserDataFolderForProfile(profile_name);
   std::wstring command;
   PathService::Get(base::FILE_EXE, &command);
-  CommandLine::AppendSwitchWithValue(&command,
-                                     switches::kUserDataDir,
+  CommandLine command_line(command);
+  command_line.AppendSwitchWithValue(switches::kUserDataDir,
                                      user_data_dir);
   std::wstring local_state_path;
   PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
-  CommandLine::AppendSwitchWithValue(&command,
-                                     switches::kParentProfile,
+  command_line.AppendSwitchWithValue(switches::kParentProfile,
                                      local_state_path);
-  return command;
+  return command_line.command_line_string();
 }
 
 void UserDataManager::LaunchChromeForProfile(

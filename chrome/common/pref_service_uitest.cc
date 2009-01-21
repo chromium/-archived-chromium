@@ -43,9 +43,8 @@ public:
     ASSERT_TRUE(::SetFileAttributesW(tmp_pref_file_.c_str(),
         FILE_ATTRIBUTE_NORMAL));
 
-    CommandLine::AppendSwitchWithValue(&launch_arguments_,
-                                       switches::kUserDataDir,
-                                       tmp_profile_);
+    launch_arguments_.AppendSwitchWithValue(switches::kUserDataDir,
+                                            tmp_profile_);
   }
 
   bool LaunchAppWithProfile() {

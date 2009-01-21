@@ -17,302 +17,228 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 
-using namespace std;
+CommandLine* CommandLine::current_process_commandline_ = NULL;
 
 // Since we use a lazy match, make sure that longer versions (like L"--")
 // are listed before shorter versions (like L"-") of similar prefixes.
 #if defined(OS_WIN)
-const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-", L"/"};
+const wchar_t* const kSwitchPrefixes[] = {L"--", L"-", L"/"};
+const wchar_t kSwitchTerminator[] = L"--";
+const wchar_t kSwitchValueSeparator[] = L"=";
 #elif defined(OS_POSIX)
 // Unixes don't use slash as a switch.
-const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-"};
+const char* const kSwitchPrefixes[] = {"--", "-"};
+const char kSwitchTerminator[] = "--";
+const char kSwitchValueSeparator[] = "=";
 #endif
-
-const wchar_t CommandLine::kSwitchValueSeparator[] = L"=";
-const wchar_t CommandLine::kSwitchTerminator[] = L"--";
-
-// Needed to avoid a typecast on the tolower() function pointer in Lowercase().
-// MSVC accepts it as-is but GCC requires the typecast.
-static int ToLower(int c) {
-  return tolower(c);
-}
-
-static void Lowercase(wstring* parameter) {
-  transform(parameter->begin(), parameter->end(), parameter->begin(), 
-            ToLower);
-}
-
-// CommandLine::Data
-//
-// This object holds the parsed data for a command line.  We hold this in a
-// separate object from |CommandLine| so that we can share the parsed data
-// across multiple |CommandLine| objects.  When we share |Data|, we might be
-// accessing this object on multiple threads.  To ensure thread safety, the
-// public interface of this object is const only.
-//
-// Do NOT add any non-const methods to this object.  You have been warned.
-class CommandLine::Data {
- public:
-#if defined(OS_WIN)
-  Data() { 
-    Init(GetCommandLineW());
-  }
-
-  Data(const wstring& command_line) {
-    Init(command_line);
-  }
-#elif defined(OS_POSIX)
-  Data() {
-    // Owner must call Init().
-  }
-
-  Data(int argc, const char* const* argv) {
-    Init(argc, argv);
-  }
-#endif  // defined(OS_POSIX)
 
 #if defined(OS_WIN)
-  // Does the actual parsing of the command line.
-  void Init(const std::wstring& command_line) {
-    TrimWhitespace(command_line, TRIM_ALL, &command_line_string_);
-
-    if (command_line_string_.empty())
-      return;
-
-    int num_args = 0;
-    wchar_t** args = NULL;
-
-    args = CommandLineToArgvW(command_line_string_.c_str(), &num_args);
-
-    // Populate program_ with the trimmed version of the first arg.
-    TrimWhitespace(args[0], TRIM_ALL, &program_);
-
-    bool parse_switches = true;
-    for (int i = 1; i < num_args; ++i) {
-      wstring arg;
-      TrimWhitespace(args[i], TRIM_ALL, &arg);
-
-      if (!parse_switches) {
-        loose_values_.push_back(arg);
-        continue;
-      }
-
-      if (arg == kSwitchTerminator) {
-        parse_switches = false;
-        continue;
-      }
-
-      wstring switch_string;
-      wstring switch_value;
-      if (IsSwitch(arg, &switch_string, &switch_value)) {
-        switches_[switch_string] = switch_value;
-      } else {
-        loose_values_.push_back(arg);
-      }
-    }
-
-    if (args)
-      LocalFree(args);
-  }
-#elif defined(OS_POSIX)
-  // Does the actual parsing of the command line.
-  void Init(int argc, const char* const* argv) {
-    if (argc < 1)
-      return;
-    program_ = base::SysNativeMBToWide(argv[0]);
-    argv_.push_back(std::string(argv[0]));
-    command_line_string_ = program_;
-
-    bool parse_switches = true;
-    for (int i = 1; i < argc; ++i) {
-      std::wstring arg = base::SysNativeMBToWide(argv[i]);
-      argv_.push_back(argv[i]);
-      command_line_string_.append(L" ");
-      command_line_string_.append(arg);
-
-      if (!parse_switches) {
-        loose_values_.push_back(arg);
-        continue;
-      }
-
-      if (arg == kSwitchTerminator) {
-        parse_switches = false;
-        continue;
-      }
-
-      wstring switch_string;
-      wstring switch_value;
-      if (IsSwitch(arg, &switch_string, &switch_value)) {
-        switches_[switch_string] = switch_value;
-      } else {
-        loose_values_.push_back(arg);
-      }
-    }
-  }
-#endif
-
-  const std::wstring& command_line_string() const {
-    return command_line_string_;
-  }
-
-  const std::wstring& program() const {
-    return program_;
-  }
-
-  const std::map<std::wstring, std::wstring>& switches() const {
-    return switches_;
-  }
-
-  const std::vector<std::wstring>& loose_values() const {
-    return loose_values_;
-  }
-
-#if defined(OS_POSIX)
-  const std::vector<std::string>& argv() const {
-    return argv_;
-  }
-#endif
-
- private:
-  // Returns true if parameter_string represents a switch.  If true,
-  // switch_string and switch_value are set.  (If false, both are
-  // set to the empty string.)
-  static bool IsSwitch(const wstring& parameter_string,
-                       wstring* switch_string,
-                       wstring* switch_value) {
-
-    *switch_string = L"";
-    *switch_value = L"";
-
-    for (size_t i = 0; i < arraysize(kSwitchPrefixes); ++i) {
-      std::wstring prefix(kSwitchPrefixes[i]);
-      if (parameter_string.find(prefix) != 0)  // check prefix
-        continue;
-
-      const size_t switch_start = prefix.length();
-      const size_t equals_position = parameter_string.find(
-          kSwitchValueSeparator, switch_start);
-      if (equals_position == wstring::npos) {
-        *switch_string = parameter_string.substr(switch_start);
-      } else {
-        *switch_string = parameter_string.substr(
-            switch_start, equals_position - switch_start);
-        *switch_value = parameter_string.substr(equals_position + 1);
-      }
-      Lowercase(switch_string);
-
-      return true;
-    }
-
-    return false;
-  }
-
-  std::wstring command_line_string_;
-  std::wstring program_;
-  std::map<std::wstring, std::wstring> switches_;
-  std::vector<std::wstring> loose_values_;
-  std::vector<std::string> argv_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(Data);
-};
-
-CommandLine::CommandLine()
-    : we_own_data_(false),  // The Singleton class will manage it for us.
-      data_(Singleton<Data>::get()) {
-  DCHECK(!data_->command_line_string().empty()) <<
-    "You must call CommandLine::SetArgcArgv before making any CommandLine "
-    "calls.";
+// Lowercase a string.  This is used to lowercase switch names.
+// Is this what we really want?  It seems crazy to me.  I've left it in
+// for backwards compatibility on Windows.
+static void Lowercase(std::wstring* parameter) {
+  transform(parameter->begin(), parameter->end(), parameter->begin(),
+            tolower);
 }
+#endif
 
 #if defined(OS_WIN)
-CommandLine::CommandLine(const wstring& command_line)
-    : we_own_data_(true),
-      data_(new Data(command_line)) {
+void CommandLine::ParseFromString(const std::wstring& command_line) {
+  TrimWhitespace(command_line, TRIM_ALL, &command_line_string_);
+
+  if (command_line_string_.empty())
+    return;
+
+  int num_args = 0;
+  wchar_t** args = NULL;
+
+  args = CommandLineToArgvW(command_line_string_.c_str(), &num_args);
+
+  // Populate program_ with the trimmed version of the first arg.
+  TrimWhitespace(args[0], TRIM_ALL, &program_);
+
+  bool parse_switches = true;
+  for (int i = 1; i < num_args; ++i) {
+    std::wstring arg;
+    TrimWhitespace(args[i], TRIM_ALL, &arg);
+
+    if (!parse_switches) {
+      loose_values_.push_back(arg);
+      continue;
+    }
+
+    if (arg == kSwitchTerminator) {
+      parse_switches = false;
+      continue;
+    }
+
+    std::string switch_string;
+    std::wstring switch_value;
+    if (IsSwitch(arg, &switch_string, &switch_value)) {
+      switches_[switch_string] = switch_value;
+    } else {
+      loose_values_.push_back(arg);
+    }
+  }
+
+  if (args)
+    LocalFree(args);
+}
+CommandLine::CommandLine(const std::wstring& program) {
+  if (!program.empty()) {
+    program_ = program;
+    command_line_string_ = L'"' + program + L'"';
+  }
 }
 #elif defined(OS_POSIX)
-CommandLine::CommandLine(const int argc, const char* const* argv)
-    : we_own_data_(true),
-      data_(new Data(argc, argv)) {
+CommandLine::CommandLine(int argc, const char* const* argv) {
+  for (int i = 0; i < argc; ++i)
+    argv_.push_back(argv[i]);
+  InitFromArgv();
+}
+CommandLine::CommandLine(const std::vector<std::string>& argv) {
+  argv_ = argv;
+  InitFromArgv();
 }
 
-CommandLine::CommandLine(const std::vector<std::string>& argv)
-    : we_own_data_(true) {
-  const char* argv_copy[argv.size()];
-  for (size_t i = 0; i < argv.size(); i++) {
-    argv_copy[i] = argv[i].c_str();
+void CommandLine::InitFromArgv() {
+  bool parse_switches = true;
+  for (size_t i = 1; i < argv_.size(); ++i) {
+    const std::string& arg = argv_[i];
+
+    if (!parse_switches) {
+      loose_values_.push_back(arg);
+      continue;
+    }
+
+    if (arg == kSwitchTerminator) {
+      parse_switches = false;
+      continue;
+    }
+
+    std::string switch_string;
+    std::string switch_value;
+    if (IsSwitch(arg, &switch_string, &switch_value)) {
+      switches_[switch_string] = switch_value;
+    } else {
+      loose_values_.push_back(arg);
+    }
   }
-  data_ = new Data(argv.size(), argv_copy);
+}
+
+CommandLine::CommandLine(const std::wstring& program) {
+  argv_.push_back(WideToASCII(program));
 }
 #endif
 
-CommandLine::~CommandLine() {
-  if (we_own_data_)
-    delete data_;
+// static
+bool CommandLine::IsSwitch(const StringType& parameter_string,
+                           std::string* switch_string,
+                           StringType* switch_value) {
+  switch_string->clear();
+  switch_value->clear();
+
+  for (size_t i = 0; i < arraysize(kSwitchPrefixes); ++i) {
+    StringType prefix(kSwitchPrefixes[i]);
+    if (parameter_string.find(prefix) != 0)
+      continue;
+
+    const size_t switch_start = prefix.length();
+    const size_t equals_position = parameter_string.find(
+        kSwitchValueSeparator, switch_start);
+    StringType switch_native;
+    if (equals_position == StringType::npos) {
+      switch_native = parameter_string.substr(switch_start);
+    } else {
+      switch_native = parameter_string.substr(
+          switch_start, equals_position - switch_start);
+      *switch_value = parameter_string.substr(equals_position + 1);
+    }
+#if defined(OS_WIN)
+    Lowercase(&switch_native);
+    *switch_string = WideToASCII(switch_native);
+#else
+    *switch_string = switch_native;
+#endif
+
+    return true;
+  }
+
+  return false;
 }
 
 // static
-void CommandLine::SetArgcArgv(int argc, const char* const* argv) {
-#if !defined(OS_WIN)
-  Singleton<Data>::get()->Init(argc, argv);
+void CommandLine::Init(int argc, const char* const* argv) {
+  DCHECK(current_process_commandline_ == NULL);
+#if defined(OS_WIN)
+  current_process_commandline_ = new CommandLine;
+  current_process_commandline_->ParseFromString(::GetCommandLineW());
+#elif defined(OS_POSIX)
+  current_process_commandline_ = new CommandLine(argc, argv);
 #endif
 }
 
-bool CommandLine::HasSwitch(const wstring& switch_string) const {
-  wstring lowercased_switch(switch_string);
+bool CommandLine::HasSwitch(const std::wstring& switch_string) const {
+  std::wstring lowercased_switch(switch_string);
+#if defined(OS_WIN)
   Lowercase(&lowercased_switch);
-  return data_->switches().find(lowercased_switch) != data_->switches().end();
+#endif
+  return switches_.find(WideToASCII(lowercased_switch)) != switches_.end();
 }
 
-wstring CommandLine::GetSwitchValue(const wstring& switch_string) const {
-  wstring lowercased_switch(switch_string);
+std::wstring CommandLine::GetSwitchValue(
+    const std::wstring& switch_string) const {
+  std::wstring lowercased_switch(switch_string);
+#if defined(OS_WIN)
   Lowercase(&lowercased_switch);
+#endif
 
-  const map<wstring, wstring>::const_iterator result =
-    data_->switches().find(lowercased_switch);
+  std::map<std::string, StringType>::const_iterator result =
+      switches_.find(WideToASCII(lowercased_switch));
 
-  if (result == data_->switches().end()) {
+  if (result == switches_.end()) {
     return L"";
   } else {
+#if defined(OS_WIN)
     return result->second;
+#else
+    return ASCIIToWide(result->second);
+#endif
   }
 }
 
-size_t CommandLine::GetLooseValueCount() const {
-  return data_->loose_values().size();
+#if defined(OS_WIN)
+std::vector<std::wstring> CommandLine::GetLooseValues() const {
+  return loose_values_;
 }
-
-CommandLine::LooseValueIterator CommandLine::GetLooseValuesBegin() const {
-  return data_->loose_values().begin();
+std::wstring CommandLine::program() const {
+  return program_;
 }
-
-CommandLine::LooseValueIterator CommandLine::GetLooseValuesEnd() const {
-  return data_->loose_values().end();
+#else
+std::vector<std::wstring> CommandLine::GetLooseValues() const {
+  std::vector<std::wstring> values;
+  for (size_t i = 0; i < loose_values_.size(); ++i)
+    values.push_back(ASCIIToWide(loose_values_[i]));
+  return values;
 }
-
-std::wstring CommandLine::command_line_string() const {
-  return data_->command_line_string();
-}
-
-#if defined(OS_POSIX)
-const std::vector<std::string>& CommandLine::argv() const {
-  return data_->argv();
+std::wstring CommandLine::program() const {
+  DCHECK(argv_.size() > 0);
+  return ASCIIToWide(argv_[0]);
 }
 #endif
 
-std::wstring CommandLine::program() const {
-  return data_->program();
-}
 
 // static
-wstring CommandLine::PrefixedSwitchString(const wstring& switch_string) {
+std::wstring CommandLine::PrefixedSwitchString(
+    const std::wstring& switch_string) {
   return StringPrintf(L"%ls%ls",
                       kSwitchPrefixes[0],
                       switch_string.c_str());
 }
 
 // static
-wstring CommandLine::PrefixedSwitchStringWithValue(
-          const wstring& switch_string, const wstring& value_string) {
+std::wstring CommandLine::PrefixedSwitchStringWithValue(
+    const std::wstring& switch_string, const std::wstring& value_string) {
   if (value_string.empty()) {
     return PrefixedSwitchString(switch_string);
   }
@@ -324,20 +250,17 @@ wstring CommandLine::PrefixedSwitchStringWithValue(
                       value_string.c_str());
 }
 
-// static
-void CommandLine::AppendSwitch(wstring* command_line_string,
-                               const wstring& switch_string) {
-  DCHECK(command_line_string);
-  wstring prefixed_switch_string = PrefixedSwitchString(switch_string);
-  command_line_string->append(L" ");
-  command_line_string->append(prefixed_switch_string);
+#if defined(OS_WIN)
+void CommandLine::AppendSwitch(const std::wstring& switch_string) {
+  std::wstring prefixed_switch_string = PrefixedSwitchString(switch_string);
+  command_line_string_.append(L" ");
+  command_line_string_.append(prefixed_switch_string);
+  switches_[WideToASCII(switch_string)] = L"";
 }
 
-// static
-void CommandLine::AppendSwitchWithValue(wstring* command_line_string,
-                                        const wstring& switch_string,
-                                        const wstring& value_string) {
-  wstring value_string_edit;
+void CommandLine::AppendSwitchWithValue(const std::wstring& switch_string,
+                                        const std::wstring& value_string) {
+  std::wstring value_string_edit;
 
   // NOTE(jhughes): If the value contains a quotation mark at one
   //                end but not both, you may get unusable output.
@@ -351,10 +274,65 @@ void CommandLine::AppendSwitchWithValue(wstring* command_line_string,
     value_string_edit = value_string;
   }
 
-  wstring combined_switch_string =
+  std::wstring combined_switch_string =
     PrefixedSwitchStringWithValue(switch_string, value_string_edit);
 
-  command_line_string->append(L" ");
-  command_line_string->append(combined_switch_string);
+  command_line_string_.append(L" ");
+  command_line_string_.append(combined_switch_string);
+
+  switches_[WideToASCII(switch_string)] = value_string;
 }
+
+void CommandLine::AppendLooseValue(const std::wstring& value) {
+  // TODO(evan): quoting?
+  command_line_string_.append(L" ");
+  command_line_string_.append(value);
+}
+
+void CommandLine::AppendArguments(const CommandLine& other,
+                                  bool include_program) {
+  // Verify include_program is used correctly.
+  // Logic could be shorter but this is clearer.
+  DCHECK(include_program ? !other.program().empty() : other.program().empty());
+  command_line_string_ += L" " + other.command_line_string_;
+  std::map<std::string, StringType>::const_iterator i;
+  for (i = other.switches_.begin(); i != other.switches_.end(); ++i)
+    switches_[i->first] = i->second;
+}
+
+#elif defined(OS_POSIX)
+void CommandLine::AppendSwitch(const std::wstring& switch_string) {
+  std::string ascii_switch = WideToASCII(switch_string);
+  argv_.push_back(kSwitchPrefixes[0] + ascii_switch);
+  switches_[ascii_switch] = "";
+}
+
+void CommandLine::AppendSwitchWithValue(const std::wstring& switch_string,
+                                        const std::wstring& value_string) {
+  std::string ascii_switch = WideToASCII(switch_string);
+  std::string ascii_value = WideToASCII(value_string);
+
+  argv_.push_back(kSwitchPrefixes[0] + ascii_switch +
+                  kSwitchValueSeparator + ascii_value);
+  switches_[ascii_switch] = ascii_value;
+}
+
+void CommandLine::AppendLooseValue(const std::wstring& value) {
+  argv_.push_back(WideToASCII(value));
+}
+
+void CommandLine::AppendArguments(const CommandLine& other,
+                                  bool include_program) {
+  // Verify include_program is used correctly.
+  // Logic could be shorter but this is clearer.
+  DCHECK(include_program ? !other.program().empty() : other.program().empty());
+
+  size_t first_arg = include_program ? 0 : 1;
+  for (size_t i = first_arg; i < other.argv_.size(); ++i)
+    argv_.push_back(other.argv_[i]);
+  std::map<std::string, StringType>::const_iterator i;
+  for (i = other.switches_.begin(); i != other.switches_.end(); ++i)
+    switches_[i->first] = i->second;
+}
+#endif
 

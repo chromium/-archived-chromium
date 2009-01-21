@@ -475,7 +475,7 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
 }
 
 bool RenderViewContextMenuController::IsDevCommandEnabled(int id) const {
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kAlwaysEnableDevTools))
     return true;
 

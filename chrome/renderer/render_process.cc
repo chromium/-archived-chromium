@@ -63,7 +63,7 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
     }
   }
 
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kJavaScriptFlags)) {
     webkit_glue::SetJavaScriptFlags(
       command_line.GetSwitchValue(switches::kJavaScriptFlags));

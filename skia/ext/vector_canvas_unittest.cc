@@ -397,7 +397,8 @@ class VectorCanvasTest : public ImageTest {
   // Returns COMPARE, which is the default. If kGenerateSwitch command
   // line argument is used to start this process, GENERATE is returned instead.
   static ProcessAction CurrentMode() {
-    return CommandLine().HasSwitch(kGenerateSwitch) ? GENERATE : COMPARE;
+    return CommandLine::ForCurrentProcess()->HasSwitch(kGenerateSwitch) ?
+               GENERATE : COMPARE;
   }
 
   // Length in x and y of the square canvas.

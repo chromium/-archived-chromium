@@ -457,7 +457,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                     wchar_t* command_line, int show_command) {
   // The exit manager is in charge of calling the dtors of singletons.
   base::AtExitManager exit_manager;
-  CommandLine parsed_command_line;
+  CommandLine::Init(0, NULL);
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   installer::InitInstallerLogging(parsed_command_line);
   int options = GetInstallOptions(parsed_command_line);
   if (options & installer_util::VERBOSE_LOGGING)

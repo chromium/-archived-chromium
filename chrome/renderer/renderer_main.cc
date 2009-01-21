@@ -46,7 +46,7 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 
 // mainline routine for running as the Rendererer process
 int RendererMain(const MainFunctionParams& parameters) {
-  CommandLine& parsed_command_line = parameters.command_line_;
+  const CommandLine& parsed_command_line = parameters.command_line_;
   sandbox::TargetServices* target_services = 
       parameters.sandbox_info_.TargetServices();
 

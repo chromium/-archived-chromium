@@ -41,7 +41,8 @@ protected:
     // NOTE: The user data directory will be erased before each UI test that
     //       uses it, in order to ensure consistency.
     std::wstring user_data_dir =
-        CommandLine().GetSwitchValue(switches::kUserDataDir);
+        CommandLine::ForCurrentProcess()->GetSwitchValue(
+            switches::kUserDataDir);
     if (user_data_dir.empty() &&
       PathService::Get(base::DIR_EXE, &user_data_dir))
       file_util::AppendToPath(&user_data_dir, L"test_user_data");

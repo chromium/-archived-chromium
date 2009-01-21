@@ -24,6 +24,7 @@
 #endif
 #include <string>
 
+#include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/process.h"
@@ -75,8 +76,8 @@ class UITest : public testing::Test {
   // Closes the browser and IPC testing server.
   void CloseBrowserAndServer();
 
-  // Launches the browser with the given arguments.
-  void LaunchBrowser(const std::wstring& arguments, bool clear_profile);
+  // Launches the browser with the given command line.
+  void LaunchBrowser(const CommandLine& cmdline, bool clear_profile);
 
   // Exits out browser instance.
   void QuitBrowser();
@@ -389,7 +390,7 @@ class UITest : public testing::Test {
                                         // with no trailing slash
   std::wstring test_data_directory_;    // Path to the unit test data,
                                         // with no trailing slash
-  std::wstring launch_arguments_;       // Arguments to the browser on launch.
+  CommandLine launch_arguments_;        // Command to launch the browser
   size_t expected_errors_;              // The number of errors expected during
                                         // the run (generally 0).
   int expected_crashes_;                // The number of crashes expected during

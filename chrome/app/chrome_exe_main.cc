@@ -42,6 +42,8 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   if (!sandbox_info.broker_services)
     sandbox_info.target_services = sandbox::SandboxFactory::GetTargetServices();
 
+  CommandLine::Init(0, NULL);
+
   const wchar_t* dll_name = L"chrome.dll";
 #if defined(GOOGLE_CHROME_BUILD)
   google_update::GoogleUpdateClient client;

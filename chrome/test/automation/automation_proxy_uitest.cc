@@ -25,9 +25,8 @@ class AutomationProxyTest : public UITest {
  protected:
   AutomationProxyTest() {
     dom_automation_enabled_ = true;
-    CommandLine::AppendSwitchWithValue(&launch_arguments_,
-                                       switches::kLang,
-                                       L"en-us");
+    launch_arguments_.AppendSwitchWithValue(switches::kLang,
+                                            L"en-us");
   }
 };
 
@@ -371,7 +370,9 @@ class AutomationProxyTest2 : public AutomationProxyVisibleTest {
 
     document2_ = test_data_directory_;
     file_util::AppendToPath(&document2_, L"title2.html");
-    launch_arguments_ = document1_ + L" " + document2_;
+    launch_arguments_ = CommandLine(L"");
+    launch_arguments_.AppendLooseValue(document1_);
+    launch_arguments_.AppendLooseValue(document2_);
   }
 
   std::wstring document1_;
@@ -576,7 +577,8 @@ class AutomationProxyTest3 : public UITest {
     file_util::AppendToPath(&document1_, L"frame_dom_access.html");
 
     dom_automation_enabled_ = true;
-    launch_arguments_ = document1_;
+    launch_arguments_ = CommandLine(L"");
+    launch_arguments_.AppendLooseValue(document1_);
   }
 
   std::wstring document1_;

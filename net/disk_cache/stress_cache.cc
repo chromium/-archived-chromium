@@ -36,14 +36,8 @@ int RunSlave(int iteration) {
   std::wstring exe;
   PathService::Get(base::FILE_EXE, &exe);
 
-#if defined(OS_WIN)
-  CommandLine cmdline(StringPrintf(L"%ls %d", exe.c_str(), iteration));
-#elif defined(OS_POSIX)
-  std::vector<std::string> cmd_argv;
-  cmd_argv.push_back(WideToUTF8(exe));
-  cmd_argv.push_back(IntToString(iteration));
-  CommandLine cmdline(cmd_argv);
-#endif
+  CommandLine cmdline(exe);
+  cmdline.AppendLooseValue(ASCIIToWide(IntToString(iteration)));
 
   base::ProcessHandle handle;
   if (!base::LaunchApp(cmdline, false, false, &handle)) {

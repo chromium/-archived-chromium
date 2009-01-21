@@ -14,7 +14,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
 
-BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
+BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
     : created_local_state_(), created_metrics_service_(),
       created_profile_manager_() {
   g_browser_process = this;

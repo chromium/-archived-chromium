@@ -45,7 +45,7 @@ Logging::Logging()
   // enabled, so child processes can know when logging is enabled.
   int browser_pid;
 
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
   if (process_type.empty()) {

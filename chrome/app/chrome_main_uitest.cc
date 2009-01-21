@@ -35,7 +35,7 @@ TEST_F(ChromeMainTest, SecondLaunch) {
   include_testing_id_ = false;
   use_existing_browser_ = true;
 
-  LaunchBrowser(std::wstring(), false);
+  LaunchBrowser(CommandLine(L""), false);
 
   int window_count;
   ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,

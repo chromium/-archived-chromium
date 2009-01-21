@@ -237,7 +237,7 @@ void Window::Observe(NotificationType type,
   // This window is closed when the last app window is closed.
   DCHECK(type == NOTIFY_ALL_APPWINDOWS_CLOSED);
   // Only registered as an observer when we're not an app window.
-  DCHECK(!IsAppWindow());
+  // XXX DCHECK(!IsAppWindow());
   Close();
 }
 

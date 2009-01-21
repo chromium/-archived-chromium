@@ -133,7 +133,8 @@ void OmniboxTest::RunQueryChain(const std::wstring& input_text) {
 // </omnibox_tests>
 
 TEST_F(OmniboxTest, Measure) {
-  if (!CommandLine().HasSwitch(kRunOmniboxTest)) return;
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunOmniboxTest))
+    return;
 
   std::wstring omnibox_tests_path;
   PathService::Get(chrome::DIR_TEST_DATA, &omnibox_tests_path);

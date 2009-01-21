@@ -153,7 +153,7 @@ class UnloadTest : public UITest {
 // we don't get confused and think we're closing the tab.
 TEST_F(UnloadTest, CrossSiteInfiniteUnloadAsync) {
   // Tests makes no sense in single-process mode since the renderer is hung.
-  if (CommandLine().HasSwitch(switches::kSingleProcess))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
     return;
 
   NavigateToDataURL(INFINITE_UNLOAD_HTML, L"infiniteunload");
@@ -167,7 +167,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteUnloadAsync) {
 // we correctly nav to each one. 
 TEST_F(UnloadTest, CrossSiteInfiniteUnloadSync) {
   // Tests makes no sense in single-process mode since the renderer is hung.
-  if (CommandLine().HasSwitch(switches::kSingleProcess))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
     return;
 
   NavigateToDataURL(INFINITE_UNLOAD_HTML, L"infiniteunload");
@@ -181,7 +181,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteUnloadSync) {
 // we don't get confused and think we're closing the tab.
 TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadAsync) {
   // Tests makes no sense in single-process mode since the renderer is hung.
-  if (CommandLine().HasSwitch(switches::kSingleProcess))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
     return;
 
   NavigateToDataURL(INFINITE_BEFORE_UNLOAD_HTML, L"infinitebeforeunload");
@@ -195,7 +195,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadAsync) {
 // we correctly nav to each one. 
 TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadSync) {
   // Tests makes no sense in single-process mode since the renderer is hung.
-  if (CommandLine().HasSwitch(switches::kSingleProcess))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
     return;
 
   NavigateToDataURL(INFINITE_BEFORE_UNLOAD_HTML, L"infinitebeforeunload");

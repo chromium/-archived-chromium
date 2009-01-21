@@ -44,8 +44,7 @@ CPError STDCALL Gears_CP_Initialize(CPID id, const CPBrowserFuncs *bfuncs,
 
 static bool IsSingleProcessMode() {
   // We don't support ChromePlugins in single-process mode.
-  CommandLine command_line;
-  return command_line.HasSwitch(switches::kSingleProcess);
+  return CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess);
 }
 
 // static

@@ -501,7 +501,7 @@ void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
 namespace webkit_glue {
 
 bool IsMediaPlayerAvailable() {
-  return CommandLine().HasSwitch(test_shell::kEnableVideo);
+  return CommandLine::ForCurrentProcess()->HasSwitch(test_shell::kEnableVideo);
 }
 
 void PrefetchDns(const std::string& hostname) {}

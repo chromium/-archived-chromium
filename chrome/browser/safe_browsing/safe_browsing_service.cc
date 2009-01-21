@@ -36,7 +36,8 @@ SafeBrowsingService::SafeBrowsingService()
       resetting_(false),
       database_loaded_(false),
       update_in_progress_(false) {
-  new_safe_browsing_ = !CommandLine().HasSwitch(switches::kUseOldSafeBrowsing);
+  new_safe_browsing_ = !CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kUseOldSafeBrowsing);
   base::SystemMonitor* monitor = base::SystemMonitor::Get();
   DCHECK(monitor);
   if (monitor)

@@ -12,12 +12,10 @@
 #include "base/command_line.h"
 #include "chrome/common/sandbox_init_wrapper.h"
 
-// TODO(pinkerton): |cl| should be const, but can't be due to bug 6144.
-
 struct MainFunctionParams {
-  MainFunctionParams(CommandLine& cl, const SandboxInitWrapper& sb)
+  MainFunctionParams(const CommandLine& cl, const SandboxInitWrapper& sb)
       : command_line_(cl), sandbox_info_(sb) { }
-  CommandLine& command_line_;
+  const CommandLine& command_line_;
   const SandboxInitWrapper& sandbox_info_;
 };
 

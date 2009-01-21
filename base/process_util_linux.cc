@@ -76,7 +76,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
     if (wait)
       waitpid(pid, 0, 0);
 
-    if(process_handle)
+    if (process_handle)
       *process_handle = pid;
   }
 
@@ -85,9 +85,9 @@ bool LaunchApp(const std::vector<std::string>& argv,
 
   return retval;
 }
-
 bool LaunchApp(const CommandLine& cl,
-               bool wait, bool start_hidden, ProcessHandle* process_handle) {
+               bool wait, bool start_hidden,
+               ProcessHandle* process_handle) {
   file_handle_mapping_vector no_files;
   return LaunchApp(cl.argv(), no_files, wait, process_handle);
 }
@@ -101,7 +101,8 @@ bool DidProcessCrash(ProcessHandle handle) {
 
   if (WIFSIGNALED(status)) {
     int signum = WTERMSIG(status);
-    return (signum == SIGSEGV || signum == SIGILL || signum == SIGABRT || signum == SIGFPE);
+    return (signum == SIGSEGV || signum == SIGILL || signum == SIGABRT ||
+            signum == SIGFPE);
   }
 
   if (WIFEXITED(status)) {

@@ -17,10 +17,11 @@ bool BrowsingInstance::ShouldUseProcessPerSite(const GURL& url) {
   // the case if the --process-per-site switch is specified, or in
   // process-per-site-instance for particular sites (e.g., the new tab page).
 
-  if (CommandLine().HasSwitch(switches::kProcessPerSite))
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kProcessPerSite))
     return true;
 
-  if (!CommandLine().HasSwitch(switches::kProcessPerTab)) {
+  if (!command_line.HasSwitch(switches::kProcessPerTab)) {
     // We are not in process-per-site or process-per-tab, so we must be in the
     // default (process-per-site-instance).  Only use the process-per-site
     // logic for particular sites that we want to consolidate.

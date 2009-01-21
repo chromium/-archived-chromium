@@ -77,7 +77,7 @@ bool ChildProcess::GlobalInit(const std::wstring &channel_name,
 
   child_process_ = factory->Create(channel_name);
 
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kUserAgent)) {
 #if defined(OS_WIN)
     // TODO(port): calling this connects an, otherwise disconnected, subgraph

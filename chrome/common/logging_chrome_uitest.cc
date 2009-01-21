@@ -72,8 +72,7 @@ class AssertionTest : public UITest {
     // We're testing the renderer rather than the browser assertion here,
     // because the browser assertion would flunk the test during SetUp()
     // (since TAU wouldn't be able to find the browser window).
-    CommandLine::AppendSwitch(&launch_arguments_,
-                              switches::kRendererAssertTest);
+    launch_arguments_.AppendSwitch(switches::kRendererAssertTest);
   }
 };
 
@@ -98,8 +97,7 @@ class RendererCrashTest : public UITest {
     // Initial loads will never complete due to crash.
     wait_for_initial_loads_ = false;
 
-    CommandLine::AppendSwitch(&launch_arguments_,
-                              switches::kRendererCrashTest);
+    launch_arguments_.AppendSwitch(switches::kRendererCrashTest);
   }
 };
 
@@ -123,8 +121,7 @@ class BrowserCrashTest : public UITest {
     // Initial loads will never complete due to crash.
     wait_for_initial_loads_ = false;
 
-    CommandLine::AppendSwitch(&launch_arguments_,
-                              switches::kBrowserCrashTest);
+    launch_arguments_.AppendSwitch(switches::kBrowserCrashTest);
   }
 };
 

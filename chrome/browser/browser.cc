@@ -321,7 +321,7 @@ void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
 }
 
 gfx::Rect Browser::GetSavedWindowBounds() const {
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   bool record_mode = parsed_command_line.HasSwitch(switches::kRecordMode);
   bool playback_mode = parsed_command_line.HasSwitch(switches::kPlaybackMode);
   if (record_mode || playback_mode) {
@@ -343,7 +343,7 @@ gfx::Rect Browser::GetSavedWindowBounds() const {
 // TODO(beng): obtain maximized state some other way so we don't need to go
 //             through all this hassle.
 bool Browser::GetSavedMaximizedState() const {
-  if (CommandLine().HasSwitch(switches::kStartMaximized))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kStartMaximized))
     return true;
 
   gfx::Rect restored_bounds;
@@ -1489,7 +1489,7 @@ void Browser::OpenURLFromTab(TabContents* source,
   // TODO(creis): should this apply to applications?
   SiteInstance* instance = NULL;
   // Don't use this logic when "--process-per-tab" is specified.
-  if (!CommandLine().HasSwitch(switches::kProcessPerTab)) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab)) {
     if (current_tab) {
       const WebContents* const web_contents = current_tab->AsWebContents();
       if (web_contents) {

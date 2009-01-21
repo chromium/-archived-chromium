@@ -79,7 +79,8 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
       activatable_(true) {
   render_widget_host_->set_view(this);
   renderer_accessible_ =
-      CommandLine().HasSwitch(switches::kEnableRendererAccessibility);
+      CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableRendererAccessibility);
 }
 
 RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {

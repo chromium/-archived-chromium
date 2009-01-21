@@ -23,7 +23,7 @@
 static net::ProxyInfo* CreateProxyInfo() {
   net::ProxyInfo* proxy_info = NULL;
 
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kProxyServer)) {
     proxy_info = new net::ProxyInfo();
     const std::wstring& proxy_server =
@@ -47,7 +47,7 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   net::HttpCache* cache =
       new net::HttpCache(context->proxy_service_, disk_cache_path, 0);
 
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   bool record_mode = chrome::kRecordModeEnabled &&
                      command_line.HasSwitch(switches::kRecordMode);
   bool playback_mode = command_line.HasSwitch(switches::kPlaybackMode);

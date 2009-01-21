@@ -7,21 +7,21 @@
 class LocaleTestsDa : public UITest {
  public:
   LocaleTestsDa() : UITest() {
-    launch_arguments_.append(L" --lang=da");
+    launch_arguments_.AppendSwitchWithValue(L"lang", L"da");
   }
 };
 
 class LocaleTestsHe : public UITest {
  public:
   LocaleTestsHe() : UITest() {
-    launch_arguments_.append(L" --lang=he");
+    launch_arguments_.AppendSwitchWithValue(L"lang", L"he");
   }
 };
 
 class LocaleTestsZhTw : public UITest {
  public:
   LocaleTestsZhTw() : UITest() {
-    launch_arguments_.append(L" --lang=zh-tw");
+    launch_arguments_.AppendSwitchWithValue(L"lang", L"zh-tw");
   }
 };
 

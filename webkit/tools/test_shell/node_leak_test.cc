@@ -30,11 +30,11 @@ const wchar_t kTestUrlSwitch[] = L"test-url";
 class NodeLeakTest : public TestShellTest {
  public:
   virtual void SetUp() {
-    CommandLine parsed_command_line;
+    const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
 
-    std::wstring js_flags = 
-      parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
-    CommandLine::AppendSwitch(&js_flags, L"expose-gc");
+    std::wstring js_flags =
+        parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
+    js_flags += L" --expose-gc";
     webkit_glue::SetJavaScriptFlags(js_flags);
     // Expose GCController to JavaScript as well.
     webkit_glue::SetShouldExposeGCController(true);
@@ -66,7 +66,7 @@ class NodeLeakTest : public TestShellTest {
 
   virtual void TearDown() {
     TestShellTest::TearDown();
- 
+
     SimpleResourceLoaderBridge::Shutdown();
   }
 
@@ -80,7 +80,7 @@ class NodeLeakTest : public TestShellTest {
 };
 
 TEST_F(NodeLeakTest, TestURL) {
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kTestUrlSwitch)) {
     NavigateToURL(parsed_command_line.GetSwitchValue(kTestUrlSwitch).c_str());
   }

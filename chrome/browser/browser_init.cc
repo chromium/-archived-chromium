@@ -403,7 +403,8 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
   DCHECK(profile);
   profile_ = profile;
 
-  CommandLine parsed_command_line(command_line_);
+  CommandLine parsed_command_line(L"");
+  parsed_command_line.ParseFromString(command_line_);
   if (parsed_command_line.HasSwitch(switches::kDnsLogDetails))
     chrome_browser_net::EnableDnsDetailedLog(true);
   if (parsed_command_line.HasSwitch(switches::kDnsPrefetchDisable))
@@ -569,30 +570,27 @@ void BrowserInit::LaunchWithProfile::AddCrashedInfoBarIfNecessary(
 std::vector<GURL> BrowserInit::LaunchWithProfile::GetURLsFromCommandLine(
     const CommandLine& command_line, Profile* profile) {
   std::vector<GURL> urls;
-  if (command_line.GetLooseValueCount() > 0) {
-    for (CommandLine::LooseValueIterator iter =
-         command_line.GetLooseValuesBegin();
-         iter != command_line.GetLooseValuesEnd(); ++iter) {
-      std::wstring value = *iter;
-      // Handle Vista way of searching - "? <search-term>"
-      if (value.find(L"? ") == 0) {
-        const TemplateURL* const default_provider =
-            profile->GetTemplateURLModel()->GetDefaultSearchProvider();
-        if (!default_provider || !default_provider->url()) {
-          // No search provider available. Just treat this as regular URL.
-          urls.push_back(GURL(URLFixerUpper::FixupRelativeFile(cur_dir_,
-                                                               value)));
-          continue;
-        }
-        const TemplateURLRef* const search_url = default_provider->url();
-        DCHECK(search_url->SupportsReplacement());
-        urls.push_back(GURL(search_url->ReplaceSearchTerms(*default_provider,
-            value.substr(2), TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
-            std::wstring())));
-      } else {
-        // This will create a file URL or a regular URL.
-        urls.push_back(GURL(URLFixerUpper::FixupRelativeFile(cur_dir_, value)));
+  std::vector<std::wstring> params = command_line.GetLooseValues();
+  for (size_t i = 0; i < params.size(); ++i) {
+    const std::wstring& value = params[i];
+    // Handle Vista way of searching - "? <search-term>"
+    if (value.find(L"? ") == 0) {
+      const TemplateURL* const default_provider =
+          profile->GetTemplateURLModel()->GetDefaultSearchProvider();
+      if (!default_provider || !default_provider->url()) {
+        // No search provider available. Just treat this as regular URL.
+        urls.push_back(GURL(URLFixerUpper::FixupRelativeFile(cur_dir_,
+                                                             value)));
+        continue;
       }
+      const TemplateURLRef* const search_url = default_provider->url();
+      DCHECK(search_url->SupportsReplacement());
+      urls.push_back(GURL(search_url->ReplaceSearchTerms(*default_provider,
+          value.substr(2), TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
+          std::wstring())));
+    } else {
+      // This will create a file URL or a regular URL.
+      urls.push_back(GURL(URLFixerUpper::FixupRelativeFile(cur_dir_, value)));
     }
   }
   return urls;
@@ -633,7 +631,7 @@ bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
       CreateAutomationProvider<TestingAutomationProvider>(
           testing_channel_id,
           profile,
-          std::max(static_cast<int>(parsed_command_line.GetLooseValueCount()),
+          std::max(static_cast<int>(parsed_command_line.GetLooseValues().size()),
                    1));
     }
   }
@@ -651,7 +649,7 @@ bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
     // If there are any loose parameters, we expect each one to generate a
     // new tab; if there are none then we have no tabs
     size_t expected_tabs =
-        std::max(static_cast<int>(parsed_command_line.GetLooseValueCount()),
+        std::max(static_cast<int>(parsed_command_line.GetLooseValues().size()),
                  0);
     if (expected_tabs == 0) {
       silent_launch = true;

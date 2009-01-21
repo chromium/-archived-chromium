@@ -40,7 +40,8 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
     }
 
     std::wstring debugger_path =
-        CommandLine().GetSwitchValue(switches::kJavaScriptDebuggerPath);
+        CommandLine::ForCurrentProcess()->GetSwitchValue(
+            switches::kJavaScriptDebuggerPath);
     std::string data_str;
     if (!debugger_path.empty() && file_util::PathExists(debugger_path)) {
       if (path.empty())

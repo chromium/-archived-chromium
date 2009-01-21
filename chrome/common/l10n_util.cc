@@ -261,7 +261,7 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   std::wstring resolved_locale;
 
   // First, check to see if there's a --lang flag.
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   const std::wstring& lang_arg =
       parsed_command_line.GetSwitchValue(switches::kLang);
   if (!lang_arg.empty()) {

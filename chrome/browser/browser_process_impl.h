@@ -28,7 +28,7 @@ class NotificationService;
 // Real implementation of BrowserProcess that creates and returns the services.
 class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
  public:
-  BrowserProcessImpl(CommandLine& command_line);
+  BrowserProcessImpl(const CommandLine& command_line);
   virtual ~BrowserProcessImpl();
 
   virtual void EndSession();

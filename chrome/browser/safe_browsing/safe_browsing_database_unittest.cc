@@ -909,7 +909,8 @@ TEST(SafeBrowsingDatabase, HashCaching) {
 
   // Test receiving a full add chunk. The old implementation doesn't support
   // this test, so we bail here.
-  if (CommandLine().HasSwitch(switches::kUseOldSafeBrowsing)) {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kUseOldSafeBrowsing)) {
     TearDownTestDatabase(database);
     return;
   }

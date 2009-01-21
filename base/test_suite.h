@@ -31,7 +31,7 @@ class TestSuite {
  public:
   TestSuite(int argc, char** argv) {
     base::EnableTerminationOnHeapCorruption();
-    CommandLine::SetArgcArgv(argc, argv);
+    CommandLine::Init(argc, argv);
     testing::InitGoogleTest(&argc, argv);
 #if defined(OS_LINUX)
     gtk_init_check(&argc, &argv);
@@ -48,7 +48,8 @@ class TestSuite {
     base::ScopedNSAutoreleasePool scoped_pool;
 
     Initialize();
-    std::wstring client_func = CommandLine().GetSwitchValue(kRunClientProcess);
+    std::wstring client_func =
+        CommandLine::ForCurrentProcess()->GetSwitchValue(kRunClientProcess);
     // Check to see if we are being run as a client process.
     if (!client_func.empty()) {
       // Convert our function name to a usable string for GetProcAddress.
@@ -101,7 +102,7 @@ class TestSuite {
 #if defined(OS_WIN)
     // In some cases, we do not want to see standard error dialogs.
     if (!IsDebuggerPresent() &&
-        !CommandLine().HasSwitch(L"show-error-dialogs")) {
+        !CommandLine::ForCurrentProcess()->HasSwitch(L"show-error-dialogs")) {
       SuppressErrorDialogs();
       logging::SetLogAssertHandler(UnitTestAssertHandler);
     }

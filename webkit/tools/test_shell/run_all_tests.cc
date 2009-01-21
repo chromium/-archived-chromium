@@ -48,15 +48,13 @@ int main(int argc, char* argv[]) {
   base::EnableTerminationOnHeapCorruption();
   // Some unittests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
-  base::AtExitManager at_exit_manager;  
+  base::AtExitManager at_exit_manager;
 
 #if defined(OS_LINUX)
   gtk_init(&argc, &argv);
 #endif
 
-#if defined(OS_POSIX)
-  CommandLine::SetArgcArgv(argc, argv);
-#endif
+  CommandLine::Init(argc, argv);
 
   // Suppress error dialogs and do not show GP fault error box on Windows.
   TestShell::InitLogging(true, false, false);

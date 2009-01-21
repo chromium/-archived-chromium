@@ -52,7 +52,8 @@ void IPCChannelTest::TearDown() {
 base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
                                                IPC::Channel *channel) {
   // kDebugChildren support.
-  bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
+  bool debug_on_start =
+      CommandLine::ForCurrentProcess()->HasSwitch(switches::kDebugChildren);
 
   switch (child_type) {
   case TEST_CLIENT:
@@ -73,7 +74,8 @@ base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
 base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
                                                IPC::Channel *channel) {
   // kDebugChildren support.
-  bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
+  bool debug_on_start =
+      CommandLine::ForCurrentProcess()->HasSwitch(switches::kDebugChildren);
 
   base::file_handle_mapping_vector fds_to_map;
   int src_fd;
@@ -225,9 +227,10 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
     channel_listener.Init(&chan);
 
 #if defined(OS_WIN)
-  base::ProcessHandle process_handle = SpawnChild(TEST_CLIENT, NULL);
+    base::ProcessHandle process_handle = SpawnChild(TEST_CLIENT, NULL);
 #elif defined(OS_POSIX)
-    bool debug_on_start = CommandLine().HasSwitch(switches::kDebugChildren);
+    bool debug_on_start = CommandLine::ForCurrentProcess()->HasSwitch(
+                              switches::kDebugChildren);
     base::file_handle_mapping_vector fds_to_map;
     int src_fd;
     int dest_fd;

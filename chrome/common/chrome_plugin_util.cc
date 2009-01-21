@@ -121,7 +121,7 @@ int PluginResponseUtils::GetResponseInfo(
 
 CPError CPB_GetCommandLineArgumentsCommon(const char* url,
                                           std::string* arguments) {
-  CommandLine cmd;
+  const CommandLine cmd = *CommandLine::ForCurrentProcess();
   std::wstring arguments_w;
 
   // Use the same UserDataDir for new launches that we currently have set.
@@ -131,8 +131,8 @@ CPError CPB_GetCommandLineArgumentsCommon(const char* url,
     wchar_t user_data_dir_full[MAX_PATH];
     if (_wfullpath(user_data_dir_full, user_data_dir.c_str(), MAX_PATH) &&
         file_util::PathExists(user_data_dir_full)) {
-      CommandLine::AppendSwitchWithValue(
-          &arguments_w, switches::kUserDataDir, user_data_dir_full);
+      arguments_w += std::wstring(L"--") + switches::kUserDataDir +
+                     L'=' + user_data_dir_full;
     }
   }
 
@@ -140,7 +140,7 @@ CPError CPB_GetCommandLineArgumentsCommon(const char* url,
   // chrome.
   // Note: Do not change this flag!  Old Gears shortcuts will break if you do!
   std::wstring url_w = UTF8ToWide(url);
-  CommandLine::AppendSwitchWithValue(&arguments_w, switches::kApp, url_w);
+  arguments_w += std::wstring(L"--") + switches::kApp + L'=' + url_w;
 
   *arguments = WideToUTF8(arguments_w);
 

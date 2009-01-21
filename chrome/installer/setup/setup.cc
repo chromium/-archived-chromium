@@ -51,7 +51,6 @@ void DoFirstInstallTasks(std::wstring install_path, int options) {
   // will work only if current user has admin rights.
   std::wstring chrome_exe(install_path);
   file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
-  CommandLine cmd_line;
   LOG(INFO) << "Registering Chrome as browser";
   ShellUtil::RegisterStatus ret = ShellUtil::FAILURE;
   if (options & installer_util::MAKE_CHROME_DEFAULT) {

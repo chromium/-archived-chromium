@@ -228,7 +228,8 @@ void InitLogMutex() {
 
 void InitLogging(const PathChar* new_log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old) {
-  g_enable_dcheck = CommandLine().HasSwitch(switches::kEnableDCHECK);
+  g_enable_dcheck =
+      CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableDCHECK);
 
   if (log_file) {
     // calling InitLogging twice or after some log call has already opened the

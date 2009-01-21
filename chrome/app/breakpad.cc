@@ -163,7 +163,7 @@ static DWORD __stdcall InitCrashReporterThread(void* param) {
   // we do it here so it can run in a separate thread.
   info->custom_info = GetCustomInfo(info->dll_path, info->process_type);
 
-  CommandLine command;
+  const CommandLine& command = *CommandLine::ForCurrentProcess();
   bool full_dump = command.HasSwitch(switches::kFullMemoryCrashReport);
   bool use_crash_service = command.HasSwitch(switches::kNoErrorDialogs) ||
                            GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0);
@@ -238,7 +238,7 @@ void InitDefaultCrashCallback() {
 }
 
 void InitCrashReporter(std::wstring dll_path) {
-  CommandLine command;
+  const CommandLine& command = *CommandLine::ForCurrentProcess();
   if (!command.HasSwitch(switches::kDisableBreakpad)) {
     // Disable the message box for assertions.
     _CrtSetReportMode(_CRT_ASSERT, 0);

@@ -29,7 +29,7 @@ std::wstring GetWebKitLocale() {
   // The browser process should have passed the locale to the renderer via the
   // --lang command line flag.  In single process mode, this will return the
   // wrong value.  TODO(tc): Fix this for single process mode.
-  CommandLine parsed_command_line;
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   const std::wstring& lang =
       parsed_command_line.GetSwitchValue(switches::kLang);
   DCHECK(!lang.empty() ||

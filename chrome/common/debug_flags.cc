@@ -8,11 +8,11 @@
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
 
-bool DebugFlags::ProcessDebugFlags(std::wstring* command_line,
+bool DebugFlags::ProcessDebugFlags(CommandLine* command_line,
                                    ChildProcessType type,
                                    bool is_in_sandbox) {
   bool should_help_child = false;
-  CommandLine current_cmd_line;
+  const CommandLine& current_cmd_line = *CommandLine::ForCurrentProcess();
   if (current_cmd_line.HasSwitch(switches::kDebugChildren)) {
     // Look to pass-on the kDebugOnStart flag.
     std::wstring value;
@@ -20,12 +20,10 @@ bool DebugFlags::ProcessDebugFlags(std::wstring* command_line,
     if (value.empty() ||
         (type == RENDERER && value == switches::kRendererProcess) ||
         (type == PLUGIN && value == switches::kPluginProcess)) {
-      CommandLine::AppendSwitch(command_line, switches::kDebugOnStart);
+      command_line->AppendSwitch(switches::kDebugOnStart);
       should_help_child = true;
     }
-    CommandLine::AppendSwitchWithValue(command_line,
-                                       switches::kDebugChildren,
-                                       value);
+    command_line->AppendSwitchWithValue(switches::kDebugChildren, value);
   } else if (current_cmd_line.HasSwitch(switches::kWaitForDebuggerChildren)) {
     // Look to pass-on the kWaitForDebugger flag.
     std::wstring value;
@@ -33,11 +31,10 @@ bool DebugFlags::ProcessDebugFlags(std::wstring* command_line,
     if (value.empty() ||
         (type == RENDERER && value == switches::kRendererProcess) ||
         (type == PLUGIN && value == switches::kPluginProcess)) {
-      CommandLine::AppendSwitch(command_line, switches::kWaitForDebugger);
+      command_line->AppendSwitch(switches::kWaitForDebugger);
     }
-    CommandLine::AppendSwitchWithValue(command_line,
-                                       switches::kWaitForDebuggerChildren,
-                                       value);
+    command_line->AppendSwitchWithValue(switches::kWaitForDebuggerChildren,
+                                        value);
   }
   return should_help_child;
 }

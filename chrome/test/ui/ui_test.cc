@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/test/ui/ui_test.h"
+
 #include <set>
 #include <vector>
-
-#include "chrome/test/ui/ui_test.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -92,6 +92,7 @@ bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
 
 UITest::UITest()
     : testing::Test(),
+      launch_arguments_(L""),
       expected_errors_(0),
       expected_crashes_(0),
       homepage_(L"about:blank"),
@@ -177,28 +178,29 @@ void UITest::TearDown() {
 
 // Pick up the various test time out values from the command line.
 void UITest::InitializeTimeouts() {
-  if (CommandLine().HasSwitch(kUiTestTimeout)) {
-    std::wstring timeout_str = CommandLine().GetSwitchValue(kUiTestTimeout);
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(kUiTestTimeout)) {
+    std::wstring timeout_str = command_line.GetSwitchValue(kUiTestTimeout);
     int timeout = StringToInt(timeout_str);
     command_execution_timeout_ms_ = std::max(kMaxTestExecutionTime, timeout);
   }
 
-  if (CommandLine().HasSwitch(kUiTestActionTimeout)) {
-    std::wstring act_str = CommandLine().GetSwitchValue(kUiTestActionTimeout);
+  if (command_line.HasSwitch(kUiTestActionTimeout)) {
+    std::wstring act_str = command_line.GetSwitchValue(kUiTestActionTimeout);
     int act_timeout = StringToInt(act_str);
     action_timeout_ms_ = std::max(kWaitForActionMsec, act_timeout);
   }
 
-  if (CommandLine().HasSwitch(kUiTestActionMaxTimeout)) {
+  if (command_line.HasSwitch(kUiTestActionMaxTimeout)) {
     std::wstring action_max_str =
-        CommandLine().GetSwitchValue(kUiTestActionMaxTimeout);
+        command_line.GetSwitchValue(kUiTestActionMaxTimeout);
     int max_timeout = StringToInt(action_max_str);
     action_max_timeout_ms_ = std::max(kWaitForActionMaxMsec, max_timeout);
   }
 
-  if (CommandLine().HasSwitch(kUiTestSleepTimeout)) {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(kUiTestSleepTimeout)) {
     std::wstring sleep_timeout_str =
-        CommandLine().GetSwitchValue(kUiTestSleepTimeout);
+        CommandLine::ForCurrentProcess()->GetSwitchValue(kUiTestSleepTimeout);
     int sleep_timeout = StringToInt(sleep_timeout_str);
     sleep_timeout_ms_ = std::max(kWaitForActionMsec, sleep_timeout);
   }
@@ -235,23 +237,29 @@ void UITest::CloseBrowserAndServer() {
 #endif
 }
 
-void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
-  std::wstring command_line(browser_directory_);
-  file_util::AppendToPath(&command_line,
+void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
+  std::wstring command = browser_directory_;
+  file_util::AppendToPath(&command,
                           chrome::kBrowserProcessExecutableName);
+  CommandLine command_line(command);
 
   // Add any explict command line flags passed to the process.
   std::wstring extra_chrome_flags =
-      CommandLine().GetSwitchValue(kExtraChromeFlagsSwitch);
-  if (!extra_chrome_flags.empty())
-    command_line.append(L" " + extra_chrome_flags);
+      CommandLine::ForCurrentProcess()->GetSwitchValue(kExtraChromeFlagsSwitch);
+  if (!extra_chrome_flags.empty()) {
+#if defined(OS_WIN)
+    command_line.AppendLooseValue(extra_chrome_flags);
+#else
+    // TODO(port): figure out how to pass through extra flags via a string.
+    NOTIMPLEMENTED();
+#endif
+  }
 
   // We need cookies on file:// for things like the page cycler.
-  CommandLine::AppendSwitch(&command_line, switches::kEnableFileCookies);
+  command_line.AppendSwitch(switches::kEnableFileCookies);
 
   if (dom_automation_enabled_)
-    CommandLine::AppendSwitch(&command_line,
-                              switches::kDomAutomationController);
+    command_line.AppendSwitch(switches::kDomAutomationController);
 
 #if defined(OS_WIN)
   if (include_testing_id_) {
@@ -261,12 +269,10 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
       // this by passing an url (e.g. about:blank) on the command line, but
       // I decided to keep using the old switch in the existing use case to
       // minimize changes in behavior.
-      CommandLine::AppendSwitchWithValue(&command_line,
-                                         switches::kAutomationClientChannelID,
+      command_line.AppendSwitchWithValue(switches::kAutomationClientChannelID,
                                          server_->channel_id());
     } else {
-      CommandLine::AppendSwitchWithValue(&command_line,
-                                         switches::kTestingChannelID,
+      command_line.AppendSwitchWithValue(switches::kTestingChannelID,
                                          server_->channel_id());
     }
   }
@@ -276,56 +282,52 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
 #endif
 
   if (!show_error_dialogs_)
-    CommandLine::AppendSwitch(&command_line, switches::kNoErrorDialogs);
+    command_line.AppendSwitch(switches::kNoErrorDialogs);
   if (in_process_renderer_)
-    CommandLine::AppendSwitch(&command_line, switches::kSingleProcess);
+    command_line.AppendSwitch(switches::kSingleProcess);
   if (in_process_plugins_)
-    CommandLine::AppendSwitch(&command_line, switches::kInProcessPlugins);
+    command_line.AppendSwitch(switches::kInProcessPlugins);
   if (no_sandbox_)
-    CommandLine::AppendSwitch(&command_line, switches::kNoSandbox);
+    command_line.AppendSwitch(switches::kNoSandbox);
   if (full_memory_dump_)
-    CommandLine::AppendSwitch(&command_line, switches::kFullMemoryCrashReport);
+    command_line.AppendSwitch(switches::kFullMemoryCrashReport);
   if (safe_plugins_)
-    CommandLine::AppendSwitch(&command_line, switches::kSafePlugins);
+    command_line.AppendSwitch(switches::kSafePlugins);
   if (enable_dcheck_)
-    CommandLine::AppendSwitch(&command_line, switches::kEnableDCHECK);
+    command_line.AppendSwitch(switches::kEnableDCHECK);
   if (silent_dump_on_dcheck_)
-    CommandLine::AppendSwitch(&command_line, switches::kSilentDumpOnDCHECK);
+    command_line.AppendSwitch(switches::kSilentDumpOnDCHECK);
   if (disable_breakpad_)
-    CommandLine::AppendSwitch(&command_line, switches::kDisableBreakpad);
+    command_line.AppendSwitch(switches::kDisableBreakpad);
   if (!homepage_.empty())
-    CommandLine::AppendSwitchWithValue(&command_line,
-                                       switches::kHomePage,
+    command_line.AppendSwitchWithValue(switches::kHomePage,
                                        homepage_);
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir_);
   if (!user_data_dir_.empty())
-    CommandLine::AppendSwitchWithValue(&command_line,
-                                       switches::kUserDataDir,
+    command_line.AppendSwitchWithValue(switches::kUserDataDir,
                                        user_data_dir_);
   if (!js_flags_.empty())
-    CommandLine::AppendSwitchWithValue(&command_line,
-                                       switches::kJavaScriptFlags,
+    command_line.AppendSwitchWithValue(switches::kJavaScriptFlags,
                                        js_flags_);
 
-  CommandLine::AppendSwitch(&command_line, switches::kMetricsRecordingOnly);
+  command_line.AppendSwitch(switches::kMetricsRecordingOnly);
 
   // We always want to enable chrome logging
-  CommandLine::AppendSwitch(&command_line, switches::kEnableLogging);
+  command_line.AppendSwitch(switches::kEnableLogging);
 
   if (dump_histograms_on_exit_)
-    CommandLine::AppendSwitch(&command_line, switches::kDumpHistogramsOnExit);
+    command_line.AppendSwitch(switches::kDumpHistogramsOnExit);
 
 #ifdef WAIT_FOR_DEBUGGER_ON_OPEN
-  CommandLine::AppendSwitch(&command_line, switches::kDebugOnStart);
+  command_line.AppendSwitch(switches::kDebugOnStart);
 #endif
 
   if (!ui_test_name_.empty())
-    CommandLine::AppendSwitchWithValue(&command_line,
-                                       switches::kTestName,
+    command_line.AppendSwitchWithValue(switches::kTestName,
                                        ui_test_name_);
 
   DebugFlags::ProcessDebugFlags(&command_line, DebugFlags::UNKNOWN, false);
-  command_line.append(L" " + arguments);
+  command_line.AppendArguments(arguments, false);
 
   // Clear user data directory to make sure test environment is consistent
   // We balk on really short (absolute) user_data_dir directory names, because
@@ -356,7 +358,7 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
   if (use_existing_browser_) {
     DWORD pid = 0;
     HWND hwnd = FindWindowEx(HWND_MESSAGE, NULL, chrome::kMessageWindowClass,
-                         user_data_dir_.c_str());
+                             user_data_dir_.c_str());
     GetWindowThreadProcessId(hwnd, &pid);
     // This mode doesn't work if we wound up launching a new browser ourselves.
     ASSERT_NE(pid, base::GetProcId(process_));

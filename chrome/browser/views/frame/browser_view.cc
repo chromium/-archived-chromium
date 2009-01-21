@@ -327,8 +327,10 @@ void BrowserView::Init() {
 
   // Start a hung plugin window detector for this browser object (as long as
   // hang detection is not disabled).
-  if (!CommandLine().HasSwitch(switches::kDisableHangMonitor))
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisableHangMonitor)) {
     InitHangMonitor();
+  }
 
   LoadAccelerators();
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));

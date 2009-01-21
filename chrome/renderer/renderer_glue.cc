@@ -136,7 +136,7 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 namespace webkit_glue {
 
 bool IsMediaPlayerAvailable() {
-  return CommandLine().HasSwitch(switches::kEnableVideo);
+  return CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableVideo);
 }
 
 void PrefetchDns(const std::string& hostname) {

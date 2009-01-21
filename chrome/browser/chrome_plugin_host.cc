@@ -640,8 +640,8 @@ CPProcessType STDCALL CPB_GetProcessType(CPID id) {
 }
 
 CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
-  CommandLine cmd;
-  if (cmd.HasSwitch(switches::kGearsInRenderer)) {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kGearsInRenderer)) {
     ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
     CHECK(plugin);
 

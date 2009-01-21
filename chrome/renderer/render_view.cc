@@ -289,7 +289,7 @@ void RenderView::Init(HWND parent_hwnd,
   host_window_ = parent_hwnd;
   modal_dialog_event_.reset(modal_dialog_event);
 
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   enable_dom_automation_ =
       command_line.HasSwitch(switches::kDomAutomationController);
   disable_popup_blocking_ =
@@ -1834,8 +1834,8 @@ static bool ShouldLoadPluginInProcess(const std::string& mime_type,
 
   if (mime_type == "application/x-googlegears") {
     *is_gears = true;
-    CommandLine cmd;
-    return cmd.HasSwitch(switches::kGearsInRenderer);
+    return CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kGearsInRenderer);
   }
 
   return false;

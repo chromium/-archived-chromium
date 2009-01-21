@@ -134,11 +134,12 @@ int main(int argc, char* argv[]) {
 
 #if defined(OS_LINUX)
   gtk_init(&argc, &argv);
-  // Only parse the command line after GTK's had a crack at it.
-  CommandLine::SetArgcArgv(argc, argv);
 #endif
 
-  CommandLine parsed_command_line;
+  // Only parse the command line after GTK's had a crack at it.
+  CommandLine::Init(argc, argv);
+
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
     TestShell::ShowStartupDebuggingDialog();
 
@@ -265,16 +266,14 @@ int main(int argc, char* argv[]) {
     file_util::AppendToPath(&uri, L"index.html");
   }
 
-  if (parsed_command_line.GetLooseValueCount() > 0) {
-    CommandLine::LooseValueIterator iter(
-        parsed_command_line.GetLooseValuesBegin());
-    uri = *iter;
-  }
+  std::vector<std::wstring> loose_values = parsed_command_line.GetLooseValues();
+  if (loose_values.size() > 0)
+    uri = loose_values[0];
 
-  std::wstring js_flags = 
+  std::wstring js_flags =
     parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
   // Test shell always exposes the GC.
-  CommandLine::AppendSwitch(&js_flags, L"expose-gc");
+  js_flags += L" --expose-gc";
   webkit_glue::SetJavaScriptFlags(js_flags);
   // Also expose GCController to JavaScript.
   webkit_glue::SetShouldExposeGCController(true);

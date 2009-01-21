@@ -461,13 +461,11 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
   if (!PathService::Get(base::FILE_EXE, &exe_path))
     return false;
 
-  std::wstring cmd_line(L"\"");
-  cmd_line += exe_path;
-  cmd_line += L"\"";
+  CommandLine cmd_line(exe_path);
   if (logging::DialogsAreSuppressed())
-    CommandLine::AppendSwitch(&cmd_line, switches::kNoErrorDialogs);
+    cmd_line.AppendSwitch(switches::kNoErrorDialogs);
 
-  CommandLine browser_command_line;
+  const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
 
   // propagate the following switches to the plugin command line (along with
   // any associated values) if present in the browser command line
@@ -492,8 +490,8 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
 
   for (int i = 0; i < arraysize(switch_names); ++i) {
     if (browser_command_line.HasSwitch(switch_names[i])) {
-      CommandLine::AppendSwitchWithValue(
-          &cmd_line, switch_names[i],
+      cmd_line.AppendSwitchWithValue(
+          switch_names[i],
           browser_command_line.GetSwitchValue(switch_names[i]));
     }
   }
@@ -501,26 +499,26 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
   // If specified, prepend a launcher program to the command line.
   std::wstring plugin_launcher =
       browser_command_line.GetSwitchValue(switches::kPluginLauncher);
-  if (!plugin_launcher.empty())
-    cmd_line = plugin_launcher + L" " + cmd_line;
+  if (!plugin_launcher.empty()) {
+    CommandLine new_cmd_line = CommandLine(plugin_launcher);
+    new_cmd_line.AppendArguments(cmd_line, true);
+    cmd_line = new_cmd_line;
+  }
 
   if (!locale.empty()) {
     // Pass on the locale so the null plugin will use the right language in the
     // prompt to install the desired plugin.
-    CommandLine::AppendSwitchWithValue(&cmd_line, switches::kLang, locale);
+    cmd_line.AppendSwitchWithValue(switches::kLang, locale);
   }
 
-  CommandLine::AppendSwitchWithValue(&cmd_line,
-                                     switches::kProcessType,
-                                     switches::kPluginProcess);
+  cmd_line.AppendSwitchWithValue(switches::kProcessType,
+                                 switches::kPluginProcess);
 
-  CommandLine::AppendSwitchWithValue(&cmd_line,
-                                     switches::kProcessChannelID,
-                                     channel_id_);
+  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID,
+                                 channel_id_);
 
-  CommandLine::AppendSwitchWithValue(&cmd_line,
-                                     switches::kPluginPath,
-                                     plugin_path.ToWStringHack());
+  cmd_line.AppendSwitchWithValue(switches::kPluginPath,
+                                 plugin_path.ToWStringHack());
 
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox) &&
                     browser_command_line.HasSwitch(switches::kSafePlugins);
@@ -550,8 +548,10 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
       return false;
     }
 
-    result = broker_service->SpawnTarget(exe_path.c_str(),
-                                         cmd_line.c_str(), policy, &target);
+    result =
+        broker_service->SpawnTarget(exe_path.c_str(),
+                                    cmd_line.command_line_string().c_str(),
+                                    policy, &target);
     policy->Release();
     if (sandbox::SBOX_ALL_OK != result)
       return false;

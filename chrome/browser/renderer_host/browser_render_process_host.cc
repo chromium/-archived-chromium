@@ -167,7 +167,7 @@ bool BrowserRenderProcessHost::Init() {
                                 widget_helper_,
                                 profile()->GetSpellChecker());
 
-  CommandLine browser_command_line;
+  const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
 
   // setup IPC channel
   std::wstring channel_id = GenerateRandomChannelID(this);
@@ -188,10 +188,9 @@ bool BrowserRenderProcessHost::Init() {
   if (renderer_path.empty())
     if (!GetRendererPath(&renderer_path))
       return false;
-  std::wstring cmd_line;
-  cmd_line = L"\"" + renderer_path + L"\"";
+  CommandLine cmd_line(renderer_path);
   if (logging::DialogsAreSuppressed())
-    CommandLine::AppendSwitch(&cmd_line, switches::kNoErrorDialogs);
+    cmd_line.AppendSwitch(switches::kNoErrorDialogs);
 
   // propagate the following switches to the renderer command line
   // (along with any associated values) if present in the browser command line
@@ -229,15 +228,14 @@ bool BrowserRenderProcessHost::Init() {
 
   for (int i = 0; i < arraysize(switch_names); ++i) {
     if (browser_command_line.HasSwitch(switch_names[i])) {
-      CommandLine::AppendSwitchWithValue(
-          &cmd_line, switch_names[i],
+      cmd_line.AppendSwitchWithValue(switch_names[i],
           browser_command_line.GetSwitchValue(switch_names[i]));
     }
   }
 
   // Pass on the browser locale.
   const std::wstring locale = g_browser_process->GetApplicationLocale();
-  CommandLine::AppendSwitchWithValue(&cmd_line, switches::kLang, locale);
+  cmd_line.AppendSwitchWithValue(switches::kLang, locale);
 
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox);
   if (browser_command_line.HasSwitch(switches::kInProcessPlugins)) {
@@ -249,19 +247,17 @@ bool BrowserRenderProcessHost::Init() {
       DebugFlags::ProcessDebugFlags(&cmd_line,
                                     DebugFlags::RENDERER,
                                     in_sandbox);
-  CommandLine::AppendSwitchWithValue(&cmd_line,
-                                     switches::kProcessType,
-                                     switches::kRendererProcess);
+  cmd_line.AppendSwitchWithValue(switches::kProcessType,
+                                 switches::kRendererProcess);
 
-  CommandLine::AppendSwitchWithValue(&cmd_line,
-                                     switches::kProcessChannelID,
-                                     channel_id);
+  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID,
+                                 channel_id);
 
   const std::wstring& profile_path =
       browser_command_line.GetSwitchValue(switches::kUserDataDir);
   if (!profile_path.empty())
-    CommandLine::AppendSwitchWithValue(&cmd_line, switches::kUserDataDir,
-                                       profile_path);
+    cmd_line.AppendSwitchWithValue(switches::kUserDataDir,
+                                   profile_path);
 
   bool run_in_process = run_renderer_in_process();
   if (run_in_process) {
@@ -286,7 +282,8 @@ bool BrowserRenderProcessHost::Init() {
         g_browser_process->local_state()->GetBoolean(
             prefs::kStartRenderersManually)) {
       std::wstring message =
-        L"Please start a renderer process using:\n" + cmd_line;
+          L"Please start a renderer process using:\n" +
+          cmd_line.command_line_string();
 
       // We don't know the owner window for BrowserRenderProcessHost and therefore we
       // pass a NULL HWND argument.
@@ -328,8 +325,7 @@ bool BrowserRenderProcessHost::Init() {
           return false;
         }
 
-        CommandLine command_line;
-        if (command_line.HasSwitch(switches::kGearsInRenderer)) {
+        if (browser_command_line.HasSwitch(switches::kGearsInRenderer)) {
           if (!AddPolicyForGearsInRenderer(policy)) {
             NOTREACHED();
             return false;
@@ -341,9 +337,10 @@ bool BrowserRenderProcessHost::Init() {
           return false;
         }
 
-        result = broker_service->SpawnTarget(renderer_path.c_str(),
-                                             cmd_line.c_str(),
-                                             policy, &target);
+        result =
+            broker_service->SpawnTarget(renderer_path.c_str(),
+                                        cmd_line.command_line_string().c_str(),
+                                        policy, &target);
         policy->Release();
 
         if (desktop)
@@ -465,8 +462,8 @@ void BrowserRenderProcessHost::InitVisitedLinks() {
 }
 
 void BrowserRenderProcessHost::InitUserScripts() {
-  CommandLine command_line;
-  if (!command_line.HasSwitch(switches::kEnableUserScripts)) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableUserScripts)) {
     return;
   }
 

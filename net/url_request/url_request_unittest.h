@@ -349,7 +349,9 @@ class BaseTestServer : public base::ProcessFilter,
   }
 #elif defined(OS_POSIX)
   void LaunchApp(const std::vector<std::string>& command_line) {
-    ASSERT_TRUE(base::LaunchApp(command_line, false, true, &process_handle_)) <<
+    base::file_handle_mapping_vector fds_empty;
+    ASSERT_TRUE(base::LaunchApp(command_line, fds_empty, false,
+                                &process_handle_)) <<
                 "Failed to launch " << command_line[0] << " ...";
   }
 #endif

@@ -83,7 +83,7 @@ class GoogleUpdateSettings {
 
 class BrowserProcessImpl : public BrowserProcess {
  public:
-  BrowserProcessImpl(CommandLine& command_line);
+  BrowserProcessImpl(const CommandLine& command_line);
   virtual ~BrowserProcessImpl();
 
   virtual void EndSession() { }
@@ -126,7 +126,7 @@ class BrowserProcessImpl : public BrowserProcess {
 
 class FirstRunBrowserProcess : public BrowserProcessImpl {
  public:
-  FirstRunBrowserProcess(CommandLine& command_line)
+  FirstRunBrowserProcess(const CommandLine& command_line)
       : BrowserProcessImpl(command_line) {
   }
   virtual ~FirstRunBrowserProcess() { }

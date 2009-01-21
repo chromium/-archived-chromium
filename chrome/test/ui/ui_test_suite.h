@@ -18,7 +18,7 @@ class UITestSuite : public ChromeTestSuite {
   virtual void Initialize() {
     ChromeTestSuite::Initialize();
 
-    CommandLine parsed_command_line;
+    const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
     UITest::set_in_process_renderer(
         parsed_command_line.HasSwitch(switches::kSingleProcess));
     UITest::set_in_process_plugins(

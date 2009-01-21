@@ -320,13 +320,8 @@ int DiffImages(const char* file1, const char* file2, const char* out_file) {
 
 int main(int argc, const char* argv[]) {
   base::EnableTerminationOnHeapCorruption();
-  // TODO(estade): why does using the default constructor (command line
-  // singleton) cause an exception when run in debug mode?
-#if defined(OS_WIN)
-  CommandLine parsed_command_line(::GetCommandLine());
-#elif defined(OS_POSIX)
-  CommandLine parsed_command_line(argc, argv);
-#endif
+  CommandLine::Init(argc, argv);
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kOptionPollStdin)) {
     // Watch stdin for filenames.
     std::string stdin_buffer;
@@ -353,15 +348,14 @@ int main(int argc, const char* argv[]) {
     return 0;
   }
 
+  std::vector<std::wstring> values = parsed_command_line.GetLooseValues();
   if (parsed_command_line.HasSwitch(kOptionGenerateDiff)) {
-    if (3 == parsed_command_line.GetLooseValueCount()) {
-      CommandLine::LooseValueIterator iter =
-          parsed_command_line.GetLooseValuesBegin();
-      return DiffImages(WideToUTF8(*iter).c_str(),
-                        WideToUTF8(*(iter + 1)).c_str(),
-                        WideToUTF8(*(iter + 2)).c_str());
+    if (values.size() == 3) {
+      return DiffImages(WideToUTF8(values[0]).c_str(),
+                        WideToUTF8(values[1]).c_str(),
+                        WideToUTF8(values[2]).c_str());
     }
-  } else if (2 == parsed_command_line.GetLooseValueCount()) {
+  } else if (values.size() == 2) {
     return CompareImages(argv[1], argv[2]);
   }
 

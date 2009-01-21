@@ -14,9 +14,8 @@ class SandboxTest : public UITest {
  protected:
   // Launches chrome with the --test-sandbox=security_tests.dll flag.
   SandboxTest() : UITest() {
-    CommandLine::AppendSwitchWithValue(&launch_arguments_,
-                                       switches::kTestSandbox,
-                                       L"security_tests.dll");
+    launch_arguments_.AppendSwitchWithValue(switches::kTestSandbox,
+                                            L"security_tests.dll");
   }
 };
 

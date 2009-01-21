@@ -76,27 +76,16 @@ class PluginTest : public UITest {
                       KEY_WRITE)) {
         regkey.CreateKey(L"CHROME.EXE", KEY_READ);
       }
-      if (!launch_arguments_.empty())
-        launch_arguments_.append(L" ");
-      launch_arguments_.append(L"--" kNoNativeActiveXShimSwitch);
+      launch_arguments_.AppendSwitch(kNoNativeActiveXShimSwitch);
 
     } else if (strcmp(test_info->name(), "MediaPlayerOld") == 0) {
       // When testing the old WMP plugin, we need to force Chrome to not load
       // the new plugin.
-      if (!launch_arguments_.empty())
-        launch_arguments_.append(L" ");
-
-      launch_arguments_.append(L"--" kUseOldWMPPluginSwitch);
-      launch_arguments_.append(L" ");
-      launch_arguments_.append(L"--" kNoNativeActiveXShimSwitch);
+      launch_arguments_.AppendSwitch(kUseOldWMPPluginSwitch);
+      launch_arguments_.AppendSwitch(kNoNativeActiveXShimSwitch);
     } else if (strcmp(test_info->name(), "FlashSecurity") == 0) {
-      if (!launch_arguments_.empty())
-        launch_arguments_.append(L" ");
-
-      launch_arguments_.append(L"--");
-      launch_arguments_.append(switches::kTestSandbox); 
-      launch_arguments_.append(L"=");
-      launch_arguments_.append(L"security_tests.dll");
+      launch_arguments_.AppendSwitchWithValue(switches::kTestSandbox,
+                                              L"security_tests.dll");
     }
 
     UITest::SetUp();

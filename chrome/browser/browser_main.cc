@@ -176,7 +176,7 @@ StringPiece NetResourceProvider(int key) {
 
 // Main routine for running as the Browser process.
 int BrowserMain(const MainFunctionParams& parameters) {
-  CommandLine& parsed_command_line = parameters.command_line_;
+  const CommandLine& parsed_command_line = parameters.command_line_;
 
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
@@ -327,10 +327,9 @@ int BrowserMain(const MainFunctionParams& parameters) {
       // --user-data-dir switch.  The last flag of the same name wins.
       // TODO(tc): It would be nice to remove the flag we don't want, but that
       // sounds risky if we parse differently than CommandLineToArgvW.
-      std::wstring new_command_line =
-          parsed_command_line.command_line_string();
-      CommandLine::AppendSwitchWithValue(&new_command_line,
-          switches::kUserDataDir, user_data_dir);
+      CommandLine new_command_line = parsed_command_line;
+      new_command_line.AppendSwitchWithValue(switches::kUserDataDir,
+                                             user_data_dir);
       base::LaunchApp(new_command_line, false, false, NULL);
     }
 

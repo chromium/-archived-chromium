@@ -123,7 +123,7 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
     argv[i] = const_cast<char*>(params.arg_values[i].c_str());
   }
 
-  CommandLine command_line;
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   FilePath path =
       FilePath(command_line.GetSwitchValue(switches::kPluginPath));
   delegate_ = WebPluginDelegateImpl::Create(

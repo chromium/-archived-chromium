@@ -81,7 +81,6 @@ class MultiProcessTest : public PlatformTest {
       bool debug_on_start) {
     return SpawnChildImpl(procname, fds_to_map, debug_on_start);
   }
-
 #endif
 
  private:
@@ -89,37 +88,31 @@ class MultiProcessTest : public PlatformTest {
   base::ProcessHandle SpawnChildImpl(
       const std::wstring& procname,
       bool debug_on_start) {
-    CommandLine cl;
+    CommandLine cl(*CommandLine::ForCurrentProcess());
     base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
-    std::wstring clstr = cl.command_line_string();
-    CommandLine::AppendSwitchWithValue(&clstr, kRunClientProcess, procname);
+    cl.AppendSwitchWithValue(kRunClientProcess, procname);
 
-    if (debug_on_start) {
-      CommandLine::AppendSwitch(&clstr, switches::kDebugOnStart);
-    }
+    if (debug_on_start)
+      cl.AppendSwitch(switches::kDebugOnStart);
 
-    base::LaunchApp(clstr, false, true, &handle);
+    base::LaunchApp(cl, false, true, &handle);
     return handle;
   }
 #elif defined(OS_POSIX)
+  // TODO(port): with the CommandLine refactoring, this code is very similar
+  // to the Windows code.  Investigate whether this can be made shorter.
   base::ProcessHandle SpawnChildImpl(
       const std::wstring& procname,
       const base::file_handle_mapping_vector& fds_to_map,
       bool debug_on_start) {
-    CommandLine cl;
+    CommandLine cl(*CommandLine::ForCurrentProcess());
     base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
+    cl.AppendSwitchWithValue(kRunClientProcess, procname);
 
-    std::vector<std::string> clvec(cl.argv());
-    std::wstring wswitchstr =
-        CommandLine::PrefixedSwitchStringWithValue(kRunClientProcess,
-                                                   procname);
-    if (debug_on_start) {
-      CommandLine::AppendSwitch(&wswitchstr, switches::kDebugOnStart);
-    }
+    if (debug_on_start)
+      cl.AppendSwitch(switches::kDebugOnStart);
 
-    std::string switchstr = WideToUTF8(wswitchstr);
-    clvec.push_back(switchstr.c_str());
-    base::LaunchApp(clvec, fds_to_map, false, &handle);
+    base::LaunchApp(cl.argv(), fds_to_map, false, &handle);
     return handle;
   }
 #endif

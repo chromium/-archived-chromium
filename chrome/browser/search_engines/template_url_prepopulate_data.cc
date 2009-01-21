@@ -2680,9 +2680,8 @@ LONG GetCurrentGeoID() {
 
 int GetGeoIDFromPrefs(PrefService* prefs) {
   // See if the user overrode the GeoID on the command line.
-  CommandLine parsed_command_line;
   const std::wstring geoID(
-      parsed_command_line.GetSwitchValue(switches::kGeoID));
+    CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kGeoID));
   if (!geoID.empty())
     return _wtoi(geoID.c_str());
 

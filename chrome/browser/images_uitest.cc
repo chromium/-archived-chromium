@@ -9,8 +9,10 @@
 class ImagesTest : public UITest {
  protected:
   ImagesTest() : UITest() {
-    launch_arguments_ = test_data_directory_;
-    file_util::AppendToPath(&launch_arguments_, L"animated-gifs.html");
+    std::wstring path = test_data_directory_;
+    file_util::AppendToPath(&path, L"animated-gifs.html");
+    launch_arguments_ = CommandLine(L"");
+    launch_arguments_.AppendLooseValue(path);
   }
 };
 

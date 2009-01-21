@@ -34,7 +34,7 @@ TEST_F(InspectorControllerTest, DISABLED_InspectElement) {
   if (IsTestCaseDisabled())
     return;
 
-  if (CommandLine().HasSwitch(switches::kSingleProcess))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
     return;
 
   scoped_refptr<HTTPTestServer> server =

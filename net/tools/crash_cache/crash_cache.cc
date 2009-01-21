@@ -40,14 +40,8 @@ int RunSlave(RankCrashes action) {
   std::wstring exe;
   PathService::Get(base::FILE_EXE, &exe);
 
-#if defined(OS_WIN)
-  CommandLine cmdline(StringPrintf(L"%ls %d", exe.c_str(), action));
-#elif defined(OS_POSIX)
-  std::vector<std::string> cmd_argv;
-  cmd_argv.push_back(WideToUTF8(exe));
-  cmd_argv.push_back(IntToString(action));
-  CommandLine cmdline(cmd_argv);
-#endif
+  CommandLine cmdline(exe);
+  cmdline.AppendLooseValue(ASCIIToWide(IntToString(action)));
 
   base::ProcessHandle handle;
   if (!base::LaunchApp(cmdline, false, false, &handle)) {
