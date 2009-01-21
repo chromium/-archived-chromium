@@ -218,7 +218,7 @@ static const int kUnsentLogDelay = 15;  // 15 seconds
 // sending the next log.  If the channel is busy, such as when there is a
 // failure during an attempt to transmit a previous log, then a log may wait
 // (and continue to accrue now log entries) for a much greater period of time.
-static const int kMinSecondsPerLog = 90;  //                    20 * 60;  // Twenty minutes.
+static const int kMinSecondsPerLog = 20 * 60;  // Twenty minutes.
 
 // When we don't succeed at transmitting a log to a server, we progressively
 // wait longer and longer before sending the next log.  This backoff process
@@ -1151,20 +1151,25 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   LOG(INFO) << "METRICS RESPONSE CODE: " << response_code << " status=" <<
       StatusToString(status);
 
-  // TODO(petersont): Refactor or remove the following so that we don't have to
-  // fake a valid response code.
+  // Provide boolean for error recovery (allow us to ignore response_code).
+  boolean discard_log = false;
+
   if (response_code != 200 &&
       pending_log_text_.length() > kUploadLogAvoidRetransmitSize) {
     UMA_HISTOGRAM_COUNTS(L"UMA.Large Rejected Log was Discarded",
                          static_cast<int>(pending_log_text_.length()));
-    response_code = 200;  // Simulate transmission so we will discard log.
+    discard_log = true;
+  } else if (response_code == 400) {
+    // Bad syntax.  Retransmission won't work.
+    UMA_HISTOGRAM_COUNTS(L"UMA.Unacceptable_Log_Discarded", state_);
+    discard_log = true;
   }
 
-  if (response_code != 200) {
+  if (response_code != 200 && !discard_log) {
     LOG(INFO) << "METRICS: transmission attempt returned a failure code: "
       << response_code << ". Verify network connectivity";
     HandleBadResponseCode();
-  } else {  // Success.
+  } else {  // Successful receipt (or we are discarding log).
     LOG(INFO) << "METRICS RESPONSE DATA: " << data;
     switch (state_) {
       case INITIAL_LOG_READY:
