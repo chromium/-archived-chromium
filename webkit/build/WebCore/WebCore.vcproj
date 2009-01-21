@@ -5923,11 +5923,11 @@
 			Name="history"
 			>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\history\BackForwardList.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\history\BackForwardList.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\history\BackForwardList.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\history\BackForwardListChromium.cpp"
 				>
 			</File>
 			<File

@@ -43,6 +43,7 @@
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		41807C570F268375007BB4CC /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41807C550F268375007BB4CC /* ByteArray.cpp */; };
 		419E80750F264BBC006564E0 /* CSSPropertyLonghand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E80730F264BBC006564E0 /* CSSPropertyLonghand.cpp */; };
+		41DEA0680F27C0F900E40D43 /* BackForwardListChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */; };
 		4D114BB60F17F0D5009F37AA /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
@@ -113,7 +114,6 @@
 		938444250F16B0570075F4C5 /* AutoTableLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E95160D7F3E94001ECF42 /* AutoTableLayout.cpp */; };
 		938444260F16B0570075F4C5 /* AXObjectCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88AF0D7F39E1001ECF42 /* AXObjectCache.cpp */; };
 		938444270F16B0570075F4C5 /* AXObjectCacheChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A362490F003B3000778012 /* AXObjectCacheChromium.cpp */; };
-		938444280F16B0570075F4C5 /* BackForwardList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938180460EF3392100993F02 /* BackForwardList.cpp */; };
 		938444290F16B0570075F4C5 /* BarInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E370D7F3C48001ECF42 /* BarInfo.cpp */; };
 		9384442A0F16B0570075F4C5 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91AD0D7F3CC2001ECF42 /* Base64.cpp */; };
 		9384442B0F16B0570075F4C5 /* BeforeTextInsertedEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E89C10D7F3A7C001ECF42 /* BeforeTextInsertedEvent.cpp */; };
@@ -1527,6 +1527,7 @@
 		41A365600F01AB3800778012 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
+		41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardListChromium.cpp; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
 		4D1637C30EBFA49E008F024E /* SQLiteAuthorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteAuthorizer.cpp; sourceTree = "<group>"; };
 		4D1637C40EBFA49E008F024E /* SQLiteDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteDatabase.cpp; sourceTree = "<group>"; };
@@ -4004,7 +4005,6 @@
 		934CC3580EDCCEFE00A658F2 /* ScriptValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptValue.h; sourceTree = "<group>"; };
 		934CC5030EDE183200A658F2 /* LinkHash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkHash.cpp; sourceTree = "<group>"; };
 		934CC5040EDE183200A658F2 /* LinkHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkHash.h; sourceTree = "<group>"; };
-		938180460EF3392100993F02 /* BackForwardList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardList.cpp; sourceTree = "<group>"; };
 		938180470EF3392100993F02 /* BackForwardList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackForwardList.h; sourceTree = "<group>"; };
 		9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = back_forward_list_client_impl.cc; sourceTree = "<group>"; };
 		9381804F0EF3394A00993F02 /* back_forward_list_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = back_forward_list_client_impl.h; sourceTree = "<group>"; };
@@ -5216,8 +5216,8 @@
 			isa = PBXGroup;
 			children = (
 				7B5E8BD30D7F3B39001ECF42 /* mac */,
-				938180460EF3392100993F02 /* BackForwardList.cpp */,
 				938180470EF3392100993F02 /* BackForwardList.h */,
+				41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */,
 				7B5E8BD00D7F3B39001ECF42 /* CachedPagePlatformData.h */,
 				4103039E0EFB0F7C008832CA /* CachedPage.cpp */,
 				410303A10EFB0F8D008832CA /* CachedPage.h */,
@@ -8504,7 +8504,7 @@
 				938444250F16B0570075F4C5 /* AutoTableLayout.cpp in Sources */,
 				938444260F16B0570075F4C5 /* AXObjectCache.cpp in Sources */,
 				938444270F16B0570075F4C5 /* AXObjectCacheChromium.cpp in Sources */,
-				938444280F16B0570075F4C5 /* BackForwardList.cpp in Sources */,
+				41DEA0680F27C0F900E40D43 /* BackForwardListChromium.cpp in Sources */,
 				938444290F16B0570075F4C5 /* BarInfo.cpp in Sources */,
 				9384442A0F16B0570075F4C5 /* Base64.cpp in Sources */,
 				9384442B0F16B0570075F4C5 /* BeforeTextInsertedEvent.cpp in Sources */,
