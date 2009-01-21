@@ -675,6 +675,35 @@ TEST(StringUtilTest, ReplaceSubstringsAfterOffset) {
   }
 }
 
+TEST(StringUtilTest, ReplaceFirstSubstringAfterOffset) {
+  static const struct {
+    const wchar_t* str;
+    std::wstring::size_type start_offset;
+    const wchar_t* find_this;
+    const wchar_t* replace_with;
+    const wchar_t* expected;
+  } cases[] = {
+    {L"aaa", 0, L"a", L"b", L"baa"},
+    {L"abb", 0, L"ab", L"a", L"ab"},
+    {L"Removing some substrings inging", 0, L"ing", L"",
+      L"Remov some substrings inging"},
+    {L"Not found", 0, L"x", L"0", L"Not found"},
+    {L"Not found again", 5, L"x", L"0", L"Not found again"},
+    {L" Making it much longer ", 0, L" ", L"Four score and seven years ago",
+     L"Four score and seven years agoMaking it much longer "},
+    {L"Invalid offset", 9999, L"t", L"foobar", L"Invalid offset"},
+    {L"Replace me only me once", 4, L"me ", L"", L"Replace only me once"},
+    {L"abababab", 2, L"ab", L"c", L"abcabab"},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); i++) {
+    std::wstring str(cases[i].str);
+    ReplaceFirstSubstringAfterOffset(&str, cases[i].start_offset,
+                                     cases[i].find_this, cases[i].replace_with);
+    EXPECT_EQ(cases[i].expected, str);
+  }
+}
+
 namespace {
 
 template <typename INT>

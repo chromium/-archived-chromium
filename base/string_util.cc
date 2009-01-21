@@ -779,7 +779,8 @@ template<class StringType>
 void DoReplaceSubstringsAfterOffset(StringType* str,
                                     typename StringType::size_type start_offset,
                                     const StringType& find_this,
-                                    const StringType& replace_with) {
+                                    const StringType& replace_with,
+                                    bool replace_all) {
   if ((start_offset == StringType::npos) || (start_offset >= str->length()))
     return;
 
@@ -788,21 +789,42 @@ void DoReplaceSubstringsAfterOffset(StringType* str,
       offs != StringType::npos; offs = str->find(find_this, offs)) {
     str->replace(offs, find_this.length(), replace_with);
     offs += replace_with.length();
+
+    if (!replace_all)
+      break;
   }
+}
+
+void ReplaceFirstSubstringAfterOffset(std::wstring* str,
+                                      std::wstring::size_type start_offset,
+                                      const std::wstring& find_this,
+                                      const std::wstring& replace_with) {
+  DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
+                                 false);  // replace first instance
+}
+
+void ReplaceFirstSubstringAfterOffset(std::string* str,
+                                      std::string::size_type start_offset,
+                                      const std::string& find_this,
+                                      const std::string& replace_with) {
+  DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
+                                 false);  // replace first instance
 }
 
 void ReplaceSubstringsAfterOffset(std::wstring* str,
                                   std::wstring::size_type start_offset,
                                   const std::wstring& find_this,
                                   const std::wstring& replace_with) {
-  DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with);
+  DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
+                                 true);  // replace all instances
 }
 
 void ReplaceSubstringsAfterOffset(std::string* str,
                                   std::string::size_type start_offset,
                                   const std::string& find_this,
                                   const std::string& replace_with) {
-  DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with);
+  DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
+                                 true);  // replace all instances
 }
 
 // Overloaded wrappers around vsnprintf and vswprintf. The buf_size parameter
