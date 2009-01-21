@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "chrome/browser/browser_list.h"
 
 #include "base/logging.h"
@@ -10,10 +12,14 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
+#if defined(OS_WIN)
+// TODO(port): these can probably all go away, even on win
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
+#endif
+
 
 BrowserList::list_type BrowserList::browsers_;
 std::vector<BrowserList::Observer*> BrowserList::observers_;
@@ -143,9 +149,13 @@ void BrowserList::WindowsSessionEnding() {
   // And shutdown.
   browser_shutdown::Shutdown();
 
+#if defined(OS_WIN)
   // At this point the message loop is still running yet we've shut everything
   // down. If any messages are processed we'll likely crash. Exit now.
   ExitProcess(ResultCodes::NORMAL_EXIT);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 // static

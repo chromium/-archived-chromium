@@ -12,12 +12,20 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/ref_counted.h"
 #include "chrome/browser/browser_process.h"
 
+class Browser;
 class CommandLine;
+class MetricsService;
 class ProfileManager;
 class Profile;
-class MetricsService;
+class SessionID;
+class URLRequestContext;
+class WebContents;
+
+//---------------------------------------------------------------------------
+// These stubs are for Browser_main()
 
 class Upgrade {
  public:
@@ -115,6 +123,8 @@ class BrowserProcessImpl : public BrowserProcess {
   void CreateProfileManager();
   void CreateMetricsService();
 
+  scoped_ptr<NotificationService> main_notification_service_;
+  MemoryModel memory_model_;
   bool created_local_state_;
   scoped_ptr<PrefService> local_state_;
   bool created_metrics_service_;
@@ -146,11 +156,27 @@ class UserDataManager {
   static UserDataManager* instance_;
 };
 
+struct SessionService {
+  void WindowClosed(const SessionID &) { }
+};
+
+class TabRestoreService {
+ public:
+  void BrowserClosing(Browser*) { }
+  void BrowserClosed(Browser*) { }
+};
+
 class Profile {
  public:
   Profile(const std::wstring& user_data_dir);
   virtual std::wstring GetPath() { return path_; }
   virtual PrefService* GetPrefs();
+  void ResetTabRestoreService() { }
+  TabRestoreService* GetTabRestoreService() { return NULL; }
+  SessionService* GetSessionService() { return NULL; }
+  bool IsOffTheRecord() { return false; }
+  URLRequestContext* GetRequestContext() { return NULL; }
+
  private:
   std::wstring GetPrefFilePath();
 
@@ -165,6 +191,7 @@ class ProfileManager : NonThreadSafe {
   Profile* GetDefaultProfile(const std::wstring& user_data_dir);
   static std::wstring GetDefaultProfileDir(const std::wstring& user_data_dir);
   static std::wstring GetDefaultProfilePath(const std::wstring& profile_dir);
+  static void ShutdownSessionServices() { }
  private:
   DISALLOW_EVIL_CONSTRUCTORS(ProfileManager);
 };
@@ -179,17 +206,107 @@ class MetricsService {
   void SetUserPermitsUpload(bool enabled) { }
 };
 
-namespace browser {
-void RegisterAllPrefs(PrefService*, PrefService*);
-}
-
 namespace browser_shutdown {
 void ReadLastShutdownInfo();
 void Shutdown();
 }
 
+namespace browser {
+void RegisterAllPrefs(PrefService*, PrefService*);
+}
+
 void OpenFirstRunDialog(Profile* profile);
 
 void InstallJankometer(const CommandLine&);
+
+//---------------------------------------------------------------------------
+// These stubs are for Browser
+
+class LocationBarView {
+ public:
+  void ShowFirstRunBubble() { }
+};
+
+class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
+ public:
+};
+
+class TabStripModelDelegate {
+ public:
+};
+
+class TabStripModelObserver {
+ public:
+};
+
+class NavigationController {
+ public:
+};
+
+class TabContentsDelegate {
+ public:
+};
+
+class TabContents {
+ public:
+  TabContents() : controller_(new NavigationController) { }
+  NavigationController* controller() const { return controller_.get(); }
+  WebContents* AsWebContents() const { return NULL; }
+ private:
+  scoped_ptr<NavigationController> controller_;
+};
+
+// fake a tab strip, though it can't have any entries because the browser dtor
+// checks.
+class TabStripModel {
+ public:
+  TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
+      : contents_(new TabContents) { }
+  virtual ~TabStripModel() { }
+  bool empty() const { return contents_.get() == NULL; }
+  int count() const { return contents_.get() ? 1 : 0; }
+  int selected_index() const { return 0; }
+  int GetIndexOfController(const NavigationController* controller) const {
+    return 0;
+  }
+  TabContents* GetTabContentsAt(int index) const { return contents_.get(); }
+  TabContents* GetSelectedTabContents() const { return contents_.get(); }
+  void SelectTabContentsAt(int index, bool user_gesture) { }
+  TabContents* AddBlankTab(bool foreground) { return contents_.get(); }
+  void CloseAllTabs() { contents_.reset(NULL); }
+  void AddObserver(TabStripModelObserver* observer) { }
+  void RemoveObserver(TabStripModelObserver* observer) { }
+ private:
+  scoped_ptr<TabContents> contents_;
+};
+
+class CommandUpdater {
+ public:
+  class CommandUpdaterDelegate {
+   public:
+  };
+  
+  CommandUpdater(CommandUpdaterDelegate* const) { }
+};
+
+class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
+ public:
+  class Listener {
+   public:
+  };
+  void ListenerDestroyed() { }
+};
+
+class SiteInstance {
+ public:
+};
+
+class DockInfo {
+ public:
+};
+
+class ToolbarModel {
+ public:
+};
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

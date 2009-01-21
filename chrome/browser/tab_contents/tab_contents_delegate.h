@@ -5,9 +5,7 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_
 
-// TODO(maruel):  Remove once UINT and HWND are replaced / typedef.
-#include <windows.h>
-
+#include "base/basictypes.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/common/navigation_types.h"
 
@@ -95,7 +93,7 @@ class TabContentsDelegate : public PageNavigator {
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) = 0;
 
   // Notification that the target URL has changed
-  virtual void ContentsMouseEvent(TabContents* source, UINT message) { }
+  virtual void ContentsMouseEvent(TabContents* source, uint32 message) { }
 
   // Request the delegate to change the zoom level of the current tab.
   virtual void ContentsZoomChange(bool zoom_in) { }

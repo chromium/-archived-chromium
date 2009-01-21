@@ -2,19 +2,29 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/command_line.h"
+#include "base/idle_timer.h"
+#include "base/logging.h"
+#include "base/string_util.h"
+#include "chrome/browser/browser_list.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
+#include "net/base/cookie_monster.h"
+#include "net/base/cookie_policy.h"
+#include "net/base/net_util.h"
+#include "net/base/registry_controlled_domain.h"
+#include "net/url_request/url_request_context.h"
+
+#if defined(OS_WIN)
+
 #include <windows.h>
 #include <shellapi.h>
 
 #include "chrome/browser/browser.h"
 
-#include "base/command_line.h"
-#include "base/idle_timer.h"
-#include "base/logging.h"
-#include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/automation/ui_controls.h"
-#include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_url_handler.h"
@@ -53,20 +63,14 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
-#include "net/base/cookie_monster.h"
-#include "net/base/cookie_policy.h"
-#include "net/base/net_util.h"
-#include "net/base/registry_controlled_domain.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
-using base::TimeDelta;
+#endif  // OS_WIN
 
-static BrowserList g_browserlist;
+using base::TimeDelta;
 
 // How long we wait before updating the browser chrome while loading a page.
 static const int kUIUpdateCoalescingTimeMS = 200;
@@ -84,12 +88,14 @@ static const int kWindowTilePixels = 20;
 class ReducePluginsWorkingSetTask : public Task {
  public:
   virtual void Run() {
+#if defined(OS_WIN)
     for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
       PluginProcessHost* plugin = const_cast<PluginProcessHost*>(*iter);
       DCHECK(plugin->process());
       base::Process process(plugin->process());
       process.ReduceWorkingSet();
     }
+#endif
   }
 };
 
@@ -104,6 +110,7 @@ class BrowserIdleTimer : public base::IdleTimer {
   }
 
   virtual void OnIdle() {
+#if defined(OS_WIN)
     // We're idle.  Release browser and renderer unused pages.
 
     // Handle the Browser.
@@ -123,6 +130,7 @@ class BrowserIdleTimer : public base::IdleTimer {
     // collection.
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         new ReducePluginsWorkingSetTask());
+#endif
   }
 };
 
@@ -164,8 +172,12 @@ Browser::Browser(Type type, Profile* profile)
   InitCommandState();
   BrowserList::AddBrowser(this);
 
+#if defined(OS_WIN)
+  // TODO(port): turn this back on when prefs are fleshed out. This asserts
+  // because the pref hasn't yet been registered.
   encoding_auto_detect_.Init(prefs::kWebKitUsesUniversalDetector,
                              profile_->GetPrefs(), NULL);
+#endif
 
   // Trim browser memory on idle for low & medium memory models.
   if (g_browser_process->memory_model() < BrowserProcess::HIGH_MEMORY_MODEL)
@@ -265,6 +277,8 @@ void Browser::OpenEmptyWindow(Profile* profile) {
   browser->AddBlankTab(true);
   browser->window()->Show();
 }
+
+#if defined(OS_WIN)
 
 // static
 void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
@@ -2404,3 +2418,5 @@ void Browser::RegisterAppPrefs(const std::wstring& app_name) {
 
   prefs->RegisterDictionaryPref(window_pref.c_str());
 }
+
+#endif  // OS_WIN

@@ -8,6 +8,8 @@
 #include "base/thread.h"
 #include "base/path_service.h"
 #include "base/singleton.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/chrome_constants.h"
@@ -15,7 +17,9 @@
 #include "chrome/common/pref_service.h"
 
 BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
-    : created_local_state_(), created_metrics_service_(),
+    : main_notification_service_(new NotificationService),
+      memory_model_(HIGH_MEMORY_MODEL),
+      created_local_state_(), created_metrics_service_(),
       created_profile_manager_() {
   g_browser_process = this;
 }
@@ -94,7 +98,9 @@ bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
                                     int* return_code) {
   DCHECK(profile);
 
-  // LAUNCH BROWSER WITH PROFILE HERE!
+  // this code is a simplification of BrowserInit::LaunchWithProfile::Launch()
+  Browser* browser = Browser::Create(profile);
+  browser->window()->Show();
 
   return true;
 }
@@ -173,6 +179,7 @@ void RegisterAllPrefs(PrefService*, PrefService*) { }
 namespace browser_shutdown {
 void ReadLastShutdownInfo()  { }
 void Shutdown() { }
+void OnShutdownStarting(ShutdownType type) { }
 }
 
 void OpenFirstRunDialog(Profile* profile) { }
@@ -201,4 +208,18 @@ void PluginService::SetChromePluginDataDir(const std::wstring& data_dir) {
 //--------------------------------------------------------------------------
 
 void InstallJankometer(const CommandLine&) {
+}
+
+//--------------------------------------------------------------------------
+
+void Browser::InitCommandState() {
+}
+
+void Browser::Observe(NotificationType type,
+                      const NotificationSource& source,
+                      const NotificationDetails& details) {
+}
+
+LocationBarView* Browser::GetLocationBarView() const {
+  return window_->GetLocationBarView();
 }

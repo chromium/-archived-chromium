@@ -5,19 +5,31 @@
 #ifndef CHROME_BROWSER_BROWSER_H_
 #define CHROME_BROWSER_BROWSER_H_
 
+#include "base/basictypes.h"
+
 #include <vector>
 
+#if defined(OS_MACOSX) || defined(OS_LINUX)
+// Remove when we've finished porting the supporting classes.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/command_updater.h"
-#include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/sessions/session_id.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/pref_member.h"
+#include "base/gfx/rect.h"
+#include "skia/include/SkBitmap.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/command_updater.h"
+#include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/toolbar_model.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/pref_member.h"
+#endif
 
 class BrowserIdleTimer;
 class BrowserWindow;
@@ -105,13 +117,14 @@ class Browser : public TabStripModelDelegate,
   // Opens a new window with the default blank tab.
   static void OpenEmptyWindow(Profile* profile);
 
+#if defined(OS_WIN)
+  // Opens the a new application window for the specified WebApp.
+  static void OpenWebApplication(Profile* profile, WebApp* app);
+
   // Opens the specified URL in a new browser window in an incognito session.
   // If there is already an existing active incognito session for the specified
   // |profile|, that session is re-used.
   static void OpenURLOffTheRecord(Profile* profile, const GURL& url);
-
-  // Opens the a new application window for the specified WebApp.
-  static void OpenWebApplication(Profile* profile, WebApp* app);
 
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
@@ -139,6 +152,7 @@ class Browser : public TabStripModelDelegate,
   // Invoked when the window containing us is closing. Performs the necessary
   // cleanup.
   void OnWindowClosing();
+#endif  // OS_WIN
 
   // TabStripModel pass-thrus /////////////////////////////////////////////////
 
@@ -168,6 +182,7 @@ class Browser : public TabStripModelDelegate,
   }
 
   // Tab adding/showing functions /////////////////////////////////////////////
+#if defined(OS_WIN)
 
   // Add a new tab with the specified URL. If instance is not null, its process
   // will be used to render the tab.
@@ -364,7 +379,7 @@ class Browser : public TabStripModelDelegate,
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
   virtual void URLStarredChanged(TabContents* source, bool starred);
 
-  virtual void ContentsMouseEvent(TabContents* source, UINT message);
+  virtual void ContentsMouseEvent(TabContents* source, uint32 message);
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
 
   virtual void ContentsZoomChange(bool zoom_in);
@@ -381,6 +396,8 @@ class Browser : public TabStripModelDelegate,
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const std::wstring& path, void* params);
 
+#endif  // OS_WIN
+
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -392,6 +409,7 @@ class Browser : public TabStripModelDelegate,
   // Initialize state for all browser commands.
   void InitCommandState();
 
+#if defined(OS_WIN)
   // Update commands which may be enabled or disabled depending on the tab's
   // state.
   void UpdateCommandsForTabState();
@@ -432,7 +450,9 @@ class Browser : public TabStripModelDelegate,
   friend class AutomationProvider;
 
   // Getters for the location bar and go button.
+#endif  // OS_WIN
   LocationBarView* GetLocationBarView() const;
+#if defined(OS_WIN)
   GoButton* GetGoButton();
 
   // Returns the StatusBubble from the current toolbar. It is possible for
@@ -454,9 +474,11 @@ class Browser : public TabStripModelDelegate,
       int selected_navigation);
 
   // OnBeforeUnload handling //////////////////////////////////////////////////
+#endif
 
   typedef std::set<TabContents*> UnloadListenerSet;
 
+#if defined(OS_WIN)
   // Processes the next tab that needs it's beforeunload/unload event fired.
   void ProcessPendingTabs();
 
@@ -511,6 +533,8 @@ class Browser : public TabStripModelDelegate,
   // Create a preference dictionary for the provided application name. This is
   // done only once per application name / per session.
   static void RegisterAppPrefs(const std::wstring& app_name);
+
+#endif  // OS_WIN
 
   // Data members /////////////////////////////////////////////////////////////
 
