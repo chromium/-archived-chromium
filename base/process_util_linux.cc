@@ -100,31 +100,33 @@ bool DidProcessCrash(ProcessHandle handle) {
   }
 
   if (WIFSIGNALED(status)) {
-    int signum = WTERMSIG(status);
-    return (signum == SIGSEGV || signum == SIGILL || signum == SIGABRT ||
-            signum == SIGFPE);
+    switch(WTERMSIG(status)) {
+      case SIGSEGV:
+      case SIGILL:
+      case SIGABRT:
+      case SIGFPE:
+        return true;
+      default:
+        return false;
+    }
   }
 
-  if (WIFEXITED(status)) {
-    int exitcode = WEXITSTATUS(status);
-    return (exitcode != 0);
-  }
+  if (WIFEXITED(status))
+    return WEXITSTATUS(status) != 0;
 
   return false;
 }
 
 NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
                                            const ProcessFilter* filter)
-    :
-       executable_name_(executable_name),
-       filter_(filter) {
-    procfs_dir_ = opendir("/proc");
-  }
+    : executable_name_(executable_name), filter_(filter) {
+  procfs_dir_ = opendir("/proc");
+}
 
 NamedProcessIterator::~NamedProcessIterator() {
   if (procfs_dir_) {
     closedir(procfs_dir_);
-    procfs_dir_ = 0;
+    procfs_dir_ = NULL;
   }
 }
 
@@ -147,8 +149,8 @@ bool NamedProcessIterator::CheckForNextProcess() {
   const char* openparen;
   const char* closeparen;
 
-  // Arbitrarily guess that there will never be more than 200 non-process files in /proc.
-  // (Hardy has 53.)
+  // Arbitrarily guess that there will never be more than 200 non-process
+  // files in /proc.  Hardy has 53.
   int skipped = 0;
   const int kSkipLimit = 200;
   while (skipped < kSkipLimit) {
@@ -160,7 +162,7 @@ bool NamedProcessIterator::CheckForNextProcess() {
     // If not a process, keep looking for one.
     bool notprocess = false;
     int i;
-    for (i=0; i < NAME_MAX && slot->d_name[i]; ++i) {
+    for (i = 0; i < NAME_MAX && slot->d_name[i]; ++i) {
        if (!isdigit(slot->d_name[i])) {
          notprocess = true;
          break;
@@ -185,7 +187,8 @@ bool NamedProcessIterator::CheckForNextProcess() {
     // Parse the status.  It is formatted like this:
     // %d (%s) %c %d ...
     // pid (name) runstate ppid
-    // To avoid being fooled by names containing a closing paren, scan backwards.
+    // To avoid being fooled by names containing a closing paren, scan
+    // backwards.
     openparen = strchr(buf, '(');
     closeparen = strrchr(buf, ')');
     if (!openparen || !closeparen)
@@ -207,10 +210,10 @@ bool NamedProcessIterator::CheckForNextProcess() {
   }
 
   entry_.pid = atoi(slot->d_name);
-  entry_.ppid = atoi(closeparen+3);
+  entry_.ppid = atoi(closeparen + 3);
 
-  // TODO(port): read pid's commandline's $0, like killall does.
-  // Using the short name between openparen and closeparen won't work for long names!
+  // TODO(port): read pid's commandline's $0, like killall does.  Using the
+  // short name between openparen and closeparen won't work for long names!
   int len = closeparen - openparen - 1;
   if (len > NAME_MAX)
     len = NAME_MAX;
@@ -222,9 +225,11 @@ bool NamedProcessIterator::CheckForNextProcess() {
 
 bool NamedProcessIterator::IncludeEntry() {
   // TODO(port): make this also work for non-ASCII filenames
-  bool result = strcmp(WideToASCII(executable_name_).c_str(), entry_.szExeFile) == 0 &&
-      (!filter_ || filter_->Includes(entry_.pid, entry_.ppid));
-  return result;
+  if (WideToASCII(executable_name_) != entry_.szExeFile)
+    return false;
+  if (!filter_)
+    return true;
+  return filter_->Includes(entry_.pid, entry_.ppid);
 }
 
 int GetProcessCount(const std::wstring& executable_name,
@@ -257,7 +262,8 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
   // TODO(port): This is inefficient, but works if there are multiple procs.
   // TODO(port): use waitpid to avoid leaving zombies around
 
-  base::Time end_time = base::Time::Now() + base::TimeDelta::FromMilliseconds(wait_milliseconds);
+  base::Time end_time = base::Time::Now() +
+      base::TimeDelta::FromMilliseconds(wait_milliseconds);
   do {
     NamedProcessIterator iter(executable_name, filter);
     if (!iter.NextProcessEntry()) {
@@ -281,9 +287,6 @@ bool CleanupProcesses(const std::wstring& executable_name,
     KillProcesses(executable_name, exit_code, filter);
   return exited_cleanly;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//// ProcessMetrics
 
 // To have /proc/self/io file you must enable CONFIG_TASK_IO_ACCOUNTING
 // in your kernel configuration.
