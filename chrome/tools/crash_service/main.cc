@@ -9,6 +9,7 @@
 #include <tchar.h>
 
 #include "base/at_exit.h"
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 
@@ -35,6 +36,8 @@ int __stdcall wWinMain(HINSTANCE instance, HINSTANCE, wchar_t* cmd_line,
                        int show_mode) {
   // Manages the destruction of singletons.
   base::AtExitManager exit_manager;
+
+  CommandLine::Init(0, NULL);
 
   // We use/create a directory under the user's temp folder, for logging.
   std::wstring operating_dir;
