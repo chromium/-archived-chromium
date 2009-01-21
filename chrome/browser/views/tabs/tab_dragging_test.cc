@@ -31,8 +31,7 @@ protected:
 TEST_F(TabDraggingTest, Tab1Tab2) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -135,8 +134,7 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
 TEST_F(TabDraggingTest, Tab1Tab3) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -246,8 +244,7 @@ TEST_F(TabDraggingTest, Tab1Tab3) {
 TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -360,8 +357,7 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
 TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -484,8 +480,7 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   // Now check to make sure a new window has opened.
   scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
-  scoped_ptr<WindowProxy> window2(
-      automation()->GetWindowForBrowser(browser2.get()));
+  scoped_ptr<WindowProxy> window2(browser2->GetWindow());
   ASSERT_TRUE(window2.get());
 
   // Make sure that the new window has only one tab.

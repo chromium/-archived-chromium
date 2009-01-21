@@ -75,10 +75,9 @@ bool OmniboxTest::IsMatch(const std::wstring& input_text,
 void OmniboxTest::RunQueryChain(const std::wstring& input_text) {
   // Get a handle on the omnibox and give it focus.
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   scoped_ptr<AutocompleteEditProxy> autocomplete_edit(
-      automation()->GetAutocompleteEditForBrowser(browser.get()));
+      browser->GetAutocompleteEdit());
   ASSERT_TRUE(browser->ApplyAccelerator(IDC_FOCUS_LOCATION));
 
   // Try every proper prefix of input_text.  There's no use trying

@@ -141,27 +141,6 @@ class AutomationProxy : public IPC::Channel::Listener,
   // On failure, returns NULL.
   WindowProxy* GetActiveWindow();
 
-  // Returns the browser this window corresponds to, or NULL if this window
-  // is not a browser.  The caller owns the returned BrowserProxy.
-  BrowserProxy* GetBrowserForWindow(WindowProxy* window);
-
-  // Same as GetBrowserForWindow except return NULL if response isn't received
-  // before the specified timeout.
-  BrowserProxy* GetBrowserForWindowWithTimeout(WindowProxy* window,
-                                               uint32 timeout_ms,
-                                               bool* is_timeout);
-
-  // Returns the WindowProxy for this browser's window. It can be used to
-  // retreive view bounds, simulate clicks and key press events.  The caller
-  // owns the returned WindowProxy.
-  // On failure, returns NULL.
-  WindowProxy* GetWindowForBrowser(BrowserProxy* browser);
-
-  // Returns an AutocompleteEdit for this browser's window. It can be used to
-  // manipulate the omnibox.  The caller owns the returned pointer.
-  // On failure, returns NULL.
-  AutocompleteEditProxy* GetAutocompleteEditForBrowser(BrowserProxy* browser);
-
   // Tells the browser to enable or disable network request filtering.  Returns
   // false if the message fails to send to the browser.
   bool SetFilteredInet(bool enabled);

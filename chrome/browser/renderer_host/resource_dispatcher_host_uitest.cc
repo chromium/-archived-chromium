@@ -69,8 +69,8 @@ TEST_F(ResourceDispatcherTest, SniffNoContentTypeNoData) {
   EXPECT_EQ(1, GetTabCount());
 
   // Make sure the download shelf is not showing.
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
-  scoped_ptr<TabProxy> dl_tab(window->GetTab(0));
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_ptr<TabProxy> dl_tab(browser->GetTab(0));
   ASSERT_TRUE(dl_tab.get());
 
   bool visible = false;

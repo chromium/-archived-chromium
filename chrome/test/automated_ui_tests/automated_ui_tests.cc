@@ -825,13 +825,13 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
 
 WindowProxy* AutomatedUITest::GetAndActivateWindowForBrowser(
     BrowserProxy* browser) {
-  WindowProxy* window = automation()->GetWindowForBrowser(browser);
-
   bool did_timeout;
   if (!browser->BringToFrontWithTimeout(action_max_timeout_ms(), &did_timeout)) {
     AddWarningAttribute("failed_to_bring_window_to_front");
     return NULL;
   }
+
+  WindowProxy* window = browser->GetWindow();
   return window;
 }
 

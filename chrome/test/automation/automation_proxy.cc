@@ -9,7 +9,6 @@
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_message_macros.h"
-#include "chrome/test/automation/autocomplete_edit_proxy.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -471,87 +470,6 @@ BrowserProxy* AutomationProxy::GetLastActiveBrowserWindow() {
     return NULL;
   }
   return new BrowserProxy(this, tracker_.get(), handle);
-}
-
-BrowserProxy* AutomationProxy::GetBrowserForWindow(WindowProxy* window) {
-  return GetBrowserForWindowWithTimeout(window, INFINITE, NULL);
-}
-
-BrowserProxy* AutomationProxy::GetBrowserForWindowWithTimeout(
-    WindowProxy* window, uint32 timeout_ms, bool* is_timeout) {
-  DCHECK(window);
-  if (!window->is_valid() || !window->handle())
-    return false;
-
-  IPC::Message* response = NULL;
-  bool succeeded = SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_BrowserForWindowRequest(0, window->handle()), &response,
-    AutomationMsg_BrowserForWindowResponse::ID, timeout_ms, is_timeout);
-  if (!succeeded)
-    return NULL;
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
-  int browser_handle = 0;
-  void* iter = NULL;
-  bool handle_ok;
-  succeeded = response->ReadBool(&iter, &handle_ok);
-  if (succeeded)
-    succeeded = response->ReadInt(&iter, &browser_handle);
-
-  if (succeeded) {
-    return new BrowserProxy(this, tracker_.get(), browser_handle);
-  } else {
-    return NULL;
-  }
-}
-
-WindowProxy* AutomationProxy::GetWindowForBrowser(BrowserProxy* browser) {
-  if (!browser->is_valid() || !browser->handle())
-    return false;
-
-  IPC::Message* response = NULL;
-  bool succeeded = SendAndWaitForResponse(
-    new AutomationMsg_WindowForBrowserRequest(0, browser->handle()), &response,
-    AutomationMsg_WindowForBrowserResponse::ID);
-  if (!succeeded)
-    return NULL;
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
-  int window_handle;
-  void* iter = NULL;
-  bool handle_ok;
-  succeeded = response->ReadBool(&iter, &handle_ok);
-  if (succeeded)
-    succeeded = response->ReadInt(&iter, &window_handle);
-
-  if (succeeded) {
-    return new WindowProxy(this, tracker_.get(), window_handle);
-  } else {
-    return NULL;
-  }
-}
-
-AutocompleteEditProxy* AutomationProxy::GetAutocompleteEditForBrowser(
-    BrowserProxy* browser) {
-  if (!browser->is_valid() || !browser->handle())
-    return NULL;
-
-  IPC::Message* response = NULL;
-  if (!SendAndWaitForResponse(
-      new AutomationMsg_AutocompleteEditForBrowserRequest(0, browser->handle()),
-      &response, AutomationMsg_AutocompleteEditForBrowserResponse::ID))
-    return NULL;
-  scoped_ptr<IPC::Message> response_deleter(response);
-
-  int autocomplete_edit_handle;
-  void* iter = NULL;
-  bool handle_ok;
-  if (!response->ReadBool(&iter, &handle_ok) ||
-      !response->ReadInt(&iter, &autocomplete_edit_handle))
-    return NULL;
-
-  return new AutocompleteEditProxy(this, tracker_.get(),
-                                   autocomplete_edit_handle);
 }
 
 bool AutomationProxy::Send(IPC::Message* message) {

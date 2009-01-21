@@ -32,8 +32,7 @@ class BrowserTest : public UITest {
  protected:
    HWND GetMainWindow() {
      scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-     scoped_ptr<WindowProxy> window(
-        automation()->GetWindowForBrowser(browser.get()));
+     scoped_ptr<WindowProxy> window(browser->GetWindow());
 
      HWND window_handle;
      EXPECT_TRUE(window->GetHWND(&window_handle));

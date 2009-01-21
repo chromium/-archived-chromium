@@ -154,8 +154,7 @@ class PageLoadTest : public UITest {
           // Page down twice.
           scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
           if (browser.get()) {
-            scoped_ptr<WindowProxy> window(
-                automation()->GetWindowForBrowser(browser.get()));
+            scoped_ptr<WindowProxy> window(browser->GetWindow());
             if (window.get()) {
               bool activation_timeout;
               browser->BringToFrontWithTimeout(action_max_timeout_ms(),

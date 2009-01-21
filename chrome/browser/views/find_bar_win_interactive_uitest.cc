@@ -58,8 +58,7 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
 
   scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
   ASSERT_TRUE(browser.get() != NULL);
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get() != NULL);
 
   // First we navigate to our test page (tab A).

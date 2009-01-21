@@ -77,6 +77,14 @@ class WindowProxy : public AutomationResourceProxy {
   // was retrieved.
   bool GetFocusedViewID(int* view_id);
 
+  // Returns the browser this window corresponds to, or NULL if this window
+  // is not a browser.  The caller owns the returned BrowserProxy.
+  BrowserProxy* GetBrowser();
+
+  // Same as GetWindow except return NULL if response isn't received
+  // before the specified timeout.
+  BrowserProxy* GetBrowserWithTimeout(uint32 timeout_ms, bool* is_timeout);
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WindowProxy);
 };

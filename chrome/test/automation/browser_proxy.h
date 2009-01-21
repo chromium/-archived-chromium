@@ -11,6 +11,8 @@
 
 class GURL;
 class TabProxy;
+class WindowProxy;
+class AutocompleteEditProxy;
 
 namespace gfx {
   class Rect;
@@ -90,6 +92,18 @@ class BrowserProxy : public AutomationResourceProxy {
   // Like GetActiveTab, but returns NULL if no response is received before
   // the specified timout.
   TabProxy* GetActiveTabWithTimeout(uint32 timeout_ms, bool* is_timeout) const;
+
+  // Returns the WindowProxy for this browser's window. It can be used to
+  // retreive view bounds, simulate clicks and key press events.  The caller
+  // owns the returned WindowProxy.
+  // On failure, returns NULL.
+  WindowProxy* GetWindow();
+
+  // Returns an AutocompleteEdit for this browser's window. It can be used to
+  // manipulate the omnibox.  The caller owns the returned pointer.
+  // On failure, returns NULL.
+  AutocompleteEditProxy* GetAutocompleteEdit();
+
 
   // Apply the accelerator with given id (IDC_BACK, IDC_NEWTAB ...)
   // Returns true if the call was successful.

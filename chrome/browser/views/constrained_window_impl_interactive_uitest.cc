@@ -31,7 +31,7 @@ class InteractiveConstrainedWindowTest : public UITest {
     browser_.reset(automation()->GetBrowserWindow(0));
     ASSERT_TRUE(browser_.get());
 
-    window_.reset(automation()->GetWindowForBrowser(browser_.get()));
+    window_.reset(browser_->GetWindow());
     ASSERT_TRUE(window_.get());
 
     tab_.reset(browser_->GetTab(0));
@@ -71,8 +71,7 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
 
   scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser != NULL);
-  scoped_ptr<WindowProxy> popup_window(
-      automation()->GetWindowForBrowser(popup_browser.get()));
+  scoped_ptr<WindowProxy> popup_window(popup_browser->GetWindow());
   ASSERT_TRUE(popup_window != NULL);
 
   // Make sure we were created with the correct width and height.
@@ -187,8 +186,7 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
   // Make sure we have a blocked popup notification
   scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser.get());
-  scoped_ptr<WindowProxy> popup_window(
-      automation()->GetWindowForBrowser(popup_browser.get()));
+  scoped_ptr<WindowProxy> popup_window(popup_browser->GetWindow());
   ASSERT_TRUE(popup_window.get());
   scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
@@ -235,8 +233,7 @@ TEST_F(InteractiveConstrainedWindowTest, ShowAlertFromNormalPopup) {
 
   scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser.get());
-  scoped_ptr<WindowProxy> popup_window(
-      automation()->GetWindowForBrowser(popup_browser.get()));
+  scoped_ptr<WindowProxy> popup_window(popup_browser->GetWindow());
   ASSERT_TRUE(popup_window.get());
   scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());

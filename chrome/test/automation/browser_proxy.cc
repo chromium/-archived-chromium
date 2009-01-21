@@ -8,10 +8,12 @@
 
 #include "base/logging.h"
 #include "base/time.h"
+#include "chrome/test/automation/autocomplete_edit_proxy.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/automation_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -476,4 +478,51 @@ bool BrowserProxy::SetBooleanPreference(const std::wstring& name,
     return success;
 
   return false;
+}
+
+WindowProxy* BrowserProxy::GetWindow() {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool succeeded = sender_->SendAndWaitForResponse(
+    new AutomationMsg_WindowForBrowserRequest(0, handle_), &response,
+    AutomationMsg_WindowForBrowserResponse::ID);
+  if (!succeeded)
+    return NULL;
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
+  int window_handle;
+  void* iter = NULL;
+  bool handle_ok;
+  succeeded = response->ReadBool(&iter, &handle_ok);
+  if (succeeded)
+    succeeded = response->ReadInt(&iter, &window_handle);
+
+  if (succeeded) {
+    return new WindowProxy(sender_, tracker_, window_handle);
+  } else {
+    return NULL;
+  }
+}
+
+AutocompleteEditProxy* BrowserProxy::GetAutocompleteEdit() {
+  if (!is_valid())
+    return NULL;
+
+  IPC::Message* response = NULL;
+  if (!sender_->SendAndWaitForResponse(
+    new AutomationMsg_AutocompleteEditForBrowserRequest(0, handle_),
+    &response, AutomationMsg_AutocompleteEditForBrowserResponse::ID))
+    return NULL;
+  scoped_ptr<IPC::Message> response_deleter(response);
+
+  int autocomplete_edit_handle;
+  void* iter = NULL;
+  bool handle_ok;
+  if (!response->ReadBool(&iter, &handle_ok) ||
+    !response->ReadInt(&iter, &autocomplete_edit_handle))
+    return NULL;
+
+  return new AutocompleteEditProxy(sender_, tracker_, autocomplete_edit_handle);
 }

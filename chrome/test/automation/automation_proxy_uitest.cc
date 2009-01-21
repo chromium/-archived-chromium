@@ -67,8 +67,7 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
   {
     scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
     ASSERT_TRUE(browser.get());
-    scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+    scoped_ptr<WindowProxy> window(browser->GetWindow());
     ASSERT_TRUE(window.get());
 
     scoped_ptr<TabProxy> tab1(browser->GetTab(0));
@@ -445,8 +444,7 @@ TEST_F(AutomationProxyTest, Cookies) {
 TEST_F(AutomationProxyTest, GetHWND) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
+  scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   HWND handle;
@@ -767,7 +765,7 @@ TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
   scoped_ptr<AutocompleteEditProxy> edit(
-      automation()->GetAutocompleteEditForBrowser(browser.get()));
+      browser->GetAutocompleteEdit());
   ASSERT_TRUE(edit.get());
   EXPECT_TRUE(edit->is_valid());
   const std::wstring text_to_set = L"Lollerskates";
@@ -776,7 +774,7 @@ TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
   EXPECT_TRUE(edit->GetText(&actual_text));
   EXPECT_EQ(text_to_set, actual_text);
   scoped_ptr<AutocompleteEditProxy> edit2(
-      automation()->GetAutocompleteEditForBrowser(browser.get()));
+      browser->GetAutocompleteEdit());
   EXPECT_TRUE(edit2->GetText(&actual_text));
   EXPECT_EQ(text_to_set, actual_text);
 }
@@ -785,13 +783,13 @@ TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
   scoped_ptr<BrowserProxy> browser1(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser1.get());
   scoped_ptr<AutocompleteEditProxy> edit1(
-      automation()->GetAutocompleteEditForBrowser(browser1.get()));
+      browser1->GetAutocompleteEdit());
   ASSERT_TRUE(edit1.get());
   EXPECT_TRUE(browser1->ApplyAccelerator(IDC_NEW_WINDOW));
   scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
   scoped_ptr<AutocompleteEditProxy> edit2(
-      automation()->GetAutocompleteEditForBrowser(browser2.get()));
+      browser2->GetAutocompleteEdit());
   ASSERT_TRUE(edit2.get());
   EXPECT_TRUE(browser2->GetTab(0)->WaitForTabToBeRestored(
       action_max_timeout_ms()));
@@ -810,7 +808,7 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
   scoped_ptr<AutocompleteEditProxy> edit(
-      automation()->GetAutocompleteEditForBrowser(browser.get()));
+      browser->GetAutocompleteEdit());
   ASSERT_TRUE(edit.get());
   EXPECT_TRUE(browser->ApplyAccelerator(IDC_FOCUS_LOCATION));
   EXPECT_TRUE(edit->is_valid());

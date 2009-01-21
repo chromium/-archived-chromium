@@ -160,3 +160,34 @@ bool WindowProxy::GetFocusedViewID(int* view_id) {
 
   return false;
 }
+
+BrowserProxy* WindowProxy::GetBrowser() {
+  return GetBrowserWithTimeout(INFINITE, NULL);
+}
+
+BrowserProxy* WindowProxy::GetBrowserWithTimeout(uint32 timeout_ms,
+                                                 bool* is_timeout) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
+    new AutomationMsg_BrowserForWindowRequest(0, handle_), &response,
+    AutomationMsg_BrowserForWindowResponse::ID, timeout_ms, is_timeout);
+  if (!succeeded)
+    return NULL;
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
+  int browser_handle = 0;
+  void* iter = NULL;
+  bool handle_ok;
+  succeeded = response->ReadBool(&iter, &handle_ok);
+  if (succeeded)
+    succeeded = response->ReadInt(&iter, &browser_handle);
+
+  if (succeeded) {
+    return new BrowserProxy(sender_, tracker_, browser_handle);
+  } else {
+    return NULL;
+  }
+}
