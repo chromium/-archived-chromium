@@ -3,23 +3,45 @@
 // found in the LICENSE file.
 
 #include <windows.h>
-#include <atlbase.h>
+#include "base/basictypes.h"
+#include "base/scoped_bstr_win.h"
+#include "base/scoped_comptr_win.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
 #include "base/wmi_util.h"
 
+namespace {
+// Simple class to manage the lifetime of a variant.
+// TODO(tommi): Replace this for a more useful class.
+class VariantHelper : public VARIANT {
+ public:
+  VariantHelper() {
+    vt = VT_EMPTY;
+  }
+  explicit VariantHelper(VARTYPE type) {
+    vt = type;
+  }
+  ~VariantHelper() {
+    ::VariantClear(this);
+  }
+ private:
+  DISALLOW_COPY_AND_ASSIGN(VariantHelper);
+};
+
+}  // namespace
+
 bool WMIUtil::CreateLocalConnection(bool set_blanket,
                                     IWbemServices** wmi_services) {
-  CComPtr<IWbemLocator> wmi_locator;
-  HRESULT hr = wmi_locator.CoCreateInstance(CLSID_WbemLocator, NULL,
-                                            CLSCTX_INPROC_SERVER);
+  ScopedComPtr<IWbemLocator> wmi_locator;
+  HRESULT hr = wmi_locator.CreateInstance(CLSID_WbemLocator, NULL,
+                                          CLSCTX_INPROC_SERVER);
   if (FAILED(hr))
     return false;
 
-  CComPtr<IWbemServices> wmi_services_r;
-  hr = wmi_locator->ConnectServer(CComBSTR(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL,
-                                  0, 0, &wmi_services_r);
+  ScopedComPtr<IWbemServices> wmi_services_r;
+  hr = wmi_locator->ConnectServer(StackBstr(L"ROOT\\CIMV2"), NULL, NULL, 0,
+                                  NULL, 0, 0, wmi_services_r.Receive());
   if (FAILED(hr))
     return false;
 
@@ -46,16 +68,17 @@ bool WMIUtil::CreateClassMethodObject(IWbemServices* wmi_services,
                                       IWbemClassObject** class_instance) {
   // We attempt to instantiate a COM object that represents a WMI object plus
   // a method rolled into one entity.
-  CComBSTR b_class_name(class_name.c_str());
-  CComBSTR b_method_name(method_name.c_str());
-  CComPtr<IWbemClassObject> class_object = NULL;
+  ScopedBstr b_class_name(class_name.c_str());
+  ScopedBstr b_method_name(method_name.c_str());
+  ScopedComPtr<IWbemClassObject> class_object;
   HRESULT hr;
-  hr = wmi_services->GetObject(b_class_name, 0, NULL, &class_object, NULL);
+  hr = wmi_services->GetObject(b_class_name, 0, NULL,
+                               class_object.Receive(), NULL);
   if (FAILED(hr))
     return false;
 
-  CComPtr<IWbemClassObject> params_def = NULL;
-  hr = class_object->GetMethod(b_method_name, 0, &params_def, NULL);
+  ScopedComPtr<IWbemClassObject> params_def;
+  hr = class_object->GetMethod(b_method_name, 0, params_def.Receive(), NULL);
   if (FAILED(hr))
     return false;
 
@@ -81,34 +104,37 @@ bool SetParameter(IWbemClassObject* class_method,
 // http://msdn2.microsoft.com/en-us/library/aa389388(VS.85).aspx
 
 bool WMIProcessUtil::Launch(const std::wstring& command_line, int* process_id) {
-  CComPtr<IWbemServices> wmi_local;
-  if (!WMIUtil::CreateLocalConnection(true, &wmi_local))
+  ScopedComPtr<IWbemServices> wmi_local;
+  if (!WMIUtil::CreateLocalConnection(true, wmi_local.Receive()))
     return false;
 
   const wchar_t class_name[] = L"Win32_Process";
   const wchar_t method_name[] = L"Create";
-  CComPtr<IWbemClassObject> process_create;
+  ScopedComPtr<IWbemClassObject> process_create;
   if (!WMIUtil::CreateClassMethodObject(wmi_local, class_name, method_name,
-                                        &process_create))
+                                        process_create.Receive()))
     return false;
 
-  CComVariant b_command_line(command_line.c_str());
+  VariantHelper b_command_line(VT_BSTR);
+  b_command_line.bstrVal = ::SysAllocString(command_line.c_str());
+
   if (!SetParameter(process_create, L"CommandLine", &b_command_line))
     return false;
 
-  CComPtr<IWbemClassObject> out_params;
-  HRESULT hr = wmi_local->ExecMethod(CComBSTR(class_name),
-                                     CComBSTR(method_name), 0, NULL,
-                                     process_create, &out_params, NULL);
+  ScopedComPtr<IWbemClassObject> out_params;
+  HRESULT hr = wmi_local->ExecMethod(StackBstr(class_name),
+                                     StackBstr(method_name), 0, NULL,
+                                     process_create, out_params.Receive(),
+                                     NULL);
   if (FAILED(hr))
     return false;
 
-  CComVariant ret_value;
+  VariantHelper ret_value;
   hr = out_params->Get(L"ReturnValue", 0, &ret_value, NULL, 0);
   if (FAILED(hr) || (0 != ret_value.uintVal))
     return false;
 
-  CComVariant pid;
+  VariantHelper pid;
   hr = out_params->Get(L"ProcessId", 0, &pid, NULL, 0);
   if (FAILED(hr) || (0 == pid.intVal))
     return false;
