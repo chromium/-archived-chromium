@@ -29,13 +29,13 @@ namespace NPAPI
 // the version info of the dll; For internal plugins, it's predefined and
 // includes addresses of entry functions.
 struct PluginVersionInfo {
-  std::wstring path;
-  std::wstring product_name;
-  std::wstring file_description;
-  std::wstring file_version;
-  std::wstring mime_types;
-  std::wstring file_extents;
-  std::wstring file_open_names;
+  const wchar_t* path;
+  const wchar_t* product_name;
+  const wchar_t* file_description;
+  const wchar_t* file_version;
+  const wchar_t* mime_types;
+  const wchar_t* file_extents;
+  const wchar_t* file_open_names;
   NP_GetEntryPointsFunc np_getentrypoints;
   NP_InitializeFunc np_initialize;
   NP_ShutdownFunc np_shutdown;
@@ -208,14 +208,22 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
   if (!version_info.get())
     return false;
 
+  std::wstring mime_types = version_info->GetStringValue(L"MIMEType");
+  std::wstring file_extents = version_info->GetStringValue(L"FileExtents");
+  std::wstring file_open_names = version_info->GetStringValue(L"FileOpenName");
+  std::wstring product_name = version_info->product_name();
+  std::wstring file_description = version_info->file_description();
+  std::wstring file_version = version_info->file_version();
+  std::wstring path = filename.value();
+
   PluginVersionInfo pvi;
-  version_info->GetValue(L"MIMEType", &pvi.mime_types);
-  version_info->GetValue(L"FileExtents", &pvi.file_extents);
-  version_info->GetValue(L"FileOpenName", &pvi.file_open_names);
-  pvi.product_name = version_info->product_name();
-  pvi.file_description = version_info->file_description();
-  pvi.file_version = version_info->file_version();
-  pvi.path = filename.value();
+  pvi.mime_types = mime_types.c_str();
+  pvi.file_extents = file_extents.c_str();
+  pvi.file_open_names = file_open_names.c_str();
+  pvi.product_name = product_name.c_str();
+  pvi.file_description = file_description.c_str();
+  pvi.file_version = file_version.c_str();
+  pvi.path = path.c_str();
   pvi.np_getentrypoints = NULL;
   pvi.np_initialize = NULL;
   pvi.np_shutdown = NULL;
