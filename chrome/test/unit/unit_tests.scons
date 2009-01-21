@@ -268,10 +268,21 @@ input_files = ChromeFileList([
     '$CHROME_DIR/renderer/mock_render_thread.h',
   ]),
   MSVSFilter('resources', [
-    '$CHROME_DIR/test/data/resource.h',
-    '$CHROME_DIR/test/data/resource.rc',
     '$CHROME_DIR/browser/browser_resources.h',
     '$CHROME_DIR/browser/browser_resources.rc',
+    '$CHROME_DIR/app/chrome_dll.rc',
+    '$CHROME_DIR/app/chrome_dll_resource.h',
+    '$CHROME_DIR/app/chrome_dll_version.rc.version',
+    '$CHROME_DIR/common/common_resources.h',
+    '$CHROME_DIR/common/common_resources.rc',
+    '$CHROME_DIR/browser/debugger/resources/debugger_resources.h',
+    '$CHROME_DIR/browser/debugger/resources/debugger_resources.rc',
+    '$TARGET_ROOT/grit_derived_sources/net_resources.res',
+    '$CHROME_DIR/renderer/renderer_resources.h',
+    '$CHROME_DIR/renderer/renderer_resources.rc',
+    '$CHROME_DIR/test/data/resource.h',
+    '$CHROME_DIR/test/data/resource.rc',
+    '$TARGET_ROOT/grit_derived_sources/webkit_resources.res',
   ]),
   MSVSFilter('test_infrastructure', [
     'chrome_test_suite.h',
@@ -341,8 +352,23 @@ if env.Bit('mac'):
 if not env.Bit('windows'):
   # Windows-specific.
   input_files.Remove(
+      '$CHROME_DIR/browser/browser_resources.h',
+      '$CHROME_DIR/browser/browser_resources.rc',
+      '$CHROME_DIR/app/chrome_dll.rc',
+      '$CHROME_DIR/app/chrome_dll_resource.h',
+      '$CHROME_DIR/app/chrome_dll_version.rc.version',
+      '$CHROME_DIR/common/common_resources.h',
+      '$CHROME_DIR/common/common_resources.rc',
+      '$CHROME_DIR/browser/debugger/resources/debugger_resources.h',
+      '$CHROME_DIR/browser/debugger/resources/debugger_resources.rc',
+      '$TARGET_ROOT/grit_derived_sources/net_resources.res',
       '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
       '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
+      '$CHROME_DIR/renderer/renderer_resources.h',
+      '$CHROME_DIR/renderer/renderer_resources.rc',
+      '$CHROME_DIR/test/data/resource.h',
+      '$CHROME_DIR/test/data/resource.rc',
+      '$TARGET_ROOT/grit_derived_sources/webkit_resources.res',
   )
 
 if not env.Bit('windows'):

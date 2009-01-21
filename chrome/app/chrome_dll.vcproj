@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-                                AdditionalManifestFiles="$(SolutionDir)\app\chrome.dll.manifest"
+				AdditionalManifestFiles="$(SolutionDir)\app\chrome.dll.manifest"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -164,6 +164,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\browser\browser_resources.h"
+				>
+			</File>
+			<File
 				RelativePath="..\browser\browser_resources.rc"
 				>
 			</File>
@@ -196,6 +200,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\common\common_resources.h"
+				>
+			</File>
+			<File
 				RelativePath="..\common\common_resources.rc"
 				>
 			</File>
@@ -204,11 +212,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\browser\debugger\resources\debugger_resources.h"
+				>
+			</File>
+			<File
 				RelativePath="..\browser\debugger\resources\debugger_resources.rc"
 				>
 			</File>
 			<File
 				RelativePath="$(OutDir)\grit_derived_sources\net_resources.rc"
+				>
+			</File>
+			<File
+				RelativePath="..\renderer\renderer_resources.h"
 				>
 			</File>
 			<File
