@@ -2,7 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Represents the browser side of the browser <--> renderer communication
+// channel. There will be one RenderProcessHost per renderer process.
+
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
+
+#include "build/build_config.h"
 
 #include <algorithm>
 #include <sstream>
@@ -18,22 +23,17 @@
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "base/win_util.h"
 #include "chrome/app/result_codes.h"
-#include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/render_widget_helper.h"
-#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/renderer_security_policy.h"
 #include "chrome/browser/resource_message_filter.h"
-#include "chrome/browser/sandbox_policy.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/debug_flags.h"
@@ -42,11 +42,21 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
-#include "chrome/common/win_util.h"
 #include "chrome/renderer/render_process.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"
+
+#if defined(OS_WIN)
+// TODO(port): see comment by the only usage of RenderViewHost in this file.
+#include "chrome/browser/render_view_host.h"
+
+// Once the above TODO is finished, then this block is all Windows-specific
+// files.
+#include "base/win_util.h"
+#include "chrome/browser/sandbox_policy.h"
+#include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
+#endif
 
 #include "SkBitmap.h"
 
@@ -65,7 +75,9 @@ class RendererMainThread : public base::Thread {
 
  protected:
   virtual void Init() {
+#if defined(OS_WIN)
     CoInitialize(NULL);
+#endif
 
     bool rv = RenderProcess::GlobalInit(channel_id_);
     DCHECK(rv);
@@ -80,7 +92,9 @@ class RendererMainThread : public base::Thread {
   virtual void CleanUp() {
     RenderProcess::GlobalCleanup();
 
+#if defined(OS_WIN)
     CoUninitialize();
+#endif
   }
 
  private:
@@ -139,7 +153,6 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   channel_.reset();
 
   if (process_.handle() && !run_renderer_in_process()) {
-    watcher_.StopWatching();
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
 
@@ -147,6 +160,27 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
 
   NotificationService::current()->RemoveObserver(this,
       NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
+}
+
+// When we're started with the --start-renderers-manually flag, we pop up a
+// modal dialog requesting the user manually start up a renderer.
+// |cmd_line| is the command line to start the renderer with.
+static void RunStartRenderersManuallyDialog(const CommandLine& cmd_line) {
+#if defined(OS_WIN)
+  std::wstring message =
+      L"Please start a renderer process using:\n" +
+      cmd_line.command_line_string();
+
+  // We don't know the owner window for RenderProcessHost and therefore we
+  // pass a NULL HWND argument.
+  win_util::MessageBox(NULL,
+                       message,
+                       switches::kBrowserStartRenderersManually,
+                       MB_OK);
+#else
+  // TODO(port): refactor above code / pop up a message box here.
+  NOTIMPLEMENTED();
+#endif
 }
 
 bool BrowserRenderProcessHost::Init() {
@@ -170,7 +204,7 @@ bool BrowserRenderProcessHost::Init() {
   const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
 
   // setup IPC channel
-  std::wstring channel_id = GenerateRandomChannelID(this);
+  const std::wstring channel_id = GenerateRandomChannelID(this);
   channel_.reset(
       new IPC::SyncChannel(channel_id, IPC::Channel::MODE_SERVER, this,
                            resource_message_filter,
@@ -226,7 +260,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kEnableVideo,
   };
 
-  for (int i = 0; i < arraysize(switch_names); ++i) {
+  for (size_t i = 0; i < arraysize(switch_names); ++i) {
     if (browser_command_line.HasSwitch(switch_names[i])) {
       cmd_line.AppendSwitchWithValue(switch_names[i],
           browser_command_line.GetSwitchValue(switch_names[i]));
@@ -243,10 +277,13 @@ bool BrowserRenderProcessHost::Init() {
     in_sandbox = false;
   }
 
+#if defined(OS_WIN)
   bool child_needs_help =
       DebugFlags::ProcessDebugFlags(&cmd_line,
                                     DebugFlags::RENDERER,
                                     in_sandbox);
+#endif
+
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kRendererProcess);
 
@@ -281,17 +318,9 @@ bool BrowserRenderProcessHost::Init() {
     if (g_browser_process->local_state() &&
         g_browser_process->local_state()->GetBoolean(
             prefs::kStartRenderersManually)) {
-      std::wstring message =
-          L"Please start a renderer process using:\n" +
-          cmd_line.command_line_string();
-
-      // We don't know the owner window for BrowserRenderProcessHost and therefore we
-      // pass a NULL HWND argument.
-      win_util::MessageBox(NULL,
-                           message,
-                           switches::kBrowserStartRenderersManually,
-                           MB_OK);
+      RunStartRenderersManuallyDialog(cmd_line);
     } else {
+#if defined(OS_WIN)
       if (in_sandbox) {
         // spawn the child process in the sandbox
         sandbox::BrokerServices* broker_service =
@@ -362,15 +391,22 @@ bool BrowserRenderProcessHost::Init() {
         // the process is in a sandbox.
         if (child_needs_help)
             DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
-      } else {
+      } else
+#endif  // OS_WIN and sandbox
+      {
+#if defined(OS_WIN)
         // spawn child process
-        HANDLE process;
+        base::ProcessHandle process = 0;
+        // TODO(port): LaunchApp is actually no good on POSIX when
+        // we've constructed the command line as we have here, as the above
+        // calls all append to a single string while LaunchApp reaches in to
+        // the argv array.  CommandLine should be fixed, but once it is, this
+        // code will be correct.
         if (!base::LaunchApp(cmd_line, false, false, &process))
           return false;
         process_.set_handle(process);
+#endif
       }
-
-      watcher_.StartWatching(process_.handle(), this);
     }
   }
 
@@ -504,6 +540,7 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   if (BrowserRenderProcessHost::run_renderer_in_process())
     return false;  // Since process mode can't do fast shutdown.
 
+#if defined(OS_WIN)
   // Test if there's an unload listener
   BrowserRenderProcessHost::listeners_iterator iter;
   // NOTE: This is a bit dangerous.  We know that for now, listeners are
@@ -522,6 +559,13 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
       return false;
     }
   }
+#else
+  // TODO(port): the above is the only reason this file pulls in
+  // RenderWidgetHost and RenderViewHost.
+  // Perhaps IPC::Channel::Listener needs another method like CanTerminate()?
+  // No matter what, some abstractions are getting broken here...
+  NOTIMPLEMENTED();
+#endif
 
   // Otherwise, we're allowed to just terminate the process. Using exit code 0
   // means that UMA won't treat this as a renderer crash.
@@ -574,16 +618,20 @@ void BrowserRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
 void BrowserRenderProcessHost::OnChannelConnected(int32 peer_pid) {
   // process_ is not NULL if we created the renderer process
   if (!process_.handle()) {
-    if (GetCurrentProcessId() == peer_pid) {
+    if (base::GetCurrentProcId() == peer_pid) {
       // We are in single-process mode. In theory we should have access to
       // ourself but it may happen that we don't.
-      process_.set_handle(GetCurrentProcess());
+      process_.set_handle(base::GetCurrentProcessHandle());
     } else {
+#if defined(OS_WIN)
       // Request MAXIMUM_ALLOWED to match the access a handle
       // returned by CreateProcess() has to the process object.
       process_.set_handle(OpenProcess(MAXIMUM_ALLOWED, FALSE, peer_pid));
+#elif defined(OS_POSIX)
+      // ProcessHandle is just a pid.
+      process_.set_handle(peer_pid);
+#endif
       DCHECK(process_.handle());
-      watcher_.StartWatching(process_.handle(), this);
     }
   } else {
     // Need to verify that the peer_pid is actually the process we know, if
@@ -594,23 +642,25 @@ void BrowserRenderProcessHost::OnChannelConnected(int32 peer_pid) {
 
 // Static. This function can be called from the IO Thread or from the UI thread.
 void BrowserRenderProcessHost::BadMessageTerminateProcess(uint16 msg_type,
-                                                          HANDLE process) {
+                                                          base::ProcessHandle process) {
   LOG(ERROR) << "bad message " << msg_type << " terminating renderer.";
   if (BrowserRenderProcessHost::run_renderer_in_process()) {
     // In single process mode it is better if we don't suicide but just crash.
     CHECK(false);
   }
   NOTREACHED();
-  ::TerminateProcess(process, ResultCodes::KILLED_BAD_MESSAGE);
+  base::KillProcess(process, ResultCodes::KILLED_BAD_MESSAGE, false);
 }
 
-// indicates the renderer process has exited
-void BrowserRenderProcessHost::OnObjectSignaled(HANDLE object) {
+void BrowserRenderProcessHost::OnChannelError() {
+  // Our child process has died.  If we didn't expect it, it's a crash.
+  // In any case, we need to let everyone know it's gone.
+
   DCHECK(process_.handle());
   DCHECK(channel_.get());
-  DCHECK_EQ(object, process_.handle());
+  base::ProcessHandle process = process_.handle();
 
-  bool clean_shutdown = !base::DidProcessCrash(object);
+  bool clean_shutdown = !base::DidProcessCrash(process);
 
   process_.Close();
 
@@ -629,7 +679,7 @@ void BrowserRenderProcessHost::OnObjectSignaled(HANDLE object) {
   // deleted. We therefore need a stack copy of the web view list to avoid
   // crashing when checking for the termination condition the last time.
   IDMap<IPC::Channel::Listener> local_listeners(listeners_);
-  for (IDMap<IPC::Channel::Listener>::const_iterator i = local_listeners.begin();
+  for (listeners_iterator i = local_listeners.begin();
        i != local_listeners.end(); ++i) {
     i->second->OnMessageReceived(ViewHostMsg_RendererGone(i->first));
   }
@@ -724,4 +774,17 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
       break;
     }
   }
+}
+
+std::wstring GenerateRandomChannelID(void* instance) {
+  // Note: the string must start with the current process id, this is how
+  // child processes determine the pid of the parent.
+  // Build the channel ID.  This is composed of a unique identifier for the
+  // parent browser process, an identifier for the renderer/plugin instance,
+  // and a random component. We use a random component so that a hacked child
+  // process can't cause denial of service by causing future named pipe creation
+  // to fail.
+  return StringPrintf(L"%d.%x.%d",
+                      base::GetCurrentProcId(), instance,
+                      base::RandInt(0, std::numeric_limits<int>::max()));
 }

@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_VISITEDLINK_MASTER_H__
 #define CHROME_BROWSER_VISITEDLINK_MASTER_H__
 
-#include <windows.h>
 #include <set>
 #include <string>
 #include <vector>
