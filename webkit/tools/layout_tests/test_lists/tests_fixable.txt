@@ -893,12 +893,6 @@ LINUX : LayoutTests/css2.1/t1202-counters-09-b.html = FAIL
 // x-height correct and we're still one px off.
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 
-// This needs to be rebased on Windows since the baseline was incorrect.
-WIN : LayoutTests/css2.1/t1601-c547-indent-00-b-a.html = FAIL
-
-// Font metrics problems on Windows
-WIN : LayoutTests/css2.1/t1604-c541-word-sp-00-b-a.html = FAIL
-
 // Uses ahem font and expects line heights to match some pixel value.
 // We should be able to pass this -- not sure what's wrong.
 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
@@ -915,9 +909,7 @@ LINUX WIN : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
 LINUX : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 
 // Some tests that we had baselined improperly on Windows.
-WIN : LayoutTests/css2.1/t100801-c548-ln-ht-02-b-ag.html = FAIL
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
-WIN : LayoutTests/css2.1/t1604-c542-letter-sp-00-b-a.html = FAIL
 
 // Linux: color off by one.  Rounding error?
 LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
