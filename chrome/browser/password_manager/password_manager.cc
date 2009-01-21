@@ -25,15 +25,12 @@
 // login is one we already know about, the end of the line is
 // provisional_save_manager_ because we just update it on success and so such
 // forms never end up in an infobar.
-class SavePasswordInfoBarDelegate : public ConfirmInfoBarDelegate,
-                                    public NotificationObserver {
+class SavePasswordInfoBarDelegate : public ConfirmInfoBarDelegate {
  public:
   SavePasswordInfoBarDelegate(TabContents* tab_contents,
                               PasswordFormManager* form_to_save) :
       ConfirmInfoBarDelegate(tab_contents),
       form_to_save_(form_to_save) {
-    registrar_.Add(this, NOTIFY_TAB_CLOSED,
-                   Source<NavigationController>(tab_contents->controller()));
   }
 
    virtual ~SavePasswordInfoBarDelegate() { }  
@@ -76,23 +73,11 @@ class SavePasswordInfoBarDelegate : public ConfirmInfoBarDelegate,
     form_to_save_->PermanentlyBlacklist();
     return true;
   }
-
-  // NotificationObserver
-  virtual void Observe(NotificationType type, const NotificationSource& source,
-                       const NotificationDetails& details) {
-    DCHECK(type == NOTIFY_TAB_CLOSED);
-    // We don't get InfoBarClosed notification when a tab is closed, so we need
-    // to clean up after ourselves now.
-    // TODO(timsteele): This should not be necessary; see http://crbug.com/6520
-    delete this;
-  }
  
  private:
   // The PasswordFormManager managing the form we're asking the user about,
   // and should update as per her decision.
   scoped_ptr<PasswordFormManager> form_to_save_;
-
-  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(SavePasswordInfoBarDelegate);
 };

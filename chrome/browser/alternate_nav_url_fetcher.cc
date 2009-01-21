@@ -39,8 +39,6 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
                         NotificationService::AllSources());
       registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
                      Source<NavigationController>(controller_));
-      registrar_.Add(this, NOTIFY_TAB_CLOSED,
-                     Source<NavigationController>(controller_));
 
       DCHECK_EQ(NOT_STARTED, state_);
       state_ = IN_PROGRESS;
@@ -56,13 +54,6 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
                         Source<NavigationController>(controller_));
       navigated_to_entry_ = true;
       ShowInfobarIfPossible();
-      break;
-
-    case NOTIFY_TAB_CLOSED:
-      // We listen either for tab closed or navigation committed to know when to
-      // delete ourselves. Here, the tab closed, so we can just give up with
-      // all our waiting for notifications and delete ourselves.
-      delete this;
       break;
 
     default:

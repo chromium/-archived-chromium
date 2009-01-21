@@ -88,6 +88,15 @@ void TabContents::Destroy() {
       window->CloseConstrainedWindow();
   }
 
+  // Notify any lasting InfobarDelegates that have not yet been removed that
+  // whatever infobar they were handling in this TabContents has closed,
+  // because the TabContents is going away entirely.
+  for (int i = 0; i < infobar_delegate_count(); ++i) {
+    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
+    delegate->InfoBarClosed();
+  }
+  infobar_delegates_.clear();
+
   // Notify any observer that have a reference on this tab contents.
   NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_DESTROYED,
                                          Source<TabContents>(this),

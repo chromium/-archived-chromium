@@ -85,6 +85,8 @@ class InfoBarDelegate {
   // stored using StoreActiveEntryUniqueID automatically.
   explicit InfoBarDelegate(TabContents* contents);
 
+  virtual ~InfoBarDelegate() { }
+
   // Store the unique id for the active entry in the specified TabContents, to
   // be used later upon navigation to determine if this InfoBarDelegate should
   // be expired from |contents_|.
