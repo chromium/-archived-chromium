@@ -5,20 +5,16 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_BROWSER_RENDER_PROCESS_HOST_H_
 #define CHROME_BROWSER_RENDERER_HOST_BROWSER_RENDER_PROCESS_HOST_H_
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
-#include <windows.h>
-#endif
-
 #include <limits>
 #include <set>
 #include <vector>
+#include <windows.h>
 
 #include "base/id_map.h"
-#include "base/process.h"
+#include "base/object_watcher.h"
 #include "base/rand_util.h"
 #include "base/ref_counted.h"
+#include "base/scoped_handle.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_service.h"
@@ -47,6 +43,7 @@ class Thread;
 // are correlated with IDs. This way, the Views and the corresponding ViewHosts
 // communicate through the two process objects.
 class BrowserRenderProcessHost : public RenderProcessHost,
+                                 public base::ObjectWatcher::Delegate,
                                  public NotificationObserver {
  public:
   explicit BrowserRenderProcessHost(Profile* profile);
@@ -73,15 +70,16 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // IPC::Channel::Listener via RenderProcessHost.
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual void OnChannelConnected(int32 peer_pid);
-  virtual void OnChannelError();
 
   static void RegisterPrefs(PrefService* prefs);
 
   // If the a process has sent a message that cannot be decoded, it is deemed
   // corrupted and thus needs to be terminated using this call. This function
   // can be safely called from any thread.
-  static void BadMessageTerminateProcess(uint16 msg_type,
-                                         base::ProcessHandle renderer);
+  static void BadMessageTerminateProcess(uint16 msg_type, HANDLE renderer);
+
+  // ObjectWatcher::Delegate
+  virtual void OnObjectSignaled(HANDLE object);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -124,6 +122,9 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // Returns true if the priority is backgrounded; false otherwise.
   void SetBackgrounded(bool boost);
 
+  // Used to watch the renderer process handle.
+  base::ObjectWatcher watcher_;
+
   // The count of currently visible widgets.  Since the host can be a container
   // for multiple widgets, it uses this count to determine when it should be
   // backgrounded.
@@ -141,7 +142,19 @@ class BrowserRenderProcessHost : public RenderProcessHost,
 
 // Generates a unique channel name for a child renderer/plugin process.
 // The "instance" pointer value is baked into the channel id.
-std::wstring GenerateRandomChannelID(void* instance);
+inline std::wstring GenerateRandomChannelID(void* instance) {
+  // Note: the string must start with the current process id, this is how
+  // child processes determine the pid of the parent.
+  // Build the channel ID.  This is composed of a unique identifier for the
+  // parent browser process, an identifier for the renderer/plugin instance,
+  // and a random component. We use a random component so that a hacked child
+  // process can't cause denial of service by causing future named pipe creation
+  // to fail.
+  return StringPrintf(L"%d.%x.%d",
+                      GetCurrentProcessId(), instance,
+                      base::RandInt(0, std::numeric_limits<int>::max()));
+}
+
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_BROWSER_RENDER_PROCESS_HOST_H_
 

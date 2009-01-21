@@ -153,24 +153,21 @@ bool LaunchApp(const CommandLine& cl,
 // entry structure, giving it the specified exit code.
 // Returns true if this is successful, false otherwise.
 bool KillProcess(int process_id, int exit_code, bool wait) {
+  bool result = false;
   HANDLE process = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE,
                                FALSE,  // Don't inherit handle
                                process_id);
-  if (process)
-    return KillProcess(process, exit_code, wait);
-  return false;
-}
-
-bool KillProcess(HANDLE process, int exit_code, bool wait) {
-  bool result = !!TerminateProcess(process, exit_code);
-  if (result && wait) {
-    // The process may not end immediately due to pending I/O
-    if (WAIT_OBJECT_0 != WaitForSingleObject(process, 60 * 1000))
-      DLOG(ERROR) << "Error waiting for process exit: " << GetLastError();
-  } else {
-    DLOG(ERROR) << "Unable to terminate process: " << GetLastError();
+  if (process) {
+    result = !!TerminateProcess(process, exit_code);
+    if (result && wait) {
+      // The process may not end immediately due to pending I/O
+      if (WAIT_OBJECT_0 != WaitForSingleObject(process, 60 * 1000))
+        DLOG(ERROR) << "Error waiting for process exit: " << GetLastError();
+    } else {
+      DLOG(ERROR) << "Unable to terminate process: " << GetLastError();
+    }
+    CloseHandle(process);
   }
-  CloseHandle(process);
   return result;
 }
 

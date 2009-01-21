@@ -112,7 +112,7 @@ class RenderWidgetHelper :
   // A class used to proxy a paint message.  PaintMsgProxy objects are created
   // on the IO thread and destroyed on the UI thread.
   class PaintMsgProxy;
-  friend class PaintMsgProxy;
+  friend PaintMsgProxy;
 
   // Map from render_widget_id to live PaintMsgProxy instance.
   typedef base::hash_map<int, PaintMsgProxy*> PaintMsgProxyMap;
