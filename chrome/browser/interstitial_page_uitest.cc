@@ -51,7 +51,9 @@ class InterstitialPageTest : public UITest {
 // type instead) as showing an interstitial without creating a navigation entry
 // causes the actual navigation entry (title) to be modified by the content of
 // the interstitial.
-TEST_F(InterstitialPageTest, TestShowHideInterstitial) {
+// This test is disabled as it occasionally makes the ui tests stop running.
+// See bug 6729.
+TEST_F(InterstitialPageTest, DISABLED_TestShowHideInterstitial) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot);
   ASSERT_TRUE(NULL != server.get());
