@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_WINDOW_H__
 #define CHROME_VIEWS_WINDOW_H__
 
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/views/widget_win.h"
 
 namespace gfx {
@@ -266,6 +266,9 @@ class Window : public WidgetWin,
   // The saved maximized state for this window. See note in SetInitialBounds
   // that explains why we save this.
   bool saved_maximized_state_;
+
+  // Hold onto notifications.
+  NotificationRegistrar notification_registrar_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Window);
 };

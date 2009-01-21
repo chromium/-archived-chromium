@@ -34,10 +34,6 @@ static const int kMonitorEdgePadding = 10;
 // Window, public:
 
 Window::~Window() {
-  if (!IsAppWindow()) {
-    NotificationService::current()->RemoveObserver(
-        this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
-  }
 }
 
 // static
@@ -297,7 +293,7 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
   InitAlwaysOnTopState();
 
   if (!IsAppWindow()) {
-    NotificationService::current()->AddObserver(
+    notification_registrar_.Add(
         this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
   }
 }
