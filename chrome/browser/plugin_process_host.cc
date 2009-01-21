@@ -511,6 +511,11 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
     cmd_line.AppendSwitchWithValue(switches::kLang, locale);
   }
 
+  // Gears requires the data dir to be available on startup.
+  std::wstring data_dir = plugin_service_->GetChromePluginDataDir();;
+  DCHECK(!data_dir.empty());
+  cmd_line.AppendSwitchWithValue(switches::kPluginDataDir, data_dir);
+
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kPluginProcess);
 
@@ -650,8 +655,6 @@ void PluginProcessHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_ShutdownRequest,
                         OnPluginShutdownRequest)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_PluginMessage, OnPluginMessage)
-    IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetPluginDataDir,
-                        OnGetPluginDataDir)
     IPC_MESSAGE_HANDLER(ViewHostMsg_RequestResource, OnRequestResource)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CancelRequest, OnCancelRequest)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DataReceived_ACK, OnDataReceivedACK)
@@ -916,10 +919,6 @@ void PluginProcessHost::OnPluginMessage(
     uint32 data_len = static_cast<uint32>(data.size());
     chrome_plugin->functions().on_message(data_ptr, data_len);
   }
-}
-
-void PluginProcessHost::OnGetPluginDataDir(std::wstring* retval) {
-  *retval = plugin_service_->GetChromePluginDataDir();
 }
 
 void PluginProcessHost::OnCreateWindow(HWND parent, IPC::Message* reply_msg) {

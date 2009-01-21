@@ -62,11 +62,6 @@ IPC_BEGIN_MESSAGES(PluginProcessHost, 4)
                               std::vector<uint8> /* opaque data */,
                               std::vector<uint8> /* opaque data response */)
 
-  // Retrieve the given type of info that is associated with the given
-  // CPBrowsingContext.  Returns the result in a string.
-  IPC_SYNC_MESSAGE_CONTROL0_1(PluginProcessHostMsg_GetPluginDataDir,
-                              std::wstring /* data_dir_retval */)
-
   // Used to get cookies for the given URL.  The request_context is a
   // CPBrowsingContext, but is passed as int32 to avoid compilation errors.
   IPC_SYNC_MESSAGE_CONTROL2_1(PluginProcessHostMsg_GetCookies,

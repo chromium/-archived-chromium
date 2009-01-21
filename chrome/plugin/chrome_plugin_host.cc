@@ -4,11 +4,13 @@
 
 #include "chrome/plugin/chrome_plugin_host.h"
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/plugin/plugin_process.h"
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_proxy.h"
@@ -334,9 +336,9 @@ int STDCALL CPB_GetBrowsingContextInfo(
     if (buf_size < sizeof(char*))
       return sizeof(char*);
 
-    std::wstring wretval;
-    PluginThread::GetPluginThread()->Send(
-        new PluginProcessHostMsg_GetPluginDataDir(&wretval));
+    std::wstring wretval = CommandLine::ForCurrentProcess()->
+        GetSwitchValue(switches::kPluginDataDir);
+    DCHECK(!wretval.empty());
     file_util::AppendToPath(&wretval, chrome::kChromePluginDataDirname);
     *static_cast<char**>(buf) = CPB_StringDup(CPB_Alloc, WideToUTF8(wretval));
     return CPERR_SUCCESS;

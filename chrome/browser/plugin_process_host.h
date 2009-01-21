@@ -113,7 +113,6 @@ class PluginProcessHost : public IPC::Channel::Listener,
   void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
   void OnPluginShutdownRequest();
   void OnPluginMessage(const std::vector<uint8>& data);
-  void OnGetPluginDataDir(std::wstring* retval);
   void OnCreateWindow(HWND parent, IPC::Message* reply_msg);
   void OnDestroyWindow(HWND window);
 
