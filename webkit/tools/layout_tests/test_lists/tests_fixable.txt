@@ -1858,9 +1858,8 @@ LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 // Merge 39972:40057 -- new tests
 LayoutTests/fast/regex/malformed-escapes.html = FAIL
 
-// Merge 39972:40057
-LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL
-LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL PASS
+// Merge 39972:40057 -- regressions
+LINUX : LayoutTests/fast/canvas/pointInPath.html = CRASH
 
 // Merge 40059:40086
 WIN : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
@@ -1870,3 +1869,4 @@ WIN : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
 WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
 
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS TIMEOUT
+
