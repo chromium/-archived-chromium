@@ -355,7 +355,8 @@ void BrowserView::Init() {
   status_bubble_.reset(new StatusBubble(GetWidget()));
 
 #ifdef CHROME_PERSONALIZATION
-  EnablePersonalization(CommandLine().HasSwitch(switches::kEnableP13n));
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  EnablePersonalization(command_line.HasSwitch(switches::kEnableP13n));
   if (IsPersonalizationEnabled()) {
     personalization_ = Personalization::CreateFramePersonalization(
         browser_->profile(), this);
