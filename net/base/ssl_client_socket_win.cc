@@ -631,7 +631,7 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
   if (result < 0)
     return result;
   if (result == 0 && !ignore_ok_result_)
-    return ERR_FAILED;  // Incomplete response :(
+    return ERR_SSL_PROTOCOL_ERROR;  // Incomplete response :(
 
   ignore_ok_result_ = false;
 
