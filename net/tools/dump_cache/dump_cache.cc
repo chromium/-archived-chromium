@@ -67,20 +67,25 @@ int Help() {
 }
 
 // Starts a new process, to generate the files.
-int LaunchSlave(const CommandLine &command_line, const std::wstring pipe_number,
+int LaunchSlave(const CommandLine& command_line, const std::wstring pipe_number,
                 int version) {
-  std::wstring new_command_line = command_line.command_line_string();
+  // TODO(port): remove this string-munging hackery.
+  std::wstring hacked_command_line = command_line.command_line_string();
   const std::wstring old_exe(L"dump_cache.exe");
-  size_t to_remove = new_command_line.find(old_exe);
-  new_command_line.erase(to_remove, old_exe.size());
+  size_t to_remove = hacked_command_line.find(old_exe);
+  hacked_command_line.erase(to_remove, old_exe.size());
 
   std::wstring new_program = StringPrintf(L"%ls%d.exe", L"dump_cache_",
                                           version);
-  new_command_line.insert(to_remove, new_program);
-  if (command_line.HasSwitch(kUpgrade))
-    CommandLine::AppendSwitch(&new_command_line, kSlave);
+  hacked_command_line.insert(to_remove, new_program);
 
-  CommandLine::AppendSwitchWithValue(&new_command_line, kPipe, pipe_number);
+  CommandLine new_command_line(L"");
+  new_command_line.ParseFromString(hacked_command_line);
+
+  if (command_line.HasSwitch(kUpgrade))
+    new_command_line.AppendSwitch(kSlave);
+
+  new_command_line.AppendSwitchWithValue(kPipe, pipe_number);
   if (!base::LaunchApp(new_command_line, false, false, NULL)) {
     printf("Unable to launch the needed version of this tool: %ls\n",
            new_program.c_str());
@@ -96,7 +101,9 @@ int main(int argc, const char* argv[]) {
   // Setup an AtExitManager so Singleton objects will be destroyed.
   base::AtExitManager at_exit_manager;
 
-  CommandLine command_line;
+  CommandLine::Init(argc, argv);
+
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   std::wstring input_path = command_line.GetSwitchValue(kInputPath);
   if (input_path.empty())
     return Help();
