@@ -360,12 +360,21 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
+LINUX : LayoutTests/svg/text/kerning.svg = FAIL
+LINUX : LayoutTests/svg/text/multichar-glyph.svg = FAIL
 LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-align-06-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+DEFER MAC LINUX : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
+LINUX : LayoutTests/svg/text/text-text-04-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-07-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
@@ -388,17 +397,6 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
-
-// Recently rebaselined but failed on buildbot.
-LINUX WIN : LayoutTests/svg/text/kerning.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/multichar-glyph.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-align-06-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
-DEFER : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
-LINUX WIN : LayoutTests/svg/text/text-text-04-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-05-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-text-06-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // Pixel test passes. Texts differ by 1 on SVGRenderText bounding box.
 LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
