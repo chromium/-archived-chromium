@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,80 +8,64 @@
 namespace media {
 
 FilterHostImpl::FilterHostImpl() {
+  // TODO(ralphl): implement FilterHostImpl constructor.
+  NOTIMPLEMENTED();
 }
 
-int64 FilterHostImpl::GetTime() const {
-  // TODO(scherkus): implement GetTime.
-  return 0;
+const PipelineStatus* FilterHostImpl::GetPipelineStatus() const {
+  // TODO(ralphl): implement GetPipelineStatus.
+  NOTIMPLEMENTED();
+  return NULL;
 }
 
-void FilterHostImpl::SetTime(int64 time) {
-  // TODO(scherkus): implement SetTime.
+void FilterHostImpl::SetTimeUpdateCallback(Callback1<int64>::Type* callback) {
+  // TODO(ralphl): implement SetTimeUpdateCallback.
+  NOTIMPLEMENTED();
 }
 
-int64 FilterHostImpl::GetDuration() const {
-  // TODO(scherkus): implement GetDuration.
-  return 0;
-}
-
-void FilterHostImpl::SetDuration(int64 duration) {
-  // TODO(scherkus): implement SetDuration.
+void FilterHostImpl::InitializationComplete() {
+  // TODO(ralphl): implement InitializationComplete.
+  NOTIMPLEMENTED();
 }
 
 void FilterHostImpl::PostTask(Task* task) {
-  // TODO(scherkus): implement PostTask.
+  // TODO(ralphl): implement PostTask.
+  NOTIMPLEMENTED();
 }
 
-bool FilterHostImpl::PlayComplete() {
-  // TODO(scherkus): implement PlayComplete.
-  return false;
+void FilterHostImpl::Error(PipelineError error) {
+  // TODO(ralphl): implement Error.
+  NOTIMPLEMENTED();
 }
 
-bool FilterHostImpl::PauseComplete() {
-  // TODO(scherkus): implement PauseComplete.
-  return false;
+void FilterHostImpl::SetTime(int64 time) {
+  // TODO(ralphl): implement SetTime.
+  NOTIMPLEMENTED();
 }
 
-bool FilterHostImpl::SeekComplete() {
-  // TODO(scherkus): implement SeekComplete.
-  return false;
+void FilterHostImpl::SetDuration(int64 duration) {
+  // TODO(ralphl): implement SetDuration.
+  NOTIMPLEMENTED();
 }
 
-bool FilterHostImpl::ShutdownComplete() {
-  // TODO(scherkus): implement ShutdownComplete.
-  return false;
+void FilterHostImpl::SetBufferedTime(int64 buffered_time) {
+  // TODO(ralphl): implement SetBufferedTime.
+  NOTIMPLEMENTED();
 }
 
-void FilterHostImpl::Error(int error) {
-  // TODO(scherkus): implement Error.
+void FilterHostImpl::SetTotalBytes(int64 total_bytes) {
+  // TODO(ralphl): implement.
+  NOTIMPLEMENTED();
 }
 
-void FilterHostImpl::EndOfStream() {
-  // TODO(scherkus): implement EndOfStream.
+void FilterHostImpl::SetBufferedBytes(int64 buffered_bytes) {
+  // TODO(ralphl): implement.
+  NOTIMPLEMENTED();
 }
 
-void FilterHostImpl::SetPlayCallback(Callback0::Type* callback) {
-  play_callback_.reset(callback);
-}
-
-void FilterHostImpl::SetPauseCallback(Callback1<bool>::Type* callback) {
-  pause_callback_.reset(callback);
-}
-
-void FilterHostImpl::SetSeekCallback(Callback1<int64>::Type* callback) {
-  seek_callback_.reset(callback);
-}
-
-void FilterHostImpl::SetShutdownCallback(Callback0::Type* callback) {
-  shutdown_callback_.reset(callback);
-}
-
-void FilterHostImpl::SetClockCallback(Callback1<int64>::Type* callback) {
-  clock_callback_.reset(callback);
-}
-
-void FilterHostImpl::SetErrorCallback(Callback1<int>::Type* callback) {
-  error_callback_.reset(callback);
+void SetVideoSize(size_t width, size_t height) {
+  // TODO(ralphl): implement.
+  NOTIMPLEMENTED();
 }
 
 }  // namespace media

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -26,6 +26,8 @@
 
 #include <limits>
 #include <string>
+
+#include "base/logging.h"
 #include "base/ref_counted.h"
 
 namespace media {
@@ -48,18 +50,43 @@ enum FilterType {
   FILTER_AUDIO_DECODER,
   FILTER_VIDEO_DECODER,
   FILTER_AUDIO_RENDERER,
-  FILTER_VIDEO_RENDERER,
-  FILTER_MAX
+  FILTER_VIDEO_RENDERER
 };
 
 
 class MediaFilter : public base::RefCountedThreadSafe<MediaFilter> {
  public:
-  virtual void SetFilterHost(FilterHost* filter_host) = 0;
+  MediaFilter() : host_(NULL) {}
+
+  // Sets the protected member |host_|. This is the first method called by
+  // the FilterHost after a filter is created.  The host holds a strong
+  // reference to the filter.  The refernce held by the host is guaranteed
+  // to be released before the host object is destroyed by the pipeline.
+  virtual void SetFilterHost(FilterHost* host) {
+    DCHECK(NULL == host_);
+    DCHECK(NULL != host);
+    host_ = host;
+  }
+
+  // The pipeline is being stopped either as a result of an error or because
+  // the client called Stop().
+  virtual void Stop() = 0;
+
+  // The pipeline playback rate has been changed.  Filters may implement this
+  // method if they need to respond to this call.
+  virtual void SetPlaybackRate(float playback_rate) {}
+
+  // The pipeline is being seeked to the specified time.  Filters may implement
+  // this method if they need to respond to this call.
+  virtual void Seek(int64 time) {}
 
  protected:
+  FilterHost* host_;
   friend class base::RefCountedThreadSafe<MediaFilter>;
   virtual ~MediaFilter() {}
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MediaFilter);
 };
 
 
@@ -95,7 +122,7 @@ class Demuxer : public MediaFilter {
  public:
   static const FilterType kFilterType = FILTER_DEMUXER;
 
-  // Initializes this filter, returns true if successful, false otherwise. 
+  // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DataSource* data_source) = 0;
 
   // Returns the number of streams available
@@ -113,6 +140,9 @@ class DemuxerStream {
 
   // Schedules a read and takes ownership of the given buffer.
   virtual void Read(Assignable<Buffer>* buffer) = 0;
+
+ protected:
+  virtual ~DemuxerStream() = 0;
 };
 
 
@@ -161,8 +191,11 @@ class AudioRenderer : public MediaFilter {
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(AudioDecoder* decoder) = 0;
+
+  // Sets the output volume.
+  virtual void SetVolume(float volume) = 0;
 };
 
-} // namespace media
+}  // namespace media
 
-#endif // MEDIA_BASE_FILTERS_H_
+#endif  // MEDIA_BASE_FILTERS_H_

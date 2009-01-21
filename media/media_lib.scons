@@ -28,6 +28,7 @@ input_files = [
     'base/data_buffer.cc',
     'base/filter_host_impl.cc',
     'base/media_format.cc',
+    'base/pipeline_impl.cc',
 ]
 
 if env.Bit('windows'):

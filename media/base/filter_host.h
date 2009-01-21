@@ -14,26 +14,6 @@
 // to synchronize video with audio.  An audio and video decoder would typically
 // have no need to call either SetTime or GetTime.
 //
-// Filter state is managed by the FilterHost implementor, with the filter
-// receiving notifications from the host when a state transition is starting
-// and the filter notifying the host when the filter has completed the
-// transition.  The state transition is broken into two steps since some state
-// transitions may be blocking or long running.  The host provides PostTask to
-// help filters schedule such tasks.
-//
-// Example of a pause state transition:
-//   During Initialization:
-//     - Audio renderer registers OnPause with SetPauseCallback
-//
-//   During Playback:
-//     - User hits pause button, triggering a pause state transition
-//     - Filter host executes the pause callback
-//     - Inside OnPause, the audio renderer schedules DoPause with PostTask
-//       and immediately returns
-//     - Filter host asynchronously executes DoPause
-//     - Inside DoPause, the audio renderer does its blocking operations and
-//       when complete calls PauseComplete
-//
 // The reasoning behind providing PostTask is to discourage filters from
 // implementing their own threading.  The overall design is that many filters
 // can share few threads and that notifications return quickly by scheduling
@@ -43,93 +23,64 @@
 #define MEDIA_BASE_FILTER_HOST_H_
 
 #include "base/task.h"
+#include "media/base/pipeline.h"
 
 namespace media {
 
 class FilterHost {
  public:
-  // Returns the global time.
-  virtual int64 GetTime() const = 0;
+  // The PipelineStatus class allows read-only access to the pipeline state.
+  // This is the same object that is used by the pipeline client to examine
+  // the state of the running pipeline.  The lifetime of the PipelineStatus
+  // interface is the same as the lifetime of the FilterHost interface, so
+  // it is acceptable for filters to use the returned pointer until their
+  // Stop method has been called.
+  virtual const PipelineStatus* GetPipelineStatus() const = 0;
 
-  // Updates the global time.
-  virtual void SetTime(int64 time) = 0;
+  // Registers a callback to receive global clock update notifications.  The
+  // callback will be called repeatedly and filters do not need to re-register
+  // after each invocation of the callback.  To remove the callback, filters
+  // may call this method passing NULL for the callback argument.
+  //
+  // Callback arguments:
+  //   int64    the new pipeline time, in microseconds
+  virtual void SetTimeUpdateCallback(Callback1<int64>::Type* callback) = 0;
 
-  // Returns the global duration.
-  virtual int64 GetDuration() const = 0;
+  // Filters must call this method to indicate that their initialization is
+  // complete.  They may call this from within their Initialize() method or may
+  // choose call it after processing some data.
+  virtual void InitializationComplete() = 0;
 
-  // Updates the global media duration.
-  virtual void SetDuration(int64 duration) = 0;
-
-  // Posts a task to be executed asynchronously.
+  // Posts a task to be executed asynchronously on the pipeline's thread.
   virtual void PostTask(Task* task) = 0;
 
-  // Notifies the host that the filter has transitioned into the playing state.
-  virtual bool PlayComplete() = 0;
+  // Stops execution of the pipeline due to a fatal error.
+  virtual void Error(PipelineError error) = 0;
 
-  // Notifies the host that the filter has transitioned into the paused state.
-  virtual bool PauseComplete() = 0;
+  // Sets the current time.  Any filters that have registered a callback through
+  // the SetTimeUpdateCallback method will be notified of the change.
+  virtual void SetTime(int64 time) = 0;
 
-  // Notifies the host that the filter has transitioned into the seek state.
-  virtual bool SeekComplete() = 0;
+  // Get the duration of the media in microseconds.  If the duration has not
+  // been determined yet, then returns 0.
+  virtual void SetDuration(int64 duration) = 0;
 
-  // Notifies the host that the filter has transitioned into the shutdown state.
-  virtual bool ShutdownComplete() = 0;
+  // Set the approximate amount of playable data buffered so far in micro-
+  // seconds.
+  virtual void SetBufferedTime(int64 buffered_time) = 0;
 
-  // Notifies the host that an error has occurred and that further processing
-  // cannot continue.  |error| identifies the type of error that occurred.
-  //
-  // TODO(scherkus): Add error constants as we start implementing filters.
-  virtual void Error(int error) = 0;
+  // Set the total size of the media file.
+  virtual void SetTotalBytes(int64 total_bytes) = 0;
 
-  // Notifies the host that the end of the stream has been reached.
-  virtual void EndOfStream() = 0;
+  // Sets the total number of bytes that are buffered on the client and ready to
+  // be played.
+  virtual void SetBufferedBytes(int64 buffered_bytes) = 0;
 
-  // Registers a callback to handle the play state transition. The filter must
-  // call PlayComplete at some point in the future to signal completion of
-  // the transition.
-  //
-  // Callback arguments:
-  //   None
-  virtual void SetPlayCallback(Callback0::Type* callback) = 0;
-
-  // Registers a callback to handle the pause state transition.  The filter must
-  // call PauseComplete at some point in the future to signal completion of
-  // the transition.
-  //
-  // Callback arguments:
-  //   bool     true if the pause was triggered by end of stream
-  virtual void SetPauseCallback(Callback1<bool>::Type* callback) = 0;
-
-  // Registers a callback to handle the seek state transition.  The filter must
-  // call SeekComplete at some point in the future to signal completion of
-  // the transition.
-  //
-  // Callback arguments:
-  //   int64    the timestamp position to seek to, in microseconds
-  virtual void SetSeekCallback(Callback1<int64>::Type* callback) = 0;
-
-  // Registers a callback to handle the shutdown state transition.  The filter
-  // must call ShutdownComplete at some point in the future to signal completion
-  // of the transition.
-  //
-  // Callback arguments:
-  //   None
-  virtual void SetShutdownCallback(Callback0::Type* callback) = 0;
-
-  // Registers a callback to receive global clock update notifications.
-  //
-  // Callback arguments:
-  //   int64    the new global time, in microseconds
-  virtual void SetClockCallback(Callback1<int64>::Type* callback) = 0;
-
-  // Registers a callback to receive global error notifications.
-  //
-  // Callback arguments:
-  //   int      the error code reported.
-  virtual void SetErrorCallback(Callback1<int>::Type* callback) = 0;
+  // Sets the size of the video output in pixel units.
+  virtual void SetVideoSize(size_t width, size_t height) = 0;
 
  protected:
-  virtual ~FilterHost() {}
+  virtual ~FilterHost() = 0;
 };
 
 }  // namespace media

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,55 +6,106 @@
 
 namespace media {
 
-PipelineImpl::PipelineImpl() : time_(0), duration_(0) {}
+PipelineImpl::PipelineImpl() {
+  // TODO(ralphl): implement PipelineImpl constructor.
+  NOTIMPLEMENTED();
+}
 
-PipelineImpl::~PipelineImpl() {}
+PipelineImpl::~PipelineImpl() {
+  // TODO(ralphl): implement PipelineImpl destructor.
+  NOTIMPLEMENTED();
+}
 
-bool PipelineImpl::Initialize(FilterFactoryInterface* filter_factory,
-                              const std::string& uri) {
-  // TODO(scherkus): implement Initialize.
+bool PipelineImpl::IsInitialized() const {
+  // TODO(ralphl): implement IsInitialized.
   NOTIMPLEMENTED();
   return false;
-}
-
-bool PipelineImpl::Play() {
-  // TODO(scherkus): implement Play.
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool PipelineImpl::Pause() {
-  // TODO(scherkus): implement Pause.
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool PipelineImpl::Seek(int64 seek_position) {
-  // TODO(scherkus): implement Seek.
-  NOTIMPLEMENTED();
-  return false;
-}
-
-void PipelineImpl::Shutdown() {
-  // TODO(scherkus): implement Shutdown.
-  NOTIMPLEMENTED();
-}
-
-int64 PipelineImpl::GetTime() const {
-  return time_;
 }
 
 int64 PipelineImpl::GetDuration() const {
-  return duration_;
+  // TODO(ralphl): implement GetDuration.
+  NOTIMPLEMENTED();
+  return 0;
 }
 
-void PipelineImpl::SetStateChangedCallback(
-    Callback1<PipelineState>::Type* callback) {
-  state_changed_callback_.reset(callback);
+int64 PipelineImpl::GetBufferedTime() const {
+  // TODO(ralphl): implement GetBufferedTime.
+  NOTIMPLEMENTED();
+  return 0;
 }
 
-void PipelineImpl::SetTimeChangedCallback(Callback1<int64>::Type* callback) {
-  time_changed_callback_.reset(callback);
+int64 PipelineImpl::GetTotalBytes() const {
+  // TODO(ralphl): implement GetTotalBytes.
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+int64 PipelineImpl::GetBufferedBytes() const {
+  // TODO(ralphl): implement GetBufferedBytes.
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+void PipelineImpl::GetVideoSize(size_t* width_out, size_t* height_out) const {
+  // TODO(ralphl): implement GetVideoSize.
+  NOTIMPLEMENTED();
+  width_out = 0;
+  height_out = 0;
+}
+
+float PipelineImpl::GetVolume() const {
+  // TODO(ralphl): implement GetVolume.
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+float PipelineImpl::GetPlaybackRate() const {
+  // TODO(ralphl): implement GetPlaybackRate.
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+int64 PipelineImpl::GetTime() const {
+  // TODO(ralphl): implement GetTime.
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+PipelineError PipelineImpl::GetError() const {
+  // TODO(ralphl): implement GetError.
+  NOTIMPLEMENTED();
+  return PIPELINE_ERROR_INITIALIZATION_FAILED;
+}
+
+bool PipelineImpl::Start(FilterFactory* filter_factory,
+                         const std::string& uri,
+                         Callback1<bool>::Type* init_complete_callback) {
+  // TODO(ralphl): implement Start.
+  NOTIMPLEMENTED();
+  return false;
+}
+
+void PipelineImpl::Stop() {
+  // TODO(ralphl): implement Stop.
+  NOTIMPLEMENTED();
+}
+
+bool PipelineImpl::SetPlaybackRate(float rate) {
+  // TODO(ralphl): implement SetPlaybackRate.
+  NOTIMPLEMENTED();
+  return false;
+}
+
+bool PipelineImpl::Seek(int64 time) {
+  // TODO(ralphl): implement Seek.
+  NOTIMPLEMENTED();
+  return false;
+}
+
+bool PipelineImpl::SetVolume(float volume) {
+  // TODO(ralphl): implement SetVolume.
+  NOTIMPLEMENTED();
+  return false;
 }
 
 }  // namespace media
