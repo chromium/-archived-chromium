@@ -6,6 +6,7 @@
 #include "base/idle_timer.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -22,7 +23,6 @@
 
 #include "chrome/browser/browser.h"
 
-#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser_process.h"
@@ -1070,6 +1070,8 @@ Browser* Browser::GetBrowserForController(
   return NULL;
 }
 
+#endif  // OS_WIN
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, CommandUpdater::CommandUpdaterDelegate implementation:
 
@@ -1089,6 +1091,7 @@ void Browser::ExecuteCommand(int id) {
   // The order of commands in this switch statement must match the function
   // declaration order in browser.h!
   switch (id) {
+#if defined(OS_WIN)
     // Navigation commands
     case IDC_BACK:                  GoBack();                      break;
     case IDC_FORWARD:               GoForward();                   break;
@@ -1217,11 +1220,16 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;
 
+#elif defined(OS_MACOSX)
+    case IDC_NEW_WINDOW:            NewWindow();                   break;
+#endif
     default:
       LOG(WARNING) << "Received Unimplemented Command: " << id;
       break;
   }
 }
+
+#if defined(OS_WIN)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelDelegate implementation:
@@ -1884,6 +1892,8 @@ void Browser::Observe(NotificationType type,
   }
 }
 
+#endif  // OS_WIN
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Command and state updating (private):
 
@@ -2005,9 +2015,11 @@ void Browser::InitCommandState() {
 
     // Show various bits of UI
     command_updater_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, normal_window);
+#if defined(OS_WIN)
     command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
         // The debugger doesn't work in single process mode.
         normal_window && !RenderProcessHost::run_renderer_in_process());
+#endif
     command_updater_.UpdateCommandEnabled(IDC_NEW_PROFILE, normal_window);
     command_updater_.UpdateCommandEnabled(IDC_REPORT_BUG, normal_window);
     command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, normal_window);
@@ -2021,6 +2033,8 @@ void Browser::InitCommandState() {
     command_updater_.UpdateCommandEnabled(IDC_ABOUT, normal_window);
   }
 }
+
+#if defined(OS_WIN)
 
 void Browser::UpdateCommandsForTabState() {
   TabContents* current_tab = GetSelectedTabContents();

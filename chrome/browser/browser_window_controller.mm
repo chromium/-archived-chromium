@@ -58,6 +58,36 @@
   return YES;
 }
 
+// Called to validate menu and toolbar items when this window is key. All the
+// items we care about have been set with the |commandDispatch:| action and
+// a target of FirstResponder in IB. If it's not one of those, let it
+// continue up the responder chain to be handled elsewhere. We pull out the
+// tag as the cross-platform constant to differentiate and dispatch the
+// various commands.
+// NOTE: we might have to handle state for app-wide menu items,
+// although we could cheat and directly ask the app controller if our
+// command_updater doesn't support the command. This may or may not be an issue,
+// too early to tell.
+- (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
+  SEL action = [item action];
+  BOOL enable = NO;
+  if (action == @selector(commandDispatch:)) {
+    NSInteger tag = [item tag];
+    if (browser_->command_updater()->SupportsCommand(tag))
+      enable = browser_->command_updater()->IsCommandEnabled(tag) ? YES : NO;
+  }
+  return enable;
+}
+
+// Called when the user picks a menu or toolbar item when this window is key.
+// Calls through to the browser object to execute the command. This assumes that
+// the command is supported and doesn't check, otherwise it would have been
+// disabled in the UI in validateUserInterfaceItem:.
+- (void)commandDispatch:(id)sender {
+  NSInteger tag = [sender tag];
+  browser_->ExecuteCommand(tag);
+}
+
 // NSToolbar delegate methods
 
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {

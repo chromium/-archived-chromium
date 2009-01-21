@@ -7,11 +7,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+class CommandUpdater;
+
 // The application controller object, created by loading the MainMenu nib.
 // This handles things like responding to menus when there are no windows
 // open, etc and acts as the NSApplication delegate.
-@interface AppController : NSObject {
+@interface AppController : NSObject<NSUserInterfaceValidations> {
  @public
+  CommandUpdater* menuState_;  // strong ref
 }
 
 - (IBAction)quit:(id)sender;

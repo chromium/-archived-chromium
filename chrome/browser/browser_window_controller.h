@@ -13,7 +13,8 @@
 class Browser;
 class BrowserWindow;
 
-@interface BrowserWindowController : NSWindowController {
+@interface BrowserWindowController : 
+    NSWindowController<NSUserInterfaceValidations> {
  @private
   Browser* browser_;                  // strong
   BrowserWindow* window_shim_;        // strong

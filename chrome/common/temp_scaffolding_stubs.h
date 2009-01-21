@@ -176,6 +176,7 @@ class Profile {
   SessionService* GetSessionService() { return NULL; }
   bool IsOffTheRecord() { return false; }
   URLRequestContext* GetRequestContext() { return NULL; }
+  virtual Profile* GetOriginalProfile() { return this; }
 
  private:
   std::wstring GetPrefFilePath();
@@ -278,15 +279,6 @@ class TabStripModel {
   void RemoveObserver(TabStripModelObserver* observer) { }
  private:
   scoped_ptr<TabContents> contents_;
-};
-
-class CommandUpdater {
- public:
-  class CommandUpdaterDelegate {
-   public:
-  };
-  
-  CommandUpdater(CommandUpdaterDelegate* const) { }
 };
 
 class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {

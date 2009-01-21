@@ -308,6 +308,8 @@
 		E46C4B4C0F21098F00B393B8 /* worker_thread_ticker_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E46C4B4B0F21098F00B393B8 /* worker_thread_ticker_unittest.cc */; };
 		E46C4C2E0F212CAF00B393B8 /* browser.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8300E9D4839009A6919 /* browser.cc */; };
 		E46C4D0F0F2138D400B393B8 /* browser_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF83C0E9D4839009A6919 /* browser_list.cc */; };
+		E46C4ED40F27A94100B393B8 /* command_updater.cc in Sources */ = {isa = PBXBuildFile; fileRef = E46C4ED30F27A94100B393B8 /* command_updater.cc */; };
+		E46C4EF30F27A9B000B393B8 /* command_updater_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E46C4EF20F27A9B000B393B8 /* command_updater_unittest.cc */; };
 		E48B66A80F26257E002E47EC /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
 		E48B67320F2625B8002E47EC /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
 		E48B67CB0F262607002E47EC /* libmodp_b64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B005D0E9D54AA009A6919 /* libmodp_b64.a */; };
@@ -1105,9 +1107,6 @@
 		4D7BF85F0E9D4839009A6919 /* chrome_thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_thread.cc; sourceTree = "<group>"; };
 		4D7BF8600E9D4839009A6919 /* chrome_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chrome_thread.h; sourceTree = "<group>"; };
 		4D7BF8610E9D4839009A6919 /* chrome_thread_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_thread_unittest.cc; sourceTree = "<group>"; };
-		4D7BF8630E9D4839009A6919 /* controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = controller.cc; sourceTree = "<group>"; };
-		4D7BF8640E9D4839009A6919 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = controller.h; sourceTree = "<group>"; };
-		4D7BF8650E9D4839009A6919 /* controller_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = controller_unittest.cc; sourceTree = "<group>"; };
 		4D7BF8660E9D4839009A6919 /* crash_recovery_uitest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = crash_recovery_uitest.cc; sourceTree = "<group>"; };
 		4D7BF8670E9D4839009A6919 /* cross_site_request_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cross_site_request_manager.cc; sourceTree = "<group>"; };
 		4D7BF8680E9D4839009A6919 /* cross_site_request_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cross_site_request_manager.h; sourceTree = "<group>"; };
@@ -1787,6 +1786,9 @@
 		E46C46C30F1F9AE200B393B8 /* temp_scaffolding_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = temp_scaffolding_stubs.h; sourceTree = "<group>"; };
 		E46C46C40F1F9AE200B393B8 /* temp_scaffolding_stubs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = temp_scaffolding_stubs.cpp; sourceTree = "<group>"; };
 		E46C4B4B0F21098F00B393B8 /* worker_thread_ticker_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_thread_ticker_unittest.cc; sourceTree = "<group>"; };
+		E46C4ED20F27A94100B393B8 /* command_updater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = command_updater.h; sourceTree = "<group>"; };
+		E46C4ED30F27A94100B393B8 /* command_updater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command_updater.cc; sourceTree = "<group>"; };
+		E46C4EF20F27A9B000B393B8 /* command_updater_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command_updater_unittest.cc; sourceTree = "<group>"; };
 		E48B684C0F2630D3002E47EC /* browser_window_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_factory.mm; sourceTree = "<group>"; };
 		E48B68550F26330C002E47EC /* browser_window_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser_window_controller.h; sourceTree = "<group>"; };
 		E48B68560F26330C002E47EC /* browser_window_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_controller.mm; sourceTree = "<group>"; };
@@ -2183,9 +2185,9 @@
 				4D7BF85F0E9D4839009A6919 /* chrome_thread.cc */,
 				4D7BF8600E9D4839009A6919 /* chrome_thread.h */,
 				4D7BF8610E9D4839009A6919 /* chrome_thread_unittest.cc */,
-				4D7BF8630E9D4839009A6919 /* controller.cc */,
-				4D7BF8640E9D4839009A6919 /* controller.h */,
-				4D7BF8650E9D4839009A6919 /* controller_unittest.cc */,
+				E46C4EF20F27A9B000B393B8 /* command_updater_unittest.cc */,
+				E46C4ED20F27A94100B393B8 /* command_updater.h */,
+				E46C4ED30F27A94100B393B8 /* command_updater.cc */,
 				4D7BF8660E9D4839009A6919 /* crash_recovery_uitest.cc */,
 				4D7BF8670E9D4839009A6919 /* cross_site_request_manager.cc */,
 				4D7BF8680E9D4839009A6919 /* cross_site_request_manager.h */,
@@ -3849,6 +3851,7 @@
 				E43A771C0F1661AF00ABD5D1 /* chrome_url_data_manager.cc in Sources */,
 				E43A77110F16613700ABD5D1 /* chrome_url_request_context.cc in Sources */,
 				4D7BFAEF0E9D49E7009A6919 /* chunk_range.cc in Sources */,
+				E46C4ED40F27A94100B393B8 /* command_updater.cc in Sources */,
 				4D7BF9970E9D4863009A6919 /* cross_site_request_manager.cc in Sources */,
 				4D7BFA7C0E9D4994009A6919 /* dns_host_info.cc in Sources */,
 				E4F324550EE5CFB1002533CE /* download_database.cc in Sources */,
@@ -3935,6 +3938,7 @@
 				4D7BFCE10E9D4DC8009A6919 /* bzip2_unittest.cc in Sources */,
 				4D7BFB350E9D4C18009A6919 /* chrome_thread_unittest.cc in Sources */,
 				4D7BFB710E9D4C55009A6919 /* chunk_range_unittest.cc in Sources */,
+				E46C4EF30F27A9B000B393B8 /* command_updater_unittest.cc in Sources */,
 				4D7BFB510E9D4C3E009A6919 /* dns_host_info_unittest.cc in Sources */,
 				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
 				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,

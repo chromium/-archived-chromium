@@ -212,9 +212,6 @@ void InstallJankometer(const CommandLine&) {
 
 //--------------------------------------------------------------------------
 
-void Browser::InitCommandState() {
-}
-
 void Browser::Observe(NotificationType type,
                       const NotificationSource& source,
                       const NotificationDetails& details) {
@@ -222,4 +219,8 @@ void Browser::Observe(NotificationType type,
 
 LocationBarView* Browser::GetLocationBarView() const {
   return window_->GetLocationBarView();
+}
+
+void Browser::NewWindow() {
+  Browser::OpenEmptyWindow(NULL);
 }

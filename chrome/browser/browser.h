@@ -16,6 +16,7 @@
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
@@ -23,7 +24,6 @@
 #include "skia/include/SkBitmap.h"
 
 #if defined(OS_WIN)
-#include "chrome/browser/command_updater.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
@@ -238,9 +238,10 @@ class Browser : public TabStripModelDelegate,
   void OpenCurrentURL();
   void Go();
   void Stop();
-
+#endif
   // Window management commands
   void NewWindow();
+#if defined(OS_WIN)
   void NewIncognitoWindow();
   void NewProfileWindowByIndex(int index);
   void CloseWindow();
@@ -320,10 +321,12 @@ class Browser : public TabStripModelDelegate,
       const NavigationController* controller, int* index);
 
   // Interface implementations ////////////////////////////////////////////////
+#endif
 
   // Overridden from CommandUpdater::CommandUpdaterDelegate:
   virtual void ExecuteCommand(int id);
 
+#if defined(OS_WIN)
   // Overridden from TabStripModelDelegate:
   virtual GURL GetBlankTabURL() const;
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
