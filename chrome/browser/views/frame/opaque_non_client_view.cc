@@ -300,18 +300,23 @@ static const int kWindowControlsZoomedTopExtraHeight = 1;
 static const int kWindowControlsZoomedRightOffset = 3;
 // The distance between the left edge of the window and the left edge of the
 // window icon when a title-bar is showing and the window is restored.
-static const int kWindowIconLeftOffset = 5;
+static const int kWindowIconLeftOffset = 6;
 // The distance between the right edge of the window's left border and the left
 // edge of the window icon when a title-bar is showing and the window is
 // maximized.
 static const int kWindowIconZoomedLeftOffset = 2;
+// The proportion of vertical space the icon takes up after subtracting the top
+// and bottom borders of the titlebar (expressed as two values to avoid
+// floating point representation errors that goof up the calculation).
+static const int kWindowIconFractionNumerator = 16;
+static const int kWindowIconFractionDenominator = 25;
 // The distance between the top edge of the window and the top edge of the
-// window icon and title when a title-bar is showing and the window is restored.
-static const int kWindowIconAndTitleTopOffset = 6;
+// window title when a title-bar is showing and the window is restored.
+static const int kWindowTitleTopOffset = 6;
 // The distance between the bottom edge of the window's top border and the top
-// edge of the window icon and title when a title-bar is showing and the window
-// is maximized.
-static const int kWindowIconAndTitleZoomedTopOffset = 4;
+// edge of the window title when a title-bar is showing and the window is
+// maximized.
+static const int kWindowTitleZoomedTopOffset = 4;
 // The distance between the window icon and the window title when a title-bar
 // is showing.
 static const int kWindowIconTitleSpacing = 4;
@@ -319,8 +324,11 @@ static const int kWindowIconTitleSpacing = 4;
 // left edge of the distributor logo.
 static const int kTitleLogoSpacing = 5;
 // The distance between the bottom of the title text and the TabStrip when a
-// title-bar is showing.
-static const int kTitleBottomSpacing = 6;
+// title-bar is showing and the window is restored.
+static const int kTitleBottomSpacing = 7;
+// The distance between the bottom of the title text and the TabStrip when a
+// title-bar is showing and the window is maximized.
+static const int kTitleZoomedBottomSpacing = 5;
 // The distance between the top edge of the window and the TabStrip when there
 // is no title-bar showing, and the window is restored.
 static const int kNoTitleTopSpacing = 15;
@@ -342,9 +350,11 @@ static const int kWindowVerticalBorderBottomSize = 5;
 // The additional height beyond the system-provided thickness of the border on
 // the bottom edge of the window when the window is maximized.
 static const int kWindowVerticalBorderZoomedBottomSize = 1;
-// The width and height of the window icon that appears at the top left of
-// pop-up and app windows.
-static const int kWindowIconSize = 16;
+// The minimum width and height of the window icon that appears at the top left
+// of pop-up and app windows.
+static const int kWindowIconMinimumSize = 16;
+// The minimum height reserved for the window title font.
+static const int kWindowTitleMinimumHeight = 11;
 // The horizontal distance of the right edge of the distributor logo from the
 // left edge of the left-most window control.
 static const int kDistributorLogoHorizontalOffset = 7;
@@ -711,13 +721,21 @@ void OpaqueNonClientView::SetAccessibleName(const std::wstring& name) {
 // OpaqueNonClientView, private:
 
 int OpaqueNonClientView::CalculateNonClientTopHeight() const {
-  if (frame_->window_delegate()->ShouldShowWindowTitle()) {
-    int top_offset = frame_->IsMaximized() ? (GetSystemMetrics(SM_CYSIZEFRAME) +
-        kWindowIconAndTitleZoomedTopOffset) : kWindowIconAndTitleTopOffset;
-    return top_offset + title_font_.height() + kTitleBottomSpacing;
+  bool show_title = frame_->window_delegate()->ShouldShowWindowTitle();
+  int title_height = std::max(title_font_.height(), kWindowTitleMinimumHeight);
+  if (frame_->IsMaximized()) {
+    int top_height = GetSystemMetrics(SM_CYSIZEFRAME);
+    if (show_title) {
+      top_height += kWindowTitleZoomedTopOffset + title_height +
+          kTitleZoomedBottomSpacing;
+    }
+    if (!browser_view_->IsToolbarVisible())
+      top_height -= kClientEdgeZoomedBottomCrop;
+    return top_height;
   }
-  return frame_->IsMaximized() ?
-      GetSystemMetrics(SM_CYSIZEFRAME) : kNoTitleTopSpacing;
+  return show_title ?
+      (kWindowTitleTopOffset + title_height + kTitleBottomSpacing) :
+      kNoTitleTopSpacing;
 }
 
 int OpaqueNonClientView::HorizontalBorderSize() const {
@@ -804,6 +822,10 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
     canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
         MirroredLeftPointForRect(title_bounds_), title_bounds_.y(),
         title_bounds_.width(), title_bounds_.height());
+    /* TODO(pkasting):
+    if (app window && active)
+      Draw Drop Shadow;
+    */
   }
 }
 
@@ -982,12 +1004,38 @@ void OpaqueNonClientView::LayoutTitleBar() {
   int left_offset = frame_->IsMaximized() ?
       (GetSystemMetrics(SM_CXSIZEFRAME) + kWindowIconZoomedLeftOffset) :
       kWindowIconLeftOffset;
-  int top_offset = frame_->IsMaximized() ?
-      (GetSystemMetrics(SM_CYSIZEFRAME) + kWindowIconAndTitleZoomedTopOffset) :
-      kWindowIconAndTitleTopOffset;
+
+  // The usable height of the titlebar area is the total height minus the top
+  // resize border, the one shadow pixel at the bottom, and any client edge area
+  // we draw below that shadow pixel (only in restored mode).
+  // TODO(pkasting): Clean up this "4" hack.
+  int top_border_height =
+      frame_->IsMaximized() ? GetSystemMetrics(SM_CYSIZEFRAME) : 4;
+  int available_height = CalculateNonClientTopHeight() - top_border_height - 1;
+  if (!frame_->IsMaximized())
+    available_height -= kClientEdgeZoomedBottomCrop;
+
+  // The icon takes up a constant fraction of the available height, down to a
+  // minimum size, and is always an even number of pixels on a side (presumably
+  // to make scaled icons look better).  It's centered within the usable height.
+  int icon_size = std::max((available_height * kWindowIconFractionNumerator /
+      kWindowIconFractionDenominator) / 2 * 2, kWindowIconMinimumSize);
+  int icon_top_offset =
+      ((available_height - icon_size) / 2) + top_border_height;
+
+  // Hack: Our frame border has a different "3D look" than Windows'.  Theirs has
+  // a more complex gradient on the top that they push their icon/title below;
+  // then the maximized window cuts this off and the icon/title are centered in
+  // the remaining space.  Because the apparent shape of our border is simpler,
+  // using the same positioning makes things look slightly uncentered with
+  // restored windows, so we come up one pixel to compensate.
+  if (!frame_->IsMaximized())
+    --icon_top_offset;
+
   views::WindowDelegate* d = frame_->window_delegate();
-  int icon_size = d->ShouldShowWindowIcon() ? kWindowIconSize : 0;
-  icon_bounds_.SetRect(left_offset, top_offset, icon_size, icon_size);
+  if (!d->ShouldShowWindowIcon())
+    icon_size = 0;
+  icon_bounds_.SetRect(left_offset, icon_top_offset, icon_size, icon_size);
   if (window_icon_)
     window_icon_->SetBounds(icon_bounds_);
 
@@ -997,7 +1045,14 @@ void OpaqueNonClientView::LayoutTitleBar() {
     int icon_right = icon_bounds_.right();
     int title_left =
         icon_right + (d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0);
-    title_bounds_.SetRect(title_left, top_offset,
+    int title_top_offset = frame_->IsMaximized() ?
+        (GetSystemMetrics(SM_CYSIZEFRAME) + kWindowTitleZoomedTopOffset) :
+        kWindowTitleTopOffset;
+    if (title_font_.height() < kWindowTitleMinimumHeight) {
+      title_top_offset +=
+          (kWindowTitleMinimumHeight - title_font_.height()) / 2;
+    }
+    title_bounds_.SetRect(title_left, title_top_offset,
         std::max(0, title_right - icon_right), title_font_.height());
   }
 }
