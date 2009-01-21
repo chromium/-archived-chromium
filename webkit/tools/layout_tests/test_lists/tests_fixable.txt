@@ -357,11 +357,20 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+DEFER MAC LINUX : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
+DEFER LINUX : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
+DEFER LINUX : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
+DEFER LINUX : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
+LINUX : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
+LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 LINUX : LayoutTests/svg/text/kerning.svg = FAIL
 LINUX : LayoutTests/svg/text/multichar-glyph.svg = FAIL
+DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
 LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-align-06-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
@@ -431,11 +440,6 @@ DEFER : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
 
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
-
-// pixeltest failure: font baseline should be on the path, not the centerline
-DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
 DEFER LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
@@ -491,9 +495,7 @@ DEFER : LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL PASS
 
 // Bug 1107191.  These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
-DEFER : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
 // pixeltest failure: font baseline should be on the path, not the centerline
-DEFER : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 DEFER : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
 DEFER : LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
 
@@ -510,10 +512,6 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
-
-// This test needs to be rebaselined but said rebaselining didn't work and after
-// over an hour wasted, I'm giving up. -brettw
-LINUX WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 
 // We don't seem to draw this as well as Mac.  The numbers have gaps at the
 // corners.
@@ -543,10 +541,6 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-// Size is off by 0.01.  Maybe a rounding difference?
-LINUX WIN : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
-WIN : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
-WIN : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 // Flaky on both release and debug.
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
@@ -623,8 +617,6 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textLength.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
