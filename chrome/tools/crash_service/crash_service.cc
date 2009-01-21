@@ -195,7 +195,8 @@ bool CrashService::Initialize(const std::wstring& command_line) {
     return false;
   }
 
-  CommandLine cmd_line(command_line);
+  CommandLine cmd_line(L"");
+  cmd_line.ParseFromString(command_line);
 
   // We can override the send reports quota with a command line switch.
   if (cmd_line.HasSwitch(kMaxReports))
