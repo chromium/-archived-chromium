@@ -55,7 +55,7 @@ TEST_F(CommandUpdaterTest, TestBasicAPI) {
   command_updater.ExecuteCommand(2);
 }
 
-TEST_F(CommandUpdaterTest, TestObservers) {
+TEST_F(CommandUpdaterTest, DISABLED_TestObservers) {
   TestingCommandHandlerMock handler;
   CommandUpdater command_updater(&handler);
 
