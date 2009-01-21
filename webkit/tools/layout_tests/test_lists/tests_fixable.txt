@@ -1864,3 +1864,7 @@ LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 // Merge 39972:40057 -- new tests
 LayoutTests/fast/regex/malformed-escapes.html = FAIL
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS TIMEOUT
+
+// Merge 39972:40057
+LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL
+LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL PASS
