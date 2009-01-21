@@ -1044,9 +1044,6 @@ LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 // Linux pixel tests: the select arrow is clipping wrong on one line.
 LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
-// Internationalization / complex characters / etc
-LINUX : LayoutTests/fast/lists/w3-list-styles.html = FAIL
-
 // Depends on plugin support.
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL

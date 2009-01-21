@@ -117,6 +117,7 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
     "/usr/share/fonts/truetype/ttf-lucida/LucidaSansRegular.ttf",
     "/usr/share/fonts/truetype/kochi/kochi-gothic.ttf",
     "/usr/share/fonts/truetype/kochi/kochi-mincho.ttf",
+    "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf",
   };
   for (size_t i = 0; i < arraysize(optional_fonts); ++i) {
     const char* font = optional_fonts[i];
