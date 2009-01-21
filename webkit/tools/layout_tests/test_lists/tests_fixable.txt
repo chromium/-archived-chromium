@@ -958,20 +958,6 @@ LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 // Font metrics wrong, despite using Lucida Grande?
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 
-// RenderListBox metrics off.
-LINUX : LayoutTests/fast/forms/HTMLOptionElement_label05.html = FAIL
-LINUX : LayoutTests/fast/forms/hidden-listbox.html = FAIL
-LINUX : LayoutTests/fast/forms/listbox-width-change.html = FAIL
-LINUX : LayoutTests/fast/forms/option-strip-whitespace.html = FAIL
-LINUX : LayoutTests/fast/forms/select-block-background.html = FAIL
-LINUX : LayoutTests/fast/forms/select-change-listbox-size.html = FAIL
-LINUX : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
-LINUX : LayoutTests/fast/forms/select-initial-position.html = FAIL
-LINUX : LayoutTests/fast/forms/select-list-box-with-height.html = FAIL
-LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
-LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
-LINUX : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
-
 // Off-by-one in form controls -- font metrics?
 LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
