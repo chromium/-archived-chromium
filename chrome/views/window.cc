@@ -265,10 +265,6 @@ Window::Window(WindowDelegate* window_delegate)
   // behavior before calling Init.
   set_window_style(0);
   set_window_ex_style(0);
-  if (!IsAppWindow()) {
-    NotificationService::current()->AddObserver(
-        this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
-  }
 }
 
 void Window::Init(HWND parent, const gfx::Rect& bounds) {
@@ -299,6 +295,11 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
   SetClientView(window_delegate_->CreateClientView(this));
   SetInitialBounds(bounds);
   InitAlwaysOnTopState();
+
+  if (!IsAppWindow()) {
+    NotificationService::current()->AddObserver(
+        this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
+  }
 }
 
 void Window::SetClientView(ClientView* client_view) {
