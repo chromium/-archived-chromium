@@ -28,8 +28,14 @@ RenderProcessHost* SiteInstance::GetProcess() {
           browsing_instance_->profile());
 
     // Otherwise (or if that fails), create a new one.
-    if (!process)
-      process = new BrowserRenderProcessHost(browsing_instance_->profile());
+    if (!process) {
+      if (render_process_host_factory_) {
+        process = render_process_host_factory_->CreateRenderProcessHost(
+            browsing_instance_->profile());
+      } else {
+        process = new BrowserRenderProcessHost(browsing_instance_->profile());
+      }
+    }
 
     // Update our host ID, so all pages in this SiteInstance will use
     // the correct process.

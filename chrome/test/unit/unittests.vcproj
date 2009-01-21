@@ -649,14 +649,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\renderer_host\test_render_view_host.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\renderer_host\test_render_view_host.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\history\text_database_manager_unittest.cc"
 				>
 			</File>
@@ -740,11 +732,27 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\browser\renderer_host\test_render_view_host.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\browser\renderer_host\test_render_view_host.h"
+					>
+				</File>
+				<File
 					RelativePath="..\test_tab_contents.cc"
 					>
 				</File>
 				<File
 					RelativePath="..\test_tab_contents.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\browser\tab_contents\test_web_contents.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\browser\tab_contents\test_web_contents.h"
 					>
 				</File>
 			</Filter>

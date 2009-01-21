@@ -51,6 +51,16 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   // Get the BrowsingInstance to which this SiteInstance belongs.
   BrowsingInstance* browsing_instance() { return browsing_instance_; }
 
+  // Sets the factory used to create new RenderProcessHosts. This will also be
+  // passed on to SiteInstances spawned by this one.
+  //
+  // The factory must outlive the SiteInstance; ownership is not transferred. It
+  // may be NULL, in which case the default BrowserRenderProcessHost will be
+  // created (this is the behavior if you don't call this function).
+  void set_render_process_host_factory(RenderProcessHostFactory* rph_factory) {
+    render_process_host_factory_ = rph_factory;
+  }
+
   // Set / Get the host ID for this SiteInstance's current RenderProcessHost.
   void set_process_host_id(int process_host_id) {
     process_host_id_ = process_host_id;
@@ -97,6 +107,9 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   // new BrowsingInstance, so it should only be used when creating a new tab
   // from scratch (or similar circumstances).  Callers should ensure that
   // this SiteInstance becomes ref counted, by storing it in a scoped_refptr.
+  //
+  // The render process host factory may be NULL. See SiteInstance constructor.
+  // 
   // TODO(creis): This may be an argument to build a pass_refptr<T> class, as
   // Darin suggests.
   static SiteInstance* CreateSiteInstance(Profile* profile);
@@ -122,6 +135,7 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   // GetRelatedSiteInstance instead.
   SiteInstance(BrowsingInstance* browsing_instance)
       : browsing_instance_(browsing_instance),
+        render_process_host_factory_(NULL),
         process_host_id_(-1),
         max_page_id_(-1),
         has_site_(false) {
@@ -131,6 +145,10 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
  private:
   // BrowsingInstance to which this SiteInstance belongs.
   scoped_refptr<BrowsingInstance> browsing_instance_;
+
+  // Factory for new RenderProcessHosts, not owned by this class. NULL indiactes
+  // that the default BrowserRenderProcessHost should be created.
+  const RenderProcessHostFactory* render_process_host_factory_;
 
   // Current host ID for the RenderProcessHost that is rendering pages for this
   // SiteInstance.  If the rendering process dies, this host ID can be

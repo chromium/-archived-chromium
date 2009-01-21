@@ -200,4 +200,13 @@ class RenderProcessHost : public IPC::Channel::Sender,
   DISALLOW_COPY_AND_ASSIGN(RenderProcessHost);
 };
 
+// Factory object for RenderProcessHosts. Using this factory allows tests to
+// swap out a different one to use a TestRenderProcessHost.
+class RenderProcessHostFactory {
+ public:
+  virtual ~RenderProcessHostFactory() {}
+  virtual RenderProcessHost* CreateRenderProcessHost(
+      Profile* profile) const = 0;
+};
+
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_PROCESS_HOST_H_

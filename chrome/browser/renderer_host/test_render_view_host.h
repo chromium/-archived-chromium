@@ -8,11 +8,14 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/test_web_contents.h"
+#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
 #include "chrome/browser/render_widget_host_view.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+class TestWebContents;
 
 // This file provides a testing framework for mocking out the RenderProcessHost
 // layer. It allows you to test RenderViewHost, WebContents,
@@ -122,12 +125,10 @@ class TestRenderViewHost : public RenderViewHost {
 
 class TestRenderViewHostFactory : public RenderViewHostFactory {
  public:
-  TestRenderViewHostFactory() {}
-  virtual ~TestRenderViewHostFactory() {}
-
-  static TestRenderViewHostFactory* GetInstance() {
-    static TestRenderViewHostFactory instance;
-    return &instance;
+  TestRenderViewHostFactory(RenderProcessHostFactory* rph_factory)
+      : render_process_host_factory_(rph_factory) {
+  }
+  virtual ~TestRenderViewHostFactory() {
   }
 
   virtual RenderViewHost* CreateRenderViewHost(
@@ -135,11 +136,22 @@ class TestRenderViewHostFactory : public RenderViewHostFactory {
       RenderViewHostDelegate* delegate,
       int routing_id,
       base::WaitableEvent* modal_dialog_event) {
+    // See declaration of render_process_host_factory_ below.
+    instance->set_render_process_host_factory(render_process_host_factory_);
     return new TestRenderViewHost(instance, delegate, routing_id,
                                   modal_dialog_event);
   }
 
  private:
+  // This is a bit of a hack. With the current design of the site instances /
+  // browsing instances, it's difficult to pass a RenderProcessHostFactory
+  // around properly.
+  //
+  // Instead, we set it right before we create a new RenderViewHost, which
+  // happens before the RenderProcessHost is created. This way, the instance
+  // has the correct factory and creates our special RenderProcessHosts.
+  RenderProcessHostFactory* render_process_host_factory_;
+
   DISALLOW_COPY_AND_ASSIGN(TestRenderViewHostFactory);
 };
 
@@ -148,13 +160,27 @@ class TestRenderViewHostFactory : public RenderViewHostFactory {
 class RenderViewHostTestHarness : public testing::Test {
  public:
   RenderViewHostTestHarness()
-      : process_(NULL),
+      : rph_factory_(),
+        rvh_factory_(&rph_factory_),
+        process_(NULL),
         contents_(NULL),
         controller_(NULL) {}
   virtual ~RenderViewHostTestHarness() {}
 
+  NavigationController* controller() {
+    return contents_->controller();
+  }
+
+  TestWebContents* contents() {
+    return contents_;
+  }
+
   TestRenderViewHost* rvh() {
     return reinterpret_cast<TestRenderViewHost*>(contents_->render_view_host());
+  }
+
+  Profile* profile() {
+    return profile_.get();
   }
 
  protected:
@@ -163,14 +189,19 @@ class RenderViewHostTestHarness : public testing::Test {
   virtual void TearDown();
 
   MessageLoopForUI message_loop_;
-  TestingProfile profile_;
 
+  // This profile will be created in SetUp if it has not already been created.
+  // This allows tests to override the profile if they so choose in their own
+  // SetUp function before calling the base class's (us) SetUp().
+  scoped_ptr<TestingProfile> profile_;
+
+  MockRenderProcessHostFactory rph_factory_;
   TestRenderViewHostFactory rvh_factory_;
 
   // We clean up the WebContents by calling CloseContents, which deletes itself.
   // This in turn causes the destruction of these other things.
   MockRenderProcessHost* process_;
-  WebContents* contents_;
+  TestWebContents* contents_;
   NavigationController* controller_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHostTestHarness);

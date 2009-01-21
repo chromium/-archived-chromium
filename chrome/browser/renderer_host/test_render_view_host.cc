@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/tab_contents/test_web_contents.h"
 
 TestRenderViewHost::TestRenderViewHost(SiteInstance* instance,
                                        RenderViewHostDelegate* delegate,
@@ -60,15 +61,15 @@ void TestRenderViewHost::SendNavigate(int page_id, const GURL& url) {
 }
 
 void RenderViewHostTestHarness::SetUp() {
+  // See comment above profile_ decl for why we check for NULL here.
+  if (!profile_.get())
+    profile_.reset(new TestingProfile());
+
   // This will be deleted when the WebContents goes away.
-  SiteInstance* instance = SiteInstance::CreateSiteInstance(&profile_);
+  SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
 
-  // Make the SiteInstance use our RenderProcessHost as its own.
-  process_ = new MockRenderProcessHost(&profile_);
-  instance->set_process_host_id(process_->host_id());
-
-  contents_ = new WebContents(&profile_, instance, &rvh_factory_, 12, NULL);
-  controller_ = new NavigationController(contents_, &profile_);
+  contents_ = new TestWebContents(profile_.get(), instance, &rvh_factory_);
+  controller_ = new NavigationController(contents_, profile_.get());
 }
 
 void RenderViewHostTestHarness::TearDown() {

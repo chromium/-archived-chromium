@@ -16,7 +16,8 @@ bool MockRenderProcessHost::Init() {
 }
 
 int MockRenderProcessHost::GetNextRoutingID() {
-  return 5;
+  static int prev_routing_id = 0;
+  return ++prev_routing_id;
 }
 
 void MockRenderProcessHost::CancelResourceRequests(int render_widget_id) {
@@ -60,7 +61,4 @@ void MockRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
 }
 
 void MockRenderProcessHost::OnChannelConnected(int32 peer_pid) {
-}
-
-void MockRenderProcessHost::Unregister() {
 }

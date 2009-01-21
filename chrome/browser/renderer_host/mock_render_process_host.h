@@ -44,13 +44,24 @@ class MockRenderProcessHost : public RenderProcessHost {
   virtual void OnChannelConnected(int32 peer_pid);
 
  private:
-  // RenderProcessHost implementation (protected portion).
-  virtual void Unregister();
-
   // Stores IPC messages that would have been sent to the renderer.
   IPC::TestSink sink_;
 
   DISALLOW_COPY_AND_ASSIGN(MockRenderProcessHost);
+};
+
+class MockRenderProcessHostFactory : public RenderProcessHostFactory {
+ public:
+  MockRenderProcessHostFactory() {}
+  virtual ~MockRenderProcessHostFactory() {}
+
+  virtual RenderProcessHost* CreateRenderProcessHost(
+      Profile* profile) const {
+    return new MockRenderProcessHost(profile);
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MockRenderProcessHostFactory);
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_MOCK_RENDER_PROCESS_HOST_H_
