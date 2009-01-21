@@ -85,7 +85,7 @@ TEST_F(BrowserTest, Title) {
 }
 
 // The browser should quit quickly if it receives a WM_ENDSESSION message.
-TEST_F(BrowserTest, DISABLED_WindowsSessionEnd) {
+TEST_F(BrowserTest, WindowsSessionEnd) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title1.html");
 
