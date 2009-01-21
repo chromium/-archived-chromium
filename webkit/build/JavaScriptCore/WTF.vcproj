@@ -138,11 +138,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ByteArray.cpp"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ByteArray.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ByteArray.h"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ByteArray.h"
 			>
 		</File>
 		<File

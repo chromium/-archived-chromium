@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		PreprocessorDefinitions="NOGDI;WIN32_LEAN_AND_MEAN"
+		PreprocessorDefinitions="WIN32_LEAN_AND_MEAN"
 		DisableSpecificWarnings="4291,4099,4996,4521,4244"
 	/>
 </VisualStudioPropertySheet>

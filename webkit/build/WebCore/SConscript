@@ -62,6 +62,7 @@ input_files = [
     '$WEBCORE_DIR/css/CSSParserValues.cpp',
     '$WEBCORE_DIR/css/CSSPrimitiveValue.cpp',
     '$WEBCORE_DIR/css/CSSProperty.cpp',
+    '$WEBCORE_DIR/css/CSSPropertyLonghand.cpp',
     '$WEBCORE_DIR/css/CSSReflectValue.cpp',
     '$WEBCORE_DIR/css/CSSRule.cpp',
     '$WEBCORE_DIR/css/CSSRuleList.cpp',

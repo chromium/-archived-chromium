@@ -1884,3 +1884,6 @@ LayoutTests/fast/dom/css-selectorText.html = FAIL
 
 // Passes locally but Text diff fails on the buildbots
 LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
+
+// Merge 39972:40057 -- new tests (V8?)
+LayoutTests/fast/regex/malformed-escapes.html = FAIL

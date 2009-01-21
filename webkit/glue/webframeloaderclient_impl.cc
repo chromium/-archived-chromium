@@ -1286,7 +1286,8 @@ void WebFrameLoaderClient::transitionToCommittedForNewPage() {
 }
 
 bool WebFrameLoaderClient::canCachePage() const {
-  NOTREACHED() << "Page cache should be disabled";
+  // Since we manage the cache, always report this page as non-cacheable to
+  // FrameLoader.
   return false;
 }
 
