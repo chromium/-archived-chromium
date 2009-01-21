@@ -8,6 +8,7 @@
 #include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
+#include "build/build_config.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
@@ -21,6 +22,11 @@
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
+
+#if defined(OS_WIN)
+// Needed for CoInitialize
+#include "chrome/common/win_util.h"
+#endif
 
 // This function provides some ways to test crash and assertion handling
 // behavior of the renderer.

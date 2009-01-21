@@ -55,6 +55,7 @@
 #include "base/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/common/win_util.h"
+#include "common/win_util.h"
 #include "sandbox/src/sandbox.h"
 #endif
 
