@@ -85,36 +85,12 @@ bool LaunchApp(const std::vector<std::string>& argv,
 
   return retval;
 }
+
 bool LaunchApp(const CommandLine& cl,
                bool wait, bool start_hidden,
                ProcessHandle* process_handle) {
   file_handle_mapping_vector no_files;
   return LaunchApp(cl.argv(), no_files, wait, process_handle);
-}
-
-bool DidProcessCrash(ProcessHandle handle) {
-  int status;
-  if (waitpid(handle, &status, WNOHANG)) {
-    // I feel like dancing!
-    return false;
-  }
-
-  if (WIFSIGNALED(status)) {
-    switch(WTERMSIG(status)) {
-      case SIGSEGV:
-      case SIGILL:
-      case SIGABRT:
-      case SIGFPE:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  if (WIFEXITED(status))
-    return WEXITSTATUS(status) != 0;
-
-  return false;
 }
 
 NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,

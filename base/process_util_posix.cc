@@ -97,6 +97,31 @@ void RaiseProcessToHighPriority() {
   // setpriority() or sched_getscheduler, but these all require extra rights.
 }
 
+bool DidProcessCrash(ProcessHandle handle) {
+  int status;
+  if (waitpid(handle, &status, WNOHANG)) {
+    // I feel like dancing!
+    return false;
+  }
+
+  if (WIFSIGNALED(status)) {
+    switch(WTERMSIG(status)) {
+      case SIGSEGV:
+      case SIGILL:
+      case SIGABRT:
+      case SIGFPE:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  if (WIFEXITED(status))
+    return WEXITSTATUS(status) != 0;
+
+  return false;
+}
+
 bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
   int status;
   while (waitpid(handle, &status, 0) == -1) {
