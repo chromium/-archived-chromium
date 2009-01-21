@@ -118,7 +118,9 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenNavigate) {
 }
 
 // Shows an interstitial page then closes the tab (to make sure we don't crash).
-TEST_F(InterstitialPageTest, TestShowInterstitialThenCloseTab) {
+// This test is disabled as it occasionally makes the ui tests stop running.
+// See bug 6729.
+TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseTab) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot);
   ASSERT_TRUE(NULL != server.get());
