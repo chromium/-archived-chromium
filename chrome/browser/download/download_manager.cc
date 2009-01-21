@@ -819,7 +819,7 @@ void DownloadManager::ProceedWithFinishedDangerousDownload(
   FilePath new_path;
   int uniquifier = 0;
   if (file_util::PathExists(path)) {
-    new_path = new_path.DirName().Append(original_name);
+    new_path = path.DirName().Append(original_name);
     // Make our name unique at this point, as if a dangerous file is downloading
     // and a 2nd download is started for a file with the same name, they would
     // have the same path.  This is because we uniquify the name on download

@@ -69,8 +69,9 @@ void DownloadDatabase::QueryDownloads(std::vector<DownloadCreateInfo>* results) 
   while (statement->step() == SQLITE_ROW) {
     DownloadCreateInfo info;
     info.db_handle = statement->column_int64(0);
-    std::wstring path_str = info.path.ToWStringHack();
+    std::wstring path_str;
     statement->column_string16(1, &path_str);
+    info.path = FilePath::FromWStringHack(path_str);
     statement->column_string16(2, &info.url);
     info.start_time = Time::FromTimeT(statement->column_int64(3));
     info.received_bytes = statement->column_int64(4);
