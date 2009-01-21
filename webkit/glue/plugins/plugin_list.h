@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TODO: Need mechanism to cleanup the static instance
-
 #ifndef WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H__
 #define WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H__
 
@@ -17,6 +15,13 @@
 #include "webkit/glue/webplugin.h"
 
 class GURL;
+
+namespace base {
+
+template <typename T>
+struct DefaultLazyInstanceTraits;
+
+}  // namespace base
 
 namespace NPAPI
 {
@@ -33,14 +38,12 @@ class PluginInstance;
 // the machine-wide and user plugin directories and loads anything that has
 // the correct types. On Linux, it walks the plugin directories as well
 // (e.g. /usr/lib/browser-plugins/).
-class PluginList : public base::RefCounted<PluginList> {
+class PluginList {
  public:
-  // Gets the one instance of the PluginList.
-  //
-  // Accessing the singleton causes the PluginList to look on
-  // disk for existing plugins.  It does not actually load
-  // libraries, that will only happen when you initialize
-  // the plugin for the first time.
+  // Gets the one instance of the PluginList.  Accessing the singleton causes
+  // the PluginList to look on disk for existing plugins.  It does not actually
+  // load libraries, that will only happen when you initialize the plugin for
+  // the first time.
   static PluginList* Singleton();
 
   // Add an extra plugin to load when we actually do the loading.  This is
@@ -145,11 +148,15 @@ class PluginList : public base::RefCounted<PluginList> {
   // Internals
   //
 
-  static scoped_refptr<PluginList> singleton_;
   bool plugins_loaded_;
 
   // Contains information about the available plugins.
   std::vector<WebPluginInfo> plugins_;
+
+  // Extra plugin paths that we want to search when loading.
+  std::vector<FilePath> extra_plugin_paths_;
+
+  friend struct base::DefaultLazyInstanceTraits<PluginList>;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginList);
 };
