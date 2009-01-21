@@ -795,7 +795,6 @@
 		938446D50F16B0570075F4C5 /* SVGPaintServerGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E974E0D7F3EDA001ECF42 /* SVGPaintServerGradient.cpp */; };
 		938446D60F16B0570075F4C5 /* SVGPaintServerLinearGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97500D7F3EDA001ECF42 /* SVGPaintServerLinearGradient.cpp */; };
 		938446D70F16B0570075F4C5 /* SVGPaintServerPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97520D7F3EDA001ECF42 /* SVGPaintServerPattern.cpp */; };
-		938446D80F16B0570075F4C5 /* SVGPaintServerPatternCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */; };
 		938446D90F16B0570075F4C5 /* SVGPaintServerRadialGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97540D7F3EDA001ECF42 /* SVGPaintServerRadialGradient.cpp */; };
 		938446DA0F16B0570075F4C5 /* SVGPaintServerSolid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97560D7F3EDA001ECF42 /* SVGPaintServerSolid.cpp */; };
 		938446DB0F16B0570075F4C5 /* SVGParserUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E98590D7F3EDB001ECF42 /* SVGParserUtilities.cpp */; };
@@ -1278,6 +1277,10 @@
 		93EF1C100F214F260070601B /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C070F214F260070601B /* XBMImageDecoder.cpp */; };
 		A7FBE6100F1EC18A00BB13F2 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */; };
 		A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */; };
+		B58DCCE90F27DF0100BF697A /* InputElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DCCE80F27DF0100BF697A /* InputElement.cpp */; };
+		B58DCCEE0F27DF1400BF697A /* OptionGroupElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DCCEB0F27DF1400BF697A /* OptionGroupElement.cpp */; };
+		B58DCCEF0F27DF1400BF697A /* OptionElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DCCED0F27DF1400BF697A /* OptionElement.cpp */; };
+		B590A4E60F27DDAC0058FA26 /* FormControlElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B590A4E50F27DDAC0058FA26 /* FormControlElement.cpp */; };
 		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
 		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
@@ -3434,7 +3437,6 @@
 		7B5E96C10D7F3EDA001ECF42 /* ColorDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ColorDistance.h; path = ../ColorDistance.h; sourceTree = "<group>"; };
 		7B5E96C20D7F3EDA001ECF42 /* GradientAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GradientAttributes.h; path = ../GradientAttributes.h; sourceTree = "<group>"; };
 		7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerCg.cpp; sourceTree = "<group>"; };
-		7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerPatternCg.cpp; sourceTree = "<group>"; };
 		7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceFilterCg.cpp; sourceTree = "<group>"; };
 		7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGResourceFilterCg.mm; sourceTree = "<group>"; };
 		7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceMaskerCg.cpp; sourceTree = "<group>"; };
@@ -4270,6 +4272,13 @@
 		B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextControlInnerElements.cpp; sourceTree = "<group>"; };
 		B58831280E9BD6D800CEC344 /* StringBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringBuilder.h; sourceTree = "<group>"; };
 		B58831290E9BD6D800CEC344 /* StringBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringBuilder.cpp; sourceTree = "<group>"; };
+		B58DCCE70F27DF0100BF697A /* InputElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputElement.h; sourceTree = "<group>"; };
+		B58DCCE80F27DF0100BF697A /* InputElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputElement.cpp; sourceTree = "<group>"; };
+		B58DCCEA0F27DF1400BF697A /* OptionGroupElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionGroupElement.h; sourceTree = "<group>"; };
+		B58DCCEB0F27DF1400BF697A /* OptionGroupElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OptionGroupElement.cpp; sourceTree = "<group>"; };
+		B58DCCEC0F27DF1400BF697A /* OptionElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionElement.h; sourceTree = "<group>"; };
+		B58DCCED0F27DF1400BF697A /* OptionElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OptionElement.cpp; sourceTree = "<group>"; };
+		B590A4E50F27DDAC0058FA26 /* FormControlElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FormControlElement.cpp; sourceTree = "<group>"; };
 		B5B0D4190EC8FE4900EA3314 /* JSDOMBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSDOMBinding.h; sourceTree = "<group>"; };
 		B5B0D41A0EC8FE4900EA3314 /* JSDOMBinding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSDOMBinding.cpp; sourceTree = "<group>"; };
 		B5B0D6870EC91D3D00EA3314 /* autofill_form.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autofill_form.h; sourceTree = "<group>"; };
@@ -5001,7 +5010,10 @@
 				7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */,
 				7B5E8A0A0D7F3A7C001ECF42 /* ExceptionCode.cpp */,
 				7B5E8A0B0D7F3A7C001ECF42 /* ExceptionCode.h */,
+				B590A4E50F27DDAC0058FA26 /* FormControlElement.cpp */,
 				3CF1E7570F09B441009BC1A7 /* FormControlElement.h */,
+				B58DCCE70F27DF0100BF697A /* InputElement.h */,
+				B58DCCE80F27DF0100BF697A /* InputElement.cpp */,
 				7B5E8A0C0D7F3A7C001ECF42 /* KeyboardEvent.cpp */,
 				7B5E8A0D0D7F3A7C001ECF42 /* KeyboardEvent.h */,
 				7B5E8A110D7F3A7C001ECF42 /* MappedAttribute.cpp */,
@@ -5040,6 +5052,10 @@
 				4D16412E0EC29E80008F024E /* NodeWithIndex.h */,
 				7B5E8A350D7F3A7C001ECF42 /* Notation.cpp */,
 				7B5E8A360D7F3A7C001ECF42 /* Notation.h */,
+				B58DCCED0F27DF1400BF697A /* OptionElement.cpp */,
+				B58DCCEC0F27DF1400BF697A /* OptionElement.h */,
+				B58DCCEB0F27DF1400BF697A /* OptionGroupElement.cpp */,
+				B58DCCEA0F27DF1400BF697A /* OptionGroupElement.h */,
 				7B5E8A380D7F3A7C001ECF42 /* OverflowEvent.cpp */,
 				7B5E8A390D7F3A7C001ECF42 /* OverflowEvent.h */,
 				7B5E8A3B0D7F3A7C001ECF42 /* Position.cpp */,
@@ -6576,7 +6592,6 @@
 			isa = PBXGroup;
 			children = (
 				7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */,
-				7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */,
 				7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */,
 				7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */,
 				7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */,
@@ -8687,6 +8702,7 @@
 				938444DC0F16B0570075F4C5 /* FontPlatformDataMac.mm in Sources */,
 				938444DD0F16B0570075F4C5 /* FontValue.cpp in Sources */,
 				938444DE0F16B0570075F4C5 /* FormatBlockCommand.cpp in Sources */,
+				B590A4E60F27DDAC0058FA26 /* FormControlElement.cpp in Sources */,
 				938444DF0F16B0570075F4C5 /* FormData.cpp in Sources */,
 				938444E00F16B0570075F4C5 /* FormDataBuilder.cpp in Sources */,
 				938444E10F16B0570075F4C5 /* FormDataList.cpp in Sources */,
@@ -8803,6 +8819,7 @@
 				938445500F16B0570075F4C5 /* IconChromiumMac.cpp in Sources */,
 				938445510F16B0570075F4C5 /* IconDatabaseNone.cpp in Sources */,
 				938445520F16B0570075F4C5 /* IconLoader.cpp in Sources */,
+				B58DCCE90F27DF0100BF697A /* InputElement.cpp in Sources */,
 				938445530F16B0570075F4C5 /* Image.cpp in Sources */,
 				938445540F16B0570075F4C5 /* ImageBufferCG.cpp in Sources */,
 				938445550F16B0570075F4C5 /* ImageCG.cpp in Sources */,
@@ -8885,6 +8902,8 @@
 				938445A20F16B0570075F4C5 /* NodeFilterCondition.cpp in Sources */,
 				938445A30F16B0570075F4C5 /* NodeIterator.cpp in Sources */,
 				938445A40F16B0570075F4C5 /* Notation.cpp in Sources */,
+				B58DCCEE0F27DF1400BF697A /* OptionGroupElement.cpp in Sources */,
+				B58DCCEF0F27DF1400BF697A /* OptionElement.cpp in Sources */,
 				938445A50F16B0570075F4C5 /* OriginQuotaManager.cpp in Sources */,
 				938445A60F16B0570075F4C5 /* OriginUsageRecord.cpp in Sources */,
 				938445A70F16B0570075F4C5 /* OverflowEvent.cpp in Sources */,
@@ -9189,7 +9208,6 @@
 				938446D50F16B0570075F4C5 /* SVGPaintServerGradient.cpp in Sources */,
 				938446D60F16B0570075F4C5 /* SVGPaintServerLinearGradient.cpp in Sources */,
 				938446D70F16B0570075F4C5 /* SVGPaintServerPattern.cpp in Sources */,
-				938446D80F16B0570075F4C5 /* SVGPaintServerPatternCg.cpp in Sources */,
 				938446D90F16B0570075F4C5 /* SVGPaintServerRadialGradient.cpp in Sources */,
 				938446DA0F16B0570075F4C5 /* SVGPaintServerSolid.cpp in Sources */,
 				938446DB0F16B0570075F4C5 /* SVGParserUtilities.cpp in Sources */,
