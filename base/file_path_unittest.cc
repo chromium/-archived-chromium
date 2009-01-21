@@ -5,7 +5,7 @@
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
-#include "base/path_service.h"
+#include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -292,6 +292,17 @@ TEST_F(FilePathTest, Append) {
               "i: " << i << ", root: " << root.value() << ", leaf: " << leaf;
     FilePath observed_path = root.Append(FilePath(leaf));
     EXPECT_EQ(FilePath::StringType(cases[i].expected), observed_path.value()) <<
+              "i: " << i << ", root: " << root.value() << ", leaf: " << leaf;
+
+    // TODO(erikkay): It would be nice to have a unicode test append value to
+    // handle the case when AppendASCII is passed UTF8
+#if defined(OS_WIN)
+    std::string ascii = WideToASCII(leaf);
+#elif defined(OS_POSIX)
+    std::string ascii = leaf;
+#endif
+    observed_str = root.AppendASCII(ascii);
+    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed_str.value()) <<
               "i: " << i << ", root: " << root.value() << ", leaf: " << leaf;
   }
 }
