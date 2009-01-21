@@ -271,9 +271,7 @@ protected:
     static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #endif
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
     static void PlatformShutdown();
-#endif
 
 protected:
     gfx::NativeWindow       m_mainWnd;

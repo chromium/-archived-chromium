@@ -195,7 +195,17 @@ if env.Bit('windows'):
   env.Depends(test_shell, '$V8_DIR/vc80.pdb')
 
 if env.Bit('linux'):
-  # Build the linux resource file.
+  # Build the linux resource files.
+  import sys
+  sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
+  env_grd = env.Clone()
+  env_grd.Tool('scons', toolpath=[env_grd.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
+  # This dummy target is used to tell the emitter where to put the target
+  # files.
+  generated = env_grd.GRIT(
+      '$TARGET_ROOT/grit_derived_sources/fake_test_shell_resources',
+      '$CHROME_SRC_DIR/webkit/tools/test_shell/test_shell_resources.grd')
+
   env.Append(BUILDERS = { 'Repack' : Builder(
       action = 'python $CHROME_SRC_DIR/tools/data_pack/repack.py $TARGET $SOURCES',
   )})
@@ -203,6 +213,7 @@ if env.Bit('linux'):
       '$TARGET_ROOT/test_shell.pak',
       ['$TARGET_ROOT/grit_derived_sources/net_resources.pak',
        '$TARGET_ROOT/grit_derived_sources/webkit_resources.pak',
+       '$TARGET_ROOT/grit_derived_sources/test_shell_resources.pak',
        ]
   )
   env.Depends(test_shell, test_shell_data)

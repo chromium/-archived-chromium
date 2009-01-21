@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="test_shell_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="test_shell_resources.pak" type="data_package" />
+  </outputs>
+  <release seq="1">
+    <includes>
+      <include name="IDR_BROKENIMAGE_TESTSHELL" file="resources\missingImage.gif" type="BINDATA" />
+      <include name="IDR_FEED_PREVIEW_TESTSHELL" file="resources\feed.html" type="BINDATA" />
+      <include name="IDR_TEXTAREA_RESIZER_TESTSHELL" file="resources\textAreaResizeCorner.png" type="BINDATA" />
+    </includes>
+  </release>
+</grit>
