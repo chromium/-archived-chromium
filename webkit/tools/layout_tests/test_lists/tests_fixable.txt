@@ -1778,7 +1778,7 @@ WIN LINUX : LayoutTests/fast/forms/focus2.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
 // Merge 39744:39829 - regression likely due to bad implementation of RenderPath::strokeContains in PathSkia.cpp
-WIN LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
+WIN : LayoutTests/fast/canvas/pointInPath.html = FAIL
 LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
 // Merge 39744:39829 - regressions
