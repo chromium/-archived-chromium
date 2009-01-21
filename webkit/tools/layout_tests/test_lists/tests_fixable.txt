@@ -1815,9 +1815,10 @@ LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 // Note: this failed before the merge on Windows, just not crashed (brettw saw
 // this on his machine once so is marking it as so).
 WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL CRASH
+// Bug 6733: Need to parse Inifinity as 0.
 LayoutTests/fast/js/numeric-conversion.html = FAIL
 
-// Merge 39894:39913 - regressions
+// Bug 6735: Merge 39894:39913 - new test.
 LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
