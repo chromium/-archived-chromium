@@ -928,6 +928,48 @@
 			remoteGlobalIDString = E45076900F1532CE003BE099;
 			remoteInfo = "Generate Headers";
 		};
+		E46C4EB00F278A3000B393B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFF5F0E9D540F009A6919 /* googleurl.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BA018350E5A28DB00044150 /* googleurl */;
+			remoteInfo = googleurl;
+		};
+		E46C4EB20F278A3A00B393B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFDBE0E9D525B009A6919 /* base.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 825403B00D92D2E50006B936 /* base_gfx */;
+			remoteInfo = base_gfx;
+		};
+		E46C4EB40F278A4800B393B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7B00580E9D54AA009A6919 /* modp_b64.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B8502380E5A384100730B43 /* modp_b64 */;
+			remoteInfo = modp_b64;
+		};
+		E46C4EB60F278A5900B393B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7B002E0E9D5459009A6919 /* skia.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E48EE4CE0E34E855009DE966 /* skia */;
+			remoteInfo = skia;
+		};
+		E46C4EB80F278A7100B393B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7B00340E9D5464009A6919 /* net.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* net */;
+			remoteInfo = net;
+		};
+		E46C4EBA0F278A7100B393B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFF460E9D53B4009A6919 /* libevent.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B262E830E82E5D7001CE27F /* libevent */;
+			remoteInfo = libevent;
+		};
 		E4F3259A0EE837DD002533CE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
@@ -3322,13 +3364,19 @@
 			buildRules = (
 			);
 			dependencies = (
+				E45062670EE890B3003BE099 /* PBXTargetDependency */,
+				E46C4EB30F278A3A00B393B8 /* PBXTargetDependency */,
 				E45063160EE990C4003BE099 /* PBXTargetDependency */,
 				E45063180EE990C4003BE099 /* PBXTargetDependency */,
-				E450631A0EE990C4003BE099 /* PBXTargetDependency */,
-				E45062670EE890B3003BE099 /* PBXTargetDependency */,
 				E450629C0EE8912D003BE099 /* PBXTargetDependency */,
 				E45062A00EE8912D003BE099 /* PBXTargetDependency */,
 				E45062A40EE8912D003BE099 /* PBXTargetDependency */,
+				E46C4EB10F278A3000B393B8 /* PBXTargetDependency */,
+				E46C4EB50F278A4800B393B8 /* PBXTargetDependency */,
+				E46C4EB90F278A7100B393B8 /* PBXTargetDependency */,
+				E450631A0EE990C4003BE099 /* PBXTargetDependency */,
+				E46C4EB70F278A5900B393B8 /* PBXTargetDependency */,
+				E46C4EBB0F278A7100B393B8 /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = app;
@@ -4281,6 +4329,36 @@
 			isa = PBXTargetDependency;
 			target = E45076900F1532CE003BE099 /* Generate Headers */;
 			targetProxy = E45076D10F153891003BE099 /* PBXContainerItemProxy */;
+		};
+		E46C4EB10F278A3000B393B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = googleurl;
+			targetProxy = E46C4EB00F278A3000B393B8 /* PBXContainerItemProxy */;
+		};
+		E46C4EB30F278A3A00B393B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = base_gfx;
+			targetProxy = E46C4EB20F278A3A00B393B8 /* PBXContainerItemProxy */;
+		};
+		E46C4EB50F278A4800B393B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = modp_b64;
+			targetProxy = E46C4EB40F278A4800B393B8 /* PBXContainerItemProxy */;
+		};
+		E46C4EB70F278A5900B393B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia;
+			targetProxy = E46C4EB60F278A5900B393B8 /* PBXContainerItemProxy */;
+		};
+		E46C4EB90F278A7100B393B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = net;
+			targetProxy = E46C4EB80F278A7100B393B8 /* PBXContainerItemProxy */;
+		};
+		E46C4EBB0F278A7100B393B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libevent;
+			targetProxy = E46C4EBA0F278A7100B393B8 /* PBXContainerItemProxy */;
 		};
 		E4F3259B0EE837DD002533CE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
