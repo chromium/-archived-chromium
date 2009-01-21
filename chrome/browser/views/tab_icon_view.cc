@@ -85,23 +85,44 @@ void TabIconView::Update() {
 
 void TabIconView::PaintThrobber(ChromeCanvas* canvas) {
   int image_size = g_throbber_frames->height();
-  int image_offset = throbber_frame_ * image_size;
-  canvas->DrawBitmapInt(is_light_ ? *g_throbber_frames_light :
-                                    *g_throbber_frames,
-                        image_offset, 0, image_size, image_size,
-                        0, 0, image_size, image_size, false);
+  PaintIcon(canvas, is_light_ ? *g_throbber_frames_light : *g_throbber_frames,
+            throbber_frame_ * image_size, 0, image_size, image_size, false);
 }
 
 void TabIconView::PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap) {
-  int bw = bitmap.width();
-  int bh = bitmap.height();
-  if (bw <= kFavIconSize && bh <= kFavIconSize) {
-    canvas->DrawBitmapInt(bitmap, (width() - kFavIconSize) / 2,
-                          (height() - kFavIconSize) / 2);
+  PaintIcon(canvas, bitmap, 0, 0, bitmap.width(), bitmap.height(), true);
+}
+
+void TabIconView::PaintIcon(ChromeCanvas* canvas,
+                            const SkBitmap& bitmap,
+                            int src_x,
+                            int src_y,
+                            int src_w,
+                            int src_h,
+                            bool filter) {
+  // For source images smaller than the favicon square, scale them as if they
+  // were padded to fit the favicon square, so we don't blow up tiny favicons
+  // into larger or nonproportional results.
+  float float_src_w = static_cast<float>(src_w);
+  float float_src_h = static_cast<float>(src_h);
+  float scalable_w, scalable_h;
+  if (src_w <= kFavIconSize && src_h <= kFavIconSize) {
+    scalable_w = scalable_h = kFavIconSize;
   } else {
-    canvas->DrawBitmapInt(bitmap, 0, 0, bw, bh, 0, 0, width(), height(),
-                          true);
+    scalable_w = float_src_w;
+    scalable_h = float_src_h;
   }
+
+  // Scale proportionately.
+  float scale = std::min(static_cast<float>(width()) / scalable_w,
+                         static_cast<float>(height()) / scalable_h);
+  int dest_w = static_cast<int>(float_src_w * scale);
+  int dest_h = static_cast<int>(float_src_h * scale);
+
+  // Center the scaled image.
+  canvas->DrawBitmapInt(bitmap, src_x, src_y, src_w, src_h,
+                        (width() - dest_w) / 2, (height() - dest_h) / 2, dest_w,
+                        dest_h, filter);
 }
 
 void TabIconView::Paint(ChromeCanvas* canvas) {

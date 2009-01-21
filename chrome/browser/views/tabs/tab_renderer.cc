@@ -401,6 +401,8 @@ void TabRenderer::Paint(ChromeCanvas* canvas) {
                               true);
       } else {
         if (!data_.favicon.isNull()) {
+          // TODO(pkasting): Use code in tab_icon_view.cc:PaintIcon() (or switch
+          // to using that class to render the favicon).
           canvas->DrawBitmapInt(data_.favicon, 0, 0,
                                 data_.favicon.width(),
                                 data_.favicon.height(),

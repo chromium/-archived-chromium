@@ -189,11 +189,10 @@ void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
                                                   SkShader::kRepeat_TileMode,
                                                   SkShader::kRepeat_TileMode);
   SkMatrix shader_scale;
-  shader_scale.setScale(
-      SkFloatToScalar(static_cast<float>(dest_w) / src_w),
-      SkFloatToScalar(static_cast<float>(dest_h) / src_h));
-  shader_scale.postTranslate(SkIntToScalar(dest_x - src_x),
-                             SkIntToScalar(dest_y - src_y));
+  shader_scale.setScale(SkFloatToScalar(static_cast<float>(dest_w) / src_w),
+                        SkFloatToScalar(static_cast<float>(dest_h) / src_h));
+  shader_scale.preTranslate(SkIntToScalar(-src_x), SkIntToScalar(-src_y));
+  shader_scale.postTranslate(SkIntToScalar(dest_x), SkIntToScalar(dest_y));
   shader->setLocalMatrix(shader_scale);
 
   // Set up our paint to use the shader & release our reference (now just owned

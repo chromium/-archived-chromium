@@ -44,6 +44,13 @@ class TabIconView : public views::View {
  private:
   void PaintThrobber(ChromeCanvas* canvas);
   void PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap);
+  void PaintIcon(ChromeCanvas* canvas,
+                 const SkBitmap& bitmap,
+                 int src_x,
+                 int src_y,
+                 int src_w,
+                 int src_h,
+                 bool filter);
 
   // Our model.
   TabIconViewModel* model_;
