@@ -809,10 +809,8 @@ LayoutTests/accessibility = FAIL
 LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 // Border radius not anti-aliased.
 WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
-// Linux pixeltest failure: We can't do gradient filled text
-LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
-// It looks like the text is the wrong color.
-WIN : LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
+// This test should just need to be rebaselined on Linux.
+LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
