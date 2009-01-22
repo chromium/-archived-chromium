@@ -44,10 +44,14 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
 
   // These files should all be displayed as plain text.
   const char* plain_text[] = {
-    "text/css",
-    "text/foo",
-    "text/richext",
-    "text/rtf",
+    // It is unclear whether to display text/css or download it.
+    //   Firefox 3: Display
+    //   Internet Explorer 7: Download
+    //   Safari 3.2: Download
+    // We choose to match Safari.
+    // "text/css",
+    "text/javascript",
+    "text/plain",
     "application/x-javascript",
   };
   for (size_t i = 0; i < arraysize(plain_text); ++i) {
