@@ -355,6 +355,10 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
+LINUX : LayoutTests/fast/text/international/001.html = FAIL
+LINUX : LayoutTests/fast/text/international/002.html = FAIL
+LINUX : LayoutTests/fast/text/international/003.html = FAIL
+LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC LINUX : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
