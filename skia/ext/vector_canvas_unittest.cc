@@ -2,19 +2,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#include "webkit/tools/test_shell/image_decoder_unittest.h"
+
+#if !defined(OS_WIN)
+#include <unistd.h>
+#endif
+
 #include "skia/ext/vector_canvas.h"
 
-#include <vector>
+#include "PNGImageDecoder.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/gfx/gdi_util.h"
-#include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
-#include "base/gfx/size.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "base/win_util.h"
+
 #include "testing/gtest/include/gtest/gtest.h"
 
 #include "SkDashPathEffect.h"
@@ -73,17 +79,12 @@ class Image {
  public:
   // Creates the image from the given filename on disk.
   Image(const std::wstring& filename) : ignore_alpha_(true) {
-    std::string compressed;
-    file_util::ReadFileToString(filename, &compressed);
+    Vector<char> compressed;
+    ReadFileToVector(filename, &compressed);
     EXPECT_TRUE(compressed.size());
-
-    int w;
-    int h;
-    EXPECT_TRUE(PNGDecoder::Decode(
-        reinterpret_cast<const unsigned char*>(compressed.c_str()),
-        compressed.size(), PNGDecoder::FORMAT_BGRA, &data_, &w, &h));
-    size_.SetSize(w, h);
-    row_length_ = w * sizeof(uint32);
+    WebCore::PNGImageDecoder decoder;
+    decoder.setData(WebCore::SharedBuffer::adoptVector(compressed).get(), true);
+    SetSkBitmap(decoder.frameBufferAtIndex(0)->bitmap());
   }
 
   // Loads the image from a canvas.
@@ -95,40 +96,31 @@ class Image {
     EXPECT_TRUE(bitmap != NULL);
     // Initialize the clip region to the entire bitmap.
     BITMAP bitmap_data;
-    EXPECT_EQ(GetObject(bitmap, sizeof(BITMAP), &bitmap_data),
-              sizeof(BITMAP));
-    size_.SetSize(bitmap_data.bmWidth, bitmap_data.bmHeight);
+    EXPECT_EQ(GetObject(bitmap, sizeof(BITMAP), &bitmap_data), sizeof(BITMAP));
+    width_ = bitmap_data.bmWidth;
+    height_ = bitmap_data.bmHeight;
     row_length_ = bitmap_data.bmWidthBytes;
-    size_t size = row_length_ * size_.height();
+    size_t size = row_length_ * height_;
     data_.resize(size);
     memcpy(&*data_.begin(), bitmap_data.bmBits, size);
   }
 
   // Loads the image from a canvas.
   Image(const SkBitmap& bitmap) : ignore_alpha_(true) {
-    SkAutoLockPixels lock(bitmap);
-    size_.SetSize(bitmap.width(), bitmap.height());
-    row_length_ = static_cast<int>(bitmap.rowBytes());
-    size_t size = row_length_ * size_.height();
-    data_.resize(size);
-    memcpy(&*data_.begin(), bitmap.getAddr(0, 0), size);
+    SetSkBitmap(bitmap);
   }
 
-  const gfx::Size& size() const {
-    return size_;
-  }
-
-  int row_length() const {
-    return row_length_;
-  }
+  int width() const { return width_; }
+  int height() const { return height_; }
+  int row_length() const { return row_length_; }
 
   // Save the image to a png file. Used to create the initial test files.
   void SaveToFile(const std::wstring& filename) {
     std::vector<unsigned char> compressed;
     ASSERT_TRUE(PNGEncoder::Encode(&*data_.begin(),
                                    PNGEncoder::FORMAT_BGRA,
-                                   size_.width(),
-                                   size_.height(),
+                                   width_,
+                                   height_,
                                    row_length_,
                                    true,
                                    &compressed));
@@ -143,14 +135,17 @@ class Image {
   // Returns the percentage of the image that is different from the other,
   // between 0 and 100.
   double PercentageDifferent(const Image& rhs) const {
-    if (size_ != rhs.size_ || row_length_ != rhs.row_length_ ||
-        size_.width() == 0 || size_.height() == 0)
+    if (width_ != rhs.width_ ||
+        height_ != rhs.height_ ||
+        row_length_ != rhs.row_length_ ||
+        width_ == 0 ||
+        height_ == 0) {
       return 100.;  // When of different size or empty, they are 100% different.
-
+    }
     // Compute pixels different in the overlap
     int pixels_different = 0;
-    for (int y = 0; y < size_.height(); ++y) {
-      for (int x = 0; x < size_.width(); ++x) {
+    for (int y = 0; y < height_; ++y) {
+      for (int x = 0; x < width_; ++x) {
         uint32_t lhs_pixel = pixel_at(x, y);
         uint32_t rhs_pixel = rhs.pixel_at(x, y);
         if (lhs_pixel != rhs_pixel)
@@ -160,16 +155,16 @@ class Image {
 
     // Like the WebKit ImageDiff tool, we define percentage different in terms
     // of the size of the 'actual' bitmap.
-    double total_pixels = static_cast<double>(size_.width()) *
-                          static_cast<double>(size_.height());
+    double total_pixels = static_cast<double>(width_) *
+                          static_cast<double>(height_);
     return static_cast<double>(pixels_different) / total_pixels * 100.;
   }
 
   // Returns the 0x0RGB or 0xARGB value of the pixel at the given location,
   // depending on ignore_alpha_.
   uint32 pixel_at(int x, int y) const {
-    EXPECT_TRUE(x >= 0 && x < size_.width());
-    EXPECT_TRUE(y >= 0 && y < size_.height());
+    EXPECT_TRUE(x >= 0 && x < width_);
+    EXPECT_TRUE(y >= 0 && y < height_);
     const uint32* data = reinterpret_cast<const uint32*>(&*data_.begin());
     const uint32* data_row = data + y * row_length_ / sizeof(uint32);
     if (ignore_alpha_)
@@ -178,9 +173,21 @@ class Image {
       return data_row[x];
   }
 
+ protected:
+  void SetSkBitmap(const SkBitmap& bitmap) {
+    SkAutoLockPixels lock(bitmap);
+    width_ = bitmap.width();
+    height_ = bitmap.height();
+    row_length_ = static_cast<int>(bitmap.rowBytes());
+    size_t size = row_length_ * height_;
+    data_.resize(size);
+    memcpy(&*data_.begin(), bitmap.getAddr(0, 0), size);
+  }
+
  private:
   // Pixel dimensions of the image.
-  gfx::Size size_;
+  int width_;
+  int height_;
 
   // Length of a line in bytes.
   int row_length_;
@@ -313,16 +320,13 @@ void Premultiply(SkBitmap bitmap) {
   }
 }
 
-void LoadPngFileToSkBitmap(const std::wstring& file, SkBitmap* bitmap) {
-  std::string compressed;
-  file_util::ReadFileToString(file, &compressed);
+void LoadPngFileToSkBitmap(const std::wstring& filename, SkBitmap* bitmap) {
+  Vector<char> compressed;
+  ReadFileToVector(filename, &compressed);
   EXPECT_TRUE(compressed.size());
-  // Extra-lame. If you care, fix it.
-  std::vector<unsigned char> data;
-  data.assign(reinterpret_cast<const unsigned char*>(compressed.c_str()),
-              reinterpret_cast<const unsigned char*>(compressed.c_str() +
-                  compressed.size()));
-  EXPECT_TRUE(PNGDecoder::Decode(&data, bitmap));
+  WebCore::PNGImageDecoder decoder;
+  decoder.setData(WebCore::SharedBuffer::adoptVector(compressed).get(), true);
+  *bitmap = decoder.frameBufferAtIndex(0)->bitmap();
   EXPECT_FALSE(bitmap->isOpaque());
   Premultiply(*bitmap);
 }
@@ -331,8 +335,8 @@ void LoadPngFileToSkBitmap(const std::wstring& file, SkBitmap* bitmap) {
 
 // Streams an image.
 inline std::ostream& operator<<(std::ostream& out, const Image& image) {
-  return out << "Image(" << image.size().width() << ", "
-             << image.size().height() << ", " << image.row_length() << ")";
+  return out << "Image(" << image.width() << ", "
+             << image.height() << ", " << image.row_length() << ")";
 }
 
 // Runs simultaneously the same drawing commands on VectorCanvas and
@@ -790,11 +794,6 @@ TEST_F(VectorCanvasTest, PathEffects) {
 }
 
 TEST_F(VectorCanvasTest, Bitmaps) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   {
     SkBitmap bitmap;
     LoadPngFileToSkBitmap(test_file(L"bitmap_opaque.png"), &bitmap);
@@ -813,11 +812,6 @@ TEST_F(VectorCanvasTest, Bitmaps) {
 }
 
 TEST_F(VectorCanvasTest, ClippingRect) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   SkBitmap bitmap;
   LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
   SkRect rect;
@@ -834,11 +828,6 @@ TEST_F(VectorCanvasTest, ClippingRect) {
 }
 
 TEST_F(VectorCanvasTest, ClippingPath) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   SkBitmap bitmap;
   LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
   SkPath path;
@@ -852,11 +841,6 @@ TEST_F(VectorCanvasTest, ClippingPath) {
 }
 
 TEST_F(VectorCanvasTest, ClippingCombined) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   SkBitmap bitmap;
   LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
 
@@ -878,11 +862,6 @@ TEST_F(VectorCanvasTest, ClippingCombined) {
 }
 
 TEST_F(VectorCanvasTest, ClippingIntersect) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   SkBitmap bitmap;
   LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
 
@@ -904,11 +883,6 @@ TEST_F(VectorCanvasTest, ClippingIntersect) {
 }
 
 TEST_F(VectorCanvasTest, ClippingClean) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   SkBitmap bitmap;
   LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
   {
@@ -936,11 +910,6 @@ TEST_F(VectorCanvasTest, ClippingClean) {
 }
 
 TEST_F(VectorCanvasTest, Matrix) {
-  // ICM is enabled on VectorCanvas only on Windows 2000 so bitmap-based tests
-  // can't compare the pixels between PlatformCanvas and VectorCanvas. We don't
-  // really care about Windows 2000 pixel colors.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
   SkBitmap bitmap;
   LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
   {
