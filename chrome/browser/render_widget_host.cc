@@ -448,10 +448,7 @@ void RenderWidgetHost::MovePluginWindows(
   }
 
   for (size_t i = 0; i < plugin_window_moves.size(); ++i) {
-    // Don't invalidate now because that would result in cross process calls
-    // that make scrolling slow.  Instead the window is invalidated
-    // asynchronously by the plugin code.
-    unsigned long flags = SWP_NOREDRAW;
+    unsigned long flags = 0;
     const WebPluginGeometry& move = plugin_window_moves[i];
 
     if (move.visible)

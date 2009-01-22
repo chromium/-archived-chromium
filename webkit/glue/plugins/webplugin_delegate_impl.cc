@@ -14,6 +14,7 @@
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
+#include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/plugins/plugin_list.h"
@@ -22,7 +23,6 @@
 
 static StatsCounter windowless_queue("Plugin.ThrottleQueue");
 
-static const wchar_t kNativeWindowClassName[] = L"NativeWindowClass";
 static const wchar_t kWebPluginDelegateProperty[] =
     L"WebPluginDelegateProperty";
 static const wchar_t kPluginNameAtomProperty[] = L"PluginNameAtom";
@@ -791,6 +791,28 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
     // for a plugin to synchronously dispatch a message to itself such that it
     // looks like it's in recursion.
     return TRUE;
+  }
+
+  static UINT custom_msg = RegisterWindowMessage(kPaintMessageName);
+  if (message == custom_msg) {
+    // Get the invalid rect which is in screen coordinates and convert to
+    // window coordinates.
+    gfx::Rect invalid_rect;
+    invalid_rect.set_x(wparam >> 16);
+    invalid_rect.set_y(wparam & 0xFFFF);
+    invalid_rect.set_width(lparam >> 16);
+    invalid_rect.set_height(lparam & 0xFFFF);
+
+    RECT window_rect;
+    GetWindowRect(hwnd, &window_rect);
+    invalid_rect.Offset(-window_rect.left, -window_rect.top);
+
+    // The plugin window might have non-client area.   If we don't pass in
+    // RDW_FRAME then the children don't receive WM_NCPAINT messages while
+    // scrolling, which causes painting problems (http://b/issue?id=923945).
+    RedrawWindow(hwnd, &invalid_rect.ToRECT(), NULL,
+                 RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_FRAME);
+    return FALSE;
   }
 
   current_plugin_instance_ = delegate;

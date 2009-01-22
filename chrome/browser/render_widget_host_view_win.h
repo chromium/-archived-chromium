@@ -209,6 +209,10 @@ class RenderWidgetHostViewWin :
   // invoke it from the message loop.
   void ShutdownHost();
 
+  // Redraws the window synchronously, and any child windows (i.e. plugins)
+  // asynchronously.
+  void Redraw(const gfx::Rect& invalid_rect);
+
   // The associated Model.
   RenderWidgetHost* render_widget_host_;
 

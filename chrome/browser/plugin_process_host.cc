@@ -39,6 +39,7 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "sandbox/src/sandbox.h"
+#include "webkit/glue/plugins/plugin_constants_win.h"
 
 static const char kDefaultPluginFinderURL[] =
     "http://dl.google.com/chrome/plugins/plugins2.xml";
@@ -389,7 +390,7 @@ class CreateWindowTask : public Task {
       wcex.hCursor        = 0;
       wcex.hbrBackground  = reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
       wcex.lpszMenuName   = 0;
-      wcex.lpszClassName  = L"NativeWindowClassWrapper";
+      wcex.lpszClassName  = kWrapperNativeWindowClassName;
       wcex.hIconSm        = 0;
       window_class = RegisterClassEx(&wcex);
     }

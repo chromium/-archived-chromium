@@ -24,6 +24,8 @@
 #include "chrome/common/win_util.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
 #include "chrome/views/widget_win.h"
+#include "webkit/glue/plugins/plugin_constants_win.h"
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
 
 using base::TimeDelta;
@@ -259,22 +261,51 @@ void RenderWidgetHostViewWin::IMEUpdateStatus(ViewHostMsg_ImeControl control,
   }
 }
 
-void RenderWidgetHostViewWin::DidPaintRect(const gfx::Rect& rect) {
-  if (is_hidden_)
-    return;
+BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lparam) {
+  if (!WebPluginDelegateImpl::IsPluginDelegateWindow(hwnd))
+    return TRUE;
 
-  RECT invalid_rect = rect.ToRECT();
+  gfx::Rect* rect = reinterpret_cast<gfx::Rect*>(lparam);
+  static UINT msg = RegisterWindowMessage(kPaintMessageName);
+  WPARAM wparam = rect->x() << 16 | rect->y();
+  lparam = rect->width() << 16 | rect->height();
 
+  // SendMessage gets the message across much quicker than PostMessage, since it
+  // doesn't get queued.  When the plugin thread calls PeekMessage or other
+  // Win32 APIs, sent messages are dispatched automatically.
+  SendNotifyMessage(hwnd, msg, wparam, lparam);
+
+  return TRUE;
+}
+
+void RenderWidgetHostViewWin::Redraw(const gfx::Rect& rect) {
   // Paint the invalid region synchronously.  Our caller will not paint again
   // until we return, so by painting to the screen here, we ensure effective
   // rate-limiting of backing store updates.  This helps a lot on pages that
   // have animations or fairly expensive layout (e.g., google maps).
   //
-  // Please refer to the RenderWidgetHostViewWin::DidScrollRect function for the
-  // reasoning behind the combination of flags passed to RedrawWindow.
+  // We paint this window synchronously, however child windows (i.e. plugins)
+  // are painted asynchronously.  By avoiding synchronous cross-process window
+  // message dispatching we allow scrolling to be smooth, and also avoid the
+  // browser process locking up if the plugin process is hung.
   //
-  RedrawWindow(&invalid_rect, NULL,
-      RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME);
+  RedrawWindow(
+      &rect.ToRECT(), NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOCHILDREN);
+
+  // Send the invalid rect in screen coordinates.
+  gfx::Rect screen_rect = GetViewBounds();
+  gfx::Rect invalid_screen_rect = rect;
+  invalid_screen_rect.Offset(screen_rect.x(), screen_rect.y());
+
+  LPARAM lparam = reinterpret_cast<LPARAM>(&invalid_screen_rect);
+  EnumChildWindows(m_hWnd, EnumChildProc, lparam);
+}
+
+void RenderWidgetHostViewWin::DidPaintRect(const gfx::Rect& rect) {
+  if (is_hidden_)
+    return;
+
+  Redraw(rect);
 }
 
 void RenderWidgetHostViewWin::DidScrollRect(
@@ -291,20 +322,7 @@ void RenderWidgetHostViewWin::DidScrollRect(
 
   RECT invalid_rect = {0};
   GetUpdateRect(&invalid_rect);
-
-  // Paint the invalid region synchronously.  Our caller will not paint again
-  // until we return, so by painting to the screen here, we ensure effective
-  // rate-limiting of backing store updates.  This helps a lot on pages that
-  // have animations or fairly expensive layout (e.g., google maps).
-  //
-  // Our RenderWidgetHostViewWin does not have a non-client area, whereas the
-  // children (plugin windows) may.  If we don't pass in RDW_FRAME then the
-  // children don't receive WM_NCPAINT messages while scrolling, which causes
-  // painting problems (http://b/issue?id=923945).  We need to pass
-  // RDW_INVALIDATE as it is required for RDW_FRAME to work.
-  //
-  RedrawWindow(&invalid_rect, NULL,
-      RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME);
+  Redraw(gfx::Rect(invalid_rect));
 }
 
 void RenderWidgetHostViewWin::RendererGone() {
