@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "base/message_loop.h"
-#include "chrome/browser/renderer_security_policy.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/render_messages.h"
