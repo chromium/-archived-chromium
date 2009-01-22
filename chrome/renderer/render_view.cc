@@ -9,14 +9,12 @@
 #include <vector>
 
 #include "base/command_line.h"
-#include "base/gfx/gdi_util.h"
-#include "base/gfx/native_theme.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
+#include "build/build_config.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/emf.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -24,27 +22,20 @@
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/thumbnail_score.h"
-#include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/renderer/about_handler.h"
-#include "chrome/renderer/chrome_plugin_host.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/renderer_resources.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
-#include "chrome/renderer/webplugin_delegate_proxy.h"
-#include "chrome/views/message_box_view.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/image_operations.h"
-#include "skia/ext/vector_canvas.h"
-#include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/password_form.h"
-#include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
@@ -57,10 +48,28 @@
 #include "webkit/glue/webresponse.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 //#include "webkit/port/platform/graphics/PlatformContextSkia.h"
 
 #include "generated_resources.h"
+
+#if defined(OS_WIN)
+// TODO(port): these files are currently Windows only because they concern:
+//   * plugins
+//   * printing
+//   * theming
+//   * views
+#include "base/gfx/gdi_util.h"
+#include "base/gfx/native_theme.h"
+#include "chrome/common/gfx/emf.h"
+#include "chrome/views/message_box_view.h"
+#include "chrome/common/chrome_plugin_lib.h"
+#include "chrome/renderer/chrome_plugin_host.h"
+#include "chrome/renderer/webplugin_delegate_proxy.h"
+#include "skia/ext/vector_canvas.h"
+#include "webkit/default_plugin/default_plugin_shared.h"
+#include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#endif
 
 using base::TimeDelta;
 
@@ -73,7 +82,7 @@ using base::TimeDelta;
 
 // maximum number of characters in the document to index, any text beyond this
 // point will be clipped
-static const int kMaxIndexChars = 65535;
+static const size_t kMaxIndexChars = 65535;
 
 // Size of the thumbnails that we'll generate
 static const int kThumbnailWidth = 196;
@@ -113,9 +122,9 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
   RenderViewExtraRequestData(int32 pending_page_id,
                              PageTransition::Type transition,
                              const GURL& url)
-      : pending_page_id_(pending_page_id),
-        transition_type(transition),
-        request_committed(false) {
+      : transition_type(transition),
+        request_committed(false),
+        pending_page_id_(pending_page_id) {
   }
 
   // Contains the page_id for this navigation or -1 if there is none yet.
@@ -178,12 +187,17 @@ RenderView::~RenderView() {
     shared_popup_counter_->data--;
 
   resource_dispatcher_->ClearMessageSender();
+#if defined(OS_WIN)
   // Clear any back-pointers that might still be held by plugins.
   PluginDelegateList::iterator it = plugin_delegates_.begin();
   while (it != plugin_delegates_.end()) {
     (*it)->DropRenderView();
     it = plugin_delegates_.erase(it);
   }
+#else
+  // TODO(port): plugins not implemented yet
+  NOTIMPLEMENTED();
+#endif
 
   render_thread_->RemoveFilter(debug_message_handler_);
 
@@ -231,8 +245,16 @@ void RenderView::PluginDestroyed(WebPluginDelegateProxy* proxy) {
   // clicks the info bar to install. Unfortunately we are getting
   // PluginDestroyed in single process mode. However, that is not a huge
   // concern.
+#if defined(OS_WIN)
   if (proxy == first_default_plugin_)
     first_default_plugin_ = NULL;
+#else
+  // TODO(port): because of the headers that we aren't including, the compiler
+  // has only seen a forward decl, not the subclass relation. Thus it doesn't
+  // know that the two pointer types compared above are comparable. Once we
+  // port and include the headers this problem should go away.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::PluginCrashed(const FilePath& plugin_path) {
@@ -403,8 +425,13 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 
 // Got a response from the browser after the renderer decided to create a new
 // view.
-void RenderView::OnCreatingNewAck(HWND parent) {
+void RenderView::OnCreatingNewAck
+#if defined(OS_WIN)
+    (HWND parent) {
   CompleteInit(parent);
+#else
+    () {
+#endif
 
   waiting_for_create_window_ack_ = false;
 
@@ -504,6 +531,7 @@ void RenderView::OnPrintPage(const ViewMsg_PrintPage_Params& params) {
 
 void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
                            WebFrame* frame) {
+#if defined(OS_WIN)
   if (printed_document_width_ <= 0) {
     NOTREACHED();
     return;
@@ -620,6 +648,10 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
                                             &page_params.emf_data_handle))) {
     Send(new ViewHostMsg_DidPrintPage(routing_id_, page_params));
   }
+#else  // defined(OS_WIN)
+  // TODO(port) implement printing
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::OnGetPrintedPagesCount(const ViewMsg_Print_Params& params) {
@@ -1139,10 +1171,15 @@ void RenderView::UpdateURL(WebFrame* frame) {
   if (extra_data)
     extra_data->transition_type = PageTransition::LINK;  // Just clear it.
 
+#if defined(OS_WIN)
   if (glue_accessibility_.get()) {
     // Clear accessibility info cache. 
     glue_accessibility_->ClearIAccessibleMap(-1, true);
   }
+#else
+  // TODO(port): accessibility not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 // Tell the embedding application that the title of the active page has changed
@@ -1611,6 +1648,30 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
   return disposition;
 }
 
+#if defined(OS_POSIX)
+// TODO(port): remove this massive hack
+// WARNING: massive hack. We can't include message_box_view.h because that
+// tries to pull in the rest of views. So we just define a fake MessageBoxView
+// here with the constants that we require.
+
+class MessageBoxView {
+ public:
+  static const int kFlagHasOKButton = 0x1;
+  static const int kFlagHasCancelButton = 0x2;
+  static const int kFlagHasPromptField = 0x4;
+  static const int kFlagHasMessage = 0x8;
+
+  static const int kIsConfirmMessageBox = kFlagHasMessage |
+                                          kFlagHasOKButton |
+                                          kFlagHasCancelButton;
+  static const int kIsJavascriptAlert = kFlagHasOKButton | kFlagHasMessage;
+  static const int kIsJavascriptConfirm = kIsJavascriptAlert |
+                                          kFlagHasCancelButton;
+  static const int kIsJavascriptPrompt = kIsJavascriptConfirm |
+                                         kFlagHasPromptField;
+};
+#endif
+
 void RenderView::RunJavaScriptAlert(WebView* webview,
                                     const std::wstring& message) {
   RunJavaScriptMessage(MessageBoxView::kIsJavascriptAlert,
@@ -1792,19 +1853,33 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
   popup_notification_visible_ = true;
 
   int32 routing_id = MSG_ROUTING_NONE;
+
+#if defined(OS_WIN)
   HANDLE modal_dialog_event = NULL;
-  bool result = render_thread_->Send(
+  render_thread_->Send(
       new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id,
                                    &modal_dialog_event));
   if (routing_id == MSG_ROUTING_NONE) {
     DCHECK(modal_dialog_event == NULL);
     return NULL;
   }
+#else  // defined(OS_WIN)
+  // On POSIX we don't have a HANDLE parameter as we don't have cross process
+  // events. All platforms should be ported across to this at some point.
+  render_thread_->Send(
+      new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id));
+  if (routing_id == MSG_ROUTING_NONE)
+    return NULL;
+#endif
 
   // The WebView holds a reference to this new RenderView
   const WebPreferences& prefs = webview->GetPreferences();
-  base::WaitableEvent* waitable_event =
-      new base::WaitableEvent(modal_dialog_event);
+  base::WaitableEvent* waitable_event = new base::WaitableEvent
+#if defined(OS_WIN)
+      (modal_dialog_event);
+#else
+      (true, false);
+#endif
   RenderView* view = RenderView::Create(render_thread_,
                                         NULL, waitable_event, routing_id_,
                                         prefs, shared_popup_counter_,
@@ -1827,6 +1902,10 @@ WebWidget* RenderView::CreatePopupWidget(WebView* webview,
   return widget->webwidget();
 }
 
+#if defined(OS_WIN)
+// TODO(port): This is only used on Windows since the plugin code is #ifdefed
+// out for other platforms currently
+
 static bool ShouldLoadPluginInProcess(const std::string& mime_type,
                                       bool* is_gears) {
   if (RenderProcess::ShouldLoadPluginsInProcess())
@@ -1840,6 +1919,7 @@ static bool ShouldLoadPluginInProcess(const std::string& mime_type,
 
   return false;
 }
+#endif
 
 WebPluginDelegate* RenderView::CreatePluginDelegate(
     WebView* webview,
@@ -1847,6 +1927,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
+#if defined(OS_WIN)
   bool is_gears = false;
   if (ShouldLoadPluginInProcess(mime_type, &is_gears)) {
     FilePath path;
@@ -1878,6 +1959,11 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   plugin_delegates_.push_back(proxy);
 
   return proxy;
+#else
+    // TODO(port): Plugins currently not supported
+    NOTIMPLEMENTED();
+    return NULL;
+#endif
 }
 
 webkit_glue::WebMediaPlayerDelegate* RenderView::CreateMediaPlayerDelegate() {
@@ -1886,6 +1972,7 @@ webkit_glue::WebMediaPlayerDelegate* RenderView::CreateMediaPlayerDelegate() {
 
 void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,
                                        int status) {
+#if defined(OS_WIN)
   if (first_default_plugin_ == NULL) {
     // Show the InfoBar for the first available plugin.
     if (status == default_plugin::MISSING_PLUGIN_AVAILABLE) {
@@ -1899,6 +1986,10 @@ void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,
       Send(new ViewHostMsg_MissingPluginStatus(routing_id_, status));
     }
   }
+#else
+  // TODO(port): plugins current not supported
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::OpenURL(WebView* webview, const GURL& url,
@@ -2257,6 +2348,7 @@ void RenderView::SetInputMethodState(bool enabled) {
 }
 
 void RenderView::ScriptedPrint(WebFrame* frame) {
+#if defined(OS_WIN)
   // Retrieve the default print settings to calculate the expected number of
   // pages.
   ViewMsg_Print_Params default_settings;
@@ -2307,6 +2399,10 @@ void RenderView::ScriptedPrint(WebFrame* frame) {
     NOTREACHED();
   }
   // TODO(maruel):  bug 1123882 Alert the user that printing failed.
+#else  // defined(OS_WIN)
+  // TODO(port): print not implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::WebInspectorOpened(int num_resources) {
@@ -2434,6 +2530,7 @@ void RenderView::OnAddMessageToConsole(const std::wstring& frame_xpath,
   web_frame->AddMessageToConsole(msg, level);
 }
 
+#if defined(OS_WIN)
 void RenderView::OnDebugAttach() {
   Send(new ViewHostMsg_DidDebugAttach(routing_id_));
   // Tell the plugin host to stop accepting messages in order to avoid
@@ -2447,6 +2544,11 @@ void RenderView::OnDebugDetach() {
   // Tell the plugin host to start accepting plugin messages again.
   PluginChannelHost::SetListening(true);
 }
+#else  // defined(OS_WIN)
+// TODO(port): plugins not yet supported
+void RenderView::OnDebugAttach() { NOTIMPLEMENTED(); }
+void RenderView::OnDebugDetach() { NOTIMPLEMENTED(); }
+#endif
 
 void RenderView::OnAllowDomAutomationBindings(bool allow_bindings) {
   enable_dom_automation_ = allow_bindings;
@@ -2563,18 +2665,28 @@ void RenderView::OnSetAltErrorPageURL(const GURL& url) {
 }
 
 void RenderView::DidPaint() {
+#if defined(OS_WIN)
   PluginDelegateList::iterator it = plugin_delegates_.begin();
   while (it != plugin_delegates_.end()) {
     (*it)->FlushGeometryUpdates();
     ++it;
   }
+#else  // defined(OS_WIN)
+  // TODO(port): plugins not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::OnInstallMissingPlugin() {
+#if defined(OS_WIN)
   // This could happen when the first default plugin is deleted.
   if (first_default_plugin_ == NULL)
     return;
   first_default_plugin_->InstallMissingPlugin();
+#else  // defined(OS_WIN)
+  // TODO(port): plugins not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::OnFileChooserResponse(
@@ -2602,7 +2714,7 @@ void RenderView::OnUpdateBackForwardListCount(int back_list_count,
 void RenderView::OnGetAccessibilityInfo(
     const ViewMsg_Accessibility_In_Params& in_params,
     ViewHostMsg_Accessibility_Out_Params* out_params) {
-
+#if defined(OS_WIN)
   if (!glue_accessibility_.get())
     glue_accessibility_.reset(new GlueAccessibility());
 
@@ -2610,9 +2722,14 @@ void RenderView::OnGetAccessibilityInfo(
        GetAccessibilityInfo(webview(), in_params, out_params)) {
     return;
   }
+#else  // defined(OS_WIN)
+  // TODO(port): accessibility not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::OnClearAccessibilityInfo(int iaccessible_id, bool clear_all) {
+#if defined(OS_WIN)
   if (!glue_accessibility_.get()) {
     // If accessibility is not activated, ignore clearing message.
     return;
@@ -2620,6 +2737,10 @@ void RenderView::OnClearAccessibilityInfo(int iaccessible_id, bool clear_all) {
 
   if (!glue_accessibility_->ClearIAccessibleMap(iaccessible_id, clear_all))
     return;
+#else  // defined(OS_WIN)
+  // TODO(port): accessibility not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderView::OnGetAllSavableResourceLinksForCurrentPage(
@@ -2692,9 +2813,14 @@ void RenderView::OnClosePage(int new_render_process_host_id,
 }
 
 void RenderView::OnThemeChanged() {
+#if defined(OS_WIN)
   gfx::NativeTheme::instance()->CloseHandles();
   gfx::Rect view_rect(0, 0, size_.width(), size_.height());
   DidInvalidateRect(webwidget_, view_rect);
+#else  // defined(OS_WIN)
+  // TODO(port): we don't support theming on non-Windows platforms yet
+  NOTIMPLEMENTED();
+#endif
 }
 
 #ifdef CHROME_PERSONALIZATION

@@ -99,7 +99,7 @@ class WebRequest {
   // It is preferred to call this instead of GetHttpHeaderValue, because the
   // way referrers are stored may change in the future.
   //
-  virtual std::wstring GetHttpReferrer() const = 0;
+  virtual std::string GetHttpReferrer() const = 0;
 
   // Get/set the opaque history state (used for back/forward navigations).
   virtual std::string GetHistoryState() const = 0;

@@ -58,13 +58,16 @@ IPC_BEGIN_MESSAGES(View, 1)
                        FilePath /* plugin_path of plugin */,
                        std::vector<uint8> /* opaque data */)
 
-#if defined(OS_WIN)
   // Reply in response to ViewHostMsg_ShowView or ViewHostMsg_ShowWidget.
   // similar to the new command, but used when the renderer created a view
   // first, and we need to update it
+#if defined(OS_WIN)
   IPC_MESSAGE_ROUTED1(ViewMsg_CreatingNew_ACK,
                       HWND /* parent_hwnd */)
-#endif  // defined(OS_WIN)
+#else  // defined(OS_WIN)
+  // On POSIX, we don't pass "window handles" between processes.
+  IPC_MESSAGE_ROUTED0(ViewMsg_CreatingNew_ACK)
+#endif
 
   // Tells the render view to close.
   IPC_MESSAGE_ROUTED0(ViewMsg_Close)
@@ -502,7 +505,15 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               bool /* user_gesture */,
                               int /* route_id */,
                               HANDLE /* modal_dialog_event */)
-#endif  // defined(OS_WIN)
+#else  // defined(OS_WIN)
+  // On POSIX, we don't use the cross process events for modal dialogs. At some
+  // point, we won't use them on any platform, but for now we just define a
+  // message without the last parameter.
+  IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_CreateWindow,
+                              int /* opener_id */,
+                              bool /* user_gesture */,
+                              int /* route_id */)
+#endif
 
   // Similar to ViewHostMsg_CreateView, except used for sub-widgets, like
   // <select> dropdowns.  This message is sent to the WebContents that

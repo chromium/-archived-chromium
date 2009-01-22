@@ -396,7 +396,11 @@ class RenderView : public RenderWidget,
   void GoToEntryAtOffset(int offset);
 
   // RenderView IPC message handlers
+#if defined(OS_WIN)
   void OnCreatingNewAck(HWND parent);
+#else
+  void OnCreatingNewAck();
+#endif
   void SendThumbnail();
   void OnPrintPage(const ViewMsg_PrintPage_Params& params);
   void OnGetPrintedPagesCount(const ViewMsg_Print_Params& params);

@@ -39,7 +39,7 @@ class WebRequestImpl : public WebRequest {
       const std::string& value);
   virtual void GetHttpHeaders(HeaderMap* headers) const;
   virtual void SetHttpHeaders(const HeaderMap& headers);
-  virtual std::wstring GetHttpReferrer() const;
+  virtual std::string GetHttpReferrer() const;
   virtual std::string GetHistoryState() const;
   virtual void SetHistoryState(const std::string& value);
   virtual std::string GetSecurityInfo() const;

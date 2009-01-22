@@ -129,8 +129,8 @@ void WebRequestImpl::SetHttpHeaders(const HeaderMap& headers) {
   }
 }
 
-std::wstring WebRequestImpl::GetHttpReferrer() const {
-  return webkit_glue::StringToStdWString(
+std::string WebRequestImpl::GetHttpReferrer() const {
+  return webkit_glue::StringToStdString(
       request_.resourceRequest().httpReferrer());
 }
 
