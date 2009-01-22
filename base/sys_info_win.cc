@@ -105,7 +105,7 @@ size_t SysInfo::VMAllocationGranularity() {
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
 
-  return info.dwAllocationGranularity;
+  return sysinfo.dwAllocationGranularity;
 }
 
 }  // namespace base
