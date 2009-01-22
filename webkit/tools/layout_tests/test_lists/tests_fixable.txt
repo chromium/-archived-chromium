@@ -1485,7 +1485,7 @@ MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRA
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/fast/history/history_reload.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT FAIL
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
 
@@ -1532,6 +1532,7 @@ MAC : LayoutTests/svg/hixie/perf/007.xml = FAIL PASS
 
 // To be figured out, probably timing due to the dual status
 MAC : LayoutTests/animations/combo-transform-translate+scale.html = PASS FAIL
+MAC : LayoutTests/animations/change-one-anim.html = FAIL PASS
 
 // All of these svg tests seem to be hit or miss on the mac.  the issue is they
 // seem not always take the dom snapshot at a consistent state, so some times
@@ -1552,7 +1553,9 @@ MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-15-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-16-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-19-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-22-b.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-32-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL PASS
@@ -1563,6 +1566,12 @@ MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
+MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-85-t.svg = FAIL PASS
+
+// These may be similar timing issue as above.
+MAC : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
+MAC : LayoutTests/transitions/shorthand-border-transitions.html = FAIL PASS
+MAC : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 
 // The following are flaky in that some times the timeout or crash, but we think
 // it is because of bugs in other parts of the code and not specific to what
@@ -1572,11 +1581,11 @@ MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 // the file, but they were left there as the comments in those areas are valid.)
 MAC : LayoutTests/animations/animation-end-event-destroy-renderer.html = TIMEOUT PASS
 MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT FAIL
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS TIMEOUT
 MAC : chrome/http/tests/misc/set-window-opener-to-null.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH
+MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH TIMEOUT
@@ -1599,6 +1608,9 @@ MAC : LayoutTests/http/tests/xmlhttprequest/referer.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/misc/BOM-override-script.html = PASS TIMEOUT
 MAC : LayoutTests/fast/borders/border-image-omit-right-slice.html = CRASH PASS
 MAC : LayoutTests/editing/execCommand/paste-2.html = FAIL PASS
+MAC : LayoutTests/fast/borders/border-image-01.html = CRASH PASS
+MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH PASS
+MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
 MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH FAIL PASS
@@ -1832,7 +1844,7 @@ LINUX WIN : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
 // Merge 39953:39972 -- the test actually passes, but test_shell appears to eat
 // first few chars. See http://crbug.com/6518
-LayoutTests/fast/dom/css-selectorText.html = FAIL
+LINUX WIN : LayoutTests/fast/dom/css-selectorText.html = FAIL
 
 // Passes locally but Text diff fails on the buildbots
 LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
@@ -1848,9 +1860,6 @@ LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL PASS
 
 // Merge 40059:40086 -- regressions
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS TIMEOUT
-MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
-MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = FAIL
-MAC : LayoutTests/fast/canvas/gradient-with-clip.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-10-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-15-t.svg = FAIL
