@@ -235,7 +235,7 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
     // We might have multiple test_shell processes going at once
     FilePath log_filename;
     PathService::Get(base::DIR_EXE, &log_filename);
-    log_filename = log_filename.Append(FILE_PATH_LITERAL("test_shell.log"));
+    log_filename = log_filename.AppendASCII("test_shell.log");
     logging::InitLogging(log_filename.value().c_str(),
                          destination,
                          logging::LOCK_LOG_FILE,

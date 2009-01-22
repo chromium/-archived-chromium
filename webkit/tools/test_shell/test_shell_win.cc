@@ -120,10 +120,10 @@ bool MinidumpCallback(const wchar_t *dumpPath,
 FilePath GetResourcesFilePath() {
   FilePath path;
   PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  path = path.Append(FILE_PATH_LITERAL("webkit"));
-  path = path.Append(FILE_PATH_LITERAL("tools"));
-  path = path.Append(FILE_PATH_LITERAL("test_shell"));
-  return path.Append(FILE_PATH_LITERAL("resources"));
+  path = path.AppendASCII("webkit");
+  path = path.AppendASCII("tools");
+  path = path.AppendASCII("test_shell");
+  return path.AppendASCII("resources");
 }
 
 StringPiece GetRawDataResource(HMODULE module, int resource_id) {
@@ -743,7 +743,7 @@ std::string GetDataResource(int resource_id) {
     static std::string broken_image_data;
     if (broken_image_data.empty()) {
       FilePath path = GetResourcesFilePath();
-      path = path.Append(FILE_PATH_LITERAL("missingImage.gif"));
+      path = path.AppendASCII("missingImage.gif");
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &broken_image_data);
       if (!success) {
@@ -763,7 +763,7 @@ std::string GetDataResource(int resource_id) {
     static std::string resize_corner_data;
     if (resize_corner_data.empty()) {
       FilePath path = GetResourcesFilePath();
-      path = path.Append(FILE_PATH_LITERAL("textAreaResizeCorner.png"));
+      path = path.AppendASCII("textAreaResizeCorner.png");
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &resize_corner_data);
       if (!success) {

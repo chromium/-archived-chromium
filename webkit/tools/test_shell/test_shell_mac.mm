@@ -76,14 +76,14 @@ FilePath GetResourcesFilePath() {
   // We need to know if we're bundled or not to know which path to use.
   if (mac_util::AmIBundled()) {
     PathService::Get(base::DIR_EXE, &path);
-    path = path.Append(FILE_PATH_LITERAL(FilePath::kParentDirectory));
-    return path.Append(FILE_PATH_LITERAL("Resources"));
+    path = path.Append(FilePath::kParentDirectory);
+    return path.AppendASCII("Resources");
   } else {
     PathService::Get(base::DIR_SOURCE_ROOT, &path);
-    path = path.Append(FILE_PATH_LITERAL("webkit"));
-    path = path.Append(FILE_PATH_LITERAL("tools"));
-    path = path.Append(FILE_PATH_LITERAL("test_shell"));
-    return path.Append(FILE_PATH_LITERAL("resources"));
+    path = path.AppendASCII("webkit");
+    path = path.AppendASCII("tools");
+    path = path.AppendASCII("test_shell");
+    return path.AppendASCII("resources");
   }
 }
 
@@ -909,7 +909,7 @@ std::string GetDataResource(int resource_id) {
       // In order to match WebKit's colors for the missing image, we have to
       // use a PNG. The GIF doesn't have the color range needed to correctly
       // match the TIFF they use in Safari.
-      path = path.Append(FILE_PATH_LITERAL("missingImage.png"));
+      path = path.AppendASCII("missingImage.png");
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &broken_image_data);
       if (!success) {
@@ -929,7 +929,7 @@ std::string GetDataResource(int resource_id) {
     static std::string resize_corner_data;
     if (resize_corner_data.empty()) {
       FilePath path = GetResourcesFilePath();
-      path = path.Append(FILE_PATH_LITERAL("textAreaResizeCorner.png"));
+      path = path.AppendASCII("textAreaResizeCorner.png");
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &resize_corner_data);
       if (!success) {
