@@ -211,7 +211,7 @@ class SpellChecker::DictionaryDownloadController
       : spellchecker_flag_set_task_(spellchecker_flag_set_task),
         url_request_context_(url_request_context),
         download_server_url_(
-            L"http://cache.pack.google.com/chrome/dict/"),
+            L"http://cache.pack.google.com/edgedl/chrome/dict/"),
         ui_loop_(ui_loop) {
     // Determine dictionary file path and name.
     fetcher_.reset(NULL);
