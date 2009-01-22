@@ -1822,11 +1822,6 @@ LINUX : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
 // Text stroke partially missing.
 LINUX : LayoutTests/svg/custom/struct-use-09-b.svg = FAIL
 
-// This test passes but the expected results are wrong.  The layout test
-// got updated but the new expected results were committed later in
-// Changeset 39974. Once we merge change in, this test will pass.
-LayoutTests/transforms/2d/cssmatrix-interface.xhtml = FAIL
-
 // Merge 39913:39933 - regressions
 // See http://crbug.com/6482
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
