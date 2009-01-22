@@ -29,8 +29,8 @@
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
-#include "chrome/browser/render_widget_helper.h"
-#include "chrome/browser/renderer_security_policy.h"
+#include "chrome/browser/renderer_host/render_widget_helper.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/resource_message_filter.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
@@ -48,7 +48,7 @@
 
 #if defined(OS_WIN)
 // TODO(port): see comment by the only usage of RenderViewHost in this file.
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 
 // Once the above TODO is finished, then this block is all Windows-specific
 // files.

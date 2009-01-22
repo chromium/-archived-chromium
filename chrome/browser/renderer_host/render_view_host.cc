@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 
 #include <string>
 #include <vector>
@@ -14,12 +14,12 @@
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/metrics/user_metrics.h"
-#include "chrome/browser/render_widget_host.h"
-#include "chrome/browser/render_widget_host_view.h"
-#include "chrome/browser/render_view_host_delegate.h"
-#include "chrome/browser/renderer_security_policy.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/web_contents.h"

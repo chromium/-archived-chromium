@@ -9,8 +9,8 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/render_view_host_delegate.h"
-#include "chrome/browser/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/page_zoom.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"

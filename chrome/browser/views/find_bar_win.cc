@@ -7,7 +7,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/find_notification_details.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/find_bar_view.h"

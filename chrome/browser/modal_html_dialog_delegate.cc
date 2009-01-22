@@ -5,7 +5,7 @@
 #include "chrome/browser/modal_html_dialog_delegate.h"
 
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 
 ModalHtmlDialogDelegate::ModalHtmlDialogDelegate(
     const GURL& url, int width, int height, const std::string& json_arguments,

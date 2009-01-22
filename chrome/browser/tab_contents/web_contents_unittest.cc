@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
-#include "chrome/browser/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -887,8 +887,6 @@ TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
 }
 
-// TODO(brettw) fix this test.
-#if 0
 // Test navigating to a page that shows an interstitial, then close the tab.
 TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
   // Show interstitial.
@@ -904,10 +902,10 @@ TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
 
   // Now close the tab.
   contents()->CloseContents();
+  ContentsCleanedUp();
   EXPECT_TRUE(deleted);
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
 }
-#endif
 
 // Test that after Proceed is called and an interstitial is still shown, no more
 // commands get executed.

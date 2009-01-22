@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "chrome/browser/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 

@@ -73,8 +73,10 @@ void RenderViewHostTestHarness::SetUp() {
 }
 
 void RenderViewHostTestHarness::TearDown() {
-  contents_->CloseContents();
-  contents_ = NULL;
+  if (contents_) {
+    contents_->CloseContents();
+    contents_ = NULL;
+  }
   controller_ = NULL;
 
   // Make sure that we flush any messages related to WebContents destruction

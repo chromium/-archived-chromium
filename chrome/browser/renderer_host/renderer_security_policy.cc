@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/renderer_security_policy.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"

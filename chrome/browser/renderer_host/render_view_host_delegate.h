@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_VIEW_HOST_DELEGATE_H__
-#define CHROME_BROWSER_RENDER_VIEW_HOST_DELEGATE_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_DELEGATE_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_DELEGATE_H_
 
 #include <string>
 #include <vector>
@@ -392,5 +392,5 @@ class RenderViewHostDelegate {
   virtual bool CanTerminate() const { return true; }
 };
 
-#endif  // CHROME_BROWSER_RENDER_VIEW_HOST_DELEGATE_H__
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_DELEGATE_H_
 

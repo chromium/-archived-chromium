@@ -28,8 +28,8 @@
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
-#include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_widget_host_view_win.h"  // TODO(brettw) delete me.
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view_win.h"  // TODO(brettw) delete me.
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

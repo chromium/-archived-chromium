@@ -5,7 +5,7 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "chrome/browser/renderer_security_policy.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_test_job.h"
 #include "testing/gtest/include/gtest/gtest.h"

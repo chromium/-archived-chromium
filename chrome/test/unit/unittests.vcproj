@@ -575,7 +575,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\renderer_security_policy_unittest.cc"
+				RelativePath="..\..\browser\renderer_host\renderer_security_policy_unittest.cc"
 				>
 			</File>
 			<File

@@ -8,7 +8,7 @@
 
 #include "chrome/browser/tab_contents/web_drag_source.h"
 
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 
 namespace {
 

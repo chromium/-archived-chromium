@@ -17,7 +17,7 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/browser/download/save_item.h"
 #include "chrome/browser/download/save_types.h"
-#include "chrome/browser/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 
 class SaveFileManager;
 class SavePackage;

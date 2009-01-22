@@ -7,9 +7,9 @@
 #include "chrome/browser/views/tab_contents_container_view.h"
 
 #include "base/logging.h"
-#include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_view_host_manager.h"
-#include "chrome/browser/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/view_ids.h"

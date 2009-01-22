@@ -21,7 +21,7 @@
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/login_prompt.h"
 #include "chrome/browser/printing/print_job.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

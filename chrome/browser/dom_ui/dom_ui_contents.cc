@@ -6,7 +6,7 @@
 
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/resource_bundle.h"
 

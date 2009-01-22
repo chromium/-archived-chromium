@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDERER_SECURITY_POLICY_H__
-#define CHROME_BROWSER_RENDERER_SECURITY_POLICY_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_
 
 #include <string>
 #include <map>
@@ -115,8 +115,8 @@ class RendererSecurityPolicy {
   // not escape this class.
   SecurityStateMap security_state_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RendererSecurityPolicy);
+  DISALLOW_COPY_AND_ASSIGN(RendererSecurityPolicy);
 };
 
-#endif  // CHROME_BROWSER_RENDERER_SECURITY_POLICY_H__
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_
 

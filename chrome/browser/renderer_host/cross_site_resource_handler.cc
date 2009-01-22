@@ -4,7 +4,7 @@
 
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 

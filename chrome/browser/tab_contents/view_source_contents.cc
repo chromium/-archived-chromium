@@ -4,8 +4,8 @@
 
 #include "chrome/browser/tab_contents/view_source_contents.h"
 
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/render_view_host.h"
 
 ViewSourceContents::ViewSourceContents(Profile* profile, SiteInstance* instance)
     : WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL) {

@@ -9,7 +9,7 @@
 
 #include "base/clipboard_util.h"
 #include "base/gfx/point.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/os_exchange_data.h"
 #include "googleurl/src/gurl.h"

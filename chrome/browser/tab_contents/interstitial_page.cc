@@ -8,7 +8,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_resources.h"
 #include "chrome/browser/dom_operation_notification_details.h"
-#include "chrome/browser/render_widget_host_view_win.h"
+#include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"

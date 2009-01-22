@@ -15,7 +15,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
-#include "chrome/browser/render_widget_helper.h"
+#include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"

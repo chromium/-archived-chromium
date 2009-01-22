@@ -9,9 +9,9 @@
 #include "base/message_loop.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
-#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
-#include "chrome/browser/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -181,6 +181,12 @@ class RenderViewHostTestHarness : public testing::Test {
 
   Profile* profile() {
     return profile_.get();
+  }
+
+  // Marks the contents as already cleaned up. If a test calls CloseContents,
+  // then our cleanup code shouldn't run. This function makes sure that happens.
+  void ContentsCleanedUp() {
+    contents_ = NULL;
   }
 
  protected:

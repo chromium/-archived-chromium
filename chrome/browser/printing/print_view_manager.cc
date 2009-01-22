@@ -9,7 +9,7 @@
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printer_query.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/emf.h"

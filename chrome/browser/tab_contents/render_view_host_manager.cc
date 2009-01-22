@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/render_view_host_manager.h"
+#include "chrome/browser/tab_contents/render_view_host_manager.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "chrome/browser/render_widget_host_view.h"
-#include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"

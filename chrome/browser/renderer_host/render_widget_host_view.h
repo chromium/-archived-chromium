@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H_
-#define CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H_
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
 
 #include <windows.h>
 
@@ -117,5 +117,5 @@ class RenderWidgetHostView {
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H_
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_VIEW_CONTEXT_MENU_H__
-#define CHROME_BROWSER_RENDER_VIEW_CONTEXT_MENU_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
 
 #include "chrome/views/menu.h"
 #include "webkit/glue/context_node_types.h"
@@ -37,8 +37,8 @@ class RenderViewContextMenu : public Menu {
   Profile* profile_;
   Menu* spellchecker_sub_menu_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderViewContextMenu);
+  DISALLOW_COPY_AND_ASSIGN(RenderViewContextMenu);
 };
 
-#endif  // CHROME_BROWSER_RENDER_VIEW_CONTEXT_MENU_H__
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
 

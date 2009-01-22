@@ -4,7 +4,7 @@
 
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
 
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 
 const char kGearsScheme[] = "gears";
 

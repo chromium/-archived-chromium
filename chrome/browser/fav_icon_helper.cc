@@ -6,7 +6,7 @@
 
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"

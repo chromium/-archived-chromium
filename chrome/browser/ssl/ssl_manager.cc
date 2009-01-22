@@ -10,7 +10,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/resource_request_details.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/ssl/ssl_policy.h"

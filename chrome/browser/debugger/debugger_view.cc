@@ -15,7 +15,7 @@
 #include "chrome/browser/debugger/debugger_view.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
-#include "chrome/browser/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/standard_layout.h"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/render_widget_helper.h"
+#include "chrome/browser/renderer_host/render_widget_helper.h"
 
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"

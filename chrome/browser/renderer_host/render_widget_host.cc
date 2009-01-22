@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
 
 #include "base/gfx/gdi_util.h"
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/render_widget_helper.h"
-#include "chrome/browser/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/renderer_host/render_widget_helper.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/mru_cache.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"

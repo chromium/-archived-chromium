@@ -6,7 +6,7 @@
 
 #include "chrome/browser/browser_accessibility.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
 
 // The time in ms after which we give up and return an error when processing an
 // accessibility message and no response has been received from the renderer.

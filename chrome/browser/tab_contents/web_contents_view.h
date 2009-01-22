@@ -13,7 +13,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
-#include "chrome/browser/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 
 class Browser;
 class RenderViewHost;

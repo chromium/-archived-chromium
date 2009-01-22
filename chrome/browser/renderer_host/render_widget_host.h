@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_H_
-#define CHROME_BROWSER_RENDER_WIDGET_HOST_H_
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
 
 #include <windows.h>
 
@@ -355,7 +355,7 @@ class RenderWidgetHost::BackingStore {
   // Handle to the original bitmap in the dc.
   HANDLE original_bitmap_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BackingStore);
+  DISALLOW_COPY_AND_ASSIGN(BackingStore);
 };
 
 class RenderWidgetHost::PaintObserver {
@@ -366,4 +366,4 @@ class RenderWidgetHost::PaintObserver {
   virtual void RenderWidgetHostDidPaint(RenderWidgetHost* rwh) = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_H_
+#endif  // #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_

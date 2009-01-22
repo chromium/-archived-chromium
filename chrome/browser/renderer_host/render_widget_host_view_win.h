@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_
-#define CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_WIN_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_WIN_H_
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -16,7 +16,7 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "chrome/browser/ime_input.h"
-#include "chrome/browser/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/views/focus_manager.h"
 
@@ -279,5 +279,5 @@ class RenderWidgetHostViewWin :
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostViewWin);
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_WIN_H_
 

@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HELPER_H__
-#define CHROME_BROWSER_RENDER_WIDGET_HELPER_H__
+#ifndef CHROME_BROWSER_RENDEDER_HOST_RENDER_WIDGET_HELPER_H_
+#define CHROME_BROWSER_RENDEDER_HOST_RENDER_WIDGET_HELPER_H_
 
 #include "base/atomic_sequence_num.h"
 #include "base/hash_tables.h"
@@ -153,7 +153,7 @@ class RenderWidgetHelper :
   // Whether popup blocking is enabled or not.
   bool block_popups_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHelper);
+  DISALLOW_COPY_AND_ASSIGN(RenderWidgetHelper);
 };
 
-#endif  // CHROME_BROWSER_RENDER_WIDGET_HELPER_H__
+#endif  // CHROME_BROWSER_RENDEDER_HOST_RENDER_WIDGET_HELPER_H_

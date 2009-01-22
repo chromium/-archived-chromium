@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
 
 #include "base/gfx/rect.h"
-#include "chrome/browser/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/views/widget_win.h"
 

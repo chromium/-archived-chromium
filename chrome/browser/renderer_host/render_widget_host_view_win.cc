@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/render_widget_host_view_win.h"
+#include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 
 #include "base/command_line.h"
 #include "base/gfx/gdi_util.h"
@@ -15,8 +15,8 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 // TODO(beng): (Cleanup) we should not need to include this file... see comment
 //             in |DidBecomeSelected|.
-#include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"

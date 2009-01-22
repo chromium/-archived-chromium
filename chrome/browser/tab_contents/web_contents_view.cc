@@ -4,7 +4,7 @@
 
 #include "chrome/browser/tab_contents/web_contents_view.h"
 
-#include "chrome/browser/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
 
 void WebContentsView::RenderWidgetHostDestroyed(RenderWidgetHost* host) {
   for (PendingWidgetViews::iterator i = pending_widget_views_.begin();
