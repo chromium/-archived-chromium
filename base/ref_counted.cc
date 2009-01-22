@@ -5,6 +5,7 @@
 #include "base/ref_counted.h"
 
 #include "base/logging.h"
+#include "base/thread_collision_warner.h"
 
 namespace base {
 
@@ -23,6 +24,9 @@ RefCountedBase::~RefCountedBase() {
 }
 
 void RefCountedBase::AddRef() {
+  // TODO(maruel): Add back once it doesn't assert 500 times/sec.
+  // Current thread books the critical section "AddRelease" without release it.
+  // DFAKE_SCOPED_LOCK_THREAD_LOCKED(add_release_);
 #ifndef NDEBUG
   DCHECK(!in_dtor_);
 #endif
@@ -30,6 +34,9 @@ void RefCountedBase::AddRef() {
 }
 
 bool RefCountedBase::Release() {
+  // TODO(maruel): Add back once it doesn't assert 500 times/sec.
+  // Current thread books the critical section "AddRelease" without release it.
+  // DFAKE_SCOPED_LOCK_THREAD_LOCKED(add_release_);
 #ifndef NDEBUG
   DCHECK(!in_dtor_);
 #endif

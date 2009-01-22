@@ -7,6 +7,7 @@
 
 #include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
+#include "base/thread_collision_warner.h"
 
 namespace base {
 
@@ -27,6 +28,8 @@ class RefCountedBase {
 #ifndef NDEBUG
   bool in_dtor_;
 #endif
+
+  DFAKE_MUTEX(add_release_);
 
   DISALLOW_COPY_AND_ASSIGN(RefCountedBase);
 };
