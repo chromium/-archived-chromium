@@ -539,5 +539,13 @@ bool ElideString(const std::wstring& input, int max_len, std::wstring* output);
 bool MatchPattern(const std::wstring& string, const std::wstring& pattern);
 bool MatchPattern(const std::string& string, const std::string& pattern);
 
-#endif  // BASE_STRING_UTIL_H_
+// Returns a hex string representation of a binary buffer.
+// The returned hex string will be in upper case.
+// This function does not check if |size| is within reasonable limits since
+// it's written with trusted data in mind.
+// If you suspect that the data you want to format might be large,
+// the absolute max size for |size| should be is
+//   std::numeric_limits<size_t>::max() / 2
+std::string HexEncode(const void* bytes, size_t size);
 
+#endif  // BASE_STRING_UTIL_H_

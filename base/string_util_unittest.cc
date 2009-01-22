@@ -1451,3 +1451,11 @@ TEST(StringUtilTest, ElideString) {
     EXPECT_TRUE(output == cases[i].output);
   }
 }
+
+TEST(StringUtilTest, HexEncode) {
+  std::string hex(HexEncode(NULL, 0));
+  EXPECT_EQ(hex.length(), 0U);
+  unsigned char bytes[] = {0x01, 0xff, 0x02, 0xfe, 0x03};
+  hex = HexEncode(bytes, sizeof(bytes));
+  EXPECT_EQ(hex.compare("01FF02FE03"), 0);
+}
