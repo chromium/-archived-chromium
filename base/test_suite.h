@@ -104,7 +104,11 @@ class TestSuite {
     if (!IsDebuggerPresent() &&
         !CommandLine::ForCurrentProcess()->HasSwitch(L"show-error-dialogs")) {
       SuppressErrorDialogs();
+#if !defined(PURIFY)
+      // When the code in this file moved around, bug 6436 resurfaced.
+      // As a hack workaround, just #ifdef out this code for Purify builds.
       logging::SetLogAssertHandler(UnitTestAssertHandler);
+#endif
     }
 #endif
 
