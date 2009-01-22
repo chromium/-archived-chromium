@@ -34,6 +34,7 @@ class TabContentsContainerView;
 //  including the TabStrip, toolbars, download shelves, the content area etc.
 //
 class BrowserView : public BrowserWindow,
+                    public BrowserWindowTesting,
                     public NotificationObserver,
                     public TabStripModelObserver,
                     public views::WindowDelegate,
@@ -153,6 +154,7 @@ class BrowserView : public BrowserWindow,
   virtual void Activate();
   virtual void FlashFrame();
   virtual void* GetNativeHandle();
+  virtual BrowserWindowTesting* GetBrowserWindowTesting();
   virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
@@ -163,7 +165,6 @@ class BrowserView : public BrowserWindow,
   virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
   virtual GoButton* GetGoButton() const;
-  virtual BookmarkBarView* GetBookmarkBarView();
   virtual BrowserView* GetBrowserView() const;
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();
@@ -179,6 +180,9 @@ class BrowserView : public BrowserWindow,
   virtual void ShowPasswordManager();
   virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
+
+  // Overridden from BrowserWindowTesting:
+  virtual BookmarkBarView* GetBookmarkBarView();
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

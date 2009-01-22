@@ -419,6 +419,10 @@ void* BrowserView::GetNativeHandle() {
   return GetWidget()->GetHWND();
 }
 
+BrowserWindowTesting* BrowserView::GetBrowserWindowTesting() {
+  return this;
+}
+
 TabStrip* BrowserView::GetTabStrip() const {
   return tabstrip_;
 }
@@ -483,19 +487,6 @@ LocationBarView* BrowserView::GetLocationBarView() const {
 
 GoButton* BrowserView::GetGoButton() const {
   return toolbar_->GetGoButton();
-}
-
-BookmarkBarView* BrowserView::GetBookmarkBarView() {
-  TabContents* current_tab = browser_->GetSelectedTabContents();
-  if (!bookmark_bar_view_.get()) {
-    bookmark_bar_view_.reset(new BookmarkBarView(current_tab->profile(),
-                                                 browser_.get()));
-    bookmark_bar_view_->SetParentOwned(false);
-  } else {
-    bookmark_bar_view_->SetProfile(current_tab->profile());
-  }
-  bookmark_bar_view_->SetPageNavigator(current_tab);
-  return bookmark_bar_view_.get();
 }
 
 BrowserView* BrowserView::GetBrowserView() const {
@@ -618,6 +609,22 @@ void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
   views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), html_view);
   html_view->InitDialog();
   html_view->window()->Show();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BrowserView, BrowserWindowTesting implementation:
+
+BookmarkBarView* BrowserView::GetBookmarkBarView() {
+  TabContents* current_tab = browser_->GetSelectedTabContents();
+  if (!bookmark_bar_view_.get()) {
+    bookmark_bar_view_.reset(new BookmarkBarView(current_tab->profile(),
+                                                 browser_.get()));
+    bookmark_bar_view_->SetParentOwned(false);
+  } else {
+    bookmark_bar_view_->SetProfile(current_tab->profile());
+  }
+  bookmark_bar_view_->SetPageNavigator(current_tab);
+  return bookmark_bar_view_.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

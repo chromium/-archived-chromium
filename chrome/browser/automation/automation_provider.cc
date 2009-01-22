@@ -1838,7 +1838,9 @@ void AutomationProvider::GetBookmarkBarVisitility(const IPC::Message& message,
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
     if (browser) {
-      BookmarkBarView* bookmark_bar = browser->window()->GetBookmarkBarView();
+      BrowserWindowTesting* testing =
+          browser->window()->GetBrowserWindowTesting();
+      BookmarkBarView* bookmark_bar = testing->GetBookmarkBarView();
       if (bookmark_bar) {
         animating = bookmark_bar->IsAnimating();
         visible = browser->window()->IsBookmarkBarVisible();

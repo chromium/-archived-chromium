@@ -9,6 +9,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserList;
 class BrowserView;
+class BrowserWindowTesting;
 class GoButton;
 class LocationBarView;
 class HtmlDialogContentsDelegate;
@@ -54,6 +55,10 @@ class BrowserWindow {
   // returns an HWND. DO NOT USE IN CROSS PLATFORM CODE.
   virtual void* GetNativeHandle() = 0;
 
+  // Returns a pointer to the testing interface to the Browser window, or NULL
+  // if there is none.
+  virtual BrowserWindowTesting* GetBrowserWindowTesting() = 0;
+
   // TODO(beng): REMOVE (obtain via BrowserFrame).
   // Return the TabStrip associated with the frame.
   virtual TabStrip* GetTabStrip() const = 0;
@@ -94,9 +99,6 @@ class BrowserWindow {
 
   // Returns the go button.
   virtual GoButton* GetGoButton() const = 0;
-
-  // Returns the Bookmark Bar view.
-  virtual BookmarkBarView* GetBookmarkBarView() = 0;
 
   // Updates the toolbar with the state for the specified |contents|.
   virtual void UpdateToolbar(TabContents* contents,
@@ -145,6 +147,16 @@ class BrowserWindow {
   friend class BrowserList;
   friend class BrowserView;
   virtual void DestroyBrowser() = 0;
+};
+
+// A BrowserWindow utility interface used for accessing elements of the browser
+// UI used only by UI test automation.
+class BrowserWindowTesting {
+public:
+#if defined(OS_WIN)
+  // Returns the Bookmark Bar view.
+  virtual BookmarkBarView* GetBookmarkBarView() = 0;
+#endif
 };
 
 #endif  // CHROME_BROWSER_BROWSER_WINDOW_H__

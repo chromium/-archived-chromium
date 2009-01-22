@@ -26,6 +26,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void Activate() {}
   virtual void FlashFrame() {}
   virtual void* GetNativeHandle() { return NULL; }
+  virtual BrowserWindowTesting* GetBrowserWindowTesting() { return NULL; }
   virtual TabStrip* GetTabStrip() const {
     return const_cast<TabStrip*>(&tab_strip_);
   }

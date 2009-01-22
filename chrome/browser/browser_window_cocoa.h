@@ -27,6 +27,7 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void Activate();
   virtual void FlashFrame();
   virtual void* GetNativeHandle();
+  virtual BrowserWindowTesting* GetBrowserWindowTesting();
   virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);

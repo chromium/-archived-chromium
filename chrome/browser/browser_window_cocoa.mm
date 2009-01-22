@@ -47,6 +47,10 @@ void* BrowserWindowCocoa::GetNativeHandle() {
   return [controller_ window];
 }
 
+BrowserWindowTesting* BrowserWindowCocoa::GetBrowserWindowTesting() {
+  return NULL;
+}
+
 TabStrip* BrowserWindowCocoa::GetTabStrip() const {
   return NULL;
 }
