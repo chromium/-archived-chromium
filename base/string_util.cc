@@ -1534,30 +1534,15 @@ bool ElideString(const std::wstring& input, int max_len, std::wstring* output) {
 }
 
 std::string HexEncode(const void* bytes, size_t size) {
-  static const char kHexChars[] = {
-      '0', '1', '2', '3', '4', '5', '6', '7',
-      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+  static const char kHexChars[] = "0123456789ABCDEF";
 
-  if (size == 0)
-    return std::string();
+  // Each input byte creates two output hex characters.
+  std::string ret(size * 2, '\0');
 
-  std::string ret;
-  // For each byte, we print two characters.
-  ret.resize(size * 2);
-
-  const unsigned char* pos = reinterpret_cast<const unsigned char*>(bytes);
-  const unsigned char* end = pos + size;
-  std::string::iterator write = ret.begin();
-  while (pos < end) {
-    unsigned char b = *pos;
-    pos++;
-
-    write[0] = kHexChars[(b >> 4) & 0xf];
-    write++;
-
-    write[0] = kHexChars[b & 0xf];
-    write++;
+  for (size_t i = 0; i < size; ++i) {
+    char b = reinterpret_cast<const char*>(bytes)[i];
+    ret[(i * 2)] = kHexChars[(b >> 4) & 0xf];
+    ret[(i * 2) + 1] = kHexChars[b & 0xf];
   }
-
   return ret;
 }
