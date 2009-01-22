@@ -14,7 +14,7 @@
 - (id)initWithBrowser:(Browser*)browser {
   if ((self = [super initWithWindowNibName:@"BrowserWindow"])) {
     browser_ = browser;
-    window_shim_ = new BrowserWindowCocoa(self, [self window]);
+    windowShim_ = new BrowserWindowCocoa(self, [self window]);
   }
   return self;
 }
@@ -22,18 +22,17 @@
 - (void)dealloc {
   browser_->CloseAllTabs();
   delete browser_;
-  delete window_shim_;
+  delete windowShim_;
   [super dealloc];
 }
 
 // Access the C++ bridge between the NSWindow and the rest of Chromium
 - (BrowserWindow*)browserWindow {
-  return window_shim_;
+  return windowShim_;
 }
 
 - (void)windowDidLoad {
-  [(NSControl*)[url_bar_ view]
-      setStringValue:@"http://the.interwebs.start.here"];
+  [urlBarView_ setStringValue:@"http://the.interwebs.start.here"];
 }
 
 - (void)destroyBrowser {
@@ -86,20 +85,6 @@
 - (void)commandDispatch:(id)sender {
   NSInteger tag = [sender tag];
   browser_->ExecuteCommand(tag);
-}
-
-// NSToolbar delegate methods
-
-- (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-  return [NSArray arrayWithObjects:[back_button_ itemIdentifier],
-                                   [forward_button_ itemIdentifier],
-                                   [url_bar_ itemIdentifier], nil];
-}
-
-- (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
-  return [NSArray arrayWithObjects:[back_button_ itemIdentifier],
-                                   [forward_button_ itemIdentifier],
-                                   [url_bar_ itemIdentifier], nil];
 }
 
 @end

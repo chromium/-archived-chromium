@@ -17,16 +17,14 @@ class BrowserWindow;
     NSWindowController<NSUserInterfaceValidations> {
  @private
   Browser* browser_;                  // strong
-  BrowserWindow* window_shim_;        // strong
+  BrowserWindow* windowShim_;         // strong
   
-  // Some toolbar items for IB. We can remove these if we stop using IB for
-  // NSToolbar support (it only half works).
-  IBOutlet NSToolbarItem* back_button_;
-  IBOutlet NSToolbarItem* forward_button_;
-  IBOutlet NSToolbarItem* url_bar_;
+  // Views for the toolbar 
+  IBOutlet NSView* toolbarView_;
+  IBOutlet NSTextField* urlBarView_;
   
-  // This will become its own view at some point.
-  IBOutlet NSView* tab_bar_view_;
+  // Views for the tabs
+  IBOutlet NSView* tabBarView_;
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.
