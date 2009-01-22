@@ -103,7 +103,7 @@ int SysInfo::DisplayCount() {
 // static
 size_t SysInfo::VMAllocationGranularity() {
   SYSTEM_INFO sysinfo;
-  GetSystemInfo(&info);
+  GetSystemInfo(&sysinfo);
 
   return info.dwAllocationGranularity;
 }
