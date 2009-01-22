@@ -62,6 +62,11 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   /// Static constructor. I don't understand this, it's just a copy of the mac
   static BitmapPlatformDeviceLinux* Create(int width, int height,
                                            bool is_opaque);
+  static BitmapPlatformDeviceLinux* Create(int width, int height,
+                                           bool is_opaque, uint8_t* data);
+  static BitmapPlatformDeviceLinux* Create(int width, int height,
+                                           bool is_opaque,
+                                           cairo_surface_t* surface);
 
   // Create a BitmapPlatformDeviceLinux from an already constructed bitmap;
   // you should probably be using Create(). This may become private later if

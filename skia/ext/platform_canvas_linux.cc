@@ -8,6 +8,8 @@
 #include "skia/ext/bitmap_platform_device_linux.h"
 #include "SkTypes.h"
 
+#include <cairo/cairo.h>
+
 namespace skia {
 
 PlatformCanvasLinux::PlatformCanvasLinux() : SkCanvas() {
@@ -50,6 +52,11 @@ SkDevice* PlatformCanvasLinux::createPlatformDevice(int width,
                                                     int height,
                                                     bool is_opaque) {
   return BitmapPlatformDeviceLinux::Create(width, height, is_opaque);
+}
+
+// static
+size_t PlatformCanvasLinux::StrideForWidth(unsigned width) {
+  return cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
 }
 
 }  // namespace skia

@@ -41,11 +41,7 @@ class BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinuxData
 // required so that we can call the base class' constructor with the pixel
 // data.
 BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
-    int width, int height, bool is_opaque) {
-  cairo_surface_t* surface =
-      cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                 width, height);
-
+    int width, int height, bool is_opaque, cairo_surface_t* surface) {
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height,
                    cairo_image_surface_get_stride(surface));
@@ -61,6 +57,24 @@ BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
   // The device object will take ownership of the graphics context.
   return new BitmapPlatformDeviceLinux
       (bitmap, new BitmapPlatformDeviceLinuxData(surface));
+}
+
+BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
+    int width, int height, bool is_opaque) {
+  cairo_surface_t* surface =
+      cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                 width, height);
+
+  return Create(width, height, is_opaque, surface);
+}
+
+BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
+    int width, int height, bool is_opaque, uint8_t* data) {
+  cairo_surface_t* surface = cairo_image_surface_create_for_data(
+      data, CAIRO_FORMAT_ARGB32, width, height,
+      cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width));
+
+  return Create(width, height, is_opaque, surface);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel

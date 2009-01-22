@@ -5,6 +5,8 @@
 #ifndef SKIA_EXT_PLATFORM_CANVAS_LINUX_H_
 #define SKIA_EXT_PLATFORM_CANVAS_LINUX_H_
 
+#include <unistd.h>
+
 #include "skia/ext/platform_device_linux.h"
 
 namespace skia {
@@ -21,6 +23,9 @@ class PlatformCanvasLinux : public SkCanvas {
   // If you use the version with no arguments, you MUST call initialize()
   PlatformCanvasLinux();
   PlatformCanvasLinux(int width, int height, bool is_opaque);
+  // Construct a canvas from the given memory region. The memory is not cleared
+  // first. @data must be, at least, @height * StrideForWidth(@width) bytes.
+  PlatformCanvasLinux(int width, int height, bool is_opaque, uint8_t* data);
   virtual ~PlatformCanvasLinux();
 
   // For two-part init, call if you use the no-argument constructor above
@@ -30,6 +35,11 @@ class PlatformCanvasLinux : public SkCanvas {
   // clip. Both the windows and mac versions have an equivalent of this method;
   // a Linux version is added for compatibility.
   PlatformDeviceLinux& getTopPlatformDevice() const;
+
+  // Return the stride (length of a line in bytes) for the given width. Because
+  // we use 32-bits per pixel, this will be roughly 4*width. However, for
+  // alignment reasons we may wish to increase that.
+  static size_t StrideForWidth(unsigned width);
 
  protected:
   // Creates a device store for use by the canvas. We override this so that
