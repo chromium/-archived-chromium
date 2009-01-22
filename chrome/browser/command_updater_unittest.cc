@@ -19,6 +19,8 @@ class CommandUpdaterTest : public testing::Test {
 
 class TestingCommandObserverMock : public CommandUpdater::CommandObserver {
  public:
+  TestingCommandObserverMock() : enabled_(true) {}
+
   virtual void EnabledStateChangedForCommand(int id, bool enabled) {
     enabled_ = enabled;
   }
@@ -55,7 +57,7 @@ TEST_F(CommandUpdaterTest, TestBasicAPI) {
   command_updater.ExecuteCommand(2);
 }
 
-TEST_F(CommandUpdaterTest, DISABLED_TestObservers) {
+TEST_F(CommandUpdaterTest, TestObservers) {
   TestingCommandHandlerMock handler;
   CommandUpdater command_updater(&handler);
 
