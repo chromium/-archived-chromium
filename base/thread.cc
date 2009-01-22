@@ -143,12 +143,13 @@ void Thread::ThreadMain() {
   message_loop.set_thread_name(name_);
   message_loop_ = &message_loop;
 
+  // Let the thread do extra initialization.
+  // Let's do this before signaling we are started.
+  Init();
+
   startup_data_->event.Signal();
   // startup_data_ can't be touched anymore since the starting thread is now
   // unlocked.
-
-  // Let the thread do extra initialization.
-  Init();
 
   message_loop.Run();
 
