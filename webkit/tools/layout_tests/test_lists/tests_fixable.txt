@@ -353,16 +353,22 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
+LINUX : LayoutTests/fast/images/animated-svg-as-image.html = FAIL
+LINUX : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
+LINUX : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
+LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LINUX : LayoutTests/fast/text/international/001.html = FAIL
 LINUX : LayoutTests/fast/text/international/002.html = FAIL
 LINUX : LayoutTests/fast/text/international/003.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
+LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC LINUX : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+LINUX : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 DEFER LINUX : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
 DEFER LINUX : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
@@ -371,6 +377,7 @@ LINUX : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
 LINUX : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
+LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
@@ -825,12 +832,6 @@ LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-LINUX WIN : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
-// Our pixel results have a darker green color.
-WIN : LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL
-LINUX WIN : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
-LINUX WIN : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
-LINUX WIN : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 // Linux pixeltest failure: Failing to render shadows
 LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
@@ -1106,9 +1107,7 @@ LayoutTests/fast/forms/selection-functions.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
-WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
-WIN : LayoutTests/fast/flexbox/009.html = FAIL
 // The thumb in the scrollbar looks wrong.  It looks too narrow.
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
 // The list box selection is wrong, the focus ring is wrong, and the thumb in
@@ -1130,7 +1129,6 @@ LINUX WIN : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
-WIN : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
 LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
@@ -1150,7 +1148,6 @@ LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/fast/profiler = FAIL TIMEOUT
-LINUX WIN : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
@@ -1752,11 +1749,6 @@ MAC : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
 // Linux's rotated text output looks terrible.
 LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 
-// Passes locally when run individually, but fails on buildbot. Could be a
-// sideffect from previous test causing it to be flaky. Seems to have
-// started with r7379
-WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
-
 // Merge 39520:39606 -- new test.
 // Crashes on the buildbot reliably(?) but not locally, even under Valgrind.
 // NOTE: after crashes are worked out, this likely just needs to be
@@ -1785,9 +1777,7 @@ LayoutTests/svg/custom/path-bad-data.svg = FAIL
 // Merge 39744:39829 - regressions
 WIN LINUX : LayoutTests/editing/pasteboard/4947130.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/drag-text-delay.html = FAIL
-WIN : LayoutTests/fast/events/space-scroll-event.html = FAIL
 
-WIN : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
@@ -1796,14 +1786,6 @@ WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
 WIN : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
-
-// 12-Jan-2009 Regressions:
-// I'm turning these off to green the build until I can look at them tomorrow. For the
-// most part they probably just need to be rebaselined due to recent Skia SVG changes.
-LINUX WIN : LayoutTests/fast/images/animated-svg-as-image.html = FAIL
-
-// Looks like this just needs a rebaseline.
-LINUX WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39830:39880 - new tests
 LayoutTests/plugins/npruntime.html = TIMEOUT
