@@ -185,6 +185,7 @@
 		9A1EE0F9187ACE2DCB8512E1 /* template_url.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3CCF8AA8A56FF8FE59F0C299 /* template_url.cc */; };
 		A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612DB0EE9958600A8EE5D /* extensions_service_unittest.cc */; };
 		A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612D90EE9957000A8EE5D /* extensions_service.cc */; };
+		A76E43A40F29039C009A7E88 /* browser_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E43A30F29039C009A7E88 /* browser_render_process_host.cc */; };
 		B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA180E9D48F7009A6919 /* visit_database_unittest.cc */; };
 		B502DA520F098888005BE90C /* l10n_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC90E9D4C9F009A6919 /* l10n_util.cc */; };
 		B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC90EAE868600EBCFC0 /* user_script_slave.cc */; };
@@ -1586,6 +1587,8 @@
 		A76E42AC0F28EDB5009A7E88 /* render_view_context_menu_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render_view_context_menu_controller.h; path = tab_contents/render_view_context_menu_controller.h; sourceTree = "<group>"; };
 		A76E42AD0F28EDB5009A7E88 /* render_view_host_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = render_view_host_manager.cc; path = tab_contents/render_view_host_manager.cc; sourceTree = "<group>"; };
 		A76E42AE0F28EDB5009A7E88 /* render_view_host_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render_view_host_manager.h; path = tab_contents/render_view_host_manager.h; sourceTree = "<group>"; };
+		A76E43970F29022A009A7E88 /* browser_render_process_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = browser_render_process_host.h; path = renderer_host/browser_render_process_host.h; sourceTree = "<group>"; };
+		A76E43A30F29039C009A7E88 /* browser_render_process_host.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = browser_render_process_host.cc; path = renderer_host/browser_render_process_host.cc; sourceTree = "<group>"; };
 		B503E0FB0F01764800547DC6 /* user_script_slave_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = user_script_slave_unittest.cc; sourceTree = "<group>"; };
 		B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mach_message_source_mac.cc; sourceTree = "<group>"; };
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
@@ -3104,6 +3107,8 @@
 			children = (
 				E45075DA0F150A53003BE099 /* async_resource_handler.cc */,
 				E45075DB0F150A53003BE099 /* async_resource_handler.h */,
+				A76E43A30F29039C009A7E88 /* browser_render_process_host.cc */,
+				A76E43970F29022A009A7E88 /* browser_render_process_host.h */,
 				E45075DE0F150A6F003BE099 /* buffered_resource_handler.h */,
 				E45075DF0F150A6F003BE099 /* buffered_resource_handler.cc */,
 				E43A77150F16616E00ABD5D1 /* download_resource_handler.h */,
@@ -3841,6 +3846,7 @@
 				E45063530EE9BF31003BE099 /* browser_main.cc in Sources */,
 				E450634F0EE9BE29003BE099 /* browser_main_mac.mm in Sources */,
 				4D7BF97B0E9D4857009A6919 /* browser_process.cc in Sources */,
+				A76E43A40F29039C009A7E88 /* browser_render_process_host.cc in Sources */,
 				E45075B80F15060C003BE099 /* browser_trial.cc in Sources */,
 				E48B68640F2637B6002E47EC /* browser_window_cocoa.mm in Sources */,
 				E48B68570F26330C002E47EC /* browser_window_controller.mm in Sources */,
