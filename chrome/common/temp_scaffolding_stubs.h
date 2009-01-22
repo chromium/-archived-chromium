@@ -13,14 +13,22 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "base/gfx/rect.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/tab_contents/tab_contents_type.h"
+#include "chrome/common/page_transition_types.h"
+#include "googleurl/src/gurl.h"
+#include "skia/include/SkBitmap.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class Browser;
 class CommandLine;
 class MetricsService;
+class NavigationEntry;
 class ProfileManager;
 class Profile;
 class SessionID;
+class TabContents;
 class URLRequestContext;
 class WebContents;
 
@@ -158,6 +166,7 @@ class UserDataManager {
 
 struct SessionService {
   void WindowClosed(const SessionID &) { }
+  void SetWindowBounds(const SessionID&, const gfx::Rect&, bool) { }
 };
 
 class TabRestoreService {
@@ -177,7 +186,8 @@ class Profile {
   bool IsOffTheRecord() { return false; }
   URLRequestContext* GetRequestContext() { return NULL; }
   virtual Profile* GetOriginalProfile() { return this; }
-
+  virtual Profile* GetOffTheRecordProfile() { return this; }
+  bool HasSessionService() { return false; }
  private:
   std::wstring GetPrefFilePath();
 
@@ -193,6 +203,9 @@ class ProfileManager : NonThreadSafe {
   static std::wstring GetDefaultProfileDir(const std::wstring& user_data_dir);
   static std::wstring GetDefaultProfilePath(const std::wstring& profile_dir);
   static void ShutdownSessionServices() { }
+  // This doesn't really exist, but is used when there is no browser window
+  // from which to get the profile. We'll find a better solution later.
+  static Profile* FakeProfile();
  private:
   DISALLOW_EVIL_CONSTRUCTORS(ProfileManager);
 };
@@ -223,9 +236,28 @@ void InstallJankometer(const CommandLine&);
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 
+class SavePackage {
+ public:
+  static bool IsSavableContents(const std::string& contents_mime_type) {
+    return false;
+  }
+  static bool IsSavableURL(const GURL& url) { return false; }
+};
+
 class LocationBarView {
  public:
   void ShowFirstRunBubble() { }
+};
+
+class GoButton {
+ public:
+  typedef enum Mode { MODE_GO = 0, MODE_STOP };
+  void ChangeMode(Mode mode) { }
+};
+
+class ToolbarStarToggle {
+ public:
+  void SetToggled(bool) { }
 };
 
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
@@ -240,29 +272,77 @@ class TabStripModelObserver {
  public:
 };
 
+class NavigationEntry {
+ public:
+  const GURL& url() const { return url_; }
+ private:
+  GURL url_;
+};
+
 class NavigationController {
  public:
+  NavigationController() : entry_(new NavigationEntry) { }
+  virtual ~NavigationController() { }
+  bool CanGoBack() const { return false; }
+  bool CanGoForward() const { return false; }
+  void GoBack() { }
+  void GoForward() { }
+  void Reload(bool) { }
+  TabContents* active_contents() const { return NULL; }
+  NavigationEntry* GetLastCommittedEntry() const { return entry_.get(); }
+  NavigationEntry* GetActiveEntry() const { return entry_.get(); }
+  void LoadURL(const GURL& url, const GURL& referrer,
+               PageTransition::Type type) { }
+ private:
+  scoped_ptr<NavigationEntry> entry_;
 };
 
 class TabContentsDelegate {
  public:
+   virtual void OpenURL(const GURL& url, const GURL& referrer,
+                        WindowOpenDisposition disposition,
+                        PageTransition::Type transition) { }
+};
+
+class InterstitialPage {
+ public:
+  virtual void DontProceed() { }
 };
 
 class TabContents {
  public:
   TabContents() : controller_(new NavigationController) { }
+  virtual ~TabContents() { }
   NavigationController* controller() const { return controller_.get(); }
-  WebContents* AsWebContents() const { return NULL; }
+  virtual WebContents* AsWebContents() const { return NULL; }
+  virtual SkBitmap GetFavIcon() const { return SkBitmap(); }
+  const GURL& GetURL() const { return url_; }
+  virtual const std::wstring& GetTitle() const { return title_; }
+  TabContentsType type() const { return TAB_CONTENTS_WEB; }
+  virtual void Focus() { }
+  virtual void Stop() { }
  private:
+  GURL url_;
+  std::wstring title_;
   scoped_ptr<NavigationController> controller_;
 };
 
-// fake a tab strip, though it can't have any entries because the browser dtor
-// checks.
+class WebContents : public TabContents {
+ public:
+  WebContents* AsWebContents() { return this; }
+  bool showing_interstitial_page() const { return false; }
+  InterstitialPage* interstitial_page() const { return NULL; }
+  bool is_starred() const { return false; }
+  const std::string& contents_mime_type() const { return mime_type_; }
+ private:
+  std::string mime_type_;
+};
+
+// fake a tab strip with one entry.
 class TabStripModel {
  public:
   TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
-      : contents_(new TabContents) { }
+      : contents_(new WebContents) { }
   virtual ~TabStripModel() { }
   bool empty() const { return contents_.get() == NULL; }
   int count() const { return contents_.get() ? 1 : 0; }
@@ -299,6 +379,14 @@ class DockInfo {
 
 class ToolbarModel {
  public:
+};
+
+class WindowSizer {
+ public:
+  static void GetBrowserWindowBounds(const std::wstring& app_name,
+                                     const gfx::Rect& specified_bounds,
+                                     gfx::Rect* window_bounds,
+                                     bool* maximized) { }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

@@ -142,6 +142,10 @@ Profile* ProfileManager::GetDefaultProfile(const std::wstring& user_data_dir) {
   return new Profile(default_profile_dir);
 }
 
+Profile* ProfileManager::FakeProfile() {
+  return new Profile(L"");
+}
+
 //--------------------------------------------------------------------------
 
 Profile::Profile(const std::wstring& path)
@@ -217,10 +221,12 @@ void Browser::Observe(NotificationType type,
                       const NotificationDetails& details) {
 }
 
-LocationBarView* Browser::GetLocationBarView() const {
-  return window_->GetLocationBarView();
+GURL Browser::GetHomePage() {
+  return GURL("http://dev.chromium.org");
 }
 
-void Browser::NewWindow() {
-  Browser::OpenEmptyWindow(NULL);
+TabContents* Browser::AddTabWithURL(
+    const GURL& url, const GURL& referrer, PageTransition::Type transition,
+    bool foreground, SiteInstance* instance) {
+  return NULL;
 }

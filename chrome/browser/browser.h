@@ -117,14 +117,15 @@ class Browser : public TabStripModelDelegate,
   // Opens a new window with the default blank tab.
   static void OpenEmptyWindow(Profile* profile);
 
-#if defined(OS_WIN)
-  // Opens the a new application window for the specified WebApp.
-  static void OpenWebApplication(Profile* profile, WebApp* app);
-
   // Opens the specified URL in a new browser window in an incognito session.
   // If there is already an existing active incognito session for the specified
   // |profile|, that session is re-used.
   static void OpenURLOffTheRecord(Profile* profile, const GURL& url);
+
+#if defined(OS_WIN)
+  // Opens the a new application window for the specified WebApp.
+  static void OpenWebApplication(Profile* profile, WebApp* app);
+#endif
 
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
@@ -138,6 +139,7 @@ class Browser : public TabStripModelDelegate,
   // Gets the FavIcon of the page in the selected tab.
   SkBitmap GetCurrentPageIcon() const;
 
+#if defined(OS_WIN)
   // Gets the title of the page in the selected tab.
   std::wstring GetCurrentPageTitle() const;
 
@@ -182,7 +184,6 @@ class Browser : public TabStripModelDelegate,
   }
 
   // Tab adding/showing functions /////////////////////////////////////////////
-#if defined(OS_WIN)
 
   // Add a new tab with the specified URL. If instance is not null, its process
   // will be used to render the tab.
@@ -191,6 +192,7 @@ class Browser : public TabStripModelDelegate,
       PageTransition::Type transition, bool foreground,
       SiteInstance* instance);
 
+#if defined(OS_WIN)
   // Add a new application tab for the specified URL. If lazy is true, the tab
   // won't be selected. Further, the initial web page load will only take place
   // when the tab is first selected.
@@ -230,21 +232,23 @@ class Browser : public TabStripModelDelegate,
   // NOTE: Within each of the following sections, the IDs are ordered roughly by
   // how they appear in the GUI/menus (left to right, top to bottom, etc.).
 
+#endif
   // Navigation commands
   void GoBack();
   void GoForward();
   void Reload();
   void Home();
+#if defined(OS_WIN)
   void OpenCurrentURL();
+#endif
   void Go();
   void Stop();
-#endif
   // Window management commands
   void NewWindow();
-#if defined(OS_WIN)
   void NewIncognitoWindow();
   void NewProfileWindowByIndex(int index);
   void CloseWindow();
+#if defined(OS_WIN)
   void NewTab();
   void CloseTab();
   void SelectNextTab();
@@ -342,7 +346,9 @@ class Browser : public TabStripModelDelegate,
       PageTransition::Type transition,
       bool defer_load,
       SiteInstance* instance) const;
+#endif
   virtual bool CanDuplicateContentsAt(int index);
+#if defined(OS_WIN)
   virtual void DuplicateContentsAt(int index);
   virtual void CloseFrameAfterDragSession();
 
@@ -412,7 +418,6 @@ class Browser : public TabStripModelDelegate,
   // Initialize state for all browser commands.
   void InitCommandState();
 
-#if defined(OS_WIN)
   // Update commands which may be enabled or disabled depending on the tab's
   // state.
   void UpdateCommandsForTabState();
@@ -425,6 +430,7 @@ class Browser : public TabStripModelDelegate,
   // TODO(evanm): migrate this to the commands framework.
   void SetStarredButtonToggled(bool starred);
 
+#if defined(OS_WIN)
   // UI update coalescing and handling ////////////////////////////////////////
 
   // Asks the toolbar (and as such the location bar) to update its state to
@@ -455,7 +461,6 @@ class Browser : public TabStripModelDelegate,
   // Getters for the location bar and go button.
 #endif  // OS_WIN
   LocationBarView* GetLocationBarView() const;
-#if defined(OS_WIN)
   GoButton* GetGoButton();
 
   // Returns the StatusBubble from the current toolbar. It is possible for
@@ -463,6 +468,7 @@ class Browser : public TabStripModelDelegate,
   // TODO(beng): remove this.
   StatusBubble* GetStatusBubble();
 
+#if defined(OS_WIN)
   // Session restore functions ////////////////////////////////////////////////
 
   // Notifies the history database of the index for all tabs whose index is
@@ -515,11 +521,13 @@ class Browser : public TabStripModelDelegate,
   void BuildPopupWindow(TabContents* source,
                         TabContents* new_contents,
                         const gfx::Rect& initial_pos);
+#endif
 
   // Returns what the user's home page is, or the new tab page if the home page
   // has not been set.
   GURL GetHomePage();
 
+#if defined(OS_WIN)
   // Advance the find selection by one. Direction is either forward or
   // backwards depending on parameter passed in.
   void AdvanceFindSelection(bool forward_direction);

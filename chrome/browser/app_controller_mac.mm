@@ -9,6 +9,7 @@
 #import "chrome/browser/browser.h"
 #import "chrome/browser/browser_list.h"
 #import "chrome/browser/command_updater.h"
+#import "chrome/common/temp_scaffolding_stubs.h"
 
 @interface AppController(PRIVATE)
 - (void)initMenuState;
@@ -76,7 +77,7 @@
   NSInteger tag = [sender tag];
   switch (tag) {
     case IDC_NEW_WINDOW:
-      Browser::OpenEmptyWindow(NULL);
+      Browser::OpenEmptyWindow(ProfileManager::FakeProfile());
       break;
   };
 }

@@ -8,6 +8,11 @@
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/browser/tab_contents/tab_contents_type.h"
+#include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/cookie_monster.h"
@@ -15,6 +20,7 @@
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 #include "net/url_request/url_request_context.h"
+#include "webkit/glue/window_open_disposition.h"
 
 #if defined(OS_WIN)
 
@@ -36,7 +42,6 @@
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/history_tab_ui.h"
-#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/plugin_process_host.h"
@@ -60,8 +65,6 @@
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/window_sizer.h"
-#include "chrome/common/chrome_constants.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
 
@@ -278,8 +281,6 @@ void Browser::OpenEmptyWindow(Profile* profile) {
   browser->window()->Show();
 }
 
-#if defined(OS_WIN)
-
 // static
 void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   Profile* off_the_record_profile = profile->GetOffTheRecordProfile();
@@ -293,6 +294,7 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   browser->window()->Show();
 }
 
+#if defined(OS_WIN)
 // static
 void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
   const std::wstring& app_name =
@@ -304,6 +306,7 @@ void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
   browser->AddWebApplicationTab(profile, app, false);
   browser->window()->Show();
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, State Storage and Retrieval for UI:
@@ -373,6 +376,8 @@ SkBitmap Browser::GetCurrentPageIcon() const {
   // during the window's creation (before tabs have been added).
   return contents ? contents->GetFavIcon() : SkBitmap();
 }
+
+#if defined(OS_WIN)
 
 std::wstring Browser::GetCurrentPageTitle() const {
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();
@@ -547,6 +552,8 @@ void Browser::ShowNativeUITab(const GURL& url) {
   AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
 }
 
+#endif  // OS_WIN
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Assorted browser commands:
 
@@ -573,6 +580,7 @@ void Browser::GoForward() {
   if (GetSelectedTabContents()->controller()->CanGoForward())
     GetSelectedTabContents()->controller()->GoForward();
 }
+
 
 void Browser::Reload() {
   UserMetrics::RecordAction(L"Reload", profile_);
@@ -603,6 +611,7 @@ void Browser::Home() {
       homepage_url, GURL(), PageTransition::AUTO_BOOKMARK);
 }
 
+#if defined(OS_WIN)
 void Browser::OpenCurrentURL() {
   UserMetrics::RecordAction(L"LoadURL", profile_);
   LocationBarView* lbv = GetLocationBarView();
@@ -618,6 +627,7 @@ void Browser::Go() {
   if (lbv)
     lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
 }
+#endif
 
 void Browser::Stop() {
   UserMetrics::RecordAction(L"Stop", profile_);
@@ -635,14 +645,18 @@ void Browser::NewIncognitoWindow() {
 }
 
 void Browser::NewProfileWindowByIndex(int index) {
+#if defined(OS_WIN)
   UserMetrics::RecordAction(L"NewProfileWindowByIndex", profile_);
   UserDataManager::Get()->LaunchChromeForProfile(index);
+#endif
 }
 
 void Browser::CloseWindow() {
   UserMetrics::RecordAction(L"CloseWindow", profile_);
   window_->Close();
 }
+
+#if defined(OS_WIN)
 
 void Browser::NewTab() {
   UserMetrics::RecordAction(L"NewTab", profile_);
@@ -1091,14 +1105,15 @@ void Browser::ExecuteCommand(int id) {
   // The order of commands in this switch statement must match the function
   // declaration order in browser.h!
   switch (id) {
-#if defined(OS_WIN)
     // Navigation commands
     case IDC_BACK:                  GoBack();                      break;
     case IDC_FORWARD:               GoForward();                   break;
     case IDC_RELOAD:                Reload();                      break;
     case IDC_HOME:                  Home();                        break;
+#if defined(OS_WIN)
     case IDC_OPEN_CURRENT_URL:      OpenCurrentURL();              break;
     case IDC_GO:                    Go();                          break;
+#endif
     case IDC_STOP:                  Stop();                        break;
 
      // Window management commands
@@ -1114,6 +1129,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_NEW_WINDOW_PROFILE_7:
     case IDC_NEW_WINDOW_PROFILE_8: 
         NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);    break;
+#if defined(OS_WIN)
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
     case IDC_NEW_TAB:               NewTab();                      break;
     case IDC_CLOSE_TAB:             CloseTab();                    break;
@@ -1219,10 +1235,8 @@ void Browser::ExecuteCommand(int id) {
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;
-
-#elif defined(OS_MACOSX)
-    case IDC_NEW_WINDOW:            NewWindow();                   break;
 #endif
+
     default:
       LOG(WARNING) << "Received Unimplemented Command: " << id;
       break;
@@ -1300,6 +1314,8 @@ TabContents* Browser::CreateTabContentsForURL(
   return contents;
 }
 
+#endif  // OS_WIN
+
 bool Browser::CanDuplicateContentsAt(int index) {
   TabContents* contents = GetTabContentsAt(index);
   DCHECK(contents);
@@ -1307,6 +1323,8 @@ bool Browser::CanDuplicateContentsAt(int index) {
   NavigationController* nc = contents->controller();
   return nc ? (nc->active_contents() && nc->GetLastCommittedEntry()) : false;
 }
+
+#if defined(OS_WIN)
 
 void Browser::DuplicateContentsAt(int index) {
   TabContents* contents = GetTabContentsAt(index);
@@ -2034,8 +2052,6 @@ void Browser::InitCommandState() {
   }
 }
 
-#if defined(OS_WIN)
-
 void Browser::UpdateCommandsForTabState() {
   TabContents* current_tab = GetSelectedTabContents();
   if (!current_tab)  // May be NULL during tab restore.
@@ -2103,6 +2119,8 @@ void Browser::SetStarredButtonToggled(bool starred) {
   if (star_button)
     star_button->SetToggled(starred);
 }
+
+#if defined(OS_WIN)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, UI update coalescing and handling (private):
@@ -2232,6 +2250,8 @@ void Browser::RemoveScheduledUpdatesFor(TabContents* contents) {
   }
 }
 
+#endif  // OS_WIN
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Getters for UI (private):
 
@@ -2247,6 +2267,7 @@ StatusBubble* Browser::GetStatusBubble() {
   return window_->GetStatusBubble();
 }
 
+#if defined(OS_WIN)
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Session restore functions (private):
 
