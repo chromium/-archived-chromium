@@ -29,6 +29,9 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
+				Name="Version"
+			/>
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -89,6 +92,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="Version"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
