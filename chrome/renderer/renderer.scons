@@ -95,6 +95,7 @@ if env.Bit('linux'):
       'external_js_object.cc',
       'net/render_dns_master.cc',
       'plugin_channel_host.cc',
+      'render_process.cc',
       'render_thread.cc',
       'render_view.cc',
       'render_widget.cc',
