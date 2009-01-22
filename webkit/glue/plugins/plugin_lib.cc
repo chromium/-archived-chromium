@@ -79,7 +79,7 @@ PluginLib::PluginLib(const WebPluginInfo& info,
   if (np_getentrypoints && np_initialize && np_shutdown) {
     internal_ = true;
     NP_GetEntryPoints_ = np_getentrypoints;
-    NP_Initialize_ = np_initialize;    
+    NP_Initialize_ = np_initialize;
     NP_Shutdown_ = np_shutdown;
   } else {
     internal_ = false;
@@ -93,7 +93,7 @@ PluginLib::~PluginLib() {
   }
 }
 
-NPPluginFuncs *PluginLib::functions() {
+NPPluginFuncs* PluginLib::functions() {
   return &plugin_funcs_;
 }
 
@@ -104,7 +104,7 @@ NPError PluginLib::NP_Initialize() {
   if (!Load())
     return NPERR_MODULE_LOAD_FAILED_ERROR;
 
-  PluginHost *host = PluginHost::Singleton();
+  PluginHost* host = PluginHost::Singleton();
   if (host == 0)
     return NPERR_GENERIC_ERROR;
 
@@ -118,8 +118,8 @@ void PluginLib::NP_Shutdown(void) {
   NP_Shutdown_();
 }
 
-PluginInstance *PluginLib::CreateInstance(const std::string &mime_type) {
-  PluginInstance *new_instance = new PluginInstance(this, mime_type);
+PluginInstance* PluginLib::CreateInstance(const std::string& mime_type) {
+  PluginInstance* new_instance = new PluginInstance(this, mime_type);
   instance_count_++;
   StatsCounter(kPluginInstancesActiveCounter).Increment();
   DCHECK(new_instance != 0);

@@ -36,7 +36,7 @@ class PluginLib : public base::RefCounted<PluginLib> {
   // returns true, with the information being put into "info".  If it's an
   // internal plugin, the function pointers are returned as well.
   // Returns false if the library couldn't be found, or if it's not a plugin.
-  static bool ReadWebPluginInfo(const FilePath &filename,
+  static bool ReadWebPluginInfo(const FilePath& filename,
                                 WebPluginInfo* info,
                                 NP_GetEntryPointsFunc* np_getentrypoints,
                                 NP_InitializeFunc* np_initialize,
@@ -49,10 +49,10 @@ class PluginLib : public base::RefCounted<PluginLib> {
   static void ShutdownAllPlugins();
 
   // Get the Plugin's function pointer table.
-  NPPluginFuncs *functions();
+  NPPluginFuncs* functions();
 
   // Creates a new instance of this plugin.
-  PluginInstance *CreateInstance(const std::string &mime_type);
+  PluginInstance* CreateInstance(const std::string& mime_type);
 
   // Called by the instance when the instance is tearing down.
   void CloseInstance();
@@ -100,6 +100,10 @@ class PluginLib : public base::RefCounted<PluginLib> {
   typedef CFBundleRef NativeLibrary;
   typedef CFStringRef NativeLibraryFunctionNameType;
 #define FUNCTION_NAME(x) CFSTR(x)
+#elif defined(OS_LINUX)
+  typedef void* NativeLibrary;
+  typedef const char* NativeLibraryFunctionNameType;
+#define FUNCTION_NAME(x) x
 #endif  // OS_*
 
   // Loads a native library from disk. NOTE: You must release it with

@@ -83,22 +83,6 @@ input_files = [
   'webview_impl.cc',
 ]
 
-if env.Bit('linux'):
-  # TODO(port): until we have plugin support for Linux, these files aren't
-  # built.
-  remove_files = [
-    'plugins/plugin_host.cc',
-    'plugins/plugin_instance.cc',
-    'plugins/plugin_lib.cc',
-    'plugins/plugin_list.cc',
-    'plugins/plugin_stream.cc',
-    'plugins/plugin_stream_url.cc',
-    'plugins/plugin_string_stream.cc',
-  ]
-  for file in remove_files:
-    input_files.remove(file)
-  input_files.extend(['plugins/plugin_stubs.cc'])
-
 if env.Bit('windows'):
   # TODO(port): These extra files aren't win32-specific, they've just not been
   # tested on other platforms yet.
@@ -122,6 +106,8 @@ if env.Bit('windows'):
   ])
 elif env.Bit('linux'):
   input_files.extend([
+      'plugins/plugin_lib_linux.cc',
+      'plugins/plugin_list_linux.cc',
       'webcursor_gtk.cc',
       'webinputevent_linux.cc',
       'webkit_glue_gtk.cc',
