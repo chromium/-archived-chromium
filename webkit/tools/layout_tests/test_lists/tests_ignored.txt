@@ -173,10 +173,6 @@ LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 SKIP : LayoutTests/fast/js/date-DST-time-cusps.html = PASS FAIL
 SKIP : LayoutTests/fast/js/date-big-setdate.html = PASS FAIL
 
-// This test relies on the keygen tag, which we haven't wired up.
-// See bug 802185 for details.
-LayoutTests/fast/html/keygen.html = FAIL
-
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS
 // -----------------------------------------------------------------

@@ -132,6 +132,10 @@ LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 // Worker related tests (ENABLE_WORKERS):
 DEFER SKIP : LayoutTests/fast/workers = TIMEOUT
 
+// This test relies on the keygen tag, which we haven't wired up.
+// See bug 802185 for details.
+DEFER : LayoutTests/fast/html/keygen.html = FAIL
+
 // -----------------------------------------------------------------
 // Other
 // -----------------------------------------------------------------
