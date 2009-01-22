@@ -1850,12 +1850,5 @@ LayoutTests/fast/regex/malformed-escapes.html = FAIL
 // Merge 39972:40057 -- regressions
 LINUX : LayoutTests/fast/canvas/pointInPath.html = CRASH
 
-// Merge 40059:40086
-WIN : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
-WIN : LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
-WIN : LayoutTests/fast/forms/select-block-background.html = FAIL
-WIN : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
-WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
-
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS TIMEOUT
 
