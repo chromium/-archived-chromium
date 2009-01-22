@@ -26,9 +26,9 @@ enum MasterPrefResult {
   MASTER_PROFILE_NO_FIRST_RUN_UI      = 0x1 << 2,
   // Show welcome page.
   MASTER_PROFILE_SHOW_WELCOME         = 0x1 << 3,
-  // Improt search engine setting from the default browser.
+  // Import search engine setting from the default browser.
   MASTER_PROFILE_IMPORT_SEARCH_ENGINE = 0x1 << 4,
-  // Improt history from the default browser.
+  // Import history from the default browser.
   MASTER_PROFILE_IMPORT_HISTORY       = 0x1 << 5,
   // The following boolean prefs have the same semantics as the corresponding
   // setup command line switches. See chrome/installer/util/util_constants.cc
@@ -43,7 +43,8 @@ enum MasterPrefResult {
   MASTER_PROFILE_SYSTEM_LEVEL         = 0x1 << 9,
   // Run installer in verbose mode.
   MASTER_PROFILE_VERBOSE_LOGGING      = 0x1 << 10,
-
+  // Show the EULA and do not install if not accepted.
+  MASTER_PROFILE_REQUIRE_EULA         = 0x1 << 11
 };
 
 // The master preferences is a JSON file with the same entries as the
@@ -57,12 +58,13 @@ enum MasterPrefResult {
 //      "skip_first_run_ui": true,
 //      "show_welcome_page": true,
 //      "import_search_engine": true,
-//      "import_history": false
+//      "import_history": false,
 //      "create_all_shortcuts": true,
 //      "do_not_launch_chrome": false,
 //      "make_chrome_default": false,
 //      "system_level": false,
-//      "verbose_logging": true
+//      "verbose_logging": true,
+//      "require_eula": true
 //   },
 //   "browser": {
 //      "show_home_button": true

@@ -52,6 +52,8 @@ const wchar_t kMakeChromeDefault[] = L"distribution.make_chrome_default";
 const wchar_t kSystemLevel[] = L"distribution.system_level";
 // Run installer in verbose mode.
 const wchar_t kVerboseLogging[] = L"distribution.verbose_logging";
+// Show EULA dialog and install only if accepted.
+const wchar_t kRequireEula[] = L"distribution.require_eula";
 
 
 int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
@@ -97,6 +99,9 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
 
   if (GetBooleanPref(json_root.get(), kVerboseLogging))
     parse_result |= MASTER_PROFILE_VERBOSE_LOGGING;
+
+  if (GetBooleanPref(json_root.get(), kRequireEula))
+    parse_result |= MASTER_PROFILE_REQUIRE_EULA;
 
   return parse_result;
 }

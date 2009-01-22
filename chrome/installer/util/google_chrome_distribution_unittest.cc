@@ -8,9 +8,11 @@
 
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
+#include "base/file_util.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_chrome_distribution.h"
+#include "chrome/installer/util/master_preferences.h"
 #include "chrome/installer/util/work_item_list.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -181,4 +183,43 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
 
 }
 #endif
+
+TEST(MasterPreferences, ParseDistroParams) {
+  FilePath prefs;
+  ASSERT_TRUE(file_util::CreateTemporaryFileName(&prefs));
+  const char text[] =
+    "{ \n"
+    "  \"distribution\": { \n"
+    "     \"skip_first_run_ui\": true,\n"
+    "     \"show_welcome_page\": true,\n"
+    "     \"import_search_engine\": true,\n"
+    "     \"import_history\": true,\n"
+    "     \"create_all_shortcuts\": true,\n"
+    "     \"do_not_launch_chrome\": true,\n"
+    "     \"make_chrome_default\": true,\n"
+    "     \"system_level\": true,\n"
+    "     \"verbose_logging\": true,\n"
+    "     \"require_eula\": true\n"
+    "},\n"
+    "  \"blah\": {\n"
+    "     \"import_history\": false\n"
+    "  }\n"
+    "} \n";
+
+  EXPECT_TRUE(file_util::WriteFile(prefs.value(), text, sizeof(text)));
+  int result = installer_util::ParseDistributionPreferences(prefs.value());
+  EXPECT_FALSE(result & installer_util::MASTER_PROFILE_NOT_FOUND);
+  EXPECT_FALSE(result & installer_util::MASTER_PROFILE_ERROR);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_NO_FIRST_RUN_UI);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_SHOW_WELCOME);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_SEARCH_ENGINE);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_HISTORY);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_CREATE_ALL_SHORTCUTS);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_DO_NOT_LAUNCH_CHROME);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_MAKE_CHROME_DEFAULT);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_SYSTEM_LEVEL);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_VERBOSE_LOGGING);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_REQUIRE_EULA);
+  EXPECT_TRUE(file_util::Delete(prefs, false));
+}
 
