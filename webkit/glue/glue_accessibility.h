@@ -5,6 +5,12 @@
 #ifndef WEBKIT_GLUE_GLUE_ACCESSIBILITY_H_
 #define WEBKIT_GLUE_GLUE_ACCESSIBILITY_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+// TODO(port): For the moment, this whole file is skipped because it uses COM
+// interfaces etc.
+
 #include <oleacc.h>
 #include <hash_map>
 
@@ -66,5 +72,12 @@ class GlueAccessibility {
 
   DISALLOW_COPY_AND_ASSIGN(GlueAccessibility);
 };
+
+#else  // defined(OS_WIN)
+
+class GlueAccessibility {
+};
+
+#endif
 
 #endif  // WEBKIT_GLUE_GLUE_ACCESSIBILITY_H_

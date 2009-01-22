@@ -14,6 +14,7 @@
 #include "base/gfx/rect.h"
 #include "base/timer.h"
 #include "base/values.h"
+#include "build/build_config.h"
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/resource_dispatcher.h"
 #ifdef CHROME_PERSONALIZATION
@@ -30,12 +31,15 @@
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/glue_accessibility.h"
 #include "webkit/glue/webview_delegate.h"
+#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 
+#if defined(OS_WIN)
 // RenderView is a diamond-shaped hierarchy, with WebWidgetDelegate at the root.
 // VS warns when we inherit the WebWidgetDelegate method implementations from
 // RenderWidget.  It's safe to ignore that warning.
 #pragma warning(disable: 4250)
+#endif
 
 class DebugMessageHandler;
 class GURL;
@@ -46,7 +50,6 @@ class WebError;
 class WebFrame;
 class WebPluginDelegate;
 class WebPluginDelegateProxy;
-enum WebRequestCachePolicy;
 
 namespace base {
 class WaitableEvent;

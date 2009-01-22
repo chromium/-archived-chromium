@@ -2,17 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
 #include <objidl.h>
 #include <mlang.h>
+#endif
 
 #include "chrome/renderer/render_process.h"
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
+#include "base/sys_info.h"
 #include "chrome/browser/net/dns_global.h"  // TODO(jar): DNS calls should be renderer specific, not including browser.
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_paths.h"
@@ -30,9 +36,8 @@ bool RenderProcess::load_plugins_in_process_ = false;
 
 RenderProcess::RenderProcess(const std::wstring& channel_name)
     : render_thread_(channel_name),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      clearer_factory_(this) {
-  for (int i = 0; i < arraysize(shared_mem_cache_); ++i)
+      ALLOW_THIS_IN_INITIALIZER_LIST(clearer_factory_(this)) {
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i)
     shared_mem_cache_[i] = NULL;
 }
 
@@ -48,6 +53,7 @@ RenderProcess::~RenderProcess() {
 
 // static
 bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
+#if defined(OS_WIN)
   // HACK:  See http://b/issue?id=1024307 for rationale.
   if (GetModuleHandle(L"LPK.DLL") == NULL) {
     // Makes sure lpk.dll is loaded by gdi32 to make sure ExtTextOut() works
@@ -62,6 +68,7 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
       gdi_init_lpk(0);
     }
   }
+#endif
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kJavaScriptFlags)) {
@@ -86,11 +93,16 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
   }
 
   if (command_line.HasSwitch(switches::kGearsInRenderer)) {
+#if defined(OS_WIN)
     // Load gears.dll on startup so we can access it before the sandbox
     // blocks us.
     std::wstring path;
     if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &path))
       LoadLibrary(path.c_str());
+#else
+    // TODO(port) Need to handle loading gears on non-Windows platforms
+    NOTIMPLEMENTED();
+#endif
   }
 
   ChildProcessFactory<RenderProcess> factory;
@@ -116,11 +128,9 @@ base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
     return mem;
 
   // Round-up size to allocation granularity
-  SYSTEM_INFO info;
-  GetSystemInfo(&info);
-
-  size = size / info.dwAllocationGranularity + 1;
-  size = size * info.dwAllocationGranularity;
+  size_t allocation_granularity = base::SysInfo::VMAllocationGranularity();
+  size = size / allocation_granularity + 1;
+  size = size * allocation_granularity;
 
   mem = new base::SharedMemory();
   if (!mem)
@@ -149,7 +159,7 @@ void RenderProcess::DeleteSharedMem(base::SharedMemory* mem) {
 
 base::SharedMemory* RenderProcess::GetSharedMemFromCache(size_t size) {
   // look for a cached object that is suitable for the requested size.
-  for (int i = 0; i < arraysize(shared_mem_cache_); ++i) {
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
     base::SharedMemory* mem = shared_mem_cache_[i];
     if (mem && mem->max_size() >= size) {
       shared_mem_cache_[i] = NULL;
@@ -164,13 +174,13 @@ bool RenderProcess::PutSharedMemInCache(base::SharedMemory* mem) {
   //  - look for an empty slot to store mem, or
   //  - if full, then replace any existing cache entry that is smaller than the
   //    given shared memory object.
-  for (int i = 0; i < arraysize(shared_mem_cache_); ++i) {
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
     if (!shared_mem_cache_[i]) {
       shared_mem_cache_[i] = mem;
       return true;
     }
   }
-  for (int i = 0; i < arraysize(shared_mem_cache_); ++i) {
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
     base::SharedMemory* cached_mem = shared_mem_cache_[i];
     if (cached_mem->max_size() < mem->max_size()) {
       shared_mem_cache_[i] = mem;
@@ -182,7 +192,7 @@ bool RenderProcess::PutSharedMemInCache(base::SharedMemory* mem) {
 }
 
 void RenderProcess::ClearSharedMemCache() {
-  for (int i = 0; i < arraysize(shared_mem_cache_); ++i) {
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
     if (shared_mem_cache_[i]) {
       DeleteSharedMem(shared_mem_cache_[i]);
       shared_mem_cache_[i] = NULL;
@@ -206,4 +216,3 @@ void RenderProcess::Cleanup() {
   webkit_glue::CheckForLeaks();
 #endif
 }
-

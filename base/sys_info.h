@@ -53,6 +53,10 @@ class SysInfo {
 
   // Return the number of displays.
   static int DisplayCount();
+
+  // Return the smallest amount of memory (in bytes) which the VM system will
+  // allocate.
+  static size_t VMAllocationGranularity();
 };
 
 }  // namespace base

@@ -10,6 +10,7 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "base/thread.h"
+#include "build/build_config.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/message_router.h"
 
@@ -101,10 +102,14 @@ class RenderThread : public IPC::Channel::Listener,
   void OnPluginMessage(const FilePath& plugin_path,
                        const std::vector<uint8>& data);
   void OnSetNextPageID(int32 next_page_id);
+#if defined(OS_WIN)
+  // TODO(port): we'll need to support that at some point, but it's not clear
+  // if we'll be using the same sort of messages for setting this up
   void OnCreateNewView(HWND parent_hwnd,
                        HANDLE modal_dialog_event,
                        const WebPreferences& webkit_prefs,
                        int32 view_id);
+#endif
   void OnTransferBitmap(const SkBitmap& bitmap, int resource_id);
   void OnSetCacheCapacities(size_t min_dead_capacity,
                             size_t max_dead_capacity,

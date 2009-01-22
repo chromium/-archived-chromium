@@ -100,4 +100,12 @@ int SysInfo::DisplayCount() {
   return GetSystemMetrics(SM_CMONITORS);
 }
 
+// static
+size_t SysInfo::VMAllocationGranularity() {
+  SYSTEM_INFO sysinfo;
+  GetSystemInfo(&info);
+
+  return info.dwAllocationGranularity;
+}
+
 }  // namespace base

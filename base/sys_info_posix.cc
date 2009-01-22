@@ -129,4 +129,9 @@ int SysInfo::DisplayCount() {
   return 1;
 }
 
+// static
+size_t SysInfo::VMAllocationGranularity() {
+  return getpagesize();
+}
+
 }  // namespace base
