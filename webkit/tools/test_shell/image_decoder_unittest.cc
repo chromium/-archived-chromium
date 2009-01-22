@@ -82,7 +82,7 @@ void ImageDecoderTest::SetUp() {
   file_util::AppendToPath(&data_dir_, L"webkit");
   file_util::AppendToPath(&data_dir_, L"data");
   file_util::AppendToPath(&data_dir_, format_ + L"_decoder");
-  ASSERT_TRUE(file_util::PathExists(data_dir_)) << data_dir_;
+  ASSERT_TRUE(file_util::PathExists(data_dir_));
 }
 
 std::vector<std::wstring> ImageDecoderTest::GetImageFiles() const {

@@ -6,7 +6,9 @@
 
 #include "build/build_config.h"
 
-#if !defined(OS_WIN)
+#if defined(OS_WIN)
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -48,7 +50,8 @@ bool VerifyRect(const PlatformCanvas& canvas,
 
 // Checks whether there is a white canvas with a black square at the given
 // location in pixels (not in the canvas coordinate system).
-bool VerifyBlackRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+// TODO(ericroman): rename Square to Rect
+bool VerifyBlackSquare(const PlatformCanvas& canvas, int x, int y, int w, int h) {
   return VerifyRect(canvas, SK_ColorWHITE, SK_ColorBLACK, x, y, w, h);
 }
 
@@ -158,7 +161,7 @@ TEST(PlatformCanvas, SkLayer) {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
     canvas.drawColor(SK_ColorBLACK);
   }
-  EXPECT_TRUE(VerifyBlackRect(canvas, kLayerX, kLayerY, kLayerW, kLayerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kLayerX, kLayerY, kLayerW, kLayerH));
 }
 
 // Test native clipping.
@@ -199,7 +202,7 @@ TEST(PlatformCanvas, FillLayer) {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
     DrawNativeRect(canvas, 0, 0, 100, 100);
   }
-  EXPECT_TRUE(VerifyBlackRect(canvas, kLayerX, kLayerY, kLayerW, kLayerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kLayerX, kLayerY, kLayerW, kLayerH));
 
   // Make a layer and fill it partially to make sure the translation is correct.
   canvas.drawColor(SK_ColorWHITE);
@@ -207,7 +210,7 @@ TEST(PlatformCanvas, FillLayer) {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
     DrawNativeRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   }
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 
   // Add a clip on the layer and fill to make sure clip is correct.
   canvas.drawColor(SK_ColorWHITE);
@@ -218,7 +221,7 @@ TEST(PlatformCanvas, FillLayer) {
     DrawNativeRect(canvas, 0, 0, 100, 100);
     canvas.restore();
   }
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 
   // Add a clip and then make the layer to make sure the clip is correct.
   canvas.drawColor(SK_ColorWHITE);
@@ -229,7 +232,7 @@ TEST(PlatformCanvas, FillLayer) {
     DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   canvas.restore();
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 }
 
 // Test that translation + make layer works properly.
@@ -247,8 +250,8 @@ TEST(PlatformCanvas, TranslateLayer) {
     DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   canvas.restore();
-  EXPECT_TRUE(VerifyBlackRect(canvas, kLayerX + 1, kLayerY + 1,
-                              kLayerW, kLayerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kLayerX + 1, kLayerY + 1,
+                                kLayerW, kLayerH));
 
   // Translate then make the layer.
   canvas.drawColor(SK_ColorWHITE);
@@ -259,8 +262,8 @@ TEST(PlatformCanvas, TranslateLayer) {
     DrawNativeRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   }
   canvas.restore();
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX + 1, kInnerY + 1,
-                              kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX + 1, kInnerY + 1,
+                                kInnerW, kInnerH));
 
   // Make the layer then translate.
   canvas.drawColor(SK_ColorWHITE);
@@ -271,8 +274,8 @@ TEST(PlatformCanvas, TranslateLayer) {
     DrawNativeRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   }
   canvas.restore();
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX + 1, kInnerY + 1,
-                              kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX + 1, kInnerY + 1,
+                                kInnerW, kInnerH));
 
   // Translate both before and after, and have a clip.
   canvas.drawColor(SK_ColorWHITE);
@@ -285,8 +288,9 @@ TEST(PlatformCanvas, TranslateLayer) {
     DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   canvas.restore();
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX + 2, kInnerY + 2,
-                              kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX + 2, kInnerY + 2,
+                                kInnerW, kInnerH));
 }
 
 }  // namespace skia
+

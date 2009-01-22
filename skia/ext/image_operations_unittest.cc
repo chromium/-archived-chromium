@@ -132,8 +132,8 @@ TEST(ImageOperations, ResampleToSame) {
 
   // Do a resize of the full bitmap to the same size. The lanczos filter is good
   // enough that we should get exactly the same image for output.
-  SkBitmap results = skia::ImageOperations::Resize(
-      src, skia::ImageOperations::RESIZE_LANCZOS3, src_w, src_h);
+  SkBitmap results = gfx::ImageOperations::Resize(
+      src, gfx::ImageOperations::RESIZE_LANCZOS3, gfx::Size(src_w, src_h));
   ASSERT_EQ(src_w, results.width());
   ASSERT_EQ(src_h, results.height());
 
@@ -145,3 +145,4 @@ TEST(ImageOperations, ResampleToSame) {
     }
   }
 }
+
