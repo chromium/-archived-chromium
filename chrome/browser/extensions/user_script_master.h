@@ -12,6 +12,14 @@
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/string_piece.h"
+#include "googleurl/src/gurl.h"
+
+struct UserScriptInfo {
+  GURL url;
+  FilePath path;
+  std::vector<std::string> matches;
+};
+typedef std::vector<UserScriptInfo> UserScriptList;
 
 // Manages a segment of shared memory that contains the user scripts the user
 // has installed.  Lives on the UI thread.
