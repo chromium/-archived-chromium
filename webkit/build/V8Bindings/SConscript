@@ -8,10 +8,6 @@ env = env.Clone()
 
 if env.Bit('windows'):
     env.Prepend(
-        CPPDEFINES = [
-                'NOGDI',
-                ],
-
         CCFLAGS = [
                 '/TP',
 
