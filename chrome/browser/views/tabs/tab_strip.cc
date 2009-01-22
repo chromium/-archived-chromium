@@ -672,6 +672,10 @@ void TabStrip::Layout() {
   // - animation completion
   if (active_animation_.get())
     active_animation_->Stop();
+
+  // Reset the reserved tab width on resize in case a layout was left pending.
+  available_width_for_tabs_ = -1;
+
   GenerateIdealBounds();
   int tab_count = GetTabCount();
   int tab_right = 0;
@@ -1472,7 +1476,14 @@ void TabStrip::StartResizeLayoutAnimation() {
 void TabStrip::StartInsertTabAnimation(int index) {
   // Don't shock users by letting all tabs move when they are focused
   // on the tab-strip. Wait for later, when they aren't looking.
-  int last_tab_index = GetTabCount() - 2;
+
+  // To compute the required size of the tab-strip we need to get
+  // the last already inserted tab, so if we are inserting the last
+  // one, back off by one.
+  int last_tab_index = GetTabCount() - 1;
+  if (last_tab_index == index)
+    --last_tab_index;
+
   if (last_tab_index > 0) {
     Tab* last_tab = GetTabAt(last_tab_index);
 	  available_width_for_tabs_ = std::min(
