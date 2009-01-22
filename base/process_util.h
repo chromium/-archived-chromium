@@ -139,6 +139,9 @@ bool KillProcesses(const std::wstring& executable_name, int exit_code,
 // for the process to be actually terminated before returning.
 // Returns true if this is successful, false otherwise.
 bool KillProcess(int process_id, int exit_code, bool wait);
+#if defined(OS_WIN)
+bool KillProcess(HANDLE process, int exit_code, bool wait);
+#endif
 
 // Get the termination status (exit code) of the process and return true if the
 // status indicates the process crashed.  It is an error to call this if the

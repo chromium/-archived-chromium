@@ -87,7 +87,7 @@ class CacheManagerHost {
 
   // This class is a singleton.  Do not instantiate directly.
   CacheManagerHost();
-  friend DefaultSingletonTraits<CacheManagerHost>;
+  friend struct DefaultSingletonTraits<CacheManagerHost>;
 
   ~CacheManagerHost();
 
@@ -137,8 +137,8 @@ class CacheManagerHost {
   // Get the amount of memory that would be required to implement |tactic|
   // using the specified allocation tactic.  This function defines the
   // semantics for each of the tactics.
-  static size_t CacheManagerHost::GetSize(AllocationTactic tactic,
-                                          const CacheManager::UsageStats& stats);
+  static size_t GetSize(AllocationTactic tactic,
+                        const CacheManager::UsageStats& stats);
 
   // Attempt to use the specified tactics to compute an allocation strategy
   // and place the result in |strategy|.  |active_stats| and |inactive_stats|
