@@ -80,7 +80,8 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
                                        file_util::FileEnumerator::DIRECTORIES);
   for (FilePath child_path = enumerator.Next(); !child_path.value().empty();
        child_path = enumerator.Next()) {
-    FilePath manifest_path = child_path.Append(Extension::kManifestFilename);
+    FilePath manifest_path =
+        child_path.AppendASCII(Extension::kManifestFilename);
     if (!file_util::PathExists(manifest_path)) {
       ReportExtensionLoadError(frontend.get(), child_path.ToWStringHack(),
                                Extension::kInvalidManifestError);

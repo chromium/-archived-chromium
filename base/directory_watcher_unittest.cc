@@ -143,7 +143,7 @@ TEST_F(DirectoryWatcherTest, SubDir) {
   DirectoryWatcher watcher;
   ASSERT_TRUE(watcher.Watch(test_dir_, this));
   // Write a file to the subdir.
-  FilePath test_path = subdir.Append(FILE_PATH_LITERAL("test_file"));
+  FilePath test_path = subdir.AppendASCII("test_file");
   WriteTestDirFile(test_path.value(), "some content");
 
   // We won't get a notification, so we just wait around a bit to verify
@@ -190,6 +190,5 @@ TEST_F(DirectoryWatcherTest, DeleteDuringNotify) {
 // Basic test: add a file and verify we notice it.
 TEST_F(DirectoryWatcherTest, NonExistentDirectory) {
   DirectoryWatcher watcher;
-  ASSERT_FALSE(watcher.Watch(
-      test_dir_.Append(FILE_PATH_LITERAL("does-not-exist")), this));
+  ASSERT_FALSE(watcher.Watch(test_dir_.AppendASCII("does-not-exist"), this));
 }

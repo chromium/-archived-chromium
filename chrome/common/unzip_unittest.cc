@@ -24,17 +24,17 @@ class UnzipTest : public PlatformTest {
     ASSERT_TRUE(file_util::CreateNewTempDirectory(
         FILE_PATH_LITERAL("unzip_unittest_"), &test_dir_));
 
-    FilePath zip_path(test_dir_.Append(FILE_PATH_LITERAL("test")));
+    FilePath zip_path(test_dir_.AppendASCII("test"));
     zip_contents_.insert(zip_path);
-    zip_contents_.insert(zip_path.Append(FILE_PATH_LITERAL("foo.txt")));
-    zip_path = zip_path.Append(FILE_PATH_LITERAL("foo"));
+    zip_contents_.insert(zip_path.AppendASCII("foo.txt"));
+    zip_path = zip_path.AppendASCII("foo");
     zip_contents_.insert(zip_path);
-    zip_contents_.insert(zip_path.Append(FILE_PATH_LITERAL("bar.txt")));
-    zip_path = zip_path.Append(FILE_PATH_LITERAL("bar"));
+    zip_contents_.insert(zip_path.AppendASCII("bar.txt"));
+    zip_path = zip_path.AppendASCII("bar");
     zip_contents_.insert(zip_path);
-    zip_contents_.insert(zip_path.Append(FILE_PATH_LITERAL("baz.txt")));
-    zip_contents_.insert(zip_path.Append(FILE_PATH_LITERAL("quux.txt")));
-    zip_path = zip_path.Append(FILE_PATH_LITERAL("baz"));
+    zip_contents_.insert(zip_path.AppendASCII("baz.txt"));
+    zip_contents_.insert(zip_path.AppendASCII("quux.txt"));
+    zip_path = zip_path.AppendASCII("baz");
     zip_contents_.insert(zip_path);
   }
 
@@ -48,7 +48,7 @@ class UnzipTest : public PlatformTest {
   void TestZipFile(const FilePath::StringType& filename) {
     FilePath test_dir;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &test_dir));
-    test_dir = test_dir.Append(FILE_PATH_LITERAL("unzip"));
+    test_dir = test_dir.AppendASCII("unzip");
     FilePath path = test_dir.Append(filename);
 
     ASSERT_TRUE(file_util::PathExists(path)) << "no file " << path.value();

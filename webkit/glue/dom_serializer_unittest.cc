@@ -572,15 +572,15 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   // There are total 2 available base tags in this test file.
   const int kTotalBaseTagCountInTestFile = 2;
 
-  FilePath page_file_path = FilePath::FromWStringHack(data_dir_).Append(
-      FILE_PATH_LITERAL("dom_serializer"));
+  FilePath page_file_path = FilePath::FromWStringHack(data_dir_).AppendASCII(
+      "dom_serializer");
   file_util::EnsureEndsWithSeparator(&page_file_path);
 
   // Get page dir URL which is base URL of this file.
   GURL path_dir_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
   // Get file path.
   page_file_path =
-      page_file_path.Append(FILE_PATH_LITERAL("html_doc_has_base_tag.htm"));
+      page_file_path.AppendASCII("html_doc_has_base_tag.htm");
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
   ASSERT_TRUE(file_url.SchemeIsFile());

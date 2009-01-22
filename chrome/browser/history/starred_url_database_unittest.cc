@@ -66,13 +66,13 @@ class StarredURLDatabaseTest : public testing::Test,
   // Test setup.
   void SetUp() {
     PathService::Get(base::DIR_TEMP, &db_file_);
-    db_file_ = db_file_.Append(FILE_PATH_LITERAL("VisitTest.db"));
+    db_file_ = db_file_.AppendASCII("VisitTest.db");
     file_util::Delete(db_file_, false);
 
     // Copy db file over that contains starred table.
     FilePath old_history_path;
     PathService::Get(chrome::DIR_TEST_DATA, &old_history_path);
-    old_history_path = old_history_path.Append(FILE_PATH_LITERAL("bookmarks"));
+    old_history_path = old_history_path.AppendASCII("bookmarks");
     old_history_path = old_history_path.Append(
         FILE_PATH_LITERAL("History_with_empty_starred"));
     file_util::CopyFile(old_history_path, db_file_);

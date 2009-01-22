@@ -176,15 +176,15 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   FilePath path = FilePath::FromWStringHack(path_wstring);
 
   ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("index"))));
+              path.AppendASCII("index")));
   ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_0"))));
+              path.AppendASCII("data_0")));
   ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_1"))));
+              path.AppendASCII("data_1")));
   ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_2"))));
+              path.AppendASCII("data_2")));
   ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_3"))));
+              path.AppendASCII("data_3")));
 
   cache = disk_cache::CreateCacheBackend(path_wstring, false, 0);
   ASSERT_TRUE(NULL != cache);

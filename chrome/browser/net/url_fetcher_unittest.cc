@@ -276,11 +276,11 @@ void URLFetcherProtectTest::OnURLFetchComplete(const URLFetcher* source,
 
 URLFetcherBadHTTPSTest::URLFetcherBadHTTPSTest() {
   PathService::Get(base::DIR_SOURCE_ROOT, &cert_dir_);
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("chrome"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("test"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("data"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("ssl"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("certificates"));
+  cert_dir_ = cert_dir_.AppendASCII("chrome");
+  cert_dir_ = cert_dir_.AppendASCII("test");
+  cert_dir_ = cert_dir_.AppendASCII("data");
+  cert_dir_ = cert_dir_.AppendASCII("ssl");
+  cert_dir_ = cert_dir_.AppendASCII("certificates");
 }
 
 // The "server certificate expired" error should result in automatic
@@ -307,7 +307,7 @@ void URLFetcherBadHTTPSTest::OnURLFetchComplete(
 }
 
 FilePath URLFetcherBadHTTPSTest::GetExpiredCertPath() {
-  return cert_dir_.Append(FILE_PATH_LITERAL("expired_cert.pem"));
+  return cert_dir_.AppendASCII("expired_cert.pem");
 }
 
 void URLFetcherCancelTest::CreateFetcher(const GURL& url) {

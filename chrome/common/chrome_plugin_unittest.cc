@@ -16,9 +16,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
 const wchar_t kDocRoot[] = L"chrome/test/data";
-const FilePath::CharType kPluginFilename[] =
-    FILE_PATH_LITERAL("test_chrome_plugin.dll");
+const char kPluginFilename[] = "test_chrome_plugin.dll";
 
 class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
  public:
@@ -120,7 +120,7 @@ static void STDCALL CPT_InvokeLater(TestFuncParams::CallbackFunc callback,
 void ChromePluginTest::LoadPlugin() {
   FilePath path;
   PathService::Get(base::DIR_EXE, &path);
-  path = path.Append(kPluginFilename);
+  path = path.AppendASCII(kPluginFilename);
   plugin_ = ChromePluginLib::Create(path, GetCPBrowserFuncsForBrowser());
 
   // Exchange test APIs with the plugin.

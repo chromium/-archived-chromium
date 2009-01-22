@@ -212,7 +212,7 @@ int main(int argc, const char* argv[]) {
 
   FilePath log_filename;
   PathService::Get(base::DIR_EXE, &log_filename);
-  log_filename = log_filename.Append(FILE_PATH_LITERAL("tld_cleanup.log"));
+  log_filename = log_filename.AppendASCII("tld_cleanup.log");
   logging::InitLogging(log_filename.value().c_str(),
                        destination,
                        logging::LOCK_LOG_FILE,

@@ -22,7 +22,7 @@ class Extension {
   static const int kExpectedFormatVersion = 1;
 
   // The name of the manifest inside an extension.
-  static const FilePath::CharType* kManifestFilename;
+  static const char kManifestFilename[];
 
   // Keys used in JSON representation of extensions.
   static const wchar_t* kFormatVersionKey;

@@ -7,8 +7,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
-const FilePath::CharType* Extension::kManifestFilename =
-    FILE_PATH_LITERAL("manifest");
+const char Extension::kManifestFilename[] = "manifest";
 
 const wchar_t* Extension::kFormatVersionKey = L"format_version";
 const wchar_t* Extension::kIdKey = L"id";

@@ -39,7 +39,7 @@ void DummyBroadcastNewTableEvent(base::SharedMemory *table) {
 void InitDBName(std::wstring* db_name) {
   FilePath db_path;
   ASSERT_TRUE(file_util::GetCurrentDirectory(&db_path));
-  db_path = db_path.Append(FILE_PATH_LITERAL("TempVisitedLinks"));
+  db_path = db_path.AppendASCII("TempVisitedLinks");
   *db_name = db_path.ToWStringHack();
 }
 

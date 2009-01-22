@@ -154,9 +154,9 @@ namespace net {
 GURL GetTestFileUrl(const std::string& relpath) {
   FilePath path;
   PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  path = path.Append(FILE_PATH_LITERAL("net"));
-  path = path.Append(FILE_PATH_LITERAL("data"));
-  path = path.Append(FILE_PATH_LITERAL("proxy_script_fetcher_unittest"));
+  path = path.AppendASCII("net");
+  path = path.AppendASCII("data");
+  path = path.AppendASCII("proxy_script_fetcher_unittest");
   GURL base_url = net::FilePathToFileURL(path);
   return GURL(base_url.spec() + "/" + relpath);
 }

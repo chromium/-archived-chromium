@@ -23,7 +23,7 @@ class SessionHistoryTest : public UITest {
  protected:
   SessionHistoryTest() : UITest() {
     FilePath path = FilePath::FromWStringHack(test_data_directory_);
-    path = path.Append(FILE_PATH_LITERAL("session_history"))
+    path = path.AppendASCII("session_history")
                .Append(FilePath::StringType(&FilePath::kSeparators[0], 1));
 
     url_prefix_ = UTF8ToWide(net::FilePathToFileURL(path).spec());

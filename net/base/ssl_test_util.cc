@@ -80,10 +80,10 @@ static CERTCertificate* LoadTemporaryCert(const FilePath& filename) {
 
 SSLTestUtil::SSLTestUtil() {
   PathService::Get(base::DIR_SOURCE_ROOT, &cert_dir_);
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("net"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("data"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("ssl"));
-  cert_dir_ = cert_dir_.Append(FILE_PATH_LITERAL("certificates"));
+  cert_dir_ = cert_dir_.AppendASCII("net");
+  cert_dir_ = cert_dir_.AppendASCII("data");
+  cert_dir_ = cert_dir_.AppendASCII("ssl");
+  cert_dir_ = cert_dir_.AppendASCII("certificates");
 
 #if defined(OS_LINUX)
   cert_ = reinterpret_cast<PrivateCERTCertificate*>(
@@ -101,19 +101,19 @@ SSLTestUtil::~SSLTestUtil() {
 
 FilePath SSLTestUtil::GetRootCertPath() {
   FilePath path(cert_dir_);
-  path = path.Append(FILE_PATH_LITERAL("root_ca_cert.crt"));
+  path = path.AppendASCII("root_ca_cert.crt");
   return path;
 }
 
 FilePath SSLTestUtil::GetOKCertPath() {
   FilePath path(cert_dir_);
-  path = path.Append(FILE_PATH_LITERAL("ok_cert.pem"));
+  path = path.AppendASCII("ok_cert.pem");
   return path;
 }
 
 FilePath SSLTestUtil::GetExpiredCertPath() {
   FilePath path(cert_dir_);
-  path = path.Append(FILE_PATH_LITERAL("expired_cert.pem"));
+  path = path.AppendASCII("expired_cert.pem");
   return path;
 }
 

@@ -22,15 +22,15 @@ class SessionRestoreUITest : public UITest {
  protected:
   SessionRestoreUITest() : UITest() {
     FilePath path_prefix = FilePath::FromWStringHack(test_data_directory_);
-    path_prefix = path_prefix.Append(FILE_PATH_LITERAL("session_history"))
+    path_prefix = path_prefix.AppendASCII("session_history")
         .Append(FilePath::StringType(&FilePath::kSeparators[0], 1));
 
     url1 = net::FilePathToFileURL(
-        path_prefix.Append(FILE_PATH_LITERAL("bot1.html")));
+        path_prefix.AppendASCII("bot1.html"));
     url2 = net::FilePathToFileURL(
-        path_prefix.Append(FILE_PATH_LITERAL("bot2.html")));
+        path_prefix.AppendASCII("bot2.html"));
     url3 = net::FilePathToFileURL(
-        path_prefix.Append(FILE_PATH_LITERAL("bot3.html")));
+        path_prefix.AppendASCII("bot3.html"));
   }
 
   virtual void QuitBrowserAndRestore() {

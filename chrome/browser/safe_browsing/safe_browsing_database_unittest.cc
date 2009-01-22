@@ -62,7 +62,7 @@ namespace {
   std::wstring GetTestDatabaseName() {
     FilePath filename;
     PathService::Get(base::DIR_TEMP, &filename);
-    filename = filename.Append(FILE_PATH_LITERAL("SafeBrowsingTestDatabase"));
+    filename = filename.AppendASCII("SafeBrowsingTestDatabase");
     return filename.ToWStringHack();
   }
 
@@ -1048,7 +1048,7 @@ void PeformUpdate(const std::wstring& initial_db,
 
   FilePath path;
   PathService::Get(base::DIR_TEMP, &path);
-  path = path.Append(FILE_PATH_LITERAL("SafeBrowsingTestDatabase"));
+  path = path.AppendASCII("SafeBrowsingTestDatabase");
   std::wstring filename = path.ToWStringHack();
 
   // In case it existed from a previous run.

@@ -25,7 +25,7 @@ class UserScriptMasterTest : public testing::Test,
     // Name a subdirectory of the temp directory.
     FilePath tmp_dir;
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &tmp_dir));
-    script_dir_ = tmp_dir.Append(FILE_PATH_LITERAL("UserScriptTest"));
+    script_dir_ = tmp_dir.AppendASCII("UserScriptTest");
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(script_dir_, true);
@@ -87,7 +87,7 @@ TEST_F(UserScriptMasterTest, NewScripts) {
   scoped_refptr<UserScriptMaster> master(
       new UserScriptMaster(MessageLoop::current(), script_dir_));
 
-  FilePath path = script_dir_.Append(FILE_PATH_LITERAL("script.user.js"));
+  FilePath path = script_dir_.AppendASCII("script.user.js");
 
   FILE* file = file_util::OpenFile(path, "w");
   const char content[] = "some content";
@@ -101,7 +101,7 @@ TEST_F(UserScriptMasterTest, NewScripts) {
 
 // Test that we get notified about scripts if they're already in the test dir.
 TEST_F(UserScriptMasterTest, ExistingScripts) {
-  FilePath path = script_dir_.Append(FILE_PATH_LITERAL("script.user.js"));
+  FilePath path = script_dir_.AppendASCII("script.user.js");
 
   FILE* file = file_util::OpenFile(path, "w");
   const char content[] = "some content";
