@@ -230,6 +230,7 @@ test_files = [
     'run_all_tests.cc',
     'test_shell_test.cc',
     'text_input_controller_unittest.cc',
+    '$SKIA_DIR/ext/convolver_unittest.cc',
     '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
     '$WEBKIT_DIR/glue/context_menu_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_bound_class_unittest.cc',
@@ -254,9 +255,11 @@ test_files = [
 if env.Bit('windows'):
   # TODO(port): put portable files in above test_files declaration.
   test_files.extend([
+      '$SKIA_DIR/ext/platform_canvas_unittest.cc',
       'plugin_tests.cc',
       # Commented out until a regression is fixed and this file is restored.
       #'$WEBKIT_DIR/glue/stringimpl_unittest.cc',
+      '$SKIA_DIR/ext/vector_canvas_unittest.cc',
       '$WEBKIT_DIR/glue/webplugin_impl_unittest.cc',
       '$WEBKIT_DIR/tools/webcore_unit_tests/UniscribeHelper_unittest.cpp',
   ])
