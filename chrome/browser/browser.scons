@@ -807,6 +807,8 @@ if not env.Bit('windows'):
       'tab_contents/navigation_controller.cc',
       'tab_contents/navigation_entry.cc',
       'tab_contents/network_status_view.cc',
+      'tab_contents/render_view_context_menu.cc',
+      'tab_contents/render_view_context_menu_controller.cc',
       'tab_contents/site_instance.cc',
       'tab_contents/status_view.cc',
       'tab_contents/tab_contents.cc',
