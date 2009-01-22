@@ -58,10 +58,12 @@ non_compilable_suffixes = {
         '.h',
         '.dat',
         '.rc',
+        '.idl',
     ]),
     'WINDOWS' : set([
         '.h',
         '.dat',
+        '.idl',
     ]),
 }
 
