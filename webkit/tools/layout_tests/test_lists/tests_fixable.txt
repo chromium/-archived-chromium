@@ -1847,13 +1847,15 @@ LayoutTests/fast/regex/malformed-escapes.html = FAIL
 
 // Merge 39972:40057 -- regressions
 LINUX : LayoutTests/fast/canvas/pointInPath.html = CRASH
+// After a rebaseline, this fails image diff on the buildbot but passes locally.
+// TODO(estade): investigate.
+LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL PASS
 
 // Merge 40059:40086 -- regressions
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS TIMEOUT
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = FAIL
 MAC : LayoutTests/fast/canvas/gradient-with-clip.html = FAIL
-LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-10-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-15-t.svg = FAIL
