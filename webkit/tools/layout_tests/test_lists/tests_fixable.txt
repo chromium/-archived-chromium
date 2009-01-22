@@ -349,6 +349,11 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+LINUX : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
+LINUX : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
+LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
+LINUX : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
@@ -666,17 +671,7 @@ LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 
 // Background SVGs fail upstream but were rebaselined to pass (r38335)
 // https://bugs.webkit.org/show_bug.cgi?id=21910
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
-LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
-WIN : LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-WIN : LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
-WIN : LayoutTests/fast/images/svg-as-background.html = FAIL
-WIN : LayoutTests/fast/images/svg-as-image.html = FAIL
-WIN : LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 
 //
 // -----------------------------------------------------------------
