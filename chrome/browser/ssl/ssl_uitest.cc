@@ -86,7 +86,8 @@ TEST_F(SSLUITest, TestHTTP) {
 
 // Visits a page over http which includes broken https resources (status should
 // be OK).
-TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
+// Disabled as test causes hangs, see bug 6698 for details.
+TEST_F(SSLUITest, DISABLED_TestHTTPWithBrokenHTTPSResource) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
