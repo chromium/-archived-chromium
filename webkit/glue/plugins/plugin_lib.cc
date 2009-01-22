@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
+#include "base/string_util.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_host.h"
@@ -258,5 +259,59 @@ void PluginLib::Shutdown() {
   }
 }
 
-}  // namespace NPAPI
+// Creates WebPluginInfo structure based on read in or built in
+// PluginVersionInfo.
+/* static */
+bool PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi,
+                                    WebPluginInfo* info,
+                                    NP_GetEntryPointsFunc* np_getentrypoints,
+                                    NP_InitializeFunc* np_initialize,
+                                    NP_ShutdownFunc* np_shutdown) {
+  std::vector<std::string> mime_types, file_extensions;
+  std::vector<std::wstring> descriptions;
+  SplitString(WideToUTF8(pvi.mime_types), '|', &mime_types);
+  SplitString(WideToUTF8(pvi.file_extensions), '|', &file_extensions);
+  SplitString(pvi.type_descriptions, '|', &descriptions);
 
+  info->mime_types.clear();
+
+  if (mime_types.empty())
+    return false;
+
+  info->name = pvi.product_name;
+  info->desc = pvi.file_description;
+  info->version = pvi.file_version;
+  info->path = FilePath(pvi.path);
+
+  for (size_t i = 0; i < mime_types.size(); ++i) {
+    WebPluginMimeType mime_type;
+    mime_type.mime_type = StringToLowerASCII(mime_types[i]);
+    if (file_extensions.size() > i)
+      SplitString(file_extensions[i], ',', &mime_type.file_extensions);
+
+    if (descriptions.size() > i) {
+      mime_type.description = descriptions[i];
+
+      // On Windows, the description likely has a list of file extensions
+      // embedded in it (e.g. "SurfWriter file (*.swr)"). Remove an extension
+      // list from the description if it is present.
+      size_t ext = mime_type.description.find(L"(*");
+      if (ext != std::wstring::npos) {
+        if (ext > 1 && mime_type.description[ext -1] == ' ')
+          ext--;
+
+        mime_type.description.erase(ext);
+      }
+    }
+
+    info->mime_types.push_back(mime_type);
+  }
+
+  *np_getentrypoints = pvi.np_getentrypoints;
+  *np_initialize = pvi.np_initialize;
+  *np_shutdown = pvi.np_shutdown;
+
+  return true;
+}
+
+}  // namespace NPAPI

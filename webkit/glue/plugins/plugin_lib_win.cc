@@ -8,8 +8,6 @@
 
 #include "base/file_version_info.h"
 #include "base/path_service.h"
-#include "base/string_util.h"
-#include "base/sys_string_conversions.h"
 #include "webkit/activex_shim/npp_impl.h"
 #include "webkit/default_plugin/plugin_main.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
@@ -24,22 +22,6 @@ NPError API_CALL Gears_NP_Shutdown(void);
 
 namespace NPAPI
 {
-
-// This struct fully describes a plugin. For external plugins, it's read in from
-// the version info of the dll; For internal plugins, it's predefined and
-// includes addresses of entry functions.
-struct PluginVersionInfo {
-  const wchar_t* path;
-  const wchar_t* product_name;
-  const wchar_t* file_description;
-  const wchar_t* file_version;
-  const wchar_t* mime_types;
-  const wchar_t* file_extents;
-  const wchar_t* file_open_names;
-  NP_GetEntryPointsFunc np_getentrypoints;
-  NP_InitializeFunc np_initialize;
-  NP_ShutdownFunc np_shutdown;
-};
 
 static const PluginVersionInfo g_internal_plugins[] = {
   {
@@ -130,62 +112,6 @@ void* PluginLib::GetFunctionPointerFromNativeLibrary(
   return GetProcAddress(library, name);
 }
 
-namespace {
-
-// Creates WebPluginInfo structure based on read in or built in
-// PluginVersionInfo.
-bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
-                         WebPluginInfo* info,
-                         NP_GetEntryPointsFunc* np_getentrypoints,
-                         NP_InitializeFunc* np_initialize,
-                         NP_ShutdownFunc* np_shutdown) {
-  std::vector<std::string> mime_types, file_extensions;
-  std::vector<std::wstring> descriptions;
-  SplitString(base::SysWideToNativeMB(pvi.mime_types), '|', &mime_types);
-  SplitString(base::SysWideToNativeMB(pvi.file_extents), '|', &file_extensions);
-  SplitString(pvi.file_open_names, '|', &descriptions);
-
-  info->mime_types.clear();
-
-  if (mime_types.empty())
-    return false;
-
-  info->name = pvi.product_name;
-  info->desc = pvi.file_description;
-  info->version = pvi.file_version;
-  info->path = FilePath(pvi.path);
-
-  for (size_t i = 0; i < mime_types.size(); ++i) {
-    WebPluginMimeType mime_type;
-    mime_type.mime_type = StringToLowerASCII(mime_types[i]);
-    if (file_extensions.size() > i)
-      SplitString(file_extensions[i], ',', &mime_type.file_extensions);
-
-    if (descriptions.size() > i) {
-      mime_type.description = descriptions[i];
-
-      // Remove the extension list from the description.
-      size_t ext = mime_type.description.find(L"(*");
-      if (ext != std::wstring::npos) {
-        if (ext > 1 && mime_type.description[ext -1] == ' ')
-          ext--;
-
-        mime_type.description.erase(ext);
-      }
-    }
-
-    info->mime_types.push_back(mime_type);
-  }
-
-  *np_getentrypoints = pvi.np_getentrypoints;
-  *np_initialize = pvi.np_initialize;
-  *np_shutdown = pvi.np_shutdown;
-
-  return true;
-}
-
-}
-
 bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
                                   WebPluginInfo* info,
                                   NP_GetEntryPointsFunc* np_getentrypoints,
@@ -218,8 +144,8 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
 
   PluginVersionInfo pvi;
   pvi.mime_types = mime_types.c_str();
-  pvi.file_extents = file_extents.c_str();
-  pvi.file_open_names = file_open_names.c_str();
+  pvi.file_extensions = file_extents.c_str();
+  pvi.type_descriptions = file_open_names.c_str();
   pvi.product_name = product_name.c_str();
   pvi.file_description = file_description.c_str();
   pvi.file_version = file_version.c_str();
