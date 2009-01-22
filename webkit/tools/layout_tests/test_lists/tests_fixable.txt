@@ -58,13 +58,6 @@ DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 LayoutTests/fast/forms/input-text-maxlength.html = FAIL CRASH
 DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
-// Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
-DEFER LINUX WIN : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
-
-// Bug: 1145880
-// Parethesis missing, metrics wrong.
-DEFER LINUX WIN : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
-
 // Bug: 628529: complex text effects
 // This is a real bug, but not one we're fixing for Beta.
 DEFER LINUX WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
@@ -187,7 +180,6 @@ DEFER : LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
 // match that in the <select> option lists.
 // Low priority, unclear if test expectations are correct (see bug)
 DEFER : LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
-DEFER : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 
 // Bug 850875
 // requires support for layoutTestController.encodeHostName()
@@ -286,10 +278,6 @@ DEFER SKIP : LayoutTests/media = TIMEOUT
 DEFER SKIP : LayoutTests/fast/media = PASS FAIL
 DEFER : LayoutTests/http/tests/media = FAIL
 
-// Bug 850287: Need better Thai line-breaking.  Not a high priority, because
-// it's acceptable as it is.
-DEFER LINUX WIN : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
-
 // Bug 941049: Function arguments object is copied for each access.
 DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
 
@@ -357,6 +345,12 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
+// Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
+DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
+DEFER MAC LINUX : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
+DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
+DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 DEFER LINUX : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
 DEFER LINUX : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
@@ -1149,7 +1143,6 @@ LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/fast/profiler = FAIL TIMEOUT
 LINUX WIN : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
-LINUX WIN : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
@@ -1676,10 +1669,6 @@ WIN : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
-WIN : LayoutTests/fast/text/international/001.html = FAIL
-WIN : LayoutTests/fast/text/international/002.html = FAIL
-WIN : LayoutTests/fast/text/international/003.html = FAIL
-WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // 2008/12/13 - Turning off some Friday night test regressions until
 // they can be looked at.
