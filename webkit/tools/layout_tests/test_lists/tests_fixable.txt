@@ -946,9 +946,9 @@ LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 
 // Off-by-one in form controls -- font metrics?
-LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
+MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
+MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
 
 // Hebrew font metrics.
 LINUX : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
