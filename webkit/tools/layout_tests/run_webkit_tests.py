@@ -782,5 +782,9 @@ if '__main__' == __name__:
                            default=None,
                            help=("Run a specified chunk (n:l), the nth of len l"
                                  ", of the layout tests"))
+  option_parser.add_option("", "--batch-size",
+                           default=None,
+                           help=("Run a the tests in batches (n), after every "
+                                 "n tests, the test shell is relaunched."))
   options, args = option_parser.parse_args()
   main(options, args)
