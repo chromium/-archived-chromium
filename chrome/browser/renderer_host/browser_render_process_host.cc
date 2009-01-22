@@ -42,7 +42,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
-#include "chrome/common/win_util.h"
 #include "chrome/renderer/render_process.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"
@@ -54,6 +53,7 @@
 // Once the above TODO is finished, then this block is all Windows-specific
 // files.
 #include "base/win_util.h"
+#include "chrome/common/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
