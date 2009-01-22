@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_STATUS_BUBBLE_H_
 #define CHROME_BROWSER_STATUS_BUBBLE_H_
 
+#include <string>
+
 class GURL;
 
 ////////////////////////////////////////////////////////////////////////////////
