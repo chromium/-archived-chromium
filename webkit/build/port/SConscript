@@ -150,7 +150,6 @@ else:
 
 
 idl_files = [
-    'bindings/v8/CanvasPixelArray.idl',
     'bindings/v8/UndetectableHTMLCollection.idl',
 
     'css/Counter.idl',
@@ -228,6 +227,7 @@ idl_files = [
 
     'html/CanvasGradient.idl',
     'html/CanvasPattern.idl',
+    'html/CanvasPixelArray.idl',
     'html/CanvasRenderingContext2D.idl',
     'html/File.idl',
     'html/FileList.idl',

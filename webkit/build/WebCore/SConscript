@@ -240,6 +240,7 @@ input_files = [
 
     '$WEBCORE_DIR/html/CanvasGradient.cpp',
     '$WEBCORE_DIR/html/CanvasPattern.cpp',
+    '$WEBCORE_DIR/html/CanvasPixelArray.cpp',
     '$WEBCORE_DIR/html/CanvasRenderingContext2D.cpp',
     '$WEBCORE_DIR/html/CanvasStyle.cpp',
     '$WEBCORE_DIR/html/File.cpp',
@@ -343,6 +344,7 @@ input_files = [
     '$WEBCORE_DIR/loader/CachedXSLStyleSheet.cpp',
     '$WEBCORE_DIR/loader/DocLoader.cpp',
     '$WEBCORE_DIR/loader/DocumentLoader.cpp',
+    '$WEBCORE_DIR/loader/DocumentThreadableLoader.cpp',
     '$WEBCORE_DIR/loader/FormState.cpp',
     '$WEBCORE_DIR/loader/FrameLoader.cpp',
     '$WEBCORE_DIR/loader/FrameLoaderClient.cpp',
@@ -362,6 +364,7 @@ input_files = [
     '$WEBCORE_DIR/loader/SubresourceLoader.cpp',
     '$WEBCORE_DIR/loader/TextDocument.cpp',
     '$WEBCORE_DIR/loader/TextResourceDecoder.cpp',
+    '$WEBCORE_DIR/loader/ThreadableLoader.cpp',
 
     '$WEBCORE_DIR/loader/archive/ArchiveFactory.cpp',
     '$WEBCORE_DIR/loader/archive/ArchiveResource.cpp',
@@ -539,6 +542,7 @@ input_files = [
     '$WEBCORE_DIR/platform/network/Credential.cpp',
     '$WEBCORE_DIR/platform/network/FormData.cpp',
     '$WEBCORE_DIR/platform/network/FormDataBuilder.cpp',
+    '$WEBCORE_DIR/platform/network/HTTPHeaderMap.cpp',
     '$WEBCORE_DIR/platform/network/HTTPParsers.cpp',
     '$WEBCORE_DIR/platform/network/NetworkStateNotifier.cpp',
     '$WEBCORE_DIR/platform/network/ProtectionSpace.cpp',
@@ -867,7 +871,6 @@ input_files = [
     '$WEBCORE_DIR/svg/graphics/SVGResourceMarker.cpp',
     '$WEBCORE_DIR/svg/graphics/SVGResourceMasker.cpp',
 
-    '$WEBCORE_DIR/svg/graphics/skia/SVGPaintServerSkia.cpp',
     '$WEBCORE_DIR/svg/graphics/skia/SVGResourceFilterSkia.cpp',
     '$WEBCORE_DIR/svg/graphics/skia/SVGResourceMaskerSkia.cpp',
 

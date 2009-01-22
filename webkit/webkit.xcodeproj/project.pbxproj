@@ -54,6 +54,10 @@
 		4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */; };
 		535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */; };
 		538D819B0EC371EA00278C31 /* password_autocomplete_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 538D81990EC371EA00278C31 /* password_autocomplete_listener.cc */; };
+		53AAC3700F291E8000233688 /* CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC36F0F291E8000233688 /* CanvasPixelArray.cpp */; };
+		53AAC37D0F291F0F00233688 /* DocumentThreadableLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC37C0F291F0F00233688 /* DocumentThreadableLoader.cpp */; };
+		53AAC3800F291F4400233688 /* ThreadableLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC37F0F291F4300233688 /* ThreadableLoader.cpp */; };
+		53AAC3940F291FCF00233688 /* HTTPHeaderMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC3930F291FCF00233688 /* HTTPHeaderMap.cpp */; };
 		53E8BE100EC36A4E00B3F8B0 /* dom_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405050D92E3DA0006B936 /* dom_operations.cc */; };
 		7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
 		7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E85B60D7F28F5001ECF42 /* Assertions.cpp */; };
@@ -77,7 +81,6 @@
 		8255CEC20F16971600E53C11 /* plugin_string_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405EB0D92E3FF0006B936 /* plugin_string_stream.cc */; };
 		8255CEE00F16972C00E53C11 /* plugin_stream_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8255CEDF0F16972C00E53C11 /* plugin_stream_posix.cc */; };
 		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
-		89F4A0B50F200C17000A326A /* CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0AB0F1FAA69000A326A /* CanvasPixelArray.cpp */; };
 		89F4A0D50F200D5B000A326A /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */; };
 		89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
@@ -791,7 +794,6 @@
 		938446D10F16B0570075F4C5 /* SVGNumberList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E98530D7F3EDB001ECF42 /* SVGNumberList.cpp */; };
 		938446D20F16B0570075F4C5 /* SVGPaint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E98560D7F3EDB001ECF42 /* SVGPaint.cpp */; };
 		938446D30F16B0570075F4C5 /* SVGPaintServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E974C0D7F3EDA001ECF42 /* SVGPaintServer.cpp */; };
-		938446D40F16B0570075F4C5 /* SVGPaintServerCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */; };
 		938446D50F16B0570075F4C5 /* SVGPaintServerGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E974E0D7F3EDA001ECF42 /* SVGPaintServerGradient.cpp */; };
 		938446D60F16B0570075F4C5 /* SVGPaintServerLinearGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97500D7F3EDA001ECF42 /* SVGPaintServerLinearGradient.cpp */; };
 		938446D70F16B0570075F4C5 /* SVGPaintServerPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97520D7F3EDA001ECF42 /* SVGPaintServerPattern.cpp */; };
@@ -1825,6 +1827,14 @@
 		535EE0BF0EC4D10E00939D54 /* clipboard_conversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clipboard_conversion.h; sourceTree = "<group>"; };
 		538D81990EC371EA00278C31 /* password_autocomplete_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = password_autocomplete_listener.cc; sourceTree = "<group>"; };
 		538D819A0EC371EA00278C31 /* password_autocomplete_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = password_autocomplete_listener.h; sourceTree = "<group>"; };
+		53AAC36F0F291E8000233688 /* CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasPixelArray.cpp; sourceTree = "<group>"; };
+		53AAC3710F291E9000233688 /* CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasPixelArray.h; sourceTree = "<group>"; };
+		53AAC37C0F291F0F00233688 /* DocumentThreadableLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DocumentThreadableLoader.cpp; sourceTree = "<group>"; };
+		53AAC37E0F291F2900233688 /* DocumentThreadableLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentThreadableLoader.h; sourceTree = "<group>"; };
+		53AAC37F0F291F4300233688 /* ThreadableLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadableLoader.cpp; sourceTree = "<group>"; };
+		53AAC3810F291F5300233688 /* ThreadableLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadableLoader.h; sourceTree = "<group>"; };
+		53AAC3820F291F6300233688 /* ThreadableLoaderClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadableLoaderClient.h; sourceTree = "<group>"; };
+		53AAC3930F291FCF00233688 /* HTTPHeaderMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPHeaderMap.cpp; sourceTree = "<group>"; };
 		53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autocomplete_input_listener.h; sourceTree = "<group>"; };
 		688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSMatrix.cpp; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
@@ -3436,7 +3446,6 @@
 		7B5E96C00D7F3EDA001ECF42 /* ColorDistance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ColorDistance.cpp; path = ../ColorDistance.cpp; sourceTree = "<group>"; };
 		7B5E96C10D7F3EDA001ECF42 /* ColorDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ColorDistance.h; path = ../ColorDistance.h; sourceTree = "<group>"; };
 		7B5E96C20D7F3EDA001ECF42 /* GradientAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GradientAttributes.h; path = ../GradientAttributes.h; sourceTree = "<group>"; };
-		7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerCg.cpp; sourceTree = "<group>"; };
 		7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceFilterCg.cpp; sourceTree = "<group>"; };
 		7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGResourceFilterCg.mm; sourceTree = "<group>"; };
 		7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceMaskerCg.cpp; sourceTree = "<group>"; };
@@ -3995,11 +4004,9 @@
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObject.cpp; sourceTree = "<group>"; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObject.h; sourceTree = "<group>"; };
 		82F14D600ED230E700B36428 /* webcursor_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webcursor_mac.mm; sourceTree = "<group>"; };
-		89F4A0AB0F1FAA69000A326A /* CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasPixelArray.cpp; sourceTree = "<group>"; };
 		89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
 		89F4A0D40F200D59000A326A /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
 		89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArrayCustom.cpp; sourceTree = "<group>"; };
-		89F5A4650F1ED04A0084BC85 /* CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasPixelArray.h; sourceTree = "<group>"; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
 		934CC2290EDCC38400A658F2 /* RGBColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBColor.h; sourceTree = "<group>"; };
@@ -4574,8 +4581,6 @@
 		7B0095D00DAFF0DC00F72082 /* v8 */ = {
 			isa = PBXGroup;
 			children = (
-				89F4A0AB0F1FAA69000A326A /* CanvasPixelArray.cpp */,
-				89F5A4650F1ED04A0084BC85 /* CanvasPixelArray.h */,
 				7B0095D20DAFF0DC00F72082 /* dom_wrapper_map.h */,
 				B5B0D4190EC8FE4900EA3314 /* JSDOMBinding.h */,
 				B5B0D41A0EC8FE4900EA3314 /* JSDOMBinding.cpp */,
@@ -5259,6 +5264,8 @@
 				7B5E8BE40D7F3B62001ECF42 /* CanvasGradient.h */,
 				7B5E8BE60D7F3B62001ECF42 /* CanvasPattern.cpp */,
 				7B5E8BE70D7F3B62001ECF42 /* CanvasPattern.h */,
+				53AAC3710F291E9000233688 /* CanvasPixelArray.h */,
+				53AAC36F0F291E8000233688 /* CanvasPixelArray.cpp */,
 				7B5E8BEA0D7F3B62001ECF42 /* CanvasRenderingContext2D.cpp */,
 				7B5E8BEB0D7F3B62001ECF42 /* CanvasRenderingContext2D.h */,
 				7B5E8BED0D7F3B62001ECF42 /* CanvasStyle.cpp */,
@@ -5480,6 +5487,8 @@
 				7B5E8DA70D7F3C01001ECF42 /* DocLoader.h */,
 				7B5E8DA80D7F3C01001ECF42 /* DocumentLoader.cpp */,
 				7B5E8DA90D7F3C01001ECF42 /* DocumentLoader.h */,
+				53AAC37C0F291F0F00233688 /* DocumentThreadableLoader.cpp */,
+				53AAC37E0F291F2900233688 /* DocumentThreadableLoader.h */,
 				AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */,
 				7B5E8DAA0D7F3C01001ECF42 /* FormState.cpp */,
 				7B5E8DAB0D7F3C01001ECF42 /* FormState.h */,
@@ -5535,6 +5544,9 @@
 				7B5E8DDF0D7F3C01001ECF42 /* TextDocument.h */,
 				7B5E8DE00D7F3C01001ECF42 /* TextResourceDecoder.cpp */,
 				7B5E8DE10D7F3C01001ECF42 /* TextResourceDecoder.h */,
+				53AAC37F0F291F4300233688 /* ThreadableLoader.cpp */,
+				53AAC3810F291F5300233688 /* ThreadableLoader.h */,
+				53AAC3820F291F6300233688 /* ThreadableLoaderClient.h */,
 				7B5E8DC90D7F3C01001ECF42 /* UserStyleSheetLoader.cpp */,
 				7B5E8DCA0D7F3C01001ECF42 /* UserStyleSheetLoader.h */,
 			);
@@ -5947,6 +5959,7 @@
 				7B5E912D0D7F3CC2001ECF42 /* FormData.h */,
 				040BA91E0F0077E800BFA8E5 /* FormDataBuilder.cpp */,
 				040BA9200F0077EE00BFA8E5 /* FormDataBuilder.h */,
+				53AAC3930F291FCF00233688 /* HTTPHeaderMap.cpp */,
 				7B5E912E0D7F3CC2001ECF42 /* HTTPHeaderMap.h */,
 				7B5E912F0D7F3CC2001ECF42 /* HTTPParsers.cpp */,
 				7B5E91300D7F3CC2001ECF42 /* HTTPParsers.h */,
@@ -6591,7 +6604,6 @@
 		7B5E96CD0D7F3EDA001ECF42 /* cg */ = {
 			isa = PBXGroup;
 			children = (
-				7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */,
 				7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */,
 				7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */,
 				7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */,
@@ -8185,7 +8197,6 @@
 				9384478B0F16B06E0075F4C5 /* ScriptCallStack.cpp in Sources */,
 				9384478C0F16B06E0075F4C5 /* ScriptCallStack.cpp in Sources */,
 				9384478D0F16B06E0075F4C5 /* ScriptInstance.cpp in Sources */,
-				89F4A0B50F200C17000A326A /* CanvasPixelArray.cpp in Sources */,
 				9384478E0F16B06E0075F4C5 /* ScriptValue.cpp in Sources */,
 				9384478F0F16B06E0075F4C5 /* SVGElementFactory.cpp in Sources */,
 				938447900F16B06E0075F4C5 /* SVGNames.cpp in Sources */,
@@ -9204,7 +9215,6 @@
 				938446D10F16B0570075F4C5 /* SVGNumberList.cpp in Sources */,
 				938446D20F16B0570075F4C5 /* SVGPaint.cpp in Sources */,
 				938446D30F16B0570075F4C5 /* SVGPaintServer.cpp in Sources */,
-				938446D40F16B0570075F4C5 /* SVGPaintServerCg.cpp in Sources */,
 				938446D50F16B0570075F4C5 /* SVGPaintServerGradient.cpp in Sources */,
 				938446D60F16B0570075F4C5 /* SVGPaintServerLinearGradient.cpp in Sources */,
 				938446D70F16B0570075F4C5 /* SVGPaintServerPattern.cpp in Sources */,
@@ -9383,6 +9393,10 @@
 				93EF1C0E0F214F260070601B /* JPEGImageDecoder.cpp in Sources */,
 				93EF1C0F0F214F260070601B /* PNGImageDecoder.cpp in Sources */,
 				93EF1C100F214F260070601B /* XBMImageDecoder.cpp in Sources */,
+				53AAC3700F291E8000233688 /* CanvasPixelArray.cpp in Sources */,
+				53AAC37D0F291F0F00233688 /* DocumentThreadableLoader.cpp in Sources */,
+				53AAC3800F291F4400233688 /* ThreadableLoader.cpp in Sources */,
+				53AAC3940F291FCF00233688 /* HTTPHeaderMap.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

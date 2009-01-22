@@ -1858,3 +1858,7 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-15-t.svg = FAIL
 // These two appear to have been failing before the merge.
 LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
+
+// Merge 40086:40124 -- new test
+// This needs layoutTestController.numberOfActiveAnimations implemented.
+LayoutTests/transitions/repeated-firing-background-color.html = TIMEOUT

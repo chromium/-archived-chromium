@@ -1755,8 +1755,10 @@ bool WebFrameImpl::SetPrintingMode(bool printing,
     pages_.clear();
 
   // The document width is well hidden.
-  if (width)
-    *width = frame()->document()->renderer()->width();
+  if (width) {
+    WebCore::RenderObject* obj = frame()->document()->renderer();
+    *width = WebCore::RenderBox::toRenderBox(obj)->width();
+  }
   return true;
 }
 

@@ -2501,10 +2501,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\CanvasPixelArray.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bindings\v8\RGBColor.cpp"
 			>
 		</File>
@@ -2550,10 +2546,6 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\ScriptInstance.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\CanvasPixelArray.h"
 			>
 		</File>
 		<File

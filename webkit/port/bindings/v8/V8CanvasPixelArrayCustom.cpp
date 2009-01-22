@@ -47,11 +47,15 @@ INDEXED_PROPERTY_GETTER(CanvasPixelArray) {
         V8Proxy::ToNativeObject<CanvasPixelArray>(
             V8ClassIndex::CANVASPIXELARRAY,
             info.Holder());
-  
+
     if ((index < 0) || (index >= pixelBuffer->length())) {
         return v8::Undefined();
     }
-    return v8::Number::New(pixelBuffer->get(index));
+    unsigned char result;
+    if (!pixelBuffer->get(index, result)) {
+        return v8::Undefined();
+    }
+    return v8::Number::New(result);
 }
 
 

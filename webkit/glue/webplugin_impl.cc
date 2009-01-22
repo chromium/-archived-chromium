@@ -33,6 +33,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformContextSkia.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformString.h"
+#include "RenderBox.h"
 #include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
 #include "ResourceResponse.h"
@@ -633,7 +634,8 @@ void WebPluginImpl::windowCutoutRects(
       if (n && n->hasTagName(WebCore::HTMLNames::iframeTag)) {
         if (!ro->style() || ro->style()->visibility() == WebCore::VISIBLE) {
           WebCore::IntPoint point = roundedIntPoint(ro->localToAbsolute());
-          WebCore::IntSize size(ro->width(), ro->height());
+          WebCore::RenderBox* rbox = WebCore::RenderBox::toRenderBox(ro);
+          WebCore::IntSize size(rbox->width(), rbox->height());
           cutouts->append(WebCore::IntRect(point, size));
         }
       }

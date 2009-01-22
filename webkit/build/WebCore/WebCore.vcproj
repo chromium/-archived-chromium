@@ -675,6 +675,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocumentThreadableLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocumentThreadableLoader.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\FormState.cpp"
 				>
 			</File>
@@ -836,6 +844,18 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\TextResourceDecoder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\ThreadableLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\ThreadableLoader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\ThreadableLoaderClient.h"
 				>
 			</File>
 			<Filter
@@ -1771,6 +1791,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\network\FormDataBuilder.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\network\HTTPHeaderMap.cpp"
 					>
 				</File>
 				<File
@@ -5291,6 +5315,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasPixelArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasPixelArray.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasRenderingContext2D.cpp"
 				>
 			</File>
@@ -7212,10 +7244,6 @@
 				<Filter
 					Name="skia"
 					>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGPaintServerSkia.cpp"
-						>
-					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGResourceFilterSkia.cpp"
 						>

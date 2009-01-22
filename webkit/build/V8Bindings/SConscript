@@ -321,7 +321,6 @@ inputs = [
     '$DERIVED_DIR/V8XPathResult.cpp',
     '$DERIVED_DIR/V8XSLTProcessor.cpp',
 
-    '$PORT_DIR/bindings/v8/CanvasPixelArray.cpp',
     '$PORT_DIR/bindings/v8/JSDOMBinding.cpp',
     '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
     '$PORT_DIR/bindings/v8/np_v8object.cpp',
