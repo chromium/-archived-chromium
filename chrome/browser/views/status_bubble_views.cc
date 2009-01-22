@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/status_bubble.h"
+#include "chrome/browser/views/status_bubble_views.h"
 
 #include <algorithm>
 
@@ -64,9 +64,9 @@ static const int kFramerate = 25;
 // View -----------------------------------------------------------------------
 // StatusView manages the display of the bubble, applying text changes and
 // fading in or out the bubble as required.
-class StatusBubble::StatusView : public views::Label,
-                                 public Animation,
-                                 public AnimationDelegate {
+class StatusBubbleViews::StatusView : public views::Label,
+                                      public Animation,
+                                      public AnimationDelegate {
  public:
   StatusView(StatusBubble* status_bubble, views::WidgetWin* popup)
       : Animation(kFramerate, this),
@@ -146,7 +146,7 @@ class StatusBubble::StatusView : public views::Label,
   BubbleStage stage_;
   BubbleStyle style_;
 
-  ScopedRunnableMethodFactory<StatusBubble::StatusView> timer_factory_;
+  ScopedRunnableMethodFactory<StatusBubbleViews::StatusView> timer_factory_;
 
   // Manager, owns us.
   StatusBubble* status_bubble_;
@@ -164,7 +164,7 @@ class StatusBubble::StatusView : public views::Label,
   double opacity_end_;
 };
 
-void StatusBubble::StatusView::SetText(const std::wstring& text) {
+void StatusBubbleViews::StatusView::SetText(const std::wstring& text) {
   if (text.empty()) {
     // The string was empty.
     StartHiding();
@@ -177,7 +177,7 @@ void StatusBubble::StatusView::SetText(const std::wstring& text) {
   SchedulePaint();
 }
 
-void StatusBubble::StatusView::Show() {
+void StatusBubbleViews::StatusView::Show() {
   Stop();
   CancelTimer();
   SetOpacity(1.0);
@@ -185,7 +185,7 @@ void StatusBubble::StatusView::Show() {
   PaintNow();
 }
 
-void StatusBubble::StatusView::Hide() {
+void StatusBubbleViews::StatusView::Hide() {
   Stop();
   CancelTimer();
   SetOpacity(0.0);
@@ -193,16 +193,16 @@ void StatusBubble::StatusView::Hide() {
   stage_ = BUBBLE_HIDDEN;
 }
 
-void StatusBubble::StatusView::StartTimer(int time) {
+void StatusBubbleViews::StatusView::StartTimer(int time) {
   if (!timer_factory_.empty())
     timer_factory_.RevokeAll();
 
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      timer_factory_.NewRunnableMethod(&StatusBubble::StatusView::OnTimer),
+      timer_factory_.NewRunnableMethod(&StatusBubbleViews::StatusView::OnTimer),
       time);
 }
 
-void StatusBubble::StatusView::OnTimer() {
+void StatusBubbleViews::StatusView::OnTimer() {
   if (stage_ == BUBBLE_HIDING_TIMER) {
     stage_ = BUBBLE_HIDING_FADE;
     StartFade(1.0, 0.0, kHideFadeDurationMS);
@@ -212,18 +212,18 @@ void StatusBubble::StatusView::OnTimer() {
   }
 }
 
-void StatusBubble::StatusView::CancelTimer() {
+void StatusBubbleViews::StatusView::CancelTimer() {
   if (!timer_factory_.empty()) {
     timer_factory_.RevokeAll();
   }
 }
 
-void StatusBubble::StatusView::RestartTimer(int delay) {
+void StatusBubbleViews::StatusView::RestartTimer(int delay) {
   CancelTimer();
   StartTimer(delay);
 }
 
-void StatusBubble::StatusView::ResetTimer() {
+void StatusBubbleViews::StatusView::ResetTimer() {
   if (stage_ == BUBBLE_SHOWING_TIMER) {
     // We hadn't yet begun showing anything when we received a new request
     // for something to show, so we start from scratch.
@@ -231,9 +231,9 @@ void StatusBubble::StatusView::ResetTimer() {
   }
 }
 
-void StatusBubble::StatusView::StartFade(double start,
-                                         double end,
-                                         int duration) {
+void StatusBubbleViews::StatusView::StartFade(double start,
+                                              double end,
+                                              int duration) {
   opacity_start_ = start;
   opacity_end_ = end;
 
@@ -242,7 +242,7 @@ void StatusBubble::StatusView::StartFade(double start,
   Start();
 }
 
-void StatusBubble::StatusView::StartHiding() {
+void StatusBubbleViews::StatusView::StartHiding() {
   if (stage_ == BUBBLE_SHOWN) {
     stage_ = BUBBLE_HIDING_TIMER;
     StartTimer(kHideDelay);
@@ -260,7 +260,7 @@ void StatusBubble::StatusView::StartHiding() {
   }
 }
 
-void StatusBubble::StatusView::StartShowing() {
+void StatusBubbleViews::StatusView::StartShowing() {
   if (stage_ == BUBBLE_HIDDEN) {
     stage_ = BUBBLE_SHOWING_TIMER;
     StartTimer(kShowDelay);
@@ -285,21 +285,21 @@ void StatusBubble::StatusView::StartShowing() {
 }
 
 // Animation functions.
-double StatusBubble::StatusView::GetCurrentOpacity() {
+double StatusBubbleViews::StatusView::GetCurrentOpacity() {
   return opacity_start_ + (opacity_end_ - opacity_start_) *
          Animation::GetCurrentValue();
 }
 
-void StatusBubble::StatusView::SetOpacity(double opacity) {
+void StatusBubbleViews::StatusView::SetOpacity(double opacity) {
   popup_->SetLayeredAlpha(static_cast<BYTE>(opacity * 255));
   SchedulePaint();
 }
 
-void StatusBubble::StatusView::AnimateToState(double state) {
+void StatusBubbleViews::StatusView::AnimateToState(double state) {
   SetOpacity(GetCurrentOpacity());
 }
 
-void StatusBubble::StatusView::AnimationEnded(
+void StatusBubbleViews::StatusView::AnimationEnded(
     const Animation* animation) {
   SetOpacity(opacity_end_);
 
@@ -310,14 +310,14 @@ void StatusBubble::StatusView::AnimationEnded(
   }
 }
 
-void StatusBubble::StatusView::SetStyle(BubbleStyle style) {
+void StatusBubbleViews::StatusView::SetStyle(BubbleStyle style) {
   if (style_ != style) {
     style_ = style;
     SchedulePaint();
   }
 }
 
-void StatusBubble::StatusView::Paint(ChromeCanvas* canvas) {
+void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
   SkPaint paint;
   paint.setStyle(SkPaint::kFill_Style);
   paint.setFlags(SkPaint::kAntiAlias_Flag);
@@ -443,7 +443,7 @@ void StatusBubble::StatusView::Paint(ChromeCanvas* canvas) {
 
 // StatusBubble ---------------------------------------------------------------
 
-StatusBubble::StatusBubble(views::Widget* frame)
+StatusBubbleViews::StatusBubbleViews(views::Widget* frame)
     : popup_(NULL),
       frame_(frame),
       view_(NULL),
@@ -453,7 +453,7 @@ StatusBubble::StatusBubble(views::Widget* frame)
       offset_(0) {
 }
 
-StatusBubble::~StatusBubble() {
+StatusBubbleViews::~StatusBubbleViews() {
   if (popup_.get())
     popup_->CloseNow();
 
@@ -461,7 +461,7 @@ StatusBubble::~StatusBubble() {
   size_ = NULL;
 }
 
-void StatusBubble::Init() {
+void StatusBubbleViews::Init() {
   if (!popup_.get()) {
     popup_.reset(new views::WidgetWin());
     popup_->set_delete_on_destroy(false);
@@ -483,7 +483,7 @@ void StatusBubble::Init() {
   }
 }
 
-void StatusBubble::SetStatus(const std::wstring& status_text) {
+void StatusBubbleViews::SetStatus(const std::wstring& status_text) {
   if (status_text_ == status_text)
     return;
 
@@ -499,7 +499,7 @@ void StatusBubble::SetStatus(const std::wstring& status_text) {
   }
 }
 
-void StatusBubble::SetURL(const GURL& url, const std::wstring& languages) {
+void StatusBubbleViews::SetURL(const GURL& url, const std::wstring& languages) {
   Init();
 
   // If we want to clear a displayed URL but there is a status still to
@@ -528,20 +528,14 @@ void StatusBubble::SetURL(const GURL& url, const std::wstring& languages) {
   view_->SetText(url_text_);
 }
 
-void StatusBubble::ClearURL() {
-  Init();
-  url_text_ = std::wstring();
-  view_->SetText(url_text_);
-}
-
-void StatusBubble::Hide() {
+void StatusBubbleViews::Hide() {
   status_text_ = std::wstring();
   url_text_ = std::wstring();
   if (view_)
     view_->Hide();
 }
 
-void StatusBubble::MouseMoved() {
+void StatusBubbleViews::MouseMoved() {
   if (view_) {
     view_->ResetTimer();
 
@@ -553,7 +547,7 @@ void StatusBubble::MouseMoved() {
   }
 }
 
-void StatusBubble::AvoidMouse() {
+void StatusBubbleViews::AvoidMouse() {
   // Our status bubble is located in screen coordinates, so we should get
   // those rather than attempting to reverse decode the web contents
   // coordinates.
@@ -613,7 +607,7 @@ void StatusBubble::AvoidMouse() {
   }
 }
 
-void StatusBubble::Reposition() {
+void StatusBubbleViews::Reposition() {
   if (popup_.get()) {
     gfx::Point top_left;
     views::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
@@ -625,7 +619,7 @@ void StatusBubble::Reposition() {
   }
 }
 
-void StatusBubble::SetBounds(int x, int y, int w, int h) {
+void StatusBubbleViews::SetBounds(int x, int y, int w, int h) {
   // If the UI layout is RTL, we need to mirror the position of the bubble
   // relative to the parent.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {

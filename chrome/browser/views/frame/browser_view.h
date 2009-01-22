@@ -24,7 +24,7 @@ class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
 class InfoBarContainer;
 class Menu;
-class StatusBubble;
+class StatusBubbleViews;
 class TabContentsContainerView;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -355,7 +355,7 @@ class BrowserView : public BrowserWindow,
   TabContentsContainerView* contents_container_;
 
   // The Status information bubble that appears at the bottom of the window.
-  scoped_ptr<StatusBubble> status_bubble_;
+  scoped_ptr<StatusBubbleViews> status_bubble_;
 
   // A mapping between accelerators and commands.
   scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;

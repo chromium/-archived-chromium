@@ -738,11 +738,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\status_bubble.cc"
+			RelativePath=".\status_bubble_views.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\status_bubble.h"
+			RelativePath=".\status_bubble_views.h"
 			>
 		</File>
 		<File

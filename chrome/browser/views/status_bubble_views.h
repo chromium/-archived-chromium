@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H_
-#define CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H_
+#ifndef CHROME_BROWSER_VIEWS_STATUS_BUBBLE_VIEWS_H_
+#define CHROME_BROWSER_VIEWS_STATUS_BUBBLE_VIEWS_H_
 
 #include "base/gfx/rect.h"
+#include "chrome/browser/status_bubble.h"
 #include "chrome/views/widget.h"
 #include "chrome/views/widget_win.h"
 
@@ -14,33 +15,10 @@ class GURL;
 // StatusBubble displays a bubble of text that fades in, hovers over the
 // browser chrome and fades away when not needed. It is primarily designed
 // to allow users to see where hovered links point to.
-class StatusBubble {
+class StatusBubbleViews : public StatusBubble {
  public:
-  explicit StatusBubble(views::Widget* frame);
-  ~StatusBubble();
-
-  // Sets the bubble contents to a specific string and causes the bubble
-  // to display immediately. Subsequent empty SetURL calls (typically called
-  // when the cursor exits a link) will set the status bubble back to its
-  // status text. To hide the status bubble again, either call SetStatus
-  // with an empty string, or call Hide().
-  void SetStatus(const std::wstring& status);
-
-  // Sets the bubble text to a URL - if given a non-empty URL, this will cause
-  // the bubble to fade in and remain open until given an empty URL or until
-  // the Hide() method is called. languages is the value of Accept-Language
-  // to determine what characters are understood by a user.
-  void SetURL(const GURL& url, const std::wstring& languages);
-
-  // Clear the URL and begin the fadeout of the bubble if not status text
-  // needs to be displayed.
-  void ClearURL();
-
-  // Skip the fade and instant-hide the bubble.
-  void Hide();
-
-  // Called when the user's mouse has moved over web content.
-  void MouseMoved();
+  explicit StatusBubbleViews(views::Widget* frame);
+  ~StatusBubbleViews();
 
   // Set the bounds of the bubble relative to the browser window.
   void SetBounds(int x, int y, int w, int h);
@@ -48,6 +26,12 @@ class StatusBubble {
   // Reposition the bubble - as we are using a WS_POPUP for the bubble,
   // we have to manually position it when the browser window moves.
   void Reposition();
+
+  // Overridden from StatusBubble:
+  virtual void SetStatus(const std::wstring& status);
+  virtual void SetURL(const GURL& url, const std::wstring& languages);
+  virtual void Hide();
+  virtual void MouseMoved();
 
  private:
   class StatusView;
@@ -80,8 +64,8 @@ class StatusBubble {
   views::Widget* frame_;
   StatusView* view_;
 
-  DISALLOW_COPY_AND_ASSIGN(StatusBubble);
+  DISALLOW_COPY_AND_ASSIGN(StatusBubbleViews);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H_
+#endif  // CHROME_BROWSER_VIEWS_STATUS_BUBBLE_VIEWS_H_
 

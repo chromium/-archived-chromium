@@ -762,6 +762,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\status_bubble.h"
+				>
+			</File>
+			<File
 				RelativePath=".\task_manager.cc"
 				>
 			</File>

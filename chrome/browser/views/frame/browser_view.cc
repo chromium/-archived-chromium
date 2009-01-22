@@ -27,7 +27,7 @@
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/password_manager_view.h"
-#include "chrome/browser/views/status_bubble.h"
+#include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_view.h"
@@ -352,7 +352,7 @@ void BrowserView::Init() {
   set_contents_view(contents_container_);
   AddChildView(contents_container_);
 
-  status_bubble_.reset(new StatusBubble(GetWidget()));
+  status_bubble_.reset(new StatusBubbleViews(GetWidget()));
 
 #ifdef CHROME_PERSONALIZATION
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
