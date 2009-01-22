@@ -37,20 +37,6 @@ class SleepSome : public Task {
   int msec_;
 };
 
-class SleepInsideInitThread : public Thread {
- public:
-  SleepInsideInitThread() : Thread("none") { init_called_ = false; }
-  virtual ~SleepInsideInitThread() { }
-
-  virtual void Init() {
-    PlatformThread::Sleep(1000);
-    init_called_ = true;
-  }
-  bool InitCalled() { return init_called_; }
- private:
-  bool init_called_;
-};
-
 }  // namespace
 
 TEST_F(ThreadTest, Restart) {
@@ -121,12 +107,3 @@ TEST_F(ThreadTest, ThreadName) {
   EXPECT_TRUE(a.Start());
   EXPECT_EQ("ThreadName", a.thread_name());
 }
-
-// Make sure we can't use a thread between Start() and Init().
-TEST_F(ThreadTest, SleepInsideInit) {
-  SleepInsideInitThread t;
-  EXPECT_FALSE(t.InitCalled());
-  t.Start();
-  EXPECT_TRUE(t.InitCalled());
-}
-
