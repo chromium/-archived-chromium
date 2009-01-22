@@ -612,10 +612,9 @@ void TestShell::WaitTestFinished() {
   // timeout, it can't do anything except terminate the test
   // shell, which is unfortunate.
   // Windows multiplies by 2.5, but that causes us to run for far, far too
-  // long. We can adjust it down later if we need to.  (The Mac BuildBots have
-  // some IO problems that slow things down, so we're leaving this high just
-  // to give the server a little more breathing room.)
-  NSTimeInterval timeout_seconds = GetLayoutTestTimeoutInSeconds() * 2.0;
+  // long. We use the passed value and let the scripts flag override
+  // the value as needed.
+  NSTimeInterval timeout_seconds = GetLayoutTestTimeoutInSeconds();
   WatchDogTarget* watchdog = [[[WatchDogTarget alloc] 
                                 initWithTimeout:timeout_seconds] autorelease];
   NSThread* thread = [[NSThread alloc] initWithTarget:watchdog
