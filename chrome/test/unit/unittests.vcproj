@@ -455,6 +455,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\extensions\extension_protocols_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\extensions\extension_unittest.cc"
 				>
 			</File>

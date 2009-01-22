@@ -4,14 +4,8 @@
   "version": "1.0",
   "name": "My extension 1",
   "description": "The first extension that I made.",
-  "user_scripts": [
-    {
-      "matches": ["http://*.google.com/*", "https://*.google.com/*"],
-      "files": ["script1.js"]
-    },
-    {
-      "matches": ["http://*.yahoo.com/*"],
-      "files": ["script2.js"]
-    }
+  "content_scripts": [
+    "script1.user.js",
+    "script2.user.js"
   ]
 }
