@@ -10,8 +10,9 @@ files.
 import struct
 
 from grit.format import interface
-from grit.node import misc
 from grit.node import include
+from grit.node import message
+from grit.node import misc
 
 
 PACK_FILE_VERSION = 1
@@ -28,7 +29,7 @@ class DataPack(interface.ItemFormatter):
     nodes = DataPack.GetDataNodes(item)
     data = {}
     for node in nodes:
-      id, value = node.GetDataPackPair(output_dir)
+      id, value = node.GetDataPackPair(output_dir, lang)
       data[id] = value
     return DataPack.WriteDataPack(data)
 
@@ -36,9 +37,9 @@ class DataPack(interface.ItemFormatter):
   def GetDataNodes(item):
     '''Returns a list of nodes that can be packed into the data pack file.'''
     nodes = []
-    if isinstance(item, include.IncludeNode):
+    if (isinstance(item, include.IncludeNode) or
+        isinstance(item, message.MessageNode)):
       return [item]
-    # TODO(tc): Handle message nodes.
     for child in item.children:
       nodes.extend(DataPack.GetDataNodes(child))
     return nodes

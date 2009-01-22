@@ -211,8 +211,9 @@ if env.Bit('linux'):
   test_shell_data = env.Repack(
       '$TARGET_ROOT/test_shell.pak',
       ['$TARGET_ROOT/grit_derived_sources/net_resources.pak',
-       '$TARGET_ROOT/grit_derived_sources/webkit_resources.pak',
        '$TARGET_ROOT/grit_derived_sources/test_shell_resources.pak',
+       '$TARGET_ROOT/grit_derived_sources/webkit_resources.pak',
+       '$TARGET_ROOT/grit_derived_sources/webkit_strings_en-US.pak',
        ]
   )
   env.Depends(test_shell, test_shell_data)

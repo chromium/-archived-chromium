@@ -174,6 +174,18 @@ class MessageNode(base.ContentNode):
     else:
       return self.attrs['offset']
 
+  def GetDataPackPair(self, output_dir, lang):
+    '''Returns a (id, string) pair that represents the string id and the string
+    in utf8.  This is used to generate the data pack data file.
+    '''
+    from grit.format import rc_header
+    id_map = rc_header.Item.tids_
+    id = id_map[self.GetTextualIds()[0]]
+
+    message = self.ws_at_start + self.Translate(lang) + self.ws_at_end
+    # |message| is a python unicode string, so convert to a utf8 byte stream.
+    return id, message.encode('utf8')
+
   # static method
   def Construct(parent, message, name, desc='', meaning='', translateable=True):
     '''Constructs a new message node that is a child of 'parent', with the

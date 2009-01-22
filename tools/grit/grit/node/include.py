@@ -47,7 +47,7 @@ class IncludeNode(base.Node):
     '''
     return self.FilenameToOpen()
 
-  def GetDataPackPair(self, output_dir):
+  def GetDataPackPair(self, output_dir, lang):
     '''Returns a (id, string) pair that represents the resource id and raw
     bytes of the data.  This is used to generate the data pack data file.
     '''
