@@ -30,6 +30,10 @@ ProcessHandle GetCurrentProcessHandle() {
   return GetCurrentProcId();
 }
 
+bool CloseProcessHandle(ProcessHandle process) {
+  return true;
+}
+
 int GetProcId(ProcessHandle process) {
   return process;
 }

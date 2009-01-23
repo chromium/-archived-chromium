@@ -5,7 +5,11 @@
 #ifndef CHROME_VIEWS_TABLE_VIEW_H_
 #define CHROME_VIEWS_TABLE_VIEW_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif  // defined(OS_WIN)
 
 #include <map>
 #include <unicode/coll.h>
@@ -14,7 +18,10 @@
 
 #include "base/logging.h"
 #include "chrome/common/l10n_util.h"
+#if defined(OS_WIN)
+// TODO(port): remove the ifdef when native_control.h is ported.
 #include "chrome/views/native_control.h"
+#endif  // defined(OS_WIN)
 #include "SkColor.h"
 
 class SkBitmap;
@@ -284,6 +291,8 @@ class TableViewObserver {
   virtual void OnTableViewDelete(TableView* table_view) {}
 };
 
+#if defined(OS_WIN)
+// TODO(port): Port TableView.
 class TableView : public NativeControl,
                   public TableModelObserver {
  public:
@@ -661,6 +670,7 @@ class TableView : public NativeControl,
 
   DISALLOW_COPY_AND_ASSIGN(TableView);
 };
+#endif  // defined(OS_WIN)
 
 }  // namespace views
 
