@@ -125,6 +125,8 @@ class RenderWidgetHostViewWin :
   virtual void WasHidden();
   virtual void SetSize(const gfx::Size& size);
   virtual HWND GetPluginHWND();
+  virtual void MovePluginWindows(
+      const std::vector<WebPluginGeometry>& plugin_window_moves);
   virtual void ForwardMouseEventToRenderer(UINT message,
                                            WPARAM wparam,
                                            LPARAM lparam);

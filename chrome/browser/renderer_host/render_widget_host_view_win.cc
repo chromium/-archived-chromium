@@ -12,10 +12,8 @@
 #include "chrome/browser/browser_accessibility.h"
 #include "chrome/browser/browser_accessibility_manager.h"
 #include "chrome/browser/browser_trial.h"
+#include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-// TODO(beng): (Cleanup) we should not need to include this file... see comment
-//             in |DidBecomeSelected|.
-#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -141,6 +139,53 @@ void RenderWidgetHostViewWin::SetSize(const gfx::Size& size) {
 
 HWND RenderWidgetHostViewWin::GetPluginHWND() {
   return m_hWnd;
+}
+
+void RenderWidgetHostViewWin::MovePluginWindows(
+    const std::vector<WebPluginGeometry>& plugin_window_moves) {
+  if (plugin_window_moves.empty())
+    return;
+
+  HDWP defer_window_pos_info =
+      ::BeginDeferWindowPos(static_cast<int>(plugin_window_moves.size()));
+
+  if (!defer_window_pos_info) {
+    NOTREACHED();
+    return;
+  }
+
+  for (size_t i = 0; i < plugin_window_moves.size(); ++i) {
+    unsigned long flags = 0;
+    const WebPluginGeometry& move = plugin_window_moves[i];
+
+    if (move.visible)
+      flags |= SWP_SHOWWINDOW;
+    else
+      flags |= SWP_HIDEWINDOW;
+
+    HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
+                                move.clip_rect.y(),
+                                move.clip_rect.right(),
+                                move.clip_rect.bottom());
+    gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
+
+    // Note: System will own the hrgn after we call SetWindowRgn,
+    // so we don't need to call DeleteObject(hrgn)
+    ::SetWindowRgn(move.window, hrgn, !move.clip_rect.IsEmpty());
+
+    defer_window_pos_info = ::DeferWindowPos(defer_window_pos_info,
+                                             move.window, NULL,
+                                             move.window_rect.x(),
+                                             move.window_rect.y(),
+                                             move.window_rect.width(),
+                                             move.window_rect.height(), flags);
+    if (!defer_window_pos_info) {
+      DCHECK(false) << "DeferWindowPos given invalid window, so rest ignored.";
+      return;
+    }
+  }
+
+  ::EndDeferWindowPos(defer_window_pos_info);
 }
 
 void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
@@ -401,8 +446,7 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
   CPaintDC paint_dc(m_hWnd);
   HBRUSH white_brush = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
 
-  RenderWidgetHost::BackingStore* backing_store =
-      render_widget_host_->GetBackingStore();
+  BackingStore* backing_store = render_widget_host_->GetBackingStore();
 
   if (backing_store) {
     gfx::Rect damaged_rect(paint_dc.m_ps.rcPaint);
@@ -417,7 +461,7 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
              paint_rect.y(),
              paint_rect.width(),
              paint_rect.height(),
-             backing_store->dc(),
+             backing_store->hdc(),
              paint_rect.x(),
              paint_rect.y(),
              SRCCOPY);

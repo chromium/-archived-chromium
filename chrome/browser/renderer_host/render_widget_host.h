@@ -157,13 +157,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Indicates if the page has finished loading.
   virtual void SetIsLoading(bool is_loading);
 
-  // Represents a device-dependent drawing surface used to hold the rendering
-  // of a RenderWidgetHost.
-  class BackingStore;
-
-  // Manages a set of backing stores.
-  class BackingStoreManager;
-
   // Get access to the widget's backing store.  If a resize is in progress,
   // then the current size of the backing store may be less than the size of
   // the widget's view.  This method returns NULL if the backing store could
@@ -226,9 +219,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
                             const gfx::Rect& caret_rect);
 
-  void MovePluginWindows(
-      const std::vector<WebPluginGeometry>& plugin_window_moves);
-
   // TODO(beng): (Cleanup) remove this friendship once we expose a clean API to
   // RenderWidgetHost Views. This exists only to give RenderWidgetHostView
   // access to Forward*Event.
@@ -238,14 +228,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   virtual void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
   void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
   void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
-
-  // Called to paint a region of the backing store
-  void PaintRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
-                 const gfx::Size& view_size);
-
-  // Called to scroll a region of the backing store
-  void ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect, int dx, int dy,
-                  const gfx::Rect& clip_rect, const gfx::Size& view_size);
 
   // Tell this object to destroy itself.
   void Destroy();
@@ -324,38 +306,22 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // operation to finish.
   base::TimeTicks repaint_start_time_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHost);
-};
-
-class RenderWidgetHost::BackingStore {
- public:
-  BackingStore(const gfx::Size& size);
-  ~BackingStore();
-
-  HDC dc() { return hdc_; }
-  const gfx::Size& size() { return size_; }
-
-  // Paints the bitmap from the renderer onto the backing store.
-  bool Refresh(HANDLE process, HANDLE bitmap_section,
-               const gfx::Rect& bitmap_rect);
-
  private:
-  // Creates a dib conforming to the height/width/section parameters passed
-  // in. The use_os_color_depth parameter controls whether we use the color
-  // depth to create an appropriate dib or not.
-  HANDLE CreateDIB(HDC dc, int width, int height, bool use_os_color_depth, 
-                   HANDLE section);
+  // Paints the given bitmap to the current backing store at the given location.
+  void PaintBackingStoreRect(HANDLE bitmap,
+                             const gfx::Rect& bitmap_rect,
+                             const gfx::Size& view_size);
 
-  // The backing store dc.
-  HDC hdc_;
-  // The size of the backing store.
-  gfx::Size size_;
-  // Handle to the backing store dib.
-  HANDLE backing_store_dib_;
-  // Handle to the original bitmap in the dc.
-  HANDLE original_bitmap_;
+  // Scrolls the given |clip_rect| in the backing by the given dx/dy amount. The
+  // |bitmap| and its corresponding location |bitmap_rect| in the backing store
+  // is the newly painted pixels by the renderer.
+  void ScrollBackingStoreRect(HANDLE bitmap,
+                              const gfx::Rect& bitmap_rect,
+                              int dx, int dy,
+                              const gfx::Rect& clip_rect,
+                              const gfx::Size& view_size);
 
-  DISALLOW_COPY_AND_ASSIGN(BackingStore);
+  DISALLOW_COPY_AND_ASSIGN(RenderWidgetHost);
 };
 
 class RenderWidgetHost::PaintObserver {
@@ -366,4 +332,4 @@ class RenderWidgetHost::PaintObserver {
   virtual void RenderWidgetHostDidPaint(RenderWidgetHost* rwh) = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_

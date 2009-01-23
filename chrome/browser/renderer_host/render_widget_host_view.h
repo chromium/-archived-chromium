@@ -59,6 +59,10 @@ class RenderWidgetHostView {
   // Retrieves the HWND used to contain plugin HWNDs.
   virtual HWND GetPluginHWND() = 0;
 
+  // Moves all plugin windows as described in the given list.
+  virtual void MovePluginWindows(
+      const std::vector<WebPluginGeometry>& plugin_window_moves) = 0;
+
   // Sends the specified mouse event to the renderer.
   virtual void ForwardMouseEventToRenderer(UINT message,
                                            WPARAM wparam,
@@ -92,10 +96,14 @@ class RenderWidgetHostView {
                                const gfx::Rect& caret_rect) = 0;
 
   // Informs the view that a portion of the widget's backing store was painted.
+  // The view should copy the given rect from the backing store of the render
+  // widget onto the screen.
   virtual void DidPaintRect(const gfx::Rect& rect) = 0;
 
   // Informs the view that a portion of the widget's backing store was scrolled
-  // by dx pixels horizontally and dy pixels vertically.
+  // by dx pixels horizontally and dy pixels vertically. The view should copy
+  // the exposed pixels from the backing store of the render widget (which has
+  // already been scrolled) onto the screen.
   virtual void DidScrollRect(
       const gfx::Rect& rect, int dx, int dy) = 0;
 
