@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="gtest"
 	ProjectGUID="{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}"
+	RootNamespace="gtest"
 	Keyword="Win32Proj"
 	>
 	<Platforms>

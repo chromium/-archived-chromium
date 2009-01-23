@@ -148,7 +148,7 @@
 			Name="support"
 			>
 			<File
-				RelativePath=".\precompiled_net.cc"
+				RelativePath="precompiled_net.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -168,7 +168,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\precompiled_net.h"
+				RelativePath="precompiled_net.h"
 				>
 			</File>
 			<File

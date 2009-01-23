@@ -12,6 +12,8 @@
 			Name="Win32"
 		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -40,10 +42,14 @@
 			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<File
 			RelativePath=".\image_diff.cc"
 			>
 		</File>
 	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

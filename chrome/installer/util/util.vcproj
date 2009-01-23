@@ -121,59 +121,59 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="browser_distribution.cc"
+			RelativePath=".\browser_distribution.cc"
 			>
 		</File>
 		<File
-			RelativePath="browser_distribution.h"
+			RelativePath=".\browser_distribution.h"
 			>
 		</File>
 		<File
-			RelativePath="copy_tree_work_item.cc"
+			RelativePath=".\copy_tree_work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="copy_tree_work_item.h"
+			RelativePath=".\copy_tree_work_item.h"
 			>
 		</File>
 		<File
-			RelativePath="create_dir_work_item.cc"
+			RelativePath=".\create_dir_work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="create_dir_work_item.h"
+			RelativePath=".\create_dir_work_item.h"
 			>
 		</File>
 		<File
-			RelativePath="create_reg_key_work_item.cc"
+			RelativePath=".\create_reg_key_work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="create_reg_key_work_item.h"
+			RelativePath=".\create_reg_key_work_item.h"
 			>
 		</File>
 		<File
-			RelativePath="delete_reg_value_work_item.cc"
+			RelativePath=".\delete_reg_value_work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="delete_reg_value_work_item.h"
+			RelativePath=".\delete_reg_value_work_item.h"
 			>
 		</File>
 		<File
-			RelativePath="delete_tree_work_item.cc"
+			RelativePath=".\delete_tree_work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="delete_tree_work_item.h"
+			RelativePath=".\delete_tree_work_item.h"
 			>
 		</File>
 		<File
-			RelativePath="google_chrome_distribution.cc"
+			RelativePath=".\google_chrome_distribution.cc"
 			>
 		</File>
 		<File
-			RelativePath="google_chrome_distribution.h"
+			RelativePath=".\google_chrome_distribution.h"
 			>
 		</File>
 		<File
@@ -185,19 +185,19 @@
 			>
 		</File>
 		<File
-			RelativePath="google_update_settings.cc"
+			RelativePath=".\google_update_settings.cc"
 			>
 		</File>
 		<File
-			RelativePath="google_update_settings.h"
+			RelativePath=".\google_update_settings.h"
 			>
 		</File>
 		<File
-			RelativePath="helper.cc"
+			RelativePath=".\helper.cc"
 			>
 		</File>
 		<File
-			RelativePath="helper.h"
+			RelativePath=".\helper.h"
 			>
 		</File>
 		<File
@@ -209,27 +209,27 @@
 			>
 		</File>
 		<File
-			RelativePath="install_util.cc"
+			RelativePath=".\install_util.cc"
 			>
 		</File>
 		<File
-			RelativePath="install_util.h"
+			RelativePath=".\install_util.h"
 			>
 		</File>
 		<File
-			RelativePath="l10n_string_util.cc"
+			RelativePath=".\l10n_string_util.cc"
 			>
 		</File>
 		<File
-			RelativePath="l10n_string_util.h"
+			RelativePath=".\l10n_string_util.h"
 			>
 		</File>
 		<File
-			RelativePath="logging_installer.cc"
+			RelativePath=".\logging_installer.cc"
 			>
 		</File>
 		<File
-			RelativePath="logging_installer.h"
+			RelativePath=".\logging_installer.h"
 			>
 		</File>
 		<File
@@ -249,11 +249,11 @@
 			>
 		</File>
 		<File
-			RelativePath="set_reg_value_work_item.cc"
+			RelativePath=".\set_reg_value_work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="set_reg_value_work_item.h"
+			RelativePath=".\set_reg_value_work_item.h"
 			>
 		</File>
 		<File
@@ -265,35 +265,35 @@
 			>
 		</File>
 		<File
-			RelativePath="util_constants.cc"
+			RelativePath=".\util_constants.cc"
 			>
 		</File>
 		<File
-			RelativePath="util_constants.h"
+			RelativePath=".\util_constants.h"
 			>
 		</File>
 		<File
-			RelativePath="version.cc"
+			RelativePath=".\version.cc"
 			>
 		</File>
 		<File
-			RelativePath="version.h"
+			RelativePath=".\version.h"
 			>
 		</File>
 		<File
-			RelativePath="work_item.cc"
+			RelativePath=".\work_item.cc"
 			>
 		</File>
 		<File
-			RelativePath="work_item.h"
+			RelativePath=".\work_item.h"
 			>
 		</File>
 		<File
-			RelativePath="work_item_list.cc"
+			RelativePath=".\work_item_list.cc"
 			>
 		</File>
 		<File
-			RelativePath="work_item_list.h"
+			RelativePath=".\work_item_list.h"
 			>
 		</File>
 	</Files>

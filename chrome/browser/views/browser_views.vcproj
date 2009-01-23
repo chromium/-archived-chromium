@@ -494,14 +494,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\event_utils.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\event_utils.h"
-			>
-		</File>
-		<File
 			RelativePath=".\event_utils.h"
 			>
 		</File>

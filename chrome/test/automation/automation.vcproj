@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="automation"
 	ProjectGUID="{1556EF78-C7E6-43C8-951F-F6B43AC0DD12}"
+	RootNamespace="automation"
 	>
 	<Platforms>
 		<Platform

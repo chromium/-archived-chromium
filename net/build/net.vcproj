@@ -14,7 +14,7 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath=".\convert_tld_data.rules"
+			RelativePath="convert_tld_data.rules"
 		/>
 	</ToolFiles>
 	<Configurations>
@@ -381,7 +381,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\precompiled_net.cc"
+				RelativePath="precompiled_net.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -401,7 +401,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\precompiled_net.h"
+				RelativePath="precompiled_net.h"
 				>
 			</File>
 			<File
