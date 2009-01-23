@@ -88,14 +88,14 @@ html[dir='rtl'] .helpbutton {
       <div class="icon"><img src="phishing_icon.png" alt="Phishing Warning Icon" onmousedown="return false;"/></div>
       <div class="title" jscontent="headLine"></div>
       <div class="main" jseval="this.innerHTML = $this.description1;"></div>
-      <div class="main"><a href="" jscontent="description2" onclick="sendCommand(2); return false;" onmousedown="return false;"></a></div>
+      <div class="main"><a href="" jscontent="description2" onclick="sendCommand('learnMore'); return false;" onmousedown="return false;"></a></div>
       <div class="main">
         <form class="submission">
-          <input type="button" name="continue_button" jsvalues="value:continue_button" onclick="sendCommand(1)">
-          <input type="button" name="back_button" jsvalues="value:back_button" onclick="sendCommand(0)">
+          <input type="button" name="continue_button" jsvalues="value:continue_button" onclick="sendCommand('proceed')">
+          <input type="button" name="back_button" jsvalues="value:back_button" onclick="sendCommand('takeMeBack')">
         </form>
       </div>
-      <div class="main"><a href="" onclick="sendCommand(3); return false;" onmousedown="return false;" jscontent="report_error"></a></div>
+      <div class="main"><a href="" onclick="sendCommand('reportError'); return false;" onmousedown="return false;" jscontent="report_error"></a></div>
     </div>
   </td>
 </table>

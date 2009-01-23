@@ -21,11 +21,12 @@ namespace {
 
 class ResourceRequestTask : public Task {
  public:
-  ResourceRequestTask(RenderViewHost* render_view_host,
+  ResourceRequestTask(int process_id,
+                      int render_view_host_id,
                       ResourceRequestAction action)
       : action_(action),
-        process_id_(render_view_host->process()->host_id()),
-        render_view_host_id_(render_view_host->routing_id()),
+        process_id_(process_id),
+        render_view_host_id_(render_view_host_id),
         resource_dispatcher_host_(
             g_browser_process->resource_dispatcher_host()) {
   }
@@ -72,7 +73,10 @@ InterstitialPage::InterstitialPage(WebContents* tab,
       action_taken_(false),
       enabled_(true),
       new_navigation_(new_navigation),
+      original_rvh_process_id_(tab->render_view_host()->process()->host_id()),
+      original_rvh_id_(tab->render_view_host()->routing_id()),
       render_view_host_(NULL),
+      resource_dispatcher_host_notified_(false),
       should_revert_tab_title_(false),
       ui_loop_(MessageLoop::current()) {
   InitInterstitialPageMap();
@@ -157,16 +161,26 @@ void InterstitialPage::Observe(NotificationType type,
                                const NotificationDetails& details) {
   switch (type) {
     case NOTIFY_NAV_ENTRY_PENDING:
-      // We are navigating away from the interstitial.  Make sure clicking on
-      // the interstitial will have no effect.
+      // We are navigating away from the interstitial (the user has typed a URL
+      // in the location bar or clicked a bookmark).  Make sure clicking on the
+      // interstitial will have no effect.  Also cancel any blocked requests
+      // on the ResourceDispatcherHost.  Note that when we get this notification
+      // the RenderViewHost has not yet navigated so we'll unblock the
+      // RenderViewHost before the resource request for the new page we are
+      // navigating arrives in the ResourceDispatcherHost.  This ensures that
+      // request won't be blocked if the same RenderViewHost was used for the
+      // new navigation.
       Disable();
+      DCHECK(!resource_dispatcher_host_notified_);
+      TakeActionOnResourceDispatcher(CANCEL);
       break;
     case NOTIFY_RENDER_WIDGET_HOST_DESTROYED:
       if (!action_taken_) {
         // The RenderViewHost is being destroyed (as part of the tab being
         // closed), make sure we clear the blocked requests.
-        DCHECK(Source<RenderViewHost>(source).ptr() ==
-               tab_->render_view_host());
+        RenderViewHost* rvh = Source<RenderViewHost>(source).ptr();
+        DCHECK(rvh->process()->host_id() == original_rvh_process_id_ &&
+               rvh->routing_id() == original_rvh_id_);
         TakeActionOnResourceDispatcher(CANCEL);
       }
       break;
@@ -210,7 +224,10 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
 }
 
 void InterstitialPage::Proceed() {
-  DCHECK(!action_taken_);
+  if (action_taken_) {
+    NOTREACHED();
+    return;
+  }
   Disable();
   action_taken_ = true;
 
@@ -235,7 +252,10 @@ void InterstitialPage::Proceed() {
 }
 
 void InterstitialPage::DontProceed() {
-  DCHECK(!action_taken_);
+  if (action_taken_) {
+    NOTREACHED();
+    return;
+  }
   Disable();
   action_taken_ = true;
 
@@ -326,14 +346,25 @@ void InterstitialPage::TakeActionOnResourceDispatcher(
     ResourceRequestAction action) {
   DCHECK(MessageLoop::current() == ui_loop_) << 
       "TakeActionOnResourceDispatcher should be called on the main thread.";
+
+  if (action == CANCEL || action == RESUME) {
+    if (resource_dispatcher_host_notified_)
+      return;
+    resource_dispatcher_host_notified_ = true;
+  }
+
   // The tab might not have a render_view_host if it was closed (in which case,
   // we have taken care of the blocked requests when processing
   // NOTIFY_RENDER_WIDGET_HOST_DESTROYED.
   // Also we need to test there is an IO thread, as when unit-tests we don't
   // have one.
-  if (tab_->render_view_host() && g_browser_process->io_thread()) {
+  RenderViewHost* rvh = RenderViewHost::FromID(original_rvh_process_id_,
+                                               original_rvh_id_);
+  if (rvh && g_browser_process->io_thread()) {
     g_browser_process->io_thread()->message_loop()->PostTask(
-        FROM_HERE, new ResourceRequestTask(tab_->render_view_host(), action));
+        FROM_HERE, new ResourceRequestTask(original_rvh_process_id_,
+                                           original_rvh_id_,
+                                           action));
   }
 }
 
@@ -354,3 +385,4 @@ InterstitialPage* InterstitialPage::GetInterstitialPage(
 
   return iter->second;
 }
+

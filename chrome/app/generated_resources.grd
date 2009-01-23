@@ -3029,8 +3029,33 @@ each locale. -->
       <message name="IDS_SAFE_BROWSING_PHISHING_BACK_BUTTON" desc="SafeBrowsing Phishing, back button">
         Back to safety
       </message>
-      <message name="IDS_SAFE_BROWSING_PHISHING_REPORT_ERROR" desc="SafeBrowsing Phishing, back button">
+      <message name="IDS_SAFE_BROWSING_PHISHING_REPORT_ERROR" desc="SafeBrowsing Phishing, report error link">
         Report an error
+      </message>
+
+      <message name="IDS_SAFE_BROWSING_MULTI_THREAT_TITLE" desc="SafeBrowsing Multi threat HTML title">
+        Malware and phishing Detected!
+      </message>
+      <message name="IDS_SAFE_BROWSING_MULTI_THREAT_DESCRIPTION1" desc="SafeBrowsing multiple threat HTML description, first line">
+        The website at &lt;strong&gt;<ph name="HOST_NAME">$1<ex>www.malware.com</ex></ph>&lt;/strong&gt; contains elements from sites which appear to host malware – software that can hurt your computer or otherwise operate without your consent.  Just visiting a site that hosts malware can infect your computer. The website also hosts contents from sites that have been reported as a “phishing” sites.  Phishing sites trick users into disclosing personal or financial information, often by pretending to represent trusted institutions, such as banks.
+      </message>
+      <message name="IDS_SAFE_BROWSING_MULTI_THREAT_DESCRIPTION2" desc="SafeBrowsing multiple threat HTML description, second line">
+        Below is a list of all the unsafe elements for the page. Click on the Diagnostic link for more information on the malware thread for a specific resource. If you know that a resource has been erroneously reported as phishing, click the 'Report error' link.
+      </message>
+      <message name="IDS_SAFE_BROWSING_MULTI_MALWARE_DESCRIPTION1" desc="SafeBrowsing Malware HTML description, first line for case of several malicious subresource">
+        The website at &lt;strong&gt;<ph name="HOST_NAME">$1<ex>www.goodsite.com</ex></ph>&lt;/strong&gt; contains elements from sites which appear to host malware – software that can hurt your computer or otherwise operate without your consent.  Just visiting a site that contains malware can infect your computer.
+      </message>
+      <message name="IDS_SAFE_BROWSING_MULTI_MALWARE_DESCRIPTION2" desc="SafeBrowsing Malware HTML description, second line for case of several malicious subresource">
+        Below is a list of all the unsafe elements for the page. Click on the Diagnostic link for more information on the thread for a specific element.
+      </message>
+      <message name="IDS_SAFE_BROWSING_MULTI_PHISHING_DESCRIPTION1" desc="SafeBrowsing Phishing HTML description, first line for case of several malicious subresource">
+        The website at &lt;strong&gt;<ph name="HOST_NAME">$1<ex>www.malware.com</ex></ph>&lt;/strong&gt; contains elements from sites which have been reported as “phishing” sites.  Phishing sites trick users into disclosing personal or financial information, often by pretending to represent trusted institutions, such as banks.
+      </message>
+      <message name="IDS_SAFE_BROWSING_PHISHING_LABEL" desc="SafeBrowsing multiple threats, phishing label in the table showing the reported threats.">
+        Phishing
+      </message>
+      <message name="IDS_SAFE_BROWSING_MALWARE_LABEL" desc="SafeBrowsing multiple threats, malware label in the table showing the reported threats.">
+        Malware
       </message>
 
       <message name="IDS_PLUGININSTALLER_MISSINGPLUGIN_PROMPT" desc="Info Bar message to prompt installing missing plugin">

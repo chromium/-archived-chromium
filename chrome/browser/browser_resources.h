@@ -9,6 +9,8 @@
 #define IDR_NEW_TAB_HTML               208
 #define IDR_SAFE_BROWSING_MALWARE_BLOCK   209
 #define IDR_SAFE_BROWSING_PHISHING_BLOCK  210
-#define IDR_INCOGNITO_TAB_HTML         211
-#define IDR_CREDITS_HTML               212
-#define IDR_HISTORY_HTML               213
+#define IDR_SAFE_BROWSING_MULTIPLE_THREAT_BLOCK  211
+#define IDR_INCOGNITO_TAB_HTML         212
+#define IDR_CREDITS_HTML               213
+#define IDR_HISTORY_HTML               214
+

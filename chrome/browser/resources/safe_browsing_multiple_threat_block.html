@@ -1,4 +1,5 @@
-<html id="template_root" jsvalues="dir:textdirection">
+<html id="template_root">
+
 <head>
 <title jscontent="title"></title>
 <style type="text/css">
@@ -65,19 +66,48 @@ input {
   margin-left:5px;
   margin-right:5px;
 }
+
+.errorlist {
+  background-color:white;
+  color:black;
+  font-size:10pt;
+  line-height:16pt;
+  text-align:left;
+}
 </style>
 
 <script>
-  function sendCommand(cmd) {
-    window.domAutomationController.setAutomationId(1);
-    window.domAutomationController.send(cmd);
-  }
+function agreed(form) {
+  form.continue_button.disabled = !form.continue_button.disabled;
+}
 
-  function agreed(form) {
-    form.continue_button.disabled = !form.continue_button.disabled;
-  }
+function sendCommand(command) {
+  window.domAutomationController.setAutomationId(1);
+  window.domAutomationController.send(command);
+}
+
+function showDiagnostic(errorID) {
+  sendCommand("showDiagnostic:" + errorID);
+}
+
+function reportError(errorID) {
+  sendCommand("reportError:" + errorID);
+}
+
+function learnMore() {
+  sendCommand("learnMore");
+}
+
+function proceed() {
+  sendCommand("proceed");
+}
+
+function takeMeBack() {
+  sendCommand("takeMeBack");
+}
 </script>
 </head>
+
 <body oncontextmenu="return false;">
 <div class="background"><img src="../security/resources/ssl_roadblock_background.png" width="100%" height="100%" alt="background" onmousedown="return false;"/></div>
 <table width="100%" cellspacing="0" cellpadding="0">
@@ -86,13 +116,23 @@ input {
       <div class="icon"><img src="phishing_icon.png" alt="Malware Icon" onmousedown="return false;"/></div>
       <div class="title" jscontent="headLine"></div>
       <div class="main" jseval="this.innerHTML = $this.description1;"></div>
-      <div class="main" jseval="this.innerHTML = $this.description2;"></div>
-      <div class="main"><a href="" jscontent="description3" onclick="sendCommand('learnMore'); return false;" onmousedown="return false;"></a></div>
+      <div class="main" jscontent="description2"></div>
+      <div class="main">
+        <table cellpadding="5" jsvalues="$counter:{value: 0}">
+          <tr jsselect="errors" class="errorlist">
+            <td jscontent="typeLabel"></td>
+            <td jscontent="url"></td>
+            <td><a href="" onclick="var id= this.getAttribute('chromiumID'); this.getAttribute('chromiumIsMalware') ? showDiagnostic(id) : reportError(id); return false;" jscontent="errorLink" jsvalues="chromiumID:$counter.value;chromiumIsMalware:type=='malware'" jseval="$counter.value++"></a></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="main"><a href="" jscontent="description3" onclick="learnMore(); return false;" onmousedown="return false;"></a></div>
       <div class="main">
         <form class="submission">
           <input name="checky" type="checkbox" onclick="agreed(this.form)">&nbsp;<span jscontent="confirm_text"></span>
-          <input type="button" name="continue_button" jsvalues="value:continue_button" disabled="true" onclick="sendCommand('proceed')"><br>
-          <input type="button" name="back_button" jsvalues="value:back_button" onclick="sendCommand('takeMeBack')">
+          <input type="button" name="continue_button" jsvalues="value:continue_button" disabled="true" onclick="proceed();"><br>
+          <input type="button" name="back_button" jsvalues="value:back_button" onclick="takeMeBack()">
         </form>
       </div>
     </div>

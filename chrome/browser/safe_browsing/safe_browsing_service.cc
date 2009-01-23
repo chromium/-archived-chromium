@@ -267,39 +267,37 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
     }
   }
 
-  BlockingPageParam param;
-  param.url = url;
-  param.resource_type = resource_type;
-  param.result = result;
-  param.client = client;
-  param.render_process_host_id = render_process_host_id;
-  param.render_view_id = render_view_id;
+  UnsafeResource resource;
+  resource.url = url;
+  resource.resource_type = resource_type;
+  resource.threat_type= result;
+  resource.client = client;
+  resource.render_process_host_id = render_process_host_id;
+  resource.render_view_id = render_view_id;
   // The blocking page must be created from the UI thread.
   ui_loop->PostTask(FROM_HERE, NewRunnableMethod(this,
       &SafeBrowsingService::DoDisplayBlockingPage,
-      param));
+      resource));
 }
 
 // Invoked on the UI thread.
 void SafeBrowsingService::DoDisplayBlockingPage(
-    const BlockingPageParam& param) {
+    const UnsafeResource& resource) {
   // The tab might have been closed.
-  if (!tab_util::GetWebContentsByID(param.render_process_host_id,
-                                    param.render_view_id)) {
+  if (!tab_util::GetWebContentsByID(resource.render_process_host_id,
+                                    resource.render_view_id)) {
     // The tab is gone and we did not have a chance at showing the interstitial.
     // Just act as "Don't Proceed" was chosen.
     base::Thread* io_thread = g_browser_process->io_thread();
     if (!io_thread)
       return;
-    BlockingPageParam response_param = param;
-    response_param.proceed = false;
+    std::vector<UnsafeResource> resources;
+    resources.push_back(resource);
     io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &SafeBrowsingService::OnBlockingPageDone, response_param));
+        this, &SafeBrowsingService::OnBlockingPageDone, resources, false));
     return;
   }
-  SafeBrowsingBlockingPage* blocking_page = new SafeBrowsingBlockingPage(this,
-                                                                         param);
-  blocking_page->Show();
+  SafeBrowsingBlockingPage::ShowBlockingPage(this, resource);
 }
 
 void SafeBrowsingService::CancelCheck(Client* client) {
@@ -519,18 +517,24 @@ void SafeBrowsingService::DatabaseUpdateFinished(bool update_succeeded) {
     GetDatabase()->UpdateFinished(update_succeeded);
 }
 
-void SafeBrowsingService::OnBlockingPageDone(const BlockingPageParam& param) {
-  NotifyClientBlockingComplete(param.client, param.proceed);
+void SafeBrowsingService::OnBlockingPageDone(
+    const std::vector<UnsafeResource>& resources,
+    bool proceed) {
+  for (std::vector<UnsafeResource>::const_iterator iter = resources.begin();
+       iter != resources.end(); ++iter) {
+    const UnsafeResource& resource = *iter;
+    NotifyClientBlockingComplete(resource.client, proceed);
 
-  if (param.proceed) {
-    // Whitelist this domain and warning type for the given tab.
-    WhiteListedEntry entry;
-    entry.render_process_host_id = param.render_process_host_id;
-    entry.render_view_id = param.render_view_id;
-    entry.domain =
-        net::RegistryControlledDomainService::GetDomainAndRegistry(param.url);
-    entry.result = param.result;
-    white_listed_entries_.push_back(entry);
+    if (proceed) {
+      // Whitelist this domain and warning type for the given tab.
+      WhiteListedEntry entry;
+      entry.render_process_host_id = resource.render_process_host_id;
+      entry.render_view_id = resource.render_view_id;
+      entry.domain = net::RegistryControlledDomainService::GetDomainAndRegistry(
+            resource.url);
+      entry.result = resource.threat_type;
+      white_listed_entries_.push_back(entry);
+    }
   }
 }
 

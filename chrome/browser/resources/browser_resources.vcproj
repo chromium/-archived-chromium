@@ -96,6 +96,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\safe_browsing_multiple_threat_block.html"
+			>
+		</File>
+		<File
 			RelativePath=".\safe_browsing_phishing_block.html"
 			>
 		</File>

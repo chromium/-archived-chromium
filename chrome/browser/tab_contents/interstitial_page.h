@@ -150,9 +150,17 @@ class InterstitialPage : public NotificationObserver,
   // The RenderViewHost displaying the interstitial contents.
   RenderViewHost* render_view_host_;
 
+  // The IDs for the RenderViewHost hidden by this interstitial.
+  int original_rvh_process_id_;
+  int original_rvh_id_;
+
   // Whether or not we should change the title of the tab when hidden (to revert
   // it to its original value).
   bool should_revert_tab_title_;
+
+  // Whether the ResourceDispatcherHost has been notified to cancel/resume the
+  // resource requests blocked for the RenderViewHost.
+  bool resource_dispatcher_host_notified_;
 
   // The original title of the tab that should be reverted to when the
   // interstitial is hidden.

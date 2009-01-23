@@ -17,27 +17,47 @@
 // The blocking page forwards the result of the user's choice back to the
 // SafeBrowsingService so that we can cancel the request for the new page, or
 // or allow it to continue.
+//
+// A web page may contain several resources flagged as malware/phishing.  This
+// results into more than one interstitial being shown.  On the first unsafe
+// resource received we show an interstitial.  Any subsequent unsafe resource
+// notifications while the first interstitial is showing is queued.  If the user
+// decides to proceed in the first interstitial, we display all queued unsafe
+// resources in a new interstitial.
 
 #ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_
 #define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_
+
+#include <map>
+#include <vector>
 
 #include "base/logging.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "googleurl/src/gurl.h"
 
+class DictionaryValue;
 class MessageLoop;
-class TabContents;
 class NavigationController;
+class WebContents;
+
 
 class SafeBrowsingBlockingPage : public InterstitialPage {
  public:
-  SafeBrowsingBlockingPage(SafeBrowsingService* service,
-                           const SafeBrowsingService::BlockingPageParam& param);
   virtual ~SafeBrowsingBlockingPage();
+
+  // Shows a blocking page warning the user about phishing/malware for a
+  // specific resource.
+  // You can call this method several times, if an interstitial is already
+  // showing, the new one will be queued and displayed if the user decides
+  // to proceed on the currently showing interstitial.
+  static void ShowBlockingPage(
+      SafeBrowsingService* service,
+      const SafeBrowsingService::UnsafeResource& resource);
 
   // InterstitialPage method:
   virtual std::string GetHTMLContents();
+  virtual void Proceed();
   virtual void DontProceed();
 
  protected:
@@ -45,34 +65,48 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
   virtual void CommandReceived(const std::string& command);
 
  private:
-  // Tells the SafeBrowsingService that the handling of the current page is
-  // done.
-  void NotifyDone();
+  typedef std::vector<SafeBrowsingService::UnsafeResource> UnsafeResourceList;
+
+  // Don't instanciate this class directly, use ShowBlockingPage instead.
+  SafeBrowsingBlockingPage(SafeBrowsingService* service,
+                           WebContents* web_contents,
+                           const UnsafeResourceList& unsafe_resources);
+
+  // Fills the passed dictionary with the strings passed to JS Template when
+  // creating the HTML.
+  void PopulateMultipleThreatStringDictionary(DictionaryValue* strings);
+  void PopulateMalwareStringDictionary(DictionaryValue* strings);
+  void PopulatePhishingStringDictionary(DictionaryValue* strings);
+
+  // A helper method used by the Populate methods above used to populate common
+  // fields.
+  void PopulateStringDictionary(DictionaryValue* strings,
+                                const std::wstring& title,
+                                const std::wstring& headline,
+                                const std::wstring& description1,
+                                const std::wstring& description2,
+                                const std::wstring& description3);
+
+
+  // A list of SafeBrowsingService::UnsafeResource for a tab that the user
+  // should be warned about.  They are queued when displaying more than one
+  // interstitial at a time.
+  typedef std::map<WebContents*, UnsafeResourceList> UnsafeResourceMap;
+  static UnsafeResourceMap* GetUnsafeResourcesMap();
+
+  // Notifies the SafeBrowsingService on the IO thread whether to proceed or not
+  // for the |resources|.
+  static void NotifySafeBrowsingService(SafeBrowsingService* sb_service,
+                                        const UnsafeResourceList& resources,
+                                        bool proceed);
+
+  // Returns true if the passed |unsafe_resources| is for the main page.
+  static bool IsMainPage(const UnsafeResourceList& unsafe_resources);
 
  private:
   // For reporting back user actions.
   SafeBrowsingService* sb_service_;
-  SafeBrowsingService::Client* client_;
   MessageLoop* report_loop_;
-  SafeBrowsingService::UrlCheckResult result_;
-
-  // For determining which tab to block (note that we need this even though we
-  // have access to the tab as when the interstitial is showing, retrieving the
-  // tab RPH and RV id would return the ones of the interstitial, not the ones
-  // for the page containing the malware).
-  // TODO(jcampan): when we refactor the interstitial to run as a separate view
-  //                that does not interact with the WebContents as much, we can
-  //                get rid of these.
-  int render_process_host_id_;
-  int render_view_id_;
-
-  // Inform the SafeBrowsingService whether we are continuing with this page
-  // load or going back to the previous page.
-  bool proceed_;
-
-  // Whether we have notify the SafeBrowsingService yet that a decision had been
-  // made whether to proceed or block the unsafe resource.
-  bool did_notify_;
 
   // Whether the flagged resource is the main page (or a sub-resource is false).
   bool is_main_frame_;
@@ -80,6 +114,9 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
   // The index of a navigation entry that should be removed when DontProceed()
   // is invoked, -1 if not entry should be removed.
   int navigation_entry_index_to_remove_;
+
+  // The list of unsafe resources this page is warning about.
+  UnsafeResourceList unsafe_resources_;
 
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingBlockingPage);
 };
