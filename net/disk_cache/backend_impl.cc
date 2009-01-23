@@ -808,18 +808,20 @@ void BackendImpl::AdjustMaxCacheSize(int table_len) {
 
   // Let's not use more than the default size while we tune-up the performance
   // of bigger caches. TODO(rvargas): remove this limit.
+  // If we are creating the file, use 1 as the multiplier so the table size is
+  // the same for everybody.
   int multiplier = table_len ? data_->header.experiment : 1;
   DCHECK(multiplier > 0 && multiplier < 5);
-  if (max_size_ > kDefaultCacheSize * multiplier)
-    max_size_ = kDefaultCacheSize * multiplier;
+  max_size_ = kDefaultCacheSize * multiplier;
 
   if (!table_len)
     return;
 
   // If we already have a table, adjust the size to it.
-  int current_max_size = MaxStorageSizeForTable(table_len);
-  if (max_size_ > current_max_size)
-    max_size_= current_max_size;
+  // NOTE: Disabled for the experiment.
+  // int current_max_size = MaxStorageSizeForTable(table_len);
+  // if (max_size_ > current_max_size)
+  //   max_size_= current_max_size;
 }
 
 void BackendImpl::RestartCache() {
@@ -1079,18 +1081,19 @@ bool BackendImpl::CheckIndex() {
     return false;
   }
 
-  if (data_->header.table_len) {
-    if (current_size < GetIndexSize(data_->header.table_len) ||
-        data_->header.table_len & (kBaseTableLen - 1)) {
-      LOG(ERROR) << "Corrupt Index file";
-      return false;
-    }
-
-    AdjustMaxCacheSize(data_->header.table_len);
-  } else {
-    max_size_ = kDefaultCacheSize;
+  if (!data_->header.table_len) {
+    LOG(ERROR) << "Invalid table size";
+    return false;
   }
 
+  if (current_size < GetIndexSize(data_->header.table_len) ||
+      data_->header.table_len & (kBaseTableLen - 1)) {
+    LOG(ERROR) << "Corrupt Index file";
+    return false;
+  }
+
+  AdjustMaxCacheSize(data_->header.table_len);
+  
   // We need to avoid integer overflows.
   DCHECK(max_size_ < kint32max - kint32max / 10);
   if (data_->header.num_bytes < 0 ||
@@ -1105,7 +1108,7 @@ bool BackendImpl::CheckIndex() {
   }
 
   if (!mask_)
-    mask_ = DesiredIndexTableLen(max_size_) - 1;
+    mask_ = data_->header.table_len - 1;
 
   return true;
 }
