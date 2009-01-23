@@ -223,12 +223,16 @@ void URLRequestFtpJob::OnIOComplete(const AsyncResult& result) {
   } else if (state_ == SETTING_CUR_DIRECTORY) {
     OnSetCurrentDirectory(result.dwError);
   } else if (state_ == FINDING_FIRST_FILE) {
-    if (result.dwError != ERROR_SUCCESS) {
+    // We don't fail here if result.dwError != ERROR_SUCCESS because
+    // getting an error here doesn't always mean the file is not found.
+    // FindFirstFileA() issue a LIST command and may fail on some
+    // ftp server when the requested object is a file. So ERROR_NO_MORE_FILES
+    // from FindFirstFileA() is not a reliable criteria for valid path
+    // or not, we should proceed optimistically by getting the file handle.
+    if (result.dwError != ERROR_SUCCESS &&
+        result.dwError != ERROR_NO_MORE_FILES) {
       DWORD result_error = result.dwError;
       CleanupConnection();
-      // Fixup the error message from our directory/file guessing.
-      if (!is_directory_ && result_error == ERROR_NO_MORE_FILES)
-        result_error = ERROR_PATH_NOT_FOUND;
       NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED,
                        WinInetUtil::OSErrorToNetError(result_error)));
       return;
