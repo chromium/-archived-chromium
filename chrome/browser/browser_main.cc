@@ -61,7 +61,6 @@
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_trial.h"
-#include "chrome/browser/cert_store.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/first_run.h"
@@ -473,9 +472,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   PluginService::GetInstance()->SetChromePluginDataDir(profile->GetPath());
 
 #if defined(OS_WIN)
-  // Initialize the CertStore.
-  CertStore::Initialize();
-
   // Prepare for memory caching of SDCH dictionaries.
   SdchManager sdch_manager;  // Construct singleton database.
   sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);

@@ -9,6 +9,7 @@
 #include <map>
 
 #include "base/lock.h"
+#include "base/singleton.h"
 #include "chrome/common/notification_service.h"
 #include "net/base/x509_certificate.h"
 
@@ -24,9 +25,6 @@
 
 class CertStore : public NotificationObserver {
  public:
-  // Creates the singleton instance.  Should be called from the UI thread.
-  static void Initialize();
-
   // Returns the singleton instance of the CertStore.
   static CertStore* GetSharedInstance();
 
@@ -48,6 +46,8 @@ class CertStore : public NotificationObserver {
                        const NotificationDetails& details);
 
  private:
+  friend struct DefaultSingletonTraits<CertStore>;
+
   CertStore();
   ~CertStore();
 
@@ -57,8 +57,6 @@ class CertStore : public NotificationObserver {
 
   // Removes all the certs associated with the specified process from the store.
   void RemoveCertsForRenderProcesHost(int render_process_host_id);
-
-  static CertStore* instance_;
 
   typedef std::multimap<int, int> IDMap;
   typedef std::map<int, scoped_refptr<net::X509Certificate> > CertMap;

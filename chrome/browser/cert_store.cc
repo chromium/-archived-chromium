@@ -23,19 +23,9 @@ struct MatchSecond {
   T value;
 };
 
-// static
-CertStore* CertStore::instance_ = NULL;
-
-// static
-void CertStore::Initialize() {
-  DCHECK(!instance_);
-  instance_ = new CertStore();
-}
-
 //  static
 CertStore* CertStore::GetSharedInstance() {
-  DCHECK(instance_);
-  return instance_;
+  return Singleton<CertStore>::get();
 }
 
 CertStore::CertStore() : next_cert_id_(1) {
@@ -52,8 +42,6 @@ CertStore::CertStore() : next_cert_id_(1) {
 }
 
 CertStore::~CertStore() {
-  NotificationService::current()->RemoveObserver(this,
-      NOTIFY_RENDERER_PROCESS_TERMINATED, NotificationService::AllSources());
 }
 
 int CertStore::StoreCert(net::X509Certificate* cert, int process_id) {
