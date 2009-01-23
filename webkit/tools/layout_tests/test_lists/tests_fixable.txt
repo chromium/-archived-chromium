@@ -1606,7 +1606,6 @@ MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH TIMEOUT PASS
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
-MAC : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 MAC : LayoutTests/fast/borders/svg-as-border-image-2.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH PASS FAIL
 MAC : LayoutTests/fast/canvas/pointInPath.html = CRASH PASS
