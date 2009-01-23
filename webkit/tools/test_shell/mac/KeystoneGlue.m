@@ -18,13 +18,20 @@ typedef enum { kKSPathExistenceChecker } KSExistenceCheckerType;
 
 @implementation KeystoneGlue
 
+// TODO(mmentovai): Determine if the app is writable, and don't register for
+// updates if not - but keep the periodic activity pings.
 + (void)registerWithKeystone {
   // Figure out who we are.
   NSBundle* mainBundle = [NSBundle mainBundle];
   NSString* bundleIdentifier = [mainBundle bundleIdentifier];
   NSDictionary* infoDictionary = [mainBundle infoDictionary];
   NSString* url = [infoDictionary objectForKey:@"KSUpdateURL"];
-  NSString* version = [infoDictionary objectForKey:(id)kCFBundleVersionKey];
+  // TODO(mmentovai): The svn version serves our purposes for now, but it will
+  // likely be replaced.  The key problem is that it does not monotonically
+  // increase for releases when considering svn branches and tags.  For the
+  // purposes of TestShell, though, which will likely only ever survive in
+  // auto-updatable form in builds straight from the trunk, this is fine.
+  NSString* version = [infoDictionary objectForKey:@"SVNRevision"];
   if (!bundleIdentifier || !url || !version) {
     // If parameters required for Keystone are missing, don't use it.
     return;

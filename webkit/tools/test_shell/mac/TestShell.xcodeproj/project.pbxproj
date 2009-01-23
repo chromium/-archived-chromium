@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		4D1F55010F2905C60040C1E3 /* package_test_shell */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4D1F55170F2906220040C1E3 /* Build configuration list for PBXAggregateTarget "package_test_shell" */;
+			buildPhases = (
+				4D1F55000F2905C60040C1E3 /* ShellScript */,
+			);
+			dependencies = (
+				4D1F55050F2905DC0040C1E3 /* PBXTargetDependency */,
+			);
+			name = package_test_shell;
+			productName = "Package TestShell";
+		};
 		4DCE98940EF0600700682526 /* All */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 4DCE98AF0EF0602400682526 /* Build configuration list for PBXAggregateTarget "All" */;
@@ -213,6 +225,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4D7B007E0E9D5538009A6919;
 			remoteInfo = sqlite;
+		};
+		4D1F55040F2905DC0040C1E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45628C30E26B4FE005E4685;
+			remoteInfo = TestShell;
 		};
 		4DB687D30EAFE79200AB2128 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1472,6 +1491,7 @@
 				E45628C30E26B4FE005E4685 /* TestShell */,
 				E45067A70EEF2776003BE099 /* test_shell_tests */,
 				E4506A340EF020E4003BE099 /* run_test_shell_tests */,
+				4D1F55010F2905C60040C1E3 /* package_test_shell */,
 			);
 		};
 /* End PBXProject section */
@@ -1804,6 +1824,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4D1F55000F2905C60040C1E3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}.sh\" \"${@}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		4D3D52680EC3838E00650CA0 /* Strip If Needed */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1931,6 +1965,11 @@
 			isa = PBXTargetDependency;
 			name = sqlite;
 			targetProxy = 4D1638770EBFA706008F024E /* PBXContainerItemProxy */;
+		};
+		4D1F55050F2905DC0040C1E3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45628C30E26B4FE005E4685 /* TestShell */;
+			targetProxy = 4D1F55040F2905DC0040C1E3 /* PBXContainerItemProxy */;
 		};
 		4DB687D60EAFE7B100AB2128 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2104,6 +2143,20 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4D1F55020F2905C70040C1E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = package_test_shell;
+			};
+			name = Debug;
+		};
+		4D1F55030F2905C70040C1E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = package_test_shell;
+			};
+			name = Release;
+		};
 		4DCE98950EF0600700682526 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2381,6 +2434,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4D1F55170F2906220040C1E3 /* Build configuration list for PBXAggregateTarget "package_test_shell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D1F55020F2905C70040C1E3 /* Debug */,
+				4D1F55030F2905C70040C1E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4DCE98AF0EF0602400682526 /* Build configuration list for PBXAggregateTarget "All" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
