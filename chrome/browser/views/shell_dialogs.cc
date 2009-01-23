@@ -304,7 +304,7 @@ void SelectFileDialogImpl::ExecuteSelectFile(
   } else if (type == SELECT_SAVEAS_FILE) {
     unsigned index = 0;
     success = win_util::SaveFileAsWithFilter(run_state.owner, default_path,
-        filter, default_extension, &index, &path);
+        filter, default_extension, false, &index, &path);
     DisableOwner(run_state.owner);
   } else if (type == SELECT_OPEN_FILE) {
     success = RunOpenFileDialog(title, filter, run_state.owner, &path);

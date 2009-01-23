@@ -174,11 +174,16 @@ bool SaveFileAs(HWND owner,
 // |final_name| returns the file name which contains the drive designator,
 // path, file name, and extension of the user selected file name. |def_ext| is
 // the default extension to give to the file if the user did not enter an
-// extension.
+// extension. If |ignore_suggested_ext| is true, any file extension contained in
+// |suggested_name| will not be used to generate the file name. This is useful
+// in the case of saving web pages, where we know the extension type already and
+// where |suggested_name| may contain a '.' character as a valid part of the
+// name, thus confusing our extension detection code.
 bool SaveFileAsWithFilter(HWND owner,
                           const std::wstring& suggested_name,
                           const std::wstring& filter,
                           const std::wstring& def_ext,
+                          bool ignore_suggested_ext,
                           unsigned* index,
                           std::wstring* final_name);
 

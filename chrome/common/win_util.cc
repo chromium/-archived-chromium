@@ -387,6 +387,7 @@ bool SaveFileAs(HWND owner,
                               suggested_name,
                               filter,
                               L"",
+                              false,
                               &index,
                               final_name);
 }
@@ -395,6 +396,7 @@ bool SaveFileAsWithFilter(HWND owner,
                           const std::wstring& suggested_name,
                           const std::wstring& filter,
                           const std::wstring& def_ext,
+                          bool ignore_suggested_ext,
                           unsigned* index,
                           std::wstring* final_name) {
   DCHECK(final_name);
@@ -472,9 +474,12 @@ bool SaveFileAsWithFilter(HWND owner,
     filter_selected = filters[(2 * (save_as.nFilterIndex - 1)) + 1];
 
   // Get the extension that was suggested to the user (when the Save As dialog
-  // was opened).
-  std::wstring suggested_ext =
-      file_util::GetFileExtensionFromPath(suggested_name);
+  // was opened). For saving web pages, we skip this step since there may be
+  // 'extension characters' in the title of the web page.
+  std::wstring suggested_ext;
+  if (!ignore_suggested_ext)
+    suggested_ext = file_util::GetFileExtensionFromPath(suggested_name);
+
   // If we can't get the extension from the suggested_name, we use the default
   // extension passed in. This is to cover cases like when saving a web page,
   // where we get passed in a name without an extension and a default extension
