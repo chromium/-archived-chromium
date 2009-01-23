@@ -116,7 +116,8 @@ bool BufferedResourceHandler::DelayResponse() {
   request_->GetResponseHeaderByName("x-content-type-options",
                                     &content_type_options);
 
-  const bool sniffing_blocked = (content_type_options == "nosniff");
+  const bool sniffing_blocked =
+      LowerCaseEqualsASCII(content_type_options, "nosniff");
   const bool we_would_like_to_sniff =
       net::ShouldSniffMimeType(request_->url(), mime_type);
 
@@ -129,6 +130,14 @@ bool BufferedResourceHandler::DelayResponse() {
     sniff_content_ = true;
     LOG(INFO) << "To buffer: " << request_->url().spec();
     return true;
+  }
+
+  if (sniffing_blocked && mime_type.empty()) {
+    // Ugg.  The server told us not to sniff the content but didn't give us a
+    // mime type.  What's a browser to do?  Turns out, we're supposed to treat
+    // the response as "text/plain".  This is the most secure option.
+    mime_type.assign("text/plain");
+    response_->response_head.mime_type.assign(mime_type);
   }
 
   if (ShouldBuffer(request_->url(), mime_type)) {
