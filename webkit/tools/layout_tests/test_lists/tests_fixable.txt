@@ -199,10 +199,8 @@ DEFER : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
 // Can defer this test once the crash is fixed.
 LayoutTests/fast/history/subframe-is-visited.html = FAIL CRASH
 
-// Bug 1027226
-// Bug 945322: test shell should dump text when
-// layoutTestController.notifyDone() is called
-DEFER : LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
+// Probably needs to be rebaselined on MAC and LINUX
+DEFER MAC LINUX : LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
 
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
@@ -248,12 +246,6 @@ LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 // Bug 1135948: Fails because we cannot call plugins as functions.
 // Can defer this test once the crash is fixed.
 LayoutTests/plugins/bindings-test.html = FAIL CRASH
-
-// Bug 871718: These tests load data: URLs into frames and sets queries on then.
-// This is totally broken. This layout test should be rewitten so that the
-// subframes are not data URLs (probably we want files in the resources dir.).
-// Mac currently passes this
-DEFER WIN: LayoutTests/fast/encoding/char-encoding.html = FAIL
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
@@ -462,7 +454,7 @@ DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
 
 // This test is failing because Apple's results appear to be bogus. Will let them know.
-DEFER : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
+DEFER MAC : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
 
 // This test fails because of an oddity in stroke width calculation. A
 // line is stroked horizontally from Y=100 with stroke width 100, we consider
@@ -828,12 +820,10 @@ LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-LINUX WIN : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
-// Our pixel results have a darker green color.
-WIN : LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL
-LINUX WIN : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
-LINUX WIN : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
-LINUX WIN : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
+LINUX : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
+LINUX : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
+LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+LINUX : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 // Linux pixeltest failure: Failing to render shadows
 LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
@@ -949,9 +939,9 @@ LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 
 // Off-by-one in form controls -- font metrics?
-LINUX MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
+MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
+MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
 
 // Hebrew font metrics.
 LINUX : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
@@ -1110,9 +1100,7 @@ LayoutTests/fast/forms/selection-functions.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
-WIN : LayoutTests/fast/css/line-height-overflow.html = FAIL
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
-WIN : LayoutTests/fast/flexbox/009.html = FAIL
 // The thumb in the scrollbar looks wrong.  It looks too narrow.
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
 // The list box selection is wrong, the focus ring is wrong, and the thumb in
@@ -1134,7 +1122,6 @@ LINUX WIN : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
-WIN : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
 LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
@@ -1154,7 +1141,7 @@ LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/fast/profiler = FAIL TIMEOUT
-LINUX WIN : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
+LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
@@ -1201,7 +1188,7 @@ LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
 
 // MERGE 38729:38760: Regressions
-LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 // Windows is missing the green box.
 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
@@ -1784,15 +1771,6 @@ WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 WIN : LayoutTests/fast/canvas/pointInPath.html = FAIL
 LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
-// Merge 39744:39829 - regressions
-WIN LINUX : LayoutTests/editing/pasteboard/4947130.html = FAIL
-WIN LINUX : LayoutTests/editing/selection/drag-text-delay.html = FAIL
-WIN : LayoutTests/fast/events/space-scroll-event.html = FAIL
-
-WIN : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
-WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-
 // Release failures are Merge 39829:39744 regressions
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
@@ -1802,10 +1780,10 @@ MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_r
 // 12-Jan-2009 Regressions:
 // I'm turning these off to green the build until I can look at them tomorrow. For the
 // most part they probably just need to be rebaselined due to recent Skia SVG changes.
-LINUX WIN : LayoutTests/fast/images/animated-svg-as-image.html = FAIL
+LINUX : LayoutTests/fast/images/animated-svg-as-image.html = FAIL
 
 // Looks like this just needs a rebaseline.
-LINUX WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
+LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39830:39880 - new tests
 LayoutTests/plugins/npruntime.html = FAIL TIMEOUT
@@ -1854,10 +1832,6 @@ LINUX WIN : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 LINUX WIN : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
-// Merge 39953:39972 -- the test actually passes, but test_shell appears to eat
-// first few chars. See http://crbug.com/6518
-LINUX WIN : LayoutTests/fast/dom/css-selectorText.html = FAIL
-
 // Passes locally but Text diff fails on the buildbots
 LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 
@@ -1880,14 +1854,12 @@ LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 
 // TestShell change to dump() on notifyDone http://codereview.chromium.org/18440
-LINUX WIN : LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
-LINUX WIN : LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
+WIN : LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
+WIN : LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
 WIN : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
-LINUX WIN : LayoutTests/transitions/inherit-other-props.html = TIMEOUT
-WIN LINUX : LayoutTests/fast/forms/drag-into-textarea.html = FAIL
-LINUX WIN :LayoutTests/transitions/retargetted-transition.html = TIMEOUT
+WIN : LayoutTests/transitions/inherit-other-props.html = TIMEOUT
+WIN :LayoutTests/transitions/retargetted-transition.html = TIMEOUT
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
-LINUX WIN : LayoutTests/http/tests/misc/cached-scripts.html = TIMEOUT
 MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
 MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
