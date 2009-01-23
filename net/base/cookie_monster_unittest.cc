@@ -406,6 +406,12 @@ TEST(CookieMonsterTest, TestIpAddress) {
     EXPECT_FALSE(cm.SetCookie(url_ip, "b=2; domain=.1.2.3.4"));
     EXPECT_FALSE(cm.SetCookie(url_ip, "c=3; domain=.3.4"));
     EXPECT_EQ("", cm.GetCookies(url_ip));
+    // It should be allowed to set a cookie if domain= matches the IP address
+    // exactly.  This matches IE/Firefox, even though it seems a bit wrong.
+    EXPECT_FALSE(cm.SetCookie(url_ip, "b=2; domain=1.2.3.3"));
+    EXPECT_EQ("", cm.GetCookies(url_ip));
+    EXPECT_TRUE(cm.SetCookie(url_ip, "b=2; domain=1.2.3.4"));
+    EXPECT_EQ("b=2", cm.GetCookies(url_ip));
   }
 }
 

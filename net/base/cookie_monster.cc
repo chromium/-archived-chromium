@@ -259,8 +259,12 @@ static bool GetCookieDomainKey(const GURL& url,
                                const CookieMonster::ParsedCookie& pc,
                                std::string* cookie_domain_key) {
   const std::string url_host(url.host());
-  if (!pc.HasDomain() || pc.Domain().empty()) {
-    // No domain was specified in cookie -- default to host cookie.
+
+  // If no domain was specified in the cookie, default to a host cookie.
+  // We match IE/Firefox in allowing a domain=IPADDR if it matches the url
+  // ip address hostname exactly.  It should be treated as a host cookie.
+  if (!pc.HasDomain() || pc.Domain().empty() ||
+      (url.HostIsIPAddress() && url_host == pc.Domain())) {
     *cookie_domain_key = url_host;
     DCHECK((*cookie_domain_key)[0] != '.');
     return true;
