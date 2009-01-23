@@ -1885,6 +1885,3 @@ LayoutTests/transitions/inherit-other-props.html = TIMEOUT
 // Merge 40086:40124 -- new test
 // This needs layoutTestController.numberOfActiveAnimations implemented.
 LayoutTests/transitions/repeated-firing-background-color.html = TIMEOUT
-
-// Merge 40086:40124 -- regression
-LayoutTests/fast/forms/drag-into-textarea.html = FAIL
