@@ -5,6 +5,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"
+#include "skia/include/SkBitmap.h"
 
 extern "C" {
 #include "png.h"
@@ -189,5 +190,16 @@ bool PNGEncoder::Encode(const unsigned char* input, ColorFormat format,
 
   png_write_end(png_ptr, info_ptr);
   return true;
+}
+
+// static
+bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
+                                    bool discard_transparency,
+                                    std::vector<unsigned char>* output) {
+  SkAutoLockPixels input_lock(input);
+  DCHECK(input.empty() || input.bytesPerPixel() == 4);
+  return Encode(static_cast<unsigned char*>(input.getPixels()),
+                PNGEncoder::FORMAT_BGRA, input.width(), input.height(),
+                input.rowBytes(), discard_transparency, output);
 }
 

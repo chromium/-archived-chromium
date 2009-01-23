@@ -298,13 +298,8 @@ bool ImageFilterPeer::DataReady() {
 
   // Now encode it to a PNG.
   std::vector<unsigned char> output;
-  unsigned char* input =
-      static_cast<unsigned char*>(canvas.getDevice()->accessBitmap(false).
-          getPixels());
-  if (!PNGEncoder::Encode(input,
-                          PNGEncoder::FORMAT_BGRA,
-                          image.width(), image.height(),
-                          image.width() * 4, false, &output)) {
+  if (!PNGEncoder::EncodeBGRASkBitmap(canvas.getDevice()->accessBitmap(false),
+                                      false, &output)) {
     return false;
   }
 

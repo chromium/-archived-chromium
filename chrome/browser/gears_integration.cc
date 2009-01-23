@@ -117,13 +117,7 @@ static GURL ConvertSkBitmapToDataURL(const SkBitmap& icon) {
 
   // Get the FavIcon data.
   std::vector<unsigned char> icon_data;
-  {
-    SkAutoLockPixels icon_lock(icon);
-    PNGEncoder::Encode(static_cast<unsigned char*>(icon.getPixels()),
-                       PNGEncoder::FORMAT_BGRA, icon.width(),
-                       icon.height(), icon.width()* 4, false,
-                       &icon_data);
-  }
+  PNGEncoder::EncodeBGRASkBitmap(icon, false, &icon_data);
 
   // Base64-encode it (to make it a data URL).
   std::string icon_data_str(reinterpret_cast<char*>(&icon_data[0]),

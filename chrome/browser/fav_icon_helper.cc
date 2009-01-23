@@ -84,12 +84,7 @@ void FavIconHelper::SetFavIcon(
 
   if (GetHistoryService() && !profile()->IsOffTheRecord()) {
     std::vector<unsigned char> image_data;
-    SkAutoLockPixels icon_lock(sized_image);
-    PNGEncoder::Encode(
-        reinterpret_cast<unsigned char*>(sized_image.getPixels()),
-        PNGEncoder::FORMAT_BGRA, sized_image.width(),
-        sized_image.height(), sized_image.width()* 4, false,
-        &image_data);
+    PNGEncoder::EncodeBGRASkBitmap(sized_image, false, &image_data);
     GetHistoryService()->SetFavIcon(i->second.url, i->second.fav_icon_url,
                                     image_data);
   }

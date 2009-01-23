@@ -389,10 +389,7 @@ bool Importer::ReencodeFavicon(const unsigned char* src_data, size_t src_len,
   }
 
   // Encode our bitmap as a PNG.
-  SkAutoLockPixels decoded_lock(decoded);
-  PNGEncoder::Encode(reinterpret_cast<unsigned char*>(decoded.getPixels()),
-                     PNGEncoder::FORMAT_BGRA, decoded.width(),
-                     decoded.height(), decoded.width() * 4, false, png_data);
+  PNGEncoder::EncodeBGRASkBitmap(decoded, false, png_data);
   return true;
 }
 

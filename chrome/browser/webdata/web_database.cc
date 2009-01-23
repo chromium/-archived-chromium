@@ -201,11 +201,7 @@ bool WebDatabase::SetWebAppImage(const GURL& url,
   }
 
   std::vector<unsigned char> image_data;
-
-  SkAutoLockPixels pixel_lock(image);
-  PNGEncoder::Encode(reinterpret_cast<unsigned char*>(image.getPixels()),
-                     PNGEncoder::FORMAT_BGRA, image.width(),
-                     image.height(), image.width() * 4, false, &image_data);
+  PNGEncoder::EncodeBGRASkBitmap(image, false, &image_data);
 
   s.bind_string(0, history::HistoryDatabase::GURLToDatabaseURL(url));
   s.bind_int(1, image.width());
