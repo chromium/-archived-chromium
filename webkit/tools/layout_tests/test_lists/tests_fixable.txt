@@ -357,7 +357,7 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
 LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LINUX : LayoutTests/fast/text/international/001.html = FAIL
-LINUX MAC : LayoutTests/fast/text/international/002.html = FAIL
+LINUX : LayoutTests/fast/text/international/002.html = FAIL
 LINUX : LayoutTests/fast/text/international/003.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
@@ -694,8 +694,9 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 // Bug: 1026885
 // Following tests are failing because Chrome does not allow file url
 // to access non-file urls.
+// TODO(port): mac is passing these, does that mean something is wrong?
 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
-DEFER : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
@@ -1449,7 +1450,6 @@ MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
 MAC : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
 MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
-MAC : LayoutTests/svg/custom/circle-move-invalidation.svg = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
 MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
 
@@ -1471,8 +1471,6 @@ MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = 
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 
 // contain extra output at the top, no clue why.
-MAC : LayoutTests/fast/forms/001.html = FAIL
-MAC : LayoutTests/fast/forms/menulist-narrow-width.html = FAIL
 
 // JS profiler not enabled?
 MAC : LayoutTests/fast/profiler/document-dot-write.html = FAIL
@@ -1500,7 +1498,7 @@ MAC : LayoutTests/fast/history/history_reload.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT FAIL
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH TIMEOUT
-MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH
+MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
 //  no html tags, bad html (unmatched tags)
 MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH PASS
@@ -1623,6 +1621,8 @@ MAC : LayoutTests/editing/execCommand/paste-2.html = FAIL PASS
 MAC : LayoutTests/fast/borders/border-image-01.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH PASS
 MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
+MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH PASS
+MAC : LayoutTests/fast/css/acid2.html = CRASH PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
 MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH FAIL PASS
@@ -1880,22 +1880,19 @@ LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 
 // TestShell change to dump() on notifyDone http://codereview.chromium.org/18440
-LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
-LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
+LINUX WIN : LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
+LINUX WIN : LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
 WIN : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
-LayoutTests/transitions/inherit-other-props.html = TIMEOUT
-LayoutTests/fast/forms/drag-into-textarea.html = FAIL
-LayoutTests/transitions/retargetted-transition.html = TIMEOUT
+LINUX WIN : LayoutTests/transitions/inherit-other-props.html = TIMEOUT
+WIN LINUX : LayoutTests/fast/forms/drag-into-textarea.html = FAIL
+LINUX WIN :LayoutTests/transitions/retargetted-transition.html = TIMEOUT
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
-LayoutTests/http/tests/misc/cached-scripts.html = TIMEOUT
+LINUX WIN : LayoutTests/http/tests/misc/cached-scripts.html = TIMEOUT
 MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
 MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
-MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH
 WIN LINUX : LayoutTests/editing/selection/move-by-line-001.html = PASS FAIL
-MAC : LayoutTests/animations/change-keyframes.html = FAIL
 MAC : LayoutTests/fast/forms/002.html = FAIL
-MAC : LayoutTests/fast/css/acid2.html = CRASH
 
 // Merge 40086:40124 -- new test
 // This needs layoutTestController.numberOfActiveAnimations implemented.
