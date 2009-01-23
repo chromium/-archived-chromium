@@ -166,7 +166,8 @@ Browser::Browser(Type type, Profile* profile)
       is_attempting_to_close_browser_(false),
       override_maximized_(false),
       method_factory_(this),
-      idle_task_(new BrowserIdleTimer) {
+      idle_task_(new BrowserIdleTimer),
+      open_new_windows_in_default_browser_(false) {
   tabstrip_model_.AddObserver(this);
 
   NotificationService::current()->AddObserver(
@@ -1127,7 +1128,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_NEW_WINDOW_PROFILE_5:
     case IDC_NEW_WINDOW_PROFILE_6:
     case IDC_NEW_WINDOW_PROFILE_7:
-    case IDC_NEW_WINDOW_PROFILE_8: 
+    case IDC_NEW_WINDOW_PROFILE_8:
         NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);    break;
 #if defined(OS_WIN)
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
@@ -1675,12 +1676,14 @@ void Browser::AddNewContents(TabContents* source,
   DCHECK(disposition != SAVE_TO_DISK);  // No code for this yet
 
   // If this is an application we can only have one tab so we need to process
-  // this in tabbed browser window.
-  if (tabstrip_model_.count() > 0 &&
+  // this in tabbed browser window.  The new window will act as an intermediary
+  // to launch urls in the default browser.
+  if (tabstrip_model_.count() > 0 &&  // A launched application has count of 1.
       disposition != NEW_WINDOW && disposition != NEW_POPUP &&
       type_ != TYPE_NORMAL) {
     Browser* b = GetOrCreateTabbedBrowser();
     DCHECK(b);
+    b->set_open_new_windows_in_default_browser(true);
     PageTransition::Type transition = PageTransition::LINK;
     // If we were called from an "installed webapp" we want to emulate the code
     // that is run from browser_init.cc for links from external applications.
@@ -1690,7 +1693,13 @@ void Browser::AddNewContents(TabContents* source,
     if (type_ == TYPE_APP)
       transition = PageTransition::START_PAGE;
     b->tabstrip_model()->AddTabContents(new_contents, -1, transition, true);
-    b->window()->Show();
+
+    // All new windows from an "installed webapp" which must have their own
+    // tabs will be launched in the default browser.  At this moment the
+    // url is inaccessbile and so we do not show the window until the url is
+    // reported to the TabConentsDelegate.
+    if (type_ != TYPE_APP)
+      b->window()->Show();
     return;
   }
 
@@ -1798,6 +1807,10 @@ void Browser::ContentsZoomChange(bool zoom_in) {
 
 bool Browser::IsApplication() const {
   return type_ == TYPE_APP;
+}
+
+bool Browser::ShouldOpenURLInDefaultBrowser() const {
+  return open_new_windows_in_default_browser_;
 }
 
 void Browser::ConvertContentsToApplication(TabContents* contents) {
@@ -2455,3 +2468,4 @@ void Browser::RegisterAppPrefs(const std::wstring& app_name) {
 }
 
 #endif  // OS_WIN
+

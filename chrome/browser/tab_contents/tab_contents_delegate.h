@@ -30,8 +30,7 @@ class TabContentsDelegate : public PageNavigator {
 
   virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
-                       PageTransition::Type transition)
-  {
+                       PageTransition::Type transition) {
     OpenURLFromTab(NULL, url, referrer, disposition, transition);
   }
 
@@ -102,11 +101,14 @@ class TabContentsDelegate : public PageNavigator {
   // application.
   virtual bool IsApplication() { return false; }
 
+  // Check whether or not the url should be opened in the default browser.
+  virtual bool ShouldOpenURLInDefaultBrowser() const { return false; }
+
   // Detach the given tab and convert it to a "webapp" view.  The tab must be
   // a WebContents with a valid WebApp set.
   virtual void ConvertContentsToApplication(TabContents* source) { }
 
-  // Informs the TabContentsDelegate that some of our state has changed 
+  // Informs the TabContentsDelegate that some of our state has changed
   // for this tab.
   virtual void ContentsStateChanged(TabContents* source) {}
 
@@ -129,11 +131,11 @@ class TabContentsDelegate : public PageNavigator {
   // Tells us that we've finished firing this tab's beforeunload event.
   // The proceed bool tells us whether the user chose to proceed closing the
   // tab. Returns true if the tab can continue on firing it's unload event.
-  // If we're closing the entire browser, then we'll want to delay firing 
+  // If we're closing the entire browser, then we'll want to delay firing
   // unload events until all the beforeunload events have fired.
   virtual void BeforeUnloadFired(TabContents* tab,
-                                 bool proceed, 
-                                 bool* proceed_to_fire_unload) { 
+                                 bool proceed,
+                                 bool* proceed_to_fire_unload) {
     *proceed_to_fire_unload = true;
   }
 

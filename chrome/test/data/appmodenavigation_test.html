@@ -1,0 +1,21 @@
+<html>
+<head>
+<Script Language="JavaScript">
+function load() {
+  w = window.open();
+  w.opener=null;
+  w.document.location='http://www.google.com';
+  w();
+}
+</Script>
+</head>
+<body>
+<a href="http://www.google.com" target=_blank> Link Test </a>
+<p>
+<div onclick='load()'>
+<a href=""> OnClick Test </a>
+</div>
+<p>
+<a href="about:blank"> Normal Test</a>
+</body>
+</html>

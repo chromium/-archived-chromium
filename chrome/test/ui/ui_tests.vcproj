@@ -542,6 +542,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestAppModeNavigation"
+			>
+			<File
+				RelativePath="..\..\browser\app_mode_navigation_uitest.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

@@ -480,6 +480,10 @@ class WebContents : public TabContents,
   void GenerateKeywordIfNecessary(
       const ViewHostMsg_FrameNavigate_Params& params);
 
+  // Helper function to launch the external browser.
+  void OpenUrlInDefaultBrowserAndClosePage(const GURL& url,
+                                           RenderViewHost* rvh);
+
   // Data ----------------------------------------------------------------------
 
   // The corresponding view.
