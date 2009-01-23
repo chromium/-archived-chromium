@@ -53,7 +53,7 @@ class RenderDnsMaster {
   void SubmitHostnames();
 
   // The following is private, but exposed for testing purposes only.
-  static bool RenderDnsMaster::is_numeric_ip(const char* name, size_t length);
+  static bool is_numeric_ip(const char* name, size_t length);
 
  private:
   // ExtractBufferedNames pulls names from queue into the map, reducing or

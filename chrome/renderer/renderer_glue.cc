@@ -4,12 +4,16 @@
 
 // This file provides the embedder's side of random webkit glue functions.
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <wininet.h>
+#endif
 
 #include "base/clipboard.h"
 #include "base/command_line.h"
 #include "base/scoped_clipboard_writer.h"
+#include "base/string_util.h"
+#include "build/build_config.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
@@ -26,7 +30,9 @@
 
 #include "SkBitmap.h"
 
+#if defined(OS_WIN)
 #include <strsafe.h>  // note: per msdn docs, this must *follow* other includes
+#endif
 
 template <typename T, size_t stack_capacity>
 class ResizableStackArray {
@@ -147,15 +153,15 @@ void PrefetchDns(const std::string& hostname) {
 void PrecacheUrl(const wchar_t* url, int url_length) {
   // TBD: jar: Need implementation that loads the targetted URL into our cache.
   // For now, at least prefetch DNS lookup
-  GURL parsed_url(std::wstring(url, url_length));
+  GURL parsed_url(WideToUTF8(std::wstring(url, url_length)));
   PrefetchDns(parsed_url.host());
 }
 
-void webkit_glue::AppendToLog(const char* file, int line, const char* msg) {
+void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-bool webkit_glue::GetMimeTypeFromExtension(const std::wstring &ext,
+bool GetMimeTypeFromExtension(const std::wstring &ext,
                                            std::string *mime_type) {
   if (IsPluginProcess())
     return net::GetMimeTypeFromExtension(ext, mime_type);
@@ -168,7 +174,7 @@ bool webkit_glue::GetMimeTypeFromExtension(const std::wstring &ext,
   return !mime_type->empty();
 }
 
-bool webkit_glue::GetMimeTypeFromFile(const std::wstring &file_path,
+bool GetMimeTypeFromFile(const std::wstring &file_path,
                                       std::string *mime_type) {
   if (IsPluginProcess())
     return net::GetMimeTypeFromFile(file_path, mime_type);
@@ -181,7 +187,7 @@ bool webkit_glue::GetMimeTypeFromFile(const std::wstring &file_path,
   return !mime_type->empty();
 }
 
-bool webkit_glue::GetPreferredExtensionForMimeType(const std::string& mime_type,
+bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                                    std::wstring* ext) {
   if (IsPluginProcess())
     return net::GetPreferredExtensionForMimeType(mime_type, ext);
@@ -194,76 +200,85 @@ bool webkit_glue::GetPreferredExtensionForMimeType(const std::string& mime_type,
   return !ext->empty();
 }
 
-std::string webkit_glue::GetDataResource(int resource_id) {
+std::string GetDataResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
 }
 
-SkBitmap* webkit_glue::GetBitmapResource(int resource_id) {
+SkBitmap* GetBitmapResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetBitmapNamed(resource_id);
 }
 
-HCURSOR webkit_glue::LoadCursor(int cursor_id) {
+#if defined(OS_WIN)
+HCURSOR LoadCursor(int cursor_id) {
   return ResourceBundle::GetSharedInstance().LoadCursor(cursor_id);
 }
+#endif
 
 // Clipboard glue
 
-Clipboard* webkit_glue::ClipboardGetClipboard(){
+Clipboard* ClipboardGetClipboard(){
   return NULL;
 }
 
-bool webkit_glue::ClipboardIsFormatAvailable(unsigned int format) {
+bool ClipboardIsFormatAvailable(unsigned int format) {
   bool result;
   g_render_thread->Send(
       new ViewHostMsg_ClipboardIsFormatAvailable(format, &result));
   return result;
 }
 
-void webkit_glue::ClipboardReadText(std::wstring* result) {
+void ClipboardReadText(std::wstring* result) {
   g_render_thread->Send(new ViewHostMsg_ClipboardReadText(result));
 }
 
-void webkit_glue::ClipboardReadAsciiText(std::string* result) {
+void ClipboardReadAsciiText(std::string* result) {
   g_render_thread->Send(new ViewHostMsg_ClipboardReadAsciiText(result));
 }
 
-void webkit_glue::ClipboardReadHTML(std::wstring* markup, GURL* url) {
+void ClipboardReadHTML(std::wstring* markup, GURL* url) {
   g_render_thread->Send(new ViewHostMsg_ClipboardReadHTML(markup, url));
 }
 
-GURL webkit_glue::GetInspectorURL() {
+GURL GetInspectorURL() {
   return GURL("chrome://inspector/inspector.html");
 }
 
-std::string webkit_glue::GetUIResourceProtocol() {
+std::string GetUIResourceProtocol() {
   return "chrome";
 }
 
-bool webkit_glue::GetPlugins(bool refresh,
+bool GetPlugins(bool refresh,
                              std::vector<WebPluginInfo>* plugins) {
   return g_render_thread->Send(
       new ViewHostMsg_GetPlugins(refresh, plugins));
 }
 
-bool webkit_glue::EnsureFontLoaded(HFONT font) {
+#if defined(OS_WIN)
+bool EnsureFontLoaded(HFONT font) {
   LOGFONT logfont;
   GetObject(font, sizeof(LOGFONT), &logfont);
   return g_render_thread->Send(new ViewHostMsg_LoadFont(logfont));
 }
+#endif
 
-webkit_glue::ScreenInfo webkit_glue::GetScreenInfo(gfx::NativeView window) {
+webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeView window) {
   webkit_glue::ScreenInfo results;
+#if defined(OS_WIN)
   g_render_thread->Send(
       new ViewHostMsg_GetScreenInfo(window, &results));
+#else
+  // TODO(agl): this will start working on GetScreenInfo is fixed
+  NOTIMPLEMENTED();
+#endif
   return results;
 }
 
-uint64 webkit_glue::VisitedLinkHash(const char* canonical_url, size_t length) {
+uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
   return g_render_thread->visited_link_slave()->ComputeURLFingerprint(
       canonical_url, length);
 }
 
-bool webkit_glue::IsLinkVisited(uint64 link_hash) {
+bool IsLinkVisited(uint64 link_hash) {
   return g_render_thread->visited_link_slave()->IsVisited(link_hash);
 }
 

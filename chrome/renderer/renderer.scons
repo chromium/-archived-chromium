@@ -99,7 +99,6 @@ if env.Bit('linux'):
       'render_thread.cc',
       'render_view.cc',
       'render_widget.cc',
-      'renderer_glue.cc',
       'renderer_main.cc',
       'webplugin_delegate_proxy.cc',
   )
