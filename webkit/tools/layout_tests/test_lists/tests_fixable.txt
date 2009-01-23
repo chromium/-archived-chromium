@@ -1830,7 +1830,7 @@ WIN : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
 WIN : LayoutTests/transitions/transition-end-event-nested.html = PASS FAIL
-LINUX : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
+LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
 LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html = PASS TIMEOUT
 LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
@@ -1878,15 +1878,8 @@ LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 
 // TestShell change to dump() on notifyDone http://codereview.chromium.org/18440
-LayoutTests/fast/dom/Window/window-property-shadowing-name.html = FAIL
-LayoutTests/fast/events/popup-blocking-click-in-iframe.html = FAIL
-LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL
-LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL
-LayoutTests/plugins/npruntime.html = FAIL
-LayoutTests/transitions/hang-with-bad-transition-list.html = FAIL
 LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
 LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
-LayoutTests/http/tests/misc/uncacheable-script-repeated.html = TIMEOUT
-LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
+WIN : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
 LayoutTests/transitions/inherit-other-props.html = TIMEOUT
 
