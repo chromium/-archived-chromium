@@ -16,17 +16,26 @@
 // should not initialize it to a value, like 0.  If it's a member variable, the
 // constructor can safely "value initialize" using () in the initializer list.
 #if defined(OS_WIN)
+#include <windows.h>
+typedef DWORD PlatformThreadId;
 typedef void* PlatformThreadHandle;  // HANDLE
 #elif defined(OS_POSIX)
 #include <pthread.h>
 typedef pthread_t PlatformThreadHandle;
+#if defined(OS_LINUX)
+#include <unistd.h>
+typedef pid_t PlatformThreadId;
+#elif defined(OS_MACOSX)
+#include <mach/mach.h>
+typedef mach_port_t PlatformThreadId;
+#endif
 #endif
 
 // A namespace for low-level thread functions.
 class PlatformThread {
  public:
   // Gets the current thread id, which may be useful for logging purposes.
-  static int CurrentId();
+  static PlatformThreadId CurrentId();
 
   // Yield the current thread so another thread can be scheduled.
   static void YieldCurrentThread();

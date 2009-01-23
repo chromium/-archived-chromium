@@ -225,7 +225,7 @@ class ThreadCollisionWarner {
 
   // This stores the thread id that is inside the critical section, if the 
   // value is 0 then no thread is inside.
-  volatile int valid_thread_id_;
+  volatile subtle::Atomic32 valid_thread_id_;
 
   // Counter to trace how many time a critical section was "pinned"
   // (when allowed) in order to unpin it when counter_ reaches 0.

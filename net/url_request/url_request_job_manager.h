@@ -57,7 +57,7 @@ class URLRequestJobManager {
 #ifndef NDEBUG
   // We use this to assert that CreateJob and the registration functions all
   // run on the same thread.
-  mutable int allowed_thread_;
+  mutable PlatformThreadId allowed_thread_;
   mutable bool allowed_thread_initialized_;
 
   // The first guy to call this function sets the allowed thread.  This way we

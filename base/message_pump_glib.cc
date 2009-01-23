@@ -122,7 +122,7 @@ void MessagePumpForUI::Run(Delegate* delegate) {
 #ifndef NDEBUG
   // Make sure we only run this on one thread.  GTK only has one message pump
   // so we can only have one UI loop per process.
-  static int thread_id = PlatformThread::CurrentId();
+  static PlatformThreadId thread_id = PlatformThread::CurrentId();
   DCHECK(thread_id == PlatformThread::CurrentId()) <<
       "Running MessagePumpForUI on two different threads; "
       "this is unsupported by GLib!";

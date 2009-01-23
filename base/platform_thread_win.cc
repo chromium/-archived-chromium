@@ -30,7 +30,7 @@ DWORD __stdcall ThreadFunc(void* closure) {
 }  // namespace
 
 // static
-int PlatformThread::CurrentId() {
+PlatformThreadId PlatformThread::CurrentId() {
   return GetCurrentThreadId();
 }
 

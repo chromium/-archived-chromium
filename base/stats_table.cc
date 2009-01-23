@@ -126,7 +126,7 @@ class StatsTablePrivate {
     return &thread_names_table_[
       (slot_id-1) * (StatsTable::kMaxThreadNameLength)];
   }
-  int* thread_tid(int slot_id) const {
+  PlatformThreadId* thread_tid(int slot_id) const {
     return &(thread_tid_table_[slot_id-1]);
   }
   int* thread_pid(int slot_id) const {
@@ -155,7 +155,7 @@ class StatsTablePrivate {
   base::SharedMemory shared_memory_;
   TableHeader* table_header_;
   char* thread_names_table_;
-  int* thread_tid_table_;
+  PlatformThreadId* thread_tid_table_;
   int* thread_pid_table_;
   char* counter_names_table_;
   int* data_table_;
@@ -217,7 +217,7 @@ void StatsTablePrivate::ComputeMappedPointers(void* memory) {
             max_threads() * StatsTable::kMaxThreadNameLength;
   offset += AlignOffset(offset);
 
-  thread_tid_table_ = reinterpret_cast<int*>(data + offset);
+  thread_tid_table_ = reinterpret_cast<PlatformThreadId*>(data + offset);
   offset += sizeof(int) * max_threads();
   offset += AlignOffset(offset);
 

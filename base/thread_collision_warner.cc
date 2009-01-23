@@ -13,11 +13,22 @@ void DCheckAsserter::warn() {
   NOTREACHED() << "Thread Collision";
 }
 
+static subtle::Atomic32 CurrentThread() {
+  const PlatformThreadId current_thread_id = PlatformThread::CurrentId();
+  // We need to get the thread id into an atomic data type. This might be a
+  // truncating conversion, but any loss-of-information just increases the
+  // chance of a fault negative, not a false positive.
+  const subtle::Atomic32 atomic_thread_id =
+      static_cast<subtle::Atomic32>(current_thread_id);
+
+  return atomic_thread_id;
+}
+
 void ThreadCollisionWarner::EnterSelf() {
   // If the active thread is 0 then I'll write the current thread ID
   // if two or more threads arrive here only one will succeed to
   // write on valid_thread_id_ the current thread ID.
-  const int current_thread_id = PlatformThread::CurrentId();
+  subtle::Atomic32 current_thread_id = CurrentThread();
 
   int previous_value = subtle::NoBarrier_CompareAndSwap(&valid_thread_id_,
                                                         0,
@@ -32,7 +43,7 @@ void ThreadCollisionWarner::EnterSelf() {
 }
 
 void ThreadCollisionWarner::Enter() {
-  const int current_thread_id = PlatformThread::CurrentId();
+  subtle::Atomic32 current_thread_id = CurrentThread();
 
   if (subtle::NoBarrier_CompareAndSwap(&valid_thread_id_,
                                        0,

@@ -98,7 +98,7 @@ class SimpleThread : public PlatformThread::Delegate {
   std::string name() { return name_; }
 
   // Return the thread id, only valid after Start().
-  int tid() { return tid_; }
+  PlatformThreadId tid() { return tid_; }
 
   // Return True if Start() has ever been called.
   bool HasBeenStarted() { return event_.IsSignaled(); }
@@ -112,7 +112,7 @@ class SimpleThread : public PlatformThread::Delegate {
   const Options options_;
   PlatformThreadHandle thread_;  // PlatformThread handle, invalid after Join!
   WaitableEvent event_;          // Signaled if Start() was ever called.
-  int tid_;                      // The backing thread's id.
+  PlatformThreadId tid_;         // The backing thread's id.
   bool joined_;                  // True if Join has been called.
 };
 

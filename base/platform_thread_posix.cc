@@ -28,7 +28,7 @@ static void* ThreadFunc(void* closure) {
 }
 
 // static
-int PlatformThread::CurrentId() {
+PlatformThreadId PlatformThread::CurrentId() {
   // Pthreads doesn't have the concept of a thread ID, so we have to reach down
   // into the kernel.
 #if defined(OS_MACOSX)
