@@ -16,11 +16,11 @@ DEFER LINUX WIN : LayoutTests/fast/dom/frame-loading-via-document-write.html = F
 // Our high-precision timers make these tests flakey.
 // We could fork these tests, but we'll just unfork them as soon as
 // our high-precision timers are public.
-DEFER : LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
-DEFER : LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
-DEFER : LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
-DEFER : LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
-DEFER : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
+DEFER WIN LINUX : LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
+DEFER WIN LINUX : LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
+DEFER WIN LINUX : LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
+DEFER WIN LINUX : LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
+DEFER WIN LINUX : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
@@ -200,7 +200,7 @@ DEFER : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
 LayoutTests/fast/history/subframe-is-visited.html = FAIL CRASH
 
 // Probably needs to be rebaselined on MAC and LINUX
-DEFER MAC LINUX : LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
+DEFER LINUX : LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
 
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
@@ -227,11 +227,6 @@ DEFER : LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
 // document is also scrolled
 // IE and FF also "fail" this test.
 DEFER : LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
-
-// Bug 1082426
-// document.write() pf plain text does not always flush
-// This is a known WebKit bug, https://bugs.webkit.org/show_bug.cgi?id=8961
-DEFER MAC WIN : LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
 
 // Bug: 879449
 // TODO(joshia): Need some changes to the test shell in order to support
@@ -439,9 +434,6 @@ DEFER LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
 
-// This test is failing because Apple's results appear to be bogus. Will let them know.
-DEFER MAC : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
-
 // This test fails because of an oddity in stroke width calculation. A
 // line is stroked horizontally from Y=100 with stroke width 100, we consider
 // it to be occupying the scan lines from Y=50 to Y=149 inclusive, which
@@ -560,7 +552,7 @@ LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 
 // Crash in DEBUG only
-DEBUG LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
+DEBUG LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 
 // I find it hard to care too much about SVG failures.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
@@ -644,8 +636,6 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 // Linux pixeltest failure: slightly different shade of composited
 // alpha in bottom group.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
-
-DEBUG WIN : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-svgdom-height-prop.html = CRASH
 
 // 2008/12/15 These fail the pixel tests.  The pixel tests regressed
 // while the tests were marked FAIL for text diff reasons, which are
@@ -741,7 +731,7 @@ SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 // full because of recursion.
 // Partially fixed in bleeding_edge: Now gives a StackOverflowException,
 // which isn't unreasonable when calling a method on a full stack.
-WIN : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
+LINUX WIN : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL PASS
 // This passes on Mac release
 MAC DEBUG : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 // http://b/issue?id=1344252
@@ -1129,7 +1119,7 @@ LayoutTests/plugins/netscape-construct.html = FAIL
 pending/security/block-test.html = CRASH FAIL
 LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
-MAC WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
+MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
 // Bug 5053: fails (maybe V8?)

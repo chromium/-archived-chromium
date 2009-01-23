@@ -107,10 +107,6 @@ LINUX WIN : LayoutTests/fast/replaced/pdf-as-image.html = FAIL
 // we plan on supporting this anytime soon.
 SKIP : LayoutTests/printing/media-queries-print.html = PASS
 
-// Uses Option-tab key to circle through form elements. Will not work on
-// Windows.
-WIN : LayoutTests/fast/events/frame-tab-focus.html = FAIL
-
 // Bug 853268: Chrome doesn't call the willCacheResponse callback (a method
 // of ResourceHandleClient).  That function is Mac-specific.
 LayoutTests/http/tests/misc/willCacheResponse-delegate-callback.html = FAIL
