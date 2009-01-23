@@ -80,11 +80,7 @@ class FieldTrialList : NonThreadSafe {
  private:
   typedef std::map<std::wstring, FieldTrial*> RegistrationList;
 
-  friend class FieldTrialTest;
-  static void ResetConstructorCountForTestingOnly() { constructor_count_ = 0; }
-
   static FieldTrialList* global_;  // The singleton of this class.
-  static int constructor_count_;   // Prevent having more than one.
 
   base::Time application_start_time_;
   RegistrationList registered_;

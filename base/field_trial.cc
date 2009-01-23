@@ -15,13 +15,9 @@ using base::Time;
 // static
 FieldTrialList* FieldTrialList::global_ = NULL;
 
-// static
-int FieldTrialList::constructor_count_ = 0;
-
 FieldTrialList::FieldTrialList()
   : application_start_time_(Time::Now()) {
-  DCHECK(!constructor_count_);
-  ++constructor_count_;
+  DCHECK(!global_);
   global_ = this;
 }
 

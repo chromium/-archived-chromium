@@ -12,7 +12,6 @@
 class FieldTrialTest : public testing::Test {
  public:
   FieldTrialTest() : trial_list_() { }
-  ~FieldTrialTest() { FieldTrialList::ResetConstructorCountForTestingOnly(); }
 
  private:
   FieldTrialList trial_list_;
