@@ -225,6 +225,8 @@ if env.Bit('linux'):
   # We need the npapi plugin stuffed into the right place.
   # TODO(evanm): find a cleaner way of requiring this.
   env.Requires(test_shell,
+               '$DESTINATION_ROOT/plugins/libnpapi_test_plugin.so')
+  env.Requires(test_shell,
                '$DESTINATION_ROOT/plugins/libnpapi_layout_test_plugin.so')
 
 test_files = [
@@ -273,6 +275,8 @@ test_shell_tests = env.ChromeTestProgram('test_shell_tests',
                                          resources + test_files)
 # We need the npapi plugin stuffed into the right place.
 # TODO(evanm): find a cleaner way of requiring this.
+env.Requires(test_shell,
+             '$DESTINATION_ROOT/plugins/libnpapi_test_plugin.so')
 env.Requires(test_shell_tests,
              '$DESTINATION_ROOT/plugins/libnpapi_layout_test_plugin.so')
 

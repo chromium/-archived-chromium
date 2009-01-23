@@ -71,7 +71,9 @@ if env.Bit('windows'):
 
 dll = env.ChromeSharedLibrary('npapi_test_plugin', input_files)
 
-i = env.Install('$TARGET_ROOT', dll)
+# Install ourselves into the destination root so that dependent tests
+# can find us.
+i = env.Install('$DESTINATION_ROOT/plugins', dll)
 env.Alias('webkit', i)
 
 env.ChromeMSVSProject('$WEBKIT_DIR/glue/plugins/test/npapi_test_plugin.vcproj',
