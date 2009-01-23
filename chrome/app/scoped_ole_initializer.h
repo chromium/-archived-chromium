@@ -11,6 +11,8 @@
 
 #if defined(OS_WIN)
 
+#include <ole2.h>
+
 class ScopedOleInitializer {
  public:
   ScopedOleInitializer() {
