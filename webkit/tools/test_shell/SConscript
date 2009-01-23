@@ -222,6 +222,11 @@ if env.Bit('linux'):
   env.Requires(test_shell, i)
   env.Alias('webkit', i)
 
+  # We need the npapi plugin stuffed into the right place.
+  # TODO(evanm): find a cleaner way of requiring this.
+  env.Requires(test_shell,
+               '$DESTINATION_ROOT/plugins/libnpapi_layout_test_plugin.so')
+
 test_files = [
     'image_decoder_unittest.cc',
     'keyboard_unittest.cc',
@@ -266,6 +271,11 @@ if env.Bit('windows'):
 
 test_shell_tests = env.ChromeTestProgram('test_shell_tests',
                                          resources + test_files)
+# We need the npapi plugin stuffed into the right place.
+# TODO(evanm): find a cleaner way of requiring this.
+env.Requires(test_shell_tests,
+             '$DESTINATION_ROOT/plugins/libnpapi_layout_test_plugin.so')
+
 i = env.Install('$TARGET_ROOT', test_shell_tests)
 env.Alias('webkit', i)
 

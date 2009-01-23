@@ -8,6 +8,7 @@
 
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 
 namespace NPAPI {
 
@@ -15,13 +16,18 @@ void PluginList::PlatformInit() {
 }
 
 void PluginList::GetPluginDirectories(std::vector<FilePath>* plugin_dirs) {
-  NOTIMPLEMENTED();
+  // For now, just look in the plugins/ under the exe directory.
+  // TODO(port): this is not correct.  Rather than getting halfway there,
+  // this is a one-off and its replacement should follow Firefox exactly.
+  FilePath dir;
+  PathService::Get(base::DIR_EXE, &dir);
+  plugin_dirs->push_back(dir.Append("plugins"));
 }
 
 void PluginList::LoadPluginsFromDir(const FilePath& path) {
   file_util::FileEnumerator enumerator(path,
                                        false, // not recursive
-                                       file_util::FileEnumerator::DIRECTORIES);
+                                       file_util::FileEnumerator::FILES);
   for (FilePath path = enumerator.Next(); !path.value().empty();
        path = enumerator.Next()) {
     LoadPlugin(path);
@@ -35,7 +41,6 @@ bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
 
 void PluginList::LoadInternalPlugins() {
   // none for now
-  NOTIMPLEMENTED();
 }
 
 } // namespace NPAPI

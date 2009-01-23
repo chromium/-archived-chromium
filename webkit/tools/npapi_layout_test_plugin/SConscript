@@ -51,9 +51,7 @@ env.ChromeMSVSProject(('$WEBKIT_DIR/tools/npapi_layout_test_plugin/' +
                      'npapi_layout_test_plugin.vcproj'),
                 guid='{BE6D5659-A8D5-4890-A42C-090DD10EF62C}')
 
-i = env.Install('$TARGET_ROOT/plugins', dll)
+# Install ourselves into the destination root so that dependent tests
+# can find us.
+i = env.Install('$DESTINATION_ROOT/plugins', dll)
 env.Alias('webkit', i)
-
-i = env.Install('$TARGET_ROOT', dll)
-env.Alias('webkit', i)
-
