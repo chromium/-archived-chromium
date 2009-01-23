@@ -1130,7 +1130,7 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
   const Editor* editor = focused->editor();
   if (!editor || !editor->canEdit())
     return false;
-  const SelectionController* controller = focused->selection();
+  SelectionController* controller = focused->selection();
   if (!controller)
     return false;
   const Node* node = controller->start().node();
@@ -1138,10 +1138,7 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
     return false;
   *enable_ime = node->shouldUseInputMethod() &&
       !controller->isInPasswordField();
-  const FrameView* view = node->document()->view();
-  if (!view)
-    return false;
-  const IntRect rect(view->contentsToWindow(controller->localCaretRect()));
+  const IntRect rect(controller->absoluteCaretBounds());
   caret_rect->SetRect(rect.x(), rect.y(), rect.width(), rect.height());
   return true;
 }
