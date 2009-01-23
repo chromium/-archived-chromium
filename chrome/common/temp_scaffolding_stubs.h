@@ -155,7 +155,7 @@ class FirstRunBrowserProcess : public BrowserProcessImpl {
 
 class UserDataManager {
  public:
-  static void Create();
+  static UserDataManager* Create();
   static UserDataManager* Get();
 
   explicit UserDataManager(const std::wstring& user_data_root) { }

@@ -91,11 +91,12 @@ static const wchar_t kProfileFolderSeparator[] = L"-";
 UserDataManager* UserDataManager::instance_ = NULL;
 
 // static
-void UserDataManager::Create() {
+UserDataManager* UserDataManager::Create() {
   DCHECK(!instance_);
   std::wstring user_data;
   PathService::Get(chrome::DIR_USER_DATA, &user_data);
   instance_ = new UserDataManager(user_data);
+  return instance_;
 }
 
 // static
@@ -123,6 +124,8 @@ UserDataManager::UserDataManager(const std::wstring& user_data_root)
 }
 
 UserDataManager::~UserDataManager() {
+  if (instance_ == this)
+    instance_ = NULL;
 }
 
 // static

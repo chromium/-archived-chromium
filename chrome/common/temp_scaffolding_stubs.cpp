@@ -109,11 +109,12 @@ bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
 
 UserDataManager* UserDataManager::instance_ = NULL;
 
-void UserDataManager::Create() {
+UserDataManager* UserDataManager::Create() {
   DCHECK(!instance_);
   std::wstring user_data;
   PathService::Get(chrome::DIR_USER_DATA, &user_data);
   instance_ = new UserDataManager(user_data);
+  return instance_;
 }
 
 UserDataManager* UserDataManager::Get() {
