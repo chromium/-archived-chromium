@@ -1507,6 +1507,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
                                           false);
       autocomplete_popup_->setTextOnIndexChange(false);
       autocomplete_popup_->setAcceptOnAbandon(false);
+      autocomplete_popup_->setLoopSelectionNavigation(true);
       autocomplete_popup_->show(focused_node->getRect(), 
                                 page_->mainFrame()->view(), 0);
     } else {
