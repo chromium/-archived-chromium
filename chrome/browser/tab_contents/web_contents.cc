@@ -17,7 +17,6 @@
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/js_before_unload_handler.h"
@@ -390,7 +389,7 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
   }
 
   // Clear any provisional password saves - this stops password infobars
-  // showing up on pages the user navigates to while the right page is
+  // showing up on pages the user navigates to while the right page is 
   // loading.
   GetPasswordManager()->ClearProvisionalSave();
 
@@ -418,7 +417,7 @@ void WebContents::Copy() {
 }
 
 void WebContents::Paste() {
-  render_view_host()->Paste();
+   render_view_host()->Paste();
 }
 
 void WebContents::DisassociateFromPopupCount() {
@@ -620,7 +619,7 @@ bool WebContents::IsActiveEntry(int32 page_id) {
 }
 
 void WebContents::SetInitialFocus(bool reverse) {
-  render_view_host()->SetInitialFocus(reverse);
+   render_view_host()->SetInitialFocus(reverse);
 }
 
 // Notifies the RenderWidgetHost instance about the fact that the page is
@@ -685,30 +684,22 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
   if (PageTransition::IsMainFrame(params.transition))
     render_manager_.DidNavigateMainFrame(rvh);
 
-  // This is the first chance a new frame has to launch an external browser
-  // since it is the first message from the renderer to the WebContents
-  // containing the URL.
-  if (delegate() && delegate()->ShouldOpenURLInDefaultBrowser()) {
-    OpenUrlInDefaultBrowserAndClosePage(params.url, rvh);
-    return;
-  }
-
   // We can't do anything about navigations when we're inactive.
   if (!controller() || !is_active())
-    return;
+    return;  
 
   // Update the site of the SiteInstance if it doesn't have one yet.
   if (!GetSiteInstance()->has_site())
     GetSiteInstance()->SetSite(params.url);
 
-  // Need to update MIME type here because it's referred to in
+  // Need to update MIME type here because it's referred to in 
   // UpdateNavigationCommands() called by RendererDidNavigate() to
-  // determine whether or not to enable the encoding menu.
-  // It's updated only for the main frame. For a subframe,
+  // determine whether or not to enable the encoding menu. 
+  // It's updated only for the main frame. For a subframe, 
   // RenderView::UpdateURL does not set params.contents_mime_type.
   // (see http://code.google.com/p/chromium/issues/detail?id=2929 )
-  // TODO(jungshik): Add a test for the encoding menu to avoid
-  // regressing it again.
+  // TODO(jungshik): Add a test for the encoding menu to avoid 
+  // regressing it again. 
   if (PageTransition::IsMainFrame(params.transition))
     contents_mime_type_ = params.contents_mime_type;
 
@@ -967,12 +958,7 @@ void WebContents::DidDownloadImage(
 
 void WebContents::RequestOpenURL(const GURL& url, const GURL& referrer,
                                  WindowOpenDisposition disposition) {
-  if (!delegate() || !delegate()->ShouldOpenURLInDefaultBrowser()) {
-    OpenURL(url, referrer, disposition, PageTransition::LINK);
-  } else {
-    OpenUrlInDefaultBrowserAndClosePage(url, render_view_host());
-    return;
-  }
+  OpenURL(url, referrer, disposition, PageTransition::LINK);
 }
 
 void WebContents::DomOperationResponse(const std::string& json_string,
@@ -1087,7 +1073,7 @@ void WebContents::AutofillFormSubmitted(
   GetAutofillManager()->AutofillFormSubmitted(form);
 }
 
-void WebContents::GetAutofillSuggestions(const std::wstring& field_name,
+void WebContents::GetAutofillSuggestions(const std::wstring& field_name, 
     const std::wstring& user_text, int64 node_id, int request_id) {
   GetAutofillManager()->FetchValuesForName(field_name, user_text,
       kMaxAutofillMenuItems, node_id, request_id);
@@ -1302,7 +1288,7 @@ bool WebContents::CanBlur() const {
   return delegate() ? delegate()->CanBlur() : true;
 }
 
-void WebContents::RendererUnresponsive(RenderViewHost* rvh,
+void WebContents::RendererUnresponsive(RenderViewHost* rvh, 
                                        bool is_during_unload) {
   if (is_during_unload) {
     // Hang occurred while firing the beforeunload/unload handler.
@@ -1693,7 +1679,7 @@ bool WebContents::UpdateTitleForEntry(NavigationEntry* entry,
         profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
     if (hs)
       hs->SetPageTitle(entry->display_url(), final_title);
-
+    
     // Don't allow the title to be saved again for explicitly set ones.
     received_page_title_ = explicit_set;
   }
@@ -1807,13 +1793,4 @@ void WebContents::GenerateKeywordIfNecessary(
   }
   new_url->set_safe_for_autoreplace(true);
   url_model->Add(new_url);
-}
-
-void WebContents::OpenUrlInDefaultBrowserAndClosePage(const GURL& url,
-                                                      RenderViewHost* rvh) {
-  if (!url.is_empty() && rvh && rvh->process()) {
-    ExternalProtocolHandler::LaunchUrl(url, rvh->routing_id(),
-                                       rvh->process()->host_id());
-  }
-  ShouldClosePage(true);
 }

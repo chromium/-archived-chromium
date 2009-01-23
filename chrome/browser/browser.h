@@ -112,10 +112,6 @@ class Browser : public TabStripModelDelegate,
     g_browser_process->user_data_dir_profiles() = profiles;
   }
 
-  void set_open_new_windows_in_default_browser(bool value) {
-    open_new_windows_in_default_browser_ = value;
-  }
-
   // Browser Creation Helpers /////////////////////////////////////////////////
 
   // Opens a new window with the default blank tab.
@@ -397,12 +393,11 @@ class Browser : public TabStripModelDelegate,
 
   virtual void ContentsZoomChange(bool zoom_in);
   virtual bool IsApplication() const;
-  virtual bool ShouldOpenURLInDefaultBrowser() const;
   virtual void ConvertContentsToApplication(TabContents* source);
   virtual void ContentsStateChanged(TabContents* source);
   virtual bool ShouldDisplayURLField();
   virtual void BeforeUnloadFired(TabContents* source,
-                                 bool proceed,
+                                 bool proceed, 
                                  bool* proceed_to_fire_unload);
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
@@ -509,7 +504,7 @@ class Browser : public TabStripModelDelegate,
   bool RemoveFromSet(UnloadListenerSet* set, TabContents* tab);
 
   // Cleans up state appropriately when we are trying to close the browser and
-  // the tab has finished firing it's unload handler. We also use this in the
+  // the tab has finished firing it's unload handler. We also use this in the 
   // cases where a tab crashes or hangs even if the beforeunload/unload haven't
   // successfully fired.
   void ClearUnloadState(TabContents* tab);
@@ -655,9 +650,6 @@ class Browser : public TabStripModelDelegate,
 
   // Keep track of the encoding auto detect pref.
   BooleanPrefMember encoding_auto_detect_;
-
-  // Allows a client of a TabDelegate to decide how to launch a url.
-  bool open_new_windows_in_default_browser_;
 
   DISALLOW_COPY_AND_ASSIGN(Browser);
 };
