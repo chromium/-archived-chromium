@@ -27,7 +27,7 @@ class UserDataManager {
  public:
   // Creates the shared instance of this class. This method is not thread-safe,
   // so the shared instance should be created on the main thread.
-  static void Create();
+  static UserDataManager* Create();
 
   // Returns the shared instance. CreateInstance must be called before callling
   // this method.

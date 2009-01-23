@@ -309,7 +309,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   StatisticsRecorder statistics;
 
   // Initialize the shared instance of user data manager.
-  UserDataManager::Create();
+  scoped_ptr<UserDataManager> user_data_manager(UserDataManager::Create());
 
   // Try to create/load the profile.
   ProfileManager* profile_manager = browser_process->profile_manager();
@@ -546,4 +546,3 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   return result_code;
 }
-
