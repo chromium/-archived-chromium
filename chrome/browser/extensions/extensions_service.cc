@@ -70,8 +70,12 @@ void ExtensionsService::OnExtensionLoadError(const std::string& error) {
 // ExtensionsServicesBackend
 
 bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
-    const FilePath& path,
+    const FilePath& path_in,
     scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
+  FilePath path = path_in;
+  if (!file_util::AbsolutePath(&path))
+    NOTREACHED();
+
   // Find all child directories in the install directory and load their
   // manifests. Post errors and results to the frontend.
   scoped_ptr<ExtensionList> extensions(new ExtensionList);

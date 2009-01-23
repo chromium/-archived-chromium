@@ -505,7 +505,6 @@ input_files = ChromeFileList([
   MSVSFilter('Extensions', [
     'extensions/extension.cc',
     'extensions/extension.h',
-    'extensions/extension_protocols.cc',
     'extensions/extension_protocols.h',
     'extensions/extensions_service.cc',
     'extensions/extensions_service.h',
@@ -724,6 +723,7 @@ if not env.Bit('windows'):
       'download/save_item.cc',
       'download/save_package.cc',
       'download/save_page_model.cc',
+      'extensions/extension_protocols.cc',
       'drag_utils.cc',
       'encoding_menu_controller_delegate.cc',
       'external_protocol_handler.cc',

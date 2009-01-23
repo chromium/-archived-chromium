@@ -12,10 +12,13 @@
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "base/string_util.h"
-#include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
+
+// Defined in extension.h.
+extern const char kExtensionURLScheme[];
+extern const char kUserScriptURLScheme[];
 
 // static
 void UserScriptMaster::ScriptReloader::ParseMetadataHeader(

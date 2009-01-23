@@ -78,7 +78,7 @@ typedef PlatformTest ExtensionsServiceTest;
 TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   std::wstring extensions_dir;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_dir));
-  FilePath manifest_path = FilePath::FromWStringHack(extensions_dir).Append(
+  FilePath extensions_path = FilePath::FromWStringHack(extensions_dir).Append(
       FILE_PATH_LITERAL("extensions"));
 
   scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
@@ -86,7 +86,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
       new ExtensionsServiceTestFrontend);
 
   std::vector<Extension*> extensions;
-  EXPECT_TRUE(backend->LoadExtensionsFromDirectory(manifest_path,
+  EXPECT_TRUE(backend->LoadExtensionsFromDirectory(extensions_path,
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
   frontend->GetMessageLoop()->RunAllPending();
 
@@ -101,11 +101,19 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
             frontend->extensions()->at(0)->name());
   EXPECT_EQ(std::string("The first extension that I made."),
             frontend->extensions()->at(0)->description());
-  ASSERT_EQ(2u, frontend->extensions()->at(0)->content_scripts().size());
-  EXPECT_EQ(std::string("script1.user.js"),
-            frontend->extensions()->at(0)->content_scripts().at(0));
-  EXPECT_EQ(std::string("script2.user.js"),
-            frontend->extensions()->at(0)->content_scripts().at(1));
+
+  Extension* extension = frontend->extensions()->at(0);
+  const UserScriptList& scripts = extension->user_scripts();
+  ASSERT_EQ(2u, scripts.size());
+  EXPECT_EQ(2u, scripts[0].matches.size());
+  EXPECT_EQ("http://*.google.com/*", scripts[0].matches[0]);
+  EXPECT_EQ("https://*.google.com/*", scripts[0].matches[1]);
+  EXPECT_EQ(extension->path().Append(FILE_PATH_LITERAL("script1.js")).value(),
+            scripts[0].path.value());
+  EXPECT_EQ(1u, scripts[1].matches.size());
+  EXPECT_EQ("http://*.yahoo.com/*", scripts[1].matches[0]);
+  EXPECT_EQ(extension->path().Append(FILE_PATH_LITERAL("script2.js")).value(),
+            scripts[1].path.value());
 
   EXPECT_EQ(std::string("com.google.myextension2"),
             frontend->extensions()->at(1)->id());
@@ -113,5 +121,5 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
             frontend->extensions()->at(1)->name());
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(1)->description());
-  ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
+  ASSERT_EQ(0u, frontend->extensions()->at(1)->user_scripts().size());
 };

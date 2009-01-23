@@ -134,7 +134,6 @@ input_files = ChromeFileList([
     '$CHROME_DIR/browser/download/download_request_manager_unittest.cc',
     '$CHROME_DIR/browser/password_manager/encryptor_unittest.cc',
     '$CHROME_DIR/browser/history/expire_history_backend_unittest.cc',
-    '$CHROME_DIR/browser/extensions/extension_protocols_unittest.cc',
     '$CHROME_DIR/browser/extensions/extension_unittest.cc',
     '$CHROME_DIR/browser/extensions/extensions_service_unittest.cc',
     '$CHROME_DIR/browser/importer/firefox_importer_unittest.cc',
