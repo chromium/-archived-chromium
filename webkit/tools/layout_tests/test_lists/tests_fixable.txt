@@ -20,7 +20,7 @@ DEFER : LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
 DEFER : LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
 DEFER : LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
 DEFER : LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
-DEFER WIN MAC : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
+DEFER : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
@@ -30,7 +30,7 @@ DEFER WIN MAC : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
 LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
-LayoutTests/http/tests/xmlhttprequest/methods-async.html = TIMEOUT
+LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
 LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
@@ -319,7 +319,9 @@ DEFER LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 // post-beta, but the bug is here:
 // https://bugs.webkit.org/show_bug.cgi?id=16644 , and it's unclear
 // what the resolution was.
-DEFER : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT
+// window-property-shadowing-name.html has also been affected by
+// r8532 and now fails.
+DEFER : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = FAIL
 DEFER : LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
 
 // This test expects weird behavior of __defineGetter__ on the
@@ -355,7 +357,7 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
 LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LINUX : LayoutTests/fast/text/international/001.html = FAIL
-LINUX : LayoutTests/fast/text/international/002.html = FAIL
+LINUX MAC : LayoutTests/fast/text/international/002.html = FAIL
 LINUX : LayoutTests/fast/text/international/003.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
@@ -553,7 +555,7 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
-LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
+LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 // Flaky on both release and debug.
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
@@ -835,7 +837,8 @@ LINUX WIN : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
-LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
+LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = FAIL TIMEOUT PASS
 LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 // Bug 4360: times out because this uses dom storage which we don't implement.
 DEFER SKIP : LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
@@ -1194,7 +1197,7 @@ LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 
 // MERGE 38729:38760: New tests
-LayoutTests/http/tests/misc/timer-vs-loading.html = TIMEOUT PASS
+LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS
 
 // MERGE 38729:38760: Regressions
 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
@@ -1600,7 +1603,7 @@ MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-docu
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH TIMEOUT PASS
@@ -1743,7 +1746,7 @@ DEFER : LayoutTests/fast/forms/search-rtl.html = FAIL
 DEFER : LayoutTests/fast/forms/search-transformed.html = FAIL
 
 // Merge 39369:39410: new test
-LayoutTests/fast/events/popup-blocking-click-in-iframe.html = TIMEOUT
+LayoutTests/fast/events/popup-blocking-click-in-iframe.html = FAIL
 
 // Merge 39369:39410: new test. Ran correctly and was baselined on Win32.
 MAC : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
@@ -1805,7 +1808,7 @@ LINUX WIN : LayoutTests/fast/images/animated-svg-as-image.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39830:39880 - new tests
-LayoutTests/plugins/npruntime.html = TIMEOUT
+LayoutTests/plugins/npruntime.html = FAIL
 
 // Merge 39830:39880 - regressions 
 LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
@@ -1824,7 +1827,7 @@ LayoutTests/plugins/netscape-throw-exception.html = FAIL
 // Merge 39744:39913? - regressions
 WIN : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
-WIN : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
+WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 WIN : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
@@ -1868,7 +1871,7 @@ LINUX : LayoutTests/fast/canvas/pointInPath.html = CRASH
 LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL PASS
 
 // Merge 40059:40086 -- regressions
-LayoutTests/transitions/hang-with-bad-transition-list.html = PASS TIMEOUT
+LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-10-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-15-t.svg = FAIL
@@ -1881,7 +1884,17 @@ LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
 LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
 WIN : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
 LayoutTests/transitions/inherit-other-props.html = TIMEOUT
+LayoutTests/fast/forms/drag-into-textarea.html = FAIL
+LayoutTests/transitions/retargetted-transition.html = TIMEOUT
+LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
+LayoutTests/http/tests/misc/cached-scripts.html = TIMEOUT
+MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
+MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
+MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
+MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH
+LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+MAC : LayoutTests/animations/change-keyframes.html = FAIL
 
 // Merge 40086:40124 -- new test
 // This needs layoutTestController.numberOfActiveAnimations implemented.
-LayoutTests/transitions/repeated-firing-background-color.html = TIMEOUT
+LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
