@@ -30,7 +30,6 @@ enum ProfileType {
   MS_IE = 0,
   FIREFOX2,
   FIREFOX3,
-  GOOGLE_TOOLBAR5,
   // Identifies a 'bookmarks.html' file.
   BOOKMARKS_HTML
 };
@@ -279,7 +278,6 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   // Helper methods for detecting available profiles.
   void DetectIEProfiles();
   void DetectFirefoxProfiles();
-  void DetectGoogleToolbarProfiles();
 
   // The list of profiles with the default one first.
   std::vector<ProfileInfo*> source_profiles_;

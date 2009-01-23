@@ -20,7 +20,6 @@
 #include "chrome/browser/importer/firefox_importer_utils.h"
 #include "chrome/browser/importer/firefox_profile_lock.h"
 #include "chrome/browser/importer/ie_importer.h"
-#include "chrome/browser/importer/toolbar_importer.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/views/importer_lock_view.h"
@@ -498,27 +497,6 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
     }
   }
 
-  if (profile_info.browser_type == GOOGLE_TOOLBAR5) {
-    if (!ToolbarImporterUtils::IsGoogleGAIACookieInstalled()) {
-      win_util::MessageBox(
-          NULL,
-          l10n_util::GetString(IDS_IMPORTER_GOOGLE_LOGIN_TEXT).c_str(),
-          L"",
-          MB_OK | MB_TOPMOST);
-
-      GURL url("https://www.google.com/accounts/ServiceLogin");
-      BrowsingInstance* instance = new BrowsingInstance(writer_->GetProfile());
-      SiteInstance* site = instance->GetSiteInstanceForURL(url);
-      Browser* browser = BrowserList::GetLastActive();
-      browser->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, site);
-
-      MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &ImporterHost::OnLockViewEnd, false));
-
-      is_source_readable_ = false;
-    }
-  }
-
   // BookmarkModel should be loaded before adding IE favorites. So we observe
   // the BookmarkModel if needed, and start the task after it has been loaded.
   if ((items & FAVORITES) && !writer_->BookmarkModelIsLoaded()) {
@@ -587,8 +565,6 @@ Importer* ImporterHost::CreateImporterByType(ProfileType type) {
       return new Firefox2Importer();
     case FIREFOX3:
       return new Firefox3Importer();
-    case GOOGLE_TOOLBAR5:
-      return new Toolbar5Importer();
   }
   NOTREACHED();
   return NULL;
@@ -618,8 +594,6 @@ void ImporterHost::DetectSourceProfiles() {
     DetectIEProfiles();
     DetectFirefoxProfiles();
   }
-
-  if (!FirstRun::IsChromeFirstRun()) DetectGoogleToolbarProfiles();
 }
 
 void ImporterHost::DetectIEProfiles() {
@@ -697,18 +671,5 @@ void ImporterHost::DetectFirefoxProfiles() {
     firefox->services_supported = HISTORY | FAVORITES | COOKIES | PASSWORDS |
         SEARCH_ENGINES;
     source_profiles_.push_back(firefox);
-  }
-}
-
-void ImporterHost::DetectGoogleToolbarProfiles() {
-  if (!FirstRun::IsChromeFirstRun()) {
-    ProfileInfo* google_toolbar = new ProfileInfo();
-    google_toolbar->browser_type = GOOGLE_TOOLBAR5;
-    google_toolbar->description = l10n_util::GetString(
-                                  IDS_IMPORT_FROM_GOOGLE_TOOLBAR);
-    google_toolbar->source_path.clear();
-    google_toolbar->app_path.clear();
-    google_toolbar->services_supported = FAVORITES;
-    source_profiles_.push_back(google_toolbar);
   }
 }

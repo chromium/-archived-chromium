@@ -1285,14 +1285,6 @@
 				RelativePath=".\importer\mork_reader.h"
 				>
 			</File>
-			<File
-				RelativePath=".\importer\toolbar_importer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\importer\toolbar_importer.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Drag &amp; Drop"
