@@ -231,7 +231,7 @@ DEFER : LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
 // Bug 1082426
 // document.write() pf plain text does not always flush
 // This is a known WebKit bug, https://bugs.webkit.org/show_bug.cgi?id=8961
-DEFER : LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
+DEFER MAC WIN : LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
 
 // Bug: 879449
 // TODO(joshia): Need some changes to the test shell in order to support
@@ -347,43 +347,32 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
-LINUX : LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
 LINUX : LayoutTests/fast/text/international/001.html = FAIL
 LINUX : LayoutTests/fast/text/international/002.html = FAIL
 LINUX : LayoutTests/fast/text/international/003.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
-DEFER MAC LINUX : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
+DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
-DEFER LINUX : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
-DEFER LINUX : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
-DEFER LINUX : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
 LINUX : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
 DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
-LINUX : LayoutTests/svg/text/kerning.svg = FAIL
-LINUX : LayoutTests/svg/text/multichar-glyph.svg = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
 LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
-LINUX : LayoutTests/svg/text/text-align-06-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 DEFER MAC LINUX : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
-LINUX : LayoutTests/svg/text/text-text-04-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
-LINUX : LayoutTests/svg/text/text-text-07-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
-LINUX : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
@@ -392,13 +381,10 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
@@ -755,7 +741,7 @@ SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 // full because of recursion.
 // Partially fixed in bleeding_edge: Now gives a StackOverflowException,
 // which isn't unreasonable when calling a method on a full stack.
-LINUX WIN : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
+WIN : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 // This passes on Mac release
 MAC DEBUG : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 // http://b/issue?id=1344252
@@ -820,10 +806,6 @@ LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-LINUX : LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
-LINUX : LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
-LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
-LINUX : LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 // Linux pixeltest failure: Failing to render shadows
 LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
@@ -1141,7 +1123,6 @@ LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/fast/profiler = FAIL TIMEOUT
-LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
@@ -1746,12 +1727,6 @@ LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 // started with r7379
 WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 
-// Merge 39520:39606 -- new test.
-// Crashes on the buildbot reliably(?) but not locally, even under Valgrind.
-// NOTE: after crashes are worked out, this likely just needs to be
-// rebaselined as was done on Windows (after adding RGB->CMYK converter).
-LINUX : LayoutTests/fast/canvas/set-colors.html = FAIL CRASH
-
 // Merge 39606:39660 - new tests
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
@@ -1789,7 +1764,7 @@ LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 LayoutTests/plugins/npruntime.html = FAIL TIMEOUT
 
 // Merge 39830:39880 - regressions 
-LINUX WIN : LayoutTests/editing/selection/5057506.html = FAIL
+WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 
 // Merge 39880:39894 - regressions
@@ -1846,9 +1821,6 @@ LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL PASS
 
 // Merge 40059:40086 -- regressions
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-10-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-15-t.svg = FAIL
 // These two appear to have been failing before the merge.
 LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
