@@ -249,17 +249,6 @@ class LocationBarView {
   void ShowFirstRunBubble() { }
 };
 
-class GoButton {
- public:
-  typedef enum Mode { MODE_GO = 0, MODE_STOP };
-  void ChangeMode(Mode mode) { }
-};
-
-class ToolbarStarToggle {
- public:
-  void SetToggled(bool) { }
-};
-
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
  public:
 };

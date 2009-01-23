@@ -59,11 +59,9 @@
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/download_tab_view.h"
-#include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/views/new_profile_dialog.h"
 #include "chrome/browser/views/select_profile_dialog.h"
-#include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
@@ -732,40 +730,21 @@ void Browser::Exit() {
 void Browser::BookmarkCurrentPage() {
   UserMetrics::RecordAction(L"Star", profile_);
 
-  TabContents* tab = GetSelectedTabContents();
-  if (!tab->AsWebContents())
-    return;
-
-  WebContents* rvh = tab->AsWebContents();
-  BookmarkModel* model = tab->profile()->GetBookmarkModel();
+  TabContents* contents = GetSelectedTabContents();
+  BookmarkModel* model = contents->profile()->GetBookmarkModel();
   if (!model || !model->IsLoaded())
     return;  // Ignore requests until bookmarks are loaded.
 
-  NavigationEntry* entry = rvh->controller()->GetActiveEntry();
+  NavigationEntry* entry = contents->controller()->GetActiveEntry();
   if (!entry)
     return;  // Can't star if there is no URL.
   const GURL& url = entry->display_url();
   if (url.is_empty() || !url.is_valid())
     return;
 
-  if (window_->GetStarButton()) {
-    if (!window_->GetStarButton()->is_bubble_showing()) {
-      const bool newly_bookmarked = !model->IsBookmarked(url);
-      if (newly_bookmarked) {
-        model->SetURLStarred(url, entry->title(), true);
-        if (!model->IsBookmarked(url)) {
-          // Starring failed. This shouldn't happen.
-          NOTREACHED();
-          return;
-        }
-      }
-      window_->GetStarButton()->ShowStarBubble(url, newly_bookmarked);
-    }
-  } else if (model->IsBookmarked(url)) {
-    // If we can't find the star button and the user wanted to unstar it,
-    // go ahead and unstar it without showing the bubble.
-    model->SetURLStarred(url, std::wstring(), false);
-  }
+  model->SetURLStarred(url, entry->title(), true);
+  if (!window_->IsBookmarkBubbleVisible())
+    window_->ShowBookmarkBubble(url, model->IsBookmarked(url));
 }
 
 void Browser::ViewSource() {
@@ -1766,7 +1745,7 @@ void Browser::ToolbarSizeChanged(TabContents* source, bool is_animating) {
 
 void Browser::URLStarredChanged(TabContents* source, bool starred) {
   if (source == GetSelectedTabContents())
-    SetStarredButtonToggled(starred);
+    window_->SetStarredState(starred);
 }
 
 void Browser::ContentsMouseEvent(TabContents* source, UINT message) {
@@ -2075,7 +2054,7 @@ void Browser::UpdateCommandsForTabState() {
     // Only allow bookmarking for tabbed browsers.
     command_updater_.UpdateCommandEnabled(IDC_STAR,
         is_web_contents && (type() == TYPE_NORMAL));
-    SetStarredButtonToggled(is_web_contents && web_contents->is_starred());
+    window_->SetStarredState(is_web_contents && web_contents->is_starred());
     // View-source should not be enabled if already in view-source mode.
     command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
         is_web_contents && (current_tab->type() != TAB_CONTENTS_VIEW_SOURCE) &&
@@ -2107,17 +2086,9 @@ void Browser::UpdateCommandsForTabState() {
 }
 
 void Browser::UpdateStopGoState(bool is_loading) {
-  GoButton* go_button = GetGoButton();
-  if (go_button)
-    go_button->ChangeMode(is_loading ? GoButton::MODE_STOP : GoButton::MODE_GO);
+  window_->UpdateStopGoState(is_loading);
   command_updater_.UpdateCommandEnabled(IDC_GO, !is_loading);
   command_updater_.UpdateCommandEnabled(IDC_STOP, is_loading);
-}
-
-void Browser::SetStarredButtonToggled(bool starred) {
-  ToolbarStarToggle* star_button = window_->GetStarButton();
-  if (star_button)
-    star_button->SetToggled(starred);
 }
 
 #if defined(OS_WIN)
@@ -2257,10 +2228,6 @@ void Browser::RemoveScheduledUpdatesFor(TabContents* contents) {
 
 LocationBarView* Browser::GetLocationBarView() const {
   return window_->GetLocationBarView();
-}
-
-GoButton* Browser::GetGoButton() {
-  return window_->GetGoButton();
 }
 
 StatusBubble* Browser::GetStatusBubble() {

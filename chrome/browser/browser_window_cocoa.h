@@ -28,17 +28,16 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void FlashFrame();
   virtual void* GetNativeHandle();
   virtual BrowserWindowTesting* GetBrowserWindowTesting();
-  virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
   virtual void UpdateLoadingAnimations(bool should_animate);
+  virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized();
-  virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
-  virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
+  virtual void UpdateStopGoState(bool is_loading);
   virtual void UpdateToolbar(TabContents* contents,
                              bool should_restore_state);
   virtual void FocusToolbar();
@@ -46,6 +45,8 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void ToggleBookmarkBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
+  virtual bool IsBookmarkBubbleVisible() const;
+  virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
   virtual void ShowReportBugDialog();
   virtual void ShowClearBrowsingDataDialog();
   virtual void ShowImportDialog();

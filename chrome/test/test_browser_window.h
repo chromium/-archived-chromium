@@ -27,19 +27,16 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void FlashFrame() {}
   virtual void* GetNativeHandle() { return NULL; }
   virtual BrowserWindowTesting* GetBrowserWindowTesting() { return NULL; }
-  virtual TabStrip* GetTabStrip() const {
-    return const_cast<TabStrip*>(&tab_strip_);
-  }
   virtual StatusBubble* GetStatusBubble() { return NULL; }
   virtual void SelectedTabToolbarSizeChanged(bool is_animating) {}
   virtual void UpdateTitleBar() {}
   virtual void UpdateLoadingAnimations(bool should_animate) {}
+  virtual void SetStarredState(bool is_starred) {}
   virtual gfx::Rect GetNormalBounds() const { return gfx::Rect(); }
   virtual bool IsMaximized() { return false; }
-  virtual ToolbarStarToggle* GetStarButton() const { return NULL; }
   virtual LocationBarView* GetLocationBarView() const { return NULL; }
-  virtual GoButton* GetGoButton() const { return NULL; }
   virtual BookmarkBarView* GetBookmarkBarView() { return NULL; }
+  virtual void UpdateStopGoState(bool is_loading) {}
   virtual void UpdateToolbar(TabContents* contents,
                              bool should_restore_state) {}
   virtual void FocusToolbar() {}
@@ -47,6 +44,8 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ToggleBookmarkBar() {}
   virtual void ShowAboutChromeDialog() {}
   virtual void ShowBookmarkManager() {}
+  virtual bool IsBookmarkBubbleVisible() const { return false; }
+  virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {}
   virtual void ShowReportBugDialog() {}
   virtual void ShowClearBrowsingDataDialog() {}
   virtual void ShowImportDialog() {}

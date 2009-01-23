@@ -690,11 +690,11 @@ TabStrip* DraggedTabController::GetTabStripForPoint(
   dock_windows_.erase(dragged_hwnd);
   if (!local_window)
     return NULL;
-  BrowserWindow* browser = BrowserView::GetBrowserWindowForHWND(local_window);
+  BrowserView* browser = BrowserView::GetBrowserViewForHWND(local_window);
   if (!browser)
     return NULL;
 
-  TabStrip* other_tabstrip = browser->GetTabStrip();
+  TabStrip* other_tabstrip = browser->tabstrip();
   if (!other_tabstrip->IsCompatibleWith(source_tabstrip_))
     return NULL;
   return GetTabStripIfItContains(other_tabstrip, screen_point);

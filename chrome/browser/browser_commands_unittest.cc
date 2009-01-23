@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 #include "chrome/app/chrome_dll_resource.h" 
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/test/browser_with_test_window_test.h"
+#include "chrome/test/testing_profile.h"
 
 typedef BrowserWithTestWindowTest BrowserCommandsTest;
 
@@ -71,4 +73,27 @@ TEST_F(BrowserCommandsTest, DuplicateTab) {
   ASSERT_TRUE(url1 == controller->GetEntryAtIndex(0)->url());
   ASSERT_TRUE(url2 == controller->GetEntryAtIndex(1)->url());
   ASSERT_TRUE(url3 == controller->GetEntryAtIndex(2)->url());
+}
+
+TEST_F(BrowserCommandsTest, BookmarkCurrentPage) {
+  // We use profile() here, since it's a TestingProfile.
+  profile()->CreateBookmarkModel(true);
+  profile()->BlockUntilBookmarkModelLoaded();
+
+  // Navigate to a url.
+  GURL url1 = test_url_with_path("1");
+  AddTestingTab(browser());
+  browser()->OpenURL(url1, GURL(), CURRENT_TAB, PageTransition::TYPED);
+
+  // TODO(beng): remove this once we can use WebContentses directly in testing
+  //             instead of the TestTabContents which causes this command not to
+  //             be enabled when the tab is added (and selected).
+  browser()->command_updater()->UpdateCommandEnabled(IDC_STAR, true);
+
+  // Star it.
+  browser()->ExecuteCommand(IDC_STAR);
+
+  // It should now be bookmarked in the bookmark model.
+  EXPECT_EQ(profile(), browser()->profile());
+  EXPECT_TRUE(browser()->profile()->GetBookmarkModel()->IsBookmarked(url1));
 }

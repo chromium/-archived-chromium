@@ -426,10 +426,6 @@ class Browser : public TabStripModelDelegate,
   // |is_loading| is true if the current TabContents is loading.
   void UpdateStopGoState(bool is_loading);
 
-  // Change the "starred" button display to starred/unstarred.
-  // TODO(evanm): migrate this to the commands framework.
-  void SetStarredButtonToggled(bool starred);
-
 #if defined(OS_WIN)
   // UI update coalescing and handling ////////////////////////////////////////
 

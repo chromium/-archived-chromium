@@ -45,10 +45,10 @@ class BrowserView : public BrowserWindow,
 
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
 
-  // Returns a pointer to the BrowserWindow* interface implementation (an
+  // Returns a pointer to the BrowserView* interface implementation (an
   // instance of this object, typically) for a given HWND, or NULL if there is
   // no such association.
-  static BrowserWindow* GetBrowserWindowForHWND(HWND window);
+  static BrowserView* GetBrowserViewForHWND(HWND window);
 
   // Returns the show flag that should be used to show the frame containing
   // this view.
@@ -155,17 +155,16 @@ class BrowserView : public BrowserWindow,
   virtual void FlashFrame();
   virtual void* GetNativeHandle();
   virtual BrowserWindowTesting* GetBrowserWindowTesting();
-  virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
   virtual void UpdateLoadingAnimations(bool should_animate);
+  virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized();
-  virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
-  virtual GoButton* GetGoButton() const;
   virtual BrowserView* GetBrowserView() const;
+  virtual void UpdateStopGoState(bool is_loading);
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
@@ -173,6 +172,8 @@ class BrowserView : public BrowserWindow,
   virtual void ToggleBookmarkBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
+  virtual bool IsBookmarkBubbleVisible() const;
+  virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
   virtual void ShowReportBugDialog();
   virtual void ShowClearBrowsingDataDialog();
   virtual void ShowImportDialog();

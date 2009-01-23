@@ -51,10 +51,6 @@ BrowserWindowTesting* BrowserWindowCocoa::GetBrowserWindowTesting() {
   return NULL;
 }
 
-TabStrip* BrowserWindowCocoa::GetTabStrip() const {
-  return NULL;
-}
-
 StatusBubble* BrowserWindowCocoa::GetStatusBubble() {
   return NULL;
 }
@@ -66,6 +62,9 @@ void BrowserWindowCocoa::UpdateTitleBar() {
 }
 
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
+}
+
+void BrowserWindowCocoa::SetStarredState(bool is_starred) {
 }
 
 gfx::Rect BrowserWindowCocoa::GetNormalBounds() const {
@@ -82,20 +81,15 @@ bool BrowserWindowCocoa::IsMaximized() {
   return [window_ isZoomed];
 }
 
-ToolbarStarToggle* BrowserWindowCocoa::GetStarButton() const {
-  return NULL;
-}
-
 LocationBarView* BrowserWindowCocoa::GetLocationBarView() const {
-  return NULL;
-}
-
-GoButton* BrowserWindowCocoa::GetGoButton() const {
   return NULL;
 }
 
 BookmarkBarView* BrowserWindowCocoa::GetBookmarkBarView() {
   return NULL;
+}
+
+void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
 }
 
 void BrowserWindowCocoa::UpdateToolbar(TabContents* contents,
@@ -116,6 +110,14 @@ void BrowserWindowCocoa::ShowAboutChromeDialog() {
 }
 
 void BrowserWindowCocoa::ShowBookmarkManager() {
+}
+
+bool BrowserWindowCocoa::IsBookmarkBubbleVisible() const {
+  return false;
+}
+
+void BrowserWindowCocoa::ShowBookmarkBubble(const GURL& url,
+                                            bool already_bookmarked) {
 }
 
 void BrowserWindowCocoa::ShowReportBugDialog() {

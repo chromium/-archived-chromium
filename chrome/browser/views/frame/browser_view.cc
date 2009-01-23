@@ -30,6 +30,7 @@
 #include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
+#include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -70,7 +71,7 @@ static const int kStatusBubbleVerticalOverlap = 2;
 static const int kSeparationLineHeight = 1;
 // The name of a key to store on the window handle so that other code can
 // locate this object using just the handle.
-static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
+static const wchar_t* kBrowserViewKey = L"__BROWSER_VIEW__";
 // The distance between tiled windows.
 static const int kWindowTilePixels = 10;
 // How frequently we check for hung plugin windows.
@@ -140,11 +141,11 @@ BrowserView::~BrowserView() {
 }
 
 // static
-BrowserWindow* BrowserView::GetBrowserWindowForHWND(HWND window) {
+BrowserView* BrowserView::GetBrowserViewForHWND(HWND window) {
   if (IsWindow(window)) {
-    HANDLE data = GetProp(window, kBrowserWindowKey);
+    HANDLE data = GetProp(window, kBrowserViewKey);
     if (data)
-      return reinterpret_cast<BrowserWindow*>(data);
+      return reinterpret_cast<BrowserView*>(data);
   }
   return NULL;
 }
@@ -323,7 +324,7 @@ void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
 void BrowserView::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
   // at it later when all we have is a HWND.
-  SetProp(GetWidget()->GetHWND(), kBrowserWindowKey, this);
+  SetProp(GetWidget()->GetHWND(), kBrowserViewKey, this);
 
   // Start a hung plugin window detector for this browser object (as long as
   // hang detection is not disabled).
@@ -423,10 +424,6 @@ BrowserWindowTesting* BrowserView::GetBrowserWindowTesting() {
   return this;
 }
 
-TabStrip* BrowserView::GetTabStrip() const {
-  return tabstrip_;
-}
-
 StatusBubble* BrowserView::GetStatusBubble() {
   return status_bubble_.get();
 }
@@ -465,6 +462,10 @@ void BrowserView::UpdateLoadingAnimations(bool should_animate) {
   }
 }
 
+void BrowserView::SetStarredState(bool is_starred) {
+  toolbar_->star_button()->SetToggled(is_starred);
+}
+
 gfx::Rect BrowserView::GetNormalBounds() const {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
@@ -477,20 +478,17 @@ bool BrowserView::IsMaximized() {
   return frame_->GetWindow()->IsMaximized();
 }
 
-ToolbarStarToggle* BrowserView::GetStarButton() const {
-  return toolbar_->star_button();
-}
-
 LocationBarView* BrowserView::GetLocationBarView() const {
   return toolbar_->GetLocationBarView();
 }
 
-GoButton* BrowserView::GetGoButton() const {
-  return toolbar_->GetGoButton();
-}
-
 BrowserView* BrowserView::GetBrowserView() const {
   return NULL;
+}
+
+void BrowserView::UpdateStopGoState(bool is_loading) {
+  toolbar_->GetGoButton()->ChangeMode(
+      is_loading ? GoButton::MODE_STOP : GoButton::MODE_GO);
 }
 
 void BrowserView::UpdateToolbar(TabContents* contents,
@@ -536,6 +534,14 @@ void BrowserView::ShowAboutChromeDialog() {
 
 void BrowserView::ShowBookmarkManager() {
   BookmarkManagerView::Show(browser_->profile());
+}
+
+bool BrowserView::IsBookmarkBubbleVisible() const {
+  return toolbar_->star_button()->is_bubble_showing();
+}
+
+void BrowserView::ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {
+  toolbar_->star_button()->ShowStarBubble(url, !already_bookmarked);
 }
 
 void BrowserView::ShowReportBugDialog() {

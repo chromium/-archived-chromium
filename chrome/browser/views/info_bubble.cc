@@ -91,7 +91,7 @@ void InfoBubble::Init(HWND parent_hwnd,
   // We should always have a frame, but there was a bug elsewhere that
   // made it possible for the frame to be NULL, so we have the check. If
   // you hit this, file a bug.
-  DCHECK(BrowserView::GetBrowserWindowForHWND(owning_frame_hwnd));
+  DCHECK(BrowserView::GetBrowserViewForHWND(owning_frame_hwnd));
   parent_ = reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
       owning_frame_hwnd));
   parent_->DisableInactiveRendering(true);
