@@ -149,14 +149,23 @@ std::wstring CookiesTableModel::GetText(int row, int column_id) {
         // Domain cookies start with a trailing dot, but we will show this
         // in the cookie details, show it without the dot in the list.
         std::string& domain = shown_cookies_.at(row)->first;
+        std::wstring wide_domain;
         if (!domain.empty() && domain[0] == '.')
-          return UTF8ToWide(domain.substr(1));
-        return UTF8ToWide(domain);
+          wide_domain = UTF8ToWide(domain.substr(1));
+        else
+          wide_domain = UTF8ToWide(domain);
+        // Force domain to be LTR
+        if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+          l10n_util::WrapStringWithLTRFormatting(&wide_domain);
+        return wide_domain;
       }
       break;
-    case IDS_COOKIES_NAME_COLUMN_HEADER:
-      return UTF8ToWide(shown_cookies_.at(row)->second.Name());
+    case IDS_COOKIES_NAME_COLUMN_HEADER: {
+      std::wstring name = UTF8ToWide(shown_cookies_.at(row)->second.Name());
+      l10n_util::AdjustStringForLocaleDirection(name, &name);
+      return name;
       break;
+    }
   }
   NOTREACHED();
   return L"";

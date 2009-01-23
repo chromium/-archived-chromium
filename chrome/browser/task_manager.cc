@@ -114,7 +114,12 @@ std::wstring TaskManagerTableModel::GetText(int row, int col_id) {
         return l10n_util::GetString(IDS_TASK_MANAGER_NA_CELL_TEXT);
       if (net_usage == 0)
         return std::wstring(L"0");
-      return FormatSpeed(net_usage, GetByteDisplayUnits(net_usage), true);
+      std::wstring net_byte =
+          FormatSpeed(net_usage, GetByteDisplayUnits(net_usage), true);
+      // Force number string to have LTR directionality.
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+        l10n_util::WrapStringWithLTRFormatting(&net_byte);
+      return net_byte;
     }
 
     case IDS_TASK_MANAGER_CPU_COLUMN:  // CPU
@@ -122,28 +127,28 @@ std::wstring TaskManagerTableModel::GetText(int row, int col_id) {
         return std::wstring();
       return IntToWString(GetCPUUsage(resource));
 
-    case IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN:  // Memory
+    case IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN: {  // Memory
       // We report committed (working set + paged) private usage. This is NOT
       // going to match what Windows Task Manager shows (which is working set).
       if (!first_in_group)
         return std::wstring();
-      return l10n_util::GetStringF(
-          IDS_TASK_MANAGER_MEM_CELL_TEXT,
-          FormatNumber(GetPrivateMemory(process_metrics)));
+      std::wstring number = FormatNumber(GetPrivateMemory(process_metrics));
+      return GetMemCellText(&number);
+    }
 
-    case IDS_TASK_MANAGER_SHARED_MEM_COLUMN:  // Memory
+    case IDS_TASK_MANAGER_SHARED_MEM_COLUMN: {  // Memory
       if (!first_in_group)
         return std::wstring();
-      return l10n_util::GetStringF(
-          IDS_TASK_MANAGER_MEM_CELL_TEXT,
-          FormatNumber(GetSharedMemory(process_metrics)));      
+      std::wstring number = FormatNumber(GetSharedMemory(process_metrics));
+      return GetMemCellText(&number);
+    }
 
-    case IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN:  // Memory
+    case IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN: {  // Memory
       if (!first_in_group)
         return std::wstring();
-      return l10n_util::GetStringF(
-          IDS_TASK_MANAGER_MEM_CELL_TEXT,
-          FormatNumber(GetPhysicalMemory(process_metrics)));
+      std::wstring number = FormatNumber(GetPhysicalMemory(process_metrics));
+      return GetMemCellText(&number);
+    }
 
     case IDS_TASK_MANAGER_PROCESS_ID_COLUMN:
       if (!first_in_group)
@@ -210,6 +215,13 @@ int TaskManagerTableModel::GetStatsValue(TaskManager::Resource* resource,
      }
   }
   return 0;
+}
+
+std::wstring TaskManagerTableModel::GetMemCellText(
+    std::wstring* number) const {
+  // Adjust number string if necessary.
+  l10n_util::AdjustStringForLocaleDirection(*number, number);
+  return l10n_util::GetStringF(IDS_TASK_MANAGER_MEM_CELL_TEXT, *number);
 }
 
 SkBitmap TaskManagerTableModel::GetIcon(int row) {

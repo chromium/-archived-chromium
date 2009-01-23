@@ -48,8 +48,23 @@ std::wstring TaskManagerWebContentsResource::GetTitle() const {
 
   // Fall back on the URL if there's no title.
   std::wstring tab_title(web_contents_->GetTitle());
-  if (tab_title.empty())
+  if (tab_title.empty()) {
     tab_title = UTF8ToWide(web_contents_->GetURL().spec());
+    // Force URL to be LTR.
+    if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+      l10n_util::WrapStringWithLTRFormatting(&tab_title);
+  } else {
+    // Since the tab_title will be concatenated with
+    // IDS_TASK_MANAGER_TAB_PREFIX, we need to explicitly set the tab_title to
+    // be LTR format if there is no strong RTL charater in it. Otherwise, if
+    // IDS_TASK_MANAGER_TAB_PREFIX is an RTL word, the concatenated result
+    // might be wrong. For example, http://mail.yahoo.com, whose title is
+    // "Yahoo! Mail: The best web-based Email!", without setting it explicitly
+    // as LTR format, the concatenated result will be "!Yahoo! Mail: The best
+    // web-based Email :BAT", in which the capital letters "BAT" stands for
+    // the Hebrew word for "tab".
+    l10n_util::AdjustStringForLocaleDirection(tab_title, &tab_title);
+  }
 
   return l10n_util::GetStringF(IDS_TASK_MANAGER_TAB_PREFIX, tab_title);
 }
@@ -253,6 +268,11 @@ std::wstring TaskManagerPluginProcessResource::GetTitle() const {
       plugin_name = info.name;
     else
       plugin_name = l10n_util::GetString(IDS_TASK_MANAGER_UNKNOWN_PLUGIN_NAME);
+    // Explicitly mark plugin_name as LTR if there is no strong RTL character,
+    // to avoid the wrong concatenation result similar to "!Yahoo! Mail: the
+    // best web-based Email: NIGULP", in which "NIGULP" stands for the Hebrew
+    // or Arabic word for "plugin".
+    l10n_util::AdjustStringForLocaleDirection(plugin_name, &plugin_name);
     title_ = l10n_util::GetStringF(IDS_TASK_MANAGER_PLUGIN_PREFIX,
                                    plugin_name);
   }

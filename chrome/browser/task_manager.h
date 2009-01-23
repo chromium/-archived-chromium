@@ -267,13 +267,17 @@ class TaskManagerTableModel : public views::GroupTableModel,
   // Returns the stat value at the column |col_id| that should be displayed from
   // the passed |process_metrics|.
   int GetStatsValue(TaskManager::Resource* resource, int col_id);
-  
+
   // Retrieves the ProcessMetrics for the resources at the specified rows.
   // Returns true if there was a ProcessMetrics available for both rows.
   bool GetProcessMetricsForRows(int row1,
                                 int row2,
                                 base::ProcessMetrics** proc_metrics1,
                                 base::ProcessMetrics** proc_metrics2);
+
+  // Given a string containing a number, this function returns the formatted
+  // string that should be displayed in the task manager's memory cell.
+  std::wstring GetMemCellText(std::wstring* number) const;
 
   // The list of providers to the task manager. They are ref counted.
   ResourceProviderList providers_;

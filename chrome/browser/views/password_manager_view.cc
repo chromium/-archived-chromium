@@ -73,10 +73,21 @@ int PasswordManagerTableModel::RowCount() {
 std::wstring PasswordManagerTableModel::GetText(int row,
                                                 int col_id) {
   switch (col_id) {
-    case IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN:  // Site.
-      return saved_signons_[row]->display_url.display_url();
-    case IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN:  // Username.
-      return GetPasswordFormAt(row)->username_value;
+    case IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN: {  // Site.
+      const std::wstring& url = saved_signons_[row]->display_url.display_url();
+      // Force URL to have LTR directionality.
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+        std::wstring localized_url = url;
+        l10n_util::WrapStringWithLTRFormatting(&localized_url);
+        return localized_url;
+      }
+      return url;
+    }
+    case IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN: {  // Username.
+      std::wstring username = GetPasswordFormAt(row)->username_value;
+      l10n_util::AdjustStringForLocaleDirection(username, &username);
+      return username;
+    }
     default:
       NOTREACHED() << "Invalid column.";
       return std::wstring();

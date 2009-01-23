@@ -99,6 +99,12 @@ class NativeControl : public View {
   // to the HWND for views with right-to-left UI layout.
   DWORD GetAdditionalExStyle() const;
 
+  // TODO(xji): we use the following temporary function as we transition the
+  // various native controls to use the right set of RTL flags. This function
+  // will go away (and be replaced by GetAdditionalExStyle()) once all the
+  // controls are properly transitioned.
+  DWORD GetAdditionalRTLStyle() const;
+
   // This variable is protected to provide subclassers direct access. However
   // subclassers should always check for NULL since this variable is only
   // initialized in ValidateNativeControl().

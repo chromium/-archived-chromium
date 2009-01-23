@@ -24,6 +24,7 @@ class PrefService;
 namespace l10n_util {
 
 const wchar_t kRightToLeftMark[] = L"\x200f";
+const wchar_t kLeftToRightMark[] = L"\x200e";
 
 // This method is responsible for determining the locale as defined below. In
 // nearly all cases you shouldn't call this, rather use GetApplicationLocale

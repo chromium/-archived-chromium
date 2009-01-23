@@ -85,6 +85,10 @@ std::wstring HungPagesTableModel::GetText(int row, int column_id) {
   std::wstring title = webcontentses_.at(row)->GetTitle();
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
+  // TODO(xji): Consider adding a special case if the title text is a URL,
+  // since those should always have LTR directionality. Please refer to
+  // http://crbug.com/6726 for more information.
+  l10n_util::AdjustStringForLocaleDirection(title, &title);
   return title;
 }
 

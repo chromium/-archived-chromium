@@ -191,15 +191,29 @@ std::wstring TemplateURLTableModel::GetText(int row, int col_id) {
   const TemplateURL& url = entries_[row]->template_url();
 
   switch (col_id) {
-    case IDS_SEARCH_ENGINES_EDITOR_DESCRIPTION_COLUMN:
+    case IDS_SEARCH_ENGINES_EDITOR_DESCRIPTION_COLUMN: {
+      std::wstring url_short_name = url.short_name();
+      // TODO(xji): Consider adding a special case if the short name is a URL,
+      // since those should always be displayed LTR. Please refer to
+      // http://crbug.com/6726 for more information.
+      l10n_util::AdjustStringForLocaleDirection(url_short_name,
+                                                &url_short_name);
       return (template_url_model_->GetDefaultSearchProvider() == &url) ?
           l10n_util::GetStringF(IDS_SEARCH_ENGINES_EDITOR_DEFAULT_ENGINE,
-                                url.short_name()) :
-          url.short_name();
+                                url_short_name) : url_short_name;
+    }
 
-    case IDS_SEARCH_ENGINES_EDITOR_KEYWORD_COLUMN:
-      return url.keyword();
+    case IDS_SEARCH_ENGINES_EDITOR_KEYWORD_COLUMN: {
+      const std::wstring& keyword = url.keyword();
+      // Keyword should be domain name. Force it to have LTR directionality.
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+        std::wstring localized_keyword = keyword;
+        l10n_util::WrapStringWithLTRFormatting(&localized_keyword);
+        return localized_keyword;
+      }
+      return keyword;
       break;
+    }
 
     default:
       NOTREACHED();

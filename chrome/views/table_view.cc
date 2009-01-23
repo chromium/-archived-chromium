@@ -807,7 +807,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
     if (first->second.title.empty())
       style |= LVS_NOCOLUMNHEADER;
   }
-  list_view_ = ::CreateWindowEx(WS_EX_CLIENTEDGE | GetAdditionalExStyle(),
+  list_view_ = ::CreateWindowEx(WS_EX_CLIENTEDGE | GetAdditionalRTLStyle(),
                                 WC_LISTVIEW,
                                 L"",
                                 style,

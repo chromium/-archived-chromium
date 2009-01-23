@@ -275,16 +275,38 @@ BookmarkTableModel::~BookmarkTableModel() {
 std::wstring BookmarkTableModel::GetText(int row, int column_id) {
   BookmarkNode* node = GetNodeForRow(row);
   switch (column_id) {
-    case IDS_BOOKMARK_TABLE_TITLE:
-      return node->GetTitle();
+    case IDS_BOOKMARK_TABLE_TITLE: {
+      std::wstring title = node->GetTitle();
+      // Adjust the text as well, for example, put LRE-PDF pair around LTR text
+      // in RTL enviroment, so that the ending punctuation in the text will not
+      // be rendered incorrectly (such as rendered as the leftmost character,
+      // and/or rendered as a mirrored punctuation character).
+      //
+      // TODO(xji): Consider adding a special case if the title text is a URL,
+      // since those should always be displayed LTR. Please refer to
+      // http://crbug.com/6726 for more information.
+      l10n_util::AdjustStringForLocaleDirection(title, &title);
+      return title;
+    }
 
-    case IDS_BOOKMARK_TABLE_URL:
-      return node->is_url() ? UTF8ToWide(node->GetURL().spec()) :
-          std::wstring();
+    case IDS_BOOKMARK_TABLE_URL: {
+      if (!node->is_url())
+        return std::wstring();
+      std::wstring url_text = UTF8ToWide(node->GetURL().spec());
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+        l10n_util::WrapStringWithLTRFormatting(&url_text);
+      return url_text;
+    }
 
     case IDS_BOOKMARK_TABLE_PATH: {
       std::wstring path;
       BuildPath(node->GetParent(), &path);
+      // Force path to have LTR directionality. The whole path needs to be
+      // marked with LRE-PDF, so that the path containing both LTR and RTL
+      // subfolder names (such as "CBA/FED/(xji)/.x.j.", in which, "CBA" and
+      // "FED" are subfolder names in Hebrew) can be displayed as LTR.
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+        l10n_util::WrapStringWithLTRFormatting(&path);
       return path;
     }
   }
@@ -336,5 +358,11 @@ void BookmarkTableModel::BuildPath(BookmarkNode* node, std::wstring* path) {
   }
   BuildPath(node->GetParent(), path);
   path->append(l10n_util::GetString(IDS_BOOKMARK_TABLE_PATH_SEPARATOR));
+  // Force path to have LTR directionality. Otherwise, folder path "CBA/FED"
+  // (in which, "CBA" and "FED" stand for folder names in Hebrew, and "FED" is
+  // a subfolder of "CBA") will be displayed as "FED/CBA".
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    path->append(l10n_util::kLeftToRightMark);
+  }
   path->append(node->GetTitle());
 }

@@ -300,6 +300,8 @@ int CustomHomePagesTableModel::RowCount() {
 std::wstring CustomHomePagesTableModel::GetText(int row, int column_id) {
   DCHECK(column_id == 0);
   DCHECK(row >= 0 && row < RowCount());
+  // No need to force URL to have LTR directionality because the custom home
+  // pages control is created using LTR directionality.
   return UTF8ToWide(entries_[row].url.spec());
 }
 
