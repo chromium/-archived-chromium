@@ -37,6 +37,8 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void WasHidden() {}
   virtual void SetSize(const gfx::Size& size) {}
   virtual HWND GetPluginHWND() { return NULL; }
+  virtual void MovePluginWindows(
+    const std::vector<WebPluginGeometry>& plugin_window_moves) {}
   virtual HANDLE ModalDialogEvent() { return NULL; }
   virtual void ForwardMouseEventToRenderer(UINT message,
                                            WPARAM wparam,
