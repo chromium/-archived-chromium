@@ -102,6 +102,28 @@ class HttpUtil {
   // the end-of-headers marker as defined by LocateEndOfHeaders.
   static std::string AssembleRawHeaders(const char* buf, int buf_len);
 
+  // Given a comma separated ordered list of language codes, return
+  // the list with a qvalue appended to each language.
+  // The way qvalues are assigned is rather simple. The qvalue
+  // starts with 1.0 and is decremented by 0.2 for each successive entry
+  // in the list until it reaches 0.2. All the entries after that are
+  // assigned the same qvalue of 0.2. Also, note that the 1st language
+  // will not have a qvalue added because the absence of a qvalue implicitly 
+  // means q=1.0.
+  // 
+  // When making a http request, this should be used to determine what
+  // to put in Accept-Language header. If a comma separated list of language
+  // codes *without* qvalue is sent, web servers regard all
+  // of them as having q=1.0 and pick one of them even though it may not
+  // be at the beginning of the list (see http://crbug.com/5899).
+  static std::string GenerateAcceptLanguageHeader(
+      const std::string& raw_language_list);
+
+  // Given a charset, return the list with a qvalue. If charset is utf-8,
+  // it will return 'utf-8,*;q=0.5'. Otherwise (e.g. 'euc-jp'), it'll return
+  // 'euc-jp,utf-8;q=0.7,*;q=0.3'.
+  static std::string GenerateAcceptCharsetHeader(const std::string& charset);
+
   // Used to iterate over the name/value pairs of HTTP headers.  To iterate
   // over the values in a multi-value header, use ValuesIterator.
   // See AssembleRawHeaders for joining line continuations (this iterator

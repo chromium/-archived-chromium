@@ -15,6 +15,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "net/http/http_cache.h"
+#include "net/http/http_util.h"
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -95,12 +96,11 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
       is_off_the_record_(profile->IsOffTheRecord()) {
   user_agent_ = webkit_glue::GetUserAgent();
 
-  // set up Accept-Language and Accept-Charset header values
-  // TODO(jungshik) : This may slow down http requests. Perhaps,
-  // we have to come up with a better way to set up these values.
-  accept_language_ = WideToASCII(prefs_->GetString(prefs::kAcceptLanguages));
-  accept_charset_ = WideToASCII(prefs_->GetString(prefs::kDefaultCharset));
-  accept_charset_ += ",*,utf-8";
+  // Set up Accept-Language and Accept-Charset header values
+  accept_language_ = net::HttpUtil::GenerateAcceptLanguageHeader(
+      WideToASCII(prefs_->GetString(prefs::kAcceptLanguages)));
+  accept_charset_ = net::HttpUtil::GenerateAcceptCharsetHeader(
+      WideToASCII(prefs_->GetString(prefs::kDefaultCharset)));
 
   cookie_policy_.SetType(net::CookiePolicy::FromInt(
       prefs_->GetInteger(prefs::kCookieBehavior)));
@@ -183,7 +183,8 @@ FilePath ChromeURLRequestContext::GetPathForExtension(const std::string& id) {
 void ChromeURLRequestContext::OnAcceptLanguageChange(std::string accept_language) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
-  accept_language_ = accept_language;
+  accept_language_ =
+      net::HttpUtil::GenerateAcceptLanguageHeader(accept_language);
 }
 
 void ChromeURLRequestContext::OnCookiePolicyChange(net::CookiePolicy::Type type) {

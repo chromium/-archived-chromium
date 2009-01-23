@@ -326,7 +326,7 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
     // Unterminated status line.
     {
       "HTTP/1.0 200 OK",
-      
+
       "HTTP/1.0 200 OK||"
     },
 
@@ -475,3 +475,19 @@ TEST(HttpUtilTest, RequestUrlSanitize) {
     EXPECT_EQ(expected_path, HttpUtil::PathForRequest(url));
   }
 }
+
+TEST(HttpUtilTest, GenerateAcceptLanguageHeader) {
+  EXPECT_EQ(std::string("en-US,fr;q=0.8,de;q=0.6"),
+            HttpUtil::GenerateAcceptLanguageHeader("en-US,fr,de"));
+  EXPECT_EQ(std::string("en-US,fr;q=0.8,de;q=0.6,ko;q=0.4,zh-CN;q=0.2,"
+                        "ja;q=0.2"),
+            HttpUtil::GenerateAcceptLanguageHeader("en-US,fr,de,ko,zh-CN,ja"));
+}
+
+TEST(HttpUtilTest, GenerateAcceptCharsetHeader) {
+  EXPECT_EQ(std::string("utf-8,*;q=0.5"),
+            HttpUtil::GenerateAcceptCharsetHeader("utf-8"));
+  EXPECT_EQ(std::string("EUC-JP,utf-8;q=0.7,*;q=0.3"),
+            HttpUtil::GenerateAcceptCharsetHeader("EUC-JP"));
+}
+

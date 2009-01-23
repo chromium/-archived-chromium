@@ -57,7 +57,7 @@ std::string HttpUtil::PathForRequest(const GURL& url) {
   DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
   if (url.has_query())
     return url.path() + "?" + url.query();
-  return url.path(); 
+  return url.path();
 }
 
 // static
@@ -430,7 +430,7 @@ std::string HttpUtil::AssembleRawHeaders(const char* input_begin,
   while (lines.GetNext()) {
     const char* line_begin = lines.token_begin();
     const char* line_end = lines.token_end();
-     
+
     if (prev_line_continuable && IsLWS(*line_begin)) {
       // Join continuation; reduce the leading LWS to a single SP.
       raw_headers.push_back(' ');
@@ -449,6 +449,50 @@ std::string HttpUtil::AssembleRawHeaders(const char* input_begin,
 
   raw_headers.append("\0\0", 2);
   return raw_headers;
+}
+
+// TODO(jungshik): 1. If the list is 'fr-CA,fr-FR,en,de', we have to add
+// 'fr' after 'fr-CA' with the same q-value as 'fr-CA' because
+// web servers, in general, do not fall back to 'fr' and may end up picking
+// 'en' which has a lower preference than 'fr-CA' and 'fr-FR'.
+// 2. This function assumes that the input is a comma separated list
+// without any whitespace. As long as it comes from the preference and
+// a user does not manually edit the preference file, it's the case. Still,
+// we may have to make it more robust.
+std::string HttpUtil::GenerateAcceptLanguageHeader(
+    const std::string& raw_language_list) {
+  // We use integers for qvalue and qvalue decrement that are 10 times
+  // larger than actual values to avoid a problem with comparing
+  // two floating point numbers.
+  const unsigned int kQvalueDecrement10 = 2;
+  unsigned int qvalue10 = 10;
+  StringTokenizer t(raw_language_list, ",");
+  std::string lang_list_with_q;
+  while (t.GetNext()) {
+    std::string language = t.token();
+    if (qvalue10 == 10) {
+      // q=1.0 is implicit.
+      lang_list_with_q = language;
+    } else {
+      DCHECK(qvalue10 >= 0 && qvalue10 < 10);
+      StringAppendF(&lang_list_with_q, ",%s;q=0.%d", language.c_str(),
+                    qvalue10);
+    }
+    // It does not make sense to have 'q=0'.
+    if (qvalue10 > kQvalueDecrement10)
+      qvalue10 -= kQvalueDecrement10;
+  }
+  return lang_list_with_q;
+}
+
+std::string HttpUtil::GenerateAcceptCharsetHeader(const std::string& charset) {
+  std::string charset_with_q = charset;
+  if (LowerCaseEqualsASCII(charset, "utf-8")) {
+    charset_with_q += ",*;q=0.5";
+  } else {
+    charset_with_q += ",utf-8;q=0.7,*;q=0.3";
+  }
+  return charset_with_q;
 }
 
 // BNF from section 4.2 of RFC 2616:
