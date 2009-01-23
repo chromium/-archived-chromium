@@ -2,7 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "v8_proxy.h"
+#undef LOG
+
 #include "webkit/tools/test_shell/test_shell.h"
+
 
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
@@ -95,6 +99,7 @@ TestShell::TestShell()
 #if defined(OS_WIN)
       default_edit_wnd_proc_(0),
 #endif
+      test_params_(NULL),
       test_is_preparing_(false),
       test_is_pending_(false),
       is_modal_(false),
@@ -162,6 +167,72 @@ void TestShell::ShutdownTestShell() {
 // All fatal log messages (e.g. DCHECK failures) imply unit test failures
 static void UnitTestAssertHandler(const std::string& str) {
     FAIL() << str;
+}
+
+// static
+void TestShell::Dump(TestShell* shell) {
+  const TestParams* params = NULL;
+  if ((shell == NULL) || ((params = shell->test_params()) == NULL))
+    return;
+
+  WebCore::V8Proxy::ProcessConsoleMessages();
+  // Echo the url in the output so we know we're not getting out of sync.
+  printf("#URL:%s\n", params->test_url.c_str());
+
+  // Dump the requested representation.
+  WebFrame* webFrame = shell->webView()->GetMainFrame();
+  if (webFrame) {
+    bool should_dump_as_text =
+        shell->layout_test_controller_->ShouldDumpAsText();
+    bool dumped_anything = false;
+    if (params->dump_tree) {
+      dumped_anything = true;
+      // Text output: the test page can request different types of output
+      // which we handle here.
+      if (!should_dump_as_text) {
+        // Plain text pages should be dumped as text
+        std::wstring mime_type =
+            webFrame->GetDataSource()->GetResponseMimeType();
+        should_dump_as_text = (mime_type == L"text/plain");
+      }
+      if (should_dump_as_text) {
+        bool recursive = shell->layout_test_controller_->
+            ShouldDumpChildFramesAsText();
+        std::string data_utf8 = WideToUTF8(
+            webkit_glue::DumpFramesAsText(webFrame, recursive));
+        if (fwrite(data_utf8.c_str(), 1, data_utf8.size(), stdout) !=
+            data_utf8.size()) {
+          LOG(FATAL) << "Short write to stdout, disk full?";
+        }
+      } else {
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpRenderer(webFrame)).c_str());
+
+        bool recursive = shell->layout_test_controller_->
+            ShouldDumpChildFrameScrollPositions();
+        printf("%s", WideToUTF8(
+            webkit_glue::DumpFrameScrollPosition(webFrame, recursive)).c_str());
+      }
+
+      if (shell->layout_test_controller_->ShouldDumpBackForwardList()) {
+        std::wstring bfDump;
+        DumpBackForwardList(&bfDump);
+        printf("%s", WideToUTF8(bfDump).c_str());
+      }
+    }
+    
+    if (params->dump_pixels && !should_dump_as_text) {
+      // Image output: we write the image data to the file given on the
+      // command line (for the dump pixels argument), and the MD5 sum to
+      // stdout.
+      dumped_anything = true;
+      std::string md5sum = DumpImage(webFrame, params->pixel_file_name);
+      printf("#MD5:%s\n", md5sum.c_str());
+    }
+    if (dumped_anything)
+      printf("#EOF\n");
+    fflush(stdout);
+  }
 }
 
 // static

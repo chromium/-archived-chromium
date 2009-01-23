@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="test_shell"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\webkit\build\webkit_common_includes.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\webkit\build\webkit_common.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"

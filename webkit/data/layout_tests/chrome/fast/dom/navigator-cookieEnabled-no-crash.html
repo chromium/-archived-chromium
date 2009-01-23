@@ -1,12 +1,15 @@
 <html>
 <script>
-if (window.layoutTestController)
+if (window.layoutTestController) {
   window.layoutTestController.dumpAsText();
+  window.layoutTestController.waitUntilDone();
+}
 
 function run_test() {
   var nav = window.navigator;
   document.getElementsByTagName("form")[0].submit();
   nav.cookieEnabled;
+  window.layoutTestController.notifyDone();
 }
 </script>
 <body onload="run_test()">

@@ -14,4 +14,3 @@ layer at (0,0) size 800x359
       RenderBlock (anonymous) at (0,323) size 784x20
         RenderText {#text} at (0,0) size 515x19
           text run at (0,0) width 515: "The circle should not be (partially or fully)visible at the original position after moving it."
-caret: position 0 of child 2 {#text} of child 3 {body} of child 0 {html} of document

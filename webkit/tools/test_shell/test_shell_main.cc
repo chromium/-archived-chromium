@@ -355,12 +355,13 @@ int main(int argc, char* argv[]) {
           if (!*filenameBuffer)
             continue;
 
-
-          if (!TestShell::RunFileTest(filenameBuffer, params))
+          params.test_url = filenameBuffer;
+          if (!TestShell::RunFileTest(params))
             break;
         }
       } else {
-        TestShell::RunFileTest(WideToUTF8(uri).c_str(), params);
+        params.test_url = WideToUTF8(uri).c_str();
+        TestShell::RunFileTest(params);
       }
 
       shell->CallJSGC();
