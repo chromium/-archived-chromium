@@ -156,12 +156,6 @@ LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 // Obscure, not sure we care. DEFER for now.
 DEFER : LayoutTests/fast/dom/assign-to-window-status.html = FAIL
 
-// Bug 905894
-// Getting parseerror (probably wrong svn:eol-style)
-// Will be fixed by upstream merge
-LINUX WIN : LayoutTests/fast/xsl/xslt-enc16.xml = FAIL
-LINUX WIN : LayoutTests/fast/xsl/xslt-enc16to16.xml = FAIL
-
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
 // a caret in editable document even when none was requested programatically.
@@ -342,6 +336,10 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
+DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+LINUX : LayoutTests/fast/forms/select-baseline.html = FAIL
+LINUX MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/international/001.html = FAIL
 LINUX : LayoutTests/fast/text/international/002.html = FAIL
 LINUX : LayoutTests/fast/text/international/003.html = FAIL
@@ -351,6 +349,8 @@ DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+LINUX : LayoutTests/fast/xsl/xslt-enc16.xml = FAIL
+LINUX : LayoutTests/fast/xsl/xslt-enc16to16.xml = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 LINUX : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
@@ -664,7 +664,6 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 // to access non-file urls.
 // TODO(port): mac is passing these, does that mean something is wrong?
 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
-DEFER LINUX WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
@@ -1095,7 +1094,6 @@ LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 LayoutTests/fast/parser/comment-in-textarea.html = FAIL
-LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
@@ -1163,8 +1161,6 @@ LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 // Windows is missing the green box.
 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
-
-LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 
 // -----------------------------------------------------------------
 // MAC PORT TESTS
@@ -1694,7 +1690,6 @@ SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
 LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
