@@ -72,6 +72,10 @@ const wchar_t kUiTestSleepTimeout[] = L"ui-test-sleep-timeout";
 
 const wchar_t kExtraChromeFlagsSwitch[] = L"extra-chrome-flags";
 
+// By default error dialogs are hidden, which makes debugging failures in the
+// slave process frustrating. By passing this in error dialogs are enabled.
+const wchar_t kEnableErrorDialogs[] = L"enable-errdialogs";
+
 // Uncomment this line to have the spawned process wait for the debugger to
 // attach.
 // #define WAIT_FOR_DEBUGGER_ON_OPEN 1
@@ -281,8 +285,10 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   NOTIMPLEMENTED();
 #endif
 
-  if (!show_error_dialogs_)
+  if (!show_error_dialogs_ &&
+      !CommandLine::ForCurrentProcess()->HasSwitch(kEnableErrorDialogs)) {
     command_line.AppendSwitch(switches::kNoErrorDialogs);
+  }
   if (in_process_renderer_)
     command_line.AppendSwitch(switches::kSingleProcess);
   if (in_process_plugins_)
@@ -312,8 +318,8 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
 
   command_line.AppendSwitch(switches::kMetricsRecordingOnly);
 
-  // We always want to enable chrome logging
-  command_line.AppendSwitch(switches::kEnableLogging);
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kEnableErrorDialogs))
+    command_line.AppendSwitch(switches::kEnableLogging);
 
   if (dump_histograms_on_exit_)
     command_line.AppendSwitch(switches::kDumpHistogramsOnExit);
