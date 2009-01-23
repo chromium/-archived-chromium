@@ -35,7 +35,7 @@ class AccessibilityTest : public UITest {
 }  // Namespace.
 
 // Check browser handle and accessibility object browser client.
-TEST_F(AccessibilityTest, TestChromeBrowserAccObject) {
+TEST_F(AccessibilityTest, DISABLED_TestChromeBrowserAccObject) {
   IAccessible* acc_obj = NULL;
   HWND hwnd = GetChromeBrowserWnd(&acc_obj);
 
@@ -46,7 +46,7 @@ TEST_F(AccessibilityTest, TestChromeBrowserAccObject) {
 }
 
 // Check accessibility object for toolbar and its properties Name, Role, State.
-TEST_F(AccessibilityTest, TestChromeToolbarAccObject) {
+TEST_F(AccessibilityTest, DISABLED_TestChromeToolbarAccObject) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
   hr = GetToolbarAccessible(&acc_obj);
@@ -65,7 +65,7 @@ TEST_F(AccessibilityTest, TestChromeToolbarAccObject) {
 
 // Check accessibility object for tabstrip and its properties Name, Role,
 // State.
-TEST_F(AccessibilityTest, TestChromeTabstripAccObject) {
+TEST_F(AccessibilityTest, DISABLED_TestChromeTabstripAccObject) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
   hr = GetTabStripAccessible(&acc_obj);
@@ -89,7 +89,7 @@ TEST_F(AccessibilityTest, DISABLED_TestChromeButtons) {
 }
 
 // Check Back button and its Name, Role, State.
-TEST_F(AccessibilityTest, TestBackButton) {
+TEST_F(AccessibilityTest, DISABLED_TestBackButton) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -116,7 +116,7 @@ TEST_F(AccessibilityTest, TestBackButton) {
 }
 
 // Check Back button and its Name, Role, State, upon adding a new tab.
-TEST_F(AccessibilityTest, TestBackBtnStatusOnNewTab) {
+TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -212,7 +212,7 @@ TEST_F(AccessibilityTest, TestBackBtnStatusOnNewTab) {
 }
 
 // Check Forward button and its Name, Role, State.
-TEST_F(AccessibilityTest, TestForwardButton) {
+TEST_F(AccessibilityTest, DISABLED_TestForwardButton) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -240,7 +240,7 @@ TEST_F(AccessibilityTest, TestForwardButton) {
 }
 
 // Check Forward button and its Name, Role, State, upon adding a new tab.
-TEST_F(AccessibilityTest, TestForwardBtnStatusOnNewTab) {
+TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -349,7 +349,7 @@ TEST_F(AccessibilityTest, TestForwardBtnStatusOnNewTab) {
 }
 
 // Check Star button and its Name, Role, State.
-TEST_F(AccessibilityTest, TestStarButton) {
+TEST_F(AccessibilityTest, DISABLED_TestStarButton) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -367,7 +367,7 @@ TEST_F(AccessibilityTest, TestStarButton) {
 }
 
 // Check Star button and its Name, Role, State, upon adding a new tab.
-TEST_F(AccessibilityTest, TestStarBtnStatusOnNewTab) {
+TEST_F(AccessibilityTest, DISABLED_TestStarBtnStatusOnNewTab) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -422,7 +422,7 @@ TEST_F(AccessibilityTest, TestStarBtnStatusOnNewTab) {
 }
 
 // Check Go button and its Name, Role, State.
-TEST_F(AccessibilityTest, TestGoButton) {
+TEST_F(AccessibilityTest, DISABLED_TestGoButton) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -440,7 +440,7 @@ TEST_F(AccessibilityTest, TestGoButton) {
 }
 
 // Check Page menu button and its Name, Role, State.
-TEST_F(AccessibilityTest, TestPageMenuButton) {
+TEST_F(AccessibilityTest, DISABLED_TestPageMenuButton) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
@@ -464,7 +464,7 @@ TEST_F(AccessibilityTest, TestPageMenuButton) {
 }
 
 // Check App (wrench) menu button and its Name, Role, State.
-TEST_F(AccessibilityTest, TestAppMenuButton) {
+TEST_F(AccessibilityTest, DISABLED_TestAppMenuButton) {
   HRESULT hr = S_OK;
   IAccessible* acc_obj = NULL;
 
