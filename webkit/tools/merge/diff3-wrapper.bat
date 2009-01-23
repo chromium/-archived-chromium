@@ -6,5 +6,5 @@
 
 :: Wrapper around diff3-wrapper.py so it can be called from svn.
 
-python %~dp0diff3-wrapper.py %*
+%~dp0\..\..\..\third_party\python_24\python %~dp0diff3-wrapper.py %*
 exit /B %ERRORLEVEL%

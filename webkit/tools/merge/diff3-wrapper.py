@@ -60,7 +60,7 @@ def main(args):
   diff_tool = args[1]
   
   if diff_tool == "--use-beyondcompare":
-    exe = GetPathToBinary("/cygdrive/c/Progra~1/Beyond~1/BComp.exe")
+    exe = GetPathToBinary("c:/Progra~1/Beyond~1/BComp.exe")
     cmd = [exe, 
            mine,
            yours,
@@ -76,7 +76,7 @@ def main(args):
            '/centertitle', title_older, 
            '/outputtitle', 'merged']
   elif diff_tool == "--use-kdiff3":
-    exe = GetPathToBinary("/cygdrive/c/Progra~1/KDiff3/kdiff3.exe")
+    exe = GetPathToBinary("c:/Progra~1/KDiff3/kdiff3.exe")
     cmd = [exe,
            older,
            mine,
