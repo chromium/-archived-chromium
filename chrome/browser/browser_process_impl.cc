@@ -128,7 +128,7 @@ BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
       memory_model_ = MEDIUM_MEMORY_MODEL;
   }
 
-  shutdown_event_ = new base::WaitableEvent(true, false);
+  shutdown_event_.reset(new base::WaitableEvent(true, false));
 }
 
 BrowserProcessImpl::~BrowserProcessImpl() {
@@ -207,7 +207,7 @@ static void PostQuit(MessageLoop* message_loop) {
 
 void BrowserProcessImpl::EndSession() {
   // Notify we are going away.
-  ::SetEvent(shutdown_event_);
+  ::SetEvent(shutdown_event_->handle());
 
   // Mark all the profiles as clean.
   ProfileManager* pm = profile_manager();
