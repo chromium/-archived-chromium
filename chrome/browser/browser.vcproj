@@ -651,14 +651,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Tab Contents (Old)"
-			>
-			<File
-				RelativePath=".\security_style.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Browser Window"
 			>
 			<File
@@ -2183,6 +2175,10 @@
 			</File>
 			<File
 				RelativePath=".\tab_contents\render_view_host_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\security_style.h"
 				>
 			</File>
 			<File

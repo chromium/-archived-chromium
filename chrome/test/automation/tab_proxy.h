@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "chrome/browser/download/save_package.h"
-#include "chrome/browser/security_style.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/security_style.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
 class ConstrainedWindowProxy;

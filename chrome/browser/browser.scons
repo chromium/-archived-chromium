@@ -170,9 +170,6 @@ input_files = ChromeFileList([
     'bookmarks/bookmark_utils.cc',
     'bookmarks/bookmark_utils.h',
   ]),
-  MSVSFilter('Tab Contents (Old)', [
-    'security_style.h',
-  ]),
   MSVSFilter('Browser Window', [
     'app_modal_dialog_queue.cc',
     'app_modal_dialog_queue.h',
@@ -577,6 +574,7 @@ input_files = ChromeFileList([
     'tab_contents/render_view_context_menu_controller.h',
     'tab_contents/render_view_host_manager.cc',
     'tab_contents/render_view_host_manager.h',
+    'tab_contents/security_style.h',
     'tab_contents/site_instance.cc',
     'tab_contents/site_instance.h',
     'tab_contents/status_view.cc',
