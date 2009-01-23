@@ -88,6 +88,11 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
       Profile* profile,
       Languages* display_languages);
 
+  // This function returns the corresponding language-region code for the
+  // spell check language. For example, for hi, it returns hi-IN.
+  static Language GetSpellCheckLanguageRegion(Language input_language);
+
+
  private:
   // Download dictionary files when required.
   class DictionaryDownloadController;
