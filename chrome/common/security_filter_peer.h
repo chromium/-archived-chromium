@@ -50,8 +50,8 @@ class SecurityFilterPeer : public webkit_glue::ResourceLoaderBridge::Peer {
    SecurityFilterPeer(webkit_glue::ResourceLoaderBridge* resource_loader_bridge,
                       webkit_glue::ResourceLoaderBridge::Peer* peer);
 
-   webkit_glue::ResourceLoaderBridge::Peer* original_peer_;
    webkit_glue::ResourceLoaderBridge* resource_loader_bridge_;
+   webkit_glue::ResourceLoaderBridge::Peer* original_peer_;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(SecurityFilterPeer);

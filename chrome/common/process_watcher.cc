@@ -4,13 +4,9 @@
 
 #include "chrome/common/process_watcher.h"
 
-#include "base/basictypes.h"
 #include "base/message_loop.h"
-#include "base/process.h"
-#include "base/process_util.h"
+#include "base/object_watcher.h"
 #include "base/sys_info.h"
-#include "base/timer.h"
-#include "base/worker_pool.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/common/env_vars.h"
 
@@ -19,72 +15,80 @@ static const int kWaitInterval = 2000;
 
 namespace {
 
-class TerminatorTask : public Task {
+class TimerExpiredTask : public Task, public base::ObjectWatcher::Delegate {
  public:
-  explicit TerminatorTask(base::ProcessHandle process) : process_(process) {
-    timer_.Start(base::TimeDelta::FromMilliseconds(kWaitInterval),
-                 this, &TerminatorTask::KillProcess);
+  explicit TimerExpiredTask(base::ProcessHandle process) : process_(process) {
+    watcher_.StartWatching(process_, this);
   }
 
-  virtual ~TerminatorTask() {
+  virtual ~TimerExpiredTask() {
     if (process_) {
       KillProcess();
-      DCHECK(!process_);
+      DCHECK(!process_) << "Make sure to close the handle.";
     }
   }
 
+  // Task ---------------------------------------------------------------------
+
   virtual void Run() {
-    base::WaitForSingleProcess(process_, kWaitInterval);
-    timer_.Stop();
     if (process_)
       KillProcess();
+  }
+
+  // MessageLoop::Watcher -----------------------------------------------------
+
+  virtual void OnObjectSignaled(HANDLE object) {
+    // When we're called from KillProcess, the ObjectWatcher may still be
+    // watching.  the process handle, so make sure it has stopped.
+    watcher_.StopWatching();
+
+    CloseHandle(process_);
+    process_ = NULL;
   }
 
  private:
   void KillProcess() {
     if (base::SysInfo::HasEnvVar(env_vars::kHeadless)) {
-      // If running the distributed tests, give the renderer a little time
-      // to figure out that the channel is shutdown and unwind.
-      if (base::WaitForSingleProcess(process_, kWaitInterval)) {
-        Cleanup();
-        return;
-      }
+     // If running the distributed tests, give the renderer a little time
+     // to figure out that the channel is shutdown and unwind.
+     if (WaitForSingleObject(process_, kWaitInterval) == WAIT_OBJECT_0) {
+       OnObjectSignaled(process_);
+       return;
+     }
     }
 
     // OK, time to get frisky.  We don't actually care when the process
-    // terminates.  We just care that it eventually terminates.
-    base::KillProcess(base::Process(process_).pid(),
-                      ResultCodes::HUNG,
-                      false /* don't wait */);
+    // terminates.  We just care that it eventually terminates, and that's what
+    // TerminateProcess should do for us. Don't check for the result code since
+    // it fails quite often. This should be investigated eventually.
+    TerminateProcess(process_, ResultCodes::HUNG);
 
-    Cleanup();
-  }
-
-  void Cleanup() {
-    timer_.Stop();
-    base::CloseProcessHandle(process_);
-    process_ = NULL;
+    // Now, just cleanup as if the process exited normally.
+    OnObjectSignaled(process_);
   }
 
   // The process that we are watching.
   base::ProcessHandle process_;
 
-  base::OneShotTimer<TerminatorTask> timer_;
+  base::ObjectWatcher watcher_;
 
-  DISALLOW_COPY_AND_ASSIGN(TerminatorTask);
+  DISALLOW_EVIL_CONSTRUCTORS(TimerExpiredTask);
 };
 
 }  // namespace
 
 // static
 void ProcessWatcher::EnsureProcessTerminated(base::ProcessHandle process) {
-  DCHECK(base::GetProcId(process) != base::GetCurrentProcId());
+  DCHECK(process != GetCurrentProcess());
 
-  // Check if the process has already exited.
-  if (base::WaitForSingleProcess(process, 0)) {
-    base::CloseProcessHandle(process);
+  // If already signaled, then we are done!
+  if (WaitForSingleObject(process, 0) == WAIT_OBJECT_0) {
+    CloseHandle(process);
     return;
   }
 
-  WorkerPool::PostTask(FROM_HERE, new TerminatorTask(process), true);
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+                                          new TimerExpiredTask(process),
+                                          kWaitInterval);
 }
+

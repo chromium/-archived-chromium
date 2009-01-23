@@ -23,9 +23,9 @@ const int BaseHistoryModel::kHistoryScopeMonths = 18;
 BaseHistoryModel::BaseHistoryModel(Profile* profile)
     : profile_(profile),
       observer_(NULL),
-      is_search_results_(false),
       thumbnails_(kThumbnailCacheSize),
-      favicons_(kThumbnailCacheSize) {
+      favicons_(kThumbnailCacheSize),
+      is_search_results_(false) {
   if (!kDefaultFavicon) {
     kDefaultFavicon = ResourceBundle::GetSharedInstance().
         GetBitmapNamed(IDR_DEFAULT_FAVICON);

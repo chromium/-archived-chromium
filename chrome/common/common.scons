@@ -218,8 +218,13 @@ if not env.Bit('windows'):
       'gfx/icon_util.cc',
       'gfx/path.cc',
       'ipc_logging.cc',
+      'jstemplate_builder.cc',
       'os_exchange_data.cc',
       'plugin_messages.cc',
+      'process_watcher.cc',
+      'security_filter_peer.cc',
+      'win_safe_util.cc',
+      'win_util.cc',
   )
 
 if not env.Bit('windows'):
@@ -230,8 +235,6 @@ if not env.Bit('windows'):
       'gfx/chrome_font_win.cc',
       'ipc_channel_win.cc',
       'resource_bundle_win.cc',
-      'win_safe_util.cc',
-      'win_util.cc',
       '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
   )
 
