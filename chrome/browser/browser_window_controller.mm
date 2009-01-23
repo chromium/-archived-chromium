@@ -5,6 +5,8 @@
 #import "chrome/browser/browser.h"
 #import "chrome/browser/browser_window_cocoa.h"
 #import "chrome/browser/browser_window_controller.h"
+#import "chrome/browser/cocoa/tab_bar_view.h"
+#import "chrome/browser/cocoa/tab_contents_controller.h"
 
 @implementation BrowserWindowController
 
@@ -23,6 +25,7 @@
   browser_->CloseAllTabs();
   delete browser_;
   delete windowShim_;
+  [contentsController_ release];
   [super dealloc];
 }
 
@@ -32,7 +35,24 @@
 }
 
 - (void)windowDidLoad {
-  [urlBarView_ setStringValue:@"http://the.interwebs.start.here"];
+  // Place the tab bar above the content box and add it to the view hierarchy
+  // as a sibling of the content view so it can overlap with the window frame.
+  NSRect tabFrame = [contentBox_ frame];
+  tabFrame.origin = NSMakePoint(0, NSMaxY(tabFrame));
+  tabFrame.size.height = NSHeight([tabBarView_ frame]);
+  [tabBarView_ setFrame:tabFrame];
+  [[[[self window] contentView] superview] addSubview:tabBarView_];
+
+  // bring in a single copy of the tab contents for now. We'll do this for
+  // real when we hook up the "add tab to browser window" logic flow.
+  // TODO(pinkerton): hook this up to the tab code
+  contentsController_ =
+      [[TabContentsController alloc] initWithNibName:@"TabContents" bundle:nil];
+  NSView* view = [contentsController_ view];
+  NSRect frame = [[[self window] contentView] bounds];
+  frame.size.height -= 14.0;
+  [view setFrame:frame];  
+  [[[self window] contentView] addSubview:view];
 }
 
 - (void)destroyBrowser {

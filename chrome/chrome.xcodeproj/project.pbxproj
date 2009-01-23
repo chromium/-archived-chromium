@@ -310,6 +310,18 @@
 		E46C4D0F0F2138D400B393B8 /* browser_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF83C0E9D4839009A6919 /* browser_list.cc */; };
 		E46C4ED40F27A94100B393B8 /* command_updater.cc in Sources */ = {isa = PBXBuildFile; fileRef = E46C4ED30F27A94100B393B8 /* command_updater.cc */; };
 		E46C4EF30F27A9B000B393B8 /* command_updater_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E46C4EF20F27A9B000B393B8 /* command_updater_unittest.cc */; };
+		E46C50500F291C0600B393B8 /* star.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C504F0F291C0600B393B8 /* star.pdf */; };
+		E46C50520F291C0E00B393B8 /* back.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50510F291C0E00B393B8 /* back.pdf */; };
+		E46C50550F291C1E00B393B8 /* forward.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50530F291C1E00B393B8 /* forward.pdf */; };
+		E46C50560F291C1E00B393B8 /* reload.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50540F291C1E00B393B8 /* reload.pdf */; };
+		E46C50580F291C3B00B393B8 /* newtab.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50570F291C3B00B393B8 /* newtab.pdf */; };
+		E46C50D90F292EAA00B393B8 /* tab_bar_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */; };
+		E46C50DA0F292EAA00B393B8 /* tab_cell.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50D80F292EAA00B393B8 /* tab_cell.mm */; };
+		E46C50EA0F2A11FC00B393B8 /* tab_contents_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */; };
+		E46C50EF0F2A12DC00B393B8 /* TabContents.xib in Resources */ = {isa = PBXBuildFile; fileRef = E46C50ED0F2A12DC00B393B8 /* TabContents.xib */; };
+		E46C51240F2A14A300B393B8 /* go.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C51230F2A14A300B393B8 /* go.pdf */; };
+		E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */; };
+		E46C519A0F2A20CC00B393B8 /* toolbar_button_cell.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */; };
 		E48B66A80F26257E002E47EC /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
 		E48B67320F2625B8002E47EC /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
 		E48B67CB0F262607002E47EC /* libmodp_b64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B005D0E9D54AA009A6919 /* libmodp_b64.a */; };
@@ -1792,6 +1804,23 @@
 		E46C4ED20F27A94100B393B8 /* command_updater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = command_updater.h; sourceTree = "<group>"; };
 		E46C4ED30F27A94100B393B8 /* command_updater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command_updater.cc; sourceTree = "<group>"; };
 		E46C4EF20F27A9B000B393B8 /* command_updater_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command_updater_unittest.cc; sourceTree = "<group>"; };
+		E46C504F0F291C0600B393B8 /* star.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = star.pdf; path = theme/star.pdf; sourceTree = "<group>"; };
+		E46C50510F291C0E00B393B8 /* back.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = back.pdf; path = theme/back.pdf; sourceTree = "<group>"; };
+		E46C50530F291C1E00B393B8 /* forward.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = forward.pdf; path = theme/forward.pdf; sourceTree = "<group>"; };
+		E46C50540F291C1E00B393B8 /* reload.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = reload.pdf; path = theme/reload.pdf; sourceTree = "<group>"; };
+		E46C50570F291C3B00B393B8 /* newtab.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = newtab.pdf; path = theme/newtab.pdf; sourceTree = "<group>"; };
+		E46C50D50F292EAA00B393B8 /* tab_bar_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_bar_view.h; path = cocoa/tab_bar_view.h; sourceTree = "<group>"; };
+		E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_bar_view.mm; path = cocoa/tab_bar_view.mm; sourceTree = "<group>"; };
+		E46C50D70F292EAA00B393B8 /* tab_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_cell.h; path = cocoa/tab_cell.h; sourceTree = "<group>"; };
+		E46C50D80F292EAA00B393B8 /* tab_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_cell.mm; path = cocoa/tab_cell.mm; sourceTree = "<group>"; };
+		E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_contents_controller.h; path = cocoa/tab_contents_controller.h; sourceTree = "<group>"; };
+		E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_contents_controller.mm; path = cocoa/tab_contents_controller.mm; sourceTree = "<group>"; };
+		E46C50EE0F2A12DC00B393B8 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = nibs/English.lproj/TabContents.xib; sourceTree = "<group>"; };
+		E46C51230F2A14A300B393B8 /* go.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = go.pdf; path = theme/go.pdf; sourceTree = "<group>"; };
+		E46C51620F2A1DAB00B393B8 /* toolbar_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = toolbar_view.h; path = cocoa/toolbar_view.h; sourceTree = "<group>"; };
+		E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = toolbar_view.mm; path = cocoa/toolbar_view.mm; sourceTree = "<group>"; };
+		E46C51980F2A20CC00B393B8 /* toolbar_button_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = toolbar_button_cell.h; path = cocoa/toolbar_button_cell.h; sourceTree = "<group>"; };
+		E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = toolbar_button_cell.mm; path = cocoa/toolbar_button_cell.mm; sourceTree = "<group>"; };
 		E48B684C0F2630D3002E47EC /* browser_window_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_factory.mm; sourceTree = "<group>"; };
 		E48B68550F26330C002E47EC /* browser_window_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser_window_controller.h; sourceTree = "<group>"; };
 		E48B68560F26330C002E47EC /* browser_window_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_controller.mm; sourceTree = "<group>"; };
@@ -2106,6 +2135,7 @@
 				E45075A30F150543003BE099 /* autocomplete */,
 				E48FB9600EC4EA270052B72B /* automation */,
 				E45075AE0F1505A6003BE099 /* bookmarks */,
+				E46C50D10F292E9B00B393B8 /* cocoa */,
 				E43A77190F16618C00ABD5D1 /* dom_ui */,
 				4D7BF9C80E9D48B0009A6919 /* download */,
 				E4F3243F0EE5CE94002533CE /* extensions */,
@@ -3045,6 +3075,7 @@
 				E450610A0EE87FB6003BE099 /* nibs */,
 				E45062D40EE89659003BE099 /* resources */,
 				E43A78240F17985E00ABD5D1 /* scoped_ole_initializer.h */,
+				E46C50360F2917E900B393B8 /* theme */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -3054,6 +3085,7 @@
 			children = (
 				E48B68990F263DF5002E47EC /* BrowserWindow.xib */,
 				4DCE9E2B0EF0B8C000682526 /* MainMenu.xib */,
+				E46C50ED0F2A12DC00B393B8 /* TabContents.xib */,
 			);
 			path = nibs;
 			sourceTree = "<group>";
@@ -3170,6 +3202,36 @@
 				E45076D70F1538E4003BE099 /* dom_automation_controller.cc */,
 			);
 			name = automation;
+			sourceTree = "<group>";
+		};
+		E46C50360F2917E900B393B8 /* theme */ = {
+			isa = PBXGroup;
+			children = (
+				E46C50510F291C0E00B393B8 /* back.pdf */,
+				E46C50530F291C1E00B393B8 /* forward.pdf */,
+				E46C51230F2A14A300B393B8 /* go.pdf */,
+				E46C50570F291C3B00B393B8 /* newtab.pdf */,
+				E46C50540F291C1E00B393B8 /* reload.pdf */,
+				E46C504F0F291C0600B393B8 /* star.pdf */,
+			);
+			name = theme;
+			sourceTree = "<group>";
+		};
+		E46C50D10F292E9B00B393B8 /* cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				E46C50D50F292EAA00B393B8 /* tab_bar_view.h */,
+				E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */,
+				E46C50D70F292EAA00B393B8 /* tab_cell.h */,
+				E46C50D80F292EAA00B393B8 /* tab_cell.mm */,
+				E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */,
+				E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */,
+				E46C51980F2A20CC00B393B8 /* toolbar_button_cell.h */,
+				E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */,
+				E46C51620F2A1DAB00B393B8 /* toolbar_view.h */,
+				E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */,
+			);
+			name = cocoa;
 			sourceTree = "<group>";
 		};
 		E48FB9600EC4EA270052B72B /* automation */ = {
@@ -3658,6 +3720,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E43A79F40F1D192000ABD5D1 /* aliasCursor.png in Resources */,
+				E46C50520F291C0E00B393B8 /* back.pdf in Resources */,
 				E48B689B0F263DF5002E47EC /* BrowserWindow.xib in Resources */,
 				E43A79F50F1D192000ABD5D1 /* cellCursor.png in Resources */,
 				E45062C70EE8939A003BE099 /* chromium.icns in Resources */,
@@ -3666,11 +3729,14 @@
 				E43A79F80F1D192000ABD5D1 /* crossHairCursor.png in Resources */,
 				E43A79F90F1D192000ABD5D1 /* eastResizeCursor.png in Resources */,
 				E43A79FA0F1D192000ABD5D1 /* eastWestResizeCursor.png in Resources */,
+				E46C50550F291C1E00B393B8 /* forward.pdf in Resources */,
+				E46C51240F2A14A300B393B8 /* go.pdf in Resources */,
 				E43A79FB0F1D192000ABD5D1 /* helpCursor.png in Resources */,
 				E43A79FC0F1D192000ABD5D1 /* linkCursor.png in Resources */,
 				4DCE9E2D0EF0B8C000682526 /* MainMenu.xib in Resources */,
 				E43A79FD0F1D192000ABD5D1 /* missingImage.png in Resources */,
 				E43A79FE0F1D192000ABD5D1 /* moveCursor.png in Resources */,
+				E46C50580F291C3B00B393B8 /* newtab.pdf in Resources */,
 				E43A79FF0F1D192000ABD5D1 /* noDropCursor.png in Resources */,
 				E43A7A000F1D192000ABD5D1 /* noneCursor.png in Resources */,
 				E43A7A010F1D192000ABD5D1 /* northEastResizeCursor.png in Resources */,
@@ -3681,9 +3747,12 @@
 				E43A7A060F1D192000ABD5D1 /* northWestSouthEastResizeCursor.png in Resources */,
 				E43A7A070F1D192000ABD5D1 /* notAllowedCursor.png in Resources */,
 				E43A7A080F1D192000ABD5D1 /* progressCursor.png in Resources */,
+				E46C50560F291C1E00B393B8 /* reload.pdf in Resources */,
 				E43A7A090F1D192000ABD5D1 /* southEastResizeCursor.png in Resources */,
 				E43A7A0A0F1D192000ABD5D1 /* southResizeCursor.png in Resources */,
 				E43A7A0B0F1D192000ABD5D1 /* southWestResizeCursor.png in Resources */,
+				E46C50500F291C0600B393B8 /* star.pdf in Resources */,
+				E46C50EF0F2A12DC00B393B8 /* TabContents.xib in Resources */,
 				E43A7A0C0F1D192000ABD5D1 /* textAreaResizeCorner.png in Resources */,
 				E43A7A0D0F1D192000ABD5D1 /* verticalTextCursor.png in Resources */,
 				E43A7A0E0F1D192000ABD5D1 /* waitCursor.png in Resources */,
@@ -4049,6 +4118,11 @@
 				E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */,
 				E45062EB0EE9877F003BE099 /* chrome_dll_main.cc in Sources */,
 				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
+				E46C50D90F292EAA00B393B8 /* tab_bar_view.mm in Sources */,
+				E46C50DA0F292EAA00B393B8 /* tab_cell.mm in Sources */,
+				E46C50EA0F2A11FC00B393B8 /* tab_contents_controller.mm in Sources */,
+				E46C519A0F2A20CC00B393B8 /* toolbar_button_cell.mm in Sources */,
+				E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4385,6 +4459,15 @@
 			);
 			name = MainMenu.xib;
 			path = English.lproj;
+			sourceTree = "<group>";
+		};
+		E46C50ED0F2A12DC00B393B8 /* TabContents.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E46C50EE0F2A12DC00B393B8 /* English */,
+			);
+			name = TabContents.xib;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		E48B68990F263DF5002E47EC /* BrowserWindow.xib */ = {

@@ -12,23 +12,26 @@
 
 class Browser;
 class BrowserWindow;
+@class TabBarView;
+@class TabContentsController;
 
-@interface BrowserWindowController : 
+@interface BrowserWindowController :
     NSWindowController<NSUserInterfaceValidations> {
  @private
-  Browser* browser_;                  // strong
-  BrowserWindow* windowShim_;         // strong
-  
-  // Views for the toolbar 
+  Browser* browser_;
+  BrowserWindow* windowShim_;
+  TabContentsController* contentsController_;
+
+  IBOutlet NSBox* contentBox_;
+  IBOutlet TabBarView* tabBarView_;
+
+  // Views for the toolbar
   IBOutlet NSView* toolbarView_;
   IBOutlet NSTextField* urlBarView_;
-  
-  // Views for the tabs
-  IBOutlet NSView* tabBarView_;
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.
-// Takes ownership of |browser|. 
+// Takes ownership of |browser|.
 - (id)initWithBrowser:(Browser*)browser;
 
 // call to make the browser go away from other places in the cross-platform
