@@ -31,44 +31,38 @@ using base::TimeTicks;
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
 namespace {
-static const struct {
-  // The language.
-  const wchar_t* language;
-
-  // The corresponding language and region, used by the dictionaries.
-  const wchar_t* language_region;
-} g_supported_spellchecker_languages[] = {
-  {L"en-US", L"en-US"},
-  {L"en-GB", L"en-GB"},
-  {L"fr", L"fr-FR"},
-  {L"it", L"it-IT"},
-  {L"de", L"de-DE"},
-  {L"es", L"es-ES"},
-  {L"nl", L"nl-NL"},
-  {L"pt-BR", L"pt-BR"},
-  {L"ru", L"ru-RU"},
-  {L"pl", L"pl-PL"},
+const wchar_t* const g_supported_spellchecker_languages[] = {
+  L"en-US",
+  L"en-GB",
+  L"fr-FR",
+  L"it-IT",
+  L"de-DE",
+  L"es-ES",
+  L"nl-NL",
+  L"pt-BR",
+  L"ru-RU",
+  L"pl-PL",
   // L"th-TH",  // Not to be included in Spellchecker as per B=1277824
-  {L"sv", L"sv-SE"},
-  {L"da", L"da-DK"},
-  {L"pt-PT", L"pt-PT"},
-  {L"ro", L"ro-RO"},
+  L"sv-SE",
+  L"da-DK",
+  L"pt-PT",
+  L"ro-RO",
   // L"hu-HU",  // Not to be included in Spellchecker as per B=1277824
-  {L"he", L"he-IL"},
-  {L"id", L"id-ID"},
-  {L"cs", L"cs-CZ"},
-  {L"el", L"el-GR"},
-  {L"nb", L"nb-NO"},
-  {L"vi", L"vi-VN"},
+  L"he-IL",
+  L"id-ID",
+  L"cs-CZ",
+  L"el-GR",
+  L"nb-NO",
+  L"vi-VN",
   // L"bg-BG",  // Not to be included in Spellchecker as per B=1277824
-  {L"hr", L"hr-HR"},
-  {L"lt", L"lt-LT"},
-  {L"sk", L"sk-SK"},
-  {L"sl", L"sl-SI"},
-  {L"ca", L"ca-ES"},
-  {L"lv", L"lv-LV"},
+  L"hr-HR",
+  L"lt-LT",
+  L"sk-SK",
+  L"sl-SI",
+  L"ca-ES",
+  L"lv-LV",
   // L"uk-UA",  // Not to be included in Spellchecker as per B=1277824
-  {L"hi", L"hi-IN"},
+  L"hi-IN",
   //
   // TODO(Sidchat): Uncomment/remove languages as and when they get resolved.
   //
@@ -78,28 +72,14 @@ static const struct {
 
 void SpellChecker::SpellCheckLanguages(Languages* languages) {
   for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i)
-    languages->push_back(g_supported_spellchecker_languages[i].language);
-}
-
-// This function returns the language-region version of language name.
-// e.g. returns hi-IN for hi.
-SpellChecker::Language SpellChecker::GetSpellCheckLanguageRegion(
-    Language input_language) {
-  for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-    Language language(g_supported_spellchecker_languages[i].language);
-    if (language ==  input_language)
-      return Language(g_supported_spellchecker_languages[i].language_region);
-  }
-
-  return input_language;
+    languages->push_back(g_supported_spellchecker_languages[i]);
 }
 
 SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
     const Language& language) {
   // Look for exact match in the Spell Check language list.
   for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-    Language spellcheck_language(
-        g_supported_spellchecker_languages[i].language);
+    Language spellcheck_language(g_supported_spellchecker_languages[i]);
     if (spellcheck_language == language)
       return language;
   }
@@ -113,8 +93,7 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   // TODO(jungshik): Add a better fallback.
   Language language_part(language, 0, language.find(L'-'));
   for (size_t i = 0; i < arraysize(g_supported_spellchecker_languages); ++i) {
-    Language spellcheck_language(
-        g_supported_spellchecker_languages[i].language_region);
+    Language spellcheck_language(g_supported_spellchecker_languages[i]);
     if (spellcheck_language.substr(0, spellcheck_language.find(L'-')) ==
         language_part)
       return spellcheck_language;
@@ -319,7 +298,7 @@ void SpellChecker::set_file_is_downloading(bool value) {
 // This part of the code is used for spell checking.
 // ################################################################
 
-std::wstring SpellChecker::GetVersionedFileName(const Language& input_language,
+std::wstring SpellChecker::GetVersionedFileName(const Language& language,
                                                 const std::wstring& dict_dir) {
   // The default version string currently in use.
   static const wchar_t kDefaultVersionString[] = L"-1-2";
@@ -349,7 +328,6 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& input_language,
 
   // Generate the bdict file name using default version string or special 
   // version string, depending on the language.
-  std::wstring language = GetSpellCheckLanguageRegion(input_language);
   std::wstring versioned_bdict_file_name(language + kDefaultVersionString +
                                          L".bdic");
   std::string language_string(WideToUTF8(language));
