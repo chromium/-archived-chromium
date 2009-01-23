@@ -473,7 +473,6 @@ void RenderWidgetHost::MovePluginWindows(
                                              move.window_rect.width(),
                                              move.window_rect.height(), flags);
     if (!defer_window_pos_info) {
-      DCHECK(false) << "DeferWindowPos given invalid window, so rest ignored.";
       return;
     }
   }
