@@ -17,6 +17,7 @@
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/views/password_manager_view.h"
+#include "chrome/browser/views/password_manager_exceptions_view.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
@@ -161,6 +162,7 @@ ContentPageView::ContentPageView(Profile* profile)
       download_browse_button_(NULL),
       download_ask_for_save_location_checkbox_(NULL),
       select_file_dialog_(SelectFileDialog::Create(this)),
+      passwords_exceptions_button_(NULL),
       passwords_group_(NULL),
       passwords_asktosave_radio_(NULL),
       passwords_neversave_radio_(NULL),
@@ -223,7 +225,10 @@ void ContentPageView::ButtonPressed(views::NativeButton* sender) {
                               profile()->GetPrefs());
     }
     ask_to_save_passwords_.SetValue(enabled);
-  } else if (sender == passwords_show_passwords_button_) {
+  } else if (sender == passwords_exceptions_button_) {
+    UserMetricsRecordAction(L"Options_ShowPasswordManagerExceptions", NULL);
+    PasswordManagerExceptionsView::Show(profile());
+  }else if (sender == passwords_show_passwords_button_) {
     UserMetricsRecordAction(L"Options_ShowPasswordManager", NULL);
     PasswordManagerView::Show(profile());
   } else if (sender == form_autofill_checkbox_) {
@@ -396,6 +401,9 @@ void ContentPageView::InitPasswordSavingGroup() {
   passwords_show_passwords_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS));
   passwords_show_passwords_button_->SetListener(this);
+  passwords_exceptions_button_ = new views::NativeButton(
+      l10n_util::GetString(IDS_OPTIONS_PASSWORDS_EXCEPTIONS));
+  passwords_exceptions_button_->SetListener(this);
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -409,14 +417,23 @@ void ContentPageView::InitPasswordSavingGroup() {
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
 
+  const int double_column_view_set_id = 0;
+  column_set = layout->AddColumnSet(double_column_view_set_id);
+  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
+                        GridLayout::USE_PREF, 0, 0);
+  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
+                        GridLayout::USE_PREF, 0, 0);
+
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(passwords_asktosave_radio_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(passwords_neversave_radio_);
   layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
-  layout->StartRow(0, single_column_view_set_id);
+  layout->StartRow(0, double_column_view_set_id);
   layout->AddView(passwords_show_passwords_button_);
+  layout->AddView(passwords_exceptions_button_);
 
   passwords_group_ = new OptionsGroupView(
       contents, l10n_util::GetString(IDS_OPTIONS_PASSWORDS_GROUP_NAME), L"",

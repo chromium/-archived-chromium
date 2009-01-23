@@ -658,6 +658,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\password_manager_exceptions_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\password_manager_exceptions_view.h"
+			>
+		</File>
+		<File
 			RelativePath=".\password_manager_view.cc"
 			>
 		</File>

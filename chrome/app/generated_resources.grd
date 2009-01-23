@@ -1793,6 +1793,15 @@ each locale. -->
       <message name="IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN" desc="Password manager table view Username column title">
         Username
       </message>
+      <message name="IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_TITLE" desc="Password manager exceptions view window title">
+        Exceptions
+      </message>
+      <message name="IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_REMOVE_BUTTON" desc="Password manager exceptions view's remove button text">
+        Remove
+      </message>
+      <message name="IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_REMOVE_ALL_BUTTON" desc="Password manager exceptions view's remove all button text">
+        Remove All
+      </message>
 
       <!-- Import Settings Dialog -->
       <message name="IDS_IMPORT_SETTINGS_TITLE" desc="Dialog title for import dialog">
@@ -2726,6 +2735,9 @@ each locale. -->
       </message>
       <message name="IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS" desc="The label of the 'Show passwords' button">
         Show saved passwords
+      </message>
+      <message name="IDS_OPTIONS_PASSWORDS_EXCEPTIONS" desc="The label of the 'Exceptions' button">
+        Exceptions
       </message>
 
       <message name="IDS_AUTOFILL_SETTING_WINDOWS_GROUP_NAME" desc="The title of the form autofill group">

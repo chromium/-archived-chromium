@@ -49,7 +49,7 @@ class PasswordManagerTableModel : public views::TableModel,
   // Return the PasswordForm at the specified index.
   PasswordForm* GetPasswordFormAt(int row);
 
- private:
+ protected:
   // Wraps the PasswordForm from the database and caches the display URL for
   // quick sorting.
   struct PasswordRow {
@@ -63,9 +63,6 @@ class PasswordManagerTableModel : public views::TableModel,
     // The underlying PasswordForm. We own this.
     scoped_ptr<PasswordForm> form;
   };
-
-  // Cancel any pending login query involving a callback.
-  void CancelLoginsQuery();
 
   // The web data service associated with the currently active profile.
   WebDataService* web_data_service() {
@@ -84,6 +81,10 @@ class PasswordManagerTableModel : public views::TableModel,
   STLElementDeleter<PasswordRows> saved_signons_cleanup_;
 
   Profile* profile_;
+
+ private:
+  // Cancel any pending login query involving a callback.
+  void CancelLoginsQuery();
 
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerTableModel);
 };
