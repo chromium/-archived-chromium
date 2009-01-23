@@ -13,7 +13,22 @@
 
 class GURL;
 
+namespace url_parse {
+struct Parsed;
+}
+
 namespace gfx {
+
+// A function to get URL string from a GURL that will be suitable for display
+// to the user. The parsing of the URL may change because various parts of the
+// string will change lengths. The new parsing will be placed in the given out
+// parameter. |prefix_end| is set to the end of the prefix (spec and separator
+// characters before host).
+// |languages|, |new_parsed|, and |prefix_end| may all be empty or NULL.
+std::wstring GetCleanStringFromUrl(const GURL& url,
+                                   const std::wstring& languages,
+                                   url_parse::Parsed* new_parsed,
+                                   size_t* prefix_end);
 
 // This function takes a GURL object and elides it. It returns a string
 // which composed of parts from subdomain, domain, path, filename and query.

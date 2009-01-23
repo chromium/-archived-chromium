@@ -217,7 +217,6 @@ if not env.Bit('windows'):
       'gfx/emf.cc',
       'gfx/icon_util.cc',
       'gfx/path.cc',
-      'gfx/text_elider.cc',
       'ipc_logging.cc',
       'jstemplate_builder.cc',
       'os_exchange_data.cc',

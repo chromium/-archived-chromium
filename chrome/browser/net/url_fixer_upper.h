@@ -9,6 +9,8 @@
 
 #include "googleurl/src/url_parse.h"
 
+class FilePath;
+
 // This object is designed to convert various types of input into URLs that we
 // know are valid. For example, user typing in the URL bar or command line
 // options. This is NOT the place for converting between different types of
@@ -18,7 +20,10 @@ namespace URLFixerUpper {
   // Segments the given text string into parts of a URL.  This is most useful
   // for schemes such as http, https, and ftp where |SegmentURL| will find many
   // segments.  Currently does not segment "file" schemes.
+  std::string SegmentURL(const std::string& text, url_parse::Parsed* parts);
+  // Deprecated temporary compatibility function.
   std::wstring SegmentURL(const std::wstring& text, url_parse::Parsed* parts);
+
 
   // Converts |text| to a fixed-up URL and returns it. Attempts to make
   // some "smart" adjustments to obviously-invalid input where possible.
@@ -34,6 +39,9 @@ namespace URLFixerUpper {
   // |desired_tld| to the domain and prepend "www." (unless it, or a scheme,
   // are already present.)  This TLD should not have a leading '.' (use "com"
   // instead of ".com").
+  std::string FixupURL(const std::string& text,
+                       const std::string& desired_tld);
+  // Deprecated temporary compatibility function.
   std::wstring FixupURL(const std::wstring& text,
                         const std::wstring& desired_tld);
 
@@ -46,8 +54,12 @@ namespace URLFixerUpper {
   // For "regular" input, even if it is possibly a file with a full path, you
   // should use FixupURL() directly.  This function should only be used when
   // relative path handling is desired, as for command line processing.
+  std::string FixupRelativeFile(const FilePath& base_dir,
+                                const FilePath& text);
+  // Deprecated temporary compatibility function.
   std::wstring FixupRelativeFile(const std::wstring& base_dir,
                                  const std::wstring& text);
+
 };
 
 #endif  // #ifndef CHROME_BROWSER_URL_FIXER_UPPER_H__

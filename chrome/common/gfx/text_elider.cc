@@ -8,7 +8,9 @@
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#if defined(OS_WIN)
 #include "chrome/views/label.h"
+#endif  // defined(OS_WIN)
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
@@ -34,15 +36,6 @@ static void AppendFormattedComponent(const std::string& spec,
                                      const url_parse::Component& in_component,
                                      std::wstring* output,
                                      url_parse::Component* out_component);
-
-// A helper function to get Clean Url String from a GURL. The parsing of the
-// URL may change because various parts of the string will change lengths. The
-// new parsing will be placed in the given out parameter. |prefix_end| is set
-// to the end of the prefix (spec and separator characters before host).
-static std::wstring GetCleanStringFromUrl(const GURL& url,
-                                          const std::wstring& languages,
-                                          url_parse::Parsed* new_parsed,
-                                          size_t* prefix_end);
 
 // This function takes a GURL object and elides it. It returns a string
 // which composed of parts from subdomain, domain, path, filename and query.
@@ -396,6 +389,10 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
                                    const std::wstring& languages,
                                    url_parse::Parsed* new_parsed,
                                    size_t* prefix_end) {
+  url_parse::Parsed parsed_temp;
+  if (!new_parsed)
+    new_parsed = &parsed_temp;
+
   std::wstring url_string;
 
   // Check for empty URLs or 0 available text width.
@@ -452,6 +449,8 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
   return url_string;
 }
 
+// TODO(port): SortedDisplayURL should be ported to posix.
+#if defined(OS_WIN)
 SortedDisplayURL::SortedDisplayURL(const GURL& url,
                                    const std::wstring& languages) {
   AppendFormattedHost(url, languages, &sort_host_, NULL);
@@ -513,5 +512,6 @@ std::wstring SortedDisplayURL::AfterHost() const {
   }
   return display_url_.substr(slash_index + sort_host_.length());
 }
+#endif  // defined(OS_WIN)
 
 } // namespace gfx.

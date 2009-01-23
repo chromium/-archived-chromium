@@ -756,7 +756,6 @@ if not env.Bit('windows'):
       'net/dns_global.cc',
       'net/dns_master.cc',
       'net/dns_slave.cc',
-      'net/url_fixer_upper.cc',
       'google_update.cc',
       'password_manager/encryptor.cc',
       'password_manager/ie7_password.cc',
