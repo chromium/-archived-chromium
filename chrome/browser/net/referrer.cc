@@ -9,11 +9,12 @@
 namespace chrome_browser_net {
 
 void Referrer::SuggestHost(const std::string& host) {
-  // Limit how large our list can get, in case we start make mistakes about
-  // what hostnames are in sub-resources (example: Some advertisments have
-  // a link to the ad agency, and then provide a "surprising" redirect to
-  // the advertised entity, which appears to be a subresource on the page
+  // Limit how large our list can get, in case we make mistakes about what
+  // hostnames are in sub-resources (example: Some advertisments have a link to
+  // the ad agency, and then provide a "surprising" redirect to the advertised
+  // entity, which then (mistakenly) appears to be a subresource on the page
   // hosting the ad).
+  // TODO(jar): Do experiments to optimize the max count of suggestions.
   static const size_t kMaxSuggestions = 8;
 
   if (host.empty())
@@ -57,12 +58,18 @@ void Referrer::DeleteLeastUseful() {
     least_useful_lifetime = lifetime;
   }
   erase(least_useful_name);
+  // Note: there is a small chance that we will discard a least_useful_name
+  // that is currently being prefetched because it *was* in this referer list.
+  // In that case, when a benefit appears in AccrueValue() below, we are careful
+  // to check before accessing the member.
 }
 
 void Referrer::AccrueValue(const base::TimeDelta& delta,
                            const std::string host) {
-  DCHECK(this->find(host) != this->end());
-  (*this)[host].AccrueValue(delta);
+  HostNameMap::iterator it = this->find(host);
+  // Be careful that we weren't evicted from this referrer in DeleteLeastUseful.
+  if (it != this->end())
+    it->second.AccrueValue(delta);
 }
 
 }  // namespace chrome_browser_net

@@ -47,13 +47,13 @@ typedef std::map<std::string, ReferrerValue> HostNameMap;
 
 //------------------------------------------------------------------------------
 // There is one Referrer instance for each hostname that has acted as an HTTP
-// referer (note mispelling is intentional) for a domain that was otherwise
-// unexpectedly navgated towards ("unexpected" in the sense that the domain was
-// probably for a subresource of a page, and was not otherwise predictable until
-// the content with the reference arrived).  Most typically, an outer page was a
-// page fetched by the user, and this instance lists names in HostNameMap which
-// are subresources and that were needed to complete the rendering of the outer
-// page.
+// referer (note mispelling is intentional) for a hostname that was otherwise
+// unexpectedly navgated towards ("unexpected" in the sense that the hostname
+// was probably needad as a subresource of a page, and was not otherwise
+// predictable until the content with the reference arrived).  Most typically,
+// an outer page was a page fetched by the user, and this instance lists names
+// in HostNameMap which are subresources and that were needed to complete the
+// rendering of the outer page.
 class Referrer : public HostNameMap {
  public:
   // Add the indicated host to the list of hosts that are resolved via DNS when
@@ -69,7 +69,7 @@ class Referrer : public HostNameMap {
   // Helper function for pruning list.  Metric for usefulness is "large accrued
   // value," in the form of latency_ savings associated with a host name.  We
   // also give credit for a name being newly added, by scalling latency per
-  // lifetime (time since birth).  For instance, when to names have accrued
+  // lifetime (time since birth).  For instance, when two names have accrued
   // the same latency_ savings, the older one is less valuable as it didn't
   // accrue savings as quickly.
   void DeleteLeastUseful();
