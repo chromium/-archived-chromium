@@ -136,6 +136,12 @@ class BrowserWindow {
   // Shows the Password Manager dialog box.
   virtual void ShowPasswordManager() = 0;
 
+  // Shows the Select Profile dialog box.
+  virtual void ShowSelectProfileDialog() = 0;
+
+  // Shows the New Profile dialog box.
+  virtual void ShowNewProfileDialog() = 0;
+
   // Shows a dialog box with HTML content, e.g. for Gears. |parent_window| is
   // the window the dialog should be opened modal to and is a native window
   // handle.

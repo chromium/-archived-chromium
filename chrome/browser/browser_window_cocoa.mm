@@ -135,6 +135,12 @@ void BrowserWindowCocoa::ShowSearchEnginesDialog() {
 void BrowserWindowCocoa::ShowPasswordManager() {
 }
 
+void BrowserWindowCocoa::ShowSelectProfileDialog() {
+}
+
+void BrowserWindowCocoa::ShowNewProfileDialog() {
+}
+
 void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                                         void* parent_window) {
 }

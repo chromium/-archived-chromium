@@ -26,7 +26,9 @@
 #include "chrome/browser/views/importer_view.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/keyword_editor_view.h"
+#include "chrome/browser/views/new_profile_dialog.h"
 #include "chrome/browser/views/password_manager_view.h"
+#include "chrome/browser/views/select_profile_dialog.h"
 #include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -603,6 +605,14 @@ void BrowserView::ShowSearchEnginesDialog() {
 
 void BrowserView::ShowPasswordManager() {
   PasswordManagerView::Show(browser_->profile());
+}
+
+void BrowserView::ShowSelectProfileDialog() {
+  SelectProfileDialog::RunDialog();
+}
+
+void BrowserView::ShowNewProfileDialog() {
+  NewProfileDialog::RunDialog();
 }
 
 void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,

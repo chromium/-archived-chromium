@@ -26,6 +26,7 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"

@@ -11,6 +11,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/history/query_parser.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/drag_drop_types.h"

@@ -12,6 +12,7 @@
 #include "base/message_loop.h"
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
+#include "base/thread.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/views/external_protocol_dialog.h"

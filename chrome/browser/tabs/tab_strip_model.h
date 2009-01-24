@@ -7,21 +7,19 @@
 
 #include <vector>
 
-#include "base/basictypes.h"
 #include "base/observer_list.h"
-#include "chrome/browser/history/history.h"
-#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/common/pref_member.h"
 
 namespace gfx {
 class Point;
+class Rect;
 }
 class DockInfo;
 class GURL;
 class NavigationController;
 class Profile;
+class SiteInstance;
 class TabContents;
 class TabStripModelOrderController;
 class TabStripModel;
@@ -132,6 +130,17 @@ class TabStripModelDelegate {
   // Called when a drag session has completed and the frame that initiated the
   // the session should be closed.
   virtual void CloseFrameAfterDragSession() = 0;
+
+  // Creates an entry in the historical tab database for the specified
+  // TabContents.
+  virtual void CreateHistoricalTab(TabContents* contents) = 0;
+
+  // Runs any unload listeners associated with the specified TabContents before
+  // it is closed. If there are unload listeners that need to be run, this
+  // function returns true and the TabStripModel will wait before closing the
+  // TabContents. If it returns false, there are no unload listeners and the
+  // TabStripModel can close the TabContents immediately.
+  virtual bool RunUnloadListenerBeforeClosing(TabContents* contents) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,10 +295,6 @@ class TabStripModel : public NotificationObserver {
   // Returns true if there are any TabContents that are currently loading.
   bool TabsAreLoading() const;
 
-  // Whether the tab has a beforeunload/unload listener that needs firing before
-  // being closed.
-  bool TabHasUnloadListener(int index);
-
   // Returns the controller controller that opened the TabContents at |index|.
   NavigationController* GetOpenerOfTabContentsAt(int index);
 
@@ -422,11 +427,6 @@ class TabStripModel : public NotificationObserver {
   // Convenience for setting the opener pointer for the specified |contents| to
   // be |opener|'s NavigationController.
   void SetOpenerForContents(TabContents* contents, TabContents* opener);
-
-  // Returns true if closing the tab should add it to TabRestoreService. This
-  // returns true only if the profile has a TabRestoreService and the browser
-  // type is TABBED_BROWSER.
-  bool ShouldAddToTabRestoreService(TabContents* contents);
 
   // Returns true if the tab represented by the specified data has an opener
   // that matches the specified one. If |use_group| is true, then this will

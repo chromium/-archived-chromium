@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/dns_host_info.h"
 #include "chrome/browser/net/referrer.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/common/notification_service.h"

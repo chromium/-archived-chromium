@@ -15,6 +15,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/chrome_thread.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"

@@ -7,6 +7,7 @@
 #include "base/process_util.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
+#include "base/thread.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"

@@ -7,6 +7,7 @@
 #include "chrome/app/result_codes.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/tab_contents/web_contents.h"

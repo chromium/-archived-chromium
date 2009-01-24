@@ -1012,6 +1012,10 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   virtual bool CanDuplicateContentsAt(int index) { return false; }
   virtual void DuplicateContentsAt(int index) {}
   virtual void CloseFrameAfterDragSession() {}
+  virtual void CreateHistoricalTab(TabContents* contents) {}
+  virtual bool RunUnloadListenerBeforeClosing(TabContents* contents) {
+    return false;
+  }
 
  private:
   // A dummy TabContents we give to callers that expect us to actually build a

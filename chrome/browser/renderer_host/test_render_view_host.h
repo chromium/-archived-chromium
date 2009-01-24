@@ -7,11 +7,12 @@
 
 #include "base/basictypes.h"
 #include "base/message_loop.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

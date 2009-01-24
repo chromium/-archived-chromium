@@ -351,6 +351,8 @@ class Browser : public TabStripModelDelegate,
 #if defined(OS_WIN)
   virtual void DuplicateContentsAt(int index);
   virtual void CloseFrameAfterDragSession();
+  virtual void CreateHistoricalTab(TabContents* contents);
+  virtual bool RunUnloadListenerBeforeClosing(TabContents* contents);
 
   // Overridden from TabStripModelObserver:
   virtual void TabInsertedAt(TabContents* contents,

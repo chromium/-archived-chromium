@@ -298,6 +298,11 @@ class InterstitialPage {
   virtual void DontProceed() { }
 };
 
+class RenderViewHost {
+ public:
+  bool HasUnloadListener() const { return false; }
+};
+
 class TabContents {
  public:
   TabContents() : controller_(new NavigationController) { }
@@ -323,7 +328,14 @@ class WebContents : public TabContents {
   InterstitialPage* interstitial_page() const { return NULL; }
   bool is_starred() const { return false; }
   const std::string& contents_mime_type() const { return mime_type_; }
+  bool notify_disconnection() const { return false; }
+  RenderViewHost* render_view_host() const {
+    return const_cast<RenderViewHost*>(&render_view_host_);
+  }
+
  private:
+  RenderViewHost render_view_host_;
+
   std::string mime_type_;
 };
 

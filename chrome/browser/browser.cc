@@ -60,8 +60,6 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/browser/views/new_profile_dialog.h"
-#include "chrome/browser/views/select_profile_dialog.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
@@ -149,6 +147,18 @@ struct Browser::UIUpdate {
   // What changed in the UI.
   unsigned changed_flags;
 };
+
+namespace {
+
+// Returns true if the specified TabContents has unload listeners registered.
+bool TabHasUnloadListener(TabContents* contents) {
+  WebContents* web_contents = contents->AsWebContents();
+  return web_contents && web_contents->notify_disconnection() &&
+      !web_contents->showing_interstitial_page() &&
+      web_contents->render_view_host()->HasUnloadListener();
+}
+
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Constructors, Creation, Showing:
@@ -414,10 +424,9 @@ bool Browser::ShouldCloseWindow() {
   is_attempting_to_close_browser_ = true;
 
   for (int i = 0; i < tab_count(); ++i) {
-    if (tabstrip_model_.TabHasUnloadListener(i)) {
-      TabContents* tab = GetTabContentsAt(i);
-      tabs_needing_before_unload_fired_.insert(tab);
-    }
+    TabContents* contents = GetTabContentsAt(i);
+    if (TabHasUnloadListener(contents))
+      tabs_needing_before_unload_fired_.insert(contents);
   }
 
   if (tabs_needing_before_unload_fired_.empty())
@@ -951,12 +960,12 @@ void Browser::OpenTaskManager() {
 
 void Browser::OpenSelectProfileDialog() {
   UserMetrics::RecordAction(L"SelectProfile", profile_);
-  SelectProfileDialog::RunDialog();
+  window_->ShowSelectProfileDialog();
 }
 
 void Browser::OpenNewProfileDialog() {
   UserMetrics::RecordAction(L"CreateProfile", profile_);
-  NewProfileDialog::RunDialog();
+  window_->ShowNewProfileDialog();
 }
 
 void Browser::OpenBugReportDialog() {
@@ -1359,6 +1368,40 @@ void Browser::CloseFrameAfterDragSession() {
   // the request.
   MessageLoop::current()->PostTask(FROM_HERE,
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
+}
+
+void Browser::CreateHistoricalTab(TabContents* contents) {
+  // We don't create historical tabs for incognito windows or windows without
+  // profiles.
+  if (!profile() || profile()->IsOffTheRecord() ||
+      !profile()->GetTabRestoreService()) {
+    return;
+  }
+
+  // We only create historical tab entries for normal tabbed browser windows.
+  if (type() == TYPE_NORMAL) {
+    profile()->GetTabRestoreService()->CreateHistoricalTab(
+        contents->controller());
+  }
+}
+
+bool Browser::RunUnloadListenerBeforeClosing(TabContents* contents) {
+  WebContents* web_contents = contents->AsWebContents();
+  if (web_contents) {
+    // If the WebContents is not connected yet, then there's no unload
+    // handler we can fire even if the WebContents has an unload listener.
+    // One case where we hit this is in a tab that has an infinite loop 
+    // before load.
+    if (TabHasUnloadListener(contents)) {
+      // If the page has unload listeners, then we tell the renderer to fire
+      // them. Once they have fired, we'll get a message back saying whether
+      // to proceed closing the page or not, which sends us back to this method
+      // with the HasUnloadListener bit cleared.
+      web_contents->render_view_host()->FirePageBeforeUnload();
+      return true;
+    }
+  }
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -2,25 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/tabs/tab_strip_model.h"
+
 #include <algorithm>
 
-#include "base/gfx/point.h"
-#include "base/logging.h"
-#include "chrome/browser/browser.h"
-#include "chrome/browser/browser_about_handler.h"
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents_factory.h"
-#include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -231,23 +221,6 @@ bool TabStripModel::TabsAreLoading() const {
   for (; iter != contents_data_.end(); ++iter) {
     if ((*iter)->contents->is_loading())
       return true;
-  }
-  return false;
-}
-
-bool TabStripModel::TabHasUnloadListener(int index) {
-  // TODO(beng): this should call through to the delegate, so we can mock it
-  //             in testing and then provide better test coverage for features
-  //             like "close other tabs".
-  WebContents* web_contents = GetContentsAt(index)->AsWebContents();
-  if (web_contents) {
-    // If the WebContents is not connected yet, then there's no unload
-    // handler we can fire even if the WebContents has an unload listener.
-    // One case where we hit this is in a tab that has an infinite loop 
-    // before load.
-    return web_contents->notify_disconnection() && 
-        !web_contents->showing_interstitial_page() &&
-        web_contents->render_view_host()->HasUnloadListener();
   }
   return false;
 }
@@ -528,17 +501,8 @@ bool TabStripModel::InternalCloseTabContentsAt(int index,
                                                bool create_historical_tab) {
   TabContents* detached_contents = GetContentsAt(index);
 
-  if (TabHasUnloadListener(index)) {
-    // If the page has unload listeners, then we tell the renderer to fire
-    // them. Once they have fired, we'll get a message back saying whether
-    // to proceed closing the page or not, which sends us back to this method
-    // with the HasUnloadListener bit cleared.
-    WebContents* web_contents = detached_contents->AsWebContents();
-    // If we hit this code path, the tab had better be a WebContents tab.
-    DCHECK(web_contents);
-    web_contents->render_view_host()->FirePageBeforeUnload();
+  if (delegate_->RunUnloadListenerBeforeClosing(detached_contents))
     return false;
-  }
 
   // TODO: Now that we know the tab has no unload/beforeunload listeners,
   // we should be able to do a fast shutdown of the RenderViewProcess.
@@ -547,14 +511,12 @@ bool TabStripModel::InternalCloseTabContentsAt(int index,
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
       TabClosingAt(detached_contents, index));
 
-  const bool add_to_restore_service =
-      (detached_contents && create_historical_tab &&
-       ShouldAddToTabRestoreService(detached_contents));
   if (detached_contents) {
-    if (add_to_restore_service) {
-      profile()->GetTabRestoreService()->
-          CreateHistoricalTab(detached_contents->controller());
-    }
+    // Ask the delegate to save an entry for this tab in the historical tab
+    // database if applicable.
+    if (create_historical_tab)
+      delegate_->CreateHistoricalTab(detached_contents);
+
     detached_contents->CloseContents();
     // Closing the TabContents will later call back to us via
     // NotificationObserver and detach it.
@@ -587,19 +549,6 @@ void TabStripModel::SetOpenerForContents(TabContents* contents,
                                     TabContents* opener) {
   int index = GetIndexOfTabContents(contents);
   contents_data_.at(index)->opener = opener->controller();
-}
-
-bool TabStripModel::ShouldAddToTabRestoreService(TabContents* contents) {
-  if (!profile() || profile()->IsOffTheRecord() ||
-      !profile()->GetTabRestoreService()) {
-    return false;
-  }
-
-  Browser* browser =
-      Browser::GetBrowserForController(contents->controller(), NULL);
-  if (!browser)
-    return false; // Browser is null during unit tests.
-  return browser->type() == Browser::TYPE_NORMAL;
 }
 
 // static
