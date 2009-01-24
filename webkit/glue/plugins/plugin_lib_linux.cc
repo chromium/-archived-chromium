@@ -7,12 +7,15 @@
 #include "webkit/glue/plugins/plugin_lib.h"
 
 #include <dlfcn.h>
-#include <errno.h>
-#include <string.h>
 
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "webkit/glue/plugins/plugin_list.h"
+
+// These headers must be included in this order to make the declaration gods
+// happy.
+#include "base/third_party/nspr/prcpucfg_linux.h"
+#include "third_party/mozilla/include/nsplugindefs.h"
 
 namespace NPAPI {
 
@@ -21,7 +24,7 @@ PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
     const FilePath& library_path) {
   void* dl = dlopen(library_path.value().c_str(), RTLD_LAZY);
   if (!dl)
-    NOTREACHED() << "dlopen failed: " << strerror(errno);
+    NOTREACHED() << "dlopen failed: " << dlerror();
 
   return dl;
 }
@@ -30,7 +33,7 @@ PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
 void PluginLib::UnloadNativeLibrary(NativeLibrary library) {
   int ret = dlclose(library);
   if (ret < 0)
-    NOTREACHED() << "dlclose failed: " << strerror(errno);
+    NOTREACHED() << "dlclose failed: " << dlerror();
 }
 
 // static
@@ -56,32 +59,59 @@ bool PluginLib::ReadWebPluginInfo(const FilePath& filename,
   if (!dl)
     return false;
 
-  void* ns_get_factory = GetFunctionPointerFromNativeLibrary(dl,
-                                                             "NSGetFactory");
-
-  if (ns_get_factory) {
-    // Mozilla calls this an "almost-new-style plugin", then proceeds to
-    // poke at it via XPCOM.  Our testing plugin doesn't use it.
-    NOTIMPLEMENTED() << ": " << filename.value()
-                     << " is an \"almost-new-style plugin\".";
-    UnloadNativeLibrary(dl);
-    return false;
-  }
+  info->path = filename;
 
   // See comments in plugin_lib_mac regarding this symbol.
-  typedef const char* (*GetMimeDescriptionType)();
-  GetMimeDescriptionType ns_get_mime_description =
-      reinterpret_cast<GetMimeDescriptionType>(
-          GetFunctionPointerFromNativeLibrary(dl, "NP_GetMIMEDescription"));
-  const char* description = "";
-  if (ns_get_mime_description)
-    description = ns_get_mime_description();
+  typedef const char* (*NP_GetMimeDescriptionType)();
+  NP_GetMimeDescriptionType NP_GetMIMEDescription =
+      reinterpret_cast<NP_GetMimeDescriptionType>(
+          dlsym(dl, "NP_GetMIMEDescription"));
+  const char* mime_description = NULL;
+  if (NP_GetMIMEDescription)
+    mime_description = NP_GetMIMEDescription();
 
-  // TODO(port): pick up from here.
-  LOG(INFO) << description;
-  NOTIMPLEMENTED();
-  UnloadNativeLibrary(dl);
-  return false;
+  if (mime_description) {
+    // We parse the description here into WebPluginMimeType structures.
+    // Description for Flash 10 looks like (all as one string):
+    //   "application/x-shockwave-flash:swf:Shockwave Flash;"
+    //   "application/futuresplash:spl:FutureSplash Player"
+    std::vector<std::string> descriptions;
+    SplitString(mime_description, ';', &descriptions);
+    for (size_t i = 0; i < descriptions.size(); ++i) {
+      std::vector<std::string> fields;
+      SplitString(descriptions[i], ':', &fields);
+      if (fields.size() != 3) {
+        LOG(WARNING) << "Couldn't parse plugin info: " << descriptions[i];
+        continue;
+      }
+
+      WebPluginMimeType mime_type;
+      mime_type.mime_type = fields[0];
+      SplitString(fields[1], ',', &mime_type.file_extensions);
+      mime_type.description = ASCIIToWide(fields[2]);
+      info->mime_types.push_back(mime_type);
+    }
+  }
+
+  // The plugin name and description live behind NP_GetValue calls.
+  typedef NPError (*NP_GetValueType)(void* unused,
+                                     nsPluginVariable variable,
+                                     void* value_out);
+  NP_GetValueType NP_GetValue =
+      reinterpret_cast<NP_GetValueType>(dlsym(dl, "NP_GetValue"));
+  if (NP_GetValue) {
+    const char* name = NULL;
+    NP_GetValue(NULL, nsPluginVariable_NameString, &name);
+    if (name)
+      info->name = ASCIIToWide(name);
+
+    const char* description = NULL;
+    NP_GetValue(NULL, nsPluginVariable_DescriptionString, &description);
+    if (description)
+      info->desc = ASCIIToWide(description);
+  }
+
+  return true;
 }
 
 }  // namespace NPAPI

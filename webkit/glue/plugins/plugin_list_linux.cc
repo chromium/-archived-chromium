@@ -35,7 +35,12 @@ void PluginList::LoadPluginsFromDir(const FilePath& path) {
 }
 
 bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
-  NOTIMPLEMENTED();
+  // The equivalent Windows code verifies we haven't loaded a newer version
+  // of the same plugin, and then blacklists some known bad plugins.
+  // The equivalent Mac code verifies that plugins encountered first in the
+  // plugin list clobber later entries.
+  // TODO(evanm): figure out which behavior is appropriate for Linux.
+  // We don't need either yet as I'm just testing with Flash for now.
   return true;
 }
 

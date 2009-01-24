@@ -657,10 +657,7 @@ std::string GetDataResource(int resource_id) {
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  // TODO(port): Implement plugins someday.  Don't let the error message
-  // of NOTIMPLEMENTED into our layout test diffs.
-  // NOTIMPLEMENTED();
-  return false;
+  return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
 }  // namespace webkit_glue
