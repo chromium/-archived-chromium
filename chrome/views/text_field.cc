@@ -47,6 +47,7 @@ class TextField::Edit
 
   std::wstring GetText() const;
   void SetText(const std::wstring& text);
+  void AppendText(const std::wstring& text);
 
   std::wstring GetSelectedText() const;
 
@@ -313,6 +314,13 @@ void TextField::Edit::SetText(const std::wstring& text) {
   if (parent_->GetStyle() & STYLE_LOWERCASE)
     text_to_set = l10n_util::ToLower(text_to_set);
   SetWindowText(text_to_set.c_str());
+}
+
+void TextField::Edit::AppendText(const std::wstring& text) {
+  int text_length = GetWindowTextLength();
+  ::SendMessage(m_hWnd, TBM_SETSEL, true, MAKELPARAM(text_length, text_length));
+  ::SendMessage(m_hWnd, EM_REPLACESEL, false,
+                reinterpret_cast<LPARAM>(text.c_str()));
 }
 
 std::wstring TextField::Edit::GetSelectedText() const {
@@ -951,6 +959,12 @@ void TextField::SetText(const std::wstring& text) {
   text_ = text;
   if (edit_)
     edit_->SetText(text);
+}
+
+void TextField::AppendText(const std::wstring& text) {
+  text_ += text;
+  if (edit_)
+    edit_->AppendText(text);
 }
 
 void TextField::CalculateInsets(gfx::Insets* insets) {

@@ -370,6 +370,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\about_network_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\about_network_dialog.h"
+			>
+		</File>
+		<File
 			RelativePath=".\blocked_popup_container.cc"
 			>
 		</File>

@@ -2134,14 +2134,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tab_contents\network_status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\network_status_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\tab_contents\page_navigator.h"
 				>
 			</File>

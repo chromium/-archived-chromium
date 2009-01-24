@@ -97,8 +97,11 @@ class TextField : public View {
   // Returns the text currently displayed in the text field.
   std::wstring GetText() const;
 
-  // Set the text currently displayed in the text field.
+  // Sets the text currently displayed in the text field.
   void SetText(const std::wstring& text);
+
+  // Appends the given string to the previously-existing text in the field.
+  void AppendText(const std::wstring& text);
 
   virtual void Focus();
 

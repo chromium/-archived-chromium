@@ -30,6 +30,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/ipc_status_view.h"
+#include "chrome/browser/views/about_network_dialog.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
@@ -173,9 +174,14 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
   }
 
   if (LowerCaseEqualsASCII(url->path(), "network")) {
-    // about:network doesn't have an internal protocol, so don't modify |url|.
-    *result_type = TAB_CONTENTS_NETWORK_STATUS_VIEW;
-    return true;
+    // Run the dialog. This will re-use the existing one if it's already up.
+    AboutNetworkDialog::RunDialog();
+
+    // Navigate the renderer to about:blank. This is kind of stupid but is the
+    // easiest thing to do in this situation without adding a lot of complexity
+    // for this developer-only feature.
+    *url = GURL("about:blank");
+    return false;
   }
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
