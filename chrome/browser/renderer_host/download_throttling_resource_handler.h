@@ -40,9 +40,7 @@ class DownloadThrottlingResourceHandler
                                 uint64 size);
   virtual bool OnRequestRedirected(int request_id, const GURL& url);
   virtual bool OnResponseStarted(int request_id, ResourceResponse* response);
-  virtual bool OnWillRead(int request_id,
-                          char** buf,
-                          int* buf_size,
+  virtual bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
                           int min_size);
   virtual bool OnReadCompleted(int request_id, int* bytes_read);
   virtual bool OnResponseCompleted(int request_id,
@@ -72,7 +70,7 @@ class DownloadThrottlingResourceHandler
 
   // If we're created by way of BufferedEventHandler we'll get one request for
   // a buffer. This is that buffer.
-  scoped_array<char> tmp_buffer_;
+  scoped_refptr<net::IOBuffer> tmp_buffer_;
   int tmp_buffer_length_;
 
   // If true the next call to OnReadCompleted is ignored. This is used if we're

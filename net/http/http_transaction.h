@@ -66,8 +66,11 @@ class HttpTransaction {
   // could not be read.
   //
   // NOTE: The transaction is not responsible for deleting the callback object.
+  // If the operation is not completed immediately, the transaction must acquire
+  // a reference to the provided buffer.
   //
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback) = 0;
+  virtual int Read(IOBuffer* buf, int buf_len,
+                   CompletionCallback* callback) = 0;
 
   // Returns the response info for this transaction or NULL if the response
   // info is not available.

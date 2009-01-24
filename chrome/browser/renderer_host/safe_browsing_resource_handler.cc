@@ -77,7 +77,7 @@ void SafeBrowsingResourceHandler::OnGetHashTimeout() {
 }
 
 bool SafeBrowsingResourceHandler::OnWillRead(int request_id,
-                                             char** buf, int* buf_size,
+                                             net::IOBuffer** buf, int* buf_size,
                                              int min_size) {
   if (in_safe_browsing_check_ && pause_time_.is_null()) {
     pause_time_ = base::Time::Now();

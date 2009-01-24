@@ -137,12 +137,12 @@ int ReadTransaction(net::HttpTransaction* trans, std::string* result) {
 
   std::string content;
   do {
-    char buf[256];
-    rv = trans->Read(buf, sizeof(buf), &callback);
+    scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(256);
+    rv = trans->Read(buf, 256, &callback);
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
     if (rv > 0) {
-      content.append(buf, rv);
+      content.append(buf->data(), rv);
     } else if (rv < 0) {
       return rv;
     }

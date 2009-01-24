@@ -25,7 +25,7 @@ class URLRequestSlowDownloadJob : public URLRequestJob {
   virtual void Start();
   virtual bool GetMimeType(std::string* mime_type);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
-  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
 
   static URLRequestJob* Factory(URLRequest* request,
                                 const std::string& scheme);

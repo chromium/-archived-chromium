@@ -21,7 +21,7 @@ class URLRequestFileDirJob
   virtual void Start();
   virtual void StartAsync();
   virtual void Kill();
-  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
   virtual bool GetMimeType(std::string* mime_type);
   virtual bool GetCharset(std::string* charset);
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
@@ -55,7 +55,7 @@ class URLRequestFileDirJob
   // we wait for IO to complete.  When done, we fill the buffer
   // manually.
   bool read_pending_;
-  char *read_buffer_;
+  scoped_refptr<net::IOBuffer> read_buffer_;
   int read_buffer_length_;
 
   DISALLOW_EVIL_CONSTRUCTORS(URLRequestFileDirJob);

@@ -9,9 +9,7 @@
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 
-namespace base {
-class SharedMemory;
-}
+class SharedIOBuffer;
 
 // Used to complete an asynchronous resource request in response to resource
 // load events from the resource dispatcher host.
@@ -28,7 +26,8 @@ class AsyncResourceHandler : public ResourceHandler {
   bool OnUploadProgress(int request_id, uint64 position, uint64 size);
   bool OnRequestRedirected(int request_id, const GURL& new_url);
   bool OnResponseStarted(int request_id, ResourceResponse* response);
-  bool OnWillRead(int request_id, char** buf, int* buf_size, int min_size);
+  bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
+                  int min_size);
   bool OnReadCompleted(int request_id, int* bytes_read);
   bool OnResponseCompleted(int request_id, const URLRequestStatus& status);
 
@@ -38,9 +37,9 @@ class AsyncResourceHandler : public ResourceHandler {
   // When reading, we don't know if we are going to get EOF (0 bytes read), so
   // we typically have a buffer that we allocated but did not use.  We keep
   // this buffer around for the next read as a small optimization.
-  static base::SharedMemory* spare_read_buffer_;
+  static SharedIOBuffer* spare_read_buffer_;
 
-  scoped_ptr<base::SharedMemory> read_buffer_;
+  scoped_refptr<SharedIOBuffer> read_buffer_;
   ResourceDispatcherHost::Receiver* receiver_;
   int render_process_host_id_;
   int routing_id_;

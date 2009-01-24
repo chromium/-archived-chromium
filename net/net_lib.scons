@@ -62,6 +62,7 @@ input_files = ChromeFileList([
     'base/gzip_header.h',
     'base/host_resolver.cc',
     'base/host_resolver.h',
+    'base/io_buffer.h',
     'base/listen_socket.cc',
     'base/listen_socket.h',
     'base/load_flags.h',

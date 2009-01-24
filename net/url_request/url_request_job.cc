@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/auth.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job_metrics.h"
@@ -97,7 +98,7 @@ void URLRequestJob::ContinueDespiteLastError() {
 // This function calls ReadData to get stream data. If a filter exists, passes
 // the data to the attached filter. Then returns the output from filter back to
 // the caller.
-bool URLRequestJob::Read(char* buf, int buf_size, int *bytes_read) {
+bool URLRequestJob::Read(net::IOBuffer* buf, int buf_size, int *bytes_read) {
   bool rv = false;
 
   DCHECK_LT(buf_size, 1000000);  // sanity check
@@ -140,7 +141,7 @@ bool URLRequestJob::ReadRawDataForFilter(int *bytes_read) {
   // TODO(mbelshe): is it possible that the filter needs *MORE* data
   //    when there is some data already in the buffer?
   if (!filter_->stream_data_len() && !is_done()) {
-    char* stream_buffer = filter_->stream_buffer();
+    net::IOBuffer* stream_buffer = filter_->stream_buffer();
     int stream_buffer_size = filter_->stream_buffer_size();
     rv = ReadRawData(stream_buffer, stream_buffer_size, bytes_read);
     if (rv && *bytes_read > 0)
@@ -186,7 +187,7 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
     // Get filtered data
     int filtered_data_len = read_buffer_len_;
     Filter::FilterStatus status;
-    status = filter_->ReadData(read_buffer_, &filtered_data_len);
+    status = filter_->ReadData(read_buffer_->data(), &filtered_data_len);
     switch (status) {
       case Filter::FILTER_DONE: {
         *bytes_read = filtered_data_len;
@@ -242,7 +243,8 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
   return rv;
 }
 
-bool URLRequestJob::ReadRawData(char* buf, int buf_size, int *bytes_read) {
+bool URLRequestJob::ReadRawData(net::IOBuffer* buf, int buf_size,
+                                int *bytes_read) {
   DCHECK(bytes_read);
   *bytes_read = 0;
   NotifyDone(URLRequestStatus());

@@ -66,7 +66,7 @@ void URLRequestInterceptJob::Kill() {
   URLRequestJob::Kill();
 }
 
-bool URLRequestInterceptJob::ReadRawData(char* dest, int dest_size,
+bool URLRequestInterceptJob::ReadRawData(net::IOBuffer* dest, int dest_size,
                                          int* bytes_read) {
   DCHECK_NE(dest_size, 0);
   DCHECK(bytes_read);
@@ -75,7 +75,7 @@ bool URLRequestInterceptJob::ReadRawData(char* dest, int dest_size,
     return false;
 
   int rv = plugin_->functions().request_funcs->read(cprequest_.get(),
-                                                         dest, dest_size);
+                                                    dest->data(), dest_size);
   if (rv >= 0) {
     *bytes_read = rv;
     return true;

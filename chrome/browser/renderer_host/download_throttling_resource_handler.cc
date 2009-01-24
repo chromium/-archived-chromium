@@ -5,6 +5,7 @@
 #include "chrome/browser/renderer_host/download_throttling_resource_handler.h"
 
 #include "chrome/browser/renderer_host/download_resource_handler.h"
+#include "net/base/io_buffer.h"
 
 DownloadThrottlingResourceHandler::DownloadThrottlingResourceHandler(
     ResourceDispatcherHost* host,
@@ -57,7 +58,7 @@ bool DownloadThrottlingResourceHandler::OnResponseStarted(
 }
 
 bool DownloadThrottlingResourceHandler::OnWillRead(int request_id,
-                                                   char** buf,
+                                                   net::IOBuffer** buf,
                                                    int* buf_size,
                                                    int min_size) {
   if (download_handler_.get())
@@ -68,7 +69,7 @@ bool DownloadThrottlingResourceHandler::OnWillRead(int request_id,
   DCHECK(!tmp_buffer_.get());
   if (min_size < 0)
     min_size = 1024;
-  tmp_buffer_.reset(new char[min_size]);
+  tmp_buffer_ = new net::IOBuffer(min_size);
   *buf = tmp_buffer_.get();
   *buf_size = min_size;
   return true;
@@ -132,14 +133,14 @@ void DownloadThrottlingResourceHandler::ContinueDownload() {
 
 void DownloadThrottlingResourceHandler::CopyTmpBufferToDownloadHandler() {
   // Copy over the tmp buffer.
-  char* buffer;
+  net::IOBuffer* buffer;
   int buf_size;
   if (download_handler_->OnWillRead(request_id_, &buffer, &buf_size,
                                     tmp_buffer_length_)) {
     CHECK(buf_size >= tmp_buffer_length_);
-    memcpy(buffer, tmp_buffer_.get(), tmp_buffer_length_);
+    memcpy(buffer->data(), tmp_buffer_->data(), tmp_buffer_length_);
     download_handler_->OnReadCompleted(request_id_, &tmp_buffer_length_);
   }
   tmp_buffer_length_ = 0;
-  tmp_buffer_.reset();
+  tmp_buffer_ = NULL;
 }

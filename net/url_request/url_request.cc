@@ -252,7 +252,7 @@ void URLRequest::CancelWithError(int os_error) {
   // about being called recursively.
 }
 
-bool URLRequest::Read(char* dest, int dest_size, int *bytes_read) {
+bool URLRequest::Read(net::IOBuffer* dest, int dest_size, int *bytes_read) {
   DCHECK(job_);
   DCHECK(bytes_read);
   DCHECK(!job_->is_done());

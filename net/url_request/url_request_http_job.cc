@@ -348,7 +348,8 @@ bool URLRequestHttpJob::GetMoreData() {
   return transaction_.get() && !read_in_progress_;
 }
 
-bool URLRequestHttpJob::ReadRawData(char* buf, int buf_size, int *bytes_read) {
+bool URLRequestHttpJob::ReadRawData(net::IOBuffer* buf, int buf_size,
+                                    int *bytes_read) {
   DCHECK_NE(buf_size, 0);
   DCHECK(bytes_read);
   DCHECK(!read_in_progress_);
