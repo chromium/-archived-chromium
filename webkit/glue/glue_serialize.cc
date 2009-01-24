@@ -244,14 +244,14 @@ static void WriteHistoryItem(const HistoryItem* item, SerializeObject* obj) {
   WriteInteger(item->scrollPoint().y(), obj);
   WriteBoolean(item->isTargetItem(), obj);
   WriteInteger(item->visitCount(), obj);
-  WriteString(item->rssFeedReferrer(), obj);
+  WriteString(item->referrer(), obj);
 
   WriteStringVector(item->documentState(), obj);
 
   // No access to formData through a const HistoryItem = lame.
   WriteFormData(const_cast<HistoryItem*>(item)->formData(), obj);
   WriteString(item->formContentType(), obj);
-  WriteString(item->formReferrer(), obj);
+  WriteString(item->referrer(), obj);
 
   // Subitems
   WriteInteger(static_cast<int>(item->children().size()), obj);
@@ -282,7 +282,7 @@ static PassRefPtr<HistoryItem> ReadHistoryItem(const SerializeObject* obj) {
   item->setScrollPoint(IntPoint(x, y));
   item->setIsTargetItem(ReadBoolean(obj));
   item->setVisitCount(ReadInteger(obj));
-  item->setRSSFeedReferrer(ReadString(obj));
+  item->setReferrer(ReadString(obj));
 
   Vector<String> document_state;
   ReadStringVector(obj, &document_state);

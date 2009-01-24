@@ -178,6 +178,7 @@ input_files = [
     '$WEBCORE_DIR/dom/WorkerContext.cpp',
     '$WEBCORE_DIR/dom/WorkerLocation.cpp',
     '$WEBCORE_DIR/dom/WorkerMessagingProxy.cpp',
+    '$WEBCORE_DIR/dom/WorkerRunLoop.cpp',
     '$WEBCORE_DIR/dom/WorkerTask.cpp',
     '$WEBCORE_DIR/dom/WorkerThread.cpp',
     '$WEBCORE_DIR/dom/XMLTokenizer.cpp',

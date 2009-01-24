@@ -91,7 +91,6 @@ class GlueSerializeTest : public testing::Test {
     item->setScrollPoint(IntPoint(42, -42));
     item->setIsTargetItem(true);
     item->setVisitCount(42*42);
-    item->setRSSFeedReferrer("rssFeedReferrer");
 
     Vector<String> document_state;
     document_state.append("state1");
@@ -104,10 +103,14 @@ class GlueSerializeTest : public testing::Test {
     if (with_form_data) {
       dummy_request.setHTTPBody(MakeFormData());
       dummy_request.setHTTPContentType("formContentType");
-      dummy_request.setHTTPReferrer("formReferrer");
+      dummy_request.setHTTPReferrer("referrer");
       dummy_request.setHTTPMethod("POST");
     }
     item->setFormInfoFromRequest(dummy_request);
+
+    // Setting the FormInfo causes the referrer to be set, so we set the
+    // referrer after setting the form info.
+    item->setReferrer("referrer");
 
     // Children
     if (pregnant)
@@ -128,14 +131,13 @@ class GlueSerializeTest : public testing::Test {
     EXPECT_EQ(a->scrollPoint(), b->scrollPoint());
     EXPECT_EQ(a->isTargetItem(), b->isTargetItem());
     EXPECT_EQ(a->visitCount(), b->visitCount());
-    EXPECT_EQ(a->rssFeedReferrer(), b->rssFeedReferrer());
+    EXPECT_EQ(a->referrer(), b->referrer());
     EXPECT_EQ(a->documentState(), b->documentState());
 
     // Form Data
     EXPECT_EQ(a->formData() != NULL, b->formData() != NULL);
     if (a->formData() && b->formData())
       EXPECT_EQ(*a->formData(), *b->formData());
-    EXPECT_EQ(a->formReferrer(), b->formReferrer());
     EXPECT_EQ(a->formContentType(), b->formContentType());
 
     // Children
