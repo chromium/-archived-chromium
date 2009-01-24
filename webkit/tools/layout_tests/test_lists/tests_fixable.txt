@@ -980,7 +980,7 @@ LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
 // Depends on plugin support.
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
-LINUX MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
+MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
