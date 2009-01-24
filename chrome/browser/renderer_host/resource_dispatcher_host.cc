@@ -197,7 +197,7 @@ bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
 
 void ResourceDispatcherHost::BeginRequest(
     Receiver* receiver,
-    HANDLE render_process_handle,
+    base::ProcessHandle render_process_handle,
     int render_process_host_id,
     int render_view_id,
     int request_id,

@@ -18,6 +18,7 @@
 
 #include "base/logging.h"
 #include "base/observer_list.h"
+#include "base/process.h"
 #include "base/ref_counted.h"
 #include "base/timer.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
@@ -195,7 +196,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // a normal asynchronous set of response messages will be generated.
   //
   void BeginRequest(Receiver* receiver,
-                    HANDLE render_process_handle,
+                    base::ProcessHandle render_process_handle,
                     int render_process_host_id,
                     int render_view_id,
                     int request_id,

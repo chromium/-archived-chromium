@@ -127,9 +127,6 @@ class RenderWidgetHostViewWin :
   virtual HWND GetPluginHWND();
   virtual void MovePluginWindows(
       const std::vector<WebPluginGeometry>& plugin_window_moves);
-  virtual void ForwardMouseEventToRenderer(UINT message,
-                                           WPARAM wparam,
-                                           LPARAM lparam);
   virtual void Focus();
   virtual void Blur();
   virtual bool HasFocus();
@@ -202,6 +199,9 @@ class RenderWidgetHostViewWin :
   // Tooltips become invalid when the root ancestor changes. When the View
   // becomes hidden, this method is called to reset the tooltip.
   void ResetTooltip();
+
+  // Sends the specified mouse event to the renderer.
+  void ForwardMouseEventToRenderer(UINT message, WPARAM wparam, LPARAM lparam);
 
   // Synthesize mouse wheel event.
   LRESULT SynthesizeMouseWheel(bool is_vertical, int scroll_code,

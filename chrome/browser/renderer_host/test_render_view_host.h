@@ -7,6 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/message_loop.h"
+#include "build/build_config.h"
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
@@ -31,16 +32,17 @@ class TestWebContents;
 // without having side-effects.
 class TestRenderWidgetHostView : public RenderWidgetHostView {
  public:
-   TestRenderWidgetHostView() : is_showing_(false) {}
+  TestRenderWidgetHostView() : is_showing_(false) {}
 
   virtual RenderWidgetHost* GetRenderWidgetHost() const { return NULL; }
   virtual void DidBecomeSelected() {}
   virtual void WasHidden() {}
   virtual void SetSize(const gfx::Size& size) {}
+#if defined(OS_WIN)
   virtual HWND GetPluginHWND() { return NULL; }
+#endif
   virtual void MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {}
-  virtual HANDLE ModalDialogEvent() { return NULL; }
   virtual void ForwardMouseEventToRenderer(UINT message,
                                            WPARAM wparam,
                                            LPARAM lparam) {}

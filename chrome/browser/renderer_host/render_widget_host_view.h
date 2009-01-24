@@ -5,10 +5,13 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
 
-#include <windows.h>
-
 #include "base/shared_memory.h"
+#include "build/build_config.h"
 #include "chrome/common/render_messages.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
 
 namespace gfx {
 class Rect;
@@ -56,17 +59,14 @@ class RenderWidgetHostView {
   // Tells the View to size itself to the specified size.
   virtual void SetSize(const gfx::Size& size) = 0;
 
+#if defined(OS_WIN)
   // Retrieves the HWND used to contain plugin HWNDs.
   virtual HWND GetPluginHWND() = 0;
+#endif
 
   // Moves all plugin windows as described in the given list.
   virtual void MovePluginWindows(
       const std::vector<WebPluginGeometry>& plugin_window_moves) = 0;
-
-  // Sends the specified mouse event to the renderer.
-  virtual void ForwardMouseEventToRenderer(UINT message,
-                                           WPARAM wparam,
-                                           LPARAM lparam) = 0;
 
   // Actually set/take focus to/from the associated View component.
   virtual void Focus() = 0;

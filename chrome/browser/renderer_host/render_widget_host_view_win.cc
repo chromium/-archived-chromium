@@ -188,37 +188,6 @@ void RenderWidgetHostViewWin::MovePluginWindows(
   ::EndDeferWindowPos(defer_window_pos_info);
 }
 
-void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
-                                                         WPARAM wparam,
-                                                         LPARAM lparam) {
-  WebMouseEvent event(m_hWnd, message, wparam, lparam);
-  switch (event.type) {
-    case WebInputEvent::MOUSE_MOVE:
-      TrackMouseLeave(true);
-      break;
-    case WebInputEvent::MOUSE_LEAVE:
-      TrackMouseLeave(false);
-      break;
-    case WebInputEvent::MOUSE_DOWN:
-      SetCapture();
-      break;
-    case WebInputEvent::MOUSE_UP:
-      if (GetCapture() == m_hWnd)
-        ReleaseCapture();
-      break;
-  }
-
-  render_widget_host_->ForwardMouseEvent(event);
-
-  if (activatable_ && event.type == WebInputEvent::MOUSE_DOWN) {
-    // This is a temporary workaround for bug 765011 to get focus when the
-    // mouse is clicked. This happens after the mouse down event is sent to
-    // the renderer because normally Windows does a WM_SETFOCUS after
-    // WM_LBUTTONDOWN.
-    SetFocus();
-  }
-}
-
 void RenderWidgetHostViewWin::Focus() {
   if (IsWindow())
     SetFocus();
@@ -960,6 +929,37 @@ void RenderWidgetHostViewWin::ResetTooltip() {
   if (::IsWindow(tooltip_hwnd_))
     ::DestroyWindow(tooltip_hwnd_);
   tooltip_hwnd_ = NULL;
+}
+
+void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
+                                                          WPARAM wparam,
+                                                          LPARAM lparam) {
+  WebMouseEvent event(m_hWnd, message, wparam, lparam);
+  switch (event.type) {
+    case WebInputEvent::MOUSE_MOVE:
+      TrackMouseLeave(true);
+      break;
+    case WebInputEvent::MOUSE_LEAVE:
+      TrackMouseLeave(false);
+      break;
+    case WebInputEvent::MOUSE_DOWN:
+      SetCapture();
+      break;
+    case WebInputEvent::MOUSE_UP:
+      if (GetCapture() == m_hWnd)
+        ReleaseCapture();
+      break;
+  }
+
+  render_widget_host_->ForwardMouseEvent(event);
+
+  if (activatable_ && event.type == WebInputEvent::MOUSE_DOWN) {
+    // This is a temporary workaround for bug 765011 to get focus when the
+    // mouse is clicked. This happens after the mouse down event is sent to
+    // the renderer because normally Windows does a WM_SETFOCUS after
+    // WM_LBUTTONDOWN.
+    SetFocus();
+  }
 }
 
 void RenderWidgetHostViewWin::ShutdownHost() {
