@@ -10,7 +10,6 @@
 
 #include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
-#include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "third_party/npapi/bindings/npapi.h"
@@ -203,8 +202,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   HWND dummy_window_for_activation_;
   bool CreateDummyWindowForActivation();
 
-  static std::list<MSG> throttle_queue_;
-
   // Returns true if the event passed in needs to be tracked for a potential
   // modal loop.
   static bool ShouldTrackEventForModalLoops(NPEvent* event);
@@ -226,9 +223,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // Handle to the message filter hook
   HHOOK handle_event_message_filter_hook_;
 
-  // The current instance of the plugin which entered the modal loop.
-  static WebPluginDelegateImpl* current_plugin_instance_;
-
   // Event which is set when the plugin enters a modal loop in the course
   // of a NPP_HandleEvent call.
   HANDLE handle_event_pump_messages_event_;
@@ -249,9 +243,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // The plugin module handle.
   HMODULE plugin_module_handle_;
 
-  // Helper object for patching the TrackPopupMenu API
-  static iat_patch::IATPatchFunction iat_patch_track_popup_menu_;
-
   // TrackPopupMenu interceptor. Parameters are the same as the Win32 function
   // TrackPopupMenu.
   static BOOL WINAPI TrackPopupMenuPatch(HMENU menu, unsigned int flags, int x,
@@ -260,9 +251,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   // SetCursor interceptor for windowless plugins.
   static HCURSOR WINAPI SetCursorPatch(HCURSOR cursor);
-
-  // Helper object for patching the SetCursor API
-  static iat_patch::IATPatchFunction iat_patch_set_cursor_;
 
   // Holds the current cursor set by the windowless plugin.
   WebCursor current_windowless_cursor_;
