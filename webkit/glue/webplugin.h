@@ -12,6 +12,9 @@
 #include "base/file_path.h"
 #include "base/gfx/rect.h"
 
+// TODO(port): type typedefs are obviously incorrect on non-Windows
+// platforms, but now a lot of code now accidentally depends on them
+// existing.  #ifdef out these declarations and fix all the users.
 typedef struct HWND__* HWND;
 typedef void* HANDLE;
 
@@ -123,7 +126,7 @@ class WebPlugin {
 
   // Handles GetURL/GetURLNotify/PostURL/PostURLNotify requests initiated
   // by plugins.
-  virtual void HandleURLRequest(const char *method, 
+  virtual void HandleURLRequest(const char *method,
                                 bool is_javascript_url,
                                 const char* target, unsigned int len,
                                 const char* buf, bool is_file_data,
@@ -157,7 +160,7 @@ class WebPluginResourceClient {
                                   uint32 last_modified,
                                   bool request_is_seekable,
                                   bool* cancel) = 0;
-  virtual void DidReceiveData(const char* buffer, int length, 
+  virtual void DidReceiveData(const char* buffer, int length,
                               int data_offset) = 0;
   virtual void DidFinishLoading() = 0;
   virtual void DidFail() = 0;

@@ -113,7 +113,7 @@ class MultiPartResponseClient : public WebCore::ResourceHandleClient {
   WebPluginResourceClient* resource_client_;
 };
 
-WebPluginContainer::WebPluginContainer(WebPluginImpl* impl) 
+WebPluginContainer::WebPluginContainer(WebPluginImpl* impl)
     : impl_(impl),
       ignore_response_error_(false) {
 }
@@ -128,8 +128,8 @@ NPObject* WebPluginContainer::GetPluginScriptableObject() {
 }
 
 #if USE(JSC)
-bool WebPluginContainer::isPluginView() const { 
-  return true; 
+bool WebPluginContainer::isPluginView() const {
+  return true;
 }
 #endif
 
@@ -156,7 +156,8 @@ void WebPluginContainer::invalidateRect(const WebCore::IntRect& rect) {
   if (parent()) {
     WebCore::IntRect damageRect = convertToContainingWindow(rect);
 
-    // Get our clip rect and intersect with it to ensure we don't invalidate too much.
+    // Get our clip rect and intersect with it to ensure we don't
+    // invalidate too much.
     WebCore::IntRect clipRect = parent()->windowClipRect();
     damageRect.intersect(clipRect);
 
@@ -209,7 +210,7 @@ void WebPluginContainer::frameRectsChanged() {
 // reversed, Flash won't load videos.
 void WebPluginContainer::setParent(WebCore::ScrollView* view) {
   WebCore::Widget::setParent(view);
-  if (view) {    
+  if (view) {
     impl_->setFrameRect(frameRect());
     impl_->delegate_->FlushGeometryUpdates();
   }
@@ -371,7 +372,7 @@ bool WebPluginImpl::ExecuteScript(const std::string& url,
   // we also need to addref the frame.
   WTF::RefPtr<WebCore::Frame> cur_frame(frame());
 
-  WebCore::ScriptValue result = 
+  WebCore::ScriptValue result =
       frame()->loader()->executeScript(script_str, popups_allowed);
   WebCore::String script_result;
   std::wstring wresult;
@@ -990,7 +991,7 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
       for (size_t i = 0; i < clients_.size(); ++i) {
         if (clients_[i].handle.get() == handle) {
           WebPluginResourceClient* resource_client =
-              delegate_->CreateResourceClient(clients_[i].id, 
+              delegate_->CreateResourceClient(clients_[i].id,
                                               plugin_url_.spec().c_str(),
                                               NULL, false, NULL);
           clients_[i].client = resource_client;
@@ -1233,7 +1234,7 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   // plugin SRC url as the referrer if it is available.
   if (use_plugin_src_as_referrer && !plugin_url_.spec().empty()) {
     referrer = webkit_glue::StdStringToString(plugin_url_.spec());
-  } else { 
+  } else {
     referrer = frame()->loader()->outgoingReferrer();
   }
 
@@ -1353,7 +1354,7 @@ bool WebPluginImpl::ReinitializePluginForResponse(
   // Force a geometry update to occur to ensure that the plugin becomes
   // visible.
   widget_->frameRectsChanged();
-  delegate_->FlushGeometryUpdates();  
+  delegate_->FlushGeometryUpdates();
   return true;
 }
 

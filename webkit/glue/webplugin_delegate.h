@@ -15,12 +15,13 @@
 #include "third_party/npapi/bindings/npapi.h"
 
 typedef struct HDC__* HDC;
+struct NPObject;
 
 class GURL;
-class WebPlugin;
-struct NPObject;
 class WebCursor;
+class WebPlugin;
 class WebPluginResourceClient;
+
 // This is the interface that a plugin implementation needs to provide.
 class WebPluginDelegate {
  public:
@@ -32,10 +33,10 @@ class WebPluginDelegate {
   // If this function returns false the plugin isn't started and shouldn't be
   // called again.  If this method succeeds, then the WebPlugin is valid until
   // PluginDestroyed is called.
-  // The load_manually parameter if true indicates that the plugin data would 
-  // be passed from webkit. if false indicates that the plugin should download 
-  // the data. This also controls whether the plugin is instantiated as a full 
-  // page plugin (NP_FULL) or embedded (NP_EMBED)
+  // The load_manually parameter if true indicates that the plugin data would
+  // be passed from webkit. if false indicates that the plugin should download
+  // the data. This also controls whether the plugin is instantiated as a full
+  // page plugin (NP_FULL) or embedded (NP_EMBED).
   virtual bool Initialize(const GURL& url, char** argn, char** argv,
                           int argc, WebPlugin* plugin, bool load_manually) = 0;
 
@@ -72,7 +73,7 @@ class WebPluginDelegate {
   // Receives notification about a resource load that the plugin initiated
   // for a frame.
   virtual void DidFinishLoadWithReason(NPReason reason) = 0;
-  
+
   // Returns the process id of the process that is running the plugin.
   virtual int GetProcessId() = 0;
 
@@ -80,11 +81,11 @@ class WebPluginDelegate {
 
   // The result of the script execution is returned via this function.
   virtual void SendJavaScriptStream(const std::string& url,
-                                    const std::wstring& result, 
-                                    bool success, bool notify_needed, 
+                                    const std::wstring& result,
+                                    bool success, bool notify_needed,
                                     int notify_data) = 0;
 
-  // Receives notification about data being available. 
+  // Receives notification about data being available.
   virtual void DidReceiveManualResponse(const std::string& url,
                                         const std::string& mime_type,
                                         const std::string& headers,
@@ -100,10 +101,10 @@ class WebPluginDelegate {
   // Indicates a failure in data receipt.
   virtual void DidManualLoadFail() = 0;
 
-  // Only Available after Initialize is called.
+  // Only available after Initialize is called.
   virtual FilePath GetPluginPath() = 0;
 
-  // Only Supported when the plugin is the default plugin.
+  // Only supported when the plugin is the default plugin.
   virtual void InstallMissingPlugin() = 0;
 
   // Creates a WebPluginResourceClient instance and returns the same.
@@ -112,8 +113,9 @@ class WebPluginDelegate {
                                                         bool notify_needed,
                                                         void *notify_data,
                                                         void* stream) = 0;
-  // Notifies the delegate about a Get/Post URL request getting routed
-  virtual void URLRequestRouted(const std::string&url, bool notify_needed, 
+
+  // Notifies the delegate about a Get/Post URL request getting routed.
+  virtual void URLRequestRouted(const std::string&url, bool notify_needed,
                                 void* notify_data) = 0;
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegate);
