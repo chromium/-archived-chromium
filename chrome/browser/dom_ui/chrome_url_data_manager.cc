@@ -42,7 +42,7 @@ class URLRequestChromeJob : public URLRequestJob {
   // URLRequestJob implementation.
   virtual void Start();
   virtual void Kill();
-  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
   virtual bool GetMimeType(std::string* mime_type);
 
   // Called by ChromeURLDataManager to notify us that the data blob is ready
@@ -60,7 +60,7 @@ class URLRequestChromeJob : public URLRequestJob {
 
   // Do the actual copy from data_ (the data we're serving) into |buf|.
   // Separate from ReadRawData so we can handle async I/O.
-  void CompleteRead(net::IOBuffer* buf, int buf_size, int* bytes_read);
+  void CompleteRead(char* buf, int buf_size, int* bytes_read);
 
   // The actual data we're serving.  NULL until it's been fetched.
   scoped_refptr<RefCountedBytes> data_;
@@ -70,7 +70,7 @@ class URLRequestChromeJob : public URLRequestJob {
 
   // For async reads, we keep around a pointer to the buffer that
   // we're reading into.
-  scoped_refptr<net::IOBuffer> pending_buf_;
+  char* pending_buf_;
   int pending_buf_size_;
   std::string mime_type_;
 
@@ -249,7 +249,7 @@ URLRequestJob* ChromeURLDataManager::Factory(URLRequest* request,
 }
 
 URLRequestChromeJob::URLRequestChromeJob(URLRequest* request)
-    : URLRequestJob(request), data_offset_(0) {}
+    : URLRequestJob(request), data_offset_(0), pending_buf_(NULL) {}
 
 URLRequestChromeJob::~URLRequestChromeJob() {
 }
@@ -278,10 +278,9 @@ void URLRequestChromeJob::DataAvailable(RefCountedBytes* bytes) {
 
     data_ = bytes;
     int bytes_read;
-    if (pending_buf_.get()) {
+    if (pending_buf_) {
       CompleteRead(pending_buf_, pending_buf_size_, &bytes_read);
       NotifyReadComplete(bytes_read);
-      pending_buf_ = NULL;
     }
   } else {
     // The request failed.
@@ -289,11 +288,10 @@ void URLRequestChromeJob::DataAvailable(RefCountedBytes* bytes) {
   }
 }
 
-bool URLRequestChromeJob::ReadRawData(net::IOBuffer* buf, int buf_size,
+bool URLRequestChromeJob::ReadRawData(char* buf, int buf_size,
                                       int* bytes_read) {
   if (!data_.get()) {
     SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
-    DCHECK(!pending_buf_.get());
     pending_buf_ = buf;
     pending_buf_size_ = buf_size;
     return false;  // Tell the caller we're still waiting for data.
@@ -304,13 +302,13 @@ bool URLRequestChromeJob::ReadRawData(net::IOBuffer* buf, int buf_size,
   return true;
 }
 
-void URLRequestChromeJob::CompleteRead(net::IOBuffer* buf, int buf_size,
+void URLRequestChromeJob::CompleteRead(char* buf, int buf_size,
                                        int* bytes_read) {
   int remaining = static_cast<int>(data_->data.size()) - data_offset_;
   if (buf_size > remaining)
     buf_size = remaining;
   if (buf_size > 0) {
-    memcpy(buf->data(), &data_->data[0] + data_offset_, buf_size);
+    memcpy(buf, &data_->data[0] + data_offset_, buf_size);
     data_offset_ += buf_size;
   }
   *bytes_read = buf_size;

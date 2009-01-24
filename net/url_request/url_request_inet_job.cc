@@ -185,7 +185,7 @@ void URLRequestInetJob::OnIOComplete(const AsyncResult& result) {
   }
 }
 
-bool URLRequestInetJob::ReadRawData(net::IOBuffer* dest, int dest_size,
+bool URLRequestInetJob::ReadRawData(char* dest, int dest_size,
                                     int *bytes_read) {
   if (is_done())
     return 0;
@@ -196,7 +196,7 @@ bool URLRequestInetJob::ReadRawData(net::IOBuffer* dest, int dest_size,
 
   *bytes_read = 0;
 
-  int result = CallInternetRead(dest->data(), dest_size, bytes_read);
+  int result = CallInternetRead(dest, dest_size, bytes_read);
   if (result == ERROR_SUCCESS) {
     DLOG(INFO) << "read " << *bytes_read << " bytes";
     if (*bytes_read == 0)

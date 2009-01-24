@@ -190,7 +190,7 @@ class HttpCache::Transaction : public HttpTransaction {
   virtual int RestartWithAuth(const std::wstring& username,
                               const std::wstring& password,
                               CompletionCallback* callback);
-  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback*);
+  virtual int Read(char* buf, int buf_len, CompletionCallback*);
   virtual const HttpResponseInfo* GetResponseInfo() const;
   virtual LoadState GetLoadState() const;
   virtual uint64 GetUploadProgress(void) const;
@@ -411,7 +411,7 @@ int HttpCache::Transaction::RestartWithAuth(
   return rv;
 }
 
-int HttpCache::Transaction::Read(IOBuffer* buf, int buf_len,
+int HttpCache::Transaction::Read(char* buf, int buf_len,
                                  CompletionCallback* callback) {
   DCHECK(buf);
   DCHECK(buf_len > 0);
@@ -435,23 +435,20 @@ int HttpCache::Transaction::Read(IOBuffer* buf, int buf_len,
     case WRITE:
       DCHECK(network_trans_.get());
       rv = network_trans_->Read(buf, buf_len, &network_read_callback_);
-      read_buf_ = buf->data();
+      read_buf_ = buf;
       if (rv >= 0)
         OnNetworkReadCompleted(rv);
       break;
     case READ:
       DCHECK(entry_);
-      cache_read_callback_->AddRef();  // Balanced in OnCacheReadCompleted.
-      cache_read_callback_->UseBuffer(buf);
+      cache_read_callback_->AddRef();  // Balanced in OnCacheReadCompleted
       rv = entry_->disk_entry->ReadData(kResponseContentIndex, read_offset_,
-                                        buf->data(), buf_len,
-                                        cache_read_callback_);
-      read_buf_ = buf->data();
+                                        buf, buf_len, cache_read_callback_);
+      read_buf_ = buf;
       if (rv >= 0) {
         OnCacheReadCompleted(rv);
       } else if (rv != ERR_IO_PENDING) {
         cache_read_callback_->Release();
-        cache_read_callback_->ReleaseBuffer();
       }
       break;
     default:
@@ -906,8 +903,7 @@ void HttpCache::Transaction::OnNetworkReadCompleted(int result) {
 
 void HttpCache::Transaction::OnCacheReadCompleted(int result) {
   DCHECK(cache_);
-  cache_read_callback_->Release();  // Balance the AddRef() from Start().
-  cache_read_callback_->ReleaseBuffer();
+  cache_read_callback_->Release();  // Balance the AddRef() from Start()
 
   if (result > 0) {
     read_offset_ += result;

@@ -676,8 +676,8 @@ TEST(HttpCache, SimpleGET_AbandonedCacheRead) {
     rv = callback.WaitForResult();
   ASSERT_EQ(net::OK, rv);
 
-  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(256);
-  rv = trans->Read(buf, 256, &callback);
+  char buf[256];
+  rv = trans->Read(buf, sizeof(buf), &callback);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   // Test that destroying the transaction while it is reading from the cache

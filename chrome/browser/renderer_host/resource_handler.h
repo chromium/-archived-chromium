@@ -49,7 +49,7 @@ class ResourceHandler : public base::RefCounted<ResourceHandler> {
   // out-params.  This call will be followed by either OnReadCompleted or
   // OnResponseCompleted, at which point the buffer may be recycled.
   virtual bool OnWillRead(int request_id,
-                          net::IOBuffer** buf,
+                          char** buf,
                           int* buf_size,
                           int min_size) = 0;
 

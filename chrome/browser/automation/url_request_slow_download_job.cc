@@ -72,7 +72,7 @@ void URLRequestSlowDownloadJob::StartAsync() {
   NotifyHeadersComplete();
 }
 
-bool URLRequestSlowDownloadJob::ReadRawData(net::IOBuffer* buf, int buf_size,
+bool URLRequestSlowDownloadJob::ReadRawData(char* buf, int buf_size,
                                             int *bytes_read) {
   if (LowerCaseEqualsASCII(kFinishDownloadUrl,
                            request_->url().spec().c_str())) {
@@ -83,7 +83,7 @@ bool URLRequestSlowDownloadJob::ReadRawData(net::IOBuffer* buf, int buf_size,
   if (should_send_second_chunk_) {
     DCHECK(buf_size > kSecondDownloadSize);
     for (int i = 0; i < kSecondDownloadSize; ++i) {
-      buf->data()[i] = '*';
+      buf[i] = '*';
     }
     *bytes_read = kSecondDownloadSize;
     should_send_second_chunk_ = false;
@@ -93,7 +93,7 @@ bool URLRequestSlowDownloadJob::ReadRawData(net::IOBuffer* buf, int buf_size,
   if (first_download_size_remaining_ > 0) {
     int send_size = std::min(first_download_size_remaining_, buf_size);
     for (int i = 0; i < send_size; ++i) {
-      buf->data()[i] = '*';
+      buf[i] = '*';
     }
     *bytes_read = send_size;
     first_download_size_remaining_ -= send_size;

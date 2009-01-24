@@ -21,9 +21,6 @@
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_status.h"
 
-namespace net {
-class IOBuffer;
-}
 class URLRequestJob;
 
 // This stores the values of the Set-Cookie headers received during the request.
@@ -370,14 +367,16 @@ class URLRequest {
   // successful status.
   // If data is available, Read will return true, and the data and length will
   // be returned immediately.  If data is not available, Read returns false,
-  // and an asynchronous Read is initiated.  The Read is finished when
-  // the caller receives the OnReadComplete callback.  OnReadComplete will be
-  // always be called, even if there was a failure.
+  // and an asynchronous Read is initiated.  The caller guarantees the
+  // buffer provided will be available until the Read is finished.  The
+  // Read is finished when the caller receives the OnReadComplete
+  // callback.  OnReadComplete will be always be called, even if there
+  // was a failure.
   //
-  // The buf parameter is a buffer to receive the data.  If the operation
-  // completes asynchronously, the implementation will reference the buffer
-  // until OnReadComplete is called.  The buffer must be at least max_bytes in
-  // length.
+  // The buf parameter is a buffer to receive the data.  Once the read is
+  // initiated, the caller guarantees availability of this buffer until
+  // the OnReadComplete is received.  The buffer must be at least
+  // max_bytes in length.
   //
   // The max_bytes parameter is the maximum number of bytes to read.
   //
@@ -387,7 +386,7 @@ class URLRequest {
   //
   // If a read error occurs, Read returns false and the request->status
   // will be set to an error.
-  bool Read(net::IOBuffer* buf, int max_bytes, int *bytes_read);
+  bool Read(char* buf, int max_bytes, int *bytes_read);
 
   // One of the following two methods should be called in response to an
   // OnAuthRequired() callback (and only then).

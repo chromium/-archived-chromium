@@ -149,7 +149,7 @@ class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
     if (result <= 0) {
       DidFinish(result);
     } else {
-      content_.append(read_buf_->data(), result);
+      content_.append(read_buf_, result);
       Read();
     }
   }
@@ -163,8 +163,7 @@ class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
 
   void Read() {
     state_ = READING;
-    read_buf_ = new net::IOBuffer(1024);
-    int result = trans_->Read(read_buf_, 1024, this);
+    int result = trans_->Read(read_buf_, sizeof(read_buf_), this);
     if (result != net::ERR_IO_PENDING)
       DidRead(result);
   }
@@ -178,7 +177,7 @@ class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
 
   scoped_ptr<net::HttpTransaction> trans_;
   std::string content_;
-  scoped_refptr<net::IOBuffer> read_buf_;
+  char read_buf_[1024];
   int error_;
 
   static int quit_counter_;
@@ -238,12 +237,11 @@ class MockNetworkTransaction : public net::HttpTransaction {
     return net::ERR_FAILED;
   }
 
-  virtual int Read(net::IOBuffer* buf, int buf_len,
-                   net::CompletionCallback* callback) {
+  virtual int Read(char* buf, int buf_len, net::CompletionCallback* callback) {
     int data_len = static_cast<int>(data_.size());
     int num = std::min(buf_len, data_len - data_cursor_);
     if (num) {
-      memcpy(buf->data(), data_.data() + data_cursor_, num);
+      memcpy(buf, data_.data() + data_cursor_, num);
       data_cursor_ += num;
     }
     if (test_mode_ & TEST_MODE_SYNC_NET_READ)

@@ -22,8 +22,7 @@ class BufferedResourceHandler : public ResourceHandler {
   bool OnUploadProgress(int request_id, uint64 position, uint64 size);
   bool OnRequestRedirected(int request_id, const GURL& new_url);
   bool OnResponseStarted(int request_id, ResourceResponse* response);
-  bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
-                  int min_size);
+  bool OnWillRead(int request_id, char** buf, int* buf_size, int min_size);
   bool OnReadCompleted(int request_id, int* bytes_read);
   bool OnResponseCompleted(int request_id, const URLRequestStatus& status);
 
@@ -49,8 +48,7 @@ class BufferedResourceHandler : public ResourceHandler {
   scoped_refptr<ResourceResponse> response_;
   ResourceDispatcherHost* host_;
   URLRequest* request_;
-  scoped_refptr<net::IOBuffer> read_buffer_;
-  scoped_refptr<net::IOBuffer> my_buffer_;
+  char* read_buffer_;
   int read_buffer_size_;
   int bytes_read_;
   bool sniff_content_;

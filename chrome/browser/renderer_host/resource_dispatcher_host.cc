@@ -928,7 +928,7 @@ bool ResourceDispatcherHost::Read(URLRequest* request, int* bytes_read) {
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
   DCHECK(!info->is_paused);
 
-  net::IOBuffer* buf;
+  char* buf;
   int buf_size;
   if (!info->resource_handler->OnWillRead(info->request_id,
                                           &buf, &buf_size, -1)) {

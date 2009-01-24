@@ -114,8 +114,9 @@ bool CrossSiteResourceHandler::OnResponseStarted(int request_id,
   return true;
 }
 
-bool CrossSiteResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
-                                          int* buf_size, int min_size) {
+bool CrossSiteResourceHandler::OnWillRead(int request_id,
+                                          char** buf, int* buf_size,
+                                          int min_size) {
   return next_handler_->OnWillRead(request_id, buf, buf_size, min_size);
 }
 

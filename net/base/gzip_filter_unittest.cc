@@ -174,7 +174,7 @@ class GZipUnitTest : public PlatformTest {
       int encode_data_len;
       encode_data_len = std::min(encode_avail_size,
                                  filter->stream_buffer_size());
-      memcpy(filter->stream_buffer()->data(), encode_next, encode_data_len);
+      memcpy(filter->stream_buffer(), encode_next, encode_data_len);
       filter->FlushStreamBuffer(encode_data_len);
       encode_next += encode_data_len;
       encode_avail_size -= encode_data_len;
@@ -208,7 +208,7 @@ class GZipUnitTest : public PlatformTest {
   // into the buffer.
   int DecodeAllWithFilter(Filter* filter, const char* source, int source_len,
                           char* dest, int* dest_len) {
-    memcpy(filter->stream_buffer()->data(), source, source_len);
+    memcpy(filter->stream_buffer(), source, source_len);
     filter->FlushStreamBuffer(source_len);
     return filter->ReadData(dest, dest_len);
   }
@@ -232,8 +232,7 @@ TEST_F(GZipUnitTest, DecodeDeflate) {
   filter_types.push_back(Filter::FILTER_TYPE_DEFLATE);
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
-  memcpy(filter->stream_buffer()->data(), deflate_encode_buffer_,
-         deflate_encode_len_);
+  memcpy(filter->stream_buffer(), deflate_encode_buffer_, deflate_encode_len_);
   filter->FlushStreamBuffer(deflate_encode_len_);
 
   char deflate_decode_buffer[kDefaultBufferSize];
@@ -252,8 +251,7 @@ TEST_F(GZipUnitTest, DecodeGZip) {
   filter_types.push_back(Filter::FILTER_TYPE_GZIP);
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
-  memcpy(filter->stream_buffer()->data(), gzip_encode_buffer_,
-         gzip_encode_len_);
+  memcpy(filter->stream_buffer(), gzip_encode_buffer_, gzip_encode_len_);
   filter->FlushStreamBuffer(gzip_encode_len_);
 
   char gzip_decode_buffer[kDefaultBufferSize];
@@ -277,8 +275,7 @@ TEST_F(GZipUnitTest, DecodeGZipWithMistakenSdch) {
   filter_types.push_back(Filter::FILTER_TYPE_GZIP);
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
-  memcpy(filter->stream_buffer()->data(), gzip_encode_buffer_,
-         gzip_encode_len_);
+  memcpy(filter->stream_buffer(), gzip_encode_buffer_, gzip_encode_len_);
   filter->FlushStreamBuffer(gzip_encode_len_);
 
   char gzip_decode_buffer[kDefaultBufferSize];

@@ -93,8 +93,7 @@ void URLRequestTestJob::StartAsync() {
   this->NotifyHeadersComplete();
 }
 
-bool URLRequestTestJob::ReadRawData(net::IOBuffer* buf, int buf_size,
-                                    int *bytes_read) {
+bool URLRequestTestJob::ReadRawData(char* buf, int buf_size, int *bytes_read) {
   if (stage_ == WAITING) {
     async_buf_ = buf;
     async_buf_size_ = buf_size;
@@ -113,7 +112,7 @@ bool URLRequestTestJob::ReadRawData(net::IOBuffer* buf, int buf_size,
   if (to_read + offset_ > static_cast<int>(data_.length()))
     to_read = static_cast<int>(data_.length()) - offset_;
 
-  memcpy(buf->data(), &data_.c_str()[offset_], to_read);
+  memcpy(buf, &data_.c_str()[offset_], to_read);
   offset_ += to_read;
 
   *bytes_read = to_read;

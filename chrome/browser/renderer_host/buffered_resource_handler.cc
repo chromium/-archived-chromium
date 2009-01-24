@@ -8,12 +8,8 @@
 #include "net/base/mime_sniffer.h"
 #include "chrome/browser/renderer_host/download_throttling_resource_handler.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
-#include "net/base/mime_sniffer.h"
-#include "net/base/io_buffer.h"
 
 namespace {
-
-const int kMaxBytesToSniff = 512;
 
 void RecordSnifferMetrics(bool sniffing_blocked,
                           bool we_would_like_to_sniff,
@@ -75,13 +71,13 @@ bool BufferedResourceHandler::OnResponseCompleted(
 
 // We'll let the original event handler provide a buffer, and reuse it for
 // subsequent reads until we're done buffering.
-bool BufferedResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
-                                         int* buf_size, int min_size) {
+bool BufferedResourceHandler::OnWillRead(int request_id,
+                                         char** buf, int* buf_size,
+                                         int min_size) {
   if (buffering_) {
-    DCHECK(!my_buffer_.get());
-    my_buffer_ = new net::IOBuffer(kMaxBytesToSniff);
-    *buf = my_buffer_.get();
-    *buf_size = kMaxBytesToSniff;
+    *buf = read_buffer_ + bytes_read_;
+    *buf_size = read_buffer_size_ - bytes_read_;
+    DCHECK(*buf_size > 0);
     return true;
   }
 
@@ -91,7 +87,6 @@ bool BufferedResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
   bool ret = real_handler_->OnWillRead(request_id, buf, buf_size, min_size);
   read_buffer_ = *buf;
   read_buffer_size_ = *buf_size;
-  DCHECK(read_buffer_size_ >= kMaxBytesToSniff * 2); 
   bytes_read_ = 0;
   return ret;
 }
@@ -173,12 +168,6 @@ bool BufferedResourceHandler::ShouldBuffer(const GURL& url,
 
 bool BufferedResourceHandler::KeepBuffering(int bytes_read) {
   DCHECK(read_buffer_);
-  if (my_buffer_) {
-    // We are using our own buffer to read, update the main buffer.
-    CHECK(bytes_read + bytes_read_ < read_buffer_size_);
-    memcpy(read_buffer_->data() + bytes_read_, my_buffer_->data(), bytes_read);
-    my_buffer_ = NULL;
-  }
   bytes_read_ += bytes_read;
   finished_ = (bytes_read == 0);
 
@@ -186,12 +175,12 @@ bool BufferedResourceHandler::KeepBuffering(int bytes_read) {
     std::string type_hint, new_type;
     request_->GetMimeType(&type_hint);
 
-    if (!net::SniffMimeType(read_buffer_->data(), bytes_read_,
-                            request_->url(), type_hint, &new_type)) {
+    if (!net::SniffMimeType(read_buffer_, bytes_read_, request_->url(),
+                            type_hint, &new_type)) {
       // SniffMimeType() returns false if there is not enough data to determine
       // the mime type. However, even if it returns false, it returns a new type
       // that is probably better than the current one.
-      DCHECK(bytes_read_ < kMaxBytesToSniff);
+      DCHECK(bytes_read_ < 512 /*kMaxBytesToSniff*/);
       if (!finished_) {
         buffering_ = true;
         return true;
@@ -254,11 +243,11 @@ bool BufferedResourceHandler::CompleteResponseStarted(int request_id,
     if (bytes_read_) {
       // a Read has already occurred and we need to copy the data into the
       // EventHandler.
-      net::IOBuffer* buf = NULL;
+      char *buf = NULL;
       int buf_len = 0;
       download_handler->OnWillRead(request_id, &buf, &buf_len, bytes_read_);
       CHECK((buf_len >= bytes_read_) && (bytes_read_ >= 0));
-      memcpy(buf->data(), read_buffer_->data(), bytes_read_);
+      memcpy(buf, read_buffer_, bytes_read_);
     }
     // Update the renderer with the response headers which will cause it to
     // cancel the request.

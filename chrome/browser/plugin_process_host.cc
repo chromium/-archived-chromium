@@ -36,7 +36,6 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/win_util.h"
 #include "net/base/cookie_monster.h"
-#include "net/base/io_buffer.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "sandbox/src/sandbox.h"
@@ -128,7 +127,7 @@ class PluginDownloadUrlHelper : public URLRequest::Delegate {
   // The full path of the downloaded file.
   std::wstring download_file_path_;
   // The buffer passed off to URLRequest::Read.
-  scoped_refptr<net::IOBuffer> download_file_buffer_;
+  char download_file_buffer_[kDownloadFileBufferSize];
   // The window handle for sending the WM_COPYDATA notification,
   // indicating that the download completed.
   HWND download_file_caller_window_;
@@ -143,13 +142,12 @@ PluginDownloadUrlHelper::PluginDownloadUrlHelper(
     const std::string& download_url,
     int source_pid, HWND caller_window)
     : download_url_(download_url),
-      download_file_request_(NULL),
-      download_file_(INVALID_HANDLE_VALUE),
-      download_file_buffer_(new net::IOBuffer(kDownloadFileBufferSize)),
       download_file_caller_window_(caller_window),
-      download_source_pid_(source_pid) {
+      download_source_pid_(source_pid),
+      download_file_request_(NULL),
+      download_file_(INVALID_HANDLE_VALUE) {
   DCHECK(::IsWindow(caller_window));
-  memset(download_file_buffer_->data(), 0, kDownloadFileBufferSize);
+  memset(download_file_buffer_, 0, arraysize(download_file_buffer_));
 }
 
 PluginDownloadUrlHelper::~PluginDownloadUrlHelper() {
@@ -212,7 +210,7 @@ void PluginDownloadUrlHelper::OnResponseStarted(URLRequest* request) {
   } else {
     // Initiate a read.
     int bytes_read = 0;
-    if (!request->Read(download_file_buffer_, kDownloadFileBufferSize,
+    if (!request->Read(download_file_buffer_, arraysize(download_file_buffer_),
                        &bytes_read)) {
       // If the error is not an IO pending, then we're done
       // reading.
@@ -240,8 +238,7 @@ void PluginDownloadUrlHelper::OnReadCompleted(URLRequest* request,
 
   while (request->status().is_success()) {
     unsigned long bytes_written = 0;
-    BOOL write_result = WriteFile(download_file_,
-                                  download_file_buffer_->data(),
+    BOOL write_result = WriteFile(download_file_, download_file_buffer_,
                                   request_bytes_read, &bytes_written, NULL);
     DCHECK(!write_result || (bytes_written == request_bytes_read));
 
@@ -252,7 +249,7 @@ void PluginDownloadUrlHelper::OnReadCompleted(URLRequest* request,
 
     // Start reading
     request_bytes_read = 0;
-    if (!request->Read(download_file_buffer_, kDownloadFileBufferSize,
+    if (!request->Read(download_file_buffer_, arraysize(download_file_buffer_),
                        &request_bytes_read)) {
       if (!request->status().is_io_pending()) {
         // If the error is not an IO pending, then we're done

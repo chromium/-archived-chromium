@@ -5,31 +5,8 @@
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 
 #include "base/process.h"
-#include "net/base/io_buffer.h"
 
-SharedIOBuffer* AsyncResourceHandler::spare_read_buffer_;
-
-// Our version of IOBuffer that uses shared memory.
-class SharedIOBuffer : public net::IOBuffer {
- public:
-  SharedIOBuffer(int buffer_size) : net::IOBuffer(NULL), ok_(false) {
-    if (shared_memory_.Create(std::wstring(), false, false, buffer_size) &&
-        shared_memory_.Map(buffer_size)) {
-      ok_ = true;
-      data_ = reinterpret_cast<char*>(shared_memory_.memory());
-    }
-  }
-  ~SharedIOBuffer() {
-    data_ = NULL;
-  }
-
-  base::SharedMemory* shared_memory() { return &shared_memory_; }
-  bool ok() { return ok_; }
-
- private:
-  base::SharedMemory shared_memory_;
-  bool ok_;
-};
+base::SharedMemory* AsyncResourceHandler::spare_read_buffer_;
 
 AsyncResourceHandler::AsyncResourceHandler(
     ResourceDispatcherHost::Receiver* receiver,
@@ -67,19 +44,22 @@ bool AsyncResourceHandler::OnResponseStarted(int request_id,
   return true;
 }
 
-bool AsyncResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
-                                      int* buf_size, int min_size) {
+bool AsyncResourceHandler::OnWillRead(int request_id,
+                                      char** buf, int* buf_size,
+                                      int min_size) {
   DCHECK(min_size == -1);
   static const int kReadBufSize = 32768;
   if (spare_read_buffer_) {
-    read_buffer_ = spare_read_buffer_;
+    read_buffer_.reset(spare_read_buffer_);
     spare_read_buffer_ = NULL;
   } else {
-    read_buffer_ = new SharedIOBuffer(kReadBufSize);
-    if (!read_buffer_->ok())
+    read_buffer_.reset(new base::SharedMemory);
+    if (!read_buffer_->Create(std::wstring(), false, false, kReadBufSize))
+      return false;
+    if (!read_buffer_->Map(kReadBufSize))
       return false;
   }
-  *buf = read_buffer_.get();
+  *buf = static_cast<char*>(read_buffer_->memory());
   *buf_size = kReadBufSize;
   return true;
 }
@@ -95,7 +75,7 @@ bool AsyncResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
   }
 
   base::SharedMemoryHandle handle;
-  if (!read_buffer_->shared_memory()->GiveToProcess(render_process_, &handle)) {
+  if (!read_buffer_->GiveToProcess(render_process_, &handle)) {
     // We wrongfully incremented the pending data count. Fake an ACK message
     // to fix this. We can't move this call above the WillSendData because
     // it's killing our read_buffer_, and we don't want that when we pause
@@ -117,14 +97,15 @@ bool AsyncResourceHandler::OnResponseCompleted(int request_id,
 
   // If we still have a read buffer, then see about caching it for later...
   if (spare_read_buffer_) {
-    read_buffer_ = NULL;
-  } else if (read_buffer_.get() && read_buffer_->data()) {
-    read_buffer_.swap(&spare_read_buffer_);
+    read_buffer_.reset();
+  } else if (read_buffer_.get() && read_buffer_->memory()) {
+    spare_read_buffer_ = read_buffer_.release();
   }
   return true;
 }
 
 // static
 void AsyncResourceHandler::GlobalCleanup() {
+  delete spare_read_buffer_;
   spare_read_buffer_ = NULL;
 }

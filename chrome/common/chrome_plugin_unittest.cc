@@ -11,7 +11,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/test/chrome_plugin/test_chrome_plugin.h"
-#include "net/base/io_buffer.h"
 #include "net/url_request/url_request_test_job.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -20,13 +19,11 @@ namespace {
 
 const wchar_t kDocRoot[] = L"chrome/test/data";
 const char kPluginFilename[] = "test_chrome_plugin.dll";
-const int kResponseBufferSize = 4096;
 
 class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
  public:
   ChromePluginTest()
       : request_(NULL),
-        response_buffer_(new net::IOBuffer(kResponseBufferSize)),
         plugin_(NULL),
         expected_payload_(NULL),
         request_context_(new TestURLRequestContext()) {
@@ -78,7 +75,7 @@ class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
   // Note: we use URLRequest (instead of URLFetcher) because this allows the
   // request to be intercepted.
   scoped_ptr<URLRequest> request_;
-  scoped_refptr<net::IOBuffer> response_buffer_;
+  char response_buffer_[4096];
   std::string response_data_;
 
   ChromePluginLib* plugin_;
@@ -158,7 +155,7 @@ void ChromePluginTest::OnResponseStarted(URLRequest* request) {
 
   int bytes_read = 0;
   if (request_->status().is_success())
-    request_->Read(response_buffer_, kResponseBufferSize, &bytes_read);
+    request_->Read(response_buffer_, sizeof(response_buffer_), &bytes_read);
   OnReadCompleted(request_.get(), bytes_read);
 }
 
@@ -168,8 +165,9 @@ void ChromePluginTest::OnReadCompleted(URLRequest* request, int bytes_read) {
   do {
     if (!request_->status().is_success() || bytes_read <= 0)
       break;
-    response_data_.append(response_buffer_->data(), bytes_read);
-  } while (request_->Read(response_buffer_, kResponseBufferSize, &bytes_read));
+    response_data_.append(response_buffer_, bytes_read);
+  } while (request_->Read(response_buffer_, sizeof(response_buffer_),
+                          &bytes_read));
 
   if (!request_->status().is_io_pending()) {
     OnURLRequestComplete();

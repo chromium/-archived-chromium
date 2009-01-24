@@ -6,13 +6,10 @@
 
 #include "net/base/mime_sniffer.h"
 
-static const int kBufferSize = 1024;
-
 MimeSnifferProxy::MimeSnifferProxy(URLRequest* request,
                                    URLRequest::Delegate* delegate)
     : request_(request), delegate_(delegate),
-      sniff_content_(false), error_(false),
-      buf_(new net::IOBuffer(kBufferSize)) {
+      sniff_content_(false), error_(false) {
   request->set_delegate(this);
 }
 
@@ -23,7 +20,7 @@ void MimeSnifferProxy::OnResponseStarted(URLRequest* request) {
       // We need to read content before we know the mime type,
       // so we don't call OnResponseStarted.
       sniff_content_ = true;
-      if (request_->Read(buf_, kBufferSize, &bytes_read_) && bytes_read_) {
+      if (request_->Read(buf_, sizeof(buf_), &bytes_read_) && bytes_read_) {
         OnReadCompleted(request, bytes_read_);
       } else if (!request_->status().is_io_pending()) {
         error_ = true;
@@ -35,8 +32,7 @@ void MimeSnifferProxy::OnResponseStarted(URLRequest* request) {
   delegate_->OnResponseStarted(request);
 }
 
-bool MimeSnifferProxy::Read(net::IOBuffer* buf, int max_bytes,
-                            int *bytes_read) {
+bool MimeSnifferProxy::Read(char* buf, int max_bytes, int *bytes_read) {
   if (sniff_content_) {
     // This is the first call to Read() after we've sniffed content.
     // Return our local buffer or the error we ran into.
@@ -47,7 +43,7 @@ bool MimeSnifferProxy::Read(net::IOBuffer* buf, int max_bytes,
       return false;
     }
 
-    memcpy(buf->data(), buf_->data(), bytes_read_);
+    memcpy(buf, buf_, bytes_read_);
     *bytes_read = bytes_read_;
     return true;
   }
@@ -61,8 +57,8 @@ void MimeSnifferProxy::OnReadCompleted(URLRequest* request, int bytes_read) {
       std::string type_hint;
       request_->GetMimeType(&type_hint);
       bytes_read_ = bytes_read;
-      net::SniffMimeType(buf_->data(), bytes_read_, request_->url(),
-                         type_hint, &mime_type_);
+      net::SniffMimeType(
+          buf_, bytes_read_, request_->url(), type_hint, &mime_type_);
     } else {
       error_ = true;
     }

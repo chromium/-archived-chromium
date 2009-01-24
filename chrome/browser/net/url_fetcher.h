@@ -185,8 +185,7 @@ class URLFetcher {
     int load_flags_;                   // Flags for the load operation
     int response_code_;                // HTTP status code for the request
     std::string data_;                 // Results of the request
-    scoped_refptr<net::IOBuffer> buffer_;
-                                       // Read buffer
+    char buffer_[4096];                // Read buffer
     scoped_refptr<URLRequestContext> request_context_;
                                        // Cookie/cache info for the request
     ResponseCookies cookies_;          // Response cookies

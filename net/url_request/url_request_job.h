@@ -17,7 +17,6 @@
 
 namespace net {
 class HttpResponseInfo;
-class IOBuffer;
 class UploadData;
 }
 
@@ -79,7 +78,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // bytes read, 0 when there is no more data, or -1 if there was an error.
   // This is just the backend for URLRequest::Read, see that function for more
   // info.
-  bool Read(net::IOBuffer* buf, int buf_size, int *bytes_read);
+  bool Read(char* buf, int buf_size, int *bytes_read);
 
   // Called to fetch the current load state for the job.
   virtual net::LoadState GetLoadState() const { return net::LOAD_STATE_IDLE; }
@@ -232,7 +231,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // If async IO is pending, the status of the request will be
   // URLRequestStatus::IO_PENDING, and buf must remain available until the
   // operation is completed.  See comments on URLRequest::Read for more info.
-  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
 
   // Informs the filter that data has been read into its buffer
   void FilteredDataRead(int bytes_read);
@@ -290,7 +289,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // processing the filtered data, we return the data in the caller's buffer.
   // While the async IO is in progress, we save the user buffer here, and
   // when the IO completes, we fill this in.
-  net::IOBuffer *read_buffer_;
+  char *read_buffer_;
   int read_buffer_len_;
 
   // Used by HandleResponseIfNecessary to track whether we've sent the

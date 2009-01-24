@@ -35,7 +35,6 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
-#include "net/base/io_buffer.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -92,8 +91,8 @@ class Filter {
   // next_filter_, then it obtains data from this specific filter.
   FilterStatus ReadData(char* dest_buffer, int* dest_len);
 
-  // Returns a pointer to the stream_buffer_.
-  net::IOBuffer* stream_buffer() const { return stream_buffer_.get(); }
+  // Returns a pointer to the beginning of stream_buffer_.
+  char* stream_buffer() const { return stream_buffer_.get(); }
 
   // Returns the maximum size of stream_buffer_ in number of chars.
   int stream_buffer_size() const { return stream_buffer_size_; }
@@ -178,7 +177,7 @@ class Filter {
   bool was_cached() const { return was_cached_; }
 
   // Buffer to hold the data to be filtered.
-  scoped_refptr<net::IOBuffer> stream_buffer_;
+  scoped_array<char> stream_buffer_;
 
   // Maximum size of stream_buffer_ in number of chars.
   int stream_buffer_size_;

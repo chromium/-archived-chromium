@@ -122,7 +122,7 @@ class BZip2FilterUnitTest : public PlatformTest {
         break;
       encode_data_len = std::min(encode_avail_size,
                                  filter->stream_buffer_size());
-      memcpy(filter->stream_buffer()->data(), encode_next, encode_data_len);
+      memcpy(filter->stream_buffer(), encode_next, encode_data_len);
       filter->FlushStreamBuffer(encode_data_len);
       encode_next += encode_data_len;
       encode_avail_size -= encode_data_len;
@@ -162,7 +162,7 @@ class BZip2FilterUnitTest : public PlatformTest {
                                            int source_len,
                                            char* dest,
                                            int* dest_len) {
-    memcpy(filter->stream_buffer()->data(), source, source_len);
+    memcpy(filter->stream_buffer(), source, source_len);
     filter->FlushStreamBuffer(source_len);
     return filter->ReadData(dest, dest_len);
   }
@@ -186,8 +186,7 @@ TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
-  memcpy(filter->stream_buffer()->data(), bzip2_encode_buffer_,
-         bzip2_encode_len_);
+  memcpy(filter->stream_buffer(), bzip2_encode_buffer_, bzip2_encode_len_);
   filter->FlushStreamBuffer(bzip2_encode_len_);
 
   char bzip2_decode_buffer[kDefaultBufferSize];

@@ -52,9 +52,6 @@
 #include "base/timer.h"
 #include "chrome/browser/history/download_types.h"
 
-namespace net {
-class IOBuffer;
-}
 class DownloadManager;
 class FilePath;
 class GURL;
@@ -73,7 +70,7 @@ class URLRequestContext;
 
 struct DownloadBuffer {
   Lock lock;
-  typedef std::pair<net::IOBuffer*, int> Contents;
+  typedef std::pair<char *, int> Contents;
   std::vector<Contents> contents;
 };
 

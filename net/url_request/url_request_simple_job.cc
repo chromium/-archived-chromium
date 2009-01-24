@@ -29,13 +29,13 @@ bool URLRequestSimpleJob::GetCharset(std::string* charset) {
   return true;
 }
 
-bool URLRequestSimpleJob::ReadRawData(net::IOBuffer* buf, int buf_size,
+bool URLRequestSimpleJob::ReadRawData(char* buf, int buf_size,
                                       int* bytes_read) {
   DCHECK(bytes_read);
   int remaining = static_cast<int>(data_.size()) - data_offset_;
   if (buf_size > remaining)
     buf_size = remaining;
-  memcpy(buf->data(), data_.data() + data_offset_, buf_size);
+  memcpy(buf, data_.data() + data_offset_, buf_size);
   data_offset_ += buf_size;
   *bytes_read = buf_size;
   return true;

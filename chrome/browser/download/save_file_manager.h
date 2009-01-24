@@ -66,9 +66,6 @@
 #include "base/thread.h"
 #include "chrome/browser/download/save_types.h"
 
-namespace net {
-class IOBuffer;
-}
 class GURL;
 class SaveFile;
 class SavePackage;
@@ -104,7 +101,7 @@ class SaveFileManager
 
   // Notifications sent from the IO thread and run on the file thread:
   void StartSave(SaveFileCreateInfo* info);
-  void UpdateSaveProgress(int save_id, net::IOBuffer* data, int size);
+  void UpdateSaveProgress(int save_id, char* data, int size);
   void SaveFinished(int save_id, std::wstring save_url,
                     int render_process_id, bool is_success);
 

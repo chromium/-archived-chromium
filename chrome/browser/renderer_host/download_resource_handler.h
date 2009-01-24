@@ -32,8 +32,7 @@ class DownloadResourceHandler : public ResourceHandler {
 
   // Create a new buffer, which will be handed to the download thread for file
   // writing and deletion.
-  bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
-                  int min_size);
+  bool OnWillRead(int request_id, char** buf, int* buf_size, int min_size);
 
   bool OnReadCompleted(int request_id, int* bytes_read);
 
@@ -54,7 +53,7 @@ class DownloadResourceHandler : public ResourceHandler {
   int download_id_;
   ResourceDispatcherHost::GlobalRequestID global_id_;
   int render_view_id_;
-  scoped_refptr<net::IOBuffer> read_buffer_;
+  char* read_buffer_;
   std::string content_disposition_;
   std::wstring url_;
   int64 content_length_;

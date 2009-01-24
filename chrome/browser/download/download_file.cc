@@ -23,7 +23,6 @@
 #include "chrome/common/win_util.h"
 #include "chrome/common/win_safe_util.h"
 #include "googleurl/src/gurl.h"
-#include "net/base/io_buffer.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
 
@@ -266,11 +265,11 @@ void DownloadFileManager::UpdateDownload(int id, DownloadBuffer* buffer) {
 
   DownloadFile* download = LookupDownload(id);
   for (size_t i = 0; i < contents.size(); ++i) {
-    net::IOBuffer* data = contents[i].first;
+    char* data = contents[i].first;
     const int data_len = contents[i].second;
     if (download)
-      download->AppendDataToFile(data->data(), data_len);
-    data->Release();
+      download->AppendDataToFile(data, data_len);
+    delete [] data;
   }
 
   if (download) {

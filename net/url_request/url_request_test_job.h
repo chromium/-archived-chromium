@@ -51,7 +51,7 @@ class URLRequestTestJob : public URLRequestJob {
 
   // Job functions
   virtual void Start();
-  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
   virtual void Kill();
   virtual bool GetMimeType(std::string* mime_type);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
@@ -78,7 +78,7 @@ class URLRequestTestJob : public URLRequestJob {
   int offset_;
 
   // Holds the buffer for an asynchronous ReadRawData call
-  net::IOBuffer* async_buf_;
+  char* async_buf_;
   int async_buf_size_;
 };
 

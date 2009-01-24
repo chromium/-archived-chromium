@@ -28,8 +28,7 @@ class SaveFileResourceHandler : public ResourceHandler {
 
   // Creates a new buffer, which will be handed to the download thread for file
   // writing and deletion.
-  bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
-                  int min_size);
+  bool OnWillRead(int request_id, char** buf, int* buf_size, int min_size);
 
   // Passes the buffer to the download file writer.
   bool OnReadCompleted(int request_id, int* bytes_read);
@@ -51,7 +50,7 @@ class SaveFileResourceHandler : public ResourceHandler {
   int save_id_;
   int render_process_id_;
   int render_view_id_;
-  scoped_refptr<net::IOBuffer> read_buffer_;
+  char* read_buffer_;
   std::string content_disposition_;
   std::wstring url_;
   std::wstring final_url_;

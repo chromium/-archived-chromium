@@ -26,6 +26,7 @@ URLRequestFileDirJob::URLRequestFileDirJob(URLRequest* request,
       list_complete_(false),
       wrote_header_(false),
       read_pending_(false),
+      read_buffer_(NULL),
       read_buffer_length_(0) {
 }
 
@@ -67,7 +68,7 @@ void URLRequestFileDirJob::Kill() {
     lister_->Cancel();
 }
 
-bool URLRequestFileDirJob::ReadRawData(net::IOBuffer* buf, int buf_size,
+bool URLRequestFileDirJob::ReadRawData(char* buf, int buf_size,
                                        int *bytes_read) {
   DCHECK(bytes_read);
   *bytes_read = 0;
@@ -75,7 +76,7 @@ bool URLRequestFileDirJob::ReadRawData(net::IOBuffer* buf, int buf_size,
   if (is_done())
     return true;
 
-  if (FillReadBuffer(buf->data(), buf_size, bytes_read))
+  if (FillReadBuffer(buf, buf_size, bytes_read))
     return true;
 
   // We are waiting for more data
@@ -182,8 +183,7 @@ bool URLRequestFileDirJob::FillReadBuffer(char *buf, int buf_size,
 void URLRequestFileDirJob::CompleteRead() {
   if (read_pending_) {
     int bytes_read;
-    if (FillReadBuffer(read_buffer_->data(), read_buffer_length_,
-                       &bytes_read)) {
+    if (FillReadBuffer(read_buffer_, read_buffer_length_, &bytes_read)) {
       // We completed the read, so reset the read buffer.
       read_pending_ = false;
       read_buffer_ = NULL;

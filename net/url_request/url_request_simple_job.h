@@ -13,7 +13,7 @@ class URLRequestSimpleJob : public URLRequestJob {
   URLRequestSimpleJob(URLRequest* request);
 
   virtual void Start();
-  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
   virtual bool GetMimeType(std::string* mime_type);
   virtual bool GetCharset(std::string* charset);
 
