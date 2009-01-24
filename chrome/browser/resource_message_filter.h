@@ -2,18 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
-#define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
+#ifndef CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H_
+#define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H_
 
 #include "base/clipboard.h"
 #include "base/file_path.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
+#include "build/build_config.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/notification_service.h"
 #include "webkit/glue/cache_manager.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
 
 class ClipboardService;
 class Profile;
@@ -68,7 +73,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   int render_process_host_id() const { return render_process_host_id_;}
 
-  HANDLE renderer_handle() const { return render_handle_;}
+  base::ProcessHandle renderer_handle() const { return render_handle_;}
   
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -136,9 +141,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnClipboardReadText(std::wstring* result);
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
+#if defined(OS_WIN)
   void OnGetWindowRect(HWND window, gfx::Rect *rect);
   void OnGetRootWindowRect(HWND window, gfx::Rect *rect);
   void OnGetRootWindowResizerRect(HWND window, gfx::Rect *rect);
+#endif
   void OnGetMimeTypeFromExtension(const std::wstring& ext,
                                   std::string* mime_type);
   void OnGetMimeTypeFromFile(const std::wstring& file_path,
@@ -157,6 +164,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetDefaultPrintSettingsReply(
       scoped_refptr<printing::PrinterQuery> printer_query,
       IPC::Message* reply_msg);
+#if defined(OS_WIN)
   // A javascript code requested to print the current page. The renderer host
   // have to show to the user the print dialog and returns the selected print
   // settings.
@@ -167,6 +175,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnScriptedPrintReply(
       scoped_refptr<printing::PrinterQuery> printer_query,
       IPC::Message* reply_msg);
+#endif
 
   // We have our own clipboard service because we want to access the clipboard
   // on the IO thread instead of forwarding (possibly synchronous) messages to
@@ -175,6 +184,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // thread.
   static ClipboardService* GetClipboardService();
 
+  // The channel associated with the renderer connection. This pointer is not
+  // owned by this class.
   IPC::Channel* channel_;
 
   // Cached resource request dispatcher host and plugin service, guaranteed to
@@ -193,15 +204,25 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // Our spellchecker object.
   scoped_refptr<SpellChecker> spellchecker_;
 
-  HANDLE render_handle_;
+  // Process handle of the renderer process.
+  base::ProcessHandle render_handle_;
 
   // Contextual information to be used for requests created here.
   scoped_refptr<URLRequestContext> request_context_;
 
-  // Save the profile pointer so that notification observer can be added.
-  Profile* profile_;
+  // A pointer to the profile associated with this filter.
+  //
+  // DANGER! Do not dereference this pointer! This class lives on the I/O thread
+  // and the profile may only be used on the UI thread. It is used only for
+  // determining which notifications to watch for.
+  //
+  // This is void* to prevent people from accidentally dereferencing it.
+  // When registering for observers, cast to Profile*.
+  void* profile_;
 
   scoped_refptr<RenderWidgetHelper> render_widget_helper_;
+
+  DISALLOW_COPY_AND_ASSIGN(ResourceMessageFilter);
 };
 
-#endif // CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
+#endif  // CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H_

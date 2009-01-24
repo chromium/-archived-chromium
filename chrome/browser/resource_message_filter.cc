@@ -29,6 +29,40 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
 
+namespace {
+
+// Context menus are somewhat complicated. We need to intercept them here on
+// the I/O thread to add any spelling suggestions to them. After that's done,
+// we need to forward the modified message to the UI thread and the normal
+// message forwarding isn't set up for sending modified messages.
+//
+// Therefore, this class dispatches the IPC message to the RenderProcessHost
+// with the given ID (if possible) to emulate the normal dispatch.
+class ContextMenuMessageDispatcher : public Task {
+ public:
+  ContextMenuMessageDispatcher(
+      int render_process_host_id,
+      const ViewHostMsg_ContextMenu& context_menu_message)
+      : render_process_host_id_(render_process_host_id),
+        context_menu_message_(context_menu_message) {
+  }
+
+  void Run() {
+    RenderProcessHost* host =
+        RenderProcessHost::FromID(render_process_host_id_);
+    if (host)
+      host->OnMessageReceived(context_menu_message_);
+  }
+
+ private:
+  int render_process_host_id_;
+  const ViewHostMsg_ContextMenu context_menu_message_;
+
+  DISALLOW_COPY_AND_ASSIGN(ContextMenuMessageDispatcher);
+};
+
+}  // namespace
+
 ResourceMessageFilter::ResourceMessageFilter(
     ResourceDispatcherHost* resource_dispatcher_host,
     PluginService* plugin_service,
@@ -61,7 +95,7 @@ ResourceMessageFilter::~ResourceMessageFilter() {
          ChromeThread::GetMessageLoop(ChromeThread::IO));
   NotificationService::current()->RemoveObserver(
       this, NOTIFY_SPELLCHECKER_REINITIALIZED,
-      Source<Profile>(profile_));
+      Source<Profile>(static_cast<Profile*>(profile_)));
 }
 
 // Called on the IPC thread:
@@ -71,7 +105,7 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
   // Add the observers to intercept 
   NotificationService::current()->AddObserver(
       this, NOTIFY_SPELLCHECKER_REINITIALIZED,
-      Source<Profile>(profile_));
+      Source<Profile>(static_cast<Profile*>(profile_)));
 }
 
 // Called on the IPC thread:
@@ -137,9 +171,12 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                         OnClipboardReadAsciiText)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
                         OnClipboardReadHTML)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowResizerRect, OnGetRootWindowResizerRect)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowResizerRect,
+                        OnGetRootWindowResizerRect)
+#endif
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
                         OnGetMimeTypeFromExtension)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
@@ -152,8 +189,10 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_ResourceTypeStats, OnResourceTypeStats)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetDefaultPrintSettings,
                                     OnGetDefaultPrintSettings)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ScriptedPrint,
                                     OnScriptedPrint)
+#endif
     IPC_MESSAGE_UNHANDLED(
         handled = false)
   IPC_END_MESSAGE_MAP_EX()
@@ -165,28 +204,6 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 
   return handled;
 }
-
-class ContextMenuMessageDispatcher : public Task {
- public:
-  ContextMenuMessageDispatcher(
-      int render_process_host_id,
-      const ViewHostMsg_ContextMenu& context_menu_message)
-      : render_process_host_id_(render_process_host_id),
-        context_menu_message_(context_menu_message) {
-  }
-
-  void Run() {
-    // Forward message to normal routing route.
-    RenderProcessHost* host =
-        RenderProcessHost::FromID(render_process_host_id_);
-    if (host)
-      host->OnMessageReceived(context_menu_message_);
-  }
-
- private:
-  int render_process_host_id_;
-  const ViewHostMsg_ContextMenu context_menu_message_;
-};
 
 void ResourceMessageFilter::OnReceiveContextMenuMsg(const IPC::Message& msg) {
   void* iter = NULL;
@@ -452,6 +469,8 @@ void ResourceMessageFilter::OnClipboardReadHTML(std::wstring* markup,
   *src_url = GURL(src_url_str);
 }
 
+#if defined(OS_WIN)
+
 void ResourceMessageFilter::OnGetWindowRect(HWND window, gfx::Rect *rect) {
   RECT window_rect = {0};
   GetWindowRect(window, &window_rect);
@@ -469,6 +488,8 @@ void ResourceMessageFilter::OnGetRootWindowResizerRect(HWND window, gfx::Rect *r
   RECT window_rect = {0};
   *rect = window_rect;
 }
+
+#endif  // OS_WIN
 
 void ResourceMessageFilter::OnGetMimeTypeFromExtension(
     const std::wstring& ext, std::string* mime_type) {
@@ -555,6 +576,8 @@ void ResourceMessageFilter::OnGetDefaultPrintSettingsReply(
   }
 }
 
+#if defined(OS_WIN)
+
 void ResourceMessageFilter::OnScriptedPrint(HWND host_window,
                                             int cookie,
                                             int expected_pages_count,
@@ -607,6 +630,8 @@ void ResourceMessageFilter::OnScriptedPrintReply(
   }
 }
 
+#endif  // OS_WIN
+
 // static
 ClipboardService* ResourceMessageFilter::GetClipboardService() {
   // We have a static instance of the clipboard service for use by all message
@@ -630,10 +655,10 @@ ClipboardService* ResourceMessageFilter::GetClipboardService() {
 // Note: This is called in the IO thread.
 void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
                                          IPC::Message* reply_msg) {
- int misspell_location = 0;
- int misspell_length = 0;
+  int misspell_location = 0;
+  int misspell_length = 0;
 
- if (spellchecker_ != NULL) {
+  if (spellchecker_ != NULL) {
     spellchecker_->SpellCheckWord(word.c_str(),
                                   static_cast<int>(word.length()),
                                   &misspell_location, &misspell_length, NULL);
@@ -648,13 +673,13 @@ void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
 void ResourceMessageFilter::Observe(NotificationType type, 
                                     const NotificationSource &source,
                                     const NotificationDetails &details) {
-    if (type == NOTIFY_SPELLCHECKER_REINITIALIZED) {
-      spellchecker_ = Details<SpellcheckerReinitializedDetails>
-          (details).ptr()->spellchecker;
-    }
+  if (type == NOTIFY_SPELLCHECKER_REINITIALIZED) {
+    spellchecker_ = Details<SpellcheckerReinitializedDetails>
+        (details).ptr()->spellchecker;
+  }
 }
 
 void ResourceMessageFilter::OnDnsPrefetch(
-         const std::vector<std::string>& hostnames) {
+    const std::vector<std::string>& hostnames) {
   chrome_browser_net::DnsPrefetchList(hostnames);
 }
