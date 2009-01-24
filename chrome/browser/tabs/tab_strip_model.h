@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H__
-#define CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H__
+#ifndef CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H_
+#define CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H_
 
 #include <vector>
 
@@ -167,7 +167,7 @@ class TabStripModelDelegate {
 class TabStripModel : public NotificationObserver {
  public:
   // Construct a TabStripModel with a delegate to help it do certain things
-  // (See TabStripModelDelegate documentation).
+  // (See TabStripModelDelegate documentation). |delegate| cannot be NULL.
   TabStripModel(TabStripModelDelegate* delegate, Profile* profile);
   virtual ~TabStripModel();
 
@@ -518,7 +518,7 @@ class TabStripModel : public NotificationObserver {
   typedef ObserverList<TabStripModelObserver> TabStripModelObservers;
   TabStripModelObservers observers_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TabStripModel);
+  DISALLOW_COPY_AND_ASSIGN(TabStripModel);
 };
 
-#endif  // CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H__
+#endif  // CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H_

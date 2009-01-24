@@ -23,6 +23,45 @@ const TabContentsType kHTTPTabContentsType =
 const TabContentsType kReplacementContentsType =
     static_cast<TabContentsType>(kHTTPTabContentsType + 1);
 
+class TabStripDummyDelegate : public TabStripModelDelegate {
+ public:
+   explicit TabStripDummyDelegate(TabContents* dummy)
+      : dummy_contents_(dummy) {}
+  virtual ~TabStripDummyDelegate() {}
+
+  // Overridden from TabStripModelDelegate:
+  virtual GURL GetBlankTabURL() const { return NewTabUIURL(); }
+  virtual void CreateNewStripWithContents(TabContents* contents,
+                                          const gfx::Rect& window_bounds,
+                                          const DockInfo& dock_info) {}
+  virtual int GetDragActions() const { return 0; }
+  virtual TabContents* CreateTabContentsForURL(
+      const GURL& url,
+      const GURL& referrer,
+      Profile* profile,
+      PageTransition::Type transition,
+      bool defer_load,
+      SiteInstance* instance) const {
+    if (url == NewTabUIURL())
+      return dummy_contents_;
+    return NULL;
+  }
+  virtual bool CanDuplicateContentsAt(int index) { return false; }
+  virtual void DuplicateContentsAt(int index) {}
+  virtual void CloseFrameAfterDragSession() {}
+  virtual void CreateHistoricalTab(TabContents* contents) {}
+  virtual bool RunUnloadListenerBeforeClosing(TabContents* contents) {
+    return false;
+  }
+
+ private:
+  // A dummy TabContents we give to callers that expect us to actually build a
+  // Destinations tab for them.
+  TabContents* dummy_contents_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(TabStripDummyDelegate);
+};
+
 // Since you can't just instantiate a TabContents, and some of its methods
 // are protected, we subclass TabContents with our own testing dummy which
 // knows how to drive the base class' NavigationController as URLs are
@@ -252,7 +291,8 @@ class MockTabStripModelObserver : public TabStripModelObserver {
 };
 
 TEST_F(TabStripModelTest, TestBasicAPI) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   MockTabStripModelObserver observer;
   tabstrip.AddObserver(&observer);
 
@@ -458,7 +498,8 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
 }
 
 TEST_F(TabStripModelTest, TestBasicOpenerAPI) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   // This is a basic test of opener functionality. opener_contents is created
@@ -532,7 +573,8 @@ static void InsertTabContentses(TabStripModel* tabstrip,
 
 // Tests opening background tabs.
 TEST_F(TabStripModelTest, TestLTRInsertionOptions) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
@@ -559,7 +601,8 @@ TEST_F(TabStripModelTest, TestLTRInsertionOptions) {
 // Finally it tests that a tab opened for some non-link purpose openes at the
 // end of the strip, not bundled to any existing context.
 TEST_F(TabStripModelTest, TestInsertionIndexDetermination) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
@@ -637,7 +680,8 @@ TEST_F(TabStripModelTest, TestInsertionIndexDetermination) {
 //       The opener is selected
 //
 TEST_F(TabStripModelTest, TestSelectOnClose) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
@@ -714,7 +758,8 @@ TEST_F(TabStripModelTest, TestSelectOnClose) {
 //  - Close Tabs To Right
 //  - Close Tabs Opened By
 TEST_F(TabStripModelTest, TestContextMenuCloseCommands) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
@@ -771,7 +816,8 @@ TEST_F(TabStripModelTest, TestContextMenuCloseCommands) {
 // using this "smart" function with a simulated middle click action on a series
 // of links on the home page.
 TEST_F(TabStripModelTest, AddTabContents_MiddleClickLinksAndClose) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   // Open the Home Page
@@ -834,7 +880,8 @@ TEST_F(TabStripModelTest, AddTabContents_MiddleClickLinksAndClose) {
 // Tests whether or not a TabContents created by a left click on a link that
 // opens a new tab is inserted correctly adjacent to the tab that spawned it.
 TEST_F(TabStripModelTest, AddTabContents_LeftClickPopup) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   // Open the Home Page
@@ -880,7 +927,8 @@ TEST_F(TabStripModelTest, AddTabContents_LeftClickPopup) {
 // generated urls, also blank tabs) open at the end of the tabstrip instead of
 // in the middle.
 TEST_F(TabStripModelTest, AddTabContents_CreateNewBlankTab) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   // Open the Home Page
@@ -929,7 +977,8 @@ TEST_F(TabStripModelTest, AddTabContents_CreateNewBlankTab) {
 // Tests whether opener state is correctly forgotten when the user switches
 // context.
 TEST_F(TabStripModelTest, AddTabContents_ForgetOpeners) {
-  TabStripModel tabstrip(NULL, profile_);
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel tabstrip(&delegate, profile_);
   EXPECT_TRUE(tabstrip.empty());
 
   // Open the Home Page
@@ -985,45 +1034,6 @@ TEST_F(TabStripModelTest, AddTabContents_ForgetOpeners) {
   tabstrip.CloseAllTabs();
   EXPECT_TRUE(tabstrip.empty());
 }
-
-class TabStripDummyDelegate : public TabStripModelDelegate {
- public:
-   explicit TabStripDummyDelegate(TabContents* dummy)
-      : dummy_contents_(dummy) {}
-  virtual ~TabStripDummyDelegate() {}
-
-  // Overridden from TabStripModelDelegate:
-  virtual GURL GetBlankTabURL() const { return NewTabUIURL(); }
-  virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Rect& window_bounds,
-                                          const DockInfo& dock_info) {}
-  virtual int GetDragActions() const { return 0; }
-  virtual TabContents* CreateTabContentsForURL(
-      const GURL& url,
-      const GURL& referrer,
-      Profile* profile,
-      PageTransition::Type transition,
-      bool defer_load,
-      SiteInstance* instance) const {
-    if (url == NewTabUIURL())
-      return dummy_contents_;
-    return NULL;
-  }
-  virtual bool CanDuplicateContentsAt(int index) { return false; }
-  virtual void DuplicateContentsAt(int index) {}
-  virtual void CloseFrameAfterDragSession() {}
-  virtual void CreateHistoricalTab(TabContents* contents) {}
-  virtual bool RunUnloadListenerBeforeClosing(TabContents* contents) {
-    return false;
-  }
-
- private:
-  // A dummy TabContents we give to callers that expect us to actually build a
-  // Destinations tab for them.
-  TabContents* dummy_contents_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(TabStripDummyDelegate);
-};
 
 // Added for http://b/issue?id=958960
 TEST_F(TabStripModelTest, AppendContentsReselectionTest) {

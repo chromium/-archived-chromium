@@ -22,6 +22,7 @@ TabStripModel::TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
       selected_index_(kNoTab),
       closing_all_(false),
       order_controller_(NULL) {
+  DCHECK(delegate_);
   NotificationService::current()->AddObserver(this,
       NOTIFY_TAB_CONTENTS_DESTROYED, NotificationService::AllSources());
   SetOrderController(new TabStripModelOrderController(this));
@@ -299,7 +300,6 @@ bool TabStripModel::ShouldResetGroupOnSelect(TabContents* contents) const {
 }
 
 TabContents* TabStripModel::AddBlankTab(bool foreground) {
-  DCHECK(delegate_);
   TabContents* contents = delegate_->CreateTabContentsForURL(
       delegate_->GetBlankTabURL(), GURL(), profile_, PageTransition::TYPED,
       false, NULL);
@@ -308,7 +308,6 @@ TabContents* TabStripModel::AddBlankTab(bool foreground) {
 }
 
 TabContents* TabStripModel::AddBlankTabAt(int index, bool foreground) {
-  DCHECK(delegate_);
   TabContents* contents = delegate_->CreateTabContentsForURL(
       delegate_->GetBlankTabURL(), GURL(), profile_, PageTransition::LINK,
       false, NULL);
@@ -402,10 +401,7 @@ bool TabStripModel::IsContextMenuCommandEnabled(
       return next_index != kNoTab;
     }
     case CommandDuplicate:
-      if (delegate_)
-        return delegate_->CanDuplicateContentsAt(context_index);
-      else
-        return false;
+      return delegate_->CanDuplicateContentsAt(context_index);
     default:
       NOTREACHED();
   }
@@ -425,10 +421,8 @@ void TabStripModel::ExecuteContextMenuCommand(
       GetContentsAt(context_index)->controller()->Reload(true);
       break;
     case CommandDuplicate:
-      if (delegate_) {
-        UserMetrics::RecordAction(L"TabContextMenu_Duplicate", profile_);
-        delegate_->DuplicateContentsAt(context_index);
-      }
+      UserMetrics::RecordAction(L"TabContextMenu_Duplicate", profile_);
+      delegate_->DuplicateContentsAt(context_index);
       break;
     case CommandCloseTab:
       UserMetrics::RecordAction(L"TabContextMenu_CloseTab", profile_);
