@@ -51,10 +51,9 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void Show() { is_showing_ = true; }
   virtual void Hide() { is_showing_ = false; }
   virtual gfx::Rect GetViewBounds() const { return gfx::Rect(); }
+  virtual void SetIsLoading(bool is_loading) {}
   virtual void UpdateCursor(const WebCursor& cursor) {}
   virtual void UpdateCursorIfOverSelf() {}
-  // Indicates if the page has finished loading.
-  virtual void SetIsLoading(bool is_loading) {}
   virtual void IMEUpdateStatus(ViewHostMsg_ImeControl control,
                                const gfx::Rect& caret_rect) {}
   virtual void DidPaintRect(const gfx::Rect& rect) {}

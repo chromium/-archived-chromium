@@ -20,7 +20,7 @@ TestRenderViewHost::~TestRenderViewHost() {
     ++*delete_counter_;
 
   // Since this isn't a traditional view, we have to delete it.
-  delete view_;
+  delete view();
 }
 
 bool TestRenderViewHost::CreateRenderView() {

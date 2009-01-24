@@ -100,9 +100,6 @@ class RenderViewHost : public RenderWidgetHost {
   virtual bool CreateRenderView();
   // Returns true if the RenderView is active and has not crashed.
   virtual bool IsRenderViewLive() const;
-  // Create a new RenderViewHost but recycle an existing RenderView child
-  // process.
-  virtual void Init();
 
   // Load the specified entry, optionally reloading.
   virtual void NavigateToEntry(const NavigationEntry& entry, bool is_reload);
@@ -329,16 +326,6 @@ class RenderViewHost : public RenderWidgetHost {
                                  bool reload,
                                  ViewMsg_Navigate_Params* params);
 
-  // Overridden from RenderWidgetHost: We are hosting a web page.
-  virtual bool IsRenderView() { return true; }
-  virtual bool CanBlur() const;
-
-  // IPC::Channel::Listener
-  virtual void OnMessageReceived(const IPC::Message& msg);
-
-  // Override the RenderWidgetHost's Shutdown method.
-  virtual void Shutdown();
-
   // Tells the renderer view to focus the first (last if reverse is true) node.
   void SetInitialFocus(bool reverse);
 
@@ -414,12 +401,21 @@ class RenderViewHost : public RenderWidgetHost {
                                    int request_id,
                                    int default_suggestion_index);
 
- protected:
-  // Overridden from RenderWidgetHost:
-  virtual void UnhandledInputEvent(const WebInputEvent& event);
-  virtual void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
+  // RenderWidgetHost public overrides.
+  virtual void Init();
+  virtual void Shutdown();
+  virtual bool IsRenderView() { return true; }
+  virtual void OnMessageReceived(const IPC::Message& msg);
+  virtual bool CanBlur() const;
 
-  // IPC message handlers:
+ protected:
+  // RenderWidgetHost protected overrides.
+  virtual void UnhandledInputEvent(const WebInputEvent& event);
+  virtual void OnEnterOrSpace();
+  virtual void NotifyRendererUnresponsive();
+  virtual void NotifyRendererResponsive();
+
+  // IPC message handlers.
   void OnMsgCreateWindow(int route_id, HANDLE modal_dialog_event);
   void OnMsgCreateWidget(int route_id, bool activatable);
   void OnMsgShowView(int route_id,
@@ -525,8 +521,6 @@ class RenderViewHost : public RenderWidgetHost {
                                 const std::wstring& user_text,
                                 int64 node_id,
                                 int request_id);
-  virtual void NotifyRendererUnresponsive();
-  virtual void NotifyRendererResponsive();
 
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload

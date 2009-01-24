@@ -73,8 +73,16 @@ void RenderWidgetHost::Init() {
   WasResized();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// RenderWidgetHost, protected:
+void RenderWidgetHost::Shutdown() {
+  if (process_->channel()) {
+    // Tell the renderer object to close.
+    process_->ReportExpectingClose(routing_id_);
+    bool rv = Send(new ViewMsg_Close(routing_id_));
+    DCHECK(rv);
+  }
+
+  Destroy();
+}
 
 IPC_DEFINE_MESSAGE_MAP(RenderWidgetHost)
   IPC_MESSAGE_HANDLER(ViewHostMsg_RendererReady, OnMsgRendererReady)
@@ -90,6 +98,269 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidgetHost)
   IPC_MESSAGE_HANDLER(ViewHostMsg_ImeUpdateStatus, OnMsgImeUpdateStatus)
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
+
+bool RenderWidgetHost::Send(IPC::Message* msg) {
+  return process_->Send(msg);
+}
+
+void RenderWidgetHost::WasHidden() {
+  is_hidden_ = true;
+
+  // Don't bother reporting hung state when we aren't the active tab.
+  StopHangMonitorTimeout();
+
+  // If we have a renderer, then inform it that we are being hidden so it can
+  // reduce its resource utilization.
+  Send(new ViewMsg_WasHidden(routing_id_));
+
+  // TODO(darin): what about constrained windows?  it doesn't look like they
+  // see a message when their parent is hidden.  maybe there is something more
+  // generic we can do at the TabContents API level instead of relying on
+  // Windows messages.
+
+  // Tell the RenderProcessHost we were hidden.
+  process_->WidgetHidden();
+}
+
+void RenderWidgetHost::WasRestored() {
+  // When we create the widget, it is created as *not* hidden.
+  if (!is_hidden_)
+    return;
+  is_hidden_ = false;
+
+  BackingStore* backing_store = BackingStoreManager::Lookup(this);
+  // If we already have a backing store for this widget, then we don't need to
+  // repaint on restore _unless_ we know that our backing store is invalid.
+  bool needs_repainting;
+  if (needs_repainting_on_restore_ || !backing_store) {
+    needs_repainting = true;
+    needs_repainting_on_restore_ = false;
+  } else {
+    needs_repainting = false;
+  }
+  Send(new ViewMsg_WasRestored(routing_id_, needs_repainting));
+
+  process_->WidgetRestored();
+}
+
+void RenderWidgetHost::WasResized() {
+  if (resize_ack_pending_ || !process_->channel() || !view_)
+    return;
+
+  gfx::Rect view_bounds = view_->GetViewBounds();
+  gfx::Size new_size(view_bounds.width(), view_bounds.height());
+
+  // Avoid asking the RenderWidget to resize to its current size, since it
+  // won't send us a PaintRect message in that case.
+  if (new_size == current_size_)
+    return;
+
+  // We don't expect to receive an ACK when the requested size is empty.
+  if (!new_size.IsEmpty())
+    resize_ack_pending_ = true;
+
+  if (!Send(new ViewMsg_Resize(routing_id_, new_size)))
+    resize_ack_pending_ = false;
+}
+
+void RenderWidgetHost::Focus() {
+  Send(new ViewMsg_SetFocus(routing_id_, true));
+}
+
+void RenderWidgetHost::Blur() {
+  Send(new ViewMsg_SetFocus(routing_id_, false));
+}
+
+void RenderWidgetHost::LostCapture() {
+  Send(new ViewMsg_MouseCaptureLost(routing_id_));
+}
+
+void RenderWidgetHost::ViewDestroyed() {
+  // TODO(evanm): tracking this may no longer be necessary;
+  // eliminate this function if so.
+  view_ = NULL;
+}
+
+void RenderWidgetHost::SetIsLoading(bool is_loading) {
+  is_loading_ = is_loading;
+  if (!view_)
+    return;
+  view_->SetIsLoading(is_loading);
+}
+
+BackingStore* RenderWidgetHost::GetBackingStore() {
+  // We should not be asked to paint while we are hidden.  If we are hidden,
+  // then it means that our consumer failed to call WasRestored.
+  DCHECK(!is_hidden_) << "GetBackingStore called while hidden!";
+
+  // We might have a cached backing store that we can reuse!
+  BackingStore* backing_store = 
+      BackingStoreManager::GetBackingStore(this, current_size_);
+  // If we fail to find a backing store in the cache, send out a request
+  // to the renderer to paint the view if required.
+  if (!backing_store && !repaint_ack_pending_ && !resize_ack_pending_ && 
+      !view_being_painted_) {
+    repaint_start_time_ = TimeTicks::Now();
+    repaint_ack_pending_ = true;
+    Send(new ViewMsg_Repaint(routing_id_, current_size_));
+  }
+
+  // When we have asked the RenderWidget to resize, and we are still waiting on
+  // a response, block for a little while to see if we can't get a response
+  // before returning the old (incorrectly sized) backing store.
+  if (resize_ack_pending_ || !backing_store) {
+    IPC::Message msg;
+    TimeDelta max_delay = TimeDelta::FromMilliseconds(kPaintMsgTimeoutMS);
+    if (process_->WaitForPaintMsg(routing_id_, max_delay, &msg)) {
+      suppress_view_updating_ = true;
+      ViewHostMsg_PaintRect::Dispatch(
+          &msg, this, &RenderWidgetHost::OnMsgPaintRect);
+      suppress_view_updating_ = false;
+      backing_store = BackingStoreManager::GetBackingStore(this, current_size_);
+    }
+  }
+
+  return backing_store;
+}
+
+void RenderWidgetHost::StartHangMonitorTimeout(TimeDelta delay) {
+  time_when_considered_hung_ = Time::Now() + delay;
+
+  // If we already have a timer that will expire at or before the given delay,
+  // then we have nothing more to do now.
+  if (hung_renderer_timer_.IsRunning() &&
+      hung_renderer_timer_.GetCurrentDelay() <= delay)
+    return;
+
+  // Either the timer is not yet running, or we need to adjust the timer to
+  // fire sooner.
+  hung_renderer_timer_.Stop();
+  hung_renderer_timer_.Start(delay, this,
+      &RenderWidgetHost::CheckRendererIsUnresponsive);
+}
+
+void RenderWidgetHost::RestartHangMonitorTimeout() {
+  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
+}
+
+void RenderWidgetHost::StopHangMonitorTimeout() {
+  time_when_considered_hung_ = Time();
+  RendererIsResponsive();
+
+  // We do not bother to stop the hung_renderer_timer_ here in case it will be
+  // started again shortly, which happens to be the common use case.
+}
+
+void RenderWidgetHost::SystemThemeChanged() {
+  Send(new ViewMsg_ThemeChanged(routing_id_));
+}
+
+void RenderWidgetHost::ForwardMouseEvent(const WebMouseEvent& mouse_event) {
+  // Avoid spamming the renderer with mouse move events.  It is important
+  // to note that WM_MOUSEMOVE events are anyways synthetic, but since our
+  // thread is able to rapidly consume WM_MOUSEMOVE events, we may get way
+  // more WM_MOUSEMOVE events than we wish to send to the renderer.
+  if (mouse_event.type == WebInputEvent::MOUSE_MOVE) {
+    if (mouse_move_pending_) {
+      next_mouse_move_.reset(new WebMouseEvent(mouse_event));
+      return;
+    }
+    mouse_move_pending_ = true;
+  }
+
+  ForwardInputEvent(mouse_event, sizeof(WebMouseEvent));
+}
+
+void RenderWidgetHost::ForwardWheelEvent(
+    const WebMouseWheelEvent& wheel_event) {
+  ForwardInputEvent(wheel_event, sizeof(WebMouseWheelEvent));
+}
+
+void RenderWidgetHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
+  if (key_event.type == WebKeyboardEvent::CHAR &&
+      (key_event.key_code == VK_RETURN || key_event.key_code == VK_SPACE))
+    OnEnterOrSpace();
+
+  ForwardInputEvent(key_event, sizeof(WebKeyboardEvent));
+}
+
+void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
+                                         int event_size) {
+  if (!process_->channel())
+    return;
+
+  IPC::Message* message = new ViewMsg_HandleInputEvent(routing_id_);
+  message->WriteData(
+      reinterpret_cast<const char*>(&input_event), event_size);
+  input_event_start_time_ = TimeTicks::Now();
+  Send(message);
+
+  // Any input event cancels a pending mouse move event.
+  next_mouse_move_.reset();
+
+  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
+}
+
+void RenderWidgetHost::RendererExited() {
+  // Must reset these to ensure that mouse move events work with a new renderer.
+  mouse_move_pending_ = false;
+  next_mouse_move_.reset();
+
+  // Reset some fields in preparation for recovering from a crash.
+  resize_ack_pending_ = false;
+  current_size_ = gfx::Size();
+  is_hidden_ = false;
+
+  if (view_) {
+    view_->RendererGone();
+    view_ = NULL;  // The View should be deleted by RendererGone.
+  }
+
+  BackingStoreManager::RemoveBackingStore(this);
+}
+
+void RenderWidgetHost::Destroy() {
+  NotificationService::current()->Notify(
+      NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
+      Source<RenderWidgetHost>(this),
+      NotificationService::NoDetails());
+
+  // Tell the view to die.
+  // Note that in the process of the view shutting down, it can call a ton
+  // of other messages on us.  So if you do any other deinitialization here,
+  // do it after this call to view_->Destroy().
+  if (view_)
+    view_->Destroy();
+
+  delete this;
+}
+
+void RenderWidgetHost::CheckRendererIsUnresponsive() {
+  // If we received a call to StopHangMonitorTimeout.
+  if (time_when_considered_hung_.is_null())
+    return;
+
+  // If we have not waited long enough, then wait some more.
+  Time now = Time::Now();
+  if (now < time_when_considered_hung_) {
+    StartHangMonitorTimeout(time_when_considered_hung_ - now);
+    return;
+  }
+
+  // OK, looks like we have a hung renderer!
+  NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_HANG,
+                                         Source<RenderWidgetHost>(this),
+                                         NotificationService::NoDetails());
+  is_unresponsive_ = true;
+  NotifyRendererUnresponsive();
+}
+
+void RenderWidgetHost::RendererIsResponsive() {
+  if (is_unresponsive_) {
+    is_unresponsive_ = false;
+    NotifyRendererResponsive();
+  }
+}
 
 void RenderWidgetHost::OnMsgRendererReady() {
   WasResized();
@@ -275,229 +546,6 @@ void RenderWidgetHost::OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-void RenderWidgetHost::WasHidden() {
-  is_hidden_ = true;
-
-  // Don't bother reporting hung state when we aren't the active tab.
-  StopHangMonitorTimeout();
-
-  // If we have a renderer, then inform it that we are being hidden so it can
-  // reduce its resource utilization.
-  Send(new ViewMsg_WasHidden(routing_id_));
-
-  // TODO(darin): what about constrained windows?  it doesn't look like they
-  // see a message when their parent is hidden.  maybe there is something more
-  // generic we can do at the TabContents API level instead of relying on
-  // Windows messages.
-
-  // Tell the RenderProcessHost we were hidden.
-  process_->WidgetHidden();
-}
-
-void RenderWidgetHost::WasRestored() {
-  // When we create the widget, it is created as *not* hidden.
-  if (!is_hidden_)
-    return;
-  is_hidden_ = false;
-
-  BackingStore* backing_store = BackingStoreManager::Lookup(this);
-  // If we already have a backing store for this widget, then we don't need to
-  // repaint on restore _unless_ we know that our backing store is invalid.
-  bool needs_repainting;
-  if (needs_repainting_on_restore_ || !backing_store) {
-    needs_repainting = true;
-    needs_repainting_on_restore_ = false;
-  } else {
-    needs_repainting = false;
-  }
-  Send(new ViewMsg_WasRestored(routing_id_, needs_repainting));
-
-  process_->WidgetRestored();
-}
-
-void RenderWidgetHost::WasResized() {
-  if (resize_ack_pending_ || !process_->channel() || !view_)
-    return;
-
-  gfx::Rect view_bounds = view_->GetViewBounds();
-  gfx::Size new_size(view_bounds.width(), view_bounds.height());
-
-  // Avoid asking the RenderWidget to resize to its current size, since it
-  // won't send us a PaintRect message in that case.
-  if (new_size == current_size_)
-    return;
-
-  // We don't expect to receive an ACK when the requested size is empty.
-  if (!new_size.IsEmpty())
-    resize_ack_pending_ = true;
-
-  if (!Send(new ViewMsg_Resize(routing_id_, new_size)))
-    resize_ack_pending_ = false;
-}
-
-void RenderWidgetHost::ForwardMouseEvent(const WebMouseEvent& mouse_event) {
-  // Avoid spamming the renderer with mouse move events.  It is important
-  // to note that WM_MOUSEMOVE events are anyways synthetic, but since our
-  // thread is able to rapidly consume WM_MOUSEMOVE events, we may get way
-  // more WM_MOUSEMOVE events than we wish to send to the renderer.
-  if (mouse_event.type == WebInputEvent::MOUSE_MOVE) {
-    if (mouse_move_pending_) {
-      next_mouse_move_.reset(new WebMouseEvent(mouse_event));
-      return;
-    }
-    mouse_move_pending_ = true;
-  }
-
-  ForwardInputEvent(mouse_event, sizeof(WebMouseEvent));
-}
-
-void RenderWidgetHost::ForwardKeyboardEvent(
-    const WebKeyboardEvent& key_event) {
-  ForwardInputEvent(key_event, sizeof(WebKeyboardEvent));
-}
-
-void RenderWidgetHost::ForwardWheelEvent(
-    const WebMouseWheelEvent& wheel_event) {
-  ForwardInputEvent(wheel_event, sizeof(WebMouseWheelEvent));
-}
-
-void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
-                                         int event_size) {
-  if (!process_->channel())
-    return;
-
-  IPC::Message* message = new ViewMsg_HandleInputEvent(routing_id_);
-  message->WriteData(
-      reinterpret_cast<const char*>(&input_event), event_size);
-  input_event_start_time_ = TimeTicks::Now();
-  Send(message);
-
-  // any input event cancels a pending mouse move event
-  next_mouse_move_.reset();
-
-  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
-}
-
-void RenderWidgetHost::Shutdown() {
-  if (process_->channel()) {
-    // Tell the renderer object to close.
-    process_->ReportExpectingClose(routing_id_);
-    bool rv = Send(new ViewMsg_Close(routing_id_));
-    DCHECK(rv);
-  }
-
-  Destroy();
-}
-
-void RenderWidgetHost::Focus() {
-  Send(new ViewMsg_SetFocus(routing_id_, true));
-}
-
-void RenderWidgetHost::Blur() {
-  Send(new ViewMsg_SetFocus(routing_id_, false));
-}
-
-void RenderWidgetHost::LostCapture() {
-  Send(new ViewMsg_MouseCaptureLost(routing_id_));
-}
-
-void RenderWidgetHost::ViewDestroyed() {
-  // TODO(evanm): tracking this may no longer be necessary;
-  // eliminate this function if so.
-  view_ = NULL;
-}
-
-void RenderWidgetHost::Destroy() {
-  NotificationService::current()->Notify(
-      NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
-      Source<RenderWidgetHost>(this),
-      NotificationService::NoDetails());
-
-  // Tell the view to die.
-  // Note that in the process of the view shutting down, it can call a ton
-  // of other messages on us.  So if you do any other deinitialization here,
-  // do it after this call to view_->Destroy().
-  if (view_)
-    view_->Destroy();
-
-  delete this;
-}
-
-void RenderWidgetHost::CheckRendererIsUnresponsive() {
-  // If we received a call to StopHangMonitorTimeout.
-  if (time_when_considered_hung_.is_null())
-    return;
-
-  // If we have not waited long enough, then wait some more.
-  Time now = Time::Now();
-  if (now < time_when_considered_hung_) {
-    StartHangMonitorTimeout(time_when_considered_hung_ - now);
-    return;
-  }
-
-  // OK, looks like we have a hung renderer!
-  NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_HANG,
-                                         Source<RenderWidgetHost>(this),
-                                         NotificationService::NoDetails());
-  is_unresponsive_ = true;
-  NotifyRendererUnresponsive();
-}
-
-void RenderWidgetHost::RendererIsResponsive() {
-  if (is_unresponsive_) {
-    is_unresponsive_ = false;
-    NotifyRendererResponsive();
-  }
-}
-
-bool RenderWidgetHost::Send(IPC::Message* msg) {
-  return process_->Send(msg);
-}
-
-void RenderWidgetHost::SetIsLoading(bool is_loading) {
-  is_loading_ = is_loading;
-  if (!view_)
-    return;
-  view_->SetIsLoading(is_loading);
-}
-
-BackingStore* RenderWidgetHost::GetBackingStore() {
-  // We should not be asked to paint while we are hidden.  If we are hidden,
-  // then it means that our consumer failed to call WasRestored.
-  DCHECK(!is_hidden_) << "GetBackingStore called while hidden!";
-
-  // We might have a cached backing store that we can reuse!
-  BackingStore* backing_store = 
-      BackingStoreManager::GetBackingStore(this, current_size_);
-  // If we fail to find a backing store in the cache, send out a request
-  // to the renderer to paint the view if required.
-  if (!backing_store && !repaint_ack_pending_ && !resize_ack_pending_ && 
-      !view_being_painted_) {
-    repaint_start_time_ = TimeTicks::Now();
-    repaint_ack_pending_ = true;
-    Send(new ViewMsg_Repaint(routing_id_, current_size_));
-  }
-
-  // When we have asked the RenderWidget to resize, and we are still waiting on
-  // a response, block for a little while to see if we can't get a response
-  // before returning the old (incorrectly sized) backing store.
-  if (resize_ack_pending_ || !backing_store) {
-    IPC::Message msg;
-    TimeDelta max_delay = TimeDelta::FromMilliseconds(kPaintMsgTimeoutMS);
-    if (process_->WaitForPaintMsg(routing_id_, max_delay, &msg)) {
-      suppress_view_updating_ = true;
-      ViewHostMsg_PaintRect::Dispatch(
-          &msg, this, &RenderWidgetHost::OnMsgPaintRect);
-      suppress_view_updating_ = false;
-      backing_store = BackingStoreManager::GetBackingStore(this, current_size_);
-    }
-  }
-
-  return backing_store;
-}
-
 void RenderWidgetHost::PaintBackingStoreRect(HANDLE bitmap,
                                              const gfx::Rect& bitmap_rect,
                                              const gfx::Size& view_size) {
@@ -548,41 +596,4 @@ void RenderWidgetHost::ScrollBackingStoreRect(HANDLE bitmap,
     return;
   backing_store->ScrollRect(process_->process().handle(), bitmap, bitmap_rect,
                             dx, dy, clip_rect, view_size);
-}
-
-
-void RenderWidgetHost::RestartHangMonitorTimeout() {
-  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
-}
-
-void RenderWidgetHost::StopHangMonitorTimeout() {
-  time_when_considered_hung_ = Time();
-  RendererIsResponsive();
-
-  // We do not bother to stop the hung_renderer_timer_ here in case it will be
-  // started again shortly, which happens to be the common use case.
-}
-
-void RenderWidgetHost::StartHangMonitorTimeout(TimeDelta delay) {
-  time_when_considered_hung_ = Time::Now() + delay;
-
-  // If we already have a timer that will expire at or before the given delay,
-  // then we have nothing more to do now.
-  if (hung_renderer_timer_.IsRunning() &&
-      hung_renderer_timer_.GetCurrentDelay() <= delay)
-    return;
-
-  // Either the timer is not yet running, or we need to adjust the timer to
-  // fire sooner.
-  hung_renderer_timer_.Stop();
-  hung_renderer_timer_.Start(delay, this,
-      &RenderWidgetHost::CheckRendererIsUnresponsive);
-}
-
-void RenderWidgetHost::RendererExited() {
-  BackingStoreManager::RemoveBackingStore(this);
-}
-
-void RenderWidgetHost::SystemThemeChanged() {
-  Send(new ViewMsg_ThemeChanged(routing_id_));
 }

@@ -787,7 +787,7 @@ NewTabUIContents::NewTabUIContents(Profile* profile,
     NewTabHTMLSource::set_first_view(false);
   }
 
-  render_view_host()->SetPaintObserver(new PaintTimer);
+  render_view_host()->set_paint_observer(new PaintTimer);
 }
 
 void NewTabUIContents::AttachMessageHandlers() {

@@ -107,6 +107,14 @@ struct WebPluginGeometry;
 //
 class RenderWidgetHost : public IPC::Channel::Listener {
  public:
+  // An interface that gets called whenever a paint occurs.
+  // Used in performance tests.
+  class PaintObserver {
+   public:
+    virtual ~PaintObserver() {}
+    virtual void RenderWidgetHostDidPaint(RenderWidgetHost* rwh) = 0;
+  };
+
   // routing_id can be MSG_ROUTING_NONE, in which case the next available
   // routing id is taken from the RenderProcessHost.
   RenderWidgetHost(RenderProcessHost* process, int routing_id);
@@ -122,13 +130,21 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   RenderProcessHost* process() const { return process_; }
   int routing_id() const { return routing_id_; }
 
-  // Manual RTTI FTW. We are not hosting a web page.
-  virtual bool IsRenderView() { return false; }
+  // Set the PaintObserver on this object. Takes ownership.
+  void set_paint_observer(PaintObserver* paint_observer) {
+    paint_observer_.reset(paint_observer);
+  }
 
   // Called when a renderer object already been created for this host, and we
   // just need to be attached to it. Used for window.open, <select> dropdown
   // menus, and other times when the renderer initiates creating an object.
   virtual void Init();
+
+  // Tells the renderer to die and then calls Destroy().
+  virtual void Shutdown();
+
+  // Manual RTTI FTW. We are not hosting a web page.
+  virtual bool IsRenderView() { return false; }
 
   // IPC::Channel::Listener
   virtual void OnMessageReceived(const IPC::Message& msg);
@@ -144,9 +160,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Called to notify the RenderWidget that it has been resized.
   void WasResized();
 
-  // Tells the renderer to die and then calls Destroy().
-  virtual void Shutdown();
-
   void Focus();
   void Blur();
   void LostCapture();
@@ -155,7 +168,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void ViewDestroyed();
 
   // Indicates if the page has finished loading.
-  virtual void SetIsLoading(bool is_loading);
+  void SetIsLoading(bool is_loading);
 
   // Get access to the widget's backing store.  If a resize is in progress,
   // then the current size of the backing store may be less than the size of
@@ -163,17 +176,13 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // not be created.
   BackingStore* GetBackingStore();
 
-  // An interface that gets called when paints happen.
-  // Used in performance tests.
-  class PaintObserver;
-  // Set the PaintObserver on this object.  Takes ownership.
-  void SetPaintObserver(PaintObserver* paint_observer) {
-    paint_observer_.reset(paint_observer);
-  }
-
-  // Checks to see if we can give  up focus to this  widget through a
-  // javascript call.
+  // Checks to see if we can give up focus to this widget through a JS call.
   virtual bool CanBlur() const { return true; }
+
+  // Starts a hang monitor timeout. If there's already a hang monitor timeout
+  // the new one will only fire if it has a shorter delay than the time
+  // left on the existing timeouts.
+  void StartHangMonitorTimeout(base::TimeDelta delay);
 
   // Restart the active hang monitor timeout. Clears all existing timeouts and
   // starts with a new one.  This can be because the renderer has become
@@ -181,35 +190,62 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // to give the tab a chance to become active and we don't want to display a
   // warning too soon.
   void RestartHangMonitorTimeout();
-  
+
   // Stops all existing hang monitor timeouts and assumes the renderer is
   // responsive.
   void StopHangMonitorTimeout();
-
-  // Starts a hang monitor timeout. If there's already a hang monitor timeout
-  // the new one will only fire if it has a shorter delay than the time
-  // left on the existing timeouts.
-  void StartHangMonitorTimeout(base::TimeDelta delay);
-
-  // Called when we receive a notification indicating that the renderer
-  // process has gone.
-  void RendererExited();
 
   // Called when the system theme changes. At this time all existing native
   // theme handles are invalid and the renderer must obtain new ones and
   // repaint.
   void SystemThemeChanged();
 
+  // Forwards the given message to the renderer. These are called by the view
+  // when it has received a message.
+  void ForwardMouseEvent(const WebMouseEvent& mouse_event);
+  void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
+  void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
+  void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
+
  protected:
-  // Called when we an InputEvent was not processed by the renderer.
-  virtual void UnhandledInputEvent(const WebInputEvent& event) { }
+  // Called when we receive a notification indicating that the renderer
+  // process has gone. This will reset our state so that our state will be
+  // consistent if a new renderer is created.
+  void RendererExited();
+
+  // Called when we an InputEvent was not processed by the renderer. This is
+  // overridden by RenderView to send upwards to its delegate.
+  virtual void UnhandledInputEvent(const WebInputEvent& event) {}
+
+  // Notification that the user pressed the enter key or the spacebar. The
+  // render view host overrides this to forward the information to its delegate
+  // (see corresponding function in RenderViewHostDelegate).
+  virtual void OnEnterOrSpace() {}
+
+  // Callbacks for notification when the renderer becomes unresponsive to user
+  // input events, and subsequently responsive again. RenderViewHost overrides
+  // these to tell its delegate to show the user a warning.
+  virtual void NotifyRendererUnresponsive() {}
+  virtual void NotifyRendererResponsive() {}
+
+ private:
+  // Tell this object to destroy itself.
+  void Destroy();
+
+  // Checks whether the renderer is hung and calls NotifyRendererUnresponsive
+  // if it is.
+  void CheckRendererIsUnresponsive();
+
+  // Called if we know the renderer is responsive. When we currently thing the
+  // renderer is unresponsive, this will clear that state and call
+  // NotifyRendererResponsive.
+  void RendererIsResponsive();
 
   // IPC message handlers
   void OnMsgRendererReady();
   void OnMsgRendererGone();
   void OnMsgClose();
   void OnMsgRequestMove(const gfx::Rect& pos);
-  void OnMsgResizeAck();
   void OnMsgPaintRect(const ViewHostMsg_PaintRect_Params& params);
   void OnMsgScrollRect(const ViewHostMsg_ScrollRect_Params& params);
   void OnMsgInputEventAck(const IPC::Message& message);
@@ -219,94 +255,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
                             const gfx::Rect& caret_rect);
 
-  // TODO(beng): (Cleanup) remove this friendship once we expose a clean API to
-  // RenderWidgetHost Views. This exists only to give RenderWidgetHostView
-  // access to Forward*Event.
-  friend class RenderWidgetHostViewWin;
-
-  void ForwardMouseEvent(const WebMouseEvent& mouse_event);
-  virtual void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
-  void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
-  void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
-
-  // Tell this object to destroy itself.
-  void Destroy();
-
-  // Callbacks for notification when the renderer becomes unresponsive to user
-  // input events, and subsequently responsive again. The delegate can use
-  // these notifications to show a warning.
-  void CheckRendererIsUnresponsive();
-  virtual void NotifyRendererUnresponsive() {}
-  void RendererIsResponsive();
-  virtual void NotifyRendererResponsive() {}
-
-  // Created during construction but initialized during Init*(). Therefore, it
-  // is guaranteed never to be NULL, but its channel may be NULL if the
-  // renderer crashed, so you must always check that.
-  RenderProcessHost* process_;
-
-  // The ID of the corresponding object in the Renderer Instance.
-  int routing_id_;
-
-  bool resize_ack_pending_;  // True when waiting for RESIZE_ACK.
-  gfx::Size current_size_;   // The current size of the RenderWidget.
-
-  // True if a mouse move event was sent to the render view and we are waiting
-  // for a corresponding ViewHostMsg_HandleInputEvent_ACK message.
-  bool mouse_move_pending_;
-
-  // The next mouse move event to send (only non-null while mouse_move_pending_
-  // is true).
-  scoped_ptr<WebMouseEvent> next_mouse_move_;
-
-  // The View associated with the RenderViewHost. The lifetime of this object
-  // is associated with the lifetime of the Render process. If the Renderer
-  // crashes, its View is destroyed and this pointer becomes NULL, even though
-  // render_view_host_ lives on to load another URL (creating a new View while
-  // doing so).
-  RenderWidgetHostView* view_;
-
-  // The time when an input event was sent to the RenderWidget.
-  base::TimeTicks input_event_start_time_;
-
-  // Indicates whether a page is loading or not.
-  bool is_loading_;
-  // Indicates whether a page is hidden or not.
-  bool is_hidden_;
-  // If true, then we should not ask our view to repaint when our backingstore
-  // is updated.
-  bool suppress_view_updating_;
-
-  // If true, then we should repaint when restoring even if we have a
-  // backingstore.  This flag is set to true if we receive a paint message
-  // while is_hidden_ to true.  Even though we tell the render widget to hide
-  // itself, a paint message could already be in flight at that point.
-  bool needs_repainting_on_restore_;
-
-  // The following value indicates a time in the future when we would consider
-  // the renderer hung if it does not generate an appropriate response message.
-  base::Time time_when_considered_hung_;
-
-  // This timer runs to check if time_when_considered_hung_ has past.
-  base::OneShotTimer<RenderWidgetHost> hung_renderer_timer_;
-
-  // This is true if the renderer is currently unresponsive.
-  bool is_unresponsive_;
-
-  // Optional observer that listens for notifications of painting.
-  scoped_ptr<PaintObserver> paint_observer_;
-
-  // Set when we call DidPaintRect/DidScrollRect on the view.
-  bool view_being_painted_;
-
-  // Set if we are waiting for a repaint ack for the view.
-  bool repaint_ack_pending_;
-
-  // Used for UMA histogram logging to measure the time for a repaint view
-  // operation to finish.
-  base::TimeTicks repaint_start_time_;
-
- private:
   // Paints the given bitmap to the current backing store at the given location.
   void PaintBackingStoreRect(HANDLE bitmap,
                              const gfx::Rect& bitmap_rect,
@@ -321,15 +269,78 @@ class RenderWidgetHost : public IPC::Channel::Listener {
                               const gfx::Rect& clip_rect,
                               const gfx::Size& view_size);
 
+  // The View associated with the RenderViewHost. The lifetime of this object
+  // is associated with the lifetime of the Render process. If the Renderer
+  // crashes, its View is destroyed and this pointer becomes NULL, even though
+  // render_view_host_ lives on to load another URL (creating a new View while
+  // doing so).
+  RenderWidgetHostView* view_;
+
+  // Created during construction but initialized during Init*(). Therefore, it
+  // is guaranteed never to be NULL, but its channel may be NULL if the
+  // renderer crashed, so you must always check that.
+  RenderProcessHost* process_;
+
+  // The ID of the corresponding object in the Renderer Instance.
+  int routing_id_;
+
+  // Indicates whether a page is loading or not.
+  bool is_loading_;
+
+  // Indicates whether a page is hidden or not.
+  bool is_hidden_;
+
+  // Set if we are waiting for a repaint ack for the view.
+  bool repaint_ack_pending_;
+
+  // True when waiting for RESIZE_ACK.
+  bool resize_ack_pending_;
+
+  // The current size of the RenderWidget.
+  gfx::Size current_size_;
+
+  // If true, then we should not ask our view to repaint when our backingstore
+  // is updated.
+  bool suppress_view_updating_;
+
+  // True if a mouse move event was sent to the render view and we are waiting
+  // for a corresponding ViewHostMsg_HandleInputEvent_ACK message.
+  bool mouse_move_pending_;
+
+  // The next mouse move event to send (only non-null while mouse_move_pending_
+  // is true).
+  scoped_ptr<WebMouseEvent> next_mouse_move_;
+
+  // The time when an input event was sent to the RenderWidget.
+  base::TimeTicks input_event_start_time_;
+
+  // If true, then we should repaint when restoring even if we have a
+  // backingstore.  This flag is set to true if we receive a paint message
+  // while is_hidden_ to true.  Even though we tell the render widget to hide
+  // itself, a paint message could already be in flight at that point.
+  bool needs_repainting_on_restore_;
+
+  // This is true if the renderer is currently unresponsive.
+  bool is_unresponsive_;
+
+  // The following value indicates a time in the future when we would consider
+  // the renderer hung if it does not generate an appropriate response message.
+  base::Time time_when_considered_hung_;
+
+  // This timer runs to check if time_when_considered_hung_ has past.
+  base::OneShotTimer<RenderWidgetHost> hung_renderer_timer_;
+
+  // Optional observer that listens for notifications of painting.
+  scoped_ptr<PaintObserver> paint_observer_;
+
+  // Set when we call DidPaintRect/DidScrollRect on the view.
+  bool view_being_painted_;
+
+  // Used for UMA histogram logging to measure the time for a repaint view
+  // operation to finish.
+  base::TimeTicks repaint_start_time_;
+
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHost);
-};
-
-class RenderWidgetHost::PaintObserver {
- public:
-  virtual ~PaintObserver() {}
-
-  // Called each time the RenderWidgetHost paints.
-  virtual void RenderWidgetHostDidPaint(RenderWidgetHost* rwh) = 0;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_

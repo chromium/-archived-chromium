@@ -112,7 +112,7 @@ RenderViewHost::~RenderViewHost() {
 
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
-      process()->host_id(), routing_id_, false);
+      process()->host_id(), routing_id(), false);
 }
 
 bool RenderViewHost::CreateRenderView() {
@@ -122,10 +122,10 @@ bool RenderViewHost::CreateRenderView() {
   // initialized it) or may not (we have our own process or the old process
   // crashed) have been initialized. Calling Init multiple times will be
   // ignored, so this is safe.
-  if (!process_->Init())
+  if (!process()->Init())
     return false;
-  DCHECK(process_->channel());
-  DCHECK(process_->profile());
+  DCHECK(process()->channel());
+  DCHECK(process()->profile());
 
   renderer_initialized_ = true;
 
@@ -143,11 +143,11 @@ bool RenderViewHost::CreateRenderView() {
       0);
   DCHECK(result) << "Couldn't duplicate the modal dialog handle for the renderer.";
 
-  DCHECK(view_);
-  Send(new ViewMsg_New(view_->GetPluginHWND(),
+  DCHECK(view());
+  Send(new ViewMsg_New(view()->GetPluginHWND(),
                        modal_dialog_event,
                        delegate_->GetWebkitPrefs(),
-                       routing_id_));
+                       routing_id()));
 
   // Set the alternate error page, which is profile specific, in the renderer.
   GURL url = delegate_->GetAlternateErrorPageURL();
@@ -156,7 +156,7 @@ bool RenderViewHost::CreateRenderView() {
   // If it's enabled, tell the renderer to set up the Javascript bindings for
   // sending messages back to the browser.
   Send(new ViewMsg_AllowBindings(
-      routing_id_, enable_dom_ui_bindings_, enable_external_host_bindings_));
+      routing_id(), enable_dom_ui_bindings_, enable_external_host_bindings_));
 
   // Let our delegate know that we created a RenderView.
   delegate_->RendererCreated(this);
@@ -165,7 +165,7 @@ bool RenderViewHost::CreateRenderView() {
 }
 
 bool RenderViewHost::IsRenderViewLive() const {
-  return process_->channel() && renderer_initialized_;
+  return process()->channel() && renderer_initialized_;
 }
 
 void RenderViewHost::Init() {
@@ -181,7 +181,7 @@ void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
   RendererSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->host_id(), params.url);
 
-  DoNavigate(new ViewMsg_Navigate(routing_id_, params));
+  DoNavigate(new ViewMsg_Navigate(routing_id(), params));
 }
 
 void RenderViewHost::NavigateToURL(const GURL& url) {
@@ -194,7 +194,7 @@ void RenderViewHost::NavigateToURL(const GURL& url) {
   RendererSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->host_id(), params.url);
 
-  DoNavigate(new ViewMsg_Navigate(routing_id_, params));
+  DoNavigate(new ViewMsg_Navigate(routing_id(), params));
 }
 
 void RenderViewHost::DoNavigate(ViewMsg_Navigate* nav_message) {
@@ -216,7 +216,7 @@ void RenderViewHost::LoadAlternateHTMLString(const std::string& html_text,
                                              bool new_navigation,
                                              const GURL& display_url,
                                              const std::string& security_info) {
-  Send(new ViewMsg_LoadAlternateHTMLText(routing_id_, html_text,
+  Send(new ViewMsg_LoadAlternateHTMLText(routing_id(), html_text,
                                          new_navigation, display_url,
                                          security_info));
 }
@@ -246,7 +246,7 @@ void RenderViewHost::FirePageBeforeUnload() {
     // handler.
     is_waiting_for_unload_ack_ = true;
     StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
-    Send(new ViewMsg_ShouldClose(routing_id_));
+    Send(new ViewMsg_ShouldClose(routing_id()));
   }
 }
 
@@ -277,7 +277,7 @@ void RenderViewHost::ClosePage(int new_render_process_host_id,
   StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
 
   if (IsRenderViewLive()) {
-    Send(new ViewMsg_ClosePage(routing_id_,
+    Send(new ViewMsg_ClosePage(routing_id(),
                                new_render_process_host_id,
                                new_request_id));
   } else {
@@ -292,7 +292,7 @@ void RenderViewHost::ClosePage(int new_render_process_host_id,
 void RenderViewHost::SetHasPendingCrossSiteRequest(bool has_pending_request, 
                                                    int request_id) {
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
-      process()->host_id(), routing_id_, has_pending_request);
+      process()->host_id(), routing_id(), has_pending_request);
   pending_request_id_ = request_id;
 }
 
@@ -306,15 +306,15 @@ void RenderViewHost::OnCrossSiteResponse(int new_render_process_host_id,
 }
 
 void RenderViewHost::Stop() {
-  Send(new ViewMsg_Stop(routing_id_));
+  Send(new ViewMsg_Stop(routing_id()));
 }
 
 bool RenderViewHost::GetPrintedPagesCount(const ViewMsg_Print_Params& params) {
-  return Send(new ViewMsg_GetPrintedPagesCount(routing_id_, params));
+  return Send(new ViewMsg_GetPrintedPagesCount(routing_id(), params));
 }
 
 bool RenderViewHost::PrintPages(const ViewMsg_PrintPages_Params& params) {
-  return Send(new ViewMsg_PrintPages(routing_id_, params));
+  return Send(new ViewMsg_PrintPages(routing_id(), params));
 }
 
 void RenderViewHost::StartFinding(int request_id,
@@ -331,35 +331,35 @@ void RenderViewHost::StartFinding(int request_id,
   request.forward = forward;
   request.match_case = match_case;
   request.find_next = find_next;
-  Send(new ViewMsg_Find(routing_id_, request));
+  Send(new ViewMsg_Find(routing_id(), request));
 
   // This call is asynchronous and returns immediately.
   // The result of the search is sent as a notification message by the renderer.
 }
 
 void RenderViewHost::StopFinding(bool clear_selection) {
-  Send(new ViewMsg_StopFinding(routing_id_, clear_selection));
+  Send(new ViewMsg_StopFinding(routing_id(), clear_selection));
 }
 
 void RenderViewHost::Zoom(PageZoom::Function function) {
-  Send(new ViewMsg_Zoom(routing_id_, function));
+  Send(new ViewMsg_Zoom(routing_id(), function));
 }
 
 void RenderViewHost::SetPageEncoding(const std::wstring& encoding_name) {
-  Send(new ViewMsg_SetPageEncoding(routing_id_, encoding_name));
+  Send(new ViewMsg_SetPageEncoding(routing_id(), encoding_name));
 }
 
 void RenderViewHost::SetAlternateErrorPageURL(const GURL& url) {
-  Send(new ViewMsg_SetAltErrorPageURL(routing_id_, url));
+  Send(new ViewMsg_SetAltErrorPageURL(routing_id(), url));
 }
 
 void RenderViewHost::FillForm(const FormData& form_data) {
-  Send(new ViewMsg_FormFill(routing_id_, form_data));
+  Send(new ViewMsg_FormFill(routing_id(), form_data));
 }
 
 void RenderViewHost::FillPasswordForm(
     const PasswordFormDomManager::FillData& form_data) {
-  Send(new ViewMsg_FillPasswordForm(routing_id_, form_data));
+  Send(new ViewMsg_FillPasswordForm(routing_id(), form_data));
 }
 
 void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
@@ -373,98 +373,98 @@ void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
                             net::FilePathToFileURL(*iter));
     policy->GrantUploadFile(process()->host_id(), *iter);
   }
-  Send(new ViewMsg_DragTargetDragEnter(routing_id_, drop_data, client_pt,
+  Send(new ViewMsg_DragTargetDragEnter(routing_id(), drop_data, client_pt,
                                        screen_pt));
 }
 
 void RenderViewHost::DragTargetDragOver(
     const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  Send(new ViewMsg_DragTargetDragOver(routing_id_, client_pt, screen_pt));
+  Send(new ViewMsg_DragTargetDragOver(routing_id(), client_pt, screen_pt));
 }
 
 void RenderViewHost::DragTargetDragLeave() {
-  Send(new ViewMsg_DragTargetDragLeave(routing_id_));
+  Send(new ViewMsg_DragTargetDragLeave(routing_id()));
 }
 
 void RenderViewHost::DragTargetDrop(
     const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  Send(new ViewMsg_DragTargetDrop(routing_id_, client_pt, screen_pt));
+  Send(new ViewMsg_DragTargetDrop(routing_id(), client_pt, screen_pt));
 }
 
 void RenderViewHost::ReservePageIDRange(int size) {
-  Send(new ViewMsg_ReservePageIDRange(routing_id_, size));
+  Send(new ViewMsg_ReservePageIDRange(routing_id(), size));
 }
 
 void RenderViewHost::ExecuteJavascriptInWebFrame(
     const std::wstring& frame_xpath, const std::wstring& jscript) {
-  Send(new ViewMsg_ScriptEvalRequest(routing_id_, frame_xpath, jscript));
+  Send(new ViewMsg_ScriptEvalRequest(routing_id(), frame_xpath, jscript));
 }
 
 void RenderViewHost::AddMessageToConsole(
     const std::wstring& frame_xpath, const std::wstring& msg,
     ConsoleMessageLevel level) {
-  Send(new ViewMsg_AddMessageToConsole(routing_id_, frame_xpath, msg, level));
+  Send(new ViewMsg_AddMessageToConsole(routing_id(), frame_xpath, msg, level));
 }
 
 void RenderViewHost::DebugCommand(const std::wstring& cmd) {
-  Send(new ViewMsg_DebugCommand(routing_id_, cmd));
+  Send(new ViewMsg_DebugCommand(routing_id(), cmd));
 }
 
 void RenderViewHost::DebugAttach() {
   if (!debugger_attached_)
-    Send(new ViewMsg_DebugAttach(routing_id_));
+    Send(new ViewMsg_DebugAttach(routing_id()));
 }
 
 void RenderViewHost::DebugDetach() {
   if (debugger_attached_) {
-    Send(new ViewMsg_DebugDetach(routing_id_));
+    Send(new ViewMsg_DebugDetach(routing_id()));
     debugger_attached_ = false;
   }
 }
 
 void RenderViewHost::DebugBreak(bool force) {
   if (debugger_attached_)
-    Send(new ViewMsg_DebugBreak(routing_id_, force));
+    Send(new ViewMsg_DebugBreak(routing_id(), force));
 }
 
 void RenderViewHost::Undo() {
-  Send(new ViewMsg_Undo(routing_id_));
+  Send(new ViewMsg_Undo(routing_id()));
 }
 
 void RenderViewHost::Redo() {
-  Send(new ViewMsg_Redo(routing_id_));
+  Send(new ViewMsg_Redo(routing_id()));
 }
 
 void RenderViewHost::Cut() {
-  Send(new ViewMsg_Cut(routing_id_));
+  Send(new ViewMsg_Cut(routing_id()));
 }
 
 void RenderViewHost::Copy() {
-  Send(new ViewMsg_Copy(routing_id_));
+  Send(new ViewMsg_Copy(routing_id()));
 }
 
 void RenderViewHost::Paste() {
-  Send(new ViewMsg_Paste(routing_id_));
+  Send(new ViewMsg_Paste(routing_id()));
 }
 
 void RenderViewHost::Replace(const std::wstring& text_to_replace) {
-  Send(new ViewMsg_Replace(routing_id_, text_to_replace));
+  Send(new ViewMsg_Replace(routing_id(), text_to_replace));
 }
 
 void RenderViewHost::ToggleSpellCheck() {
-  Send(new ViewMsg_ToggleSpellCheck(routing_id_));
+  Send(new ViewMsg_ToggleSpellCheck(routing_id()));
 }
 
 void RenderViewHost::AddToDictionary(const std::wstring& word) {
-  process_->AddWord(word);
+  process()->AddWord(word);
 }
 
 void RenderViewHost::Delete() {
-  Send(new ViewMsg_Delete(routing_id_));
+  Send(new ViewMsg_Delete(routing_id()));
 }
 
 void RenderViewHost::SelectAll() {
-  Send(new ViewMsg_SelectAll(routing_id_));
+  Send(new ViewMsg_SelectAll(routing_id()));
 }
 
 int RenderViewHost::DownloadImage(const GURL& url, int image_size) {
@@ -474,16 +474,16 @@ int RenderViewHost::DownloadImage(const GURL& url, int image_size) {
   }
   static int next_id = 1;
   int id = next_id++;
-  Send(new ViewMsg_DownloadImage(routing_id_, id, url, image_size));
+  Send(new ViewMsg_DownloadImage(routing_id(), id, url, image_size));
   return id;
 }
 
 void RenderViewHost::GetApplicationInfo(int32 page_id) {
-  Send(new ViewMsg_GetApplicationInfo(routing_id_, page_id));
+  Send(new ViewMsg_GetApplicationInfo(routing_id(), page_id));
 }
 
 void RenderViewHost::CaptureThumbnail() {
-  Send(new ViewMsg_CaptureThumbnail(routing_id_));
+  Send(new ViewMsg_CaptureThumbnail(routing_id()));
 }
 
 void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
@@ -517,41 +517,41 @@ void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
 }
 
 void RenderViewHost::CopyImageAt(int x, int y) {
-  Send(new ViewMsg_CopyImageAt(routing_id_, x, y));
+  Send(new ViewMsg_CopyImageAt(routing_id(), x, y));
 }
 
 void RenderViewHost::InspectElementAt(int x, int y) {
   RendererSecurityPolicy::GetInstance()->GrantInspectElement(
       process()->host_id());
-  Send(new ViewMsg_InspectElement(routing_id_, x, y));
+  Send(new ViewMsg_InspectElement(routing_id(), x, y));
 }
 
 void RenderViewHost::ShowJavaScriptConsole() {
   RendererSecurityPolicy::GetInstance()->GrantInspectElement(
       process()->host_id());
 
-  Send(new ViewMsg_ShowJavaScriptConsole(routing_id_));
+  Send(new ViewMsg_ShowJavaScriptConsole(routing_id()));
 }
 
 void RenderViewHost::DragSourceEndedAt(
     int client_x, int client_y, int screen_x, int screen_y) {
   Send(new ViewMsg_DragSourceEndedOrMoved(
-      routing_id_, client_x, client_y, screen_x, screen_y, true));
+      routing_id(), client_x, client_y, screen_x, screen_y, true));
 }
 
 void RenderViewHost::DragSourceMovedTo(
     int client_x, int client_y, int screen_x, int screen_y) {
   Send(new ViewMsg_DragSourceEndedOrMoved(
-      routing_id_, client_x, client_y, screen_x, screen_y, false));
+      routing_id(), client_x, client_y, screen_x, screen_y, false));
 }
 
 void RenderViewHost::DragSourceSystemDragEnded() {
-  Send(new ViewMsg_DragSourceSystemDragEnded(routing_id_));
+  Send(new ViewMsg_DragSourceSystemDragEnded(routing_id()));
 }
 
 void RenderViewHost::AllowDomAutomationBindings() {
   // Expose the binding that allows the DOM to send messages here.
-  Send(new ViewMsg_AllowDomAutomationBindings(routing_id_, true));
+  Send(new ViewMsg_AllowDomAutomationBindings(routing_id(), true));
 }
 
 void RenderViewHost::AllowDOMUIBindings() {
@@ -567,7 +567,7 @@ void RenderViewHost::AllowExternalHostBindings() {
 void RenderViewHost::SetDOMUIProperty(const std::string& name,
                                       const std::string& value) {
   DCHECK(enable_dom_ui_bindings_);
-  Send(new ViewMsg_SetDOMUIProperty(routing_id_, name, value));
+  Send(new ViewMsg_SetDOMUIProperty(routing_id(), name, value));
 }
 
 // static
@@ -587,15 +587,15 @@ bool RenderViewHost::CanBlur() const {
 }
 
 void RenderViewHost::SetInitialFocus(bool reverse) {
-  Send(new ViewMsg_SetInitialFocus(routing_id_, reverse));
+  Send(new ViewMsg_SetInitialFocus(routing_id(), reverse));
 }
 
 void RenderViewHost::UpdateWebPreferences(const WebPreferences& prefs) {
-  Send(new ViewMsg_UpdateWebPreferences(routing_id_, prefs));
+  Send(new ViewMsg_UpdateWebPreferences(routing_id(), prefs));
 }
 
 void RenderViewHost::InstallMissingPlugin() {
-  Send(new ViewMsg_InstallMissingPlugin(routing_id_));
+  Send(new ViewMsg_InstallMissingPlugin(routing_id()));
 }
 
 void RenderViewHost::FileSelected(const std::wstring& path) {
@@ -603,7 +603,7 @@ void RenderViewHost::FileSelected(const std::wstring& path) {
                                                          path);
   std::vector<std::wstring> files;
   files.push_back(path);
-  Send(new ViewMsg_RunFileChooserResponse(routing_id_, files));
+  Send(new ViewMsg_RunFileChooserResponse(routing_id(), files));
 }
 
 void RenderViewHost::MultiFilesSelected(
@@ -613,7 +613,7 @@ void RenderViewHost::MultiFilesSelected(
     RendererSecurityPolicy::GetInstance()->GrantUploadFile(
       process()->host_id(), *file);
   }
-  Send(new ViewMsg_RunFileChooserResponse(routing_id_, files));
+  Send(new ViewMsg_RunFileChooserResponse(routing_id(), files));
 }
 
 void RenderViewHost::LoadStateChanged(const GURL& url,
@@ -796,25 +796,13 @@ void RenderViewHost::OnMsgRendererReady() {
 }
 
 void RenderViewHost::OnMsgRendererGone() {
-  // Must reset these to ensure that mouse move events work with a new renderer.
-  mouse_move_pending_ = false;
-  next_mouse_move_.reset();
+  // Our base class RenderWidgetHouse needs to reset some stuff.
+  RendererExited();
 
   // Clearing this flag causes us to re-create the renderer when recovering
   // from a crashed renderer.
   renderer_initialized_ = false;
 
-  // Reset some fields in preparation for recovering from a crash.
-  resize_ack_pending_ = false;
-  current_size_ = gfx::Size();
-  is_hidden_ = false;
-
-  RendererExited();
-
-  if (view_) {
-    view_->RendererGone();
-    view_ = NULL;  // The View should be deleted by RendererGone.
-  }
   delegate_->RendererGone(this);
   OnDebugDisconnect();
 }
@@ -880,7 +868,7 @@ void RenderViewHost::OnMsgUpdateTargetURL(int32 page_id,
 
   // Send a notification back to the renderer that we are ready to
   // receive more target urls.
-  Send(new ViewMsg_UpdateTargetURL_ACK(routing_id_));
+  Send(new ViewMsg_UpdateTargetURL_ACK(routing_id()));
 }
 
 void RenderViewHost::OnMsgThumbnail(const IPC::Message& msg) {
@@ -918,18 +906,14 @@ void RenderViewHost::OnMsgDidRedirectProvisionalLoad(int32 page_id,
 
 void RenderViewHost::OnMsgDidStartLoading(int32 page_id) {
   delegate_->DidStartLoading(this, page_id);
-
-  if (view_) {
-    view_->UpdateCursorIfOverSelf();
-  }
+  if (view())
+    view()->UpdateCursorIfOverSelf();
 }
 
 void RenderViewHost::OnMsgDidStopLoading(int32 page_id) {
   delegate_->DidStopLoading(this, page_id);
-
-  if (view_) {
-    view_->UpdateCursorIfOverSelf();
-  }
+  if (view())
+    view()->UpdateCursorIfOverSelf();
 }
 
 void RenderViewHost::OnMsgDidLoadResourceFromMemoryCache(
@@ -978,7 +962,7 @@ void RenderViewHost::OnMsgFindReply(int request_id,
   // browser using IPC. In an effort to not spam the browser we have the
   // browser send an ACK for each FindReply message and have the renderer
   // queue up the latest status message while waiting for this ACK.
-  Send(new ViewMsg_FindReplyACK(routing_id_));
+  Send(new ViewMsg_FindReplyACK(routing_id()));
 }
 
 void RenderViewHost::OnMsgUpdateFavIconURL(int32 page_id,
@@ -1053,11 +1037,11 @@ void RenderViewHost::OnPersonalizationEvent(const std::string& message,
 #endif
 
 void RenderViewHost::DisassociateFromPopupCount() {
-  Send(new ViewMsg_DisassociateFromPopupCount(routing_id_));
+  Send(new ViewMsg_DisassociateFromPopupCount(routing_id()));
 }
 
 void RenderViewHost::PopupNotificationVisibilityChanged(bool visible) {
-  Send(new ViewMsg_PopupNotificationVisiblityChanged(routing_id_, visible));
+  Send(new ViewMsg_PopupNotificationVisiblityChanged(routing_id(), visible));
 }
 
 void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {
@@ -1065,9 +1049,8 @@ void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {
 }
 
 void RenderViewHost::OnMsgSetTooltipText(const std::wstring& tooltip_text) {
-  if (view_) {
-    view_->SetTooltipText(tooltip_text);
-  }
+  if (view())
+    view()->SetTooltipText(tooltip_text);
 }
 
 void RenderViewHost::OnMsgRunFileChooser(bool multiple_files,
@@ -1175,7 +1158,7 @@ void RenderViewHost::DidDebugAttach() {
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {
-  UserMetrics::RecordComputedAction(action.c_str(), process_->profile());
+  UserMetrics::RecordComputedAction(action.c_str(), process()->profile());
 }
 
 void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
@@ -1192,12 +1175,8 @@ void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
   }
 }
 
-void RenderViewHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
-  if (key_event.type == WebKeyboardEvent::CHAR &&
-      (key_event.key_code == VK_RETURN || key_event.key_code == VK_SPACE)) {
-    delegate_->OnEnterOrSpace();
-  }
-  RenderWidgetHost::ForwardKeyboardEvent(key_event);
+void RenderViewHost::OnEnterOrSpace() {
+  delegate_->OnEnterOrSpace();
 }
 
 void RenderViewHost::OnMissingPluginStatus(int status) {
@@ -1208,12 +1187,12 @@ void RenderViewHost::UpdateBackForwardListCount() {
   int back_list_count, forward_list_count;
   delegate_->GetHistoryListCount(&back_list_count, &forward_list_count);
   Send(new ViewMsg_UpdateBackForwardListCount(
-      routing_id_, back_list_count, forward_list_count));
+      routing_id(), back_list_count, forward_list_count));
 }
 
 void RenderViewHost::GetAllSavableResourceLinksForCurrentPage(
     const GURL& page_url) {
-  Send(new ViewMsg_GetAllSavableResourceLinksForCurrentPage(routing_id_,
+  Send(new ViewMsg_GetAllSavableResourceLinksForCurrentPage(routing_id(),
                                                             page_url));
 }
 
@@ -1239,7 +1218,7 @@ void RenderViewHost::GetSerializedHtmlDataForCurrentPageWithLocalLinks(
     const std::vector<std::wstring>& local_paths,
     const std::wstring& local_directory_name) {
   Send(new ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-      routing_id_, links, local_paths, local_directory_name));
+      routing_id(), links, local_paths, local_directory_name));
 }
 
 void RenderViewHost::OnReceivedSerializedHtmlData(const GURL& frame_url,
@@ -1271,7 +1250,7 @@ void RenderViewHost::OnQueryFormFieldAutofill(const std::wstring& field_name,
 void RenderViewHost::AutofillSuggestionsReturned(
     const std::vector<std::wstring>& suggestions,
     int64 node_id, int request_id, int default_suggestion_index) {
-  Send(new ViewMsg_AutofillSuggestions(routing_id_, node_id,
+  Send(new ViewMsg_AutofillSuggestions(routing_id(), node_id,
       request_id, suggestions, -1));
   // Default index -1 means no default suggestion.
 }
@@ -1298,13 +1277,12 @@ void RenderViewHost::OnDebugDisconnect() {
 #ifdef CHROME_PERSONALIZATION
 void RenderViewHost::RaisePersonalizationEvent(std::string event_name,
                                                std::string event_arg) {
-  Send(new ViewMsg_PersonalizationEvent(routing_id_,
-                                        event_name,
-                                        event_arg));
+  Send(new ViewMsg_PersonalizationEvent(routing_id(), event_name, event_arg));
 }
 #endif
 
 void RenderViewHost::ForwardMessageFromExternalHost(
     const std::string& target, const std::string& message) {
-  Send(new ViewMsg_HandleMessageFromExternalHost(routing_id_, target, message));
+  Send(new ViewMsg_HandleMessageFromExternalHost(routing_id(), target,
+                                                 message));
 }
