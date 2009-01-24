@@ -1823,3 +1823,23 @@ MAC : LayoutTests/fast/forms/002.html = FAIL
 // Merge 40086:40124 -- new test
 // This needs layoutTestController.numberOfActiveAnimations implemented.
 LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
+
+// Merge 40124:40164 -- regressions
+LayoutTests/css1/box_properties/float.html = FAIL
+WIN LINUX : LayoutTests/fast/css/acid2-pixel.html = FAIL
+WIN : LayoutTests/fast/css/acid2.html = FAIL
+WIN MAC : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+LayoutTests/fast/forms/HTMLOptionElement_label06.html = FAIL
+LayoutTests/fast/forms/HTMLOptionElement_label07.html = FAIL
+LayoutTests/fast/forms/menulist-separator-painting.html = FAIL
+LayoutTests/fast/forms/select-baseline.html = FAIL
+LayoutTests/fast/forms/select-empty-option-height.html = FAIL
+LayoutTests/fast/replaced/three-selects-break.html = FAIL
+LayoutTests/fast/table/border-collapsing/003.html = FAIL
+LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+LayoutTests/http/tests/misc/acid2-pixel.html = FAIL
+LayoutTests/http/tests/misc/acid2.html = FAIL
+LayoutTests/tables/mozilla/bugs/bug149275-2.html = FAIL
+LayoutTests/tables/mozilla/bugs/bug3037-1.html = FAIL
+LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
