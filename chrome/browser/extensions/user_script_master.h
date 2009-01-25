@@ -14,6 +14,8 @@
 #include "base/string_piece.h"
 #include "googleurl/src/gurl.h"
 
+class Pickle;
+
 struct UserScriptInfo {
   GURL url;
   FilePath path;
@@ -32,6 +34,19 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   UserScriptMaster(MessageLoop* worker, const FilePath& script_dir);
   ~UserScriptMaster();
 
+  // Add a single user script that exists outside the script directory.
+  void AddLoneScript(const UserScriptInfo& script) {
+    lone_scripts_.push_back(script);
+  }
+
+  // Add a watched directory. All scripts will be reloaded when any file in
+  // this directory changes.
+  void AddWatchedPath(const FilePath& path);
+
+  // Kicks off a process on the file thread to reload scripts from disk
+  // into a new chunk of shared memory and notify renderers.
+  void StartScan();
+
   // Gets the segment of shared memory for the scripts.
   base::SharedMemory* GetSharedMemory() const {
     return shared_memory_.get();
@@ -44,7 +59,7 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   bool ScriptsReady() const { return shared_memory_.get() != NULL; }
 
   // Returns the path to the directory user scripts are stored in.
-  FilePath user_script_dir() const { return *user_script_dir_; }
+  FilePath user_script_dir() const { return user_script_dir_; }
 
  private:
   FRIEND_TEST(UserScriptMasterTest, Parse1);
@@ -69,7 +84,8 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
 
     // Start a scan for scripts.
     // Will always send a message to the master upon completion.
-    void StartScan(MessageLoop* work_loop, const FilePath& script_dir);
+    void StartScan(MessageLoop* work_loop, const FilePath& script_dir,
+                   const UserScriptList &external_scripts);
 
     // The master is going away; don't call it back.
     void DisownMaster() {
@@ -89,15 +105,20 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     void NotifyMaster(base::SharedMemory* memory);
 
     // Runs on the File thread.
-    // Scan the script directory for scripts, calling NotifyMaster when done.
-    // The path is intentionally passed by value so its lifetime isn't tied
-    // to the caller.
-    void RunScan(const FilePath script_dir);
+    // Scan the specified directory and lone scripts, calling NotifyMaster when
+    // done. The parameters are intentionally passed by value so their lifetimes
+    // aren't tied to the caller.
+    void RunScan(const FilePath script_dir, const UserScriptList lone_scripts);
 
     // Runs on the File thread.
-    // Scan the script directory for scripts, returning either a
-    // new SharedMemory or NULL on error.
-    base::SharedMemory* GetNewScripts(const FilePath& script_dir);
+    // Scan the script directory and lone scripts, returning either a new
+    // SharedMemory or NULL on error.
+    base::SharedMemory* GetNewScripts(const FilePath& script_dir,
+                                      const UserScriptList& lone_scripts);
+
+    // Serialize script metadata and contents into the specified pickle.
+    void PickleScriptData(const UserScriptInfo& script,
+                          const std::string& contents, Pickle* pickle);
 
     // A pointer back to our master.
     // May be NULL if DisownMaster() is called.
@@ -113,15 +134,11 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   // DirectoryWatcher::Delegate implementation.
   virtual void OnDirectoryChanged(const FilePath& path);
 
-  // Kicks off a process on the file thread to reload scripts from disk
-  // into a new chunk of shared memory and notify renderers.
-  void StartScan();
-
-  // The directory containing user scripts.
-  scoped_ptr<FilePath> user_script_dir_;
+  // The directories containing user scripts.
+  FilePath user_script_dir_;
 
   // The watcher watches the profile's user scripts directory for new scripts.
-  scoped_ptr<DirectoryWatcher> dir_watcher_;
+  std::vector<DirectoryWatcher*> dir_watchers_;
 
   // The MessageLoop that the scanner worker runs on.
   // Typically the file thread; configurable for testing.
@@ -133,6 +150,9 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
 
   // Contains the scripts that were found the last time scripts were updated.
   scoped_ptr<base::SharedMemory> shared_memory_;
+
+  // List of scripts outside of script directories we should also load.
+  UserScriptList lone_scripts_;
 
   // If the script directory is modified while we're rescanning it, we note
   // that we're currently mid-scan and then start over again once the scan

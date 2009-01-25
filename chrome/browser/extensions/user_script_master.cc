@@ -13,7 +13,7 @@
 #include "base/pickle.h"
 #include "base/string_util.h"
 #include "chrome/common/notification_service.h"
-#include "googleurl/src/gurl.h"
+#include "chrome/common/stl_util-inl.h"
 #include "net/base/net_util.h"
 
 // Defined in extension.h.
@@ -74,15 +74,15 @@ void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
 }
 
 void UserScriptMaster::ScriptReloader::StartScan(
-    MessageLoop* work_loop,
-    const FilePath& script_dir) {
+    MessageLoop* work_loop, const FilePath& script_dir,
+    const UserScriptList& lone_scripts) {
   // Add a reference to ourselves to keep ourselves alive while we're running.
   // Balanced by NotifyMaster().
   AddRef();
   work_loop->PostTask(FROM_HERE,
       NewRunnableMethod(this,
                         &UserScriptMaster::ScriptReloader::RunScan,
-                        script_dir));
+                        script_dir, lone_scripts));
 }
 
 void UserScriptMaster::ScriptReloader::NotifyMaster(
@@ -99,8 +99,9 @@ void UserScriptMaster::ScriptReloader::NotifyMaster(
   Release();
 }
 
-void UserScriptMaster::ScriptReloader::RunScan(const FilePath script_dir) {
-  base::SharedMemory* shared_memory = GetNewScripts(script_dir);
+void UserScriptMaster::ScriptReloader::RunScan(
+    const FilePath script_dir, const UserScriptList lone_scripts) {
+  base::SharedMemory* shared_memory = GetNewScripts(script_dir, lone_scripts);
 
   // Post the new scripts back to the master's message loop.
   master_message_loop_->PostTask(FROM_HERE,
@@ -110,45 +111,47 @@ void UserScriptMaster::ScriptReloader::RunScan(const FilePath script_dir) {
 }
 
 base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
-    const FilePath& script_dir) {
-  std::vector<std::wstring> scripts;
+    const FilePath& script_dir, const UserScriptList& lone_scripts) {
+  UserScriptList all_scripts;
 
-  file_util::FileEnumerator enumerator(script_dir, false,
-                                       file_util::FileEnumerator::FILES,
-                                       FILE_PATH_LITERAL("*.user.js"));
-  for (FilePath file = enumerator.Next(); !file.value().empty();
-       file = enumerator.Next()) {
-    scripts.push_back(file.ToWStringHack());
+  // Find all the scripts in |script_dir|.
+  if (!script_dir.value().empty()) {
+    file_util::FileEnumerator enumerator(script_dir, false,
+                                         file_util::FileEnumerator::FILES,
+                                         FILE_PATH_LITERAL("*.user.js"));
+    for (FilePath file = enumerator.Next(); !file.value().empty();
+         file = enumerator.Next()) {
+      all_scripts.push_back(UserScriptInfo());
+      UserScriptInfo& info = all_scripts.back();
+      info.url = GURL(std::string(kUserScriptURLScheme) + ":/" + 
+          net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName());
+      info.path = file;
+    }
   }
 
-  if (scripts.empty())
+  if (all_scripts.empty() && lone_scripts.empty())
     return NULL;
 
-  // Pickle scripts data.
+  // Add all the lone scripts.
+  all_scripts.insert(all_scripts.end(), lone_scripts.begin(),
+                     lone_scripts.end());
+
+  // Load and pickle each script. Look for a metadata header if there are no
+  // matches specified already.
   Pickle pickle;
-  pickle.WriteSize(scripts.size());
-  for (std::vector<std::wstring>::iterator path = scripts.begin();
-       path != scripts.end(); ++path) {
-    std::string url(kUserScriptURLScheme);
-    url += ":/";
-    url += net::FilePathToFileURL(*path).ExtractFileName();
-
-    std::string contents;
+  pickle.WriteSize(all_scripts.size());
+  for (UserScriptList::iterator iter = all_scripts.begin();
+       iter != all_scripts.end(); ++iter) {
     // TODO(aa): Support unicode script files.
-    file_util::ReadFileToString(*path, &contents);
+    std::string contents;
+    file_util::ReadFileToString(iter->path.ToWStringHack(), &contents);
 
-    std::vector<std::string> includes;
-    ParseMetadataHeader(contents, &includes);
-
-    // Write scripts as 'data' so that we can read it out in the slave without
-    // allocating a new string.
-    pickle.WriteData(url.c_str(), url.length());
-    pickle.WriteData(contents.c_str(), contents.length());
-    pickle.WriteSize(includes.size());
-    for (std::vector<std::string>::iterator iter = includes.begin();
-         iter != includes.end(); ++iter) {
-      pickle.WriteString(*iter);
+    if (iter->matches.empty()) {
+      // TODO(aa): Handle errors parsing header.
+      ParseMetadataHeader(contents, &iter->matches);
     }
+
+    PickleScriptData(*iter, contents, &pickle);
   }
 
   // Create the shared memory object.
@@ -171,22 +174,45 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
   return shared_memory.release();
 }
 
+void UserScriptMaster::ScriptReloader::PickleScriptData(
+    const UserScriptInfo& script, const std::string& contents, Pickle* pickle) {
+  // Write scripts as 'data' so that we can read it out in the slave without
+  // allocating a new string.
+  pickle->WriteData(script.url.spec().c_str(), script.url.spec().length());
+  pickle->WriteData(contents.c_str(), contents.length());
+  pickle->WriteSize(script.matches.size());
+  for (std::vector<std::string>::const_iterator iter = script.matches.begin();
+       iter != script.matches.end(); ++iter) {
+    pickle->WriteString(*iter);
+  }
+}
+
 UserScriptMaster::UserScriptMaster(MessageLoop* worker_loop,
-                                       const FilePath& script_dir)
-    : user_script_dir_(new FilePath(script_dir)),
-      dir_watcher_(new DirectoryWatcher),
+                                   const FilePath& script_dir)
+    : user_script_dir_(script_dir),
       worker_loop_(worker_loop),
       pending_scan_(false) {
-  // Watch our scripts directory for modifications.
-  if (dir_watcher_->Watch(script_dir, this)) {
-    // (Asynchronously) scan for our initial set of scripts.
-    StartScan();
-  }
+  if (!user_script_dir_.value().empty())
+    AddWatchedPath(script_dir);
 }
 
 UserScriptMaster::~UserScriptMaster() {
   if (script_reloader_)
     script_reloader_->DisownMaster();
+
+// TODO(aa): Enable this when DirectoryWatcher is implemented for linux and mac.
+#if defined(OS_WIN)
+  STLDeleteElements(&dir_watchers_);
+#endif
+}
+
+void UserScriptMaster::AddWatchedPath(const FilePath& path) {
+// TODO(aa): Enable this when DirectoryWatcher is implemented for linux and mac.
+#if defined(OS_WIN)
+  DirectoryWatcher* watcher = new DirectoryWatcher();
+  watcher->Watch(path, this);
+  dir_watchers_.push_back(watcher);
+#endif
 }
 
 void UserScriptMaster::NewScriptsAvailable(base::SharedMemory* handle) {
@@ -225,5 +251,5 @@ void UserScriptMaster::StartScan() {
   if (!script_reloader_)
     script_reloader_ = new ScriptReloader(this);
 
-  script_reloader_->StartScan(worker_loop_, *user_script_dir_);
+  script_reloader_->StartScan(worker_loop_, user_script_dir_, lone_scripts_);
 }

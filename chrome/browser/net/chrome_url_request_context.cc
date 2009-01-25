@@ -105,14 +105,17 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   cookie_policy_.SetType(net::CookiePolicy::FromInt(
       prefs_->GetInteger(prefs::kCookieBehavior)));
 
-  const ExtensionList* extensions =
-      profile->GetExtensionsService()->extensions();
-  for (ExtensionList::const_iterator iter = extensions->begin();
-      iter != extensions->end(); ++iter) {
-    extension_paths_[(*iter)->id()] = (*iter)->path();
+  if (profile->GetExtensionsService()) {
+    const ExtensionList* extensions =
+        profile->GetExtensionsService()->extensions();
+    for (ExtensionList::const_iterator iter = extensions->begin();
+        iter != extensions->end(); ++iter) {
+      extension_paths_[(*iter)->id()] = (*iter)->path();
+    }
   }
 
-  user_script_dir_path_ = profile->GetUserScriptMaster()->user_script_dir();
+  if (profile->GetUserScriptMaster())
+    user_script_dir_path_ = profile->GetUserScriptMaster()->user_script_dir();
 
   prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
   prefs_->AddPrefObserver(prefs::kCookieBehavior, this);  

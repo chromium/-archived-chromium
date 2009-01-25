@@ -128,15 +128,8 @@ TEST_F(DirectoryWatcherTest, Unregister) {
   ASSERT_EQ(directory_mods_, 0);
 }
 
-// Verify that modifications to a subdirectory isn't noticed.
+// Verify that modifications to a subdirectory are noticed.
 TEST_F(DirectoryWatcherTest, SubDir) {
-#if defined(OS_WIN)
-  // Temporarily disabling test on Vista, see
-  // http://code.google.com/p/chromium/issues/detail?id=5072
-  // TODO: Enable this test, quickly.
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA)
-    return;
-#endif
   FilePath subdir(FILE_PATH_LITERAL("SubDir"));
   ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
 
@@ -145,15 +138,7 @@ TEST_F(DirectoryWatcherTest, SubDir) {
   // Write a file to the subdir.
   FilePath test_path = subdir.AppendASCII("test_file");
   WriteTestDirFile(test_path.value(), "some content");
-
-  // We won't get a notification, so we just wait around a bit to verify
-  // that notification doesn't come.
-  loop_.PostDelayedTask(FROM_HERE, new MessageLoop::QuitTask,
-                        kWaitForEventTime);
-  loop_.Run();
-
-  // We shouldn't have been notified and shouldn't have crashed.
-  ASSERT_EQ(0, directory_mods_);
+  LoopUntilModsEqual(2);
 }
 
 namespace {

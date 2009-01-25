@@ -494,9 +494,7 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     }
   }
 
-  // Start up the extensions service
-  if (parsed_command_line.HasSwitch(switches::kEnableExtensions))
-    profile->GetExtensionsService()->Init();
+  profile->InitExtensions();
 
   return true;
 }

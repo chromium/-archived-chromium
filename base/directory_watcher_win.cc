@@ -43,9 +43,11 @@ DirectoryWatcher::Impl::~Impl() {
 bool DirectoryWatcher::Impl::Watch(const FilePath& path) {
   DCHECK(path_.value().empty());  // Can only watch one path.
 
+  // NOTE: If you want to change this code to *not* watch subdirectories, have a
+  // look at http://code.google.com/p/chromium/issues/detail?id=5072 first.
   handle_ = FindFirstChangeNotification(
       path.value().c_str(),
-      FALSE,  // Don't watch subtree.
+      TRUE,  // Watch subtree.
       FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_SIZE |
       FILE_NOTIFY_CHANGE_LAST_WRITE);
   if (handle_ == INVALID_HANDLE_VALUE)

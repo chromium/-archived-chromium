@@ -164,6 +164,8 @@ class TestingProfile : public Profile {
   }
   virtual void MarkAsCleanShutdown() {
   }
+  virtual void InitExtensions() {
+  }
 
 #ifdef CHROME_PERSONALIZATION
   virtual ProfilePersonalization* GetProfilePersonalization() {

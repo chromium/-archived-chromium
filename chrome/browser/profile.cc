@@ -257,6 +257,10 @@ class OffTheRecordProfileImpl : public Profile,
   virtual void MarkAsCleanShutdown() {
   }
 
+  virtual void InitExtensions() {
+    NOTREACHED();
+  }
+
   virtual void ExitedOffTheRecordMode() {
     // Drop our download manager so we forget about all the downloads made
     // in off-the-record mode.
@@ -297,7 +301,6 @@ class OffTheRecordProfileImpl : public Profile,
 ProfileImpl::ProfileImpl(const std::wstring& path)
     : path_(path),
       off_the_record_(false),
-      extensions_service_(new ExtensionsService(FilePath(path))),
       history_service_created_(false),
       created_web_data_service_(false),
       created_download_manager_(false),
@@ -313,9 +316,36 @@ ProfileImpl::ProfileImpl(const std::wstring& path)
   create_session_service_timer_.Start(
       TimeDelta::FromMilliseconds(kCreateSessionServiceDelayMS), this,
       &ProfileImpl::EnsureSessionServiceCreated);
+
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->AddPrefObserver(prefs::kEnableSpellCheck, this);
+}
+
+void ProfileImpl::InitExtensions() {
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  bool user_scripts_enabled =
+      command_line->HasSwitch(switches::kEnableUserScripts);
+  bool extensions_enabled = 
+      command_line->HasSwitch(switches::kEnableExtensions);
+
+  std::wstring script_dir;
+  if (user_scripts_enabled) {
+    script_dir = GetPath();
+    file_util::AppendToPath(&script_dir, chrome::kUserScriptsDirname);
+  }
+
+  user_script_master_ = new UserScriptMaster(
+      g_browser_process->file_thread()->message_loop(), FilePath(script_dir));
+  extensions_service_ = new ExtensionsService(
+      FilePath(GetPath()), user_script_master_.get());
+
+  // If we have extensions, the extension service will kick off the first scan
+  // after extensions are loaded. Otherwise, we need to do that now.
+  if (extensions_enabled)
+    extensions_service_->Init();
+  else if (user_scripts_enabled)
+    user_script_master_->StartScan();
 }
 
 ProfileImpl::~ProfileImpl() {
@@ -449,14 +479,6 @@ ExtensionsService* ProfileImpl::GetExtensionsService() {
 }
 
 UserScriptMaster* ProfileImpl::GetUserScriptMaster() {
-  if (!user_script_master_.get()) {
-    std::wstring script_dir = GetPath();
-    file_util::AppendToPath(&script_dir, chrome::kUserScriptsDirname);
-    user_script_master_ =
-        new UserScriptMaster(g_browser_process->file_thread()->message_loop(),
-                             FilePath(script_dir));
-  }
-
   return user_script_master_.get();
 }
 

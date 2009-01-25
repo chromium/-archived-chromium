@@ -15,6 +15,7 @@
 
 typedef std::vector<Extension*> ExtensionList;
 class ExtensionsServiceBackend;
+class UserScriptMaster;
 
 // Interface for the frontend to implement. Typically, this will be
 // ExtensionsService, but it can also be a test harness.
@@ -38,7 +39,8 @@ class ExtensionsServiceFrontendInterface
 // Manages installed and running Chromium extensions.
 class ExtensionsService : public ExtensionsServiceFrontendInterface {
  public:
-  ExtensionsService(const FilePath& profile_directory);
+  ExtensionsService(const FilePath& profile_directory,
+                    UserScriptMaster* user_script_master);
   ~ExtensionsService();
 
   // Gets the list of currently installed extensions.
@@ -70,6 +72,9 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 
   // The full path to the directory where extensions are installed.
   FilePath install_directory_;
+
+  // The user script master for this profile.
+  scoped_refptr<UserScriptMaster> user_script_master_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };

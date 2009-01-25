@@ -74,6 +74,7 @@ TEST_F(UserScriptMasterTest, NoScripts) {
 
   scoped_refptr<UserScriptMaster> master(
       new UserScriptMaster(MessageLoop::current(), script_dir_));
+  master->StartScan();
   message_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask);
   message_loop_.Run();
 
@@ -110,6 +111,7 @@ TEST_F(UserScriptMasterTest, ExistingScripts) {
 
   scoped_refptr<UserScriptMaster> master(
       new UserScriptMaster(MessageLoop::current(), script_dir_));
+  master->StartScan();
 
   message_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask);
   message_loop_.Run();

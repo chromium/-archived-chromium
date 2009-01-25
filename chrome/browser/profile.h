@@ -224,6 +224,9 @@ class Profile {
   // NOTE: this is invoked internally on a normal shutdown, but is public so
   // that it can be invoked when the user logs out/powers down (WM_ENDSESSION).
   virtual void MarkAsCleanShutdown() = 0;  
+
+  virtual void InitExtensions() = 0;
+
 #ifdef UNIT_TEST
   // Use with caution.  GetDefaultRequestContext may be called on any thread!
   static void set_default_request_context(URLRequestContext* c) {
@@ -286,6 +289,7 @@ class ProfileImpl : public Profile,
   virtual void ReinitializeSpellChecker();
   virtual SpellChecker* GetSpellChecker();
   virtual void MarkAsCleanShutdown();
+  virtual void InitExtensions();
 #ifdef CHROME_PERSONALIZATION
   virtual ProfilePersonalization* GetProfilePersonalization();
 #endif
