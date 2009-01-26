@@ -39,7 +39,6 @@
 #include <list>
 
 #include "base/string_util.h"
-#include "base/platform_thread.h"
 #include "net/base/host_resolver.h"
 #include "net/base/net_errors.h"
 
@@ -64,22 +63,12 @@ class ScopedHostMapper : public HostMapper {
     rules_.push_back(Rule(host_pattern, replacement));
   }
 
-  void AddRuleWithLatency(const char* host_pattern, const char* replacement,
-                          int latency) {
-    rules_.push_back(Rule(host_pattern, replacement, latency));
-  }
-
  private:
   std::string Map(const std::string& host) {
-    RuleList::iterator r;
+    RuleList::const_iterator r;
     for (r = rules_.begin(); r != rules_.end(); ++r) {
-      if (MatchPattern(host, r->host_pattern)) {
-        if (r->latency != 0) {
-          PlatformThread::Sleep(r->latency);
-          r->latency = 1;  // Simulate cache warmup.
-        }
+      if (MatchPattern(host, r->host_pattern))
         return r->replacement;
-      }
     }
     return previous_host_mapper_ ? previous_host_mapper_->Map(host) : host;
   }
@@ -87,15 +76,7 @@ class ScopedHostMapper : public HostMapper {
   struct Rule {
     std::string host_pattern;
     std::string replacement;
-    int latency;  // in milliseconds
-    Rule(const char* h, const char* r)
-        : host_pattern(h),
-          replacement(r),
-          latency(0) {}
-    Rule(const char* h, const char* r, const int l)
-        : host_pattern(h),
-          replacement(r),
-          latency(l) {}
+    Rule(const char* h, const char* r) : host_pattern(h), replacement(r) {}
   };
   typedef std::list<Rule> RuleList;
 
