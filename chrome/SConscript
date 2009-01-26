@@ -732,6 +732,7 @@ p.AddConfig('Release|Win32',
 # TODO(sgk):  move to separate .scons file for browser_resources #############
 
 sconscript_files = [
+    'browser/views/SConscript',
     'views/SConscript',
 ]
 
@@ -745,7 +746,6 @@ if env.Bit('windows'):
   sconscript_files.extend([
       'app/resources/SConscript',
       'app/theme/SConscript',
-      'browser/views/SConscript',
   ])
 
 env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
