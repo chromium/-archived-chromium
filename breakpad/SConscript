@@ -2,54 +2,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+__doc__ = """
+Master configuration for building breakpad libraries.
+"""
+
 Import('env')
 
-env = env.Clone()
+sconscript_files = [
+    'breakpad_handler.scons',
+    'breakpad_sender.scons',
+]
 
-env.Prepend(
-    CPPPATH = [
-        'src',
-        '$CHROME_SRC_DIR',
-    ],
-)
-
-if env.Bit('windows'):
-  env.Append(
-      CCFLAGS = [
-          '/TP',
-          '/wd4800',
-      ],
-  )
-
-  sender_input_files = [
-      'src/client/windows/sender/crash_report_sender.cc',
-      'src/common/windows/http_upload.cc',
-  ]
-
-  env.ChromeLibrary('breakpad_sender', sender_input_files)
-
-env.ChromeMSVSProject('$BREAKPAD_DIR/breakpad_sender.vcproj',
-                guid='{9946A048-043B-4F8F-9E07-9297B204714C}')
-
-if env.Bit('windows'):
-  handler_input_files = [
-      'src/client/windows/crash_generation/client_info.cc',
-      'src/client/windows/crash_generation/minidump_generator.cc',
-      'src/common/windows/guid_string.cc',
-      'src/client/windows/handler/exception_handler.cc',
-      'src/client/windows/crash_generation/crash_generation_server.cc',
-      'src/client/windows/crash_generation/crash_generation_client.cc',
-  ]
-elif env.Bit('linux'):
-  handler_input_files = [
-      'src/common/linux/guid_creator.cc',
-      'src/client/linux/handler/exception_handler.cc',
-      'src/client/linux/handler/minidump_generator.cc',
-      'src/client/linux/handler/linux_thread.cc',
-  ]
-
-env.ChromeLibrary('breakpad_handler', handler_input_files)
-
-env.ChromeMSVSProject('$BREAKPAD_DIR/breakpad_handler.vcproj',
-                guid='{B55CA863-B374-4BAF-95AC-539E4FA4C90C}')
-
+SConscript(sconscript_files, exports=['env'])

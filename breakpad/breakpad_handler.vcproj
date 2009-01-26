@@ -122,27 +122,27 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\client_info.cc"
+			RelativePath="src\client\windows\crash_generation\client_info.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\client_info.h"
+			RelativePath="src\client\windows\crash_generation\client_info.h"
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\crash_generation_client.cc"
+			RelativePath="src\client\windows\crash_generation\crash_generation_client.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\crash_generation_client.h"
+			RelativePath="src\client\windows\crash_generation\crash_generation_client.h"
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\crash_generation_server.cc"
+			RelativePath="src\client\windows\crash_generation\crash_generation_server.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\crash_generation_server.h"
+			RelativePath="src\client\windows\crash_generation\crash_generation_server.h"
 			>
 		</File>
 		<File
@@ -166,11 +166,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\minidump_generator.cc"
+			RelativePath="src\client\windows\crash_generation\minidump_generator.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\src\client\windows\crash_generation\minidump_generator.h"
+			RelativePath="src\client\windows\crash_generation\minidump_generator.h"
 			>
 		</File>
 		<File

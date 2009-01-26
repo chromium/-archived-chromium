@@ -3,66 +3,26 @@
 # found in the LICENSE file.
 
 __doc__ = """
-Configuration for building media.lib / libmedia.a.
+Configuration for building media_player.
 """
 
 Import('env')
 
 env = env.Clone()
 
-env.SConscript([
-    '$ICU38_DIR/using_icu38.scons',
-], {'env':env})
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-)
-
 input_files = ChromeFileList([
   # TODO(sgk):  violate standard indentation so we don't have to
   # reindent too much when we remove the explicit MSVSFilter() calls
   # in favor of generating the hierarchy to reflect the file system.
-  MSVSFilter('base', [
-    'base/buffers.h',
-    'base/data_buffer.cc',
-    'base/data_buffer.h',
-    'base/factory.h',
-    'base/filter_host.h',
-    'base/filter_host_impl.cc',
-    'base/filter_host_impl.h',
-    'base/filters.h',
-    'base/media_format.cc',
-    'base/media_format.h',
-    'base/pipeline.h',
-    'base/pipeline_impl.cc',
-    'base/pipeline_impl.h',
-  ]),
-  MSVSFilter('audio', [
-    'audio/win/audio_manager_win.h',
-    'audio/audio_output.h',
-    'audio/win/audio_output_win.cc',
-    'audio/simple_sources.h',
-    'audio/win/simple_sources_win.cc',
-    'audio/win/waveout_output_win.cc',
-    'audio/win/waveout_output_win.h',
+  MSVSFilter('player', [
+      'player/player.cc',
   ]),
 ])
 
-if not env.Bit('windows'):
-  # Windows-specific files.
-  input_files.Remove(
-      'audio/win/audio_output_win.cc',
-      'audio/win/simple_sources_win.cc',
-      'audio/win/waveout_output_win.cc',
-  )
-
-env.ChromeLibrary('media', input_files)
-
-p = env.ChromeMSVSProject('build/media.vcproj',
-                          dest='$CHROME_SRC_DIR/media/build/media.vcproj',
-                          guid='{6AE76406-B03B-11DD-94B1-80B556D89593}',
+p = env.ChromeMSVSProject('build/media_player.vcproj',
+                          dest=('$CHROME_SRC_DIR/media/' +
+                                    'build/media_player.vcproj'),
+                          guid='{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}',
                           keyword='Win32Proj',
                           # TODO(sgk):  when we can intuit the hierarchy
                           # from the built targets.
@@ -78,14 +38,18 @@ p = env.ChromeMSVSProject('build/media.vcproj',
                               'VCManagedResourceCompilerTool',
                               'VCResourceCompilerTool',
                               'VCPreLinkEventTool',
-                              'VCLibrarianTool',
+                              'VCLinkerTool',
                               'VCALinkTool',
+                              'VCManifestTool',
                               'VCXDCMakeTool',
                               'VCBscMakeTool',
                               'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
                               'VCPostBuildEventTool',
                           ],
-                          ConfigurationType='4')
+                          ConfigurationType='1')
+
 
 p.AddConfig('Debug|Win32',
             InheritedPropertySheets=[

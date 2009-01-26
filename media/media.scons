@@ -16,6 +16,7 @@ env.Append(
 
 sconscript_files = [
     'media_lib.scons',
+    'media_player.scons',
     'media_unittests.scons',
 ]
 

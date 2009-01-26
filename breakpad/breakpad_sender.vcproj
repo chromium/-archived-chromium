@@ -12,6 +12,8 @@
 			Name="Win32"
 		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -38,6 +40,8 @@
 			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<File
 			RelativePath="src\client\windows\sender\crash_report_sender.cc"
@@ -56,4 +60,6 @@
 			>
 		</File>
 	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

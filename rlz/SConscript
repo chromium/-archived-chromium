@@ -4,9 +4,42 @@
 
 Import('env')
 
+input_files = ChromeFileList([
+    'binaries/rlz.dll',
+    'binaries/rlz_dll.pdb',
+])
+
+# TODO(sgk):  derive from above ChromeFileList object.
 env.Install('$TARGET_ROOT',
             ['binaries/rlz.dll',
              'binaries/rlz_dll.pdb'])
 
-env.ChromeMSVSProject('$RLZ_DIR/rlz.vcproj',
-                guid='{BF4F447B-72B5-4059-BE1B-F94337B1F385}')
+p = env.ChromeMSVSProject('rlz.vcproj',
+                          dest='$CHROME_SRC_DIR/rlz/rlz.vcproj',
+                          guid='{BF4F447B-72B5-4059-BE1B-F94337B1F385}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'Output RLZ copy',
+                              'VCCustomBuildTool',
+                              'VCMIDLTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='10')
+
+# TODO(sgk):  remove once SCons drives build
+p.AddToolFile('./output_rlz_copy.rules')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/debug.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/release.vsprops',
+            ])

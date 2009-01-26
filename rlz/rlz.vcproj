@@ -14,7 +14,7 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath=".\output_rlz_copy.rules"
+			RelativePath="output_rlz_copy.rules"
 		/>
 	</ToolFiles>
 	<Configurations>

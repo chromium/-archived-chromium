@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="sdch"
 	ProjectGUID="{F54ABC59-5C00-414A-A9BA-BAF26D1699F0}"
+	RootNamespace="sdch"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -36,7 +37,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./open-vcdiff/vsprojects;"
+				AdditionalIncludeDirectories=".\open-vcdiff\vsprojects;"
 				DefaultCharIsUnsigned="true"
 			/>
 			<Tool
@@ -89,7 +90,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./open-vcdiff/vsprojects;"
+				AdditionalIncludeDirectories=".\open-vcdiff\vsprojects;"
 				DefaultCharIsUnsigned="true"
 			/>
 			<Tool
@@ -126,8 +127,6 @@
 	<Files>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{5612E1F3-EC29-4848-8301-B23786CED3CA}"
 			>
 			<File
 				RelativePath=".\open-vcdiff\src\blockhash.h"
@@ -208,8 +207,6 @@
 		</Filter>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{883D491D-EF73-4c2f-BB09-6F87DC95DC28}"
 			>
 			<File
 				RelativePath=".\open-vcdiff\src\addrcache.cc"
