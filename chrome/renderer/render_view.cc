@@ -2157,7 +2157,7 @@ GURL RenderView::GetAlternateErrorPageURL(const GURL& failedURL,
       break;
 
     case CONNECTION_ERROR:
-      params.append("connectionerror");
+      params.append("connectionfailure");
       break;
 
     default:
