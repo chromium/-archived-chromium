@@ -74,14 +74,14 @@ static int64 MapErrorCode(int err) {
   }
 }
 
-int FileStream::Open(const std::wstring& path, int open_flags) {
+int FileStream::Open(const FilePath& path, int open_flags) {
   if (IsOpen()) {
     DLOG(FATAL) << "File is already open!";
     return ERR_UNEXPECTED;
   }
 
   open_flags_ = open_flags;
-  file_ = base::CreatePlatformFile(path, open_flags_, NULL);
+  file_ = base::CreatePlatformFile(path.ToWStringHack(), open_flags_, NULL);
   if (file_ == base::kInvalidPlatformFileValue) {
     LOG(WARNING) << "Failed to open file: " << errno;
     return MapErrorCode(errno);

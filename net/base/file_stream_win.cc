@@ -125,14 +125,14 @@ void FileStream::Close() {
   }
 }
 
-int FileStream::Open(const std::wstring& path, int open_flags) {
+int FileStream::Open(const FilePath& path, int open_flags) {
   if (IsOpen()) {
     DLOG(FATAL) << "File is already open!";
     return ERR_UNEXPECTED;
   }
 
   open_flags_ = open_flags;
-  file_ = base::CreatePlatformFile(path, open_flags_, NULL);
+  file_ = base::CreatePlatformFile(path.value(), open_flags_, NULL);
   if (file_ == INVALID_HANDLE_VALUE) {
     DWORD error = GetLastError();
     LOG(WARNING) << "Failed to open file: " << error;

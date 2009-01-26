@@ -10,6 +10,7 @@
 #ifndef NET_BASE_FILE_STREAM_H_
 #define NET_BASE_FILE_STREAM_H_
 
+#include "base/file_path.h"
 #include "base/platform_file.h"
 #include "net/base/completion_callback.h"
 
@@ -37,7 +38,7 @@ class FileStream {
   // cannot be used unless this method returns OK.  If the file cannot be
   // opened then an error code is returned.
   // open_flags is a bitfield of base::PlatformFileFlags
-  int Open(const std::wstring& path, int open_flags);
+  int Open(const FilePath& path, int open_flags);
 
   // Returns true if Open succeeded and Close has not been called.
   bool IsOpen() const;

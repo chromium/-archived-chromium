@@ -4,6 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/platform_file.h"
@@ -71,7 +72,7 @@ const size_t kIndentSize = 4;
 // Class responsible for the actual writing.
 class Writer : public Task {
  public:
-  Writer(Value* bookmarks, const std::wstring& path)
+  Writer(Value* bookmarks, const FilePath& path)
       : bookmarks_(bookmarks),
         path_(path) {
   }
@@ -300,7 +301,7 @@ class Writer : public Task {
   scoped_ptr<Value> bookmarks_;
 
   // Path we're writing to.
-  std::wstring path_;
+  FilePath path_;
 
   // File we're writing to.
   net::FileStream file_stream_;
@@ -319,7 +320,8 @@ void WriteBookmarks(MessageLoop* thread,
   // for the duration of the write), as such we make a copy of the
   // BookmarkModel using BookmarkCodec then write from that.
   BookmarkCodec codec;
-  scoped_ptr<Writer> writer(new Writer(codec.Encode(model), path));
+  scoped_ptr<Writer> writer(new Writer(codec.Encode(model), 
+                            FilePath::FromWStringHack(path)));
   if (thread)
     thread->PostTask(FROM_HERE, writer.release());
   else

@@ -62,7 +62,7 @@ static bool ExtractCurrentFile(unzFile zip_file,
 
   net::FileStream stream;
   int flags = base::PLATFORM_FILE_CREATE_ALWAYS | base::PLATFORM_FILE_WRITE;
-  if (stream.Open(dest_file.ToWStringHack(), flags) != 0)
+  if (stream.Open(dest_file, flags) != 0)
     return false;
 
   bool ret = true;

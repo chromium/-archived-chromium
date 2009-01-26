@@ -172,7 +172,7 @@ void URLRequestFileJob::DidResolve(
     int flags = base::PLATFORM_FILE_OPEN |
                 base::PLATFORM_FILE_READ |
                 base::PLATFORM_FILE_ASYNC;
-    rv = stream_.Open(file_path_.ToWStringHack(), flags);
+    rv = stream_.Open(file_path_, flags);
   }
 
   if (rv == net::OK) {

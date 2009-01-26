@@ -65,7 +65,8 @@ void UploadDataStream::FillBuf() {
       if (!next_element_stream_.IsOpen()) {
         int flags = base::PLATFORM_FILE_OPEN |
                     base::PLATFORM_FILE_READ;
-        int rv = next_element_stream_.Open(element.file_path(), flags);
+        int rv = next_element_stream_.Open(
+            FilePath::FromWStringHack(element.file_path()), flags);
         // If the file does not exist, that's technically okay.. we'll just
         // upload an empty file.  This is for consistency with Mozilla.
         DLOG_IF(WARNING, rv != OK) << "Failed to open \"" <<
