@@ -38,7 +38,7 @@ layer at (0,0) size 800x511
                       RenderBR {BR} at (36,15) size 0x19
                       RenderText {#text} at (2,35) size 63x19
                         text run at (2,35) width 63: "adipiscing."
-            RenderTableCell {TD} at (388,102) size 64x4 [border: (1px inset #808080)] [r=0 c=6 rs=1 cs=1]
+            RenderTableCell {TD} at (388,2) size 64x4 [border: (1px inset #808080)] [r=0 c=6 rs=1 cs=1]
             RenderTableCell {TD} at (454,2) size 54x104 [border: (1px inset #808080)] [r=0 c=7 rs=1 cs=1]
               RenderBlock {DIV} at (2,2) size 50x100 [bgcolor=#FFB6C1]
             RenderTableCell {TD} at (510,29) size 62x164 [border: (1px inset #808080)] [r=0 c=8 rs=1 cs=1]
@@ -73,7 +73,7 @@ layer at (254,0) size 60x50
   RenderBlock (positioned) {DIV} at (254,0) size 60x50 [bgcolor=#FFFFE0]
     RenderText {#text} at (0,0) size 9x19
       text run at (0,0) width 9: "P"
-layer at (399,113) size 60x50
-  RenderBlock (positioned) {DIV} at (399,113) size 60x50 [bgcolor=#FFFFE0]
+layer at (399,13) size 60x50
+  RenderBlock (positioned) {DIV} at (399,13) size 60x50 [bgcolor=#FFFFE0]
     RenderText {#text} at (0,0) size 9x19
       text run at (0,0) width 9: "P"
