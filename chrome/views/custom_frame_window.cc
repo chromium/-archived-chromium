@@ -343,39 +343,34 @@ DefaultNonClientView::DefaultNonClientView(
   InitClass();
   WindowResources* resources = active_resources_;
 
-  close_button_->SetImage(
-      Button::BS_NORMAL, resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON));
-  close_button_->SetImage(
-      Button::BS_HOT, resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_H));
-  close_button_->SetImage(
-      Button::BS_PUSHED, resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_P));
+  // Close button images will be set in LayoutWindowControls().
   close_button_->SetListener(this, -1);
   AddChildView(close_button_);
 
-  restore_button_->SetImage(
-      Button::BS_NORMAL, resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON));
-  restore_button_->SetImage(
-      Button::BS_HOT, resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_H));
-  restore_button_->SetImage(
-      Button::BS_PUSHED, resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_P));
+  restore_button_->SetImage(Button::BS_NORMAL,
+      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON));
+  restore_button_->SetImage(Button::BS_HOT,
+      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_H));
+  restore_button_->SetImage(Button::BS_PUSHED,
+      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_P));
   restore_button_->SetListener(this, -1);
   AddChildView(restore_button_);
 
-  maximize_button_->SetImage(
-      Button::BS_NORMAL, resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON));
-  maximize_button_->SetImage(
-      Button::BS_HOT, resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_H));
-  maximize_button_->SetImage(
-      Button::BS_PUSHED, resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_P));
+  maximize_button_->SetImage(Button::BS_NORMAL,
+      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON));
+  maximize_button_->SetImage(Button::BS_HOT,
+      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_H));
+  maximize_button_->SetImage(Button::BS_PUSHED,
+      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_P));
   maximize_button_->SetListener(this, -1);
   AddChildView(maximize_button_);
 
-  minimize_button_->SetImage(
-      Button::BS_NORMAL, resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON));
-  minimize_button_->SetImage(
-      Button::BS_HOT, resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_H));
-  minimize_button_->SetImage(
-      Button::BS_PUSHED, resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_P));
+  minimize_button_->SetImage(Button::BS_NORMAL,
+      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON));
+  minimize_button_->SetImage(Button::BS_HOT,
+      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_H));
+  minimize_button_->SetImage(Button::BS_PUSHED,
+      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_P));
   minimize_button_->SetListener(this, -1);
   AddChildView(minimize_button_);
 
@@ -390,8 +385,8 @@ DefaultNonClientView::~DefaultNonClientView() {
 ///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, CustomFrameWindow::NonClientView implementation:
 
-gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(
-    int width, int height) const {
+gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(int width,
+                                                          int height) const {
   int top_margin = CalculateContentsTop();
   return gfx::Rect(kWindowHorizontalBorderSize, top_margin,
       std::max(0, width - (2 * kWindowHorizontalBorderSize)),
@@ -399,11 +394,11 @@ gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(
 }
 
 gfx::Size DefaultNonClientView::CalculateWindowSizeForClientSize(
-    int width, int height) const {
+    int width,
+    int height) const {
   int contents_top = CalculateContentsTop();
-  return gfx::Size(
-      width + (2 * kWindowHorizontalBorderSize),
-      height + kWindowVerticalBorderSize + contents_top);
+  return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
+                   height + CalculateContentsTop() + kWindowVerticalBorderSize);
 }
 
 CPoint DefaultNonClientView::GetSystemMenuPoint() const {
@@ -671,110 +666,71 @@ void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 }
 
 void DefaultNonClientView::LayoutWindowControls() {
-  gfx::Size ps;
-  if (container_->IsMaximized() || container_->IsMinimized()) {
-    maximize_button_->SetVisible(false);
-    restore_button_->SetVisible(true);
-  }
-
+  // TODO(pkasting): This function is almost identical to
+  // OpaqueNonClientView::LayoutWindowControls(), they should be combined.
+  int top_offset, top_extra_height, right_offset, right_extra_width;
+  Button* invisible_button, * visible_button;
   if (container_->IsMaximized()) {
-    ps = close_button_->GetPreferredSize();
-    close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
-    close_button_->SetBounds(
-        width() - ps.width() - kWindowControlsRightZoomedOffset,
-        0, ps.width() + kWindowControlsRightZoomedOffset,
-        ps.height() + kWindowControlsTopZoomedOffset);
-
-    if (should_show_minmax_buttons_) {
-      ps = restore_button_->GetPreferredSize();
-      restore_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                         Button::ALIGN_BOTTOM);
-      restore_button_->SetBounds(close_button_->x() - ps.width(), 0,
-                                 ps.width(),
-                                 ps.height() + kWindowControlsTopZoomedOffset);
-
-      ps = minimize_button_->GetPreferredSize();
-      minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                          Button::ALIGN_BOTTOM);
-      minimize_button_->SetBounds(restore_button_->x() - ps.width(), 0,
-                                  ps.width(),
-                                  ps.height() + kWindowControlsTopZoomedOffset);
-    }
-  } else if (container_->IsMinimized()) {
-    ps = close_button_->GetPreferredSize();
-    close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
-    close_button_->SetBounds(
-        width() - ps.width() - kWindowControlsRightZoomedOffset,
-        0, ps.width() + kWindowControlsRightZoomedOffset,
-        ps.height() + kWindowControlsTopZoomedOffset);
-
-    if (should_show_minmax_buttons_) {
-      ps = restore_button_->GetPreferredSize();
-      restore_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                         Button::ALIGN_BOTTOM);
-      restore_button_->SetBounds(close_button_->x() - ps.width(), 0,
-                                 ps.width(),
-                                 ps.height() + kWindowControlsTopZoomedOffset);
-
-      ps = minimize_button_->GetPreferredSize();
-      minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                          Button::ALIGN_BOTTOM);
-      minimize_button_->SetBounds(restore_button_->x() - ps.width(), 0,
-                                  ps.width(),
-                                  ps.height() +
-                                      kWindowControlsTopZoomedOffset);
-    }
+    top_offset = 0;
+    top_extra_height = kWindowControlsTopZoomedOffset;
+    right_offset = kWindowControlsRightZoomedOffset;
+    right_extra_width = right_offset;
+    invisible_button = maximize_button_;
+    visible_button = restore_button_;
   } else {
-    ps = close_button_->GetPreferredSize();
-    close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_TOP);
-    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.width(),
-                             kWindowControlsTopOffset, ps.width(),
-                             ps.height());
-
-    if (should_show_minmax_buttons_) {
-      close_button_->SetImage(
-          Button::BS_NORMAL,
-          active_resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON));
-      close_button_->SetImage(
-          Button::BS_HOT,
-          active_resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_H));
-      close_button_->SetImage(
-          Button::BS_PUSHED,
-          active_resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_P));
-
-      restore_button_->SetVisible(false);
-
-      maximize_button_->SetVisible(true);
-      ps = maximize_button_->GetPreferredSize();
-      maximize_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                          Button::ALIGN_TOP);
-      maximize_button_->SetBounds(close_button_->x() - ps.width(),
-                                  kWindowControlsTopOffset, ps.width(),
-                                  ps.height());
-
-      ps = minimize_button_->GetPreferredSize();
-      minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                          Button::ALIGN_TOP);
-      minimize_button_->SetBounds(maximize_button_->x() - ps.width(),
-                                  kWindowControlsTopOffset, ps.width(),
-                                  ps.height());
-    }
+    top_offset = kWindowControlsTopOffset;
+    top_extra_height = 0;
+    right_offset = kWindowControlsRightOffset;
+    right_extra_width = 0;
+    invisible_button = restore_button_;
+    visible_button = maximize_button_;
   }
-  if (!should_show_minmax_buttons_) {
-    close_button_->SetImage(
-        Button::BS_NORMAL,
-        active_resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_SA));
-    close_button_->SetImage(
-        Button::BS_HOT,
-        active_resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_SA_H));
-    close_button_->SetImage(
-        Button::BS_PUSHED,
-        active_resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_SA_P));
 
-    restore_button_->SetVisible(false);
-    maximize_button_->SetVisible(false);
+  close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
+  gfx::Size close_button_size = close_button_->GetPreferredSize();
+  close_button_->SetBounds(width() - right_offset - close_button_size.width(),
+                           top_offset,
+                           close_button_size.width() + right_extra_width,
+                           close_button_size.height() + top_extra_height);
+
+  invisible_button->SetVisible(false);
+
+  FramePartBitmap normal_part, hot_part, pushed_part;
+  if (should_show_minmax_buttons_) {
+    visible_button->SetVisible(true);
+    visible_button->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
+    gfx::Size visible_button_size = visible_button->GetPreferredSize();
+    visible_button->SetBounds(close_button_->x() - visible_button_size.width(),
+                              top_offset, visible_button_size.width(),
+                              visible_button_size.height() + top_extra_height);
+
+    minimize_button_->SetVisible(true);
+    minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
+                                        Button::ALIGN_BOTTOM);
+    gfx::Size minimize_button_size = minimize_button_->GetPreferredSize();
+    minimize_button_->SetBounds(
+        visible_button->x() - minimize_button_size.width(), top_offset,
+        minimize_button_size.width(),
+        minimize_button_size.height() + top_extra_height);
+
+    normal_part = FRAME_CLOSE_BUTTON_ICON;
+    hot_part = FRAME_CLOSE_BUTTON_ICON_H;
+    pushed_part = FRAME_CLOSE_BUTTON_ICON_P;
+  } else {
+    visible_button->SetVisible(false);
     minimize_button_->SetVisible(false);
+
+    normal_part = FRAME_CLOSE_BUTTON_ICON_SA;
+    hot_part = FRAME_CLOSE_BUTTON_ICON_SA_H;
+    pushed_part = FRAME_CLOSE_BUTTON_ICON_SA_P;
   }
+
+  close_button_->SetImage(Button::BS_NORMAL,
+                          active_resources_->GetPartBitmap(normal_part));
+  close_button_->SetImage(Button::BS_HOT,
+                          active_resources_->GetPartBitmap(hot_part));
+  close_button_->SetImage(Button::BS_PUSHED,
+                          active_resources_->GetPartBitmap(pushed_part));
 }
 
 void DefaultNonClientView::LayoutTitleBar() {
@@ -990,20 +946,18 @@ static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
 }
 
 void CustomFrameWindow::OnInitMenu(HMENU menu) {
-  bool minimized = IsMinimized();
-  bool maximized = IsMaximized();
-  bool minimized_or_maximized = minimized || maximized;
+  bool is_minimized = IsMinimized();
+  bool is_maximized = IsMaximized();
+  bool is_restored = !is_minimized && !is_maximized;
 
   ScopedRedrawLock lock(this);
-  EnableMenuItem(menu, SC_RESTORE,
-                 window_delegate()->CanMaximize() && minimized_or_maximized);
-  EnableMenuItem(menu, SC_MOVE, !minimized_or_maximized);
-  EnableMenuItem(menu, SC_SIZE,
-                 window_delegate()->CanResize() && !minimized_or_maximized);
+  EnableMenuItem(menu, SC_RESTORE, !is_restored);
+  EnableMenuItem(menu, SC_MOVE, is_restored);
+  EnableMenuItem(menu, SC_SIZE, window_delegate()->CanResize() && is_restored);
   EnableMenuItem(menu, SC_MAXIMIZE,
-                 window_delegate()->CanMaximize() && !maximized);
+                 window_delegate()->CanMaximize() && !is_maximized);
   EnableMenuItem(menu, SC_MINIMIZE,
-                 window_delegate()->CanMaximize() && !minimized);
+                 window_delegate()->CanMaximize() && !is_minimized);
 }
 
 void CustomFrameWindow::OnMouseLeave() {
