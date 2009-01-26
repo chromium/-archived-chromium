@@ -1796,7 +1796,7 @@ LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 LayoutTests/fast/regex/malformed-escapes.html = FAIL
 
 // Merge 39972:40057 -- regressions
-LINUX : LayoutTests/fast/canvas/pointInPath.html = CRASH
+LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
 // After a rebaseline, this fails image diff on the buildbot but passes locally.
 // TODO(estade): investigate.
 LINUX : LayoutTests/editing/selection/extend-selection-bidi.html = FAIL PASS
@@ -1827,9 +1827,11 @@ LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 // Merge 40124:40164 -- regressions
 LayoutTests/css1/box_properties/float.html = FAIL
 WIN LINUX : LayoutTests/fast/css/acid2-pixel.html = FAIL
-WIN : LayoutTests/fast/css/acid2.html = FAIL
+WIN LINUX : LayoutTests/fast/css/acid2.html = FAIL
 WIN MAC : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL
+LINUX : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH
 LayoutTests/fast/forms/HTMLOptionElement_label06.html = FAIL
 LayoutTests/fast/forms/HTMLOptionElement_label07.html = FAIL
 LayoutTests/fast/forms/menulist-separator-painting.html = FAIL
