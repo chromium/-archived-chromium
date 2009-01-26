@@ -157,6 +157,9 @@ void TabRestoreService::BrowserClosing(Browser* browser) {
     delete window;
     window = NULL;
   } else {
+    window->selected_tab_index =
+        std::min(static_cast<int>(window->tabs.size() - 1),
+                 window->selected_tab_index);
     AddEntry(window, true, true);
   }
 }
