@@ -248,8 +248,11 @@ void ResourceMessageFilter::OnMsgCreateWindow(int opener_id,
                                               bool user_gesture,
                                               int* route_id,
                                               HANDLE* modal_dialog_event) {
-  render_widget_helper_->CreateNewWindow(opener_id, user_gesture, route_id,
-                                         modal_dialog_event, render_handle_);
+  render_widget_helper_->CreateNewWindow(opener_id,
+                                         user_gesture,
+                                         render_handle_,
+                                         route_id,
+                                         modal_dialog_event);
 }
 
 void ResourceMessageFilter::OnMsgCreateWidget(int opener_id,

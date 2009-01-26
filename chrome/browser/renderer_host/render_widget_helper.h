@@ -8,8 +8,10 @@
 
 #include "base/atomic_sequence_num.h"
 #include "base/hash_tables.h"
+#include "base/process.h"
 #include "base/ref_counted.h"
 #include "base/lock.h"
+#include "base/waitable_event.h"
 
 namespace IPC {
 class Message;
@@ -104,8 +106,14 @@ class RenderWidgetHelper :
 
   MessageLoop* ui_loop() { return ui_loop_; }
 
-  void CreateNewWindow(int opener_id, bool user_gesture, int* route_id,
-                       HANDLE* modal_dialog_event, HANDLE render_process);
+  void CreateNewWindow(int opener_id,
+                       bool user_gesture,
+                       base::ProcessHandle render_process,
+                       int* route_id
+#if defined(OS_WIN)
+                       , HANDLE* modal_dialog_event
+#endif
+                       );
   void CreateNewWidget(int opener_id, bool activatable, int* route_id);
 
  private:
@@ -145,7 +153,7 @@ class RenderWidgetHelper :
   MessageLoop* ui_loop_;
 
   // Event used to implement WaitForPaintMsg.
-  HANDLE event_;
+  base::WaitableEvent event_;
 
   // The next routing id to use.
   base::AtomicSequenceNumber next_routing_id_;

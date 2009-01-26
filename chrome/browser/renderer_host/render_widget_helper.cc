@@ -9,14 +9,11 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 
-using base::TimeDelta;
-using base::TimeTicks;
-
 // A Task used with InvokeLater that we hold a pointer to in pending_paints_.
 // Instances are deleted by MessageLoop after it calls their Run method.
 class RenderWidgetHelper::PaintMsgProxy : public Task {
  public:
-  explicit PaintMsgProxy(RenderWidgetHelper* h, const IPC::Message& m)
+  PaintMsgProxy(RenderWidgetHelper* h, const IPC::Message& m)
       : helper(h),
         message(m),
         cancelled(false) {
@@ -40,7 +37,7 @@ class RenderWidgetHelper::PaintMsgProxy : public Task {
   IPC::Message message;
   bool cancelled;  // If true, then the message will not be dispatched.
 
-  DISALLOW_EVIL_CONSTRUCTORS(PaintMsgProxy);
+  DISALLOW_COPY_AND_ASSIGN(PaintMsgProxy);
 };
 
 RenderWidgetHelper::RenderWidgetHelper(int render_process_id)
@@ -54,8 +51,6 @@ RenderWidgetHelper::~RenderWidgetHelper() {
   // The elements of pending_paints_ each hold an owning reference back to this
   // object, so we should not be destroyed unless pending_paints_ is empty!
   DCHECK(pending_paints_.empty());
-
-  CloseHandle(event_);
 }
 
 int RenderWidgetHelper::GetNextRoutingID() {
@@ -63,29 +58,31 @@ int RenderWidgetHelper::GetNextRoutingID() {
 }
 
 void RenderWidgetHelper::CancelResourceRequests(int render_widget_id) {
-  if (g_browser_process->io_thread())
+  if (g_browser_process->io_thread()) {
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &RenderWidgetHelper::OnCancelResourceRequests,
                           g_browser_process->resource_dispatcher_host(),
                           render_widget_id));
+  }
 }
 
 void RenderWidgetHelper::CrossSiteClosePageACK(int new_render_process_host_id,
                                                int new_request_id) {
-  if (g_browser_process->io_thread())
+  if (g_browser_process->io_thread()) {
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &RenderWidgetHelper::OnCrossSiteClosePageACK,
                           g_browser_process->resource_dispatcher_host(),
                           new_render_process_host_id,
                           new_request_id));
+  }
 }
 
 bool RenderWidgetHelper::WaitForPaintMsg(int render_widget_id,
-                                         const TimeDelta& max_delay,
+                                         const base::TimeDelta& max_delay,
                                          IPC::Message* msg) {
-  TimeTicks time_start = TimeTicks::Now();
+  base::TimeTicks time_start = base::TimeTicks::Now();
 
   for (;;) {
     PaintMsgProxy* proxy = NULL;
@@ -111,13 +108,12 @@ bool RenderWidgetHelper::WaitForPaintMsg(int render_widget_id,
     }
 
     // Calculate the maximum amount of time that we are willing to sleep.
-    TimeDelta max_sleep_time =
-        max_delay - (TimeTicks::Now() - time_start);
-    if (max_sleep_time <= TimeDelta::FromMilliseconds(0))
+    base::TimeDelta max_sleep_time =
+        max_delay - (base::TimeTicks::Now() - time_start);
+    if (max_sleep_time <= base::TimeDelta::FromMilliseconds(0))
       break;
 
-    WaitForSingleObject(event_,
-        static_cast<DWORD>(max_sleep_time.InMilliseconds()));
+    event_.TimedWait(max_sleep_time);
   }
 
   return false;
@@ -147,7 +143,7 @@ void RenderWidgetHelper::DidReceivePaintMsg(const IPC::Message& msg) {
   // Notify anyone waiting on the UI thread that there is a new entry in the
   // proxy map.  If they don't find the entry they are looking for, then they
   // will just continue waiting.
-  SetEvent(event_);
+  event_.Signal();
 
   // The proxy will be deleted when it is run as a task.
   ui_loop_->PostTask(FROM_HERE, proxy);
@@ -192,9 +188,13 @@ void RenderWidgetHelper::OnCrossSiteClosePageACK(
 
 void RenderWidgetHelper::CreateNewWindow(int opener_id,
                                          bool user_gesture,
-                                         int* route_id,
-                                         HANDLE* modal_dialog_event,
-                                         HANDLE render_process) {
+                                         base::ProcessHandle render_process,
+                                         int* route_id
+#if defined(OS_WIN)
+                                         , HANDLE* modal_dialog_event) {
+#else
+                                         ) {
+#endif
   if (!user_gesture && block_popups_) {
     *route_id = MSG_ROUTING_NONE;
     *modal_dialog_event = NULL;
@@ -202,6 +202,8 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
   }
 
   *route_id = GetNextRoutingID();
+
+#if defined(OS_WIN)
   HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
   BOOL result = DuplicateHandle(GetCurrentProcess(),
                                 event,
@@ -214,6 +216,11 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
 
   // The easiest way to reach RenderViewHost is just to send a routed message.
   ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id, event);
+#else
+  // TODO(port) figure out how the modal dialog event should work.
+  ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id);
+#endif
+
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));
 }
