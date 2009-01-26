@@ -60,7 +60,7 @@ struct TableColumn;
 // - only text
 // - a small icon (16x16) and some text
 // - a check box and some text
-typedef enum TableTypes {
+enum TableTypes {
   TEXT_ONLY = 0,
   ICON_AND_TEXT,
   CHECK_BOX_AND_TEXT
@@ -164,7 +164,7 @@ class TableModel {
 
 // TableColumn specifies the title, alignment and size of a particular column.
 struct TableColumn {
-  typedef enum Alignment {
+  enum Alignment {
     LEFT, RIGHT, CENTER
   };
 
