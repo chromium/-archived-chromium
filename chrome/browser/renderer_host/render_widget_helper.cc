@@ -207,7 +207,7 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
   ModalDialogEvent event;
   event.event = CreateEvent(NULL, TRUE, FALSE, NULL);
   BOOL result = DuplicateHandle(GetCurrentProcess(),
-                                event,
+                                event.event,
                                 render_process,
                                 modal_dialog_event,
                                 SYNCHRONIZE,
