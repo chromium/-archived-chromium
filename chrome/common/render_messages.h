@@ -445,6 +445,18 @@ enum ViewHostMsg_ImeControl {
   IME_COMPLETE_COMPOSITION,
 };
 
+// This structure is passed around where we need a modal dialog event, which
+// is currently not plumbed on Mac & Linux.
+//
+// TODO(port) Fix this. This structure should probably go away and we should
+// do the modal dialog event in some portable way. If you remove this, be
+// sure to also remove the ParamTraits for it below.
+struct ModalDialogEvent {
+#if defined(OS_WIN)
+  HANDLE event;
+#endif
+};
+
 // Multi-pass include of render_messages_internal.  Preprocessor magic allows
 // us to use 1 header to define the enums and classes for our render messages.
 #define IPC_MESSAGE_MACROS_ENUMS
@@ -1723,6 +1735,25 @@ struct ParamTraits<webkit_glue::ScreenInfo> {
   }
 };
 
+template<>
+struct ParamTraits<ModalDialogEvent> {
+  typedef ModalDialogEvent param_type;
+#if defined(OS_WIN)
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.event);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->event);
+  }
+#else
+  static void Write(Message* m, const param_type& p) {
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return true;
+  }
+#endif
+};
+  
 }  // namespace IPC
 
 #endif  // CHROME_COMMON_RENDER_MESSAGES_H_

@@ -11,6 +11,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/autofill_manager.h"
 #include "chrome/common/render_messages.h"
+#include "net/base/load_states.h"
 #include "webkit/glue/webpreferences.h"
 
 class NavigationEntry;
@@ -32,10 +33,6 @@ class Message;
 
 namespace gfx {
 class Rect;
-}
-
-namespace net {
-enum LoadState;
 }
 
 //

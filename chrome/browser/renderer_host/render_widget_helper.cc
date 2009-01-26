@@ -204,7 +204,8 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
   *route_id = GetNextRoutingID();
 
 #if defined(OS_WIN)
-  HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  ModalDialogEvent event;
+  event.event = CreateEvent(NULL, TRUE, FALSE, NULL);
   BOOL result = DuplicateHandle(GetCurrentProcess(),
                                 event,
                                 render_process,

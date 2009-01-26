@@ -5,13 +5,18 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
 
-#include <windows.h>
-
 #include <vector>
 
 #include "base/gfx/size.h"
 #include "base/timer.h"
+#include "build/build_config.h"
 #include "chrome/common/ipc_channel.h"
+
+#if defined(OS_WIN)
+// TODO(port) when the bitmaps below use a cross-platform representation this
+// can be removed.
+#include <windows.h>
+#endif
 
 namespace gfx {
 class Rect;
@@ -255,6 +260,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
                             const gfx::Rect& caret_rect);
 
+#if defined(OS_WIN)
+  // TODO(port) use a cross-platform representation of the bitmap.
+
   // Paints the given bitmap to the current backing store at the given location.
   void PaintBackingStoreRect(HANDLE bitmap,
                              const gfx::Rect& bitmap_rect,
@@ -268,7 +276,8 @@ class RenderWidgetHost : public IPC::Channel::Listener {
                               int dx, int dy,
                               const gfx::Rect& clip_rect,
                               const gfx::Size& view_size);
-
+#endif
+  
   // The View associated with the RenderViewHost. The lifetime of this object
   // is associated with the lifetime of the Render process. If the Renderer
   // crashes, its View is destroyed and this pointer becomes NULL, even though
