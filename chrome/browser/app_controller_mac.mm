@@ -79,12 +79,16 @@
     case IDC_NEW_WINDOW:
       Browser::OpenEmptyWindow(ProfileManager::FakeProfile());
       break;
+    case IDC_NEW_INCOGNITO_WINDOW:
+      Browser::OpenURLOffTheRecord(ProfileManager::FakeProfile(), GURL());
+      break;
   };
 }
 
 - (void)initMenuState {
   menuState_ = new CommandUpdater(NULL);
   menuState_->UpdateCommandEnabled(IDC_NEW_WINDOW, true);
+  menuState_->UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   // TODO(pinkerton): ...more to come...
 }
 
