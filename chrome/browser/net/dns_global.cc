@@ -377,13 +377,9 @@ void DnsPrefetchGetHtmlInfo(std::string* output) {
 static PrefetchObserver dns_resolution_observer;
 
 void InitDnsPrefetch(PrefService* user_prefs) {
-  // Use a large shutdown time so that UI tests (that instigate lookups, and
-  // then try to shutdown the browser) don't instigate the CHECK about
-  // "some slaves have not finished"
-  const TimeDelta kAllowableShutdownTime(TimeDelta::FromSeconds(10));
   DCHECK(NULL == dns_master);
   if (!dns_master) {
-    dns_master = new DnsMaster(kAllowableShutdownTime);
+    dns_master = new DnsMaster();
     // We did the initialization, so we should prime the pump, and set up
     // the DNS resolution system to run.
     off_the_record_observer.Register();
@@ -402,14 +398,8 @@ void InitDnsPrefetch(PrefService* user_prefs) {
 
 void ShutdownDnsPrefetch() {
   DCHECK(NULL != dns_master);
-  DnsMaster* master = dns_master;
+  delete dns_master;
   dns_master = NULL;
-  if (master->ShutdownSlaves()) {
-    delete master;
-  } else {
-    // Leak instance if shutdown problem.
-    DCHECK(0);
-  }
 }
 
 static void DiscardAllPrefetchState() {
