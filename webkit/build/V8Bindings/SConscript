@@ -345,6 +345,9 @@ inputs = [
     '$PORT_DIR/bindings/v8/V8WorkerCustom.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
     '$PORT_DIR/bindings/v8/WorkerScriptController.cpp',
+    '$PORT_DIR/bindings/v8/extensions/GCController.cpp',
+    '$PORT_DIR/bindings/v8/extensions/Interval.cpp',
+    '$PORT_DIR/bindings/v8/extensions/Playback.cpp',
 ]
 
 if env.Bit('windows'):
