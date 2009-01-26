@@ -1050,12 +1050,15 @@ LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
 LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
 LayoutTests/fast/dom/constructors-cached.html = FAIL
 LayoutTests/fast/js/arguments.html = FAIL
-LayoutTests/fast/js/construct-global-object.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
 LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
+
+// This is a V8 issues.  It has been fixed in V8 bleeding_edge
+// revision 1157.
+LayoutTests/fast/js/construct-global-object.html = FAIL
 
 // The handling of the selection functions on HTMLInputElements differ
 // from the Firefox behavior.  We should follow Firefox and I believe
