@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "Interval.h"
-#include "WTF/CurrentTime.h"
+#include "wtf/CurrentTime.h"
 
 namespace WebCore {
 
