@@ -75,9 +75,10 @@ class NonClientView : public View {
   // the size of the sizing edges, and whether or not the window can be
   // resized.
   int GetHTComponentForFrame(const gfx::Point& point,
-                             int resize_area_size,
-                             int resize_area_corner_size,
-                             int top_resize_area_size,
+                             int top_resize_border_height,
+                             int resize_border_width,
+                             int bottom_resize_border_height,
+                             int resize_corner_size,
                              bool can_resize);
 
   // Accessor for paint_as_active_.

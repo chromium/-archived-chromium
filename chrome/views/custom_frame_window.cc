@@ -396,7 +396,6 @@ gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(int width,
 gfx::Size DefaultNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
-  int contents_top = CalculateContentsTop();
   return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
                    height + CalculateContentsTop() + kWindowVerticalBorderSize);
 }
@@ -447,11 +446,8 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
   if (button_bounds.Contains(point))
     return HTSYSMENU;
 
-  component = GetHTComponentForFrame(
-      point,
-      kResizeAreaSize,
-      kResizeAreaCornerSize,
-      kResizeAreaNorthSize,
+  component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
+      kResizeAreaSize, kResizeAreaSize, kResizeAreaCornerSize,
       container_->window_delegate()->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.

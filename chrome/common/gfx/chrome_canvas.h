@@ -151,12 +151,9 @@ class ChromeCanvas : public skia::PlatformCanvas {
   void DrawFocusRect(int x, int y, int width, int height);
 
   // Tiles the image in the specified region.
-  void TileImageInt(const SkBitmap& bitmap, int x, int y, int w, int h,
-                    SkPorterDuff::Mode mode);
-
-  // Tiles the image in the specified region using a transfer mode of
-  // SkPorterDuff::kSrcOver_Mode.
   void TileImageInt(const SkBitmap& bitmap, int x, int y, int w, int h);
+  void TileImageInt(const SkBitmap& bitmap, int src_x, int src_y, int dest_x,
+                    int dest_y, int w, int h);
 
   // Extracts a bitmap from the contents of this canvas.
   SkBitmap ExtractBitmap();

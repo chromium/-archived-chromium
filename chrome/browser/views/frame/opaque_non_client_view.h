@@ -70,27 +70,51 @@ class OpaqueNonClientView : public views::NonClientView,
   virtual void SetAccessibleName(const std::wstring& name);
 
  private:
-  // Returns the height of the non-client area at the top of the window (the
-  // title bar, etc).
-  int CalculateNonClientTopHeight() const;
+  // Returns the width of the border that makes up the window frame left and
+  // right edges.  This does not include any client edge.
+  int FrameBorderWidth() const;
 
-  // Returns the current thickness of the border that makes up the window left
-  // and right edges.
-  int HorizontalBorderSize() const;
+  // Returns the height of the border that makes up the window frame top edge.
+  // Because this border is graphically one component with the rest of the
+  // nonclient top border, this is rarely useful directly.
+  int FrameTopBorderHeight() const;
 
-  // Returns the current thickness of the border that makes up the window bottom
-  // edge.
-  int VerticalBorderBottomSize() const;
+  // Returns the height of the top resize area.  This is smaller than the frame
+  // border height in order to increase the window draggable area.
+  int TopResizeHeight() const;
 
-  // Paint various sub-components of this view.
-  void PaintFrameBorder(ChromeCanvas* canvas);
+  // Returns the width of the entire nonclient left and right borders, including
+  // both the window frame and any client edge.
+  int NonClientBorderWidth() const;
+
+  // Returns the height of the entire nonclient top border, including the window
+  // frame, any title area, and any connected client edge.
+  int NonClientTopBorderHeight() const;
+
+  // Returns the height of the entire nonclient bottom border, including both
+  // the window frame and the client edge.
+  int NonClientBottomBorderHeight() const;
+
+  // For windows without a toolbar, restored mode also draws a client edge below
+  // the titlebar which is considered part of the nonclient height.  This
+  // returns the height of any such edge.
+  int ClientEdgeThicknessWithinNonClientHeight() const;
+
+  // Calculates multiple values related to title layout.  Returns the height of
+  // the entire titlebar including any connected client edge.
+  int TitleCoordinates(int* title_top_spacing,
+                       int* title_thickness) const;
+
+  // Paint various sub-components of this view.  The *FrameBorder() functions
+  // also paint the background of the titlebar area, since the top frame border
+  // and titlebar background are a contiguous component.
+  void PaintRestoredFrameBorder(ChromeCanvas* canvas);
   void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
   void PaintDistributorLogo(ChromeCanvas* canvas);
   void PaintTitleBar(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
   void PaintOTRAvatar(ChromeCanvas* canvas);
-  void PaintClientEdge(ChromeCanvas* canvas);
-  void PaintMaximizedClientEdge(ChromeCanvas* canvas);
+  void PaintRestoredClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();

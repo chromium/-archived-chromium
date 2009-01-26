@@ -207,9 +207,13 @@ void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
 }
 
 void ChromeCanvas::TileImageInt(const SkBitmap& bitmap,
-                                int x, int y, int w, int h,
-                                SkPorterDuff::Mode mode) {
-  if (!IntersectsClipRectInt(x, y, w, h))
+                                int x, int y, int w, int h) {
+  TileImageInt(bitmap, 0, 0, x, y, w, h);
+}
+
+void ChromeCanvas::TileImageInt(const SkBitmap& bitmap, int src_x, int src_y,
+                                int dest_x, int dest_y, int w, int h) {
+  if (!IntersectsClipRectInt(dest_x, dest_y, w, h))
     return;
 
   SkPaint paint;
@@ -218,21 +222,16 @@ void ChromeCanvas::TileImageInt(const SkBitmap& bitmap,
                                                   SkShader::kRepeat_TileMode,
                                                   SkShader::kRepeat_TileMode);
   paint.setShader(shader);
-  paint.setPorterDuffXfermode(mode);
+  paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
 
   // CreateBitmapShader returns a Shader with a reference count of one, we
   // need to unref after paint takes ownership of the shader.
   shader->unref();
   save();
-  translate(SkIntToScalar(x), SkIntToScalar(y));
-  ClipRectInt(0, 0, w, h);
+  translate(SkIntToScalar(dest_x - src_x), SkIntToScalar(dest_y - src_y));
+  ClipRectInt(src_x, src_y, w, h);
   drawPaint(paint);
   restore();
-}
-
-void ChromeCanvas::TileImageInt(const SkBitmap& bitmap,
-                                int x, int y, int w, int h) {
-  TileImageInt(bitmap, x, y, w, h, SkPorterDuff::kSrcOver_Mode);
 }
 
 SkBitmap ChromeCanvas::ExtractBitmap() {
