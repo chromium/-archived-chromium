@@ -97,7 +97,7 @@
 // };
 
 
-#if !defined(NDEBUG) || defined(UNIT_TEST)
+#if !defined(NDEBUG)
 
 // Defines a class member that acts like a mutex. It is used only as a
 // verification tool.
