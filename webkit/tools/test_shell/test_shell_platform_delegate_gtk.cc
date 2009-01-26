@@ -14,6 +14,11 @@ void TestShellPlatformDelegate::PreflightArgs(int *argc, char ***argv) {
 }
 
 void TestShellPlatformDelegate::SelectUnifiedTheme() {
+  // Stop custom gtkrc files from messing with the theme.
+  gchar* default_gtkrc_files[] = { NULL };
+  gtk_rc_set_default_files(default_gtkrc_files);
+  gtk_rc_reparse_all_for_settings(gtk_settings_get_default(), TRUE);
+
   // Pick a theme that uses Cairo for drawing, since we:
   // 1) currently don't support GTK themes that use the GDK drawing APIs, and
   // 2) need to use a unified theme for layout tests anyway.
