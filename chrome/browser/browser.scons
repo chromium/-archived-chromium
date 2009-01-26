@@ -769,6 +769,7 @@ if not env.Bit('windows'):
       'printing/win_printing_context.cc',
       'profile.cc',
       'profile_manager.cc',
+      'renderer_host/render_view_host.cc',
       'renderer_host/render_widget_helper.cc',
       'renderer_host/render_widget_host.cc',
       'renderer_host/cross_site_resource_handler.cc',

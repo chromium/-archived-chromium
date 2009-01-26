@@ -22,6 +22,7 @@
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
@@ -77,13 +78,12 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
                                base::WaitableEvent* modal_dialog_event)
     : RenderWidgetHost(instance->GetProcess(), routing_id),
       instance_(instance),
+      enable_dom_ui_bindings_(false),
+      enable_external_host_bindings_(false),
       delegate_(delegate),
       renderer_initialized_(false),
       waiting_for_drag_context_response_(false),
       debugger_attached_(false),
-      enable_dom_ui_bindings_(false),
-      pending_request_id_(-1),
-      enable_external_host_bindings_(false),
       modal_dialog_count_(0),
       navigations_suspended_(false),
       suspended_nav_message_(NULL),
@@ -129,7 +129,6 @@ bool RenderViewHost::CreateRenderView() {
 
   renderer_initialized_ = true;
 
-#if defined(OS_WIN)
   HANDLE modal_dialog_event;
   HANDLE renderer_process_handle = process()->process().handle();
   if (renderer_process_handle == NULL)
@@ -149,9 +148,6 @@ bool RenderViewHost::CreateRenderView() {
                        modal_dialog_event,
                        delegate_->GetWebkitPrefs(),
                        routing_id()));
-#elif defined(OS_POSIX)
-  Send(new ViewMsg_New(delegate_->GetWebkitPrefs(), routing_id()));
-#endif
 
   // Set the alternate error page, which is profile specific, in the renderer.
   GURL url = delegate_->GetAlternateErrorPageURL();
@@ -754,21 +750,12 @@ void RenderViewHost::Shutdown() {
   RenderWidgetHost::Shutdown();
 }
 
-void RenderViewHost::OnMsgCreateWindow(
-    int route_id,
-    ModalDialogEvent modal_dialog_event) {
+void RenderViewHost::OnMsgCreateWindow(int route_id,
+                                       HANDLE modal_dialog_event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
-  if (view) {
-#if defined(OS_WIN)
+  if (view)
     view->CreateNewWindow(route_id,
-                          new base::WaitableEvent(modal_dialog_event.event));
-#else
-    // TODO(port) this isn't correct, since we just make up an event won't ever
-    // be set by the renderer.
-    view->CreateNewWindow(route_id,
-                          new base::WaitableEvent(true, false));
-#endif
-  }
+                          new base::WaitableEvent(modal_dialog_event));
 }
 
 void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {
@@ -1083,6 +1070,7 @@ void RenderViewHost::OnMsgRunJavaScriptMessage(
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     modal_dialog_event_->Signal();
+  bool did_suppress_message = false;
   delegate_->RunJavaScriptMessage(message, default_prompt, flags, reply_msg,
                                   &are_javascript_messages_suppressed_);
 }

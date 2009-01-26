@@ -12,11 +12,9 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/page_zoom.h"
-#include "chrome/common/render_messages.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
-#include "net/base/load_states.h"
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/autofill_form.h"
 
@@ -41,6 +39,10 @@ class WaitableEvent;
 
 namespace gfx {
 class Point;
+}
+
+namespace net {
+enum LoadState;
 }
 
 namespace webkit_glue {
@@ -414,7 +416,7 @@ class RenderViewHost : public RenderWidgetHost {
   virtual void NotifyRendererResponsive();
 
   // IPC message handlers.
-  void OnMsgCreateWindow(int route_id, ModalDialogEvent modal_dialog_event);
+  void OnMsgCreateWindow(int route_id, HANDLE modal_dialog_event);
   void OnMsgCreateWidget(int route_id, bool activatable);
   void OnMsgShowView(int route_id,
                      WindowOpenDisposition disposition,
