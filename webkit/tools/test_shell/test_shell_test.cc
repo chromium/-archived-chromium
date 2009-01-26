@@ -18,9 +18,6 @@ std::wstring TestShellTest::GetTestURL(std::wstring test_case_path,
 
 void TestShellTest::SetUp() {
   // Make a test shell for use by the test.
-#if defined(OS_WIN)
-  TestShell::RegisterWindowClass();
-#endif
   CreateEmptyWindow();
   test_shell_->Show(test_shell_->webView(), NEW_WINDOW);
 

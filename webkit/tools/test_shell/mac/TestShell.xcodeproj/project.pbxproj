@@ -88,6 +88,7 @@
 		AB19AC150F1BBBD000673E20 /* test_shell_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC140F1BBBD000673E20 /* test_shell_main.cc */; };
 		AB19AC290F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC280F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm */; };
 		AB19AD380F1D0AF200673E20 /* test_shell_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */; };
+		AB5FD3C90F2E2457000EE9AF /* test_shell_platform_delegate_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC280F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm */; };
 		E43A79AA0F1CE23800ABD5D1 /* textAreaResizeCorner.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79A90F1CE23800ABD5D1 /* textAreaResizeCorner.png */; };
 		E44662070ECCD652000B9316 /* test_webview_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = E44662060ECCD652000B9316 /* test_webview_delegate.cc */; };
 		E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E450637D0E4100740025A81A /* test_shell_request_context.cc */; };
@@ -1927,6 +1928,7 @@
 				E45067BD0EF0163D003BE099 /* test_navigation_controller.cc in Sources */,
 				E45067C00EF01650003BE099 /* test_shell.cc in Sources */,
 				E45067C20EF01668003BE099 /* test_shell_mac.mm in Sources */,
+				AB5FD3C90F2E2457000EE9AF /* test_shell_platform_delegate_mac.mm in Sources */,
 				E45067BE0EF01644003BE099 /* test_shell_request_context.cc in Sources */,
 				E45067BF0EF01648003BE099 /* test_shell_switches.cc in Sources */,
 				E4506A490EF02288003BE099 /* test_shell_test.cc in Sources */,

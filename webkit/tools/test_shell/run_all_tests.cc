@@ -10,8 +10,6 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #include <commctrl.h>
-#elif defined(OS_LINUX)
-#include <gtk/gtk.h>
 #endif
 
 #include "base/at_exit.h"
@@ -23,12 +21,9 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
+#include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#if defined(OS_MACOSX)
-#include "WebSystemInterface.h"
-#endif
 
 const char* TestShellTest::kJavascriptDelayExitScript = 
   "<script>"
@@ -40,21 +35,16 @@ const char* TestShellTest::kJavascriptDelayExitScript =
   "</script>";
 
 int main(int argc, char* argv[]) {
-#if defined(OS_MACOSX)
-  InitWebCoreSystemInterface();
-#endif
-
   base::ScopedNSAutoreleasePool autorelease_pool;
   base::EnableTerminationOnHeapCorruption();
   // Some unittests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;
 
-#if defined(OS_LINUX)
-  gtk_init(&argc, &argv);
-#endif
-
+  TestShellPlatformDelegate::PreflightArgs(&argc, &argv);
   CommandLine::Init(argc, argv);
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
+  TestShellPlatformDelegate platform(parsed_command_line);
 
   // Suppress error dialogs and do not show GP fault error box on Windows.
   TestShell::InitLogging(true, false, false);
@@ -80,13 +70,8 @@ int main(int argc, char* argv[]) {
   // Load ICU data tables
   icu_util::Initialize();
 
-#if defined(OS_WIN)
-  INITCOMMONCONTROLSEX InitCtrlEx;
-
-  InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
-  InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
-  InitCommonControlsEx(&InitCtrlEx);
-#endif
+  platform.InitializeGUI();
+  platform.SelectUnifiedTheme();
 
   // Run the actual tests
   testing::InitGoogleTest(&argc, argv);
@@ -97,3 +82,4 @@ int main(int argc, char* argv[]) {
 
   return result;
 }
+
