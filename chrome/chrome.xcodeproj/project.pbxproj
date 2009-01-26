@@ -230,6 +230,11 @@
 		B6CCB9FA0F1EC33100106F0D /* provisional_load_details.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9DE0F1EC32700106F0D /* provisional_load_details.cc */; };
 		B9BF55F87A4BB2FD366B6DDC /* template_url_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = 28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */; };
 		C39F08C4FFD9C2F98384F56B /* template_url_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = EA72C084DB3FC0FC595E525E /* template_url_model.cc */; };
+		E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5E10F2E348900708647 /* history_contents_provider.cc */; };
+		E40CC5EE0F2E34C100708647 /* base_history_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF82B0E9D4839009A6919 /* base_history_model.cc */; };
+		E40CC5F20F2E34EE00708647 /* bookmark_folder_tree_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F00F2E34EE00708647 /* bookmark_folder_tree_model.cc */; };
+		E40CC5F70F2E351A00708647 /* bookmark_table_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */; };
+		E40CC5FE0F2E35A800708647 /* security_filter_peer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBFA0E9D4C9F009A6919 /* security_filter_peer.cc */; };
 		E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9680EC4EA270052B72B /* automation_resource_tracker.cc */; };
 		E43A770D0F16610300ABD5D1 /* chrome_plugin_browsing_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF85B0E9D4839009A6919 /* chrome_plugin_browsing_context.cc */; };
 		E43A77110F16613700ABD5D1 /* chrome_url_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A77100F16613700ABD5D1 /* chrome_url_request_context.cc */; };
@@ -1784,6 +1789,15 @@
 		B6CCB9F70F1EC32700106F0D /* web_drag_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_drag_source.h; path = tab_contents/web_drag_source.h; sourceTree = "<group>"; };
 		B6CCB9F80F1EC32700106F0D /* web_drop_target.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = web_drop_target.cc; path = tab_contents/web_drop_target.cc; sourceTree = "<group>"; };
 		B6CCB9F90F1EC32700106F0D /* web_drop_target.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_drop_target.h; path = tab_contents/web_drop_target.h; sourceTree = "<group>"; };
+		E40CC5E10F2E348900708647 /* history_contents_provider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = history_contents_provider.cc; path = autocomplete/history_contents_provider.cc; sourceTree = "<group>"; };
+		E40CC5E20F2E348900708647 /* history_contents_provider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = history_contents_provider.h; path = autocomplete/history_contents_provider.h; sourceTree = "<group>"; };
+		E40CC5E40F2E349000708647 /* history_contents_provider_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = history_contents_provider_unittest.cc; path = autocomplete/history_contents_provider_unittest.cc; sourceTree = "<group>"; };
+		E40CC5F00F2E34EE00708647 /* bookmark_folder_tree_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_folder_tree_model.cc; path = bookmarks/bookmark_folder_tree_model.cc; sourceTree = "<group>"; };
+		E40CC5F10F2E34EE00708647 /* bookmark_folder_tree_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bookmark_folder_tree_model.h; path = bookmarks/bookmark_folder_tree_model.h; sourceTree = "<group>"; };
+		E40CC5F30F2E34F400708647 /* bookmark_folder_tree_model_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_folder_tree_model_unittest.cc; path = bookmarks/bookmark_folder_tree_model_unittest.cc; sourceTree = "<group>"; };
+		E40CC5F50F2E351A00708647 /* bookmark_table_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bookmark_table_model.h; path = bookmarks/bookmark_table_model.h; sourceTree = "<group>"; };
+		E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_table_model.cc; path = bookmarks/bookmark_table_model.cc; sourceTree = "<group>"; };
+		E40CC5F80F2E351F00708647 /* bookmark_table_model_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_table_model_unittest.cc; path = bookmarks/bookmark_table_model_unittest.cc; sourceTree = "<group>"; };
 		E43A770F0F16613700ABD5D1 /* chrome_url_request_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chrome_url_request_context.h; sourceTree = "<group>"; };
 		E43A77100F16613700ABD5D1 /* chrome_url_request_context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_url_request_context.cc; sourceTree = "<group>"; };
 		E43A77150F16616E00ABD5D1 /* download_resource_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = download_resource_handler.h; path = renderer_host/download_resource_handler.h; sourceTree = "<group>"; };
@@ -3211,6 +3225,9 @@
 		E45075A30F150543003BE099 /* autocomplete */ = {
 			isa = PBXGroup;
 			children = (
+				E40CC5E40F2E349000708647 /* history_contents_provider_unittest.cc */,
+				E40CC5E10F2E348900708647 /* history_contents_provider.cc */,
+				E40CC5E20F2E348900708647 /* history_contents_provider.h */,
 				E45075AA0F150564003BE099 /* keyword_provider.cc */,
 				E45075D00F150764003BE099 /* keyword_provider.h */,
 			);
@@ -3222,8 +3239,14 @@
 			children = (
 				E45075B10F1505C0003BE099 /* bookmark_codec.cc */,
 				E45075D10F150772003BE099 /* bookmark_codec.h */,
+				E40CC5F30F2E34F400708647 /* bookmark_folder_tree_model_unittest.cc */,
+				E40CC5F00F2E34EE00708647 /* bookmark_folder_tree_model.cc */,
+				E40CC5F10F2E34EE00708647 /* bookmark_folder_tree_model.h */,
 				E45075B30F1505C9003BE099 /* bookmark_html_writer.cc */,
 				E45075D20F150778003BE099 /* bookmark_html_writer.h */,
+				E40CC5F80F2E351F00708647 /* bookmark_table_model_unittest.cc */,
+				E40CC5F50F2E351A00708647 /* bookmark_table_model.h */,
+				E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */,
 			);
 			name = bookmarks;
 			sourceTree = "<group>";
@@ -4060,9 +4083,12 @@
 				4D7BFA1E0E9D48FD009A6919 /* archived_database.cc in Sources */,
 				E45075DC0F150A53003BE099 /* async_resource_handler.cc in Sources */,
 				E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */,
+				E40CC5EE0F2E34C100708647 /* base_history_model.cc in Sources */,
 				4D7BFAEE0E9D49E5009A6919 /* bloom_filter.cc in Sources */,
 				E45075B20F1505C0003BE099 /* bookmark_codec.cc in Sources */,
+				E40CC5F20F2E34EE00708647 /* bookmark_folder_tree_model.cc in Sources */,
 				E45075B40F1505C9003BE099 /* bookmark_html_writer.cc in Sources */,
+				E40CC5F70F2E351A00708647 /* bookmark_table_model.cc in Sources */,
 				E46C4C2E0F212CAF00B393B8 /* browser.cc in Sources */,
 				E46C4D0F0F2138D400B393B8 /* browser_list.cc in Sources */,
 				E45063530EE9BF31003BE099 /* browser_main.cc in Sources */,
@@ -4096,6 +4122,7 @@
 				4D7BF9990E9D486B009A6919 /* google_url_tracker.cc in Sources */,
 				4D7BF99E0E9D486F009A6919 /* google_util.cc in Sources */,
 				E4F3244A0EE5CF3C002533CE /* history_backend.cc in Sources */,
+				E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */,
 				E4F3244D0EE5CF4A002533CE /* history_database.cc in Sources */,
 				E45075BC0F1506B5003BE099 /* history_model.cc in Sources */,
 				4D7BFA1F0E9D4901009A6919 /* history_types.cc in Sources */,
@@ -4231,6 +4258,7 @@
 				B5E98B140F0574A8000A37D6 /* render_messages.cc in Sources */,
 				E45076A90F153619003BE099 /* resource_dispatcher.cc in Sources */,
 				E43A78750F17A95400ABD5D1 /* sandbox_init_wrapper.cc in Sources */,
+				E40CC5FE0F2E35A800708647 /* security_filter_peer.cc in Sources */,
 				4D7BFC7F0E9D4D2E009A6919 /* slide_animation.cc in Sources */,
 				4D7BFC840E9D4D32009A6919 /* sqlite_compiled_statement.cc in Sources */,
 				4D7BFC8B0E9D4D35009A6919 /* sqlite_utils.cc in Sources */,
