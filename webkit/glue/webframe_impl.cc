@@ -1656,9 +1656,10 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
     }
   }
 
-  child_frame->loader()->loadURL(
-      new_url, request.resourceRequest().httpReferrer(), request.frameName(),
-      child_load_type, 0, 0);
+  child_frame->loader()->loadURL(new_url,
+                                 request.resourceRequest().httpReferrer(),
+                                 child_frame->tree()->name(),
+                                 child_load_type, 0, 0);
 
   // A synchronous navigation (about:blank) would have already processed
   // onload, so it is possible for the frame to have already been destroyed by

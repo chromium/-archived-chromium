@@ -914,7 +914,9 @@ void WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction(
   WebViewDelegate* d = wv->delegate();
   // It is valid for this function to be invoked in code paths where the
   // the webview is closed.
-  if (d) {
+  // The NULL check here is to fix a crash that seems strange
+  // (see - https://bugs.webkit.org/show_bug.cgi?id=23554).
+  if (d && !request.url().isNull()) {
     WindowOpenDisposition disposition = CURRENT_TAB;
     ActionSpecifiesDisposition(action, &disposition);
 
