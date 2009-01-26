@@ -504,6 +504,11 @@ linux_env.Append(
 
     ICU_LIBS = ['icu'],
 )
+
+# Build an "official" build (DCHECKs completely compiled out, etc).
+if ARGUMENTS.get('OFFICIAL') == '1':
+  linux_env.Append(CPPDEFINES=['OFFICIAL_BUILD'])
+
 # Build with support for gcov when COVERAGE=1.
 if ARGUMENTS.get('COVERAGE') == '1':
   linux_env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
