@@ -230,6 +230,8 @@ struct PODTypeWrapperCacheInfo {
     // Deleted value
     explicit PODTypeWrapperCacheInfo(WTF::HashTableDeletedValueType)
         : creator(reinterpret_cast<PODTypeCreator*>(-1))
+        , getter(0)
+        , setter(0)
     {
     }
     bool isHashTableDeletedValue() const
