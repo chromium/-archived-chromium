@@ -552,7 +552,9 @@ class XcodeProject(object):
         i += 1
       parent_group.child_names.insert(i, new_file_ref.name)
       parent_group.child_uuids.insert(i, new_file_ref.uuid)
+      # Add file ref uuid sorted
       self._sections['PBXFileReference'].append(new_file_ref)
+      self._sections['PBXFileReference'].sort(cmp=lambda x,y: cmp(x.uuid, y.uuid))
       return new_file_ref
 
     # Group-relative failed, how about SOURCE_ROOT relative in the main group
@@ -568,7 +570,9 @@ class XcodeProject(object):
                                       None)
       self._root_group.child_uuids.append(new_file_ref.uuid)
       self._root_group.child_names.append(new_file_ref.name)
+      # Add file ref uuid sorted
       self._sections['PBXFileReference'].append(new_file_ref)
+      self._sections['PBXFileReference'].sort(cmp=lambda x,y: cmp(x.uuid, y.uuid))
       return new_file_ref
 
     # Win to Unix absolute paths probably not practical
@@ -595,7 +599,9 @@ class XcodeProject(object):
                                   'Sources',
                                   source_ref.uuid,
                                   '')
+    # Add to build file list (uuid sorted)
     self._sections['PBXBuildFile'].append(new_build_file)
+    self._sections['PBXBuildFile'].sort(cmp=lambda x,y: cmp(x.uuid, y.uuid))
     # Add to sources phase list (name sorted)
     i = 0
     while i < len(source_phase.file_names):
