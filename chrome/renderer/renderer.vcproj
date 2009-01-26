@@ -134,6 +134,34 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="media"
+			>
+			<File
+				RelativePath=".\media\audio_renderer_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\media\audio_renderer_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\media\data_source_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\media\data_source_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\media\video_renderer_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\media\video_renderer_impl.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="net"
 			>
 			<File

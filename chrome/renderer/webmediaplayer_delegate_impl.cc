@@ -2,6 +2,9 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
+#include "chrome/renderer/media/audio_renderer_impl.h"
+#include "chrome/renderer/media/data_source_impl.h"
+#include "chrome/renderer/media/video_renderer_impl.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
 
 WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl()
@@ -22,6 +25,15 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl()
       web_media_player_(NULL),
       width_(0) {
   // TODO(hclam): initialize the media player here
+
+  // TODO(scherkus): remove these when actually in use -- right now I declare
+  // these to force compiler/linker errors to reveal themselves.
+  scoped_refptr<AudioRendererImpl> audio_renderer;
+  audio_renderer = new AudioRendererImpl();
+  scoped_refptr<DataSourceImpl> data_source;
+  data_source = new DataSourceImpl();
+  scoped_refptr<VideoRendererImpl> video_renderer;
+  video_renderer = new VideoRendererImpl();
 }
 
 WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {

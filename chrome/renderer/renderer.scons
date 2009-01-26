@@ -10,6 +10,7 @@ env.SConscript([
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$GRIT_DIR/build/using_generated_resources.scons',
     '$ICU38_DIR/using_icu38.scons',
+    '$MEDIA_DIR/using_media.scons',
     '$NPAPI_DIR/using_npapi.scons',
     '$SKIA_DIR/using_skia.scons',
 ], {'env':env})
@@ -34,6 +35,14 @@ input_files = ChromeFileList([
   MSVSFilter('automation', [
     'automation/dom_automation_controller.cc',
     'automation/dom_automation_controller.h',
+  ]),
+  MSVSFilter('media', [
+    'media/audio_renderer_impl.cc',
+    'media/audio_renderer_impl.h',
+    'media/data_source_impl.cc',
+    'media/data_source_impl.h',
+    'media/video_renderer_impl.cc',
+    'media/video_renderer_impl.h',
   ]),
   MSVSFilter('net', [
     'net/render_dns_master.cc',
