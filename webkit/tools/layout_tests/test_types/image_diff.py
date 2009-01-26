@@ -34,7 +34,7 @@ class ImageDiff(test_type_base.TestTypeBase):
       expected_png: path to the expected result file
     """
     self._MakeOutputDirectory(filename)
-    actual_filename = self.OutputFilename(filename, "-actual-win.png")
+    actual_filename = self.OutputFilename(filename, "-actual.png")
     expected_filename = self.OutputFilename(filename, "-expected.png")
 
     shutil.copyfile(actual_png, actual_filename)
@@ -70,7 +70,7 @@ class ImageDiff(test_type_base.TestTypeBase):
       self.FILENAME_SUFFIX_COMPARE)
     actual_filename = self.OutputFilename(filename,
       self.FILENAME_SUFFIX_ACTUAL + '.png')
-    expected_win_filename = self.OutputFilename(filename,
+    expected_filename = self.OutputFilename(filename,
       self.FILENAME_SUFFIX_EXPECTED + '.png')
     platform_util = platform_utils.PlatformUtility('')
 
@@ -79,7 +79,7 @@ class ImageDiff(test_type_base.TestTypeBase):
 
     try:
       executable = platform_util.ImageCompareExecutablePath(target)
-      cmd = [executable, '--diff', actual_filename, expected_win_filename,
+      cmd = [executable, '--diff', actual_filename, expected_filename,
              diff_filename]
     except Exception, e:
       _compare_available = False

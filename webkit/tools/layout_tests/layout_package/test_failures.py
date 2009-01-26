@@ -118,7 +118,7 @@ class FailureCrash(TestFailure):
 
 class FailureMissingResult(FailureWithType):
   """Expected result was missing."""
-  OUT_FILENAMES = ["-actual-win.txt"]
+  OUT_FILENAMES = ["-actual.txt"]
 
   @staticmethod
   def Message():
@@ -132,9 +132,9 @@ class FailureMissingResult(FailureWithType):
 class FailureTextMismatch(FailureWithType):
   """Text diff output failed."""
   # Filename suffixes used by ResultHtmlOutput.
-  OUT_FILENAMES = ["-actual-win.txt", "-expected.txt", "-diff-win.txt"]
-  OUT_FILENAMES_WDIFF = ["-actual-win.txt", "-expected.txt", "-diff-win.txt",
-                         "-wdiff-win.html"]
+  OUT_FILENAMES = ["-actual.txt", "-expected.txt", "-diff.txt"]
+  OUT_FILENAMES_WDIFF = ["-actual.txt", "-expected.txt", "-diff.txt",
+                         "-wdiff.html"]
 
   def __init__(self, test_type, has_wdiff):
     FailureWithType.__init__(self, test_type)
@@ -154,8 +154,8 @@ class FailureSimplifiedTextMismatch(FailureTextMismatch):
   with the FailureTextMismatch class.
   """
 
-  OUT_FILENAMES = ["-simp-actual-win.txt", "-simp-expected.txt",
-                   "-simp-diff-win.txt"]
+  OUT_FILENAMES = ["-simp-actual.txt", "-simp-expected.txt",
+                   "-simp-diff.txt"]
   def __init__(self, test_type):
     # Don't run wdiff on simplified text diffs.
     FailureTextMismatch.__init__(self, test_type, False)
@@ -181,7 +181,7 @@ class FailureMissingImageHash(FailureWithType):
 
 class FailureMissingImage(FailureWithType):
   """Actual result image was missing."""
-  OUT_FILENAMES = ["-actual-win.png"]
+  OUT_FILENAMES = ["-actual.png"]
 
   @staticmethod
   def Message():
@@ -194,7 +194,7 @@ class FailureMissingImage(FailureWithType):
 
 class FailureImageHashMismatch(FailureWithType):
   """Image hashes didn't match."""
-  OUT_FILENAMES = ["-actual-win.png", "-expected.png", "-diff-win.png"]
+  OUT_FILENAMES = ["-actual.png", "-expected.png", "-diff.png"]
 
   @staticmethod
   def Message():
@@ -204,7 +204,7 @@ class FailureImageHashMismatch(FailureWithType):
 
 class FailureFuzzyFailure(FailureWithType):
   """Image hashes didn't match."""
-  OUT_FILENAMES = ["-actual-win.png", "-expected.png"]
+  OUT_FILENAMES = ["-actual.png", "-expected.png"]
 
   @staticmethod
   def Message():

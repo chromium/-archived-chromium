@@ -42,11 +42,11 @@ _wdiff_available = True
 
 class TestTypeBase(object):
   # Filename pieces when writing failures to the test results directory.
-  FILENAME_SUFFIX_ACTUAL = "-actual-win"
+  FILENAME_SUFFIX_ACTUAL = "-actual"
   FILENAME_SUFFIX_EXPECTED = "-expected"
-  FILENAME_SUFFIX_DIFF = "-diff-win"
-  FILENAME_SUFFIX_WDIFF = "-wdiff-win.html"
-  FILENAME_SUFFIX_COMPARE = "-diff-win.png"
+  FILENAME_SUFFIX_DIFF = "-diff"
+  FILENAME_SUFFIX_WDIFF = "-wdiff.html"
+  FILENAME_SUFFIX_COMPARE = "-diff.png"
 
   def __init__(self, platform, root_output_dir):
     """Initialize a TestTypeBase object.
@@ -143,9 +143,9 @@ class TestTypeBase(object):
     between the two to files in the results directory.
 
     The full output filename of the actual, for example, will be
-      <filename><test_type>-actual-win<file_type>
+      <filename><test_type>-actual<file_type>
     For instance,
-      my_test-simp-actual-win.txt
+      my_test-simp-actual.txt
 
     Args:
       filename: The test filename
@@ -160,15 +160,15 @@ class TestTypeBase(object):
     self._MakeOutputDirectory(filename)
     actual_filename = self.OutputFilename(filename,
                       test_type + self.FILENAME_SUFFIX_ACTUAL + file_type)
-    expected_win_filename = self.OutputFilename(filename,
+    expected_filename = self.OutputFilename(filename,
                       test_type + self.FILENAME_SUFFIX_EXPECTED + file_type)
     open(actual_filename, "wb").write(output)
-    open(expected_win_filename, "wb").write(expected)
+    open(expected_filename, "wb").write(expected)
 
     if diff:
       diff = difflib.unified_diff(expected.splitlines(True),
                                   output.splitlines(True),
-                                  expected_win_filename,
+                                  expected_filename,
                                   actual_filename)
 
       diff_filename = self.OutputFilename(filename,
@@ -182,7 +182,7 @@ class TestTypeBase(object):
       cmd = [executable,
              '--start-delete=##WDIFF_DEL##', '--end-delete=##WDIFF_END##',
              '--start-insert=##WDIFF_ADD##', '--end-insert=##WDIFF_END##',
-             actual_filename, expected_win_filename]
+             actual_filename, expected_filename]
       filename = self.OutputFilename(filename,
                       test_type + self.FILENAME_SUFFIX_WDIFF)
 
