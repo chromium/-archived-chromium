@@ -606,13 +606,16 @@ void OpaqueNonClientView::GetWindowMask(const gfx::Size& size,
 
   // Redefine the window visible region for the new size.
   window_mask->moveTo(0, 3);
+  window_mask->lineTo(1, 2);
   window_mask->lineTo(1, 1);
+  window_mask->lineTo(2, 1);
   window_mask->lineTo(3, 0);
 
   window_mask->lineTo(SkIntToScalar(size.width() - 3), 0);
+  window_mask->lineTo(SkIntToScalar(size.width() - 2), 1);
   window_mask->lineTo(SkIntToScalar(size.width() - 1), 1);
-  window_mask->lineTo(SkIntToScalar(size.width() - 1), 3);
-  window_mask->lineTo(SkIntToScalar(size.width() - 0), 3);
+  window_mask->lineTo(SkIntToScalar(size.width() - 1), 2);
+  window_mask->lineTo(SkIntToScalar(size.width()), 3);
 
   window_mask->lineTo(SkIntToScalar(size.width()),
                       SkIntToScalar(size.height()));
