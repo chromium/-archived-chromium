@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "base/compiler_specific.h"
 #include "base/histogram.h"
 #include "base/lock.h"
 #include "base/revocable_store.h"
@@ -27,7 +28,8 @@ class DnsMaster::LookupRequest : RevocableStore::Revocable {
  public:
   LookupRequest(DnsMaster* master, const std::string& hostname)
       : RevocableStore::Revocable(&master->pending_callbacks_),
-        callback_(this, &LookupRequest::OnLookupFinished),
+        ALLOW_THIS_IN_INITIALIZER_LIST(callback_(
+            this, &LookupRequest::OnLookupFinished)),
         hostname_(hostname),
         master_(master) {
   }
