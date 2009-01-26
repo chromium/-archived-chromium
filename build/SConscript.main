@@ -232,10 +232,6 @@ root_env.Append(BUILD_SCONSCRIPTS = sconscripts)
 
 windows_env = root_env.Clone()
 
-# TODO(siggi) Remove this line once SCons plays well when the 
-# Platform SDK 6.1 is installed with VS2005 but not VS2008.
-windows_env['MSVS_VERSION'] = '8.0'
-
 windows_env.Tool('target_platform_windows')
 windows_env.Tool('component_targets_msvs')  # Per target project support.
 
