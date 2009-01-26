@@ -1855,12 +1855,13 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
   int32 routing_id = MSG_ROUTING_NONE;
 
 #if defined(OS_WIN)
-  HANDLE modal_dialog_event = NULL;
+  ModalDialogEvent modal_dialog_event;
+  modal_dialog_event.event = NULL;
   render_thread_->Send(
       new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id,
                                    &modal_dialog_event));
   if (routing_id == MSG_ROUTING_NONE) {
-    DCHECK(modal_dialog_event == NULL);
+    DCHECK(modal_dialog_event.event == NULL);
     return NULL;
   }
 #else  // defined(OS_WIN)
@@ -1876,7 +1877,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
   const WebPreferences& prefs = webview->GetPreferences();
   base::WaitableEvent* waitable_event = new base::WaitableEvent
 #if defined(OS_WIN)
-      (modal_dialog_event);
+      (modal_dialog_event.event);
 #else
       (true, false);
 #endif
