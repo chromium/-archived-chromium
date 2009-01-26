@@ -277,41 +277,43 @@ enum { DEBUG_MODE = 0 };
 // non-debug mode. The DCHECK and friends macros use this so that
 // the expanded expression DCHECK(foo) << "asdf" is still syntactically
 // valid, even though the expression will get optimized away.
+// In order to avoid variable unused warnings for code that only uses a
+// variable in a CHECK, we make sure to use the macro arguments.
 #define NDEBUG_EAT_STREAM_PARAMETERS \
   logging::LogMessage(__FILE__, __LINE__).stream()
 
 #define DCHECK(condition) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (condition)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_EQ(val1, val2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (val1) == (val2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_NE(val1, val2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (val1) == (val2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_LE(val1, val2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (val1) == (val2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_LT(val1, val2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (val1) == (val2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_GE(val1, val2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (val1) == (val2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_GT(val1, val2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (val1) == (val2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_STREQ(str1, str2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (str1) == (str2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_STRCASEEQ(str1, str2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (str1) == (str2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_STRNE(str1, str2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (str1) == (str2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #define DCHECK_STRCASENE(str1, str2) \
-  while (false) NDEBUG_EAT_STREAM_PARAMETERS
+  while (false && (str1) == (str2)) NDEBUG_EAT_STREAM_PARAMETERS
 
 #else
 #ifndef NDEBUG
