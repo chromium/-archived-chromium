@@ -2456,6 +2456,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="extensions"
+			>
+			<File
+				RelativePath="..\..\port\bindings\v8\extensions\GCController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\extensions\GCController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\extensions\Interval.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\extensions\Interval.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\extensions\Playback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\bindings\v8\extensions\Playback.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\port\bindings\v8\dom_wrapper_map.h"
 			>

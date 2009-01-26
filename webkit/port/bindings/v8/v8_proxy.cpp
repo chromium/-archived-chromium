@@ -201,6 +201,11 @@
 #include "XPathEvaluator.h"
 #endif
 
+#include "extensions/GCController.h"
+#include "extensions/Interval.h"
+#include "extensions/Playback.h"
+
+
 namespace WebCore {
 
 
@@ -233,6 +238,9 @@ namespace WebCore {
 
 // Static utility context.
 v8::Persistent<v8::Context> V8Proxy::m_utilityContext;
+
+// Static list of registered extensions
+V8ExtensionList V8Proxy::m_extensions;
 
 
 // A helper class for undetectable document.all
@@ -2274,6 +2282,13 @@ void V8Proxy::InitContextIfNeeded()
 
     v8::V8::SetFailedAccessCheckCallbackFunction(ReportUnsafeJavaScriptAccess);
 
+    // Register known extensions
+    RegisterExtension(IntervalExtension::Get());
+    if (ScriptController::shouldExposeGCController())
+      RegisterExtension(GCExtension::Get());
+    if (ScriptController::RecordPlaybackMode())
+      RegisterExtension(PlaybackExtension::Get());
+
     v8_initialized = true;
   }
 
@@ -2290,22 +2305,18 @@ void V8Proxy::InitContextIfNeeded()
       V8Custom::v8DOMWindowIndexedSecurityCheck,
       v8::Integer::New(V8ClassIndex::DOMWINDOW));
 
-  if (ScriptController::shouldExposeGCController()) {
-      v8::RegisterExtension(new v8::Extension("v8/GCController",
-          "(function v8_GCController() {"
-          "   var v8_gc;"
-          "   if (gc) v8_gc = gc;"
-          "   GCController = new Object();"
-          "   GCController.collect ="
-          "     function() {if (v8_gc) v8_gc(); };"
-          " })()"));
-      const char* extension_names[] = { "v8/GCController" };
-      v8::ExtensionConfiguration extensions(1, extension_names);
-      // Create a new context.
-      m_context = v8::Context::New(&extensions, global_template, m_global);
-  } else {
-      m_context = v8::Context::New(NULL, global_template, m_global);      
+  // Dynamically tell v8 about our extensions now.
+  const char** extension_names = new const char*[m_extensions.size()];
+  int index = 0;
+  V8ExtensionList::iterator it = m_extensions.begin();
+  while (it != m_extensions.end()) {
+    extension_names[index++] = (*it)->name();
+    ++it;
   }
+  v8::ExtensionConfiguration extensions(m_extensions.size(), extension_names);
+  m_context = v8::Context::New(&extensions, global_template, m_global);
+  delete extension_names;
+  extension_names = 0;
 
   if (m_context.IsEmpty())
     return;
@@ -2386,27 +2397,6 @@ void V8Proxy::InitContextIfNeeded()
   SetSecurityToken();
 
   m_frame->loader()->dispatchWindowObjectAvailable();
-
-  if (ScriptController::RecordPlaybackMode()) {
-    // Inject code which overrides a few common JS functions for implementing
-    // randomness.  In order to implement effective record & playback of
-    // websites, it is important that the URLs not change.  Many popular web
-    // based apps use randomness in URLs to unique-ify urls for proxies.
-    // Unfortunately, this breaks playback.
-    // To work around this, we take the two most common client-side randomness
-    // generators and make them constant.  They really need to be constant
-    // (rather than a constant seed followed by constant change)
-    // because the playback mode wants flexibility in how it plays them back
-    // and cannot always guarantee that requests for randomness are played back
-    // in exactly the same order in which they were recorded.
-    String script(
-        "Math.random = function() { return 0.5; };"
-        "__ORIGDATE__ = Date;"
-        "Date.__proto__.now = function() { "
-        "    return new __ORIGDATE__(1204251968254); };"
-        "Date = function() { return Date.now(); };");
-    this->Evaluate(String(), 0, script, 0);
-  }
 }
 
 
@@ -3486,6 +3476,11 @@ String V8Proxy::GetSourceName() {
         return String();
     }
     return ToWebCoreString(v8::Debug::Call(frame_source_name));
+}
+
+void V8Proxy::RegisterExtension(v8::Extension* extension) {
+    v8::RegisterExtension(extension);
+    m_extensions.push_back(extension);
 }
 
 }  // namespace WebCore

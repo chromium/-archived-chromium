@@ -14,7 +14,6 @@
 #include "NodeFilter.h"
 #include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
 #include "PlatformString.h"  // for WebCore::String
-#include <wtf/HashMap.h>   // for HashMap
 #include <wtf/PassRefPtr.h> // so generated bindings don't have to
 #include <wtf/Assertions.h>
 
@@ -73,6 +72,7 @@ class SVGElementInstance;
 class V8EventListener;
 class V8ObjectEventListener;
 typedef std::list<V8EventListener*>  V8EventListenerList;
+typedef std::list<v8::Extension*> V8ExtensionList;
 
 // TODO(fqian): use standard logging facilities in WebCore.
 void log_info(Frame* frame, const String& msg, const String& url);
@@ -431,6 +431,9 @@ class V8Proxy {
   static String GetSourceName();
 
  private:
+  // Register extensions before initializing the context.  Once the context
+  // is initialized, extensions cannot be registered.
+  static void RegisterExtension(v8::Extension* extension);
   void InitContextIfNeeded();
   void DisconnectEventListeners();
   void SetSecurityToken();
@@ -564,6 +567,9 @@ class V8Proxy {
   // engine allows much more recursion than KJS does so we need to guard against
   // excessive recursion in the binding layer.
   int m_recursion;
+
+  // List of extensions registered with the context.
+  static V8ExtensionList m_extensions;
 };
 
 template <int tag, typename T>
