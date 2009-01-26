@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/event_recorder.h"
+#include "build/build_config.h"
 
+#include <windows.h>
 #include <mmsystem.h>
 
+#include "base/event_recorder.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/time.h"

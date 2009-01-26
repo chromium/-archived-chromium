@@ -226,6 +226,14 @@
 				RelativePath=".\resources\test_shell.rc"
 				>
 			</File>
+      <File
+        RelativePath=".\test_shell_platform_delegate.h"
+        >
+      </File>
+      <File
+        RelativePath=".\test_shell_platform_delegate_win.cc"
+        >
+      </File>
 			<File
 				RelativePath=".\test_shell_request_context.cc"
 				>

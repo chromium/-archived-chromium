@@ -353,6 +353,7 @@ if env.Bit('posix'):
 if env.Bit('mac'):
   input_files.Extend([
       'base_paths_mac.mm',
+      'event_recorder_stubs.cc',
       'clipboard_mac.mm',
       'file_util_mac.mm',
       'file_version_info_mac.mm',
@@ -372,6 +373,7 @@ if env.Bit('linux'):
       'base_paths_linux.cc',
       'clipboard_linux.cc',
       'data_pack.cc',
+      'event_recorder_stubs.cc',
       'file_util_linux.cc',
       'file_version_info_linux.cc',
       'hmac_nss.cc',

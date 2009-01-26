@@ -5,25 +5,10 @@
 // Creates an instance of the test_shell.
 #include "build/build_config.h"
 
-#include <stdlib.h>  // required by _set_abort_behavior
-
-#if defined(OS_WIN)
-#include <windows.h>
-#include <commctrl.h>
-#include "base/event_recorder.h"
-#include "base/gfx/native_theme.h"
-#include "base/resource_util.h"
-#include "base/win_util.h"
-#include "webkit/tools/test_shell/foreground_helper.h"
-#endif
-
-#if defined(OS_LINUX)
-#include <gtk/gtk.h>
-#endif
-
 #include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/event_recorder.h"
 #include "base/file_util.h"
 #include "base/icu_util.h"
 #include "base/memory_debug.h"
@@ -43,6 +28,7 @@
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
+#include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
@@ -58,93 +44,26 @@ static const char* kStatsFilePrefix = "testshell_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
 
-#if defined(OS_WIN)
-// This test approximates whether you have the Windows XP theme selected by
-// inspecting a couple of metrics. It does not catch all cases, but it does
-// pick up on classic vs xp, and normal vs large fonts. Something it misses
-// is changes to the color scheme (which will infact cause pixel test
-// failures).
-// 
-// ** Expected dependencies **
-// + Theme: Windows XP
-// + Color scheme: Default (blue)
-// + Font size: Normal
-// + Font smoothing: off (minor impact).
-// 
-bool HasLayoutTestThemeDependenciesWin() {
-  // This metric will be 17 when font size is "Normal". The size of drop-down
-  // menus depends on it.
-  if (::GetSystemMetrics(SM_CXVSCROLL) != 17)
-    return false;
-
-  // Check that the system fonts RenderThemeWin relies on are Tahoma 11 pt.
-  NONCLIENTMETRICS metrics;
-  win_util::GetNonClientMetrics(&metrics);
-  LOGFONTW* system_fonts[] =
-      { &metrics.lfStatusFont, &metrics.lfMenuFont, &metrics.lfSmCaptionFont };
-
-  for (size_t i = 0; i < arraysize(system_fonts); ++i) {
-    if (system_fonts[i]->lfHeight != -11 ||
-        0 != wcscmp(L"Tahoma", system_fonts[i]->lfFaceName))
-      return false;
-  }
-  return true;
-}
-
-bool CheckLayoutTestSystemDependenciesWin() {
-  bool has_deps = HasLayoutTestThemeDependenciesWin();
-  if (!has_deps) {
-    fprintf(stderr, 
-        "\n"
-        "###############################################################\n"
-        "## Layout test system dependencies check failed.\n"
-        "## Some layout tests may fail due to unexpected theme.\n"
-        "##\n"
-        "## To fix, go to Display Properties -> Appearance, and select:\n"
-        "##  + Windows and buttons: Windows XP style\n"
-        "##  + Color scheme: Default (blue)\n"
-        "##  + Font size: Normal\n"
-        "###############################################################\n");
-  }
-  return has_deps;
-}
-
-#endif
-
-bool CheckLayoutTestSystemDependencies() {
-#if defined(OS_WIN)
-  return CheckLayoutTestSystemDependenciesWin();
-#else
-  return true;
-#endif
-}
-
 }  // namespace
-
 
 int main(int argc, char* argv[]) {
   base::EnableTerminationOnHeapCorruption();
-#ifdef _CRTDBG_MAP_ALLOC
-  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-#endif
+  
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
 
-#if defined(OS_LINUX)
-  gtk_init(&argc, &argv);
-#endif
-
-  // Only parse the command line after GTK's had a crack at it.
+  TestShellPlatformDelegate::PreflightArgs(&argc, &argv);
   CommandLine::Init(argc, argv);
-
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
+  
+  TestShellPlatformDelegate platform(parsed_command_line);
+
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
     TestShell::ShowStartupDebuggingDialog();
 
   if (parsed_command_line.HasSwitch(test_shell::kCheckLayoutTestSystemDeps)) {
-    exit(CheckLayoutTestSystemDependencies() ? 0 : 1);
+    exit(platform.CheckLayoutTestSystemDependencies() ? 0 : 1);
   }
 
   // Allocate a message loop for this thread.  Although it is not used
@@ -159,10 +78,8 @@ int main(int argc, char* argv[]) {
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
 
   bool enable_gp_fault_error_box = false;
-#if defined(OS_WIN)
   enable_gp_fault_error_box =
       parsed_command_line.HasSwitch(test_shell::kGPFaultErrorBox);
-#endif
   TestShell::InitLogging(suppress_error_dialogs,
                          layout_test_mode,
                          enable_gp_fault_error_box);
@@ -172,11 +89,9 @@ int main(int argc, char* argv[]) {
 
   // Suppress abort message in v8 library in debugging mode.
   // V8 calls abort() when it hits assertion errors.
-#if defined(OS_WIN)
   if (suppress_error_dialogs) {
-    _set_abort_behavior(0, _WRITE_ABORT_MSG);
+    platform.SuppressErrorReporting();
   }
-#endif
 
   if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
     base::TraceLog::StartTracing();
@@ -211,16 +126,7 @@ int main(int argc, char* argv[]) {
   // Load ICU data tables
   icu_util::Initialize();
 
-  // Config the network module so it has access to a limited set of resources.
-  net::NetModule::SetResourceProvider(TestShell::NetResourceProvider);
-
-#if defined(OS_WIN)
-  INITCOMMONCONTROLSEX InitCtrlEx;
-
-  InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
-  InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
-  InitCommonControlsEx(&InitCtrlEx);
-#endif
+  platform.InitializeGUI();
 
   TestShell::InitializeTestShell(layout_test_mode);
 
@@ -229,16 +135,7 @@ int main(int argc, char* argv[]) {
 
   // Disable user themes for layout tests so pixel tests are consistent.
   if (layout_test_mode) {
-#if defined(OS_WIN)
-    gfx::NativeTheme::instance()->DisableTheming();
-#elif defined(OS_LINUX)
-    // Pick a theme that uses Cairo for drawing, since we:
-    // 1) currently don't support GTK themes that use the GDK drawing APIs, and
-    // 2) need to use a unified theme for layout tests anyway.
-    g_object_set(gtk_settings_get_default(),
-                 "gtk-theme-name", "Mist",
-                 NULL);
-#endif
+    platform.SelectUnifiedTheme();
   }
 
   if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
@@ -248,11 +145,6 @@ int main(int argc, char* argv[]) {
     if (timeout_ms > 0)
       TestShell::SetFileTestTimeout(timeout_ms);
   }
-
-#if defined(OS_WIN)
-  // Initialize global strings
-  TestShell::RegisterWindowClass();
-#endif
 
   // Treat the first loose value as the initial URL to open.
   std::wstring uri;
@@ -281,33 +173,26 @@ int main(int argc, char* argv[]) {
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
   StatsTable *table = new StatsTable(
-      kStatsFilePrefix + Uint64ToString(base::RandUint64()),
+      // truncate the random # to 32 bits for the benefit of Mac OS X, to
+      // avoid tripping over its maximum shared memory segment name length
+      kStatsFilePrefix + Uint64ToString(base::RandUint64() & 0xFFFFFFFFL),
       kStatsFileThreads,
       kStatsFileCounters);
   StatsTable::set_current(table);
 
   TestShell* shell;
   if (TestShell::CreateNewWindow(uri, &shell)) {
-#if defined(OS_WIN)
     if (record_mode || playback_mode) {
-      // Move the window to the upper left corner for consistent
-      // record/playback mode.  For automation, we want this to work
-      // on build systems where the script invoking us is a background
-      // process.  So for this case, make our window the topmost window
-      // as well.
-      ForegroundHelper::SetForeground(shell->mainWnd());
-      ::SetWindowPos(shell->mainWnd(), HWND_TOP, 0, 0, 600, 800, 0);
+      platform.SetWindowPositionForRecording(shell);
       // Tell webkit as well.
       webkit_glue::SetRecordPlaybackMode(true);
     }
-#endif
 
     shell->Show(shell->webView(), NEW_WINDOW);
 
     if (parsed_command_line.HasSwitch(test_shell::kDumpStatsTable))
       shell->DumpStatsTableOnExit();
 
-#if defined(OS_WIN)
     bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
     if ((record_mode || playback_mode) && !no_events) {
       std::wstring script_path = cache_path;
@@ -319,7 +204,6 @@ int main(int argc, char* argv[]) {
       if (playback_mode)
         base::EventRecorder::current()->StartPlayback(script_path);
     }
-#endif
 
     if (parsed_command_line.HasSwitch(test_shell::kDebugMemoryInUse)) {
       base::MemoryDebug::SetMemoryInUseEnabled(true);
@@ -382,12 +266,10 @@ int main(int argc, char* argv[]) {
     // purify leak-test results.
     MessageLoop::current()->RunAllPending();
 
-#if defined(OS_WIN)
     if (record_mode)
       base::EventRecorder::current()->StopRecording();
     if (playback_mode)
       base::EventRecorder::current()->StopPlayback();
-#endif
   }
 
   TestShell::ShutdownTestShell();
@@ -397,8 +279,5 @@ int main(int argc, char* argv[]) {
   StatsTable::set_current(NULL);
   delete table;
 
-#ifdef _CRTDBG_MAP_ALLOC
-  _CrtDumpMemoryLeaks();
-#endif
   return 0;
 }

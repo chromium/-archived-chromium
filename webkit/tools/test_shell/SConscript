@@ -119,6 +119,7 @@ if env.Bit('windows'):
   input_files.extend([
       'drag_delegate.cc',
       'drop_delegate.cc',
+      'test_shell_platform_delegate_win.cc',
       'test_shell_win.cc',
       'test_webview_delegate_win.cc',
       'webview_host_win.cc',
@@ -129,6 +130,7 @@ elif env.Bit('linux'):
       'webview_host_gtk.cc',
       'webwidget_host_gtk.cc',
       'test_shell_gtk.cc',
+      'test_shell_platform_delegate_gtk.cc',
       'test_webview_delegate_gtk.cc',
   ])
 

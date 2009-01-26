@@ -22,6 +22,7 @@
 #include "base/trace_event.h"
 #include "base/win_util.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
+#include "net/base/net_module.h"
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request_file_job.h"
 #include "skia/ext/bitmap_platform_device.h"
@@ -126,12 +127,17 @@ FilePath GetResourcesFilePath() {
   return path.AppendASCII("resources");
 }
 
-StringPiece GetRawDataResource(HMODULE module, int resource_id) {
+static StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
   size_t data_size;
   return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
                                          &data_size) ?
       StringPiece(static_cast<char*>(data_ptr), data_size) : StringPiece();
+}
+
+// This is called indirectly by the network layer to access resources.
+StringPiece NetResourceProvider(int key) {
+  return GetRawDataResource(::GetModuleHandle(NULL), key);
 }
 
 }  // namespace
@@ -143,6 +149,8 @@ HINSTANCE TestShell::instance_handle_;
 // static methods on TestShell
 
 void TestShell::InitializeTestShell(bool layout_test_mode) {
+  net::NetModule::SetResourceProvider(NetResourceProvider);
+
   // Start COM stuff.
   HRESULT res = OleInitialize(NULL);
   DCHECK(SUCCEEDED(res));

@@ -155,6 +155,7 @@
 		A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A0270A0E4A630D00498DA9 /* file_util_mac.mm */; };
 		A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */; };
 		AB4C147D0EC0E3F600655FED /* time_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_mac.cc */; };
+		AB4FA13A0F2A101100D6572F /* event_recorder_stubs.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB4FA1390F2A101100D6572F /* event_recorder_stubs.cc */; };
 		ABE1BA2A0E7574D1009041DA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE1BA290E7574D1009041DA /* ApplicationServices.framework */; };
 		ABF4B98F0DC2BA6900A6E319 /* base_paths_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */; };
 		ABF4B99E0DC2BB6000A6E319 /* clipboard_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */; };
@@ -612,6 +613,7 @@
 		A5A0276B0E4BA33700498DA9 /* build_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = build_config.h; path = ../build/build_config.h; sourceTree = SOURCE_ROOT; };
 		A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_util_unittest.cc; sourceTree = "<group>"; };
 		AB14B6060EBFA74C00FB3807 /* time_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_posix.cc; sourceTree = "<group>"; };
+		AB4FA1390F2A101100D6572F /* event_recorder_stubs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event_recorder_stubs.cc; sourceTree = "<group>"; };
 		ABE1BA290E7574D1009041DA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<group>"; };
 		ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_paths_mac.mm; sourceTree = "<group>"; };
 		ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = clipboard_mac.mm; sourceTree = "<group>"; };
@@ -852,6 +854,7 @@
 				536092F80ECE474500D1B91E /* dtoa.cc */,
 				825402FF0D92D1BC0006B936 /* event_recorder.cc */,
 				825403000D92D1BC0006B936 /* event_recorder.h */,
+				AB4FA1390F2A101100D6572F /* event_recorder_stubs.cc */,
 				ABF68B270EB0F93100E72835 /* field_trial.h */,
 				ABF68B280EB0F93100E72835 /* field_trial.cc */,
 				ABF68B260EB0F93100E72835 /* field_trial_unittest.cc */,
@@ -1359,6 +1362,7 @@
 				7B78CE250E5314A000609465 /* debug_util.cc in Sources */,
 				7B78CE120E53131800609465 /* debug_util_posix.cc in Sources */,
 				536092FA0ECE474500D1B91E /* dtoa.cc in Sources */,
+				AB4FA13A0F2A101100D6572F /* event_recorder_stubs.cc in Sources */,
 				ABF68B2A0EB0F93100E72835 /* field_trial.cc in Sources */,
 				4D11B89E0E929F0400EF7617 /* file_path.cc in Sources */,
 				A5A026550E4A214600498DA9 /* file_util.cc in Sources */,
