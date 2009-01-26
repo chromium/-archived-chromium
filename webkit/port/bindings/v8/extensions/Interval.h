@@ -20,3 +20,4 @@ class IntervalExtension {
 }
 
 #endif  // INTERVAL_EXTENSION_H__
+

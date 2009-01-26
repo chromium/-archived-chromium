@@ -20,3 +20,4 @@ class GCExtension {
 }
 
 #endif  // GC_EXTENSION_H__
+

@@ -31,3 +31,4 @@ class PlaybackExtension {
 }
 
 #endif  // PLAYBACK_EXTENSION_H__
+
