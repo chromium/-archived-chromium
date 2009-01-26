@@ -332,30 +332,22 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
-LINUX : LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
-LINUX : LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
-LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-LINUX : LayoutTests/fast/text/international/001.html = FAIL
-LINUX : LayoutTests/fast/text/international/002.html = FAIL
-LINUX : LayoutTests/fast/text/international/003.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
-DEFER MAC LINUX : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
-LINUX : LayoutTests/svg/batik/text/textPosition2.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-LINUX : LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
-DEFER LINUX : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
+DEFER MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
+DEFER LINUX : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
+DEFER LINUX : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+LINUX : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
@@ -363,30 +355,14 @@ LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
-DEFER MAC LINUX : LayoutTests/svg/text/text-text-03-b.svg = FAIL PASS
-LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
-LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
-LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
+MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
-DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
+LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 
 // Pixel test passes. Texts differ by 1 on SVGRenderText bounding box.
 LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
