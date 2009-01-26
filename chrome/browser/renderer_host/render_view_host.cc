@@ -761,14 +761,14 @@ void RenderViewHost::OnMsgCreateWindow(
   if (view) {
 #if defined(OS_WIN)
     view->CreateNewWindow(route_id,
-                          new base::WaitableEvent(modal_dialog_event));
+                          new base::WaitableEvent(modal_dialog_event.event));
 #else
     // TODO(port) this isn't correct, since we just make up an event won't ever
     // be set by the renderer.
     view->CreateNewWindow(route_id,
                           new base::WaitableEvent(true, false));
-  }
 #endif
+  }
 }
 
 void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {
