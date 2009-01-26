@@ -8,7 +8,16 @@
 #import <Cocoa/Cocoa.h>
 
 // A button cell that handles drawing/highlighting of buttons in the
-// toolbar bar.
+// toolbar bar. The appearance is determined by setting the cell's tag (not the
+// view's) to one of the constants below (ButtonType).
+
+enum {
+  kLeftButtonType = -1,
+  kLeftButtonWithShadowType = -2,
+  kStandardButtonType = 0,
+  kRightButtonType	= 1,
+};
+typedef NSInteger ButtonType;
 
 @interface ToolbarButtonCell : NSButtonCell {
 }

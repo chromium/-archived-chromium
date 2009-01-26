@@ -4,14 +4,6 @@
 
 #include "chrome/browser/cocoa/toolbar_button_cell.h"
 
-enum {
-  kLeftButtonType = -1,
-  kLeftButtonWithShadowType = -2,
-  kStandardButtonType = 0,
-  kRightButtonType	= 1,
-};
-typedef NSInteger ButtonType;
-
 @implementation ToolbarButtonCell
 
 - (NSBackgroundStyle)interiorBackgroundStyle {
@@ -21,7 +13,7 @@ typedef NSInteger ButtonType;
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView{
   NSRect drawFrame = NSInsetRect(cellFrame, 1.5, 1.5);
-  ButtonType type = [controlView tag];
+  ButtonType type = [[(NSControl*)controlView cell] tag];
   switch (type) {
     case kRightButtonType:
       drawFrame.origin.x -= 20;
