@@ -9,27 +9,27 @@ layer at (0,0) size 800x600
       RenderTextControl {INPUT} at (0,46) size 79x6 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
         RenderBlock {DIV} at (2,3) size 75x0
           RenderBlock {DIV} at (0,0) size 0x0
-          RenderBlock {DIV} at (75,0) size 0x0
+          RenderBlock {DIV} at (72,0) size 0x0
       RenderText {#text} at (79,34) size 4x19
         text run at (79,34) width 4: " "
       RenderTextControl {INPUT} at (83,32) size 179x40 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
         RenderBlock {DIV} at (2,3) size 175x34
           RenderBlock {DIV} at (0,14) size 0x0
-          RenderBlock {DIV} at (175,14) size 0x0
+          RenderBlock {DIV} at (172,14) size 0x0
       RenderText {#text} at (262,34) size 4x19
         text run at (262,34) width 4: " "
       RenderTextControl {INPUT} at (266,20) size 306x200 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
         RenderBlock {DIV} at (2,3) size 302x194
           RenderBlock {DIV} at (0,26) size 0x0
-          RenderBlock {DIV} at (302,26) size 0x0
+          RenderBlock {DIV} at (299,26) size 0x0
       RenderText {#text} at (0,0) size 0x0
       RenderText {#text} at (0,0) size 0x0
       RenderText {#text} at (0,0) size 0x0
-layer at (93,43) size 175x34
-  RenderBlock {DIV} at (0,0) size 175x34
+layer at (93,43) size 172x34
+  RenderBlock {DIV} at (0,0) size 172x34
     RenderText {#text} at (1,0) size 35x17
       text run at (1,0) width 35: "small"
-layer at (276,31) size 302x194
-  RenderBlock {DIV} at (0,0) size 302x194
+layer at (276,31) size 299x194
+  RenderBlock {DIV} at (0,0) size 299x194
     RenderText {#text} at (1,0) size 84x32
       text run at (1,0) width 84: "regular"

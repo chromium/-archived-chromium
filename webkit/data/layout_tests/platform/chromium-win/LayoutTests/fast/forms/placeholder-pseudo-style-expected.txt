@@ -12,7 +12,7 @@ layer at (0,0) size 800x600
       RenderTextControl {INPUT} at (159,20) size 155x22 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
         RenderBlock {DIV} at (2,3) size 151x16
           RenderBlock {DIV} at (0,13) size 0x0
-          RenderBlock {DIV} at (151,13) size 0x0
+          RenderBlock {DIV} at (148,13) size 0x0
       RenderText {#text} at (314,21) size 4x19
         text run at (314,21) width 4: " "
       RenderTextControl {INPUT} at (318,20) size 155x22 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
@@ -30,8 +30,8 @@ layer at (10,31) size 151x16
   RenderBlock {DIV} at (2,3) size 151x16 [color=#640000]
     RenderText {#text} at (1,0) size 22x16
       text run at (1,0) width 22: "text"
-layer at (169,31) size 151x16
-  RenderBlock {DIV} at (0,0) size 151x16 [color=#640000]
+layer at (169,31) size 148x16
+  RenderBlock {DIV} at (0,0) size 148x16 [color=#640000]
     RenderText {#text} at (1,0) size 39x16
       text run at (1,0) width 39: "search"
 layer at (328,31) size 151x16
