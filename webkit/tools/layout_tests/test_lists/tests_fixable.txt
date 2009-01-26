@@ -522,7 +522,7 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN
-LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
+LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 // Flaky on both release and debug.
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
@@ -920,7 +920,6 @@ LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
 
 // Linux flaky: sometimes I get scrollbars and sometimes not.
 LINUX : LayoutTests/fast/lists/001.html = FAIL PASS
-MAC : LayoutTests/fast/lists/001.html = FAIL
 
 // We fail to load a file URL with a port number -- how does this work on
 // Windows?
@@ -1828,23 +1827,23 @@ MAC : LayoutTests/fast/forms/002.html = FAIL
 LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 
 // Merge 40124:40164 -- regressions
-LayoutTests/css1/box_properties/float.html = FAIL
+WIN LINUX : LayoutTests/css1/box_properties/float.html = FAIL
 WIN LINUX : LayoutTests/fast/css/acid2-pixel.html = FAIL
 WIN LINUX : LayoutTests/fast/css/acid2.html = FAIL
-WIN MAC : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL
 LINUX : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH
-LayoutTests/fast/forms/HTMLOptionElement_label06.html = FAIL
-LayoutTests/fast/forms/HTMLOptionElement_label07.html = FAIL
-LayoutTests/fast/forms/menulist-separator-painting.html = FAIL
-LayoutTests/fast/forms/select-baseline.html = FAIL
-LayoutTests/fast/forms/select-empty-option-height.html = FAIL
-LayoutTests/fast/replaced/three-selects-break.html = FAIL
-LayoutTests/fast/table/border-collapsing/003.html = FAIL
-LayoutTests/fast/table/vertical-align-baseline.html = FAIL
-LayoutTests/http/tests/misc/acid2-pixel.html = FAIL
-LayoutTests/http/tests/misc/acid2.html = FAIL
-LayoutTests/tables/mozilla/bugs/bug149275-2.html = FAIL
-LayoutTests/tables/mozilla/bugs/bug3037-1.html = FAIL
-LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/HTMLOptionElement_label06.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/HTMLOptionElement_label07.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/menulist-separator-painting.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/select-baseline.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/select-empty-option-height.html = FAIL
+WIN LINUX : LayoutTests/fast/replaced/three-selects-break.html = FAIL
+WIN LINUX : LayoutTests/fast/table/border-collapsing/003.html = FAIL
+WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+WIN LINUX : LayoutTests/http/tests/misc/acid2-pixel.html = FAIL
+WIN LINUX : LayoutTests/http/tests/misc/acid2.html = FAIL
+WIN LINUX : LayoutTests/tables/mozilla/bugs/bug149275-2.html = FAIL
+WIN LINUX : LayoutTests/tables/mozilla/bugs/bug3037-1.html = FAIL
+WIN LINUX : LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
