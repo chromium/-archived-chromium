@@ -42,6 +42,9 @@ void CloneDragData(BookmarkModel* model,
                    BookmarkNode* parent,
                    int index_to_add_at);
 
+#if defined(OS_WIN)
+// TODO(port): Make OpenAll portable (remove HWND).
+
 // Recursively opens all bookmarks. |initial_disposition| dictates how the
 // first URL is opened, all subsequent URLs are opened as background tabs.
 // |navigator| is used to open the URLs. If |navigator| is NULL the last
@@ -59,6 +62,7 @@ void OpenAll(HWND parent,
              PageNavigator* navigator,
              BookmarkNode* node,
              WindowOpenDisposition initial_disposition);
+#endif  // defined(OS_WIN)
 
 // Copies nodes onto the clipboard. If |remove_nodes| is true the nodes are
 // removed after copied to the clipboard. The nodes are copied in such a way

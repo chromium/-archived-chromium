@@ -189,8 +189,8 @@ class TreeNodeModel : public TreeModel {
   // Creates a TreeNodeModel with the specified root node. The root is owned
   // by the TreeNodeModel.
   explicit TreeNodeModel(NodeType* root)
-      : observer_(NULL),
-        root_(root) {
+      : root_(root),
+        observer_(NULL) {
   }
 
   virtual ~TreeNodeModel() {}
