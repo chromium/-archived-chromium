@@ -171,6 +171,7 @@ env_dll.Append(
         'base_gfx',
         #'breakpad_handler',
         'googleurl',
+        'media',
         'net',
         'skia',
         'bzip2',
