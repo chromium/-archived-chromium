@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3C865CE6CC0CD2BDB5DF2DB9 /* regexp-stack.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */; };
 		4D4C55000EF16581002CA805 /* debug-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D4C54FE0EF16571002CA805 /* debug-arm.cc */; };
 		4D4C55010EF16584002CA805 /* debug-ia32.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D4C54FF0EF16571002CA805 /* debug-ia32.cc */; };
 		8900116C0E71CA2300F91F35 /* libraries.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8900116B0E71CA2300F91F35 /* libraries.cc */; };
@@ -180,7 +181,6 @@
 		89F23C9E0E78D5FD006B2466 /* macro-assembler-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1540E719B8F00D62E90 /* macro-assembler-arm.cc */; };
 		89F23C9F0E78D604006B2466 /* simulator-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF17D0E719B8F00D62E90 /* simulator-arm.cc */; };
 		89F23CA00E78D609006B2466 /* stub-cache-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF18A0E719B8F00D62E90 /* stub-cache-arm.cc */; };
-		3C865CE6CC0CD2BDB5DF2DB9 /* regexp-stack.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -236,12 +236,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "regexp-stack.cc"; sourceTree = "<group>"; };
 		4D4C54FA0EF164F0002CA805 /* d8-readline.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "d8-readline.cc"; path = "../v8/src/d8-readline.cc"; sourceTree = SOURCE_ROOT; };
 		4D4C54FB0EF164F0002CA805 /* d8.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = d8.cc; path = ../v8/src/d8.cc; sourceTree = SOURCE_ROOT; };
 		4D4C54FC0EF164F0002CA805 /* d8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = d8.h; path = ../v8/src/d8.h; sourceTree = SOURCE_ROOT; };
 		4D4C54FD0EF164F0002CA805 /* d8.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = d8.js; path = ../v8/src/d8.js; sourceTree = SOURCE_ROOT; };
 		4D4C54FE0EF16571002CA805 /* debug-arm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "debug-arm.cc"; sourceTree = "<group>"; };
 		4D4C54FF0EF16571002CA805 /* debug-ia32.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "debug-ia32.cc"; sourceTree = "<group>"; };
+		563A6BC35D56A5B2C6828CDA /* regexp-stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-stack.h"; sourceTree = "<group>"; };
 		7BF8918E0E73084F000BAF8A /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7BF8918F0E73084F000BAF8A /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7BF891900E73084F000BAF8A /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -472,8 +474,6 @@
 		8980D6A60EE7C3C500C07135 /* regexp-macro-assembler-tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-macro-assembler-tracer.h"; sourceTree = "<group>"; };
 		8980D6A70EE7C3C500C07135 /* regexp-macro-assembler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "regexp-macro-assembler.cc"; sourceTree = "<group>"; };
 		8980D6A80EE7C3C500C07135 /* regexp-macro-assembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-macro-assembler.h"; sourceTree = "<group>"; };
-		563A6BC35D56A5B2C6828CDA /* regexp-stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-stack.h"; sourceTree = "<group>"; };
-		0BC314D2CC9960C3D43DFAF3 /* regexp-stack.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "regexp-stack.cc"; sourceTree = "<group>"; };
 		8980D6AB0EE7C3F500C07135 /* bytecodes-irregexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "bytecodes-irregexp.h"; sourceTree = "<group>"; };
 		8980D6B00EE7C41A00C07135 /* codegen-arm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "codegen-arm.h"; sourceTree = "<group>"; };
 		8980D6B10EE7C41A00C07135 /* codegen-ia32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "codegen-ia32.h"; sourceTree = "<group>"; };

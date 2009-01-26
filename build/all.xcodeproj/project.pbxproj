@@ -634,6 +634,20 @@
 			remoteGlobalIDString = E4AFA6580E52423900201347;
 			remoteInfo = run_media_unittests;
 		};
+		F40437660F2E0EE10091972E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7B02380E9D5816009A6919 /* chrome.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4D1F59EA0F2A6B590040C1E3 /* image_diff */;
+			remoteInfo = image_diff;
+		};
+		F40437680F2E0EE10091972E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7B02380E9D5816009A6919 /* chrome.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4D7FA6210F13CA04004F1B19 /* ui_tests */;
+			remoteInfo = ui_tests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -683,7 +697,9 @@
 				4D7B02500E9D5816009A6919 /* libbrowser.a */,
 				4D7B02520E9D5816009A6919 /* libcommon.a */,
 				4DB6807F0EAF88B000AB2128 /* librenderer.a */,
+				F40437670F2E0EE10091972E /* image_diff */,
 				4DCE99520EF0603800682526 /* ipc_tests */,
+				F40437690F2E0EE10091972E /* ui_tests */,
 				4D7B02540E9D5816009A6919 /* unit_tests */,
 			);
 			name = Products;
@@ -1415,6 +1431,20 @@
 			fileType = "compiled.mach-o.executable";
 			path = media_unittests;
 			remoteRef = DCF6E2780EFC4FF6002057B1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F40437670F2E0EE10091972E /* image_diff */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = image_diff;
+			remoteRef = F40437660F2E0EE10091972E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F40437690F2E0EE10091972E /* ui_tests */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = ui_tests;
+			remoteRef = F40437680F2E0EE10091972E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
