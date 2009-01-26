@@ -338,7 +338,6 @@ LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL CRASH
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
 LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
@@ -1075,6 +1074,7 @@ LayoutTests/fast/forms/selection-functions.html = FAIL
 // MERGE REGRESSIONS 36102:37604
 
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
+LayoutTests/fast/forms/form-element-geometry.html = FAIL
 // The list box selection is wrong, the focus ring is wrong, and the thumb in
 // the scrollbar looks too narrow.
 LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
