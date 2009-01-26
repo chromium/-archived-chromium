@@ -1332,6 +1332,9 @@
 		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
 		FBBBF2E4099C8EA9BDAF80F9 /* CurrentTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */; };
+		A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 715E874BCC05E0A3DD5E5D8F /* GCController.cpp */; };
+		453FFDF935221CD484A3AFED /* Interval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35DEC96C125DC674B5C9FA27 /* Interval.cpp */; };
+		3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1174C9D4E12AB30D653019A /* Playback.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4350,6 +4353,9 @@
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
+		715E874BCC05E0A3DD5E5D8F /* GCController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCController.cpp; path = port/bindings/v8/extensions/GCController.cpp; sourceTree = SOURCE_ROOT; };
+		35DEC96C125DC674B5C9FA27 /* Interval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Interval.cpp; path = port/bindings/v8/extensions/Interval.cpp; sourceTree = SOURCE_ROOT; };
+		C1174C9D4E12AB30D653019A /* Playback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Playback.cpp; path = port/bindings/v8/extensions/Playback.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4684,6 +4690,9 @@
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
 				7B964AAB0E7EE4A0006D1A11 /* Projects */,
 				7B5E776F0D7F2350001ECF42 /* Products */,
+				715E874BCC05E0A3DD5E5D8F /* GCController.cpp */,
+				35DEC96C125DC674B5C9FA27 /* Interval.cpp */,
+				C1174C9D4E12AB30D653019A /* Playback.cpp */,
 			);
 			sourceTree = "<group>";
 		};
@@ -9506,7 +9515,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
+				453FFDF935221CD484A3AFED /* Interval.cpp in Sources */,
+				3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
 				4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
 			);
