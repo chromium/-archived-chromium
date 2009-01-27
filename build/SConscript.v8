@@ -15,6 +15,10 @@ mode = 'release'
 if env['TARGET_DEBUG']:
   mode = 'debug'
 
+# Don't build V8 as a shared object because the v8 scons file doesn't support
+# it.
+env.Replace(COMPONENT_STATIC=True)
+
 env = env.Clone(
     V8_MODE = mode,
     V8_MODE_DIR = '$V8_DIR/obj/$V8_MODE',
