@@ -86,7 +86,7 @@ class ImageDiff(test_type_base.TestTypeBase):
 
     if _compare_available:
       try:
-        subprocess.call(cmd)
+        result = subprocess.call(cmd);
       except OSError, e:
         if e.errno == errno.ENOENT or e.errno == errno.EACCES:
           _compare_available = False
@@ -99,6 +99,8 @@ class ImageDiff(test_type_base.TestTypeBase):
       _compare_msg_printed = True
       print('image_diff not found. Make sure you have a ' + target +
             ' build of the image_diff executable.')
+
+    return result
 
   def CompareOutput(self, filename, proc, output, test_args, target):
     """Implementation of CompareOutput that checks the output image and
@@ -135,13 +137,18 @@ class ImageDiff(test_type_base.TestTypeBase):
       expected_hash = ''
 
     if test_args.hash != expected_hash:
-      # TODO(pamg): If the hashes don't match, use the image_diff app to
-      # compare the actual images, and report a different error if those do
-      # match.
       if expected_hash == '':
         failures.append(test_failures.FailureMissingImageHash(self))
       else:
-        failures.append(test_failures.FailureImageHashMismatch(self))
+        # Hashes don't match, so see if the images match.  If they do, then
+        # the hash is wrong.
+        self._CopyOutputPNGs(filename, test_args.png_path,
+                             expected_png_file)
+        result = self._CreateImageDiff(filename, target)
+        if result == 0:
+          failures.append(test_failures.FailureImageHashIncorrect(self))
+        else:
+          failures.append(test_failures.FailureImageHashMismatch(self))
 
     # Also report a missing expected PNG file.
     if not os.path.isfile(expected_png_file):
@@ -149,11 +156,12 @@ class ImageDiff(test_type_base.TestTypeBase):
 
     # If anything was wrong, write the output files.
     if len(failures):
-      self._CopyOutputPNGs(filename, test_args.png_path,
-                           expected_png_file)
-      self._CreateImageDiff(filename, target)
       self.WriteOutputFiles(filename, '', '.checksum', test_args.hash,
                             expected_hash, diff=False, wdiff=False)
 
-    return failures
+      if (test_args.hash == expected_hash or expected_hash == ''):
+        self._CopyOutputPNGs(filename, test_args.png_path,
+                             expected_png_file)
+        self._CreateImageDiff(filename, target)
 
+    return failures

@@ -21,6 +21,7 @@ class FailureSort(object):
     'FailureMissingImageHash': 6,
     'FailureMissingImage': 7,
     'FailureMissingResult': 8,
+    'FailureImageHashIncorrect': 9,
   }
 
   @staticmethod
@@ -209,3 +210,16 @@ class FailureFuzzyFailure(FailureWithType):
   @staticmethod
   def Message():
     return "Fuzzy image match also failed"
+
+class FailureImageHashIncorrect(FailureWithType):
+  """Actual result hash is incorrect."""
+  # Chrome doesn't know to display a .checksum file as text, so don't bother
+  # putting in a link to the actual result.
+  OUT_FILENAMES = []
+
+  @staticmethod
+  def Message():
+    return "Images match, expected image hash incorrect. "
+
+  def ResultHtmlOutput(self, filename):
+    return "<strong>%s</strong>" % self.Message()
