@@ -347,6 +347,7 @@ gfx::Rect Label::GetTextBounds() {
       text_x = width() - insets.right() - text_size.width();
       break;
     default:
+      NOTREACHED();
       text_x = 0;
       break;
   }
