@@ -211,6 +211,18 @@ LINUX : chrome/fonts/impact.html = FAIL
 // to verify is that we don't crash on this page.
 LayoutTests/fast/js/regexp-charclass-crash.html = PASS TIMEOUT
 
+// This tests for an arbitrary limit set in JSCRE to terminate regular
+// expressions with an exponential matching behavior.  Since the V8 
+// regular expression engine can be preempted from the outside, we do not
+// need to limit the execution this way.  Firefox also keeps running
+// on this one. 
+LayoutTests/fast/regex/slow.html = TIMEOUT
+
+// This test contains expressions with exponential matching 
+// behavior on which JSCRE terminate the matching before it is done.  We
+// do not and the test therefore takes a long time to run.
+LayoutTests/fast/regex/test1.html = TIMEOUT
+
 // Test to verify legacy MAC encodings. We don't want to support them and
 // have to skip this test.
 SKIP : LayoutTests/fast/encoding/char-decoding-mac.html = FAIL
