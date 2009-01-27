@@ -1409,6 +1409,44 @@ bool HexStringToInt(const std::wstring& input, int* output) {
       input, reinterpret_cast<long*>(output));
 }
 
+template<class CHAR>
+bool HexDigitToIntT(const CHAR digit, uint8* val) {
+  if (digit >= '0' && digit <= '9')
+    *val = digit - '0';
+  else if (digit >= 'a' && digit <= 'f')
+    *val = 10 + digit - 'a';
+  else if (digit >= 'A' && digit <= 'F')
+    *val = 10 + digit - 'A';
+  else
+    return false;
+  return true;
+}
+
+template<typename STR>
+bool HexStringToBytesT(const STR& input, std::vector<uint8>* output) {
+  DCHECK(output->size() == 0);
+  int count = input.size();
+  if (count == 0 || (count % 2) != 0)
+    return false;
+  for (int i = 0; i < count / 2; ++i) {
+    uint8 msb = 0;  // most significant 4 bits
+    uint8 lsb = 0;  // least significant 4 bits
+    if (!HexDigitToIntT(input[i * 2], &msb) ||
+        !HexDigitToIntT(input[i * 2 + 1], &lsb))
+      return false;
+    output->push_back((msb << 4) | lsb);
+  }
+  return true;
+}
+
+bool HexStringToBytes(const std::string& input, std::vector<uint8>* output) {
+  return HexStringToBytesT(input, output);
+}
+
+bool HexStringToBytes(const std::wstring& input, std::vector<uint8>* output) {
+  return HexStringToBytesT(input, output);
+}
+
 int StringToInt(const std::string& value) {
   int result;
   StringToInt(value, &result);

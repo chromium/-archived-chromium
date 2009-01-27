@@ -377,6 +377,13 @@ bool StringToInt64(const std::wstring& input, int64* output);
 bool HexStringToInt(const std::string& input, int* output);
 bool HexStringToInt(const std::wstring& input, int* output);
 
+// Similar to the previous functions, except that output is a vector of bytes.
+// |*output| will contain as many bytes as were successfully parsed prior to the
+// error.  There is no overflow, but input.size() must be evenly divisible by 2.
+// Leading 0x or +/- are not allowed.
+bool HexStringToBytes(const std::string& input, std::vector<uint8>* output);
+bool HexStringToBytes(const std::wstring& input, std::vector<uint8>* output);
+
 // For floating-point conversions, only conversions of input strings in decimal
 // form are defined to work.  Behavior with strings representing floating-point
 // numbers in hexadecimal, and strings representing non-fininte values (such as

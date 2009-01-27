@@ -945,6 +945,58 @@ TEST(StringUtilTest, HexStringToInt) {
   EXPECT_EQ(0xc0ffee, output);
 }
 
+TEST(StringUtilTest, HexStringToBytes) {
+  static const struct {
+    const std::string input;
+    const char* output;
+    size_t output_len;
+    bool success;
+  } cases[] = {
+    {"0", "", 0, false},  // odd number of characters fails
+    {"00", "\0", 1, true},
+    {"42", "\x42", 1, true},
+    {"-42", "", 0, false},  // any non-hex value fails
+    {"+42", "", 0, false},
+    {"7fffffff", "\x7f\xff\xff\xff", 4, true},
+    {"80000000", "\x80\0\0\0", 4, true},
+    {"deadbeef", "\xde\xad\xbe\xef", 4, true},
+    {"DeadBeef", "\xde\xad\xbe\xef", 4, true},
+    {"0x42", "", 0, false},  // leading 0x fails (x is not hex)
+    {"0f", "\xf", 1, true},
+    {"45  ", "\x45", 1, false},
+    {"efgh", "\xef", 1, false},
+    {"", "", 0, false},
+    {"0123456789ABCDEF", "\x01\x23\x45\x67\x89\xAB\xCD\xEF", 8, true},
+    {"0123456789ABCDEF012345",
+     "\x01\x23\x45\x67\x89\xAB\xCD\xEF\x01\x23\x45", 11, true},
+  };
+
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+    std::vector<uint8> output;
+    std::vector<uint8> compare;
+    EXPECT_EQ(cases[i].success, HexStringToBytes(cases[i].input, &output)) <<
+        i << ": " << cases[i].input;
+    for (size_t j = 0; j < cases[i].output_len; ++j)
+      compare.push_back(static_cast<uint8>(cases[i].output[j]));
+    ASSERT_EQ(output.size(), compare.size()) << i << ": " << cases[i].input;
+    EXPECT_TRUE(std::equal(output.begin(), output.end(), compare.begin())) <<
+        i << ": " << cases[i].input;
+
+    output.clear();
+    compare.clear();
+
+    std::wstring wide_input = ASCIIToWide(cases[i].input);
+    EXPECT_EQ(cases[i].success, HexStringToBytes(wide_input, &output)) <<
+        i << ": " << cases[i].input;
+    for (size_t j = 0; j < cases[i].output_len; ++j)
+      compare.push_back(static_cast<uint8>(cases[i].output[j]));
+    ASSERT_EQ(output.size(), compare.size()) << i << ": " << cases[i].input;
+    EXPECT_TRUE(std::equal(output.begin(), output.end(), compare.begin())) <<
+        i << ": " << cases[i].input;
+  }
+}
+
 TEST(StringUtilTest, StringToDouble) {
   static const struct {
     std::string input;
