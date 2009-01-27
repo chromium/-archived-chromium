@@ -11,7 +11,7 @@
 #include "skia/include/SkBitmap.h"
 
 extern "C" {
-#include "jpeglib.h"
+#include "third_party/libjpeg/jpeglib.h"
 }
 
 // Encoder/decoder shared stuff ------------------------------------------------
