@@ -48,11 +48,11 @@ layer at (0,0) size 800x600
                   text run at (159,6) width 62: " - updated "
                   text run at (221,6) width 119: "12:15 PM ET Oct 24"
               RenderText {#text} at (0,0) size 0x0
-            RenderTableCell {TD} at (506,1) size 169x23 [r=0 c=1 rs=1 cs=1]
-              RenderTable {TABLE} at (2,2) size 110x19
-                RenderTableSection {TBODY} at (0,0) size 110x19
-                  RenderTableRow {TR} at (0,0) size 110x19
-                    RenderTableCell {TD} at (0,0) size 110x19 [bgcolor=#CCCCFF] [r=0 c=0 rs=1 cs=1]
+            RenderTableCell {TD} at (506,0) size 169x26 [r=0 c=1 rs=1 cs=1]
+              RenderTable {TABLE} at (2,2) size 110x22
+                RenderTableSection {TBODY} at (0,0) size 110x22
+                  RenderTableRow {TR} at (0,0) size 110x22
+                    RenderTableCell {TD} at (0,0) size 110x22 [bgcolor=#CCCCFF] [r=0 c=0 rs=1 cs=1]
                       RenderImage {IMG} at (3,3) size 16x16
                       RenderInline {FONT} at (0,0) size 85x13
                         RenderInline {A} at (0,0) size 85x13 [color=#0000EE]

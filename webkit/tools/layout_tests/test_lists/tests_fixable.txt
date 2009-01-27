@@ -1785,13 +1785,16 @@ MAC : LayoutTests/fast/forms/002.html = FAIL
 LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 
 // Merge 40124:40164 -- regressions
-WIN LINUX : LayoutTests/css1/box_properties/float.html = FAIL
+// This test tries to remove an iframe on the page then generate the pixel
+// output.  For some reason, we're taking the snapshot before the iframe is
+// removed (maybe getting the clientWidth isn't causing a re-layout?)
 WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL
 LINUX : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH
-WIN LINUX : LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
-// TODO(tc): Rebaseline on linux
+// TODO(tc): Rebaseline the next 3 tests on linux
 LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+LINUX : LayoutTests/css1/box_properties/float.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
 
 // intermittent failures on the buildbot
 LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
