@@ -35,7 +35,7 @@ class BrowserIdleTimer;
 class BrowserWindow;
 class DebuggerWindow;
 class GoButton;
-class LocationBarView;
+class LocationBar;
 class PrefService;
 class Profile;
 class StatusBubble;
@@ -456,7 +456,6 @@ class Browser : public TabStripModelDelegate,
 #endif  // OS_WIN
 
   // Getters for the location bar and go button.
-  LocationBarView* GetLocationBarView() const;
   GoButton* GetGoButton();
 
   // Returns the StatusBubble from the current toolbar. It is possible for

@@ -294,11 +294,6 @@ class SavePackage {
   static bool IsSavableURL(const GURL& url) { return false; }
 };
 
-class LocationBarView {
- public:
-  void ShowFirstRunBubble() { }
-};
-
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
  public:
 };

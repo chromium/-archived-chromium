@@ -8,6 +8,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
+#include "chrome/test/test_location_bar.h"
 
 // An implementation of BrowserWindow used for testing. TestBrowserWindow only
 // contains a valid TabStrip, all other getters return NULL.
@@ -34,8 +35,9 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void SetStarredState(bool is_starred) {}
   virtual gfx::Rect GetNormalBounds() const { return gfx::Rect(); }
   virtual bool IsMaximized() { return false; }
-  virtual LocationBarView* GetLocationBarView() const { return NULL; }
-  virtual BookmarkBarView* GetBookmarkBarView() { return NULL; }
+  virtual LocationBar* GetLocationBar() const {
+    return const_cast<TestLocationBar*>(&location_bar_);
+  }
   virtual void UpdateStopGoState(bool is_loading) {}
   virtual void UpdateToolbar(TabContents* contents,
                              bool should_restore_state) {}
@@ -61,6 +63,8 @@ class TestBrowserWindow : public BrowserWindow {
 
  private:
   TabStrip tab_strip_;
+
+  TestLocationBar location_bar_;
 
   DISALLOW_COPY_AND_ASSIGN(TestBrowserWindow);
 };

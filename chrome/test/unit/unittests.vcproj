@@ -734,6 +734,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\test_location_bar.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\browser\renderer_host\test_render_view_host.cc"
 					>
 				</File>

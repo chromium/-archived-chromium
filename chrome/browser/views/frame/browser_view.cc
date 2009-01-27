@@ -172,8 +172,8 @@ void BrowserView::WindowMoved() {
   status_bubble_->Reposition();
 
   // Close the omnibox popup, if any.
-  if (GetLocationBarView())
-    GetLocationBarView()->location_entry()->ClosePopup();
+  if (toolbar_->GetLocationBarView())
+    toolbar_->GetLocationBarView()->location_entry()->ClosePopup();
 }
 
 gfx::Rect BrowserView::GetToolbarBounds() const {
@@ -485,12 +485,8 @@ bool BrowserView::IsMaximized() {
   return frame_->GetWindow()->IsMaximized();
 }
 
-LocationBarView* BrowserView::GetLocationBarView() const {
+LocationBar* BrowserView::GetLocationBar() const {
   return toolbar_->GetLocationBarView();
-}
-
-BrowserView* BrowserView::GetBrowserView() const {
-  return NULL;
 }
 
 void BrowserView::UpdateStopGoState(bool is_loading) {
@@ -648,6 +644,10 @@ BookmarkBarView* BrowserView::GetBookmarkBarView() {
   return bookmark_bar_view_.get();
 }
 
+LocationBarView* BrowserView::GetLocationBarView() const {
+  return toolbar_->GetLocationBarView();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, NotificationObserver implementation:
 
@@ -739,7 +739,7 @@ std::wstring BrowserView::GetWindowTitle() const {
 }
 
 views::View* BrowserView::GetInitiallyFocusedView() const {
-  return GetLocationBarView();
+  return toolbar_->GetLocationBarView();
 }
 
 bool BrowserView::ShouldShowWindowTitle() const {
