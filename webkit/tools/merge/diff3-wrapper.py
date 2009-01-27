@@ -14,6 +14,7 @@ import optparse
 import os
 import subprocess
 import sys
+import traceback
 
 CYGDRIVE = '/cygdrive/'
 CYGLEN = len(CYGDRIVE)
@@ -87,15 +88,24 @@ def main(args):
   else:
     # TODO(ojan): Maybe fall back to diff3?
     raise Exception, "Must specify a diff tool to use."
-           
-  value = subprocess.call(cmd, stdout=subprocess.PIPE)
+
+  try:
+    # Work around http://bugs.python.org/issue3905
+    # by passing stderr and stdin as well since beyondcompare is a GUI app
+    return_code = subprocess.call(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE,
+                                  stdin=subprocess.PIPE,
+                                  shell=True)
+  except Exception,e:
+    print "Error running " + (" ".join(cmd))
+    traceback.print_exc(file=sys.stdout)
 
   # After performing the merge, this script needs to print the contents
   # of the merged file to stdout. 
   # Return an errorcode of 0 on successful merge, 1 if unresolved conflicts
   # remain in the result.  Any other errorcode will be treated as fatal.
   merged_file_contents = open(mine).read()
-
   # Ensure that the file doesn't use CRLF, in case the diff program converted
   # line endings.
   merged_file_contents.replace('\r\n', '\n')
@@ -104,7 +114,13 @@ def main(args):
   # of the file. Strip it.
   merged_file_contents = merged_file_contents[:-1]
   print merged_file_contents
-  sys.exit(value)
+  return return_code
 
 if '__main__' == __name__:
-  main(sys.argv)
+  try:
+    return_code = main(sys.argv)
+  except Exception,e:
+    traceback.print_exc(file=sys.stdout)
+    # diff3 uses '1' to mean "conflict" and 2 to mean "I barfed".
+    sys.exit(2) # return "I barfed"
+  sys.exit(return_code)
