@@ -328,7 +328,8 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
 WebPluginImpl::~WebPluginImpl() {
 }
 
-void WebPluginImpl::SetWindow(HWND window, HANDLE pump_messages_event) {
+void WebPluginImpl::SetWindow(gfx::NativeView window,
+                              HANDLE pump_messages_event) {
   if (window) {
     DCHECK(!windowless_);  // Make sure not called twice.
     window_ = window;

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/waitable_event.h"
 #include "chrome/app/result_codes.h"
@@ -129,7 +130,8 @@ bool RenderViewHost::CreateRenderView() {
 
   renderer_initialized_ = true;
 
-  HANDLE modal_dialog_event;
+#if defined(OS_WIN)
+  HANDLE modal_dialog_event_handle;
   HANDLE renderer_process_handle = process()->process().handle();
   if (renderer_process_handle == NULL)
     renderer_process_handle = GetCurrentProcess();
@@ -137,14 +139,21 @@ bool RenderViewHost::CreateRenderView() {
   BOOL result = DuplicateHandle(GetCurrentProcess(),
       modal_dialog_event_->handle(),
       renderer_process_handle,
-      &modal_dialog_event,
+      &modal_dialog_event_handle,
       SYNCHRONIZE,
       FALSE,
       0);
   DCHECK(result) << "Couldn't duplicate the modal dialog handle for the renderer.";
+#endif
 
   DCHECK(view());
-  Send(new ViewMsg_New(view()->GetPluginHWND(),
+
+  ModalDialogEvent modal_dialog_event;
+#if defined(OS_WIN)
+  modal_dialog_event.event = modal_dialog_event_handle;
+#endif
+
+  Send(new ViewMsg_New(gfx::IdFromNativeView(view()->GetPluginHWND()),
                        modal_dialog_event,
                        delegate_->GetWebkitPrefs(),
                        routing_id()));
@@ -751,11 +760,17 @@ void RenderViewHost::Shutdown() {
 }
 
 void RenderViewHost::OnMsgCreateWindow(int route_id,
-                                       HANDLE modal_dialog_event) {
+                                       ModalDialogEvent modal_dialog_event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  base::WaitableEvent* waitable_event = new base::WaitableEvent(
+#if defined(OS_WIN)
+      modal_dialog_event.event);
+#else
+      true, false);
+#endif
+
   if (view)
-    view->CreateNewWindow(route_id,
-                          new base::WaitableEvent(modal_dialog_event));
+    view->CreateNewWindow(route_id, waitable_event);
 }
 
 void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {

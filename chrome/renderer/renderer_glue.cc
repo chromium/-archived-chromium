@@ -261,15 +261,10 @@ bool EnsureFontLoaded(HFONT font) {
 }
 #endif
 
-webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeView window) {
+webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
   webkit_glue::ScreenInfo results;
-#if defined(OS_WIN)
   g_render_thread->Send(
       new ViewHostMsg_GetScreenInfo(window, &results));
-#else
-  // TODO(agl): this will start working on GetScreenInfo is fixed
-  NOTIMPLEMENTED();
-#endif
   return results;
 }
 

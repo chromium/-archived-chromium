@@ -10,6 +10,7 @@
 
 #include "base/command_line.h"
 #include "base/gfx/png_encoder.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
@@ -210,7 +211,7 @@ RenderView::~RenderView() {
 /*static*/
 RenderView* RenderView::Create(
     RenderThreadBase* render_thread,
-    HWND parent_hwnd,
+    gfx::NativeViewId parent_hwnd,
     base::WaitableEvent* modal_dialog_event,
     int32 opener_id,
     const WebPreferences& webkit_prefs,
@@ -266,7 +267,7 @@ void RenderView::JSOutOfMemory() {
   Send(new ViewHostMsg_JSOutOfMemory(routing_id_));
 }
 
-void RenderView::Init(HWND parent_hwnd,
+void RenderView::Init(gfx::NativeViewId parent_hwnd,
                       base::WaitableEvent* modal_dialog_event,
                       int32 opener_id,
                       const WebPreferences& webkit_prefs,
@@ -425,14 +426,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 
 // Got a response from the browser after the renderer decided to create a new
 // view.
-void RenderView::OnCreatingNewAck
-#if defined(OS_WIN)
-    (HWND parent) {
+void RenderView::OnCreatingNewAck(gfx::NativeViewId parent) {
   CompleteInit(parent);
-#else
-    () {
-#endif
-
   waiting_for_create_window_ack_ = false;
 
   while (!queued_resource_messages_.empty()) {
@@ -1854,29 +1849,19 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 
   int32 routing_id = MSG_ROUTING_NONE;
 
-#if defined(OS_WIN)
-  HANDLE modal_dialog_event = NULL;
+  ModalDialogEvent modal_dialog_event;
   render_thread_->Send(
       new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id,
                                    &modal_dialog_event));
   if (routing_id == MSG_ROUTING_NONE) {
-    DCHECK(modal_dialog_event == NULL);
     return NULL;
   }
-#else  // defined(OS_WIN)
-  // On POSIX we don't have a HANDLE parameter as we don't have cross process
-  // events. All platforms should be ported across to this at some point.
-  render_thread_->Send(
-      new ViewHostMsg_CreateWindow(routing_id_, user_gesture, &routing_id));
-  if (routing_id == MSG_ROUTING_NONE)
-    return NULL;
-#endif
 
   // The WebView holds a reference to this new RenderView
   const WebPreferences& prefs = webview->GetPreferences();
   base::WaitableEvent* waitable_event = new base::WaitableEvent
 #if defined(OS_WIN)
-      (modal_dialog_event);
+      (modal_dialog_event.event);
 #else
       (true, false);
 #endif
@@ -1946,7 +1931,8 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     if (is_gears)
       ChromePluginLib::Create(path, GetCPBrowserFuncsForRenderer());
     return WebPluginDelegateImpl::Create(path,
-                                         mime_type_to_use, host_window_);
+                                         mime_type_to_use,
+                                         gfx::NativeViewFromId(host_window_));
   }
 
   WebPluginDelegateProxy* proxy =

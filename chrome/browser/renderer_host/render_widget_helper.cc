@@ -189,37 +189,36 @@ void RenderWidgetHelper::OnCrossSiteClosePageACK(
 void RenderWidgetHelper::CreateNewWindow(int opener_id,
                                          bool user_gesture,
                                          base::ProcessHandle render_process,
-                                         int* route_id
-#if defined(OS_WIN)
-                                         , HANDLE* modal_dialog_event) {
-#else
-                                         ) {
-#endif
+                                         int* route_id,
+                                         ModalDialogEvent* modal_dialog_event) {
   if (!user_gesture && block_popups_) {
     *route_id = MSG_ROUTING_NONE;
-    *modal_dialog_event = NULL;
+#if defined(OS_WIN)
+    modal_dialog_event->event = NULL;
+#endif
     return;
   }
 
   *route_id = GetNextRoutingID();
 
+  ModalDialogEvent modal_dialog_event_internal;
 #if defined(OS_WIN)
   HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  modal_dialog_event_internal.event = event;
+
   BOOL result = DuplicateHandle(GetCurrentProcess(),
                                 event,
                                 render_process,
-                                modal_dialog_event,
+                                &modal_dialog_event->event,
                                 SYNCHRONIZE,
                                 FALSE,
                                 0);
   DCHECK(result) << "Couldn't duplicate modal dialog event for the renderer.";
+#endif
 
   // The easiest way to reach RenderViewHost is just to send a routed message.
-  ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id, event);
-#else
-  // TODO(port) figure out how the modal dialog event should work.
-  ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id);
-#endif
+  ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id,
+                                        modal_dialog_event_internal);
 
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));

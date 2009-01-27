@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
@@ -64,7 +65,7 @@ class RenderWidget : public IPC::Channel::Listener,
   bool InSend() const;
 
   // WebWidgetDelegate
-  virtual gfx::NativeView GetContainingView(WebWidget* webwidget);
+  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const gfx::Rect& clip_rect);
@@ -97,7 +98,7 @@ class RenderWidget : public IPC::Channel::Listener,
   void Init(int32 opener_id);
 
   // Finishes creation of a pending view started with Init.
-  void CompleteInit(HWND parent);
+  void CompleteInit(gfx::NativeViewId parent);
 
   // Paints the given rectangular region of the WebWidget into paint_buf (a
   // shared memory segment returned by AllocPaintBuf). The caller must ensure
@@ -117,7 +118,7 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // RenderWidget IPC message handlers
   void OnClose();
-  void OnCreatingNewAck(HWND parent);
+  void OnCreatingNewAck(gfx::NativeViewId parent);
   void OnResize(const gfx::Size& new_size);
   void OnWasHidden();
   void OnWasRestored(bool needs_repainting);
@@ -195,7 +196,7 @@ class RenderWidget : public IPC::Channel::Listener,
   gfx::Rect initial_pos_;
 
   // The window we are embedded within.  TODO(darin): kill this.
-  HWND host_window_;
+  gfx::NativeViewId host_window_;
 
   // We store the current cursor object so we can avoid spamming SetCursor
   // messages.

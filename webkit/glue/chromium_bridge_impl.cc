@@ -62,14 +62,10 @@
 
 namespace {
 
-gfx::NativeView ToPlatform(WebCore::Widget* widget) {
+gfx::NativeViewId ToNativeId(WebCore::Widget* widget) {
   if (!widget)
     return 0;
-  PlatformWidget widget_id = widget->root()->hostWindow()->platformWindow();
-  // TODO(eseidel): This cast is a hack.  We should replace gfx::NativeView with
-  // something more abstract like PlatformWidget since webkit/glue should not
-  // know about actual native widgets.
-  return static_cast<gfx::NativeView>(widget_id);
+  return widget->root()->hostWindow()->platformWindow();
 }
 
 #if PLATFORM(WIN_OS)
@@ -433,25 +429,25 @@ PassRefPtr<Image> ChromiumBridge::loadPlatformImageResource(const char* name) {
 // Screen ---------------------------------------------------------------------
 
 int ChromiumBridge::screenDepth(Widget* widget) {
-  return webkit_glue::GetScreenInfo(ToPlatform(widget)).depth;
+  return webkit_glue::GetScreenInfo(ToNativeId(widget)).depth;
 }
 
 int ChromiumBridge::screenDepthPerComponent(Widget* widget) {
-  return webkit_glue::GetScreenInfo(ToPlatform(widget)).depth_per_component;
+  return webkit_glue::GetScreenInfo(ToNativeId(widget)).depth_per_component;
 }
 
 bool ChromiumBridge::screenIsMonochrome(Widget* widget) {
-  return webkit_glue::GetScreenInfo(ToPlatform(widget)).is_monochrome;
+  return webkit_glue::GetScreenInfo(ToNativeId(widget)).is_monochrome;
 }
 
 IntRect ChromiumBridge::screenRect(Widget* widget) {
   return webkit_glue::ToIntRect(
-      webkit_glue::GetScreenInfo(ToPlatform(widget)).rect);
+      webkit_glue::GetScreenInfo(ToNativeId(widget)).rect);
 }
 
 IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
   return webkit_glue::ToIntRect(
-      webkit_glue::GetScreenInfo(ToPlatform(widget)).available_rect);
+      webkit_glue::GetScreenInfo(ToNativeId(widget)).available_rect);
 }
 
 // SharedTimers ----------------------------------------------------------------

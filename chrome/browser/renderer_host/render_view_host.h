@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_zoom.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
@@ -416,7 +417,7 @@ class RenderViewHost : public RenderWidgetHost {
   virtual void NotifyRendererResponsive();
 
   // IPC message handlers.
-  void OnMsgCreateWindow(int route_id, HANDLE modal_dialog_event);
+  void OnMsgCreateWindow(int route_id, ModalDialogEvent modal_dialog_event);
   void OnMsgCreateWidget(int route_id, bool activatable);
   void OnMsgShowView(int route_id,
                      WindowOpenDisposition disposition,

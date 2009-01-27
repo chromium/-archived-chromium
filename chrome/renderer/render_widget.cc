@@ -143,9 +143,8 @@ void RenderWidget::Init(int32 opener_id) {
 // This is used to complete pending inits and non-pending inits. For non-
 // pending cases, the parent will be the same as the current parent. This
 // indicates we do not need to reparent or anything.
-void RenderWidget::CompleteInit(HWND parent_hwnd) {
+void RenderWidget::CompleteInit(gfx::NativeViewId parent_hwnd) {
   DCHECK(routing_id_ != MSG_ROUTING_NONE);
-  DCHECK(parent_hwnd);
 
   host_window_ = parent_hwnd;
 
@@ -197,7 +196,7 @@ bool RenderWidget::InSend() const {
 
 // Got a response from the browser after the renderer decided to create a new
 // view.
-void RenderWidget::OnCreatingNewAck(HWND parent) {
+void RenderWidget::OnCreatingNewAck(gfx::NativeViewId parent) {
   DCHECK(routing_id_ != MSG_ROUTING_NONE);
 
   CompleteInit(parent);
@@ -503,7 +502,7 @@ void RenderWidget::DoDeferredScroll() {
 ///////////////////////////////////////////////////////////////////////////////
 // WebWidgetDelegate
 
-gfx::NativeView RenderWidget::GetContainingView(WebWidget* webwidget) {
+gfx::NativeViewId RenderWidget::GetContainingView(WebWidget* webwidget) {
   return host_window_;
 }
 

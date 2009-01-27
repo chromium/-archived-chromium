@@ -5,6 +5,7 @@
 #include "chrome/browser/resource_message_filter.h"
 
 #include "base/clipboard.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/histogram.h"
 #include "base/thread.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
@@ -244,10 +245,9 @@ bool ResourceMessageFilter::Send(IPC::Message* message) {
   return channel_->Send(message);
 }
 
-void ResourceMessageFilter::OnMsgCreateWindow(int opener_id,
-                                              bool user_gesture,
-                                              int* route_id,
-                                              HANDLE* modal_dialog_event) {
+void ResourceMessageFilter::OnMsgCreateWindow(
+    int opener_id, bool user_gesture, int* route_id,
+    ModalDialogEvent* modal_dialog_event) {
   render_widget_helper_->CreateNewWindow(opener_id,
                                          user_gesture,
                                          render_handle_,
@@ -406,8 +406,8 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
 }
 
 void ResourceMessageFilter::OnGetScreenInfo(
-	gfx::NativeView window, webkit_glue::ScreenInfo* results) {
-  *results = webkit_glue::GetScreenInfoHelper(window);
+    gfx::NativeViewId window, webkit_glue::ScreenInfo* results) {
+  *results = webkit_glue::GetScreenInfoHelper(gfx::NativeViewFromId(window));
 }
 
 void ResourceMessageFilter::OnGetPlugins(bool refresh,
@@ -474,20 +474,25 @@ void ResourceMessageFilter::OnClipboardReadHTML(std::wstring* markup,
 
 #if defined(OS_WIN)
 
-void ResourceMessageFilter::OnGetWindowRect(HWND window, gfx::Rect *rect) {
+void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
+                                            gfx::Rect* rect) {
+  HWND window = gfx::NativeViewFromId(window_id);
   RECT window_rect = {0};
   GetWindowRect(window, &window_rect);
   *rect = window_rect;
 }
 
-void ResourceMessageFilter::OnGetRootWindowRect(HWND window, gfx::Rect *rect) {
+void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
+                                                gfx::Rect* rect) {
+  HWND window = gfx::NativeViewFromId(window_id);
   RECT window_rect = {0};
   HWND root_window = ::GetAncestor(window, GA_ROOT);
   GetWindowRect(root_window, &window_rect);
   *rect = window_rect;
 }
 
-void ResourceMessageFilter::OnGetRootWindowResizerRect(HWND window, gfx::Rect *rect) {
+void ResourceMessageFilter::OnGetRootWindowResizerRect(gfx::NativeViewId window,
+                                                       gfx::Rect* rect) {
   RECT window_rect = {0};
   *rect = window_rect;
 }
@@ -581,10 +586,12 @@ void ResourceMessageFilter::OnGetDefaultPrintSettingsReply(
 
 #if defined(OS_WIN)
 
-void ResourceMessageFilter::OnScriptedPrint(HWND host_window,
+void ResourceMessageFilter::OnScriptedPrint(gfx::NativeViewId host_window_id,
                                             int cookie,
                                             int expected_pages_count,
                                             IPC::Message* reply_msg) {
+  HWND host_window = gfx::NativeViewFromId(host_window_id);
+
   scoped_refptr<printing::PrinterQuery> printer_query;
   print_job_manager_->PopPrinterQuery(cookie, &printer_query);
   if (!printer_query.get()) {

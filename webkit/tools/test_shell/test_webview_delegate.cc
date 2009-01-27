@@ -10,6 +10,7 @@
 
 #include "base/file_util.h"
 #include "base/gfx/point.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
@@ -664,9 +665,11 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebWidgetDelegate ---------------------------------------------------------
 
-gfx::NativeView TestWebViewDelegate::GetContainingView(WebWidget* webwidget) {
+gfx::NativeViewId TestWebViewDelegate::GetContainingView(WebWidget* webwidget) {
+  // For test shell, we pack a NativeView pointer into the NativeViewId since
+  // everything is single process.
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    return host->view_handle();
+    return gfx::IdFromNativeView(host->view_handle());
 
   return NULL;
 }

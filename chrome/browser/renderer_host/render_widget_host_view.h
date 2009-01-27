@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_H_
 
+#include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
 #include "build/build_config.h"
 #include "chrome/common/render_messages.h"
@@ -59,10 +60,8 @@ class RenderWidgetHostView {
   // Tells the View to size itself to the specified size.
   virtual void SetSize(const gfx::Size& size) = 0;
 
-#if defined(OS_WIN)
   // Retrieves the HWND used to contain plugin HWNDs.
-  virtual HWND GetPluginHWND() = 0;
-#endif
+  virtual gfx::NativeView GetPluginHWND() = 0;
 
   // Moves all plugin windows as described in the given list.
   virtual void MovePluginWindows(

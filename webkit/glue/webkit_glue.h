@@ -241,7 +241,7 @@ bool EnsureFontLoaded(HFONT font);
 #endif
 
 // Returns screen information corresponding to the given window.
-ScreenInfo GetScreenInfo(gfx::NativeView window);
+ScreenInfo GetScreenInfo(gfx::NativeViewId window);
 
 // Functions implemented by webkit_glue for WebKit ----------------------------
 

@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include "base/compiler_specific.h"
+#include "base/gfx/native_widget_types.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandle.h"
@@ -146,7 +147,7 @@ class WebPluginImpl : public WebPlugin,
                 int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
-  void SetWindow(HWND window, HANDLE pump_messages_event);
+  void SetWindow(gfx::NativeView window, HANDLE pump_messages_event);
 
   // Given a (maybe partial) url, completes using the base url.
   bool CompleteURL(const std::string& url_in, std::string* url_out);
@@ -323,7 +324,7 @@ class WebPluginImpl : public WebPlugin,
   std::vector<ClientInfo> clients_;
 
   bool windowless_;
-  HWND window_;
+  gfx::NativeView window_;
   WebCore::Element* element_;
   WebFrameImpl* webframe_;
 

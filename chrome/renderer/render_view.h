@@ -91,7 +91,7 @@ class RenderView : public RenderWidget,
   // (in which case we treat this RenderView as a top level window).
   static RenderView* Create(
       RenderThreadBase* render_thread,
-      HWND parent_hwnd,
+      gfx::NativeViewId parent_hwnd,
       base::WaitableEvent* modal_dialog_event,  // takes ownership
       int32 opener_id,
       const WebPreferences& webkit_prefs,
@@ -111,7 +111,7 @@ class RenderView : public RenderWidget,
     return static_cast<WebView*>(webwidget());
   }
 
-  HWND host_window() const {
+  gfx::NativeViewId host_window() const {
     return host_window_;
   }
 
@@ -334,7 +334,7 @@ class RenderView : public RenderWidget,
   // Initializes this view with the given parent and ID. The |routing_id| can be
   // set to 'MSG_ROUTING_NONE' if the true ID is not yet known. In this case,
   // CompleteInit must be called later with the true ID.
-  void Init(HWND parent,
+  void Init(gfx::NativeViewId parent,
             base::WaitableEvent* modal_dialog_event,  // takes ownership
             int32 opener_id,
             const WebPreferences& webkit_prefs,
@@ -396,11 +396,7 @@ class RenderView : public RenderWidget,
   void GoToEntryAtOffset(int offset);
 
   // RenderView IPC message handlers
-#if defined(OS_WIN)
-  void OnCreatingNewAck(HWND parent);
-#else
-  void OnCreatingNewAck();
-#endif
+  void OnCreatingNewAck(gfx::NativeViewId parent);
   void SendThumbnail();
   void OnPrintPage(const ViewMsg_PrintPage_Params& params);
   void OnGetPrintedPagesCount(const ViewMsg_Print_Params& params);

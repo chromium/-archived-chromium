@@ -45,6 +45,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/hash_tables.h"
 #include "base/lock.h"
 #include "base/ref_counted.h"
@@ -196,7 +197,8 @@ class DownloadFileManager
   void OnShowDownloadInShell(const FilePath& full_path);
   // Handler to open or execute a downloaded file.
   void OnOpenDownloadInShell(const FilePath& full_path,
-                             const std::wstring& url, HWND parent_window);
+                             const std::wstring& url,
+                             gfx::NativeView parent_window);
 
   // The download manager has provided a final name for a download. Sent from
   // the UI thread and run on the download thread.

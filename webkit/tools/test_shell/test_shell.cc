@@ -595,8 +595,8 @@ bool SpellCheckWord(const wchar_t* word, int word_len,
   return true;
 }
 
-ScreenInfo GetScreenInfo(gfx::NativeView window) {
-  return GetScreenInfoHelper(window);
+ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
+  return GetScreenInfoHelper(gfx::NativeViewFromId(window));
 }
 
 bool IsPluginRunningInRendererProcess() {

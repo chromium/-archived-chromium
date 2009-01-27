@@ -15,6 +15,7 @@
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
+#include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/upload_data.h"
@@ -1720,6 +1721,29 @@ struct ParamTraits<webkit_glue::ScreenInfo> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<webkit_glue::ScreenInfo>");
+  }
+};
+
+template<>
+struct ParamTraits<ModalDialogEvent> {
+  typedef ModalDialogEvent param_type;
+#if defined(OS_WIN)
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.event);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->event);
+  }
+#else
+  static void Write(Message* m, const param_type& p) {
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return true;
+  }
+#endif
+
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ModalDialogEvent>");
   }
 };
 

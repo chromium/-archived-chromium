@@ -12,6 +12,7 @@
 #include "base/ref_counted.h"
 #include "base/lock.h"
 #include "base/waitable_event.h"
+#include "chrome/common/modal_dialog_event.h"
 
 namespace IPC {
 class Message;
@@ -109,11 +110,8 @@ class RenderWidgetHelper :
   void CreateNewWindow(int opener_id,
                        bool user_gesture,
                        base::ProcessHandle render_process,
-                       int* route_id
-#if defined(OS_WIN)
-                       , HANDLE* modal_dialog_event
-#endif
-                       );
+                       int* route_id,
+                       ModalDialogEvent* modal_dialog_event);
   void CreateNewWidget(int opener_id, bool activatable, int* route_id);
 
  private:

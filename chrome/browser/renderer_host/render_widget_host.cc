@@ -68,7 +68,8 @@ void RenderWidgetHost::Init() {
 
   // Send the ack along with the information on placement.
   HWND plugin_hwnd = view_->GetPluginHWND();
-  Send(new ViewMsg_CreatingNew_ACK(routing_id_, plugin_hwnd));
+  Send(new ViewMsg_CreatingNew_ACK(routing_id_,
+                                   gfx::IdFromNativeView(plugin_hwnd)));
 
   WasResized();
 }

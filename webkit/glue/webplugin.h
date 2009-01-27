@@ -11,11 +11,11 @@
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/gfx/rect.h"
+#include "base/gfx/native_widget_types.h"
 
-// TODO(port): type typedefs are obviously incorrect on non-Windows
+// TODO(port): this typedef is obviously incorrect on non-Windows
 // platforms, but now a lot of code now accidentally depends on them
 // existing.  #ifdef out these declarations and fix all the users.
-typedef struct HWND__* HWND;
 typedef void* HANDLE;
 
 class GURL;
@@ -58,7 +58,7 @@ struct WebPluginInfo {
 
 // Describes the new location for a plugin window.
 struct WebPluginGeometry {
-  HWND window;
+  gfx::NativeView window;
   gfx::Rect window_rect;
   // Clip rect (include) and cutouts (excludes), relative to
   // window_rect origin.
@@ -89,7 +89,8 @@ class WebPlugin {
   // The pump_messages_event is a event handle which is valid only for
   // windowless plugins and is used in NPP_HandleEvent calls to pump messages
   // if the plugin enters a modal loop.
-  virtual void SetWindow(HWND window, HANDLE pump_messages_event) = 0;
+  virtual void SetWindow(gfx::NativeView window,
+                         HANDLE pump_messages_event) = 0;
   // Cancels a pending request.
   virtual void CancelResource(int id) = 0;
   virtual void Invalidate() = 0;
