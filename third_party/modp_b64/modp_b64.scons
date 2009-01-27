@@ -18,11 +18,40 @@ env.Prepend(
     ],
 )
 
-input_files = [
+input_files = ChromeFileList([
     'modp_b64.cc',
-]
+    'modp_b64.h',
+    'modp_b64_data.h',
+])
 
 env.ChromeLibrary('modp_b64', input_files)
 
-env.ChromeMSVSProject('$MODP_B64_DIR/modp_b64.vcproj',
-                guid='{7100F41F-868D-4E99-80A2-AF8E6574749D}')
+p = env.ChromeMSVSProject('modp_b64.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/' +
+                                    'modp_b64/modp_b64.vcproj'),
+                          guid='{7100F41F-868D-4E99-80A2-AF8E6574749D}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCCLCompilerTool',
+                              'VCLibrarianTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])

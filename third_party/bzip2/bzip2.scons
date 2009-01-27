@@ -28,17 +28,45 @@ if env.Bit('windows'):
       ],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'blocksort.c',
     'bzlib.c',
+    'bzlib.h',
+    'bzlib_private.h',
     'compress.c',
     'crctable.c',
     'decompress.c',
     'huffman.c',
     'randtable.c',
-]
+])
 
 env.ChromeLibrary('bzip2', input_files)
 
-env.ChromeMSVSProject('$BZIP2_DIR/bzip2.vcproj',
-                guid='{2A70CBF0-847E-4E3A-B926-542A656DC7FE}')
+p = env.ChromeMSVSProject('bzip2.vcproj',
+                          dest='$CHROME_SRC_DIR/third_party/bzip2/bzip2.vcproj',
+                          guid='{2A70CBF0-847E-4E3A-B926-542A656DC7FE}',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          tools=[
+                              MSVSTool('VCCLCompilerTool',
+                                       PreprocessorDefinitions=['BZ_NO_STDIO'],
+                                       DisableSpecificWarnings='4996'),
+                              'VCLibrarianTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])

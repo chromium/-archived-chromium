@@ -12,15 +12,61 @@ env.ApplySConscript([
     '$LZMA_SDK_DIR/using_lzma_sdk.scons',
 ])
 
-input_files = [
-    "mbsdiff.cc",
-]
+input_files = ChromeFileList([
+    'mbsdiff.cc',
+])
 
 env.ChromeProgram('bsdiff', input_files)
 
-env.ChromeMSVSProject('$BSDIFF_DIR/bsdiff.vcproj',
-                dependencies = [
-                    '$LZMA_SDK_DIR/7z_C.vcproj',
-                    '$BSPATCH_DIR/bspatch.vcproj',
-                ],
-                guid='{E1D0B89E-257B-4BCA-A0C6-A2CD997A2FDC}')
+p = env.ChromeMSVSProject('bsdiff.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/' +
+                                    'bsdiff/bsdiff.vcproj'),
+                          dependencies = [
+                              '$LZMA_SDK_DIR/7z_C.vcproj',
+                              '$BSPATCH_DIR/bspatch.vcproj',
+                          ],
+                          guid='{E1D0B89E-257B-4BCA-A0C6-A2CD997A2FDC}',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                '$(SolutionDir)../third_party/bspatch/using_bspatch.vsprops',
+                './bsdiff.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                '$(SolutionDir)../third_party/bspatch/using_bspatch.vsprops',
+                './bsdiff.vsprops',
+            ])

@@ -53,18 +53,20 @@ elif env.Bit('linux'):
     # We're not responsible for bad warning hygiene in this third party code.
     env['CCFLAGS'].remove('-Wall')
 
-input_files = [
+input_files = ChromeFileList([
     'jcapimin.c',
     'jcapistd.c',
     'jccoefct.c',
     'jccolor.c',
     'jcdctmgr.c',
     'jchuff.c',
+    'jchuff.h',
     'jcinit.c',
     'jcmainct.c',
     'jcmarker.c',
     'jcmaster.c',
     'jcomapi.c',
+    'jconfig.h',
     'jcparam.c',
     'jcphuff.c',
     'jcprepct.c',
@@ -75,8 +77,10 @@ input_files = [
     'jdatasrc.c',
     'jdcoefct.c',
     'jdcolor.c',
+    'jdct.h',
     'jddctmgr.c',
     'jdhuff.c',
+    'jdhuff.h',
     'jdinput.c',
     'jdmainct.c',
     'jdmarker.c',
@@ -86,20 +90,54 @@ input_files = [
     'jdpostct.c',
     'jdsample.c',
     'jerror.c',
+    'jerror.h',
     'jfdctflt.c',
     'jfdctfst.c',
     'jfdctint.c',
     'jidctflt.c',
     'jidctfst.c',
     'jidctint.c',
+    'jinclude.h',
     'jmemmgr.c',
     'jmemnobs.c',
+    'jmemsys.h',
+    'jmorecfg.h',
+    'jpegint.h',
+    'jpeglib.h',
     'jquant1.c',
     'jquant2.c',
     'jutils.c',
-]
+    'jversion.h',
+])
 
 env.ChromeLibrary('libjpeg', input_files)
 
-env.ChromeMSVSProject('$LIBJPEG_DIR/libjpeg.vcproj',
-                guid='{238CE175-76CE-4A25-A676-69D115885601}')
+p = env.ChromeMSVSProject('libjpeg.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/' +
+                                    'libjpeg/libjpeg.vcproj'),
+                          guid='{238CE175-76CE-4A25-A676-69D115885601}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCLibrarianTool',
+                              'VCCLCompilerTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+            ])

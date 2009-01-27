@@ -4,12 +4,15 @@
 	Version="8.00"
 	Name="bzip2"
 	ProjectGUID="{2A70CBF0-847E-4E3A-B926-542A656DC7FE}"
+	RootNamespace="bzip2"
 	>
 	<Platforms>
 		<Platform
 			Name="Win32"
 		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -18,8 +21,8 @@
 			>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="BZ_NO_STDIO"
 				DisableSpecificWarnings="4996"
+				PreprocessorDefinitions="BZ_NO_STDIO"
 			/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -32,14 +35,16 @@
 			>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="BZ_NO_STDIO"
 				DisableSpecificWarnings="4996"
+				PreprocessorDefinitions="BZ_NO_STDIO"
 			/>
 			<Tool
 				Name="VCLibrarianTool"
 			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<File
 			RelativePath="blocksort.c"
@@ -78,4 +83,6 @@
 			>
 		</File>
 	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

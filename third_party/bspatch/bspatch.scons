@@ -23,11 +23,42 @@ elif env.Bit('linux'):
       CXXFLAGS = ['-Wall'],
   )
 
-input_files = [
+input_files = ChromeFileList([
     'mbspatch.cc',
-]
+    'mbspatch.h',
+])
 
 env.ChromeLibrary('bspatch', input_files)
 
-env.ChromeMSVSProject('$BSPATCH_DIR/bspatch.vcproj',
-                guid='{D7ED06E8-6138-4CE3-A906-5EF1D9C804E0}')
+p = env.ChromeMSVSProject('bspatch.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/bspatch/' +
+                                    '/bspatch.vcproj'),
+                          guid='{D7ED06E8-6138-4CE3-A906-5EF1D9C804E0}',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          relative_path_prefix='./',
+                          tools=[
+                              'VCCLCompilerTool',
+                              'VCLibrarianTool',
+                          ],
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                '$(SolutionDir)../third_party/bspatch/using_bspatch.vsprops',
+                '$(SolutionDir)../third_party/lzma_sdk/using_lzma_sdk.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                '$(SolutionDir)../third_party/bspatch/using_bspatch.vsprops',
+                '$(SolutionDir)../third_party/lzma_sdk/using_lzma_sdk.vsprops',
+            ])

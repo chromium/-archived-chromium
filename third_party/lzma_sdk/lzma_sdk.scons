@@ -31,23 +31,93 @@ if env.Bit('windows'):
     ],
   )
 
-input_files = [
-    '7zCrc.c',
-    'Archive/7z/7zAlloc.c',
-    'Archive/7z/7zBuffer.c',
-    'Archive/7z/7zDecode.c',
-    'Archive/7z/7zExtract.c',
-    'Archive/7z/7zHeader.c',
-    'Archive/7z/7zIn.c',
-    'Archive/7z/7zItem.c',
-    'Archive/7z/7zMethodID.c',
-    'Compress/Branch/BranchX86.c',
-    'Compress/Branch/BranchX86_2.c',
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('LZMA', [
     'Compress/Lzma/LzmaDecode.c',
-]
+    'Compress/Lzma/LzmaDecode.h',
+    'Compress/Lzma/LzmaTypes.h',
+  ]),
+  MSVSFilter('Common', [
+    '7zCrc.c',
+    '7zCrc.h',
+    'Types.h',
+  ]),
+  MSVSFilter('Branch', [
+    'Compress/Branch/BranchTypes.h',
+    'Compress/Branch/BranchX86.c',
+    'Compress/Branch/BranchX86.h',
+    'Compress/Branch/BranchX86_2.c',
+    'Compress/Branch/BranchX86_2.h',
+  ]),
+  MSVSFilter('7z', [
+    'Archive/7z/7zAlloc.c',
+    'Archive/7z/7zAlloc.h',
+    'Archive/7z/7zBuffer.c',
+    'Archive/7z/7zBuffer.h',
+    'Archive/7z/7zDecode.c',
+    'Archive/7z/7zDecode.h',
+    'Archive/7z/7zExtract.c',
+    'Archive/7z/7zExtract.h',
+    'Archive/7z/7zHeader.c',
+    'Archive/7z/7zHeader.h',
+    'Archive/7z/7zIn.c',
+    'Archive/7z/7zIn.h',
+    'Archive/7z/7zItem.c',
+    'Archive/7z/7zItem.h',
+    'Archive/7z/7zMethodID.c',
+    'Archive/7z/7zMethodID.h',
+  ]),
+])
 
 env.ChromeLibrary('lzma_sdk', input_files)
 
-env.ChromeMSVSProject('$LZMA_SDK_DIR/7z_C.vcproj',
-                name='lzma_sdk',
-                guid='{B84553C8-5676-427B-B3E4-23DDDC4DBC7B}')
+p = env.ChromeMSVSProject('7z_C.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/' +
+                                    'lzma_sdk/7z_C.vcproj'),
+                          name='lzma_sdk',
+                          guid='{B84553C8-5676-427B-B3E4-23DDDC4DBC7B}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          ConfigurationType='4')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                '$(SolutionDir)../third_party/lzma_sdk/using_lzma_sdk.vsprops',
+            ],
+            tools=[
+                MSVSTool('VCCLCompilerTool',
+                         PreprocessorDefinitions=[
+                             '_DEBUG',
+                             'WIN32',
+                             '_CONSOLE',
+                             '_LZMA_PROB32'
+                         ]),
+                'VCLibrarianTool',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../build/external_code.vsprops',
+                '$(SolutionDir)../third_party/lzma_sdk/using_lzma_sdk.vsprops',
+            ],
+            tools=[
+                MSVSTool('VCCLCompilerTool',
+                         PreprocessorDefinitions=[
+                             'NDEBUG',
+                             'WIN32',
+                             '_CONSOLE',
+                             '_LZMA_PROB32'
+                         ]),
+                'VCLibrarianTool',
+            ])

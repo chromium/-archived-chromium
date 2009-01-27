@@ -67,13 +67,72 @@ elif env.Bit('linux'):
     env['CCFLAGS'].remove('-Werror')
 
 
-input_files = [
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('include', [
+    'include/win32config.h',
+    'include/wsockcompat.h',
+    MSVSFilter('libxml', [
+      'include/libxml/c14n.h',
+      'include/libxml/catalog.h',
+      'include/libxml/chvalid.h',
+      'include/libxml/debugXML.h',
+      'include/libxml/dict.h',
+      'include/libxml/DOCBparser.h',
+      'include/libxml/encoding.h',
+      'include/libxml/entities.h',
+      'include/libxml/globals.h',
+      'include/libxml/hash.h',
+      'include/libxml/HTMLparser.h',
+      'include/libxml/HTMLtree.h',
+      'include/libxml/list.h',
+      'include/libxml/nanoftp.h',
+      'include/libxml/nanohttp.h',
+      'include/libxml/parser.h',
+      'include/libxml/parserInternals.h',
+      'include/libxml/pattern.h',
+      'include/libxml/relaxng.h',
+      'include/libxml/SAX.h',
+      'include/libxml/SAX2.h',
+      'include/libxml/schemasInternals.h',
+      'include/libxml/schematron.h',
+      'include/libxml/threads.h',
+      'include/libxml/tree.h',
+      'include/libxml/uri.h',
+      'include/libxml/valid.h',
+      'include/libxml/xinclude.h',
+      'include/libxml/xlink.h',
+      'include/libxml/xmlautomata.h',
+      'include/libxml/xmlerror.h',
+      'include/libxml/xmlexports.h',
+      'include/libxml/xmlIO.h',
+      'include/libxml/xmlmemory.h',
+      'include/libxml/xmlmodule.h',
+      'include/libxml/xmlreader.h',
+      'include/libxml/xmlregexp.h',
+      'include/libxml/xmlsave.h',
+      'include/libxml/xmlschemas.h',
+      'include/libxml/xmlschemastypes.h',
+      'include/libxml/xmlstring.h',
+      'include/libxml/xmlunicode.h',
+      'include/libxml/xmlversion.h',
+      'include/libxml/xmlwriter.h',
+      'include/libxml/xpath.h',
+      'include/libxml/xpathInternals.h',
+      'include/libxml/xpointer.h',
+    ]),
+  ]),
+    'acconfig.h',
     'c14n.c',
     'catalog.c',
     'chvalid.c',
+    'config.h',
     'debugXML.c',
     'dict.c',
     'DOCBparser.c',
+    'elfgcchack.h',
     'encoding.c',
     'entities.c',
     'error.c',
@@ -82,6 +141,7 @@ input_files = [
     'HTMLparser.c',
     'HTMLtree.c',
     'legacy.c',
+    'libxml.h',
     'list.c',
     'nanoftp.c',
     'nanohttp.c',
@@ -111,19 +171,49 @@ input_files = [
     'xmlwriter.c',
     'xpath.c',
     'xpointer.c',
-]
+])
 
 env.ChromeLibrary('libxml', input_files)
 
-env.ChromeMSVSProject('$LIBXML_DIR/build/libxml.vcproj',
-                dependencies = [
-                    '$LIBXML_DIR/build/libxml_config.vcproj',
-                ],
-                guid='{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}')
+p = env.ChromeMSVSProject('$LIBXML_DIR/build/libxml.vcproj',
+                          dest=('$CHROME_SRC_DIR/third_party/libxml/' +
+                                '/build/libxml.vcproj'),
+                          guid='{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
 
-env.ChromeMSVSProject('$LIBXML_DIR/build/libxml_config.vcproj',
-                guid='{31D88CBF-DC28-47A8-8838-BF81D528EE74}')
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/debug.vsprops',
+                './libxml.vsprops',
+            ])
 
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/release.vsprops',
+                './libxml.vsprops',
+            ])
 
 if env.Bit('windows'):
   config_files = [
