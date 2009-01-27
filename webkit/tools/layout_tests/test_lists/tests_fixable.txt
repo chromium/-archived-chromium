@@ -508,7 +508,6 @@ LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
 // Difference between numeric precision in output.
 LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
-LINUX : LayoutTests/svg/custom/group-opacity.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 // Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
@@ -1013,8 +1012,6 @@ LayoutTests/fast/js/arguments.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
-LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
-LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 
 // This is a V8 issues.  It has been fixed in V8 bleeding_edge
 // revision 1157.
