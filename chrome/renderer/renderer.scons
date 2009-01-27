@@ -102,7 +102,6 @@ if env.Bit('linux'):
       'chrome_plugin_host.cc',
       'debug_message_handler.cc',
       'external_js_object.cc',
-      'net/render_dns_master.cc',
       'plugin_channel_host.cc',
       'render_view.cc',
       'render_widget.cc',

@@ -28,10 +28,7 @@ static const size_t kMAX_SUBMISSION_PER_TASK = 30;
 
 RenderDnsMaster::RenderDnsMaster()
     : c_string_queue_(1000),
-#pragma warning(push)
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-    render_dns_factory_(this) {
-#pragma warning(pop)
+      ALLOW_THIS_IN_INITIALIZER_LIST(render_dns_factory_(this)) {
   Reset();
 }
 
