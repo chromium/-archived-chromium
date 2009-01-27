@@ -84,7 +84,7 @@ class ImageDiff(test_type_base.TestTypeBase):
     except Exception, e:
       _compare_available = False
 
-    result = 0
+    result = 1
     if _compare_available:
       try:
         result = subprocess.call(cmd);
