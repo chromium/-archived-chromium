@@ -280,6 +280,7 @@ bool ExternalTabContainer::ProcessKeyDown(HWND window, UINT message,
   }
   int flags = HIWORD(lparam);
   if ((flags & KF_EXTENDED) || (flags & KF_ALTDOWN) ||
+      (wparam >= VK_F1 && wparam <= VK_F24) ||
       win_util::IsShiftPressed() || win_util::IsCtrlPressed()) {
     // If this is an extended key or if one or more of Alt, Shift and Control
     // are pressed, this might be an accelerator that the external host wants
