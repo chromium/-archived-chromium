@@ -4,6 +4,9 @@
 
 #include "base/file_util.h"
 
+#if defined(OS_WIN)
+#include <io.h>
+#endif
 #include <stdio.h>
 
 #include <fstream>
