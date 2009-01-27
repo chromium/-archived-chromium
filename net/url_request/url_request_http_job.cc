@@ -96,8 +96,10 @@ void URLRequestHttpJob::Start() {
   request_info_.method = request_->method();
   request_info_.load_flags = request_->load_flags();
 
-  if (request_->context())
-    request_info_.user_agent = request_->context()->user_agent();
+  if (request_->context()) {
+    request_info_.user_agent =
+        request_->context()->GetUserAgent(request_->url());
+  }
 
   AddExtraHeaders();
 

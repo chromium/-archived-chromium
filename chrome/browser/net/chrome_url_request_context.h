@@ -44,6 +44,8 @@ class ChromeURLRequestContext : public URLRequestContext,
     return user_script_dir_path_;
   }
 
+  virtual const std::string& GetUserAgent(const GURL& url) const;
+
  private:
   // Private constructor, use the static factory methods instead. This is
   // expected to be called on the UI thread.

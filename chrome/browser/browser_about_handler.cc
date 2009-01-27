@@ -274,7 +274,7 @@ std::string BrowserAboutHandler::AboutVersion() {
       l10n_util::GetString(IDS_ABOUT_VERSION_UNOFFICIAL));
   }
   localized_strings.SetString(L"useragent",
-      UTF8ToWide(webkit_glue::GetUserAgent()));
+      UTF8ToWide(webkit_glue::GetUserAgent(GURL())));
 
   static const StringPiece version_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(

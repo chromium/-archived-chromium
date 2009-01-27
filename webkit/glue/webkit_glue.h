@@ -105,9 +105,10 @@ std::string GetWebKitVersion();
 // inconsistent behavior.
 void SetUserAgent(const std::string& new_user_agent);
 
-// Returns the user agent, which is usually the default user agent but may be
-// overriden by a call to SetUserAgent() (which should be done at startup).
-const std::string& GetUserAgent();
+// Returns the user agent to use for the given URL, which is usually the
+// default user agent but may be overriden by a call to SetUserAgent() (which
+// should be done at startup).
+const std::string& GetUserAgent(const GURL& url);
 
 // Creates serialized state for the specified URL. This is a variant of
 // HistoryItemToString (in glue_serialize) that is used during session restore

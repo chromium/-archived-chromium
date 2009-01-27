@@ -83,8 +83,8 @@ URLRequestInetJob::URLRequestInetJob(URLRequest* request)
   // TODO(darin): we should re-create the internet if the UA string changes,
   // but we have to be careful about existing users of this internet.
   if (!the_internet_) {
-    InitializeTheInternet(
-        request->context() ? request->context()->user_agent() : std::string());
+    InitializeTheInternet(request->context() ?
+        request->context()->GetUserAgent(GURL()) : std::string());
   }
 #ifndef NDEBUG
   DCHECK(MessageLoop::current() == my_message_loop_) <<

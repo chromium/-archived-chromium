@@ -316,11 +316,11 @@ std::string GetWebKitVersion() {
 
 namespace {
 
-std::string* user_agent = NULL;
+const std::string* user_agent = NULL;
 bool user_agent_requested = false;
+bool user_agent_is_overridden = false;
 
-void SetUserAgentToDefault() {
-  static std::string default_user_agent;
+void BuildUserAgent(bool mimic_safari, std::string* result) {
 #if defined(OS_WIN) || defined(OS_MACOSX)
   int32 os_major_version = 0;
   int32 os_minor_version = 0;
@@ -345,17 +345,19 @@ void SetUserAgentToDefault() {
   // maximally compatible with Safari, we hope!!
   std::string product;
 
-  scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-  if (version_info.get())
-    product = "Chrome/" + WideToASCII(version_info->product_version());
+  if (!mimic_safari) {
+    scoped_ptr<FileVersionInfo> version_info(
+        FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+    if (version_info.get())
+      product = "Chrome/" + WideToASCII(version_info->product_version());
+  }
 
   if (product.empty())
-    product = "Version/3.1";
+    product = "Version/3.2.1";
 
   // Derived from Safari's UA string.
   StringAppendF(
-      &default_user_agent,
+      result,
 #if defined(OS_WIN)
       "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/%d.%d"
 #elif defined(OS_MACOSX)
@@ -380,17 +382,22 @@ void SetUserAgentToDefault() {
   // Windows. Some solution for embedding the Chrome version number needs to be
   // found here.
   StringAppendF(
-      &default_user_agent,
+      result,
       "Mozilla/5.0 (Linux; U; en-US) AppleWebKit/525.13 "
       "(KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13");
 #else
   // TODO(port): we need something like FileVersionInfo for our UA string.
   NOTIMPLEMENTED();
 #endif
+}
+
+void SetUserAgentToDefault() {
+  static std::string default_user_agent;
+  BuildUserAgent(false, &default_user_agent);
   user_agent = &default_user_agent;
 }
 
-};
+}  // namespace
 
 void SetUserAgent(const std::string& new_user_agent) {
   DCHECK(!user_agent_requested) << "Setting the user agent after someone has "
@@ -399,13 +406,23 @@ void SetUserAgent(const std::string& new_user_agent) {
   overridden_user_agent = new_user_agent;  // If you combine this with the
                                            // previous line, the function only
                                            // works the first time.
+  user_agent_is_overridden = true;
   user_agent = &overridden_user_agent;
 }
 
-const std::string& GetUserAgent() {
+const std::string& GetUserAgent(const GURL& url) {
   if (!user_agent)
     SetUserAgentToDefault();
   user_agent_requested = true;
+  if (!user_agent_is_overridden) {
+    static std::string mimic_safari_user_agent;
+    // For hotmail, we need to spoof as Safari (bug 4111).
+    if (MatchPattern(url.host(), "*.mail.live.com")) {
+      if (mimic_safari_user_agent.empty()) 
+        BuildUserAgent(true, &mimic_safari_user_agent);
+      return mimic_safari_user_agent;
+    }
+  }
   return *user_agent;
 }
 

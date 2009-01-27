@@ -10,11 +10,9 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_
 #define NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_
 
-#include <string>
-
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "net/base/cookie_policy.h"
 #include "net/ftp/ftp_auth_cache.h"
 #include "net/http/http_transaction_factory.h"
@@ -53,20 +51,24 @@ class URLRequestContext :
   // Gets the FTP authentication cache for this context.
   net::FtpAuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
 
-  // Gets the UA string to use for this context.
-  const std::string& user_agent() const { return user_agent_; }
-
   // Gets the value of 'Accept-Charset' header field.
   const std::string& accept_charset() const { return accept_charset_; }
 
   // Gets the value of 'Accept-Language' header field.
   const std::string& accept_language() const { return accept_language_; }
 
-  // Do not call this directly.  TODO(darin): extending from RefCounted* should
-  // not require a public destructor!
-  virtual ~URLRequestContext() {}
+  // Gets the UA string to use for the given URL.  Pass an invalid URL (such as
+  // GURL()) to get the default UA string.  Subclasses should override this
+  // method to provide a UA string.
+  virtual const std::string& GetUserAgent(const GURL& url) const {
+    return EmptyString();
+  }
 
  protected:
+  friend class base::RefCountedThreadSafe<URLRequestContext>;
+
+  virtual ~URLRequestContext() {}
+
   // The following members are expected to be initialized and owned by
   // subclasses.
   net::ProxyService* proxy_service_;
@@ -74,13 +76,11 @@ class URLRequestContext :
   net::CookieMonster* cookie_store_;
   net::CookiePolicy cookie_policy_;
   net::FtpAuthCache ftp_auth_cache_;
-  std::string user_agent_;
   std::string accept_language_;
   std::string accept_charset_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(URLRequestContext);
+  DISALLOW_COPY_AND_ASSIGN(URLRequestContext);
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_
-

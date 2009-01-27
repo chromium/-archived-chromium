@@ -94,8 +94,6 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
 ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
     : prefs_(profile->GetPrefs()),
       is_off_the_record_(profile->IsOffTheRecord()) {
-  user_agent_ = webkit_glue::GetUserAgent();
-
   // Set up Accept-Language and Accept-Charset header values
   accept_language_ = net::HttpUtil::GenerateAcceptLanguageHeader(
       WideToASCII(prefs_->GetString(prefs::kAcceptLanguages)));
@@ -183,14 +181,21 @@ FilePath ChromeURLRequestContext::GetPathForExtension(const std::string& id) {
   }
 }
 
-void ChromeURLRequestContext::OnAcceptLanguageChange(std::string accept_language) {
+const std::string& ChromeURLRequestContext::GetUserAgent(
+    const GURL& url) const {
+  return webkit_glue::GetUserAgent(url);
+}
+
+void ChromeURLRequestContext::OnAcceptLanguageChange(
+    std::string accept_language) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
   accept_language_ =
       net::HttpUtil::GenerateAcceptLanguageHeader(accept_language);
 }
 
-void ChromeURLRequestContext::OnCookiePolicyChange(net::CookiePolicy::Type type) {
+void ChromeURLRequestContext::OnCookiePolicyChange(
+    net::CookiePolicy::Type type) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
   cookie_policy_.SetType(type);
