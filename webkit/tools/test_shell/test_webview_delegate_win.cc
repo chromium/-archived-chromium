@@ -13,6 +13,7 @@
 #include <shlwapi.h>
 
 #include "base/gfx/point.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
@@ -45,7 +46,7 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  HWND hwnd = GetContainingView(webview);
+  HWND hwnd = gfx::NativeViewFromId(GetContainingView(webview));
   if (!hwnd)
     return NULL;
 
