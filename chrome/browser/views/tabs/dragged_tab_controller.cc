@@ -399,16 +399,23 @@ void DraggedTabController::NavigationStateChanged(const TabContents* source,
 void DraggedTabController::ReplaceContents(TabContents* source,
                                            TabContents* new_contents) {
   DCHECK(dragged_contents_ == source);
-  source->set_delegate(NULL);
-  new_contents->set_delegate(this);
 
   // If we're attached to a TabStrip, we need to tell the TabStrip that this
   // TabContents was replaced.
-  if (attached_tabstrip_ && attached_tabstrip_->model() && dragged_contents_) {
-    int index =
-        attached_tabstrip_->model()->GetIndexOfTabContents(dragged_contents_);
-    if (index != TabStripModel::kNoTab)
-      attached_tabstrip_->model()->ReplaceTabContentsAt(index, new_contents);
+  if (attached_tabstrip_ && dragged_contents_) {
+    if (original_delegate_) {
+      original_delegate_->ReplaceContents(source, new_contents);
+      // ReplaceContents on the original delegate is going to reset the delegate
+      // for us. We need to unset original_delegate_ here so that
+      // ChangeDraggedContents doesn't attempt to restore the delegate to the
+      // wrong value.
+      original_delegate_ = NULL;
+    } else if (attached_tabstrip_->model()) {
+      int index =
+          attached_tabstrip_->model()->GetIndexOfTabContents(dragged_contents_);
+      if (index != TabStripModel::kNoTab)
+        attached_tabstrip_->model()->ReplaceTabContentsAt(index, new_contents);
+    }
   }
 
   // Update our internal state.
@@ -557,12 +564,22 @@ void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
     NotificationService::current()->RemoveObserver(this,
       NOTIFY_TAB_CONTENTS_DESTROYED,
       Source<TabContents>(dragged_contents_));
+    if (original_delegate_)
+      dragged_contents_->set_delegate(original_delegate_);
   }
+  original_delegate_ = NULL;
   dragged_contents_ = new_contents;
   if (dragged_contents_) {
     NotificationService::current()->AddObserver(this,
       NOTIFY_TAB_CONTENTS_DESTROYED,
       Source<TabContents>(dragged_contents_));
+
+    // We need to be the delegate so we receive messages about stuff,
+    // otherwise our dragged_contents() may be replaced and subsequently
+    // collected/destroyed while the drag is in process, leading to
+    // nasty crashes.
+    original_delegate_ = dragged_contents_->delegate();
+    dragged_contents_->set_delegate(this);
   }
 }
 
@@ -820,11 +837,7 @@ void DraggedTabController::Detach() {
   if (view_.get())
     view_->Detach(photobooth_.get());
 
-  // We need to be the delegate so we receive messages about stuff,
-  // otherwise our dragged_contents() may be replaced and subsequently
-  // collected/destroyed while the drag is in process, leading to
-  // nasty crashes.
-  original_delegate_ = dragged_contents_->delegate();
+  // Detaching resets the delegate, but we still want to be the delegate.
   dragged_contents_->set_delegate(this);
 
   attached_tabstrip_ = NULL;
@@ -922,6 +935,12 @@ Tab* DraggedTabController::GetTabMatchingDraggedContents(
 }
 
 bool DraggedTabController::EndDragImpl(EndDragType type) {
+  // WARNING: this may be invoked multiple times. In particular, if deletion
+  // occurs after a delay (as it does when the tab is released in the original
+  // tab strip) and the navigation controller/tab contents is deleted before
+  // the animation finishes, this is invoked twice. The second time through
+  // type == TAB_DESTROYED.
+
   bring_to_front_timer_.Stop();
 
   // Hide the current dock controllers.
@@ -947,6 +966,8 @@ bool DraggedTabController::EndDragImpl(EndDragType type) {
         destroy_now = CompleteDrag();
       }
     }
+    if (dragged_contents_ && dragged_contents_->delegate() == this)
+      dragged_contents_->set_delegate(original_delegate_);
   } else {
     // If we get here it means the NavigationController is going down. Don't
     // attempt to do any cleanup other than resetting the delegate (if we're
@@ -954,8 +975,14 @@ bool DraggedTabController::EndDragImpl(EndDragType type) {
     if (dragged_contents_ && dragged_contents_->delegate() == this)
       dragged_contents_->set_delegate(NULL);
     dragged_contents_ = NULL;
-    attached_tabstrip_ = NULL;
   }
+
+  // The delegate of the dragged contents should have been reset. Unset the
+  // original delegate so that we don't attempt to reset the delegate when
+  // deleted.
+  DCHECK(!dragged_contents_ || dragged_contents_->delegate() != this);
+  original_delegate_ = NULL;
+
   // If we're not destroyed now, we'll be destroyed asynchronously later.
   if (destroy_now)
     source_tabstrip_->DestroyDragController();
