@@ -191,7 +191,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   tracked_objects::AutoTracking tracking_objects;
 #endif
 
-  // Do platform-specific things (such as finishing initiailizing Cocoa)
+  // Do platform-specific things (such as finishing initializing Cocoa)
   // prior to instantiating the message loop. This could be turned into a
   // broadcast notification.
   Platform::WillInitializeMainMessageLoop(parsed_command_line);

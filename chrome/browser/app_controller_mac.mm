@@ -27,7 +27,7 @@
   [super dealloc];
 }
 
-// We can't use the standard terminate: method because it will abrubptly exit
+// We can't use the standard terminate: method because it will abruptly exit
 // the app and leave things on the stack in an unfinalized state. We need to
 // post a quit message to our run loop so the stack can gracefully unwind.
 - (IBAction)quit:(id)sender {  
