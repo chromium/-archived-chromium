@@ -107,7 +107,7 @@ TEST(NetUtilTest, FileURLConversion) {
     {L"/foo/bar.txt", L"file:/foo/bar.txt"},
     {L"/c:/foo/bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
     {L"/foo/bar.txt", L"file:foo/bar.txt"},
-    {L"/foo/bar.txt", L"file://foo/bar.txt"},
+    {L"/bar.txt", L"file://foo/bar.txt"},
     {L"/foo/bar.txt", L"file:///foo/bar.txt"},
     {L"/foo/bar.txt", L"file:////foo/bar.txt"},
     {L"/foo/bar.txt", L"file:////foo//bar.txt"},

@@ -892,9 +892,6 @@ LINUX : LayoutTests/fast/lists/001.html = FAIL PASS
 // Windows?
 LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
 
-// URL canonicalization is different -- how does this work on Windows?
-LINUX MAC : LayoutTests/fast/loader/url-parse-1.html = FAIL
-
 // Text doesn't display at all -- maybe we don't have the slow font
 // code enabled?
 LINUX : LayoutTests/fast/text/atsui-kerning-and-ligatures.html = FAIL
