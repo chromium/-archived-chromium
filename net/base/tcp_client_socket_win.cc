@@ -199,6 +199,15 @@ int TCPClientSocket::Read(char* buf,
   return MapWinsockError(err);
 }
 
+// TODO(wtc): This temporary function is intended to determine the return
+// value and error code of the WaitForSingleObject call in
+// TCPClientSocket::Write if it doesn't return the expected WAIT_OBJECT_0.
+// See http://crbug.com/6500.
+static void CrashBug6500(DWORD wait_rv, DWORD wait_error) {
+  // wait_error is meaningful only if wait_rv is WAIT_FAILED.
+  CHECK(false) << wait_rv << wait_error;
+}
+
 int TCPClientSocket::Write(const char* buf,
                            int buf_len,
                            CompletionCallback* callback) {
@@ -215,25 +224,10 @@ int TCPClientSocket::Write(const char* buf,
   DWORD num;
   int rv = WSASend(socket_, &buffer_, 1, &num, 0, &overlapped_, NULL);
   if (rv == 0) {
-    // TODO(wtc): These temporary CHECKs are intended to determine the return
-    // value and error code of the WaitForSingleObject call if it doesn't
-    // return the expected WAIT_OBJECT_0.  See http://crbug.com/6500.
     DWORD wait_rv = WaitForSingleObject(overlapped_.hEvent, 0);
     if (wait_rv != WAIT_OBJECT_0) {
-      if (wait_rv == WAIT_ABANDONED) {
-        CHECK(false);
-      } else if (wait_rv == WAIT_TIMEOUT) {
-        CHECK(false);
-      } else if (wait_rv == WAIT_FAILED) {
-        DWORD wait_error = GetLastError();
-        if (wait_error == ERROR_INVALID_HANDLE) {
-          CHECK(false);
-        } else {
-          CHECK(false);
-        }
-      } else {
-        CHECK(false);
-      }
+      DWORD wait_error = GetLastError();
+      CrashBug6500(wait_rv, wait_error);
     }
     BOOL ok = WSAResetEvent(overlapped_.hEvent);
     CHECK(ok);
