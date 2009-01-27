@@ -12,6 +12,24 @@
 // '' : local class member function does not have a body
 MSVC_PUSH_DISABLE_WARNING(4822)
 
+
+#if defined(NDEBUG)
+
+// Would cause a memory leak otherwise.
+#undef DFAKE_MUTEX
+#define DFAKE_MUTEX(obj) scoped_ptr<base::AsserterBase> obj
+
+// In Release, we expect the AsserterBase::warn() to not happen.
+#define EXPECT_NDEBUG_FALSE_DEBUG_TRUE EXPECT_FALSE
+
+#else
+
+// In Debug, we expect the AsserterBase::warn() to happen.
+#define EXPECT_NDEBUG_FALSE_DEBUG_TRUE EXPECT_TRUE
+
+#endif
+
+
 namespace {
 
 // This is the asserter used with ThreadCollisionWarner instead of the default
@@ -92,11 +110,7 @@ TEST(ThreadCollisionTest, ScopedBookCriticalSection) {
     {
       // Pin section again (not allowed by DFAKE_SCOPED_LOCK)
       DFAKE_SCOPED_LOCK(warner);
-#if !defined(NDEBUG)
-      EXPECT_TRUE(local_reporter->fail_state());
-#else
-      EXPECT_FALSE(local_reporter->fail_state());
-#endif
+      EXPECT_NDEBUG_FALSE_DEBUG_TRUE(local_reporter->fail_state());
       // Reset the status of warner for further tests.
       local_reporter->reset();
     }  // Unpin section.
@@ -113,12 +127,7 @@ TEST(ThreadCollisionTest, MTBookCriticalSectionTest) {
   class NonThreadSafeQueue {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
-#if !defined(NDEBUG)
         : push_pop_(asserter) {
-#else
-    {
-      delete asserter;
-#endif
     }
 
     void push(int value) {
@@ -166,11 +175,7 @@ TEST(ThreadCollisionTest, MTBookCriticalSectionTest) {
   thread_a.Join();
   thread_b.Join();
 
-#if !defined(NDEBUG)
-  EXPECT_TRUE(local_reporter->fail_state());
-#else
-  EXPECT_FALSE(local_reporter->fail_state());
-#endif
+  EXPECT_NDEBUG_FALSE_DEBUG_TRUE(local_reporter->fail_state());
 }
 
 TEST(ThreadCollisionTest, MTScopedBookCriticalSectionTest) {
@@ -179,12 +184,7 @@ TEST(ThreadCollisionTest, MTScopedBookCriticalSectionTest) {
   class NonThreadSafeQueue {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
-#if !defined(NDEBUG)
         : push_pop_(asserter) {
-#else
-    {
-      delete asserter;
-#endif
     }
 
     void push(int value) {
@@ -233,11 +233,7 @@ TEST(ThreadCollisionTest, MTScopedBookCriticalSectionTest) {
   thread_a.Join();
   thread_b.Join();
 
-#if !defined(NDEBUG)
-  EXPECT_TRUE(local_reporter->fail_state());
-#else
-  EXPECT_FALSE(local_reporter->fail_state());
-#endif
+  EXPECT_NDEBUG_FALSE_DEBUG_TRUE(local_reporter->fail_state());
 }
 
 TEST(ThreadCollisionTest, MTSynchedScopedBookCriticalSectionTest) {
@@ -246,12 +242,7 @@ TEST(ThreadCollisionTest, MTSynchedScopedBookCriticalSectionTest) {
   class NonThreadSafeQueue {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
-#if !defined(NDEBUG)
         : push_pop_(asserter) {
-#else
-    {
-      delete asserter;
-#endif
     }
 
     void push(int value) {
@@ -320,12 +311,7 @@ TEST(ThreadCollisionTest, MTSynchedScopedRecursiveBookCriticalSectionTest) {
   class NonThreadSafeQueue {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
-#if !defined(NDEBUG)
         : push_pop_(asserter) {
-#else
-    {
-      delete asserter;
-#endif
     }
 
     void push(int) {
