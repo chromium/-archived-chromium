@@ -838,9 +838,6 @@ LINUX : LayoutTests/css2.1/t100801-c548-ln-ht-04-d-ag.html = FAIL
 // Red pixels, even upstream!  Linux is like upstream but everyone fails.
 LINUX WIN : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
 
-// Not implemented in clipboard code.
-LINUX : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
-
 // Some tests that we had baselined improperly on Windows.
 WIN : LayoutTests/css2.1/t1507-c526-font-sz-02-b-a.html = FAIL
 

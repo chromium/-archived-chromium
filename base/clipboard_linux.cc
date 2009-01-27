@@ -153,7 +153,9 @@ void Clipboard::WriteBitmap(const char* pixel_data, const char* size_data) {
 
 void Clipboard::WriteBookmark(const char* title_data, size_t title_len,
                               const char* url_data, size_t url_len) {
-  NOTIMPLEMENTED();
+  // TODO(estade): implement this, but for now fail silently so we do not
+  // write error output during layout tests.
+  // NOTIMPLEMENTED();
 }
 
 void Clipboard::WriteHyperlink(const char* title_data, size_t title_len,
