@@ -103,15 +103,16 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
 void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget, 
                                                    gfx::Rect* out_rect) {
   NSRect resize_rect = NSMakeRect(0, 0, 0, 0);
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
+  WebWidgetHost* host = GetHostForWidget(webwidget);
+  // To match the WebKit screen shots, we need the resize area to overlap
+  // the scroll arrows, so in layout test mode, we don't return a real rect.
+  if (!(shell_->layout_test_mode()) && host) {
     NSView *view = host->view_handle();
     NSWindow* window = [view window];
     resize_rect = [window _growBoxRect];
     // The scrollbar assumes that the resizer goes all the way down to the
     // bottom corner, so we ignore any y offset to the rect itself and use the
-    // entire bottom corner. There will be an offset If the window is created
-    // with |NSTexturedBackgroundWindowMask|, and currently TestShell makes its
-    // windows with that flag.
+    // entire bottom corner.
     resize_rect.origin.y = 0;
     // Convert to view coordinates from window coordinates.
     resize_rect = [view convertRect:resize_rect fromView:nil];
