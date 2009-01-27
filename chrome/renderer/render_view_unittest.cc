@@ -16,6 +16,8 @@ namespace {
 const int32 kRouteId = 5;
 const int32 kOpenerId = 7;
 
+};
+
 class RenderViewTest : public testing::Test {
  public:
   RenderViewTest() {}
@@ -86,7 +88,6 @@ class RenderViewTest : public testing::Test {
   scoped_refptr<RenderView> view_;
 };
 
-}  // namespace
 
 TEST_F(RenderViewTest, OnLoadAlternateHTMLText) {
   // Test a new navigation.
@@ -96,7 +97,7 @@ TEST_F(RenderViewTest, OnLoadAlternateHTMLText) {
 
   // We should have gotten two different types of start messages in the
   // following order.
-  ASSERT_EQ(2, render_thread_.sink().message_count());
+  ASSERT_EQ((size_t)2, render_thread_.sink().message_count());
   const IPC::Message* msg = render_thread_.sink().GetMessageAt(0);
   EXPECT_EQ(ViewHostMsg_DidStartLoading::ID, msg->type());
 

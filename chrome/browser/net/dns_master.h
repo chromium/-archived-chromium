@@ -174,12 +174,17 @@ class DnsMaster {
   size_t slave_count_;  // Count of slave processes started.
   size_t running_slave_count_;  // Count of slaves process still running.
 
+  // TODO(jrg): wait for CL 15076 from _ph to come in which resolves
+  // this.  In the short term this file is hacked to be happy when
+  // included in render_process.h.
+#if defined(OS_WIN)
   // The following arrays are only initialized as
   // slave_count_ grows (up to the indicated max).
   DWORD thread_ids_[kSlaveCountMax];
   HANDLE thread_handles_[kSlaveCountMax];
   DnsSlave* slaves_[kSlaveCountMax];
-
+#endif
+  
   // shutdown_ is set to tell the slaves to terminate.
   bool shutdown_;
 

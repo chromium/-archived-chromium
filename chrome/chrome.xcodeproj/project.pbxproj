@@ -75,6 +75,17 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3380A69B0F2E91AE004EF74F /* child_process.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB890E9D4C9F009A6919 /* child_process.cc */; };
+		3380A69C0F2E91B1004EF74F /* child_process.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB890E9D4C9F009A6919 /* child_process.cc */; };
+		3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD10EAE868600EBCFC0 /* render_thread.cc */; };
+		3380A69E0F2E91D6004EF74F /* render_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD10EAE868600EBCFC0 /* render_thread.cc */; };
+		3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB920E9D4C9F009A6919 /* chrome_plugin_lib.cc */; };
+		3380A6A00F2E91E7004EF74F /* chrome_plugin_lib.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB920E9D4C9F009A6919 /* chrome_plugin_lib.cc */; };
+		3380A6A10F2E91F9004EF74F /* render_process.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CCF0EAE868600EBCFC0 /* render_process.cc */; };
+		3380A6A20F2E91FB004EF74F /* render_process.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CCF0EAE868600EBCFC0 /* render_process.cc */; };
+		3380A6A30F2E9207004EF74F /* ipc_sync_channel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */; };
+		3380A6A40F2E9209004EF74F /* ipc_sync_channel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */; };
+		3380A6B60F2E9252004EF74F /* render_thread_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */; };
 		3AEA44DB19C9D93B63D7A2E4 /* url_fetcher_protect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */; };
 		4D1F59FE0F2A6BBB0040C1E3 /* image_diff.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D1F59FD0F2A6BBB0040C1E3 /* image_diff.cc */; };
 		4D1F5A060F2A6D170040C1E3 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
@@ -1084,6 +1095,8 @@
 		0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fetcher_protect.cc; sourceTree = "<group>"; };
 		26D97CE692D919FEB1521E43 /* ssl_error_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ssl_error_info.cc; path = ssl/ssl_error_info.cc; sourceTree = "<group>"; };
 		28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url_parser.cc; sourceTree = "<group>"; };
+		3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_thread_unittest.cc; sourceTree = "<group>"; };
+		3380A6B90F2E9275004EF74F /* render_view_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_view_unittest.cc; sourceTree = "<group>"; };
 		3CCF8AA8A56FF8FE59F0C299 /* template_url.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url.cc; sourceTree = "<group>"; };
 		433B6EFB7A1D931A13C9556F /* url_fetcher_protect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_fetcher_protect.h; sourceTree = "<group>"; };
 		4D1F59EA0F2A6B590040C1E3 /* image_diff */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = image_diff; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2128,8 +2141,10 @@
 				4D640CCF0EAE868600EBCFC0 /* render_process.cc */,
 				4D640CD00EAE868600EBCFC0 /* render_process.h */,
 				4D640CD10EAE868600EBCFC0 /* render_thread.cc */,
+				3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */,
 				4D640CD20EAE868600EBCFC0 /* render_thread.h */,
 				4D640CD30EAE868600EBCFC0 /* render_view.cc */,
+				3380A6B90F2E9275004EF74F /* render_view_unittest.cc */,
 				4D640CD40EAE868600EBCFC0 /* render_view.h */,
 				4D640CD50EAE868600EBCFC0 /* render_widget.cc */,
 				4D640CD60EAE868600EBCFC0 /* render_widget.h */,
@@ -4065,6 +4080,11 @@
 				E45076CF0F153871003BE099 /* localized_error.cc in Sources */,
 				4D640CF40EAE86EA00EBCFC0 /* render_dns_queue.cc in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
+				3380A69B0F2E91AE004EF74F /* child_process.cc in Sources */,
+				3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */,
+				3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */,
+				3380A6A10F2E91F9004EF74F /* render_process.cc in Sources */,
+				3380A6A30F2E9207004EF74F /* ipc_sync_channel.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4209,6 +4229,12 @@
 				B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */,
 				4D7BFB420E9D4C35009A6919 /* visit_tracker_unittest.cc in Sources */,
 				E46C4B4C0F21098F00B393B8 /* worker_thread_ticker_unittest.cc in Sources */,
+				3380A69C0F2E91B1004EF74F /* child_process.cc in Sources */,
+				3380A69E0F2E91D6004EF74F /* render_thread.cc in Sources */,
+				3380A6A00F2E91E7004EF74F /* chrome_plugin_lib.cc in Sources */,
+				3380A6A20F2E91FB004EF74F /* render_process.cc in Sources */,
+				3380A6A40F2E9209004EF74F /* ipc_sync_channel.cc in Sources */,
+				3380A6B60F2E9252004EF74F /* render_thread_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

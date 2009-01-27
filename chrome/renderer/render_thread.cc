@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 #include <algorithm>
 
 #include "chrome/renderer/render_thread.h"
@@ -11,13 +13,22 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
+// TODO(port)
+#if defined(OS_WIN)
 #include "chrome/plugin/plugin_channel.h"
+#else
+#include <vector>
+#include "base/scoped_handle.h"
+#include "chrome/plugin/plugin_channel_base.h"
+#include "webkit/glue/weburlrequest.h"
+#endif
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "webkit/glue/cache_manager.h"
+
 
 RenderThread* g_render_thread;
 
@@ -31,8 +42,8 @@ static const size_t kStackSize = 1024 * 1024;
 
 RenderThread::RenderThread(const std::wstring& channel_name)
     : Thread("Chrome_RenderThread"),
-      channel_name_(channel_name),
       owner_loop_(MessageLoop::current()),
+      channel_name_(channel_name),
       visited_link_slave_(NULL),
       user_script_slave_(NULL),
       render_dns_master_(NULL),
@@ -71,7 +82,12 @@ void RenderThread::RemoveFilter(IPC::ChannelProxy::MessageFilter* filter) {
 }
 
 void RenderThread::Resolve(const char* name, size_t length) {
+// TODO(port)
+#if defined(OS_WIN)
   return render_dns_master_->Resolve(name, length);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderThread::AddRoute(int32 routing_id,
@@ -101,13 +117,20 @@ void RenderThread::Init() {
       IPC::Channel::MODE_CLIENT, this, NULL, owner_loop_, true,
       RenderProcess::GetShutDownEvent()));
 
+#if defined(OS_WIN)
   // The renderer thread should wind-up COM.
   CoInitialize(0);
+#endif
 
   visited_link_slave_ = new VisitedLinkSlave();
   user_script_slave_ = new UserScriptSlave();
 
+// TODO(port)
+#if defined(OS_WIN)
   render_dns_master_.reset(new RenderDnsMaster());
+#else
+  NOTIMPLEMENTED();
+#endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
   IPC::Logging::current()->SetIPCSender(this);
@@ -122,8 +145,11 @@ void RenderThread::CleanUp() {
   // it caches a pointer to this thread.
   channel_.reset();
 
+// TODO(port)
+#if defined(OS_WIN)
   // Clean up plugin channels before this thread goes away.
   PluginChannelBase::CleanupChannels();
+#endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
   IPC::Logging::current()->SetIPCSender(NULL);
@@ -137,7 +163,9 @@ void RenderThread::CleanUp() {
   delete user_script_slave_;
   user_script_slave_ = NULL;
 
+#if defined(OS_WIN)
   CoUninitialize();
+#endif
 }
 
 void RenderThread::OnUpdateVisitedLinks(base::SharedMemoryHandle table) {
@@ -160,7 +188,11 @@ void RenderThread::OnMessageReceived(const IPC::Message& msg) {
     IPC_BEGIN_MESSAGE_MAP(RenderThread, msg)
       IPC_MESSAGE_HANDLER(ViewMsg_VisitedLink_NewTable, OnUpdateVisitedLinks)
       IPC_MESSAGE_HANDLER(ViewMsg_SetNextPageID, OnSetNextPageID)
+      // TODO(port): removed from render_messages_internal.h;
+      // is there a new non-windows message I should add here?
+#if defined(OS_WIN)
       IPC_MESSAGE_HANDLER(ViewMsg_New, OnCreateNewView)
+#endif
       IPC_MESSAGE_HANDLER(ViewMsg_SetCacheCapacities, OnSetCacheCapacities)
       IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                           OnGetCacheResourceStats)
@@ -192,9 +224,14 @@ void RenderThread::OnPluginMessage(const FilePath& plugin_path,
 void RenderThread::OnSetNextPageID(int32 next_page_id) {
   // This should only be called at process initialization time, so we shouldn't
   // have to worry about thread-safety.
+  // TODO(port)
+#if defined(OS_WIN)
   RenderView::SetNextPageID(next_page_id);
+#endif
 }
 
+// TODO(port)
+#if defined(OS_WIN)
 void RenderThread::OnCreateNewView(HWND parent_hwnd,
                                    HANDLE modal_dialog_event,
                                    const WebPreferences& webkit_prefs,
@@ -207,23 +244,39 @@ void RenderThread::OnCreateNewView(HWND parent_hwnd,
       this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
 }
+#endif
 
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,
                                         size_t capacity) {
+#if defined(OS_WIN)
   CacheManager::SetCapacities(min_dead_capacity, max_dead_capacity, capacity);
+#else
+  // TODO(port)
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderThread::OnGetCacheResourceStats() {
+#if defined(OS_WIN)
   CacheManager::ResourceTypeStats stats;
   CacheManager::GetResourceTypeStats(&stats);
   Send(new ViewHostMsg_ResourceTypeStats(stats));
+#else
+  // TODO(port)
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderThread::InformHostOfCacheStats() {
+#if defined(OS_WIN)
   CacheManager::UsageStats stats;
   CacheManager::GetUsageStats(&stats);
   Send(new ViewHostMsg_UpdatedCacheStats(stats));
+#else
+  // TODO(port)
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderThread::InformHostOfCacheStatsLater() {

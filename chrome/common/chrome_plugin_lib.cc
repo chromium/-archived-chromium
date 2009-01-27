@@ -10,7 +10,10 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
+#include "base/thread.h"
+#if defined(OS_WIN)
 #include "base/registry.h"
+#endif
 #include "base/string_util.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
@@ -20,10 +23,13 @@
 
 using base::TimeDelta;
 
+// TODO(port): revisit when plugins happier
+#if defined(OS_WIN)
 const TCHAR ChromePluginLib::kRegistryChromePlugins[] =
     _T("Software\\Google\\Chrome\\Plugins");
 static const TCHAR kRegistryLoadOnStartup[] = _T("LoadOnStartup");
 static const TCHAR kRegistryPath[] = _T("Path");
+#endif
 
 typedef base::hash_map<FilePath, scoped_refptr<ChromePluginLib> >
     PluginMap;
@@ -33,7 +39,7 @@ static PluginMap* g_loaded_libs;
 
 // The thread plugins are loaded and used in, lazily initialized upon
 // the first creation call.
-static DWORD g_plugin_thread_id = 0;
+static PlatformThreadId g_plugin_thread_id = 0;
 static MessageLoop* g_plugin_thread_loop = NULL;
 
 #ifdef GEARS_STATIC_LIB
@@ -58,7 +64,7 @@ ChromePluginLib* ChromePluginLib::Create(const FilePath& filename,
   // Keep a map of loaded plugins to ensure we only load each library once.
   if (!g_loaded_libs) {
     g_loaded_libs = new PluginMap();
-    g_plugin_thread_id = ::GetCurrentThreadId();
+    g_plugin_thread_id = PlatformThread::CurrentId();
     g_plugin_thread_loop = MessageLoop::current();
   }
   DCHECK(IsPluginThread());
@@ -97,7 +103,7 @@ void ChromePluginLib::Destroy(const FilePath& filename) {
 
 // static
 bool ChromePluginLib::IsPluginThread() {
-  return ::GetCurrentThreadId() == g_plugin_thread_id;
+  return PlatformThread::CurrentId() == g_plugin_thread_id;
 }
 
 // static
@@ -116,7 +122,12 @@ void ChromePluginLib::RegisterPluginsWithNPAPI() {
     return;
   // Note: we can only access the NPAPI list because the PluginService has done
   // the locking for us.  We should not touch it anywhere else.
+#if defined(OS_WIN)
   NPAPI::PluginList::AddExtraPluginPath(path);
+#else
+  // TODO(port): plugins not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }
 
 static void LogPluginLoadTime(const TimeDelta &time) {
@@ -186,7 +197,9 @@ const CPPluginFuncs& ChromePluginLib::functions() const {
 
 ChromePluginLib::ChromePluginLib(const FilePath& filename)
     : filename_(filename),
+#if defined(OS_WIN)
       module_(0),
+#endif
       initialized_(false),
       CP_VersionNegotiate_(NULL),
       CP_Initialize_(NULL) {
@@ -235,6 +248,11 @@ int ChromePluginLib::CP_Test(void* param) {
 }
 
 bool ChromePluginLib::Load() {
+#if !defined(OS_WIN)
+  // TODO(port): plugins not yet implemented
+  NOTIMPLEMENTED();
+  return false;
+#else
   DCHECK(module_ == 0);
 #ifdef GEARS_STATIC_LIB
   FilePath path;
@@ -267,6 +285,7 @@ bool ChromePluginLib::Load() {
       (GetProcAddress(module_, "CP_Test"));
 
   return true;
+#endif
 }
 
 void ChromePluginLib::Unload() {
@@ -278,8 +297,10 @@ void ChromePluginLib::Unload() {
   if (initialized_)
     CP_Shutdown();
 
+#if defined(OS_WIN)
   if (module_) {
     FreeLibrary(module_);
     module_ = 0;
   }
+#endif
 }
