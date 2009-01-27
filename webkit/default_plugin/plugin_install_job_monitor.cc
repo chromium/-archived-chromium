@@ -36,6 +36,12 @@ bool PluginInstallationJobMonitorThread::Initialize() {
 }
 
 void PluginInstallationJobMonitorThread::Init() {
+  this->message_loop()->PostTask(FROM_HERE,
+    NewRunnableMethod(this,
+                      &PluginInstallationJobMonitorThread::WaitForJobThread));
+}
+
+void PluginInstallationJobMonitorThread::WaitForJobThread() {
   if (!install_job_) {
     DLOG(WARNING) << "Invalid job information";
     NOTREACHED();

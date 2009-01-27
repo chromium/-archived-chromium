@@ -9,12 +9,16 @@
 
 #include "base/logging.h"
 #include "base/thread.h"
+#include "base/ref_counted.h"
 
 // Provides the plugin installation job monitoring functionality.
 // The PluginInstallationJobMonitorThread class represents a background
 // thread which monitors the install job completion port which is associated
 // with the job when an instance of this class is initialized.
-class PluginInstallationJobMonitorThread : public base::Thread {
+class PluginInstallationJobMonitorThread :
+    public base::Thread,
+    public base::RefCountedThreadSafe<PluginInstallationJobMonitorThread> {
+
  public:
   PluginInstallationJobMonitorThread();
   virtual ~PluginInstallationJobMonitorThread();
@@ -46,10 +50,16 @@ class PluginInstallationJobMonitorThread : public base::Thread {
   bool AssignProcessToJob(HANDLE process_handle);
 
  protected:
+  // Installs a task on our thread to call WaitForJobThread().  We
+  // can't call it directly since we would deadlock (thread which
+  // creates me blocks until Start() returns, and Start() doesn't
+  // return until Init() does).
+  virtual void Init();
+
   // Blocks on the plugin installation job completion port by invoking the
   // GetQueuedCompletionStatus API.
   // We return from this function when the job monitoring thread is stopped.
-  virtual void Init();
+  virtual void WaitForJobThread();
 
  private:
   // The install job completion port. Created in Init.

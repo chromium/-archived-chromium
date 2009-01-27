@@ -350,7 +350,8 @@ class PluginInstallerImpl : public CWindowImpl<PluginInstallerImpl> {
   // which enables the downloaded plugin to be instantiated.
   // The completion events from the job are monitored in an independent
   // thread.
-  PluginInstallationJobMonitorThread installation_job_monitor_thread_;
+  scoped_refptr<PluginInstallationJobMonitorThread>
+      installation_job_monitor_thread_;
   // This object handles download and parsing of the plugins database.
   PluginDatabaseHandler plugin_database_handler_;
   // Indicates if the left click to download/refresh should be enabled or not.

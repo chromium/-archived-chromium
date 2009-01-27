@@ -39,12 +39,14 @@ PluginInstallerImpl::PluginInstallerImpl(int16 mode)
       underline_font_(NULL),
       tooltip_(NULL),
       activex_installer_(NULL),
+      installation_job_monitor_thread_(
+          new PluginInstallationJobMonitorThread()),
       plugin_database_handler_(*this),
       plugin_download_url_for_display_(false) {
 }
 
 PluginInstallerImpl::~PluginInstallerImpl() {
-  installation_job_monitor_thread_.Stop();
+  installation_job_monitor_thread_->Stop();
 
   if (bold_font_)
     ::DeleteObject(bold_font_);
@@ -77,7 +79,7 @@ bool PluginInstallerImpl::Initialize(HINSTANCE module_handle, NPP instance,
     return false;
   }
 
-  if (!installation_job_monitor_thread_.Initialize()) {
+  if (!installation_job_monitor_thread_->Initialize()) {
     DLOG(ERROR) << "Failed to initialize plugin install job";
     NOTREACHED();
     return false;
@@ -335,7 +337,7 @@ bool PluginInstallerImpl::SetWindow(HWND parent_window) {
   ::GetClientRect(parent_window, &parent_rect);
   Create(parent_window, parent_rect, NULL, WS_CHILD | WS_BORDER);
   DCHECK(IsWindow());
-  installation_job_monitor_thread_.set_plugin_window(m_hWnd);
+  installation_job_monitor_thread_->set_plugin_window(m_hWnd);
 
   CreateToolTip();
   UpdateToolTip();
@@ -637,7 +639,7 @@ LRESULT PluginInstallerImpl::OnCopyData(UINT message, WPARAM wparam,
     } else {
       DLOG(INFO) << "Successfully launched plugin installer";
       set_plugin_installer_state(PluginInstallerLaunchSuccess);
-      installation_job_monitor_thread_.AssignProcessToJob(
+      installation_job_monitor_thread_->AssignProcessToJob(
           shell_execute_info.hProcess);
       DisplayStatus(IDS_DEFAULT_PLUGIN_REFRESH_PLUGIN_MSG);
       enable_click_ = true;
