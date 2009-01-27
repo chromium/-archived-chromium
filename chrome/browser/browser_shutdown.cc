@@ -11,6 +11,7 @@
 #include "base/time.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/metrics_service.h"
@@ -146,6 +147,8 @@ void Shutdown() {
     std::wstring shutdown_ms_file = GetShutdownMsPath();
     file_util::WriteFile(shutdown_ms_file, shutdown_ms.c_str(), len);
   }
+
+  UnregisterURLRequestChromeJob();
 }
 
 void ReadLastShutdownInfo() {

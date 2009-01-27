@@ -88,8 +88,13 @@ class URLRequestChromeFileJob : public URLRequestFileJob {
 };
 
 void RegisterURLRequestChromeJob() {
-  // Being a standard scheme allows us to resolve relative paths
-  url_util::AddStandardScheme(kChromeURLScheme);
+  // Being a standard scheme allows us to resolve relative paths. This method
+  // is invoked multiple times during testing, so only add the scheme once.
+  url_parse::Component url_scheme_component(0, arraysize(kChromeURLScheme) - 1);
+  if (!url_util::IsStandard(kChromeURLScheme, arraysize(kChromeURLScheme) - 1,
+                            url_scheme_component)) {
+    url_util::AddStandardScheme(kChromeURLScheme);
+  }
 
   std::wstring inspector_dir;
   if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir))
@@ -102,6 +107,12 @@ void RegisterURLRequestChromeJob() {
   URLRequest::RegisterProtocolFactory(kPersonalizationScheme,
                                       &ChromeURLDataManager::Factory); 
 #endif
+}
+
+void UnregisterURLRequestChromeJob() {
+  std::wstring inspector_dir;
+  if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir))
+    chrome_url_data_manager.RemoveFileSource("inspector");
 }
 
 // static

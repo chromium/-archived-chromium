@@ -145,5 +145,8 @@ extern ChromeURLDataManager chrome_url_data_manager;
 // Must be done once at startup.
 void RegisterURLRequestChromeJob();
 
+// Undoes the registration done by RegisterURLRequestChromeJob.
+void UnregisterURLRequestChromeJob();
+
 #endif  // BROWSER_DOM_UI_CHROME_URL_DATA_MANAGER_H__
 
