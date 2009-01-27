@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/gfx/jpeg_codec.h"
+
 #include <setjmp.h>
 
-#include "chrome/common/jpeg_codec.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
-#include "SkBitmap.h"
+#include "skia/include/SkBitmap.h"
 
 extern "C" {
 #include "jpeglib.h"

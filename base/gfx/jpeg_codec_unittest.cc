@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-#include "chrome/common/jpeg_codec.h"
+#include "base/gfx/jpeg_codec.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // out of 100, this indicates how compressed it will be, this should be changed
