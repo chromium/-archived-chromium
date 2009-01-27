@@ -1409,6 +1409,8 @@ bool HexStringToInt(const std::wstring& input, int* output) {
       input, reinterpret_cast<long*>(output));
 }
 
+namespace {
+
 template<class CHAR>
 bool HexDigitToIntT(const CHAR digit, uint8* val) {
   if (digit >= '0' && digit <= '9')
@@ -1438,6 +1440,8 @@ bool HexStringToBytesT(const STR& input, std::vector<uint8>* output) {
   }
   return true;
 }
+
+}  // namespace
 
 bool HexStringToBytes(const std::string& input, std::vector<uint8>* output) {
   return HexStringToBytesT(input, output);
