@@ -65,12 +65,15 @@
 #include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
+#include "chrome/browser/message_window.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/profile.h"
+#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
@@ -214,7 +217,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   std::wstring user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
-  BrowserInit::MessageWindow message_window(user_data_dir);
+  MessageWindow message_window(user_data_dir);
 
   scoped_ptr<BrowserProcess> browser_process;
   if (parsed_command_line.HasSwitch(switches::kImport)) {

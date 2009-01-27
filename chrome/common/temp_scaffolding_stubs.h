@@ -51,20 +51,22 @@ class Upgrade {
   static bool SwapNewChromeExeIfPresent() { return true; }
 };
 
+// TODO(port): MessageWindow is very windows-specific, but provides the concept
+//             of singleton browser process per user-data-dir. Investigate how
+//             to achieve this on other platforms and see if this API works.
+class MessageWindow {
+ public:
+  explicit MessageWindow(const std::wstring& user_data_dir) { }
+  ~MessageWindow() { }
+  bool NotifyOtherProcess() { return false; }
+  void HuntForZombieChromeProcesses() { }
+  void Create() { }
+  void Lock() { }
+  void Unlock() { }
+};
+
 class BrowserInit {
  public:
-  // TODO(port): MessageWindow is very windows specific and shouldn't be part of
-  // BrowserInit at all.
-  class MessageWindow {
-   public:
-    explicit MessageWindow(const std::wstring& user_data_dir) { }
-    ~MessageWindow() { }
-    bool NotifyOtherProcess() { return false; }
-    void HuntForZombieChromeProcesses() { }
-    void Create() { }
-    void Lock() { }
-    void Unlock() { }
-  };
   static bool ProcessCommandLine(const CommandLine& parsed_command_line,
                                  const std::wstring& cur_dir,
                                  PrefService* prefs, bool process_startup,

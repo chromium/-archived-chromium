@@ -414,6 +414,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\message_window.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\message_window.h"
+				>
+			</File>
+			<File
 				RelativePath=".\meta_table_helper.cc"
 				>
 			</File>
