@@ -479,9 +479,15 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
     return gfx::Size(0, normal_background.height());
   }
 
+  // Note: We make sure to return the same value in the "no browser window" case
+  // as the "not maximized" case, so that when a popup is opened at a particular
+  // requested size, we'll report the same preferred size during the initial
+  // window size calculation (when there isn't yet a browser window) as when
+  // we're actually laying things out after setting up the browser window.  This
+  // prevents the content area from being off by |kClientEdgeThickness| px.
   int client_edge_height =
-      (browser_->window() && !browser_->window()->IsMaximized()) ?
-      BrowserView::kClientEdgeThickness : 0;
+      (browser_->window() && browser_->window()->IsMaximized()) ?
+      0 : BrowserView::kClientEdgeThickness;
   return gfx::Size(0,
       location_bar_->GetPreferredSize().height() + client_edge_height);
 }
