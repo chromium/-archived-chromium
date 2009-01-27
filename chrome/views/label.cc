@@ -346,6 +346,9 @@ gfx::Rect Label::GetTextBounds() {
     case ALIGN_RIGHT:
       text_x = width() - insets.right() - text_size.width();
       break;
+    default:
+      text_x = 0;
+      break;
   }
   return gfx::Rect(text_x, text_y, text_size.width(), text_size.height());
 }
