@@ -1407,7 +1407,7 @@ MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH PA
 MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
-MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL
+MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL TIMEOUT
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/fast/history/history_reload.html = CRASH PASS TIMEOUT
@@ -1512,7 +1512,7 @@ MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS TIMEOUT
 MAC : chrome/http/tests/misc/set-window-opener-to-null.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH TIMEOUT
+MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH TIMEOUT FAIL
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH TIMEOUT
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH TIMEOUT
