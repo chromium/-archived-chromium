@@ -1655,7 +1655,7 @@
 		4D7BFF4C0E9D53C1009A6919 /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = third_party/bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
 		4D7BFF5F0E9D540F009A6919 /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		4D7FA6210F13CA04004F1B19 /* ui_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ui_tests; sourceTree = BUILT_PRODUCTS_DIR; };
-		4DCE9E2C0EF0B8C000682526 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = MainMenu.xib; sourceTree = "<group>"; };
+		4DCE9E2C0EF0B8C000682526 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		778D7927798B7E3FAA498D3D /* url_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fetcher.cc; sourceTree = "<group>"; };
 		A54612D90EE9957000A8EE5D /* extensions_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extensions_service.cc; sourceTree = "<group>"; };
@@ -1897,7 +1897,7 @@
 		E46C50D80F292EAA00B393B8 /* tab_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_cell.mm; path = cocoa/tab_cell.mm; sourceTree = "<group>"; };
 		E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_contents_controller.h; path = cocoa/tab_contents_controller.h; sourceTree = "<group>"; };
 		E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_contents_controller.mm; path = cocoa/tab_contents_controller.mm; sourceTree = "<group>"; };
-		E46C50EE0F2A12DC00B393B8 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = nibs/English.lproj/TabContents.xib; sourceTree = "<group>"; };
+		E46C50EE0F2A12DC00B393B8 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/TabContents.xib; sourceTree = "<group>"; };
 		E46C51230F2A14A300B393B8 /* go.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = go.pdf; path = theme/go.pdf; sourceTree = "<group>"; };
 		E46C51620F2A1DAB00B393B8 /* toolbar_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = toolbar_view.h; path = cocoa/toolbar_view.h; sourceTree = "<group>"; };
 		E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = toolbar_view.mm; path = cocoa/toolbar_view.mm; sourceTree = "<group>"; };
@@ -1908,7 +1908,7 @@
 		E48B68560F26330C002E47EC /* browser_window_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_controller.mm; sourceTree = "<group>"; };
 		E48B68620F2637B6002E47EC /* browser_window_cocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser_window_cocoa.h; sourceTree = "<group>"; };
 		E48B68630F2637B6002E47EC /* browser_window_cocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_cocoa.mm; sourceTree = "<group>"; };
-		E48B689A0F263DF5002E47EC /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = app/nibs/English.lproj/BrowserWindow.xib; sourceTree = "<group>"; };
+		E48B689A0F263DF5002E47EC /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/BrowserWindow.xib; sourceTree = "<group>"; };
 		E48B6C260F2783E9002E47EC /* extension_protocols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extension_protocols.h; sourceTree = "<group>"; };
 		E48B6C270F2783E9002E47EC /* extension_protocols.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extension_protocols.cc; sourceTree = "<group>"; };
 		E48B6C3A0F27844F002E47EC /* web_data_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_data_service.h; path = webdata/web_data_service.h; sourceTree = "<group>"; };
@@ -4674,7 +4674,6 @@
 				4DCE9E2C0EF0B8C000682526 /* English */,
 			);
 			name = MainMenu.xib;
-			path = English.lproj;
 			sourceTree = "<group>";
 		};
 		E46C50ED0F2A12DC00B393B8 /* TabContents.xib */ = {
@@ -4683,7 +4682,6 @@
 				E46C50EE0F2A12DC00B393B8 /* English */,
 			);
 			name = TabContents.xib;
-			path = ..;
 			sourceTree = "<group>";
 		};
 		E48B68990F263DF5002E47EC /* BrowserWindow.xib */ = {
@@ -4692,7 +4690,6 @@
 				E48B689A0F263DF5002E47EC /* English */,
 			);
 			name = BrowserWindow.xib;
-			path = ../..;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
