@@ -681,20 +681,6 @@ std::string GetDataResource(int resource_id) {
   return std::string();
 }
 
-NSCursor* LoadCursor(int cursor_id) {
-  // TODO(port): add some more options here
-  return [NSCursor arrowCursor];
-}
-
-bool GetInspectorHTMLPath(std::string* path) {
-  NSString* resource_path = [[NSBundle mainBundle] resourcePath];
-  if (!resource_path)
-    return false;
-  *path = [resource_path UTF8String];
-  *path += "/Inspector/inspector.htm";
-  return true;
-}
-
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return false; // NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
