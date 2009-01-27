@@ -114,9 +114,12 @@ TEST(ThreadCollisionTest, MTBookCriticalSectionTest) {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
 #if !defined(NDEBUG)
-        : push_pop_(asserter)
+        : push_pop_(asserter) {
+#else
+    {
+      delete asserter;
 #endif
-    { }
+    }
 
     void push(int value) {
       DFAKE_SCOPED_LOCK_THREAD_LOCKED(push_pop_);
@@ -177,9 +180,12 @@ TEST(ThreadCollisionTest, MTScopedBookCriticalSectionTest) {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
 #if !defined(NDEBUG)
-        : push_pop_(asserter)
+        : push_pop_(asserter) {
+#else
+    {
+      delete asserter;
 #endif
-    { }
+    }
 
     void push(int value) {
       DFAKE_SCOPED_LOCK(push_pop_);
@@ -241,9 +247,12 @@ TEST(ThreadCollisionTest, MTSynchedScopedBookCriticalSectionTest) {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
 #if !defined(NDEBUG)
-        : push_pop_(asserter)
+        : push_pop_(asserter) {
+#else
+    {
+      delete asserter;
 #endif
-    { }
+    }
 
     void push(int value) {
       DFAKE_SCOPED_LOCK(push_pop_);
@@ -312,9 +321,12 @@ TEST(ThreadCollisionTest, MTSynchedScopedRecursiveBookCriticalSectionTest) {
    public:
     explicit NonThreadSafeQueue(base::AsserterBase* asserter)
 #if !defined(NDEBUG)
-        : push_pop_(asserter)
+        : push_pop_(asserter) {
+#else
+    {
+      delete asserter;
 #endif
-    { }
+    }
 
     void push(int) {
       DFAKE_SCOPED_RECURSIVE_LOCK(push_pop_);
