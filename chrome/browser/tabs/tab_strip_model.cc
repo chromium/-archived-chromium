@@ -6,10 +6,16 @@
 
 #include <algorithm>
 
-#include "chrome/browser/metrics/user_metrics.h"
+#if defined(OS_WIN)
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#elif defined(OS_MACOSX) || (OS_LINUX)
+// TODO(port): remove this when the mocks of the above classes are removed
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
 #include "chrome/common/stl_util-inl.h"
 
@@ -18,8 +24,8 @@
 
 TabStripModel::TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
     : delegate_(delegate),
-      profile_(profile),
       selected_index_(kNoTab),
+      profile_(profile),
       closing_all_(false),
       order_controller_(NULL) {
   DCHECK(delegate_);
@@ -328,7 +334,7 @@ void TabStripModel::AddTabContents(TabContents* contents,
     if (index < 0)
       index = count();
   }
-  TabContents* last_selected_contents = GetSelectedTabContents();
+
   // Tabs opened from links inherit the "group" attribute of the Tab from which
   // they were opened. This means when they're closed, that Tab will be
   // selected again.
@@ -531,7 +537,6 @@ void TabStripModel::ChangeSelectedContentsFrom(
   if (old_contents == new_contents)
     return;
   TabContents* last_selected_contents = old_contents;
-  int from_index = selected_index_;
   selected_index_ = to_index;
 
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,

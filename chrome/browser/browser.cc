@@ -302,9 +302,9 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   browser->window()->Show();
 }
 
-#if defined(OS_WIN)
 // static
 void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
+#if defined(OS_WIN)
   const std::wstring& app_name =
       app->name().empty() ? ComputeApplicationNameFromURL(app->url()) :
                             app->name();
@@ -313,8 +313,8 @@ void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
   Browser* browser = Browser::CreateForApp(app_name, profile);
   browser->AddWebApplicationTab(profile, app, false);
   browser->window()->Show();
-}
 #endif
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, State Storage and Retrieval for UI:
@@ -503,12 +503,16 @@ TabContents* Browser::AddWebApplicationTab(Profile* profile,
   return contents;
 }
 
+#endif
+
 TabContents* Browser::AddTabWithNavigationController(
     NavigationController* ctrl, PageTransition::Type type) {
   TabContents* tc = ctrl->active_contents();
   tabstrip_model_.AddTabContents(tc, -1, type, true);
   return tc;
 }
+
+#if defined(OS_WIN)
 
 NavigationController* Browser::AddRestoredTab(
     const std::vector<TabNavigation>& navigations,
@@ -1231,8 +1235,6 @@ void Browser::ExecuteCommand(int id) {
   }
 }
 
-#if defined(OS_WIN)
-
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelDelegate implementation:
 
@@ -1261,14 +1263,17 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   browser->LoadingStateChanged(detached_contents);
   browser->window()->Show();
 
+#if defined(OS_WIN) || defined(OS_LINUX)
   // When we detach a tab we need to make sure any associated Find window moves
   // along with it to its new home (basically we just make new_window the
   // parent of the Find window).
   // TODO(brettw) this could probably be improved, see
   // WebContentsView::ReparentFindWindow for more.
+  // TODO(port): remove the view dependency from this.
   WebContents* web_contents = detached_contents->AsWebContents();
   if (web_contents)
     web_contents->view()->ReparentFindWindow(browser);
+#endif
 }
 
 int Browser::GetDragActions() const {
@@ -1302,8 +1307,6 @@ TabContents* Browser::CreateTabContentsForURL(
   return contents;
 }
 
-#endif  // OS_WIN
-
 bool Browser::CanDuplicateContentsAt(int index) {
   TabContents* contents = GetTabContentsAt(index);
   DCHECK(contents);
@@ -1311,8 +1314,6 @@ bool Browser::CanDuplicateContentsAt(int index) {
   NavigationController* nc = contents->controller();
   return nc ? (nc->active_contents() && nc->GetLastCommittedEntry()) : false;
 }
-
-#if defined(OS_WIN)
 
 void Browser::DuplicateContentsAt(int index) {
   TabContents* contents = GetTabContentsAt(index);
@@ -1363,11 +1364,14 @@ void Browser::DuplicateContentsAt(int index) {
 }
 
 void Browser::CloseFrameAfterDragSession() {
+#if defined(OS_WIN)
   // This is scheduled to run after we return to the message loop because
   // otherwise the frame will think the drag session is still active and ignore
   // the request.
+  // TODO(port): figure out what is required here in a cross-platform world
   MessageLoop::current()->PostTask(FROM_HERE,
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
+#endif
 }
 
 void Browser::CreateHistoricalTab(TabContents* contents) {
@@ -1403,6 +1407,8 @@ bool Browser::RunUnloadListenerBeforeClosing(TabContents* contents) {
   }
   return false;
 }
+
+#if defined(OS_WIN)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelObserver implementation:

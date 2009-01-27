@@ -18,6 +18,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/sessions/session_id.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 #include "base/gfx/rect.h"
@@ -27,7 +28,6 @@
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/toolbar_model.h"
 #endif
 
@@ -122,10 +122,8 @@ class Browser : public TabStripModelDelegate,
   // |profile|, that session is re-used.
   static void OpenURLOffTheRecord(Profile* profile, const GURL& url);
 
-#if defined(OS_WIN)
   // Opens the a new application window for the specified WebApp.
   static void OpenWebApplication(Profile* profile, WebApp* app);
-#endif
 
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
@@ -192,7 +190,6 @@ class Browser : public TabStripModelDelegate,
       PageTransition::Type transition, bool foreground,
       SiteInstance* instance);
 
-#if defined(OS_WIN)
   // Add a new application tab for the specified URL. If lazy is true, the tab
   // won't be selected. Further, the initial web page load will only take place
   // when the tab is first selected.
@@ -205,6 +202,7 @@ class Browser : public TabStripModelDelegate,
   TabContents* AddTabWithNavigationController(NavigationController* ctrl,
                                               PageTransition::Type type);
 
+#if defined(OS_WIN)
   // Add a tab with its session history restored from the SessionRestore
   // system. If select is true, the tab is selected. Returns the created
   // NavigationController. |tab_index| gives the index to insert the tab at.
@@ -330,7 +328,6 @@ class Browser : public TabStripModelDelegate,
   // Overridden from CommandUpdater::CommandUpdaterDelegate:
   virtual void ExecuteCommand(int id);
 
-#if defined(OS_WIN)
   // Overridden from TabStripModelDelegate:
   virtual GURL GetBlankTabURL() const;
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
@@ -346,14 +343,13 @@ class Browser : public TabStripModelDelegate,
       PageTransition::Type transition,
       bool defer_load,
       SiteInstance* instance) const;
-#endif
   virtual bool CanDuplicateContentsAt(int index);
-#if defined(OS_WIN)
   virtual void DuplicateContentsAt(int index);
   virtual void CloseFrameAfterDragSession();
   virtual void CreateHistoricalTab(TabContents* contents);
   virtual bool RunUnloadListenerBeforeClosing(TabContents* contents);
 
+#if defined(OS_WIN)
   // Overridden from TabStripModelObserver:
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
@@ -383,7 +379,9 @@ class Browser : public TabStripModelDelegate,
                               const gfx::Rect& initial_pos,
                               bool user_gesture);
   virtual void ActivateContents(TabContents* contents);
+#endif
   virtual void LoadingStateChanged(TabContents* source);
+#if defined(OS_WIN)
   virtual void CloseContents(TabContents* source);
   virtual void MoveContents(TabContents* source, const gfx::Rect& pos);
   virtual bool IsPopup(TabContents* source);
@@ -455,9 +453,9 @@ class Browser : public TabStripModelDelegate,
   // TODO(beng): remove, and provide AutomationProvider a better way to access
   //             the LocationBarView's edit.
   friend class AutomationProvider;
+#endif  // OS_WIN
 
   // Getters for the location bar and go button.
-#endif  // OS_WIN
   LocationBarView* GetLocationBarView() const;
   GoButton* GetGoButton();
 

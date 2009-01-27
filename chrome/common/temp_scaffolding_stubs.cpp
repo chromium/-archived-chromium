@@ -189,6 +189,10 @@ void OnShutdownStarting(ShutdownType type) { }
 
 void OpenFirstRunDialog(Profile* profile) { }
 
+GURL NewTabUIURL() {
+  return GURL();
+}
+
 //--------------------------------------------------------------------------
 
 PluginService* PluginService::GetInstance() {
@@ -229,5 +233,17 @@ GURL Browser::GetHomePage() {
 TabContents* Browser::AddTabWithURL(
     const GURL& url, const GURL& referrer, PageTransition::Type transition,
     bool foreground, SiteInstance* instance) {
-  return NULL;
+  return new TabContents;
 }
+
+void Browser::LoadingStateChanged(TabContents* source) {
+}
+
+//--------------------------------------------------------------------------
+
+TabContents* TabContents::CreateWithType(TabContentsType type,
+                                         Profile* profile,
+                                         SiteInstance* instance) {
+  return new TabContents;
+}
+

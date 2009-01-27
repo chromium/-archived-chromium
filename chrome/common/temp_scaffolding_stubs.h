@@ -26,10 +26,12 @@ class BookmarkService;
 class CommandLine;
 class HistoryService;
 class MetricsService;
+class NavigationController;
 class NavigationEntry;
 class ProfileManager;
 class Profile;
 class SessionID;
+class SiteInstance;
 class SpellChecker;
 class TabContents;
 class URLRequestContext;
@@ -172,12 +174,14 @@ class UserDataManager {
 struct SessionService {
   void WindowClosed(const SessionID &) { }
   void SetWindowBounds(const SessionID&, const gfx::Rect&, bool) { }
+  void TabRestored(NavigationController*) { }
 };
 
 class TabRestoreService {
  public:
   void BrowserClosing(Browser*) { }
   void BrowserClosed(Browser*) { }
+  void CreateHistoricalTab(NavigationController*) { }
 };
 
 class HistoryService {
@@ -277,6 +281,8 @@ void OpenFirstRunDialog(Profile* profile);
 
 void InstallJankometer(const CommandLine&);
 
+GURL NewTabUIURL();
+
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 
@@ -297,14 +303,6 @@ class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
  public:
 };
 
-class TabStripModelDelegate {
- public:
-};
-
-class TabStripModelObserver {
- public:
-};
-
 class NavigationEntry {
  public:
   const GURL& url() const { return url_; }
@@ -321,6 +319,7 @@ class NavigationController {
   void GoBack() { }
   void GoForward() { }
   void Reload(bool) { }
+  NavigationController* Clone() { return new NavigationController(); }
   TabContents* active_contents() const { return NULL; }
   NavigationEntry* GetLastCommittedEntry() const { return entry_.get(); }
   NavigationEntry* GetActiveEntry() const { return entry_.get(); }
@@ -345,6 +344,7 @@ class InterstitialPage {
 class RenderViewHost {
  public:
   bool HasUnloadListener() const { return false; }
+  void FirePageBeforeUnload() { }
 };
 
 class TabContents {
@@ -359,6 +359,13 @@ class TabContents {
   TabContentsType type() const { return TAB_CONTENTS_WEB; }
   virtual void Focus() { }
   virtual void Stop() { }
+  bool is_loading() const { return false; }
+  void CloseContents() { };
+  void SetupController(Profile* profile) { }
+  static TabContentsType TypeForURL(GURL* url) { return TAB_CONTENTS_WEB; }
+  static TabContents* CreateWithType(TabContentsType type,
+                                     Profile* profile,
+                                     SiteInstance* instance);
  private:
   GURL url_;
   std::wstring title_;
@@ -383,29 +390,6 @@ class WebContents : public TabContents {
   std::string mime_type_;
 };
 
-// fake a tab strip with one entry.
-class TabStripModel {
- public:
-  TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
-      : contents_(new WebContents) { }
-  virtual ~TabStripModel() { }
-  bool empty() const { return contents_.get() == NULL; }
-  int count() const { return contents_.get() ? 1 : 0; }
-  int selected_index() const { return 0; }
-  int GetIndexOfController(const NavigationController* controller) const {
-    return 0;
-  }
-  TabContents* GetTabContentsAt(int index) const { return contents_.get(); }
-  TabContents* GetSelectedTabContents() const { return contents_.get(); }
-  void SelectTabContentsAt(int index, bool user_gesture) { }
-  TabContents* AddBlankTab(bool foreground) { return contents_.get(); }
-  void CloseAllTabs() { contents_.reset(NULL); }
-  void AddObserver(TabStripModelObserver* observer) { }
-  void RemoveObserver(TabStripModelObserver* observer) { }
- private:
-  scoped_ptr<TabContents> contents_;
-};
-
 class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
  public:
   class Listener {
@@ -420,6 +404,8 @@ class SiteInstance {
 
 class DockInfo {
  public:
+  bool GetNewWindowBounds(gfx::Rect*, bool*) const { return false; }
+  void AdjustOtherWindowBounds() const { }
 };
 
 class ToolbarModel {

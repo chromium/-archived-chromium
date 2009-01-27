@@ -4,8 +4,12 @@
 
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
 
+#if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tabs/tab_strip_model.h"
+#elif defined(OS_MACOSX) || (OS_LINUX)
+// TODO(port): remove this when the mock of TabContents is removed
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 #include "chrome/common/pref_names.h"
 
 ///////////////////////////////////////////////////////////////////////////////
