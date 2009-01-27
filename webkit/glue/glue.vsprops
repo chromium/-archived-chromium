@@ -3,11 +3,11 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="glue"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\webkit_common.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\build\webkit_common.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="..\..\glue;&quot;$(OutDir)&quot;"
+		AdditionalIncludeDirectories="&quot;$(OutDir)&quot;"
 		PreprocessorDefinitions="_SCL_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=1"
 		WarnAsError="true"
 	/>
