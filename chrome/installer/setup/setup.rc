@@ -57,6 +57,30 @@ IDI_SETUP               ICON                    "setup.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
+#if defined(GOOGLE_CHROME_BUILD)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// EULA
+//
+IDR_EULA_ICO.PNG      EULA   "..\\..\\app\\theme\\google_chrome\\eula_icon.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// HTML
+//
+
+IDR_EULA_CSS.CSS      HTML   "eula\\oem.css"
+IDR_EULA_JSC.JS       HTML   "eula\\oem.js"
+
+IDR_OEMPG_EN.HTML     HTML   "eula\\oem_en.html"
+
+IDR_TERMS_EN.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_en.html"
+IDR_TERMS_ES.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_es.html"
+IDR_TERMS_FR.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_fr.html"
+IDR_TERMS_BR.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_pt-BR.html"
+
+#endif  // defined(GOOGLE_CHROME_BUILD)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -64,14 +88,12 @@ IDI_SETUP               ICON                    "setup.ico"
 //
 #include "installer_util_strings.rc"
 
-
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
 #include "setup_exe_version.rc"
-
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

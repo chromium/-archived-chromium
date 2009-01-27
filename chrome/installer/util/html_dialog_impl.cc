@@ -173,8 +173,8 @@ EulaHTMLDialog::~EulaHTMLDialog() {
 
 bool EulaHTMLDialog::ShowModal() {
   Customizer customizer;
-  dialog_->ShowModal(NULL, &customizer);
-  return false;
+  HTMLDialog::DialogResult dr = dialog_->ShowModal(NULL, &customizer);
+  return (HTMLDialog::HTML_DLG_ACCEPT == dr);
 }
 
 }  // namespace installer

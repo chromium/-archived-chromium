@@ -22,7 +22,11 @@ namespace installer_util {
 // desktop.
 std::wstring GetLocalizedString(int base_message_id);
 
-}
+// Given the system language, return a url that points to the localized eula.
+// The empty string is returned on failure.
+std::wstring GetLocalizedEulaResource();
+
+}  // namespace installer_util.
 
 #endif  // CHROME_INSTALLER_UTIL_L10N_STRING_UTIL_H_
 

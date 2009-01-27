@@ -33,7 +33,9 @@ enum InstallStatus {
   UNINSTALL_CANCELLED,   // User cancelled Chrome uninstallation
   UNKNOWN_STATUS,        // Unknown status (this should never happen)
   RENAME_SUCCESSFUL,     // Rename of new_chrome.exe to chrome.exe worked
-  RENAME_FAILED          // Rename of new_chrome.exe failed
+  RENAME_FAILED,         // Rename of new_chrome.exe failed
+  EULA_REJECTED,         // EULA dialog was not accepted by user.
+  EULA_ACCEPTED          // EULA dialog was accepted by user.
 };
 
 // These are distibution related install options specified through command
@@ -74,6 +76,7 @@ extern const wchar_t kRunAsAdmin[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
 extern const wchar_t kVerboseLogging[];
+extern const wchar_t kShowEula[];
 }  // namespace switches
 
 extern const wchar_t kInstallBinaryDir[];

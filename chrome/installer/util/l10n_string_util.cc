@@ -1,4 +1,5 @@
 #include <atlbase.h>
+#include <shlwapi.h>
 
 #include <map>
 
@@ -152,4 +153,34 @@ std::wstring GetLocalizedString(int base_message_id) {
   return localized_string;
 }
 
+// Here we generate the url spec with the Microsoft res:// scheme which is
+// explained here : http://support.microsoft.com/kb/220830
+std::wstring GetLocalizedEulaResource() {
+  wchar_t full_exe_path[MAX_PATH];
+  int len = ::GetModuleFileNameW(NULL, full_exe_path, MAX_PATH);
+  if (len <= 0 && len >= MAX_PATH)
+    return L"";
+  // The default language is English, but we also support Spanish,French and
+  // Portuguese.
+  std::wstring language = GetSystemLanguage();
+  const wchar_t* resource = L"IDR_OEMPG_EN.HTML";
+  if (language == L"fr")
+    resource = L"IDR_OEMPG_FR.HTML";
+  else if (language == L"es")
+    resource = L"IDR_OEMPG_ES.HTML";
+  else if (language == L"pt-br")
+    resource = L"IDR_OEMPG_BR.HTML";
+  // Spaces and DOS paths must be url encoded.
+  std::wstring url_path =
+      StringPrintf(L"res://%ls/#23/%ls", full_exe_path, resource);
+  DWORD count = url_path.size() * 3;
+  scoped_ptr<wchar_t> url_canon(new wchar_t[count]);
+  HRESULT hr = ::UrlCanonicalizeW(url_path.c_str(), url_canon.get(),
+                                  &count, URL_ESCAPE_UNSAFE);
+  if (SUCCEEDED(hr))
+    return std::wstring(url_canon.get());
+  return url_path;
+}
+
 }  // namespace installer_util
+

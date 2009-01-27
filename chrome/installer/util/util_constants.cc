@@ -66,6 +66,9 @@ const wchar_t kUninstall[] = L"uninstall";
 // Enable verbose logging (info level).
 const wchar_t kVerboseLogging[] = L"verbose-logging";
 
+// Show the embedded EULA dialog.
+const wchar_t kShowEula[] = L"show-eula";
+
 }  // namespace switches
 
 const wchar_t kInstallBinaryDir[] = L"Application";
