@@ -4,24 +4,24 @@
 
 #include "chrome/views/throbber.h"
 
+#include "base/time.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/resource_bundle.h"
 #include "skia/include/SkBitmap.h"
 
+using base::Time;
 using base::TimeDelta;
 
 namespace views {
 
 Throbber::Throbber(int frame_time_ms,
                    bool paint_while_stopped)
-    : paint_while_stopped_(paint_while_stopped),
-      running_(false),
-      last_frame_drawn_(-1),
-      frame_time_ms_(frame_time_ms),
+    : running_(false),
+      paint_while_stopped_(paint_while_stopped),
       frames_(NULL),
-      last_time_recorded_(0) {
+      frame_time_(TimeDelta::FromMilliseconds(frame_time_ms)) {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
   frames_ = rb.GetBitmapNamed(IDR_THROBBER);
   DCHECK(frames_->width() > 0 && frames_->height() > 0);
@@ -37,11 +37,10 @@ void Throbber::Start() {
   if (running_)
     return;
 
-  start_time_ = GetTickCount();
-  last_time_recorded_ = start_time_;
+  start_time_ = Time::Now();
 
-  timer_.Start(
-      TimeDelta::FromMilliseconds(frame_time_ms_ - 10), this, &Throbber::Run);
+  timer_.Start(frame_time_ - TimeDelta::FromMilliseconds(10),
+               this, &Throbber::Run);
 
   running_ = true;
 
@@ -72,20 +71,9 @@ void Throbber::Paint(ChromeCanvas* canvas) {
   if (!running_ && !paint_while_stopped_)
     return;
 
-  DWORD current_time = GetTickCount();
-  int current_frame = 0;
-
-  // deal with timer wraparound
-  if (current_time < last_time_recorded_) {
-    start_time_ = current_time;
-    current_frame = (last_frame_drawn_ + 1) % frame_count_;
-  } else {
-    current_frame =
-        ((current_time - start_time_) / frame_time_ms_) % frame_count_;
-  }
-
-  last_time_recorded_ = current_time;
-  last_frame_drawn_ = current_frame;
+  const TimeDelta elapsed_time = Time::Now() - start_time_;
+  const int current_frame =
+      static_cast<int>(elapsed_time / frame_time_) % frame_count_;
 
   int image_size = frames_->height();
   int image_offset = current_frame * image_size;
@@ -140,8 +128,8 @@ void SmoothedThrobber::StopDelayOver() {
 // Checkmark throbber ---------------------------------------------------------
 
 CheckmarkThrobber::CheckmarkThrobber()
-    : checked_(false),
-      Throbber(kFrameTimeMs, false) {
+    : Throbber(kFrameTimeMs, false),
+      checked_(false) {
   InitClass();
 }
 

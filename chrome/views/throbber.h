@@ -4,10 +4,11 @@
 
 // Throbbers display an animation, usually used as a status indicator.
 
-#ifndef CHROME_VIEWS_THROBBER_H__
-#define CHROME_VIEWS_THROBBER_H__
+#ifndef CHROME_VIEWS_THROBBER_H_
+#define CHROME_VIEWS_THROBBER_H_
 
 #include "base/basictypes.h"
+#include "base/time.h"
 #include "base/timer.h"
 #include "chrome/views/view.h"
 
@@ -40,15 +41,13 @@ class Throbber : public View {
   void Run();
 
   bool paint_while_stopped_;
-  int frame_count_;
-  int last_frame_drawn_;
-  DWORD start_time_;
-  DWORD last_time_recorded_;
-  SkBitmap* frames_;
-  int frame_time_ms_;
-  base::RepeatingTimer<Throbber> timer_;
+  int frame_count_;  // How many frames we have.
+  base::Time start_time_;  // Time when Start was called.
+  SkBitmap* frames_;  // Frames bitmaps.
+  base::TimeDelta frame_time_;  // How long one frame is displayed.
+  base::RepeatingTimer<Throbber> timer_;  // Used to schedule Run calls.
 
-  DISALLOW_EVIL_CONSTRUCTORS(Throbber);
+  DISALLOW_COPY_AND_ASSIGN(Throbber);
 };
 
 // A SmoothedThrobber is a throbber that is representing potentially short
@@ -74,7 +73,7 @@ class SmoothedThrobber : public Throbber {
   base::OneShotTimer<SmoothedThrobber> start_timer_;
   base::OneShotTimer<SmoothedThrobber> stop_timer_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SmoothedThrobber);
+  DISALLOW_COPY_AND_ASSIGN(SmoothedThrobber);
 };
 
 // A CheckmarkThrobber is a special variant of throbber that has three states:
@@ -104,10 +103,10 @@ class CheckmarkThrobber : public Throbber {
   // The checkmark image.
   static SkBitmap* checkmark_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CheckmarkThrobber);
+  DISALLOW_COPY_AND_ASSIGN(CheckmarkThrobber);
 };
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_THROBBER_H__
+#endif  // CHROME_VIEWS_THROBBER_H_
 

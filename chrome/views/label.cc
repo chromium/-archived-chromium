@@ -188,7 +188,7 @@ const GURL Label::GetURL() const {
   if (url_set_)
     return url_;
   else
-    return GURL(text_);
+    return GURL(WideToUTF8(text_));
 }
 
 gfx::Size Label::GetTextSize() {
@@ -372,6 +372,7 @@ void Label::SizeToFit(int max_width) {
   SizeToPreferredSize();
 }
 
+#if defined(OS_WIN)
 bool Label::GetAccessibleRole(VARIANT* role) {
   DCHECK(role);
 
@@ -391,5 +392,6 @@ bool Label::GetAccessibleState(VARIANT* state) {
   state->lVal |= STATE_SYSTEM_READONLY;
   return true;
 }
+#endif  // defined(OS_WIN)
 
 }  // namespace views

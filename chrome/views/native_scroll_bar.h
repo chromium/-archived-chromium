@@ -5,6 +5,8 @@
 #ifndef CHROME_VIEWS_NATIVE_SCROLLBAR_H__
 #define CHROME_VIEWS_NATIVE_SCROLLBAR_H__
 
+#include "build/build_config.h"
+
 #include "chrome/views/scroll_bar.h"
 
 namespace views {
@@ -48,9 +50,11 @@ class NativeScrollBar : public ScrollBar {
   static int GetVerticalScrollBarWidth();
 
  private:
+#if defined(OS_WIN)
   // The sb_view_ takes care of keeping sb_container in sync with the
   // view hierarchy
   HWNDView* sb_view_;
+#endif  // defined(OS_WIN)
 
   // sb_container_ is a custom hwnd that we use to wrap the real
   // windows scrollbar. We need to do this to get the scroll events

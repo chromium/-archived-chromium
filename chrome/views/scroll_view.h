@@ -26,7 +26,7 @@ namespace views {
 class ScrollView : public View,
                    public ScrollBarController {
  public:
-  static const char* const ScrollView::kViewClassName;
+  static const char* const kViewClassName;
 
   ScrollView();
   // Initialize with specific views. resize_corner is optional.
@@ -42,7 +42,7 @@ class ScrollView : public View,
 
   // Overridden to layout the viewport and scrollbars.
   virtual void Layout();
-  
+
   // Returns the visible region of the content View.
   gfx::Rect GetVisibleRect() const;
 

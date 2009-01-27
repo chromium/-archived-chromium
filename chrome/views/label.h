@@ -126,6 +126,9 @@ class Label : public View {
   // wrapped).  If 0, no maximum width is enforced.
   void SizeToFit(int max_width);
 
+#if defined(OS_WIN)
+  // TODO(port): Make portable equivalents of accessibility-related functions.
+
   // Returns the MSAA role of the current view. The role is what assistive
   // technologies (ATs) use to determine what behavior to expect from a given
   // control.
@@ -138,6 +141,7 @@ class Label : public View {
   // appropriately, and returns true if a change was performed successfully.
   // Overriden from View.
   virtual bool GetAccessibleState(VARIANT* state);
+#endif  // defined(OS_WIN)
 
  private:
   // These tests call CalculateDrawStringParams in order to verify the
