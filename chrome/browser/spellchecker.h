@@ -9,7 +9,12 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
+#if defined(OS_WIN)
 #include "chrome/browser/profile.h"
+#else
+// TODO(port): remove scaffolding, use profile.h for both POSIX and WIN.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 #include "chrome/browser/spellcheck_worditerator.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"

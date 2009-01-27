@@ -22,14 +22,19 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class Browser;
+class BookmarkService;
 class CommandLine;
+class HistoryService;
 class MetricsService;
 class NavigationEntry;
 class ProfileManager;
 class Profile;
 class SessionID;
+class SpellChecker;
 class TabContents;
 class URLRequestContext;
+class UserScriptMaster;
+class VisitedLinkMaster;
 class WebContents;
 
 //---------------------------------------------------------------------------
@@ -175,24 +180,63 @@ class TabRestoreService {
   void BrowserClosed(Browser*) { }
 };
 
+class HistoryService {
+ public:
+
+  class URLEnumerator {
+   public:
+    virtual ~URLEnumerator() {}
+    virtual void OnURL(const GURL& url) = 0;
+    virtual void OnComplete(bool success) = 0;
+  };
+
+  HistoryService() {}
+  bool Init(const std::wstring& history_dir, BookmarkService* bookmark_service)
+      { return false; }
+  void SetOnBackendDestroyTask(Task*) {}
+  void AddPage(GURL const&, void const*, int, GURL const&,
+               int, std::vector<GURL> const&) {}
+  void AddPage(const GURL& url) {}
+  void SetPageContents(const GURL& url, const std::wstring& contents) {}
+  void IterateURLs(URLEnumerator* iterator) {}
+  void Cleanup() {}
+  void AddRef() {}
+  void Release() {}
+};
+
 class Profile {
+ public:
+   enum ServiceAccessType {
+    EXPLICIT_ACCESS,
+    IMPLICIT_ACCESS
+  };
+
  public:
   Profile(const std::wstring& user_data_dir);
   virtual std::wstring GetPath() { return path_; }
   virtual PrefService* GetPrefs();
   void ResetTabRestoreService() { }
+  SpellChecker* GetSpellChecker() { return NULL; }
+  VisitedLinkMaster* GetVisitedLinkMaster() { return NULL; }
   TabRestoreService* GetTabRestoreService() { return NULL; }
   SessionService* GetSessionService() { return NULL; }
+  UserScriptMaster* GetUserScriptMaster() { return NULL; }
   bool IsOffTheRecord() { return false; }
   URLRequestContext* GetRequestContext() { return NULL; }
   virtual Profile* GetOriginalProfile() { return this; }
   virtual Profile* GetOffTheRecordProfile() { return this; }
   bool HasSessionService() { return false; }
+  std::wstring GetID() { return L""; }
+  HistoryService* GetHistoryService(ServiceAccessType access) {
+    return &history_service_;
+  }
+
  private:
   std::wstring GetPrefFilePath();
 
   std::wstring path_;
   scoped_ptr<PrefService> prefs_;
+  HistoryService history_service_;
 };
 
 class ProfileManager : NonThreadSafe {

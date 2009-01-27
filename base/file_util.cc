@@ -4,6 +4,9 @@
 
 #include "base/file_util.h"
 
+#if defined(OS_WIN)
+#include <io.h>
+#endif
 #include <stdio.h>
 
 #include <fstream>
@@ -274,6 +277,24 @@ bool CloseFile(FILE* file) {
   if (file == NULL)
     return true;
   return fclose(file) == 0;
+}
+
+bool TruncateFile(FILE* file) {
+  if (file == NULL)
+    return false;
+  long current_offset = ftell(file);
+  if (current_offset == -1)
+    return false;
+#if defined(OS_WIN)
+  int fd = _fileno(file);
+  if (_chsize(fd, current_offset) != 0)
+    return false;
+#else
+  int fd = fileno(file);
+  if (ftruncate(fd, current_offset) != 0)
+    return false;
+#endif
+  return true;
 }
 
 bool ContainsPath(const FilePath &parent, const FilePath& child) {
