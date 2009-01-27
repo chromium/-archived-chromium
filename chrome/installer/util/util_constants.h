@@ -57,6 +57,8 @@ enum InstallOption {
   SYSTEM_LEVEL            = 0x1 << 5,
   // Run installer in verbose mode.
   VERBOSE_LOGGING         = 0x1 << 6,
+  // Show the EULA dialog.
+  SHOW_EULA_DIALOG        = 0x1 << 7
 };
 
 namespace switches {

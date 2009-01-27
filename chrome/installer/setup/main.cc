@@ -230,7 +230,7 @@ int GetInstallOptions(const CommandLine& cmd_line) {
     // While there is a --show-eula command line flag, we don't process
     // it in this function because it requires special handling.
     if (preferences & installer_util::MASTER_PROFILE_REQUIRE_EULA)
-      options |= installer_util::MASTER_PROFILE_REQUIRE_EULA;
+      options |= installer_util::SHOW_EULA_DIALOG;
   }
 
   if (preferences & installer_util::MASTER_PROFILE_CREATE_ALL_SHORTCUTS ||
@@ -497,12 +497,12 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // Check if we need to show the EULA. There are two cases:
   // 1- If it is passed as a command line (--show-eula), then the dialog is
   //    shown and regardless of the outcome setup exits here.
-  // 2- If it is found in the installerdata file then the eula is shown
-  //    and the installation proceeds if the user acepts.
+  // 2- If it is found in the installerdata file then the EULA is shown
+  //    and the installation proceeds if the user accepts.
   if (parsed_command_line.HasSwitch(installer_util::switches::kShowEula)) {
     return (ShowEULADialog() ?
         installer_util::EULA_ACCEPTED : installer_util::EULA_REJECTED);
-  } else if (installer_util::MASTER_PROFILE_REQUIRE_EULA & options) {
+  } else if (installer_util::SHOW_EULA_DIALOG & options) {
     if (!ShowEULADialog())
       return installer_util::EULA_REJECTED;
   }
