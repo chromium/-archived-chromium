@@ -107,9 +107,13 @@ class SdchManager {
 
     // Problematic decode recovery methods.
     META_REFRESH_RECOVERY = 70,            // Dictionary not found.
-    META_REFRESH_UNSUPPORTED = 71,         // Unrecoverable error.
-    CACHED_META_REFRESH_UNSUPPORTED = 72,  // As above, but pulled from cache.
-    PASSING_THROUGH_NON_SDCH = 73,  // Non-html tagged as sdch but malformed.
+    // defunct =  71, // ALmost the same as META_REFRESH_UNSUPPORTED.
+    // defunct = 72,  // Almost the same as CACHED_META_REFRESH_UNSUPPORTED.
+    // defunct = 73,  // PASSING_THROUGH_NON_SDCH plus DISCARD_TENTATIVE_SDCH.
+    META_REFRESH_UNSUPPORTED = 74,         // Unrecoverable error.
+    CACHED_META_REFRESH_UNSUPPORTED = 75,  // As above, but pulled from cache.
+    PASSING_THROUGH_NON_SDCH = 76,  // Non-html tagged as sdch but malformed.
+
 
     // Common decoded recovery methods.
     META_REFRESH_CACHED_RECOVERY = 80,  // Probably startup tab loading.

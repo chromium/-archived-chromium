@@ -123,7 +123,7 @@ TEST(FilterTest, MissingSdchEncoding) {
   encoding_types.clear();
   Filter::FixupEncodingTypes(is_sdch_response, kTextHtmlMime, &encoding_types);
   EXPECT_EQ(2U, encoding_types.size());
-  EXPECT_EQ(Filter::FILTER_TYPE_SDCH, encoding_types[0]);
+  EXPECT_EQ(Filter::FILTER_TYPE_SDCH_POSSIBLE, encoding_types[0]);
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP_HELPING_SDCH, encoding_types[1]);
 
   // No encoding, but it was an SDCH response with non-html type.

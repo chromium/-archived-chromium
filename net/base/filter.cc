@@ -146,7 +146,7 @@ void Filter::FixupEncodingTypes(
     else
       SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODINGS);
     encoding_types->clear();
-    encoding_types->push_back(FILTER_TYPE_SDCH);
+    encoding_types->push_back(FILTER_TYPE_SDCH_POSSIBLE);
     encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
     return;
   }
