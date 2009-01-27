@@ -299,9 +299,6 @@ const int kFrameShadowThickness = 1;
 // Besides the frame border, there's another 11 px of empty space atop the
 // window in restored mode, to use to drag the window around.
 const int kNonClientRestoredExtraThickness = 11;
-// In restored mode, we draw a 1 px edge around the content area inside the
-// frame border.
-const int kClientEdgeThickness = 1;
 // While resize areas on Windows are normally the same size as the window
 // borders, our top area is shrunk by 1 px to make it easier to move the window
 // around with our thinner top grabbable strip.  (Incidentally, our side and
@@ -311,9 +308,9 @@ const int kTopResizeAdjust = 1;
 // In the window corners, the resize areas don't actually expand bigger, but the
 // 16 px at the end of each edge triggers diagonal resizing.
 const int kResizeAreaCornerSize = 16;
-// The titlebar never shrinks to less than 19 px tall, plus the height of the
-// frame border.
-const int kTitlebarMinimumHeight = 19;
+// The titlebar never shrinks to less than 18 px tall, plus the height of the
+// frame border and any bottom edge.
+const int kTitlebarMinimumHeight = 18;
 // The icon is inset 2 px from the left frame border.
 const int kIconLeftSpacing = 2;
 // The icon takes up 16/25th of the available titlebar height.  (This is
@@ -710,7 +707,7 @@ int OpaqueNonClientView::TopResizeHeight() const {
 int OpaqueNonClientView::NonClientBorderWidth() const {
   // In maximized mode, we don't show a client edge.
   return FrameBorderWidth() +
-      (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
+      (frame_->IsMaximized() ? 0 : BrowserView::kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::NonClientTopBorderHeight() const {
@@ -728,12 +725,14 @@ int OpaqueNonClientView::NonClientBottomBorderHeight() const {
   // extended slightly.
   return frame_->IsMaximized() ? (GetSystemMetrics(SM_CYSIZEFRAME) +
       kFrameBorderMaximizedExtraBottomThickness) :
-      (kFrameBorderThickness + kClientEdgeThickness);
+      (kFrameBorderThickness + BrowserView::kClientEdgeThickness);
 }
 
-int OpaqueNonClientView::ClientEdgeThicknessWithinNonClientHeight() const {
-  return (frame_->IsMaximized() || browser_view_->IsToolbarVisible()) ?
-      0 : kClientEdgeThickness;
+int OpaqueNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {
+  if (browser_view_->IsToolbarVisible())
+    return 0;
+  return kFrameShadowThickness +
+      (frame_->IsMaximized() ? 0 : BrowserView::kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
@@ -744,8 +743,12 @@ int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
   // The bottom spacing should be the same apparent height as the top spacing.
   // Because the actual top spacing height varies based on the system border
   // thickness, we calculate this based on the restored top spacing and then
-  // adjust for maximized mode.
-  int title_bottom_spacing = kFrameBorderThickness + kTitleTopSpacing;
+  // adjust for maximized mode.  We also don't include the frame shadow here,
+  // since while it's part of the bottom spacing it will be added in at the end
+  // as necessary (when a toolbar is present, the "shadow" is actually drawn by
+  // the toolbar).
+  int title_bottom_spacing =
+      kFrameBorderThickness + kTitleTopSpacing - kFrameShadowThickness;
   if (frame_->IsMaximized()) {
     // When we maximize, the top border appears to be chopped off; shift the
     // title down to stay centered within the remaining space.
@@ -756,7 +759,7 @@ int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
   *title_thickness = std::max(title_font_.height(),
       min_titlebar_height - *title_top_spacing - title_bottom_spacing);
   return *title_top_spacing + *title_thickness + title_bottom_spacing +
-      ClientEdgeThicknessWithinNonClientHeight();
+      BottomEdgeThicknessWithinNonClientHeight();
 }
 
 void OpaqueNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
@@ -817,7 +820,8 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
     // There's no toolbar to edge the frame border, so we need to draw a bottom
     // edge.  The App Window graphic we use for this has a built in client edge,
     // so we clip it off the bottom.
-    int edge_height = app_top_center_.height() - kClientEdgeThickness;
+    int edge_height =
+        app_top_center_.height() - BrowserView::kClientEdgeThickness;
     canvas->TileImageInt(app_top_center_, 0,
         frame_->client_view()->y() - edge_height, width(), edge_height);
   }
@@ -857,7 +861,8 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
-  if (!browser_view_->IsToolbarVisible() && !browser_view_->IsTabStripVisible())
+  if (!browser_view_->IsToolbarVisible() ||
+      !browser_view_->IsToolbarDisplayModeNormal())
     return;
 
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
@@ -894,34 +899,30 @@ void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
-  int client_area_top = frame_->client_view()->y();
+  int client_area_top =
+      frame_->client_view()->y() + browser_view_->GetToolbarBounds().bottom();
 
-  // The toolbar draws a client edge along its own bottom edge when it's
-  // visible.  However, it only draws this for the width of the actual client
-  // area, leaving a gap at the left and right edges:
-  //
-  // |             Toolbar             | <-- part of toolbar
-  //  ----- (toolbar client edge) -----  <-- gap
-  // |           Client area           | <-- right client edge
-  //
-  // To address this, we extend the left and right client edges up to fill the
-  // gap, by pretending the toolbar is shorter than it really is.
-  //
-  // Note: We can get away with this hackery because we only draw a top edge
-  // when there is no toolbar.  If we tried to draw a client edge over the
-  // toolbar's bottom edge, we'd need a different solution.
-  if (browser_view_->IsToolbarVisible()) {
-    client_area_top +=
-        browser_view_->GetToolbarBounds().bottom() - kClientEdgeThickness;
-  }
-
-  // When we don't have a toolbar to draw a top edge for us, draw a top edge.
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
-  if (!browser_view_->IsToolbarVisible()) {
+  if (browser_view_->IsToolbarVisible() &&
+      browser_view_->IsToolbarDisplayModeNormal()) {
+    // The toolbar draws a client edge along its own bottom edge when it's
+    // visible and in normal mode.  However, it only draws this for the width of
+    // the actual client area, leaving a gap at the left and right edges:
+    //
+    // |             Toolbar             | <-- part of toolbar
+    //  ----- (toolbar client edge) -----  <-- gap
+    // |           Client area           | <-- right client edge
+    //
+    // To address this, we extend the left and right client edges up to fill the
+    // gap, by pretending the toolbar is shorter than it really is.
+    client_area_top -= BrowserView::kClientEdgeThickness;
+  } else {
+    // The toolbar isn't going to draw a client edge for us, so draw one
+    // ourselves.
+    int top_edge_y = client_area_top - app_top_center_.height();
     // This is necessary because the top center bitmap is shorter than the top
     // left and right bitmaps.  We need their top edges to line up, and we
     // need the left and right edges to start below the corners' bottoms.
-    int top_edge_y = client_area_top - app_top_center_.height();
     client_area_top = top_edge_y + app_top_left_.height();
     canvas->DrawBitmapInt(app_top_left_,
                           client_area_bounds.x() - app_top_left_.width(),
@@ -1024,13 +1025,12 @@ void OpaqueNonClientView::LayoutTitleBar() {
   int icon_x = FrameBorderWidth() + kIconLeftSpacing;
 
   // The usable height of the titlebar area is the total height minus the top
-  // resize border, the one shadow pixel at the bottom, and any client edge area
-  // we draw below that shadow pixel.
+  // resize border and any edge area we draw at its bottom.
   int title_top_spacing, title_thickness;
   int top_height = TitleCoordinates(&title_top_spacing, &title_thickness);
   int top_border_height = FrameTopBorderHeight();
   int available_height = top_height - top_border_height -
-      kFrameShadowThickness - ClientEdgeThicknessWithinNonClientHeight();
+      BottomEdgeThicknessWithinNonClientHeight();
 
   // The icon takes up a constant fraction of the available height, down to a
   // minimum size, and is always an even number of pixels on a side (presumably

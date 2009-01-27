@@ -80,6 +80,10 @@ class BrowserToolbarView : public views::View,
 
   LocationBarView* GetLocationBarView() const { return location_bar_; }
 
+  bool IsDisplayModeNormal() const {
+    return display_mode_ == DISPLAYMODE_NORMAL;
+  }
+
   // Updates the toolbar (and transitively the location bar) with the states of
   // the specified |tab|.  If |should_restore_state| is true, we're switching
   // (back?) to this tab and should restore any previous location bar state
@@ -125,6 +129,12 @@ class BrowserToolbarView : public views::View,
   virtual void ButtonPressed(views::BaseButton* sender);
 
  private:
+  // Types of display mode this toolbar can have.
+  enum DisplayMode {
+    DISPLAYMODE_NORMAL,
+    DISPLAYMODE_LOCATION
+  };
+
   // NotificationObserver
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -157,15 +167,6 @@ class BrowserToolbarView : public views::View,
   // context menu on to the toolbar child view that currently has the
   // accessibility focus.
   virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
-
-  // Types of display mode this toolbar can have.
-  enum DisplayMode {
-    DISPLAYMODE_NORMAL,
-    DISPLAYMODE_LOCATION
-  };
-  bool IsDisplayModeNormal() const {
-    return display_mode_ == DISPLAYMODE_NORMAL;
-  }
 
   scoped_ptr<BackForwardMenuModel> back_menu_model_;
   scoped_ptr<BackForwardMenuModel> forward_menu_model_;

@@ -22,6 +22,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/dom_view.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/views/theme_helpers.h"
@@ -48,9 +49,6 @@
 
 static const int kControlHorizOffset = 4;
 static const int kControlVertOffset = 6;
-static const int kControlVertOffsetLocationOnly = 4;
-// The left and right margin of the toolbar in location-bar only mode.
-static const int kToolbarHorizontalMargin = 1;
 static const int kControlIndent = 3;
 static const int kStatusBubbleWidth = 480;
 
@@ -319,11 +317,8 @@ void BrowserToolbarView::Layout() {
 
     left_side_width = star_->x() + star_->width();
   } else {
-    gfx::Size temp = location_bar_->GetPreferredSize();
-    location_bar_height = temp.height();
-    left_side_width = kToolbarHorizontalMargin;
-    right_side_width = kToolbarHorizontalMargin;
-    location_bar_y = kControlVertOffsetLocationOnly;
+    location_bar_height = location_bar_->GetPreferredSize().height();
+    location_bar_y = 0;
   }
 
   location_bar_->SetBounds(left_side_width, location_bar_y,
@@ -484,8 +479,11 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
     return gfx::Size(0, normal_background.height());
   }
 
-  int locbar_height = location_bar_->GetPreferredSize().height();
-  return gfx::Size(0, locbar_height + 2 * kControlVertOffsetLocationOnly);
+  int client_edge_height =
+      (browser_->window() && !browser_->window()->IsMaximized()) ?
+      BrowserView::kClientEdgeThickness : 0;
+  return gfx::Size(0,
+      location_bar_->GetPreferredSize().height() + client_edge_height);
 }
 
 void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {

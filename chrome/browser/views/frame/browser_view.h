@@ -40,6 +40,10 @@ class BrowserView : public BrowserWindow,
                     public views::WindowDelegate,
                     public views::ClientView {
  public:
+  // In restored mode, we draw a 1 px edge around the content area inside the
+  // frame border.
+  static const int kClientEdgeThickness;
+
   explicit BrowserView(Browser* browser);
   virtual ~BrowserView();
 
@@ -75,6 +79,9 @@ class BrowserView : public BrowserWindow,
   // Returns true if various window components are visible.
   bool IsToolbarVisible() const;
   bool IsTabStripVisible() const;
+
+  // Returns true if the toolbar is displaying its normal set of controls.
+  bool IsToolbarDisplayModeNormal() const;
 
   // Returns true if the profile associated with this Browser window is
   // off the record.

@@ -57,6 +57,7 @@ using base::TimeDelta;
 // static
 SkBitmap BrowserView::default_favicon_;
 SkBitmap BrowserView::otr_avatar_;
+const int BrowserView::kClientEdgeThickness = 1;
 // The vertical overlap between the TabStrip and the Toolbar.
 static const int kToolbarTabStripVerticalOverlap = 3;
 // The visible height of the shadow above the tabs. Clicks in this area are
@@ -198,6 +199,10 @@ bool BrowserView::IsToolbarVisible() const {
 
 bool BrowserView::IsTabStripVisible() const {
   return SupportsWindowFeature(FEATURE_TABSTRIP);
+}
+
+bool BrowserView::IsToolbarDisplayModeNormal() const {
+  return toolbar_->IsDisplayModeNormal();
 }
 
 bool BrowserView::IsOffTheRecord() const {

@@ -95,10 +95,11 @@ class OpaqueNonClientView : public views::NonClientView,
   // the window frame and the client edge.
   int NonClientBottomBorderHeight() const;
 
-  // For windows without a toolbar, restored mode also draws a client edge below
-  // the titlebar which is considered part of the nonclient height.  This
-  // returns the height of any such edge.
-  int ClientEdgeThicknessWithinNonClientHeight() const;
+  // For windows without a toolbar, a bottom border, and, in restored mode, a
+  // client edge are drawn at the bottom of the titlebar.  When a toolbar is
+  // present, neither of these are drawn, as the toolbar itself will edge the
+  // titlebar area.  This returns the height of any such edge.
+  int BottomEdgeThicknessWithinNonClientHeight() const;
 
   // Calculates multiple values related to title layout.  Returns the height of
   // the entire titlebar including any connected client edge.
