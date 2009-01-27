@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_JPEG_CODEC_H_
-#define BASE_GFX_JPEG_CODEC_H_
+#ifndef CHROME_COMMON_JPEG_CODEC_H__
+#define CHROME_COMMON_JPEG_CODEC_H__
 
 #include <vector>
 
@@ -56,5 +56,5 @@ class JPEGCodec {
   static SkBitmap* Decode(const unsigned char* input, size_t input_size);
 };
 
-#endif  // BASE_GFX_JPEG_CODEC_H_
+#endif  // CHROME_COMMON_JPEG_CODEC_H__
 

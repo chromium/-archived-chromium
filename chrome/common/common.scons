@@ -129,6 +129,8 @@ input_files = ChromeFileList([
     'env_vars.h',
     'filter_policy.h',
     'gears_api.h',
+    'jpeg_codec.cc',
+    'jpeg_codec.h',
     'json_value_serializer.cc',
     'json_value_serializer.h',
     'jstemplate_builder.cc',

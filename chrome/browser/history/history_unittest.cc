@@ -22,7 +22,6 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
-#include "base/gfx/jpeg_codec.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -36,6 +35,7 @@
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/jpeg_codec.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/scoped_vector.h"

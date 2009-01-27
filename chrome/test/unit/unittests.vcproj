@@ -843,6 +843,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\common\jpeg_codec_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\common\json_value_serializer_unittest.cc"
 				>
 			</File>

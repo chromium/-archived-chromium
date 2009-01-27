@@ -5,11 +5,11 @@
 #include "chrome/browser/history/thumbnail_database.h"
 
 #include "base/file_util.h"
-#include "base/gfx/jpeg_codec.h"
 #include "base/time.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/history_publisher.h"
 #include "chrome/browser/history/url_database.h"
+#include "chrome/common/jpeg_codec.h"
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/thumbnail_score.h"
 #include "skia/include/SkBitmap.h"

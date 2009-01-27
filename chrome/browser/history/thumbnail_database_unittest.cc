@@ -4,10 +4,10 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
-#include "base/gfx/jpeg_codec.h"
 #include "base/path_service.h"
 #include "chrome/browser/history/thumbnail_database.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/jpeg_codec.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/tools/profiles/thumbnail-inl.h"
 #include "googleurl/src/gurl.h"

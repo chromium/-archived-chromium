@@ -412,10 +412,6 @@
 			Name="gfx_tests"
 			>
 			<File
-				RelativePath="..\gfx\jpeg_codec_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\gfx\png_codec_unittest.cc"
 				>
 			</File>
