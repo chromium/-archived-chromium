@@ -352,6 +352,7 @@ LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
