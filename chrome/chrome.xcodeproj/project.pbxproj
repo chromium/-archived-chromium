@@ -216,7 +216,6 @@
 		B56E281B0F057F2800447108 /* message_router.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD10E9D4C9F009A6919 /* message_router.cc */; };
 		B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */; };
 		B5E98B140F0574A8000A37D6 /* render_messages.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBF10E9D4C9F009A6919 /* render_messages.cc */; };
-		B5FCDE5C0F269E9B0099BFAF /* visitedlink_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF95F0E9D4839009A6919 /* visitedlink_master.cc */; };
 		B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */; };
 		B5FDC1CA0EE48ADB00BEC6E6 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDD10E9D5295009A6919 /* CoreFoundation.framework */; };
 		B5FDC1CC0EE48ADB00BEC6E6 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
@@ -4174,7 +4173,6 @@
 				4D7BFA480E9D4922009A6919 /* visitsegment_database.cc in Sources */,
 				E48B6C3C0F27844F002E47EC /* web_data_service.cc in Sources */,
 				E45076200F150E0C003BE099 /* web_database.cc in Sources */,
-				B5FCDE5C0F269E9B0099BFAF /* visitedlink_master.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

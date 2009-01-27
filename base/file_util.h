@@ -24,7 +24,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 #include "base/file_path.h"
 
 namespace file_util {
@@ -319,10 +318,6 @@ FILE* OpenFile(const std::wstring& filename, const char* mode);
 // Closes file opened by OpenFile. Returns true on success.
 bool CloseFile(FILE* file);
 
-// Truncates an open file to end at the location of the current file pointer.
-// This is a cross-platform analog to Windows' SetEndOfFile() function.
-bool TruncateFile(FILE* file);
-
 // Reads the given number of bytes from the file into the buffer.  Returns
 // the number of read bytes, or -1 on error.
 int ReadFile(const std::wstring& filename, char* data, int size);
@@ -340,18 +335,6 @@ bool GetCurrentDirectory(std::wstring* path);
 bool SetCurrentDirectory(const FilePath& path);
 // Deprecated temporary compatibility function.
 bool SetCurrentDirectory(const std::wstring& current_directory);
-
-// A class to handle auto-closing of FILE*'s.
-class ScopedFILEClose {
- public:
-  inline void operator()(FILE* x) const {
-    if (x) {
-      fclose(x);
-    }
-  }
-};
-
-typedef scoped_ptr_malloc<FILE, ScopedFILEClose> ScopedFILE;
 
 // A class for enumerating the files in a provided path. The order of the
 // results is not guaranteed.

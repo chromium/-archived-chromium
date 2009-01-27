@@ -14,10 +14,7 @@
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/url_fetcher.h"
-#if defined(OS_WIN)
-// TODO(port): remove scaffolding, use profile.h for both POSIX and WIN.
 #include "chrome/browser/profile.h"
-#endif
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_paths.h"

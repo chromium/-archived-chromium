@@ -9,7 +9,6 @@
 #include "base/message_loop.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/process_util.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "chrome/browser/visitedlink_master.h"
@@ -29,28 +28,28 @@ GURL TestURL(int i) {
   return GURL(StringPrintf("%s%d", g_test_prefix, i));
 }
 
+// when testing in single-threaded mode
+VisitedLinkMaster* g_master = NULL;
 std::vector<VisitedLinkSlave*> g_slaves;
 
 VisitedLinkMaster::PostNewTableEvent SynchronousBroadcastNewTableEvent;
 void SynchronousBroadcastNewTableEvent(base::SharedMemory* table) {
   if (table) {
     for (std::vector<VisitedLinkSlave>::size_type i = 0;
-         i < g_slaves.size(); i++) {
+         i < (int)g_slaves.size(); i++) {
       base::SharedMemoryHandle new_handle = NULL;
-      table->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
+      table->ShareToProcess(GetCurrentProcess(), &new_handle);
       g_slaves[i]->Init(new_handle);
     }
   }
 }
-
-}  // namespace
 
 class VisitedLinkTest : public testing::Test {
  protected:
   // Initialize the history system. This should be called before InitVisited().
   bool InitHistory() {
     history_service_ = new HistoryService;
-    return history_service_->Init(history_dir_.ToWStringHack(), NULL);
+    return history_service_->Init(history_dir_, NULL);
   }
 
   // Initializes the visited link objects. Pass in the size that you want a
@@ -104,7 +103,7 @@ class VisitedLinkTest : public testing::Test {
     // Create a slave database.
     VisitedLinkSlave slave;
     base::SharedMemoryHandle new_handle = NULL;
-    master_->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
+    master_->ShareToProcess(GetCurrentProcess(), &new_handle);
     bool success = slave.Init(new_handle);
     ASSERT_TRUE(success);
     g_slaves.push_back(&slave);
@@ -133,11 +132,12 @@ class VisitedLinkTest : public testing::Test {
   // testing::Test
   virtual void SetUp() {
     PathService::Get(base::DIR_TEMP, &history_dir_);
-    history_dir_ = history_dir_.Append(FILE_PATH_LITERAL("VisitedLinkTest"));
+    file_util::AppendToPath(&history_dir_, L"VisitedLinkTest");
     file_util::Delete(history_dir_, true);
     file_util::CreateDirectory(history_dir_);
 
-    visited_file_ = history_dir_.Append(FILE_PATH_LITERAL("VisitedLinks"));
+    visited_file_ = history_dir_;
+    file_util::AppendToPath(&visited_file_, L"VisitedLinks");
   }
 
   virtual void TearDown() {
@@ -148,12 +148,14 @@ class VisitedLinkTest : public testing::Test {
   MessageLoop message_loop_;
 
   // Filenames for the services;
-  FilePath history_dir_;
-  FilePath visited_file_;
+  std::wstring history_dir_;
+  std::wstring visited_file_;
 
   scoped_ptr<VisitedLinkMaster> master_;
   scoped_refptr<HistoryService> history_service_;
 };
+
+} // namespace
 
 // This test creates and reads some databases to make sure the data is
 // preserved throughout those operations.
@@ -176,11 +178,11 @@ TEST_F(VisitedLinkTest, Delete) {
 
   // Add a cluster from 14-17 wrapping around to 0. These will all hash to the
   // same value.
-  const VisitedLinkCommon::Fingerprint kFingerprint0 = kInitialSize * 0 + 14;
-  const VisitedLinkCommon::Fingerprint kFingerprint1 = kInitialSize * 1 + 14;
-  const VisitedLinkCommon::Fingerprint kFingerprint2 = kInitialSize * 2 + 14;
-  const VisitedLinkCommon::Fingerprint kFingerprint3 = kInitialSize * 3 + 14;
-  const VisitedLinkCommon::Fingerprint kFingerprint4 = kInitialSize * 4 + 14;
+  const int kFingerprint0 = kInitialSize * 0 + 14;
+  const int kFingerprint1 = kInitialSize * 1 + 14;
+  const int kFingerprint2 = kInitialSize * 2 + 14;
+  const int kFingerprint3 = kInitialSize * 3 + 14;
+  const int kFingerprint4 = kInitialSize * 4 + 14;
   master_->AddFingerprint(kFingerprint0);  // @14
   master_->AddFingerprint(kFingerprint1);  // @15
   master_->AddFingerprint(kFingerprint2);  // @16
@@ -191,9 +193,8 @@ TEST_F(VisitedLinkTest, Delete) {
   // order).
   EXPECT_EQ(kFingerprint3, master_->hash_table_[0]);
   master_->DeleteFingerprint(kFingerprint3, false);
-  VisitedLinkCommon::Fingerprint zero_fingerprint = 0;
-  EXPECT_EQ(zero_fingerprint, master_->hash_table_[1]);
-  EXPECT_NE(zero_fingerprint, master_->hash_table_[0]);
+  EXPECT_EQ(0, master_->hash_table_[1]);
+  EXPECT_NE(0, master_->hash_table_[0]);
 
   // Deleting the other four should leave the table empty.
   master_->DeleteFingerprint(kFingerprint0, false);
@@ -203,8 +204,7 @@ TEST_F(VisitedLinkTest, Delete) {
 
   EXPECT_EQ(0, master_->used_items_);
   for (int i = 0; i < kInitialSize; i++)
-    EXPECT_EQ(zero_fingerprint, master_->hash_table_[i]) <<
-        "Hash table has values in it.";
+    EXPECT_EQ(0, master_->hash_table_[i]) << "Hash table has values in it.";
 }
 
 // When we delete more than kBigDeleteThreshold we trigger different behavior
@@ -240,7 +240,7 @@ TEST_F(VisitedLinkTest, DeleteAll) {
   {
     VisitedLinkSlave slave;
     base::SharedMemoryHandle new_handle = NULL;
-    master_->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
+    master_->ShareToProcess(GetCurrentProcess(), &new_handle);
     ASSERT_TRUE(slave.Init(new_handle));
     g_slaves.push_back(&slave);
 
@@ -288,7 +288,7 @@ TEST_F(VisitedLinkTest, Resizing) {
   // ...and a slave
   VisitedLinkSlave slave;
   base::SharedMemoryHandle new_handle = NULL;
-  master_->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
+  master_->ShareToProcess(GetCurrentProcess(), &new_handle);
   bool success = slave.Init(new_handle);
   ASSERT_TRUE(success);
   g_slaves.push_back(&slave);

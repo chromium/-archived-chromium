@@ -4,40 +4,20 @@
 
 #include "chrome/browser/visitedlink_master.h"
 
-#if defined(OS_WIN)
 #include <windows.h>
-#include <io.h>
 #include <shlobj.h>
-#endif  // defined(OS_WIN)
-#include <stdio.h>
-
 #include <algorithm>
 
-#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
-#include "base/process_util.h"
 #include "base/rand_util.h"
 #include "base/stack_container.h"
 #include "base/string_util.h"
-#include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#if defined(OS_WIN)
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
-#else
-// TODO(port): We should be using history.h & profile.h, remove scaffolding
-// when those are ported.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif  // !defined(OS_WIN)
-#if defined(OS_WIN)
 #include "chrome/common/win_util.h"
-#endif
-
-using file_util::ScopedFILE;
-using file_util::OpenFile;
-using file_util::TruncateFile;
 
 const int32 VisitedLinkMaster::kFileHeaderSignatureOffset = 0;
 const int32 VisitedLinkMaster::kFileHeaderVersionOffset = 4;
@@ -56,7 +36,7 @@ const size_t VisitedLinkMaster::kFileHeaderSize =
 // table in NewTableSizeForCount (prime number).
 const unsigned VisitedLinkMaster::kDefaultTableSize = 16381;
 
-const size_t VisitedLinkMaster::kBigDeleteThreshold = 64;
+const int32 VisitedLinkMaster::kBigDeleteThreshold = 64;
 
 namespace {
 
@@ -68,42 +48,43 @@ void GenerateSalt(uint8 salt[LINK_SALT_LENGTH]) {
   uint64 randval = base::RandUint64();
   memcpy(salt, &randval, 8);
 }
-
 // AsyncWriter ----------------------------------------------------------------
 
 // This task executes on a background thread and executes a write. This
 // prevents us from blocking the UI thread doing I/O.
 class AsyncWriter : public Task {
  public:
-  AsyncWriter(FILE* file, int32 offset, const void* data, size_t data_len)
-      : file_(file),
+  AsyncWriter(HANDLE hfile, int32 offset, const void* data, int32 data_len)
+      : hfile_(hfile),
         offset_(offset) {
     data_->resize(data_len);
     memcpy(&*data_->begin(), data, data_len);
   }
 
   virtual void Run() {
-    WriteToFile(file_, offset_,
+    WriteToFile(hfile_, offset_,
                 &*data_->begin(), static_cast<int32>(data_->size()));
   }
 
   // Exposed as a static so it can be called directly from the Master to
   // reduce the number of platform-specific I/O sites we have. Returns true if
   // the write was complete.
-  static bool WriteToFile(FILE* file,
-                          off_t offset,
+  static bool WriteToFile(HANDLE hfile,
+                          int32 offset,
                           const void* data,
-                          size_t data_len) {
-    if (fseek(file, offset, SEEK_SET) != 0)
+                          int32 data_len) {
+    if (SetFilePointer(hfile, offset, NULL, FILE_BEGIN) ==
+        INVALID_SET_FILE_POINTER)
       return false;  // Don't write to an invalid part of the file.
 
-    size_t num_written = fwrite(data, 1, data_len, file);
-    return num_written == data_len;
+    DWORD num_written;
+    return WriteFile(hfile, data, data_len, &num_written, NULL) &&
+           (num_written == data_len);
   }
 
  private:
   // The data to write and where to write it.
-  FILE* file_;
+  HANDLE hfile_;
   int32 offset_;  // Offset from the beginning of the file.
 
   // Most writes are just a single fingerprint, so we reserve that much in this
@@ -117,14 +98,14 @@ class AsyncWriter : public Task {
 // same thread as the writing to keep things synchronized.
 class AsyncSetEndOfFile : public Task {
  public:
-  explicit AsyncSetEndOfFile(FILE* file) : file_(file) {}
+  explicit AsyncSetEndOfFile(HANDLE hfile) : hfile_(hfile) {}
 
   virtual void Run() {
-    TruncateFile(file_);
+    SetEndOfFile(hfile_);
   }
 
  private:
-  FILE* file_;
+  HANDLE hfile_;
   DISALLOW_EVIL_CONSTRUCTORS(AsyncSetEndOfFile);
 };
 
@@ -132,14 +113,14 @@ class AsyncSetEndOfFile : public Task {
 // the writing to keep things synchronized.
 class AsyncCloseHandle : public Task {
  public:
-  explicit AsyncCloseHandle(FILE* file) : file_(file) {}
+  explicit AsyncCloseHandle(HANDLE hfile) : hfile_(hfile) {}
 
   virtual void Run() {
-    fclose(file_);
+    CloseHandle(hfile_);
   }
 
  private:
-  FILE* file_;
+  HANDLE hfile_;
   DISALLOW_EVIL_CONSTRUCTORS(AsyncCloseHandle);
 };
 
@@ -213,11 +194,11 @@ VisitedLinkMaster::VisitedLinkMaster(base::Thread* file_thread,
                                      PostNewTableEvent* poster,
                                      HistoryService* history_service,
                                      bool suppress_rebuild,
-                                     const FilePath& filename,
+                                     const std::wstring& filename,
                                      int32 default_table_size) {
   InitMembers(file_thread, poster, NULL);
 
-  database_name_override_ = filename;
+  database_name_override_.assign(filename);
   table_size_override_ = default_table_size;
   history_service_override_ = history_service;
   suppress_rebuild_ = suppress_rebuild;
@@ -267,7 +248,7 @@ std::wstring VisitedLinkMaster::GetSharedMemoryName() const {
     profile_id = profile_->GetID().c_str();
 
   return StringPrintf(L"GVisitedLinks_%lu_%lu_%ls",
-                      base::GetCurrentProcId(), shared_memory_serial_,
+                      GetCurrentProcessId(), shared_memory_serial_,
                       profile_id.c_str());
 }
 
@@ -531,19 +512,19 @@ bool VisitedLinkMaster::WriteFullTable() {
   // We should pick up the most common types of these failures when we notice
   // that the file size is different when we load it back in, and then we will
   // regenerate the table.
-  ScopedFILE file_closer;  // Valid only when not open already.
-  FILE* file;                         // Always valid.
+  win_util::ScopedHandle hfile_closer;  // Valid only when not open already.
+  HANDLE hfile;                         // Always valid.
   if (file_) {
-    file = file_;
+    hfile = file_;
   } else {
-    FilePath filename;
+    std::wstring filename;
     GetDatabaseFileName(&filename);
-    file_closer.reset(OpenFile(filename, "wb+"));
-    if (!file_closer.get()) {
-      DLOG(ERROR) << "Failed to open file " << filename.value();
+    hfile_closer.Set(
+        CreateFile(filename.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                   CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
+    if (!hfile_closer.IsValid())
       return false;
-    }
-    file = file_closer.get();
+    hfile = hfile_closer;
   }
 
   // Write the new header.
@@ -552,54 +533,54 @@ bool VisitedLinkMaster::WriteFullTable() {
   header[1] = kFileCurrentVersion;
   header[2] = table_length_;
   header[3] = used_items_;
-  WriteToFile(file, 0, header, sizeof(header));
-  WriteToFile(file, sizeof(header), salt_, LINK_SALT_LENGTH);
+  WriteToFile(hfile, 0, header, sizeof(header));
+  WriteToFile(hfile, sizeof(header), salt_, LINK_SALT_LENGTH);
 
   // Write the hash data.
-  WriteToFile(file, kFileHeaderSize,
+  WriteToFile(hfile, kFileHeaderSize,
               hash_table_, table_length_ * sizeof(Fingerprint));
 
   // The hash table may have shrunk, so make sure this is the end.
   if (file_thread_) {
-    AsyncSetEndOfFile* setter = new AsyncSetEndOfFile(file);
+    AsyncSetEndOfFile* setter = new AsyncSetEndOfFile(hfile);
     file_thread_->PostTask(FROM_HERE, setter);
   } else {
-    TruncateFile(file);
+    SetEndOfFile(hfile);
   }
 
   // Keep the file open so we can dynamically write changes to it. When the
-  // file was already open, the file_closer is NULL, and file_ is already good.
-  if (file_closer.get())
-    file_ = file_closer.release();
+  // file was alrady open, the hfile_closer is NULL, and file_ is already good.
+  if (hfile_closer.IsValid())
+    file_ = hfile_closer.Take();
   return true;
 }
 
 bool VisitedLinkMaster::InitFromFile() {
   DCHECK(file_ == NULL);
 
-  FilePath filename;
+  std::wstring filename;
   GetDatabaseFileName(&filename);
-  ScopedFILE file_closer(OpenFile(filename, "rb+"));
-  if (!file_closer.get()) {
-    DLOG(ERROR) << "Failed to open file " << filename.value();
+  win_util::ScopedHandle hfile(
+      CreateFile(filename.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                 OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
+  if (!hfile.IsValid())
     return false;
-  }
 
   int32 num_entries, used_count;
-  if (!ReadFileHeader(file_closer.get(), &num_entries, &used_count, salt_))
+  if (!ReadFileHeader(hfile, &num_entries, &used_count, salt_))
     return false;  // Header isn't valid.
 
   // Allocate and read the table.
   if (!CreateURLTable(num_entries, false))
     return false;
-  if (!ReadFromFile(file_closer.get(), kFileHeaderSize,
+  if (!ReadFromFile(hfile, kFileHeaderSize,
                     hash_table_, num_entries * sizeof(Fingerprint))) {
     FreeURLTable();
     return false;
   }
   used_items_ = used_count;
 
-  file_ = file_closer.release();
+  file_ = hfile.Take();
   return true;
 }
 
@@ -628,27 +609,20 @@ bool VisitedLinkMaster::InitFromScratch(bool suppress_rebuild) {
   return RebuildTableFromHistory();
 }
 
-bool VisitedLinkMaster::ReadFileHeader(FILE* file,
+bool VisitedLinkMaster::ReadFileHeader(HANDLE hfile,
                                        int32* num_entries,
                                        int32* used_count,
                                        uint8 salt[LINK_SALT_LENGTH]) {
-  // Get file size.
-  // Note that there is no need to seek back to the original location in the
-  // file since ReadFromFile() [which is the next call accessing the file]
-  // seeks before reading.
-  if (fseek(file, 0, SEEK_END) == -1)
-    return false;
-  size_t file_size = ftell(file);
-
+  int32 file_size = GetFileSize(hfile, NULL);
   if (file_size <= kFileHeaderSize)
     return false;
 
   uint8 header[kFileHeaderSize];
-  if (!ReadFromFile(file, 0, &header, kFileHeaderSize))
+  if (!ReadFromFile(hfile, 0, &header, kFileHeaderSize))
     return false;
 
   // Verify the signature.
-  int32 signature;
+  uint32 signature;
   memcpy(&signature, &header[kFileHeaderSignatureOffset], sizeof(signature));
   if (signature != kFileSignature)
     return false;
@@ -678,7 +652,7 @@ bool VisitedLinkMaster::ReadFileHeader(FILE* file,
   return true;
 }
 
-bool VisitedLinkMaster::GetDatabaseFileName(FilePath* filename) {
+bool VisitedLinkMaster::GetDatabaseFileName(std::wstring* filename) {
   if (!database_name_override_.empty()) {
     // use this filename, the directory must exist
     *filename = database_name_override_;
@@ -688,8 +662,8 @@ bool VisitedLinkMaster::GetDatabaseFileName(FilePath* filename) {
   if (!profile_ || profile_->GetPath().empty())
     return false;
 
-  FilePath profile_dir = FilePath::FromWStringHack(profile_->GetPath());
-  *filename = profile_dir.Append(FILE_PATH_LITERAL("Visited Links"));
+  *filename = profile_->GetPath();
+  filename->append(L"\\Visited Links");
   return true;
 }
 
@@ -761,7 +735,7 @@ void VisitedLinkMaster::FreeURLTable() {
       AsyncCloseHandle* closer = new AsyncCloseHandle(file_);
       file_thread_->PostTask(FROM_HERE, closer);
     } else {
-      fclose(file_);
+      CloseHandle(file_);
     }
   }
 }
@@ -778,8 +752,7 @@ bool VisitedLinkMaster::ResizeTableIfNecessary() {
 
   float load = ComputeTableLoad();
   if (load < max_table_load &&
-      (table_length_ <= static_cast<float>(kDefaultTableSize) ||
-       load > min_table_load))
+      (table_length_ <= kDefaultTableSize || load > min_table_load))
     return false;
 
   // Table needs to grow or shrink.
@@ -850,7 +823,7 @@ uint32 VisitedLinkMaster::NewTableSizeForCount(int32 item_count) const {
   int desired = item_count * 3;
 
   // Find the closest prime.
-  for (size_t i = 0; i < arraysize(table_sizes); i ++) {
+  for (int i = 0; i < arraysize(table_sizes); i ++) {
     if (table_sizes[i] > desired)
       return table_sizes[i];
   }
@@ -935,8 +908,8 @@ void VisitedLinkMaster::OnTableRebuildComplete(
   }
 }
 
-void VisitedLinkMaster::WriteToFile(FILE* file,
-                                    off_t offset,
+void VisitedLinkMaster::WriteToFile(HANDLE hfile,
+                                    int32 offset,
                                     void* data,
                                     int32 data_size) {
 #ifndef NDEBUG
@@ -945,12 +918,12 @@ void VisitedLinkMaster::WriteToFile(FILE* file,
 
   if (file_thread_) {
     // Send the write to the other thread for execution to avoid blocking.
-    AsyncWriter* writer = new AsyncWriter(file, offset, data, data_size);
+    AsyncWriter* writer = new AsyncWriter(hfile, offset, data, data_size);
     file_thread_->PostTask(FROM_HERE, writer);
   } else {
     // When there is no I/O thread, we are probably running in unit test mode,
     // just do the write synchronously.
-    AsyncWriter::WriteToFile(file, offset, data, data_size);
+    AsyncWriter::WriteToFile(hfile, offset, data, data_size);
   }
 }
 
@@ -976,20 +949,21 @@ void VisitedLinkMaster::WriteHashRangeToFile(Hash first_hash, Hash last_hash) {
   }
 }
 
-bool VisitedLinkMaster::ReadFromFile(FILE* file,
-                                     off_t offset,
+bool VisitedLinkMaster::ReadFromFile(HANDLE hfile,
+                                     int32 offset,
                                      void* data,
-                                     size_t data_size) {
+                                     int32 data_size) {
 #ifndef NDEBUG
   // Since this function is synchronous, we require that no asynchronous
   // operations could possibly be pending.
   DCHECK(!posted_asynchronous_operation_);
 #endif
 
-  fseek(file, offset, SEEK_SET);
+  SetFilePointer(hfile, offset, NULL, FILE_BEGIN);
 
-  size_t num_read = fread(data, 1, data_size, file);
-  return num_read == data_size;
+  DWORD num_read;
+  return ReadFile(hfile, data, data_size, &num_read, NULL) &&
+         num_read == data_size;
 }
 
 // VisitedLinkTableBuilder ----------------------------------------------------
@@ -998,8 +972,8 @@ VisitedLinkMaster::TableBuilder::TableBuilder(
     VisitedLinkMaster* master,
     const uint8 salt[LINK_SALT_LENGTH])
     : master_(master),
-      main_message_loop_(MessageLoop::current()),
-      success_(true) {
+      success_(true),
+      main_message_loop_(MessageLoop::current()) {
   fingerprints_.reserve(4096);
   memcpy(salt_, salt, sizeof(salt));
 }

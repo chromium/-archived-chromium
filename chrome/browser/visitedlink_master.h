@@ -5,22 +5,13 @@
 #ifndef CHROME_BROWSER_VISITEDLINK_MASTER_H__
 #define CHROME_BROWSER_VISITEDLINK_MASTER_H__
 
-#if defined(OS_WIN)
-#include <windows.h>
-#endif
 #include <set>
 #include <string>
 #include <vector>
 
-#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
-#if defined(OS_WIN)
 #include "chrome/browser/history/history.h"
-#else
-// TODO(port): remove scaffolding, use history.h for both POSIX and WIN.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif  // !defined(OS_WIN)
 #include "chrome/common/visitedlink_common.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -62,7 +53,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
                     PostNewTableEvent* poster,
                     HistoryService* history_service,
                     bool suppress_rebuild,
-                    const FilePath& filename,
+                    const std::wstring& filename,
                     int32 default_table_size);
   virtual ~VisitedLinkMaster();
 
@@ -150,7 +141,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // When the user is deleting a boatload of URLs, we don't really want to do
   // individual writes for each of them. When the count exceeds this threshold,
   // we will write the whole table to disk at once instead of individual items.
-  static const size_t kBigDeleteThreshold;
+  static const int32 kBigDeleteThreshold;
 
   // Backend for the constructors initializing the members.
   void InitMembers(base::Thread* file_thread,
@@ -180,15 +171,15 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // Returns true on success and places the size of the table in num_entries
   // and the number of nonzero fingerprints in used_count. This will fail if
   // the version of the file is not the current version of the database.
-  bool ReadFileHeader(FILE* hfile, int32* num_entries, int32* used_count,
+  bool ReadFileHeader(HANDLE hfile, int32* num_entries, int32* used_count,
                       uint8 salt[LINK_SALT_LENGTH]);
 
   // Fills *filename with the name of the link database filename
-  bool GetDatabaseFileName(FilePath* filename);
+  bool GetDatabaseFileName(std::wstring* filename);
 
   // Wrapper around Window's WriteFile using asynchronous I/O. This will proxy
   // the write to a background thread.
-  void WriteToFile(FILE* hfile, off_t offset, void* data, int32 data_size);
+  void WriteToFile(HANDLE hfile, int32 offset, void* data, int32 data_size);
 
   // Helper function to schedule and asynchronous write of the used count to
   // disk (this is a common operation).
@@ -201,7 +192,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
 
   // Synchronous read from the file. Assumes there are no pending asynchronous
   // I/O functions. Returns true if the entire buffer was successfully filled.
-  bool ReadFromFile(FILE* hfile, off_t offset, void* data, size_t data_size);
+  bool ReadFromFile(HANDLE hfile, int32 offset, void* data, int32 data_size);
 
   // General table handling
   // ----------------------
@@ -335,7 +326,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // The currently open file with the table in it. This may be NULL if we're
   // rebuilding and haven't written a new version yet. Writing to the file may
   // be safely ignored in this case.
-  FILE* file_;
+  HANDLE file_;
 
   // Shared memory consists of a SharedHeader followed by the table.
   base::SharedMemory *shared_memory_;
@@ -356,7 +347,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // in release builds that give "regular" behavior.
 
   // Overridden database file name for testing
-  FilePath database_name_override_;
+  std::wstring database_name_override_;
 
   // When nonzero, overrides the table size for new databases for testing
   int32 table_size_override_;

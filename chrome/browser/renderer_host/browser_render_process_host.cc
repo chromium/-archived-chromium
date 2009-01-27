@@ -27,22 +27,12 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
-#if defined(OS_WIN)
 #include "chrome/browser/history/history.h"
-#else
-// TODO(port): remove scaffolding, use history.h for both POSIX and WIN.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif  // !defined(OS_WIN)
-
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/resource_message_filter.h"
-#if defined(OS_MACOSX)
-// TODO(port): Enable when we finish porting spellchecker to os x.
-#else
 #include "chrome/browser/spellchecker.h"
-#endif  // !defined(OS_WIN)
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -480,17 +470,11 @@ void BrowserRenderProcessHost::WidgetHidden() {
 }
 
 void BrowserRenderProcessHost::AddWord(const std::wstring& word) {
-#if defined(OS_MACOSX)
-  // TODO(port): reimplement when we get the spell checker up and running on
-  // OS X.
-  NOTIMPLEMENTED();
-#else
   base::Thread* io_thread = g_browser_process->io_thread();
   if (profile()->GetSpellChecker()) {
     io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         profile()->GetSpellChecker(), &SpellChecker::AddWord, word));
   }
-#endif // !defined(OS_MACOSX)
 }
 
 base::ProcessHandle BrowserRenderProcessHost::GetRendererProcessHandle() {
