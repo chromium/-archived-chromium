@@ -230,6 +230,8 @@ void RenderThread::OnSetNextPageID(int32 next_page_id) {
 #endif
 }
 
+#if defined(OS_WIN)
+
 void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
                                    ModalDialogEvent modal_dialog_event,
                                    const WebPreferences& webkit_prefs,
@@ -247,6 +249,8 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
       this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
 }
+
+#endif
 
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,
