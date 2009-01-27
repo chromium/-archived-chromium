@@ -1948,9 +1948,7 @@ void AutomationProvider::GetAutocompleteEditForBrowser(
 
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
-    BrowserWindowTesting* testing_interface =
-        browser->window()->GetBrowserWindowTesting();
-    LocationBarView* loc_bar_view = testing_interface->GetLocationBarView();
+    LocationBarView* loc_bar_view = browser->GetLocationBarView();
     AutocompleteEditView* edit_view = loc_bar_view->location_entry();
     // Add() returns the existing handle for the resource if any.
     autocomplete_edit_handle = autocomplete_edit_tracker_->Add(edit_view);

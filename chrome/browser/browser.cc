@@ -8,7 +8,6 @@
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/chrome_constants.h"
@@ -276,7 +275,7 @@ void Browser::CreateBrowserWindow() {
       local_state->GetBoolean(prefs::kShouldShowFirstRunBubble)) {
     // Reset the preference so we don't show the bubble for subsequent windows.
     local_state->ClearPref(prefs::kShouldShowFirstRunBubble);
-    window_->GetLocationBar()->ShowFirstRunBubble();
+    GetLocationBarView()->ShowFirstRunBubble();
   }
 }
 
@@ -622,15 +621,18 @@ void Browser::Home() {
 #if defined(OS_WIN)
 void Browser::OpenCurrentURL() {
   UserMetrics::RecordAction(L"LoadURL", profile_);
-  LocationBar* location_bar = window_->GetLocationBar();
-  OpenURL(GURL(location_bar->GetInputString()), GURL(),
-               location_bar->GetWindowOpenDisposition(),
-               location_bar->GetPageTransition());
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    OpenURL(GURL(lbv->location_input()), GURL(), lbv->disposition(),
+            lbv->transition());
+  }
 }
 
 void Browser::Go() {
   UserMetrics::RecordAction(L"Go", profile_);
-  window_->GetLocationBar()->AcceptInput();
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv)
+    lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
 }
 #endif
 
@@ -893,13 +895,23 @@ void Browser::FocusToolbar() {
 
 void Browser::FocusLocationBar() {
   UserMetrics::RecordAction(L"FocusLocation", profile_);
-  window_->GetLocationBar()->FocusLocation();
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    AutocompleteEditView* aev = lbv->location_entry();
+    aev->SetFocus();
+    aev->SelectAll(true);
+  }
 }
 
 void Browser::FocusSearch() {
   // TODO(beng): replace this with FocusLocationBar
   UserMetrics::RecordAction(L"FocusSearch", profile_);
-  window_->GetLocationBar()->FocusSearch();
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    AutocompleteEditView* aev = lbv->location_entry();
+    aev->SetUserText(L"?");
+    aev->SetFocus();
+  }
 }
 
 void Browser::OpenFile() {
@@ -1458,10 +1470,12 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   if (!chrome_updater_factory_.empty() && old_contents)
     ProcessPendingUIUpdates();
 
+  LocationBarView* location_bar = GetLocationBarView();
   if (old_contents) {
     // Save what the user's currently typing, so it can be restored when we
     // switch back to this tab.
-    window_->GetLocationBar()->SaveStateToContents(old_contents);
+    if (location_bar)
+      location_bar->location_entry()->SaveStateToTab(old_contents);
   }
 
   // Propagate the profile to the location bar.
@@ -2254,6 +2268,10 @@ void Browser::RemoveScheduledUpdatesFor(TabContents* contents) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Getters for UI (private):
+
+LocationBarView* Browser::GetLocationBarView() const {
+  return window_->GetLocationBarView();
+}
 
 StatusBubble* Browser::GetStatusBubble() {
   return window_->GetStatusBubble();

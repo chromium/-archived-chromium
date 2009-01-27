@@ -876,6 +876,13 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
       bounds);
 }
 
+void LocationBarView::ShowFirstRunBubble() {
+  // We wait 30 milliseconds to open. It allows less flicker.
+  Task* task = first_run_bubble_.NewRunnableMethod(
+      &LocationBarView::ShowFirstRunBubbleInternal);
+  MessageLoop::current()->PostDelayedTask(FROM_HERE, task, 30);
+}
+
 // SecurityImageView------------------------------------------------------------
 
 // static
@@ -998,42 +1005,3 @@ bool LocationBarView::OverrideAccelerator(
   return location_entry_->OverrideAccelerator(accelerator);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// LocationBarView, LocationBar implementation:
-
-void LocationBarView::ShowFirstRunBubble() {
-  // We wait 30 milliseconds to open. It allows less flicker.
-  Task* task = first_run_bubble_.NewRunnableMethod(
-      &LocationBarView::ShowFirstRunBubbleInternal);
-  MessageLoop::current()->PostDelayedTask(FROM_HERE, task, 30);
-}
-
-std::wstring LocationBarView::GetInputString() const {
-  return location_input_;
-}
-
-WindowOpenDisposition LocationBarView::GetWindowOpenDisposition() const {
-  return disposition_;
-}
-
-PageTransition::Type LocationBarView::GetPageTransition() const {
-  return transition_;
-}
-
-void LocationBarView::AcceptInput() {
-  location_entry_->model()->AcceptInput(CURRENT_TAB, false);
-}
-
-void LocationBarView::FocusLocation() {
-  location_entry_->SetFocus();
-  location_entry_->SelectAll(true);
-}
-
-void LocationBarView::FocusSearch() {
-  location_entry_->SetUserText(L"?");
-  location_entry_->SetFocus();
-}
-
-void LocationBarView::SaveStateToContents(TabContents* contents) {
-  location_entry_->SaveStateToTab(contents);
-}

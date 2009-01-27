@@ -9,7 +9,6 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
-#include "chrome/browser/location_bar.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/info_bubble.h"
@@ -31,10 +30,10 @@ class Profile;
 //   of the URL bar strip and contains its content.
 //
 /////////////////////////////////////////////////////////////////////////////
-class LocationBarView : public LocationBar,
-                        public views::View,
+class LocationBarView : public views::View,
                         public AutocompleteEditController {
  public:
+
   class Delegate {
    public:
     // Should return the current tab contents.
@@ -108,18 +107,24 @@ class LocationBarView : public LocationBar,
     return location_entry_.get();
   }
 
-  // Overridden from views::View:
-  virtual bool OverrideAccelerator(const views::Accelerator& accelerator);
+  std::wstring location_input() {
+    return location_input_;
+  }
 
-  // Overridden from LocationBar:
-  virtual void ShowFirstRunBubble();
-  virtual std::wstring GetInputString() const;
-  virtual WindowOpenDisposition GetWindowOpenDisposition() const;
-  virtual PageTransition::Type GetPageTransition() const;
-  virtual void AcceptInput();
-  virtual void FocusLocation();
-  virtual void FocusSearch();
-  virtual void SaveStateToContents(TabContents* contents);
+  WindowOpenDisposition disposition() {
+    return disposition_;
+  }
+
+  PageTransition::Type transition() {
+    return transition_;
+  }
+
+  // Shows a info bubble that tells the user what the omnibox is and allows
+  // to change the search providers.
+  void ShowFirstRunBubble();
+
+  // Overridden from View.
+  virtual bool OverrideAccelerator(const views::Accelerator& accelerator);
 
   static const int kTextVertMargin;
   static const COLORREF kBackgroundColorByLevel[];

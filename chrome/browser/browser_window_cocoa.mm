@@ -81,7 +81,11 @@ bool BrowserWindowCocoa::IsMaximized() {
   return [window_ isZoomed];
 }
 
-LocationBar* BrowserWindowCocoa::GetLocationBar() const {
+LocationBarView* BrowserWindowCocoa::GetLocationBarView() const {
+  return NULL;
+}
+
+BookmarkBarView* BrowserWindowCocoa::GetBookmarkBarView() {
   return NULL;
 }
 
