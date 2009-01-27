@@ -1727,13 +1727,12 @@ LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
 LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
 
-// These 3 never worked on Linux, but were in the past incorrectly rebaselined.
-// Text gradient fills/strokes not working.
-LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
+// This never worked on Linux, but were in the past incorrectly rebaselined.
 // Text pattern fills/strokes not working.
 LINUX : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
-// Text stroke partially missing.
-LINUX : LayoutTests/svg/custom/struct-use-09-b.svg = FAIL
+
+// might need to be rebaselined in win, 'DRAFT' rendering incorrect before
+WIN : LayoutTests/svg/custom/struct-use-09-b.svg = FAIL
 
 // Merge 39913:39933 - regressions
 // See http://crbug.com/6482
@@ -1750,9 +1749,6 @@ LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
 
 // Merge 40059:40086 -- regressions
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
-// These two appear to have been failing before the merge.
-LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
-LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 
 // TestShell change to dump() on notifyDone http://codereview.chromium.org/18440
 WIN : LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
