@@ -1785,7 +1785,3 @@ LINUX : LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
 
 // intermittent failures on the buildbot
 LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
-
-// URL canonicalization is different
-// TODO(mmoss) - fixed on Linux but needs more Mac love.
-MAC : LayoutTests/fast/loader/url-parse-1.html = FAIL
