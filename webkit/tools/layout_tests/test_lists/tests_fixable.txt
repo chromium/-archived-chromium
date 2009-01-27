@@ -498,7 +498,7 @@ LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
-// 2008/12/13 - This was FAIL but is now CRASH on WIN
+// 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 // Flaky on both release and debug.
