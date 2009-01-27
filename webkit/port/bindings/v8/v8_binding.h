@@ -8,7 +8,6 @@
 #include "config.h"
 
 #include "CString.h"
-#include "KURL.h"
 #include "MathExtras.h"
 #include "PlatformString.h"
 #include "StringBuffer.h"
@@ -120,10 +119,6 @@ inline int ToInt32(v8::Handle<v8::Value> value) {
 
 inline String ToString(const String& string) {
   return string;
-}
-
-inline String ToString(const KURL& url) {
-  return url.string();
 }
 
 // If a WebCore string length is greater than the threshold,
