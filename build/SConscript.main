@@ -516,6 +516,11 @@ linux_env.Append(
 # Build an "official" build (DCHECKs completely compiled out, etc).
 if ARGUMENTS.get('OFFICIAL') == '1':
   linux_env.Append(CPPDEFINES=['OFFICIAL_BUILD'])
+  # Make sure units of code and data go in their own section, and then GC them
+  # in the linker to remove unreferenced data and code.  Currently gold doesn't
+  # support --gc-sections, so you'll have to build with the original GNU ld.
+  linux_env.Append(CCFLAGS_OPTIMIZED=['-ffunction-sections', '-fdata-sections'])
+  linux_env.Append(LINKFLAGS_OPTIMIZED=['-Wl,--gc-sections'])
 
 # Build with support for gcov when COVERAGE=1.
 if ARGUMENTS.get('COVERAGE') == '1':
@@ -528,12 +533,8 @@ if ARGUMENTS.get('PROFILE') == '1':
   linux_env.Append(LINKFLAGS=['-pg'])
 
 # Build with symbols (useful for opt builds, for example) when SYMBOLS=1.
-# Otherwise if we're building release, strip all symbols from our output.
 if ARGUMENTS.get('SYMBOLS') == '1':
   linux_env.Append(CCFLAGS=['-g'])
-else:
-  linux_env.Append(CCFLAGS_OPTIMIZED=['-ffunction-sections', '-fdata-sections'])
-  linux_env.Append(LINKFLAGS_OPTIMIZED=['-Wl,--gc-sections', '-s'])
 
 # Build shared libraries (useful for fast links) when SHARED=1.
 if ARGUMENTS.get('SHARED') == '1':
