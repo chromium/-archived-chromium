@@ -34,8 +34,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void SetStarredState(bool is_starred) {}
   virtual gfx::Rect GetNormalBounds() const { return gfx::Rect(); }
   virtual bool IsMaximized() { return false; }
-  virtual LocationBarView* GetLocationBarView() const { return NULL; }
-  virtual BookmarkBarView* GetBookmarkBarView() { return NULL; }
+  virtual LocationBar* GetLocationBar() const { return NULL; }
   virtual void UpdateStopGoState(bool is_loading) {}
   virtual void UpdateToolbar(TabContents* contents,
                              bool should_restore_state) {}

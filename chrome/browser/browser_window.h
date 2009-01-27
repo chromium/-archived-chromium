@@ -5,13 +5,11 @@
 #ifndef CHROME_BROWSER_BROWSER_WINDOW_H_
 #define CHROME_BROWSER_BROWSER_WINDOW_H_
 
-class BookmarkBarView;
 class Browser;
 class BrowserList;
-class BrowserView;
 class BrowserWindowTesting;
 class GURL;
-class LocationBarView;
+class LocationBar;
 class HtmlDialogContentsDelegate;
 class Profile;
 class StatusBubble;
@@ -25,7 +23,7 @@ class Rect;
 // BrowserWindow interface
 //  An interface implemented by the "view" of the Browser window.
 //
-// NOTE: all getters, save GetTabStrip(), may return NULL.
+// NOTE: All getters except GetTabStrip() may return NULL.
 class BrowserWindow {
  public:
   // Initialize the frame.
@@ -89,7 +87,7 @@ class BrowserWindow {
   virtual bool IsMaximized() = 0;
 
   // Returns the location bar.
-  virtual LocationBarView* GetLocationBarView() const = 0;
+  virtual LocationBar* GetLocationBar() const = 0;
 
   // Informs the view whether or not a load is in progress for the current tab.
   // The view can use this notification to update the go/stop button.
@@ -157,13 +155,19 @@ class BrowserWindow {
   virtual void DestroyBrowser() = 0;
 };
 
+class BookmarkBarView;
+class LocationBarView;
+
 // A BrowserWindow utility interface used for accessing elements of the browser
 // UI used only by UI test automation.
 class BrowserWindowTesting {
-public:
+ public:
 #if defined(OS_WIN)
-  // Returns the Bookmark Bar view.
+  // Returns the BookmarkBarView.
   virtual BookmarkBarView* GetBookmarkBarView() = 0;
+
+  // Returns the LocationBarView.
+  virtual LocationBarView* GetLocationBarView() const = 0;
 #endif
 };
 

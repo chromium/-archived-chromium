@@ -734,6 +734,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\location_bar.h"
+				>
+			</File>
+			<File
 				RelativePath=".\login_prompt.cc"
 				>
 			</File>

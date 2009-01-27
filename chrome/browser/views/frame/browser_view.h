@@ -162,8 +162,7 @@ class BrowserView : public BrowserWindow,
   virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized();
-  virtual LocationBarView* GetLocationBarView() const;
-  virtual BrowserView* GetBrowserView() const;
+  virtual LocationBar* GetLocationBar() const;
   virtual void UpdateStopGoState(bool is_loading);
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();
@@ -186,6 +185,7 @@ class BrowserView : public BrowserWindow,
 
   // Overridden from BrowserWindowTesting:
   virtual BookmarkBarView* GetBookmarkBarView();
+  virtual LocationBarView* GetLocationBarView() const;
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
