@@ -3,11 +3,27 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Google Chrome Terms of Service</title>
+<link rel="icon" type="image/ico" href="/tools/dlpage/res/chrome/images/chrome-16.png"><title>Google Chrome Terms of Service</title>
 <style>
 body { font-family:Arial; font-size:13px; text-align:right; }
 </style>
-</head>
+<script type="text/javascript">
+function carry_tracking(obj) {
+    var s = '(\\?.*)';
+    var regex = new RegExp(s);
+    var results = regex.exec(window.location.href);
+	if (results != null) {
+		obj.href = obj.href + results[1];
+	} else {
+		s2 = 'intl/([^/]*)';
+		regex2 = new RegExp(s2);
+		results2 = regex2.exec(window.location.href);
+		if (results2 != null) {
+			obj.href = obj.href + '?hl=' + results2[1];
+		}
+	}
+}
+</script></head>
 
 <body>
 <h3>بنود الخدمة الخاصة بـ Google Chrome</h3>
@@ -239,3 +255,4 @@ body { font-family:Arial; font-size:13px; text-align:right; }
 <p>15 آب (أغسطس)، 2008</p>
 </body>
 </html>
+

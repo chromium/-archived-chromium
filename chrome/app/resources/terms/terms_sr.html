@@ -3,11 +3,27 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Google Chrome услови коришћења услуге</title>
+<link rel="icon" type="image/ico" href="/tools/dlpage/res/chrome/images/chrome-16.png"><title>Google Chrome услови коришћења услуге</title>
 <style>
 body { font-family:Arial; font-size:13px; }
 </style>
-</head>
+<script type="text/javascript">
+function carry_tracking(obj) {
+    var s = '(\\?.*)';
+    var regex = new RegExp(s);
+    var results = regex.exec(window.location.href);
+	if (results != null) {
+		obj.href = obj.href + results[1];
+	} else {
+		s2 = 'intl/([^/]*)';
+		regex2 = new RegExp(s2);
+		results2 = regex2.exec(window.location.href);
+		if (results2 != null) {
+			obj.href = obj.href + '?hl=' + results2[1];
+		}
+	}
+}
+</script></head>
 
 <body>
 <h2>Google Chrome услови коришћења услуге</h2>

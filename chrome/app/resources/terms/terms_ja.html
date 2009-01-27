@@ -1,13 +1,30 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Google Chrome 利用規約</title>
+<link rel="icon" type="image/ico" href="/tools/dlpage/res/chrome/images/chrome-16.png"><title>Google Chrome 利用規約</title>
 <style>
 body { font-family:Arial; font-size:13px; }
 </style>
-</head>
+<script type="text/javascript">
+function carry_tracking(obj) {
+    var s = '(\\?.*)';
+    var regex = new RegExp(s);
+    var results = regex.exec(window.location.href);
+	if (results != null) {
+		obj.href = obj.href + results[1];
+	} else {
+		s2 = 'intl/([^/]*)';
+		regex2 = new RegExp(s2);
+		results2 = regex2.exec(window.location.href);
+		if (results2 != null) {
+			obj.href = obj.href + '?hl=' + results2[1];
+		}
+	}
+}
+</script></head>
+
 <body>
 <h2>Google Chrome 利用規約</h2>
 <p>本利用規約は、実行コード バージョンの Google Chromeに適用されます。Google Chrome のソース コードは、http://code.google.com/chromium/terms.html のオープン ソース ソフトウェア ライセンスに基づき、無料でご利用いただけます。</p>
@@ -115,4 +132,3 @@ body { font-family:Arial; font-size:13px; }
 <p>2008年12月___日</p>
 </body>
 </html>
-

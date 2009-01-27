@@ -3,11 +3,27 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Google Chrome Terms of Service</title>
+<link rel="icon" type="image/ico" href="/tools/dlpage/res/chrome/images/chrome-16.png"><title>Google Chrome Terms of Service</title>
 <style>
 body { font-family:Arial; font-size:13px; }
 </style>
-</head>
+<script type="text/javascript">
+function carry_tracking(obj) {
+    var s = '(\\?.*)';
+    var regex = new RegExp(s);
+    var results = regex.exec(window.location.href);
+	if (results != null) {
+		obj.href = obj.href + results[1];
+	} else {
+		s2 = 'intl/([^/]*)';
+		regex2 = new RegExp(s2);
+		results2 = regex2.exec(window.location.href);
+		if (results2 != null) {
+			obj.href = obj.href + '?hl=' + results2[1];
+		}
+	}
+}
+</script></head>
 
 <body>
 <h2>Google Chrome Terms of Service</h2>
@@ -113,6 +129,6 @@ body { font-family:Arial; font-size:13px; }
 <p>19.5 If any court of law, having the jurisdiction to decide on this matter, rules that any provision of these Terms is invalid, then that provision will be removed from the Terms without affecting the rest of the Terms. The remaining provisions of the Terms will continue to be valid and enforceable.</p>
 <p>19.6 You acknowledge and agree that each member of the group of companies of which Google is the parent shall be third party beneficiaries to the Terms and that such other companies shall be entitled to directly enforce, and rely upon, any provision of the Terms which confers a benefit on (or rights in favor of) them. Other than this, no other person or company shall be third party beneficiaries to the Terms.</p>
 <p>19.7 The Terms, and your relationship with Google under the Terms, shall be governed by the laws of the State of California without regard to its conflict of laws provisions. You and Google agree to submit to the exclusive jurisdiction of the courts located within the county of Santa Clara, California to resolve any legal matter arising from the Terms. Notwithstanding this, you agree that Google shall still be allowed to apply for injunctive remedies (or an equivalent type of urgent legal relief) in any jurisdiction.</p>
-<p>December ___, 2008</p>
+<p>December 16, 2008</p>
 </body>
 </html>
