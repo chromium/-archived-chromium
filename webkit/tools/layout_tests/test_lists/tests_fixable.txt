@@ -334,9 +334,6 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 // rebaseline on other platforms as well.
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
-LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
@@ -1801,8 +1798,10 @@ LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 WIN LINUX : LayoutTests/css1/box_properties/float.html = FAIL
 WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL
 LINUX : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH
 WIN LINUX : LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
 // TODO(tc): Rebaseline on linux
 LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+
+// intermittent failures on the buildbot
+LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
