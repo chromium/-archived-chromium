@@ -12,6 +12,7 @@ env = env.Clone()
 
 env.ApplySConscript([
     '$ICU38_DIR/using_icu38.scons',
+    '$LIBJPEG_DIR/using_libjpeg.scons',
     '$LIBPNG_DIR/using_libpng.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
@@ -25,6 +26,8 @@ if env.Bit('windows'):
   )
 
 input_files = ChromeFileList([
+    'jpeg_codec.cc',
+    'jpeg_codec.h',
     'gdi_util.cc',
     'gdi_util.h',
     'native_theme.cc',

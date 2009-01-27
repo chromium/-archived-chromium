@@ -438,14 +438,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\jpeg_codec.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\jpeg_codec.h"
-			>
-		</File>
-		<File
 			RelativePath=".\json_value_serializer.cc"
 			>
 		</File>

@@ -122,6 +122,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\gfx\jpeg_codec.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\jpeg_codec.h"
+			>
+		</File>
+		<File
 			RelativePath="..\gfx\gdi_util.cc"
 			>
 		</File>

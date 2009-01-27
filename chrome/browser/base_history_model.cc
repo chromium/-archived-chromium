@@ -4,10 +4,10 @@
 
 #include "chrome/browser/base_history_model.h"
 
+#include "base/gfx/jpeg_codec.h"
 #include "base/gfx/png_decoder.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/jpeg_codec.h"
 #include "chrome/common/resource_bundle.h"
 #include "SkBitmap.h"
 

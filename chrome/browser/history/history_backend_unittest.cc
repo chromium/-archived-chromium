@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
+#include "base/gfx/jpeg_codec.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/in_memory_database.h"
-#include "chrome/common/jpeg_codec.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/tools/profiles/thumbnail-inl.h"
 #include "googleurl/src/gurl.h"
