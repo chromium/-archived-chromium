@@ -771,6 +771,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\renderer\render_thread_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\renderer\render_view_unittest.cc"
 				>
 			</File>
