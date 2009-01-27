@@ -1392,18 +1392,18 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
 // window.open crashes (some of these are flaky, in that they don't always
 // crash, and are noted as such)
-MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = CRASH TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS CRASH TIMEOUT
+MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
-MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH FAIL TIMEOUT
-MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/fast/history/history_reload.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = CRASH TIMEOUT FAIL
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = CRASH PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS CRASH TIMEOUT
+MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT
+MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT
+MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT
+MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
 //  no html tags, bad html (unmatched tags)

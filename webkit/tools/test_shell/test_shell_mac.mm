@@ -137,8 +137,15 @@ void TestShell::PlatformCleanUp() {
 void TestShell::DestroyAssociatedShell(gfx::NativeWindow handle) {
   WindowMap::iterator it = window_map_.Get().find(handle);
   if (it != window_map_.Get().end()) {
+    // Break the view's association with its shell before deleting the shell.
+    TestShellWebView* web_view =
+      static_cast<TestShellWebView*>(it->second->m_webViewHost->view_handle());
+    if ([web_view isKindOfClass:[TestShellWebView class]]) {
+      [web_view setShell:NULL];
+    }
+
     delete it->second;
-    window_map_.Get().erase(handle);
+    window_map_.Get().erase(it);
   } else {
     LOG(ERROR) << "Failed to find shell for window during destroy";
   }
