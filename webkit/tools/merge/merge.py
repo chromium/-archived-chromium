@@ -70,8 +70,9 @@ class Merger(object):
       command.append("--use-%s" % self._diff3_tool)
     print ' '.join(command)
     if not self._is_dry_run:
-      #TODO(ojan): Check return code here.
-      subprocess.call(command, cwd=self._webkit_root, shell=True)
+      returncode = subprocess.call(command, cwd=self._webkit_root, shell=True)
+      if returncode != 0:
+        raise "Are you sure you're running SVN 1.5?  svn --version to check"
 
 def GetCurrentRepositoryAndRevision(webkit_merge_revision_path):
   """ Gets the repository and revision we're currently merged to according to
@@ -129,8 +130,9 @@ def Sync(is_dry_run):
   if is_dry_run:
     print ' '.join(sync_command)
   else:
-    #TODO(ojan): Check return code here.
-    subprocess.call(sync_command, shell=True)
+    returncode = subprocess.call(sync_command, shell=True)
+    if returncode != 0:
+      raise "gclient sync failed, go beat darin with a squishy bat."
 
 def main(options, args):
   """ Does the merge and updates WEBKIT_MERGE_REVISION.
