@@ -53,11 +53,8 @@ static const int kInnerPadding = 3;
 
 static const SkBitmap* kBackground = NULL;
 
-static const SkBitmap* kPopupBackgroundLeft = NULL;
-static const SkBitmap* kPopupBackgroundCenter = NULL;
-static const SkBitmap* kPopupBackgroundRight = NULL;
+static const SkBitmap* kPopupBackground = NULL;
 static const int kPopupBackgroundVertMargin = 2;
-static const int kPopupBackgroundHorzMargin = 2;
 
 // The delay the mouse has to be hovering over the lock/warning icon before the
 // info bubble is shown.
@@ -101,12 +98,7 @@ LocationBarView::LocationBarView(Profile* profile,
   if (!kBackground) {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     kBackground = rb.GetBitmapNamed(IDR_LOCATIONBG);
-    kPopupBackgroundLeft =
-      rb.GetBitmapNamed(IDR_LOCATIONBG_POPUPMODE_LEFT);
-    kPopupBackgroundCenter =
-      rb.GetBitmapNamed(IDR_LOCATIONBG_POPUPMODE_CENTER);
-    kPopupBackgroundRight =
-      rb.GetBitmapNamed(IDR_LOCATIONBG_POPUPMODE_RIGHT);
+    kPopupBackground = rb.GetBitmapNamed(IDR_LOCATIONBG_POPUPMODE_CENTER);
   }
 }
 
@@ -205,12 +197,9 @@ void LocationBarView::SetProfile(Profile* profile) {
 }
 
 gfx::Size LocationBarView::GetPreferredSize() {
-  return gfx::Size(
-      0, 
-      std::max(
-          (popup_window_mode_ ? kPopupBackgroundCenter
-                              : kBackground)->height(),
-          security_image_view_.GetPreferredSize().width()));
+  return gfx::Size(0,
+      std::max((popup_window_mode_ ? kPopupBackground : kBackground)->height(),
+               security_image_view_.GetPreferredSize().height()));
 }
 
 void LocationBarView::Layout() {
@@ -225,35 +214,18 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
       GetGValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]),
       GetBValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]));
 
-  if (popup_window_mode_ == false) {
+  if (popup_window_mode_) {
+    canvas->TileImageInt(*kPopupBackground, 0, 0, width(),
+                         kPopupBackground->height());
+    canvas->FillRectInt(bg, 0, kPopupBackgroundVertMargin, width(),
+        kPopupBackground->height() - (kPopupBackgroundVertMargin * 2));
+  } else {
     int bh = kBackground->height();
-
     canvas->TileImageInt(*kBackground, 0, (height() - bh) / 2, width(),
                          bh);
-
     canvas->FillRectInt(bg, kBackgroundHoriMargin, kBackgroundVertMargin,
                         width() - 2 * kBackgroundHoriMargin,
                         bh - kBackgroundVertMargin * 2);
-  } else {
-    canvas->TileImageInt(*kPopupBackgroundLeft, 0, 0,
-                         kPopupBackgroundLeft->width(),
-                         kPopupBackgroundLeft->height());
-    canvas->TileImageInt(*kPopupBackgroundCenter,
-                         kPopupBackgroundLeft->width(), 0,
-                         width() -
-                            kPopupBackgroundLeft->width() -
-                            kPopupBackgroundRight->width(),
-                         kPopupBackgroundCenter->height());
-    canvas->TileImageInt(*kPopupBackgroundRight,
-                         width() - kPopupBackgroundRight->width(),
-                         0, kPopupBackgroundRight->width(),
-                         kPopupBackgroundRight->height());
-
-    canvas->FillRectInt(bg, kPopupBackgroundHorzMargin,
-                        kPopupBackgroundVertMargin,
-                        width() - kPopupBackgroundHorzMargin * 2,
-                        kPopupBackgroundCenter->height() -
-                        kPopupBackgroundVertMargin * 2);
   }
 }
 
@@ -392,8 +364,8 @@ void LocationBarView::DoLayout(const bool force_layout) {
     return;
 
   // TODO(sky): baseline layout.
-  const SkBitmap* background = popup_window_mode_ ? kPopupBackgroundCenter
-                                                  : kBackground;
+  const SkBitmap* background =
+      popup_window_mode_ ? kPopupBackground : kBackground;
   int bh = background->height();
   int location_y = ((height() - bh) / 2) + kTextVertMargin;
   int location_height = bh - (2 * kTextVertMargin);

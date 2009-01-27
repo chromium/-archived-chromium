@@ -63,6 +63,10 @@ enum {
   FRAME_CLIENT_EDGE_BOTTOM_LEFT,
   FRAME_CLIENT_EDGE_LEFT,
 
+  // Popup-mode toolbar edges.
+  FRAME_TOOLBAR_POPUP_EDGE_LEFT,
+  FRAME_TOOLBAR_POPUP_EDGE_RIGHT,
+
   FRAME_PART_BITMAP_COUNT  // Must be last.
 };
 
@@ -98,6 +102,7 @@ class ActiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
         0
       };
 
@@ -149,6 +154,7 @@ class InactiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
         0
       };
 
@@ -200,6 +206,7 @@ class OTRActiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
         0
       };
 
@@ -251,6 +258,7 @@ class OTRInactiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
         0
       };
 
@@ -861,28 +869,30 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
-  if (!browser_view_->IsToolbarVisible() ||
-      !browser_view_->IsToolbarDisplayModeNormal())
+  if (!browser_view_->IsToolbarVisible())
     return;
-
+  
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
   gfx::Point toolbar_origin(toolbar_bounds.origin());
   View::ConvertPointToView(frame_->client_view(), this, &toolbar_origin);
   toolbar_bounds.set_origin(toolbar_origin);
 
-  SkBitmap* toolbar_left =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
+  bool normal_mode = browser_view_->IsToolbarDisplayModeNormal();
+  SkBitmap* toolbar_left = resources()->GetPartBitmap(normal_mode ?
+      FRAME_CLIENT_EDGE_TOP_LEFT : FRAME_TOOLBAR_POPUP_EDGE_LEFT);
   canvas->DrawBitmapInt(*toolbar_left,
                         toolbar_bounds.x() - toolbar_left->width(),
                         toolbar_bounds.y());
 
-  SkBitmap* toolbar_center =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
-  canvas->TileImageInt(*toolbar_center, toolbar_bounds.x(), toolbar_bounds.y(),
-                       toolbar_bounds.width(), toolbar_center->height());
+  if (normal_mode) {
+    SkBitmap* toolbar_center =
+        resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
+    canvas->TileImageInt(*toolbar_center, toolbar_bounds.x(),
+        toolbar_bounds.y(), toolbar_bounds.width(), toolbar_center->height());
+  }
 
-  canvas->DrawBitmapInt(
-      *resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT),
+  canvas->DrawBitmapInt(*resources()->GetPartBitmap(normal_mode ?
+      FRAME_CLIENT_EDGE_TOP_RIGHT : FRAME_TOOLBAR_POPUP_EDGE_RIGHT),
       toolbar_bounds.right(), toolbar_bounds.y());
 }
 
