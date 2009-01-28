@@ -9,6 +9,10 @@ class PrefService;
 
 namespace browser_shutdown {
 
+// Should Shutdown() delete the ResourceBundle? This is normally true, but set
+// to false for in process unit tests.
+extern bool delete_resources_on_shutdown;
+
 enum ShutdownType {
   // an uninitialized value
   NOT_VALID = 0,

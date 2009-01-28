@@ -38,6 +38,8 @@ ShutdownType shutdown_type_ = NOT_VALID;
 int shutdown_num_processes_;
 int shutdown_num_processes_slow_;
 
+bool delete_resources_on_shutdown = true;
+
 const wchar_t* const kShutdownMsFile = L"chrome_shutdown_ms.txt";
 
 void RegisterPrefs(PrefService* local_state) {
@@ -131,7 +133,8 @@ void Shutdown() {
   // Uninstall Jank-O-Meter here after the IO thread is no longer running.
   UninstallJankometer();
 
-  ResourceBundle::CleanupSharedInstance();
+  if (delete_resources_on_shutdown)
+    ResourceBundle::CleanupSharedInstance();
 
   if (!Upgrade::IsBrowserAlreadyRunning()) {
     Upgrade::SwapNewChromeExeIfPresent();
