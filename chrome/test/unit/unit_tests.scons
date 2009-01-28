@@ -287,7 +287,6 @@ input_files = ChromeFileList([
   ]),
   MSVSFilter('test_infrastructure', [
     'chrome_test_suite.h',
-    '$CHROME_DIR/common/chrome_plugin_lib.cc',
     '$CHROME_DIR/common/ipc_test_sink.cc',
     '$CHROME_DIR/common/ipc_test_sink.h',
     '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
