@@ -89,6 +89,9 @@ class RLZTracker {
   // when it is un-installed.
   static bool ClearAllProductEvents(Product product);
 
+  // Invoked during shutdown to clean up any state created by RLZTracker.
+  static void CleanupRlz();
+
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(RLZTracker);
 };

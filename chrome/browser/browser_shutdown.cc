@@ -20,6 +20,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/rlz/rlz.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -124,6 +125,10 @@ void Shutdown() {
   }
 
   prefs->SavePersistentPrefs(g_browser_process->file_thread());
+
+  // Cleanup any statics created by RLZ. Must be done before NotificationService
+  // is destroyed.
+  RLZTracker::CleanupRlz();
 
   // The jank'o'meter requires that the browser process has been destroyed
   // before calling UninstallJankometer().
