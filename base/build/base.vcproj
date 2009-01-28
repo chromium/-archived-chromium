@@ -450,6 +450,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\keyboard_codes.h"
+			>
+		</File>
+		<File
+			RelativePath="..\keyboard_codes_win.h"
+			>
+		</File>
+		<File
 			RelativePath="..\lazy_instance.cc"
 			>
 		</File>
