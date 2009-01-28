@@ -6,7 +6,7 @@ if [ "$OSTYPE" = "cygwin" ]; then
   system_root=`cygpath "$SYSTEMROOT"`
   PATH="/usr/bin:$system_root/system32:$system_root:$system_root/system32/WBEM"
   export PATH
-  python_prog="$exec_dir/../../../third_party/python_24/python.exe"
+  python_prog="$exec_dir/../../../../third_party/python_24/python.exe"
 else
   python_prog=python
   # When not using the included python, we don't get automatic site.py paths.
