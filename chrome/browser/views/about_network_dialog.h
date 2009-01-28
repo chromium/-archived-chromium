@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_VIEWS_ABOUT_NETWORK_DIALOG_H_
 
 #include "base/singleton.h"
-#include "chrome/browser/views/logging_about_dialog.h"
 #include "chrome/views/base_button.h"
 #include "chrome/views/dialog_delegate.h"
 
@@ -15,14 +14,19 @@ class TextButton;
 class TextField;
 }  // namespace views
 
-class AboutNetworkDialog : public LoggingAboutDialog,
-                           public views::BaseButton::ButtonListener {
+class AboutNetworkDialog : public views::DialogDelegate,
+                           public views::BaseButton::ButtonListener,
+                           public views::View {
  public:
   // This dialog is a singleton. If the dialog is already opened, it won't do
   // anything, so you can just blindly call this function all you want.
   static void RunDialog();
 
   virtual ~AboutNetworkDialog();
+
+  // Appends the given string to the dialog box. This is called by the job
+  // tracker (see the .cc file) when "stuff happens."
+  void AppendText(const std::wstring& text);
 
   // Returns true if we're currently tracking network operations.
   bool tracking() const { return tracking_; }
@@ -32,16 +36,25 @@ class AboutNetworkDialog : public LoggingAboutDialog,
 
   AboutNetworkDialog();
 
-  // views::BaseButton::ButtonListener implementation.
-  virtual void ButtonPressed(views::BaseButton* button);
+  // Sets up all UI controls for the dialog.
+  void SetupControls();
 
-  // LoggingAboutDialog implementation.
-  virtual void SetupButtonColumnSet(views::ColumnSet* set);
-  virtual void AddButtonControlsToLayout(views::GridLayout* layout);
+  virtual gfx::Size GetPreferredSize();
+  virtual views::View* GetContentsView();
+  virtual int GetDialogButtons() const;
+  virtual std::wstring GetWindowTitle() const;
+  virtual void Layout();
+
+  // views::WindowDelegate (via view::DialogDelegate).
+  virtual bool CanResize() const;
+
+  // views::BaseButton::ButtonListener.
+  virtual void ButtonPressed(views::BaseButton* button);
 
   views::TextButton* track_toggle_;
   views::TextButton* show_button_;
   views::TextButton* clear_button_;
+  views::TextField* text_field_;
 
   // Set to true when we're tracking network status.
   bool tracking_;

@@ -634,14 +634,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\logging_about_dialog.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\logging_about_dialog.h"
-			>
-		</File>
-		<File
 			RelativePath=".\login_view.cc"
 			>
 		</File>
