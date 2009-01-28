@@ -5,19 +5,24 @@
 #ifndef MEDIA_BASE_MEDIA_FORMAT_H_
 #define MEDIA_BASE_MEDIA_FORMAT_H_
 
+#include <map>
+#include <string>
+
 #include "base/values.h"
 
 namespace media {
 
 // Common MIME types.
 namespace mime_type {
-extern const char kURI[];
+extern const char kURL[];
 extern const char kApplicationOctetStream[];
 extern const char kMPEGAudio[];
 extern const char kAACAudio[];
 extern const char kH264AnnexB[];
 extern const char kUncompressedAudio[];
 extern const char kUncompressedVideo[];
+extern const char kMajorTypeAudio[];
+extern const char kMajorTypeVideo[];
 }  // namespace mime_type
 
 // MediaFormat is used to describe the output of a MediaFilterInterface to
@@ -40,7 +45,7 @@ class MediaFormat {
  public:
   // Common keys.
   static const char kMimeType[];
-  static const char kURI[];
+  static const char kURL[];
   static const char kSurfaceFormat[];
   static const char kSampleRate[];
   static const char kSampleBits[];

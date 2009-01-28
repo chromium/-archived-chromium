@@ -8,10 +8,10 @@ namespace media {
 
 namespace mime_type {
 
-// Represents a URI, typically used to create a DataSourceInterface.
+// Represents a URL, typically used to create a DataSourceInterface.
 // Expected keys:
-//   kUri             String          The URI
-const char kURI[]                           = "text/x-uri";
+//   kURL             String          The URL
+const char kURL[]                           = "text/x-url";
 
 // Represents a generic byte stream, typically from a DataSourceInterface.
 // Expected keys:
@@ -44,11 +44,15 @@ const char kUncompressedAudio[]             = "audio/x-uncompressed";
 //   kHeight          Integer         Display height of the surface
 const char kUncompressedVideo[]             = "video/x-uncompressed";
 
+// Major types of media types begin with the prefix "audio/" or "video/".
+const char kMajorTypeVideo[]                = "video/";
+const char kMajorTypeAudio[]                = "audio/";
+
 }  // namespace mime_type
 
 // Common keys.
 const char MediaFormat::kMimeType[]         = "MimeType";
-const char MediaFormat::kURI[]              = "Uri";
+const char MediaFormat::kURL[]              = "URL";
 const char MediaFormat::kSurfaceFormat[]    = "SurfaceFormat";
 const char MediaFormat::kSampleRate[]       = "SampleRate";
 const char MediaFormat::kSampleBits[]       = "SampleBits";

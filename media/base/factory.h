@@ -47,7 +47,7 @@ class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
   //   bool success = Create<AudioDecoder>(media_format, &filter);
   template <class T>
   bool Create(const MediaFormat* media_format, T** filter_out) {
-    return Create(T::kFilterType, media_format,
+    return Create(T::filter_type(), media_format,
                   reinterpret_cast<MediaFilter**>(filter_out));
   }
 
@@ -77,7 +77,7 @@ class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
 //
 // You can create the filter factory like so:
 //   new TypeFilterFactory<YourFilterType>()
-template <class T>
+template <class Filter>
 class TypeFilterFactory : public FilterFactory {
  public:
   TypeFilterFactory() {}
@@ -87,9 +87,10 @@ class TypeFilterFactory : public FilterFactory {
   // Create is declared.
   virtual bool Create(FilterType filter_type, const MediaFormat* media_format,
                       MediaFilter** filter_out) {
-    T* typed_out;
-    if (T::kFilterType == filter_type && T::Create(media_format, &typed_out)) {
-      *filter_out = typed_out;
+    Filter* filter;
+    if (Filter::filter_type() == filter_type &&
+        Filter::Create(media_format, &filter)) {
+      *filter_out = filter;
       return true;
     }
     return false;

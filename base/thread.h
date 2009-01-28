@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -22,7 +22,7 @@ class Thread : PlatformThread::Delegate {
   struct Options {
     // Specifies the type of message loop that will be allocated on the thread.
     MessageLoop::Type message_loop_type;
-    
+
     // Specifies the maximum stack size that the thread is allowed to use.
     // This does not necessarily correspond to the thread's initial stack size.
     // A value of 0 indicates that the default maximum should be used.
@@ -103,6 +103,10 @@ class Thread : PlatformThread::Delegate {
 
   // The thread ID.
   PlatformThreadId thread_id() const { return thread_id_; }
+
+  // Returns true if the thread has been started, and not yet stopped.
+  // When a thread is running, the thread_id_ is non-zero.
+  bool IsRunning() const { return thread_id_ != 0; }
 
  protected:
   // Called just prior to starting the message loop

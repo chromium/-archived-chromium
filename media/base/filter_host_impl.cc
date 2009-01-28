@@ -2,70 +2,70 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/task.h"
 #include "media/base/filter_host_impl.h"
 
 namespace media {
 
-FilterHostImpl::FilterHostImpl() {
-  // TODO(ralphl): implement FilterHostImpl constructor.
-  NOTIMPLEMENTED();
+void FilterHostImpl::SetTimeUpdateCallback(
+      Callback1<base::TimeDelta>::Type* callback) {
+  time_update_callback_.reset(callback);
 }
 
-const PipelineStatus* FilterHostImpl::GetPipelineStatus() const {
-  // TODO(ralphl): implement GetPipelineStatus.
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
-void FilterHostImpl::SetTimeUpdateCallback(Callback1<int64>::Type* callback) {
-  // TODO(ralphl): implement SetTimeUpdateCallback.
-  NOTIMPLEMENTED();
+void FilterHostImpl::RunTimeUpdateCallback(base::TimeDelta time) {
+  if (time_update_callback_.get())
+    time_update_callback_->Run(time);
 }
 
 void FilterHostImpl::InitializationComplete() {
-  // TODO(ralphl): implement InitializationComplete.
-  NOTIMPLEMENTED();
+  pipeline_thread_->InitializationComplete(this);
 }
 
 void FilterHostImpl::PostTask(Task* task) {
-  // TODO(ralphl): implement PostTask.
-  NOTIMPLEMENTED();
+  DCHECK(!stopped_);
+  if (stopped_) {
+    delete task;
+  } else {
+    pipeline_thread_->PostTask(task);
+  }
 }
 
 void FilterHostImpl::Error(PipelineError error) {
-  // TODO(ralphl): implement Error.
-  NOTIMPLEMENTED();
+  pipeline_thread_->Error(error);
 }
 
-void FilterHostImpl::SetTime(int64 time) {
-  // TODO(ralphl): implement SetTime.
-  NOTIMPLEMENTED();
+void FilterHostImpl::SetTime(base::TimeDelta time) {
+  pipeline_thread_->SetTime(time);
 }
 
-void FilterHostImpl::SetDuration(int64 duration) {
-  // TODO(ralphl): implement SetDuration.
-  NOTIMPLEMENTED();
+void FilterHostImpl::SetDuration(base::TimeDelta duration) {
+  pipeline()->duration_ = duration;
 }
 
-void FilterHostImpl::SetBufferedTime(int64 buffered_time) {
-  // TODO(ralphl): implement SetBufferedTime.
-  NOTIMPLEMENTED();
+void FilterHostImpl::SetBufferedTime(base::TimeDelta buffered_time) {
+  pipeline()->buffered_time_ = buffered_time;
 }
 
 void FilterHostImpl::SetTotalBytes(int64 total_bytes) {
-  // TODO(ralphl): implement.
-  NOTIMPLEMENTED();
+  pipeline()->total_bytes_ = total_bytes;
 }
 
 void FilterHostImpl::SetBufferedBytes(int64 buffered_bytes) {
-  // TODO(ralphl): implement.
-  NOTIMPLEMENTED();
+  pipeline()->buffered_bytes_ = buffered_bytes;
 }
 
-void SetVideoSize(size_t width, size_t height) {
-  // TODO(ralphl): implement.
-  NOTIMPLEMENTED();
+void FilterHostImpl::SetVideoSize(size_t width, size_t height) {
+  pipeline()->SetVideoSize(width, height);
+}
+
+const PipelineStatus* FilterHostImpl::GetPipelineStatus() const {
+  return pipeline();
+}
+
+void FilterHostImpl::Stop() {
+  if (!stopped_) {
+    filter_->Stop();
+    stopped_ = true;
+  }
 }
 
 }  // namespace media

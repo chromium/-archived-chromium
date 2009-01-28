@@ -12,6 +12,7 @@
 #include <string>
 
 #include "base/task.h"
+#include "base/time.h"
 #include "media/base/factory.h"
 
 namespace media {
@@ -40,11 +41,11 @@ class PipelineStatus {
 
   // Get the duration of the media in microseconds.  If the duration has not
   // been determined yet, then returns 0.
-  virtual int64 GetDuration() const = 0;
+  virtual base::TimeDelta GetDuration() const = 0;
 
   // Get the approximate amount of playable data buffered so far in micro-
   // seconds.
-  virtual int64 GetBufferedTime() const = 0;
+  virtual base::TimeDelta GetBufferedTime() const = 0;
 
   // Get the total size of the media file.  If the size has not yet been
   // determined or can not be determined, this value is 0.
@@ -71,14 +72,14 @@ class PipelineStatus {
 
   // Gets the current pipeline time in microseconds.  For a pipeline "time"
   // progresses from 0 to the end of the media.
-  virtual int64 GetTime() const = 0;
+  virtual base::TimeDelta GetTime() const = 0;
 
   // Gets the current error status for the pipeline.  If the pipeline is
   // operating correctly, this will return OK.
   virtual PipelineError GetError() const = 0;
 
  protected:
-  virtual ~PipelineStatus() = 0;
+  virtual ~PipelineStatus() {}
 };
 
 
@@ -116,29 +117,32 @@ class Pipeline : public PipelineStatus {
   // torn down and reset to an uninitialized state.  After calling Stop, it
   // is acceptable to call Start again since Stop leaves the pipeline
   // in a state identical to a newly created pipeline.
+  // Calling this method is not strictly required because the pipeline
+  // destructor will stop it pipeline if it has not been stopped already.
   virtual void Stop() = 0;
 
-  // Attempt to adjust the playback rate.  Returns true if successful,
-  // false otherwise.  Setting a playback rate of 0.0f pauses all rendering
-  // of the media.  A rate of 1.0f indicates a normal playback rate.  Values
-  // for the playback rate must be greater than or equal to 0.0f.
+  // Attempt to adjust the playback rate. Setting a playback rate of 0.0f pauses
+  // all rendering of the media.  A rate of 1.0f indicates a normal playback
+  // rate.  Values for the playback rate must be greater than or equal to 0.0f.
   // TODO(ralphl) What about maximum rate?  Does HTML5 specify a max?
   //
   // This method must be called only after initialization has completed.
-  virtual bool SetPlaybackRate(float playback_rate) = 0;
+  virtual void SetPlaybackRate(float playback_rate) = 0;
 
-  // Attempt to seek to the position in microseconds.  Returns true if
-  // successful, false otherwise.  Playback is paused after the seek completes.
+  // Attempt to seek to the position in microseconds.
   //
   // This method must be called only after initialization has completed.
-  virtual bool Seek(int64 time) = 0;
+  virtual void Seek(base::TimeDelta time) = 0;
 
   // Attempt to set the volume of the audio renderer.  Valid values for volume
   // range from 0.0f (muted) to 1.0f (full volume).  This value affects all
   // channels proportionately for multi-channel audio streams.
   //
   // This method must be called only after initialization has completed.
-  virtual bool SetVolume(float volume) = 0;
+  virtual void SetVolume(float volume) = 0;
+
+ protected:
+  virtual ~Pipeline() {}
 };
 
 }  // namespace media

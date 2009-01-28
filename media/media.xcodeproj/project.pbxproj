@@ -51,6 +51,8 @@
 		DC5E24F60EFC4CF7006AD1A7 /* data_buffer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = DC5E24E30EFC4CC8006AD1A7 /* data_buffer_unittest.cc */; };
 		DC5E24F70EFC4CF7006AD1A7 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = DC5E24E80EFC4CC8006AD1A7 /* run_all_unittests.cc */; };
 		DC66E6E30F13FE6A00E13554 /* filter_host_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = DC96BFAF0F13F19300668B64 /* filter_host_impl.cc */; };
+		DCB6EF0B0F2FDBE90084FC00 /* pipeline_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = DCB6EF090F2FDBE90084FC00 /* pipeline_impl.cc */; };
+		DCE176C60F2FDDF600C3FF5C /* pipeline_impl_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = DCE176C50F2FDDF600C3FF5C /* pipeline_impl_unittest.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -235,6 +237,11 @@
 		DC5E24E80EFC4CC8006AD1A7 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
 		DC96BFAF0F13F19300668B64 /* filter_host_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_host_impl.cc; sourceTree = "<group>"; };
 		DC96BFB00F13F19300668B64 /* filter_host_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_host_impl.h; sourceTree = "<group>"; };
+		DCB6EF070F2FDBE90084FC00 /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = factory.h; sourceTree = "<group>"; };
+		DCB6EF080F2FDBE90084FC00 /* pipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pipeline.h; sourceTree = "<group>"; };
+		DCB6EF090F2FDBE90084FC00 /* pipeline_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline_impl.cc; sourceTree = "<group>"; };
+		DCB6EF0A0F2FDBE90084FC00 /* pipeline_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pipeline_impl.h; sourceTree = "<group>"; };
+		DCE176C50F2FDDF600C3FF5C /* pipeline_impl_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline_impl_unittest.cc; sourceTree = "<group>"; };
 		E4AFA6230E523E2900201347 /* media_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = media_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4AFA62E0E5240A300201347 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		E4AFA6450E5241D300201347 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = base/base.xcodeproj; sourceTree = "<group>"; };
@@ -381,10 +388,15 @@
 				DC5E24E10EFC4CC8006AD1A7 /* data_buffer.cc */,
 				DC5E24E20EFC4CC8006AD1A7 /* data_buffer.h */,
 				DC5E24E30EFC4CC8006AD1A7 /* data_buffer_unittest.cc */,
+				DCB6EF070F2FDBE90084FC00 /* factory.h */,
 				DC5E24E40EFC4CC8006AD1A7 /* filter_host.h */,
 				DC96BFAF0F13F19300668B64 /* filter_host_impl.cc */,
 				DC96BFB00F13F19300668B64 /* filter_host_impl.h */,
 				DC5E24E50EFC4CC8006AD1A7 /* filters.h */,
+				DCB6EF080F2FDBE90084FC00 /* pipeline.h */,
+				DCB6EF090F2FDBE90084FC00 /* pipeline_impl.cc */,
+				DCB6EF0A0F2FDBE90084FC00 /* pipeline_impl.h */,
+				DCE176C50F2FDDF600C3FF5C /* pipeline_impl_unittest.cc */,
 				DC5E24E60EFC4CC8006AD1A7 /* media_format.cc */,
 				DC5E24E70EFC4CC8006AD1A7 /* media_format.h */,
 				DC5E24E80EFC4CC8006AD1A7 /* run_all_unittests.cc */,
@@ -611,6 +623,7 @@
 				DC5E24F40EFC4CE5006AD1A7 /* data_buffer.cc in Sources */,
 				DC66E6E30F13FE6A00E13554 /* filter_host_impl.cc in Sources */,
 				DC5E24F50EFC4CE5006AD1A7 /* media_format.cc in Sources */,
+				DCB6EF0B0F2FDBE90084FC00 /* pipeline_impl.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,6 +633,7 @@
 			files = (
 				DC5E24F60EFC4CF7006AD1A7 /* data_buffer_unittest.cc in Sources */,
 				DC5E24F70EFC4CF7006AD1A7 /* run_all_unittests.cc in Sources */,
+				DCE176C60F2FDDF600C3FF5C /* pipeline_impl_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

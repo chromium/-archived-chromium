@@ -29,6 +29,8 @@
 
 #include "base/logging.h"
 #include "base/ref_counted.h"
+#include "base/time.h"
+#include "media/base/media_format.h"
 
 namespace media {
 
@@ -37,7 +39,6 @@ class Buffer;
 class Decoder;
 class DemuxerStream;
 class FilterHost;
-class MediaFormat;
 class VideoFrame;
 class WritableBuffer;
 
@@ -78,7 +79,7 @@ class MediaFilter : public base::RefCountedThreadSafe<MediaFilter> {
 
   // The pipeline is being seeked to the specified time.  Filters may implement
   // this method if they need to respond to this call.
-  virtual void Seek(int64 time) {}
+  virtual void Seek(base::TimeDelta time) {}
 
  protected:
   FilterHost* host_;
@@ -92,11 +93,14 @@ class MediaFilter : public base::RefCountedThreadSafe<MediaFilter> {
 
 class DataSource : public MediaFilter {
  public:
-  static const FilterType kFilterType = FILTER_DATA_SOURCE;
+  static const FilterType filter_type() {
+    return FILTER_DATA_SOURCE;
+  }
+
   static const size_t kReadError = static_cast<size_t>(-1);
 
   // Initializes this filter, returns true if successful, false otherwise.
-  virtual bool Initialize(const std::string& uri) = 0;
+  virtual bool Initialize(const std::string& url) = 0;
 
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
@@ -120,7 +124,9 @@ class DataSource : public MediaFilter {
 
 class Demuxer : public MediaFilter {
  public:
-  static const FilterType kFilterType = FILTER_DEMUXER;
+  static const FilterType filter_type() {
+    return FILTER_DEMUXER;
+  }
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DataSource* data_source) = 0;
@@ -148,7 +154,13 @@ class DemuxerStream {
 
 class VideoDecoder : public MediaFilter {
  public:
-  static const FilterType kFilterType = FILTER_VIDEO_DECODER;
+  static const FilterType filter_type() {
+    return FILTER_VIDEO_DECODER;
+  }
+
+  static const char* major_mime_type() {
+    return mime_type::kMajorTypeVideo;
+  }
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DemuxerStream* demuxer_stream) = 0;
@@ -163,7 +175,13 @@ class VideoDecoder : public MediaFilter {
 
 class AudioDecoder : public MediaFilter {
  public:
-  static const FilterType kFilterType = FILTER_AUDIO_DECODER;
+  static const FilterType filter_type() {
+    return FILTER_AUDIO_DECODER;
+  }
+
+  static const char* major_mime_type() {
+    return mime_type::kMajorTypeAudio;
+  }
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DemuxerStream* demuxer_stream) = 0;
@@ -178,7 +196,13 @@ class AudioDecoder : public MediaFilter {
 
 class VideoRenderer : public MediaFilter {
  public:
-  static const FilterType kFilterType = FILTER_VIDEO_RENDERER;
+  static const FilterType filter_type() {
+    return FILTER_VIDEO_RENDERER;
+  }
+
+  static const char* major_mime_type() {
+    return mime_type::kMajorTypeVideo;
+  }
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(VideoDecoder* decoder) = 0;
@@ -187,7 +211,13 @@ class VideoRenderer : public MediaFilter {
 
 class AudioRenderer : public MediaFilter {
  public:
-  static const FilterType kFilterType = FILTER_AUDIO_RENDERER;
+  static const FilterType filter_type() {
+    return FILTER_AUDIO_RENDERER;
+  }
+
+  static const char* major_mime_type() {
+    return mime_type::kMajorTypeAudio;
+  }
 
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(AudioDecoder* decoder) = 0;

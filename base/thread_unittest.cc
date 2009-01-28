@@ -57,16 +57,22 @@ TEST_F(ThreadTest, Restart) {
   Thread a("Restart");
   a.Stop();
   EXPECT_FALSE(a.message_loop());
+  EXPECT_FALSE(a.IsRunning());
   EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
+  EXPECT_TRUE(a.IsRunning());
   a.Stop();
   EXPECT_FALSE(a.message_loop());
+  EXPECT_FALSE(a.IsRunning());
   EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
+  EXPECT_TRUE(a.IsRunning());
   a.Stop();
   EXPECT_FALSE(a.message_loop());
+  EXPECT_FALSE(a.IsRunning());
   a.Stop();
   EXPECT_FALSE(a.message_loop());
+  EXPECT_FALSE(a.IsRunning());
 }
 
 TEST_F(ThreadTest, StartWithOptions_StackSize) {
@@ -77,6 +83,7 @@ TEST_F(ThreadTest, StartWithOptions_StackSize) {
   options.stack_size = 12*1024;
   EXPECT_TRUE(a.StartWithOptions(options));
   EXPECT_TRUE(a.message_loop());
+  EXPECT_TRUE(a.IsRunning());
 
   bool was_invoked = false;
   a.message_loop()->PostTask(FROM_HERE, new ToggleValue(&was_invoked));
@@ -110,10 +117,12 @@ TEST_F(ThreadTest, StopSoon) {
   Thread a("StopSoon");
   EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
+  EXPECT_TRUE(a.IsRunning());
   a.StopSoon();
   a.StopSoon();
   a.Stop();
   EXPECT_FALSE(a.message_loop());
+  EXPECT_FALSE(a.IsRunning());
 }
 
 TEST_F(ThreadTest, ThreadName) {

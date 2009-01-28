@@ -43,8 +43,8 @@ class FilterHost {
   // may call this method passing NULL for the callback argument.
   //
   // Callback arguments:
-  //   int64    the new pipeline time, in microseconds
-  virtual void SetTimeUpdateCallback(Callback1<int64>::Type* callback) = 0;
+  //   base::TimeDelta - the new pipeline time, in microseconds.
+  virtual void SetTimeUpdateCallback(Callback1<base::TimeDelta>::Type* cb) = 0;
 
   // Filters must call this method to indicate that their initialization is
   // complete.  They may call this from within their Initialize() method or may
@@ -59,15 +59,15 @@ class FilterHost {
 
   // Sets the current time.  Any filters that have registered a callback through
   // the SetTimeUpdateCallback method will be notified of the change.
-  virtual void SetTime(int64 time) = 0;
+  virtual void SetTime(base::TimeDelta time) = 0;
 
   // Get the duration of the media in microseconds.  If the duration has not
   // been determined yet, then returns 0.
-  virtual void SetDuration(int64 duration) = 0;
+  virtual void SetDuration(base::TimeDelta duration) = 0;
 
   // Set the approximate amount of playable data buffered so far in micro-
   // seconds.
-  virtual void SetBufferedTime(int64 buffered_time) = 0;
+  virtual void SetBufferedTime(base::TimeDelta buffered_time) = 0;
 
   // Set the total size of the media file.
   virtual void SetTotalBytes(int64 total_bytes) = 0;
@@ -80,7 +80,7 @@ class FilterHost {
   virtual void SetVideoSize(size_t width, size_t height) = 0;
 
  protected:
-  virtual ~FilterHost() = 0;
+  virtual ~FilterHost() {}
 };
 
 }  // namespace media

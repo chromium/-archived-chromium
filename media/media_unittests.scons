@@ -48,6 +48,7 @@ if env.Bit('windows'):
 
 input_files = [
     'base/data_buffer_unittest.cc',
+    'base/pipeline_impl_unittest.cc',
     'base/run_all_unittests.cc',
 ]
 
@@ -61,6 +62,7 @@ input_files = ChromeFileList([
   MSVSFilter('tests', [
     MSVSFilter('base', [
       'base/data_buffer_unittest.cc',
+      'base/pipeline_impl_unittest.cc',
     ]),
     MSVSFilter('audio', [
       'audio/win/audio_output_win_unittest.cc',
