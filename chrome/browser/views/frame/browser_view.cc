@@ -84,6 +84,9 @@ static const int kDefaultPluginMessageResponseTimeout = 30000;
 // The number of milliseconds between loading animation frames.
 static const int kLoadingAnimationFrameTimeMs = 30;
 
+// If not -1, windows are shown with this state.
+static int explicit_show_state = -1;
+
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
   { false, IDC_TASK_MANAGER, IDS_TASK_MANAGER },
@@ -110,6 +113,11 @@ static const struct { bool separator; int command; int label; } kMenuLayout[] = 
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, public:
+
+// static
+void BrowserView::SetShowState(int state) {
+  explicit_show_state = state;
+}
 
 BrowserView::BrowserView(Browser* browser)
     : ClientView(NULL, NULL),
@@ -154,6 +162,9 @@ BrowserView* BrowserView::GetBrowserViewForHWND(HWND window) {
 }
 
 int BrowserView::GetShowState() const {
+  if (explicit_show_state != -1)
+    return explicit_show_state;
+
   STARTUPINFO si = {0};
   si.cb = sizeof(si);
   si.dwFlags = STARTF_USESHOWWINDOW;
