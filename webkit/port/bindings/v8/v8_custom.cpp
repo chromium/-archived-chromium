@@ -3263,8 +3263,9 @@ ACCESSOR_GETTER(HTMLInputElementSelectionStart) {
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
   if (!imp->canHaveSelection()) {
-    // TODO(playmobil): Add a proper error string.
-    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Accessing selectionStart on an input element that "
+                        "cannot have a selection.");
     return v8::Undefined();
   }
 
@@ -3278,8 +3279,10 @@ ACCESSOR_SETTER(HTMLInputElementSelectionStart) {
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
   if (!imp->canHaveSelection()) {
-    // TODO(playmobil): Add a proper error string.
-    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, 
+                        "Accessing selectionStart on an input element that "
+                        "cannot have a selection.");
+    return;
   }
   imp->setSelectionStart(value->Int32Value());
 }
@@ -3290,8 +3293,9 @@ ACCESSOR_GETTER(HTMLInputElementSelectionEnd) {
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
   if (!imp->canHaveSelection()) {
-    // TODO(playmobil): Add a proper error string.
-    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Accessing selectionEnd on an input element that "
+                        "cannot have a selection.");
     return v8::Undefined();
   }
 
@@ -3305,8 +3309,10 @@ ACCESSOR_SETTER(HTMLInputElementSelectionEnd) {
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
   if (!imp->canHaveSelection()) {
-    // TODO(playmobil): Add a proper error string.
-    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Accessing selectionEnd on an input element that "
+                        "cannot have a selection.");
+    return;
   }
   imp->setSelectionEnd(value->Int32Value());
 }
@@ -3317,8 +3323,9 @@ CALLBACK_FUNC_DECL(HTMLInputElementSetSelectionRange) {
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
   if (!imp->canHaveSelection()) {
-    // TODO(playmobil): Add a proper error string.
-    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Calling setSelectionRange on an input element that "
+                        "cannot have a selection.");
     return v8::Undefined();
   }
   int start = args[0]->Int32Value();
