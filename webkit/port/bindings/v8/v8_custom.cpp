@@ -3262,11 +3262,26 @@ ACCESSOR_GETTER(HTMLInputElementSelectionStart) {
   v8::Handle<v8::Object> holder = info.Holder();
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
-  if (!imp->canHaveSelection())
+  if (!imp->canHaveSelection()) {
+    // TODO(playmobil): Add a proper error string.
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
     return v8::Undefined();
+  }
 
   int v = imp->selectionStart();
   return v8::Integer::New(v);
+}
+
+ACCESSOR_SETTER(HTMLInputElementSelectionStart) {
+  INC_STATS("DOM.HTMLInputElement.selectionStart._set");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    // TODO(playmobil): Add a proper error string.
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+  }
+  imp->setSelectionStart(value->Int32Value());
 }
 
 ACCESSOR_GETTER(HTMLInputElementSelectionEnd) {
@@ -3274,11 +3289,43 @@ ACCESSOR_GETTER(HTMLInputElementSelectionEnd) {
   v8::Handle<v8::Object> holder = info.Holder();
   HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
 
-  if (!imp->canHaveSelection())
+  if (!imp->canHaveSelection()) {
+    // TODO(playmobil): Add a proper error string.
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
     return v8::Undefined();
+  }
 
   int v = imp->selectionEnd();
   return v8::Integer::New(v);
+}
+
+ACCESSOR_SETTER(HTMLInputElementSelectionEnd) {
+  INC_STATS("DOM.HTMLInputElement.selectionEnd._set");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    // TODO(playmobil): Add a proper error string.
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+  }
+  imp->setSelectionEnd(value->Int32Value());
+}
+
+CALLBACK_FUNC_DECL(HTMLInputElementSetSelectionRange) {
+  INC_STATS("DOM.HTMLInputElement.setSelectionRange");
+  v8::Handle<v8::Object> holder = args.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    // TODO(playmobil): Add a proper error string.
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, "");
+    return v8::Undefined();
+  }
+  int start = args[0]->Int32Value();
+  int end = args[1]->Int32Value();
+
+  imp->setSelectionRange(start, end);
+  return v8::Undefined();
 }
 
 #if ENABLE(SVG)

@@ -38,7 +38,6 @@ using WebCore::HTMLInputElement;
 using WebCore::HTMLOptionElement;
 
 namespace {
-
 // TODO(eseidel): appendString and appendEncodedString do *not* follow Google
 // style because they are copy/paste from WebKit and will go away as soon as the
 // WebKit functions are made public.
@@ -296,8 +295,7 @@ WebCore::HTMLInputElement* GetTextElement(
 } // namespace
 
 SearchableFormData* SearchableFormData::Create(WebCore::Element* element) {
-  if (!element->isHTMLElement() ||
-      !static_cast<WebCore::HTMLElement*>(element)->isGenericFormElement()) {
+	if (!element->isFormControlElement() || !element->isHTMLElement()) {
     return NULL;
   }
 

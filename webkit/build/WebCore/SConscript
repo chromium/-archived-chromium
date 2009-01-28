@@ -130,6 +130,7 @@ input_files = [
     '$WEBCORE_DIR/dom/EventTargetNode.cpp',
     '$WEBCORE_DIR/dom/ExceptionBase.cpp',
     '$WEBCORE_DIR/dom/ExceptionCode.cpp',
+    '$WEBCORE_DIR/dom/FormControlElementWithState.cpp',
     '$WEBCORE_DIR/dom/FormControlElement.cpp',
     '$WEBCORE_DIR/dom/InputElement.cpp',
     '$WEBCORE_DIR/dom/KeyboardEvent.cpp',
@@ -215,7 +216,6 @@ input_files = [
     '$WEBCORE_DIR/editing/MoveSelectionCommand.cpp',
     '$WEBCORE_DIR/editing/RemoveCSSPropertyCommand.cpp',
     '$WEBCORE_DIR/editing/RemoveFormatCommand.cpp',
-    '$WEBCORE_DIR/editing/RemoveNodeAttributeCommand.cpp',
     '$WEBCORE_DIR/editing/RemoveNodeCommand.cpp',
     '$WEBCORE_DIR/editing/RemoveNodePreservingChildrenCommand.cpp',
     '$WEBCORE_DIR/editing/ReplaceSelectionCommand.cpp',
@@ -235,6 +235,7 @@ input_files = [
     '$WEBCORE_DIR/editing/WrapContentsInDummySpanCommand.cpp',
 
     '$WEBCORE_DIR/history/BackForwardListChromium.cpp',
+    '$WEBCORE_DIR/history/CachedFrame.cpp',
     '$WEBCORE_DIR/history/CachedPage.cpp',
     '$WEBCORE_DIR/history/PageCache.cpp',
     '$WEBCORE_DIR/history/HistoryItem.cpp',

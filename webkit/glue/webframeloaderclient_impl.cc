@@ -1268,11 +1268,11 @@ String WebFrameLoaderClient::userAgent(const KURL& url) {
       webkit_glue::GetUserAgent(webkit_glue::KURLToGURL(url)));
 }
 
-void WebFrameLoaderClient::savePlatformDataToCachedPage(WebCore::CachedPage*) {
+void WebFrameLoaderClient::savePlatformDataToCachedFrame(WebCore::CachedFrame*) {
   NOTREACHED() << "Page cache should be disabled";
 }
 
-void WebFrameLoaderClient::transitionToCommittedFromCachedPage(WebCore::CachedPage*) {
+void WebFrameLoaderClient::transitionToCommittedFromCachedFrame(WebCore::CachedFrame*) {
   ASSERT_NOT_REACHED();
 }
 

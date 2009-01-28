@@ -623,7 +623,7 @@ void WebPluginImpl::windowCutoutRects(
       if (n && n->hasTagName(WebCore::HTMLNames::iframeTag)) {
         if (!ro->style() || ro->style()->visibility() == WebCore::VISIBLE) {
           WebCore::IntPoint point = roundedIntPoint(ro->localToAbsolute());
-          WebCore::RenderBox* rbox = WebCore::RenderBox::toRenderBox(ro);
+          WebCore::RenderBox* rbox = WebCore::toRenderBox(ro);
           WebCore::IntSize size(rbox->width(), rbox->height());
           cutouts->append(WebCore::IntRect(point, size));
         }

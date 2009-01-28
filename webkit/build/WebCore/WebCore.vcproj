@@ -287,6 +287,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DOMTimer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DOMWindow.cpp"
 				>
 			</File>
@@ -4467,6 +4471,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.cpp"
 				>
 			</File>
@@ -5156,14 +5168,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\RemoveFormatCommand.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\RemoveNodeAttributeCommand.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\RemoveNodeAttributeCommand.h"
 				>
 			</File>
 			<File
@@ -6044,6 +6048,18 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\history\BackForwardListChromium.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\history\CachedFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\history\CachedFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\history\CachedFramePlatformData.h"
 				>
 			</File>
 			<File

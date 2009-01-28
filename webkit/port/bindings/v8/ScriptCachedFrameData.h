@@ -34,15 +34,15 @@
 // We don't use WebKit's page caching, so this implementation is just a stub.
 
 namespace WebCore {
-    class Page;
+    class Frame;
     class DOMWindow;
 
-    class ScriptCachedPageData  {
+    class ScriptCachedFrameData  {
     public:
-        ScriptCachedPageData(Page*) { }
-        ~ScriptCachedPageData() { }
+        ScriptCachedFrameData(Frame*) { }
+        ~ScriptCachedFrameData() { }
 
-        void restore(Page*) { }
+        void restore(Frame*) { }
         void clear() { }
         DOMWindow* domWindow() const { return 0; }
     };
