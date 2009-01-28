@@ -334,7 +334,6 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 // rebaseline on other platforms as well.
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-LINUX : LayoutTests/fast/forms/focus2.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
@@ -343,15 +342,9 @@ DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 DEFER MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
-DEFER LINUX : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
-DEFER LINUX : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
-LINUX : LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
-LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
-LINUX : LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
-DEFER LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
