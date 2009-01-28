@@ -398,9 +398,7 @@ class RenderView : public RenderWidget,
   // RenderView IPC message handlers
   void OnCreatingNewAck(gfx::NativeViewId parent);
   void SendThumbnail();
-  void OnPrintPage(const ViewMsg_PrintPage_Params& params);
-  void OnGetPrintedPagesCount(const ViewMsg_Print_Params& params);
-  void OnPrintPages(const ViewMsg_PrintPages_Params& params);
+  void OnPrintPages();
   void OnNavigate(const ViewMsg_Navigate_Params& params);
   void OnStop();
   void OnLoadAlternateHTMLText(const std::string& html_contents,

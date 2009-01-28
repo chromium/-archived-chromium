@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_VIEW_HOST_H__
-#define CHROME_BROWSER_RENDER_VIEW_HOST_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H__
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H__
 
 #include <string>
 #include <vector>
@@ -173,13 +173,9 @@ class RenderViewHost : public RenderWidgetHost {
   void Stop();
 
 
-  // Retrieves the number of printed pages that would result for the current web
-  // page and the specified settings. The response is a
-  // ViewHostMsg_DidGetPrintedPagesCount.
-  bool GetPrintedPagesCount(const ViewMsg_Print_Params& params);
-
-  // Asks the renderer to "render" printed pages.
-  bool PrintPages(const ViewMsg_PrintPages_Params& params);
+  // Asks the renderer to "render" printed pages and initiate printing on our
+  // behalf.
+  bool PrintPages();
 
   // Start looking for a string within the content of the page, with the
   // specified options.
@@ -620,4 +616,4 @@ class RenderViewHostFactory {
       base::WaitableEvent* modal_dialog_event) = 0;
 };
 
-#endif  // CHROME_BROWSER_RENDER_VIEW_HOST_H__
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H__
