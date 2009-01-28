@@ -27,6 +27,14 @@ namespace IPC {
 //   // ...and no start load messages.
 //   EXPECT_FALSE(test_sink.GetFirstMessageMatching(ViewHostMsg_Start::ID));
 //
+//   // Now inspect a message. This assumes a message that was declared like
+//   // this: IPC_MESSAGE_ROUTED2(ViewMsg_Foo, bool, int)
+//   IPC::Message* msg = test_sink.GetFirstMessageMatching(ViewMsg_Foo::ID));
+//   ASSERT_TRUE(msg);
+//   bool first_param;
+//   int second_param;
+//   ViewMsg_Foo::Read(msg, &first_param, &second_param);
+//
 //   // Go on to the next phase of the test.
 //   test_sink.ClearMessages();
 //

@@ -12,6 +12,7 @@
 #include "base/gfx/size.h"
 #include "base/timer.h"
 #include "chrome/common/ipc_channel.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 namespace gfx {
 class Rect;
@@ -229,6 +230,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   virtual void NotifyRendererResponsive() {}
 
  private:
+  FRIEND_TEST(RenderWidgetHostTest, Resize);
+  FRIEND_TEST(RenderWidgetHostTest, HiddenPaint);
+
   // Tell this object to destroy itself.
   void Destroy();
 
