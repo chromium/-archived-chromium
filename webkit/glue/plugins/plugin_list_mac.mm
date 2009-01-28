@@ -41,10 +41,6 @@ void GetPluginPrivateDirectory(std::vector<FilePath>* plugin_dirs) {
 namespace NPAPI
 {
 
-PluginList::PluginList() :
-    plugins_loaded_(false) {
-}
-
 void PluginList::PlatformInit() {
 }
 
