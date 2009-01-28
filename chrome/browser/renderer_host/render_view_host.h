@@ -120,13 +120,20 @@ class RenderViewHost : public RenderWidgetHost {
                                        const GURL& display_url,
                                        const std::string& security_info);
 
+  // Returns whether navigation messages are currently suspended for this
+  // RenderViewHost.  Only true during a cross-site navigation, while waiting
+  // for the onbeforeunload handler.
+  bool are_navigations_suspended() { return navigations_suspended_; }
+
   // Suspends (or unsuspends) any navigation messages from being sent from this
   // RenderViewHost.  This is called when a pending RenderViewHost is created
   // for a cross-site navigation, because we must suspend any navigations until
   // we hear back from the old renderer's onbeforeunload handler.  Note that it
   // is important that only one navigation event happen after calling this
   // method with |suspend| equal to true.  If |suspend| is false and there is
-  // a suspended_nav_message_, this will send the message.
+  // a suspended_nav_message_, this will send the message.  This function
+  // should only be called to toggle the state; callers should check
+  // are_navigations_suspended() first.
   void SetNavigationsSuspended(bool suspend);
 
   // Causes the renderer to invoke the onbeforeunload event handler.  The

@@ -124,16 +124,28 @@ bool RenderViewHostManager::ShouldCloseTabOnUnresponsiveRenderer() {
     return true;
 
   // If the tab becomes unresponsive during unload while doing a
-  // crosssite navigation, proceed with the navigation.
+  // cross-site navigation, proceed with the navigation.  (This assumes that
+  // the pending RenderViewHost is still responsive.)
   int pending_request_id = pending_render_view_host_->GetPendingRequestId();
   if (pending_request_id == -1) {
-    // Haven't gotten around to starting the request. 
-    pending_render_view_host_->SetNavigationsSuspended(false);
+    // Haven't gotten around to starting the request, because we're still
+    // waiting for the beforeunload handler to finish.  We'll pretend that it
+    // did finish, to let the navigation proceed.  Note that there's a danger
+    // that the beforeunload handler will later finish and possibly return
+    // false (meaning the navigation should not proceed), but we'll ignore it
+    // in this case because it took too long.
+    if (pending_render_view_host_->are_navigations_suspended())
+      pending_render_view_host_->SetNavigationsSuspended(false);
   } else {
+    // The request has been started and paused, while we're waiting for the
+    // unload handler to finish.  We'll pretend that it did, by notifying the
+    // IO thread to let the response continue.  The pending renderer will then
+    // be swapped in as part of the usual DidNavigate logic.  (If the unload
+    // handler later finishes, this call will be ignored because the state in
+    // CrossSiteResourceHandler will already be cleaned up.)
     current_host()->process()->CrossSiteClosePageACK(
         pending_render_view_host_->site_instance()->process_host_id(), 
         pending_request_id);
-    DidNavigateMainFrame(pending_render_view_host_);
   }
   return false;
 }
@@ -212,8 +224,13 @@ void RenderViewHostManager::ShouldClosePage(bool proceed) {
   }
 
   if (proceed) {
-    // Ok to unload the current page, so proceed with the cross-site navigate.
-    pending_render_view_host_->SetNavigationsSuspended(false);
+    // Ok to unload the current page, so proceed with the cross-site
+    // navigation.  Note that if navigations are not currently suspended, it
+    // might be because the renderer was deemed unresponsive and this call was
+    // already made by ShouldCloseTabOnUnresponsiveRenderer.  In that case, it
+    // is ok to do nothing here.
+    if (pending_render_view_host_->are_navigations_suspended())
+      pending_render_view_host_->SetNavigationsSuspended(false);
   } else {
     // Current page says to cancel.
     CancelPendingRenderView();
@@ -462,8 +479,9 @@ RenderViewHost* RenderViewHostManager::UpdateRendererStateNavigate(
 
     // Suspend the new render view (i.e., don't let it send the cross-site
     // Navigate message) until we hear back from the old renderer's
-    // onbeforeunload handler.  If it returns false, we'll have to cancel the
-    // request.
+    // onbeforeunload handler.  If the handler returns false, we'll have to
+    // cancel the request.
+    DCHECK(!pending_render_view_host_->are_navigations_suspended());
     pending_render_view_host_->SetNavigationsSuspended(true);
 
     // Tell the CrossSiteRequestManager that this RVH has a pending cross-site

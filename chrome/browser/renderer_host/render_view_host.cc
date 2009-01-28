@@ -231,10 +231,13 @@ void RenderViewHost::LoadAlternateHTMLString(const std::string& html_text,
 }
 
 void RenderViewHost::SetNavigationsSuspended(bool suspend) {
+  // This should only be called to toggle the state.
   DCHECK(navigations_suspended_ != suspend);
+
   navigations_suspended_ = suspend;
   if (!suspend && suspended_nav_message_.get()) {
-    // Resume navigation
+    // There's a navigation message waiting to be sent.  Now that we're not
+    // suspended anymore, resume navigation by sending it.
     Send(suspended_nav_message_.release());
   }
 }
@@ -248,7 +251,7 @@ void RenderViewHost::FirePageBeforeUnload() {
   }
 
   // This may be called more than once (if the user clicks the tab close button
-  // several times, or if she clicks the tab close button than the browser close
+  // several times, or if she clicks the tab close button then the browser close
   // button), so this test makes sure we only send the message once.
   if (!is_waiting_for_unload_ack_) {
     // Start the hang monitor in case the renderer hangs in the beforeunload
