@@ -108,23 +108,23 @@ void ContextMenuClientImpl::contextMenuDestroyed() {
 // Figure out the URL of a page or subframe. Returns |page_type| as the type,
 // which indicates page or subframe, or ContextNode::NONE if the URL could not
 // be determined for some reason.
-static ContextNode::Type GetTypeAndURLFromFrame(WebCore::Frame* frame,
-                                                GURL* url,
-                                                ContextNode::Type page_type) {
-  ContextNode::Type type = ContextNode::NONE;
+static ContextNode GetTypeAndURLFromFrame(WebCore::Frame* frame,
+                                          GURL* url,
+                                          ContextNode page_node) {
+  ContextNode node;
   if (frame) {
     WebCore::DocumentLoader* dl = frame->loader()->documentLoader();
     if (dl) {
       WebDataSource* ds = static_cast<WebDocumentLoaderImpl*>(dl)->
           GetDataSource();
       if (ds) {
-        type = page_type;
+        node = page_node;
         *url = ds->HasUnreachableURL() ? ds->GetUnreachableURL()
                                        : ds->GetRequest().GetURL();
       }
     }
   }
-  return type;
+  return node;
 }
 
 WebCore::PlatformMenuDescription
@@ -144,19 +144,17 @@ WebCore::PlatformMenuDescription
   WebCore::IntPoint menu_point =
       selected_frame->view()->contentsToWindow(r.point());
 
-  ContextNode::Type type = ContextNode::NONE;
+  ContextNode node;
 
   // Links, Images and Image-Links take preference over all else.
   WebCore::KURL link_url = r.absoluteLinkURL();
   if (!link_url.isEmpty()) {
-    type = ContextNode::LINK;
+    node.type |= ContextNode::LINK;
   }
   WebCore::KURL image_url = r.absoluteImageURL();
   if (!image_url.isEmpty()) {
-    type = ContextNode::IMAGE;
+    node.type |= ContextNode::IMAGE;
   }
-  if (!image_url.isEmpty() && !link_url.isEmpty())
-    type = ContextNode::IMAGE_LINK;
 
   // If it's not a link, an image or an image link, show a selection menu or a
   // more generic page menu.
@@ -168,37 +166,40 @@ WebCore::PlatformMenuDescription
   
   std::wstring frame_encoding;
   // Send the frame and page URLs in any case.
-  ContextNode::Type frame_type = ContextNode::NONE;
-  ContextNode::Type page_type = 
+  ContextNode frame_node = ContextNode(ContextNode::NONE);
+  ContextNode page_node =
       GetTypeAndURLFromFrame(webview_->main_frame()->frame(),
                              &page_url,
-                             ContextNode::PAGE);
+                             ContextNode(ContextNode::PAGE));
   if (selected_frame != webview_->main_frame()->frame()) {
-    frame_type = GetTypeAndURLFromFrame(selected_frame,
+    frame_node = GetTypeAndURLFromFrame(selected_frame,
                                         &frame_url,
-                                        ContextNode::FRAME);
+                                        ContextNode(ContextNode::FRAME));
     frame_encoding = webkit_glue::StringToStdWString(
         selected_frame->loader()->encoding());
   }
+
+  if (r.isSelected()) {
+    node.type |= ContextNode::SELECTION;
+    selection_text_string = CollapseWhitespace(
+      webkit_glue::StringToStdWString(selected_frame->selectedText()),
+      false);
+  }
+
+  if (r.isContentEditable()) {
+    node.type |= ContextNode::EDITABLE;
+    if (webview_->GetFocusedWebCoreFrame()->editor()->
+        isContinuousSpellCheckingEnabled()) {
+      misspelled_word_string = GetMisspelledWord(default_menu,
+                                                 selected_frame);
+    }
+  }
   
-  if (type == ContextNode::NONE) {
-    if (r.isContentEditable()) {
-      type = ContextNode::EDITABLE;
-      if (webview_->GetFocusedWebCoreFrame()->editor()->
-          isContinuousSpellCheckingEnabled()) {
-        misspelled_word_string = GetMisspelledWord(default_menu,
-                                                   selected_frame);
-      }
-    } else if (r.isSelected()) {
-      type = ContextNode::SELECTION;
-      selection_text_string =
-          CollapseWhitespace(
-              webkit_glue::StringToStdWString(selected_frame->selectedText()),
-              false);
-    } else if (selected_frame != webview_->main_frame()->frame()) {
-      type = frame_type;
+  if (node.type == ContextNode::NONE) {
+    if (selected_frame != webview_->main_frame()->frame()) {
+      node = frame_node;
     } else {
-      type = page_type;
+      node = page_node;
     }
   }
 
@@ -232,7 +233,7 @@ WebCore::PlatformMenuDescription
   WebViewDelegate* d = webview_->delegate();
   if (d) {
     d->ShowContextMenu(webview_,
-                       type,
+                       node,
                        menu_point.x(),
                        menu_point.y(),
                        webkit_glue::KURLToGURL(link_url),

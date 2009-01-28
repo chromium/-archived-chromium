@@ -124,7 +124,7 @@ struct ViewHostMsg_FrameNavigate_Params {
 //              could be used for more contextual actions.
 struct ViewHostMsg_ContextMenu_Params {
   // This is the type of Context Node that the context menu was invoked on.
-  ContextNode::Type type;
+  ContextNode node;
 
   // These values represent the coordinates of the mouse when the context menu
   // was invoked.  Coords are relative to the associated RenderView's origin.
@@ -543,8 +543,49 @@ struct ParamTraits<FilterPolicy::Type> {
 };
 
 template <>
-struct ParamTraits<ContextNode::Type> {
-  typedef ContextNode::Type param_type;
+struct ParamTraits<ContextNode> {
+  typedef ContextNode param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteInt(p.type);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    int type;
+    if (!m->ReadInt(iter, &type))
+      return false;
+    *p = ContextNode(type);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring event = L"";
+
+    if (!p.type)
+      event.append(L"NONE");
+    else {
+      event.append(L"(");
+      if (p.type & ContextNode::PAGE)
+        event.append(L"PAGE|");
+      if (p.type & ContextNode::FRAME)
+        event.append(L"FRAME|");
+      if (p.type & ContextNode::LINK)
+        event.append(L"LINK|");
+      if (p.type & ContextNode::IMAGE)
+        event.append(L"IMAGE|");
+      if (p.type & ContextNode::SELECTION)
+        event.append(L"SELECTION|");
+      if (p.type & ContextNode::EDITABLE)
+        event.append(L"EDITABLE|");
+      if (p.type & ContextNode::MISSPELLED_WORD)
+        event.append(L"MISSPELLED_WORD|");
+      event.append(L")");
+    }
+
+    LogParam(event, l);
+  }
+};
+
+template <>
+struct ParamTraits<WebInputEvent::Type> {
+  typedef WebInputEvent::Type param_type;
   static void Write(Message* m, const param_type& p) {
     m->WriteInt(p);
   }
@@ -552,7 +593,7 @@ struct ParamTraits<ContextNode::Type> {
     int type;
     if (!m->ReadInt(iter, &type))
       return false;
-    *p = ContextNode::FromInt(type);
+    *p = static_cast<WebInputEvent::Type>(type);
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
@@ -588,58 +629,6 @@ struct ParamTraits<ContextNode::Type> {
     }
 
     LogParam(type, l);
-  }
-};
-
-template <>
-struct ParamTraits<WebInputEvent::Type> {
-  typedef WebInputEvent::Type param_type;
-  static void Write(Message* m, const param_type& p) {
-    m->WriteInt(p);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    int type;
-    if (!m->ReadInt(iter, &type))
-      return false;
-    *p = static_cast<WebInputEvent::Type>(type);
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    std::wstring event;
-    switch (p) {
-     case ContextNode::NONE:
-      event = L"NONE";
-      break;
-     case ContextNode::PAGE:
-      event = L"PAGE";
-      break;
-     case ContextNode::FRAME:
-      event = L"FRAME";
-      break;
-     case ContextNode::LINK:
-      event = L"LINK";
-      break;
-     case ContextNode::IMAGE:
-      event = L"IMAGE";
-      break;
-     case ContextNode::IMAGE_LINK:
-      event = L"IMAGE_LINK";
-      break;
-     case ContextNode::SELECTION:
-      event = L"SELECTION";
-      break;
-     case ContextNode::EDITABLE:
-      event = L"EDITABLE";
-      break;
-     case ContextNode::MISPELLED_WORD:
-      event = L"MISPELLED_WORD";
-      break;
-     default:
-      event = L"UNKNOWN";
-      break;
-    }
-
-    LogParam(event, l);
   }
 };
 
@@ -943,7 +932,7 @@ template <>
 struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
   typedef ViewHostMsg_ContextMenu_Params param_type;
   static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.type);
+    WriteParam(m, p.node);
     WriteParam(m, p.x);
     WriteParam(m, p.y);
     WriteParam(m, p.link_url);
@@ -959,7 +948,7 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
-      ReadParam(m, iter, &p->type) &&
+      ReadParam(m, iter, &p->node) &&
       ReadParam(m, iter, &p->x) &&
       ReadParam(m, iter, &p->y) &&
       ReadParam(m, iter, &p->link_url) &&

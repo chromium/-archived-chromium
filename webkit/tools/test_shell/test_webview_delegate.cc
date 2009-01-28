@@ -471,7 +471,7 @@ void TestWebViewDelegate::StartDragging(WebView* webview,
 }
 
 void TestWebViewDelegate::ShowContextMenu(WebView* webview,
-                                          ContextNode::Type type,
+                                          ContextNode node,
                                           int x,
                                           int y,
                                           const GURL& link_url,
@@ -482,7 +482,7 @@ void TestWebViewDelegate::ShowContextMenu(WebView* webview,
                                           const std::wstring& misspelled_word,
                                           int edit_flags,
                                           const std::string& security_info) {
-  CapturedContextMenuEvent context(type, x, y);
+  CapturedContextMenuEvent context(node, x, y);
   captured_context_menu_events_.push_back(context);
 }
 

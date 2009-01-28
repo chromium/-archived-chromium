@@ -8,44 +8,34 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 
-// This class is for scoping only.
-class ContextNode {
- public:
-  // This enumeration defines the type of node that the user may perform a 
-  // contextual action on in the WebView. 
-  enum Type {
-
+// The type of node that the user may perform a contextual action on
+// in the WebView.
+struct ContextNode {
+  enum TypeBit {
     // No node is selected
-    NONE = 0,
+    NONE = 0x0,
 
     // The top page is selected
-    PAGE = 1,
+    PAGE = 0x1,
 
     // A subframe page is selected
-    FRAME = 2,
+    FRAME = 0x2,
 
     // A link is selected
-    LINK = 3,
+    LINK = 0x4,
 
     // An image is selected
-    IMAGE = 4,
-
-    // An image that is also a link is selected
-    IMAGE_LINK = 5,
+    IMAGE = 0x8,
 
     // There is a textual or mixed selection that is selected
-    SELECTION = 6,
+    SELECTION = 0x10,
 
-    // An editiable element is selected
-    EDITABLE = 7,
+    // An editable element is selected
+    EDITABLE = 0x20,
 
     // A misspelled word is selected
-    MISPELLED_WORD = 8
+    MISSPELLED_WORD = 0x40,
   };
-
-  static Type FromInt(int32 type) {
-    return static_cast<Type>(type);
-  }
 
   enum Capability {
     CAN_DO_NONE = 0x0,
@@ -57,6 +47,10 @@ class ContextNode {
     CAN_DELETE = 0x20,
     CAN_SELECT_ALL = 0x40,
   };
+
+  int32 type;
+  ContextNode() : type(NONE) {}
+  explicit ContextNode(int32 t) : type(t) {}
 };
 
 #endif  // WEBKIT_GLUE_CONTEXT_NODE_TYPES_H__

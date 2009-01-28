@@ -234,7 +234,7 @@ class RenderView : public RenderWidget,
                                         ErrorPageType error_type);
 
   virtual void ShowContextMenu(WebView* webview,
-                               ContextNode::Type type,
+                               ContextNode node,
                                int x,
                                int y,
                                const GURL& link_url,

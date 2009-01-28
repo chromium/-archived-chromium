@@ -18,7 +18,7 @@
 RenderViewContextMenu::RenderViewContextMenu(
     Menu::Delegate* delegate,
     HWND owner,
-    ContextNode::Type type,
+    ContextNode node,
     const std::wstring& misspelled_word,
     const std::vector<std::wstring>& misspelled_word_suggestions,
     Profile* profile)
@@ -26,40 +26,34 @@ RenderViewContextMenu::RenderViewContextMenu(
       misspelled_word_(misspelled_word),
       misspelled_word_suggestions_(misspelled_word_suggestions),
       profile_(profile) {
-  InitMenu(type);
+  InitMenu(node);
 }
 
 RenderViewContextMenu::~RenderViewContextMenu() {
 }
 
-void RenderViewContextMenu::InitMenu(ContextNode::Type type) {
-  switch (type) {
-   case ContextNode::PAGE:
+void RenderViewContextMenu::InitMenu(ContextNode node) {
+  if (node.type & ContextNode::PAGE)
     AppendPageItems();
-    break;
-   case ContextNode::FRAME:
+  if (node.type & ContextNode::FRAME)
     AppendFrameItems();
-    break;
-   case ContextNode::LINK:
+  if (node.type & ContextNode::LINK)
     AppendLinkItems();
-    break;
-   case ContextNode::IMAGE:
+
+  if (node.type & ContextNode::IMAGE) {
+    if (node.type & ContextNode::LINK)
+      AppendSeparator();
     AppendImageItems();
-    break;
-   case ContextNode::IMAGE_LINK:
-    AppendLinkItems();
-    AppendSeparator();
-    AppendImageItems();
-    break;
-   case ContextNode::SELECTION:
-    AppendSelectionItems();
-    break;
-   case ContextNode::EDITABLE:
-    AppendEditableItems();
-    break;
-   default:
-    NOTREACHED() << "Unknown ContextNode::Type";
   }
+
+  if (node.type & ContextNode::EDITABLE)
+    AppendEditableItems();
+  else if (node.type & ContextNode::SELECTION ||
+           node.type & ContextNode::LINK)
+    AppendCopyItem();
+
+  if (node.type & ContextNode::SELECTION)
+    AppendSearchProvider();
   AppendSeparator();
   AppendDeveloperItems();
 }
@@ -74,7 +68,6 @@ void RenderViewContextMenu::AppendLinkItems() {
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_OPENLINKOFFTHERECORD);
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_SAVELINKAS);
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_COPYLINKLOCATION);
-  AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_COPY);
 }
 
 void RenderViewContextMenu::AppendImageItems() {
@@ -109,8 +102,11 @@ void RenderViewContextMenu::AppendFrameItems() {
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_VIEWFRAMEINFO);
 }
 
-void RenderViewContextMenu::AppendSelectionItems() {
+void RenderViewContextMenu::AppendCopyItem() {
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_COPY);
+}
+
+void RenderViewContextMenu::AppendSearchProvider() {
   DCHECK(profile_);
   if (profile_->GetTemplateURLModel()->GetDefaultSearchProvider() != NULL)
     AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_SEARCHWEBFOR);

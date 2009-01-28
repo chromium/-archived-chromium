@@ -549,7 +549,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // @abstract Shows a context menu with commands relevant to a specific
   //           element on the current page.
   // @param webview The WebView sending the delegate method.
-  // @param type The type of node(s) the context menu is being invoked on
+  // @param node The node(s) the context menu is being invoked on
   // @param x The x position of the mouse pointer (relative to the webview)
   // @param y The y position of the mouse pointer (relative to the webview)
   // @param link_url The absolute URL of the link that contains the node the
@@ -566,7 +566,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // @param frame_encoding Which indicates the encoding of current focused
   // sub frame.
   virtual void ShowContextMenu(WebView* webview,
-                               ContextNode::Type type,
+                               ContextNode node,
                                int x,
                                int y,
                                const GURL& link_url,

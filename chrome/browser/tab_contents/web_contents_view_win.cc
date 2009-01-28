@@ -319,7 +319,7 @@ void WebContentsViewWin::ShowContextMenu(
   RenderViewContextMenuController menu_controller(web_contents_, params);
   RenderViewContextMenu menu(&menu_controller,
                              GetHWND(),
-                             params.type,
+                             params.node,
                              params.misspelled_word,
                              params.dictionary_suggestions,
                              web_contents_->profile());

@@ -2027,7 +2027,7 @@ void RenderView::SyncNavigationState() {
 }
 
 void RenderView::ShowContextMenu(WebView* webview,
-                                 ContextNode::Type type,
+                                 ContextNode node,
                                  int x,
                                  int y,
                                  const GURL& link_url,
@@ -2039,7 +2039,7 @@ void RenderView::ShowContextMenu(WebView* webview,
                                  int edit_flags,
                                  const std::string& security_info) {
   ViewHostMsg_ContextMenu_Params params;
-  params.type = type;
+  params.node = node;
   params.x = x;
   params.y = y;
   params.image_url = image_url;
