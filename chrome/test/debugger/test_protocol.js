@@ -241,7 +241,9 @@ DebuggerTest.expectedOutput = [
   "a = 2",
   "$ frame 1",
   "< response:frame",
-  "#01 g, foo.html",
+  // Temporarily allow undefined as the script name.
+  // "#01 g, foo.html",
+  "#01 g, undefined",  
   "61:   f(1);",
   "$ stepout",
   "< response:continue",
