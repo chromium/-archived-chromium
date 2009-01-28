@@ -779,6 +779,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\renderer\render_process_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\renderer\render_view_unittest.cc"
 				>
 			</File>

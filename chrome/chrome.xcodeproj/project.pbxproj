@@ -86,6 +86,10 @@
 		3380A6A30F2E9207004EF74F /* ipc_sync_channel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */; };
 		3380A6A40F2E9209004EF74F /* ipc_sync_channel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */; };
 		3380A6B60F2E9252004EF74F /* render_thread_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */; };
+		3380A9AB0F2FC3BF004EF74F /* mock_webkit_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3380A9AA0F2FC3BF004EF74F /* mock_webkit_glue.cc */; };
+		3380A9C00F2FC61E004EF74F /* render_process_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */; };
+		3380A9D60F2FC8F6004EF74F /* render_dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE10EAE86A500EBCFC0 /* render_dns_master.cc */; };
+		3380A9D70F2FC8F9004EF74F /* render_dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE10EAE86A500EBCFC0 /* render_dns_master.cc */; };
 		3AEA44DB19C9D93B63D7A2E4 /* url_fetcher_protect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */; };
 		4D1F59FE0F2A6BBB0040C1E3 /* image_diff.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D1F59FD0F2A6BBB0040C1E3 /* image_diff.cc */; };
 		4D1F5A060F2A6D170040C1E3 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
@@ -1100,6 +1104,8 @@
 		28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url_parser.cc; sourceTree = "<group>"; };
 		3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_thread_unittest.cc; sourceTree = "<group>"; };
 		3380A6B90F2E9275004EF74F /* render_view_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_view_unittest.cc; sourceTree = "<group>"; };
+		3380A9AA0F2FC3BF004EF74F /* mock_webkit_glue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mock_webkit_glue.cc; path = ../webkit/glue/mock_webkit_glue.cc; sourceTree = SOURCE_ROOT; };
+		3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_process_unittest.cc; sourceTree = "<group>"; };
 		3CCF8AA8A56FF8FE59F0C299 /* template_url.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url.cc; sourceTree = "<group>"; };
 		433B6EFB7A1D931A13C9556F /* url_fetcher_protect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_fetcher_protect.h; sourceTree = "<group>"; };
 		4D1F59EA0F2A6B590040C1E3 /* image_diff */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = image_diff; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2146,6 +2152,8 @@
 				4D640CCE0EAE868600EBCFC0 /* plugin_channel_host.h */,
 				4D640CCF0EAE868600EBCFC0 /* render_process.cc */,
 				4D640CD00EAE868600EBCFC0 /* render_process.h */,
+				3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */,
+				3380A9AA0F2FC3BF004EF74F /* mock_webkit_glue.cc */,
 				4D640CD10EAE868600EBCFC0 /* render_thread.cc */,
 				3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */,
 				4D640CD20EAE868600EBCFC0 /* render_thread.h */,
@@ -4102,6 +4110,7 @@
 				3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */,
 				3380A6A10F2E91F9004EF74F /* render_process.cc in Sources */,
 				3380A6A30F2E9207004EF74F /* ipc_sync_channel.cc in Sources */,
+				3380A9D70F2FC8F9004EF74F /* render_dns_master.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4255,6 +4264,9 @@
 				3380A6A20F2E91FB004EF74F /* render_process.cc in Sources */,
 				3380A6A40F2E9209004EF74F /* ipc_sync_channel.cc in Sources */,
 				3380A6B60F2E9252004EF74F /* render_thread_unittest.cc in Sources */,
+				3380A9AB0F2FC3BF004EF74F /* mock_webkit_glue.cc in Sources */,
+				3380A9C00F2FC61E004EF74F /* render_process_unittest.cc in Sources */,
+				3380A9D60F2FC8F6004EF74F /* render_dns_master.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

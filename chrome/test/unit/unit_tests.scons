@@ -259,6 +259,10 @@ input_files = ChromeFileList([
     '$CHROME_DIR/renderer/render_view_unittest.cc',
     '$CHROME_DIR/renderer/render_widget_unittest.cc',
     '$CHROME_DIR/renderer/user_script_slave_unittest.cc',
+    '$CHROME_DIR/renderer/render_process_unittest.cc',
+    '$WEBKIT_DIR/glue/mock_webkit_glue.cc',
+    '$CHROME_DIR/renderer/net/render_dns_master.cc',
+    '$CHROME_DIR/renderer/render_thread_unittest.cc',
 
     # test_infrastructure
     '$CHROME_DIR/renderer/mock_render_process.h',
@@ -284,6 +288,7 @@ input_files = ChromeFileList([
   ]),
   MSVSFilter('test_infrastructure', [
     'chrome_test_suite.h',
+    '$CHROME_DIR/common/chrome_plugin_lib.cc',
     '$CHROME_DIR/common/ipc_test_sink.cc',
     '$CHROME_DIR/common/ipc_test_sink.h',
     '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',

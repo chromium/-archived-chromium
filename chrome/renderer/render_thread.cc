@@ -124,13 +124,7 @@ void RenderThread::Init() {
 
   visited_link_slave_ = new VisitedLinkSlave();
   user_script_slave_ = new UserScriptSlave();
-
-// TODO(port)
-#if defined(OS_WIN)
   render_dns_master_.reset(new RenderDnsMaster());
-#else
-  NOTIMPLEMENTED();
-#endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
   IPC::Logging::current()->SetIPCSender(this);

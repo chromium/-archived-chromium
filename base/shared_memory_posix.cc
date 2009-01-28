@@ -141,12 +141,8 @@ bool SharedMemory::ShareToProcessCommon(ProcessHandle process,
 
 
 void SharedMemory::Close() {
-  if (memory_ != NULL) {
-    munmap(memory_, max_size_);
 
-    memory_ = NULL;
-    max_size_ = 0;
-  }
+  Unmap();
 
   std::string posix_name(WideToUTF8(name_));
   if (mapped_file_ > 0) {

@@ -72,20 +72,12 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kJavaScriptFlags)) {
-  // TODO(port)
-  // Try and limit what we pull in for our non-Win unit test bundle
-#if defined(OS_WIN) || (!defined(UNIT_TEST))
     webkit_glue::SetJavaScriptFlags(
       command_line.GetSwitchValue(switches::kJavaScriptFlags));
-#endif
   }
   if (command_line.HasSwitch(switches::kPlaybackMode) ||
       command_line.HasSwitch(switches::kRecordMode)) {
-  // TODO(port)
-  // Try and limit what we pull in for our non-Win unit test bundle
-#if defined(OS_WIN) || (!defined(UNIT_TEST))
       webkit_glue::SetRecordPlaybackMode(true);
-#endif
   }
 
   if (command_line.HasSwitch(switches::kInProcessPlugins) ||
@@ -129,6 +121,15 @@ bool RenderProcess::ShouldLoadPluginsInProcess() {
 
 // static
 base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
+#if defined(OS_LINUX)
+  // Linux has trouble with ""; the Create() call below will fail when
+  // triggered by RenderProcessTest.TestSharedMemoryAllocOne(), every
+  // time.
+  std::wstring root_name(L"root");
+#else
+  std::wstring root_name(L"");
+#endif
+
   self()->clearer_factory_.RevokeAll();
 
   base::SharedMemory* mem = self()->GetSharedMemFromCache(size);
@@ -143,7 +144,7 @@ base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
   mem = new base::SharedMemory();
   if (!mem)
     return NULL;
-  if (!mem->Create(L"", false, true, size)) {
+  if (!mem->Create(root_name, false, true, size)) {
     delete mem;
     return NULL;
   }
@@ -221,10 +222,8 @@ void RenderProcess::ScheduleCacheClearer() {
 void RenderProcess::Cleanup() {
   // TODO(port)
   // Try and limit what we pull in for our non-Win unit test bundle
-#if defined(OS_WIN) || (!defined(UNIT_TEST))
 #ifndef NDEBUG
   // log important leaked objects
   webkit_glue::CheckForLeaks();
-#endif
 #endif
 }
