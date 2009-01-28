@@ -11,6 +11,7 @@
 
 #include "chrome/browser/first_run.h"
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/object_watcher.h"
@@ -112,6 +113,22 @@ bool InvokeGoogleUpdateForRename() {
   return false;
 }
 
+bool LaunchSetupWithParam(const std::wstring& param, int* ret_code) {
+  std::wstring exe_path;
+  if (!PathService::Get(base::DIR_EXE, &exe_path))
+    return false;
+  file_util::AppendToPath(&exe_path, installer_util::kSetupExe);
+  base::ProcessHandle ph;
+  CommandLine cl(exe_path);
+  cl.AppendSwitch(param);
+  if (!base::LaunchApp(cl, false, false, &ph))
+    return false;
+  DWORD wr = ::WaitForSingleObject(ph, INFINITE);
+  if (wr != WAIT_OBJECT_0)
+    return false;
+  return (TRUE == ::GetExitCodeProcess(ph, reinterpret_cast<DWORD*>(ret_code)));
+}
+
 }  // namespace
 
 bool FirstRun::IsChromeFirstRun() {
@@ -188,6 +205,18 @@ bool FirstRun::ProcessMasterPreferences(
 
   if (parse_result & installer_util::MASTER_PROFILE_ERROR)
     return true;
+
+  if (parse_result & installer_util::MASTER_PROFILE_REQUIRE_EULA) {
+    // Show the post-installation EULA. This is done by setup.exe and the
+    // result determines if we continue or not. We wait here until the user
+    // dismisses the dialog.
+    int retcode = 0;
+    if (!LaunchSetupWithParam(installer_util::switches::kShowEula, &retcode) || 
+        (retcode != installer_util::EULA_ACCEPTED)) {
+      LOG(WARNING) << "EULA rejected. Fast exit.";
+      ::ExitProcess(1);
+    }
+  }
 
   std::wstring user_prefs = GetDefaultPrefFilePath(true, user_data_dir);
   if (user_prefs.empty())
