@@ -580,10 +580,8 @@ bool VisitedLinkMaster::InitFromFile() {
   FilePath filename;
   GetDatabaseFileName(&filename);
   ScopedFILE file_closer(OpenFile(filename, "rb+"));
-  if (!file_closer.get()) {
-    DLOG(ERROR) << "Failed to open file " << filename.value();
+  if (!file_closer.get())
     return false;
-  }
 
   int32 num_entries, used_count;
   if (!ReadFileHeader(file_closer.get(), &num_entries, &used_count, salt_))
