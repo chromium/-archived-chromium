@@ -35,13 +35,15 @@ ExternalTabContainer::ExternalTabContainer(
 ExternalTabContainer::~ExternalTabContainer() {
 }
 
-bool ExternalTabContainer::Init(Profile* profile) {
+bool ExternalTabContainer::Init(Profile* profile, HWND parent,
+                                const gfx::Rect& dimensions,
+                                unsigned int style) {
   if (IsWindow()) {
     NOTREACHED();
     return false;
   }
   // First create the container window
-  if (!Create(NULL)) {
+  if (!Create(NULL, dimensions.ToRECT())) {
     NOTREACHED();
     return false;
   }
@@ -87,6 +89,12 @@ bool ExternalTabContainer::Init(Profile* profile) {
       Notify(NOTIFY_EXTERNAL_TAB_CREATED,
               Source<NavigationController>(controller),
               NotificationService::NoDetails());
+
+  // Now apply the parenting and style
+  if (parent)
+    SetParent(parent);
+  ModifyStyle(0, style, 0);
+
   ::ShowWindow(tab_contents_->GetContainerHWND(), SW_SHOW);
   return true;
 }

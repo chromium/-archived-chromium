@@ -2051,17 +2051,23 @@ void AutomationProvider::CloseBrowser(const IPC::Message& message,
   }
 }
 
-void AutomationProvider::CreateExternalTab(const IPC::Message& message) {
+void AutomationProvider::CreateExternalTab(const IPC::Message& message,
+                                           HWND parent,
+                                           const gfx::Rect& dimensions,
+                                           unsigned int style) {
   int tab_handle = 0;
   HWND tab_container_window = NULL;
   ExternalTabContainer *external_tab_container =
       new ExternalTabContainer(this);
-  external_tab_container->Init(profile_);
+  external_tab_container->Init(profile_, parent, dimensions, style);
   TabContents* tab_contents = external_tab_container->tab_contents();
   if (tab_contents) {
     tab_handle = tab_tracker_->Add(tab_contents->controller());
     tab_container_window = *external_tab_container;
+  } else {
+    delete external_tab_container;
   }
+
   Send(new AutomationMsg_CreateExternalTabResponse(message.routing_id(),
                                                    tab_container_window,
                                                    tab_handle));

@@ -749,7 +749,7 @@ bool ExternalTabHandler(HWND external_tab_window) {
 TEST_F(AutomationProxyVisibleTest, CreateExternalTab) {
   HWND external_tab_container = NULL;
   scoped_ptr<TabProxy> tab(automation()->CreateExternalTab(
-      &external_tab_container));
+      NULL, gfx::Rect(), 0, &external_tab_container));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
   if (tab != NULL) {

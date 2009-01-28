@@ -51,7 +51,9 @@ class ExternalTabContainer : public TabContentsDelegate,
     return tab_contents_;
   }
 
-  bool Init(Profile* profile);
+  bool Init(Profile* profile, HWND parent, const gfx::Rect& dimensions,
+            unsigned int style);
+
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,

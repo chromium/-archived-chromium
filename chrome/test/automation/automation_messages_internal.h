@@ -442,11 +442,17 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // TODO(port): Port these messages.
   //
   // This message notifies the AutomationProvider to create a tab which is
-  // hosted by an external process. The response contains the HWND of the
-  // window that contains the external tab and the handle to the newly
-  // created tab
-  // The second parameter is the url to be loaded in the new tab.
-  IPC_MESSAGE_ROUTED0(AutomationMsg_CreateExternalTab)
+  // hosted by an external process.
+  // Request:
+  //   HWND - handle to a window acting as a parent/owner for the new tab.
+  //   gfx::Rect - initial dimensions.
+  //   style - window style to be used at the time of cration.
+  IPC_MESSAGE_ROUTED3(AutomationMsg_CreateExternalTab,
+                      HWND /* owner_or_parent*/,
+                      gfx::Rect /* dimensions */,
+                      unsigned int /* style */)
+  // The response contains the HWND of the window that contains the external
+  // tab and the handle to the newly created tab.
   IPC_MESSAGE_ROUTED2(AutomationMsg_CreateExternalTabResponse, HWND, int)
 #endif  // defined(OS_WIN)
 

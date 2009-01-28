@@ -186,7 +186,8 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Creates a tab that can hosted in an external process. The function
   // returns a TabProxy representing the tab as well as a window handle
   // that can be reparented in another process.
-  TabProxy* CreateExternalTab(HWND* external_tab_container);
+  TabProxy* CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
+                              unsigned int style, HWND* external_tab_container);
 
   int command_execution_timeout_ms() const {
     return command_execution_timeout_ms_;
