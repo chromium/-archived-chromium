@@ -27,6 +27,7 @@
 
 class BookmarkService;
 struct DownloadCreateInfo;
+class FilePath;
 class GURL;
 class HistoryURLProvider;
 struct HistoryURLProviderParams;
@@ -100,7 +101,7 @@ class HistoryService : public CancelableRequestProvider,
   // not call any other functions. The given directory will be used for storing
   // the history files. The BookmarkService is used when deleting URLs to
   // test if a URL is bookmarked; it may be NULL during testing.
-  bool Init(const std::wstring& history_dir, BookmarkService* bookmark_service);
+  bool Init(const FilePath& history_dir, BookmarkService* bookmark_service);
 
   // Did the backend finish loading the databases?
   bool backend_loaded() const { return backend_loaded_; }

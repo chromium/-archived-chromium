@@ -60,8 +60,8 @@ class FirstRun {
   //
   // See chrome/installer/util/master_preferences.h for a description of
   // 'master_preferences' file.
-  static bool ProcessMasterPreferences(const std::wstring& user_data_dir,
-                                       const std::wstring& master_prefs_path,
+  static bool ProcessMasterPreferences(const FilePath& user_data_dir,
+                                       const FilePath& master_prefs_path,
                                        int* preference_details);
 
   // Sets the kShouldShowFirstRunBubble local state pref so that the browser

@@ -378,7 +378,7 @@ TEST_F(HistoryTest, ClearBrowsingData_Downloads) {
 TEST_F(HistoryTest, AddPage) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   // Add the page once from a child frame.
   const GURL test_url("http://www.google.com/");
@@ -402,7 +402,7 @@ TEST_F(HistoryTest, AddPage) {
 TEST_F(HistoryTest, AddPageSameTimes) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   Time now = Time::Now();
   const GURL test_urls[] = {
@@ -442,7 +442,7 @@ TEST_F(HistoryTest, AddPageSameTimes) {
 TEST_F(HistoryTest, AddRedirect) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   const wchar_t* first_sequence[] = {
     L"http://first.page/",
@@ -513,7 +513,7 @@ TEST_F(HistoryTest, AddRedirect) {
 TEST_F(HistoryTest, Typed) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   // Add the page once as typed.
   const GURL test_url("http://www.google.com/");
@@ -556,7 +556,7 @@ TEST_F(HistoryTest, Typed) {
 TEST_F(HistoryTest, SetTitle) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   // Add a URL.
   const GURL existing_url(L"http://www.google.com/");
@@ -587,7 +587,7 @@ TEST_F(HistoryTest, Segments) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
 
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   static const void* scope = static_cast<void*>(this);
 
@@ -653,7 +653,7 @@ TEST_F(HistoryTest, Segments) {
 TEST_F(HistoryTest, Thumbnails) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   scoped_ptr<SkBitmap> thumbnail(
       JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
@@ -803,7 +803,7 @@ class HistoryDBTaskImpl : public HistoryDBTask {
 TEST_F(HistoryTest, HistoryDBTask) {
   CancelableRequestConsumerT<int, 0> request_consumer;
   HistoryService* history = new HistoryService();
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
   scoped_refptr<HistoryDBTaskImpl> task(new HistoryDBTaskImpl());
   history_service_ = history;
   history->ScheduleDBTask(task.get(), &request_consumer);
@@ -821,7 +821,7 @@ TEST_F(HistoryTest, HistoryDBTask) {
 TEST_F(HistoryTest, HistoryDBTaskCanceled) {
   CancelableRequestConsumerT<int, 0> request_consumer;
   HistoryService* history = new HistoryService();
-  ASSERT_TRUE(history->Init(history_dir_, NULL));
+  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
   scoped_refptr<HistoryDBTaskImpl> task(new HistoryDBTaskImpl());
   history_service_ = history;
   history->ScheduleDBTask(task.get(), &request_consumer);

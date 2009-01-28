@@ -37,8 +37,8 @@ static net::ProxyInfo* CreateProxyInfo() {
 
 // static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
-    Profile* profile, const std::wstring& cookie_store_path,
-    const std::wstring& disk_cache_path) {
+    Profile* profile, const FilePath& cookie_store_path,
+    const FilePath& disk_cache_path) {
   DCHECK(!profile->IsOffTheRecord());
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
 
@@ -46,7 +46,8 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   context->proxy_service_ = net::ProxyService::Create(proxy_info.get());
 
   net::HttpCache* cache =
-      new net::HttpCache(context->proxy_service_, disk_cache_path, 0);
+      new net::HttpCache(context->proxy_service_,
+                         disk_cache_path.ToWStringHack(), 0);
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   bool record_mode = chrome::kRecordModeEnabled &&
@@ -65,7 +66,8 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   if (!context->cookie_store_) {
     DCHECK(!cookie_store_path.empty());
     context->cookie_db_.reset(new SQLitePersistentCookieStore(
-        cookie_store_path, g_browser_process->db_thread()->message_loop()));
+        cookie_store_path.ToWStringHack(),
+        g_browser_process->db_thread()->message_loop()));
     context->cookie_store_ = new net::CookieMonster(context->cookie_db_.get());
   }
 

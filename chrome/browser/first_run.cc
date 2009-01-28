@@ -83,15 +83,16 @@ bool GetBackupChromeFile(std::wstring* path) {
 
 std::wstring GetDefaultPrefFilePath(bool create_profile_dir, 
                                     const std::wstring& user_data_dir) {
-  std::wstring default_pref_dir =
-      ProfileManager::GetDefaultProfileDir(user_data_dir);
+  FilePath default_pref_dir = ProfileManager::GetDefaultProfileDir(
+      FilePath::FromWStringHack(user_data_dir));
   if (create_profile_dir) {
     if (!file_util::PathExists(default_pref_dir)) {
       if (!file_util::CreateDirectory(default_pref_dir))
         return std::wstring();
     }
   }
-  return ProfileManager::GetDefaultProfilePath(default_pref_dir);
+  return ProfileManager::GetDefaultProfilePath(default_pref_dir)
+      .ToWStringHack();
 }
 
 bool InvokeGoogleUpdateForRename() {
@@ -180,8 +181,8 @@ bool FirstRun::CreateSentinel() {
 }
 
 bool FirstRun::ProcessMasterPreferences(
-    const std::wstring& user_data_dir,
-    const std::wstring& master_prefs_path,
+    const FilePath& user_data_dir,
+    const FilePath& master_prefs_path,
     int* preference_details) {
   DCHECK(!user_data_dir.empty());
   if (preference_details)
@@ -196,7 +197,7 @@ bool FirstRun::ProcessMasterPreferences(
     file_util::AppendToPath(&master_path, installer_util::kDefaultMasterPrefs);
     master_prefs = master_path;
   } else {
-    master_prefs = master_prefs_path;
+    master_prefs = master_prefs_path.ToWStringHack();
   }
 
   int parse_result = installer_util::ParseDistributionPreferences(master_prefs);
@@ -218,13 +219,14 @@ bool FirstRun::ProcessMasterPreferences(
     }
   }
 
-  std::wstring user_prefs = GetDefaultPrefFilePath(true, user_data_dir);
+  FilePath user_prefs = FilePath::FromWStringHack(
+      GetDefaultPrefFilePath(true, user_data_dir.ToWStringHack()));
   if (user_prefs.empty())
     return true;
 
   // The master prefs are regular prefs so we can just copy the file
   // to the default place and they just work.
-  if (!file_util::CopyFile(master_prefs, user_prefs))
+  if (!file_util::CopyFile(master_prefs, user_prefs.ToWStringHack()))
     return true;
 
   if (!(parse_result & installer_util::MASTER_PROFILE_NO_FIRST_RUN_UI))

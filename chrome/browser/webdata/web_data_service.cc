@@ -32,13 +32,13 @@ WebDataService::~WebDataService() {
   }
 }
 
-bool WebDataService::Init(const std::wstring& profile_path) {
-  std::wstring path = profile_path;
-  file_util::AppendToPath(&path, chrome::kWebDataFilename);
+bool WebDataService::Init(const FilePath& profile_path) {
+  FilePath path = profile_path;
+  path = path.Append(chrome::kWebDataFilename);
   return InitWithPath(path);
 }
 
-bool WebDataService::InitWithPath(const std::wstring& path) {
+bool WebDataService::InitWithPath(const FilePath& path) {
   thread_ = new base::Thread("Chrome_WebDataThread");
 
   if (!thread_->Start()) {
@@ -384,14 +384,14 @@ void WebDataService::Commit() {
   }
 }
 
-void WebDataService::InitializeDatabase(const std::wstring& path) {
+void WebDataService::InitializeDatabase(const FilePath& path) {
   DCHECK(!db_);
   // In the rare case where the db fails to initialize a dialog may get shown
   // the blocks the caller, yet allows other messages through. For this reason
   // we only set db_ to the created database if creation is successful. That
   // way other methods won't do anything as db_ is still NULL.
   WebDatabase* db = new WebDatabase();
-  if (!db->Init(path)) {
+  if (!db->Init(path.ToWStringHack())) {
     NOTREACHED() << "Cannot initialize the web database";
     delete db;
     return;

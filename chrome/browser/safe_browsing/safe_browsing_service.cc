@@ -58,8 +58,7 @@ void SafeBrowsingService::Initialize(MessageLoop* io_loop) {
   FilePath user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
   ProfileManager* profile_manager = g_browser_process->profile_manager();
-  Profile* profile = profile_manager->GetDefaultProfile(
-      user_data_dir.ToWStringHack());
+  Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
   PrefService* pref_service = profile->GetPrefs();
   if (pref_service->GetBoolean(prefs::kSafeBrowsingEnabled))
     Start();

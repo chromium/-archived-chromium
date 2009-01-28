@@ -513,7 +513,8 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
   }
 
   // Gears requires the data dir to be available on startup.
-  std::wstring data_dir = plugin_service_->GetChromePluginDataDir();;
+  std::wstring data_dir =
+      plugin_service_->GetChromePluginDataDir().ToWStringHack();
   DCHECK(!data_dir.empty());
   cmd_line.AppendSwitchWithValue(switches::kPluginDataDir, data_dir);
 

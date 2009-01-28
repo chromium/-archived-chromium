@@ -773,7 +773,7 @@ TEST_F(BookmarkModelTestWithProfile2, MigrateFromDBToFileTest) {
   PathService::Get(chrome::DIR_TEST_DATA, &old_history_path);
   file_util::AppendToPath(&old_history_path, L"bookmarks");
   file_util::AppendToPath(&old_history_path, L"History_with_starred");
-  std::wstring new_history_path = profile_->GetPath();
+  std::wstring new_history_path = profile_->GetPath().ToWStringHack();
   file_util::Delete(new_history_path, true);
   file_util::CreateDirectory(new_history_path);
   file_util::AppendToPath(&new_history_path, chrome::kHistoryFilename);

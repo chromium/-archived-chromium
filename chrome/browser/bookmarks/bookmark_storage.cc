@@ -34,9 +34,9 @@ BookmarkStorage::BookmarkStorage(Profile* profile, BookmarkModel* model)
     : model_(model),
       ALLOW_THIS_IN_INITIALIZER_LIST(save_factory_(this)),
       backend_thread_(g_browser_process->file_thread()) {
-  std::wstring path = profile->GetPath();
+  std::wstring path = profile->GetPath().ToWStringHack();
   file_util::AppendToPath(&path, chrome::kBookmarksFileName);
-  std::wstring tmp_history_path = profile->GetPath();
+  std::wstring tmp_history_path = profile->GetPath().ToWStringHack();
   file_util::AppendToPath(&tmp_history_path, chrome::kHistoryBookmarksFileName);
   backend_ = new BookmarkStorageBackend(path, tmp_history_path);
 }

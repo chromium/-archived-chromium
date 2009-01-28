@@ -105,7 +105,8 @@ class TabStripModelTest : public testing::Test {
     profile_path_ = test_dir_;
     file_util::AppendToPath(&profile_path_, L"New Profile");
 
-    profile_ = ProfileManager::CreateProfile(profile_path_,
+    profile_ = ProfileManager::CreateProfile(
+        FilePath::FromWStringHack(profile_path_),
         L"New Profile", L"new-profile", L"");
     ASSERT_TRUE(profile_);
     pm_.AddProfile(profile_);
@@ -115,7 +116,7 @@ class TabStripModelTest : public testing::Test {
     TabContents::RegisterFactory(kHTTPTabContentsType, NULL);
 
     // Removes a profile from the set of currently-loaded profiles.
-    pm_.RemoveProfileByPath(profile_path_);
+    pm_.RemoveProfileByPath(FilePath::FromWStringHack(profile_path_));
 
     // Clean up test directory
     ASSERT_TRUE(file_util::Delete(test_dir_, true));

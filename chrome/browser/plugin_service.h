@@ -48,8 +48,8 @@ class PluginService {
 
   // Sets/gets the data directory that Chrome plugins should use to store
   // persistent data.
-  void SetChromePluginDataDir(const std::wstring& data_dir);
-  const std::wstring& GetChromePluginDataDir();
+  void SetChromePluginDataDir(const FilePath& data_dir);
+  const FilePath& GetChromePluginDataDir();
 
   // Gets the browser's UI locale.
   const std::wstring& GetUILocale();
@@ -131,7 +131,7 @@ class PluginService {
   ResourceDispatcherHost* resource_dispatcher_host_;
 
   // The data directory that Chrome plugins should use to store persistent data.
-  std::wstring chrome_plugin_data_dir_;
+  FilePath chrome_plugin_data_dir_;
 
   // The browser's UI locale.
   const std::wstring ui_locale_;

@@ -25,8 +25,8 @@ class ChromeURLRequestContext : public URLRequestContext,
   // Create an instance for use with an 'original' (non-OTR) profile. This is
   // expected to get called on the UI thread.
   static ChromeURLRequestContext* CreateOriginal(
-      Profile* profile, const std::wstring& cookie_store_path,
-      const std::wstring& disk_cache_path);
+      Profile* profile, const FilePath& cookie_store_path,
+      const FilePath& disk_cache_path);
 
   // Create an instance for use with an OTR profile. This is expected to get
   // called on the UI thread.

@@ -123,14 +123,15 @@ HistoryService::~HistoryService() {
   }
 }
 
-bool HistoryService::Init(const std::wstring& history_dir,
+bool HistoryService::Init(const FilePath& history_dir,
                           BookmarkService* bookmark_service) {
   if (!thread_->Start())
     return false;
 
   // Create the history backend.
   scoped_refptr<HistoryBackend> backend(
-      new HistoryBackend(history_dir, new BackendDelegate(this),
+      new HistoryBackend(history_dir.ToWStringHack(),
+                         new BackendDelegate(this),
                          bookmark_service));
   history_backend_.swap(backend);
 

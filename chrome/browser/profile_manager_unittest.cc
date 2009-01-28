@@ -12,18 +12,16 @@
 #include "chrome/common/pref_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-
 class ProfileManagerTest : public testing::Test {
 protected:
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-    file_util::AppendToPath(&test_dir_, L"ProfileManagerTest");
+    test_dir_ = test_dir_.Append(FILE_PATH_LITERAL("ProfileManagerTest"));
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(test_dir_, true);
-    CreateDirectory(test_dir_.c_str(), NULL);
+    file_util::CreateDirectory(test_dir_);
   }
   virtual void TearDown() {
     // Clean up test directory
@@ -34,35 +32,33 @@ protected:
   MessageLoopForUI message_loop_;
 
   // the path to temporary directory used to contain the test operations
-  std::wstring test_dir_;
-};
-
+  FilePath test_dir_;
 };
 
 TEST_F(ProfileManagerTest, CopyProfileData) {
-  std::wstring source_path;
+  FilePath source_path;
   PathService::Get(chrome::DIR_TEST_DATA, &source_path);
-  file_util::AppendToPath(&source_path, L"profiles");
+  source_path = source_path.Append(FILE_PATH_LITERAL("profiles"));
 
   ASSERT_FALSE(ProfileManager::IsProfile(source_path));
-  file_util::AppendToPath(&source_path, L"sample");
+  source_path = source_path.Append(FILE_PATH_LITERAL("sample"));
   ASSERT_TRUE(ProfileManager::IsProfile(source_path));
 
-  std::wstring dest_path = test_dir_;
-  file_util::AppendToPath(&dest_path, L"profile_copy");
+  FilePath dest_path = test_dir_;
+  dest_path = dest_path.Append(FILE_PATH_LITERAL("profile_copy"));
   ASSERT_FALSE(ProfileManager::IsProfile(dest_path));
   ASSERT_TRUE(ProfileManager::CopyProfileData(source_path, dest_path));
   ASSERT_TRUE(ProfileManager::IsProfile(dest_path));
 }
 
 TEST_F(ProfileManagerTest, CreateProfile) {
-  std::wstring source_path;
+  FilePath source_path;
   PathService::Get(chrome::DIR_TEST_DATA, &source_path);
-  file_util::AppendToPath(&source_path, L"profiles");
-  file_util::AppendToPath(&source_path, L"sample");
+  source_path = source_path.Append(FILE_PATH_LITERAL("profiles"));
+  source_path = source_path.Append(FILE_PATH_LITERAL("sample"));
 
-  std::wstring dest_path = test_dir_;
-  file_util::AppendToPath(&dest_path, L"New Profile");
+  FilePath dest_path = test_dir_;
+  dest_path = dest_path.Append(FILE_PATH_LITERAL("New Profile"));
 
   scoped_ptr<Profile> profile;
 

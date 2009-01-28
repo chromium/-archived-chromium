@@ -10,7 +10,10 @@
 #include "base/singleton.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/plugin_service.h"
+#include "chrome/browser/profile_manager.h"
+#include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -122,51 +125,6 @@ UserDataManager* UserDataManager::Get() {
   return instance_;
 }
 
-//--------------------------------------------------------------------------
-
-std::wstring ProfileManager::GetDefaultProfileDir(
-    const std::wstring& user_data_dir) {
-  std::wstring default_profile_dir(user_data_dir);
-  file_util::AppendToPath(&default_profile_dir, chrome::kNotSignedInProfile);
-  return default_profile_dir;
-}
-
-std::wstring ProfileManager::GetDefaultProfilePath(
-    const std::wstring &profile_dir) {
-  std::wstring default_prefs_path(profile_dir);
-  file_util::AppendToPath(&default_prefs_path, chrome::kPreferencesFilename);
-  return default_prefs_path;
-}
-
-Profile* ProfileManager::GetDefaultProfile(const std::wstring& user_data_dir) {
-  std::wstring default_profile_dir = GetDefaultProfileDir(user_data_dir);
-  return new Profile(default_profile_dir);
-}
-
-Profile* ProfileManager::FakeProfile() {
-  return new Profile(L"");
-}
-
-//--------------------------------------------------------------------------
-
-Profile::Profile(const std::wstring& path)
-    : path_(path) {
-}
-
-std::wstring Profile::GetPrefFilePath() {
-  std::wstring pref_file_path = path_;
-  file_util::AppendToPath(&pref_file_path, chrome::kPreferencesFilename);
-  return pref_file_path;
-}
-
-PrefService* Profile::GetPrefs() {
-  if (!prefs_.get())
-    prefs_.reset(new PrefService(GetPrefFilePath()));
-  return prefs_.get();
-}
-
-//--------------------------------------------------------------------------
-
 bool ShellIntegration::SetAsDefaultBrowser() {
   return true;
 }
@@ -209,7 +167,7 @@ PluginService::PluginService()
 PluginService::~PluginService() {
 }
 
-void PluginService::SetChromePluginDataDir(const std::wstring& data_dir) {
+void PluginService::SetChromePluginDataDir(const FilePath& data_dir) {
   AutoLock lock(lock_);
   chrome_plugin_data_dir_ = data_dir;
 }
@@ -247,3 +205,21 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
   return new TabContents;
 }
 
+//--------------------------------------------------------------------------
+
+bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
+  return false;
+}
+
+bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
+                                    Event event) {
+  return false;
+}
+
+// We link this in for now to avoid hauling in all of WebCore (which we will
+// have to eventually do)
+namespace webkit_glue {
+std::string GetUserAgent(const GURL& url) {
+  return "";
+}
+}

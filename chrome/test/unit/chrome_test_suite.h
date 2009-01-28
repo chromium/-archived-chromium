@@ -59,7 +59,10 @@ protected:
 #endif
 
     // initialize the global StatsTable for unit_tests
-    stats_table_ = new StatsTable("unit_tests", 20, 200);
+    std::string statsfile = "unit_tests";
+    std::string pid_string = StringPrintf("-%d", base::GetCurrentProcId());
+    statsfile += pid_string;
+    stats_table_ = new StatsTable(statsfile, 20, 200);
     StatsTable::set_current(stats_table_);
   }
 

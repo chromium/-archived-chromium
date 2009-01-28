@@ -29,17 +29,17 @@ const wchar_t kBrowserResourcesDll[] = L"chrome.dll";
 
 // filenames
 const wchar_t kArchivedHistoryFilename[] = L"Archived History";
-const wchar_t kCacheDirname[] = L"Cache";
+const FilePath::CharType kCacheDirname[] = FPL("Cache");
 const wchar_t kChromePluginDataDirname[] = L"Plugin Data";
-const wchar_t kCookieFilename[] = L"Cookies";
-const wchar_t kHistoryFilename[] = L"History";
+const FilePath::CharType kCookieFilename[] = FPL("Cookies");
+const FilePath::CharType kHistoryFilename[] = FPL("History");
 const wchar_t kLocalStateFilename[] = L"Local State";
-const wchar_t kPreferencesFilename[] = L"Preferences";
+const FilePath::CharType kPreferencesFilename[] = FPL("Preferences");
 const FilePath::CharType kSafeBrowsingFilename[] = FPL("Safe Browsing");
 const wchar_t kThumbnailsFilename[] = L"Thumbnails";
 const wchar_t kUserDataDirname[] = L"User Data";
-const wchar_t kUserScriptsDirname[] = L"User Scripts";
-const wchar_t kWebDataFilename[] = L"Web Data";
+const FilePath::CharType kUserScriptsDirname[] = FPL("User Scripts");
+const FilePath::CharType kWebDataFilename[] = FPL("Web Data");
 const wchar_t kBookmarksFileName[] = L"Bookmarks";
 const wchar_t kHistoryBookmarksFileName[] = L"Bookmarks From History";
 const wchar_t kCustomDictionaryFileName[] = L"Custom Dictionary.txt";

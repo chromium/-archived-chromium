@@ -266,7 +266,8 @@ class DelayedInitTask : public Task {
     if (!PathService::Get(chrome::DIR_USER_DATA, &user_data_dir))
       return false;
     ProfileManager* profile_manager = g_browser_process->profile_manager();
-    Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
+    Profile* profile = profile_manager->
+        GetDefaultProfile(FilePath::FromWStringHack(user_data_dir));
     if (!profile)
       return false;
     const TemplateURL* url_template =

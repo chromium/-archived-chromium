@@ -471,7 +471,8 @@ void HistoryBackend::InitImpl() {
   // Compute the file names. Note that the index file can be removed when the
   // text db manager is finished being hooked up.
   std::wstring history_name = history_dir_;
-  file_util::AppendToPath(&history_name, chrome::kHistoryFilename);
+  file_util::AppendToPath(&history_name,
+                          FilePath(chrome::kHistoryFilename).ToWStringHack());
   std::wstring thumbnail_name = GetThumbnailFileName();
   std::wstring archived_name = GetArchivedFileName();
   std::wstring tmp_bookmarks_file = history_dir_;

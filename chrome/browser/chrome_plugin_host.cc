@@ -423,7 +423,7 @@ int STDCALL CPB_GetBrowsingContextInfo(
     PluginService* service = PluginService::GetInstance();
     if (!service)
       return CPERR_FAILURE;
-    std::wstring wretval = service->GetChromePluginDataDir();
+    std::wstring wretval = service->GetChromePluginDataDir().ToWStringHack();
     file_util::AppendToPath(&wretval, chrome::kChromePluginDataDirname);
     *static_cast<char**>(buf) = CPB_StringDup(CPB_Alloc, WideToUTF8(wretval));
     return CPERR_SUCCESS;

@@ -73,7 +73,8 @@ BaseSessionService::BaseSessionService(SessionType type,
     // We should never be created when off the record.
     DCHECK(!profile->IsOffTheRecord());
   }
-  backend_ = new SessionBackend(type, profile_ ? profile_->GetPath() : path_);
+  backend_ = new SessionBackend(type,
+      profile_ ? profile_->GetPath().ToWStringHack() : path_);
   DCHECK(backend_.get());
   backend_thread_ = g_browser_process->file_thread();
   if (!backend_thread_)

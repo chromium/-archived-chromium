@@ -20,6 +20,7 @@
 struct IE7PasswordInfo;
 #endif
 struct PasswordForm;
+class FilePath;
 class GURL;
 class ShutdownTask;
 class TemplateURL;
@@ -143,7 +144,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
 
   // Initializes the web data service. Returns false on failure
   // Takes the path of the profile directory as its argument.
-  bool Init(const std::wstring& profile_path);
+  bool Init(const FilePath& profile_path);
 
   // Shutdown the web data service. The service can no longer be used after this
   // call.
@@ -387,7 +388,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   friend class WebDataRequest;
 
   // This is invoked by the unit test; path is the path of the Web Data file.
-  bool InitWithPath(const std::wstring& path);
+  bool InitWithPath(const FilePath& path);
 
   // Invoked by request implementations when a request has been processed.
   void RequestCompleted(Handle h);
@@ -407,7 +408,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
                           std::vector<TemplateURL*> > SetKeywordsRequest;
 
   // Initialize the database with the provided path.
-  void InitializeDatabase(const std::wstring& path);
+  void InitializeDatabase(const FilePath& path);
 
   // Commit any pending transaction and deletes the database.
   void ShutdownDatabase();

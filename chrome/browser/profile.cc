@@ -13,22 +13,13 @@
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
-#include "chrome/browser/history/history.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/search_engines/template_url_fetcher.h"
-#include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/sessions/session_service.h"
-#include "chrome/browser/sessions/tab_restore_service.h"
-#include "chrome/browser/spellchecker.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/chrome_constants.h"
@@ -38,6 +29,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/cookie_policy.h"
@@ -45,6 +37,25 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
+
+#if defined(OS_POSIX)
+// TODO(port): get rid of this include. It's used just to provide declarations
+// and stub definitions for classes we encouter during the porting effort.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
+// TODO(port): Get rid of this section and finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/history/history.h"
+#include "chrome/browser/search_engines/template_url_fetcher.h"
+#include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
+#include "chrome/browser/spellchecker.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#endif
 
 using base::Time;
 using base::TimeDelta;
@@ -61,13 +72,20 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kSearchSuggestEnabled, true);
   prefs->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
   prefs->RegisterBooleanPref(prefs::kSafeBrowsingEnabled, true);
+#if defined(OS_MACOSX)
+  // MASSIVE HACK!!! We don't have localization working yet. Undo this once we
+  // do. TODO(port): take this out
+  prefs->RegisterStringPref(prefs::kSpellCheckDictionary,
+      L"IDS_SPELLCHECK_DICTIONARY");
+#elif defined(OS_WIN) || defined(OS_LINUX)
   prefs->RegisterLocalizedStringPref(prefs::kSpellCheckDictionary,
       IDS_SPELLCHECK_DICTIONARY);
+#endif
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
 }
 
 //static
-Profile* Profile::CreateProfile(const std::wstring& path) {
+Profile* Profile::CreateProfile(const FilePath& path) {
   return new ProfileImpl(path);
 }
 
@@ -112,7 +130,7 @@ class OffTheRecordProfileImpl : public Profile,
         this, NOTIFY_BROWSER_CLOSED, NotificationService::AllSources());
   }
 
-  virtual std::wstring GetPath() { return profile_->GetPath(); }
+  virtual FilePath GetPath() { return profile_->GetPath(); }
 
   virtual bool IsOffTheRecord() {
     return true;
@@ -298,18 +316,18 @@ class OffTheRecordProfileImpl : public Profile,
   DISALLOW_EVIL_CONSTRUCTORS(OffTheRecordProfileImpl);
 };
 
-ProfileImpl::ProfileImpl(const std::wstring& path)
+ProfileImpl::ProfileImpl(const FilePath& path)
     : path_(path),
       off_the_record_(false),
-      history_service_created_(false),
-      created_web_data_service_(false),
-      created_download_manager_(false),
-      request_context_(NULL),
-      start_time_(Time::Now()),
-      spellchecker_(NULL),
 #ifdef CHROME_PERSONALIZATION
       personalization_(NULL),
 #endif
+      request_context_(NULL),
+      history_service_created_(false),
+      created_web_data_service_(false),
+      created_download_manager_(false),
+      start_time_(Time::Now()),
+      spellchecker_(NULL),
       shutdown_session_service_(false) {
   DCHECK(!path.empty()) << "Using an empty path will attempt to write " <<
                             "profile files to the root directory!";
@@ -329,14 +347,14 @@ void ProfileImpl::InitExtensions() {
   bool extensions_enabled = 
       command_line->HasSwitch(switches::kEnableExtensions);
 
-  std::wstring script_dir;
+  FilePath script_dir;
   if (user_scripts_enabled) {
     script_dir = GetPath();
-    file_util::AppendToPath(&script_dir, chrome::kUserScriptsDirname);
+    script_dir = script_dir.Append(chrome::kUserScriptsDirname);
   }
 
   user_script_master_ = new UserScriptMaster(
-      g_browser_process->file_thread()->message_loop(), FilePath(script_dir));
+      g_browser_process->file_thread()->message_loop(), script_dir);
   extensions_service_ = new ExtensionsService(
       FilePath(GetPath()), user_script_master_.get());
 
@@ -418,7 +436,7 @@ ProfileImpl::~ProfileImpl() {
   MarkAsCleanShutdown();
 }
 
-std::wstring ProfileImpl::GetPath() {
+FilePath ProfileImpl::GetPath() {
   return path_;
 }
 
@@ -449,10 +467,10 @@ static void BroadcastNewHistoryTable(base::SharedMemory* table_memory) {
       continue;
 
     base::SharedMemoryHandle new_table;
-    HANDLE process = i->second->process().handle();
+    base::ProcessHandle process = i->second->process().handle();
     if (!process) {
       // process can be null if it's started with the --single-process flag.
-      process = GetCurrentProcess();
+      process = base::Process::Current().handle();
     }
 
     table_memory->ShareToProcess(process, &new_table);
@@ -484,7 +502,7 @@ UserScriptMaster* ProfileImpl::GetUserScriptMaster() {
 
 PrefService* ProfileImpl::GetPrefs() {
   if (!prefs_.get()) {
-    prefs_.reset(new PrefService(GetPrefFilePath()));
+    prefs_.reset(new PrefService(GetPrefFilePath().ToWStringHack()));
 
     // The Profile class and ProfileManager class may read some prefs so
     // register known prefs as soon as possible.
@@ -504,18 +522,18 @@ PrefService* ProfileImpl::GetPrefs() {
   return prefs_.get();
 }
 
-std::wstring ProfileImpl::GetPrefFilePath() {
-  std::wstring pref_file_path = path_;
-  file_util::AppendToPath(&pref_file_path, chrome::kPreferencesFilename);
+FilePath ProfileImpl::GetPrefFilePath() {
+  FilePath pref_file_path = path_;
+  pref_file_path = pref_file_path.Append(chrome::kPreferencesFilename);
   return pref_file_path;
 }
 
 URLRequestContext* ProfileImpl::GetRequestContext() {
   if (!request_context_) {
-    std::wstring cookie_path = GetPath();
-    file_util::AppendToPath(&cookie_path, chrome::kCookieFilename);
-    std::wstring cache_path = GetPath();
-    file_util::AppendToPath(&cache_path, chrome::kCacheDirname);
+    FilePath cookie_path = GetPath();
+    cookie_path = cookie_path.Append(chrome::kCookieFilename);
+    FilePath cache_path = GetPath();
+    cache_path = cache_path.Append(chrome::kCacheDirname);
     request_context_ = ChromeURLRequestContext::CreateOriginal(
         this, cookie_path, cache_path);
     request_context_->AddRef();

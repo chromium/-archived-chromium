@@ -147,7 +147,8 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
 
     // Create a profile.
     profile_manager_ = new ProfileManager();
-    profile = ProfileManager::CreateProfile(profile_path_,
+    profile = ProfileManager::CreateProfile(
+        FilePath::FromWStringHack(profile_path_),
         L"New Profile", L"new-profile", L"");
     ASSERT_TRUE(profile);
     profile_manager_->AddProfile(profile);
@@ -189,8 +190,10 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
     helper_.set_service(NULL);
     delete profile_manager_;
     profile_manager_ = new ProfileManager();
-    profile_manager_->AddProfileByPath(profile_path_);
-    profile = profile_manager_->GetProfileByPath(profile_path_);
+    profile_manager_->AddProfileByPath(
+        FilePath::FromWStringHack(profile_path_));
+    profile = profile_manager_->GetProfileByPath(
+        FilePath::FromWStringHack(profile_path_));
     helper_.set_service(profile->GetSessionService());
   }
 

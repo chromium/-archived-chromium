@@ -45,12 +45,12 @@ void PluginService::LoadChromePlugins(
   ChromePluginLib::LoadChromePlugins(GetCPBrowserFuncsForBrowser());
 }
 
-void PluginService::SetChromePluginDataDir(const std::wstring& data_dir) {
+void PluginService::SetChromePluginDataDir(const FilePath& data_dir) {
   AutoLock lock(lock_);
   chrome_plugin_data_dir_ = data_dir;
 }
 
-const std::wstring& PluginService::GetChromePluginDataDir() {
+const FilePath& PluginService::GetChromePluginDataDir() {
   AutoLock lock(lock_);
   return chrome_plugin_data_dir_;
 }

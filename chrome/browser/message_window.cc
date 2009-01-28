@@ -34,14 +34,14 @@ BOOL CALLBACK BrowserWindowEnumeration(HWND window, LPARAM param) {
 
 }  // namespace
 
-MessageWindow::MessageWindow(const std::wstring& user_data_dir)
+MessageWindow::MessageWindow(const FilePath& user_data_dir)
     : window_(NULL),
       locked_(false) {
   // Look for a Chrome instance that uses the same profile directory:
   remote_window_ = FindWindowEx(HWND_MESSAGE,
                                 NULL,
                                 chrome::kMessageWindowClass,
-                                user_data_dir.c_str());
+                                user_data_dir.ToWStringHack().c_str());
 }
 
 MessageWindow::~MessageWindow() {
@@ -199,7 +199,7 @@ LRESULT MessageWindow::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
     PrefService* prefs = g_browser_process->local_state();
     DCHECK(prefs);
 
-    std::wstring user_data_dir;
+    FilePath user_data_dir;
     PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
     ProfileManager* profile_manager = g_browser_process->profile_manager();
     Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);

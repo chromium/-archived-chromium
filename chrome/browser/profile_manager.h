@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/non_thread_safe.h"
 #include "base/system_monitor.h"
@@ -26,17 +27,18 @@ class AvailableProfile {
  public:
   AvailableProfile(const std::wstring& name,
                    const std::wstring& id,
-                   const std::wstring& directory)
+                   const FilePath& directory)
       : name_(name), id_(id), directory_(directory) {}
 
   // Decodes a DictionaryValue into an AvailableProfile
   static AvailableProfile* FromValue(DictionaryValue* value) {
     DCHECK(value);
-    std::wstring name, id, directory;
+    std::wstring name, id;
+    FilePath::StringType directory;
     value->GetString(L"name", &name);
     value->GetString(L"id", &id);
     value->GetString(L"directory", &directory);
-    return new AvailableProfile(name, id, directory);
+    return new AvailableProfile(name, id, FilePath(directory));
   }
 
   // Encodes this AvailableProfile into a new DictionaryValue
@@ -44,18 +46,18 @@ class AvailableProfile {
     DictionaryValue* value = new DictionaryValue;
     value->SetString(L"name", name_);
     value->SetString(L"id", id_);
-    value->SetString(L"directory", directory_);
+    value->SetString(L"directory", directory_.value());
     return value;
   }
 
   std::wstring name() const { return name_; }
   std::wstring id() const { return id_; }
-  std::wstring directory() const { return directory_; }
+  FilePath directory() const { return directory_; }
 
  private:
-  std::wstring name_;       // User-visible profile name
-  std::wstring id_;         // Profile identifier
-  std::wstring directory_;  // Subdirectory containing profile (not full path)
+  std::wstring name_;  // User-visible profile name
+  std::wstring id_;  // Profile identifier
+  FilePath directory_;  // Subdirectory containing profile (not full path)
 
   DISALLOW_EVIL_CONSTRUCTORS(AvailableProfile);
 };
@@ -75,12 +77,12 @@ class ProfileManager : public NonThreadSafe,
   // Returns the default profile.  This adds the profile to the
   // ProfileManager if it doesn't already exist.  This method returns NULL if
   // the profile doesn't exist and we can't create it.
-  Profile* GetDefaultProfile(const std::wstring& user_data_dir);
+  Profile* GetDefaultProfile(const FilePath& user_data_dir);
 
   // If a profile with the given path is currently managed by this object,
   // return a pointer to the corresponding Profile object;
   // otherwise return NULL.
-  Profile* GetProfileByPath(const std::wstring& path) const;
+  Profile* GetProfileByPath(const FilePath& path) const;
 
   // If a profile with the given ID is currently managed by this object,
   // return a pointer to the corresponding Profile object;
@@ -89,7 +91,7 @@ class ProfileManager : public NonThreadSafe,
 
   // Adds a profile to the set of currently-loaded profiles.  Returns a
   // pointer to a Profile object corresponding to the given path.
-  Profile* AddProfileByPath(const std::wstring& path);
+  Profile* AddProfileByPath(const FilePath& path);
 
   // Adds a profile to the set of currently-loaded profiles.  Returns a
   // pointer to a Profile object corresponding to the given profile ID.
@@ -104,7 +106,7 @@ class ProfileManager : public NonThreadSafe,
 
   // Removes a profile from the set of currently-loaded profiles. The path must
   // be exactly the same (including case) as when GetProfileByPath was called.
-  void RemoveProfileByPath(const std::wstring& path);
+  void RemoveProfileByPath(const FilePath& path);
 
   // Removes a profile from the set of currently-loaded profiles.
   // (Does not delete the profile object.)
@@ -134,26 +136,26 @@ class ProfileManager : public NonThreadSafe,
   // ------------------ static utility functions -------------------
 
   // Returns the path to the profile directory based on the user data directory.
-  static std::wstring GetDefaultProfileDir(const std::wstring& user_data_dir);
+  static FilePath GetDefaultProfileDir(const FilePath& user_data_dir);
 
   // Returns the path to the profile given the user profile directory.
-  static std::wstring GetDefaultProfilePath(const std::wstring& profile_dir);
+  static FilePath GetDefaultProfilePath(const FilePath& profile_dir);
 
   // Tries to determine whether the given path represents a profile
   // directory, and returns true if it thinks it does.
-  static bool IsProfile(const std::wstring& path);
+  static bool IsProfile(const FilePath& path);
 
   // Tries to copy profile data from the source path to the destination path,
   // returning true if successful.
-  static bool CopyProfileData(const std::wstring& source_path,
-                              const std::wstring& destination_path);
+  static bool CopyProfileData(const FilePath& source_path,
+                              const FilePath& destination_path);
 
   // Creates a new profile at the specified path with the given name and ID.
   // |name| is the full-length human-readable name for the profile
   // |nickname| is a shorter name for the profile--can be empty string
   // This method should always return a valid Profile (i.e., should never
   // return NULL).
-  static Profile* CreateProfile(const std::wstring& path,
+  static Profile* CreateProfile(const FilePath& path,
                                 const std::wstring& name,
                                 const std::wstring& nickname,
                                 const std::wstring& id);

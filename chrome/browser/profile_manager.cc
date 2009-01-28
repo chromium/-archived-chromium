@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include <set>
 
 #include "chrome/browser/profile_manager.h"
@@ -14,7 +12,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -22,10 +19,17 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"
 
 #include "generated_resources.h"
+
+#if defined(OS_POSIX)
+// TODO(port): get rid of this include. It's used just to provide declarations
+// and stub definitions for classes we encouter during the porting effort.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 // static
 void ProfileManager::RegisterUserPrefs(PrefService* prefs) {
@@ -68,23 +72,24 @@ ProfileManager::~ProfileManager() {
   available_profiles_.clear();
 }
 
-std::wstring ProfileManager::GetDefaultProfileDir(
-    const std::wstring& user_data_dir) {
-  std::wstring default_profile_dir(user_data_dir);
-  file_util::AppendToPath(&default_profile_dir, chrome::kNotSignedInProfile);
+FilePath ProfileManager::GetDefaultProfileDir(
+    const FilePath& user_data_dir) {
+  FilePath default_profile_dir(user_data_dir);
+  default_profile_dir = default_profile_dir.Append(
+      FilePath::FromWStringHack(chrome::kNotSignedInProfile));
   return default_profile_dir;
 }
 
-std::wstring ProfileManager::GetDefaultProfilePath(
-    const std::wstring &profile_dir) {
-  std::wstring default_prefs_path(profile_dir);
-  file_util::AppendToPath(&default_prefs_path, chrome::kPreferencesFilename);
+FilePath ProfileManager::GetDefaultProfilePath(
+    const FilePath &profile_dir) {
+  FilePath default_prefs_path(profile_dir);
+  default_prefs_path = default_prefs_path.Append(chrome::kPreferencesFilename);
   return default_prefs_path;
 }
 
-Profile* ProfileManager::GetDefaultProfile(const std::wstring& user_data_dir) {
+Profile* ProfileManager::GetDefaultProfile(const FilePath& user_data_dir) {
   // Initialize profile, creating default if necessary
-  std::wstring default_profile_dir = GetDefaultProfileDir(user_data_dir);
+  FilePath default_profile_dir = GetDefaultProfileDir(user_data_dir);
   // If the profile is already loaded (e.g., chrome.exe launched twice), just
   // return it.
   Profile* profile = GetProfileByPath(default_profile_dir);
@@ -118,7 +123,7 @@ Profile* ProfileManager::GetDefaultProfile(const std::wstring& user_data_dir) {
   return profile;
 }
 
-Profile* ProfileManager::AddProfileByPath(const std::wstring& path) {
+Profile* ProfileManager::AddProfileByPath(const FilePath& path) {
   Profile* profile = GetProfileByPath(path);
   if (profile)
     return profile;
@@ -143,9 +148,9 @@ Profile* ProfileManager::AddProfileByID(const std::wstring& id) {
   if (!available)
     return NULL;
 
-  std::wstring path;
+  FilePath path;
   PathService::Get(chrome::DIR_USER_DATA, &path);
-  file_util::AppendToPath(&path, available->directory());
+  path = path.Append(available->directory());
 
   return AddProfileByPath(path);
 }
@@ -169,7 +174,8 @@ bool ProfileManager::AddProfile(Profile* profile) {
   // that's already loaded.
   if (GetProfileByPath(profile->GetPath())) {
     NOTREACHED() << "Attempted to add profile with the same path (" <<
-                    profile->GetPath() << ") as an already-loaded profile.";
+                    profile->GetPath().value() <<
+                    ") as an already-loaded profile.";
     return false;
   }
   if (GetProfileByID(profile->GetID())) {
@@ -192,7 +198,7 @@ void ProfileManager::RemoveProfile(Profile* profile) {
   }
 }
 
-void ProfileManager::RemoveProfileByPath(const std::wstring& path) {
+void ProfileManager::RemoveProfileByPath(const FilePath& path) {
   for (ProfileVector::iterator iter = profiles_.begin();
        iter != profiles_.end(); ++iter) {
     if ((*iter)->GetPath() == path) {
@@ -202,10 +208,10 @@ void ProfileManager::RemoveProfileByPath(const std::wstring& path) {
     }
   }
 
-  NOTREACHED() << "Attempted to remove non-loaded profile: " << path;
+  NOTREACHED() << "Attempted to remove non-loaded profile: " << path.value();
 }
 
-Profile* ProfileManager::GetProfileByPath(const std::wstring& path) const {
+Profile* ProfileManager::GetProfileByPath(const FilePath& path) const {
   for (ProfileVector::const_iterator iter = profiles_.begin();
        iter != profiles_.end(); ++iter) {
     if ((*iter)->GetPath() == path)
@@ -268,66 +274,43 @@ void ProfileManager::ResumeProfile(Profile* profile) {
 
 
 // static
-bool ProfileManager::IsProfile(const std::wstring& path) {
-  std::wstring prefs_path = GetDefaultProfilePath(path);
+bool ProfileManager::IsProfile(const FilePath& path) {
+  FilePath prefs_path = GetDefaultProfilePath(path);
 
-  std::wstring history_path = path;
-  file_util::AppendToPath(&history_path, chrome::kHistoryFilename);
+  FilePath history_path = path;
+  history_path = history_path.Append(chrome::kHistoryFilename);
 
   return file_util::PathExists(prefs_path) &&
          file_util::PathExists(history_path);
 }
 
 // static
-bool ProfileManager::CopyProfileData(const std::wstring& source_path,
-                                     const std::wstring& destination_path) {
+bool ProfileManager::CopyProfileData(const FilePath& source_path,
+                                     const FilePath& destination_path) {
   // create destination directory if necessary
   if (!file_util::PathExists(destination_path)) {
-    bool result = !!CreateDirectory(destination_path.c_str(), NULL);
+    bool result = file_util::CreateDirectory(destination_path);
     if (!result) {
       DLOG(WARNING) << "Unable to create destination directory " <<
-                       destination_path;
+                       destination_path.value();
       return false;
     }
   }
 
   // copy files in directory
-  WIN32_FIND_DATA find_file_data;
-  std::wstring filename_spec = source_path;
-  file_util::AppendToPath(&filename_spec, L"*");
-  HANDLE find_handle = FindFirstFile(filename_spec.c_str(), &find_file_data);
-  if (find_handle != INVALID_HANDLE_VALUE) {
-    do {
-      // skip directories
-      if (find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        continue;
-
-      std::wstring source_file = source_path;
-      file_util::AppendToPath(&source_file, find_file_data.cFileName);
-      std::wstring dest_file = destination_path;
-      file_util::AppendToPath(&dest_file, find_file_data.cFileName);
-      bool result = !!CopyFileW(source_file.c_str(),
-                                dest_file.c_str(),
-                                FALSE /* overwrite */);
-      if (!result)
-        return false;
-    } while (FindNextFile(find_handle,  &find_file_data));
-    FindClose(find_handle);
-  }
-
-  return true;
+  return file_util::CopyDirectory(source_path, destination_path, false);
 }
 
 // static
-Profile* ProfileManager::CreateProfile(const std::wstring& path,
+Profile* ProfileManager::CreateProfile(const FilePath& path,
                                        const std::wstring& name,
                                        const std::wstring& nickname,
                                        const std::wstring& id) {
   DCHECK_LE(nickname.length(), name.length());
 
   if (IsProfile(path)) {
-    DCHECK(false) << "Attempted to create a profile with the path:\n" << path
-        << "\n but that path already contains a profile";
+    DCHECK(false) << "Attempted to create a profile with the path:\n"
+        << path.value() << "\n but that path already contains a profile";
   }
 
   if (!file_util::PathExists(path)) {

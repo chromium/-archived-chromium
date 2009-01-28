@@ -89,7 +89,7 @@ class HistoryQueryTest : public testing::Test {
     file_util::CreateDirectory(history_dir_);
 
     history_ = new HistoryService;
-    if (!history_->Init(history_dir_, NULL)) {
+    if (!history_->Init(FilePath::FromWStringHack(history_dir_), NULL)) {
       history_ = NULL;  // Tests should notice this NULL ptr & fail.
       return;
     }

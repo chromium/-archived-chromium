@@ -6,15 +6,18 @@
 #define CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_
 
 // This file provides declarations and stub definitions for classes we encouter
-// during the porting effort. It is not meant to be perminent, and classes will
+// during the porting effort. It is not meant to be permanent, and classes will
 // be removed from here as they are fleshed out more completely.
 
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
@@ -56,7 +59,7 @@ class Upgrade {
 //             to achieve this on other platforms and see if this API works.
 class MessageWindow {
  public:
-  explicit MessageWindow(const std::wstring& user_data_dir) { }
+  explicit MessageWindow(const FilePath& user_data_dir) { }
   ~MessageWindow() { }
   bool NotifyOtherProcess() { return false; }
   void HuntForZombieChromeProcesses() { }
@@ -83,8 +86,8 @@ class BrowserInit {
 class FirstRun {
  public:
   static bool IsChromeFirstRun() { return false; }
-  static bool ProcessMasterPreferences(const std::wstring& user_data_dir,
-                                       const std::wstring& master_prefs_path,
+  static bool ProcessMasterPreferences(const FilePath& user_data_dir,
+                                       const FilePath& master_prefs_path,
                                        int* preference_details) {
     return false;
   }
@@ -173,14 +176,18 @@ class UserDataManager {
   static UserDataManager* instance_;
 };
 
-struct SessionService {
+class SessionService : public base::RefCountedThreadSafe<SessionService> {
+ public:
+  explicit SessionService(Profile* profile) { }
   void WindowClosed(const SessionID &) { }
   void SetWindowBounds(const SessionID&, const gfx::Rect&, bool) { }
+  void ResetFromCurrentBrowsers() { }
   void TabRestored(NavigationController*) { }
 };
 
-class TabRestoreService {
+class TabRestoreService : public base::RefCountedThreadSafe<TabRestoreService> {
  public:
+  explicit TabRestoreService(Profile* profile) { }
   void BrowserClosing(Browser*) { }
   void BrowserClosed(Browser*) { }
   void CreateHistoricalTab(NavigationController*) { }
@@ -197,7 +204,8 @@ class HistoryService {
   };
 
   HistoryService() {}
-  bool Init(const std::wstring& history_dir, BookmarkService* bookmark_service)
+  HistoryService(Profile* profile) {}
+  bool Init(const FilePath& history_dir, BookmarkService* bookmark_service)
       { return false; }
   void SetOnBackendDestroyTask(Task*) {}
   void AddPage(GURL const&, void const*, int, GURL const&,
@@ -210,55 +218,12 @@ class HistoryService {
   void Release() {}
 };
 
-class Profile {
+namespace history {
+class HistoryDatabase {
  public:
-   enum ServiceAccessType {
-    EXPLICIT_ACCESS,
-    IMPLICIT_ACCESS
-  };
-
- public:
-  Profile(const std::wstring& user_data_dir);
-  virtual std::wstring GetPath() { return path_; }
-  virtual PrefService* GetPrefs();
-  void ResetTabRestoreService() { }
-  SpellChecker* GetSpellChecker() { return NULL; }
-  VisitedLinkMaster* GetVisitedLinkMaster() { return NULL; }
-  TabRestoreService* GetTabRestoreService() { return NULL; }
-  SessionService* GetSessionService() { return NULL; }
-  UserScriptMaster* GetUserScriptMaster() { return NULL; }
-  bool IsOffTheRecord() { return false; }
-  URLRequestContext* GetRequestContext() { return NULL; }
-  virtual Profile* GetOriginalProfile() { return this; }
-  virtual Profile* GetOffTheRecordProfile() { return this; }
-  bool HasSessionService() { return false; }
-  std::wstring GetID() { return L""; }
-  HistoryService* GetHistoryService(ServiceAccessType access) {
-    return &history_service_;
-  }
-
- private:
-  std::wstring GetPrefFilePath();
-
-  std::wstring path_;
-  scoped_ptr<PrefService> prefs_;
-  HistoryService history_service_;
+  static std::string GURLToDatabaseURL(const GURL& url) { return ""; }
 };
-
-class ProfileManager : NonThreadSafe {
- public:
-  ProfileManager() { }
-  virtual ~ProfileManager() { }
-  Profile* GetDefaultProfile(const std::wstring& user_data_dir);
-  static std::wstring GetDefaultProfileDir(const std::wstring& user_data_dir);
-  static std::wstring GetDefaultProfilePath(const std::wstring& profile_dir);
-  static void ShutdownSessionServices() { }
-  // This doesn't really exist, but is used when there is no browser window
-  // from which to get the profile. We'll find a better solution later.
-  static Profile* FakeProfile();
- private:
-  DISALLOW_EVIL_CONSTRUCTORS(ProfileManager);
-};
+}
 
 class MetricsService {
  public:
@@ -415,6 +380,61 @@ class WindowSizer {
                                      const gfx::Rect& specified_bounds,
                                      gfx::Rect* window_bounds,
                                      bool* maximized) { }
+};
+
+//---------------------------------------------------------------------------
+// These stubs are for Profile
+
+class DownloadManager : public base::RefCountedThreadSafe<DownloadManager> {
+ public:
+  bool Init(Profile* profile) { return true; }
+};
+
+class TemplateURLFetcher {
+ public:
+  explicit TemplateURLFetcher(Profile* profile) { }
+  bool Init(Profile* profile) { return true; }
+};
+
+namespace base {
+class SharedMemory;
+}
+
+class Encryptor {
+ public:
+  static bool EncryptWideString(const std::wstring& plaintext,
+                                std::string* ciphertext) { return false; }
+
+  static bool DecryptWideString(const std::string& ciphertext,
+                                std::wstring* plaintext) { return false; }
+};
+
+class BookmarkModel : public BookmarkService {
+ public:
+  explicit BookmarkModel(Profile* profile) { }
+  virtual ~BookmarkModel() { }
+  void Load() { }
+  virtual bool IsBookmarked(const GURL& url) { return false; }
+  virtual void GetBookmarks(std::vector<GURL>* urls) { }
+  virtual void BlockTillLoaded() { }
+};
+
+class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
+ public:
+  typedef std::wstring Language;
+  SpellChecker(const std::wstring& dict_dir,
+               const Language& language,
+               URLRequestContext* request_context,
+               const std::wstring& custom_dictionary_file_name) {}
+};
+
+class TemplateURLModel {
+ public:
+  explicit TemplateURLModel(Profile* profile) { }
+  static std::wstring GenerateKeyword(const GURL& url, bool autodetected) {
+    return L"";
+  }
+  static GURL GenerateSearchURL(const TemplateURL* t_url) { return GURL(); }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

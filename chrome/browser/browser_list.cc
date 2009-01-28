@@ -12,10 +12,10 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/profile_manager.h"
 #if defined(OS_WIN)
 // TODO(port): these can probably all go away, even on win
 #include "chrome/browser/profile.h"
-#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
 #endif

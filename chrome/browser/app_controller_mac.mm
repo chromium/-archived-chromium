@@ -9,6 +9,7 @@
 #import "chrome/browser/browser.h"
 #import "chrome/browser/browser_list.h"
 #import "chrome/browser/command_updater.h"
+#import "chrome/browser/profile_manager.h"
 #import "chrome/common/temp_scaffolding_stubs.h"
 
 @interface AppController(PRIVATE)
@@ -74,13 +75,16 @@
 // command is supported and doesn't check, otherwise it would have been disabled
 // in the UI in validateUserInterfaceItem:.
 - (void)commandDispatch:(id)sender {
+  // How to get the profile created on line 314 of browser_main? Ugh. TODO:FIXME
+  Profile* default_profile = *g_browser_process->profile_manager()->begin();
+  
   NSInteger tag = [sender tag];
   switch (tag) {
     case IDC_NEW_WINDOW:
-      Browser::OpenEmptyWindow(ProfileManager::FakeProfile());
+      Browser::OpenEmptyWindow(default_profile);
       break;
     case IDC_NEW_INCOGNITO_WINDOW:
-      Browser::OpenURLOffTheRecord(ProfileManager::FakeProfile(), GURL());
+      Browser::OpenURLOffTheRecord(default_profile, GURL());
       break;
   };
 }

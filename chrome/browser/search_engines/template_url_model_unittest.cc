@@ -49,7 +49,7 @@ class TemplateURLModelTestingProfile : public TestingProfile {
     std::wstring path = test_dir_;
     file_util::AppendToPath(&path, L"TestDataService.db");
     service_ = new WebDataService;
-    EXPECT_TRUE(service_->InitWithPath(path));
+    EXPECT_TRUE(service_->InitWithPath(FilePath::FromWStringHack(path)));
   }
 
   void TearDown() {

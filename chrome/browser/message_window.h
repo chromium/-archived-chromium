@@ -9,6 +9,7 @@
 #include <windows.h>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 
 // MessageWindow -------------------------------------------------------------
 //
@@ -20,7 +21,7 @@
 
 class MessageWindow {
  public:
-  explicit MessageWindow(const std::wstring& user_data_dir);
+  explicit MessageWindow(const FilePath& user_data_dir);
   ~MessageWindow();
 
   // Returns true if another process was found and notified, false if we

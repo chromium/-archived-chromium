@@ -9,10 +9,20 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/google_url_tracker.h"
-#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/l10n_util.h"
 #include "net/base/escape.h"
+
+#if defined(OS_POSIX)
+// TODO(port): get rid of this include. It's used just to provide declarations
+// and stub definitions for classes we encouter during the porting effort.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
+// TODO(port): Get rid of this section and finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/search_engines/template_url_model.h"
+#endif
 
 // The TemplateURLRef has any number of terms that need to be replaced. Each of
 // the terms is enclosed in braces. If the character preceeding the final

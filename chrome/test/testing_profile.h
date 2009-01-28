@@ -48,7 +48,7 @@ class TestingProfile : public Profile {
   // Creates a TemplateURLModel. If not invoked the TemplateURLModel is NULL.
   void CreateTemplateURLModel();
 
-  virtual std::wstring GetPath() {
+  virtual FilePath GetPath() {
     return path_;
   }
   // Sets whether we're off the record. Default is false.
@@ -176,7 +176,7 @@ class TestingProfile : public Profile {
  protected:
   // The path of the profile; the various database and other files are relative
   // to this.
-  std::wstring path_;
+  FilePath path_;
   base::Time start_time_;
   scoped_ptr<PrefService> prefs_;
 

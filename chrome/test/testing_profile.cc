@@ -50,7 +50,7 @@ TestingProfile::TestingProfile()
       off_the_record_(false),
       last_session_exited_cleanly_(true) {
   PathService::Get(base::DIR_TEMP, &path_);
-  file_util::AppendToPath(&path_, L"TestingProfilePath");
+  path_ = path_.Append(FILE_PATH_LITERAL("TestingProfilePath"));
   file_util::Delete(path_, true);
   file_util::CreateDirectory(path_);
 }
@@ -61,7 +61,8 @@ TestingProfile::TestingProfile(int count)
       off_the_record_(false),
       last_session_exited_cleanly_(true) {
   PathService::Get(base::DIR_TEMP, &path_);
-  file_util::AppendToPath(&path_, L"TestingProfilePath" + IntToWString(count));
+  path_ = path_.Append(FILE_PATH_LITERAL("TestingProfilePath"));
+  path_ = path_.AppendASCII(IntToString(count));
   file_util::Delete(path_, true);
   file_util::CreateDirectory(path_);
 }
@@ -78,8 +79,8 @@ void TestingProfile::CreateHistoryService(bool delete_file) {
   history_service_ = NULL;
 
   if (delete_file) {
-    std::wstring path = GetPath();
-    file_util::AppendToPath(&path, chrome::kHistoryFilename);
+    FilePath path = GetPath();
+    path = path.Append(chrome::kHistoryFilename);
     file_util::Delete(path, false);
   }
   history_service_ = new HistoryService(this);
@@ -112,8 +113,8 @@ void TestingProfile::CreateBookmarkModel(bool delete_file) {
   bookmark_bar_model_.reset(NULL);
 
   if (delete_file) {
-    std::wstring path = GetPath();
-    file_util::AppendToPath(&path, chrome::kBookmarksFileName);
+    FilePath path = GetPath();
+    path = path.Append(chrome::kBookmarksFileName);
     file_util::Delete(path, false);
   }
   bookmark_bar_model_.reset(new BookmarkModel(this));

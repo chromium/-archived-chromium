@@ -23,12 +23,12 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/profile.h"
 #if defined(OS_WIN)
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/profile.h"
 #else
-// TODO(port): We should be using history.h & profile.h, remove scaffolding
-// when those are ported.
+// TODO(port): We should be using history.h, remove scaffolding
+// when it is ported.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif  // !defined(OS_WIN)
 #if defined(OS_WIN)
@@ -686,7 +686,7 @@ bool VisitedLinkMaster::GetDatabaseFileName(FilePath* filename) {
   if (!profile_ || profile_->GetPath().empty())
     return false;
 
-  FilePath profile_dir = FilePath::FromWStringHack(profile_->GetPath());
+  FilePath profile_dir = profile_->GetPath();
   *filename = profile_dir.Append(FILE_PATH_LITERAL("Visited Links"));
   return true;
 }

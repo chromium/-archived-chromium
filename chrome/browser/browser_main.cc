@@ -22,6 +22,7 @@
 #include "chrome/browser/browser_main_win.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/plugin_service.h"
+#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -215,7 +216,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   main_message_loop.set_thread_name(thread_name);
   bool already_running = Upgrade::IsBrowserAlreadyRunning();
 
-  std::wstring user_data_dir;
+  FilePath user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
   MessageWindow message_window(user_data_dir);
 
@@ -263,8 +264,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // On first run, we  need to process the master preferences before the
     // browser's profile_manager object is created.
     first_run_ui_bypass =
-        !FirstRun::ProcessMasterPreferences(user_data_dir,
-                                            std::wstring(), NULL);
+        !FirstRun::ProcessMasterPreferences(user_data_dir, FilePath(), NULL);
 
     // If we are running in App mode, we do not want to show the importer
     // (first run) UI.
@@ -318,7 +318,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
   if (!profile) {
 #if defined(OS_WIN)
-    user_data_dir = UserDataDirDialog::RunUserDataDirDialog(user_data_dir);
+    user_data_dir = FilePath::FromWStringHack(
+        UserDataDirDialog::RunUserDataDirDialog(user_data_dir.ToWStringHack()));
     // Flush the message loop which lets the UserDataDirDialog close.
     MessageLoop::current()->Run();
 
@@ -331,7 +332,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
       // sounds risky if we parse differently than CommandLineToArgvW.
       CommandLine new_command_line = parsed_command_line;
       new_command_line.AppendSwitchWithValue(switches::kUserDataDir,
-                                             user_data_dir);
+                                             user_data_dir.ToWStringHack());
       base::LaunchApp(new_command_line, false, false, NULL);
     }
 

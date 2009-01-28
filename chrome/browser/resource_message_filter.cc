@@ -325,7 +325,7 @@ void ResourceMessageFilter::OnGetCookies(const GURL& url,
 }
 
 void ResourceMessageFilter::OnGetDataDir(std::wstring* data_dir) {
-  *data_dir = plugin_service_->GetChromePluginDataDir();
+  *data_dir = plugin_service_->GetChromePluginDataDir().ToWStringHack();
 }
 
 void ResourceMessageFilter::OnPluginMessage(const FilePath& plugin_path,

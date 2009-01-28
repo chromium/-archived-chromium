@@ -11,6 +11,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
@@ -44,7 +45,7 @@ class Profile {
 
   // Profile services are accessed with the following parameter. This parameter
   // defines what the caller plans to do with the service.
-  // The caller is  responsible for not performing any operation that would
+  // The caller is responsible for not performing any operation that would
   // result in persistent implicit records while using an OffTheRecord profile.
   // This flag allows the profile to perform an additional check.
   //
@@ -74,7 +75,7 @@ class Profile {
   static void RegisterUserPrefs(PrefService* prefs);
 
   // Create a new profile given a path.
-  static Profile* CreateProfile(const std::wstring& path);
+  static Profile* CreateProfile(const FilePath& path);
 
   // Returns the request context for the "default" profile.  This may be called
   // from any thread.  This CAN return NULL if a first request context has not
@@ -86,7 +87,7 @@ class Profile {
   static URLRequestContext* GetDefaultRequestContext();
 
   // Returns the path of the directory where this profile's data is stored.
-  virtual std::wstring GetPath() = 0;
+  virtual FilePath GetPath() = 0;
 
   // Return whether this profile is off the record. Default is false.
   virtual bool IsOffTheRecord() = 0;
@@ -117,6 +118,7 @@ class Profile {
   // Retrieves a pointer to the HistoryService associated with this
   // profile.  The HistoryService is lazily created the first time
   // that this method is called.
+  //
   // Although HistoryService is refcounted, this will not addref, and callers
   // do not need to do any reference counting as long as they keep the pointer
   // only for the local scope (which they should do anyway since the browser
@@ -258,7 +260,7 @@ class ProfileImpl : public Profile,
   virtual ~ProfileImpl();
 
   // Profile implementation.
-  virtual std::wstring GetPath();
+  virtual FilePath GetPath();
   virtual bool IsOffTheRecord();
   virtual Profile* GetOffTheRecordProfile();
   virtual Profile* GetOriginalProfile();
@@ -301,10 +303,10 @@ class ProfileImpl : public Profile,
  private:
   friend class Profile;
 
-  explicit ProfileImpl(const std::wstring& path);
+  explicit ProfileImpl(const FilePath& path);
 
   void CreateWebDataService();
-  std::wstring GetPrefFilePath();
+  FilePath GetPrefFilePath();
 
   void StopCreateSessionServiceTimer();
   
@@ -321,7 +323,7 @@ class ProfileImpl : public Profile,
   // spellchecker to the resource message filters.
   void InitializeSpellChecker(bool need_to_broadcast);
   
-  std::wstring path_;
+  FilePath path_;
   bool off_the_record_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
   scoped_refptr<ExtensionsService> extensions_service_;
