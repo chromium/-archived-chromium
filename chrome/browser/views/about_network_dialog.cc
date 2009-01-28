@@ -265,7 +265,11 @@ JobTracker* tracker = NULL;
 
 // AboutNetworkDialog ----------------------------------------------------------
 
-AboutNetworkDialog::AboutNetworkDialog() : tracking_(false) {
+AboutNetworkDialog::AboutNetworkDialog()
+    : track_toggle_(NULL),
+      show_button_(NULL),
+      clear_button_(NULL),
+      tracking_(false) {
   SetupControls();
   tracker = new JobTracker(this);
   tracker->AddRef();
@@ -287,14 +291,16 @@ void AboutNetworkDialog::RunDialog() {
   }
 }
 
-void AboutNetworkDialog::AppendText(const std::wstring& text) {
-  text_field_->AppendText(text);
+void AboutNetworkDialog::SetupButtonColumnSet(views::ColumnSet* set) {
+  set->AddColumn(views::GridLayout::CENTER, views::GridLayout::CENTER,
+                 33.33f, views::GridLayout::FIXED, 0, 0);
+  set->AddColumn(views::GridLayout::CENTER, views::GridLayout::CENTER,
+                 33.33f, views::GridLayout::FIXED, 0, 0);
+  set->AddColumn(views::GridLayout::CENTER, views::GridLayout::CENTER,
+                 33.33f, views::GridLayout::FIXED, 0, 0);
 }
 
-void AboutNetworkDialog::SetupControls() {
-  views::GridLayout* layout = CreatePanelGridLayout(this);
-  SetLayoutManager(layout);
-
+void AboutNetworkDialog::AddButtonControlsToLayout(views::GridLayout* layout) {
   track_toggle_ = new views::TextButton(kStartTrackingLabel);
   track_toggle_->SetListener(this, 1);
   show_button_ = new views::TextButton(kShowCurrentLabel);
@@ -302,63 +308,9 @@ void AboutNetworkDialog::SetupControls() {
   clear_button_ = new views::TextButton(kClearLabel);
   clear_button_->SetListener(this, 3);
 
-  text_field_ = new views::TextField(static_cast<views::TextField::StyleFlags>(
-                                     views::TextField::STYLE_MULTILINE));
-  text_field_->SetReadOnly(true);
-
-  // TODO(brettw): We may want to add this in the future. It can't be called
-  // from here, though, since the hwnd for the field hasn't been created yet.
-  //
-  // This raises the maximum number of chars from 32K to some large maximum,
-  // probably 2GB. 32K is not nearly enough for our use-case.
-  //SendMessageW(text_field_->GetNativeComponent(), EM_SETLIMITTEXT, 0, 0);
-
-  static const int first_column_set = 1;
-  views::ColumnSet* column_set = layout->AddColumnSet(first_column_set);
-  column_set->AddColumn(views::GridLayout::CENTER, views::GridLayout::CENTER,
-                        33.33f, views::GridLayout::FIXED, 0, 0);
-  column_set->AddColumn(views::GridLayout::CENTER, views::GridLayout::CENTER,
-                        33.33f, views::GridLayout::FIXED, 0, 0);
-  column_set->AddColumn(views::GridLayout::CENTER, views::GridLayout::CENTER,
-                        33.33f, views::GridLayout::FIXED, 0, 0);
-
-  static const int text_column_set = 2;
-  column_set = layout->AddColumnSet(text_column_set);
-  column_set->AddColumn(views::GridLayout::FILL, views::GridLayout::FILL, 100.0f,
-                        views::GridLayout::FIXED, 0, 0);
-
-  layout->StartRow(0, first_column_set);
   layout->AddView(track_toggle_);
   layout->AddView(show_button_);
   layout->AddView(clear_button_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-  layout->StartRow(1.0f, text_column_set);
-  layout->AddView(text_field_);
-}
-
-gfx::Size AboutNetworkDialog::GetPreferredSize() {
-  return gfx::Size(800, 400);
-}
-
-views::View* AboutNetworkDialog::GetContentsView() {
-  return this;
-}
-
-int AboutNetworkDialog::GetDialogButtons() const {
-  // Don't want OK or Cancel.
-  return 0;
-}
-
-std::wstring AboutNetworkDialog::GetWindowTitle() const {
-  return L"about:network";
-}
-
-void AboutNetworkDialog::Layout() {
-  GetLayoutManager()->Layout(this);
-}
-
-bool AboutNetworkDialog::CanResize() const {
-  return true;
 }
 
 void AboutNetworkDialog::ButtonPressed(views::BaseButton* button) {
@@ -376,6 +328,6 @@ void AboutNetworkDialog::ButtonPressed(views::BaseButton* button) {
   } else if (button == show_button_) {
     tracker->ReportStatus();
   } else if (button == clear_button_) {
-    text_field_->SetText(std::wstring());
+    text_field()->SetText(std::wstring());
   }
 }
