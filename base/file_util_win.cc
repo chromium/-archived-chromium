@@ -497,8 +497,8 @@ FILE* OpenFile(const std::string& filename, const char* mode) {
   return file;
 }
 
-int ReadFile(const std::wstring& filename, char* data, int size) {
-  ScopedHandle file(CreateFile(filename.c_str(),
+int ReadFile(const FilePath& filename, char* data, int size) {
+  ScopedHandle file(CreateFile(filename.value().c_str(),
                                GENERIC_READ,
                                FILE_SHARE_READ | FILE_SHARE_WRITE,
                                NULL,
@@ -519,8 +519,8 @@ int ReadFile(const std::wstring& filename, char* data, int size) {
   return ret_value;
 }
 
-int WriteFile(const std::wstring& filename, const char* data, int size) {
-  ScopedHandle file(CreateFile(filename.c_str(),
+int WriteFile(const FilePath& filename, const char* data, int size) {
+  ScopedHandle file(CreateFile(filename.value().c_str(),
                                GENERIC_WRITE,
                                0,
                                NULL,
@@ -528,7 +528,7 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
                                0,
                                NULL));
   if (file == INVALID_HANDLE_VALUE) {
-    LOG(WARNING) << "CreateFile failed for path " << filename <<
+    LOG(WARNING) << "CreateFile failed for path " << filename.value() <<
         " error code=" << GetLastError() <<
         " error text=" << win_util::FormatLastWin32Error();
     return -1;
@@ -541,13 +541,13 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
 
   if (!result) {
     // WriteFile failed.
-    LOG(WARNING) << "writing file " << filename <<
+    LOG(WARNING) << "writing file " << filename.value() <<
         " failed, error code=" << GetLastError() <<
         " description=" << win_util::FormatLastWin32Error();
   } else {
     // Didn't write all the bytes.
-    LOG(WARNING) << "wrote" << written << " bytes to " << filename <<
-        " expected " << size;
+    LOG(WARNING) << "wrote" << written << " bytes to " <<
+        filename.value() << " expected " << size;
   }
   return -1;
 }

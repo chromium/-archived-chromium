@@ -13,6 +13,7 @@
 #include "third_party/sqlite/preprocessed/sqlite3.h"
 
 // forward declarations of classes defined here
+class FilePath;
 class SQLTransaction;
 class SQLNestedTransaction;
 class SQLNestedTransactionSite;
@@ -311,6 +312,13 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
   DISALLOW_COPY_AND_ASSIGN(SQLStatement);
 };
 
+// TODO(estade): wrap the following static functions in a namespace.
+
+// Opens the DB in the file pointed to by |filepath|.
+// See http://www.sqlite.org/capi3ref.html#sqlite3_open for an explanation
+// of the return value.
+int OpenSqliteDb(const FilePath& filepath, sqlite3** database);
+
 // Returns true if there is a table with the given name in the database.
 // For the version where a database name is specified, it may be NULL or the
 // empty string if no database name is necessary.
@@ -320,7 +328,6 @@ bool DoesSqliteTableExist(sqlite3* db,
 inline bool DoesSqliteTableExist(sqlite3* db, const char* table_name) {
   return DoesSqliteTableExist(db, NULL, table_name);
 }
-
 
 // Test whether a table has a column matching the provided name and type.
 // Returns true if the column exist and false otherwise. There are two

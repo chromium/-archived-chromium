@@ -389,10 +389,9 @@ class SafeBrowsingDatabaseTest {
         logging::LOCK_LOG_FILE,
         logging::DELETE_OLD_LOG_FILE);
 
-    std::wstring tmp_path;
+    FilePath tmp_path;
     PathService::Get(base::DIR_TEMP, &tmp_path);
-    path_ = FilePath::FromWStringHack(tmp_path);
-    path_ = path_.Append(filename);
+    path_ = tmp_path.Append(filename);
   }
 
   void Create(int size) {
@@ -400,7 +399,7 @@ class SafeBrowsingDatabaseTest {
 
     scoped_ptr<SafeBrowsingDatabase> database(SafeBrowsingDatabase::Create());
     database->SetSynchronous();
-    EXPECT_TRUE(database->Init(path_.ToWStringHack(), NULL));
+    EXPECT_TRUE(database->Init(path_, NULL));
 
     int chunk_id = 0;
     int total_host_keys = size;
@@ -433,7 +432,7 @@ class SafeBrowsingDatabaseTest {
 
     scoped_ptr<SafeBrowsingDatabase> database(SafeBrowsingDatabase::Create());
     database->SetSynchronous();
-    EXPECT_TRUE(database->Init(path_.ToWStringHack(), NULL));
+    EXPECT_TRUE(database->Init(path_, NULL));
 
     PerfTimer total_timer;
     int64 db_ms = 0;
@@ -475,14 +474,13 @@ class SafeBrowsingDatabaseTest {
 
   void BuildBloomFilter() {
     file_util::EvictFileFromSystemCache(path_);
-    file_util::Delete(SafeBrowsingDatabase::BloomFilterFilename(
-          path_.ToWStringHack()), false);
+    file_util::Delete(SafeBrowsingDatabase::BloomFilterFilename(path_), false);
 
     PerfTimer total_timer;
 
     scoped_ptr<SafeBrowsingDatabase> database(SafeBrowsingDatabase::Create());
     database->SetSynchronous();
-    EXPECT_TRUE(database->Init(path_.ToWStringHack(), NULL));
+    EXPECT_TRUE(database->Init(path_, NULL));
 
     int64 total_ms = total_timer.Elapsed().InMilliseconds();
 

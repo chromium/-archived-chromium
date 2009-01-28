@@ -42,7 +42,8 @@ static const int kOnResumeHoldupMs = 5 * 60 * 1000;  // 5 minutes.
 static const int kMaxStalenessMinutes = 45;
 
 // The bloom filter based file name suffix.
-static const wchar_t kBloomFilterFileSuffix[] = L" Bloom";
+static const FilePath::CharType kBloomFilterFileSuffix[] =
+    FILE_PATH_LITERAL(" Bloom");
 
 
 // Implementation --------------------------------------------------------------
@@ -60,11 +61,11 @@ SafeBrowsingDatabaseBloom::~SafeBrowsingDatabaseBloom() {
   Close();
 }
 
-bool SafeBrowsingDatabaseBloom::Init(const std::wstring& filename,
+bool SafeBrowsingDatabaseBloom::Init(const FilePath& filename,
                                      Callback0::Type* chunk_inserted_callback) {
   DCHECK(!init_ && filename_.empty());
 
-  filename_ = filename + kBloomFilterFileSuffix;
+  filename_ = FilePath(filename.value() + kBloomFilterFileSuffix);
   bloom_filter_filename_ = BloomFilterFilename(filename_);
 
   hash_cache_.reset(new HashCache);
@@ -111,7 +112,7 @@ bool SafeBrowsingDatabaseBloom::Open() {
   if (db_)
     return true;
 
-  if (sqlite3_open(WideToUTF8(filename_).c_str(), &db_) != SQLITE_OK) {
+  if (OpenSqliteDb(filename_, &db_) != SQLITE_OK) {
     sqlite3_close(db_);
     db_ = NULL;
     return false;

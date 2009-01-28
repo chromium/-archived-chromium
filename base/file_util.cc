@@ -468,6 +468,9 @@ bool PathExists(const std::wstring& path) {
 bool PathIsWritable(const std::wstring& path) {
   return PathIsWritable(FilePath::FromWStringHack(path));
 }
+int ReadFile(const std::wstring& filename, char* data, int size) {
+  return ReadFile(FilePath::FromWStringHack(filename), data, size);
+}
 bool SetCurrentDirectory(const std::wstring& directory) {
   return SetCurrentDirectory(FilePath::FromWStringHack(directory));
 }
@@ -495,6 +498,9 @@ void UpOneDirectoryOrEmpty(std::wstring* dir) {
     dir->clear();
   else
     *dir = directory.ToWStringHack();
+}
+int WriteFile(const std::wstring& filename, const char* data, int size) {
+  return WriteFile(FilePath::FromWStringHack(filename), data, size);
 }
 }  // namespace
 

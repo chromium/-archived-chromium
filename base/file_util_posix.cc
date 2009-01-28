@@ -353,8 +353,8 @@ FILE* OpenFile(const FilePath& filename, const char* mode) {
   return fopen(filename.value().c_str(), mode);
 }
 
-int ReadFile(const std::wstring& filename, char* data, int size) {
-  int fd = open(WideToUTF8(filename).c_str(), O_RDONLY);
+int ReadFile(const FilePath& filename, char* data, int size) {
+  int fd = open(filename.value().c_str(), O_RDONLY);
   if (fd < 0)
     return -1;
 
@@ -363,8 +363,8 @@ int ReadFile(const std::wstring& filename, char* data, int size) {
   return ret_value;
 }
 
-int WriteFile(const std::wstring& filename, const char* data, int size) {
-  int fd = creat(WideToUTF8(filename).c_str(), 0666);
+int WriteFile(const FilePath& filename, const char* data, int size) {
+  int fd = creat(filename.value().c_str(), 0666);
   if (fd < 0)
     return -1;
 

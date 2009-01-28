@@ -55,10 +55,11 @@ void SafeBrowsingService::Initialize(MessageLoop* io_loop) {
   io_loop_ = io_loop;
 
   // Get the profile's preference for SafeBrowsing.
-  std::wstring user_data_dir;
+  FilePath user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
   ProfileManager* profile_manager = g_browser_process->profile_manager();
-  Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
+  Profile* profile = profile_manager->GetDefaultProfile(
+      user_data_dir.ToWStringHack());
   PrefService* pref_service = profile->GetPrefs();
   if (pref_service->GetBoolean(prefs::kSafeBrowsingEnabled))
     Start();
@@ -394,12 +395,10 @@ SafeBrowsingDatabase* SafeBrowsingService::GetDatabase() {
   if (database_)
     return database_;
 
-  std::wstring path;
+  FilePath path;
   bool result = PathService::Get(chrome::DIR_USER_DATA, &path);
   DCHECK(result);
-
-  path.append(L"\\");
-  path.append(chrome::kSafeBrowsingFilename);
+  path = path.Append(chrome::kSafeBrowsingFilename);
 
   Time before = Time::Now();
   SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();

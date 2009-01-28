@@ -327,10 +327,14 @@ bool TruncateFile(FILE* file);
 
 // Reads the given number of bytes from the file into the buffer.  Returns
 // the number of read bytes, or -1 on error.
+int ReadFile(const FilePath& filename, char* data, int size);
+// Deprecated temporary compatibility function.
 int ReadFile(const std::wstring& filename, char* data, int size);
 
 // Writes the given buffer into the file, overwriting any data that was
 // previously there.  Returns the number of bytes written, or -1 on error.
+int WriteFile(const FilePath& filename, const char* data, int size);
+// Deprecated temporary compatibility function.
 int WriteFile(const std::wstring& filename, const char* data, int size);
 
 // Gets the current working directory for the process.

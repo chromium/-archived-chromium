@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
@@ -35,7 +36,7 @@ class SafeBrowsingDatabase {
 
   // Initializes the database with the given filename.  The callback is
   // executed after finishing a chunk.
-  virtual bool Init(const std::wstring& filename,
+  virtual bool Init(const FilePath& filename,
                     Callback0::Type* chunk_inserted_callback) = 0;
 
   // Deletes the current database and creates a new one.
@@ -86,13 +87,13 @@ class SafeBrowsingDatabase {
   virtual bool UpdateStarted() { return true; }
   virtual void UpdateFinished(bool update_succeeded) {}
 
-  virtual std::wstring filename() const { return filename_; }
+  virtual FilePath filename() const { return filename_; }
 
  protected:
   friend class SafeBrowsingDatabaseTest;
   FRIEND_TEST(SafeBrowsingDatabase, HashCaching);
 
-  static std::wstring BloomFilterFilename(const std::wstring& db_filename);
+  static FilePath BloomFilterFilename(const FilePath& db_filename);
 
   // Load the bloom filter off disk, or generates one if it doesn't exist.
   virtual void LoadBloomFilter();
@@ -128,8 +129,8 @@ class SafeBrowsingDatabase {
   PrefixCache prefix_miss_cache_;
   PrefixCache* prefix_miss_cache() { return &prefix_miss_cache_; }
 
-  std::wstring filename_;
-  std::wstring bloom_filter_filename_;
+  FilePath filename_;
+  FilePath bloom_filter_filename_;
   scoped_refptr<BloomFilter> bloom_filter_;
 };
 

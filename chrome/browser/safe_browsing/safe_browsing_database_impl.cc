@@ -76,7 +76,7 @@ SafeBrowsingDatabaseImpl::~SafeBrowsingDatabaseImpl() {
   Close();
 }
 
-bool SafeBrowsingDatabaseImpl::Init(const std::wstring& filename,
+bool SafeBrowsingDatabaseImpl::Init(const FilePath& filename,
                                     Callback0::Type* chunk_inserted_callback) {
   DCHECK(!init_ && filename_.empty());
 
@@ -114,7 +114,7 @@ bool SafeBrowsingDatabaseImpl::Init(const std::wstring& filename,
 }
 
 bool SafeBrowsingDatabaseImpl::Open() {
-  if (sqlite3_open(WideToUTF8(filename_).c_str(), &db_) != SQLITE_OK)
+  if (OpenSqliteDb(filename_, &db_) != SQLITE_OK)
     return false;
 
   // Run the database in exclusive mode. Nobody else should be accessing the

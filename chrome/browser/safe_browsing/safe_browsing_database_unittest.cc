@@ -23,7 +23,10 @@
 
 using base::Time;
 
-static const wchar_t kBloomSuffix[] = L" Bloom";
+static const FilePath::CharType kBloomSuffix[] =
+    FILE_PATH_LITERAL(" Bloom");
+static const FilePath::CharType kFilterSuffix[] =
+    FILE_PATH_LITERAL(" Filter");
 
 namespace {
   SBPrefix Sha256Prefix(const std::string& str) {
@@ -59,18 +62,18 @@ namespace {
   }
 
   // Common database test set up code.
-  std::wstring GetTestDatabaseName() {
+  FilePath GetTestDatabaseName() {
     FilePath filename;
     PathService::Get(base::DIR_TEMP, &filename);
     filename = filename.AppendASCII("SafeBrowsingTestDatabase");
-    return filename.ToWStringHack();
+    return filename;
   }
 
   SafeBrowsingDatabase* SetupTestDatabase() {
-    std::wstring filename = GetTestDatabaseName();
+    FilePath filename = GetTestDatabaseName();
 
     // In case it existed from a previous run.
-    file_util::Delete(filename + kBloomSuffix, false);
+    file_util::Delete(FilePath(filename.value() + kBloomSuffix), false);
     file_util::Delete(filename, false);
 
     SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
@@ -81,10 +84,11 @@ namespace {
   }
 
   void TearDownTestDatabase(SafeBrowsingDatabase* database) {
-    std::wstring filename = database->filename();
+    FilePath filename = database->filename();
     delete database;
     file_util::Delete(filename, false);
-    file_util::Delete(filename + L" Filter", false);
+    file_util::Delete(FilePath(filename.value() + kFilterSuffix),
+                      false);
   }
 
   void GetListsInfo(SafeBrowsingDatabase* database,
@@ -1049,19 +1053,19 @@ void PeformUpdate(const std::wstring& initial_db,
   FilePath path;
   PathService::Get(base::DIR_TEMP, &path);
   path = path.AppendASCII("SafeBrowsingTestDatabase");
-  std::wstring filename = path.ToWStringHack();
 
   // In case it existed from a previous run.
-  file_util::Delete(filename, false);
+  file_util::Delete(path, false);
 
   if (!initial_db.empty()) {
     std::wstring full_initial_db = GetFullSBDataPath(initial_db);
-    ASSERT_TRUE(file_util::CopyFile(full_initial_db, filename));
+    ASSERT_TRUE(file_util::CopyFile(
+        FilePath::FromWStringHack(full_initial_db), path));
   }
 
   SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
   database->SetSynchronous();
-  EXPECT_TRUE(database->Init(filename, NULL));
+  EXPECT_TRUE(database->Init(path, NULL));
 
   Time before_time = Time::Now();
   base::ProcessHandle handle = base::Process::Current().handle();

@@ -31,7 +31,7 @@ class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
 
   // Initializes the database with the given filename.  The callback is
   // executed after finishing a chunk.
-  virtual bool Init(const std::wstring& filename,
+  virtual bool Init(const FilePath& filename,
                     Callback0::Type* chunk_inserted_callback);
 
   // Deletes the current database and creates a new one.

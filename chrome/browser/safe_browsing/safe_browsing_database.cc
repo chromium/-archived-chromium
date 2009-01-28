@@ -16,7 +16,8 @@
 using base::Time;
 
 // Filename suffix for the bloom filter.
-static const wchar_t kBloomFilterFile[] = L" Filter";
+static const FilePath::CharType kBloomFilterFile[] =
+    FILE_PATH_LITERAL(" Filter");
 
 // Factory method.
 SafeBrowsingDatabase* SafeBrowsingDatabase::Create() {
@@ -60,9 +61,10 @@ bool SafeBrowsingDatabase::NeedToCheckUrl(const GURL& url) {
   return false;
 }
 
-std::wstring SafeBrowsingDatabase::BloomFilterFilename(
-    const std::wstring& db_filename) {
-  return db_filename + kBloomFilterFile;
+// static
+FilePath SafeBrowsingDatabase::BloomFilterFilename(
+    const FilePath& db_filename) {
+  return FilePath(db_filename.value() + kBloomFilterFile);
 }
 
 void SafeBrowsingDatabase::LoadBloomFilter() {

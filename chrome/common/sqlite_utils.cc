@@ -4,7 +4,16 @@
 
 #include "chrome/common/sqlite_utils.h"
 
+#include "base/file_path.h"
 #include "base/logging.h"
+
+int OpenSqliteDb(const FilePath& filepath, sqlite3** database) {
+#if defined(OS_WIN)
+  return sqlite3_open16(filepath.value().c_str(), database);
+#elif defined(OS_POSIX)
+  return sqlite3_open(filepath.value().c_str(), database);
+#endif
+}
 
 bool DoesSqliteTableExist(sqlite3* db,
                           const char* db_name,
@@ -70,7 +79,6 @@ bool DoesSqliteTableHaveRow(sqlite3* db, const char* table_name) {
 
   return s.step() == SQLITE_ROW;
 }
-
 
 SQLTransaction::SQLTransaction(sqlite3* db) : db_(db), began_(false) {
 }

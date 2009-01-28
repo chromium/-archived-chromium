@@ -4,6 +4,10 @@
 
 #include "chrome/common/chrome_constants.h"
 
+#include "base/file_path.h"
+
+#define FPL FILE_PATH_LITERAL
+
 namespace chrome {
 // The following should not be used for UI strings; they are meant
 // for system strings only. UI changes should be made in the GRD.
@@ -31,7 +35,7 @@ const wchar_t kCookieFilename[] = L"Cookies";
 const wchar_t kHistoryFilename[] = L"History";
 const wchar_t kLocalStateFilename[] = L"Local State";
 const wchar_t kPreferencesFilename[] = L"Preferences";
-const wchar_t kSafeBrowsingFilename[] = L"Safe Browsing";
+const FilePath::CharType kSafeBrowsingFilename[] = FPL("Safe Browsing");
 const wchar_t kThumbnailsFilename[] = L"Thumbnails";
 const wchar_t kUserDataDirname[] = L"User Data";
 const wchar_t kUserScriptsDirname[] = L"User Scripts";

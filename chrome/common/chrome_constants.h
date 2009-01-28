@@ -7,6 +7,8 @@
 #ifndef CHROME_COMMON_CHROME_CONSTANTS_H__
 #define CHROME_COMMON_CHROME_CONSTANTS_H__
 
+#include "base/file_path.h"
+
 namespace chrome {
 
 extern const wchar_t kBrowserProcessExecutableName[];
@@ -28,7 +30,7 @@ extern const wchar_t kCookieFilename[];
 extern const wchar_t kHistoryFilename[];
 extern const wchar_t kLocalStateFilename[];
 extern const wchar_t kPreferencesFilename[];
-extern const wchar_t kSafeBrowsingFilename[];
+extern const FilePath::CharType kSafeBrowsingFilename[];
 extern const wchar_t kThumbnailsFilename[];
 extern const wchar_t kUserDataDirname[];
 extern const wchar_t kUserScriptsDirname[];
