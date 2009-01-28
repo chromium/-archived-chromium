@@ -1013,6 +1013,10 @@ LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
 
+// This test was update in webkit revision 40293.  This new test
+// passes, but the old test seems to still be used on the buildbot.
+LayoutTests/fast/forms/selection-functions.html = FAIL
+
 // MERGE REGRESSIONS 36102:37604
 
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
