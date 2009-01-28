@@ -815,6 +815,9 @@ LRESULT RenderWidgetHostViewWin::OnMouseActivate(UINT, WPARAM, LPARAM,
     ::ScreenToClient(m_hWnd, &cursor_pos);
     HWND child_window = ::RealChildWindowFromPoint(m_hWnd, cursor_pos);
     if (::IsWindow(child_window)) {
+      if (win_util::GetClassName(child_window) == kWrapperNativeWindowClassName)
+        child_window = ::GetWindow(child_window, GW_CHILD);
+
       ::SetFocus(child_window);
       return MA_NOACTIVATE;
     }
