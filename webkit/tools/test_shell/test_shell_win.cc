@@ -149,8 +149,6 @@ HINSTANCE TestShell::instance_handle_;
 // static methods on TestShell
 
 void TestShell::InitializeTestShell(bool layout_test_mode) {
-  net::NetModule::SetResourceProvider(NetResourceProvider);
-
   // Start COM stuff.
   HRESULT res = OleInitialize(NULL);
   DCHECK(SUCCEEDED(res));

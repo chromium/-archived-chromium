@@ -126,6 +126,9 @@ int main(int argc, char* argv[]) {
   // Load ICU data tables
   icu_util::Initialize();
 
+  // Config the network module so it has access to a limited set of resources.
+  net::NetModule::SetResourceProvider(TestShell::NetResourceProvider);
+
   platform.InitializeGUI();
 
   TestShell::InitializeTestShell(layout_test_mode);
