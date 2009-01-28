@@ -261,7 +261,6 @@ input_files = ChromeFileList([
     '$CHROME_DIR/renderer/user_script_slave_unittest.cc',
     '$CHROME_DIR/renderer/render_process_unittest.cc',
     '$WEBKIT_DIR/glue/mock_webkit_glue.cc',
-    '$CHROME_DIR/renderer/net/render_dns_master.cc',
     '$CHROME_DIR/renderer/render_thread_unittest.cc',
 
     # test_infrastructure
