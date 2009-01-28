@@ -702,9 +702,6 @@ class RenderView : public RenderWidget,
   // maintains the cache and other features of the accessibility tree.
   scoped_ptr<GlueAccessibility> glue_accessibility_;
 
-  // True if user scripts are enabled in this process.
-  bool user_scripts_enabled_;
-
   // Resource message queue. Used to queue up resource IPCs if we need
   // to wait for an ACK from the browser before proceeding.
   std::queue<IPC::Message*> queued_resource_messages_;
