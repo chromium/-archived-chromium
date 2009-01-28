@@ -321,8 +321,12 @@ void RenderViewHost::Stop() {
   Send(new ViewMsg_Stop(routing_id()));
 }
 
-bool RenderViewHost::PrintPages() {
-  return Send(new ViewMsg_PrintPages(routing_id()));
+bool RenderViewHost::GetPrintedPagesCount(const ViewMsg_Print_Params& params) {
+  return Send(new ViewMsg_GetPrintedPagesCount(routing_id(), params));
+}
+
+bool RenderViewHost::PrintPages(const ViewMsg_PrintPages_Params& params) {
+  return Send(new ViewMsg_PrintPages(routing_id(), params));
 }
 
 void RenderViewHost::StartFinding(int request_id,

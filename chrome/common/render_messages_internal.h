@@ -97,9 +97,15 @@ IPC_BEGIN_MESSAGES(View, 1)
   // This signals the render view that it can send another PaintRect message.
   IPC_MESSAGE_ROUTED0(ViewMsg_PaintRect_ACK)
 
+  // Asks the renderer to calculate the number of printed pages according to the
+  // supplied settings. The renderer will reply with
+  // ViewHostMsg_DidGetPrintedPagesCount.
+  IPC_MESSAGE_ROUTED1(ViewMsg_GetPrintedPagesCount,
+                      ViewMsg_Print_Params)
+
   // Tells the render view to switch the CSS to print media type, renders every
   // requested pages and switch back the CSS to display media type.
-  IPC_MESSAGE_ROUTED0(ViewMsg_PrintPages)
+  IPC_MESSAGE_ROUTED1(ViewMsg_PrintPages, ViewMsg_PrintPages_Params)
 
   // Tells the render view that a ViewHostMsg_ScrollRect message was processed.
   // This signals the render view that it can send another ScrollRect message.

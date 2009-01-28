@@ -589,8 +589,15 @@ void WebContents::SavePage(const std::wstring& main_file,
 }
 
 void WebContents::PrintPreview() {
-  // We don't show the print preview yet, only the print dialog.
-  PrintNow();
+  // We can't print interstitial page for now.
+  if (showing_interstitial_page())
+    return;
+
+  // If we have a find bar it needs to hide as well.
+  view_->HideFindBar(false);
+
+  // We don't show the print preview for the beta, only the print dialog.
+  printing_.ShowPrintDialog();
 }
 
 bool WebContents::PrintNow() {
@@ -601,7 +608,7 @@ bool WebContents::PrintNow() {
   // If we have a find bar it needs to hide as well.
   view_->HideFindBar(false);
 
-  return render_view_host()->PrintPages();
+  return printing_.PrintNow();
 }
 
 bool WebContents::IsActiveEntry(int32 page_id) {

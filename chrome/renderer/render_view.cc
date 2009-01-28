@@ -341,6 +341,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
     IPC_MESSAGE_HANDLER(ViewMsg_CreatingNew_ACK, OnCreatingNewAck)
     IPC_MESSAGE_HANDLER(ViewMsg_CaptureThumbnail, SendThumbnail)
+    IPC_MESSAGE_HANDLER(ViewMsg_GetPrintedPagesCount, OnGetPrintedPagesCount)
     IPC_MESSAGE_HANDLER(ViewMsg_PrintPages, OnPrintPages)
     IPC_MESSAGE_HANDLER(ViewMsg_Navigate, OnNavigate)
     IPC_MESSAGE_HANDLER(ViewMsg_Stop, OnStop)
@@ -514,6 +515,12 @@ void RenderView::SwitchFrameToDisplayMediaType(WebFrame* frame) {
   printed_document_width_ = 0;
 }
 
+void RenderView::OnPrintPage(const ViewMsg_PrintPage_Params& params) {
+  DCHECK(webview());
+  if (webview())
+    PrintPage(params, webview()->GetMainFrame());
+}
+
 void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
                            WebFrame* frame) {
 #if defined(OS_WIN)
@@ -639,12 +646,26 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
 #endif
 }
 
-void RenderView::OnPrintPages() {
+void RenderView::OnGetPrintedPagesCount(const ViewMsg_Print_Params& params) {
   DCHECK(webview());
-  if (webview()) {
-    // The renderer own the control flow as if it was a window.print() call.
-    ScriptedPrint(webview()->GetMainFrame());
+  if (!webview()) {
+    Send(new ViewHostMsg_DidGetPrintedPagesCount(routing_id_,
+                                                 params.document_cookie,
+                                                 0));
+    return;
   }
+  WebFrame* frame = webview()->GetMainFrame();
+  int expected_pages = SwitchFrameToPrintMediaType(params, frame);
+  Send(new ViewHostMsg_DidGetPrintedPagesCount(routing_id_,
+                                               params.document_cookie,
+                                               expected_pages));
+  SwitchFrameToDisplayMediaType(frame);
+}
+
+void RenderView::OnPrintPages(const ViewMsg_PrintPages_Params& params) {
+  DCHECK(webview());
+  if (webview())
+    PrintPages(params, webview()->GetMainFrame());
 }
 
 void RenderView::PrintPages(const ViewMsg_PrintPages_Params& params,
