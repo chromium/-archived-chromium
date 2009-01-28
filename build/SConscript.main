@@ -225,6 +225,8 @@ sconscripts = root_env.ChromiumLoadComponentSConscripts(
 # Add the final list into the root environment to be build in BuildComponents.
 root_env.Append(BUILD_SCONSCRIPTS = sconscripts)
 
+if not root_env.WantSystemLib('sqlite'):
+  root_env.Append(BUILD_SCONSCRIPTS = ['$SQLITE_DIR/SConscript'])
 
 
 # --------------------------------------------------------------------------
@@ -564,6 +566,8 @@ if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
         '#Software_Requirements')
 
     sys.exit(1)
+
+  # TODO: Factor the code here into aits own function.
   if root_env.WantSystemLib('libxml'):
     try:
       linux_env.ParseConfig('pkg-config --cflags --libs libxml-2.0')
@@ -577,6 +581,13 @@ if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
     except OSError, e:
       print ('\n'
           'libxslt requested in SYSTEM_LIBS but not found\n')
+      sys.exit(1)
+  if root_env.WantSystemLib('sqlite'):
+    try:
+      linux_env.ParseConfig('pkg-config --cflags --libs sqlite')
+    except OSError, e:
+      print ('\n'
+          'sqlite requested in SYSTEM_LIBS but not found\n')
       sys.exit(1)
 
 linux_dbg = linux_env.Clone()

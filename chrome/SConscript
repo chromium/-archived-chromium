@@ -739,8 +739,6 @@ sconscript_files = [
 
 if not env.WantSystemLib('hunspell'):
   sconscript_files.append('third_party/hunspell/SConscript')
-if not env.WantSystemLib('sqlite'):
-  sconscript_files.append('$THIRD_PARTY_DIR/sqlite/SConscript')
 
 # TODO(port)
 if env.Bit('windows'):
