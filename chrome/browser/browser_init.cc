@@ -222,8 +222,6 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     }
   }
 
-  profile->InitExtensions();
-
   return true;
 }
 
@@ -385,6 +383,10 @@ bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
     CreateAutomationProvider<AutomationProvider>(automation_channel_id,
                                                  profile, expected_tabs);
   }
+
+  // Start up the extensions service.
+  profile->InitExtensions();
+
   // If we don't want to launch a new browser window or tab (in the case
   // of an automation request), we are done here.
   if (!silent_launch) {

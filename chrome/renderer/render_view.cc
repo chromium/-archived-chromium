@@ -172,7 +172,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       disable_popup_blocking_(false),
       has_unload_listener_(false),
       decrement_shared_popup_at_destruction_(false),
-      user_scripts_enabled_(false),
       waiting_for_create_window_ack_(false),
       form_field_autofill_request_id_(0),
       popup_notification_visible_(false),
@@ -317,8 +316,6 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
       command_line.HasSwitch(switches::kDomAutomationController);
   disable_popup_blocking_ =
       command_line.HasSwitch(switches::kDisablePopupBlocking);
-  user_scripts_enabled_ =
-      command_line.HasSwitch(switches::kEnableUserScripts);
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
@@ -1491,14 +1488,12 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
 
   // Inject any user scripts. Do not inject into chrome UI pages, but do inject
   // into any other document.
-  if (user_scripts_enabled_) {
-    const GURL &gurl = frame->GetURL();
-    if (g_render_thread &&  // Will be NULL when testing.
-        (gurl.SchemeIs("file") ||
-         gurl.SchemeIs("http") ||
-         gurl.SchemeIs("https"))) {
-      g_render_thread->user_script_slave()->InjectScripts(frame);
-    }
+  const GURL &gurl = frame->GetURL();
+  if (g_render_thread &&  // Will be NULL when testing.
+      (gurl.SchemeIs("file") ||
+       gurl.SchemeIs("http") ||
+       gurl.SchemeIs("https"))) {
+    g_render_thread->user_script_slave()->InjectScripts(frame);
   }
 }
 
