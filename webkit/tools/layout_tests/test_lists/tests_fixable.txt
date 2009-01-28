@@ -1772,33 +1772,33 @@ LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 // output.  For some reason, we're taking the snapshot before the iframe is
 // removed (maybe getting the clientWidth isn't causing a re-layout?)
 WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL
-LINUX : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH
-// TODO(tc): Rebaseline the next 3 tests on linux
-LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
-LINUX : LayoutTests/css1/box_properties/float.html = FAIL
-LINUX : LayoutTests/tables/mozilla/bugs/bug57828-2.html = FAIL
+
+// Flakey tests
+LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 
 // intermittent failures on the buildbot
 LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 
+// The 7th column should not be top aligned.
+WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+
 // Merge 40165:40297 -- regressions
-  LayoutTests/editing/style/smoosh-styles-003.html = FAIL
+LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 // I think Hyatt removed support for compact.
-  LayoutTests/fast/compact/001.html = FAIL
-  LayoutTests/fast/compact/002.html = FAIL
-  LayoutTests/fast/compact/003.html = FAIL
-  LayoutTests/fast/forms/form-hides-table.html = FAIL
-  LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
-  LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL
-  LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
-  LayoutTests/fast/repaint/inline-color-change.html = FAIL
-  LayoutTests/fast/runin/001.html = FAIL
-  LayoutTests/fast/table/form-with-table-style.html = FAIL
-  LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
-  LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
-  LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
-  LayoutTests/svg/custom/stop-crash.svg = CRASH
+LayoutTests/fast/compact/001.html = FAIL
+LayoutTests/fast/compact/002.html = FAIL
+LayoutTests/fast/compact/003.html = FAIL
+LayoutTests/fast/forms/form-hides-table.html = FAIL
+LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
+LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL
+LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
+LayoutTests/fast/repaint/inline-color-change.html = FAIL
+LayoutTests/fast/runin/001.html = FAIL
+LayoutTests/fast/table/form-with-table-style.html = FAIL
+LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
+LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
+LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
+LayoutTests/svg/custom/stop-crash.svg = CRASH
 MAC WIN : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
 MAC WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 MAC WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
