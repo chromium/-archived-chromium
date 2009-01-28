@@ -1459,7 +1459,7 @@ MAC : LayoutTests/animations/change-one-anim.html = FAIL PASS
 // pass & fail, but we really need to fix these tests upstream to have
 // a consistent behavior (and probably update win/linux expected values).
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
-MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL PASS
+MAC LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL PASS
@@ -1528,7 +1528,7 @@ MAC : LayoutTests/fast/borders/border-image-01.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH PASS
 MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH PASS
-MAC : LayoutTests/fast/css/acid2.html = CRASH PASS
+MAC LINUX : LayoutTests/fast/css/acid2.html = CRASH PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
 MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH FAIL PASS
