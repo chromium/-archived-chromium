@@ -166,10 +166,10 @@ std::wstring GetLocalizedEulaResource() {
   const wchar_t* resource = L"IDR_OEMPG_EN.HTML";
   if (language == L"fr")
     resource = L"IDR_OEMPG_FR.HTML";
-  else if (language == L"es")
-    resource = L"IDR_OEMPG_ES.HTML";
+  else if (language == L"es-419")
+    resource = L"IDR_OEMPG_ES_419.HTML";
   else if (language == L"pt-br")
-    resource = L"IDR_OEMPG_BR.HTML";
+    resource = L"IDR_OEMPG_PT_BR.HTML";
   // Spaces and DOS paths must be url encoded.
   std::wstring url_path =
       StringPrintf(L"res://%ls/#23/%ls", full_exe_path, resource);

@@ -70,15 +70,18 @@ IDR_EULA_ICO.PNG      EULA   "..\\..\\app\\theme\\google_chrome\\eula_icon.png"
 // HTML
 //
 
-IDR_EULA_CSS.CSS      HTML   "eula\\oem.css"
-IDR_EULA_JSC.JS       HTML   "eula\\oem.js"
+IDR_EULA_CSS.CSS        HTML    "eula\\oem.css"
+IDR_EULA_JSC.JS         HTML   "eula\\oem.js"
 
-IDR_OEMPG_EN.HTML     HTML   "eula\\oem_en.html"
+IDR_OEMPG_EN.HTML       HTML   "eula\\oem_en.html"
+IDR_OEMPG_ES_419.HTML   HTML   "eula\\oem_es-419.html"
+IDR_OEMPG_FR.HTML       HTML   "eula\\oem_fr.html"
+IDR_OEMPG_PT_BR.HTML    HTML   "eula\\oem_pt-BR.html"
 
-IDR_TERMS_EN.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_en.html"
-IDR_TERMS_ES.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_es.html"
-IDR_TERMS_FR.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_fr.html"
-IDR_TERMS_BR.HTML     HTML   "..\\..\\app\\resources\\terms\\terms_pt-BR.html"
+IDR_TERMS_EN.HTML       HTML   "..\\..\\app\\resources\\terms\\terms_en.html"
+IDR_TERMS_ES_419.HTML   HTML   "..\\..\\app\\resources\\terms\\terms_es-419.html"
+IDR_TERMS_FR.HTML       HTML   "..\\..\\app\\resources\\terms\\terms_fr.html"
+IDR_TERMS_PT_BR.HTML    HTML   "..\\..\\app\\resources\\terms\\terms_pt-BR.html"
 
 #endif  // defined(GOOGLE_CHROME_BUILD)
 
