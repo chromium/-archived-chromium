@@ -267,6 +267,15 @@ void Menu::AddMenuItemInternal(int index,
                                MenuItemType type) {
   DCHECK(type != SEPARATOR) << "Call AddSeparator instead!";
 
+  if (label.empty() && !delegate_) {
+    // No label and no delegate; don't add an empty menu.
+    // It appears under some circumstance we're getting an empty label
+    // (l10n_util::GetString(IDS_TASK_MANAGER) returns ""). This shouldn't
+    // happen, but I'm working over the crash here.
+    NOTREACHED();
+    return;
+  }
+
   MENUITEMINFO mii;
   mii.cbSize = sizeof(mii);
   mii.fMask = MIIM_FTYPE | MIIM_ID;
