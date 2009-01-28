@@ -267,6 +267,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kDisablePopupBlocking,
     switches::kUseLowFragHeapCrt,
     switches::kGearsInRenderer,
+    switches::kEnableUserScripts,
     switches::kEnableVideo,
   };
 
@@ -514,8 +515,21 @@ void BrowserRenderProcessHost::InitVisitedLinks() {
 }
 
 void BrowserRenderProcessHost::InitUserScripts() {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableUserScripts)) {
+    return;
+  }
+
+  // TODO(aa): Figure out lifetime and ownership of this object
+  // - VisitedLinkMaster is owned by Profile, but there has been talk of
+  //   having scripts live elsewhere besides the profile.
+  // - File IO should be asynchronous (see VisitedLinkMaster), but how do we
+  //   get scripts to the first renderer without blocking startup? Should we
+  //   cache some information across restarts?
   UserScriptMaster* user_script_master = profile()->GetUserScriptMaster();
-  DCHECK(user_script_master);
+  if (!user_script_master) {
+    return;
+  }
 
   if (!user_script_master->ScriptsReady()) {
     // No scripts ready.  :(
