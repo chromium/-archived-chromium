@@ -349,6 +349,14 @@ MetricsService::MetricsService()
 
 MetricsService::~MetricsService() {
   SetRecording(false);
+  if (pending_log_) {
+    delete pending_log_;
+    pending_log_ = NULL;
+  }
+  if (current_log_) {
+    delete current_log_;
+    current_log_ = NULL;
+  }
 }
 
 void MetricsService::SetUserPermitsUpload(bool enabled) {
