@@ -1251,16 +1251,18 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   browser->LoadingStateChanged(detached_contents);
   browser->window()->Show();
 
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN)
   // When we detach a tab we need to make sure any associated Find window moves
   // along with it to its new home (basically we just make new_window the
   // parent of the Find window).
   // TODO(brettw) this could probably be improved, see
   // WebContentsView::ReparentFindWindow for more.
-  // TODO(port): remove the view dependency from this.
   WebContents* web_contents = detached_contents->AsWebContents();
   if (web_contents)
     web_contents->view()->ReparentFindWindow(browser);
+#else
+  // TODO(port): remove the view dependency from this.
+  NOTIMPLEMENTED() << "need to reparent find window";
 #endif
 }
 
