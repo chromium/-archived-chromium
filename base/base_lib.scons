@@ -190,6 +190,8 @@ input_files = ChromeFileList([
     'scoped_handle.h',
     'scoped_nsautorelease_pool.h',
     'scoped_ptr.h',
+    'scoped_temp_dir.cc',
+    'scoped_temp_dir.h',
     'sha2.cc',
     'sha2.h',
     'third_party/nss/sha256.h',

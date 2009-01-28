@@ -296,6 +296,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scoped_temp_dir_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\sha2_unittest.cc"
 				>
 			</File>

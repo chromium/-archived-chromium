@@ -726,6 +726,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\scoped_temp_dir.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\scoped_temp_dir.h"
+			>
+		</File>
+		<File
 			RelativePath="..\sha2.cc"
 			>
 		</File>

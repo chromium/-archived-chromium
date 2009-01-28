@@ -37,6 +37,7 @@
 /* Begin PBXBuildFile section */
 		141593B80EA63EBE00E32418 /* thread_collision_warner_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 146C6A6E0EA63D970029E7B6 /* thread_collision_warner_unittest.cc */; };
 		146C6A6B0EA63D4F0029E7B6 /* thread_collision_warner.cc in Sources */ = {isa = PBXBuildFile; fileRef = 146C6A620EA63CAE0029E7B6 /* thread_collision_warner.cc */; };
+		232269C2037712E93DA5CC83 /* scoped_temp_dir.cc in Sources */ = {isa = PBXBuildFile; fileRef = 119C3753E442CB1E1212F584 /* scoped_temp_dir.cc */; };
 		32AC71B80F2E5321002BDDC8 /* jpeg_codec_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 32AC71B50F2E52FC002BDDC8 /* jpeg_codec_unittest.cc */; };
 		32AC71BF0F2E5421002BDDC8 /* jpeg_codec.cc in Sources */ = {isa = PBXBuildFile; fileRef = 32AC71B60F2E530F002BDDC8 /* jpeg_codec.cc */; };
 		32AC72300F2E64F7002BDDC8 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AC718E0F2E4F62002BDDC8 /* libjpeg.a */; };
@@ -49,6 +50,7 @@
 		4D4C5B5E0EF1B7C1002CA805 /* watchdog_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D4C5B5D0EF1B7C1002CA805 /* watchdog_unittest.cc */; };
 		536092FA0ECE474500D1B91E /* dtoa.cc in Sources */ = {isa = PBXBuildFile; fileRef = 536092F80ECE474500D1B91E /* dtoa.cc */; settings = {COMPILER_FLAGS = "-Wno-write-strings -Wno-all"; }; };
 		536092FB0ECE474500D1B91E /* g_fmt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 536092F90ECE474500D1B91E /* g_fmt.cc */; settings = {COMPILER_FLAGS = "-Wno-write-strings -Wno-all"; }; };
+		75578FC5288BDE1C2C16D391 /* scoped_temp_dir_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 66782460675DA17C9A985B70 /* scoped_temp_dir_unittest.cc */; };
 		7B26302F0E82F218001CE27F /* message_pump_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B26302D0E82F218001CE27F /* message_pump_libevent.cc */; };
 		7B2630330E82F258001CE27F /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B2630240E82F1E6001CE27F /* libevent.a */; };
 		7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.mm */; };
@@ -396,6 +398,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		10894DCE53EF606747078F94 /* scoped_temp_dir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_temp_dir.h; sourceTree = "<group>"; };
+		119C3753E442CB1E1212F584 /* scoped_temp_dir.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scoped_temp_dir.cc; sourceTree = "<group>"; };
 		146C6A610EA63C9F0029E7B6 /* thread_collision_warner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread_collision_warner.h; sourceTree = "<group>"; };
 		146C6A620EA63CAE0029E7B6 /* thread_collision_warner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_collision_warner.cc; sourceTree = "<group>"; };
 		146C6A6E0EA63D970029E7B6 /* thread_collision_warner_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_collision_warner_unittest.cc; sourceTree = "<group>"; };
@@ -416,6 +420,7 @@
 		536092F70ECE474500D1B91E /* dmg_fp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dmg_fp.h; path = third_party/dmg_fp/dmg_fp.h; sourceTree = "<group>"; };
 		536092F80ECE474500D1B91E /* dtoa.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dtoa.cc; path = third_party/dmg_fp/dtoa.cc; sourceTree = "<group>"; };
 		536092F90ECE474500D1B91E /* g_fmt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = g_fmt.cc; path = third_party/dmg_fp/g_fmt.cc; sourceTree = "<group>"; };
+		66782460675DA17C9A985B70 /* scoped_temp_dir_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scoped_temp_dir_unittest.cc; sourceTree = "<group>"; };
 		7B1435DF0E78419700901940 /* native_widget_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_widget_types.h; sourceTree = "<group>"; };
 		7B26301F0E82F1E6001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
 		7B26302D0E82F218001CE27F /* message_pump_libevent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_pump_libevent.cc; sourceTree = "<group>"; };
@@ -1008,6 +1013,9 @@
 				7BA35DD20E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm */,
 				825403610D92D27C0006B936 /* scoped_ptr.h */,
 				7BD8F4CF0E65B4A900034DE9 /* scoped_ptr_unittest.cc */,
+				119C3753E442CB1E1212F584 /* scoped_temp_dir.cc */,
+				10894DCE53EF606747078F94 /* scoped_temp_dir.h */,
+				66782460675DA17C9A985B70 /* scoped_temp_dir_unittest.cc */,
 				825403620D92D27C0006B936 /* sha2.cc */,
 				825403630D92D27C0006B936 /* sha2.h */,
 				8254036F0D92D2840006B936 /* sha256.h */,
@@ -1451,6 +1459,7 @@
 				8246548C0DC259DB007C2BAA /* revocable_store.cc in Sources */,
 				B5E8F6CC0EBFB38E008DD1E9 /* scoped_clipboard_writer.cc in Sources */,
 				7BA35DD30E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm in Sources */,
+				232269C2037712E93DA5CC83 /* scoped_temp_dir.cc in Sources */,
 				ABF4B9BC0DC2BD1000A6E319 /* sha2.cc in Sources */,
 				ABF4B9BE0DC2BD1500A6E319 /* sha512.cc in Sources */,
 				824653740DC12D0E007C2BAA /* shared_memory_posix.cc in Sources */,
@@ -1533,6 +1542,7 @@
 				7B78D3990E54FE0100609465 /* ref_counted_unittest.cc in Sources */,
 				7B78D39A0E54FE0100609465 /* run_all_unittests.cc in Sources */,
 				7BD8F4D50E65B55000034DE9 /* scoped_ptr_unittest.cc in Sources */,
+				75578FC5288BDE1C2C16D391 /* scoped_temp_dir_unittest.cc in Sources */,
 				7B78D39B0E54FE0100609465 /* sha2_unittest.cc in Sources */,
 				BA5CC5840E788093004EDD45 /* shared_memory_unittest.cc in Sources */,
 				7BAE30E60E6D939F00C3F750 /* simple_thread_unittest.cc in Sources */,
