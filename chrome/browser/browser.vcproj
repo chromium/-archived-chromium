@@ -1958,6 +1958,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\backing_store_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\browser_render_process_host.cc"
 				>
 			</File>
