@@ -249,7 +249,7 @@ bool ContentsEqual(const FilePath& filename1, const FilePath& filename2) {
   return true;
 }
 
-bool ReadFileToString(const std::wstring& path, std::string* contents) {
+bool ReadFileToString(const FilePath& path, std::string* contents) {
   FILE* file = OpenFile(path, "rb");
   if (!file) {
     return false;
@@ -348,6 +348,10 @@ bool MemoryMappedFile::IsValid() {
 }
 
 // Deprecated functions ----------------------------------------------------
+
+bool ReadFileToString(const std::wstring& path, std::string* contents) {
+  return ReadFileToString(FilePath::FromWStringHack(path), contents);
+}
 
 bool AbsolutePath(std::wstring* path_str) {
   FilePath path(FilePath::FromWStringHack(*path_str));

@@ -215,6 +215,8 @@ bool ContentsEqual(const std::wstring& filename1,
 
 // Read the file at |path| into |contents|, returning true on success.
 // Useful for unit tests.
+bool ReadFileToString(const FilePath& path, std::string* contents);
+// Deprecated version.
 bool ReadFileToString(const std::wstring& path, std::string* contents);
 
 #if defined(OS_WIN)
