@@ -1550,7 +1550,7 @@ LayoutTests/fast/dom/dom-constructors.html = FAIL
 // WebKit Merge 39050:39100 failures:
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
-LINUX WIN : LayoutTests/http/tests/loading/simple-subframe.html = FAIL
+LINUX : LayoutTests/http/tests/loading/simple-subframe.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
 MAC : LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
