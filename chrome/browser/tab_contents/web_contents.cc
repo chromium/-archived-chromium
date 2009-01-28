@@ -494,10 +494,10 @@ void WebContents::CreateView() {
   view_->CreateView();
 }
 HWND WebContents::GetContainerHWND() const {
-  return view_->GetContainerHWND();
+  return view_->GetNativeView();
 }
 HWND WebContents::GetContentHWND() {
-  return view_->GetContentHWND();
+  return view_->GetContentNativeView();
 }
 void WebContents::GetContainerBounds(gfx::Rect *out) const {
   view_->GetContainerBounds(out);
@@ -573,8 +573,8 @@ void WebContents::OnSavePage() {
 
   // TODO(rocking): Use new asynchronous dialog boxes to prevent the SaveAs
   // dialog blocking the UI thread. See bug: http://b/issue?id=1129694.
-  if (SavePackage::GetSaveInfo(suggest_name, GetContainerHWND(), &param,
-                               profile()->GetDownloadManager()))
+  if (SavePackage::GetSaveInfo(suggest_name, view_->GetNativeView(),
+                               &param, profile()->GetDownloadManager()))
     SavePage(param.saved_main_file_path, param.dir, param.save_type);
 }
 
@@ -997,6 +997,7 @@ void WebContents::RunFileChooser(bool multiple_files,
                                  const std::wstring& title,
                                  const std::wstring& default_file,
                                  const std::wstring& filter) {
+  // TODO(brettw) move this to the view.
   HWND toplevel_hwnd = GetAncestor(GetContainerHWND(), GA_ROOT);
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
@@ -1144,7 +1145,7 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
       keyword,
       url,
       base_entry->favicon().url(),
-      GetAncestor(view_->GetContainerHWND(), GA_ROOT),
+      GetAncestor(view_->GetNativeView(), GA_ROOT),
       autodetected);
 }
 

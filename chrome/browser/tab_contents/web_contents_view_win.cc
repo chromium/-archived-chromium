@@ -73,11 +73,11 @@ RenderWidgetHostViewWin* WebContentsViewWin::CreateViewForWidget(
   return view;
 }
 
-HWND WebContentsViewWin::GetContainerHWND() const {
+gfx::NativeView WebContentsViewWin::GetNativeView() const {
   return GetHWND();
 }
 
-HWND WebContentsViewWin::GetContentHWND() const {
+gfx::NativeView WebContentsViewWin::GetContentNativeView() const {
   if (!web_contents_->render_widget_host_view())
     return NULL;
   return web_contents_->render_widget_host_view()->GetPluginHWND();
@@ -172,9 +172,9 @@ void WebContentsViewWin::OnDestroy() {
 }
 
 void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
-  if (GetContainerHWND()) {
+  if (GetNativeView()) {
     // It's possible to get this after the hwnd has been destroyed.
-    ::SetWindowText(GetContainerHWND(), title.c_str());
+    ::SetWindowText(GetNativeView(), title.c_str());
     // TODO(brettw) this call seems messy the way it reaches into the widget
     // view, and I'm not sure it's necessary. Maybe we should just remove it.
     ::SetWindowText(web_contents_->render_widget_host_view()->GetPluginHWND(),
@@ -184,8 +184,8 @@ void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
 
 void WebContentsViewWin::Invalidate() {
   // Note that it's possible to get this message after the window was destroyed.
-  if (::IsWindow(GetContainerHWND()))
-    InvalidateRect(GetContainerHWND(), NULL, FALSE);
+  if (::IsWindow(GetNativeView()))
+    InvalidateRect(GetNativeView(), NULL, FALSE);
 }
 
 void WebContentsViewWin::SizeContents(const gfx::Size& size) {
@@ -245,7 +245,7 @@ void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {
 
 void WebContentsViewWin::TakeFocus(bool reverse) {
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetContainerHWND());
+      views::FocusManager::GetFocusManager(GetNativeView());
 
   // We may not have a focus manager if the tab has been switched before this
   // message arrived.
@@ -415,7 +415,7 @@ void WebContentsViewWin::ShowCreatedWidgetInternal(
   // This logic should be implemented by RenderWidgetHostHWND (as mentioned
   // above) in the ::Init function, which should take a parent and some initial
   // bounds.
-  widget_host_view_win->Create(GetContainerHWND(), NULL, NULL,
+  widget_host_view_win->Create(GetNativeView(), NULL, NULL,
                                WS_POPUP, WS_EX_TOOLWINDOW);
   widget_host_view_win->MoveWindow(initial_pos.x(), initial_pos.y(),
                                    initial_pos.width(), initial_pos.height(),
@@ -589,8 +589,9 @@ void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type,
   if (!ScrollZoom(scroll_type)) {
     // Reflect scroll message to the view() to give it a chance
     // to process scrolling.
-    SendMessage(GetContentHWND(), message, MAKELONG(scroll_type, position),
-                (LPARAM) scrollbar);
+    SendMessage(GetContentNativeView(), message,
+                MAKELONG(scroll_type, position),
+                reinterpret_cast<LPARAM>(scrollbar));
   }
 }
 

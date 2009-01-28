@@ -122,14 +122,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\gfx\jpeg_codec.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\jpeg_codec.h"
-			>
-		</File>
-		<File
 			RelativePath="..\gfx\gdi_util.cc"
 			>
 		</File>
@@ -138,11 +130,23 @@
 			>
 		</File>
 		<File
+			RelativePath="..\gfx\jpeg_codec.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\jpeg_codec.h"
+			>
+		</File>
+		<File
 			RelativePath="..\gfx\native_theme.cc"
 			>
 		</File>
 		<File
 			RelativePath="..\gfx\native_theme.h"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\native_widget_types.h"
 			>
 		</File>
 		<File

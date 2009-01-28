@@ -5,12 +5,11 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_H_
 
-#include <windows.h>
-
 #include <map>
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
@@ -50,15 +49,13 @@ class WebContentsView : public RenderViewHostDelegate::View {
   virtual RenderWidgetHostViewWin* CreateViewForWidget(
       RenderWidgetHost* render_widget_host) = 0;
 
-  // Returns the HWND that contains the contents of the tab.
-  // TODO(brettw) this should not be necessary in this cross-platform interface.
-  virtual HWND GetContainerHWND() const = 0;
+  // Returns the native widget that contains the contents of the tab.
+  virtual gfx::NativeView GetNativeView() const = 0;
 
-  // Returns the HWND with the main content of the tab (i.e. the main render
-  // view host, though there may be many popups in the tab as children of the
-  // container HWND).
-  // TODO(brettw) this should not be necessary in this cross-platform interface.
-  virtual HWND GetContentHWND() const = 0;
+  // Returns the native widget with the main content of the tab (i.e. the main
+  // render view host, though there may be many popups in the tab as children of
+  // the container).
+  virtual gfx::NativeView GetContentNativeView() const = 0;
 
   // Computes the rectangle for the native widget that contains the contents of
   // the tab relative to its parent.
@@ -156,8 +153,9 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // created objects so that they can be associated with the given routes. When
   // they are shown later, we'll look them up again and pass the objects to
   // the Show functions rather than the route ID.
-  virtual WebContents* CreateNewWindowInternal
-      (int route_id, base::WaitableEvent* modal_dialog_event) = 0;
+  virtual WebContents* CreateNewWindowInternal(
+      int route_id,
+      base::WaitableEvent* modal_dialog_event) = 0;
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
                                                         bool activatable) = 0;
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,

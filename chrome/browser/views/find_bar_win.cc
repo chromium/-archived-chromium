@@ -468,7 +468,8 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   // fails, we return an empty rect.
   CRect browser_client_rect, browser_window_rect, content_window_rect;
   if (!::IsWindow(parent_hwnd_) ||
-      !::GetWindowRect(parent_tab_->GetContentHWND(), &content_window_rect) ||
+      !::GetWindowRect(parent_tab_->GetContentNativeView(),
+                       &content_window_rect) ||
       !::GetWindowRect(parent_hwnd_, &browser_window_rect) ||
       !::GetClientRect(parent_hwnd_, &browser_client_rect) ||
       !toolbar) {
@@ -589,7 +590,7 @@ gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
     // whereas the selection rect is relative to the page.
     RECT frame_rect = {0}, webcontents_rect = {0};
     ::GetWindowRect(parent_hwnd_, &frame_rect);
-    ::GetWindowRect(parent_tab_->GetContainerHWND(), &webcontents_rect);
+    ::GetWindowRect(parent_tab_->GetNativeView(), &webcontents_rect);
     avoid_overlapping_rect.Offset(0, webcontents_rect.top - frame_rect.top);
   }
 
