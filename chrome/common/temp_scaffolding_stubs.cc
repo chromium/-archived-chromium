@@ -239,6 +239,7 @@ namespace webkit_glue {
 std::string GetUserAgent(const GURL& url) {
   return "";
 }
+}
 #endif
 
 #if defined(OS_LINUX)
