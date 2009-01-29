@@ -966,6 +966,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\version.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\version.h"
+			>
+		</File>
+		<File
 			RelativePath="..\waitable_event.h"
 			>
 		</File>

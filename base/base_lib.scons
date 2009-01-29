@@ -250,6 +250,8 @@ input_files = ChromeFileList([
     'tuple.h',
     'values.cc',
     'values.h',
+    'version.cc',
+    'version.h',
     'waitable_event.h',
     'waitable_event_watcher.h',
     'waitable_event_watcher_win.cc',

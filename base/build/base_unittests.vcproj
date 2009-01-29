@@ -392,6 +392,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\version_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\waitable_event_unittest.cc"
 				>
 			</File>
