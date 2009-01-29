@@ -239,3 +239,7 @@ SKIP : LayoutTests/http/tests/security/dataTransfer-set-data-file-url.html = FAI
 // agree and only Safari is doing it this way.
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 
+// This tests a Safari incompatibility.  This test should fail since
+// it contains syntax errors that JSC for some reason choose not to
+// throw.  V8 follows the spec.
+LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL

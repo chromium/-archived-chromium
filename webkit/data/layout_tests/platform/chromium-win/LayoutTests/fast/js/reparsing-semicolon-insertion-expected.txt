@@ -1,5 +1,0 @@
-CONSOLE MESSAGE: line 13: Uncaught SyntaxError: Unexpected token }
-FAIL successfullyParsed should be true. Threw exception ReferenceError: successfullyParsed is not defined
-
-TEST COMPLETE
-

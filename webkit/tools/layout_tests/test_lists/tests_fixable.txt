@@ -1410,9 +1410,6 @@ MAC : LayoutTests/fast/images/object-image.html = FAIL
 // has regressed.
 MAC DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
 
-// Parsing issue?
-MAC :  LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
-
 // Rebase for our network stack?
 MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
