@@ -326,6 +326,10 @@ DEFER : LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
 // the checked in results do not include the PASS text.
 DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL
 
+// This test has hover effects that change the font size. This test also
+// moves the mouse around, resulting in a layout that dances around.
+// Depending upon when the snapshot is taken we get different results.
+DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 // -----------------------------------------------------------------
 // SVG TESTS
 // -----------------------------------------------------------------
@@ -1701,7 +1705,6 @@ LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
-WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 WIN : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
