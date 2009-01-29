@@ -1705,7 +1705,6 @@ LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
-WIN : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
 WIN : LayoutTests/transitions/transition-end-event-nested.html = PASS FAIL
