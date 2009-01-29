@@ -145,7 +145,7 @@ TEST_F(SessionRestoreUITest, RestoresForwardAndBackwardNavs) {
 TEST_F(SessionRestoreUITest, RestoresCrossSiteForwardAndBackwardNavs) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   GURL cross_site_url(server->TestServerPageW(L"files/title2.html"));
 

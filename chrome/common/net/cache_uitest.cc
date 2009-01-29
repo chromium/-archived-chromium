@@ -55,7 +55,7 @@ void CacheTest::RunCacheTest(const std::wstring &url,
                              bool expect_new_tab_cached,
                              bool expect_delayed_reload) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
   GURL test_page(server->TestServerPageW(url));
 

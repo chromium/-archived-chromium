@@ -39,7 +39,7 @@ TEST_F(ErrorPageTest, IFrame404) {
   // when the iframe loads.  If the iframe fails to load (because an alternate
   // error page loads instead), then the title will remain as "FAIL".
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
   GURL test_url = server->TestServerPage("files/iframe404.html");
   NavigateToURL(test_url);

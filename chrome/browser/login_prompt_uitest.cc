@@ -63,7 +63,7 @@ wstring ExpectedTitleFromAuth(wstring username, wstring password) {
 // Test that "Basic" HTTP authentication works.
 TEST_F(LoginPromptTest, TestBasicAuth) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
@@ -85,7 +85,7 @@ TEST_F(LoginPromptTest, TestBasicAuth) {
 // Test that "Digest" HTTP authentication works.
 TEST_F(LoginPromptTest, TestDigestAuth) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), server->TestServerPageW(L"auth-digest"));
@@ -106,7 +106,7 @@ TEST_F(LoginPromptTest, TestDigestAuth) {
 // Test that logging in on 2 tabs at once works.
 TEST_F(LoginPromptTest, TestTwoAuths) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ::scoped_ptr<TabProxy> basic_tab(GetActiveTabProxy());
@@ -136,7 +136,7 @@ TEST_F(LoginPromptTest, TestTwoAuths) {
 // Test that cancelling authentication works.
 TEST_F(LoginPromptTest, TestCancelAuth) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 

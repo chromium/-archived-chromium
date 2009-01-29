@@ -38,7 +38,7 @@ TEST_F(InspectorControllerTest, DISABLED_InspectElement) {
     return;
 
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());

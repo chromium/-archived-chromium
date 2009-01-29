@@ -108,7 +108,7 @@ class SessionHistoryTest : public UITest {
 
 TEST_F(SessionHistoryTest, BasicBackForward) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
@@ -174,7 +174,7 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
     return;
 
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
@@ -240,7 +240,7 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
 // Test that back/forward preserves POST data and document state in subframes.
 TEST_F(SessionHistoryTest, FrameFormBackForward) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
@@ -302,7 +302,7 @@ TEST_F(SessionHistoryTest, FrameFormBackForward) {
 // across frames (ie, from frame -> nonframe).
 TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
@@ -349,7 +349,7 @@ TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
 // navigations. Bug 730379.
 TEST_F(SessionHistoryTest, FragmentBackForward) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
@@ -419,7 +419,7 @@ TEST_F(SessionHistoryTest, FragmentBackForward) {
 // since we'll be waiting forever for a load stop event.
 TEST_F(SessionHistoryTest, JavascriptHistory) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
@@ -502,7 +502,7 @@ TEST_F(SessionHistoryTest, LocationReplace) {
   // Test that using location.replace doesn't leave the title of the old page
   // visible.
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ASSERT_TRUE(tab_->NavigateToURL(server->TestServerPage(

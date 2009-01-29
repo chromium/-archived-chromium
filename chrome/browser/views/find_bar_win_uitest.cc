@@ -26,7 +26,7 @@ const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
 // This test loads a page with frames and starts FindInPage requests
 TEST_F(FindInPageControllerTest, FindInPageFrames) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
@@ -79,7 +79,7 @@ TEST_F(FindInPageControllerTest, FindInPageFrames) {
 // sense as we FindNext over all the items.
 TEST_F(FindInPageControllerTest, FindInPageOrdinal) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
@@ -117,7 +117,7 @@ TEST_F(FindInPageControllerTest, FindInPageOrdinal) {
 // sense.
 TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
@@ -163,7 +163,7 @@ TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
 // See http://crbug.com/5132
 TEST_F(FindInPageControllerTest, FindInPage_Issue5132) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our frames page.
@@ -194,7 +194,7 @@ TEST_F(FindInPageControllerTest, FindInPage_Issue5132) {
 // Load a page with no selectable text and make sure we don't crash.
 TEST_F(FindInPageControllerTest, FindUnSelectableText) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kUserSelectPage);
@@ -210,7 +210,7 @@ TEST_F(FindInPageControllerTest, FindUnSelectableText) {
 // Try to reproduce the crash seen in issue 1341577.
 TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kCrashPage);
@@ -242,7 +242,7 @@ TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
 //    again from where it left off).
 TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1155639) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kTooFewMatchesPage);
@@ -259,7 +259,7 @@ TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1155639) {
 // a new tab.
 TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kFramePage);
@@ -320,7 +320,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 // Make sure Find box disappears on Navigate but not on Refresh.
 TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"chrome/test/data");
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kUserSelectPage);

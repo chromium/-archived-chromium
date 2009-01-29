@@ -53,7 +53,7 @@ bool ActivateTabByClick(AutomationProxy* automation,
 
 TEST_F(FindInPageTest, CrashEscHandlers) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());

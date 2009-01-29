@@ -133,7 +133,7 @@ TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
 TEST_F(TabRestoreUITest, RestoreWithExistingSiteInstance) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   GURL http_url1(server->TestServerPageW(L"files/title1.html"));
   GURL http_url2(server->TestServerPageW(L"files/title2.html"));
@@ -178,7 +178,7 @@ TEST_F(TabRestoreUITest, RestoreWithExistingSiteInstance) {
 TEST_F(TabRestoreUITest, RestoreCrossSiteWithExistingSiteInstance) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   GURL http_url1(server->TestServerPageW(L"files/title1.html"));
   GURL http_url2(server->TestServerPageW(L"files/title2.html"));

@@ -39,7 +39,7 @@ class ViewSourceTest : public UITest {
 // page in view source)
 TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   std::string cookie = "viewsource_cookie";
   std::string cookie_data = "foo";
@@ -64,7 +64,7 @@ TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
 // URL) if the URL was not changed (apart from adding the view-source prefix)
 TEST_F(ViewSourceTest, DoesBrowserConsumeViewSourcePrefix) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to google.html
@@ -83,7 +83,7 @@ TEST_F(ViewSourceTest, DoesBrowserConsumeViewSourcePrefix) {
 // "View Source" from the Page menu.
 TEST_F(ViewSourceTest, ViewSourceInPageMenuEnabledOnANormalPage) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to google.html
@@ -97,7 +97,7 @@ TEST_F(ViewSourceTest, ViewSourceInPageMenuEnabledOnANormalPage) {
 // "View Source" from the Page menu.
 TEST_F(ViewSourceTest, ViewSourceInPageMenuDisabledWhileViewingSource) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to google.html

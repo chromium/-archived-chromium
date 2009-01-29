@@ -56,7 +56,7 @@ bool ActivateTabByClick(AutomationProxy* automation,
 
 TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our test page.
@@ -131,7 +131,7 @@ TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
 // Tabs remember focus.
 TEST_F(BrowserFocusTest, TabsRememberFocus) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
@@ -196,7 +196,7 @@ TEST_F(BrowserFocusTest, TabsRememberFocus) {
 // Background window does not steal focus.
 TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // First we navigate to our test page.
@@ -234,7 +234,7 @@ TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
 // Page cannot steal focus when focus is on location bar.
 TEST_F(BrowserFocusTest, LocationBarLockFocus) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // Open the page that steals focus.
@@ -267,7 +267,7 @@ TEST_F(BrowserFocusTest, LocationBarLockFocus) {
 // Focus traversal
 TEST_F(BrowserFocusTest, FocusTraversal) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // Open the page the test page.
@@ -341,7 +341,7 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
 // Make sure Find box can request focus, even when it is already open.
 TEST_F(BrowserFocusTest, FindFocusTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // Open some page (any page that doesn't steal focus).

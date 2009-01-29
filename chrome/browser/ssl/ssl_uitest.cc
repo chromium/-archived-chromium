@@ -42,7 +42,7 @@ class SSLUITest : public UITest {
   }
 
   HTTPTestServer* PlainServer() {
-    return HTTPTestServer::CreateServer(kDocRoot);
+    return HTTPTestServer::CreateServer(kDocRoot, NULL);
   }
 
   HTTPSTestServer* GoodCertServer() {

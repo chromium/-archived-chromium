@@ -410,12 +410,16 @@ class BaseTestServer : public base::ProcessFilter,
 
 class HTTPTestServer : public BaseTestServer {
  protected:
-  HTTPTestServer() {
+  explicit HTTPTestServer() : loop_(NULL) {
   }
 
  public:
-  static HTTPTestServer* CreateServer(const std::wstring& document_root) {
+  // Creates and returns a new HTTPTestServer. If |loop| is non-null, requests
+  // are serviced on it, otherwise a new thread and message loop are created.
+  static HTTPTestServer* CreateServer(const std::wstring& document_root,
+                                      MessageLoop* loop) {
     HTTPTestServer* test_server = new HTTPTestServer();
+    test_server->loop_ = loop;
     if (!test_server->Init(kDefaultHostName, kHTTPDefaultPort, document_root)) {
       delete test_server;
       return NULL;
@@ -456,12 +460,18 @@ class HTTPTestServer : public BaseTestServer {
     // message loop, we also want to avoid spinning a nested message loop.
     SyncTestDelegate d;
     {
-      base::Thread io_thread("MakeGETRequest");
-      base::Thread::Options options;
-      options.message_loop_type = MessageLoop::TYPE_IO;
-      io_thread.StartWithOptions(options);
-      io_thread.message_loop()->PostTask(FROM_HERE, NewRunnableFunction(
-          &HTTPTestServer::StartGETRequest, url, &d));
+      MessageLoop* loop = loop_;
+      scoped_ptr<base::Thread> io_thread;
+      
+      if (!loop) {
+        io_thread.reset(new base::Thread("MakeGETRequest"));
+        base::Thread::Options options;
+        options.message_loop_type = MessageLoop::TYPE_IO;
+        io_thread->StartWithOptions(options);
+        loop = io_thread->message_loop();
+      }
+      loop->PostTask(FROM_HERE, NewRunnableFunction(
+            &HTTPTestServer::StartGETRequest, url, &d));
 
       // Build bot wait for only 300 seconds we should ensure wait do not take
       // more than 300 seconds
@@ -519,6 +529,11 @@ class HTTPTestServer : public BaseTestServer {
     command_line->push_back("--data-dir=" + WideToUTF8(test_data_directory));
   }
 #endif
+
+ private:
+  // If non-null a background thread isn't created and instead this message loop
+  // is used.
+  MessageLoop* loop_;
 };
 
 class HTTPSTestServer : public HTTPTestServer {

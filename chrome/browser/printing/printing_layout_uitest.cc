@@ -482,7 +482,7 @@ TEST_F(PrintingLayoutTextTest, DISABLED_Complex) {
 
   // Print a document, check its output.
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   NavigateToURL(server->TestServerPage("files/printing/test1.html"));
@@ -512,7 +512,8 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
   if (IsTestCaseDisabled())
     return;
 
-  scoped_refptr<HTTPTestServer> server(HTTPTestServer::CreateServer(kDocRoot));
+  scoped_refptr<HTTPTestServer> server(
+      HTTPTestServer::CreateServer(kDocRoot, NULL));
   ASSERT_TRUE(NULL != server.get());
   DismissTheWindow dismisser(base::GetProcId(process()));
 
@@ -562,7 +563,8 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
   if (IsTestCaseDisabled())
     return;
 
-  scoped_refptr<HTTPTestServer> server(HTTPTestServer::CreateServer(kDocRoot));
+  scoped_refptr<HTTPTestServer> server(
+      HTTPTestServer::CreateServer(kDocRoot, NULL));
   ASSERT_TRUE(NULL != server.get());
 
   {
@@ -595,7 +597,8 @@ TEST_F(PrintingLayoutTest, IFrame) {
   if (IsTestCaseDisabled())
     return;
 
-  scoped_refptr<HTTPTestServer> server(HTTPTestServer::CreateServer(kDocRoot));
+  scoped_refptr<HTTPTestServer> server(
+      HTTPTestServer::CreateServer(kDocRoot, NULL));
   ASSERT_TRUE(NULL != server.get());
 
   {

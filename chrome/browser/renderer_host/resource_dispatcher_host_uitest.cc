@@ -90,7 +90,7 @@ TEST_F(ResourceDispatcherTest, ContentDispositionInline) {
 TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
@@ -113,7 +113,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
 TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
@@ -148,7 +148,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
 TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
@@ -227,7 +227,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
 TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));

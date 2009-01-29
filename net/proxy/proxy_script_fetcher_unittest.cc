@@ -182,7 +182,7 @@ TEST_F(ProxyScriptFetcherTest, FileUrl) {
 // with other browsers.
 TEST_F(ProxyScriptFetcherTest, HttpMimeType) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
@@ -208,7 +208,7 @@ TEST_F(ProxyScriptFetcherTest, HttpMimeType) {
 
 TEST_F(ProxyScriptFetcherTest, HttpStatusCode) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
@@ -228,7 +228,7 @@ TEST_F(ProxyScriptFetcherTest, HttpStatusCode) {
 
 TEST_F(ProxyScriptFetcherTest, ContentDisposition) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
@@ -242,7 +242,7 @@ TEST_F(ProxyScriptFetcherTest, ContentDisposition) {
 
 TEST_F(ProxyScriptFetcherTest, TooLarge) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 
@@ -277,7 +277,7 @@ TEST_F(ProxyScriptFetcherTest, TooLarge) {
 
 TEST_F(ProxyScriptFetcherTest, Hang) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   SynchFetcher pac_fetcher;
 

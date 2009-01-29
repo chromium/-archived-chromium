@@ -84,7 +84,7 @@ class URLRequestTest : public PlatformTest {
 
 TEST_F(URLRequestTest, GetTest_NoCache) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -106,7 +106,7 @@ TEST_F(URLRequestTest, GetTest_NoCache) {
 
 TEST_F(URLRequestTest, GetTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -194,7 +194,7 @@ TEST_F(URLRequestTest, CancelTest) {
 
 TEST_F(URLRequestTest, CancelTest2) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // error C2446: '!=' : no conversion from 'HTTPTestServer *const '
@@ -223,7 +223,7 @@ TEST_F(URLRequestTest, CancelTest2) {
 
 TEST_F(URLRequestTest, CancelTest3) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -251,7 +251,7 @@ TEST_F(URLRequestTest, CancelTest3) {
 
 TEST_F(URLRequestTest, CancelTest4) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -277,7 +277,7 @@ TEST_F(URLRequestTest, CancelTest4) {
 
 TEST_F(URLRequestTest, CancelTest5) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
 
@@ -313,7 +313,7 @@ TEST_F(URLRequestTest, CancelTest5) {
 
 TEST_F(URLRequestTest, PostTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data");
+      HTTPTestServer::CreateServer(L"net/data", NULL);
   ASSERT_TRUE(NULL != server.get());
   const int kMsgSize = 20000;  // multiple of 10
   const int kIterations = 50;
@@ -365,7 +365,7 @@ TEST_F(URLRequestTest, PostTest) {
 
 TEST_F(URLRequestTest, PostEmptyTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data");
+      HTTPTestServer::CreateServer(L"net/data", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -390,7 +390,7 @@ TEST_F(URLRequestTest, PostEmptyTest) {
 
 TEST_F(URLRequestTest, PostFileTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data");
+      HTTPTestServer::CreateServer(L"net/data", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -521,7 +521,7 @@ TEST_F(URLRequestTest, DISABLED_DnsFailureTest) {
 
 TEST_F(URLRequestTest, ResponseHeadersTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   TestURLRequest req(server->TestServerPage("files/with-headers.html"), &d);
@@ -546,7 +546,7 @@ TEST_F(URLRequestTest, ResponseHeadersTest) {
 
 TEST_F(URLRequestTest, BZip2ContentTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/filter_unittests");
+      HTTPTestServer::CreateServer(L"net/data/filter_unittests", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // for localhost domain, we also should support bzip2 encoding
@@ -572,7 +572,7 @@ TEST_F(URLRequestTest, BZip2ContentTest) {
 
 TEST_F(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/filter_unittests");
+      HTTPTestServer::CreateServer(L"net/data/filter_unittests", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // for localhost domain, we also should support bzip2 encoding
@@ -673,7 +673,7 @@ TEST_F(URLRequestTest, ResolveShortcutTest) {
 
 TEST_F(URLRequestTest, ContentTypeNormalizationTest) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   TestDelegate d;
@@ -722,7 +722,7 @@ TEST_F(URLRequestTest, FileDirCancelTest) {
 
 TEST_F(URLRequestTest, RestrictRedirects) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   TestDelegate d;
@@ -737,7 +737,7 @@ TEST_F(URLRequestTest, RestrictRedirects) {
 
 TEST_F(URLRequestTest, NoUserPassInReferrer) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   TestURLRequest req(server->TestServerPage(
@@ -751,7 +751,7 @@ TEST_F(URLRequestTest, NoUserPassInReferrer) {
 
 TEST_F(URLRequestTest, CancelRedirect) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   {
@@ -770,7 +770,7 @@ TEST_F(URLRequestTest, CancelRedirect) {
 
 TEST_F(URLRequestTest, VaryHeader) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
@@ -821,7 +821,7 @@ TEST_F(URLRequestTest, VaryHeader) {
 TEST_F(URLRequestTest, BasicAuth) {
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"");
+      HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
 
   Time response_time;
@@ -876,7 +876,7 @@ TEST_F(URLRequestTest, BasicAuth) {
 // http://code.google.com/p/chromium/issues/detail?id=843
 TEST_F(URLRequestTest, Post302RedirectGet) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   TestURLRequest req(server->TestServerPage("files/redirect-to-echoall"), &d);
@@ -916,7 +916,7 @@ TEST_F(URLRequestTest, Post302RedirectGet) {
 
 TEST_F(URLRequestTest, Post307RedirectPost) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(L"net/data/url_request_unittest");
+      HTTPTestServer::CreateServer(L"net/data/url_request_unittest", NULL);
   ASSERT_TRUE(NULL != server.get());
   TestDelegate d;
   TestURLRequest req(server->TestServerPage("files/redirect307-to-echoall"),

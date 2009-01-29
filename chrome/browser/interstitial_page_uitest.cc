@@ -55,7 +55,7 @@ class InterstitialPageTest : public UITest {
 // See bug 6729.
 TEST_F(InterstitialPageTest, DISABLED_TestShowHideInterstitial) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -84,7 +84,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowHideInterstitial) {
 // the interstitial, which breaks this test because no notification occurs.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenBack) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -103,7 +103,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenBack) {
 // Flacky on Windows 2000 bot. Disabled for now bug #1173138.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenNavigate) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -124,7 +124,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenNavigate) {
 // See bug 6729.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseTab) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // Create 2 tabs so closing one does not close the browser.
@@ -142,7 +142,7 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseTab) {
 // This test is disabled. See bug #1119448.
 TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseBrowser) {
   scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
