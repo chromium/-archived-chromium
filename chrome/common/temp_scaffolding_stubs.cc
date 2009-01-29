@@ -105,7 +105,7 @@ bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
   std::vector<GURL> urls_to_open;
   urls_to_open.push_back(GURL("http://dev.chromium.org"));
   urls_to_open.push_back(GURL("http://crbug.com"));
-  urls_to_open.push_back(GURL("http://icanhavecheezeburger.com"));
+  urls_to_open.push_back(GURL("http://icanhascheezeburger.com"));
   Browser* browser = NULL;
   browser = OpenURLsInBrowser(browser, profile, urls_to_open);
 
