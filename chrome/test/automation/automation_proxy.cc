@@ -145,12 +145,22 @@ AutomationProxy::AutomationProxy(int command_execution_timeout_ms)
       command_execution_timeout_ms_(command_execution_timeout_ms) {
   InitializeEvents();
   InitializeChannelID();
+  InitializeHandleTracker();
   InitializeThread();
   InitializeChannel();
-  InitializeHandleTracker();
 }
 
 AutomationProxy::~AutomationProxy() {
+  // Destruction order is important. Thread has to outlive the channel and
+  // tracker has to outlive the thread since we access the tracker inside
+  // AutomationMessageFilter::OnMessageReceived.
+  channel_.reset();
+  thread_.reset();
+  DCHECK(NULL == current_request_);
+  tracker_.reset();
+  ::CloseHandle(app_launched_);
+  ::CloseHandle(initial_loads_complete_);
+  ::CloseHandle(new_tab_ui_load_complete_);
 }
 
 void AutomationProxy::InitializeEvents() {
