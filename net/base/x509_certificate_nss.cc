@@ -13,29 +13,11 @@
 #include <sechash.h>
 #undef Lock
 
-#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/time.h"
 #include "base/nss_init.h"
 
 namespace net {
-
-// Calculates the SHA-1 fingerprint of the certificate.  Returns an empty
-// (all zero) fingerprint on failure.
-X509Certificate::Fingerprint CalculateFingerprint(
-    X509Certificate::OSCertHandle cert) {
-  X509Certificate::Fingerprint sha1;
-  memset(sha1.data, 0, sizeof(sha1.data));
-  
-  DCHECK(NULL != cert->derCert.data);
-  DCHECK(0 != cert->derCert.len);
-  
-  SECStatus rv = HASH_HashBuf(HASH_AlgSHA1, sha1.data, 
-                              cert->derCert.data, cert->derCert.len);
-  DCHECK(rv == SECSuccess);
-
-  return sha1;
-}
 
 namespace {
 
@@ -57,11 +39,11 @@ base::Time PRTimeToBaseTime(PRTime prtime) {
   return base::Time::FromUTCExploded(exploded);
 }
 
-void ParsePrincipal(SECItem *der_name,
+void ParsePrincipal(SECItem* der_name,
                     X509Certificate::Principal* principal) {
 
   CERTName name;
-  PRArenaPool *arena = NULL;
+  PRArenaPool* arena = NULL;
 
   arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
   DCHECK(arena != NULL);
@@ -110,7 +92,7 @@ void ParsePrincipal(SECItem *der_name,
           SECItem* decode_item = CERT_DecodeAVAValue(&avas[pair]->value);
           if (!decode_item)
             break;
-          std::string value(reinterpret_cast<char *>(decode_item->data), 
+          std::string value(reinterpret_cast<char*>(decode_item->data), 
                             decode_item->len);
           values[oid]->push_back(value);
           SECITEM_FreeItem(decode_item, PR_TRUE);
@@ -165,9 +147,9 @@ void GetCertSubjectAltNamesOfType(X509Certificate::OSCertHandle cert_handle,
            name->type == certDNSName ||
            name->type == certURI);
     if (name->type == name_type) {
-      unsigned char *p = name->name.other.data;
+      unsigned char* p = name->name.other.data;
       int len = name->name.other.len;
-      std::string value = std::string(reinterpret_cast<char *>(p), len);
+      std::string value = std::string(reinterpret_cast<char*>(p), len);
       result->push_back(value);
     }
     name = CERT_GetNextGeneralName(name);
@@ -193,61 +175,14 @@ void X509Certificate::Initialize() {
 }
 
 // static
-X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
-  DCHECK(cert_handle);
-
-  // Check if we already have this certificate in memory.
-  X509Certificate::Cache* cache = X509Certificate::Cache::GetInstance();
-  X509Certificate* cert = cache->Find(CalculateFingerprint(cert_handle));
-  if (cert) {
-    // We've found a certificate with the same fingerprint in our cache.  We own
-    // the |cert_handle|, which makes it our job to free it.
-    CERT_DestroyCertificate(cert_handle);
-    DHISTOGRAM_COUNTS(L"X509CertificateReuseCount", 1);
-    return cert;
-  }
-  // Otherwise, allocate a new object.
-  return new X509Certificate(cert_handle);
-}
-
-// static
-X509Certificate* X509Certificate::CreateFromBytes(const char* data,
-                                                  int length) {
-  base::EnsureNSSInit();
-
-  SECItem der_cert;
-  der_cert.data = reinterpret_cast<unsigned char *>(const_cast<char *>(data));
-  der_cert.len = length;
-  OSCertHandle cert_handle = 
-      CERT_NewTempCertificate(CERT_GetDefaultCertDB(), &der_cert, 
-                              NULL, PR_FALSE, PR_TRUE);
-  if (!cert_handle)
-    return NULL;
-
-  return CreateFromHandle(cert_handle);
-}
-
-// static
 X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
                                                    void** pickle_iter) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
-X509Certificate::X509Certificate(OSCertHandle cert_handle)
-    : cert_handle_(cert_handle) {
-  Initialize();
-}
-
 void X509Certificate::Persist(Pickle* pickle) {
   NOTIMPLEMENTED();
-}
-
-X509Certificate::~X509Certificate() {
-  // We might not be in the cache, but it is safe to remove ourselves anyway.
-  X509Certificate::Cache::GetInstance()->Remove(this);
-  if (cert_handle_)
-    CERT_DestroyCertificate(cert_handle_);
 }
 
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
@@ -262,6 +197,39 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
 
   if (dns_names->empty())
     dns_names->push_back(subject_.common_name);
+}
+
+// static
+X509Certificate::OSCertHandle X509Certificate::CreateOSCertHandleFromBytes(
+    const char* data, int length) {
+  base::EnsureNSSInit();
+
+  SECItem der_cert;
+  der_cert.data = reinterpret_cast<unsigned char*>(const_cast<char*>(data));
+  der_cert.len = length;
+  return CERT_NewTempCertificate(CERT_GetDefaultCertDB(), &der_cert,
+                                 NULL, PR_FALSE, PR_TRUE);
+}
+
+// static
+void X509Certificate::FreeOSCertHandle(OSCertHandle cert_handle) {
+  CERT_DestroyCertificate(cert_handle);
+}
+
+// static
+X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
+    OSCertHandle cert) {
+  Fingerprint sha1;
+  memset(sha1.data, 0, sizeof(sha1.data));
+
+  DCHECK(NULL != cert->derCert.data);
+  DCHECK(0 != cert->derCert.len);
+
+  SECStatus rv = HASH_HashBuf(HASH_AlgSHA1, sha1.data,
+                              cert->derCert.data, cert->derCert.len);
+  DCHECK(rv == SECSuccess);
+
+  return sha1;
 }
   
 }  // namespace net

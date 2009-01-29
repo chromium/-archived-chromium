@@ -13,6 +13,7 @@
 #include "base/ref_counted.h"
 #include "base/singleton.h"
 #include "base/time.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -112,10 +113,25 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
     std::set<Fingerprint, FingerprintLessThan> denied_;
   };
 
+  // Where the certificate comes from.  The enumeration constants are
+  // listed in increasing order of preference.
+  enum Source {
+    SOURCE_UNUSED = 0,            // The source_ member is not used.
+    SOURCE_LONE_CERT_IMPORT = 1,  // From importing a certificate without
+                                  // its intermediate CA certificates.
+    SOURCE_FROM_NETWORK = 2,      // From the network.
+  };
+
   // Create an X509Certificate from a handle to the certificate object
   // in the underlying crypto library. This is a transfer of ownership;
   // X509Certificate will properly dispose of |cert_handle| for you.
-  static X509Certificate* CreateFromHandle(OSCertHandle cert_handle);
+  // |source| specifies where |cert_handle| comes from.  Given two
+  // certificate handles for the same certificate, our certificate cache
+  // prefers the handle from the network because our HTTP cache isn't
+  // caching the corresponding intermediate CA certificates yet
+  // (http://crbug.com/7065).
+  static X509Certificate* CreateFromHandle(OSCertHandle cert_handle,
+                                           Source source);
 
   // Create an X509Certificate from the BER-encoded representation.
   // Returns NULL on failure.
@@ -130,7 +146,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
   // Creates a X509Certificate from the ground up.  Used by tests that simulate
   // SSL connections.
-  X509Certificate(std::string subject, std::string issuer,
+  X509Certificate(const std::string& subject, const std::string& issuer,
                   base::Time start_date, base::Time expiration_date);
 
   // Appends a representation of this object to the given pickle.
@@ -172,6 +188,9 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   OSCertHandle os_cert_handle() const { return cert_handle_; }
 
  private:
+  friend class base::RefCountedThreadSafe<X509Certificate>;
+  FRIEND_TEST(X509CertificateTest, Cache);
+
   // A cache of X509Certificate objects.
   class Cache {
    public:
@@ -200,13 +219,24 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
   // Construct an X509Certificate from a handle to the certificate object
   // in the underlying crypto library.
-  explicit X509Certificate(OSCertHandle cert_handle);
+  X509Certificate(OSCertHandle cert_handle, Source source);
 
-  friend class base::RefCountedThreadSafe<X509Certificate>;
   ~X509Certificate();
 
   // Common object initialization code.  Called by the constructors only.
   void Initialize();
+
+  // Creates an OS certificate handle from the BER-encoded representation.
+  // Returns NULL on failure.
+  static OSCertHandle CreateOSCertHandleFromBytes(const char* data,
+                                                  int length);
+
+  // Frees an OS certificate handle.
+  static void FreeOSCertHandle(OSCertHandle cert_handle);
+
+  // Calculates the SHA-1 fingerprint of the certificate.  Returns an empty
+  // (all zero) fingerprint on failure.
+  static Fingerprint CalculateFingerprint(OSCertHandle cert_handle);
 
   // The subject of the certificate.
   Principal subject_;
@@ -225,6 +255,9 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
   // A handle to the certificate object in the underlying crypto library.
   OSCertHandle cert_handle_;
+
+  // Where the certificate comes from.
+  Source source_;
 
   DISALLOW_COPY_AND_ASSIGN(X509Certificate);
 };
