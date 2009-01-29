@@ -629,11 +629,6 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 // TODO(port): mac is passing these, does that mean something is wrong?
 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
 
-// Bug: 1045048
-// We haven't implemented GCController in test shell
-// Not critical for Beta.  We have window.gc() for other tests.
-DEFER : LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
-
 // Bug: 1115062
 // These fail the pixel tests in debug mode because they have
 // unpainted space (filled red in Debug but not in Release).
@@ -717,10 +712,6 @@ LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
-
-// Many of the failures here are because V8 stringifies objects differently than
-// JSC. However, the missing position and totalSize properties seems genuine.
-SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 
 // We don't render reflection masks properly.
 // http://code.google.com/p/chromium/issues/detail?id=3229
@@ -1047,6 +1038,9 @@ chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // NEW FOR MERGE 37604:38097
 LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
+// This is a Safari specific test used to document the set of global
+// constructors they expose and the exact way they are printed.  Not
+// important - we might even want to ignore it.
 LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/fast/profiler = FAIL TIMEOUT
@@ -1057,10 +1051,6 @@ pending/security/block-test.html = CRASH FAIL
 LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
-
-// MERGE 38097:38305 REGRESSIONS
-// Bug 5053: fails (maybe V8?)
-LayoutTests/fast/frames/cross-site-this.html = FAIL
 
 // MERGE 38389:38450
 LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
@@ -1693,7 +1683,7 @@ LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 // Note: this failed before the merge on Windows, just not crashed (brettw saw
 // this on his machine once so is marking it as so).
 WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL CRASH
-// Bug 6733: Need to parse Inifinity as 0.
+// Bug 6733: This test is wrong: it is testing a Safari regression.
 LayoutTests/fast/js/numeric-conversion.html = FAIL
 
 // Bug 6735: Merge 39894:39913 - new test.

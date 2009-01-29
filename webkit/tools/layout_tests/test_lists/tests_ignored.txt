@@ -234,3 +234,8 @@ SKIP : LayoutTests/platform/qt/view/fixed-layout-size.html = FAIL
 SKIP : LayoutTests/platform/mac/editing/pasteboard/dataTransfer-set-data-file-url.html = FAIL
 SKIP : LayoutTests/http/tests/security/dataTransfer-set-data-file-url.html = FAIL
 
+// Bug 5053: The issue is which global object to use as the implicit
+// receiver for cross-frame calls.  Currently, IE, Firefox and Chrome
+// agree and only Safari is doing it this way.
+LayoutTests/fast/frames/cross-site-this.html = FAIL
+

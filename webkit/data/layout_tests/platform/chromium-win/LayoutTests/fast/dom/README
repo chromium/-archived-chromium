@@ -22,3 +22,7 @@ document.all is undectable which means that it behaves like undefined
 except when accessing properties on the object.  In KJS document.all
 prints as '[object HTMLCollection]'.  In V8 document.all behaves like
 undefined also when printed so it prints as 'undefined'.
+
+xmlhttprequest-get
+------------------
+The only difference is that V8 prints functions slightly differently.
