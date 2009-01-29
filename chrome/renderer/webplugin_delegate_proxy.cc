@@ -581,7 +581,13 @@ void WebPluginDelegateProxy::OnSetWindow(
     plugin_->SetWindow(window, modal_loop_pump_messages_event);
 
   DCHECK(modal_loop_pump_messages_event_ == NULL);
-  modal_loop_pump_messages_event_.reset();
+
+  if (modal_loop_pump_messages_event) {
+    modal_loop_pump_messages_event_.reset(
+        new base::WaitableEvent(modal_loop_pump_messages_event));
+  } else {
+    modal_loop_pump_messages_event_.reset();
+  }
 }
 
 void WebPluginDelegateProxy::OnCancelResource(int id) {

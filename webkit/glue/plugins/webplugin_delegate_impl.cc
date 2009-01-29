@@ -120,9 +120,11 @@ bool WebPluginDelegateImpl::IsDummyActivationWindow(HWND window) {
 
 LRESULT CALLBACK WebPluginDelegateImpl::HandleEventMessageFilterHook(
     int code, WPARAM wParam, LPARAM lParam) {
-
-  DCHECK(g_current_plugin_instance);
-  g_current_plugin_instance->OnModalLoopEntered();
+  if (g_current_plugin_instance) {
+    g_current_plugin_instance->OnModalLoopEntered();
+  } else {
+    NOTREACHED();
+  }
   return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
@@ -827,6 +829,10 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
     return FALSE;
   }
 
+  // Maintain a local/global stack for the g_current_plugin_instance variable
+  // as this may be a nested invocation.
+  WebPluginDelegateImpl* last_plugin_instance = g_current_plugin_instance;
+
   g_current_plugin_instance = delegate;
 
   switch (message) {
@@ -846,7 +852,7 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
       if (delegate->quirks() & PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE) {
         WebPluginDelegateImpl::ThrottleMessage(delegate->plugin_wnd_proc_, hwnd,
                                                message, wparam, lparam);
-        g_current_plugin_instance = NULL;
+        g_current_plugin_instance = last_plugin_instance;
         return FALSE;
       }
       break;
@@ -873,7 +879,7 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
   LRESULT result = CallWindowProc(delegate->plugin_wnd_proc_, hwnd, message,
                                   wparam, lparam);
   delegate->is_calling_wndproc = false;
-  g_current_plugin_instance = NULL;
+  g_current_plugin_instance = last_plugin_instance;
   return result;
 }
 
@@ -1015,6 +1021,11 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
   bool old_task_reentrancy_state =
       MessageLoop::current()->NestableTasksAllowed();
 
+
+  // Maintain a local/global stack for the g_current_plugin_instance variable
+  // as this may be a nested invocation.
+  WebPluginDelegateImpl* last_plugin_instance = g_current_plugin_instance;
+
   g_current_plugin_instance = this;
 
   handle_event_depth_++;
@@ -1041,7 +1052,7 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
   handle_event_depth_--;
 
-  g_current_plugin_instance = NULL;
+  g_current_plugin_instance = last_plugin_instance;
 
   MessageLoop::current()->SetNestableTasksAllowed(old_task_reentrancy_state);
 
