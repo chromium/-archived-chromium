@@ -31,10 +31,6 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
-using base::Time;
-using base::TimeDelta;
-using base::TimeTicks;
-
 // The URL scheme used for the new tab.
 static const char kNewTabUIScheme[] = "chrome-internal";
 
@@ -69,7 +65,7 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
 
   // Start the benchmarking and the timer.
   void Start() {
-    start_ = TimeTicks::Now();
+    start_ = base::TimeTicks::Now();
     last_paint_ = start_;
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         method_factory_.NewRunnableMethod(&PaintTimer::Timeout), kTimeoutMs);
@@ -77,16 +73,16 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
 
   // A callback that is invoked whenever our RenderWidgetHost paints.
   virtual void RenderWidgetHostDidPaint(RenderWidgetHost* rwh) {
-    last_paint_ = TimeTicks::Now();
+    last_paint_ = base::TimeTicks::Now();
   }
 
   // The timer callback.  If enough time has elapsed since the last paint
   // message, we say we're done painting; otherwise, we keep waiting.
   void Timeout() {
-    TimeTicks now = TimeTicks::Now();
-    if ((now - last_paint_) >= TimeDelta::FromMilliseconds(kTimeoutMs)) {
+    base::TimeTicks now = base::TimeTicks::Now();
+    if ((now - last_paint_) >= base::TimeDelta::FromMilliseconds(kTimeoutMs)) {
       // Painting has quieted down.  Log this as the full time to run.
-      TimeDelta load_time = last_paint_ - start_;
+      base::TimeDelta load_time = last_paint_ - start_;
       int load_time_ms = static_cast<int>(load_time.InMilliseconds());
       NotificationService::current()->Notify(
           NOTIFY_INITIAL_NEW_TAB_UI_LOAD,
@@ -107,33 +103,34 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
   // finished.  Observed times are in the ~1200ms range.
   static const int kTimeoutMs = 2000;
   // The time when we started benchmarking.
-  TimeTicks start_;
+  base::TimeTicks start_;
   // The last time we got a paint notification.
-  TimeTicks last_paint_;
+  base::TimeTicks last_paint_;
   // Scoping so we can be sure our timeouts don't outlive us.
   ScopedRunnableMethodFactory<PaintTimer> method_factory_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PaintTimer);
+  DISALLOW_COPY_AND_ASSIGN(PaintTimer);
 };
 
 // Adds "url" and "title" keys on incoming dictionary, setting title
 // as the url as a fallback on empty title.
-void SetURLAndTitle(DictionaryValue* dictionary, std::wstring title,
+void SetURLAndTitle(DictionaryValue* dictionary,
+                    const std::wstring& title,
                     const GURL& gurl) {
   std::wstring wstring_url = UTF8ToWide(gurl.spec());
   dictionary->SetString(L"url", wstring_url);
 
   bool using_url_as_the_title = false;
-  if (title.empty()) {
+  std::wstring title_to_set(title);
+  if (title_to_set.empty()) {
     using_url_as_the_title = true;
-    title = wstring_url;
+    title_to_set = wstring_url;
   }
 
   // Since the title can contain BiDi text, we need to mark the text as either
   // RTL or LTR, depending on the characters in the string. If we use the URL
   // as the title, we mark the title as LTR since URLs are always treated as
   // left to right strings.
-  std::wstring title_to_set(title);
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
     if (using_url_as_the_title) {
       l10n_util::WrapStringWithLTRFormatting(&title_to_set);
@@ -295,7 +292,7 @@ void MostVisitedHandler::HandleGetMostVisited(const Value* value) {
       dom_ui_host_->profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QuerySegmentUsageSince(
       &cancelable_consumer_,
-      Time::Now() - TimeDelta::FromDays(kMostVisitedScope),
+      base::Time::Now() - base::TimeDelta::FromDays(kMostVisitedScope),
       NewCallback(this, &MostVisitedHandler::OnSegmentUsageAvailable));
 }
 
@@ -842,16 +839,8 @@ const std::wstring& NewTabUIContents::GetTitle() const {
 }
 
 void NewTabUIContents::SetInitialFocus() {
-  // TODO(evanm): this code is duplicated in three places now.
-  // Should probably be refactored.
-  // Focus the location bar when we first get the focus.
-  int tab_index;
-  Browser* browser = Browser::GetBrowserForController(
-      this->controller(), &tab_index);
-  if (browser)
-    browser->FocusLocationBar();
-  else
-    ::SetFocus(GetContainerHWND());
+  if (delegate())
+    delegate()->SetFocusToLocationBar();
 }
 
 bool NewTabUIContents::SupportsURL(GURL* url) {

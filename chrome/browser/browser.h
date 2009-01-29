@@ -401,6 +401,7 @@ class Browser : public TabStripModelDelegate,
                                  bool* proceed_to_fire_unload);
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
+  virtual void SetFocusToLocationBar();
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const std::wstring& path, void* params);

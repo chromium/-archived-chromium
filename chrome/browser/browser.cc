@@ -1882,6 +1882,13 @@ void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
   window_->ShowHTMLDialog(delegate, parent_window);
 }
 
+void Browser::SetFocusToLocationBar() {
+  // This is the same as FocusLocationBar above but doesn't record the user
+  // metrics. This TabContentsDelegate version is called internally, so
+  // shouldn't get recorded in user commands.
+  window_->GetLocationBar()->FocusLocation();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, SelectFileDialog::Listener implementation:
 
