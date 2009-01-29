@@ -855,8 +855,6 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
       if (mode_ == READ_WRITE) {
         if (new_response->headers->response_code() == 304) {
           // Update cached response based on headers in new_response
-          // TODO(wtc): should we update cached certificate
-          // (response_.ssl_info), too?
           response_.headers->Update(*new_response->headers);
           if (response_.headers->HasHeaderValue("cache-control", "no-store")) {
             cache_->DoomEntry(cache_key_);

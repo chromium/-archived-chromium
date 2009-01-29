@@ -7,6 +7,7 @@
 #include <CommonCrypto/CommonDigest.h>
 #include <time.h>
 
+#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/pickle.h"
 #include "net/base/cert_status_flags.h"
@@ -17,6 +18,26 @@ using base::Time;
 namespace net {
 
 namespace {
+
+// Calculates the SHA-1 fingerprint of the certificate.  Returns an empty
+// (all zero) fingerprint on failure.
+X509Certificate::Fingerprint CalculateFingerprint(
+    X509Certificate::OSCertHandle cert) {
+  X509Certificate::Fingerprint sha1;
+  memset(sha1.data, 0, sizeof(sha1.data));
+  
+  CSSM_DATA cert_data;
+  OSStatus status = SecCertificateGetData(cert, &cert_data);
+  if (status)
+    return sha1;
+  
+  DCHECK(NULL != cert_data.Data);
+  DCHECK(0 != cert_data.Length);
+  
+  CC_SHA1(cert_data.Data, cert_data.Length, sha1.data);
+
+  return sha1;
+}
 
 inline bool CSSMOIDEqual(const CSSM_OID* oid1, const CSSM_OID* oid2) {
   return oid1->Length == oid2->Length &&
@@ -221,6 +242,42 @@ void X509Certificate::Initialize() {
 }
 
 // static
+X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
+  DCHECK(cert_handle);
+
+  // Check if we already have this certificate in memory.
+  X509Certificate::Cache* cache = X509Certificate::Cache::GetInstance();
+  X509Certificate* cert = cache->Find(CalculateFingerprint(cert_handle));
+  if (cert) {
+    // We've found a certificate with the same fingerprint in our cache.  We own
+    // the |cert_handle|, which makes it our job to free it.
+    CFRelease(cert_handle);
+    DHISTOGRAM_COUNTS(L"X509CertificateReuseCount", 1);
+    return cert;
+  }
+  // Otherwise, allocate a new object.
+  return new X509Certificate(cert_handle);
+}
+
+// static
+X509Certificate* X509Certificate::CreateFromBytes(const char* data,
+                                                  int length) {
+  CSSM_DATA cert_data;
+  cert_data.Data = const_cast<uint8*>(reinterpret_cast<const uint8*>(data));
+  cert_data.Length = length;
+
+  OSCertHandle cert_handle = NULL;
+  OSStatus status = SecCertificateCreateFromData(&cert_data,
+                                                 CSSM_CERT_X_509v3,
+                                                 CSSM_CERT_ENCODING_BER,
+                                                 &cert_handle);
+  if (status)
+    return NULL;
+
+  return CreateFromHandle(cert_handle);
+}
+
+// static
 X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
                                                    void** pickle_iter) {
   const char* data;
@@ -229,6 +286,21 @@ X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
     return NULL;
   
   return CreateFromBytes(data, length);
+}
+
+X509Certificate::X509Certificate(OSCertHandle cert_handle)
+    : cert_handle_(cert_handle) {
+  Initialize();
+}
+
+X509Certificate::X509Certificate(std::string subject, std::string issuer,
+                                 Time start_date, Time expiration_date)
+    : subject_(subject),
+      issuer_(issuer),
+      valid_start_(start_date),
+      valid_expiry_(expiration_date),
+      cert_handle_(NULL) {
+  memset(fingerprint_.data, 0, sizeof(fingerprint_.data));
 }
 
 void X509Certificate::Persist(Pickle* pickle) {
@@ -240,6 +312,13 @@ void X509Certificate::Persist(Pickle* pickle) {
   }
 
   pickle->WriteData(reinterpret_cast<char*>(cert_data.Data), cert_data.Length);
+}
+
+X509Certificate::~X509Certificate() {
+  // We might not be in the cache, but it is safe to remove ourselves anyway.
+  X509Certificate::Cache::GetInstance()->Remove(this);
+  if (cert_handle_)
+    CFRelease(cert_handle_);
 }
 
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
@@ -264,48 +343,6 @@ bool X509Certificate::IsEV(int cert_status) const {
   // TODO(avi): implement this
   NOTIMPLEMENTED();
   return false;
-}
-
-// static
-X509Certificate::OSCertHandle X509Certificate::CreateOSCertHandleFromBytes(
-    const char* data, int length) {
-  CSSM_DATA cert_data;
-  cert_data.Data = const_cast<uint8*>(reinterpret_cast<const uint8*>(data));
-  cert_data.Length = length;
-
-  OSCertHandle cert_handle = NULL;
-  OSStatus status = SecCertificateCreateFromData(&cert_data,
-                                                 CSSM_CERT_X_509v3,
-                                                 CSSM_CERT_ENCODING_BER,
-                                                 &cert_handle);
-  if (status)
-    return NULL;
-
-  return cert_handle;
-}
-
-// static
-void X509Certificate::FreeOSCertHandle(OSCertHandle cert_handle) {
-  CFRelease(cert_handle);
-}
-
-// static
-X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
-    OSCertHandle cert) {
-  Fingerprint sha1;
-  memset(sha1.data, 0, sizeof(sha1.data));
-
-  CSSM_DATA cert_data;
-  OSStatus status = SecCertificateGetData(cert, &cert_data);
-  if (status)
-    return sha1;
-
-  DCHECK(NULL != cert_data.Data);
-  DCHECK(0 != cert_data.Length);
-
-  CC_SHA1(cert_data.Data, cert_data.Length, sha1.data);
-
-  return sha1;
 }
 
 }  // namespace net

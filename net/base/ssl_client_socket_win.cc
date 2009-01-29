@@ -359,8 +359,7 @@ void SSLClientSocketWin::GetSSLInfo(SSLInfo* ssl_info) {
   if (status == SEC_E_OK) {
     DCHECK(server_cert_);
     PCCERT_CONTEXT dup_cert = CertDuplicateCertificateContext(server_cert_);
-    ssl_info->cert = X509Certificate::CreateFromHandle(
-        dup_cert, X509Certificate::SOURCE_FROM_NETWORK);
+    ssl_info->cert = X509Certificate::CreateFromHandle(dup_cert);
   }
   SecPkgContext_ConnectionInfo connection_info;
   status = QueryContextAttributes(&ctxt_,

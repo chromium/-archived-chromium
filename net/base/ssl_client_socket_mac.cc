@@ -380,8 +380,7 @@ void SSLClientSocketMac::GetSSLInfo(SSLInfo* ssl_info) {
         static_cast<SecCertificateRef>(
           const_cast<void*>(CFArrayGetValueAtIndex(certs, 0)));
     CFRetain(client_cert);
-    ssl_info->cert = X509Certificate::CreateFromHandle(
-        client_cert, X509Certificate::SOURCE_FROM_NETWORK);
+    ssl_info->cert = X509Certificate::CreateFromHandle(client_cert);
     CFRelease(certs);
   }
   

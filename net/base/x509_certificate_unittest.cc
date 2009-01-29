@@ -18,8 +18,11 @@ using base::Time;
 
 namespace {
 
+class X509CertificateTest : public testing::Test {
+};
+
 // Certificates for test data. They're obtained with:
-//
+// 
 // $ openssl s_client -connect [host]:443 -showcerts
 // $ openssl x509 -inform PEM -outform DER > /tmp/host.der
 // $ xxd -i /tmp/host.der
@@ -329,13 +332,13 @@ unsigned char thawte_fingerprint[] = {
 
 }  // namespace
 
-namespace net {
+using net::X509Certificate;
 
 TEST(X509CertificateTest, GoogleCertParsing) {
   scoped_refptr<X509Certificate> google_cert = X509Certificate::CreateFromBytes(
       reinterpret_cast<const char*>(google_der), sizeof(google_der));
-
-  ASSERT_NE(static_cast<X509Certificate*>(NULL), google_cert);
+  
+  ASSERT_NE(static_cast<X509Certificate *>(NULL), google_cert);
 
   const X509Certificate::Principal& subject = google_cert->subject();
   EXPECT_EQ("www.google.com", subject.common_name);
@@ -347,7 +350,7 @@ TEST(X509CertificateTest, GoogleCertParsing) {
   EXPECT_EQ("Google Inc", subject.organization_names[0]);
   EXPECT_EQ(0U, subject.organization_unit_names.size());
   EXPECT_EQ(0U, subject.domain_components.size());
-
+  
   const X509Certificate::Principal& issuer = google_cert->issuer();
   EXPECT_EQ("Thawte SGC CA", issuer.common_name);
   EXPECT_EQ("", issuer.locality_name);
@@ -358,14 +361,14 @@ TEST(X509CertificateTest, GoogleCertParsing) {
   EXPECT_EQ("Thawte Consulting (Pty) Ltd.", issuer.organization_names[0]);
   EXPECT_EQ(0U, issuer.organization_unit_names.size());
   EXPECT_EQ(0U, issuer.domain_components.size());
-
+  
   // Use DoubleT because its epoch is the same on all platforms
   const Time& valid_start = google_cert->valid_start();
   EXPECT_EQ(1209747775, valid_start.ToDoubleT());
-
+  
   const Time& valid_expiry = google_cert->valid_expiry();
   EXPECT_EQ(1241283775, valid_expiry.ToDoubleT());
-
+  
   const X509Certificate::Fingerprint& fingerprint = google_cert->fingerprint();
   for (size_t i = 0; i < 20; ++i)
     EXPECT_EQ(google_fingerprint[i], fingerprint.data[i]);
@@ -374,7 +377,7 @@ TEST(X509CertificateTest, GoogleCertParsing) {
   google_cert->GetDNSNames(&dns_names);
   EXPECT_EQ(1U, dns_names.size());
   EXPECT_EQ("www.google.com", dns_names[0]);
-
+  
 #if ALLOW_EXTERNAL_ACCESS && defined(OS_WIN)
   // TODO(avi): turn this on for the Mac once EV checking is implemented.
   EXPECT_EQ(false, google_cert->IsEV(net::CERT_STATUS_REV_CHECKING_ENABLED));
@@ -384,8 +387,8 @@ TEST(X509CertificateTest, GoogleCertParsing) {
 TEST(X509CertificateTest, WebkitCertParsing) {
   scoped_refptr<X509Certificate> webkit_cert = X509Certificate::CreateFromBytes(
       reinterpret_cast<const char*>(webkit_der), sizeof(webkit_der));
-
-  ASSERT_NE(static_cast<X509Certificate*>(NULL), webkit_cert);
+  
+  ASSERT_NE(static_cast<X509Certificate *>(NULL), webkit_cert);
 
   const X509Certificate::Principal& subject = webkit_cert->subject();
   EXPECT_EQ("Cupertino", subject.locality_name);
@@ -397,7 +400,7 @@ TEST(X509CertificateTest, WebkitCertParsing) {
   EXPECT_EQ(1U, subject.organization_unit_names.size());
   EXPECT_EQ("Mac OS Forge", subject.organization_unit_names[0]);
   EXPECT_EQ(0U, subject.domain_components.size());
-
+  
   const X509Certificate::Principal& issuer = webkit_cert->issuer();
   EXPECT_EQ("Go Daddy Secure Certification Authority", issuer.common_name);
   EXPECT_EQ("Scottsdale", issuer.locality_name);
@@ -410,14 +413,14 @@ TEST(X509CertificateTest, WebkitCertParsing) {
   EXPECT_EQ("http://certificates.godaddy.com/repository",
       issuer.organization_unit_names[0]);
   EXPECT_EQ(0U, issuer.domain_components.size());
-
+  
   // Use DoubleT because its epoch is the same on all platforms
   const Time& valid_start = webkit_cert->valid_start();
   EXPECT_EQ(1205883319, valid_start.ToDoubleT());
-
+  
   const Time& valid_expiry = webkit_cert->valid_expiry();
   EXPECT_EQ(1300491319, valid_expiry.ToDoubleT());
-
+  
   const X509Certificate::Fingerprint& fingerprint = webkit_cert->fingerprint();
   for (size_t i = 0; i < 20; ++i)
     EXPECT_EQ(webkit_fingerprint[i], fingerprint.data[i]);
@@ -427,7 +430,7 @@ TEST(X509CertificateTest, WebkitCertParsing) {
   EXPECT_EQ(2U, dns_names.size());
   EXPECT_EQ("*.webkit.org", dns_names[0]);
   EXPECT_EQ("webkit.org", dns_names[1]);
-
+  
 #if ALLOW_EXTERNAL_ACCESS && defined(OS_WIN)
   EXPECT_EQ(false, webkit_cert->IsEV(net::CERT_STATUS_REV_CHECKING_ENABLED));
 #endif
@@ -436,8 +439,8 @@ TEST(X509CertificateTest, WebkitCertParsing) {
 TEST(X509CertificateTest, ThawteCertParsing) {
   scoped_refptr<X509Certificate> thawte_cert = X509Certificate::CreateFromBytes(
       reinterpret_cast<const char*>(thawte_der), sizeof(thawte_der));
-
-  ASSERT_NE(static_cast<X509Certificate*>(NULL), thawte_cert);
+  
+  ASSERT_NE(static_cast<X509Certificate *>(NULL), thawte_cert);
 
   const X509Certificate::Principal& subject = thawte_cert->subject();
   EXPECT_EQ("www.thawte.com", subject.common_name);
@@ -449,7 +452,7 @@ TEST(X509CertificateTest, ThawteCertParsing) {
   EXPECT_EQ("Thawte Inc", subject.organization_names[0]);
   EXPECT_EQ(0U, subject.organization_unit_names.size());
   EXPECT_EQ(0U, subject.domain_components.size());
-
+  
   const X509Certificate::Principal& issuer = thawte_cert->issuer();
   EXPECT_EQ("thawte Extended Validation SSL CA", issuer.common_name);
   EXPECT_EQ("", issuer.locality_name);
@@ -462,14 +465,14 @@ TEST(X509CertificateTest, ThawteCertParsing) {
   EXPECT_EQ("Terms of use at https://www.thawte.com/cps (c)06",
             issuer.organization_unit_names[0]);
   EXPECT_EQ(0U, issuer.domain_components.size());
-
+  
   // Use DoubleT because its epoch is the same on all platforms
   const Time& valid_start = thawte_cert->valid_start();
   EXPECT_EQ(1169078400, valid_start.ToDoubleT());
-
+  
   const Time& valid_expiry = thawte_cert->valid_expiry();
   EXPECT_EQ(1232236799, valid_expiry.ToDoubleT());
-
+  
   const X509Certificate::Fingerprint& fingerprint = thawte_cert->fingerprint();
   for (size_t i = 0; i < 20; ++i)
     EXPECT_EQ(thawte_fingerprint[i], fingerprint.data[i]);
@@ -478,7 +481,7 @@ TEST(X509CertificateTest, ThawteCertParsing) {
   thawte_cert->GetDNSNames(&dns_names);
   EXPECT_EQ(1U, dns_names.size());
   EXPECT_EQ("www.thawte.com", dns_names[0]);
-
+  
 #if ALLOW_EXTERNAL_ACCESS && defined(OS_WIN)
   // EV cert verification requires revocation checking.
   EXPECT_EQ(true, thawte_cert->IsEV(net::CERT_STATUS_REV_CHECKING_ENABLED));
@@ -487,57 +490,3 @@ TEST(X509CertificateTest, ThawteCertParsing) {
   EXPECT_EQ(false, thawte_cert->IsEV(0));
 #endif
 }
-
-// Tests X509Certificate::Cache via X509Certificate::CreateFromHandle.  We
-// call X509Certificate::CreateFromHandle several times and observe whether
-// it returns a cached or new X509Certificate object.
-//
-// All the OS certificate handles in this test are actually from the same
-// source (the bytes of a lone certificate), but we pretend that some of them
-// come from the network.
-TEST(X509CertificateTest, Cache) {
-  X509Certificate::OSCertHandle google_cert_handle;
-
-  // Add a certificate from the source SOURCE_LONE_CERT_IMPORT to our
-  // certificate cache.
-  google_cert_handle = X509Certificate::CreateOSCertHandleFromBytes(
-      reinterpret_cast<const char*>(google_der), sizeof(google_der));
-  scoped_refptr<X509Certificate> cert1 = X509Certificate::CreateFromHandle(
-      google_cert_handle, X509Certificate::SOURCE_LONE_CERT_IMPORT);
-
-  // Add a certificate from the same source (SOURCE_LONE_CERT_IMPORT).  This
-  // should return the cached certificate (cert1).
-  google_cert_handle = X509Certificate::CreateOSCertHandleFromBytes(
-      reinterpret_cast<const char*>(google_der), sizeof(google_der));
-  scoped_refptr<X509Certificate> cert2 = X509Certificate::CreateFromHandle(
-      google_cert_handle, X509Certificate::SOURCE_LONE_CERT_IMPORT);
-
-  EXPECT_EQ(cert1, cert2);
-
-  // Add a certificate from the network.  This should kick out the original
-  // cached certificate (cert1) and return a new certificate.
-  google_cert_handle = X509Certificate::CreateOSCertHandleFromBytes(
-      reinterpret_cast<const char*>(google_der), sizeof(google_der));
-  scoped_refptr<X509Certificate> cert3 = X509Certificate::CreateFromHandle(
-      google_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
-
-  EXPECT_NE(cert1, cert3);
-
-  // Add one certificate from each source.  Both should return the new cached
-  // certificate (cert3).
-  google_cert_handle = X509Certificate::CreateOSCertHandleFromBytes(
-      reinterpret_cast<const char*>(google_der), sizeof(google_der));
-  scoped_refptr<X509Certificate> cert4 = X509Certificate::CreateFromHandle(
-      google_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
-
-  EXPECT_EQ(cert3, cert4);
-
-  google_cert_handle = X509Certificate::CreateOSCertHandleFromBytes(
-      reinterpret_cast<const char*>(google_der), sizeof(google_der));
-  scoped_refptr<X509Certificate> cert5 = X509Certificate::CreateFromHandle(
-      google_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
-
-  EXPECT_EQ(cert3, cert5);
-}
-
-}  // namespace net

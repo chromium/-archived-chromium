@@ -4,7 +4,6 @@
 
 #include "net/base/x509_certificate.h"
 
-#include "base/histogram.h"
 #include "base/logging.h"
 
 namespace net {
@@ -121,67 +120,6 @@ void X509Certificate::Policy::Deny(X509Certificate* cert) {
   // Put the cert in the denied set and (maybe) remove it from the allowed set.
   allowed_.erase(cert->fingerprint());
   denied_.insert(cert->fingerprint());
-}
-
-// static
-X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle,
-                                                   Source source) {
-  DCHECK(cert_handle);
-  DCHECK(source != SOURCE_UNUSED);
-
-  // Check if we already have this certificate in memory.
-  X509Certificate::Cache* cache = X509Certificate::Cache::GetInstance();
-  X509Certificate* cached_cert =
-      cache->Find(CalculateFingerprint(cert_handle));
-  if (cached_cert) {
-    DCHECK(cached_cert->source_ != SOURCE_UNUSED);
-    if (cached_cert->source_ >= source) {
-      // We've found a certificate with the same fingerprint in our cache.  We
-      // own the |cert_handle|, which makes it our job to free it.
-      FreeOSCertHandle(cert_handle);
-      DHISTOGRAM_COUNTS(L"X509CertificateReuseCount", 1);
-      return cached_cert;
-    }
-    // Kick out the old certificate from our cache.  The new one is better.
-    cache->Remove(cached_cert);
-  }
-  // Otherwise, allocate a new object.
-  return new X509Certificate(cert_handle, source);
-}
-
-// static
-X509Certificate* X509Certificate::CreateFromBytes(const char* data,
-                                                  int length) {
-  OSCertHandle cert_handle = CreateOSCertHandleFromBytes(data, length);
-  if (!cert_handle)
-    return NULL;
-
-  return CreateFromHandle(cert_handle, SOURCE_LONE_CERT_IMPORT);
-}
-
-X509Certificate::X509Certificate(OSCertHandle cert_handle, Source source)
-    : cert_handle_(cert_handle), source_(source) {
-  Initialize();
-}
-
-X509Certificate::X509Certificate(const std::string& subject,
-                                 const std::string& issuer,
-                                 base::Time start_date,
-                                 base::Time expiration_date)
-    : subject_(subject),
-      issuer_(issuer),
-      valid_start_(start_date),
-      valid_expiry_(expiration_date),
-      cert_handle_(NULL),
-      source_(SOURCE_UNUSED) {
-  memset(fingerprint_.data, 0, sizeof(fingerprint_.data));
-}
-
-X509Certificate::~X509Certificate() {
-  // We might not be in the cache, but it is safe to remove ourselves anyway.
-  X509Certificate::Cache::GetInstance()->Remove(this);
-  if (cert_handle_)
-    FreeOSCertHandle(cert_handle_);
 }
 
 }  // namespace net
