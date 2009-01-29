@@ -46,40 +46,48 @@ class ClientView;
 enum {
   FRAME_PART_BITMAP_FIRST = 0,  // Must be first.
 
-  FRAME_BOTTOM_CENTER,
-  FRAME_BOTTOM_LEFT_CORNER,
-  FRAME_BOTTOM_RIGHT_CORNER,
-  FRAME_LEFT_SIDE,
-  FRAME_RIGHT_SIDE,
-  FRAME_TOP_CENTER,
-  FRAME_TOP_LEFT_CORNER,
-  FRAME_TOP_RIGHT_CORNER,
-
+  // Window Controls.
   FRAME_CLOSE_BUTTON_ICON,
   FRAME_CLOSE_BUTTON_ICON_H,
   FRAME_CLOSE_BUTTON_ICON_P,
+
+  // Window Frame Border.
+  FRAME_BOTTOM_EDGE,
+  FRAME_BOTTOM_LEFT_CORNER,
+  FRAME_BOTTOM_RIGHT_CORNER,
+  FRAME_LEFT_EDGE,
+  FRAME_RIGHT_EDGE,
+  FRAME_TOP_EDGE,
+  FRAME_TOP_LEFT_CORNER,
+  FRAME_TOP_RIGHT_CORNER,
 
   FRAME_PART_BITMAP_COUNT  // Must be last.
 };
 
 static const int kXPFramePartIDs[] = {
-    0, IDR_CONSTRAINED_BOTTOM_CENTER, IDR_CONSTRAINED_BOTTOM_LEFT_CORNER,
+    0,
+    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
+    IDR_CONSTRAINED_BOTTOM_CENTER, IDR_CONSTRAINED_BOTTOM_LEFT_CORNER,
     IDR_CONSTRAINED_BOTTOM_RIGHT_CORNER, IDR_CONSTRAINED_LEFT_SIDE,
     IDR_CONSTRAINED_RIGHT_SIDE, IDR_CONSTRAINED_TOP_CENTER,
     IDR_CONSTRAINED_TOP_LEFT_CORNER, IDR_CONSTRAINED_TOP_RIGHT_CORNER,
-    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P, 0 };
+    0 };
 static const int kVistaFramePartIDs[] = {
-    0, IDR_CONSTRAINED_BOTTOM_CENTER_V, IDR_CONSTRAINED_BOTTOM_LEFT_CORNER_V,
+    0,
+    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
+    IDR_CONSTRAINED_BOTTOM_CENTER_V, IDR_CONSTRAINED_BOTTOM_LEFT_CORNER_V,
     IDR_CONSTRAINED_BOTTOM_RIGHT_CORNER_V, IDR_CONSTRAINED_LEFT_SIDE_V,
     IDR_CONSTRAINED_RIGHT_SIDE_V, IDR_CONSTRAINED_TOP_CENTER_V,
     IDR_CONSTRAINED_TOP_LEFT_CORNER_V, IDR_CONSTRAINED_TOP_RIGHT_CORNER_V,
-    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P, 0 };
+    0 };
 static const int kOTRFramePartIDs[] = {
-    0, IDR_WINDOW_BOTTOM_CENTER_OTR, IDR_WINDOW_BOTTOM_LEFT_CORNER_OTR,
+    0,
+    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
+    IDR_WINDOW_BOTTOM_CENTER_OTR, IDR_WINDOW_BOTTOM_LEFT_CORNER_OTR,
     IDR_WINDOW_BOTTOM_RIGHT_CORNER_OTR, IDR_WINDOW_LEFT_SIDE_OTR,
     IDR_WINDOW_RIGHT_SIDE_OTR, IDR_WINDOW_TOP_CENTER_OTR,
     IDR_WINDOW_TOP_LEFT_CORNER_OTR, IDR_WINDOW_TOP_RIGHT_CORNER_OTR,
-    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P, 0 };
+    0 };
 
 class XPWindowResources : public views::WindowResources {
  public:
@@ -186,18 +194,7 @@ class ConstrainedWindowNonClientView
                                  TabContents* owner);
   virtual ~ConstrainedWindowNonClientView();
 
-  // Calculates the pixel height of the titlebar
-  int CalculateTitlebarHeight() const;
-
-  // Calculates the pixel height of all pieces of a window that are
-  // not part of the webcontent display area.
-  gfx::Rect CalculateWindowBoundsForClientBounds(
-      const gfx::Rect& client_bounds) const;
   void UpdateWindowTitle();
-
-  void set_window_delegate(views::WindowDelegate* window_delegate) {
-    window_delegate_ = window_delegate;
-  }
 
   // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
@@ -207,7 +204,7 @@ class ConstrainedWindowNonClientView
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
-  virtual void ResetWindowControls();
+  virtual void ResetWindowControls() { }
 
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
@@ -218,27 +215,31 @@ class ConstrainedWindowNonClientView
   // Overridden from views::BaseButton::ButtonListener:
   virtual void ButtonPressed(views::BaseButton* sender);
 
+ private:
+  // Returns the height of the entire nonclient top border, including the window
+  // frame, any title area, and any connected client edge.
+  int NonClientTopBorderHeight() const;
+
   // Paints different parts of the window to the incoming canvas.
   void PaintFrameBorder(ChromeCanvas* canvas);
   void PaintTitleBar(ChromeCanvas* canvas);
-  void PaintWindowTitle(ChromeCanvas* canvas);
+  void PaintClientEdge(ChromeCanvas* canvas);
+
+  // Layout various sub-components of this view.
+  void LayoutWindowControls();
+  void LayoutTitleBar();
+  void LayoutClientView();
 
   SkColor GetTitleColor() const {
-    if (container_->owner()->profile()->IsOffTheRecord() ||
-        !win_util::ShouldUseVistaFrame()) {
-      return SK_ColorWHITE;
-    }
-    return SK_ColorBLACK;
+    return (container_->owner()->profile()->IsOffTheRecord() ||
+        !win_util::ShouldUseVistaFrame()) ? SK_ColorWHITE : SK_ColorBLACK;
   }
 
   ConstrainedWindowImpl* container_;
-  views::WindowDelegate* window_delegate_;
 
   scoped_ptr<views::WindowResources> resources_;
 
   gfx::Rect title_bounds_;
-  gfx::Rect icon_bounds_;
-  gfx::Rect client_bounds_;
 
   views::Button* close_button_;
 
@@ -264,8 +265,10 @@ static const int kWindowHorizontalBorderSize = 5;
 static const int kWindowVerticalBorderSize = 5;
 static const int kWindowIconSize = 16;
 
-static const SkColor kContentsBorderShadow = SkColorSetARGB(51, 0, 0, 0);
-static const SkColor kContentsBorderColor = SkColorSetRGB(219, 235, 255);
+namespace {
+const SkColor kContentsBorderShadow = SkColorSetARGB(51, 0, 0, 0);
+const SkColor kContentsBorderColor = SkColorSetRGB(219, 235, 255);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowNonClientView, public:
@@ -274,7 +277,6 @@ ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
     ConstrainedWindowImpl* container, TabContents* owner)
         : NonClientView(),
           container_(container),
-          window_delegate_(NULL),
           close_button_(new views::Button) {
   InitClass();
   if (owner->profile()->IsOffTheRecord()) {
@@ -302,31 +304,6 @@ ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
 ConstrainedWindowNonClientView::~ConstrainedWindowNonClientView() {
 }
 
-int ConstrainedWindowNonClientView::CalculateTitlebarHeight() const {
-  int height;
-  if (window_delegate_ && window_delegate_->ShouldShowWindowTitle()) {
-    height = kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
-  } else {
-    height = kNoTitleTopSpacing;
-  }
-
-  return height;
-}
-
-gfx::Rect ConstrainedWindowNonClientView::CalculateWindowBoundsForClientBounds(
-    const gfx::Rect& client_bounds) const {
-  int non_client_height = CalculateTitlebarHeight();
-  gfx::Rect window_bounds = client_bounds;
-  window_bounds.set_width(
-      window_bounds.width() + 2 * kWindowHorizontalBorderSize);
-  window_bounds.set_height(
-      window_bounds.height() + non_client_height + kWindowVerticalBorderSize);
-  window_bounds.set_x(
-      std::max(0, window_bounds.x() - kWindowHorizontalBorderSize));
-  window_bounds.set_y(std::max(0, window_bounds.y() - non_client_height));
-  return window_bounds;
-}
-
 void ConstrainedWindowNonClientView::UpdateWindowTitle() {
   SchedulePaint(title_bounds_, false);
 }
@@ -337,52 +314,42 @@ void ConstrainedWindowNonClientView::UpdateWindowTitle() {
 gfx::Rect ConstrainedWindowNonClientView::CalculateClientAreaBounds(
     int width,
     int height) const {
-  int non_client_height = CalculateTitlebarHeight();
-  return gfx::Rect(kWindowHorizontalBorderSize, non_client_height,
+  int top_height = NonClientTopBorderHeight();
+  return gfx::Rect(kWindowHorizontalBorderSize, top_height,
       std::max(0, width - (2 * kWindowHorizontalBorderSize)),
-      std::max(0, height - non_client_height - kWindowVerticalBorderSize));
+      std::max(0, height - top_height - kWindowVerticalBorderSize));
 }
 
 gfx::Size ConstrainedWindowNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
-  // This is only used for truly constrained windows, which does not include
-  // popups generated from a user gesture since those are detached immediately.
-  gfx::Rect window_bounds =
-      CalculateWindowBoundsForClientBounds(gfx::Rect(0, 0, width, height));
-  return window_bounds.size();
+  return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
+      height + NonClientTopBorderHeight() + kWindowVerticalBorderSize);
 }
 
 CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
-  CPoint system_menu_point(icon_bounds_.x(), icon_bounds_.bottom());
-  MapWindowPoints(container_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
-  return system_menu_point;
+  // Doesn't matter what we return, since this is only used when the user clicks
+  // a window icon, and we never have an icon.
+  return CPoint();
 }
 
 int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
   // First see if it's within the grow box area, since that overlaps the client
   // bounds.
-  int component = container_->client_view()->NonClientHitTest(point);
-  if (component != HTNOWHERE)
-    return component;
+  int frame_component = container_->client_view()->NonClientHitTest(point);
+  if (frame_component != HTNOWHERE)
+    return frame_component;
 
   // Then see if the point is within any of the window controls.
-  gfx::Rect button_bounds =
-      close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
-  if (button_bounds.Contains(point))
+  if (close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
     return HTCLOSE;
-  if (icon_bounds_.Contains(point))
-    return HTSYSMENU;
 
-  component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
-      kResizeAreaSize, kResizeAreaCornerSize, window_delegate_->CanResize());
-  if (component == HTNOWHERE) {
-    // Finally fall back to the caption.
-    if (bounds().Contains(point))
-      component = HTCAPTION;
-    // Otherwise, the point is outside the window's bounds.
-  }
-  return component;
+  int window_component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
+      kResizeAreaSize, kResizeAreaCornerSize,
+      container_->window_delegate()->CanResize());
+  // Fall back to the caption if no other component matches.
+  return ((window_component == HTNOWHERE) && bounds().Contains(point)) ?
+      HTCAPTION : window_component;
 }
 
 void ConstrainedWindowNonClientView::GetWindowMask(const gfx::Size& size,
@@ -412,63 +379,35 @@ void ConstrainedWindowNonClientView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
 }
 
-void ConstrainedWindowNonClientView::ResetWindowControls() {
-  // We have no window controls to reset.
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowNonClientView, views::View implementation:
 
 void ConstrainedWindowNonClientView::Paint(ChromeCanvas* canvas) {
   PaintFrameBorder(canvas);
   PaintTitleBar(canvas);
+  PaintClientEdge(canvas);
 }
 
 void ConstrainedWindowNonClientView::Layout() {
-  gfx::Size ps;
-
-  ps = close_button_->GetPreferredSize();
-  close_button_->SetBounds(width() - ps.width() - kWindowControlsRightOffset,
-                           kWindowControlsTopOffset, ps.width(), ps.height());
-
-  int titlebar_height = CalculateTitlebarHeight();
-  if (window_delegate_) {
-    if (window_delegate_->ShouldShowWindowTitle()) {
-      int spacing = kWindowLeftSpacing;
-      int title_right = close_button_->x() - spacing;
-      int title_left = icon_bounds_.right() + spacing;
-      title_bounds_.SetRect(title_left, kTitleTopOffset,
-                            title_right - title_left, title_font_.height());
-
-      // Center the icon within the vertical bounds of the title if the title
-      // is taller.
-      int delta_y = title_bounds_.height() - icon_bounds_.height();
-      if (delta_y > 0)
-        icon_bounds_.set_y(title_bounds_.y() + static_cast<int>(delta_y / 2));
-    }
-  }
-
-  client_bounds_ = CalculateClientAreaBounds(width(), height());
-  container_->client_view()->SetBounds(client_bounds_);
+  LayoutWindowControls();
+  LayoutTitleBar();
+  LayoutClientView();
 }
 
 gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {
-  gfx::Size prefsize = container_->client_view()->GetPreferredSize();
+  gfx::Size prefsize(container_->client_view()->GetPreferredSize());
   prefsize.Enlarge(2 * kWindowHorizontalBorderSize,
-                   CalculateTitlebarHeight() +
-                       kWindowVerticalBorderSize);
+                   NonClientTopBorderHeight() + kWindowVerticalBorderSize);
   return prefsize;
 }
 
 void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,
                                                           View *parent,
                                                           View *child) {
-  if (is_add && GetWidget()) {
-    // Add our Client View as we are added to the Container so that if we are
-    // subsequently resized all the parent-child relationships are established.
-    if (is_add && GetWidget() && child == this)
-      AddChildView(container_->client_view());
-  }
+  // Add our Client View as we are added to the Container so that if we are
+  // subsequently resized all the parent-child relationships are established.
+  if (is_add && GetWidget() && child == this)
+    AddChildView(container_->client_view());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -483,31 +422,34 @@ void ConstrainedWindowNonClientView::ButtonPressed(views::BaseButton* sender) {
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowNonClientView, private:
 
+int ConstrainedWindowNonClientView::NonClientTopBorderHeight() const {
+  return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
+}
+
 void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_left_corner = resources_->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources_->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
-  SkBitmap* top_edge = resources_->GetPartBitmap(FRAME_TOP_CENTER);
-  SkBitmap* right_edge = resources_->GetPartBitmap(FRAME_RIGHT_SIDE);
-  SkBitmap* left_edge = resources_->GetPartBitmap(FRAME_LEFT_SIDE);
+  SkBitmap* top_edge = resources_->GetPartBitmap(FRAME_TOP_EDGE);
+  SkBitmap* right_edge = resources_->GetPartBitmap(FRAME_RIGHT_EDGE);
+  SkBitmap* left_edge = resources_->GetPartBitmap(FRAME_LEFT_EDGE);
   SkBitmap* bottom_left_corner =
       resources_->GetPartBitmap(FRAME_BOTTOM_LEFT_CORNER);
   SkBitmap* bottom_right_corner =
       resources_->GetPartBitmap(FRAME_BOTTOM_RIGHT_CORNER);
-  SkBitmap* bottom_edge = resources_->GetPartBitmap(FRAME_BOTTOM_CENTER);
+  SkBitmap* bottom_edge = resources_->GetPartBitmap(FRAME_BOTTOM_EDGE);
 
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
   canvas->TileImageInt(*top_edge, top_left_corner->width(), 0,
                        width() - top_right_corner->width(), top_edge->height());
-  canvas->DrawBitmapInt(
-      *top_right_corner, width() - top_right_corner->width(), 0);
+  canvas->DrawBitmapInt(*top_right_corner,
+                        width() - top_right_corner->width(), 0);
 
   // Right.
-  int top_stack_height = top_right_corner->height();
   canvas->TileImageInt(*right_edge, width() - right_edge->width(),
-                       top_stack_height, right_edge->width(),
-                       height() - top_stack_height -
+                       top_right_corner->height(), right_edge->width(),
+                       height() - top_right_corner->height() -
                            bottom_right_corner->height());
 
   // Bottom.
@@ -523,38 +465,52 @@ void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
                         height() - bottom_left_corner->height());
 
   // Left.
-  top_stack_height = top_left_corner->height();
-  canvas->TileImageInt(*left_edge, 0, top_stack_height, left_edge->width(),
-                       height() - top_stack_height -
-                           bottom_left_corner->height());
-
-  // Contents Border.
-  gfx::Rect border_bounds = client_bounds_;
-  border_bounds.Inset(-2, -2);
-  canvas->FillRectInt(kContentsBorderShadow, border_bounds.x(),
-                      border_bounds.y(), border_bounds.width(),
-                      border_bounds.height());
-
-  border_bounds.Inset(1, 1);
-  canvas->FillRectInt(kContentsBorderColor, border_bounds.x(),
-                      border_bounds.y(), border_bounds.width(),
-                      border_bounds.height());
+  canvas->TileImageInt(*left_edge, 0, top_left_corner->height(),
+      left_edge->width(),
+      height() - top_left_corner->height() - bottom_left_corner->height());
 }
 
 void ConstrainedWindowNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
-  if (!window_delegate_)
-    return;
-
-  if (window_delegate_->ShouldShowWindowTitle()) {
-    PaintWindowTitle(canvas);
-  }
+  canvas->DrawStringInt(container_->GetWindowTitle(), title_font_,
+      GetTitleColor(), MirroredLeftPointForRect(title_bounds_),
+      title_bounds_.y(), title_bounds_.width(), title_bounds_.height());
 }
 
-void ConstrainedWindowNonClientView::PaintWindowTitle(ChromeCanvas* canvas) {
-  int title_x = MirroredLeftPointForRect(title_bounds_);
-  canvas->DrawStringInt(container_->GetWindowTitle(), title_font_,
-                        GetTitleColor(), title_x, title_bounds_.y(),
-                        title_bounds_.width(), title_bounds_.height());
+void ConstrainedWindowNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
+  gfx::Rect client_edge_bounds(CalculateClientAreaBounds(width(), height()));
+  client_edge_bounds.Inset(-kClientEdgeThickness, -kClientEdgeThickness);
+  gfx::Rect frame_shadow_bounds(client_edge_bounds);
+  frame_shadow_bounds.Inset(-1, -1);
+
+  canvas->FillRectInt(kContentsBorderShadow, frame_shadow_bounds.x(),
+                      frame_shadow_bounds.y(), frame_shadow_bounds.width(),
+                      frame_shadow_bounds.height());
+
+  canvas->FillRectInt(kContentsBorderColor, client_edge_bounds.x(),
+                      client_edge_bounds.y(), client_edge_bounds.width(),
+                      client_edge_bounds.height());
+}
+
+void ConstrainedWindowNonClientView::LayoutWindowControls() {
+  gfx::Size close_button_size = close_button_->GetPreferredSize();
+  close_button_->SetBounds(
+      width() - close_button_size.width() - kWindowControlsRightOffset,
+      kWindowControlsTopOffset, close_button_size.width(),
+      close_button_size.height());
+}
+
+void ConstrainedWindowNonClientView::LayoutTitleBar() {
+  // Size the title.
+  int title_x = kWindowLeftSpacing;
+  int title_top_spacing = NonClientTopBorderHeight();
+  title_bounds_.SetRect(title_x, kTitleTopOffset,
+                        close_button_->x() - kWindowLeftSpacing - title_x,
+                        title_font_.height());
+}
+
+void ConstrainedWindowNonClientView::LayoutClientView() {
+  container_->client_view()->SetBounds(CalculateClientAreaBounds(width(),
+                                                                 height()));
 }
 
 // static
@@ -664,7 +620,6 @@ void ConstrainedWindowImpl::Init(TabContents* owner) {
 }
 
 void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
-  non_client_view()->set_window_delegate(window_delegate());
   CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds);
   ActivateConstrainedWindow();
 }
