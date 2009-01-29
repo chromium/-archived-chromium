@@ -57,7 +57,7 @@ layer at (0,0) size 785x720
                     RenderText {#text} at (1,1) size 84x19
                       text run at (1,1) width 84: "display: run-in"
       RenderBlock {DIV} at (0,260) size 769x26
-        RenderBlock (compact) {DIV} at (0,0) size 769x26
+        RenderBlock {DIV} at (0,0) size 769x26
           RenderBlock {FORM} at (0,0) size 769x26
             RenderTable {TABLE} at (0,0) size 107x26
               RenderTableSection {TBODY} at (0,0) size 107x26

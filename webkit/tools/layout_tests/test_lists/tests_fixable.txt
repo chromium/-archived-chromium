@@ -338,7 +338,10 @@ LINUX : LayoutTests/fast/compact/002.html = FAIL
 LINUX : LayoutTests/fast/compact/003.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+LINUX : LayoutTests/fast/forms/form-hides-table.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
+LINUX : LayoutTests/fast/runin/001.html = FAIL
+LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
 LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
@@ -1769,20 +1772,15 @@ WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 
 // Merge 40165:40297 -- regressions
 LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
 LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 LINUX WIN : LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/inline-color-change.html = FAIL
-LINUX WIN : LayoutTests/fast/runin/001.html = FAIL
-LINUX WIN : LayoutTests/fast/table/form-with-table-style.html = FAIL
 LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
 LINUX WIN : LayoutTests/svg/custom/stop-crash.svg = CRASH
-WIN : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
-WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 LINUX WIN : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
