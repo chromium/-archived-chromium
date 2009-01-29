@@ -372,7 +372,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_snapshot", "..\v8\tools\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
-		{865575D0-37E2-405E-8CBA-5F6C485B5A26} = {865575D0-37E2-405E-8CBA-5F6C485B5A26}
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F} = {0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
 	EndProjectSection
 EndProject
@@ -406,6 +406,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebCore_prebuild", "build\W
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_snapshot_cc", "..\v8\tools\visual_studio\v8_snapshot_cc.vcproj", "{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{865575D0-37E2-405E-8CBA-5F6C485B5A26} = {865575D0-37E2-405E-8CBA-5F6C485B5A26}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -420,6 +429,10 @@ Global
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}.Debug|Win32.Build.0 = Debug|Win32
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}.Release|Win32.ActiveCfg = Release|Win32
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}.Release|Win32.Build.0 = Release|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Debug|Win32.Build.0 = Debug|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Release|Win32.ActiveCfg = Release|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Release|Win32.Build.0 = Release|Win32
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815}.Debug|Win32.Build.0 = Debug|Win32
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815}.Release|Win32.ActiveCfg = Release|Win32
@@ -595,6 +608,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0B469837-3D46-484A-AFB3-C5A6C68730B9} = {4BC2C9E2-78FA-446A-B6E0-85689A2B4D3D}
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6} = {4A249B49-19FB-4BD1-B017-718E7A4448EF}
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F} = {2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}
 		{1444235E-0E97-4C80-A73E-EE73F3706C32} = {1DFD10B5-A673-4C3A-BA1D-3546FC4B7740}
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {2C5FC2FE-B8B0-44B9-A7C4-E5B5E7292F6B}

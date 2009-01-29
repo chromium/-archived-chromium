@@ -1783,7 +1783,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_snapshot", "..\v8\tools\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
-		{865575D0-37E2-405E-8CBA-5F6C485B5A26} = {865575D0-37E2-405E-8CBA-5F6C485B5A26}
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F} = {0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
 	EndProjectSection
 EndProject
@@ -1938,6 +1938,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebCore_prebuild", "..\webk
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_snapshot_cc", "..\v8\tools\visual_studio\v8_snapshot_cc.vcproj", "{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{865575D0-37E2-405E-8CBA-5F6C485B5A26} = {865575D0-37E2-405E-8CBA-5F6C485B5A26}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -2002,6 +2011,14 @@ Global
 		{0D54A5C4-B78B-41A2-BF8A-5DA48AC90495}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{0D54A5C4-B78B-41A2-BF8A-5DA48AC90495}.Release|Win32.ActiveCfg = Release|Win32
 		{0D54A5C4-B78B-41A2-BF8A-5DA48AC90495}.Release|Win32.Build.0 = Release|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Debug|Win32.Build.0 = Debug|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Release|Win32.ActiveCfg = Release|Win32
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F}.Release|Win32.Build.0 = Release|Win32
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -3167,6 +3184,7 @@ Global
 		{0B469837-3D46-484A-AFB3-C5A6C68730B9} = {CB43561E-A6F8-49E2-96A2-3F2BA1FFF21E}
 		{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
 		{0D54A5C4-B78B-41A2-BF8A-5DA48AC90495} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
+		{0DDBDA8B-A49F-4CC7-A1D5-5BB8297C8A3F} = {B353A6A5-9551-4B76-908E-0F0A9B31E4CE}
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {EF78C1F9-AA17-4CA5-B6CB-39B37A73A3DA}
 		{1444235E-0E97-4C80-A73E-EE73F3706C32} = {1088577A-0C49-4DE0-85CD-B68AD0BE55AA}
 		{1556EF78-C7E6-43C8-951F-F6B43AC0DD12} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
