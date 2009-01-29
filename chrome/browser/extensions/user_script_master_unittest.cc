@@ -68,7 +68,7 @@ class UserScriptMasterTest : public testing::Test,
 };
 
 // Test that we *don't* get spurious notifications.
-TEST_F(UserScriptMasterTest, NoScripts) {
+TEST_F(UserScriptMasterTest, DISABLED_NoScripts) {
   // Set shared_memory_ to something non-NULL, so we can check it became NULL.
   shared_memory_ = reinterpret_cast<base::SharedMemory*>(1);
 
