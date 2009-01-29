@@ -759,7 +759,6 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
     case NOTIFY_USER_SCRIPTS_LOADED: {
       base::SharedMemory* shared_memory =
           Details<base::SharedMemory>(details).ptr();
-      DCHECK(shared_memory);
       if (shared_memory) {
         SendUserScriptsUpdate(shared_memory);
       }
