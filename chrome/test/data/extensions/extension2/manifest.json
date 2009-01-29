@@ -1,6 +1,6 @@
 {
   "format_version": 1,
   "id": "com.google.myextension2",
-  "version": "1.0",
+  "version": "1.0.0.0",
   "name": "My extension 2"
 }

@@ -25,9 +25,9 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   std::wstring extensions_dir;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_dir));
   FilePath extensions_path = FilePath::FromWStringHack(extensions_dir)
-      .Append(FILE_PATH_LITERAL("extensions"))
-      .Append(FILE_PATH_LITERAL("extension1"))
-      .Append(FILE_PATH_LITERAL("manifest"));
+      .AppendASCII("extensions")
+      .AppendASCII("extension1")
+      .AppendASCII(Extension::kManifestFilename);
 
   JSONFileValueSerializer serializer(extensions_path.ToWStringHack());
   scoped_ptr<DictionaryValue> valid_value(
@@ -99,6 +99,7 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   ListValue* user_scripts = NULL;
   input_value->GetList(Extension::kUserScriptsKey, &user_scripts);
+  ASSERT_FALSE(NULL == user_scripts);
   user_scripts->Set(0, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidUserScriptError));
@@ -168,13 +169,13 @@ TEST(ExtensionTest, InitFromValueValid) {
   // Test minimal extension
   input_value.SetInteger(Extension::kFormatVersionKey, 1);
   input_value.SetString(Extension::kIdKey, "com.google.myextension");
-  input_value.SetString(Extension::kVersionKey, "1.0");
+  input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
 
   EXPECT_TRUE(extension.InitFromValue(input_value, &error));
   EXPECT_EQ("", error);
   EXPECT_EQ("com.google.myextension", extension.id());
-  EXPECT_EQ("1.0", extension.version());
+  EXPECT_EQ("1.0.0.0", extension.VersionString());
   EXPECT_EQ("my extension", extension.name());
   EXPECT_EQ("chrome-extension://com.google.myextension/",
             extension.url().spec());
@@ -191,7 +192,7 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
   DictionaryValue input_value;
   input_value.SetInteger(Extension::kFormatVersionKey, 1);
   input_value.SetString(Extension::kIdKey, "com.google.myextension");
-  input_value.SetString(Extension::kVersionKey, "1.0");
+  input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
   EXPECT_TRUE(extension.InitFromValue(input_value, NULL));
 

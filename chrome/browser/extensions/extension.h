@@ -9,8 +9,10 @@
 #include <vector>
 
 #include "base/file_path.h"
+#include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "base/values.h"
+#include "base/version.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "googleurl/src/gurl.h"
 
@@ -25,10 +27,11 @@ extern const char kUserScriptURLScheme[];
 // Represents a Chromium extension.
 class Extension {
  public:
-  Extension(const FilePath& path);
+  Extension() {}
+  explicit Extension(const FilePath& path);
 
   // The format for extension manifests that this code understands.
-  static const int kExpectedFormatVersion = 1;
+  static const unsigned int kExpectedFormatVersion = 1;
 
   // The name of the manifest inside an extension.
   static const char kManifestFilename[];
@@ -42,6 +45,7 @@ class Extension {
   static const wchar_t* kNameKey;
   static const wchar_t* kUserScriptsKey;
   static const wchar_t* kVersionKey;
+  static const wchar_t* kZipHashKey;
 
   // Error messages returned from InitFromValue().
   static const char* kInvalidDescriptionError;
@@ -58,6 +62,7 @@ class Extension {
   static const char* kInvalidUserScriptError;
   static const char* kInvalidUserScriptsListError;
   static const char* kInvalidVersionError;
+  static const char* kInvalidZipHashError;
 
   // Creates an absolute url to a resource inside an extension. The
   // |extension_url| argument should be the url() from an Extension object. The
@@ -90,7 +95,10 @@ class Extension {
   const std::string& id() const { return id_; }
 
   // The version number for the extension.
-  const std::string& version() const { return version_; }
+  const Version* version() const { return version_.get(); }
+
+  // String representation of the version number.
+  const std::string VersionString() const;
 
   // A human-readable name of the extension.
   const std::string& name() const { return name_; }
@@ -117,7 +125,7 @@ class Extension {
   std::string id_;
 
   // The extension's version.
-  std::string version_;
+  scoped_ptr<Version> version_;
 
   // The extension's human-readable name.
   std::string name_;
@@ -127,6 +135,11 @@ class Extension {
 
   // Paths to the content scripts the extension contains.
   UserScriptList user_scripts_;
+
+  // A SHA1 hash of the contents of the zip file.  Note that this key is only
+  // present in the manifest that's prepended to the zip.  The inner manifest
+  // will not have this key.
+  std::string zip_hash_;
 
   DISALLOW_COPY_AND_ASSIGN(Extension);
 };

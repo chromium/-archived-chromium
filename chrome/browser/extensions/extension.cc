@@ -4,6 +4,7 @@
 
 #include "chrome/browser/extensions/extension.h"
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
@@ -11,7 +12,7 @@
 const char kExtensionURLScheme[] = "chrome-extension";
 const char kUserScriptURLScheme[] = "chrome-user-script";
 
-const char Extension::kManifestFilename[] = "manifest";
+const char Extension::kManifestFilename[] = "manifest.json";
 
 const wchar_t* Extension::kDescriptionKey = L"description";
 const wchar_t* Extension::kFilesKey = L"files";
@@ -21,6 +22,7 @@ const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kUserScriptsKey = L"user_scripts";
 const wchar_t* Extension::kVersionKey = L"version";
+const wchar_t* Extension::kZipHashKey = L"zip_hash";
 
 // Extension-related error messages. Some of these are simple patterns, where a
 // '*' is replaced at runtime with a specific value. This is used instead of
@@ -56,6 +58,12 @@ const char* Extension::kInvalidUserScriptsListError =
     "Invalid value for 'user_scripts'.";
 const char* Extension::kInvalidVersionError =
     "Required value 'version' is missing or invalid.";
+const char* Extension::kInvalidZipHashError =
+    "Required key 'zip_hash' is missing or invalid.";
+
+const std::string Extension::VersionString() const {
+  return version_->GetString();
+}
 
 // Defined in extension_protocols.h.
 extern const char kExtensionURLScheme[];
@@ -149,7 +157,7 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   // Check format version.
   int format_version = 0;
   if (!source.GetInteger(kFormatVersionKey, &format_version) ||
-      format_version != kExpectedFormatVersion) {
+      static_cast<uint32>(format_version) != kExpectedFormatVersion) {
     *error = kInvalidFormatVersionError;
     return false;
   }
@@ -159,12 +167,34 @@ bool Extension::InitFromValue(const DictionaryValue& source,
     *error = kInvalidIdError;
     return false;
   }
+  // Verify that the id is legal.  This test is basically verifying that it
+  // is ASCII and doesn't have any path components in it.
+  // TODO(erikkay): verify the actual id format - it will be more restrictive
+  // than this.  Perhaps just a hex string?
+  if (!IsStringASCII(id_)) {
+    *error = kInvalidIdError;
+    return false;
+  }
+  FilePath id_path;
+  id_path = id_path.AppendASCII(id_);
+  if ((id_path.value() == FilePath::kCurrentDirectory) ||
+      (id_path.value() == FilePath::kParentDirectory) ||
+      !(id_path.BaseName() == id_path)) {
+    *error = kInvalidIdError;
+    return false;
+  }
 
   // Initialize URL.
   extension_url_ = GURL(std::string(kExtensionURLScheme) + "://" + id_ + "/");
 
   // Initialize version.
-  if (!source.GetString(kVersionKey, &version_)) {
+  std::string version_str;
+  if (!source.GetString(kVersionKey, &version_str)) {
+    *error = kInvalidVersionError;
+    return false;
+  }
+  version_.reset(Version::GetVersionFromString(version_str));
+  if (!version_.get()) {
     *error = kInvalidVersionError;
     return false;
   }
@@ -179,6 +209,16 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   if (source.HasKey(kDescriptionKey)) {
     if (!source.GetString(kDescriptionKey, &description_)) {
       *error = kInvalidDescriptionError;
+      return false;
+    }
+  }
+
+  // Initialize zip hash (only present in zip)
+  // There's no need to verify it at this point. If it's in a bogus format
+  // it won't pass the hash verify step.
+  if (source.HasKey(kZipHashKey)) {
+    if (!source.GetString(kZipHashKey, &zip_hash_)) {
+      *error = kInvalidZipHashError;
       return false;
     }
   }
@@ -250,3 +290,4 @@ bool Extension::InitFromValue(const DictionaryValue& source,
 
   return true;
 }
+

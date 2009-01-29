@@ -511,6 +511,9 @@ enum NotificationType {
   // Sent when new extensions are loaded. The details are an ExtensionList*.
   NOTIFY_EXTENSIONS_LOADED,
 
+  // Sent when new extensions are installed. The details are a FilePath.
+  NOTIFY_EXTENSION_INSTALLED,
+
   // Count (must be last) ------------------------------------------------------
   // Used to determine the number of notification types.  Not valid as
   // a type parameter when registering for or posting notifications.

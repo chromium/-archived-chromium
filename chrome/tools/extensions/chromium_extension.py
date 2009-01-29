@@ -5,16 +5,21 @@
 
 # chromium_extension.py
 
+import array
+import hashlib
 import logging
 import optparse
 import os
 import re
 import shutil
+import simplejson as json
 import sys
 import zipfile
 
 ignore_dirs = [".svn", "CVS"]
 ignore_files = [re.compile(".*~")]
+
+MANIFEST_FILENAME = "manifest.json"
 
 class ExtensionDir:
   def __init__(self, path):
@@ -34,8 +39,8 @@ class ExtensionDir:
             self._files.append(os.path.join(root, f))
 
   def validate(self):
-    if os.path.join(self._root, "manifest") not in self._files:
-      logging.error("package is missing a valid manifest")
+    if os.path.join(self._root, MANIFEST_FILENAME) not in self._files:
+      logging.error("package is missing a valid %s file" % MANIFEST_FILENAME)
       return False
     return True
 
@@ -43,21 +48,61 @@ class ExtensionDir:
     if not self.validate():
       return False
     try:
-      if os.path.exists(path):
-        os.remove(path)
-      shutil.copy(os.path.join(self._root, "manifest"), path)
-      # This is a bit odd - we're actually appending a new zip file to the end
-      # of the manifest.  Believe it or not, this is actually an explicit 
-      # feature of the zipfile package, and most zip utilities (this library
-      # and three others I tried) can still read the underlying zip file.
-      zip = zipfile.ZipFile(path, "a")
+      f = open(os.path.join(self._root, MANIFEST_FILENAME))
+      manifest = json.load(f)
+      f.close()
+      
+      zip_path = path + ".zip"
+      if os.path.exists(zip_path):
+        os.remove(zip_path)
+      zip = zipfile.ZipFile(zip_path, "w")
       (root, dir) = os.path.split(self._root)
-      root_len = len(root)
+      root_len = len(self._root)
       for file in self._files:
         arcname = file[root_len+1:]
         logging.debug("%s: %s" % (arcname, file))
         zip.write(file, arcname)
       zip.close()
+      
+      zip = open(zip_path, mode="rb")
+      hash = hashlib.sha256()
+      while True:
+        buf = zip.read(32 * 1024)
+        if not len(buf):
+          break
+        hash.update(buf)
+      zip.close()
+      
+      manifest["zip_hash"] = hash.hexdigest()
+
+      # This is a bit odd - we're actually appending a new zip file to the end
+      # of the manifest.  Believe it or not, this is actually an explicit 
+      # feature of the zip format, and many zip utilities (this library
+      # and three others I tried) can still read the underlying zip file.
+      if os.path.exists(path):
+        os.remove(path)
+      out = open(path, "wb")
+      out.write("Cr24")  # Extension file magic number
+      # The rest of the header is currently made up of three ints:
+      # version, header size, manifest size
+      header = array.array("l")
+      header.append(1)  # version
+      header.append(16)  # header size
+      manifest_json = json.dumps(manifest);
+      header.append(len(manifest_json))  # manifest size
+      header.tofile(out)
+      out.write(manifest_json);
+      zip = open(zip_path, "rb")
+      while True:
+        buf = zip.read(32 * 1024)
+        if not len(buf):
+          break
+        out.write(buf)
+      zip.close()
+      out.close()
+      
+      os.remove(zip_path)
+
       logging.info("created extension package %s" % path)
     except IOError, (errno, strerror):
       logging.error("error creating extension %s (%d, %s)" % (path, errno,

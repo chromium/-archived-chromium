@@ -340,6 +340,10 @@ const wchar_t kEnableUserScripts[]             = L"enable-user-scripts";
 // Enable extensions.
 const wchar_t kEnableExtensions[]              = L"enable-extensions";
 
+// Install the extension specified in the argument.  This is for MIME type
+// handling so that users can double-click on an extension.
+const wchar_t kInstallExtension[]              = L"install-extension";
+
 // Causes the browser to launch directly in incognito mode.
 const wchar_t kIncognito[]                     = L"incognito";
 

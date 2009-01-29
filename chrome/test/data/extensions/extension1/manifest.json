@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "id": "com.google.myextension1",
-  "version": "1.0",
+  "version": "1.0.0.0",
   "name": "My extension 1",
   "description": "The first extension that I made.",
   "user_scripts": [

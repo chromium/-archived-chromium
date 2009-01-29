@@ -222,6 +222,15 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     }
   }
 
+  // Start up the extensions service
+  profile->InitExtensions();
+  if (parsed_command_line.HasSwitch(switches::kInstallExtension)) {
+    std::wstring path_string =
+      parsed_command_line.GetSwitchValue(switches::kInstallExtension);
+    FilePath path = FilePath::FromWStringHack(path_string);
+    profile->GetExtensionsService()->InstallExtension(path);
+  }
+
   return true;
 }
 

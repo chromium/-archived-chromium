@@ -33,6 +33,15 @@ class ExtensionsServiceFrontendInterface
   // Called with results from LoadExtensionsFromDirectory(). The frontend
   // takes ownership of the list.
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions) = 0;
+
+  // Install the extension file at extension_path.
+  virtual void InstallExtension(const FilePath& extension_path) = 0;
+
+  // Called when installing an extension fails.
+  virtual void OnExtensionInstallError(const std::string& message) = 0;
+
+  // Called with results from InstallExtension().
+  virtual void OnExtensionInstalled(FilePath path) = 0;
 };
 
 
@@ -55,11 +64,17 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual MessageLoop* GetMessageLoop();
   virtual void OnExtensionLoadError(const std::string& message);
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions);
+  virtual void InstallExtension(const FilePath& extension_path);
+  virtual void OnExtensionInstallError(const std::string& message);
+  virtual void OnExtensionInstalled(FilePath path);
+
+  // The name of the file that the current active version number is stored in.
+  static const char* kCurrentVersionFileName;
 
  private:
   // The name of the directory inside the profile where extensions are
   // installed to.
-  static const FilePath::CharType* kInstallDirectoryName;
+  static const char* kInstallDirectoryName;
 
   // The message loop for the thread the ExtensionsService is running on.
   MessageLoop* message_loop_;
@@ -96,15 +111,63 @@ class ExtensionsServiceBackend
       const FilePath &path,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
+  // Install the extension file at extension_path to install_dir.
+  // ReportExtensionInstallError is called on error.
+  // ReportExtensionInstalled is called on success.
+  bool InstallExtension(
+      const FilePath& extension_path,
+      const FilePath& install_dir,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
  private:
   // Notify a frontend that there was an error loading an extension.
   void ReportExtensionLoadError(ExtensionsServiceFrontendInterface* frontend,
-                                const std::wstring& path,
+                                const FilePath& path,
                                 const std::string& error);
 
   // Notify a frontend that extensions were loaded.
   void ReportExtensionsLoaded(ExtensionsServiceFrontendInterface* frontend,
                               ExtensionList* extensions);
+
+  // Notify a frontend that there was an error installing an extension.
+  void ReportExtensionInstallError(ExtensionsServiceFrontendInterface* frontend,
+                                   const FilePath& path,
+                                   const std::string& error);
+
+  // Notify a frontend that extensions were installed.
+  void ReportExtensionInstalled(ExtensionsServiceFrontendInterface* frontend,
+                                FilePath path);
+
+  // Read the manifest from the front of the extension file.
+  DictionaryValue* ReadManifest(const FilePath& extension_path,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
+  // Check that the version to be installed is > the current installed
+  // extension.
+  bool CheckCurrentVersion(const FilePath& extension_path,
+      const std::string& version,
+      const FilePath& dest_dir,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
+  // Unzip the extension into |dest_dir|.
+  bool UnzipExtension(const FilePath& extension_path,
+      const FilePath& dest_dir,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
+  // Install the extension dir by moving it from |source| to |dest| safely.
+  bool InstallDirSafely(const FilePath& extension_path,
+      const FilePath& source, const FilePath& dest,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
+  // Update the CurrentVersion file in |dest_dir| to |version|.
+  bool SetCurrentVersion(const FilePath& extension_path,
+      const FilePath& dest_dir,
+      std::string version,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
+  // The name of a temporary directory to install an extension into for
+  // validation before finalizing install.
+  static const char* kTempExtensionName;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsServiceBackend);
 };
