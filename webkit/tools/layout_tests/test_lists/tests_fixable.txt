@@ -1007,7 +1007,7 @@ LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
 // This test was update in webkit revision 40293.  This new test
 // passes, but the old test seems to still be used on the buildbot.
 // Mac seems to be passing this
-LINUX WIN : LayoutTests/fast/forms/selection-functions.html = FAIL
+WIN : LayoutTests/fast/forms/selection-functions.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
@@ -1540,7 +1540,6 @@ LayoutTests/fast/dom/dom-constructors.html = FAIL
 // WebKit Merge 39050:39100 failures:
 LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
-LINUX : LayoutTests/http/tests/loading/simple-subframe.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
 MAC : LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
@@ -1773,7 +1772,7 @@ WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
-LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL
+LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 LINUX WIN : LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/inline-color-change.html = FAIL
@@ -1781,14 +1780,17 @@ LINUX WIN : LayoutTests/fast/runin/001.html = FAIL
 LINUX WIN : LayoutTests/fast/table/form-with-table-style.html = FAIL
 LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
-LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
+WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
 LayoutTests/svg/custom/stop-crash.svg = CRASH
 WIN : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 LINUX WIN : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
-LINUX WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-LINUX WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
+WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
 LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
 WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
+
+// Started failng at build 1379 (r8741)
+LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
