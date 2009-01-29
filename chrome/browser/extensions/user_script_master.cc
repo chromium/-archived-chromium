@@ -102,6 +102,8 @@ void UserScriptMaster::ScriptReloader::NotifyMaster(
 void UserScriptMaster::ScriptReloader::RunScan(
     const FilePath script_dir, const UserScriptList lone_scripts) {
   base::SharedMemory* shared_memory = GetNewScripts(script_dir, lone_scripts);
+  if (!shared_memory)
+    return;  // No scripts to load.
 
   // Post the new scripts back to the master's message loop.
   master_message_loop_->PostTask(FROM_HERE,
