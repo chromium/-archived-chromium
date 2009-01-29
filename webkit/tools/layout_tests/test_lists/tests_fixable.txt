@@ -332,6 +332,10 @@ DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.htm
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+// Compact support was removed from WebKit by Hyatt and layout tests rebaselined in r40259.
+LINUX : LayoutTests/fast/compact/001.html = FAIL
+LINUX : LayoutTests/fast/compact/002.html = FAIL
+LINUX : LayoutTests/fast/compact/003.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
@@ -1774,10 +1778,6 @@ WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 
 // Merge 40165:40297 -- regressions
 LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
-// I think Hyatt removed support for compact.
-LINUX WIN : LayoutTests/fast/compact/001.html = FAIL
-LINUX WIN : LayoutTests/fast/compact/002.html = FAIL
-LINUX WIN : LayoutTests/fast/compact/003.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
 LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL
