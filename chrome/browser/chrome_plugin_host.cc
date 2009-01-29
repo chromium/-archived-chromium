@@ -146,7 +146,7 @@ class PluginRequestHandler : public PluginHelper, public URLRequest::Delegate {
   }
 
   PluginRequestHandler(ChromePluginLib* plugin, ScopableCPRequest* cprequest)
-      : PluginHelper(plugin), cprequest_(cprequest) {
+      : PluginHelper(plugin), cprequest_(cprequest), user_buffer_(NULL) {
     cprequest_->data = this;  // see FromCPRequest().
 
     URLRequestContext* context = CPBrowsingContextManager::Instance()->
@@ -164,6 +164,25 @@ class PluginRequestHandler : public PluginHelper, public URLRequest::Delegate {
 
   URLRequest* request() { return request_.get(); }
 
+  // Wraper of URLRequest::Read()
+  bool Read(char* dest, int dest_size, int *bytes_read) {
+    CHECK(!my_buffer_.get());
+    // We'll use our own buffer until the read actually completes.
+    user_buffer_ = dest;
+    my_buffer_ = new net::IOBuffer(dest_size);
+
+    if (request_->Read(my_buffer_, dest_size, bytes_read)) {
+      memcpy(dest, my_buffer_->data(), *bytes_read);
+      my_buffer_ = NULL;
+      return true;
+    }
+
+    if (!request_->status().is_io_pending())
+      my_buffer_ = NULL;
+
+    return false;
+  }
+
   // URLRequest::Delegate
   virtual void OnReceivedRedirect(URLRequest* request, const GURL& new_url) {
     plugin_->functions().response_funcs->received_redirect(
@@ -179,16 +198,24 @@ class PluginRequestHandler : public PluginHelper, public URLRequest::Delegate {
   }
 
   virtual void OnReadCompleted(URLRequest* request, int bytes_read) {
-    // TODO(mpcomplete): better error codes
-    if (bytes_read < 0)
+    CHECK(my_buffer_.get());
+    CHECK(user_buffer_);
+    if (bytes_read > 0) {
+      memcpy(user_buffer_, my_buffer_->data(), bytes_read);
+    } else if (bytes_read < 0) {
+      // TODO(mpcomplete): better error codes
       bytes_read = CPERR_FAILURE;
+    }
+    my_buffer_ = NULL;
     plugin_->functions().response_funcs->read_completed(
-      cprequest_.get(), bytes_read);
+        cprequest_.get(), bytes_read);
   }
 
  private:
   scoped_ptr<ScopableCPRequest> cprequest_;
   scoped_ptr<URLRequest> request_;
+  scoped_refptr<net::IOBuffer> my_buffer_;
+  char* user_buffer_;
 };
 
 // This class manages plugins that want to handle UI commands.  Right now, we
@@ -615,7 +642,7 @@ int STDCALL CPR_Read(CPRequest* request, void* buf, uint32 buf_size) {
   CHECK(handler);
 
   int bytes_read;
-  if (handler->request()->Read(static_cast<char*>(buf), buf_size, &bytes_read))
+  if (handler->Read(static_cast<char*>(buf), buf_size, &bytes_read))
     return bytes_read;  // 0 == CPERR_SUCESS
 
   if (handler->request()->status().is_io_pending())

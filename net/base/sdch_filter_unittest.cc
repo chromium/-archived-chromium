@@ -101,7 +101,7 @@ static bool FilterTestData(const std::string& source,
   do {
     int copy_amount = std::min(input_amount, source.size() - source_index);
     if (copy_amount > 0 && status == Filter::FILTER_NEED_MORE_DATA) {
-      memcpy(filter->stream_buffer(), source.data() + source_index,
+      memcpy(filter->stream_buffer()->data(), source.data() + source_index,
              copy_amount);
       filter->FlushStreamBuffer(copy_amount);
       source_index += copy_amount;
@@ -152,7 +152,7 @@ TEST_F(SdchFilterTest, BasicBadDictionary) {
   // Dictionary hash is 8 characters followed by a null.
   std::string dictionary_hash_prefix("123");
 
-  char* input_buffer = filter->stream_buffer();
+  char* input_buffer = filter->stream_buffer()->data();
   int input_buffer_size = filter->stream_buffer_size();
   EXPECT_EQ(kInputBufferSize, input_buffer_size);
 

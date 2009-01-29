@@ -31,6 +31,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/win_util.h"
+#include "net/base/io_buffer.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
@@ -812,8 +813,9 @@ void SavePackage::OnReceivedSerializedHtmlData(const GURL& frame_url,
 
   if (!data.empty()) {
     // Prepare buffer for saving HTML data.
-    char* new_data = static_cast<char*>(new char[data.size()]);
-    memcpy(new_data, data.data(), data.size());
+    net::IOBuffer* new_data = new net::IOBuffer(data.size());
+    new_data->AddRef();  // We'll pass the buffer to SaveFileManager.
+    memcpy(new_data->data(), data.data(), data.size());
 
     // Call write file functionality in file thread.
     file_manager_->GetSaveLoop()->PostTask(FROM_HERE,

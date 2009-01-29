@@ -21,6 +21,7 @@
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/waitable_event.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request.h"
@@ -62,7 +63,8 @@ class TestDelegate : public URLRequest::Delegate {
         received_bytes_count_(0),
         received_redirect_count_(0),
         received_data_before_response_(false),
-        request_failed_(false) {
+        request_failed_(false),
+        buf_(new net::IOBuffer(kBufferSize)) {
   }
 
   virtual void OnReceivedRedirect(URLRequest* request, const GURL& new_url) {
@@ -87,7 +89,7 @@ class TestDelegate : public URLRequest::Delegate {
     } else {
       // Initiate the first read.
       int bytes_read = 0;
-      if (request->Read(buf_, sizeof(buf_), &bytes_read))
+      if (request->Read(buf_, kBufferSize, &bytes_read))
         OnReadCompleted(request, bytes_read);
       else if (!request->status().is_io_pending())
         OnResponseCompleted(request);
@@ -109,15 +111,15 @@ class TestDelegate : public URLRequest::Delegate {
       received_bytes_count_ += bytes_read;
 
       // consume the data
-      data_received_.append(buf_, bytes_read);
+      data_received_.append(buf_->data(), bytes_read);
     }
 
     // If it was not end of stream, request to read more.
     if (request->status().is_success() && bytes_read > 0) {
       bytes_read = 0;
-      while (request->Read(buf_, sizeof(buf_), &bytes_read)) {
+      while (request->Read(buf_, kBufferSize, &bytes_read)) {
         if (bytes_read > 0) {
-          data_received_.append(buf_, bytes_read);
+          data_received_.append(buf_->data(), bytes_read);
           received_bytes_count_ += bytes_read;
         } else {
           break;
@@ -173,6 +175,7 @@ class TestDelegate : public URLRequest::Delegate {
   bool request_failed() const { return request_failed_; }
 
  private:
+  static const int kBufferSize = 4096;
   // options for controlling behavior
   bool cancel_in_rr_;
   bool cancel_in_rs_;
@@ -192,7 +195,7 @@ class TestDelegate : public URLRequest::Delegate {
   std::string data_received_;
 
   // our read buffer
-  char buf_[4096];
+  scoped_refptr<net::IOBuffer> buf_;
 };
 
 // This object bounds the lifetime of an external python-based HTTP/FTP server

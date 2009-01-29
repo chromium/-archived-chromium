@@ -39,7 +39,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   virtual int RestartWithAuth(const std::wstring& username,
                               const std::wstring& password,
                               CompletionCallback* callback);
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
   virtual const HttpResponseInfo* GetResponseInfo() const;
   virtual LoadState GetLoadState() const;
   virtual uint64 GetUploadProgress() const;
@@ -259,7 +259,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   scoped_ptr<HttpChunkedDecoder> chunked_decoder_;
 
   // User buffer and length passed to the Read method.
-  char* read_buf_;
+  scoped_refptr<IOBuffer> read_buf_;
   int read_buf_len_;
 
   enum State {

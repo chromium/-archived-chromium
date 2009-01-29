@@ -6,7 +6,9 @@
 
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "base/ref_counted.h"
 #include "base/string_util.h"
+#include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/url_request/url_request.h"
 
@@ -77,7 +79,7 @@ class ProxyScriptFetcherImpl : public ProxyScriptFetcher,
 
   // Buffer that URLRequest writes into.
   enum { kBufSize = 4096 };
-  char buf_[kBufSize];
+  scoped_refptr<net::IOBuffer> buf_;
 
   // The next ID to use for |cur_request_| (monotonically increasing).
   int next_id_;
@@ -105,6 +107,7 @@ ProxyScriptFetcherImpl::ProxyScriptFetcherImpl(
     URLRequestContext* url_request_context)
     : ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       url_request_context_(url_request_context),
+      buf_(new net::IOBuffer(kBufSize)),
       next_id_(0),
       cur_request_(NULL),
       cur_request_id_(0),
@@ -217,7 +220,7 @@ void ProxyScriptFetcherImpl::OnReadCompleted(URLRequest* request,
       request->Cancel();
       return;
     }
-    result_bytes_->append(buf_, num_bytes);
+    result_bytes_->append(buf_->data(), num_bytes);
     ReadBody(request);
   } else {  // Error while reading, or EOF
     OnResponseCompleted(request);

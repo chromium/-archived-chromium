@@ -29,7 +29,7 @@ class URLRequestInetJob : public URLRequestJob {
   }
 
   virtual void Kill();
-  virtual bool ReadRawData(char* buf, int buf_size, int *bytes_read);
+  virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
 
   // URLRequestJob Authentication methods
   virtual void SetAuth(const std::wstring& username,

@@ -11,6 +11,9 @@
 #include "chrome/browser/chrome_thread.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
+#include "net/base/io_buffer.h"
+
+static const int kBufferSize = 4096;
 
 URLFetcher::URLFetcher(const GURL& url,
                        RequestType request_type,
@@ -36,6 +39,7 @@ URLFetcher::Core::Core(URLFetcher* fetcher,
       request_(NULL),
       load_flags_(net::LOAD_NORMAL),
       response_code_(-1),
+      buffer_(new net::IOBuffer(kBufferSize)),
       protect_entry_(URLFetcherProtectManager::GetInstance()->Register(
           original_url_.host())),
       num_retries_(0) {
@@ -71,7 +75,7 @@ void URLFetcher::Core::OnResponseStarted(URLRequest* request) {
   // completed immediately, without trying to read any data back (all we care
   // about is the response code and headers, which we already have).
   if (request_->status().is_success() && (request_type_ != HEAD))
-    request_->Read(buffer_, sizeof(buffer_), &bytes_read);
+    request_->Read(buffer_, kBufferSize, &bytes_read);
   OnReadCompleted(request_, bytes_read);
 }
 
@@ -84,8 +88,8 @@ void URLFetcher::Core::OnReadCompleted(URLRequest* request, int bytes_read) {
   do {
     if (!request_->status().is_success() || bytes_read <= 0)
       break;
-    data_.append(buffer_, bytes_read);
-  } while (request_->Read(buffer_, sizeof(buffer_), &bytes_read));
+    data_.append(buffer_->data(), bytes_read);
+  } while (request_->Read(buffer_, kBufferSize, &bytes_read));
 
   if (request_->status().is_success())
     request_->GetResponseCookies(&cookies_);

@@ -228,7 +228,7 @@ bool Filter::InitBuffer(int buffer_size) {
   if (buffer_size < 0 || stream_buffer())
     return false;
 
-  stream_buffer_.reset(new char[buffer_size]);
+  stream_buffer_ = new net::IOBuffer(buffer_size);
 
   if (stream_buffer()) {
     stream_buffer_size_ = buffer_size;
@@ -275,9 +275,9 @@ Filter::FilterStatus Filter::ReadData(char* dest_buffer, int* dest_len) {
     return next_filter_->ReadData(dest_buffer, dest_len);
   if (next_filter_->last_status() == FILTER_NEED_MORE_DATA) {
     // Push data into next filter's input.
-    char* next_buffer = next_filter_->stream_buffer();
+    net::IOBuffer* next_buffer = next_filter_->stream_buffer();
     int next_size = next_filter_->stream_buffer_size();
-    last_status_ = ReadFilteredData(next_buffer, &next_size);
+    last_status_ = ReadFilteredData(next_buffer->data(), &next_size);
     next_filter_->FlushStreamBuffer(next_size);
     switch (last_status_) {
       case FILTER_ERROR:
@@ -306,7 +306,7 @@ bool Filter::FlushStreamBuffer(int stream_data_len) {
   if (!stream_buffer() || stream_data_len_)
     return false;
 
-  next_stream_data_ = stream_buffer();
+  next_stream_data_ = stream_buffer()->data();
   stream_data_len_ = stream_data_len;
   return true;
 }

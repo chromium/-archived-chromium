@@ -52,7 +52,6 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       header_buf_http_offset_(-1),
       content_length_(-1),  // -1 means unspecified.
       content_read_(0),
-      read_buf_(NULL),
       read_buf_len_(0),
       next_state_(STATE_NONE) {
 #if defined(OS_WIN)
@@ -134,7 +133,7 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
   ResetStateForRestart();
 }
 
-int HttpNetworkTransaction::Read(char* buf, int buf_len,
+int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
                                  CompletionCallback* callback) {
   DCHECK(response_.headers);
   DCHECK(buf);
@@ -726,7 +725,7 @@ int HttpNetworkTransaction::DoReadBody() {
   // We may have some data remaining in the header buffer.
   if (header_buf_.get() && header_buf_body_offset_ < header_buf_len_) {
     int n = std::min(read_buf_len_, header_buf_len_ - header_buf_body_offset_);
-    memcpy(read_buf_, header_buf_.get() + header_buf_body_offset_, n);
+    memcpy(read_buf_->data(), header_buf_.get() + header_buf_body_offset_, n);
     header_buf_body_offset_ += n;
     if (header_buf_body_offset_ == header_buf_len_) {
       header_buf_.reset();
@@ -737,7 +736,8 @@ int HttpNetworkTransaction::DoReadBody() {
     return n;
   }
 
-  return connection_.socket()->Read(read_buf_, read_buf_len_, &io_callback_);
+  return connection_.socket()->Read(read_buf_->data(), read_buf_len_,
+                                    &io_callback_);
 }
 
 int HttpNetworkTransaction::DoReadBodyComplete(int result) {
@@ -747,7 +747,7 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
 
   // Filter incoming data if appropriate.  FilterBuf may return an error.
   if (result > 0 && chunked_decoder_.get()) {
-    result = chunked_decoder_->FilterBuf(read_buf_, result);
+    result = chunked_decoder_->FilterBuf(read_buf_->data(), result);
     if (result == 0 && !chunked_decoder_->reached_eof()) {
       // Don't signal completion of the Read call yet or else it'll look like
       // we received end-of-file.  Wait for more data.

@@ -309,6 +309,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\io_buffer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\listen_socket.cc"
 				>
 			</File>

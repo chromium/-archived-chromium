@@ -8,7 +8,8 @@ SyncResourceHandler::SyncResourceHandler(
     ResourceDispatcherHost::Receiver* receiver,
     const GURL& url,
     IPC::Message* result_message)
-    : receiver_(receiver),
+    : read_buffer_(new net::IOBuffer(kReadBufSize)),
+      receiver_(receiver),
       result_message_(result_message) {
   result_.final_url = url;
   result_.filter_policy = FilterPolicy::DONT_FILTER;
@@ -29,10 +30,10 @@ bool SyncResourceHandler::OnResponseStarted(int request_id,
   return true;
 }
 
-bool SyncResourceHandler::OnWillRead(int request_id,
-                                     char** buf, int* buf_size, int min_size) {
+bool SyncResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
+                                     int* buf_size, int min_size) {
   DCHECK(min_size == -1);
-  *buf = read_buffer_;
+  *buf = read_buffer_.get();
   *buf_size = kReadBufSize;
   return true;
 }
@@ -40,7 +41,7 @@ bool SyncResourceHandler::OnWillRead(int request_id,
 bool SyncResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
   if (!*bytes_read)
     return true;
-  result_.data.append(read_buffer_, *bytes_read);
+  result_.data.append(read_buffer_->data(), *bytes_read);
   return true;
 }
 

@@ -25,6 +25,7 @@
 #include "chrome/common/win_safe_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
+#include "net/base/io_buffer.h"
 #include "net/url_request/url_request_context.h"
 
 SaveFileManager::SaveFileManager(MessageLoop* ui_loop,
@@ -271,12 +272,12 @@ void SaveFileManager::StartSave(SaveFileCreateInfo* info) {
 // thread). We may receive a few more updates before the IO thread gets the
 // cancel message. We just delete the data since the SaveFile has been deleted.
 void SaveFileManager::UpdateSaveProgress(int save_id,
-                                         char* data,
+                                         net::IOBuffer* data,
                                          int data_len) {
   DCHECK(MessageLoop::current() == GetSaveLoop());
   SaveFile* save_file = LookupSaveFile(save_id);
   if (save_file) {
-    bool write_success = save_file->AppendDataToFile(data, data_len);
+    bool write_success = save_file->AppendDataToFile(data->data(), data_len);
     ui_loop_->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &SaveFileManager::OnUpdateSaveProgress,
@@ -284,7 +285,7 @@ void SaveFileManager::UpdateSaveProgress(int save_id,
                           save_file->bytes_so_far(),
                           write_success));
   }
-  delete [] data;
+  data->Release();
 }
 
 // The IO thread will call this when saving is completed or it got error when

@@ -128,12 +128,12 @@ void URLRequestFileJob::Kill() {
   URLRequestJob::Kill();
 }
 
-bool URLRequestFileJob::ReadRawData(
-    char* dest, int dest_size, int *bytes_read) {
+bool URLRequestFileJob::ReadRawData(net::IOBuffer* dest, int dest_size,
+                                    int *bytes_read) {
   DCHECK_NE(dest_size, 0);
   DCHECK(bytes_read);
 
-  int rv = stream_.Read(dest, dest_size, &io_callback_);
+  int rv = stream_.Read(dest->data(), dest_size, &io_callback_);
   if (rv >= 0) {
     // Data is immediately available.
     *bytes_read = rv;

@@ -5,6 +5,7 @@
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 
 #include "chrome/browser/download/save_file_manager.h"
+#include "net/base/io_buffer.h"
 
 SaveFileResourceHandler::SaveFileResourceHandler(int render_process_host_id,
                                                  int render_view_id,
@@ -13,7 +14,6 @@ SaveFileResourceHandler::SaveFileResourceHandler(int render_process_host_id,
     : save_id_(-1),
       render_process_id_(render_process_host_id),
       render_view_id_(render_view_id),
-      read_buffer_(NULL),
       url_(UTF8ToWide(url)),
       content_length_(0),
       save_manager_(manager) {
@@ -46,27 +46,28 @@ bool SaveFileResourceHandler::OnResponseStarted(int request_id,
   return true;
 }
 
-bool SaveFileResourceHandler::OnWillRead(int request_id,
-                                         char** buf, int* buf_size,
-                                         int min_size) {
+bool SaveFileResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
+                                         int* buf_size, int min_size) {
   DCHECK(buf && buf_size);
   if (!read_buffer_) {
     *buf_size = min_size < 0 ? kReadBufSize : min_size;
-    read_buffer_ = new char[*buf_size];
+    read_buffer_ = new net::IOBuffer(*buf_size);
   }
-  *buf = read_buffer_;
+  *buf = read_buffer_.get();
   return true;
 }
 
 bool SaveFileResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
   DCHECK(read_buffer_);
+  // We are passing ownership of this buffer to the save file manager.
+  net::IOBuffer* buffer = NULL;
+  read_buffer_.swap(&buffer);
   save_manager_->GetSaveLoop()->PostTask(FROM_HERE,
       NewRunnableMethod(save_manager_,
                         &SaveFileManager::UpdateSaveProgress,
                         save_id_,
-                        read_buffer_,
+                        buffer,
                         *bytes_read));
-  read_buffer_ = NULL;
   return true;
 }
 
@@ -80,6 +81,6 @@ bool SaveFileResourceHandler::OnResponseCompleted(
                         url_,
                         render_process_id_,
                         status.is_success() && !status.is_io_pending()));
-  delete [] read_buffer_;
+  read_buffer_ = NULL;
   return true;
 }

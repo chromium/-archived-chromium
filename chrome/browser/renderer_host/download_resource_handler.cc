@@ -7,6 +7,7 @@
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "net/base/io_buffer.h"
 
 DownloadResourceHandler::DownloadResourceHandler(ResourceDispatcherHost* rdh,
                                                  int render_process_host_id,
@@ -20,7 +21,6 @@ DownloadResourceHandler::DownloadResourceHandler(ResourceDispatcherHost* rdh,
       global_id_(ResourceDispatcherHost::GlobalRequestID(render_process_host_id,
                                                          request_id)),
       render_view_id_(render_view_id),
-      read_buffer_(NULL),
       url_(UTF8ToWide(url)),
       content_length_(0),
       download_manager_(manager),
@@ -72,15 +72,14 @@ bool DownloadResourceHandler::OnResponseStarted(int request_id,
 
 // Create a new buffer, which will be handed to the download thread for file
 // writing and deletion.
-bool DownloadResourceHandler::OnWillRead(int request_id,
-                                         char** buf, int* buf_size,
-                                         int min_size) {
+bool DownloadResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
+                                         int* buf_size, int min_size) {
   DCHECK(buf && buf_size);
   if (!read_buffer_) {
     *buf_size = min_size < 0 ? kReadBufSize : min_size;
-    read_buffer_ = new char[*buf_size];
+    read_buffer_ = new net::IOBuffer(*buf_size);
   }
-  *buf = read_buffer_;
+  *buf = read_buffer_.get();
   return true;
 }
 
@@ -91,7 +90,11 @@ bool DownloadResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
   DCHECK(read_buffer_);
   AutoLock auto_lock(buffer_->lock);
   bool need_update = buffer_->contents.empty();
-  buffer_->contents.push_back(std::make_pair(read_buffer_, *bytes_read));
+
+  // We are passing ownership of this buffer to the download file manager.
+  net::IOBuffer* buffer = NULL;
+  read_buffer_.swap(&buffer);
+  buffer_->contents.push_back(std::make_pair(buffer, *bytes_read));
   if (need_update) {
     download_manager_->file_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(download_manager_,
@@ -99,7 +102,6 @@ bool DownloadResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
                           download_id_,
                           buffer_));
   }
-  read_buffer_ = NULL;
 
   // We schedule a pause outside of the read loop if there is too much file
   // writing work to do.
@@ -117,7 +119,7 @@ bool DownloadResourceHandler::OnResponseCompleted(
                         &DownloadFileManager::DownloadFinished,
                         download_id_,
                         buffer_));
-  delete [] read_buffer_;
+  read_buffer_ = NULL;
 
   // 'buffer_' is deleted by the DownloadFileManager.
   buffer_ = NULL;
