@@ -268,6 +268,7 @@
 		E40CC5F20F2E34EE00708647 /* bookmark_folder_tree_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F00F2E34EE00708647 /* bookmark_folder_tree_model.cc */; };
 		E40CC5F70F2E351A00708647 /* bookmark_table_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */; };
 		E40CC5FE0F2E35A800708647 /* security_filter_peer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBFA0E9D4C9F009A6919 /* security_filter_peer.cc */; };
+		E42155D80F3240AF00A4A951 /* tab_strip_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E433E65E0F323E2100CAC3AC /* tab_strip_view.mm */; };
 		E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9680EC4EA270052B72B /* automation_resource_tracker.cc */; };
 		E43A770D0F16610300ABD5D1 /* chrome_plugin_browsing_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF85B0E9D4839009A6919 /* chrome_plugin_browsing_context.cc */; };
 		E43A77110F16613700ABD5D1 /* chrome_url_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A77100F16613700ABD5D1 /* chrome_url_request_context.cc */; };
@@ -367,7 +368,6 @@
 		E46C50550F291C1E00B393B8 /* forward.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50530F291C1E00B393B8 /* forward.pdf */; };
 		E46C50560F291C1E00B393B8 /* reload.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50540F291C1E00B393B8 /* reload.pdf */; };
 		E46C50580F291C3B00B393B8 /* newtab.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50570F291C3B00B393B8 /* newtab.pdf */; };
-		E46C50D90F292EAA00B393B8 /* tab_bar_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */; };
 		E46C50EF0F2A12DC00B393B8 /* TabContents.xib in Resources */ = {isa = PBXBuildFile; fileRef = E46C50ED0F2A12DC00B393B8 /* TabContents.xib */; };
 		E46C51240F2A14A300B393B8 /* go.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C51230F2A14A300B393B8 /* go.pdf */; };
 		E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */; };
@@ -1996,6 +1996,8 @@
 		E40CC5F50F2E351A00708647 /* bookmark_table_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bookmark_table_model.h; path = bookmarks/bookmark_table_model.h; sourceTree = "<group>"; };
 		E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_table_model.cc; path = bookmarks/bookmark_table_model.cc; sourceTree = "<group>"; };
 		E40CC5F80F2E351F00708647 /* bookmark_table_model_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_table_model_unittest.cc; path = bookmarks/bookmark_table_model_unittest.cc; sourceTree = "<group>"; };
+		E433E65D0F323E2100CAC3AC /* tab_strip_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_view.h; path = cocoa/tab_strip_view.h; sourceTree = "<group>"; };
+		E433E65E0F323E2100CAC3AC /* tab_strip_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_strip_view.mm; path = cocoa/tab_strip_view.mm; sourceTree = "<group>"; };
 		E43A770F0F16613700ABD5D1 /* chrome_url_request_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chrome_url_request_context.h; sourceTree = "<group>"; };
 		E43A77100F16613700ABD5D1 /* chrome_url_request_context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_url_request_context.cc; sourceTree = "<group>"; };
 		E43A77150F16616E00ABD5D1 /* download_resource_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = download_resource_handler.h; path = renderer_host/download_resource_handler.h; sourceTree = "<group>"; };
@@ -2093,8 +2095,6 @@
 		E46C50530F291C1E00B393B8 /* forward.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = forward.pdf; path = theme/forward.pdf; sourceTree = "<group>"; };
 		E46C50540F291C1E00B393B8 /* reload.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = reload.pdf; path = theme/reload.pdf; sourceTree = "<group>"; };
 		E46C50570F291C3B00B393B8 /* newtab.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = newtab.pdf; path = theme/newtab.pdf; sourceTree = "<group>"; };
-		E46C50D50F292EAA00B393B8 /* tab_bar_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_bar_view.h; path = cocoa/tab_bar_view.h; sourceTree = "<group>"; };
-		E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_bar_view.mm; path = cocoa/tab_bar_view.mm; sourceTree = "<group>"; };
 		E46C50D70F292EAA00B393B8 /* tab_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_cell.h; path = cocoa/tab_cell.h; sourceTree = "<group>"; };
 		E46C50D80F292EAA00B393B8 /* tab_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_cell.mm; path = cocoa/tab_cell.mm; sourceTree = "<group>"; };
 		E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_contents_controller.h; path = cocoa/tab_contents_controller.h; sourceTree = "<group>"; };
@@ -3625,14 +3625,14 @@
 			isa = PBXGroup;
 			children = (
 				A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */,
-				E46C50D50F292EAA00B393B8 /* tab_bar_view.h */,
-				E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */,
 				E46C50D70F292EAA00B393B8 /* tab_cell.h */,
 				E46C50D80F292EAA00B393B8 /* tab_cell.mm */,
 				E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */,
 				E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */,
 				E46C55ED0F30EFF500B393B8 /* tab_strip_controller.h */,
 				E46C55EE0F30EFF500B393B8 /* tab_strip_controller.mm */,
+				E433E65D0F323E2100CAC3AC /* tab_strip_view.h */,
+				E433E65E0F323E2100CAC3AC /* tab_strip_view.mm */,
 				E46C51980F2A20CC00B393B8 /* toolbar_button_cell.h */,
 				E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */,
 				E46C51620F2A1DAB00B393B8 /* toolbar_view.h */,
@@ -4733,7 +4733,7 @@
 				E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */,
 				E45062EB0EE9877F003BE099 /* chrome_dll_main.cc in Sources */,
 				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
-				E46C50D90F292EAA00B393B8 /* tab_bar_view.mm in Sources */,
+				E42155D80F3240AF00A4A951 /* tab_strip_view.mm in Sources */,
 				E46C519A0F2A20CC00B393B8 /* toolbar_button_cell.mm in Sources */,
 				E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */,
 			);

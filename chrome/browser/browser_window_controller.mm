@@ -5,7 +5,7 @@
 #import "chrome/browser/browser.h"
 #import "chrome/browser/browser_window_cocoa.h"
 #import "chrome/browser/browser_window_controller.h"
-#import "chrome/browser/cocoa/tab_bar_view.h"
+#import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 
 @implementation BrowserWindowController
@@ -43,15 +43,15 @@
   // managing the creation of new tabs.
   tabStripController_ = 
       [[TabStripController alloc]
-          initWithView:tabBarView_ model:browser_->tabstrip_model()];
+          initWithView:tabStripView_ model:browser_->tabstrip_model()];
 
   // Place the tab bar above the content box and add it to the view hierarchy
   // as a sibling of the content view so it can overlap with the window frame.
   NSRect tabFrame = [contentBox_ frame];
   tabFrame.origin = NSMakePoint(0, NSMaxY(tabFrame));
-  tabFrame.size.height = NSHeight([tabBarView_ frame]);
-  [tabBarView_ setFrame:tabFrame];
-  [[[[self window] contentView] superview] addSubview:tabBarView_];
+  tabFrame.size.height = NSHeight([tabStripView_ frame]);
+  [tabStripView_ setFrame:tabFrame];
+  [[[[self window] contentView] superview] addSubview:tabStripView_];
 }
 
 - (void)destroyBrowser {
