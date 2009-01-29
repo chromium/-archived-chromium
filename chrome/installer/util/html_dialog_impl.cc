@@ -174,7 +174,7 @@ EulaHTMLDialog::~EulaHTMLDialog() {
 bool EulaHTMLDialog::ShowModal() {
   Customizer customizer;
   HTMLDialog::DialogResult dr = dialog_->ShowModal(NULL, &customizer);
-  return (HTMLDialog::HTML_DLG_ACCEPT == dr);
+  return (HTMLDialog::HTML_DLG_ACCEPT == dr || HTMLDialog::HTML_DLG_EXTRA == dr);
 }
 
 }  // namespace installer

@@ -2,7 +2,7 @@ function checkAccept(f) {
   if (f.accept.checked) {
     window.returnValue = 1;
   } else {
-    window.returnValue = 2;
+    window.returnValue = 6;
   }
   window.close();
 }
