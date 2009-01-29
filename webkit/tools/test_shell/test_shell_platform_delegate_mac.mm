@@ -255,6 +255,9 @@ void TestShellPlatformDelegate::InitializeGUI() {
     // If we're doing automated testing, we won't be using a conventional
     // run loop, so tell Cocoa to finish initializing.
     [NSApp finishLaunching];
+  } else {
+    // Make sure any settings from a previous layout run are cleared
+    ClearAnyDefaultsForLayoutTests();
   }
 }
 
@@ -265,15 +268,11 @@ void TestShellPlatformDelegate::SetWindowPositionForRecording(TestShell *) {
 }
 
 void TestShellPlatformDelegate::SelectUnifiedTheme() {
-  if (command_line_.HasSwitch(test_shell::kLayoutTests)) {
-    SetDefaultsToLayoutTestValues();
-    SwizzleNSPasteboard();
-    
-    if (command_line_.HasSwitch(test_shell::kDumpPixels)) {
-      InstallLayoutTestColorProfile();
-    }
-  } else {
-    ClearAnyDefaultsForLayoutTests();
+  SetDefaultsToLayoutTestValues();
+  SwizzleNSPasteboard();
+  
+  if (command_line_.HasSwitch(test_shell::kDumpPixels)) {
+    InstallLayoutTestColorProfile();
   }
 }
 
