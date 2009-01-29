@@ -689,7 +689,7 @@ std::string GetDataResource(int resource_id) {
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  return false; // NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
+  return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
 bool DownloadUrl(const std::string& url, NSWindow* caller_window) {
