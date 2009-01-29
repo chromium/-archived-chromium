@@ -24,19 +24,10 @@ env.SConscript([
     '$MODP_B64_DIR/using_modp_b64.scons',
     '$NET_DIR/using_net.scons',
     '$NPAPI_DIR/using_npapi.scons',
+    '$SDCH_DIR/using_sdch.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
-
-if env.Bit('windows'):
-  env.SConscript([
-      '$SDCH_DIR/using_sdch.scons',
-  ], {'env':env})
-
-if env.Bit('posix'):
-  env.SConscript([
-      '$LIBEVENT_DIR/using_libevent.scons',
-  ], {'env':env})
 
 env.Prepend(
     CPPPATH = [
@@ -48,7 +39,6 @@ env.Prepend(
         'common',
         'plugin',
         'renderer',
-        'sdch',
         'sqlite',
         'util',
         'v8_snapshot',
@@ -81,7 +71,6 @@ if env.Bit('windows'):
           'jscre',
           'test_chrome_plugin',
           'views',
-          'WebCore',
 
           # Windows-specific libraries.
           'activex_shim',
@@ -261,7 +250,6 @@ input_files = ChromeFileList([
     '$CHROME_DIR/renderer/render_widget_unittest.cc',
     '$CHROME_DIR/renderer/user_script_slave_unittest.cc',
     '$CHROME_DIR/renderer/render_process_unittest.cc',
-    '$WEBKIT_DIR/glue/mock_webkit_glue.cc',
     '$CHROME_DIR/renderer/render_thread_unittest.cc',
 
     # test_infrastructure

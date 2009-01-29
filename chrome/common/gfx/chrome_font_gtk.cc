@@ -8,6 +8,8 @@
 
 #include "base/string_util.h"
 
+ChromeFont* ChromeFont::default_font_ = NULL;
+
 // Get the default gtk system font (name and size).
 // TODO(estade): is there a way to do this that does not involve making a
 // temporary widget?

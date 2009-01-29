@@ -15,6 +15,9 @@
 
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
 
+// TODO(port): InitSharedInstance and CleanupSharedInstance are portable, but
+// they need LoadLocaleResource and ~ResourceBundle implemented.
+#if defined(OS_WIN)
 /* static */
 void ResourceBundle::InitSharedInstance(const std::wstring& pref_locale) {
   DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
@@ -30,6 +33,7 @@ void ResourceBundle::CleanupSharedInstance() {
     g_shared_instance_ = NULL;
   }
 }
+#endif
 
 /* static */
 ResourceBundle& ResourceBundle::GetSharedInstance() {
@@ -51,6 +55,8 @@ void ResourceBundle::FreeImages() {
   skia_images_.clear();
 }
 
+// TODO(port): LoadBitmap is portable, but it needs a LoadResourceBytes impl.
+#if defined(OS_WIN)
 /* static */
 SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
   std::vector<unsigned char> raw_data, png_data;
@@ -71,6 +77,7 @@ SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
                                                   image_width,
                                                   image_height);
 }
+#endif
 
 SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
   // Check to see if we already have the Skia image in the cache.
@@ -83,9 +90,15 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
 
   scoped_ptr<SkBitmap> bitmap;
 
-  // Try to load the bitmap from the theme data.
-  if (theme_data_)
+  if (theme_data_) {
+#if defined(OS_WIN)
+    // TODO(port): We need to implement LoadBitmap before this can link.
+    // Try to load the bitmap from the theme data.
     bitmap.reset(LoadBitmap(theme_data_, resource_id));
+#else
+    NOTIMPLEMENTED();
+#endif
+  }
 
 #if defined(OS_WIN)
   // TODO(port): refactor to remove this.

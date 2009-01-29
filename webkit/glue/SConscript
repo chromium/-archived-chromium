@@ -65,7 +65,6 @@ input_files = [
   'resource_fetcher.cc',
   'resource_handle_impl.cc',
   'searchable_form_data.cc',
-  'simple_clipboard_impl.cc',
   'stacking_order_iterator.cc',
   'webcursor.cc',
   'webdatasource_impl.cc',

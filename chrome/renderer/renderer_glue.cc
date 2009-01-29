@@ -4,6 +4,8 @@
 
 // This file provides the embedder's side of random webkit glue functions.
 
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #include <wininet.h>
@@ -13,7 +15,6 @@
 #include "base/command_line.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
-#include "build/build_config.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
@@ -162,9 +163,14 @@ void AppendToLog(const char* file, int line, const char* msg) {
 }
 
 bool GetMimeTypeFromExtension(const std::wstring &ext,
-                                           std::string *mime_type) {
+                              std::string *mime_type) {
+#if defined(OS_WIN)
+  // TODO(port): Need to define IsPluginProcess.
   if (IsPluginProcess())
     return net::GetMimeTypeFromExtension(ext, mime_type);
+#else
+  NOTIMPLEMENTED();
+#endif
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -175,9 +181,14 @@ bool GetMimeTypeFromExtension(const std::wstring &ext,
 }
 
 bool GetMimeTypeFromFile(const std::wstring &file_path,
-                                      std::string *mime_type) {
+                         std::string *mime_type) {
+#if defined(OS_WIN)
+  // TODO(port): Need to define IsPluginProcess.
   if (IsPluginProcess())
     return net::GetMimeTypeFromFile(file_path, mime_type);
+#else
+  NOTIMPLEMENTED();
+#endif
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -188,9 +199,14 @@ bool GetMimeTypeFromFile(const std::wstring &file_path,
 }
 
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                                   std::wstring* ext) {
+                                      std::wstring* ext) {
+#if defined(OS_WIN)
+  // TODO(port): Need to define IsPluginProcess.
   if (IsPluginProcess())
     return net::GetPreferredExtensionForMimeType(mime_type, ext);
+#else
+  NOTIMPLEMENTED();
+#endif
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -200,15 +216,21 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
   return !ext->empty();
 }
 
+// TODO(port): Need to finish port ResourceBundle.
 std::string GetDataResource(int resource_id) {
+#if defined(OS_WIN)
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
+#else
+  NOTIMPLEMENTED();
+  return std::string();
+#endif
 }
 
+#if defined(OS_WIN)
 SkBitmap* GetBitmapResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetBitmapNamed(resource_id);
 }
 
-#if defined(OS_WIN)
 HCURSOR LoadCursor(int cursor_id) {
   return ResourceBundle::GetSharedInstance().LoadCursor(cursor_id);
 }
@@ -219,6 +241,16 @@ HCURSOR LoadCursor(int cursor_id) {
 Clipboard* ClipboardGetClipboard(){
   return NULL;
 }
+
+#if defined(OS_LINUX)
+// TODO(port): This should replace the method below (the unsigned int is a
+// windows type).  We may need to convert the type of format so it can be sent
+// over IPC.
+bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
+  NOTIMPLEMENTED();
+  return false;
+}
+#endif
 
 bool ClipboardIsFormatAvailable(unsigned int format) {
   bool result;

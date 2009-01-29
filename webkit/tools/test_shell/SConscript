@@ -107,6 +107,11 @@ input_files = [
     'event_sending_controller.cc',
     'layout_test_controller.cc',
     'simple_resource_loader_bridge.cc',
+
+    # This file is only used by test_shell/test_shell_tests.  It should
+    # probably be moved to the test_shell directory like
+    # simple_resource_loader_bridge.cc.
+    '$WEBKIT_DIR/glue/simple_clipboard_impl.cc',
     'test_navigation_controller.cc',
     'test_shell_request_context.cc',
     'test_shell_switches.cc',
