@@ -147,7 +147,7 @@ Page.prototype.getTitleHTML_ = function() {
   return '<div class="title">' +
            '<a ' +
              'href="' + this.url_ + '" ' +
-             'style="background-image:url(chrome://favicon/' +
+             'style="background-image:url(chrome-ui://favicon/' +
                  this.url_ + ')" ' +
              '>' +
              this.getHighlightedTitle_() +
@@ -515,7 +515,7 @@ HistoryView.prototype.displayNavBar_ = function() {
  */
 HistoryView.prototype.createPageNavHTML_ = function(page, name) {
   var hashString = PageState.getHashString(this.model_.getSearchText(), page);
-  return '<a href="chrome://history/' +
+  return '<a href="chrome-ui://history/' +
               (hashString ? '#' + hashString : '') +
               '"' +
             'class="page-navigation"' +

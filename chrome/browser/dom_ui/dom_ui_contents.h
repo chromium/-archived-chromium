@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Contains code for managing local HTML UI at chrome:// URLs.
+// Contains code for managing local HTML UI at chrome-ui:// URLs.
 
 #ifndef CHROME_BROWSER_DOM_UI_CONTENTS_H__
 #define CHROME_BROWSER_DOM_UI_CONTENTS_H__

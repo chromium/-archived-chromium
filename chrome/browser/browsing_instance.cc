@@ -28,7 +28,7 @@ bool BrowsingInstance::ShouldUseProcessPerSite(const GURL& url) {
     // Note that --single-process may have been specified, but that affects the
     // process creation logic in RenderProcessHost, so we do not need to worry
     // about it here.
-    if (url.SchemeIs("chrome"))
+    if (url.SchemeIs("chrome-ui"))
       // Always consolidate instances of the new tab page (and instances of any
       // other internal resource urls).
       return true;

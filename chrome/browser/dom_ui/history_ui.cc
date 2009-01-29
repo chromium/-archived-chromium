@@ -24,8 +24,7 @@
 
 using base::Time;
 
-// HistoryUI is accessible from chrome://history, and the raw HTML is
-// accessed from chrome://history.
+// HistoryUI is accessible from chrome-ui://history.
 static const char kHistoryHost[] = "history";
 
 // Maximum number of search results to return in a given search. We should 
@@ -287,7 +286,7 @@ void HistoryUI::Init() {
 
   HistoryUIHTMLSource* html_source = new HistoryUIHTMLSource();
 
-  // Set up the chrome://history/ source.
+  // Set up the chrome-ui://history/ source.
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(&chrome_url_data_manager,
           &ChromeURLDataManager::AddDataSource,

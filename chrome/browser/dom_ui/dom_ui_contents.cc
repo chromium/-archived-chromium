@@ -12,7 +12,7 @@
 
 // The scheme used for DOMUIContentses
 // TODO(glen): Merge this with the scheme in chrome_url_data_manager
-static const char kURLScheme[] = "chrome";
+static const char kURLScheme[] = "chrome-ui";
 
 // The path used in internal URLs to thumbnail data.
 static const char kThumbnailPath[] = "thumb";
@@ -117,9 +117,9 @@ void ThumbnailSource::OnThumbnailDataAvailable(
 ///////////////////////////////////////////////////////////////////////////////
 // DOMUIContents
 
-// This is the top-level URL handler for chrome: URLs, and exposed in
-// our header file. The individual DOMUIs provide a chrome:
-// HTML source at the same host/path.
+// This is the top-level URL handler for chrome-ui: URLs, and exposed in
+// our header file. The individual DOMUIs provide a chrome-ui:// HTML source
+// at the same host/path.
 bool DOMUIContentsCanHandleURL(GURL* url,
                                TabContentsType* result_type) {
   if (!url->SchemeIs(kURLScheme))
@@ -206,3 +206,4 @@ void DOMUIContents::ProcessDOMUIMessage(const std::string& message,
 const std::string DOMUIContents::GetScheme() {
   return kURLScheme;
 }
+

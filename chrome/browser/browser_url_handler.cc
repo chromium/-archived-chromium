@@ -20,7 +20,7 @@ void BrowserURLHandler::InitURLHandlers() {
   url_handlers_.push_back(&BrowserAboutHandler::MaybeHandle);
   // chrome-internal:*
   url_handlers_.push_back(&NewTabUIHandleURL);
-  // chrome:*
+  // chrome-ui:*
   url_handlers_.push_back(&DOMUIContentsCanHandleURL);
 }
 

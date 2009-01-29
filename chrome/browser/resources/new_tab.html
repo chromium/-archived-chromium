@@ -225,7 +225,7 @@ html[dir='rtl'] #mostvisited td {
   -webkit-transition:all 0.12s;
 }
 .thumbnail-title {
-  background-image:url(chrome://favicon/);
+  background-image:url(chrome-ui://favicon/);
   display:block;
   background-repeat:no-repeat;
   background-size:16px;
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
       <form onsubmit="chrome.send('searchHistoryPage', [this.search.value]); return false;">
         <input type="text" class="hint"
                name="search"
-               style="background-image:url(chrome://favicon/);"
+               style="background-image:url(chrome-ui://favicon/);"
                jsvalues="value:searchhistory"
                onfocus="handleInputFocus.apply(this);"
                onblur="handleInputBlur.apply(this);" />
@@ -524,12 +524,12 @@ function makeMostVisitedDOM(page, number) {
   /* Create the thumbnail */
   var img_thumbnail = DOM('img', {className:'thumbnail'});
   img_thumbnail.setAttribute('onload', "logEvent('image loaded');");
-  img_thumbnail.src = 'chrome://thumb/' + page.url;
+  img_thumbnail.src = 'chrome-ui://thumb/' + page.url;
 
   /* Create the title */
   var div_title = DOM('div', {className:'thumbnail-title'});
   div_title.style.backgroundImage =
-      'url("chrome://favicon/' + page.url + '")';
+      'url("chrome-ui://favicon/' + page.url + '")';
   if (page.title) {
     div_title.appendChild(document.createTextNode(page.title));
   } else {
@@ -592,7 +592,7 @@ function makeSearchURL(url) {
   /* The HTML we want looks like this:
      <form>
      <input type="text" class="hint"
-            style="background-image:url(chrome://favicon/"+url+");"
+            style="background-image:url(chrome-ui://favicon/"+url+");"
             value="Search Wikipedia"
             onfocus="handleInputFocus();"
             onblur="handleInputBlur();" />
@@ -605,10 +605,10 @@ function makeSearchURL(url) {
 
   if (url.favIconURL) {
     input.style.backgroundImage =
-      'url("chrome://favicon/iconurl/' + url.favIconURL + '")';
+      'url("chrome-ui://favicon/iconurl/' + url.favIconURL + '")';
   } else {
     input.style.backgroundImage =
-      'url("chrome://favicon/http://' + url.short_name + '")';
+      'url("chrome-ui://favicon/http://' + url.short_name + '")';
   }
 
   input.onfocus = handleInputFocus;
@@ -663,7 +663,7 @@ function renderRecentlyBookmarked(entries) {
           chrome.send("metrics", ["NTP_Bookmark" + i])
           }, false);
       link.style.backgroundImage =
-          'url("chrome://favicon/' + entry.url + '")';
+          'url("chrome-ui://favicon/' + entry.url + '")';
       link.appendChild(document.createTextNode(entry.title));
       container.appendChild(link);
     }
@@ -703,7 +703,10 @@ function renderRecentlyClosedTabs(entries) {
         linkSpan.appendChild(document.createTextNode(" ("));
         for (var windowIndex = 0; windowIndex < entry.tabs.length; windowIndex++) {
           var tab = entry.tabs[windowIndex];
-          var tabImg = DOM('img', {src:'url("chrome://favicon/' + tab.url + '")', width:16, height:16, });
+          var tabImg = DOM('img', {
+              src:'url("chrome-ui://favicon/' + tab.url + '")', 
+              width:16, 
+              height:16});
           linkSpan.appendChild(tabImg);
         }
         linkSpan.appendChild(document.createTextNode(")"));
@@ -751,7 +754,7 @@ function createRecentBookmark(tagName, data) {
   var link = DOM(tagName, {className:'recent-bookmark', title:data.title});
   if (tagName == 'a')
     link.href = data.url;
-  link.style.backgroundImage = 'url("chrome://favicon/' + data.url + '")';
+  link.style.backgroundImage = 'url("chrome-ui://favicon/' + data.url + '")';
   link.appendChild(document.createTextNode(data.title));
   return link;
 }

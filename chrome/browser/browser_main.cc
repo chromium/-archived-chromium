@@ -447,8 +447,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Config the network module so it has access to resources.
   net::NetModule::SetResourceProvider(NetResourceProvider);
 
-  // Register our global network handler for chrome:// and chrome-extension://
-  // URLs.
+  // Register our global network handler for chrome-ui:// and
+  // chrome-extension:// URLs.
   RegisterURLRequestChromeJob();
   RegisterExtensionProtocols();
 

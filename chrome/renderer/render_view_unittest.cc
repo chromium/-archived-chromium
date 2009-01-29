@@ -105,7 +105,7 @@ TEST_F(RenderViewTest, OnLoadAlternateHTMLText) {
   EXPECT_EQ(ViewHostMsg_DidStartProvisionalLoadForFrame::ID, msg->type());
   ViewHostMsg_DidStartProvisionalLoadForFrame::Param start_params;
   ViewHostMsg_DidStartProvisionalLoadForFrame::Read(msg, &start_params);
-  EXPECT_EQ(GURL("chrome://chromewebdata/"), start_params.b);
+  EXPECT_EQ(GURL("chrome-ui://chromewebdata/"), start_params.b);
 }
 
 // Test that we get form state change notifications when input fields change.

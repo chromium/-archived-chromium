@@ -195,9 +195,9 @@ void RendererSecurityPolicy::GrantInspectElement(int renderer_id) {
   if (state == security_state_.end())
     return;
 
-  // The inspector is served from a chrome: URL.  In order to run the
-  // inspector, the renderer needs to be able to load chrome URLs.
-  state->second->GrantScheme("chrome");
+  // The inspector is served from a chrome-ui: URL.  In order to run the
+  // inspector, the renderer needs to be able to load chrome-ui URLs.
+  state->second->GrantScheme("chrome-ui");
 }
 
 void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
@@ -209,8 +209,8 @@ void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
 
   state->second->GrantDOMUIBindings();
 
-  // DOM UI bindings need the ability to request chrome URLs.
-  state->second->GrantScheme("chrome");
+  // DOM UI bindings need the ability to request chrome-ui URLs.
+  state->second->GrantScheme("chrome-ui");
 
   // DOM UI pages can contain links to file:// URLs.
   state->second->GrantScheme("file");

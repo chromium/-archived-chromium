@@ -240,7 +240,7 @@ void ClipboardReadHTML(std::wstring* markup, GURL* url) {
 }
 
 GURL GetInspectorURL() {
-  return GURL("chrome://inspector/inspector.html");
+  return GURL("chrome-ui://inspector/inspector.html");
 }
 
 std::string GetUIResourceProtocol() {

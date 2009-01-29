@@ -127,6 +127,6 @@ void DebuggerContents::AttachMessageHandlers() {
 
 // static
 bool DebuggerContents::IsDebuggerUrl(const GURL& url) {
-  return (url.SchemeIs("chrome") && url.host() == "inspector");
+  return (url.SchemeIs("chrome-ui") && url.host() == "inspector");
 }
 

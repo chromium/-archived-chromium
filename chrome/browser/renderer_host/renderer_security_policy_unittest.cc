@@ -14,12 +14,12 @@ class RendererSecurityPolicyTest : public testing::Test {
 protected:
   // testing::Test
   virtual void SetUp() {
-    // In the real world, "chrome" is a handled scheme.
-    URLRequest::RegisterProtocolFactory("chrome",
+    // In the real world, "chrome-ui" is a handled scheme.
+    URLRequest::RegisterProtocolFactory("chrome-ui",
                                         &URLRequestTestJob::Factory);
   }
   virtual void TearDown() {
-    URLRequest::RegisterProtocolFactory("chrome", NULL);
+    URLRequest::RegisterProtocolFactory("chrome-ui", NULL);
   }
 };
 
@@ -70,7 +70,7 @@ TEST_F(RendererSecurityPolicyTest, StandardSchemesTest) {
   EXPECT_FALSE(p->CanRequestURL(kRendererID,
                                 GURL("view-cache:http://www.google.com/")));
   EXPECT_FALSE(p->CanRequestURL(kRendererID,
-                                GURL("chrome://foo/bar")));
+                                GURL("chrome-ui://foo/bar")));
 
   p->Remove(kRendererID);
 }
@@ -203,7 +203,7 @@ TEST_F(RendererSecurityPolicyTest, CanUploadFiles) {
 TEST_F(RendererSecurityPolicyTest, CanServiceInspectElement) {
   RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
 
-  GURL url("chrome://inspector/inspector.html");
+  GURL url("chrome-ui://inspector/inspector.html");
 
   p->Add(kRendererID);
 
@@ -217,7 +217,7 @@ TEST_F(RendererSecurityPolicyTest, CanServiceInspectElement) {
 TEST_F(RendererSecurityPolicyTest, CanServiceDOMUIBindings) {
   RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
 
-  GURL url("chrome://thumb/http://www.google.com/");
+  GURL url("chrome-ui://thumb/http://www.google.com/");
 
   p->Add(kRendererID);
 
