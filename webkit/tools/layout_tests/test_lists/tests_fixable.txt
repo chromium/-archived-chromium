@@ -1687,7 +1687,6 @@ LayoutTests/fast/js/numeric-conversion.html = FAIL
 LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
-WIN : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
 WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 WIN : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
