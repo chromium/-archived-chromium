@@ -50,10 +50,16 @@ static FilePath* g_ahem_path = NULL;
 
 }
 
+extern "C" {
+  extern gint moz_gtk_init();
+}
+
 // static
 void TestShell::InitializeTestShell(bool layout_test_mode) {
   window_list_ = new WindowList;
   layout_test_mode_ = layout_test_mode;
+
+  moz_gtk_init();
 
   web_prefs_ = new WebPreferences;
 
