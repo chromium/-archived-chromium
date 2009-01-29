@@ -70,30 +70,21 @@ class OpaqueNonClientView : public views::NonClientView,
   virtual SkBitmap GetFavIconForTabIconView();
 
  private:
-  // Returns the width of the border that makes up the window frame left and
-  // right edges.  This does not include any client edge.
-  int FrameBorderWidth() const;
-
-  // Returns the height of the border that makes up the window frame top edge.
-  // Because this border is graphically one component with the rest of the
-  // nonclient top border, this is rarely useful directly.
-  int FrameTopBorderHeight() const;
+  // Returns the thickness of the border that makes up the window frame edges.
+  // This does not include any client edge.
+  int FrameBorderThickness() const;
 
   // Returns the height of the top resize area.  This is smaller than the frame
   // border height in order to increase the window draggable area.
   int TopResizeHeight() const;
 
-  // Returns the width of the entire nonclient left and right borders, including
-  // both the window frame and any client edge.
-  int NonClientBorderWidth() const;
+  // Returns the thickness of the entire nonclient left, right, and bottom
+  // borders, including both the window frame and any client edge.
+  int NonClientBorderThickness() const;
 
   // Returns the height of the entire nonclient top border, including the window
   // frame, any title area, and any connected client edge.
   int NonClientTopBorderHeight() const;
-
-  // Returns the height of the entire nonclient bottom border, including both
-  // the window frame and the client edge.
-  int NonClientBottomBorderHeight() const;
 
   // For windows without a toolbar, a bottom border, and, in restored mode, a
   // client edge are drawn at the bottom of the titlebar.  When a toolbar is

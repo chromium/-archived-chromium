@@ -447,7 +447,7 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
     return HTSYSMENU;
 
   component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
-      kResizeAreaSize, kResizeAreaSize, kResizeAreaCornerSize,
+      kResizeAreaSize, kResizeAreaCornerSize,
       container_->window_delegate()->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.

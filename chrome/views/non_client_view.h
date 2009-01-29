@@ -80,8 +80,7 @@ class NonClientView : public View {
   // resized.
   int GetHTComponentForFrame(const gfx::Point& point,
                              int top_resize_border_height,
-                             int resize_border_width,
-                             int bottom_resize_border_height,
+                             int resize_border_thickness,
                              int resize_corner_size,
                              bool can_resize);
 

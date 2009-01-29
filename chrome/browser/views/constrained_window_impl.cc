@@ -375,8 +375,7 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
     return HTSYSMENU;
 
   component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
-      kResizeAreaSize, kResizeAreaSize, kResizeAreaCornerSize,
-      window_delegate_->CanResize());
+      kResizeAreaSize, kResizeAreaCornerSize, window_delegate_->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.
     if (bounds().Contains(point))

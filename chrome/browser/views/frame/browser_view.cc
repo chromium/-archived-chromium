@@ -46,6 +46,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_notification_source.h"
+#include "chrome/views/non_client_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 
@@ -64,10 +65,8 @@ static const int kToolbarTabStripVerticalOverlap = 3;
 static const int kTabShadowSize = 2;
 // The height of the status bubble.
 static const int kStatusBubbleHeight = 20;
-// The overlap of the status bubble with the left edge of the window.
-static const int kStatusBubbleHorizontalOverlap = 2;
-// The overlap of the status bubble with the bottom edge of the window.
-static const int kStatusBubbleVerticalOverlap = 2;
+// The overlap of the status bubble with the window frame.
+static const int kStatusBubbleOverlap = 1;
 // An offset distance between certain toolbars and the toolbar that preceded
 // them in layout.
 static const int kSeparationLineHeight = 1;
@@ -890,7 +889,6 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // might be a popup window without a TabStrip, or the TabStrip could be
   // animating.
   if (IsTabStripVisible() && tabstrip_->CanProcessInputEvents()) {
-    views::Window* window = frame_->GetWindow();
     gfx::Point point_in_view_coords(point);
     View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
 
@@ -906,7 +904,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
     // The top few pixels of the TabStrip are a drop-shadow - as we're pretty
     // starved of dragable area, let's give it to window dragging (this also
     // makes sense visually).
-    if (!window->IsMaximized() &&
+    if (!IsMaximized() &&
         (point_in_view_coords.y() < tabstrip_->y() + kTabShadowSize)) {
       // We return HTNOWHERE as this is a signal to our containing
       // NonClientView that it should figure out what the correct hit-test
@@ -1172,8 +1170,11 @@ int BrowserView::LayoutDownloadShelf() {
 }
 
 void BrowserView::LayoutStatusBubble(int top) {
-  gfx::Point origin(-kStatusBubbleHorizontalOverlap,
-                    top - kStatusBubbleHeight + kStatusBubbleVerticalOverlap);
+  // In restored mode, the client area has a client edge between it and the
+  // frame.
+  int overlap = kStatusBubbleOverlap +
+      (IsMaximized() ? 0 : views::NonClientView::kClientEdgeThickness);
+  gfx::Point origin(-overlap, top - kStatusBubbleHeight + overlap);
   ConvertPointToView(this, GetParent(), &origin);
   status_bubble_->SetBounds(origin.x(), origin.y(), width() / 3,
                             kStatusBubbleHeight);

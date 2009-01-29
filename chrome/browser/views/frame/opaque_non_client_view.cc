@@ -290,9 +290,6 @@ namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
 // each side regardless of the system window border size.
 const int kFrameBorderThickness = 4;
-// In maximized mode, where no frame border is otherwise visible, we draw a
-// different, 1 px high border along the bottom of the screen.
-const int kFrameBorderMaximizedExtraBottomThickness = 1;
 // Various edges of the frame border have a 1 px shadow along their edges; in a
 // few cases we shift elements based on this amount for visual appeal.
 const int kFrameShadowThickness = 1;
@@ -460,18 +457,17 @@ OpaqueNonClientView::~OpaqueNonClientView() {
 gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
     const gfx::Rect& client_bounds) {
   int top_height = NonClientTopBorderHeight();
-  int border_width = NonClientBorderWidth();
-  int window_x = std::max(0, client_bounds.x() - border_width);
-  int window_y = std::max(0, client_bounds.y() - top_height);
-  int window_w = client_bounds.width() + (2 * border_width);
-  int window_h =
-      client_bounds.height() + top_height + NonClientBottomBorderHeight();
-  return gfx::Rect(window_x, window_y, window_w, window_h);
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Rect(std::max(0, client_bounds.x() - border_thickness),
+                   std::max(0, client_bounds.y() - top_height),
+                   client_bounds.width() + (2 * border_thickness),
+                   client_bounds.height() + top_height + border_thickness);
 }
 
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
-      (otr_avatar_bounds_.right() + kOTRSideSpacing) : NonClientBorderWidth();
+      (otr_avatar_bounds_.right() + kOTRSideSpacing) :
+      NonClientBorderThickness();
   int tabstrip_width = minimize_button_->x() - tabstrip_x -
       (frame_->IsMaximized() ?
       kNewTabCaptionMaximizedSpacing : kNewTabCaptionRestoredSpacing);
@@ -490,17 +486,18 @@ void OpaqueNonClientView::UpdateWindowIcon() {
 gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
                                                          int height) const {
   int top_height = NonClientTopBorderHeight();
-  int border_width = NonClientBorderWidth();
-  return gfx::Rect(border_width, top_height,
-      std::max(0, width - (2 * border_width)),
-      std::max(0, height - top_height - NonClientBottomBorderHeight()));
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Rect(border_thickness, top_height,
+                   std::max(0, width - (2 * border_thickness)),
+                   std::max(0, height - top_height - border_thickness));
 }
 
 gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
-  return gfx::Size(width + (2 * NonClientBorderWidth()),
-      height + NonClientTopBorderHeight() + NonClientBottomBorderHeight());
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Size(width + (2 * border_thickness),
+                   height + NonClientTopBorderHeight() + border_thickness);
 }
 
 CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
@@ -534,9 +531,9 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
       window_icon_->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
     return HTSYSMENU;
 
-  int window_component = GetHTComponentForFrame(point,
-      TopResizeHeight(), NonClientBorderWidth(), NonClientBottomBorderHeight(),
-      kResizeAreaCornerSize, frame_->window_delegate()->CanResize());
+  int window_component = GetHTComponentForFrame(point, TopResizeHeight(),
+      NonClientBorderThickness(), kResizeAreaCornerSize,
+      frame_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return ((window_component == HTNOWHERE) && bounds().Contains(point)) ?
       HTCAPTION : window_component;
@@ -602,8 +599,9 @@ void OpaqueNonClientView::Layout() {
 
 gfx::Size OpaqueNonClientView::GetPreferredSize() {
   gfx::Size prefsize(frame_->client_view()->GetPreferredSize());
-  prefsize.Enlarge(2 * NonClientBorderWidth(),
-      NonClientTopBorderHeight() + NonClientBottomBorderHeight());
+  int border_thickness = NonClientBorderThickness();
+  prefsize.Enlarge(2 * border_thickness,
+                   NonClientTopBorderHeight() + border_thickness);
   return prefsize;
 }
 
@@ -692,23 +690,18 @@ SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, private:
 
-int OpaqueNonClientView::FrameBorderWidth() const {
+int OpaqueNonClientView::FrameBorderThickness() const {
   return frame_->IsMaximized() ?
       GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
 }
 
-int OpaqueNonClientView::FrameTopBorderHeight() const {
-  return frame_->IsMaximized() ?
-      GetSystemMetrics(SM_CYSIZEFRAME) : kFrameBorderThickness;
-}
-
 int OpaqueNonClientView::TopResizeHeight() const {
-  return FrameTopBorderHeight() - kTopResizeAdjust;
+  return FrameBorderThickness() - kTopResizeAdjust;
 }
 
-int OpaqueNonClientView::NonClientBorderWidth() const {
+int OpaqueNonClientView::NonClientBorderThickness() const {
   // In maximized mode, we don't show a client edge.
-  return FrameBorderWidth() +
+  return FrameBorderThickness() +
       (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
@@ -718,16 +711,8 @@ int OpaqueNonClientView::NonClientTopBorderHeight() const {
     return TitleCoordinates(&title_top_spacing, &title_thickness);
   }
 
-  return FrameTopBorderHeight() +
+  return FrameBorderThickness() +
       (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
-}
-
-int OpaqueNonClientView::NonClientBottomBorderHeight() const {
-  // In maximized mode, we don't show a client edge, but the frame border is
-  // extended slightly.
-  return frame_->IsMaximized() ? (GetSystemMetrics(SM_CYSIZEFRAME) +
-      kFrameBorderMaximizedExtraBottomThickness) :
-      (kFrameBorderThickness + kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {
@@ -739,9 +724,9 @@ int OpaqueNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {
 
 int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
                                           int* title_thickness) const {
-  int top_height = FrameTopBorderHeight();
-  int min_titlebar_height = kTitlebarMinimumHeight + top_height;
-  *title_top_spacing = top_height + kTitleTopSpacing;
+  int frame_thickness = FrameBorderThickness();
+  int min_titlebar_height = kTitlebarMinimumHeight + frame_thickness;
+  *title_top_spacing = frame_thickness + kTitleTopSpacing;
   // The bottom spacing should be the same apparent height as the top spacing.
   // Because the actual top spacing height varies based on the system border
   // thickness, we calculate this based on the restored top spacing and then
@@ -814,7 +799,7 @@ void OpaqueNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 
 void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
-  canvas->TileImageInt(*top_edge, 0, FrameTopBorderHeight(), width(),
+  canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
                        top_edge->height());
 
   if (!browser_view_->IsToolbarVisible()) {
@@ -825,13 +810,6 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
     canvas->TileImageInt(app_top_center_, 0,
         frame_->client_view()->y() - edge_height, width(), edge_height);
   }
-
-  SkBitmap* bottom_edge = resources()->GetPartBitmap(FRAME_BOTTOM_EDGE);
-  // We draw the bottom edge of this image.
-  canvas->TileImageInt(*bottom_edge, 0,
-      bottom_edge->height() - kFrameBorderMaximizedExtraBottomThickness, 0,
-      height() - NonClientBottomBorderHeight(), width(),
-      kFrameBorderMaximizedExtraBottomThickness);
 }
 
 void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
@@ -936,7 +914,7 @@ void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   }
 
   int client_area_bottom =
-      std::max(client_area_top, height() - NonClientBottomBorderHeight());
+      std::max(client_area_top, height() - NonClientBorderThickness());
   int client_area_height = client_area_bottom - client_area_top;
   SkBitmap* right = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_RIGHT);
   canvas->TileImageInt(*right, client_area_bounds.right(), client_area_top,
@@ -967,15 +945,16 @@ void OpaqueNonClientView::LayoutWindowControls() {
   // Maximized buttons start at window top so that even if their images aren't
   // drawn flush with the screen edge, they still obey Fitts' Law.
   bool is_maximized = frame_->IsMaximized();
-  int caption_y = is_maximized ? FrameTopBorderHeight() : kCaptionTopSpacing;
+  int frame_thickness = FrameBorderThickness();
+  int caption_y = is_maximized ? frame_thickness : kCaptionTopSpacing;
   int top_extra_height = is_maximized ? kCaptionTopSpacing : 0;
   // There should always be the same number of non-shadow pixels visible to the
   // side of the caption buttons.  In maximized mode we extend the rightmost
   // button to the screen corner to obey Fitts' Law.
   int right_extra_width = is_maximized ?
       (kFrameBorderThickness - kFrameShadowThickness) : 0;
-  int right_spacing = is_maximized ? (GetSystemMetrics(SM_CXSIZEFRAME) +
-      right_extra_width) : FrameBorderWidth();
+  int right_spacing = is_maximized ?
+      (GetSystemMetrics(SM_CXSIZEFRAME) + right_extra_width) : frame_thickness;
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   close_button_->SetBounds(width() - close_button_size.width() - right_spacing,
                            caption_y,
@@ -1021,14 +1000,14 @@ void OpaqueNonClientView::LayoutDistributorLogo() {
 void OpaqueNonClientView::LayoutTitleBar() {
   // Always lay out the icon, even when it's not present, so we can lay out the
   // window title based on its position.
-  int icon_x = FrameBorderWidth() + kIconLeftSpacing;
+  int frame_thickness = FrameBorderThickness();
+  int icon_x = frame_thickness + kIconLeftSpacing;
 
   // The usable height of the titlebar area is the total height minus the top
   // resize border and any edge area we draw at its bottom.
   int title_top_spacing, title_thickness;
   int top_height = TitleCoordinates(&title_top_spacing, &title_thickness);
-  int top_border_height = FrameTopBorderHeight();
-  int available_height = top_height - top_border_height -
+  int available_height = top_height - frame_thickness -
       BottomEdgeThicknessWithinNonClientHeight();
 
   // The icon takes up a constant fraction of the available height, down to a
@@ -1036,7 +1015,7 @@ void OpaqueNonClientView::LayoutTitleBar() {
   // to make scaled icons look better).  It's centered within the usable height.
   int icon_size = std::max((available_height * kIconHeightFractionNumerator /
       kIconHeightFractionDenominator) / 2 * 2, kIconMinimumSize);
-  int icon_y = ((available_height - icon_size) / 2) + top_border_height;
+  int icon_y = ((available_height - icon_size) / 2) + frame_thickness;
 
   // Hack: Our frame border has a different "3D look" than Windows'.  Theirs has
   // a more complex gradient on the top that they push their icon/title below;
@@ -1070,12 +1049,11 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   int top_height = NonClientTopBorderHeight();
   int tabstrip_height = browser_view_->GetTabStripHeight() - kOTRBottomSpacing;
-  int otr_bottom = top_height + tabstrip_height;
   int otr_height = frame_->IsMaximized() ?
       (tabstrip_height - kOTRMaximizedTopSpacing) :
       otr_avatar_icon.height();
-  int otr_y = otr_bottom - otr_height;
-  otr_avatar_bounds_.SetRect(NonClientBorderWidth() + kOTRSideSpacing, otr_y,
+  otr_avatar_bounds_.SetRect(NonClientBorderThickness() + kOTRSideSpacing,
+                             top_height + tabstrip_height - otr_height,
                              otr_avatar_icon.width(), otr_height);
 }
 
