@@ -1713,6 +1713,9 @@ LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
 LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
 
+// Radial gradient on text not rendered.
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
+
 // This never worked on Linux, but were in the past incorrectly rebaselined.
 // Text pattern fills/strokes not working.
 LINUX : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
