@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/scoped_host_mapper.h"
+#include "base/ref_counted.h"
+#include "net/base/host_resolver_unittest.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_transaction_unittest.h"
 #include "net/proxy/proxy_service.h"
@@ -11,13 +12,17 @@
 
 class HttpNetworkLayerTest : public PlatformTest {
  public:
-  HttpNetworkLayerTest() {
+  HttpNetworkLayerTest()
+      : host_mapper_(new net::RuleBasedHostMapper()),
+        scoped_host_mapper_(host_mapper_.get()) {
     // TODO(darin): kill this exception once we have a way to test out the
     // HttpNetworkLayer class using loopback connections.
-    host_mapper_.AddRule("www.google.com", "www.google.com");
+    host_mapper_->AddRule("www.google.com", "www.google.com");
   }
+
  private:
-  net::ScopedHostMapper host_mapper_;
+  scoped_refptr<net::RuleBasedHostMapper> host_mapper_;
+  net::ScopedHostMapper scoped_host_mapper_;
 };
 
 TEST_F(HttpNetworkLayerTest, CreateAndDestroy) {

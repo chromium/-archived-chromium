@@ -444,6 +444,8 @@
 		533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_posix.cc; sourceTree = "<group>"; };
 		7B2630600E82F282001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
 		7B82FF450E763620008F45CF /* host_resolver_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = host_resolver_unittest.cc; sourceTree = "<group>"; };
+		7BA3615D0E8C35A50023C8B9 /* host_resolver_unittest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = host_resolver_unittest.h; sourceTree = "<group>"; };
+		7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter.cc; sourceTree = "<group>"; };
 		7B8501F10E5A372500730B43 /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		7B8502620E5A38BB00730B43 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
 		7BA015570E5A1C3E00044150 /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/icu.xcodeproj; sourceTree = "<group>"; };
@@ -452,8 +454,6 @@
 		7BA016930E5A1E8700044150 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		7BA357A60E8990260023C8B9 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		7BA361440E8C341F0023C8B9 /* test_completion_callback_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_completion_callback_unittest.cc; sourceTree = "<group>"; };
-		7BA3615D0E8C35A50023C8B9 /* scoped_host_mapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_host_mapper.h; sourceTree = "<group>"; };
-		7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter.cc; sourceTree = "<group>"; };
 		7BA3615F0E8C35A50023C8B9 /* sdch_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdch_filter.h; sourceTree = "<group>"; };
 		7BA361600E8C35A50023C8B9 /* sdch_filter_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter_unittest.cc; sourceTree = "<group>"; };
 		7BA361EB0E8C38C60023C8B9 /* http_version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_version.h; sourceTree = "<group>"; };
@@ -939,6 +939,7 @@
 				7BED32B50E5A181C00A747DB /* host_resolver.cc */,
 				7BED32B40E5A181C00A747DB /* host_resolver.h */,
 				7B82FF450E763620008F45CF /* host_resolver_unittest.cc */,
+				7BA3615D0E8C35A50023C8B9 /* host_resolver_unittest.h */,
 				7BED32B30E5A181C00A747DB /* listen_socket.cc */,
 				7BED32B20E5A181C00A747DB /* listen_socket.h */,
 				7BED32B10E5A181C00A747DB /* listen_socket_unittest.cc */,
@@ -967,7 +968,6 @@
 				7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */,
 				7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */,
 				E4AFA6420E5241B400201347 /* run_all_unittests.cc */,
-				7BA3615D0E8C35A50023C8B9 /* scoped_host_mapper.h */,
 				7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */,
 				7BA3615F0E8C35A50023C8B9 /* sdch_filter.h */,
 				7BA361600E8C35A50023C8B9 /* sdch_filter_unittest.cc */,

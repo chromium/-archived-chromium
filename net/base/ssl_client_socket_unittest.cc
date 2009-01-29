@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/ref_counted.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
+#include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
-#include "net/base/scoped_host_mapper.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
 #include "net/base/tcp_client_socket.h"
@@ -21,14 +22,17 @@ const net::SSLConfig kDefaultSSLConfig;
 class SSLClientSocketTest : public PlatformTest {
  public:
   SSLClientSocketTest()
-      : socket_factory_(net::ClientSocketFactory::GetDefaultFactory()) {
+      : host_mapper_(new net::RuleBasedHostMapper()),
+        scoped_host_mapper_(host_mapper_.get()),
+        socket_factory_(net::ClientSocketFactory::GetDefaultFactory()) {
     // TODO(darin): kill this exception once we have a way to test out the
     // TCPClientSocket class using loopback connections.
-    host_mapper_.AddRule("bugs.webkit.org", "bugs.webkit.org");
+    host_mapper_->AddRule("bugs.webkit.org", "bugs.webkit.org");
   }
- 
+
  protected:
-  net::ScopedHostMapper host_mapper_;
+  scoped_refptr<net::RuleBasedHostMapper> host_mapper_;
+  net::ScopedHostMapper scoped_host_mapper_;
   net::ClientSocketFactory* socket_factory_;
 };
 

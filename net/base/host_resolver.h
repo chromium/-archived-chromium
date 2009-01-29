@@ -57,10 +57,24 @@ class HostResolver {
 
 // A helper class used in unit tests to alter hostname mappings.  See
 // SetHostMapper for details.
-class HostMapper {
+class HostMapper : public base::RefCountedThreadSafe<HostMapper> {
  public:
   virtual ~HostMapper() {}
   virtual std::string Map(const std::string& host) = 0;
+
+ protected:
+  // Ask previous host mapper (if set) for mapping of given host.
+  std::string MapUsingPrevious(const std::string& host);
+
+ private:
+  friend class ScopedHostMapper;
+
+  // Set mapper to ask when this mapper doesn't want to modify the result.
+  void set_previous_mapper(HostMapper* mapper) {
+    previous_mapper_ = mapper;
+  }
+
+  scoped_refptr<HostMapper> previous_mapper_;
 };
 
 #ifdef UNIT_TEST
