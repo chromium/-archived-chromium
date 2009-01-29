@@ -921,7 +921,6 @@ LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
 // Depends on plugin support.
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
-MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 LINUX MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 LINUX MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
@@ -939,7 +938,7 @@ LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement07.html = FAIL
 LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement08.html = FAIL
 LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement09.html = FAIL
 LINUX MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
-LINUX MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
+LINUX : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/get-url.html = TIMEOUT
 // Skip because we throw an exception before we get to dumpAsText.
@@ -1424,6 +1423,10 @@ MAC : LayoutTests/svg/hixie/perf/007.xml = FAIL PASS
 // To be figured out, probably timing due to the dual status
 MAC : LayoutTests/animations/combo-transform-translate+scale.html = PASS FAIL
 MAC : LayoutTests/animations/change-one-anim.html = FAIL PASS
+
+// Fails due to a log message now that some, but not all plugin code is hooked
+// up (w/o the code, the log wasn't generated, and this passed).
+MAC : LayoutTests/fast/dom/object-plugin-hides-properties.html = FAIL
 
 // All of these svg tests seem to be hit or miss on the mac.  the issue is they
 // seem not always take the dom snapshot at a consistent state, so some times
