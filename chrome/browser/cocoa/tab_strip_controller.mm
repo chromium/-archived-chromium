@@ -5,7 +5,7 @@
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 
 #import "chrome/app/chrome_dll_resource.h"
-#import "chrome/browser/cocoa/tab_bar_view.h"
+#import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
@@ -52,7 +52,7 @@ class TabStripBridge : public TabStripModelObserver {
 
 @implementation TabStripController
 
-- (id)initWithView:(TabBarView*)view model:(TabStripModel*)model {
+- (id)initWithView:(TabStripView*)view model:(TabStripModel*)model {
   DCHECK(view && model);
   if ((self = [super init])) {
     tabView_ = view;
@@ -66,6 +66,7 @@ class TabStripBridge : public TabStripModelObserver {
     NSRect frame = NSMakeRect(0, 0, [image size].width, [image size].height);
     newTabButton_ = [[NSButton alloc] initWithFrame:frame];
     [newTabButton_ setImage:image];
+    [newTabButton_ setImagePosition:NSImageOnly];
     [newTabButton_ setTarget:nil];
     [newTabButton_ setAction:@selector(commandDispatch:)];
     [newTabButton_ setTag:IDC_NEW_TAB];

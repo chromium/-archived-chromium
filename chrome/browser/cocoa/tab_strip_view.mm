@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/cocoa/tab_bar_view.h"
+#include "chrome/browser/cocoa/tab_strip_view.h"
 
-@implementation TabBarView
+@implementation TabStripView
 
 - (id)initWithFrame:(NSRect)frame {
   self = [super initWithFrame:frame];

@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class TabBarView;
+@class TabStripView;
 class TabStripBridge;
 class TabStripModel;
 
@@ -23,7 +23,7 @@ class TabStripModel;
 
 @interface TabStripController : NSObject {
  @private
-  TabBarView* tabView_;  // weak
+  TabStripView* tabView_;  // weak
   NSButton* newTabButton_;
   TabStripBridge* bridge_;
   TabStripModel* model_;
@@ -33,7 +33,7 @@ class TabStripModel;
 }
 
 // Initialize the controller with a view and model. Both must be non-nil.
-- (id)initWithView:(TabBarView*)view model:(TabStripModel*)model;
+- (id)initWithView:(TabStripView*)view model:(TabStripModel*)model;
 
 @end
 
