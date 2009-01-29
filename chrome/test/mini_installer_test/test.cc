@@ -23,17 +23,17 @@ class MiniInstallTest : public testing::Test {
   };
 };
 
-TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeMetaInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.OverInstall();
 }
 
-TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall);
   installer.InstallMiniInstaller();
 }
 
-TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.InstallMiniInstaller();
 }
