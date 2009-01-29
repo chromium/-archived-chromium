@@ -32,7 +32,6 @@ class NonThreadSafe {
   NonThreadSafe();
   ~NonThreadSafe();
 
- protected:
   bool CalledOnValidThread() const;
 
  private:
@@ -45,7 +44,6 @@ class NonThreadSafe {
   NonThreadSafe() {}
   ~NonThreadSafe() {}
 
- protected:
   bool CalledOnValidThread() const {
     return true;
   }

@@ -12,6 +12,8 @@
 
 #include "base/message_loop.h"
 
+class NonThreadSafe;
+
 namespace IPC {
 
 class Channel::ChannelImpl : public MessageLoopForIO::IOHandler {
@@ -72,6 +74,8 @@ class Channel::ChannelImpl : public MessageLoopForIO::IOHandler {
   bool processing_incoming_;
 
   ScopedRunnableMethodFactory<ChannelImpl> factory_;
+
+  scoped_ptr<NonThreadSafe> thread_check_;
 
   DISALLOW_COPY_AND_ASSIGN(ChannelImpl);
 };

@@ -9,6 +9,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
+#include "base/non_thread_safe.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/ipc_logging.h"
@@ -46,6 +47,10 @@ Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
 }
 
 void Channel::ChannelImpl::Close() {
+  if (thread_check_.get()) {
+    DCHECK(thread_check_->CalledOnValidThread());
+  }
+
   bool waited = false;
   if (input_state_.is_pending || output_state_.is_pending) {
     CancelIo(pipe_);
@@ -77,6 +82,7 @@ void Channel::ChannelImpl::Close() {
 }
 
 bool Channel::ChannelImpl::Send(Message* message) {
+  DCHECK(thread_check_->CalledOnValidThread());
   chrome::Counters::ipc_send_counter().Increment();
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
   DLOG(INFO) << "sending message @" << message << " on channel @" << this
@@ -167,6 +173,9 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
 bool Channel::ChannelImpl::Connect() {
   DLOG(WARNING) << "Connect called twice";
 
+  if (!thread_check_.get())
+    thread_check_.reset(new NonThreadSafe());
+
   if (pipe_ == INVALID_HANDLE_VALUE)
     return false;
 
@@ -190,6 +199,7 @@ bool Channel::ChannelImpl::Connect() {
 }
 
 bool Channel::ChannelImpl::ProcessConnection() {
+  DCHECK(thread_check_->CalledOnValidThread());
   if (input_state_.is_pending)
     input_state_.is_pending = false;
 
@@ -225,6 +235,7 @@ bool Channel::ChannelImpl::ProcessConnection() {
 bool Channel::ChannelImpl::ProcessIncomingMessages(
     MessageLoopForIO::IOContext* context,
     DWORD bytes_read) {
+  DCHECK(thread_check_->CalledOnValidThread());
   if (input_state_.is_pending) {
     input_state_.is_pending = false;
     DCHECK(context);
@@ -313,6 +324,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages(
     DWORD bytes_written) {
   DCHECK(!waiting_connect_);  // Why are we trying to send messages if there's
                               // no connection?
+  DCHECK(thread_check_->CalledOnValidThread());
 
   if (output_state_.is_pending) {
     DCHECK(context);
@@ -370,6 +382,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages(
 void Channel::ChannelImpl::OnIOCompleted(MessageLoopForIO::IOContext* context,
                             DWORD bytes_transfered, DWORD error) {
   bool ok;
+  DCHECK(thread_check_->CalledOnValidThread());
   if (context == &input_state_.context) {
     if (waiting_connect_) {
       if (!ProcessConnection())
