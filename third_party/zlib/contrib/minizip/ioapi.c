@@ -10,7 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "zlib.h"
+/* NOTE(erikkay): this modification was needed to avoid picking up the system
+   version of zlib.h on the Mac */
+#include "third_party/zlib/zlib.h"
 #include "ioapi.h"
 
 
