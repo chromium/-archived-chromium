@@ -548,7 +548,6 @@ if ARGUMENTS.get('SHARED') == '1':
   linux_env.FilterOut(
       BUILD_SCONSCRIPTS = [
           '$CHROME_DIR/chrome.scons',
-          '$MEDIA_DIR/media.scons',
       ]
   )
 
