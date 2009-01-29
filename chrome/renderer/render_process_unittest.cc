@@ -7,29 +7,28 @@
 #include "chrome/renderer/render_process.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+namespace {
 
 class RenderProcessTest : public testing::Test {
  public:
   virtual void SetUp() {
-    // Must have a message loop to create a RenderThread()
-    message_loop_ = new MessageLoop(MessageLoop::TYPE_DEFAULT);
+    RenderProcess::GlobalInit(L"render_process_unittest");
   }
 
   virtual void TearDown() {
-    delete message_loop_;
+    RenderProcess::GlobalCleanup();
   }
 
- private:
-  MessageLoop *message_loop_;
+  private:
+   MessageLoopForIO message_loop_;
 };
 
 
 TEST_F(RenderProcessTest, TestSharedMemoryAllocOne) {
-  RenderProcess::GlobalInit(ASCIIToWide("hi mom"));
   size_t size = base::SysInfo::VMAllocationGranularity();
   base::SharedMemory* mem = RenderProcess::AllocSharedMemory(size);
   ASSERT_TRUE(mem);
   RenderProcess::FreeSharedMemory(mem);
-  RenderProcess::GlobalCleanup();
 }
 
+}  // namespace
