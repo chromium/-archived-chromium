@@ -59,16 +59,24 @@ class HTMLDialog {
 HTMLDialog* CreateNativeHTMLDialog(const std::wstring& url);
 
 // This class leverages HTMLDialog to create a dialog that is suitable
-// for a end-user-agreement modal dialog.
+// for a end-user-agreement modal dialog. The html shows a fairly standard
+// EULA form with the accept and cancel buttons and an optional check box
+// to opt-in for sending usage stats and crash reports.
 class EulaHTMLDialog {
  public:
-  // |file| points to an html file on disk.
+  // |file| points to an html file on disk or to a resource via res:// spec.
   explicit EulaHTMLDialog(const std::wstring& file);
   ~EulaHTMLDialog();
 
-  // Shows the dialog and blocks for user input. The return value is true if
-  // the user accepted and false otherwise.
-  bool ShowModal();
+  enum Outcome {
+    REJECTED,           // Declined EULA, mapped from HTML_DLG_ACCEPT (1).
+    ACCEPTED,           // Accepted EULA no opt-in, from HTML_DLG_DECLINE (2).
+    ACCEPTED_OPT_IN,    // Accepted EULA and opt-in, from HTML_DLG_EXTRA (6).
+  };
+
+  // Shows the dialog and blocks for user input. The return value is one of
+  // the |Outcome| values and any form of failure maps to REJECTED.
+  Outcome ShowModal();
 
  private:
   class Customizer : public HTMLDialog::CustomizationCallback {

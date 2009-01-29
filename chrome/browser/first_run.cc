@@ -34,6 +34,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/master_preferences.h"
 #include "chrome/installer/util/shell_util.h"
@@ -213,9 +214,13 @@ bool FirstRun::ProcessMasterPreferences(
     // dismisses the dialog.
     int retcode = 0;
     if (!LaunchSetupWithParam(installer_util::switches::kShowEula, &retcode) || 
-        (retcode != installer_util::EULA_ACCEPTED)) {
+        (retcode == installer_util::EULA_REJECTED)) {
       LOG(WARNING) << "EULA rejected. Fast exit.";
       ::ExitProcess(1);
+    }
+    if (retcode == installer_util::EULA_ACCEPTED_OPT_IN) {
+      LOG(INFO) << "EULA : collection consent";
+      GoogleUpdateSettings::SetCollectStatsConsent(true);
     }
   }
 

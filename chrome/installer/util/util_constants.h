@@ -35,7 +35,8 @@ enum InstallStatus {
   RENAME_SUCCESSFUL,     // Rename of new_chrome.exe to chrome.exe worked
   RENAME_FAILED,         // Rename of new_chrome.exe failed
   EULA_REJECTED,         // EULA dialog was not accepted by user.
-  EULA_ACCEPTED          // EULA dialog was accepted by user.
+  EULA_ACCEPTED,         // EULA dialog was accepted by user.
+  EULA_ACCEPTED_OPT_IN   // EULA accepted wtih the crash optin selected.
 };
 
 // These are distibution related install options specified through command

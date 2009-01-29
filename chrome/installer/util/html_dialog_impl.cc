@@ -171,10 +171,15 @@ EulaHTMLDialog::~EulaHTMLDialog() {
   delete dialog_;
 }
 
-bool EulaHTMLDialog::ShowModal() {
+EulaHTMLDialog::Outcome EulaHTMLDialog::ShowModal() {
   Customizer customizer;
   HTMLDialog::DialogResult dr = dialog_->ShowModal(NULL, &customizer);
-  return (HTMLDialog::HTML_DLG_ACCEPT == dr || HTMLDialog::HTML_DLG_EXTRA == dr);
+  if (HTMLDialog::HTML_DLG_ACCEPT == dr)
+    return EulaHTMLDialog::ACCEPTED;
+  else if (HTMLDialog::HTML_DLG_EXTRA == dr)
+    return EulaHTMLDialog::ACCEPTED_OPT_IN;
+  else
+    return EulaHTMLDialog::REJECTED;
 }
 
 }  // namespace installer

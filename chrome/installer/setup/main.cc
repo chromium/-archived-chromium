@@ -444,19 +444,25 @@ installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
                                           *version, remove_all, force);
 }
 
-bool ShowEULADialog() {
+installer_util::InstallStatus ShowEULADialog() {
   LOG(INFO) << "About to show EULA";
   std::wstring eula_path = installer_util::GetLocalizedEulaResource();
   if (eula_path.empty()) {
     LOG(ERROR) << "No EULA path available";
-    return false;
+    return installer_util::EULA_REJECTED;
   }
   installer::EulaHTMLDialog dlg(eula_path);
-  if (!dlg.ShowModal()) {
+  installer::EulaHTMLDialog::Outcome outcome = dlg.ShowModal();
+  if (installer::EulaHTMLDialog::REJECTED == outcome) {
     LOG(ERROR) << "EULA rejected or EULA failure";
-    return false;
+    return installer_util::EULA_REJECTED;
   }
-  return true;
+  if (installer::EulaHTMLDialog::ACCEPTED_OPT_IN == outcome) {
+    LOG(INFO) << "EULA accepted (opt-in)";
+    return installer_util::EULA_ACCEPTED_OPT_IN;
+  }
+  LOG(INFO) << "EULA accepted (no opt-in)";
+  return installer_util::EULA_ACCEPTED;
 }
 
 }  // namespace
@@ -494,17 +500,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     return installer_util::OS_ERROR;
   }
 
-  // Check if we need to show the EULA. There are two cases:
-  // 1- If it is passed as a command line (--show-eula), then the dialog is
-  //    shown and regardless of the outcome setup exits here.
-  // 2- If it is found in the installerdata file then the EULA is shown
-  //    and the installation proceeds if the user accepts.
+  // Check if we need to show the EULA. If it is passed as a command line
+  // then the dialog is shown and regardless of the outcome setup exits here.
   if (parsed_command_line.HasSwitch(installer_util::switches::kShowEula)) {
-    return (ShowEULADialog() ?
-        installer_util::EULA_ACCEPTED : installer_util::EULA_REJECTED);
-  } else if (installer_util::SHOW_EULA_DIALOG & options) {
-    if (!ShowEULADialog())
-      return installer_util::EULA_REJECTED;
+    return ShowEULADialog();
   }
 
   // If --register-chrome-browser option is specified, register all
