@@ -4,7 +4,6 @@
 
 #include "net/base/x509_certificate.h"
 
-#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/pickle.h"
 #include "base/string_tokenizer.h"
@@ -20,23 +19,6 @@ using base::Time;
 namespace net {
 
 namespace {
-
-// Calculates the SHA-1 fingerprint of the certificate.  Returns an empty
-// (all zero) fingerprint on failure.
-X509Certificate::Fingerprint CalculateFingerprint(PCCERT_CONTEXT cert) {
-  DCHECK(NULL != cert->pbCertEncoded);
-  DCHECK(0 != cert->cbCertEncoded);
-
-  BOOL rv;
-  X509Certificate::Fingerprint sha1;
-  DWORD sha1_size = sizeof(sha1.data);
-  rv = CryptHashCertificate(NULL, CALG_SHA1, 0, cert->pbCertEncoded,
-                            cert->cbCertEncoded, sha1.data, &sha1_size);
-  DCHECK(rv && sha1_size == sizeof(sha1.data));
-  if (!rv)
-    memset(sha1.data, 0, sizeof(sha1.data));
-  return sha1;
-}
 
 // Wrappers of malloc and free for CRYPT_DECODE_PARA, which requires the
 // WINAPI calling convention.
@@ -255,39 +237,6 @@ void X509Certificate::Initialize() {
 }
 
 // static
-X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
-  DCHECK(cert_handle);
-
-  // Check if we already have this certificate in memory.
-  X509Certificate::Cache* cache = X509Certificate::Cache::GetInstance();
-  X509Certificate* cert = cache->Find(CalculateFingerprint(cert_handle));
-  if (cert) {
-    // We've found a certificate with the same fingerprint in our cache.  We own
-    // the |cert_handle|, which makes it our job to free it.
-    CertFreeCertificateContext(cert_handle);
-    DHISTOGRAM_COUNTS(L"X509CertificateReuseCount", 1);
-    return cert;
-  }
-  // Otherwise, allocate a new object.
-  return new X509Certificate(cert_handle);
-}
-
-// static
-X509Certificate* X509Certificate::CreateFromBytes(const char* data,
-                                                  int length) {
-  OSCertHandle cert_handle = NULL;
-  if (!CertAddEncodedCertificateToStore(
-      NULL,  // the cert won't be persisted in any cert store
-      X509_ASN_ENCODING,
-      reinterpret_cast<const BYTE*>(data), length,
-      CERT_STORE_ADD_USE_EXISTING,
-      &cert_handle))
-    return NULL;
-
-  return CreateFromHandle(cert_handle);
-}
-
-// static
 X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
                                                    void** pickle_iter) {
   const char* data;
@@ -303,22 +252,7 @@ X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
       NULL, reinterpret_cast<const void **>(&cert_handle)))
     return NULL;
 
-  return CreateFromHandle(cert_handle);
-}
-
-X509Certificate::X509Certificate(OSCertHandle cert_handle)
-    : cert_handle_(cert_handle) {
-  Initialize();
-}
-
-X509Certificate::X509Certificate(std::string subject, std::string issuer,
-                                 Time start_date, Time expiration_date)
-    : subject_(subject),
-      issuer_(issuer),
-      valid_start_(start_date),
-      valid_expiry_(expiration_date),
-      cert_handle_(NULL) {
-  memset(fingerprint_.data, 0, sizeof(fingerprint_.data));
+  return CreateFromHandle(cert_handle, SOURCE_LONE_CERT_IMPORT);
 }
 
 void X509Certificate::Persist(Pickle* pickle) {
@@ -335,13 +269,6 @@ void X509Certificate::Persist(Pickle* pickle) {
     length = 0;
   }
   pickle->TrimWriteData(length);
-}
-
-X509Certificate::~X509Certificate() {
-  // We might not be in the cache, but it is safe to remove ourselves anyway.
-  X509Certificate::Cache::GetInstance()->Remove(this);
-  if (cert_handle_)
-    CertFreeCertificateContext(cert_handle_);
 }
 
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
@@ -406,7 +333,7 @@ bool X509Certificate::IsEV(int cert_status) const {
 
   // Look up the EV policy OID of the root CA.
   PCCERT_CONTEXT root_cert = element[num_elements - 1]->pCertContext;
-  X509Certificate::Fingerprint fingerprint = CalculateFingerprint(root_cert);
+  Fingerprint fingerprint = CalculateFingerprint(root_cert);
   std::string ev_policy_oid;
   if (!metadata->GetPolicyOID(fingerprint, &ev_policy_oid))
     return false;
@@ -420,6 +347,43 @@ bool X509Certificate::IsEV(int cert_status) const {
     return false;
 
   return ContainsPolicy(policies_info.get(), ev_policy_oid.c_str());
+}
+
+// static
+X509Certificate::OSCertHandle X509Certificate::CreateOSCertHandleFromBytes(
+    const char* data, int length) {
+  OSCertHandle cert_handle = NULL;
+  if (!CertAddEncodedCertificateToStore(
+      NULL,  // the cert won't be persisted in any cert store
+      X509_ASN_ENCODING,
+      reinterpret_cast<const BYTE*>(data), length,
+      CERT_STORE_ADD_USE_EXISTING,
+      &cert_handle))
+    return NULL;
+
+  return cert_handle;
+}
+
+// static
+void X509Certificate::FreeOSCertHandle(OSCertHandle cert_handle) {
+  CertFreeCertificateContext(cert_handle);
+}
+
+// static
+X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
+    OSCertHandle cert) {
+  DCHECK(NULL != cert->pbCertEncoded);
+  DCHECK(0 != cert->cbCertEncoded);
+
+  BOOL rv;
+  Fingerprint sha1;
+  DWORD sha1_size = sizeof(sha1.data);
+  rv = CryptHashCertificate(NULL, CALG_SHA1, 0, cert->pbCertEncoded,
+                            cert->cbCertEncoded, sha1.data, &sha1_size);
+  DCHECK(rv && sha1_size == sizeof(sha1.data));
+  if (!rv)
+    memset(sha1.data, 0, sizeof(sha1.data));
+  return sha1;
 }
 
 }  // namespace net
