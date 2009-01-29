@@ -404,7 +404,7 @@ DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
 DEFER LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
+DEFER LINUX : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
 
 // This test fails because of an oddity in stroke width calculation. A
 // line is stroked horizontally from Y=100 with stroke width 100, we consider
@@ -511,9 +511,9 @@ LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
 LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
 LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
+LINUX : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
+LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
+LINUX : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
 LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
@@ -608,18 +608,11 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRA
 // alpha in bottom group.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
 
-// 2008/12/15 These fail the pixel tests.  The pixel tests regressed
-// while the tests were marked FAIL for text diff reasons, which are
-// now fixed.  They are already rebaselined compared to the webkit
-// standard, and are now off by a small number of pixels from the
-// platform rebaseline, so they could probably just be re-rebaselined.
-WIN : LayoutTests/svg/custom/js-update-container2.svg = FAIL
-
 // Same as above, but only regressed on win.
 WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 
-// The pattern we generate is wrong.
-LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
+// The borders are drawn a bit thick compared to the baseline. Linux too shoud be rebaselines.
+LINUX : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 
 // Background SVGs fail upstream but were rebaselined to pass (r38335)
 // https://bugs.webkit.org/show_bug.cgi?id=21910
