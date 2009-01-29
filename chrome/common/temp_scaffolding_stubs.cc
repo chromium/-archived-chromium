@@ -8,6 +8,7 @@
 #include "base/thread.h"
 #include "base/path_service.h"
 #include "base/singleton.h"
+#include "build/build_config.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
@@ -231,10 +232,18 @@ bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
   return false;
 }
 
+#if defined(OS_MACOSX)
 // We link this in for now to avoid hauling in all of WebCore (which we will
 // have to eventually do)
 namespace webkit_glue {
 std::string GetUserAgent(const GURL& url) {
   return "";
 }
+#endif
+
+#if defined(OS_LINUX)
+BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
+  NOTIMPLEMENTED() << "CreateBrowserWindow";
+  return NULL;
 }
+#endif

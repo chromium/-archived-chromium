@@ -277,13 +277,19 @@ if env.Bit('posix'):
     'event_recorder.cc',
     'file_version_info.cc',
 
-    # We have an implementation of idle_timer, but it's unclear if we want it
-    # yet, so it's commented out for now.  Leave this 'unported'.
+    # We have an implementation of idle_timer that depends on XScreenSaver,
+    # but it's unclear if we want it yet, so it's commented out for now.
+    # Leave this 'unported'.
     'idle_timer.cc',
 
     'object_watcher.cc',
 
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
+  )
+
+  input_files.Append(
+    # See above note about idle_timer.cc.
+    'idle_timer_none.cc',
   )
 
 if not env.Bit('windows'):

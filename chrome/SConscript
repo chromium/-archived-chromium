@@ -143,14 +143,6 @@ env_dll.Prepend(
         'CHROME_PNG_WRITE_SUPPORT',
         'LIBXSLT_STATIC',
         'LIBXML_STATIC',
-        '_WINDLL',
-        'BROWSER_DLL',
-        'RENDERER_DLL',
-        'PLUGIN_DLL',
-    ],
-    CCFLAGS = [
-        '/TP',
-        '/Wp64',
     ],
 )
 
@@ -182,7 +174,6 @@ env_dll.Append(
         'modp_b64',
         'zlib',
 
-        'activex_shim',
         'WTF',
         'V8Bindings',
         'WebCore',
@@ -196,12 +187,10 @@ env_dll.Append(
         'debugger',
         'common',
         'util',
-        #'jscre',
         'plugin',
         'renderer',
         'hunspell',
-        # TODO(sgk):  Windows doesn't use libevent, revisit when Linux gets here
-        #'libevent',
+        'sdch',
         'sqlite',
         'views',
         'v8_snapshot',
@@ -210,9 +199,19 @@ env_dll.Append(
 
 if env_dll.Bit('windows'):
   env_dll.Append(
+      CCFLAGS = [
+          '/TP',
+          '/Wp64',
+      ],
+      CPPDEFINES = [
+          '_WINDLL',
+          'CHROME_DLL',
+          'BROWSER_DLL',
+          'RENDERER_DLL',
+          'PLUGIN_DLL',
+      ],
       LIBS = [
-          # TODO(sgk):  to be ported to Mac and Linux
-          'sdch',
+          'activex_shim',
 
           #'comctl32.lib',
           #'dwmapi.lib',
@@ -288,7 +287,6 @@ input_files = ChromeFileList([
     'app/chrome_dll_main.cc',
 ])
 
-# TODO(port)
 if env_dll.Bit('windows'):
   additional = [
       '$V8_DIR/snapshot-empty$OBJSUFFIX'
@@ -324,6 +322,20 @@ if env_dll.Bit('windows'):
 
   install_targets.extend(chrome_dll_version_rc)
   install_targets.extend(chrome_dll_version_res)
+
+if env_dll.Bit('linux'):
+  input_files = [
+      'app/chrome_dll_main.cc',
+      'app/chrome_exe_main_gtk.cc',
+  ]
+
+  env_dll.Append(
+    LIBS = [
+      'event',
+    ]
+  )
+  chrome = env_dll.ChromeProgram('app/chrome', input_files)
+
 
 p = env.ChromeMSVSProject('app/chrome_dll.vcproj',
                           dest='$CHROME_SRC_DIR/chrome/app/chrome_dll.vcproj',
@@ -517,7 +529,7 @@ input_files = ChromeFileList([
     'app/result_codes.h',
 ])
 
-# TODO(port)
+# We only use a separate exe/dll on Windows.
 if env.Bit('windows'):
   chrome_exe = env_exe.ChromeProgram('chrome_exe/chrome', input_files)
 

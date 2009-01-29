@@ -524,8 +524,8 @@ input_files = ChromeFileList([
     'renderer_host/download_resource_handler.h',
     'renderer_host/download_throttling_resource_handler.cc',
     'renderer_host/download_throttling_resource_handler.h',
-    'renderer_host/browser_render_process_host.cc',
-    'renderer_host/browser_render_process_host.h',
+    'renderer_host/render_process_host.cc',
+    'renderer_host/render_process_host.h',
     'renderer_host/render_view_host.cc',
     'renderer_host/render_view_host.h',
     'renderer_host/render_view_host_delegate.h',
@@ -698,7 +698,6 @@ if not env.Bit('windows'):
       'cert_store.cc',
       'character_encoding.cc',
       'chrome_plugin_host.cc',
-      'command_updater.cc',
       'dock_info.cc',
       'dom_ui/dom_ui_contents.cc',
       'dom_ui/dom_ui_host.cc',
@@ -764,8 +763,6 @@ if not env.Bit('windows'):
       'printing/printed_page.cc',
       'printing/printer_query.cc',
       'printing/win_printing_context.cc',
-      'profile.cc',
-      'profile_manager.cc',
       'renderer_host/render_view_host.cc',
       'renderer_host/render_widget_helper.cc',
       'renderer_host/render_widget_host.cc',
@@ -809,8 +806,6 @@ if not env.Bit('windows'):
       'tab_contents/web_contents_view.cc',
       'tab_contents/web_drag_source.cc',
       'tab_contents/web_drop_target.cc',
-      'tabs/tab_strip_model.cc',
-      'tabs/tab_strip_model_order_controller.cc',
       'task_manager.cc',
       'task_manager_resource_providers.cc',
       'toolbar_model.cc',
@@ -834,10 +829,14 @@ if not env.Bit('windows'):
       '../tools/build/win/precompiled_wtl.h',
   )
 
+if env.Bit('linux'):
+  input_files.Extend([
+      'browser_main_gtk.cc',
+  ])
+
 if env.Bit('windows'):
   env.TypeLibrary('history/history_indexer.idl')
 
-if not env.Bit('posix'):
   input_files.Remove(
       'importer/firefox_profile_lock_posix.cc',
   )

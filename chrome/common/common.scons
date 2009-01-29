@@ -206,6 +206,11 @@ input_files = ChromeFileList([
 ])
 
 if not env.Bit('windows'):
+  # TODO(port): This is temporary so we can link.
+  input_files.Append(
+      'temp_scaffolding_stubs.cc'
+  )
+
   # TODO(port): Port these.
   input_files.Remove(
       'chrome_plugin_util.cc',
