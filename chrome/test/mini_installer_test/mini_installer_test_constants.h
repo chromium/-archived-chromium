@@ -14,17 +14,22 @@ extern const wchar_t kChromeAppDir[];
 extern const wchar_t kChromeSetupExecutable[];
 extern const wchar_t kIEExecutable[];
 extern const wchar_t kChromeMiniInstallerExecutable[];
+extern const wchar_t kChromeMetaInstallerExecutable[];
 
 // Window names.
 extern const wchar_t kBrowserAppName[];
 extern const wchar_t kBrowserTabName[];
 extern const wchar_t kChromeBuildType[];
-extern const wchar_t kInstallerWindow[];
 extern const wchar_t kChromeFirstRunUI[];
+extern const wchar_t kInstallerWindow[];
 
 // Shortcut names
 extern const wchar_t kChromeLaunchShortcut[];
 extern const wchar_t kChromeUninstallShortcut[];
+
+// Chrome install types
+extern const wchar_t kSystemInstall[];
+extern const wchar_t kUserInstall[];
 
 // Google Chrome meta installer location.
 extern const wchar_t kChromeMetaInstallerExeLocation[];

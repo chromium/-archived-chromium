@@ -20,13 +20,15 @@ const wchar_t kChromeLaunchShortcut[] = L"Chromium.lnk";
 const wchar_t kChromeUninstallShortcut[] = L"Uninstall Chromium.lnk";
 #endif
 
-const wchar_t kChromeSetupExecutable[] = L"setup.exe";
-const wchar_t kIEExecutable[] = L"iexplore.exe";
-const wchar_t kChromeMiniInstallerExecutable[] = L"mini_installer.exe";
 const wchar_t kBrowserAppName[] = L"Google - Google Chrome";
 const wchar_t kBrowserTabName[] = L"New Tab - Google Chrome";
+const wchar_t kChromeMiniInstallerExecutable[] = L"mini_installer.exe";
+const wchar_t kChromeMetaInstallerExecutable[] = L"chrome_installer.exe";
+const wchar_t kChromeSetupExecutable[] = L"setup.exe";
+const wchar_t kIEExecutable[] = L"iexplore.exe";
 const wchar_t kInstallerWindow[] = L"Google App Installer";
-
+const wchar_t kSystemInstall[] = L"system";
+const wchar_t kUserInstall[] = L"user";
 
 // Google Chrome meta installer location.
 const wchar_t kChromeMetaInstallerExeLocation[] =
