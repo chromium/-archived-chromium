@@ -13,6 +13,7 @@
 #include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/webplugin.h"
+#include "webkit/glue/plugins/nphostapi.h"
 
 class GURL;
 
@@ -30,6 +31,26 @@ namespace NPAPI
 #define kGearsPluginLibraryName FILE_PATH_LITERAL("gears")
 
 class PluginInstance;
+
+// This struct fully describes a plugin. For external plugins, it's read in from
+// the version info of the dll; For internal plugins, it's predefined and
+// includes addresses of entry functions. (Yes, it's Win32 NPAPI-centric, but
+// it'll do for holding descriptions of internal plugins cross-platform.)
+struct PluginVersionInfo {
+  FilePath path;
+  // Info about the plugin itself.
+  std::wstring product_name;
+  std::wstring file_description;
+  std::wstring file_version;
+  // Info about the data types that the plugin supports.
+  std::wstring mime_types;
+  std::wstring file_extensions;
+  std::wstring type_descriptions;
+  // Entry points for internal plugins, NULL for external ones.
+  NP_GetEntryPointsFunc np_getentrypoints;
+  NP_InitializeFunc np_initialize;
+  NP_ShutdownFunc np_shutdown;
+};
 
 // The PluginList is responsible for loading our NPAPI based plugins. It does
 // so in whatever manner is appropriate for the platform. On Windows, it loads
@@ -50,6 +71,25 @@ class PluginList {
   // static because we want to be able to add to it without searching the disk
   // for plugins.  Must be called before the plugins have been loaded.
   static void AddExtraPluginPath(const FilePath& plugin_path);
+
+  // Register an internal plugin with the specified plugin information and
+  // function pointers.  An internal plugin must be registered before it can
+  // be loaded using PluginList::LoadPlugin().
+  static void RegisterInternalPlugin(const PluginVersionInfo& info);
+
+  // Creates a WebPluginInfo structure given a plugin's path.  On success
+  // returns true, with the information being put into "info".  If it's an
+  // internal plugin, the function pointers are returned as well.
+  // Returns false if the library couldn't be found, or if it's not a plugin.
+  static bool ReadPluginInfo(const FilePath& filename,
+                             WebPluginInfo* info,
+                             NP_GetEntryPointsFunc* np_getentrypoints,
+                             NP_InitializeFunc* np_initialize,
+                             NP_ShutdownFunc* np_shutdown);
+
+  // Populate a WebPluginInfo from a PluginVersionInfo.
+  static bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
+                                  WebPluginInfo* info);
 
   // Shutdown all plugins.  Should be called at process teardown.
   void Shutdown();
@@ -73,6 +113,10 @@ class PluginList {
   // WebPluginInfo has been filled in |info|.
   bool GetPluginInfoByPath(const FilePath& plugin_path,
                            WebPluginInfo* info);
+
+  // Load a specific plugin with full path.
+  void LoadPlugin(const FilePath& filename);
+
  private:
   // Constructors are private for singletons
   PluginList();
@@ -82,9 +126,6 @@ class PluginList {
 
   // Load all plugins from a specific directory
   void LoadPluginsFromDir(const FilePath& path);
-
-  // Load a specific plugin with full path.
-  void LoadPlugin(const FilePath& filename);
 
   // Returns true if we should load the given plugin, or false otherwise.
   bool ShouldLoadPlugin(const WebPluginInfo& info);
@@ -155,6 +196,9 @@ class PluginList {
 
   // Extra plugin paths that we want to search when loading.
   std::vector<FilePath> extra_plugin_paths_;
+
+  // Holds information about internal plugins.
+  std::vector<PluginVersionInfo> internal_plugins_;
 
   friend struct base::DefaultLazyInstanceTraits<PluginList>;
 

@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\..\tools\build\win\unit_test.vsprops;..\..\tools\build\win\ui_test.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\..\tools\build\win\unit_test.vsprops;..\..\tools\build\win\ui_test.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -78,7 +78,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\..\tools\build\win\unit_test.vsprops;..\..\tools\build\win\ui_test.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\..\tools\build\win\unit_test.vsprops;..\..\tools\build\win\ui_test.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

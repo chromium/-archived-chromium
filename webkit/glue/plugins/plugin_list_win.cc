@@ -11,6 +11,7 @@
 #include "base/path_service.h"
 #include "base/registry.h"
 #include "base/string_util.h"
+#include "webkit/activex_shim/npp_impl.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/webkit_glue.h"
@@ -37,6 +38,13 @@ const TCHAR kRegistryJava[] =
 const TCHAR kRegistryBrowserJavaVersion[] = _T("BrowserJavaVersion");
 const TCHAR kRegistryCurrentJavaVersion[] = _T("CurrentVersion");
 const TCHAR kRegistryJavaHome[] = _T("JavaHome");
+
+#ifdef GEARS_STATIC_LIB
+// defined in gears/base/common/module.cc
+NPError API_CALL Gears_NP_GetEntryPoints(NPPluginFuncs* funcs);
+NPError API_CALL Gears_NP_Initialize(NPNetscapeFuncs* funcs);
+NPError API_CALL Gears_NP_Shutdown(void);
+#endif
 
 // The application path where we expect to find plugins.
 void GetAppDirectory(std::set<FilePath>* plugin_dirs) {
@@ -199,6 +207,52 @@ void PluginList::PlatformInit() {
   dont_load_new_wmp_ = command_line.HasSwitch(kUseOldWMPPluginSwitch);
   use_internal_activex_shim_ =
       !command_line.HasSwitch(kNoNativeActiveXShimSwitch);
+
+  const PluginVersionInfo builtin_plugins[] = {
+  {
+    FilePath(kActiveXShimFileName),
+    L"ActiveX Plug-in",
+    L"ActiveX Plug-in provides a shim to support ActiveX controls",
+    L"1, 0, 0, 1",
+    L"application/x-oleobject|application/oleobject",
+    L"*|*",
+    L"",
+    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
+    activex_shim::ActiveX_Shim_NP_Initialize,
+    activex_shim::ActiveX_Shim_NP_Shutdown
+  },
+  {
+    FilePath(kActiveXShimFileNameForMediaPlayer),
+    kActiveXShimFileNameForMediaPlayer,
+    L"Windows Media Player",
+    L"1, 0, 0, 1",
+    L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
+        L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
+        L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
+    L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
+    L"",
+    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
+    activex_shim::ActiveX_Shim_NP_Initialize,
+    activex_shim::ActiveX_Shim_NP_Shutdown
+  },
+#ifdef GEARS_STATIC_LIB
+  {
+    FilePath(kGearsPluginLibraryName),
+    L"Gears",
+    L"Statically linked Gears",
+    L"1, 0, 0, 1",
+    L"application/x-googlegears",
+    L"",
+    L"",
+    Gears_NP_GetEntryPoints,
+    Gears_NP_Initialize,
+    Gears_NP_Shutdown
+  },
+#endif
+  };
+
+  for (int i = 0; i < arraysize(builtin_plugins); ++i)
+    RegisterInternalPlugin(builtin_plugins[i]);
 }
 
 void PluginList::GetPluginDirectories(std::vector<FilePath>* plugin_dirs) {
@@ -324,8 +378,6 @@ bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
 }
 
 void PluginList::LoadInternalPlugins() {
-  WebPluginInfo info;
-
 #ifdef GEARS_STATIC_LIB
   LoadPlugin(FilePath(kGearsPluginLibraryName));
 #endif

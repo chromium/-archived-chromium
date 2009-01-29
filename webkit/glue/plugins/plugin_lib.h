@@ -25,26 +25,6 @@ namespace NPAPI
 
 class PluginInstance;
 
-// This struct fully describes a plugin. For external plugins, it's read in from
-// the version info of the dll; For internal plugins, it's predefined and
-// includes addresses of entry functions. (Yes, it's Win32 NPAPI-centric, but
-// it'll do for holding descriptions of internal plugins cross-platform.)
-struct PluginVersionInfo {
-  const FilePath::CharType* path;
-  // Info about the plugin itself.
-  const wchar_t* product_name;
-  const wchar_t* file_description;
-  const wchar_t* file_version;
-  // Info about the data types that the plugin supports.
-  const wchar_t* mime_types;
-  const wchar_t* file_extensions;
-  const wchar_t* type_descriptions;
-  // Entry points for internal plugins, NULL for external ones.
-  NP_GetEntryPointsFunc np_getentrypoints;
-  NP_InitializeFunc np_initialize;
-  NP_ShutdownFunc np_shutdown;
-};
-
 // A PluginLib is a single NPAPI Plugin Library, and is the lifecycle
 // manager for new PluginInstances.
 class PluginLib : public base::RefCounted<PluginLib> {
@@ -53,14 +33,9 @@ class PluginLib : public base::RefCounted<PluginLib> {
   virtual ~PluginLib();
 
   // Creates a WebPluginInfo structure given a plugin's path.  On success
-  // returns true, with the information being put into "info".  If it's an
-  // internal plugin, the function pointers are returned as well.
+  // returns true, with the information being put into "info".
   // Returns false if the library couldn't be found, or if it's not a plugin.
-  static bool ReadWebPluginInfo(const FilePath& filename,
-                                WebPluginInfo* info,
-                                NP_GetEntryPointsFunc* np_getentrypoints,
-                                NP_InitializeFunc* np_initialize,
-                                NP_ShutdownFunc* np_shutdown);
+  static bool ReadWebPluginInfo(const FilePath& filename, WebPluginInfo* info);
 
   // Unloads all the loaded plugin libraries and cleans up the plugin map.
   static void UnloadAllPlugins();
@@ -110,13 +85,6 @@ class PluginLib : public base::RefCounted<PluginLib> {
 
   // Shutdown the plugin library.
   void Shutdown();
-
-  // Populate a WebPluginInfo from a PluginVersionInfo.
-  static bool CreateWebPluginInfo(const PluginVersionInfo& pvi,
-                                  WebPluginInfo* info,
-                                  NP_GetEntryPointsFunc* np_getentrypoints,
-                                  NP_InitializeFunc* np_initialize,
-                                  NP_ShutdownFunc* np_shutdown);
 
  public:
 #if defined(OS_WIN)

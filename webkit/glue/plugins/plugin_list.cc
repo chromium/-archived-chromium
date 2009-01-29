@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "net/base/mime_util.h"
+#include "webkit/default_plugin/plugin_main.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/webkit_glue.h"
 #include "googleurl/src/gurl.h"
@@ -43,13 +44,110 @@ void PluginList::AddExtraPluginPath(const FilePath& plugin_path) {
   g_singleton.Pointer()->extra_plugin_paths_.push_back(plugin_path);
 }
 
+void PluginList::RegisterInternalPlugin(const PluginVersionInfo& info) {
+  // We access the singleton directly, and not through Singleton(), since
+  // we don't want LoadPlugins() to be called.
+  DCHECK(!g_singleton.Pointer()->plugins_loaded_);
+  g_singleton.Pointer()->internal_plugins_.push_back(info);
+}
+
+bool PluginList::ReadPluginInfo(const FilePath &filename,
+                                WebPluginInfo* info,
+                                NP_GetEntryPointsFunc* np_getentrypoints,
+                                NP_InitializeFunc* np_initialize,
+                                NP_ShutdownFunc* np_shutdown) {
+  // We access the singleton directly, and not through Singleton(), since
+  // we might be in a LoadPlugins call and don't want to call it recursively!
+  const std::vector<PluginVersionInfo>& internal_plugins =
+      g_singleton.Pointer()->internal_plugins_;
+  for (size_t i = 0; i < internal_plugins.size(); ++i) {
+    if (filename == internal_plugins[i].path) {
+      *np_getentrypoints = internal_plugins[i].np_getentrypoints;
+      *np_initialize = internal_plugins[i].np_initialize;
+      *np_shutdown = internal_plugins[i].np_shutdown;
+      return CreateWebPluginInfo(internal_plugins[i], info);
+    }
+  }
+
+  // Not an internal plugin.
+  *np_getentrypoints = NULL;
+  *np_initialize = NULL;
+  *np_shutdown = NULL;
+  return PluginLib::ReadWebPluginInfo(filename, info);
+}
+
+bool PluginList::CreateWebPluginInfo(const PluginVersionInfo& pvi,
+                                     WebPluginInfo* info) {
+  std::vector<std::string> mime_types, file_extensions;
+  std::vector<std::wstring> descriptions;
+  SplitString(WideToUTF8(pvi.mime_types), '|', &mime_types);
+  SplitString(WideToUTF8(pvi.file_extensions), '|', &file_extensions);
+  SplitString(pvi.type_descriptions, '|', &descriptions);
+
+  info->mime_types.clear();
+
+  if (mime_types.empty())
+    return false;
+
+  info->name = pvi.product_name;
+  info->desc = pvi.file_description;
+  info->version = pvi.file_version;
+  info->path = pvi.path;
+
+  for (size_t i = 0; i < mime_types.size(); ++i) {
+    WebPluginMimeType mime_type;
+    mime_type.mime_type = StringToLowerASCII(mime_types[i]);
+    if (file_extensions.size() > i)
+      SplitString(file_extensions[i], ',', &mime_type.file_extensions);
+
+    if (descriptions.size() > i) {
+      mime_type.description = descriptions[i];
+
+      // On Windows, the description likely has a list of file extensions
+      // embedded in it (e.g. "SurfWriter file (*.swr)"). Remove an extension
+      // list from the description if it is present.
+      size_t ext = mime_type.description.find(L"(*");
+      if (ext != std::wstring::npos) {
+        if (ext > 1 && mime_type.description[ext -1] == ' ')
+          ext--;
+
+        mime_type.description.erase(ext);
+      }
+    }
+
+    info->mime_types.push_back(mime_type);
+  }
+
+  return true;
+}
+
 PluginList::PluginList() : plugins_loaded_(false) {
-  PlatformInit();
 }
 
 void PluginList::LoadPlugins(bool refresh) {
   if (plugins_loaded_ && !refresh)
     return;
+
+  if (!plugins_loaded_) {
+    PlatformInit();
+
+#if defined(OS_WIN)
+  const PluginVersionInfo default_plugin = {
+    FilePath(kDefaultPluginLibraryName),
+    L"Default Plug-in",
+    L"Provides functionality for installing third-party plug-ins",
+    L"1",
+    L"*",
+    L"",
+    L"",
+    default_plugin::NP_GetEntryPoints,
+    default_plugin::NP_Initialize,
+    default_plugin::NP_Shutdown
+  };
+
+  RegisterInternalPlugin(default_plugin);
+#endif
+  }
 
   plugins_.clear();
   plugins_loaded_ = true;
@@ -67,7 +165,6 @@ void PluginList::LoadPlugins(bool refresh) {
 
   for (size_t i = 0; i < extra_plugin_paths_.size(); ++i)
     LoadPlugin(extra_plugin_paths_[i]);
-  extra_plugin_paths_.clear();
 
   if (webkit_glue::IsDefaultPluginEnabled())
     LoadPlugin(FilePath(kDefaultPluginLibraryName));
@@ -82,8 +179,8 @@ void PluginList::LoadPlugin(const FilePath &path) {
   NP_GetEntryPointsFunc np_getentrypoints;
   NP_InitializeFunc np_initialize;
   NP_ShutdownFunc np_shutdown;
-  if (!PluginLib::ReadWebPluginInfo(path, &plugin_info, &np_getentrypoints,
-                                    &np_initialize, &np_shutdown)) {
+  if (!ReadPluginInfo(path, &plugin_info, &np_getentrypoints, &np_initialize,
+                      &np_shutdown)) {
     return;
   }
 

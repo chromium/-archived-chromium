@@ -11,7 +11,6 @@
 #include "base/scoped_cftyperef.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "webkit/default_plugin/plugin_main.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
 static const short kSTRTypeDefinitionResourceID = 128;
@@ -20,21 +19,6 @@ static const short kSTRPluginDescriptionResourceID = 126;
 
 namespace NPAPI
 {
-
-static const PluginVersionInfo g_internal_plugins[] = {
-  {
-    kDefaultPluginLibraryName,
-    L"Default Plug-in",
-    L"Provides functionality for installing third-party plug-ins",
-    L"1.0",
-    L"*",
-    L"",
-    L"",
-    default_plugin::NP_GetEntryPoints,
-    default_plugin::NP_Initialize,
-    default_plugin::NP_Shutdown
-  },
-};
 
 /* static */
 PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
@@ -258,21 +242,7 @@ bool ReadSTRPluginInfo(const FilePath& filename, CFBundleRef bundle,
 }  // anonymous namespace
 
 bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
-                                  WebPluginInfo* info,
-                                  NP_GetEntryPointsFunc* np_getentrypoints,
-                                  NP_InitializeFunc* np_initialize,
-                                  NP_ShutdownFunc* np_shutdown) {
-  for (int i = 0; i < arraysize(g_internal_plugins); ++i) {
-    if (filename.value() == g_internal_plugins[i].path) {
-      return CreateWebPluginInfo(g_internal_plugins[i], info, np_getentrypoints,
-                                 np_initialize, np_shutdown);
-    }
-  }
-
-  *np_getentrypoints = NULL;
-  *np_initialize = NULL;
-  *np_shutdown = NULL;
-
+                                  WebPluginInfo* info) {
   // There are two ways to get information about plugin capabilities. One is an
   // Info.plist set of keys, documented at
   // http://developer.apple.com/documentation/InternetWeb/Conceptual/WebKit_PluginProgTopic/Concepts/AboutPlugins.html .

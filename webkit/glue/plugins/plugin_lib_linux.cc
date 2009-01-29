@@ -44,16 +44,9 @@ void* PluginLib::GetFunctionPointerFromNativeLibrary(
 }
 
 bool PluginLib::ReadWebPluginInfo(const FilePath& filename,
-                                  WebPluginInfo* info,
-                                  NP_GetEntryPointsFunc* np_getentrypoints,
-                                  NP_InitializeFunc* np_initialize,
-                                  NP_ShutdownFunc* np_shutdown) {
+                                  WebPluginInfo* info) {
   // The file to reference is:
   // http://mxr.mozilla.org/firefox/source/modules/plugin/base/src/nsPluginsDirUnix.cpp
-
-  *np_getentrypoints = NULL;
-  *np_initialize = NULL;
-  *np_shutdown = NULL;
 
   void* dl = LoadNativeLibrary(filename);
   if (!dl)
