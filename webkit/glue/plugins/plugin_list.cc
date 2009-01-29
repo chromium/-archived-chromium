@@ -122,14 +122,7 @@ bool PluginList::CreateWebPluginInfo(const PluginVersionInfo& pvi,
 }
 
 PluginList::PluginList() : plugins_loaded_(false) {
-}
-
-void PluginList::LoadPlugins(bool refresh) {
-  if (plugins_loaded_ && !refresh)
-    return;
-
-  if (!plugins_loaded_) {
-    PlatformInit();
+  PlatformInit();
 
 #if defined(OS_WIN)
   const PluginVersionInfo default_plugin = {
@@ -145,9 +138,13 @@ void PluginList::LoadPlugins(bool refresh) {
     default_plugin::NP_Shutdown
   };
 
-  RegisterInternalPlugin(default_plugin);
+  internal_plugins_.push_back(default_plugin);
 #endif
-  }
+}
+
+void PluginList::LoadPlugins(bool refresh) {
+  if (plugins_loaded_ && !refresh)
+    return;
 
   plugins_.clear();
   plugins_loaded_ = true;

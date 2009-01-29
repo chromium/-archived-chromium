@@ -252,7 +252,7 @@ void PluginList::PlatformInit() {
   };
 
   for (int i = 0; i < arraysize(builtin_plugins); ++i)
-    RegisterInternalPlugin(builtin_plugins[i]);
+    internal_plugins_.push_back(builtin_plugins[i]);
 }
 
 void PluginList::GetPluginDirectories(std::vector<FilePath>* plugin_dirs) {
