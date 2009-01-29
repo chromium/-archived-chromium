@@ -72,7 +72,9 @@ class Rect {
   void SetRect(int x, int y, int width, int height);
 
   // Shrink the rectangle by a horizontal and vertical distance on all sides.
-  void Inset(int horizontal, int vertical);
+  void Inset(int horizontal, int vertical) {
+    Inset(horizontal, vertical, horizontal, vertical);
+  }
 
   // Shrink the rectangle by the specified amount on each side.
   void Inset(int left, int top, int right, int bottom);
