@@ -126,7 +126,6 @@ class TaskManager : public views::DialogDelegate {
   // views::DialogDelegate methods:
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
-  virtual bool ShouldShowWindowIcon() const;
   virtual bool IsAlwaysOnTop() const;
   virtual bool HasAlwaysOnTopMenu() const;
   virtual std::wstring GetWindowTitle() const;

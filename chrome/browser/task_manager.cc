@@ -1060,10 +1060,6 @@ bool TaskManager::CanMaximize() const {
   return true;
 }
 
-bool TaskManager::ShouldShowWindowIcon() const {
-  return false;
-}
-
 bool TaskManager::IsAlwaysOnTop() const {
   return true;
 }
