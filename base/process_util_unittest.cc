@@ -142,6 +142,24 @@ TEST_F(ProcessUtilTest, CalcFreeMemory) {
 #endif  // defined(OS_WIN)
 
 #if defined(OS_POSIX)
+// Returns the maximum number of files that a process can have open.
+// Returns 0 on error.
+int GetMaxFilesOpenInProcess() {
+  struct rlimit rlim;
+  if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
+    return 0;
+  }
+
+  // rlim_t is a uint64 - clip to maxint. We do this since FD #s are ints
+  // which are all 32 bits on the supported platforms.
+  rlim_t max_int = static_cast<rlim_t>(std::numeric_limits<int32>::max());
+  if (rlim.rlim_cur > max_int) {
+    return max_int;
+  }
+
+  return rlim.rlim_cur;
+}
+
 const int kChildPipe = 20;  // FD # for write end of pipe in child process.
 MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
   // This child process counts the number of open FDs, it then writes that

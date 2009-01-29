@@ -67,9 +67,9 @@ ProcessHandle GetCurrentProcessHandle();
 int GetProcId(ProcessHandle process);
 
 #if defined(OS_POSIX)
-// Returns the maximum number of files that a process can have open.
-// Returns 0 on error.
-int GetMaxFilesOpenInProcess();
+// Sets all file descriptors to close on exec except for stdin, stdout
+// and stderr.
+void SetAllFDsToCloseOnExec();
 #endif
 
 #if defined(OS_WIN)

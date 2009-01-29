@@ -2,19 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/process_util.h"
-
+#include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
 #include <limits>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/process_util.h"
 #include "base/sys_info.h"
 #include "base/time.h"
 
@@ -58,21 +61,47 @@ bool KillProcess(int process_id, int exit_code, bool wait) {
   return result;
 }
 
-int GetMaxFilesOpenInProcess() {
-  struct rlimit rlimit;
-  if (getrlimit(RLIMIT_NOFILE, &rlimit) != 0) {
-    return 0;
+// A class to handle auto-closing of DIR*'s.
+class ScopedDIRClose {
+ public:
+  inline void operator()(DIR* x) const {
+    if (x) {
+      closedir(x);
+    }
+  }
+};
+typedef scoped_ptr_malloc<DIR, ScopedDIRClose> ScopedDIR;
+
+// Sets all file descriptors to close on exec except for stdin, stdout
+// and stderr.
+void SetAllFDsToCloseOnExec() {
+#if defined(OS_LINUX)
+  const char fd_dir[] = "/proc/self/fd";
+#elif defined(OS_MACOSX)
+  const char fd_dir[] = "/dev/fd";
+#endif
+  ScopedDIR dir_closer(opendir(fd_dir));
+  DIR *dir = dir_closer.get();
+  if (NULL == dir) {
+    DLOG(ERROR) << "Unable to open " << fd_dir;
+    return;
   }
 
-  // rlim_t is a uint64 - clip to maxint.
-  // We do this since we use the value of this function to close FD #s in a loop
-  // if we didn't clamp the value, doing this would be too time consuming.
-  rlim_t max_int = static_cast<rlim_t>(std::numeric_limits<int32>::max());
-  if (rlimit.rlim_cur > max_int) {
-    return max_int;
-  }
+  struct dirent *ent;
+  while ((ent = readdir(dir))) {
+    // Skip . and .. entries.
+    if (ent->d_name[0] == '.')
+      continue;
+    int i = atoi(ent->d_name);
+    // We don't close stdin, stdout or stderr.
+    if (i <= STDERR_FILENO)
+      continue;
 
-  return rlimit.rlim_cur;
+    int flags = fcntl(i, F_GETFD);
+    if ((flags == -1) || (fcntl(i, F_SETFD, flags | FD_CLOEXEC) == -1)) {
+      DLOG(ERROR) << "fcntl failure.";
+    }
+  }
 }
 
 ProcessMetrics::ProcessMetrics(ProcessHandle process) : process_(process),

@@ -44,13 +44,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
 
   // Make sure we don't leak any FDs to the child process by marking all FDs
   // as close-on-exec.
-  int max_files = GetMaxFilesOpenInProcess();
-  for (int i = STDERR_FILENO + 1; i < max_files; i++) {
-    int flags = fcntl(i, F_GETFD);
-    if (flags != -1) {
-      fcntl(i, F_SETFD, flags | FD_CLOEXEC);
-    }
-  }
+  SetAllFDsToCloseOnExec();
 
   int pid = fork();
   if (pid == 0) {
