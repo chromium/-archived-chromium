@@ -77,6 +77,7 @@ const wchar_t kChromeOldExe[] = L"old_chrome.exe";
 const wchar_t kChromeNewExe[] = L"new_chrome.exe";
 const wchar_t kChromeDll[] = L"chrome.dll";
 const wchar_t kSetupExe[] = L"setup.exe";
+const wchar_t kInstallerDir[] = L"Installer";
 
 const wchar_t kUninstallStringField[] = L"UninstallString";
 const wchar_t kUninstallDisplayNameField[] = L"DisplayName";

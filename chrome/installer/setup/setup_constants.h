@@ -19,8 +19,6 @@ extern const wchar_t kChromeCompressedPatchArchivePrefix[];
 extern const wchar_t kInstallSourceDir[];
 extern const wchar_t kInstallSourceChromeDir[];
 
-extern const wchar_t kInstallerDir[];
-
 extern const wchar_t kMediaPlayerRegPath[];
 }  // namespace installer
 

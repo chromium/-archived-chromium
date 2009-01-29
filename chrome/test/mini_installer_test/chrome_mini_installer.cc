@@ -242,7 +242,7 @@ std::wstring ChromeMiniInstaller::GetUninstallPath() {
   path = GetChromeInstallDirectoryLocation();
   file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::AppendToPath(&path, GetRegistryKey());
-  file_util::AppendToPath(&path, installer::kInstallerDir);
+  file_util::AppendToPath(&path, installer_util::kInstallerDir);
   file_util::AppendToPath(&path,
       mini_installer_constants::kChromeSetupExecutable);
   printf("uninstall path is %ls\n", path.c_str());

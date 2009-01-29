@@ -46,7 +46,7 @@ int PatchArchiveFile(bool system_install, const std::wstring& archive_path,
       installer::GetChromeInstallPath(system_install);
   file_util::AppendToPath(&existing_archive,
                           installed_version->GetString());
-  file_util::AppendToPath(&existing_archive, installer::kInstallerDir);
+  file_util::AppendToPath(&existing_archive, installer_util::kInstallerDir);
   file_util::AppendToPath(&existing_archive, installer::kChromeArchive);
 
   std::wstring patch_archive(archive_path);

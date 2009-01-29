@@ -88,6 +88,7 @@ extern const wchar_t kChromeOldExe[];
 extern const wchar_t kChromeNewExe[];
 extern const wchar_t kChromeDll[];
 extern const wchar_t kSetupExe[];
+extern const wchar_t kInstallerDir[];
 
 extern const wchar_t kUninstallStringField[];
 extern const wchar_t kUninstallDisplayNameField[];

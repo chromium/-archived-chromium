@@ -184,7 +184,7 @@ std::wstring installer::GetInstallerPathUnderChrome(
     const std::wstring& install_path, const std::wstring& new_version) {
   std::wstring installer_path(install_path);
   file_util::AppendToPath(&installer_path, new_version);
-  file_util::AppendToPath(&installer_path, installer::kInstallerDir);
+  file_util::AppendToPath(&installer_path, installer_util::kInstallerDir);
   return installer_path;
 }
 

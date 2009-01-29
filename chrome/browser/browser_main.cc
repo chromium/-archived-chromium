@@ -220,12 +220,17 @@ int BrowserMain(const MainFunctionParams& parameters) {
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
   MessageWindow message_window(user_data_dir);
 
+  bool is_first_run = FirstRun::IsChromeFirstRun() ||
+      parsed_command_line.HasSwitch(switches::kFirstRun);
+  bool first_run_ui_bypass = false;
+
   scoped_ptr<BrowserProcess> browser_process;
   if (parsed_command_line.HasSwitch(switches::kImport)) {
     // We use different BrowserProcess when importing so no GoogleURLTracker is
     // instantiated (as it makes a URLRequest and we don't have an IO thread,
     // see bug #1292702).
     browser_process.reset(new FirstRunBrowserProcess(parsed_command_line));
+    is_first_run = false;
   } else {
     browser_process.reset(new BrowserProcessImpl(parsed_command_line));
   }
@@ -241,10 +246,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // locale dll to load.
   PrefService* local_state = browser_process->local_state();
   DCHECK(local_state);
-
-  bool is_first_run = FirstRun::IsChromeFirstRun() ||
-      parsed_command_line.HasSwitch(switches::kFirstRun);
-  bool first_run_ui_bypass = false;
 
   // Initialize ResourceBundle which handles files loaded from external
   // sources. This has to be done before uninstall code path and before prefs

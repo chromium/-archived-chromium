@@ -116,12 +116,13 @@ bool InvokeGoogleUpdateForRename() {
 }
 
 bool LaunchSetupWithParam(const std::wstring& param, int* ret_code) {
-  std::wstring exe_path;
-  if (!PathService::Get(base::DIR_EXE, &exe_path))
+  FilePath exe_path;
+  if (!PathService::Get(base::DIR_MODULE, &exe_path))
     return false;
-  file_util::AppendToPath(&exe_path, installer_util::kSetupExe);
+  exe_path.Append(installer_util::kInstallerDir);
+  exe_path.Append(installer_util::kSetupExe);
   base::ProcessHandle ph;
-  CommandLine cl(exe_path);
+  CommandLine cl(exe_path.ToWStringHack());
   cl.AppendSwitch(param);
   if (!base::LaunchApp(cl, false, false, &ph))
     return false;
