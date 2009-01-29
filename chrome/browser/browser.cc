@@ -457,6 +457,8 @@ void Browser::OnWindowClosing() {
   CloseAllTabs();
 }
 
+#endif  // OS_WIN
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Tab adding/showing functions:
 
@@ -481,6 +483,8 @@ TabContents* Browser::AddTabWithURL(
     contents->WasHidden();
   return contents;
 }
+
+#if defined(OS_WIN)
 
 TabContents* Browser::AddWebApplicationTab(Profile* profile,
                                            WebApp* web_app,
@@ -665,8 +669,6 @@ void Browser::CloseWindow() {
   window_->Close();
 }
 
-#if defined(OS_WIN)
-
 void Browser::NewTab() {
   UserMetrics::RecordAction(L"NewTab", profile_);
   if (type() == TYPE_NORMAL) {
@@ -709,6 +711,8 @@ void Browser::SelectLastTab() {
   UserMetrics::RecordAction(L"SelectLastTab", profile_);
   tabstrip_model_.SelectLastTab();
 }
+
+#if defined(OS_WIN)
 
 void Browser::DuplicateTab() {
   UserMetrics::RecordAction(L"Duplicate", profile_);
@@ -1111,6 +1115,7 @@ void Browser::ExecuteCommand(int id) {
         NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);    break;
 #if defined(OS_WIN)
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
+#endif
     case IDC_NEW_TAB:               NewTab();                      break;
     case IDC_CLOSE_TAB:             CloseTab();                    break;
     case IDC_SELECT_NEXT_TAB:       SelectNextTab();               break;
@@ -1125,6 +1130,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SELECT_TAB_7:          SelectNumberedTab(id - IDC_SELECT_TAB_0);
                                                                    break;
     case IDC_SELECT_LAST_TAB:       SelectLastTab();               break;
+#if defined(OS_WIN)
     case IDC_DUPLICATE_TAB:         DuplicateTab();                break;
     case IDC_RESTORE_TAB:           RestoreTab();                  break;
     case IDC_SHOW_AS_TAB:           ConvertPopupToTabbedBrowser(); break;
@@ -2381,6 +2387,8 @@ void Browser::ClearUnloadState(TabContents* tab) {
   ProcessPendingTabs();
 }
 
+#endif  // OS_WIN
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Assorted utility functions (private):
 
@@ -2391,6 +2399,8 @@ Browser* Browser::GetOrCreateTabbedBrowser() {
     browser = Browser::Create(profile_);
   return browser;
 }
+
+#if defined(OS_WIN)
 
 void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,

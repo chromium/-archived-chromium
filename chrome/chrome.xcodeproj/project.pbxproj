@@ -216,7 +216,6 @@
 		826852120F2FD143009F6555 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684C5F0F2FAE68009F6555 /* Security.framework */; };
 		826852130F2FD146009F6555 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D1F5AB60F2A6EE90040C1E3 /* libpng.a */; };
 		826852160F2FD156009F6555 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */; };
-		826852180F2FD188009F6555 /* tab_contents_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */; };
 		826852190F2FD190009F6555 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684D0A0F2FB101009F6555 /* libsdch.a */; };
 		826853320F30ADF5009F6555 /* child_process.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB890E9D4C9F009A6919 /* child_process.cc */; };
 		826853350F30AE04009F6555 /* render_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD10EAE868600EBCFC0 /* render_thread.cc */; };
@@ -351,6 +350,9 @@
 		E45076E50F153AB6003BE099 /* unzip.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45076E40F153AB6003BE099 /* unzip.cc */; };
 		E450775F0F154036003BE099 /* mru_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD40E9D4C9F009A6919 /* mru_cache_unittest.cc */; };
 		E45077620F15405C003BE099 /* notification_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBDB0E9D4C9F009A6919 /* notification_service_unittest.cc */; };
+		E455DCF00F320CF700DD4383 /* tab_strip_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C55EE0F30EFF500B393B8 /* tab_strip_controller.mm */; };
+		E455DCF10F320CFE00DD4383 /* tab_contents_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */; };
+		E455DDBA0F3227A600DD4383 /* tab_cell.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50D80F292EAA00B393B8 /* tab_cell.mm */; };
 		E46C42130F1D3DD200B393B8 /* user_script_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0082A7510F16987A000AA0EF /* user_script_master.cc */; };
 		E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C45990F1F88D100B393B8 /* app_controller_mac.mm */; };
 		E46C4B3F0F21095400B393B8 /* url_request_intercept_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFCC20E9D4D6B009A6919 /* url_request_intercept_job.cc */; };
@@ -366,8 +368,6 @@
 		E46C50560F291C1E00B393B8 /* reload.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50540F291C1E00B393B8 /* reload.pdf */; };
 		E46C50580F291C3B00B393B8 /* newtab.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C50570F291C3B00B393B8 /* newtab.pdf */; };
 		E46C50D90F292EAA00B393B8 /* tab_bar_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */; };
-		E46C50DA0F292EAA00B393B8 /* tab_cell.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50D80F292EAA00B393B8 /* tab_cell.mm */; };
-		E46C50EA0F2A11FC00B393B8 /* tab_contents_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */; };
 		E46C50EF0F2A12DC00B393B8 /* TabContents.xib in Resources */ = {isa = PBXBuildFile; fileRef = E46C50ED0F2A12DC00B393B8 /* TabContents.xib */; };
 		E46C51240F2A14A300B393B8 /* go.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E46C51230F2A14A300B393B8 /* go.pdf */; };
 		E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */; };
@@ -2110,6 +2110,8 @@
 		E46C53A80F2F662F00B393B8 /* tab_strip_model_order_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_model_order_controller.h; path = tabs/tab_strip_model_order_controller.h; sourceTree = "<group>"; };
 		E46C53A90F2F662F00B393B8 /* tab_strip_model_order_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_strip_model_order_controller.cc; path = tabs/tab_strip_model_order_controller.cc; sourceTree = "<group>"; };
 		E46C53E70F2F69AD00B393B8 /* tab_strip_model_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_strip_model_unittest.cc; path = tabs/tab_strip_model_unittest.cc; sourceTree = "<group>"; };
+		E46C55ED0F30EFF500B393B8 /* tab_strip_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_controller.h; path = cocoa/tab_strip_controller.h; sourceTree = "<group>"; };
+		E46C55EE0F30EFF500B393B8 /* tab_strip_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_strip_controller.mm; path = cocoa/tab_strip_controller.mm; sourceTree = "<group>"; };
 		E48B684C0F2630D3002E47EC /* browser_window_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_factory.mm; sourceTree = "<group>"; };
 		E48B68550F26330C002E47EC /* browser_window_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser_window_controller.h; sourceTree = "<group>"; };
 		E48B68560F26330C002E47EC /* browser_window_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_controller.mm; sourceTree = "<group>"; };
@@ -3629,6 +3631,8 @@
 				E46C50D80F292EAA00B393B8 /* tab_cell.mm */,
 				E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */,
 				E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */,
+				E46C55ED0F30EFF500B393B8 /* tab_strip_controller.h */,
+				E46C55EE0F30EFF500B393B8 /* tab_strip_controller.mm */,
 				E46C51980F2A20CC00B393B8 /* toolbar_button_cell.h */,
 				E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */,
 				E46C51620F2A1DAB00B393B8 /* toolbar_view.h */,
@@ -4574,6 +4578,9 @@
 				F775995035B63E51251B0922 /* ssl_error_info.cc in Sources */,
 				E4F3245D0EE5CFDF002533CE /* starred_url_database.cc in Sources */,
 				E45075EE0F150ABA003BE099 /* sync_resource_handler.cc in Sources */,
+				E455DDBA0F3227A600DD4383 /* tab_cell.mm in Sources */,
+				E455DCF10F320CFE00DD4383 /* tab_contents_controller.mm in Sources */,
+				E455DCF00F320CF700DD4383 /* tab_strip_controller.mm in Sources */,
 				E46C53A40F2F660900B393B8 /* tab_strip_model.cc in Sources */,
 				E46C53AA0F2F662F00B393B8 /* tab_strip_model_order_controller.cc in Sources */,
 				82684FEB0F2FC650009F6555 /* template_url.cc in Sources */,
@@ -4639,7 +4646,6 @@
 				E48FB9870EC4EBA10052B72B /* safe_browsing_database_unittest.cc in Sources */,
 				4D7BFB7F0E9D4C63009A6919 /* safe_browsing_util_unittest.cc in Sources */,
 				E4F324980EE5D7DE002533CE /* snippet_unittest.cc in Sources */,
-				826852180F2FD188009F6555 /* tab_contents_controller.mm in Sources */,
 				4D7BFB3E0E9D4C2F009A6919 /* text_database_unittest.cc in Sources */,
 				4D7BFB610E9D4C4B009A6919 /* units_unittest.cc in Sources */,
 				B503E0FC0F01764800547DC6 /* user_script_slave_unittest.cc in Sources */,
@@ -4728,8 +4734,6 @@
 				E45062EB0EE9877F003BE099 /* chrome_dll_main.cc in Sources */,
 				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
 				E46C50D90F292EAA00B393B8 /* tab_bar_view.mm in Sources */,
-				E46C50DA0F292EAA00B393B8 /* tab_cell.mm in Sources */,
-				E46C50EA0F2A11FC00B393B8 /* tab_contents_controller.mm in Sources */,
 				E46C519A0F2A20CC00B393B8 /* toolbar_button_cell.mm in Sources */,
 				E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */,
 			);

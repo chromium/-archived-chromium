@@ -14,12 +14,14 @@ class Browser;
 class BrowserWindow;
 @class TabBarView;
 @class TabContentsController;
+@class TabStripController;
 
 @interface BrowserWindowController :
     NSWindowController<NSUserInterfaceValidations> {
  @private
   Browser* browser_;
   BrowserWindow* windowShim_;
+  TabStripController* tabStripController_;
   TabContentsController* contentsController_;
 
   IBOutlet NSBox* contentBox_;

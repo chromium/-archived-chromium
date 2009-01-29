@@ -246,13 +246,13 @@ class Browser : public TabStripModelDelegate,
   void NewIncognitoWindow();
   void NewProfileWindowByIndex(int index);
   void CloseWindow();
-#if defined(OS_WIN)
   void NewTab();
   void CloseTab();
   void SelectNextTab();
   void SelectPreviousTab();
   void SelectNumberedTab(int index);
   void SelectLastTab();
+#if defined(OS_WIN)
   void DuplicateTab();
   void RestoreTab();
   void ConvertPopupToTabbedBrowser();
@@ -504,6 +504,7 @@ class Browser : public TabStripModelDelegate,
   // cases where a tab crashes or hangs even if the beforeunload/unload haven't
   // successfully fired.
   void ClearUnloadState(TabContents* tab);
+#endif
 
   // Assorted utility functions ///////////////////////////////////////////////
 
@@ -511,6 +512,7 @@ class Browser : public TabStripModelDelegate,
   // receiving Browser. Creates a new Browser if none are available.
   Browser* GetOrCreateTabbedBrowser();
 
+#if defined(OS_WIN)
   // Creates a new popup window with its own Browser object with the
   // incoming sizing information. |initial_pos|'s origin() is the
   // window origin, and its size() is the size of the content area.

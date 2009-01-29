@@ -102,10 +102,31 @@ bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
   DCHECK(profile);
 
   // this code is a simplification of BrowserInit::LaunchWithProfile::Launch()
-  Browser* browser = Browser::Create(profile);
-  browser->window()->Show();
+  std::vector<GURL> urls_to_open;
+  urls_to_open.push_back(GURL("http://dev.chromium.org"));
+  urls_to_open.push_back(GURL("http://crbug.com"));
+  urls_to_open.push_back(GURL("http://icanhavecheezeburger.com"));
+  Browser* browser = NULL;
+  browser = OpenURLsInBrowser(browser, profile, urls_to_open);
 
   return true;
+}
+
+// a simplification of BrowserInit::LaunchWithProfile::OpenURLsInBrowser
+Browser* BrowserInit::OpenURLsInBrowser(
+    Browser* browser,
+    Profile* profile,
+    const std::vector<GURL>& urls) {
+  DCHECK(!urls.empty());
+  if (!browser || browser->type() != Browser::TYPE_NORMAL)
+    browser = Browser::Create(profile);
+
+  for (size_t i = 0; i < urls.size(); ++i) {
+    browser->AddTabWithURL(
+        urls[i], GURL(), PageTransition::START_PAGE, (i == 0), NULL);
+  }
+  browser->window()->Show();
+  return browser;
 }
 
 //--------------------------------------------------------------------------
@@ -186,12 +207,6 @@ void Browser::Observe(NotificationType type,
 
 GURL Browser::GetHomePage() {
   return GURL("http://dev.chromium.org");
-}
-
-TabContents* Browser::AddTabWithURL(
-    const GURL& url, const GURL& referrer, PageTransition::Type transition,
-    bool foreground, SiteInstance* instance) {
-  return new TabContents;
 }
 
 void Browser::LoadingStateChanged(TabContents* source) {

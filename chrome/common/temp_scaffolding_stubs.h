@@ -81,6 +81,9 @@ class BrowserInit {
   static bool LaunchBrowserImpl(const CommandLine& parsed_command_line,
                                 Profile* profile, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code);
+  static Browser* OpenURLsInBrowser(Browser* browser,
+                                    Profile* profile,
+                                    const std::vector<GURL>& urls);
 };
 
 class FirstRun {
@@ -324,6 +327,8 @@ class TabContents {
   bool is_loading() const { return false; }
   void CloseContents() { };
   void SetupController(Profile* profile) { }
+  bool WasHidden() { return false; }
+  void RestoreFocus() { }
   static TabContentsType TypeForURL(GURL* url) { return TAB_CONTENTS_WEB; }
   static TabContents* CreateWithType(TabContentsType type,
                                      Profile* profile,
