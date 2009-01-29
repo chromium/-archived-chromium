@@ -231,6 +231,7 @@
 		A7C612990F30D63D008CEE5D /* render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EC10F2144D500861FAC /* render_process_host.cc */; };
 		A7C613C10F30D7E4008CEE5D /* mock_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613BF0F30D7E4008CEE5D /* mock_render_process_host.cc */; };
 		A7C6146F0F30DA1D008CEE5D /* ipc_test_sink.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */; };
+		A7CBAD390F322A7E00360BF5 /* shell_dialogs_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */; };
 		B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA180E9D48F7009A6919 /* visit_database_unittest.cc */; };
 		B502DA520F098888005BE90C /* l10n_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC90E9D4C9F009A6919 /* l10n_util.cc */; };
 		B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC90EAE868600EBCFC0 /* user_script_slave.cc */; };
@@ -1886,6 +1887,7 @@
 		A7C613DD0F30D886008CEE5D /* cross_site_resource_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cross_site_resource_handler.h; path = renderer_host/cross_site_resource_handler.h; sourceTree = "<group>"; };
 		A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_test_sink.cc; sourceTree = "<group>"; };
 		A7C6146E0F30DA1D008CEE5D /* ipc_test_sink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_test_sink.h; sourceTree = "<group>"; };
+		A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = shell_dialogs_mac.mm; path = cocoa/shell_dialogs_mac.mm; sourceTree = "<group>"; };
 		B503E0FB0F01764800547DC6 /* user_script_slave_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = user_script_slave_unittest.cc; sourceTree = "<group>"; };
 		B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mach_message_source_mac.cc; sourceTree = "<group>"; };
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
@@ -3620,6 +3622,7 @@
 		E46C50D10F292E9B00B393B8 /* cocoa */ = {
 			isa = PBXGroup;
 			children = (
+				A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */,
 				E46C50D50F292EAA00B393B8 /* tab_bar_view.h */,
 				E46C50D60F292EAA00B393B8 /* tab_bar_view.mm */,
 				E46C50D70F292EAA00B393B8 /* tab_cell.h */,
@@ -4565,6 +4568,7 @@
 				E45075F40F150C01003BE099 /* session_command.cc in Sources */,
 				E45075F70F150C0C003BE099 /* session_id.cc in Sources */,
 				4D7BF9B60E9D4894009A6919 /* session_startup_pref.cc in Sources */,
+				A7CBAD390F322A7E00360BF5 /* shell_dialogs_mac.mm in Sources */,
 				4D7BFA2D0E9D4910009A6919 /* snippet.cc in Sources */,
 				E45075FA0F150C28003BE099 /* spellcheck_worditerator.cc in Sources */,
 				F775995035B63E51251B0922 /* ssl_error_info.cc in Sources */,
