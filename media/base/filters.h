@@ -97,6 +97,12 @@ class DataSource : public MediaFilter {
     return FILTER_DATA_SOURCE;
   }
 
+  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+    std::string mime_type;
+    return (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+            mime_type == mime_type::kURL);
+  }
+
   static const size_t kReadError = static_cast<size_t>(-1);
 
   // Initializes this filter, returns true if successful, false otherwise.
@@ -128,6 +134,12 @@ class Demuxer : public MediaFilter {
     return FILTER_DEMUXER;
   }
 
+  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+    std::string mime_type;
+    return (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+            mime_type == mime_type::kApplicationOctetStream);
+  }
+
   // Initializes this filter, returns true if successful, false otherwise.
   virtual bool Initialize(DataSource* data_source) = 0;
 
@@ -148,7 +160,7 @@ class DemuxerStream {
   virtual void Read(Assignable<Buffer>* buffer) = 0;
 
  protected:
-  virtual ~DemuxerStream() = 0;
+  virtual ~DemuxerStream() {}
 };
 
 

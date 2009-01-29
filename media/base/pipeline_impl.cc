@@ -386,29 +386,24 @@ Filter* PipelineThread::GetFilter() const {
   return filter;
 }
 
-template <class NewFilter, class Source>
+template <class Filter, class Source>
 bool PipelineThread::CreateFilter(FilterFactory* filter_factory,
                                   Source source,
-                                  const MediaFormat* source_media_format) {
-  NewFilter* new_filter;
-  bool success;
-  success = filter_factory->Create(source_media_format, &new_filter);
+                                  const MediaFormat* media_format) {
+  scoped_refptr<Filter> filter = filter_factory->Create<Filter>(media_format);
+  bool success = (NULL != filter);
   if (success) {
     DCHECK(!host_initializing_);
-    host_initializing_ = new FilterHostImpl(this, new_filter);
-    if (!host_initializing_) {
-      success = false;
-      new_filter->AddRef();
-      new_filter->Release();
-    }
+    host_initializing_ = new FilterHostImpl(this, filter.get());
+    success = (NULL != host_initializing_);
   }
   if (success) {
     filter_hosts_.push_back(host_initializing_);
-    new_filter->SetFilterHost(host_initializing_);
+    filter->SetFilterHost(host_initializing_);
 
     // The filter must return true from initialize and there must still not
     // be an error or it's not successful.
-    success = (new_filter->Initialize(source) &&
+    success = (filter->Initialize(source) &&
                PIPELINE_OK == pipeline_->error_);
   }
   if (success) {

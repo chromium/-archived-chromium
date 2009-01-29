@@ -43,12 +43,13 @@ class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
  public:
   // Creates a filter implementing the specified interface.  Hides the casting
   // and FilterType constants from the callers and produces cleaner code:
-  //   AudioDecoder* filter = NULL;
-  //   bool success = Create<AudioDecoder>(media_format, &filter);
-  template <class T>
-  bool Create(const MediaFormat* media_format, T** filter_out) {
-    return Create(T::filter_type(), media_format,
-                  reinterpret_cast<MediaFilter**>(filter_out));
+  //   socped_refptr<MyAudioDecoder> d = Create<MyAudioDecoder>(media_format);
+  // If the factory does not support the specific filter type or does not
+  // support the |media_format| then NULL is returned.
+  template <class Filter>
+  Filter* Create(const MediaFormat* media_format) {
+    return reinterpret_cast<Filter*>(Create(Filter::filter_type(),
+                                            media_format));
   }
 
  protected:
@@ -56,48 +57,16 @@ class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
   friend class FilterFactoryCollection;
 
   // Attempt to create a filter of the given type using the information stored
-  // in |media_format|.  If successful, the filter is assigned to |filter_out|
-  // and the method returns true.  If the filter cannot be created for any
-  // reason, |filter_out| is assigned NULL and false it returned.
+  // in |media_format|.  If successful, the filter is returned.  If the filter
+  // cannot be created for any reason, NULL is returned.
   //
-  // It is assumed that |filter_out| can be safely casted to the corresponding
-  // interface type (i.e., FILTER_AUDIO_DECODER -> AudioDecoder).
-  virtual bool Create(FilterType filter_type, const MediaFormat* media_format,
-                      MediaFilter** filter_out) = 0;
+  // It is assumed that the MediaFilter interface can be safely cast to the
+  // corresponding interface type (i.e., FILTER_AUDIO_DECODER -> AudioDecoder).
+  virtual MediaFilter* Create(FilterType filter_type,
+                              const MediaFormat* media_format) = 0;
 
   friend class base::RefCountedThreadSafe<FilterFactory>;
   virtual ~FilterFactory() {}
-};
-
-
-// Helper template class for implementing trivial filter factories.  If your
-// filter does not require any special handling during creation, you can create
-// a factory for it using this class.  It requires the following static method:
-//   bool Create(MediaFormat* media_format, YourFilterType** filter_out)
-//
-// You can create the filter factory like so:
-//   new TypeFilterFactory<YourFilterType>()
-template <class Filter>
-class TypeFilterFactory : public FilterFactory {
- public:
-  TypeFilterFactory() {}
-
- protected:
-  // Attempts to create a filter of the template type.  Assumes a static method
-  // Create is declared.
-  virtual bool Create(FilterType filter_type, const MediaFormat* media_format,
-                      MediaFilter** filter_out) {
-    Filter* filter;
-    if (Filter::filter_type() == filter_type &&
-        Filter::Create(media_format, &filter)) {
-      *filter_out = filter;
-      return true;
-    }
-    return false;
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(TypeFilterFactory);
 };
 
 
@@ -113,16 +82,14 @@ class FilterFactoryCollection : public FilterFactory {
 
  protected:
   // Attempts to create a filter by walking down the list of filter factories.
-  bool Create(FilterType filter_type, const MediaFormat* media_format,
-              MediaFilter** filter_out) {
+  MediaFilter* Create(FilterType filter_type, const MediaFormat* media_format) {
+    MediaFilter* filter = NULL;
     for (FactoryVector::iterator factory = factories_.begin();
-         factory != factories_.end();
+         !filter && factory != factories_.end();
          ++factory) {
-      if ((*factory)->Create(filter_type, media_format, filter_out)) {
-        return true;
-      }
+      filter = (*factory)->Create(filter_type, media_format);
     }
-    return false;
+    return filter;
   }
 
  private:
@@ -130,6 +97,63 @@ class FilterFactoryCollection : public FilterFactory {
   FactoryVector factories_;
 
   DISALLOW_COPY_AND_ASSIGN(FilterFactoryCollection);
+};
+
+//-----------------------------------------------------------------------------
+
+// This template is used by classes to implement a type-safe filter factory.
+// If the derived class needs to examine the |media_format| passed to the
+// Create method then they should implement the static method
+// IsMediaFormatSupported.  Classes should implement their contructor as private
+// and make FilterFactoryImpl<MyClass> a friend class.
+template <class Filter>
+class FilterFactoryImpl0 : public FilterFactory {
+ public:
+  FilterFactoryImpl0() {}
+
+ protected:
+  virtual MediaFilter* Create(FilterType filter_type,
+                              const MediaFormat* media_format) {
+    Filter* filter = NULL;
+    if (Filter::filter_type() == filter_type &&
+        Filter::IsMediaFormatSupported(media_format)) {
+      filter = new Filter();
+    }
+    return filter;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(FilterFactoryImpl0);
+};
+
+// This template can be used by classes that need to be constructed with a
+// parameter that needs to be used in the construction of the actual filter.
+// This would usually be a "parent" object which the instantiated filter needs
+// to communicate with.  The class's CreateFactory method would look like:
+//   static FilterFactory* CreateFactory(MyRequiredParentClass* parent) {
+//      return new FilterFactoryImpl1<MyClass>(parent);
+//   }
+// The class would be constructed with the same pointer passed to the
+// CreateFactory method.
+template <class Filter, class A>
+class FilterFactoryImpl1 : public FilterFactory {
+ public:
+  explicit FilterFactoryImpl1(A a) : a_(a) {}
+
+ protected:
+  virtual MediaFilter* Create(FilterType filter_type,
+                              const MediaFormat* media_format) {
+    Filter* filter = NULL;
+    if (Filter::filter_type() == filter_type &&
+        Filter::IsMediaFormatSupported(media_format)) {
+      filter = new Filter(a_);
+    }
+    return filter;
+  }
+
+ private:
+  A const a_;
+  DISALLOW_COPY_AND_ASSIGN(FilterFactoryImpl1);
 };
 
 }  // namespace media
