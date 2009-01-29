@@ -5,12 +5,10 @@
 #ifndef CHROME_BROWSER_SHELL_DIALOGS_H_
 #define CHROME_BROWSER_SHELL_DIALOGS_H_
 
-// TODO(maruel):  Remove once  HWND is typedef.
-#include <windows.h>
-
 #include <string>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 
 class ChromeFont;
@@ -23,7 +21,7 @@ class BaseShellDialog {
  public:
   // Returns true if the a shell dialog box is currently being shown modally
   // to the specified owner.
-  virtual bool IsRunning(HWND owning_hwnd) const = 0;
+  virtual bool IsRunning(gfx::NativeView owning_window) const = 0;
 
   // Notifies the dialog box that the listener has been destroyed and it should
   // no longer be sent notifications.
@@ -96,7 +94,7 @@ class SelectFileDialog
                           const std::wstring& default_path,
                           const std::wstring& filter,
                           const std::wstring& default_extension,
-                          HWND owning_hwnd,
+                          gfx::NativeView owning_window,
                           void* params) = 0;
 };
 
@@ -128,26 +126,26 @@ class SelectFontDialog
   static SelectFontDialog* Create(Listener* listener);
 
   // Selects a font. This will start displaying the dialog box. This will also
-  // block the calling HWND until the dialog box is complete. The listener
+  // block the calling window until the dialog box is complete. The listener
   // associated with this object will be notified when the selection is
   // complete.
-  // |owning_hwnd| is the window the dialog is modal to, or NULL for a modeless
-  // dialog.
+  // |owning_window| is the window the dialog is modal to, or NULL for a
+  // modeless dialog.
   // |params| is data from the calling context which will be passed through to
   // the listener. Can be NULL.
   // NOTE: only one instance of any shell dialog can be shown per owning_hwnd
   //       at a time (for obvious reasons).
   // TODO(beng): support specifying the default font selected in the list when
   //             the dialog appears.
-  virtual void SelectFont(HWND owning_hwnd,
+  virtual void SelectFont(gfx::NativeView owning_window,
                           void* params) = 0;
 
   // Same as above - also support specifying the default font selected in the
   // list when the dialog appears.
-  virtual void SelectFont(HWND owning_hwnd,
+  virtual void SelectFont(gfx::NativeView owning_window,
                           void* params,
                           const std::wstring& font_name,
                           int font_size) = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_SHELL_DIALOGS_H_
+#endif  // CHROME_BROWSER_SHELL_DIALOGS_H_

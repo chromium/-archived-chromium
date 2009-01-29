@@ -990,15 +990,14 @@ void WebContents::RunFileChooser(bool multiple_files,
                                  const std::wstring& title,
                                  const std::wstring& default_file,
                                  const std::wstring& filter) {
-  // TODO(brettw) move this to the view.
-  HWND toplevel_hwnd = GetAncestor(GetContainerHWND(), GA_ROOT);
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
   SelectFileDialog::Type dialog_type =
     multiple_files ? SelectFileDialog::SELECT_OPEN_MULTI_FILE :
                      SelectFileDialog::SELECT_OPEN_FILE;
   select_file_dialog_->SelectFile(dialog_type, title, default_file, filter,
-                                  std::wstring(), toplevel_hwnd, NULL);
+                                  std::wstring(),
+                                  view_->GetTopLevelNativeView(), NULL);
 }
 
 void WebContents::RunJavaScriptMessage(

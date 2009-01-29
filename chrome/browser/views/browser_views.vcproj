@@ -730,7 +730,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\shell_dialogs.cc"
+			RelativePath=".\shell_dialogs_win.cc"
 			>
 		</File>
 		<File
