@@ -43,10 +43,6 @@ class BrowserView : public BrowserWindow,
                     public views::WindowDelegate,
                     public views::ClientView {
  public:
-  // In restored mode, we draw a 1 px edge around the content area inside the
-  // frame border.
-  static const int kClientEdgeThickness;
-
   // Explicitly sets how windows are shown. Use a value of -1 to give the
   // default behavior. This is used during testing and not generally useful
   // otherwise.

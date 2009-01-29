@@ -27,6 +27,10 @@ class ClientView;
 //
 class NonClientView : public View {
  public:
+  // In restored mode, we draw a 1 px edge around the content area inside the
+  // frame border.
+  static const int kClientEdgeThickness;
+
   // Calculates the bounds of the client area of the window assuming the
   // window is sized to |width| and |height|.
   virtual gfx::Rect CalculateClientAreaBounds(int width,

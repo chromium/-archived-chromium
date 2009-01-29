@@ -49,10 +49,6 @@ enum {
   FRAME_TOP_LEFT_CORNER,
   FRAME_TOP_RIGHT_CORNER,
 
-  // Window Maximized Border.
-  FRAME_MAXIMIZED_TOP_EDGE,
-  FRAME_MAXIMIZED_BOTTOM_EDGE,
-
   // Client Edge Border.
   FRAME_CLIENT_EDGE_TOP_LEFT,
   FRAME_CLIENT_EDGE_TOP,
@@ -97,7 +93,6 @@ class ActiveWindowResources : public views::WindowResources {
             IDR_WINDOW_BOTTOM_RIGHT_CORNER, IDR_WINDOW_LEFT_SIDE,
             IDR_WINDOW_RIGHT_SIDE, IDR_WINDOW_TOP_CENTER,
             IDR_WINDOW_TOP_LEFT_CORNER, IDR_WINDOW_TOP_RIGHT_CORNER,
-        IDR_WINDOW_TOP_CENTER, IDR_WINDOW_BOTTOM_CENTER,
         IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
@@ -149,7 +144,6 @@ class InactiveWindowResources : public views::WindowResources {
             IDR_DEWINDOW_BOTTOM_RIGHT_CORNER, IDR_DEWINDOW_LEFT_SIDE,
             IDR_DEWINDOW_RIGHT_SIDE, IDR_DEWINDOW_TOP_CENTER,
             IDR_DEWINDOW_TOP_LEFT_CORNER, IDR_DEWINDOW_TOP_RIGHT_CORNER,
-        IDR_DEWINDOW_TOP_CENTER, IDR_DEWINDOW_BOTTOM_CENTER,
         IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
@@ -201,7 +195,6 @@ class OTRActiveWindowResources : public views::WindowResources {
             IDR_WINDOW_BOTTOM_RIGHT_CORNER_OTR, IDR_WINDOW_LEFT_SIDE_OTR,
             IDR_WINDOW_RIGHT_SIDE_OTR, IDR_WINDOW_TOP_CENTER_OTR,
             IDR_WINDOW_TOP_LEFT_CORNER_OTR, IDR_WINDOW_TOP_RIGHT_CORNER_OTR,
-        IDR_WINDOW_TOP_CENTER_OTR, IDR_WINDOW_BOTTOM_CENTER_OTR,
         IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
@@ -253,7 +246,6 @@ class OTRInactiveWindowResources : public views::WindowResources {
             IDR_DEWINDOW_RIGHT_SIDE_OTR, IDR_DEWINDOW_TOP_CENTER_OTR,
             IDR_DEWINDOW_TOP_LEFT_CORNER_OTR,
             IDR_DEWINDOW_TOP_RIGHT_CORNER_OTR,
-        IDR_DEWINDOW_TOP_CENTER_OTR, IDR_DEWINDOW_BOTTOM_CENTER_OTR,
         IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
@@ -717,7 +709,7 @@ int OpaqueNonClientView::TopResizeHeight() const {
 int OpaqueNonClientView::NonClientBorderWidth() const {
   // In maximized mode, we don't show a client edge.
   return FrameBorderWidth() +
-      (frame_->IsMaximized() ? 0 : BrowserView::kClientEdgeThickness);
+      (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::NonClientTopBorderHeight() const {
@@ -735,14 +727,14 @@ int OpaqueNonClientView::NonClientBottomBorderHeight() const {
   // extended slightly.
   return frame_->IsMaximized() ? (GetSystemMetrics(SM_CYSIZEFRAME) +
       kFrameBorderMaximizedExtraBottomThickness) :
-      (kFrameBorderThickness + BrowserView::kClientEdgeThickness);
+      (kFrameBorderThickness + kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {
   if (browser_view_->IsToolbarVisible())
     return 0;
   return kFrameShadowThickness +
-      (frame_->IsMaximized() ? 0 : BrowserView::kClientEdgeThickness);
+      (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
@@ -821,7 +813,7 @@ void OpaqueNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
-  SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_MAXIMIZED_TOP_EDGE);
+  SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
   canvas->TileImageInt(*top_edge, 0, FrameTopBorderHeight(), width(),
                        top_edge->height());
 
@@ -829,14 +821,12 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
     // There's no toolbar to edge the frame border, so we need to draw a bottom
     // edge.  The App Window graphic we use for this has a built in client edge,
     // so we clip it off the bottom.
-    int edge_height =
-        app_top_center_.height() - BrowserView::kClientEdgeThickness;
+    int edge_height = app_top_center_.height() - kClientEdgeThickness;
     canvas->TileImageInt(app_top_center_, 0,
         frame_->client_view()->y() - edge_height, width(), edge_height);
   }
 
-  SkBitmap* bottom_edge =
-      resources()->GetPartBitmap(FRAME_MAXIMIZED_BOTTOM_EDGE);
+  SkBitmap* bottom_edge = resources()->GetPartBitmap(FRAME_BOTTOM_EDGE);
   // We draw the bottom edge of this image.
   canvas->TileImageInt(*bottom_edge, 0,
       bottom_edge->height() - kFrameBorderMaximizedExtraBottomThickness, 0,
@@ -926,14 +916,15 @@ void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
     //
     // To address this, we extend the left and right client edges up to fill the
     // gap, by pretending the toolbar is shorter than it really is.
-    client_area_top -= BrowserView::kClientEdgeThickness;
+    client_area_top -= kClientEdgeThickness;
   } else {
     // The toolbar isn't going to draw a client edge for us, so draw one
     // ourselves.
+    // This next calculation is necessary because the top center bitmap is
+    // shorter than the top left and right bitmaps.  We need their top edges to
+    // line up, and we need the left and right edges to start below the corners'
+    // bottoms.
     int top_edge_y = client_area_top - app_top_center_.height();
-    // This is necessary because the top center bitmap is shorter than the top
-    // left and right bitmaps.  We need their top edges to line up, and we
-    // need the left and right edges to start below the corners' bottoms.
     client_area_top = top_edge_y + app_top_left_.height();
     canvas->DrawBitmapInt(app_top_left_,
                           client_area_bounds.x() - app_top_left_.width(),

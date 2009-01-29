@@ -6,6 +6,8 @@
 
 namespace views {
 
+const int NonClientView::kClientEdgeThickness = 1;
+
 int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
                                           int top_resize_border_height,
                                           int resize_border_width,

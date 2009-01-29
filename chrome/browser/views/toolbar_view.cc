@@ -22,7 +22,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/dom_view.h"
-#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/views/theme_helpers.h"
@@ -40,6 +39,7 @@
 #include "chrome/views/button_dropdown.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/label.h"
+#include "chrome/views/non_client_view.h"
 #include "chrome/views/tooltip_manager.h"
 #include "chrome/views/widget.h"
 #include "net/base/net_util.h"
@@ -487,7 +487,7 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
   // prevents the content area from being off by |kClientEdgeThickness| px.
   int client_edge_height =
       (browser_->window() && browser_->window()->IsMaximized()) ?
-      0 : BrowserView::kClientEdgeThickness;
+      0 : views::NonClientView::kClientEdgeThickness;
   return gfx::Size(0,
       location_bar_->GetPreferredSize().height() + client_edge_height);
 }
