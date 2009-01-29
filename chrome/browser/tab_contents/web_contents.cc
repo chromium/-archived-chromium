@@ -29,7 +29,7 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/render_widget_host_view_win.h"  // TODO(brettw) delete me.
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -1376,19 +1376,16 @@ void WebContents::UpdateRenderViewSizeForRenderManager() {
 
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
-  RenderWidgetHostView* rvh_view = view_->CreateViewForWidget(render_view_host);
+  RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);
+  if (!render_view_host->CreateRenderView())
+    return false;
 
-  bool ok = render_view_host->CreateRenderView();
-  if (ok) {
-    // TODO(brettw) hack alert. Do this in some cross platform way, or move
-    // to the view?
-    RenderWidgetHostViewWin* rvh_view_win =
-        static_cast<RenderWidgetHostViewWin*>(rvh_view);
-    rvh_view->SetSize(view_->GetContainerSize());
-    UpdateMaxPageIDIfNecessary(render_view_host->site_instance(),
-                               render_view_host);
-  }
-  return ok;
+  // Now that the RenderView has been created, we need to tell it its size.
+  rwh_view->SetSize(view_->GetContainerSize());
+
+  UpdateMaxPageIDIfNecessary(render_view_host->site_instance(),
+                             render_view_host);
+  return true;
 }
 
 void WebContents::Observe(NotificationType type,

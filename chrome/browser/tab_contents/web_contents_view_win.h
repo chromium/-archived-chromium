@@ -30,7 +30,7 @@ class WebContentsViewWin : public WebContentsView,
 
   virtual WebContents* GetWebContents();
   virtual void CreateView();
-  virtual RenderWidgetHostViewWin* CreateViewForWidget(
+  virtual RenderWidgetHostView* CreateViewForWidget(
       RenderWidgetHost* render_widget_host);
   virtual gfx::NativeView GetNativeView() const;
   virtual gfx::NativeView GetContentNativeView() const;

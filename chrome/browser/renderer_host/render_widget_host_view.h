@@ -21,23 +21,22 @@ class RenderProcessHost;
 class RenderWidgetHost;
 class WebCursor;
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// RenderWidgetHostView
-//
-//  RenderWidgetHostView is an interface implemented by an object that acts as
-//  the "View" portion of a RenderWidgetHost. The RenderWidgetHost and its
-//  associated RenderProcessHost own the "Model" in this case which is the
-//  child renderer process. The View is responsible for receiving events from
-//  the surrounding environment and passing them to the RenderWidgetHost, and
-//  for actually displaying the content of the RenderWidgetHost when it
-//  changes.
-//
-///////////////////////////////////////////////////////////////////////////////
+// RenderWidgetHostView is an interface implemented by an object that acts as
+// the "View" portion of a RenderWidgetHost. The RenderWidgetHost and its
+// associated RenderProcessHost own the "Model" in this case which is the
+// child renderer process. The View is responsible for receiving events from
+// the surrounding environment and passing them to the RenderWidgetHost, and
+// for actually displaying the content of the RenderWidgetHost when it
+// changes.
 class RenderWidgetHostView {
  public:
   // Platform-specific creator. Use this to construct new RenderWidgetHostViews
   // rather than using RenderWidgetHostViewWin & friends.
+  //
+  // This function must NOT size it, because the RenderView in the renderer
+  // wounldn't have been created yet. The widget would set its "waiting for
+  // resize ack" flag, and the ack would never come becasue no RenderView
+  // received it.
   //
   // The RenderWidgetHost must already be created (because we can't know if it's
   // going to be a regular RenderWidgetHost or a RenderViewHost (a subclass).

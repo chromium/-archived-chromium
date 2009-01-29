@@ -64,7 +64,7 @@ void WebContentsViewWin::CreateView() {
   drop_target_ = new WebDropTarget(GetHWND(), web_contents_);
 }
 
-RenderWidgetHostViewWin* WebContentsViewWin::CreateViewForWidget(
+RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
     RenderWidgetHost* render_widget_host) {
   DCHECK(!render_widget_host->view());
   RenderWidgetHostViewWin* view =

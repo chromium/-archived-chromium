@@ -18,7 +18,6 @@ class Browser;
 class RenderViewHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
-class RenderWidgetHostViewWin;  // TODO(brettw) this should not be necessary.
 class WebContents;
 struct WebDropData;
 class WebKeyboardEvent;
@@ -43,10 +42,9 @@ class WebContentsView : public RenderViewHostDelegate::View {
   virtual void CreateView() = 0;
 
   // Sets up the View that holds the rendered web page, receives messages for
-  // it and contains page plugins.
-  // TODO(brettw) make this so we don't need to return the Win version (see the
-  // caller in WebContents).
-  virtual RenderWidgetHostViewWin* CreateViewForWidget(
+  // it and contains page plugins. The host view should be sized to the current
+  // size of the WebContents.
+  virtual RenderWidgetHostView* CreateViewForWidget(
       RenderWidgetHost* render_widget_host) = 0;
 
   // Returns the native widget that contains the contents of the tab.
