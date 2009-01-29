@@ -493,35 +493,6 @@ void OpaqueNonClientView::UpdateWindowIcon() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, TabIconView::TabContentsProvider implementation:
-
-bool OpaqueNonClientView::ShouldTabIconViewAnimate() const {
-  // This function is queried during the creation of the window as the
-  // TabIconView we host is initialized, so we need to NULL check the selected
-  // TabContents because in this condition there is not yet a selected tab.
-  TabContents* current_tab = browser_view_->GetSelectedTabContents();
-  return current_tab ? current_tab->is_loading() : false;
-}
-
-SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
-  return frame_->window_delegate()->GetWindowIcon();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, views::BaseButton::ButtonListener implementation:
-
-void OpaqueNonClientView::ButtonPressed(views::BaseButton* sender) {
-  if (sender == minimize_button_)
-    frame_->ExecuteSystemMenuCommand(SC_MINIMIZE);
-  else if (sender == maximize_button_)
-    frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
-  else if (sender == restore_button_)
-    frame_->ExecuteSystemMenuCommand(SC_RESTORE);
-  else if (sender == close_button_)
-    frame_->ExecuteSystemMenuCommand(SC_CLOSE);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, views::NonClientView implementation:
 
 gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
@@ -541,6 +512,8 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
 }
 
 CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
+  // TODO(pkasting): This is wrong; Windows native runs the menu at the bottom
+  // of the titlebar, not the bottom of the window icon.
   CPoint system_menu_point(icon_bounds_.x(), icon_bounds_.bottom());
   MapWindowPoints(frame_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
   return system_menu_point;
@@ -696,6 +669,35 @@ void OpaqueNonClientView::SetAccessibleName(const std::wstring& name) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// OpaqueNonClientView, views::BaseButton::ButtonListener implementation:
+
+void OpaqueNonClientView::ButtonPressed(views::BaseButton* sender) {
+  if (sender == minimize_button_)
+    frame_->ExecuteSystemMenuCommand(SC_MINIMIZE);
+  else if (sender == maximize_button_)
+    frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
+  else if (sender == restore_button_)
+    frame_->ExecuteSystemMenuCommand(SC_RESTORE);
+  else if (sender == close_button_)
+    frame_->ExecuteSystemMenuCommand(SC_CLOSE);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OpaqueNonClientView, TabIconView::TabContentsProvider implementation:
+
+bool OpaqueNonClientView::ShouldTabIconViewAnimate() const {
+  // This function is queried during the creation of the window as the
+  // TabIconView we host is initialized, so we need to NULL check the selected
+  // TabContents because in this condition there is not yet a selected tab.
+  TabContents* current_tab = browser_view_->GetSelectedTabContents();
+  return current_tab ? current_tab->is_loading() : false;
+}
+
+SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
+  return frame_->window_delegate()->GetWindowIcon();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, private:
 
 int OpaqueNonClientView::FrameBorderWidth() const {
@@ -719,13 +721,13 @@ int OpaqueNonClientView::NonClientBorderWidth() const {
 }
 
 int OpaqueNonClientView::NonClientTopBorderHeight() const {
-  if (!frame_->window_delegate()->ShouldShowWindowTitle()) {
-    return FrameTopBorderHeight() +
-        (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
+  if (frame_->window_delegate()->ShouldShowWindowTitle()) {
+    int title_top_spacing, title_thickness;
+    return TitleCoordinates(&title_top_spacing, &title_thickness);
   }
 
-  int title_top_spacing, title_thickness;
-  return TitleCoordinates(&title_top_spacing, &title_thickness);
+  return FrameTopBorderHeight() +
+      (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
 }
 
 int OpaqueNonClientView::NonClientBottomBorderHeight() const {
@@ -771,8 +773,7 @@ int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
 }
 
 void OpaqueNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
-  SkBitmap* top_left_corner =
-      resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
+  SkBitmap* top_left_corner = resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources()->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
@@ -847,8 +848,8 @@ void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
   if (!frame_->IsMaximized() && !distributor_logo_.empty()) {
-    int logo_x = MirroredLeftPointForRect(logo_bounds_);
-    canvas->DrawBitmapInt(distributor_logo_, logo_x, logo_bounds_.y());
+    canvas->DrawBitmapInt(distributor_logo_,
+        MirroredLeftPointForRect(logo_bounds_), logo_bounds_.y());
   }
 }
 
@@ -970,8 +971,6 @@ void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::LayoutWindowControls() {
-  // TODO(pkasting): This function is almost identical to
-  // DefaultNonClientView::LayoutWindowControls(), they should be combined.
   close_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
                                    views::Button::ALIGN_BOTTOM);
   // Maximized buttons start at window top so that even if their images aren't
@@ -1006,8 +1005,7 @@ void OpaqueNonClientView::LayoutWindowControls() {
                                     views::Button::ALIGN_BOTTOM);
   gfx::Size visible_button_size = visible_button->GetPreferredSize();
   visible_button->SetBounds(close_button_->x() - visible_button_size.width(),
-                            caption_y,
-                            visible_button_size.width(),
+                            caption_y, visible_button_size.width(),
                             visible_button_size.height() + top_extra_height);
 
   minimize_button_->SetVisible(true);
@@ -1069,10 +1067,10 @@ void OpaqueNonClientView::LayoutTitleBar() {
   if (d->ShouldShowWindowTitle()) {
     int icon_right = icon_bounds_.right();
     int title_x =
-        icon_right + (d->ShouldShowWindowIcon() ? kLogoCaptionSpacing : 0);
+        icon_right + (d->ShouldShowWindowIcon() ? kIconTitleSpacing : 0);
     title_bounds_.SetRect(title_x,
         title_top_spacing + ((title_thickness - title_font_.height()) / 2),
-        std::max(0, logo_bounds_.x() - kTitleLogoSpacing - icon_right),
+        std::max(0, logo_bounds_.x() - kTitleLogoSpacing - title_x),
         title_font_.height());
   }
 }

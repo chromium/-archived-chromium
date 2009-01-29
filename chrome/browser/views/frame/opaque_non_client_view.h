@@ -39,13 +39,6 @@ class OpaqueNonClientView : public views::NonClientView,
   void UpdateWindowIcon();
 
  protected:
-  // Overridden from TabIconView::TabIconViewModel:
-  virtual bool ShouldTabIconViewAnimate() const;
-  virtual SkBitmap GetFavIconForTabIconView();
-
-  // Overridden from views::BaseButton::ButtonListener:
-  virtual void ButtonPressed(views::BaseButton* sender);
-
   // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
@@ -68,6 +61,13 @@ class OpaqueNonClientView : public views::NonClientView,
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
+
+  // Overridden from views::BaseButton::ButtonListener:
+  virtual void ButtonPressed(views::BaseButton* sender);
+
+  // Overridden from TabIconView::TabIconViewModel:
+  virtual bool ShouldTabIconViewAnimate() const;
+  virtual SkBitmap GetFavIconForTabIconView();
 
  private:
   // Returns the width of the border that makes up the window frame left and
