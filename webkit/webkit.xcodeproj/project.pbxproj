@@ -883,7 +883,6 @@
 		938447250F16B0570075F4C5 /* TextCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180750E9581B6006EAF87 /* TextCodec.cpp */; };
 		938447260F16B0570075F4C5 /* TextCodecICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91E20D7F3CC3001ECF42 /* TextCodecICU.cpp */; };
 		938447270F16B0570075F4C5 /* TextCodecLatin1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91E40D7F3CC3001ECF42 /* TextCodecLatin1.cpp */; };
-		938447280F16B0570075F4C5 /* TextCodecMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */; };
 		938447290F16B0570075F4C5 /* TextCodecUserDefined.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91E60D7F3CC3001ECF42 /* TextCodecUserDefined.cpp */; };
 		9384472A0F16B0570075F4C5 /* TextCodecUTF16.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180780E9581CB006EAF87 /* TextCodecUTF16.cpp */; };
 		9384472B0F16B0570075F4C5 /* TextControlInnerElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */; };
@@ -3271,8 +3270,6 @@
 		7B5E91C20D7F3CC2001ECF42 /* StringMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringMac.mm; sourceTree = "<group>"; };
 		7B5E91C30D7F3CC2001ECF42 /* TextBoundaries.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextBoundaries.mm; sourceTree = "<group>"; };
 		7B5E91C40D7F3CC2001ECF42 /* TextBreakIteratorInternalICUMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextBreakIteratorInternalICUMac.mm; sourceTree = "<group>"; };
-		7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextCodecMac.cpp; sourceTree = "<group>"; };
-		7B5E91C60D7F3CC2001ECF42 /* TextCodecMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextCodecMac.h; sourceTree = "<group>"; };
 		7B5E91C70D7F3CC2001ECF42 /* PlatformString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformString.h; sourceTree = "<group>"; };
 		7B5E91CE0D7F3CC3001ECF42 /* RegularExpression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RegularExpression.cpp; sourceTree = "<group>"; };
 		7B5E91CF0D7F3CC3001ECF42 /* RegularExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegularExpression.h; sourceTree = "<group>"; };
@@ -6113,8 +6110,6 @@
 				7B5E91C20D7F3CC2001ECF42 /* StringMac.mm */,
 				7B5E91C30D7F3CC2001ECF42 /* TextBoundaries.mm */,
 				7B5E91C40D7F3CC2001ECF42 /* TextBreakIteratorInternalICUMac.mm */,
-				7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */,
-				7B5E91C60D7F3CC2001ECF42 /* TextCodecMac.h */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -9343,7 +9338,6 @@
 				938447250F16B0570075F4C5 /* TextCodec.cpp in Sources */,
 				938447260F16B0570075F4C5 /* TextCodecICU.cpp in Sources */,
 				938447270F16B0570075F4C5 /* TextCodecLatin1.cpp in Sources */,
-				938447280F16B0570075F4C5 /* TextCodecMac.cpp in Sources */,
 				938447290F16B0570075F4C5 /* TextCodecUserDefined.cpp in Sources */,
 				9384472A0F16B0570075F4C5 /* TextCodecUTF16.cpp in Sources */,
 				9384472B0F16B0570075F4C5 /* TextControlInnerElements.cpp in Sources */,
