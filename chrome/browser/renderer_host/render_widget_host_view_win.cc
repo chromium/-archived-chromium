@@ -137,7 +137,7 @@ void RenderWidgetHostViewWin::SetSize(const gfx::Size& size) {
   EnsureTooltip();
 }
 
-HWND RenderWidgetHostViewWin::GetPluginHWND() {
+gfx::NativeView RenderWidgetHostViewWin::GetPluginNativeView() {
   return m_hWnd;
 }
 

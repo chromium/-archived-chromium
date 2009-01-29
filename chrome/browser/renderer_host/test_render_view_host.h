@@ -38,9 +38,7 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void DidBecomeSelected() {}
   virtual void WasHidden() {}
   virtual void SetSize(const gfx::Size& size) {}
-#if defined(OS_WIN)
-  virtual HWND GetPluginHWND() { return NULL; }
-#endif
+  virtual gfx::NativeView GetPluginNativeView() { return NULL; }
   virtual void MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {}
   virtual void ForwardMouseEventToRenderer(UINT message,

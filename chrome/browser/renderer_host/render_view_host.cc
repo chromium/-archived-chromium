@@ -153,7 +153,7 @@ bool RenderViewHost::CreateRenderView() {
   modal_dialog_event.event = modal_dialog_event_handle;
 #endif
 
-  Send(new ViewMsg_New(gfx::IdFromNativeView(view()->GetPluginHWND()),
+  Send(new ViewMsg_New(gfx::IdFromNativeView(view()->GetPluginNativeView()),
                        modal_dialog_event,
                        delegate_->GetWebkitPrefs(),
                        routing_id()));

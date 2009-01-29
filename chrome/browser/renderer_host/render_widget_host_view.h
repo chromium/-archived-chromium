@@ -7,12 +7,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
-#include "build/build_config.h"
 #include "chrome/common/render_messages.h"
-
-#if defined(OS_WIN)
-#include <windows.h>
-#endif
 
 namespace gfx {
 class Rect;
@@ -60,8 +55,8 @@ class RenderWidgetHostView {
   // Tells the View to size itself to the specified size.
   virtual void SetSize(const gfx::Size& size) = 0;
 
-  // Retrieves the HWND used to contain plugin HWNDs.
-  virtual gfx::NativeView GetPluginHWND() = 0;
+  // Retrieves the native view used to contain plugins.
+  virtual gfx::NativeView GetPluginNativeView() = 0;
 
   // Moves all plugin windows as described in the given list.
   virtual void MovePluginWindows(

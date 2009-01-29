@@ -80,7 +80,7 @@ gfx::NativeView WebContentsViewWin::GetNativeView() const {
 gfx::NativeView WebContentsViewWin::GetContentNativeView() const {
   if (!web_contents_->render_widget_host_view())
     return NULL;
-  return web_contents_->render_widget_host_view()->GetPluginHWND();
+  return web_contents_->render_widget_host_view()->GetPluginNativeView();
 }
 
 void WebContentsViewWin::GetContainerBounds(gfx::Rect* out) const {
@@ -177,8 +177,9 @@ void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
     ::SetWindowText(GetNativeView(), title.c_str());
     // TODO(brettw) this call seems messy the way it reaches into the widget
     // view, and I'm not sure it's necessary. Maybe we should just remove it.
-    ::SetWindowText(web_contents_->render_widget_host_view()->GetPluginHWND(),
-                    title.c_str());
+    ::SetWindowText(
+        web_contents_->render_widget_host_view()->GetPluginNativeView(),
+        title.c_str());
   }
 }
 
@@ -373,7 +374,7 @@ RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
   // TODO(brettw) this should not need to get the current RVHView from the
   // WebContents. We should have it somewhere ourselves.
   widget_view->set_parent_hwnd(
-      web_contents_->render_widget_host_view()->GetPluginHWND());
+      web_contents_->render_widget_host_view()->GetPluginNativeView());
   widget_view->set_close_on_deactivate(true);
   widget_view->set_activatable(activatable);
 
@@ -519,7 +520,8 @@ void WebContentsViewWin::OnSetFocus(HWND window) {
   // We NULL-check the render_view_host_ here because Windows can send us
   // messages during the destruction process after it has been destroyed.
   if (web_contents_->render_widget_host_view()) {
-    HWND inner_hwnd = web_contents_->render_widget_host_view()->GetPluginHWND();
+    HWND inner_hwnd =
+        web_contents_->render_widget_host_view()->GetPluginNativeView();
     if (::IsWindow(inner_hwnd))
       ::SetFocus(inner_hwnd);
   }

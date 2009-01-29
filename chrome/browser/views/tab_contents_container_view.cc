@@ -227,11 +227,15 @@ void TabContentsContainerView::RemoveObservers() {
 
 void TabContentsContainerView::RenderViewHostChanged(RenderViewHost* old_host,
                                                      RenderViewHost* new_host) {
-  if (old_host && old_host->view())
-    FocusManager::UninstallFocusSubclass(old_host->view()->GetPluginHWND());
+  if (old_host && old_host->view()) {
+    FocusManager::UninstallFocusSubclass(
+        old_host->view()->GetPluginNativeView());
+  }
 
-  if (new_host && new_host->view())
-    FocusManager::InstallFocusSubclass(new_host->view()->GetPluginHWND(), this);
+  if (new_host && new_host->view()) {
+    FocusManager::InstallFocusSubclass(
+        new_host->view()->GetPluginNativeView(), this);
+  }
 
   // If we are focused, we need to pass the focus to the new RenderViewHost.
   FocusManager* focus_manager =
