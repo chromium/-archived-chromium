@@ -8,6 +8,7 @@
 #include "skia/ext/platform_device.h"
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
+#include "base/simple_thread.h"
 #include "base/time.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_paths.h"
@@ -397,95 +398,75 @@ class PrintingLayoutTextTest : public PrintingLayoutTest {
   }
 };
 
-// Dismiss the first dialog box child of owner_window by "executing" the
+// Finds the first dialog window owned by owner_process.
+HWND FindDialogWindow(DWORD owner_process) {
+  HWND dialog_window(NULL);
+  for (;;) {
+    dialog_window = FindWindowEx(NULL,
+                                 dialog_window,
+                                 MAKEINTATOM(32770),
+                                 NULL);
+    if (!dialog_window)
+      break;
+
+    // The dialog must be owned by our target process.
+    DWORD process_id = 0;
+    GetWindowThreadProcessId(dialog_window, &process_id);
+    if (process_id == owner_process)
+      break;
+  }
+  return dialog_window;
+}
+
+// Tries to close a dialog window.
+bool CloseDialogWindow(HWND dialog_window) {
+  LRESULT res = SendMessage(dialog_window, DM_GETDEFID, 0, 0);
+  if (!res)
+    return false;
+  EXPECT_EQ(DC_HASDEFID, HIWORD(res));
+  WORD print_button_id = LOWORD(res);
+  res = SendMessage(
+      dialog_window,
+      WM_COMMAND,
+      print_button_id,
+      reinterpret_cast<LPARAM>(GetDlgItem(dialog_window, print_button_id)));
+  return res == 0;
+}
+
+// Dismiss the first dialog box owned by owner_process by "executing" the
 // default button.
-class DismissTheWindow : public base::RefCountedThreadSafe<DismissTheWindow> {
+class DismissTheWindow : public base::DelegateSimpleThread::Delegate {
  public:
   DismissTheWindow(DWORD owner_process)
-      : owner_process_(owner_process),
-        dialog_was_found_(false),
-        dialog_window_(NULL),
-        other_thread_(MessageLoop::current()),
-        start_time_(Time::Now()) {
+      : owner_process_(owner_process) {
   }
 
-  void Start() {
-    timer_.Start(TimeDelta::FromMilliseconds(250), this,
-                 &DismissTheWindow::DoTimeout);
-  }
+  virtual void Run() {
+    HWND dialog_window;
+    for (;;) {
+      // First enumerate the windows.
+      dialog_window = FindDialogWindow(owner_process_);
 
- private:
-  void DoTimeout() {
-    // A bit twisted code that runs in 2 passes or more. First it tries to find
-    // a dialog box, if it finds it, it will execute the default action. If it
-    // still works, it will loop again but then it will try to *not* find the
-    // window. Once this is right, it will stop the timer and unlock the
-    // other_thread_ message loop.
-    if (!timer_.IsRunning())
-      return;
-
-    if (!dialog_window_) {
-      HWND dialog_window = NULL;
-      for (;;) {
-        dialog_window = FindWindowEx(NULL,
-                                     dialog_window,
-                                     MAKEINTATOM(32770),
-                                     NULL);
-        if (!dialog_window)
-          break;
-
-        // In some corner case, the Print... dialog box may not have any owner.
-        // Trap that case. Too bad if the user has a dialog opened.
-        if (Time::Now() - start_time_ > TimeDelta::FromSeconds(3))
-          break;
-
-        DWORD process_id = 0;
-        GetWindowThreadProcessId(dialog_window, &process_id);
-        if (process_id == owner_process_)
-          break;
-      }
+      // Try to close it.
       if (dialog_window) {
-        LRESULT res = SendMessage(dialog_window, DM_GETDEFID, 0, 0);
-        if (!res)
-          return;
-        EXPECT_EQ(DC_HASDEFID, HIWORD(res));
-        WORD print_button_id = LOWORD(res);
-        res = SendMessage(
-            dialog_window,
-            WM_COMMAND,
-            print_button_id,
-            reinterpret_cast<LPARAM>(GetDlgItem(dialog_window,
-                print_button_id)));
-        // Try again.
-        if (res)
-          return;
-
-        // Ok it succeeded.
-        dialog_window_ = dialog_window;
-        dialog_was_found_ = true;
-        return;
+        if (CloseDialogWindow(dialog_window)) {
+          break;
+        }
       }
-      if (!dialog_was_found_)
-        return;
+      Sleep(10);
     }
 
     // Now verify that it indeed closed itself.
-    if (!IsWindow(dialog_window_)) {
-      timer_.Stop();
-      // Unlock the other thread.
-      other_thread_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
-    } else {
-      // Maybe it's time to try to click it again. Restart from the begining.
-      dialog_window_ = NULL;
+    while (IsWindow(dialog_window)) {
+      CloseDialogWindow(dialog_window);
+      Sleep(10);
     }
   }
 
+  DWORD owner_process() { return owner_process_; }
+
+ private:
   DWORD owner_process_;
-  bool dialog_was_found_;
-  HWND dialog_window_;
-  MessageLoop* other_thread_;
-  base::RepeatingTimer<DismissTheWindow> timer_;
-  Time start_time_;
 };
 
 }  // namespace
@@ -495,13 +476,19 @@ TEST_F(PrintingLayoutTextTest, DISABLED_Complex) {
   if (IsTestCaseDisabled())
     return;
 
+  DismissTheWindow dismisser(base::GetProcId(process()));
+  base::DelegateSimpleThread close_printdlg_thread(&dismisser,
+                                                   "close_printdlg_thread");
+
   // Print a document, check its output.
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot);
   ASSERT_TRUE(NULL != server.get());
 
   NavigateToURL(server->TestServerPage("files/printing/test1.html"));
+  close_printdlg_thread.Start();
   PrintNowTab();
+  close_printdlg_thread.Join();
   EXPECT_EQ(0., CompareWithResult(L"test1"));
 }
 
@@ -525,9 +512,9 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
   if (IsTestCaseDisabled())
     return;
 
-  scoped_refptr<HTTPTestServer> server =
-    HTTPTestServer::CreateServer(kDocRoot);
+  scoped_refptr<HTTPTestServer> server(HTTPTestServer::CreateServer(kDocRoot));
   ASSERT_TRUE(NULL != server.get());
+  DismissTheWindow dismisser(base::GetProcId(process()));
 
   ASSERT_GT(arraysize(kTestPool), 0u);
   for (int i = 0; i < arraysize(kTestPool); ++i) {
@@ -535,31 +522,46 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
       CleanupDumpDirectory();
     const TestPool& test = kTestPool[i % arraysize(kTestPool)];
     NavigateToURL(server->TestServerPageW(test.source));
+    base::DelegateSimpleThread close_printdlg_thread1(&dismisser,
+                                                      "close_printdlg_thread");
+    EXPECT_EQ(NULL, FindDialogWindow(dismisser.owner_process()));
+    close_printdlg_thread1.Start();
     PrintNowTab();
+    close_printdlg_thread1.Join();
     EXPECT_EQ(0., CompareWithResult(test.result)) << test.result;
     CleanupDumpDirectory();
+    base::DelegateSimpleThread close_printdlg_thread2(&dismisser,
+                                                      "close_printdlg_thread");
+    EXPECT_EQ(NULL, FindDialogWindow(dismisser.owner_process()));
+    close_printdlg_thread2.Start();
     PrintNowTab();
+    close_printdlg_thread2.Join();
     EXPECT_EQ(0., CompareWithResult(test.result)) << test.result;
     CleanupDumpDirectory();
+    base::DelegateSimpleThread close_printdlg_thread3(&dismisser,
+                                                      "close_printdlg_thread");
+    EXPECT_EQ(NULL, FindDialogWindow(dismisser.owner_process()));
+    close_printdlg_thread3.Start();
     PrintNowTab();
+    close_printdlg_thread3.Join();
     EXPECT_EQ(0., CompareWithResult(test.result)) << test.result;
     CleanupDumpDirectory();
+    base::DelegateSimpleThread close_printdlg_thread4(&dismisser,
+                                                      "close_printdlg_thread");
+    EXPECT_EQ(NULL, FindDialogWindow(dismisser.owner_process()));
+    close_printdlg_thread4.Start();
     PrintNowTab();
+    close_printdlg_thread4.Join();
     EXPECT_EQ(0., CompareWithResult(test.result)) << test.result;
   }
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
+TEST_F(PrintingLayoutTest, Delayed) {
   if (IsTestCaseDisabled())
     return;
-  // TODO(maruel):  This test is failing on Windows 2000. I haven't investigated
-  // why.
-  if (win_util::GetWinVersion() < win_util::WINVERSION_XP)
-    return;
 
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+  scoped_refptr<HTTPTestServer> server(HTTPTestServer::CreateServer(kDocRoot));
   ASSERT_TRUE(NULL != server.get());
 
   {
@@ -570,19 +572,11 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
 
-
-    scoped_ptr<base::Thread> worker(
-        new base::Thread("PrintingLayoutTest_worker"));
-    scoped_refptr<DismissTheWindow> dismiss_task =
-        new DismissTheWindow(base::GetProcId(process()));
-    // We need to start the thread to be able to set the timer.
-    worker->Start();
-    worker->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(dismiss_task.get(), &DismissTheWindow::Start));
-
-    MessageLoop::current()->Run();
-
-    worker->Stop();
+    DismissTheWindow dismisser(base::GetProcId(process()));
+    base::DelegateSimpleThread close_printdlg_thread(&dismisser,
+                                                     "close_printdlg_thread");
+    close_printdlg_thread.Start();
+    close_printdlg_thread.Join();
 
     // Force a navigation elsewhere to verify that it's fine with it.
     url = server->TestServerPage("files/printing/test1.html");
@@ -596,12 +590,11 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
+TEST_F(PrintingLayoutTest, IFrame) {
   if (IsTestCaseDisabled())
     return;
 
-  scoped_refptr<HTTPTestServer> server =
-      HTTPTestServer::CreateServer(kDocRoot);
+  scoped_refptr<HTTPTestServer> server(HTTPTestServer::CreateServer(kDocRoot));
   ASSERT_TRUE(NULL != server.get());
 
   {
@@ -611,18 +604,11 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
 
-    scoped_ptr<base::Thread> worker(
-        new base::Thread("PrintingLayoutTest_worker"));
-    scoped_refptr<DismissTheWindow> dismiss_task =
-        new DismissTheWindow(base::GetProcId(process()));
-    // We need to start the thread to be able to set the timer.
-    worker->Start();
-    worker->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(dismiss_task.get(), &DismissTheWindow::Start));
-
-    MessageLoop::current()->Run();
-
-    worker->Stop();
+    DismissTheWindow dismisser(base::GetProcId(process()));
+    base::DelegateSimpleThread close_printdlg_thread(&dismisser,
+                                                     "close_printdlg_thread");
+    close_printdlg_thread.Start();
+    close_printdlg_thread.Join();
 
     // Force a navigation elsewhere to verify that it's fine with it.
     url = server->TestServerPage("files/printing/test1.html");
@@ -631,7 +617,5 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
   }
   CloseBrowserAndServer();
 
-  EXPECT_EQ(0., CompareWithResult(L"iframe"))
-      << L"iframe";
+  EXPECT_EQ(0., CompareWithResult(L"iframe")) << L"iframe";
 }
-

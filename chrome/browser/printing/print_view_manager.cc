@@ -254,14 +254,8 @@ void PrintViewManager::OnNotifyPrintJobInitEvent(
       owner_.render_view_host()->IsRenderViewLive() &&
       (!old_print_params.Equals(print_params_) ||
        !event_details.document()->page_count())) {
-    // This will generate a DidGetPrintedPagesCount() callback.
-    if (!owner_.render_view_host()->GetPrintedPagesCount(print_params_)) {
-      NOTREACHED();
-      if (inside_inner_message_loop_) {
-        MessageLoop::current()->Quit();
-        return;
-      }
-    }
+    // TODO(maruel): Will never happen, this code is about to be deleted.
+    NOTREACHED();
   }
 
   // Continue even if owner_.render_view_host() is dead because we may already
@@ -477,10 +471,8 @@ void PrintViewManager::PrintNowInternal() {
 
   if (!print_job_->document() ||
       !print_job_->document()->IsComplete()) {
-    ViewMsg_PrintPages_Params params;
-    params.params = print_params_;
-    params.pages = PageRange::GetPages(print_job_->settings().ranges);
-    owner_.render_view_host()->PrintPages(params);
+    // TODO(maruel): Will never happen. This code is about to be deleted.
+    NOTREACHED();
   }
 }
 
