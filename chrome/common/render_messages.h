@@ -1666,6 +1666,7 @@ struct ParamTraits<WebDropData> {
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.url);
     WriteParam(m, p.url_title);
+    WriteParam(m, p.file_extension);
     WriteParam(m, p.filenames);
     WriteParam(m, p.plain_text);
     WriteParam(m, p.text_html);
@@ -1677,6 +1678,7 @@ struct ParamTraits<WebDropData> {
     return
       ReadParam(m, iter, &p->url) &&
       ReadParam(m, iter, &p->url_title) &&
+      ReadParam(m, iter, &p->file_extension) &&
       ReadParam(m, iter, &p->filenames) &&
       ReadParam(m, iter, &p->plain_text) &&
       ReadParam(m, iter, &p->text_html) &&

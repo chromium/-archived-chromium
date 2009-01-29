@@ -20,6 +20,9 @@ struct WebDropData {
   GURL url;
   std::wstring url_title;  // The title associated with |url|.
 
+  // File extension for dragging images from a webview to the desktop.
+  std::wstring file_extension;
+
   // User is dropping one or more files on the webview.
   std::vector<std::wstring> filenames;
 

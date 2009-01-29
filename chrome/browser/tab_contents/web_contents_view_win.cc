@@ -24,6 +24,7 @@
 #include "chrome/browser/views/sad_tab_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
+#include "net/base/net_util.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 
 namespace {
@@ -96,8 +97,17 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
   // contents (to a .URL shortcut).  We want to prefer file content data over a
   // shortcut so we add it first.
   if (!drop_data.file_contents.empty()) {
-    data->SetFileContents(drop_data.file_description_filename,
-                          drop_data.file_contents);
+    // Images without ALT text will only have a file extension so we need to
+    // synthesize one from the provided extension and URL.
+    FilePath file_name(drop_data.file_description_filename);
+    file_name = file_name.BaseName().RemoveExtension();
+    if (file_name.value().empty()) {
+      // Retrieve the name from the URL.
+      file_name = FilePath::FromWStringHack(
+          net::GetSuggestedFilename(drop_data.url, L"", L""));
+    }
+    file_name = file_name.ReplaceExtension(drop_data.file_extension);
+    data->SetFileContents(file_name.value(), drop_data.file_contents);
   }
   if (!drop_data.text_html.empty())
     data->SetHtml(drop_data.text_html, drop_data.html_base_url);

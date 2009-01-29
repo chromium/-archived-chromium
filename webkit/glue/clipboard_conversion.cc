@@ -24,6 +24,8 @@ WebDropData ChromiumDataObjectToWebDropData(
   drop_data.url = KURLToGURL(data_object->url);
   drop_data.url_title = StringToStdWString(data_object->urlTitle);
 
+  drop_data.file_extension = StringToStdWString(data_object->fileExtension);
+
   for (size_t i = 0; i < data_object->filenames.size(); ++i) {
     drop_data.filenames.push_back(StringToStdWString(
         data_object->filenames[i]));
@@ -50,6 +52,8 @@ PassRefPtr<WebCore::ChromiumDataObject> WebDropDataToChromiumDataObject(
       WebCore::ChromiumDataObject::create();
   data_object->url = GURLToKURL(drop_data.url);
   data_object->urlTitle = StdWStringToString(drop_data.url_title);
+
+  data_object->fileExtension = StdWStringToString(drop_data.file_extension);
 
   for (size_t i = 0; i < drop_data.filenames.size(); ++i) {
     data_object->filenames.append(StdWStringToString(drop_data.filenames[i]));
