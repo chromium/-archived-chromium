@@ -931,6 +931,7 @@ if env.Bit('linux'):
   # Linux specific implementations.
   input_files.extend([
     '$WEBCORE_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
+    '$WEBCORE_DIR/platform/chromium/gtk2drawing.c',
     '$WEBCORE_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
     '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/chromium/SoundChromiumPosix.cpp',
@@ -941,8 +942,6 @@ if env.Bit('linux'):
     '$WEBCORE_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/IconChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
-
-    '$WEBCORE_DIR/platform/gtk/gtk2drawing.c',
 
     '$WEBCORE_DIR/rendering/RenderThemeChromiumGtk.cpp',
   ])
