@@ -557,7 +557,8 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, Delayed) {
+// TODO(maruel): Reenable it, it causes crashes.
+TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
   if (IsTestCaseDisabled())
     return;
 
