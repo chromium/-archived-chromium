@@ -368,6 +368,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
       do {
         bytes_read = read(pipe_, input_buf_, Channel::kReadBufferSize);
       } while (bytes_read == -1 && errno == EINTR);
+
       if (bytes_read < 0) {
         if (errno == EAGAIN) {
           return true;
@@ -454,6 +455,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
     Message* msg = output_queue_.front();
 
     size_t amt_to_write = msg->size() - message_send_bytes_written_;
+    DCHECK(amt_to_write != 0);
     const char *out_bytes = reinterpret_cast<const char*>(msg->data()) +
         message_send_bytes_written_;
     ssize_t bytes_written = -1;
@@ -461,13 +463,16 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
       bytes_written = write(pipe_, out_bytes, amt_to_write);
     } while (bytes_written == -1 && errno == EINTR);
 
-    if (bytes_written < 0) {
+    if (bytes_written < 0 && errno != EAGAIN) {
       LOG(ERROR) << "pipe error: " << strerror(errno);
       return false;
     }
 
     if (static_cast<size_t>(bytes_written) != amt_to_write) {
-      message_send_bytes_written_ += bytes_written;
+      if (bytes_written > 0) {
+        // If write() fails with EAGAIN then bytes_written will be -1.
+        message_send_bytes_written_ += bytes_written;
+      }
 
       // Tell libevent to call us back once things are unblocked.
       is_blocked_on_write_ = true;
@@ -477,6 +482,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
           MessageLoopForIO::WATCH_WRITE,
           &write_watcher_,
           this);
+      return true;
     } else {
       message_send_bytes_written_ = 0;
 
@@ -568,7 +574,7 @@ void Channel::ChannelImpl::OnFileCanReadWithoutBlocking(int fd) {
   // This gives us a chance to kill the client if the incoming handshake
   // is invalid.
   if (send_server_hello_msg) {
-    // This should be our first write so there' sno chance we can block here...
+    // This should be our first write so there's no chance we can block here...
     DCHECK(is_blocked_on_write_ == false);
     ProcessOutgoingMessages();
   }

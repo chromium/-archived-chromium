@@ -153,8 +153,9 @@ static void Send(IPC::Message::Sender* sender, const char* text) {
   message->WriteInt(message_index++);
   message->WriteString(std::string(text));
 
-  // make sure we can handle large messages
+  // Make sure we can handle large messages.
   char junk[50000];
+  memset(junk, 'a', sizeof(junk)-1);
   junk[sizeof(junk)-1] = 0;
   message->WriteString(std::string(junk));
 
@@ -194,7 +195,7 @@ class MyChannelListener : public IPC::Channel::Listener {
 static MyChannelListener channel_listener;
 
 TEST_F(IPCChannelTest, ChannelTest) {
-  // setup IPC channel
+  // Setup IPC channel.
   IPC::Channel chan(kTestClientChannel, IPC::Channel::MODE_SERVER,
                     &channel_listener);
   chan.Connect();
@@ -206,10 +207,13 @@ TEST_F(IPCChannelTest, ChannelTest) {
 
   Send(&chan, "hello from parent");
 
-  // run message loop
+  // Run message loop.
   MessageLoop::current()->Run();
 
-  // cleanup child process
+  // Close Channel so client gets its OnChannelError() callback fired.
+  chan.Close();
+
+  // Cleanup child process.
   EXPECT_TRUE(base::WaitForSingleProcess(process_handle, 5000));
 }
 
