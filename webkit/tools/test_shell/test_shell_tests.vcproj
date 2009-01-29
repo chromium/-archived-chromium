@@ -194,6 +194,10 @@
 				RelativePath=".\run_all_tests.cc"
 				>
 			</File>
+		<File
+			RelativePath="..\..\glue\simple_clipboard_impl.cc"
+			>
+		</File>
 			<File
 				RelativePath=".\simple_resource_loader_bridge.cc"
 				>

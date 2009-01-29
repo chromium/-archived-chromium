@@ -517,10 +517,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simple_clipboard_impl.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\stacking_order_iterator.cc"
 				>
 			</File>
