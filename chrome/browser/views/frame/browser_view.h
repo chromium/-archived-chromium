@@ -14,6 +14,9 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_delegate.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 
 // NOTE: For more information about the objects and files in this directory,
 //       view: https://sites.google.com/a/google.com/the-chrome-project/developers/design-documents/browser-window
