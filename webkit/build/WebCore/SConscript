@@ -432,7 +432,7 @@ input_files = [
     '$WEBCORE_DIR/platform/DragImage.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
     '$WEBCORE_DIR/platform/GeolocationService.cpp',
-    '$WEBCORE_DIR/platform/GKURL.cpp',
+    '$WEBCORE_DIR/platform/KURLGoogle.cpp',
     '$WEBCORE_DIR/platform/Length.cpp',
     '$WEBCORE_DIR/platform/LinkHash.cpp',
     '$WEBCORE_DIR/platform/Logging.cpp',

@@ -323,7 +323,7 @@
 		938444ED0F16B0570075F4C5 /* Geolocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1640D80EC29BB4008F024E /* Geolocation.cpp */; };
 		938444EE0F16B0570075F4C5 /* GeolocationService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1641140EC29D01008F024E /* GeolocationService.cpp */; };
 		938444EF0F16B0570075F4C5 /* Geoposition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1640DA0EC29BB4008F024E /* Geoposition.cpp */; };
-		938444F00F16B0570075F4C5 /* GKURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF525D0F002E930073C62D /* GKURL.cpp */; };
+		938444F00F16B0570075F4C5 /* KURLGoogle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF525D0F002E930073C62D /* KURLGoogle.cpp */; };
 		938444F10F16B0570075F4C5 /* GlyphPageTreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FDB0D7F3CC1001ECF42 /* GlyphPageTreeNode.cpp */; };
 		938444F20F16B0570075F4C5 /* GlyphPageTreeNodeMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E900F0D7F3CC1001ECF42 /* GlyphPageTreeNodeMac.cpp */; };
 		938444F30F16B0570075F4C5 /* GlyphWidthMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FDD0D7F3CC1001ECF42 /* GlyphWidthMap.cpp */; };
@@ -4047,8 +4047,8 @@
 		938444020F16B03C0075F4C5 /* DOMStringList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DOMStringList.h; sourceTree = "<group>"; };
 		93AF4D040EFAF0090073C62D /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollView.cpp; sourceTree = "<group>"; };
 		93AF52480F001CAB0073C62D /* media_player_private_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = media_player_private_impl.cc; sourceTree = "<group>"; };
-		93AF525D0F002E930073C62D /* GKURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GKURL.cpp; sourceTree = "<group>"; };
-		93AF525E0F002E930073C62D /* GoogleURLPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleURLPrivate.h; sourceTree = "<group>"; };
+		93AF525D0F002E930073C62D /* KURLGoogle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KURLGoogle.cpp; sourceTree = "<group>"; };
+		93AF525E0F002E930073C62D /* KURLGooglePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KURLGooglePrivate.h; sourceTree = "<group>"; };
 		93AF52630F002F680073C62D /* ChromiumDataObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChromiumDataObject.cpp; path = chromium/ChromiumDataObject.cpp; sourceTree = "<group>"; };
 		93AF52640F002F680073C62D /* ChromiumDataObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChromiumDataObject.h; path = chromium/ChromiumDataObject.h; sourceTree = "<group>"; };
 		93AF52650F002F680073C62D /* ClipboardChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClipboardChromium.cpp; path = chromium/ClipboardChromium.cpp; sourceTree = "<group>"; };
@@ -5744,8 +5744,8 @@
 				7B5E8FA10D7F3CC1001ECF42 /* FloatConversion.h */,
 				4D1641140EC29D01008F024E /* GeolocationService.cpp */,
 				4D1641150EC29D01008F024E /* GeolocationService.h */,
-				93AF525D0F002E930073C62D /* GKURL.cpp */,
-				93AF525E0F002E930073C62D /* GoogleURLPrivate.h */,
+				93AF525D0F002E930073C62D /* KURLGoogle.cpp */,
+				93AF525E0F002E930073C62D /* KURLGooglePrivate.h */,
 				7B5E8FA20D7F3CC1001ECF42 /* graphics */,
 				4D1641160EC29D01008F024E /* HostWindow.h */,
 				93EF1BD10F214F050070601B /* image-decoders */,
@@ -8778,7 +8778,7 @@
 				938444ED0F16B0570075F4C5 /* Geolocation.cpp in Sources */,
 				938444EE0F16B0570075F4C5 /* GeolocationService.cpp in Sources */,
 				938444EF0F16B0570075F4C5 /* Geoposition.cpp in Sources */,
-				938444F00F16B0570075F4C5 /* GKURL.cpp in Sources */,
+				938444F00F16B0570075F4C5 /* KURLGoogle.cpp in Sources */,
 				938444F10F16B0570075F4C5 /* GlyphPageTreeNode.cpp in Sources */,
 				938444F20F16B0570075F4C5 /* GlyphPageTreeNodeMac.cpp in Sources */,
 				938444F30F16B0570075F4C5 /* GlyphWidthMap.cpp in Sources */,
