@@ -135,14 +135,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">tabBarView_</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="1029219716"/>
-					</object>
-					<int key="connectionID">64</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">tabStripView_</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="1029219716"/>
