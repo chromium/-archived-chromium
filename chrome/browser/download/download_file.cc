@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <Windows.h>
-#include <objbase.h>
-
 #include "chrome/browser/download/download_file.h"
 
 #include "base/file_util.h"
@@ -12,6 +9,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/task.h"
+#include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
@@ -20,14 +18,15 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/stl_util-inl.h"
-#include "chrome/common/win_util.h"
-#include "chrome/common/win_safe_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
 
-using base::TimeDelta;
+#if defined(OS_WIN)
+#include "chrome/common/win_util.h"
+#include "chrome/common/win_safe_util.h"
+#endif
 
 // Throttle updates to the UI thread so that a fast moving download doesn't
 // cause it to become unresponsive (ins milliseconds).
@@ -48,7 +47,7 @@ class DownloadFileUpdateTask : public Task {
  private:
   DownloadFileManager* manager_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadFileUpdateTask);
+  DISALLOW_COPY_AND_ASSIGN(DownloadFileUpdateTask);
 };
 
 // DownloadFile implementation -------------------------------------------------
@@ -127,9 +126,15 @@ bool DownloadFile::Open(const char* open_mode) {
   if (!file_) {
     return false;
   }
+
+#if defined(OS_WIN)
   // Sets the Zone to tell Windows that this file comes from the internet.
   // We ignore the return value because a failure is not fatal.
   win_util::SetInternetZoneIdentifier(full_path_);
+#elif defined(OS_MAC)
+  // TODO(port) there should be an equivalent on Mac (there isn't on Linux).
+  NOTREACHED();
+#endif
   return true;
 }
 
@@ -196,8 +201,8 @@ void DownloadFileManager::RemoveDownloadFromUIProgress(int id) {
 void DownloadFileManager::StartUpdateTimer() {
   DCHECK(MessageLoop::current() == ui_loop_);
   if (!update_timer_.IsRunning()) {
-    update_timer_.Start(TimeDelta::FromMilliseconds(kUpdatePeriodMs), this,
-                        &DownloadFileManager::UpdateInProgressDownloads);
+    update_timer_.Start(base::TimeDelta::FromMilliseconds(kUpdatePeriodMs),
+                        this, &DownloadFileManager::UpdateInProgressDownloads);
   }
 }
 
@@ -513,8 +518,13 @@ void DownloadFileManager::OnDownloadUrl(const GURL& url,
 // thread to avoid blocking the UI with (potentially) slow Shell operations.
 // TODO(paulg): File 'stat' operations.
 void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
+#if defined(OS_WIN)
   DCHECK(MessageLoop::current() == file_loop_);
   win_util::ShowItemInFolder(full_path.value());
+#else
+  // TODO(port) implement me.
+  NOTREACHED();
+#endif
 }
 
 // Launches the selected download using ShellExecute 'open' verb. If there is
@@ -522,13 +532,18 @@ void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
 // display a modal dialog asking for user consent on dangerous files.
 void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
                                                 const std::wstring& url,
-                                                HWND parent_window) {
+                                                gfx::NativeView parent_window) {
+#if defined(OS_WIN)
   DCHECK(MessageLoop::current() == file_loop_);
   if (NULL != parent_window) {
     win_util::SaferOpenItemViaShell(parent_window, L"", full_path, url, true);
   } else {
     win_util::OpenItemViaShell(full_path, true);
   }
+#else
+  // TODO(port) implement me.
+  NOTREACHED();
+#endif
 }
 
 // The DownloadManager in the UI thread has provided a final name for the

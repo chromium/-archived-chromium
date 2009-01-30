@@ -32,8 +32,8 @@
 // DownloadManager is constructed, we query the history service for the state of
 // all persisted downloads.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
-#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H_
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H_
 
 #include "build/build_config.h"
 
@@ -47,13 +47,11 @@
 #include "base/hash_tables.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
+#include "base/time.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history.h"
-#if defined(OS_WIN)
-// TODO(port): Port this header and remove #ifdef.
 #include "chrome/browser/shell_dialogs.h"
-#endif
 #include "chrome/common/pref_member.h"
 
 class DownloadFileManager;
@@ -365,7 +363,8 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 
   // Show or Open a download via the Windows shell.
   void ShowDownloadInShell(const DownloadItem* download);
-  void OpenDownloadInShell(const DownloadItem* download, HWND parent_window);
+  void OpenDownloadInShell(const DownloadItem* download,
+                           gfx::NativeView parent_window);
 
   // The number of in progress (including paused) downloads.
   int in_progress_count() const {
@@ -535,7 +534,8 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   scoped_refptr<URLRequestContext> request_context_;
 
   // Used for history service request management.
-  CancelableRequestConsumerT<Observer*, 0> cancelable_consumer_;
+  CancelableRequestConsumerT<Observer*, (DownloadManager::Observer*)NULL>
+      cancelable_consumer_;
 
   // Non-owning pointer for handling file writing on the download_thread_.
   DownloadFileManager* file_manager_;
@@ -573,9 +573,9 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // saved.
   scoped_refptr<SelectFileDialog> select_file_dialog_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadManager);
+  DISALLOW_COPY_AND_ASSIGN(DownloadManager);
 };
 
 #endif  // defined(OS_WIN)
 
-#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H_

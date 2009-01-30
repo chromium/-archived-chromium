@@ -38,8 +38,8 @@
 // appropriate DownloadManager. In progress downloads are cancelled for a
 // DownloadManager that exits (such as when closing a profile).
 
-#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H__
-#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H_
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H_
 
 #include <string>
 #include <vector>
@@ -145,7 +145,7 @@ class DownloadFile {
   // Whether the download is still receiving data.
   bool in_progress_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadFile);
+  DISALLOW_COPY_AND_ASSIGN(DownloadFile);
 };
 
 
@@ -272,7 +272,7 @@ class DownloadFileManager
   ProgressMap ui_progress_;
   Lock progress_lock_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadFileManager);
+  DISALLOW_COPY_AND_ASSIGN(DownloadFileManager);
 };
 
-#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H_
