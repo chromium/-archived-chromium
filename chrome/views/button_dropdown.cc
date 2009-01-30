@@ -132,6 +132,11 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
       anchor = Menu::TOPRIGHT;
 
     View::ConvertPointToScreen(this, &menu_position);
+
+    int left_bound = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    if (menu_position.x() < left_bound)
+      menu_position.set_x(left_bound);
+
     Menu menu(menu_delegate_, anchor, window);
 
     // ID's for AppendMenu is 1-based because RunMenu will ignore the user
@@ -187,4 +192,3 @@ bool ButtonDropDown::GetAccessibleState(VARIANT* state) {
 }
 
 }  // namespace views
-
