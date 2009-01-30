@@ -155,7 +155,7 @@ class Assignable :
 template <class OwnerType, class BufferType>
 class AssignableBuffer : public Assignable<BufferType> {
  public:
-  explicit AssignableBuffer(BufferType* owner)
+  explicit AssignableBuffer(OwnerType* owner)
       : owner_(owner),
         buffer_(NULL) {
     DCHECK(owner_);
