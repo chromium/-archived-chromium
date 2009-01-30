@@ -499,6 +499,7 @@ enum NotificationType {
 
   // Personalization -----------------------------------------------------------
   NOTIFY_PERSONALIZATION,
+  NOTIFY_PERSONALIZATION_CREATED,
 
   // User Scripts --------------------------------------------------------------
 

@@ -127,6 +127,16 @@ function recentlyClosedTabs(data) {
   processData();
 }
 
+function resizeP13N(new_height) {
+   var childf = document.getElementById('p13n');
+   if (new_height < 1) {
+     childf.style.display = "none";
+     return;
+   }
+   childf.height = new_height; 
+   childf.style.display = "block";
+}
+
 chrome.send("getMostVisited");
 chrome.send("getMostSearched");
 chrome.send("getRecentlyBookmarked");
@@ -436,6 +446,9 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
         <img src="../../app/theme/%DISTRIBUTION%/product_logo.png"
              width="145" height="52" style="padding-bottom:8px;" />
     </div>
+    <iframe id="p13n" frameborder="0" width="100%" scrolling="no" height="0"
+            jsdisplay="p13nsrc" style="display:none;"
+            jsvalues="src:p13nsrc"></iframe>
     <div id="searches" class="sidebar">
       <div class="section-title" jscontent="searches"></div>
       <form onsubmit="chrome.send('searchHistoryPage', [this.search.value]); return false;">

@@ -27,6 +27,9 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
@@ -205,6 +208,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"firstview",
                               first_view_ ? L"true" : std::wstring());
   first_view_ = false;
+
+#ifdef CHROME_PERSONALIZATION
+  localized_strings.SetString(L"p13nsrc", Personalization::GetNewTabSource());
+#endif
 
   static const StringPiece new_tab_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -816,6 +823,9 @@ void NewTabUIContents::AttachMessageHandlers() {
     AddMessageHandler(new RecentlyClosedTabsHandler(this));
     AddMessageHandler(new HistoryHandler(this));
     AddMessageHandler(new MetricsHandler(this));
+#ifdef CHROME_PERSONALIZATION
+    Personalization::AttachNewTabHandler(this);
+#endif
 
     NewTabHTMLSource* html_source = new NewTabHTMLSource();
 
