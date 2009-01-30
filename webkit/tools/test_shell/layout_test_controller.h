@@ -139,6 +139,8 @@ class LayoutTestController : public CppBoundClass {
                                             CppVariant* result);
   void elementDoesAutoCompleteForElementWithId(const CppArgumentList& args,
                                                CppVariant* result);
+  void numberOfActiveAnimations(const CppArgumentList& args,
+                                CppVariant* result);
 
   // The following are only stubs.  TODO(pamg): Implement any of these that
   // are needed to pass the layout tests.

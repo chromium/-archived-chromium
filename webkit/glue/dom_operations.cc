@@ -860,4 +860,17 @@ bool ElementDoesAutoCompleteForElementWithId(WebView* view,
   return input_element->autoComplete();
 }
 
+int NumberOfActiveAnimations(WebView* view) {
+  WebFrame* web_frame = view->GetMainFrame();
+  if (!web_frame)
+    return -1;
+
+  WebCore::Frame* frame = static_cast<WebFrameImpl*>(web_frame)->frame();
+  WebCore::AnimationController* controller = frame->animation();
+  if (!controller)
+    return -1;
+
+  return controller->numberOfActiveAnimations();
+}
+
 } // webkit_glue

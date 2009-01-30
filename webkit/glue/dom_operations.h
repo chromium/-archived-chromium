@@ -192,6 +192,8 @@ bool PauseTransitionAtTimeOnElementWithId(WebView* view,
 bool ElementDoesAutoCompleteForElementWithId(WebView* view,
                                              const std::string& element_id);
 
+// Returns the number of animations currently running.
+int NumberOfActiveAnimations(WebView* view);
 
 }  // namespace webkit_glue
 

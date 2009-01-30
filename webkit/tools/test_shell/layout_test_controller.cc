@@ -101,6 +101,7 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("pauseAnimationAtTimeOnElementWithId", &LayoutTestController::pauseAnimationAtTimeOnElementWithId);
   BindMethod("pauseTransitionAtTimeOnElementWithId", &LayoutTestController::pauseTransitionAtTimeOnElementWithId);
   BindMethod("elementDoesAutoCompleteForElementWithId", &LayoutTestController::elementDoesAutoCompleteForElementWithId);
+  BindMethod("numberOfActiveAnimations", &LayoutTestController::numberOfActiveAnimations);
 
   // The following are stubs.
   BindMethod("dumpAsWebArchive", &LayoutTestController::dumpAsWebArchive);
@@ -615,6 +616,11 @@ void LayoutTestController::elementDoesAutoCompleteForElementWithId(
   std::string element_id = args[0].ToString();
   result->Set(webkit_glue::ElementDoesAutoCompleteForElementWithId(
       shell_->webView(), element_id));
+}
+
+void LayoutTestController::numberOfActiveAnimations(const CppArgumentList& args,
+                                                    CppVariant* result) {
+  result->Set(webkit_glue::NumberOfActiveAnimations(shell_->webView()));
 }
 
 //

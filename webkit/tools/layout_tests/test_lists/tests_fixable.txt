@@ -1055,7 +1055,7 @@ LayoutTests/security/block-test.html = FAIL
 
 // MERGE 38500:39550: New tests
 // Missing expected results
-SKIP : LayoutTests/animations/animation-drt-api.html = PASS
+SKIP LINUX MAC : LayoutTests/animations/animation-drt-api.html = PASS
 
 // MERGE 38600:38625: New tests
 // Big 4999: we need to fix this same bug in our plugin handling Apple did in
@@ -1640,9 +1640,8 @@ SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
 // Merge 39660:39711 - need to implement layoutTestController.numberOfActiveAnimations()
-SKIP : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT
-SKIP : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT
-
+SKIP LINUX MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT
+SKIP LINUX MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT
 
 // Merge 39744:39829 - new tests
 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
@@ -1733,7 +1732,7 @@ MAC : LayoutTests/fast/forms/002.html = FAIL
 
 // Merge 40086:40124 -- new test
 // This needs layoutTestController.numberOfActiveAnimations implemented.
-LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
+LINUX MAC : LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 
 // Merge 40124:40164 -- regressions
 // This test tries to remove an iframe on the page then generate the pixel
