@@ -103,13 +103,6 @@ DEFER RELEASE : LayoutTests/fast/events/standalone-image-drag-to-editable.html =
 // and it should replace the first "?" substring. This makes absolutely no sense.
 DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
-// Expected results has a terminal "?", since "set query" on about:blank is allowed,
-// but about:blank is considered a path URL by the GURL implementation and no query is
-// set for path URLs.
-// This is strange since query should have no meaning in non-standard urls
-DEFER LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
-DEFER LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
-
 // -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
 // -----------------------------------------------------------------
@@ -1732,7 +1725,7 @@ MAC : LayoutTests/fast/forms/002.html = FAIL
 
 // Merge 40086:40124 -- new test
 // This needs layoutTestController.numberOfActiveAnimations implemented.
-LINUX MAC : LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
+MAC : LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 
 // Merge 40124:40164 -- regressions
 // This test tries to remove an iframe on the page then generate the pixel
@@ -1759,7 +1752,7 @@ LINUX WIN : LayoutTests/fast/repaint/inline-color-change.html = FAIL
 LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
-LINUX WIN : LayoutTests/svg/custom/stop-crash.svg = CRASH
+WIN : LayoutTests/svg/custom/stop-crash.svg = CRASH
 WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 LINUX WIN : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
