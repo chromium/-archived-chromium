@@ -1035,6 +1035,7 @@ void SSLClientSocketWin::LogConnectionTypeMetrics(
   bool has_md2 = false;
   bool has_md4 = false;
   bool has_md5_ca = false;
+  bool has_md2_ca = false;
 
   // Each chain starts with the end entity certificate (i = 0) and ends with
   // the root CA certificate (i = num_elements - 1).  Do not inspect the
@@ -1051,6 +1052,8 @@ void SSLClientSocketWin::LogConnectionTypeMetrics(
     } else if (strcmp(algorithm, szOID_RSA_MD2RSA) == 0) {
       // md2WithRSAEncryption: 1.2.840.113549.1.1.2
       has_md2 = true;
+      if (i != 0)
+        has_md2_ca = true;
     } else if (strcmp(algorithm, szOID_RSA_MD4RSA) == 0) {
       // md4WithRSAEncryption: 1.2.840.113549.1.1.3
       has_md4 = true;
@@ -1065,6 +1068,8 @@ void SSLClientSocketWin::LogConnectionTypeMetrics(
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD4);
   if (has_md5_ca)
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5_CA);
+  if (has_md2_ca)
+    UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2_CA);
 }
 
 // Set server_cert_status_ and return OK or a network error.

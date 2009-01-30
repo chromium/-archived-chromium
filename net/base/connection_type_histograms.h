@@ -25,6 +25,8 @@ enum ConnectionType {
                            // the certificate chain (excluding root)
   CONNECTION_SSL_MD5_CA = 5,  // An SSL connection with an MD5 CA certificate
                               // in the certificate chain (excluding root)
+  CONNECTION_SSL_MD2_CA = 6,  // An SSL connection with an MD2 CA certificate
+                              // in the certificate chain (excluding root)
   NUM_OF_CONNECTION_TYPES
 };
 
