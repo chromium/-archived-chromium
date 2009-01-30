@@ -23,13 +23,7 @@ bool GetApplicationDirectory(std::wstring *path) {
 }
 
 bool IsPluginRunningInRendererProcess() {
-#if defined(OS_WIN)
   return !IsPluginProcess();
-#else
-  // TODO(port): We need an implementation of IsPluginProcess.
-  NOTIMPLEMENTED();
-  return false;
-#endif
 }
 
 std::wstring GetWebKitLocale() {

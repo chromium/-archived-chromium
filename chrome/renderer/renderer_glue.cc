@@ -164,13 +164,8 @@ void AppendToLog(const char* file, int line, const char* msg) {
 
 bool GetMimeTypeFromExtension(const std::wstring &ext,
                               std::string *mime_type) {
-#if defined(OS_WIN)
-  // TODO(port): Need to define IsPluginProcess.
   if (IsPluginProcess())
     return net::GetMimeTypeFromExtension(ext, mime_type);
-#else
-  NOTIMPLEMENTED();
-#endif
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -182,13 +177,8 @@ bool GetMimeTypeFromExtension(const std::wstring &ext,
 
 bool GetMimeTypeFromFile(const std::wstring &file_path,
                          std::string *mime_type) {
-#if defined(OS_WIN)
-  // TODO(port): Need to define IsPluginProcess.
   if (IsPluginProcess())
     return net::GetMimeTypeFromFile(file_path, mime_type);
-#else
-  NOTIMPLEMENTED();
-#endif
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -200,13 +190,8 @@ bool GetMimeTypeFromFile(const std::wstring &file_path,
 
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                       std::wstring* ext) {
-#if defined(OS_WIN)
-  // TODO(port): Need to define IsPluginProcess.
   if (IsPluginProcess())
     return net::GetPreferredExtensionForMimeType(mime_type, ext);
-#else
-  NOTIMPLEMENTED();
-#endif
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.

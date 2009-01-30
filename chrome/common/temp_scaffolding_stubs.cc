@@ -232,9 +232,14 @@ bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
   return false;
 }
 
+// This depends on porting all the plugin IPC messages.
+bool IsPluginProcess() {
+  return false;
+}
+
 #if defined(OS_MACOSX)
 // We link this in for now to avoid hauling in all of WebCore (which we will
-// have to eventually do)
+// have to eventually do).
 namespace webkit_glue {
 std::string GetUserAgent(const GURL& url) {
   return "";
