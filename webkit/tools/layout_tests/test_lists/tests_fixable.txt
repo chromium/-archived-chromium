@@ -339,14 +339,10 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 // Compact support was removed from WebKit by Hyatt and layout tests rebaselined in r40259.
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
-LINUX : LayoutTests/fast/compact/003.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-LINUX : LayoutTests/fast/forms/form-hides-table.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-LINUX : LayoutTests/fast/runin/001.html = FAIL
 LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
-LINUX : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
@@ -758,8 +754,6 @@ LayoutTests/accessibility = FAIL
 LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 // Border radius not anti-aliased.
 WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
-// This test should just need to be rebaselined on Linux.
-LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
@@ -843,9 +837,6 @@ LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 // Linux: off-by-ones imply font metrics.
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 
-// Linux: off-by-ones imply font metrics.
-LINUX : LayoutTests/fast/block/basic/011.html = FAIL
-
 // Linux: fonts significantly different.
 LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
 
@@ -859,12 +850,6 @@ LINUX : LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
 // need to check in a wrong-looking baseline.  Windows looks wrong too.
 LINUX : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
 
-// Our metrics for Georgia are off by one pixel.
-LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
-
-// Need a Japanese font.
-LINUX : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
-
 // Font metrics wrong, despite using Lucida Grande?
 LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 
@@ -874,8 +859,7 @@ LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
 
 // Hebrew font metrics.
-LINUX : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
+MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 
 // Layout totally different -- wrong font selected?
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
@@ -908,9 +892,6 @@ LINUX : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
 
 // Missing Hindi font.
 LINUX : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
-
-// Missing composed "m'" glyph.
-LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
 
 // We print to stderr when a failure happens while importing XSL;
 // should disable this in libxml.
@@ -1020,8 +1001,6 @@ LayoutTests/fast/forms/form-element-geometry.html = FAIL
 // The list box selection is wrong, the focus ring is wrong, and the thumb in
 // the scrollbar looks too narrow.
 LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
-// The thumb in the scrollbar looks too narrow.
-LINUX : LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 // Thumb is the wrong size and this test doesn't work on Windows due to font
 // sizes.
@@ -1678,11 +1657,6 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty
 WIN : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
 
-// 12-Jan-2009 Regressions:
-// I'm turning these off to green the build until I can look at them tomorrow. For the
-// most part they probably just need to be rebaselined due to recent Skia SVG changes.
-LINUX : LayoutTests/fast/images/animated-svg-as-image.html = FAIL
-
 // Looks like this just needs a rebaseline.
 LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
@@ -1791,5 +1765,5 @@ WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html 
 LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
 WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 
-// Started failng at build 1379 (r8741)
-LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+// Started failng at build 1379 (r8741).  passes locally
+LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL PASS
