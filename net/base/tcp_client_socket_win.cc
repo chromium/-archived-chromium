@@ -88,9 +88,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
     // Connected without waiting!
-    CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
-    BOOL ok = WSAResetEvent(overlapped_.hEvent);
-    CHECK(ok);
+    WaitForAndResetEvent();
     TRACE_EVENT_END("socket.connect", this, "");
     return OK;
   }
@@ -170,14 +168,12 @@ int TCPClientSocket::Read(char* buf,
   buffer_.buf = buf;
 
   TRACE_EVENT_BEGIN("socket.read", this, "");
-  // TODO(wtc): Remove the CHECKs after enough testing.
+  // TODO(wtc): Remove the CHECK after enough testing.
   CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num, flags = 0;
   int rv = WSARecv(socket_, &buffer_, 1, &num, &flags, &overlapped_, NULL);
   if (rv == 0) {
-    CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
-    BOOL ok = WSAResetEvent(overlapped_.hEvent);
-    CHECK(ok);
+    WaitForAndResetEvent();
     TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num));
 
     // Because of how WSARecv fills memory when used asynchronously, Purify
@@ -199,15 +195,6 @@ int TCPClientSocket::Read(char* buf,
   return MapWinsockError(err);
 }
 
-// TODO(wtc): This temporary function is intended to determine the return
-// value and error code of the WaitForSingleObject call in
-// TCPClientSocket::Write if it doesn't return the expected WAIT_OBJECT_0.
-// See http://crbug.com/6500.
-static void CrashBug6500(DWORD wait_rv, DWORD wait_error) {
-  // wait_error is meaningful only if wait_rv is WAIT_FAILED.
-  CHECK(false) << wait_rv << wait_error;
-}
-
 int TCPClientSocket::Write(const char* buf,
                            int buf_len,
                            CompletionCallback* callback) {
@@ -219,18 +206,12 @@ int TCPClientSocket::Write(const char* buf,
   buffer_.buf = const_cast<char*>(buf);
 
   TRACE_EVENT_BEGIN("socket.write", this, "");
-  // TODO(wtc): Remove the CHECKs after enough testing.
+  // TODO(wtc): Remove the CHECK after enough testing.
   CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num;
   int rv = WSASend(socket_, &buffer_, 1, &num, 0, &overlapped_, NULL);
   if (rv == 0) {
-    DWORD wait_rv = WaitForSingleObject(overlapped_.hEvent, 0);
-    if (wait_rv != WAIT_OBJECT_0) {
-      DWORD wait_error = GetLastError();
-      CrashBug6500(wait_rv, wait_error);
-    }
-    BOOL ok = WSAResetEvent(overlapped_.hEvent);
-    CHECK(ok);
+    WaitForAndResetEvent();
     TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num));
     return static_cast<int>(num);
   }
@@ -377,6 +358,14 @@ void TCPClientSocket::OnObjectSignaled(HANDLE object) {
       NOTREACHED();
       break;
   }
+}
+
+void TCPClientSocket::WaitForAndResetEvent() {
+  // TODO(wtc): Remove the CHECKs after enough testing.
+  DWORD wait_rv = WaitForSingleObject(overlapped_.hEvent, INFINITE);
+  CHECK(wait_rv == WAIT_OBJECT_0);
+  BOOL ok = WSAResetEvent(overlapped_.hEvent);
+  CHECK(ok);
 }
 
 }  // namespace net
