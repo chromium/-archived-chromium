@@ -5,8 +5,8 @@
 // This class responds to requests from renderers for the list of plugins, and
 // also a proxy object for plugin instances.
 
-#ifndef CHROME_BROWSER_PLUGIN_SERVICE_H__
-#define CHROME_BROWSER_PLUGIN_SERVICE_H__
+#ifndef CHROME_BROWSER_PLUGIN_SERVICE_H_
+#define CHROME_BROWSER_PLUGIN_SERVICE_H_
 
 #include <vector>
 
@@ -141,8 +141,7 @@ class PluginService {
   Lock lock_;
 
   // Handles plugin process shutdown.
-  class ShutdownHandler :
-      public base::RefCountedThreadSafe<ShutdownHandler> {
+  class ShutdownHandler : public base::RefCountedThreadSafe<ShutdownHandler> {
    public:
      ShutdownHandler() {}
      ~ShutdownHandler() {}
@@ -152,16 +151,16 @@ class PluginService {
      void InitiateShutdown();
 
    private:
-     // Shutdown handler which runs on the io thread.
-     void OnShutdown();
+    // Shutdown handler which runs on the io thread.
+    void OnShutdown();
 
-     DISALLOW_EVIL_CONSTRUCTORS(ShutdownHandler);
+    DISALLOW_COPY_AND_ASSIGN(ShutdownHandler);
   };
 
   friend class ShutdownHandler;
   scoped_refptr<ShutdownHandler> plugin_shutdown_handler_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PluginService);
+  DISALLOW_COPY_AND_ASSIGN(PluginService);
 };
 
 // The PluginProcessHostIterator allows to iterate through all the
@@ -214,4 +213,4 @@ class PluginProcessHostIterator {
   PluginService::PluginMap::const_iterator end_;
 };
 
-#endif  // CHROME_BROWSER_PLUGIN_SERVICE_H__
+#endif  // CHROME_BROWSER_PLUGIN_SERVICE_H_

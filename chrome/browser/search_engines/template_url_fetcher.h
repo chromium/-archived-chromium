@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TEMPLATE_URL_FETCHER_H__
-#define CHROME_BROWSER_TEMPLATE_URL_FETCHER_H__
+#ifndef CHROME_BROWSER_TEMPLATE_URL_FETCHER_H_
+#define CHROME_BROWSER_TEMPLATE_URL_FETCHER_H_
 
+#include "base/gfx/native_widget_types.h"
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/scoped_vector.h"
@@ -29,7 +30,7 @@ class TemplateURLFetcher {
   void ScheduleDownload(const std::wstring& keyword,
                         const GURL& osdd_url,
                         const GURL& favicon_url,
-                        const HWND parent_window,
+                        const gfx::NativeView parent_window,
                         bool autodetected);
 
  private:
@@ -43,7 +44,7 @@ class TemplateURLFetcher {
                     const std::wstring& keyword,
                     const GURL& osdd_url,
                     const GURL& favicon_url,
-                    const HWND parent_window,
+                    gfx::NativeView parent_window,
                     bool autodetected)
 #pragma warning(disable:4355)
         : url_fetcher_(osdd_url, URLFetcher::GET, this),
@@ -82,9 +83,9 @@ class TemplateURLFetcher {
 
     // Used to determine where to place a confirmation dialog. May be NULL,
     // in which case the confirmation will be centered in the screen if needed.
-    const HWND parent_window_;
+    gfx::NativeView parent_window_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(RequestDelegate);
+    DISALLOW_COPY_AND_ASSIGN(RequestDelegate);
   };
 
   Profile* profile() const { return profile_; }
@@ -97,8 +98,7 @@ class TemplateURLFetcher {
   // In progress requests.
   ScopedVector<RequestDelegate> requests_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TemplateURLFetcher);
+  DISALLOW_COPY_AND_ASSIGN(TemplateURLFetcher);
 };
 
-#endif  // CHROME_BROWSER_OSDD_FETCHER_H__
-
+#endif  // CHROME_BROWSER_OSDD_FETCHER_H_

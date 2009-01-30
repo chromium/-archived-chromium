@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_H_
 #define CHROME_BROWSER_PRINTING_PRINT_JOB_H_
 
+#include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/print_job_worker_owner.h"
@@ -82,7 +84,7 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   // box. It is unused when |ask_for_user_settings| is DEFAULTS. No-op if a
   // print job is active.
   void GetSettings(GetSettingsAskParam ask_user_for_settings,
-                   HWND parent_window);
+                   gfx::NativeView parent_window);
 
   // Starts the actual printing. Signals the worker that it should begin to
   // spool as soon as data is available.

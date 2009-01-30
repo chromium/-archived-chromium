@@ -40,6 +40,11 @@ BOOL CALLBACK DetachPluginWindowsCallback(HWND window, LPARAM param) {
 
 }  // namespace
 
+// static
+WebContentsView* WebContentsView::Create(WebContents* web_contents) {
+  return new WebContentsViewWin(web_contents);
+}
+
 WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
     : web_contents_(web_contents),
       ignore_next_char_event_(false) {

@@ -37,6 +37,11 @@ class WebContentsView : public RenderViewHostDelegate::View {
  public:
   virtual ~WebContentsView() {}
 
+  // Creates the appropriate type of WebContentsView for the current system.
+  // The return value is a new heap allocated view with ownership passing to
+  // the caller.
+  static WebContentsView* Create(WebContents* web_contents);
+
   virtual WebContents* GetWebContents() = 0;
 
   virtual void CreateView() = 0;

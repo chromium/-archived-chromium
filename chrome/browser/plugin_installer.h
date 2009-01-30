@@ -19,6 +19,7 @@ class PluginInstaller : public ConfirmInfoBarDelegate {
   void OnMissingPluginStatus(int status);
   // A new page starts loading. This is the perfect time to close the info bar.
   void OnStartLoading();
+
  private:
   // Overridden from ConfirmInfoBarDelegate:
   virtual std::wstring GetMessageText() const;
@@ -30,7 +31,7 @@ class PluginInstaller : public ConfirmInfoBarDelegate {
   // The containing WebContents
   WebContents* web_contents_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PluginInstaller);
+  DISALLOW_COPY_AND_ASSIGN(PluginInstaller);
 };
 
-#endif
+#endif  // CHROME_BROWSER_PLUGIN_INSTALLER_H_

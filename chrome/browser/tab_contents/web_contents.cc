@@ -34,7 +34,6 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
-#include "chrome/browser/tab_contents/web_contents_view_win.h"
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
@@ -180,7 +179,7 @@ WebContents::WebContents(Profile* profile,
                          int routing_id,
                          base::WaitableEvent* modal_dialog_event)
     : TabContents(TAB_CONTENTS_WEB),
-      view_(new WebContentsViewWin(this)),
+      view_(WebContentsView::Create(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           render_manager_(render_view_factory, this, this)),
       render_view_factory_(render_view_factory),
