@@ -782,7 +782,7 @@ WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FA
 
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
-LINUX MAC : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
+LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 
 // Linux pixeltest failure: Font mismatch
@@ -1663,7 +1663,7 @@ LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 // Merge 39830:39880 - new tests
 LayoutTests/plugins/npruntime.html = FAIL TIMEOUT
 
-// Merge 39830:39880 - regressions
+// Merge 39830:39880 - regressions 
 WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 
