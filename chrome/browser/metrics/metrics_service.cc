@@ -192,7 +192,7 @@ using base::TimeDelta;
 static bool IsSingleThreaded();
 
 static const char kMetricsURL[] =
-    "https://toolbarqueries.google.com/firefox/metrics/collect";
+    "https://clients4.google.com/firefox/metrics/collect";
 
 static const char kMetricsType[] = "application/vnd.mozilla.metrics.bz2";
 
@@ -1070,8 +1070,6 @@ void MetricsService::PrepareFetchWithPendingLog() {
                                       this));
   current_fetch_->set_request_context(Profile::GetDefaultRequestContext());
   current_fetch_->set_upload_data(kMetricsType, compressed_log);
-  // This flag works around the cert mismatch on toolbarqueries.google.com.
-  current_fetch_->set_load_flags(net::LOAD_IGNORE_CERT_COMMON_NAME_INVALID);
 }
 
 void MetricsService::DiscardPendingLog() {
