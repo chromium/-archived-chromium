@@ -176,6 +176,14 @@
 				RelativePath="..\base\pipeline_impl.h"
 				>
 			</File>
+			<File
+				RelativePath="..\base\synchronizer.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\synchronizer.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="audio"

@@ -38,6 +38,8 @@ input_files = ChromeFileList([
     'base/pipeline.h',
     'base/pipeline_impl.cc',
     'base/pipeline_impl.h',
+    'base/synchronizer.cc',
+    'base/synchronizer.h',
   ]),
   MSVSFilter('audio', [
     'audio/win/audio_manager_win.h',
