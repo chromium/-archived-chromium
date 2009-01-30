@@ -1633,8 +1633,8 @@ SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
 // Merge 39660:39711 - need to implement layoutTestController.numberOfActiveAnimations()
-SKIP LINUX MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT
-SKIP LINUX MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT
+LINUX : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT FAIL
+LINUX : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT FAIL
 
 // Merge 39744:39829 - new tests
 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
@@ -1722,10 +1722,6 @@ MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
 MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/move-by-line-001.html = PASS FAIL
 MAC : LayoutTests/fast/forms/002.html = FAIL
-
-// Merge 40086:40124 -- new test
-// This needs layoutTestController.numberOfActiveAnimations implemented.
-MAC : LayoutTests/transitions/repeated-firing-background-color.html = FAIL TIMEOUT
 
 // Merge 40124:40164 -- regressions
 // This test tries to remove an iframe on the page then generate the pixel
