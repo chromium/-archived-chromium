@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
+#include "base/string_util.h"
 
 #include "third_party/sqlite/preprocessed/sqlite3.h"
 
@@ -210,13 +212,6 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
 
   int prepare(sqlite3* db, const char* sql, int sql_len);
 
-  int prepare16(sqlite3* db, const wchar_t* sql) {
-    return prepare16(db, sql, -1);
-  }
-
-  // sql_len is number of characters or may be negative
-  // a for null-terminated sql string
-  int prepare16(sqlite3* db, const wchar_t* sql, int sql_len);
   int step();
   int reset();
   sqlite_int64 last_insert_rowid();
@@ -249,8 +244,9 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
   int bind_wstring(int index, const std::wstring& value) {
     // don't use c_str so it doesn't have to fix up the null terminator
     // (sqlite just uses the length)
-    return bind_text16(index, value.data(),
-                       static_cast<int>(value.length()), SQLITE_TRANSIENT);
+    std::string value_utf8(WideToUTF8(value));
+    return bind_text(index, value_utf8.data(),
+                     static_cast<int>(value_utf8.length()), SQLITE_TRANSIENT);
   }
 
   int bind_text(int index, const char* value) {
@@ -268,19 +264,19 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
   int bind_text(int index, const char* value, int value_len,
                 Function dtor);
 
-  int bind_text16(int index, const wchar_t* value) {
+  int bind_text16(int index, const char16* value) {
     return bind_text16(index, value, -1, SQLITE_TRANSIENT);
   }
 
   // value_len is number of characters or may be negative
   // a for null-terminated value string
-  int bind_text16(int index, const wchar_t* value, int value_len) {
+  int bind_text16(int index, const char16* value, int value_len) {
     return bind_text16(index, value, value_len, SQLITE_TRANSIENT);
   }
 
   // value_len is number of characters or may be negative
   // a for null-terminated value string
-  int bind_text16(int index, const wchar_t* value, int value_len,
+  int bind_text16(int index, const char16* value, int value_len,
                   Function dtor);
 
   int bind_value(int index, const sqlite3_value* value);
@@ -291,7 +287,6 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
 
   int column_count();
   int column_type(int index);
-  const wchar_t* column_name16(int index);
   const void* column_blob(int index);
   bool column_blob_as_vector(int index, std::vector<unsigned char>* blob);
   bool column_blob_as_string(int index, std::string* blob);
@@ -304,9 +299,9 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
   const char* column_text(int index);
   bool column_string(int index, std::string* str);
   std::string column_string(int index);
-  const wchar_t* column_text16(int index);
-  bool column_string16(int index, std::wstring* str);
-  std::wstring column_string16(int index);
+  const char16* column_text16(int index);
+  bool column_wstring(int index, std::wstring* str);
+  std::wstring column_wstring(int index);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(SQLStatement);

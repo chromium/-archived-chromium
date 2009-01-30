@@ -45,7 +45,7 @@ void URLDatabase::FillURLRow(SQLStatement& s, history::URLRow* i) {
   DCHECK(i);
   i->id_ = s.column_int64(0);
   i->url_ = GURL(s.column_string(1));
-  i->title_ = s.column_string16(2);
+  i->title_ = s.column_wstring(2);
   i->visit_count_ = s.column_int(3);
   i->typed_count_ = s.column_int(4);
   i->last_visit_ = Time::FromInternalValue(s.column_int64(5));
@@ -239,12 +239,15 @@ void URLDatabase::AutocompleteForPrefix(const std::wstring& prefix,
     return;
 
   // We will find all strings between "prefix" and this string, which is prefix
-  // followed by the maximum character size.
-  std::wstring end_query(prefix);
-  end_query.push_back(std::numeric_limits<wchar_t>::max());
+  // followed by the maximum character size. Use 8-bit strings for everything
+  // so we can be sure sqlite is comparing everything in 8-bit mode. Otherwise,
+  // it will have to convert strings either to UTF-8 or UTF-16 for comparison.
+  std::string prefix_utf8(WideToUTF8(prefix));
+  std::string end_query(prefix_utf8);
+  end_query.push_back(std::numeric_limits<unsigned char>::max());
 
-  statement->bind_wstring(0, prefix);
-  statement->bind_wstring(1, end_query);
+  statement->bind_string(0, prefix_utf8);
+  statement->bind_string(1, end_query);
   statement->bind_int(2, static_cast<int>(max_results));
 
   while (statement->step() == SQLITE_ROW) {
@@ -397,7 +400,7 @@ void URLDatabase::GetMostRecentKeywordSearchTerms(
 
   KeywordSearchTermVisit visit;
   while (statement->step() == SQLITE_ROW) {
-    visit.term = statement->column_string16(0);
+    visit.term = statement->column_wstring(0);
     visit.time = Time::FromInternalValue(statement->column_int64(1));
     matches->push_back(visit);
   }

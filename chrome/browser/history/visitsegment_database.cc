@@ -315,7 +315,7 @@ void VisitSegmentDatabase::QuerySegmentUsage(
       std::string url;
       std::wstring title;
       statement2->column_string(0, &url);
-      statement2->column_string16(1, &title);
+      statement2->column_wstring(1, &title);
       pud->SetURL(GURL(url));
       pud->SetTitle(title);
     }

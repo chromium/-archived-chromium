@@ -70,9 +70,9 @@ void DownloadDatabase::QueryDownloads(std::vector<DownloadCreateInfo>* results) 
     DownloadCreateInfo info;
     info.db_handle = statement->column_int64(0);
     std::wstring path_str;
-    statement->column_string16(1, &path_str);
+    statement->column_wstring(1, &path_str);
     info.path = FilePath::FromWStringHack(path_str);
-    statement->column_string16(2, &info.url);
+    statement->column_wstring(2, &info.url);
     info.start_time = Time::FromTimeT(statement->column_int64(3));
     info.received_bytes = statement->column_int64(4);
     info.total_bytes = statement->column_int64(5);

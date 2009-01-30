@@ -103,7 +103,7 @@ void Firefox3Importer::ImportHistory() {
       continue;
 
     history::URLRow row(url);
-    row.set_title(s.column_string16(1));
+    row.set_title(s.column_wstring(1));
     row.set_visit_count(s.column_int(2));
     row.set_hidden(s.column_int(3) == 1);
     row.set_typed_count(s.column_int(4));
@@ -421,7 +421,7 @@ void Firefox3Importer::GetTopBookmarkFolder(sqlite3* db, int folder_id,
     BookmarkItem* item = new BookmarkItem;
     item->parent = -1;  // The top level folder has no parent.
     item->id = folder_id;
-    item->title = s.column_string16(0);
+    item->title = s.column_wstring(0);
     item->type = 2;
     item->favicon = 0;
     list->push_back(item);
@@ -453,7 +453,7 @@ void Firefox3Importer::GetWholeBookmarkFolder(sqlite3* db, BookmarkList* list,
     item->parent = static_cast<int>(position);
     item->id = s.column_int(0);
     item->url = GURL(s.column_string(1));
-    item->title = s.column_string16(2);
+    item->title = s.column_wstring(2);
     item->type = s.column_int(3);
     item->keyword = s.column_string(4);
     item->date_added = Time::FromTimeT(s.column_int64(5)/1000000);
