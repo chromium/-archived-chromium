@@ -160,7 +160,7 @@ class ImageDiff(test_type_base.TestTypeBase):
       self.WriteOutputFiles(filename, '', '.checksum', test_args.hash,
                             expected_hash, diff=False, wdiff=False)
 
-      if (test_args.hash == expected_hash or expected_hash == ''):
+      if (test_args.hash == expected_hash or expected_hash != ''):
         self._CopyOutputPNGs(filename, test_args.png_path,
                              expected_png_file)
         self._CreateImageDiff(filename, target)
