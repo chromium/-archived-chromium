@@ -200,6 +200,10 @@ class Filter {
   base::Time connect_time_;
   bool was_cached_;
 
+ private:   // TODO(jar): Make more data private by moving this up higher.
+  // Helper function to empty our output into the next filter's input.
+  void PushDataIntoNextFilter();
+
   // To facilitate error recovery in SDCH filters, allow filter to know if
   // content is text/html by checking within this mime type (SDCH filter may
   // do a meta-refresh via html).

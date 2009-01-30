@@ -21,12 +21,25 @@
 // Note an SDCH dictionary has extra meta-data before the VCDIFF dictionary.
 static const char kTestVcdiffDictionary[] = "DictionaryFor"
     "SdchCompression1SdchCompression2SdchCompression3SdchCompression\n";
-// Pre-compression test data.
-static const char kTestData[] = "TestData "
-    "SdchCompression1SdchCompression2SdchCompression3SdchCompression\n";
+// Pre-compression test data.  Note that we pad with a lot of highly gzip
+// compressible content to help to exercise the chaining pipeline.  That is why
+// there are a PILE of zeros at the start and end.
+// This will ensure that gzip compressed data can be fed to the chain in one
+// gulp, but (with careful selection of intermediate buffers) that it takes
+// several sdch buffers worth of data to satisfy the sdch filter.  See detailed
+// CHECK() calls in FilterChaining test for specifics.
+static const char kTestData[] = "0000000000000000000000000000000000000000000000"
+    "0000000000000000000000000000TestData "
+    "SdchCompression1SdchCompression2SdchCompression3SdchCompression"
+    "00000000000000000000000000000000000000000000000000000000000000000000000000"
+    "000000000000000000000000000000000000000\n";
+
 // Note SDCH compressed data will include a reference to the SDCH dictionary.
 static const char kCompressedTestData[] =
-    "\326\303\304\0\0\001M\0\022I\0\t\003\001TestData \n\023\100\r";
+    "\326\303\304\0\0\001M\0\201S\202\004\0\201E\006\001"
+    "00000000000000000000000000000000000000000000000000000000000000000000000000"
+    "TestData 00000000000000000000000000000000000000000000000000000000000000000"
+    "000000000000000000000000000000000000000000000000\n\001S\023\077\001r\r";
 
 //------------------------------------------------------------------------------
 
@@ -111,6 +124,9 @@ static bool FilterTestData(const std::string& source,
     output->append(output_buffer.get(), buffer_length);
     if (status == Filter::FILTER_ERROR)
       return false;
+    // Callers assume that FILTER_OK with no output buffer means FILTER_DONE.
+    if (Filter::FILTER_OK == status && 0 == buffer_length)
+      return true;
     if (copy_amount == 0 && buffer_length == 0)
       return true;
   } while (1);
@@ -641,8 +657,12 @@ TEST_F(SdchFilterTest, FilterChaining) {
   filter_types.push_back(Filter::FILTER_TYPE_GZIP);
 
   // First try with a large buffer (larger than test input, or compressed data).
-  const int kInputBufferSize(100);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t kLargeInputBufferSize(1000);  // Used internally in filters.
+  CHECK(kLargeInputBufferSize > gzip_compressed_sdch.size());
+  CHECK(kLargeInputBufferSize > sdch_compressed.size());
+  CHECK(kLargeInputBufferSize > expanded_.size());
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types,
+                            kLargeInputBufferSize));
   filter->SetURL(url);
 
   // Verify that chained filter is waiting for data.
@@ -651,15 +671,34 @@ TEST_F(SdchFilterTest, FilterChaining) {
   EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA,
             filter->ReadData(tiny_output_buffer, &tiny_output_size));
 
-  size_t feed_block_size = 100;
-  size_t output_block_size = 100;
+  // Make chain process all data.
+  size_t feed_block_size = kLargeInputBufferSize;
+  size_t output_block_size = kLargeInputBufferSize;
   std::string output;
   EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
                              output_block_size, filter.get(), &output));
   EXPECT_EQ(output, expanded_);
 
-  // Next try with a tiny buffer to cover edge effects.
-  filter.reset(Filter::Factory(filter_types, kInputBufferSize));
+  // Next try with a mid-sized internal buffer size.
+  const size_t kMidSizedInputBufferSize(100);
+  // Buffer should be big enough to swallow whole gzip content.
+  CHECK(kMidSizedInputBufferSize > gzip_compressed_sdch.size());
+  // Buffer should be small enough that entire SDCH content can't fit.
+  // We'll go even further, and force the chain to flush the buffer between the
+  // two filters more than once (that is why we multiply by 2).
+  CHECK(kMidSizedInputBufferSize * 2 < sdch_compressed.size());
+  filter.reset(Filter::Factory(filter_types, kMidSizedInputBufferSize));
+  filter->SetURL(url);
+
+  feed_block_size = kMidSizedInputBufferSize;
+  output_block_size = kMidSizedInputBufferSize;
+  output.clear();
+  EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+
+  // Next try with a tiny input and output buffer to cover edge effects.
+  filter.reset(Filter::Factory(filter_types, kLargeInputBufferSize));
   filter->SetURL(url);
 
   feed_block_size = 1;

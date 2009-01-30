@@ -267,36 +267,51 @@ Filter::FilterStatus Filter::ReadFilteredData(char* dest_buffer,
 }
 
 Filter::FilterStatus Filter::ReadData(char* dest_buffer, int* dest_len) {
+  const int dest_buffer_capacity = *dest_len;
   if (last_status_ == FILTER_ERROR)
     return last_status_;
   if (!next_filter_.get())
     return last_status_ = ReadFilteredData(dest_buffer, dest_len);
   if (last_status_ == FILTER_NEED_MORE_DATA && !stream_data_len())
     return next_filter_->ReadData(dest_buffer, dest_len);
-  if (next_filter_->last_status() == FILTER_NEED_MORE_DATA) {
-    // Push data into next filter's input.
-    net::IOBuffer* next_buffer = next_filter_->stream_buffer();
-    int next_size = next_filter_->stream_buffer_size();
-    last_status_ = ReadFilteredData(next_buffer->data(), &next_size);
-    next_filter_->FlushStreamBuffer(next_size);
-    switch (last_status_) {
-      case FILTER_ERROR:
-        return last_status_;
 
-      case FILTER_NEED_MORE_DATA:
-        return next_filter_->ReadData(dest_buffer, dest_len);
-
-      case FILTER_OK:
-      case FILTER_DONE:
-        break;
+  do {
+    if (next_filter_->last_status() == FILTER_NEED_MORE_DATA) {
+      PushDataIntoNextFilter();
+      if (FILTER_ERROR == last_status_)
+        return FILTER_ERROR;
     }
-  }
-  FilterStatus status = next_filter_->ReadData(dest_buffer, dest_len);
-  // We could loop to fill next_filter_ if it needs data, but we have to be
-  // careful about output buffer.  Simpler is to just wait until we are called
-  // again, and return FILTER_OK.
-  return (status == FILTER_ERROR) ? FILTER_ERROR : FILTER_OK;
+    *dest_len = dest_buffer_capacity;  // Reset the input/output parameter.
+    next_filter_->ReadData(dest_buffer, dest_len);
+    if (FILTER_NEED_MORE_DATA == last_status_)
+        return next_filter_->last_status();
+
+    // In the case where this filter has data internally, and is indicating such
+    // with a last_status_ of FILTER_OK, but at the same time the next filter in
+    // the chain indicated it FILTER_NEED_MORE_DATA, we have to be cautious
+    // about confusing the caller.  The API confusion can appear if we return
+    // FILTER_OK (suggesting we have more data in aggregate), but yet we don't
+    // populate our output buffer.  When that is the case, we need to
+    // alternately call our filter element, and the next_filter element until we
+    // get out of this state (by pumping data into the next filter until it
+    // outputs data, or it runs out of data and reports that it NEED_MORE_DATA.)
+  } while (FILTER_OK == last_status_ &&
+           FILTER_NEED_MORE_DATA == next_filter_->last_status() &&
+           0 == *dest_len);
+
+  if (next_filter_->last_status() == FILTER_ERROR)
+    return FILTER_ERROR;
+  return FILTER_OK;
 }
+
+void Filter::PushDataIntoNextFilter() {
+  net::IOBuffer* next_buffer = next_filter_->stream_buffer();
+  int next_size = next_filter_->stream_buffer_size();
+  last_status_ = ReadFilteredData(next_buffer->data(), &next_size);
+  if (FILTER_ERROR != last_status_)
+    next_filter_->FlushStreamBuffer(next_size);
+}
+
 
 bool Filter::FlushStreamBuffer(int stream_data_len) {
   if (stream_data_len <= 0 || stream_data_len > stream_buffer_size_)
