@@ -86,8 +86,8 @@ class TCPClientSocket : public ClientSocket,
   // base::ObjectWatcher::Delegate methods:
   virtual void OnObjectSignaled(HANDLE object);
 
-  // After a Winsock function succeeds synchronously, waits for the
-  // (manual-reset) event object to become signaled and resets it.
+  // Waits for the (manual-reset) event object to become signaled and resets
+  // it.  Called after a Winsock function succeeds synchronously
   //
   // Our testing shows that except in rare cases (when running inside QEMU),
   // the event object is already signaled at this point, so we just call this

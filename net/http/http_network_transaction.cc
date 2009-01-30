@@ -1242,12 +1242,11 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
     DCHECK(user_callback_);
     PrepareForAuthRestart(target);
     return WILL_RESTART_TRANSACTION;
-  } else {
-    // We have exhausted all identity possibilities, all we can do now is
-    // pass the challenge information back to the client.
-    PopulateAuthChallenge(target);
   }
 
+  // We have exhausted all identity possibilities, all we can do now is
+  // pass the challenge information back to the client.
+  PopulateAuthChallenge(target);
   return OK;
 }
 
