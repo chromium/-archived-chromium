@@ -36,7 +36,7 @@ input_files = [
   'cpp_binding_example.cc',
   'cpp_bound_class.cc',
   'cpp_variant.cc',
-  'debugger.cc',
+  'debugger_bridge.cc',
   'dom_operations.cc',
   'dom_serializer.cc',
   'dragclient_impl.cc',

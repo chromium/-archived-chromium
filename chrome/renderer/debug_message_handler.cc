@@ -8,8 +8,10 @@
 ////////////////////////////////////////
 // methods called from the RenderThread
 
-DebugMessageHandler::DebugMessageHandler(RenderView* view) :
-    debugger_(NULL), view_(view), channel_(NULL) {
+DebugMessageHandler::DebugMessageHandler(RenderView* view)
+    : debugger_(NULL),
+      view_(view),
+      channel_(NULL) {
   view_loop_ = MessageLoop::current();
   view_routing_id_ = view_->routing_id();
 }
@@ -54,7 +56,7 @@ void DebugMessageHandler::OnBreak(bool force) {
 
 void DebugMessageHandler::OnAttach() {
   if (!debugger_) {
-    debugger_ = new Debugger(this);
+    debugger_ = new DebuggerBridge(this);
   }
 
   // Run the actual debugger attach in the renderer as it uses V8 methods which

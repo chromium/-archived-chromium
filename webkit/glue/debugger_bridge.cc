@@ -4,7 +4,7 @@
 
 #include "config.h"  // webkit config for V8
 #include "base/string_util.h"
-#include "webkit/glue/debugger.h"
+#include "webkit/glue/debugger_bridge.h"
 
 #if USE(V8)
 #define USING_V8
@@ -13,26 +13,28 @@
 
 void V8DebugMessageHandler(const uint16_t* message, int length, void* data) {
   std::wstring out(reinterpret_cast<const wchar_t*>(message), length);
-  reinterpret_cast<Debugger*>(data)->OutputLater(out);
+  reinterpret_cast<DebuggerBridge*>(data)->OutputLater(out);
 }
 
-Debugger::Debugger(Delegate* del) : delegate_(del), attached_(false) {
+DebuggerBridge::DebuggerBridge(Delegate* del)
+    : delegate_(del),
+      attached_(false) {
   delegate_loop_ = MessageLoop::current();
 }
 
-Debugger::~Debugger() {
+DebuggerBridge::~DebuggerBridge() {
   DCHECK(!attached_);
   Detach();
 }
 
-void Debugger::Break(bool force) {
+void DebuggerBridge::Break(bool force) {
 #ifdef USING_V8
   DCHECK(attached_);
   v8::Debug::DebugBreak();
 #endif
 }
 
-void Debugger::Attach() {
+void DebuggerBridge::Attach() {
 #ifdef USING_V8
   if (!attached_) {
     attached_ = true;
@@ -41,7 +43,7 @@ void Debugger::Attach() {
 #endif
 }
 
-void Debugger::Detach() {
+void DebuggerBridge::Detach() {
 #ifdef USING_V8
   if (attached_) {
     attached_ = false;
@@ -50,16 +52,16 @@ void Debugger::Detach() {
 #endif
 }
 
-void Debugger::OutputLater(const std::wstring& out) {
+void DebuggerBridge::OutputLater(const std::wstring& out) {
   delegate_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &Debugger::Output, out));
+      this, &DebuggerBridge::Output, out));
 }
 
-void Debugger::Output(const std::wstring& out) {
+void DebuggerBridge::Output(const std::wstring& out) {
   delegate_->DebuggerOutput(out);
 }
 
-void Debugger::Command(const std::wstring& cmd) {
+void DebuggerBridge::Command(const std::wstring& cmd) {
 #ifdef USING_V8
   DCHECK(attached_);
   v8::Debug::SendCommand(reinterpret_cast<const uint16_t*>(cmd.data()),

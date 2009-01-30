@@ -333,11 +333,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\debugger.cc"
+				RelativePath=".\debugger_bridge.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\debugger.h"
+				RelativePath=".\debugger_bridge.h"
 				>
 			</File>
 			<File
