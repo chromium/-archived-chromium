@@ -1681,6 +1681,8 @@ LayoutTests/plugins/netscape-throw-exception.html = FAIL
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
+// I believe this is a bug in the test. I have upstreamed a fix
+// (https://bugs.webkit.org/show_bug.cgi?id=23633).
 WIN : LayoutTests/transitions/transition-end-event-nested.html = PASS FAIL
 LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
 LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html = PASS TIMEOUT
