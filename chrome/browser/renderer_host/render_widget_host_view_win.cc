@@ -158,6 +158,12 @@ void RenderWidgetHostViewWin::MovePluginWindows(
     unsigned long flags = 0;
     const WebPluginGeometry& move = plugin_window_moves[i];
 
+    // As the plugin parent window which lives on the browser UI thread is
+    // destroyed asynchronously, it is possible that we have a stale window
+    // sent in by the renderer for moving around.
+    if (!::IsWindow(move.window))
+      continue;
+
     if (move.visible)
       flags |= SWP_SHOWWINDOW;
     else
@@ -180,7 +186,7 @@ void RenderWidgetHostViewWin::MovePluginWindows(
                                              move.window_rect.width(),
                                              move.window_rect.height(), flags);
     if (!defer_window_pos_info) {
-      DCHECK(false) << "DeferWindowPos given invalid window, so rest ignored.";
+      DCHECK(false) << "DeferWindowPos failed, so all plugin moves ignored.";
       return;
     }
   }
