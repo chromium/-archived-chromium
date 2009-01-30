@@ -103,10 +103,12 @@ DEFER RELEASE : LayoutTests/fast/events/standalone-image-drag-to-editable.html =
 // and it should replace the first "?" substring. This makes absolutely no sense.
 DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
-// Expected results has a terminal "?", since "set query" on about:blank is allowed.
+// Expected results has a terminal "?", since "set query" on about:blank is allowed,
+// but about:blank is considered a path URL by the GURL implementation and no query is
+// set for path URLs.
 // This is strange since query should have no meaning in non-standard urls
-DEFER LINUX WIN : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
-DEFER LINUX WIN : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 
 // -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
@@ -1580,7 +1582,7 @@ LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
 MAC : LayoutTests/animations/keyframes-rule.html = FAIL
 
 // The V8 regular expression engine does not match JSCRE on this one.
-// See V8 bug 182.  
+// See V8 bug 182.
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
@@ -1663,7 +1665,7 @@ LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 // Merge 39830:39880 - new tests
 LayoutTests/plugins/npruntime.html = FAIL TIMEOUT
 
-// Merge 39830:39880 - regressions 
+// Merge 39830:39880 - regressions
 WIN : LayoutTests/editing/selection/5057506.html = FAIL
 LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 
