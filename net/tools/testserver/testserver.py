@@ -19,6 +19,7 @@ import md5
 import optparse
 import os
 import re
+import shutil
 import SocketServer
 import sys
 import time
@@ -104,6 +105,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.ClientRedirectHandler,
       self.DefaultResponseHandler]
     self._post_handlers = [
+      self.WriteFile,
       self.EchoTitleHandler,
       self.EchoAllHandler,
       self.EchoHandler] + self._get_handlers
@@ -401,6 +403,32 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.wfile.write(request)
     return True
 
+  def WriteFile(self):
+    """This is handler dumps the content of POST request to a disk file into
+    the data_dir/dump. Sub-directories are not supported."""
+    
+    prefix='/writefile/'
+    if not self.path.startswith(prefix):
+      return False
+    
+    file_name = self.path[len(prefix):]
+
+    # do not allow fancy chars in file name
+    re.sub('[^a-zA-Z0-9_.-]+', '', file_name)
+    if len(file_name) and file_name[0] != '.':
+      path = os.path.join(self.server.data_dir, 'dump', file_name);
+      length = int(self.headers.getheader('content-length'))
+      request = self.rfile.read(length)
+      f = open(path, "wb")
+      f.write(request);
+      f.close()
+      
+    self.send_response(200)
+    self.send_header('Content-type', 'text/html')
+    self.end_headers()
+    self.wfile.write('<html>%s</html>' % file_name)
+    return True
+    
   def EchoTitleHandler(self):
     """This handler is like Echo, but sets the page title to the request."""
 
@@ -884,6 +912,15 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.wfile.write('Use <pre>%s?http://dest...</pre>' % redirect_name)
     self.wfile.write('</body></html>')
 
+def MakeDumpDir(data_dir):
+  """Create directory named 'dump' where uploaded data via HTTP POST request
+  will be stored. If the directory already exists all files and subdirectories
+  will be deleted."""
+  dump_dir = os.path.join(data_dir, 'dump');
+  if os.path.isdir(dump_dir):
+    shutil.rmtree(dump_dir)
+  os.mkdir(dump_dir)
+
 def MakeDataDir():
   if options.data_dir:
     if not os.path.isdir(options.data_dir):
@@ -921,7 +958,8 @@ def main(options, args):
       print 'HTTP server started on port %d...' % port
 
     server.data_dir = MakeDataDir()
-
+    MakeDumpDir(server.data_dir)
+    
   # means FTP Server
   else:
     my_data_dir = MakeDataDir()
