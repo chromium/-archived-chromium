@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/js_before_unload_handler.h"
+#include "chrome/browser/js_before_unload_handler_win.h"
 
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/common/l10n_util.h"
@@ -10,11 +10,7 @@
 
 #include "generated_resources.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// JavascriptBeforeUnloadHandler, public:
-
-// static
-void JavascriptBeforeUnloadHandler::RunBeforeUnloadDialog(
+void RunBeforeUnloadDialog(
     WebContents* web_contents,
     const std::wstring& message_text,
     IPC::Message* reply_msg) {
@@ -26,8 +22,19 @@ void JavascriptBeforeUnloadHandler::RunBeforeUnloadDialog(
   AppModalDialogQueue::AddDialog(handler);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// JavascriptBeforeUnloadHandler, views::DialogDelegate implementation:
+// JavascriptBeforeUnloadHandler -----------------------------------------------
+
+JavascriptBeforeUnloadHandler::JavascriptBeforeUnloadHandler(
+    WebContents* web_contents,
+    const std::wstring& message_text,
+    IPC::Message* reply_msg)
+    : JavascriptMessageBoxHandler(web_contents,
+                                  MessageBoxView::kIsJavascriptConfirm,
+                                  message_text,
+                                  L"",
+                                  false,
+                                  reply_msg) {
+}
 
 std::wstring JavascriptBeforeUnloadHandler::GetWindowTitle() const {
   return l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE);
@@ -43,15 +50,3 @@ std::wstring JavascriptBeforeUnloadHandler::GetDialogButtonLabel(
   }
   return L"";
 }
-
-JavascriptBeforeUnloadHandler::JavascriptBeforeUnloadHandler(
-    WebContents* web_contents,
-    const std::wstring& message_text,
-    IPC::Message* reply_msg)
-        : JavascriptMessageBoxHandler(web_contents,
-                                      MessageBoxView::kIsJavascriptConfirm,
-                                      message_text,
-                                      L"",
-                                      false,
-                                      reply_msg) {}
-

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/jsmessage_box_handler.h"
+#include "chrome/browser/jsmessage_box_handler_win.h"
 
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser_process.h"
@@ -18,22 +18,46 @@
 
 #include "generated_resources.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// JavascriptMessageBoxHandler, public:
-
-// static
-void JavascriptMessageBoxHandler::RunJavascriptMessageBox(
-    WebContents* web_contents,
-    int dialog_flags,
-    const std::wstring& message_text,
-    const std::wstring& default_prompt_text,
-    bool display_suppress_checkbox,
-    IPC::Message* reply_msg) {
+void RunJavascriptMessageBox(WebContents* web_contents,
+                             int dialog_flags,
+                             const std::wstring& message_text,
+                             const std::wstring& default_prompt_text,
+                             bool display_suppress_checkbox,
+                             IPC::Message* reply_msg) {
   JavascriptMessageBoxHandler* handler =
       new JavascriptMessageBoxHandler(web_contents, dialog_flags,
                                       message_text, default_prompt_text,
                                       display_suppress_checkbox, reply_msg);
   AppModalDialogQueue::AddDialog(handler);
+}
+
+JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
+    WebContents* web_contents,
+    int dialog_flags,
+    const std::wstring& message_text,
+    const std::wstring& default_prompt_text,
+    bool display_suppress_checkbox,
+    IPC::Message* reply_msg)
+      : web_contents_(web_contents),
+        reply_msg_(reply_msg),
+        dialog_flags_(dialog_flags),
+        dialog_(NULL),
+        message_box_view_(new MessageBoxView(dialog_flags, message_text,
+                                             default_prompt_text)) {
+  DCHECK(message_box_view_);
+  DCHECK(reply_msg_);
+
+  if (display_suppress_checkbox) {
+    message_box_view_->SetCheckBoxLabel(
+        l10n_util::GetString(IDS_JAVASCRIPT_MESSAGEBOX_SUPPRESS_OPTION));
+  }
+
+  // Make sure we get navigation notifications so we know when our parent
+  // contents will disappear or navigate to a different page.
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NOTIFY_TAB_CONTENTS_DESTROYED,
+                 NotificationService::AllSources());
 }
 
 JavascriptMessageBoxHandler::~JavascriptMessageBoxHandler() {
@@ -183,31 +207,3 @@ void JavascriptMessageBoxHandler::Observe(NotificationType type,
   }
 }
 
-JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
-    WebContents* web_contents,
-    int dialog_flags,
-    const std::wstring& message_text,
-    const std::wstring& default_prompt_text,
-    bool display_suppress_checkbox,
-    IPC::Message* reply_msg)
-      : web_contents_(web_contents),
-        reply_msg_(reply_msg),
-        dialog_flags_(dialog_flags),
-        dialog_(NULL),
-        message_box_view_(new MessageBoxView(dialog_flags, message_text,
-                                             default_prompt_text)) {
-  DCHECK(message_box_view_);
-  DCHECK(reply_msg_);
-
-  if (display_suppress_checkbox) {
-    message_box_view_->SetCheckBoxLabel(
-        l10n_util::GetString(IDS_JAVASCRIPT_MESSAGEBOX_SUPPRESS_OPTION));
-  }
-
-  // Make sure we get navigation notifications so we know when our parent
-  // contents will disappear or navigate to a different page.
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
-                 NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_TAB_CONTENTS_DESTROYED,
-                 NotificationService::AllSources());
-}

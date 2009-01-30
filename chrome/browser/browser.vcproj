@@ -718,19 +718,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\js_before_unload_handler.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\js_before_unload_handler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\jsmessage_box_handler.cc"
+				RelativePath=".\js_before_unload_handler_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\js_before_unload_handler_win.h"
 				>
 			</File>
 			<File
 				RelativePath=".\jsmessage_box_handler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\jsmessage_box_handler_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\jsmessage_box_handler_win.h"
 				>
 			</File>
 			<File

@@ -1026,12 +1026,8 @@ void WebContents::RunJavaScriptMessage(
         TimeDelta::FromMilliseconds(kJavascriptMessageExpectedDelay))
       show_suppress_checkbox = true;
 
-    JavascriptMessageBoxHandler::RunJavascriptMessageBox(this,
-                                                         flags,
-                                                         message,
-                                                         default_prompt,
-                                                         show_suppress_checkbox,
-                                                         reply_msg);
+    RunJavascriptMessageBox(this, flags, message, default_prompt,
+                            show_suppress_checkbox, reply_msg);
   } else {
     // If we are suppressing messages, just reply as is if the user immediately
     // pressed "Cancel".
@@ -1040,9 +1036,8 @@ void WebContents::RunJavaScriptMessage(
 }
 
 void WebContents::RunBeforeUnloadConfirm(const std::wstring& message,
-                                            IPC::Message* reply_msg) {
-  JavascriptBeforeUnloadHandler::RunBeforeUnloadDialog(this, message,
-                                                       reply_msg);
+                                         IPC::Message* reply_msg) {
+  RunBeforeUnloadDialog(this, message, reply_msg);
 }
 
 void WebContents::ShowModalHTMLDialog(const GURL& url, int width, int height,
