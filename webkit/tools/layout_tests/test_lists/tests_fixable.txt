@@ -1765,5 +1765,36 @@ WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html 
 LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
 WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 
+// Merge 40314:40364 -- new tests that need 
+// layoutTestController.keepWebHistory() implemented.
+LayoutTests/http/tests/history/redirect-meta-refresh-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-307.pl = FAIL
+LayoutTests/http/tests/history/redirect-js-location-assign-before-load.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-href-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-200-refresh-0-seconds.pl = FAIL
+LayoutTests/http/tests/history/redirect-200-refresh-2-seconds.pl = FAIL
+LayoutTests/http/tests/history/redirect-js-location-href-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-302.pl = FAIL
+LayoutTests/http/tests/history/redirect-js-location-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-href-before-load.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-replace-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-replace-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-document-location-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-document-location-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-assign-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-before-load.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-assign-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-replace-before-load.html = FAIL
+LayoutTests/http/tests/history/redirect-301.pl = FAIL
+LayoutTests/http/tests/history/redirect-js-document-location-before-load.html = FAIL
+LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-303.pl = FAIL
+
+// Merge 40314:40364 -- new tests
+LayoutTests/fast/transforms/transform-on-inline.html = FAIL
+LayoutTests/fast/transforms/transform-table-row.html = FAIL
+LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
+
 // Started failng at build 1379 (r8741).  passes locally
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL PASS

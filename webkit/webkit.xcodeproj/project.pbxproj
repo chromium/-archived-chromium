@@ -46,6 +46,7 @@
 		419E80750F264BBC006564E0 /* CSSPropertyLonghand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E80730F264BBC006564E0 /* CSSPropertyLonghand.cpp */; };
 		41DEA0680F27C0F900E40D43 /* BackForwardListChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */; };
 		453FFDF935221CD484A3AFED /* Interval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35DEC96C125DC674B5C9FA27 /* Interval.cpp */; };
+		489B04B64226A8BC625C0DDB /* RenderLineBoxList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03F1A9ED31C43E9C91A48AE0 /* RenderLineBoxList.cpp */; };
 		4D114BB60F17F0D5009F37AA /* SkewTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */; };
 		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
@@ -1475,6 +1476,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		03F1A9ED31C43E9C91A48AE0 /* RenderLineBoxList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderLineBoxList.cpp; sourceTree = "<group>"; };
 		040BA91E0F0077E800BFA8E5 /* FormDataBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FormDataBuilder.cpp; sourceTree = "<group>"; };
 		040BA9200F0077EE00BFA8E5 /* FormDataBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormDataBuilder.h; sourceTree = "<group>"; };
 		04C3AFC20EF1E43D0046D578 /* NavigatorBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavigatorBase.cpp; sourceTree = "<group>"; };
@@ -6138,6 +6140,7 @@
 			isa = PBXGroup;
 			children = (
 				B5C180A00E958E85006EAF87 /* style */,
+				03F1A9ED31C43E9C91A48AE0 /* RenderLineBoxList.cpp */,
 				7B5E95160D7F3E94001ECF42 /* AutoTableLayout.cpp */,
 				7B5E95170D7F3E94001ECF42 /* AutoTableLayout.h */,
 				B5C180950E958D23006EAF87 /* bidi.cpp */,
@@ -9021,6 +9024,7 @@
 				938445E20F16B0570075F4C5 /* RenderInline.cpp in Sources */,
 				938445E30F16B0570075F4C5 /* RenderLayer.cpp in Sources */,
 				938445E40F16B0570075F4C5 /* RenderLegend.cpp in Sources */,
+				489B04B64226A8BC625C0DDB /* RenderLineBoxList.cpp in Sources */,
 				938445E50F16B0570075F4C5 /* RenderListBox.cpp in Sources */,
 				938445E60F16B0570075F4C5 /* RenderListItem.cpp in Sources */,
 				938445E70F16B0570075F4C5 /* RenderListMarker.cpp in Sources */,

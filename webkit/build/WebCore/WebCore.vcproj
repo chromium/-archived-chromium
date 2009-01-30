@@ -3318,6 +3318,14 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLegend.h"
 				>
 			</File>
+      <File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLineBoxList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLineBoxList.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderListBox.cpp"
 				>

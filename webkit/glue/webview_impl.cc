@@ -1284,7 +1284,7 @@ void WebViewImpl::SetPageEncoding(const std::wstring& encoding_name) {
     // only change override encoding, don't change default encoding
     // TODO(brettw) use std::string for encoding names.
     String new_encoding_name(webkit_glue::StdWStringToString(encoding_name));
-    page_->mainFrame()->loader()->reloadAllowingStaleData(new_encoding_name);
+    page_->mainFrame()->loader()->reloadWithOverrideEncoding(new_encoding_name);
   }
 }
 
