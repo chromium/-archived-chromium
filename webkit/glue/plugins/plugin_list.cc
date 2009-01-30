@@ -53,26 +53,21 @@ void PluginList::RegisterInternalPlugin(const PluginVersionInfo& info) {
 
 bool PluginList::ReadPluginInfo(const FilePath &filename,
                                 WebPluginInfo* info,
-                                NP_GetEntryPointsFunc* np_getentrypoints,
-                                NP_InitializeFunc* np_initialize,
-                                NP_ShutdownFunc* np_shutdown) {
+                                const PluginEntryPoints** entry_points) {
   // We access the singleton directly, and not through Singleton(), since
   // we might be in a LoadPlugins call and don't want to call it recursively!
   const std::vector<PluginVersionInfo>& internal_plugins =
       g_singleton.Pointer()->internal_plugins_;
   for (size_t i = 0; i < internal_plugins.size(); ++i) {
     if (filename == internal_plugins[i].path) {
-      *np_getentrypoints = internal_plugins[i].np_getentrypoints;
-      *np_initialize = internal_plugins[i].np_initialize;
-      *np_shutdown = internal_plugins[i].np_shutdown;
+      *entry_points = &internal_plugins[i].entry_points;
       return CreateWebPluginInfo(internal_plugins[i], info);
     }
   }
 
   // Not an internal plugin.
-  *np_getentrypoints = NULL;
-  *np_initialize = NULL;
-  *np_shutdown = NULL;
+  *entry_points = NULL;
+
   return PluginLib::ReadWebPluginInfo(filename, info);
 }
 
@@ -133,9 +128,11 @@ PluginList::PluginList() : plugins_loaded_(false) {
     L"*",
     L"",
     L"",
-    default_plugin::NP_GetEntryPoints,
-    default_plugin::NP_Initialize,
-    default_plugin::NP_Shutdown
+    {
+      default_plugin::NP_GetEntryPoints,
+      default_plugin::NP_Initialize,
+      default_plugin::NP_Shutdown
+    }
   };
 
   internal_plugins_.push_back(default_plugin);
@@ -173,13 +170,10 @@ void PluginList::LoadPlugins(bool refresh) {
 
 void PluginList::LoadPlugin(const FilePath &path) {
   WebPluginInfo plugin_info;
-  NP_GetEntryPointsFunc np_getentrypoints;
-  NP_InitializeFunc np_initialize;
-  NP_ShutdownFunc np_shutdown;
-  if (!ReadPluginInfo(path, &plugin_info, &np_getentrypoints, &np_initialize,
-                      &np_shutdown)) {
+  const PluginEntryPoints* entry_points;
+
+  if (!ReadPluginInfo(path, &plugin_info, &entry_points))
     return;
-  }
 
   if (!ShouldLoadPlugin(plugin_info))
     return;

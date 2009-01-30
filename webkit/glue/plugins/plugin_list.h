@@ -32,6 +32,16 @@ namespace NPAPI
 
 class PluginInstance;
 
+// This struct holds entry points into a plugin.  The entry points are
+// slightly different between Linux and other platforms.
+struct PluginEntryPoints {
+#if !defined(OS_LINUX)
+  NP_GetEntryPointsFunc np_getentrypoints;
+#endif
+  NP_InitializeFunc np_initialize;
+  NP_ShutdownFunc np_shutdown;
+};
+
 // This struct fully describes a plugin. For external plugins, it's read in from
 // the version info of the dll; For internal plugins, it's predefined and
 // includes addresses of entry functions. (Yes, it's Win32 NPAPI-centric, but
@@ -46,10 +56,8 @@ struct PluginVersionInfo {
   std::wstring mime_types;
   std::wstring file_extensions;
   std::wstring type_descriptions;
-  // Entry points for internal plugins, NULL for external ones.
-  NP_GetEntryPointsFunc np_getentrypoints;
-  NP_InitializeFunc np_initialize;
-  NP_ShutdownFunc np_shutdown;
+  // Entry points for internal plugins.  Pointers are NULL for external plugins.
+  PluginEntryPoints entry_points;
 };
 
 // The PluginList is responsible for loading our NPAPI based plugins. It does
@@ -79,13 +87,12 @@ class PluginList {
 
   // Creates a WebPluginInfo structure given a plugin's path.  On success
   // returns true, with the information being put into "info".  If it's an
-  // internal plugin, the function pointers are returned as well.
+  // internal plugin, "entry_points" is filled in as well with a
+  // internally-owned PluginEntryPoints pointer.
   // Returns false if the library couldn't be found, or if it's not a plugin.
   static bool ReadPluginInfo(const FilePath& filename,
                              WebPluginInfo* info,
-                             NP_GetEntryPointsFunc* np_getentrypoints,
-                             NP_InitializeFunc* np_initialize,
-                             NP_ShutdownFunc* np_shutdown);
+                             const PluginEntryPoints** entry_points);
 
   // Populate a WebPluginInfo from a PluginVersionInfo.
   static bool CreateWebPluginInfo(const PluginVersionInfo& pvi,

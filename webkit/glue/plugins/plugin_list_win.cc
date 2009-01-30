@@ -217,9 +217,11 @@ void PluginList::PlatformInit() {
     L"application/x-oleobject|application/oleobject",
     L"*|*",
     L"",
-    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
-    activex_shim::ActiveX_Shim_NP_Initialize,
-    activex_shim::ActiveX_Shim_NP_Shutdown
+    {
+      activex_shim::ActiveX_Shim_NP_GetEntryPoints,
+      activex_shim::ActiveX_Shim_NP_Initialize,
+      activex_shim::ActiveX_Shim_NP_Shutdown
+    }
   },
   {
     FilePath(kActiveXShimFileNameForMediaPlayer),
@@ -231,9 +233,11 @@ void PluginList::PlatformInit() {
         L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
     L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
     L"",
-    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
-    activex_shim::ActiveX_Shim_NP_Initialize,
-    activex_shim::ActiveX_Shim_NP_Shutdown
+    {
+      activex_shim::ActiveX_Shim_NP_GetEntryPoints,
+      activex_shim::ActiveX_Shim_NP_Initialize,
+      activex_shim::ActiveX_Shim_NP_Shutdown
+    }
   },
 #ifdef GEARS_STATIC_LIB
   {
@@ -244,9 +248,11 @@ void PluginList::PlatformInit() {
     L"application/x-googlegears",
     L"",
     L"",
-    Gears_NP_GetEntryPoints,
-    Gears_NP_Initialize,
-    Gears_NP_Shutdown
+    {
+      Gears_NP_GetEntryPoints,
+      Gears_NP_Initialize,
+      Gears_NP_Shutdown
+    }
   },
 #endif
   };

@@ -14,9 +14,8 @@
 #include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "webkit/glue/plugins/nphostapi.h"
+#include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/webplugin.h"
-#include "third_party/npapi/bindings/npapi.h"
 
 struct WebPluginInfo;
 
@@ -71,10 +70,9 @@ class PluginLib : public base::RefCounted<PluginLib> {
 
  private:
   // Creates a new PluginLib.
+  // |entry_points| is non-NULL for internal plugins.
   PluginLib(const WebPluginInfo& info,
-            NP_GetEntryPointsFunc np_getentrypoints,
-            NP_InitializeFunc np_initialize,
-            NP_ShutdownFunc np_shutdown);
+            const PluginEntryPoints* entry_points);
 
   // Attempts to load the plugin from the library.
   // Returns true if it is a legitimate plugin, false otherwise
@@ -122,10 +120,8 @@ class PluginLib : public base::RefCounted<PluginLib> {
   NPSavedData *saved_data_;  // persisted plugin info for NPAPI
   int instance_count_;  // count of plugins in use
 
-  // C-style function pointers
-  NP_InitializeFunc NP_Initialize_;
-  NP_GetEntryPointsFunc NP_GetEntryPoints_;
-  NP_ShutdownFunc NP_Shutdown_;
+  // Function pointers to entry points into the plugin.
+  PluginEntryPoints entry_points_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginLib);
 };
