@@ -1370,7 +1370,7 @@ MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT
 MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
@@ -1792,9 +1792,9 @@ LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
 LayoutTests/http/tests/history/redirect-303.pl = FAIL
 
 // Merge 40314:40364 -- new tests
-LayoutTests/fast/transforms/transform-on-inline.html = FAIL
-LayoutTests/fast/transforms/transform-table-row.html = FAIL
-LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
+LINUX WIN : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
+LINUX WIN : LayoutTests/fast/transforms/transform-table-row.html = FAIL
+LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 
 // Started failng at build 1379 (r8741).  passes locally
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL PASS
