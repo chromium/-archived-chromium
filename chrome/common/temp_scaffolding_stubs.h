@@ -37,6 +37,8 @@ class SessionID;
 class SiteInstance;
 class SpellChecker;
 class TabContents;
+class TemplateURL;
+class TemplateURLRef;
 class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
@@ -66,24 +68,6 @@ class MessageWindow {
   void Create() { }
   void Lock() { }
   void Unlock() { }
-};
-
-class BrowserInit {
- public:
-  static bool ProcessCommandLine(const CommandLine& parsed_command_line,
-                                 const std::wstring& cur_dir,
-                                 PrefService* prefs, bool process_startup,
-                                 Profile* profile, int* return_code);
-  static bool LaunchBrowser(const CommandLine& parsed_command_line,
-                            Profile* profile, const std::wstring& cur_dir,
-                            bool process_startup, int* return_code);
- private:
-  static bool LaunchBrowserImpl(const CommandLine& parsed_command_line,
-                                Profile* profile, const std::wstring& cur_dir,
-                                bool process_startup, int* return_code);
-  static Browser* OpenURLsInBrowser(Browser* browser,
-                                    Profile* profile,
-                                    const std::vector<GURL>& urls);
 };
 
 class FirstRun {
@@ -188,6 +172,20 @@ class SessionService : public base::RefCountedThreadSafe<SessionService> {
   void TabRestored(NavigationController*) { }
 };
 
+class SessionRestore {
+ public:
+  static void RestoreSession(Profile* profile,
+                             Browser* browser,
+                             bool clobber_existing_window,
+                             bool always_create_tabbed_browser,
+                             const std::vector<GURL>& urls_to_open) {}
+  static void RestoreSessionSynchronously(
+      Profile* profile,
+      const std::vector<GURL>& urls_to_open) {}
+  
+  static size_t num_tabs_to_load_;
+};
+
 class TabRestoreService : public base::RefCountedThreadSafe<TabRestoreService> {
  public:
   explicit TabRestoreService(Profile* profile) { }
@@ -290,6 +288,8 @@ class NavigationController {
   NavigationEntry* GetActiveEntry() const { return entry_.get(); }
   void LoadURL(const GURL& url, const GURL& referrer,
                PageTransition::Type type) { }
+  static void DisablePromptOnRepost() {}
+  
  private:
   scoped_ptr<NavigationEntry> entry_;
 };
@@ -304,6 +304,20 @@ class TabContentsDelegate {
 class InterstitialPage {
  public:
   virtual void DontProceed() { }
+};
+
+class InfoBarDelegate {
+};
+
+class ConfirmInfoBarDelegate : public InfoBarDelegate {
+ public:
+  explicit ConfirmInfoBarDelegate(TabContents* contents) {}
+
+  enum InfoBarButton {
+    BUTTON_NONE = 0,
+    BUTTON_OK,
+    BUTTON_CANCEL
+  };
 };
 
 class RenderViewHost {
@@ -333,6 +347,9 @@ class TabContents {
   static TabContents* CreateWithType(TabContentsType type,
                                      Profile* profile,
                                      SiteInstance* instance);
+  void AddInfoBar(InfoBarDelegate* delegate) {}
+  
+  Profile* profile() const { return NULL; }
  private:
   GURL url_;
   std::wstring title_;
@@ -433,6 +450,30 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                const std::wstring& custom_dictionary_file_name) {}
 };
 
+class WebAppLauncher {
+ public:
+  static void Launch(Profile* profile, const GURL& url) {
+  }
+};
+
+class AutocompleteResult {
+ public:
+  static void set_max_matches(int) { }
+};
+
+class AutocompleteProvider {
+ public:
+  static void set_max_matches(int) {}
+};
+
+class URLFixerUpper {
+ public:
+  static std::wstring FixupRelativeFile(const std::wstring& base_dir,
+                                        const std::wstring& text) {
+    return L"about:blank";
+  }
+};
+
 class TemplateURLModel {
  public:
   explicit TemplateURLModel(Profile* profile) { }
@@ -440,6 +481,15 @@ class TemplateURLModel {
     return L"";
   }
   static GURL GenerateSearchURL(const TemplateURL* t_url) { return GURL(); }
+  TemplateURL* GetDefaultSearchProvider() { return NULL; }
 };
+
+namespace chrome_browser_net {
+
+void EnableDnsDetailedLog(bool);
+ 
+void EnableDnsPrefetch(bool);
+
+}  // namespace chrome_browser_net
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_
