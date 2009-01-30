@@ -275,9 +275,6 @@ class DownloadItem {
 
 // DownloadManager -------------------------------------------------------------
 
-#if defined(OS_WIN)
-// TODO(port): Port this part of the header and remove the #ifdef.
-
 // Browser's download manager: manages all downloads and destination view.
 class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
                         public SelectFileDialog::Listener {
@@ -534,8 +531,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   scoped_refptr<URLRequestContext> request_context_;
 
   // Used for history service request management.
-  CancelableRequestConsumerT<Observer*, (DownloadManager::Observer*)NULL>
-      cancelable_consumer_;
+  CancelableRequestConsumerTSimple<Observer*> cancelable_consumer_;
 
   // Non-owning pointer for handling file writing on the download_thread_.
   DownloadFileManager* file_manager_;
@@ -575,7 +571,5 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 
   DISALLOW_COPY_AND_ASSIGN(DownloadManager);
 };
-
-#endif  // defined(OS_WIN)
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H_
