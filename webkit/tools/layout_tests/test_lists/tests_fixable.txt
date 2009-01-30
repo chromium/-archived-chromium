@@ -1632,10 +1632,6 @@ WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
-// Merge 39660:39711 - need to implement layoutTestController.numberOfActiveAnimations()
-LINUX : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT FAIL
-LINUX : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = TIMEOUT FAIL
-
 // Merge 39744:39829 - new tests
 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
 LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
