@@ -1,6 +1,0 @@
-This file documents why the various tests have been rebaselined.
-
-window-custom-property
-----------------------
-V8 uses the string 'Cyclic' compared to KJS's 'cyclic' for the
-exception, resulting in different test results.
