@@ -119,8 +119,8 @@ bool LaunchSetupWithParam(const std::wstring& param, int* ret_code) {
   FilePath exe_path;
   if (!PathService::Get(base::DIR_MODULE, &exe_path))
     return false;
-  exe_path.Append(installer_util::kInstallerDir);
-  exe_path.Append(installer_util::kSetupExe);
+  exe_path = exe_path.Append(installer_util::kInstallerDir);
+  exe_path = exe_path.Append(installer_util::kSetupExe);
   base::ProcessHandle ph;
   CommandLine cl(exe_path.ToWStringHack());
   cl.AppendSwitch(param);
