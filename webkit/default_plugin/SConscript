@@ -44,7 +44,7 @@ if env.Bit('windows'):
       'activex_installer.cc',
       'default_plugin.cc',
       'plugin_main.cc',
-      'plugin_impl.cc',
+      'plugin_impl_win.cc',
       'plugin_database_handler.cc',
       'plugin_install_job_monitor.cc',
       'install_dialog.cc',

@@ -158,11 +158,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\plugin_impl.cc"
+			RelativePath=".\plugin_impl_win.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\plugin_impl.h"
+			RelativePath=".\plugin_impl_win.h"
 			>
 		</File>
 		<File

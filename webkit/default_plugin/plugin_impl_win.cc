@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webkit/default_plugin/plugin_impl.h"
+#include "webkit/default_plugin/plugin_impl_win.h"
 
 #include <shellapi.h>
 
