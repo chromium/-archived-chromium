@@ -159,6 +159,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\in_process_browser_test.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\in_process_browser_test.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\common\ipc_test_sink.cc"
 				>
 			</File>
@@ -204,6 +212,14 @@
 			</File>
 			<File
 				RelativePath="..\testing_profile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ui_test_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ui_test_utils.h"
 				>
 			</File>
 			<File
@@ -366,6 +382,10 @@
 		<Filter
 			Name="browser"
 			>
+			<File
+				RelativePath="..\..\browser\views\find_bar_win_unittest.cc"
+				>
+			</File>
 			<File
 				RelativePath="..\..\browser\autocomplete\autocomplete_unittest.cc"
 				>

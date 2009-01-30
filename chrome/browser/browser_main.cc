@@ -175,6 +175,14 @@ StringPiece NetResourceProvider(int key) {
 }
 #endif
 
+void RunUIMessageLoop(BrowserProcess* browser_process) {
+#if defined(OS_WIN)
+  MessageLoopForUI::current()->Run(browser_process->accelerator_handler());
+#elif defined(OS_POSIX)
+  MessageLoopForUI::current()->Run();
+#endif
+}
+
 }  // namespace
 
 // Main routine for running as the Browser process.
@@ -295,10 +303,14 @@ int BrowserMain(const MainFunctionParams& parameters) {
   }
 
 #if defined(OS_WIN)
-  ResourceBundle::InitSharedInstance(
-      local_state->GetString(prefs::kApplicationLocale));
-  // We only load the theme dll in the browser process.
-  ResourceBundle::GetSharedInstance().LoadThemeResources();
+  // If we're running tests (ui_task is non-null), then the ResourceBundle
+  // has already been initialized.
+  if (!parameters.ui_task) {
+    ResourceBundle::InitSharedInstance(
+        local_state->GetString(prefs::kApplicationLocale));
+    // We only load the theme dll in the browser process.
+    ResourceBundle::GetSharedInstance().LoadThemeResources();
+  }
 #endif
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {
@@ -324,7 +336,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // Flush the message loop which lets the UserDataDirDialog close.
     MessageLoop::current()->Run();
 
-    ResourceBundle::CleanupSharedInstance();
+    if (!parameters.ui_task && browser_shutdown::delete_resources_on_shutdown) {
+      // Only delete the resources if we're not running tests. If we're running
+      // tests the resources need to be reused as many places in the UI cache
+      // SkBitmaps from the ResourceBundle.
+      ResourceBundle::CleanupSharedInstance();
+    }
 
     if (!user_data_dir.empty()) {
       // Because of the way CommandLine parses, it's sufficient to append a new
@@ -455,7 +472,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   sandbox::BrokerServices* broker_services =
       parameters.sandbox_info_.BrokerServices();
-  browser_process->InitBrokerServices(broker_services);
+  if (broker_services)
+    browser_process->InitBrokerServices(broker_services);
 #endif
 
   // In unittest mode, this will do nothing.  In normal mode, this will create
@@ -526,13 +544,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
   RecordBreakpadStatusUMA(metrics);
 
   int result_code = ResultCodes::NORMAL_EXIT;
-  if (BrowserInit::ProcessCommandLine(parsed_command_line, L"", local_state,
-                                      true, profile, &result_code)) {
-#if defined(OS_WIN)
-    MessageLoopForUI::current()->Run(browser_process->accelerator_handler());
-#elif defined(OS_POSIX)
-    MessageLoopForUI::current()->Run();
-#endif
+  if (parameters.ui_task) {
+    MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);
+    RunUIMessageLoop(browser_process.get());
+  } else if (BrowserInit::ProcessCommandLine(parsed_command_line,
+                                             std::wstring(), local_state, true,
+                                             profile, &result_code)) {
+    RunUIMessageLoop(browser_process.get());
   }
 
   Platform::WillTerminate();

@@ -27,6 +27,8 @@
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 
+class InProcessBrowserTest;
+
 class CommandLine {
  public:
 #if defined(OS_WIN)
@@ -113,7 +115,15 @@ class CommandLine {
                        bool include_program);
 
  private:
+  friend class InProcessBrowserTest;
+
   CommandLine() {}
+
+  // Used by InProcessBrowserTest.
+  static CommandLine* ForCurrentProcessMutable() {
+    DCHECK(current_process_commandline_);
+    return current_process_commandline_;
+  }
 
   // The singleton CommandLine instance representing the current process's
   // command line.

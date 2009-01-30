@@ -12,11 +12,16 @@
 #include "base/command_line.h"
 #include "chrome/common/sandbox_init_wrapper.h"
 
+class Task;
+
 struct MainFunctionParams {
   MainFunctionParams(const CommandLine& cl, const SandboxInitWrapper& sb)
-      : command_line_(cl), sandbox_info_(sb) { }
+      : command_line_(cl), sandbox_info_(sb), ui_task(NULL) { }
   const CommandLine& command_line_;
   const SandboxInitWrapper& sandbox_info_;
+  // Used by InProcessBrowserTest. If non-null BrowserMain schedules this
+  // task to run on the MessageLoop and BrowserInit is not invoked.
+  Task* ui_task;
 };
 
 #endif  // CHROME_COMMON_MAIN_FUNCTINON_PARAMS_H_
