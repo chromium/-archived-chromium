@@ -70,6 +70,27 @@ class RegistryEntry {
       entries.push_front(new RegistryEntry(open_with_key, std::wstring()));
     }
 
+    // Chrome extension installer
+    std::wstring install_cmd =
+        ShellUtil::GetChromeInstallExtensionCmd(chrome_exe);
+    std::wstring prog_id = std::wstring(L"Software\\Classes\\") +
+        ShellUtil::kChromeExtProgId;
+
+    // Extension file handler
+    entries.push_front(new RegistryEntry(prog_id,
+                                         ShellUtil::kChromeExtProgIdDesc));
+    entries.push_front(new RegistryEntry(
+        prog_id + L"\\DefaultIcon", icon_path));
+    entries.push_front(new RegistryEntry(
+        prog_id + L"\\shell\\open\\command", install_cmd));
+
+    // .crx file type extension
+    std::wstring file_extension_key(L"Software\\Classes\\");
+    file_extension_key.append(L".");
+    file_extension_key.append(chrome::kExtensionFileExtension);
+    entries.push_front(new RegistryEntry(file_extension_key,
+                                         ShellUtil::kChromeExtProgId));
+
     BrowserDistribution* dist = BrowserDistribution::GetDistribution();
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe",
@@ -358,6 +379,9 @@ const wchar_t* ShellUtil::kProtocolAssociations[] = {L"ftp", L"http", L"https",
     NULL};
 const wchar_t* ShellUtil::kRegUrlProtocol = L"URL Protocol";
 
+const wchar_t* ShellUtil::kChromeExtProgId = L"ChromeExt";
+const wchar_t* ShellUtil::kChromeExtProgIdDesc = L"Chrome Extension Installer";
+
 ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
     const std::wstring& chrome_exe, bool skip_if_not_admin) {
   if (IsChromeRegistered(chrome_exe))
@@ -388,6 +412,11 @@ bool ShellUtil::GetChromeIcon(std::wstring& chrome_icon) {
 
 std::wstring ShellUtil::GetChromeShellOpenCmd(const std::wstring& chrome_exe) {
   return L"\"" + chrome_exe + L"\" -- \"%1\"";
+}
+
+std::wstring ShellUtil::GetChromeInstallExtensionCmd(
+    const std::wstring& chrome_exe) {
+  return L"\"" + chrome_exe + L"\" --install-extension=\"%1\"";
 }
 
 bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut) {

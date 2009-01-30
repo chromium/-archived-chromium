@@ -19,12 +19,14 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/download_util.h"
+#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -1167,9 +1169,11 @@ void DownloadManager::OpenFilesOfExtension(
 
 bool DownloadManager::ShouldOpenFileExtension(
     const FilePath::StringType& extension) {
+  // Special-case Chrome extensions as always-open.
   if (!IsExecutable(extension) &&
-      auto_open_.find(extension) != auto_open_.end())
-      return true;
+      (auto_open_.find(extension) != auto_open_.end() ||
+       extension == chrome::kExtensionFileExtension))
+    return true;
   return false;
 }
 

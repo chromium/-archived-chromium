@@ -26,6 +26,7 @@ const wchar_t kTestingInterfaceDLL[] = L"testing_interface.dll";
 const wchar_t kNotSignedInProfile[] = L"Default";
 const wchar_t kNotSignedInID[] = L"not-signed-in";
 const wchar_t kBrowserResourcesDll[] = L"chrome.dll";
+const FilePath::CharType kExtensionFileExtension[] = FPL("crx");
 
 // filenames
 const wchar_t kArchivedHistoryFilename[] = L"Archived History";

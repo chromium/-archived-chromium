@@ -222,15 +222,6 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     }
   }
 
-  // Start up the extensions service
-  profile->InitExtensions();
-  if (parsed_command_line.HasSwitch(switches::kInstallExtension)) {
-    std::wstring path_string =
-      parsed_command_line.GetSwitchValue(switches::kInstallExtension);
-    FilePath path = FilePath::FromWStringHack(path_string);
-    profile->GetExtensionsService()->InstallExtension(path);
-  }
-
   return true;
 }
 
@@ -393,8 +384,16 @@ bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
                                                  profile, expected_tabs);
   }
 
-  // Start up the extensions service.
+  // Start up the extensions service
   profile->InitExtensions();
+
+  if (parsed_command_line.HasSwitch(switches::kInstallExtension)) {
+    std::wstring path_string =
+      parsed_command_line.GetSwitchValue(switches::kInstallExtension);
+    FilePath path = FilePath::FromWStringHack(path_string);
+    profile->GetExtensionsService()->InstallExtension(path);
+    silent_launch = true;
+  }
 
   // If we don't want to launch a new browser window or tab (in the case
   // of an automation request), we are done here.

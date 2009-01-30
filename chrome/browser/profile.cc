@@ -341,6 +341,9 @@ ProfileImpl::ProfileImpl(const FilePath& path)
 }
 
 void ProfileImpl::InitExtensions() {
+  if (user_script_master_ || extensions_service_)
+    return;  // Already initialized.
+
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   bool user_scripts_enabled =
       command_line->HasSwitch(switches::kEnableUserScripts);

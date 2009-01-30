@@ -21,6 +21,7 @@ extern const wchar_t kNotSignedInProfile[];
 extern const wchar_t kNotSignedInID[];
 extern const char    kStatsFilename[];
 extern const wchar_t kBrowserResourcesDll[];
+extern const FilePath::CharType kExtensionFileExtension[];
 
 // filenames
 extern const wchar_t kArchivedHistoryFilename[];
