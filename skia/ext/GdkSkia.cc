@@ -363,7 +363,25 @@ gdk_skia_draw_segments(GdkDrawable     *drawable,
                        GdkGC           *gc,
                        GdkSegment      *segs,
                        gint             nsegs) {
-  NOTIMPLEMENTED;
+  GdkSkiaObject *skia = (GdkSkiaObject *) drawable;
+  GdkGCValues values;
+  SkPaint paint;
+  int nskip = 1;
+
+  gc_set_paint(gc, &paint);
+  gdk_gc_get_values(gc, &values);
+
+  // TODO(jhawkins): how to set line width in skia?
+
+  // GDK_LINE_ON_OFF_DASH only renders the even segments
+  if (values.line_style == GDK_LINE_ON_OFF_DASH)
+    nskip++;
+
+  for (int i = 0; i < nsegs; i += nskip) {
+    // TODO(jhawkins): GDK_LINE_DOUBLE_DASH
+    skia->canvas->drawLine(segs[i].x1, segs[i].y1,
+                           segs[i].x2, segs[i].y2, paint);
+  }
 }
 
 static void
