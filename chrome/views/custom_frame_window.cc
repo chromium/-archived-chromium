@@ -216,7 +216,6 @@ class InactiveWindowResources : public WindowResources {
 SkBitmap* ActiveWindowResources::standard_frame_bitmaps_[];
 SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // DefaultNonClientView
@@ -251,18 +250,32 @@ class DefaultNonClientView : public NonClientView,
   virtual void ButtonPressed(BaseButton* sender);
 
  private:
-  // Updates the system menu icon button.
-  void SetWindowIcon(SkBitmap window_icon);
+  // Returns the thickness of the border that makes up the window frame edges.
+  // This does not include any client edge.
+  int FrameBorderThickness() const;
+
+  // Returns the thickness of the entire nonclient left, right, and bottom
+  // borders, including both the window frame and any client edge.
+  int NonClientBorderThickness() const;
 
   // Returns the height of the entire nonclient top border, including the window
   // frame, any title area, and any connected client edge.
   int NonClientTopBorderHeight() const;
 
+  // A bottom border, and, in restored mode, a client edge are drawn at the
+  // bottom of the titlebar.  This returns the total height drawn.
+  int BottomEdgeThicknessWithinNonClientHeight() const;
+
+  // Calculates multiple values related to title layout.  Returns the height of
+  // the entire titlebar including any connected client edge.
+  int TitleCoordinates(int* title_top_spacing,
+                       int* title_thickness) const;
+
   // Paint various sub-components of this view.
   void PaintRestoredFrameBorder(ChromeCanvas* canvas);
   void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
   void PaintTitleBar(ChromeCanvas* canvas);
-  void PaintClientEdge(ChromeCanvas* canvas);
+  void PaintRestoredClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();
@@ -307,22 +320,50 @@ class DefaultNonClientView : public NonClientView,
 WindowResources* DefaultNonClientView::active_resources_ = NULL;
 WindowResources* DefaultNonClientView::inactive_resources_ = NULL;
 ChromeFont DefaultNonClientView::title_font_;
-static const int kWindowControlsTopOffset = 1;
-static const int kWindowControlsRightOffset = 5;
-static const int kWindowControlsTopZoomedOffset = 1;
-static const int kWindowControlsRightZoomedOffset = 5;
-static const int kWindowTopMarginZoomed = 1;
-static const int kWindowIconLeftOffset = 5;
-static const int kWindowIconTopOffset = 5;
-static const int kTitleTopOffset = 6;
-static const int kWindowIconTitleSpacing = 3;
-static const int kTitleBottomSpacing = 6;
-static const int kNoTitleTopSpacing = 8;
-static const int kResizeAreaSize = 5;
-static const int kResizeAreaNorthSize = 3;
-static const int kResizeAreaCornerSize = 16;
-static const int kWindowHorizontalBorderSize = 4;
-static const int kWindowVerticalBorderSize = 4;
+
+namespace {
+// The frame border is only visible in restored mode and is hardcoded to 4 px on
+// each side regardless of the system window border size.
+const int kFrameBorderThickness = 4;
+// Various edges of the frame border have a 1 px shadow along their edges; in a
+// few cases we shift elements based on this amount for visual appeal.
+const int kFrameShadowThickness = 1;
+// While resize areas on Windows are normally the same size as the window
+// borders, our top area is shrunk by 1 px to make it easier to move the window
+// around with our thinner top grabbable strip.  (Incidentally, our side and
+// bottom resize areas don't match the frame border thickness either -- they
+// span the whole nonclient area, so there's no "dead zone" for the mouse.)
+const int kTopResizeAdjust = 1;
+// In the window corners, the resize areas don't actually expand bigger, but the
+// 16 px at the end of each edge triggers diagonal resizing.
+const int kResizeAreaCornerSize = 16;
+// The titlebar never shrinks to less than 18 px tall, plus the height of the
+// frame border and any bottom edge.
+const int kTitlebarMinimumHeight = 18;
+// The icon is inset 2 px from the left frame border.
+const int kIconLeftSpacing = 2;
+// The icon takes up 16/25th of the available titlebar height.  (This is
+// expressed as two ints to avoid precision losses leading to off-by-one pixel
+// errors.)
+const int kIconHeightFractionNumerator = 16;
+const int kIconHeightFractionDenominator = 25;
+// The icon never shrinks below 16 px on a side.
+const int kIconMinimumSize = 16;
+// Because our frame border has a different "3D look" than Windows', with a less
+// cluttered top edge, we need to shift the icon up by 1 px in restored mode so
+// it looks more centered.
+const int kIconRestoredAdjust = 1;
+// There is a 4 px gap between the icon and the title text.
+const int kIconTitleSpacing = 4;
+// The title text starts 2 px below the bottom of the top frame border.
+const int kTitleTopSpacing = 2;
+// There is a 5 px gap between the title text and the caption buttons.
+const int kTitleCaptionSpacing = 5;
+// The caption buttons are always drawn 1 px down from the visible top of the
+// window (the true top in restored mode, or the top of the screen in maximized
+// mode).
+const int kCaptionTopSpacing = 1;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, public:
@@ -386,17 +427,18 @@ DefaultNonClientView::~DefaultNonClientView() {
 gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(int width,
                                                           int height) const {
   int top_height = NonClientTopBorderHeight();
-  int border_thickness = kWindowHorizontalBorderSize;
+  int border_thickness = NonClientBorderThickness();
   return gfx::Rect(border_thickness, top_height,
-      std::max(0, width - (2 * border_thickness)),
-      std::max(0, height - top_height - kWindowVerticalBorderSize));
+                   std::max(0, width - (2 * border_thickness)),
+                   std::max(0, height - top_height - border_thickness));
 }
 
 gfx::Size DefaultNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
-  return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
-      height + NonClientTopBorderHeight() + kWindowVerticalBorderSize);
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Size(width + (2 * border_thickness),
+                   height + NonClientTopBorderHeight() + border_thickness);
 }
 
 CPoint DefaultNonClientView::GetSystemMenuPoint() const {
@@ -431,8 +473,8 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
       point))
     return HTSYSMENU;
 
-  int window_component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
-      kResizeAreaSize, kResizeAreaCornerSize,
+  int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
+      NonClientBorderThickness(), kResizeAreaCornerSize,
       container_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return ((window_component == HTNOWHERE) && bounds().Contains(point)) ?
@@ -482,7 +524,8 @@ void DefaultNonClientView::Paint(ChromeCanvas* canvas) {
   else
     PaintRestoredFrameBorder(canvas);
   PaintTitleBar(canvas);
-  PaintClientEdge(canvas);
+  if (!container_->IsMaximized())
+    PaintRestoredClientEdge(canvas);
 }
 
 void DefaultNonClientView::Layout() {
@@ -493,8 +536,9 @@ void DefaultNonClientView::Layout() {
 
 gfx::Size DefaultNonClientView::GetPreferredSize() {
   gfx::Size prefsize(container_->client_view()->GetPreferredSize());
-  prefsize.Enlarge(2 * kWindowHorizontalBorderSize,
-                   NonClientTopBorderHeight() + kWindowVerticalBorderSize);
+  int border_thickness = NonClientBorderThickness();
+  prefsize.Enlarge(2 * border_thickness,
+                   NonClientTopBorderHeight() + border_thickness);
   return prefsize;
 }
 
@@ -524,8 +568,50 @@ void DefaultNonClientView::ButtonPressed(BaseButton* sender) {
 ///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, private:
 
+int DefaultNonClientView::FrameBorderThickness() const {
+  return container_->IsMaximized() ?
+      GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
+}
+
+int DefaultNonClientView::NonClientBorderThickness() const {
+  // In maximized mode, we don't show a client edge.
+  return FrameBorderThickness() +
+      (container_->IsMaximized() ? 0 : kClientEdgeThickness);
+}
+
 int DefaultNonClientView::NonClientTopBorderHeight() const {
-  return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
+  int title_top_spacing, title_thickness;
+  return TitleCoordinates(&title_top_spacing, &title_thickness);
+}
+
+int DefaultNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {
+  return kFrameShadowThickness +
+      (container_->IsMaximized() ? 0 : kClientEdgeThickness);
+}
+
+int DefaultNonClientView::TitleCoordinates(int* title_top_spacing,
+                                          int* title_thickness) const {
+  int frame_thickness = FrameBorderThickness();
+  int min_titlebar_height = kTitlebarMinimumHeight + frame_thickness;
+  *title_top_spacing = frame_thickness + kTitleTopSpacing;
+  // The bottom spacing should be the same apparent height as the top spacing.
+  // Because the actual top spacing height varies based on the system border
+  // thickness, we calculate this based on the restored top spacing and then
+  // adjust for maximized mode.  We also don't include the frame shadow here,
+  // since while it's part of the bottom spacing it will be added in at the end.
+  int title_bottom_spacing =
+      kFrameBorderThickness + kTitleTopSpacing - kFrameShadowThickness;
+  if (container_->IsMaximized()) {
+    // When we maximize, the top border appears to be chopped off; shift the
+    // title down to stay centered within the remaining space.
+    int title_adjust = (kFrameBorderThickness / 2);
+    *title_top_spacing += title_adjust;
+    title_bottom_spacing -= title_adjust;
+  }
+  *title_thickness = std::max(title_font_.height(),
+      min_titlebar_height - *title_top_spacing - title_bottom_spacing);
+  return *title_top_spacing + *title_thickness + title_bottom_spacing +
+      BottomEdgeThicknessWithinNonClientHeight();
 }
 
 void DefaultNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
@@ -575,7 +661,15 @@ void DefaultNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 void DefaultNonClientView::PaintMaximizedFrameBorder(
     ChromeCanvas* canvas) {
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
-  canvas->TileImageInt(*top_edge, 0, 0, width(), top_edge->height());
+  canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
+                       top_edge->height());
+
+  // The bottom of the titlebar actually comes from the top of the Client Edge
+  // graphic, with the actual client edge clipped off the bottom.
+  SkBitmap* titlebar_bottom = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
+  int edge_height = titlebar_bottom->height() - kClientEdgeThickness;
+  canvas->TileImageInt(*titlebar_bottom, 0,
+      container_->client_view()->y() - edge_height, width(), edge_height);
 }
 
 void DefaultNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
@@ -585,7 +679,7 @@ void DefaultNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
       title_bounds_.width(), title_bounds_.height());
 }
 
-void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
+void DefaultNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   gfx::Rect client_area_bounds = container_->client_view()->bounds();
   int client_area_top = client_area_bounds.y();
 
@@ -613,22 +707,23 @@ void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   canvas->DrawBitmapInt(*top_right, client_area_bounds.right(), top_edge_y);
 
   // Right.
+  int client_area_bottom =
+      std::max(client_area_top, client_area_bounds.bottom());
+  int client_area_height = client_area_bottom - client_area_top;
   canvas->TileImageInt(*right, client_area_bounds.right(), client_area_top,
-                       right->width(), client_area_bounds.height());
+                       right->width(), client_area_height);
 
   // Bottom.
   canvas->DrawBitmapInt(*bottom_right, client_area_bounds.right(),
-                        client_area_bounds.bottom());
-  canvas->TileImageInt(*bottom, client_area_bounds.x(),
-                       client_area_bounds.bottom(),
+                        client_area_bottom);
+  canvas->TileImageInt(*bottom, client_area_bounds.x(), client_area_bottom,
                        client_area_bounds.width(), bottom_right->height());
   canvas->DrawBitmapInt(*bottom_left,
-                        client_area_bounds.x() - bottom_left->width(),
-                        client_area_bounds.bottom());
+      client_area_bounds.x() - bottom_left->width(), client_area_bottom);
 
   // Left.
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
-      client_area_top, left->width(), client_area_bounds.height());
+      client_area_top, left->width(), client_area_height);
 }
 
 void DefaultNonClientView::LayoutWindowControls() {
@@ -636,14 +731,16 @@ void DefaultNonClientView::LayoutWindowControls() {
   // Maximized buttons start at window top so that even if their images aren't
   // drawn flush with the screen edge, they still obey Fitts' Law.
   bool is_maximized = container_->IsMaximized();
-  int caption_y = is_maximized ? 0 : kWindowControlsTopOffset;
-  int top_extra_height = is_maximized ? kWindowControlsTopZoomedOffset : 0;
+  int frame_thickness = FrameBorderThickness();
+  int caption_y = is_maximized ? frame_thickness : kCaptionTopSpacing;
+  int top_extra_height = is_maximized ? kCaptionTopSpacing : 0;
   // There should always be the same number of non-shadow pixels visible to the
   // side of the caption buttons.  In maximized mode we extend the rightmost
   // button to the screen corner to obey Fitts' Law.
-  int right_extra_width = is_maximized ? kWindowControlsRightZoomedOffset : 0;
+  int right_extra_width = is_maximized ?
+      (kFrameBorderThickness - kFrameShadowThickness) : 0;
   int right_spacing = is_maximized ?
-      kWindowControlsRightZoomedOffset : kWindowControlsRightOffset;
+      (GetSystemMetrics(SM_CXSIZEFRAME) + right_extra_width) : frame_thickness;
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   close_button_->SetBounds(width() - close_button_size.width() - right_spacing,
                            caption_y,
@@ -698,41 +795,48 @@ void DefaultNonClientView::LayoutWindowControls() {
 }
 
 void DefaultNonClientView::LayoutTitleBar() {
-  int top_offset = container_->IsMaximized() ? kWindowTopMarginZoomed : 0;
-  WindowDelegate* d = container_->window_delegate();
+  // Always lay out the icon, even when it's not present, so we can lay out the
+  // window title based on its position.
+  int frame_thickness = FrameBorderThickness();
+  int icon_x = frame_thickness + kIconLeftSpacing;
 
-  // Size the window icon, if visible.
-  if (d->ShouldShowWindowIcon()) {
-    system_menu_button_->SetVisible(true);
-    gfx::Size ps = system_menu_button_->GetPreferredSize();
-    system_menu_button_->SetBounds(
-        kWindowIconLeftOffset, kWindowIconTopOffset + top_offset, ps.width(),
-        ps.height());
-  } else {
-    // Put the menu in the right place at least even if it is hidden so we
-    // can size the title based on its position.
-    system_menu_button_->SetBounds(kWindowIconLeftOffset,
-                                   kWindowIconTopOffset, 0, 0);
-  }
+  // The usable height of the titlebar area is the total height minus the top
+  // resize border and any edge area we draw at its bottom.
+  int title_top_spacing, title_thickness;
+  int top_height = TitleCoordinates(&title_top_spacing, &title_thickness);
+  int available_height = top_height - frame_thickness -
+      BottomEdgeThicknessWithinNonClientHeight();
+
+  // The icon takes up a constant fraction of the available height, down to a
+  // minimum size, and is always an even number of pixels on a side (presumably
+  // to make scaled icons look better).  It's centered within the usable height.
+  int icon_size = std::max((available_height * kIconHeightFractionNumerator /
+      kIconHeightFractionDenominator) / 2 * 2, kIconMinimumSize);
+  int icon_y = ((available_height - icon_size) / 2) + frame_thickness;
+
+  // Hack: Our frame border has a different "3D look" than Windows'.  Theirs has
+  // a more complex gradient on the top that they push their icon/title below;
+  // then the maximized window cuts this off and the icon/title are centered in
+  // the remaining space.  Because the apparent shape of our border is simpler,
+  // using the same positioning makes things look slightly uncentered with
+  // restored windows, so we come up to compensate.
+  if (!container_->IsMaximized())
+    icon_y -= kIconRestoredAdjust;
+
+  views::WindowDelegate* d = container_->window_delegate();
+  if (!d->ShouldShowWindowIcon())
+    icon_size = 0;
+  system_menu_button_->SetBounds(icon_x, icon_y, icon_size, icon_size);
 
   // Size the title.
-  gfx::Rect system_menu_bounds = system_menu_button_->bounds();
-  int spacing = d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0;
-  int title_right = should_show_minmax_buttons_ ?
-      minimize_button_->x() : close_button_->x();
-  int title_left = system_menu_bounds.right() + spacing;
-  title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
-      std::max(0, static_cast<int>(title_right - system_menu_bounds.right())),
-      title_font_.height());
-
-  // Center the icon within the height of the title if the title is taller.
-  int delta_y = title_bounds_.height() - system_menu_button_->height();
-  if (delta_y > 0) {
-    int new_y = title_bounds_.y() + static_cast<int>(delta_y / 2);
-    system_menu_button_->SetBounds(system_menu_button_->x(), new_y,
-                                   system_menu_button_->width(),
-                                   system_menu_button_->height());
-  }
+  int icon_right = icon_x + icon_size;
+  int title_x =
+      icon_right + (d->ShouldShowWindowIcon() ? kIconTitleSpacing : 0);
+  int title_right = (should_show_minmax_buttons_ ?
+      minimize_button_->x() : close_button_->x()) - kTitleCaptionSpacing;
+  title_bounds_.SetRect(title_x,
+      title_top_spacing + ((title_thickness - title_font_.height()) / 2),
+      std::max(0, title_right - title_x), title_font_.height());
 }
 
 void DefaultNonClientView::LayoutClientView() {
@@ -746,7 +850,9 @@ void DefaultNonClientView::InitClass() {
   if (!initialized) {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
+
     title_font_ = win_util::GetWindowTitleFont();
+
     initialized = true;
   }
 }

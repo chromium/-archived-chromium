@@ -13,6 +13,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/toolbar_model.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/web_app.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_constants.h"
@@ -216,9 +217,22 @@ class ConstrainedWindowNonClientView
   virtual void ButtonPressed(views::BaseButton* sender);
 
  private:
+  // Returns the thickness of the border that makes up the window frame edges.
+  // This does not include any client edge.
+  int FrameBorderThickness() const;
+
+  // Returns the thickness of the entire nonclient left, right, and bottom
+  // borders, including both the window frame and any client edge.
+  int NonClientBorderThickness() const;
+
   // Returns the height of the entire nonclient top border, including the window
   // frame, any title area, and any connected client edge.
   int NonClientTopBorderHeight() const;
+
+  // Calculates multiple values related to title layout.  Returns the height of
+  // the entire titlebar including any connected client edge.
+  int TitleCoordinates(int* title_top_spacing,
+                       int* title_thickness) const;
 
   // Paints different parts of the window to the incoming canvas.
   void PaintFrameBorder(ChromeCanvas* canvas);
@@ -252,20 +266,31 @@ class ConstrainedWindowNonClientView
 };
 
 ChromeFont ConstrainedWindowNonClientView::title_font_;
-static const int kWindowLeftSpacing = 5;
-static const int kWindowControlsTopOffset = 1;
-static const int kWindowControlsRightOffset = 4;
-static const int kTitleTopOffset = 6;
-static const int kTitleBottomSpacing = 5;
-static const int kNoTitleTopSpacing = 8;
-static const int kResizeAreaSize = 5;
-static const int kResizeAreaNorthSize = 3;
-static const int kResizeAreaCornerSize = 16;
-static const int kWindowHorizontalBorderSize = 5;
-static const int kWindowVerticalBorderSize = 5;
-static const int kWindowIconSize = 16;
 
 namespace {
+// The frame border is only visible in restored mode and is hardcoded to 4 px on
+// each side regardless of the system window border size.
+const int kFrameBorderThickness = 4;
+// Various edges of the frame border have a 1 px shadow along their edges; in a
+// few cases we shift elements based on this amount for visual appeal.
+const int kFrameShadowThickness = 1;
+// In the window corners, the resize areas don't actually expand bigger, but the
+// 16 px at the end of each edge triggers diagonal resizing.
+const int kResizeAreaCornerSize = 16;
+// The titlebar never shrinks to less than 20 px tall, including the height of
+// the frame border and client edge.
+const int kTitlebarMinimumHeight = 20;
+// The icon is inset 2 px from the left frame border.
+const int kIconLeftSpacing = 2;
+// The title text starts 2 px below the bottom of the top frame border.
+const int kTitleTopSpacing = 2;
+// There is a 5 px gap between the title text and the caption buttons.
+const int kTitleCaptionSpacing = 5;
+// The caption buttons are always drawn 1 px down from the visible top of the
+// window (the true top in restored mode, or the top of the screen in maximized
+// mode).
+const int kCaptionTopSpacing = 1;
+
 const SkColor kContentsBorderShadow = SkColorSetARGB(51, 0, 0, 0);
 const SkColor kContentsBorderColor = SkColorSetRGB(219, 235, 255);
 }
@@ -315,16 +340,18 @@ gfx::Rect ConstrainedWindowNonClientView::CalculateClientAreaBounds(
     int width,
     int height) const {
   int top_height = NonClientTopBorderHeight();
-  return gfx::Rect(kWindowHorizontalBorderSize, top_height,
-      std::max(0, width - (2 * kWindowHorizontalBorderSize)),
-      std::max(0, height - top_height - kWindowVerticalBorderSize));
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Rect(border_thickness, top_height,
+                   std::max(0, width - (2 * border_thickness)),
+                   std::max(0, height - top_height - border_thickness));
 }
 
 gfx::Size ConstrainedWindowNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
-  return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
-      height + NonClientTopBorderHeight() + kWindowVerticalBorderSize);
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Size(width + (2 * border_thickness),
+                   height + NonClientTopBorderHeight() + border_thickness);
 }
 
 CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
@@ -344,8 +371,8 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
   if (close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
     return HTCLOSE;
 
-  int window_component = GetHTComponentForFrame(point, kResizeAreaNorthSize,
-      kResizeAreaSize, kResizeAreaCornerSize,
+  int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
+      NonClientBorderThickness(), kResizeAreaCornerSize,
       container_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return ((window_component == HTNOWHERE) && bounds().Contains(point)) ?
@@ -396,8 +423,9 @@ void ConstrainedWindowNonClientView::Layout() {
 
 gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {
   gfx::Size prefsize(container_->client_view()->GetPreferredSize());
-  prefsize.Enlarge(2 * kWindowHorizontalBorderSize,
-                   NonClientTopBorderHeight() + kWindowVerticalBorderSize);
+  int border_thickness = NonClientBorderThickness();
+  prefsize.Enlarge(2 * border_thickness,
+                   NonClientTopBorderHeight() + border_thickness);
   return prefsize;
 }
 
@@ -422,8 +450,31 @@ void ConstrainedWindowNonClientView::ButtonPressed(views::BaseButton* sender) {
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowNonClientView, private:
 
+int ConstrainedWindowNonClientView::FrameBorderThickness() const {
+  return kFrameBorderThickness;
+}
+
+int ConstrainedWindowNonClientView::NonClientBorderThickness() const {
+  return FrameBorderThickness() + kClientEdgeThickness;
+}
+
 int ConstrainedWindowNonClientView::NonClientTopBorderHeight() const {
-  return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
+  int title_top_spacing, title_thickness;
+  return TitleCoordinates(&title_top_spacing, &title_thickness);
+}
+
+int ConstrainedWindowNonClientView::TitleCoordinates(
+    int* title_top_spacing,
+    int* title_thickness) const {
+  int frame_thickness = FrameBorderThickness();
+  int min_titlebar_height = kTitlebarMinimumHeight + frame_thickness;
+  *title_top_spacing = frame_thickness + kTitleTopSpacing;
+  // The bottom spacing should be the same apparent height as the top spacing,
+  // plus have the client edge tacked on.
+  int title_bottom_spacing = *title_top_spacing + kClientEdgeThickness;
+  *title_thickness = std::max(title_font_.height(),
+      min_titlebar_height - *title_top_spacing - title_bottom_spacing);
+  return *title_top_spacing + *title_thickness + title_bottom_spacing;
 }
 
 void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
@@ -480,7 +531,7 @@ void ConstrainedWindowNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   gfx::Rect client_edge_bounds(CalculateClientAreaBounds(width(), height()));
   client_edge_bounds.Inset(-kClientEdgeThickness, -kClientEdgeThickness);
   gfx::Rect frame_shadow_bounds(client_edge_bounds);
-  frame_shadow_bounds.Inset(-1, -1);
+  frame_shadow_bounds.Inset(-kFrameShadowThickness, -kFrameShadowThickness);
 
   canvas->FillRectInt(kContentsBorderShadow, frame_shadow_bounds.x(),
                       frame_shadow_bounds.y(), frame_shadow_bounds.width(),
@@ -494,18 +545,20 @@ void ConstrainedWindowNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 void ConstrainedWindowNonClientView::LayoutWindowControls() {
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   close_button_->SetBounds(
-      width() - close_button_size.width() - kWindowControlsRightOffset,
-      kWindowControlsTopOffset, close_button_size.width(),
+      width() - close_button_size.width() - FrameBorderThickness(),
+      kCaptionTopSpacing, close_button_size.width(),
       close_button_size.height());
 }
 
 void ConstrainedWindowNonClientView::LayoutTitleBar() {
   // Size the title.
-  int title_x = kWindowLeftSpacing;
-  int title_top_spacing = NonClientTopBorderHeight();
-  title_bounds_.SetRect(title_x, kTitleTopOffset,
-                        close_button_->x() - kWindowLeftSpacing - title_x,
-                        title_font_.height());
+  int title_x = FrameBorderThickness() + kIconLeftSpacing;
+  int title_top_spacing, title_thickness;
+  TitleCoordinates(&title_top_spacing, &title_thickness);
+  title_bounds_.SetRect(title_x,
+      title_top_spacing + ((title_thickness - title_font_.height()) / 2),
+      std::max(0, close_button_->x() - kTitleCaptionSpacing - title_x),
+      title_font_.height());
 }
 
 void ConstrainedWindowNonClientView::LayoutClientView() {
