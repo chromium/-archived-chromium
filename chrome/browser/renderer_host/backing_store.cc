@@ -106,4 +106,3 @@ void BackingStoreManager::RemoveBackingStore(RenderWidgetHost* host) {
     cache = NULL;
   }
 }
-

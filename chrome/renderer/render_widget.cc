@@ -655,9 +655,10 @@ void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
   Send(new ViewHostMsg_GetRootWindowRect(routing_id_, host_window_, rect));
 }
 
-void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget, 
+void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget,
                                             gfx::Rect* rect) {
-  Send(new ViewHostMsg_GetRootWindowResizerRect(routing_id_, host_window_, rect));
+  Send(new ViewHostMsg_GetRootWindowResizerRect(routing_id_, host_window_,
+                                                rect));
 }
 
 void RenderWidget::OnImeSetInputMode(bool is_active) {

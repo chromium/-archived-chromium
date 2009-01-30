@@ -23,7 +23,7 @@ class RenderWidgetHost;
 // Represents a backing store for the pixels in a RenderWidgetHost.
 class BackingStore {
  public:
-  BackingStore(const gfx::Size& size);
+  explicit BackingStore(const gfx::Size& size);
   ~BackingStore();
 
   const gfx::Size& size() { return size_; }

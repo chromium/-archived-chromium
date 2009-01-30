@@ -194,11 +194,11 @@ BackingStore* RenderWidgetHost::GetBackingStore() {
   DCHECK(!is_hidden_) << "GetBackingStore called while hidden!";
 
   // We might have a cached backing store that we can reuse!
-  BackingStore* backing_store = 
+  BackingStore* backing_store =
       BackingStoreManager::GetBackingStore(this, current_size_);
   // If we fail to find a backing store in the cache, send out a request
   // to the renderer to paint the view if required.
-  if (!backing_store && !repaint_ack_pending_ && !resize_ack_pending_ && 
+  if (!backing_store && !repaint_ack_pending_ && !resize_ack_pending_ &&
       !view_being_painted_) {
     repaint_start_time_ = TimeTicks::Now();
     repaint_ack_pending_ = true;
@@ -562,7 +562,7 @@ void RenderWidgetHost::PaintBackingStoreRect(HANDLE bitmap,
   gfx::Rect view_rect(0, 0, view_size.width(), view_size.height());
 
   bool needs_full_paint = false;
-  BackingStore* backing_store = 
+  BackingStore* backing_store =
       BackingStoreManager::PrepareBackingStore(this, view_rect,
                                                process_->process().handle(),
                                                bitmap, bitmap_rect,

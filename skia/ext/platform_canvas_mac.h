@@ -23,7 +23,8 @@ class PlatformCanvasMac : public SkCanvas {
   // If you use the version with no arguments, you MUST call initialize()
   PlatformCanvasMac();
   PlatformCanvasMac(int width, int height, bool is_opaque);
-  PlatformCanvasMac(int width, int height, bool is_opaque, CGContextRef context);
+  PlatformCanvasMac(int width, int height, bool is_opaque,
+                    CGContextRef context);
   virtual ~PlatformCanvasMac();
 
   // For two-part init, call if you use the no-argument constructor above
@@ -85,4 +86,3 @@ class PlatformCanvasMac : public SkCanvas {
 }  // namespace skia
 
 #endif  // SKIA_EXT_PLATFORM_CANVAS_MAC_H_
-

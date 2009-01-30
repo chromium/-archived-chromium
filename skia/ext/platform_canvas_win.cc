@@ -75,7 +75,7 @@ bool PlatformCanvasWin::initialize(int width,
     return false;
 
   setDevice(device);
-  device->unref(); // was created with refcount 1, and setDevice also refs
+  device->unref();  // was created with refcount 1, and setDevice also refs
   return true;
 }
 

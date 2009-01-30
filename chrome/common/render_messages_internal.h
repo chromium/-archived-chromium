@@ -389,7 +389,7 @@ IPC_BEGIN_MESSAGES(View, 1)
                              ViewHostMsg_Accessibility_Out_Params
                              /* output parameters */)
 
-  // Requests the renderer to clear cashed accessibility information. Takes an 
+  // Requests the renderer to clear cashed accessibility information. Takes an
   // id to clear a specific hashmap entry, and a bool; true clears all, false
   // does not.
   IPC_MESSAGE_ROUTED2(ViewMsg_ClearAccessibilityInfo,
@@ -404,7 +404,7 @@ IPC_BEGIN_MESSAGES(View, 1)
   // Get html data by serializing all frames of current page with lists
   // which contain all resource links that have local copy.
   IPC_MESSAGE_ROUTED3(ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks,
-                      std::vector<std::wstring> /* urls which have local copy */,
+                      std::vector<std::wstring> /* urls that have local copy */,
                       std::vector<std::wstring> /* paths of local copy */,
                       std::wstring /* local directory path */)
 
@@ -450,9 +450,9 @@ IPC_BEGIN_MESSAGES(View, 1)
                       gfx::Size /* The view size to be repainted */)
 
 #ifdef CHROME_PERSONALIZATION
-  IPC_MESSAGE_ROUTED2(ViewMsg_PersonalizationEvent, 
+  IPC_MESSAGE_ROUTED2(ViewMsg_PersonalizationEvent,
                       std::string /* event name */,
-                      std::string /* event arguments */)                      
+                      std::string /* event arguments */)
 #endif
   // Posts a message to the renderer.
   IPC_MESSAGE_ROUTED2(ViewMsg_HandleMessageFromExternalHost,
@@ -576,8 +576,8 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // TODO(darin): use a UTF-8 string to reduce data size
   IPC_MESSAGE_ROUTED2(ViewHostMsg_UpdateTitle, int32, std::wstring)
 
-  // Change the encoding name of the page in UI when the page has detected proper
-  // encoding name.
+  // Change the encoding name of the page in UI when the page has detected
+  // proper encoding name.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UpdateEncoding,
                       std::wstring /* new encoding name */)
 

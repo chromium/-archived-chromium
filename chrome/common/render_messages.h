@@ -558,9 +558,9 @@ struct ParamTraits<ContextNode> {
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring event = L"";
 
-    if (!p.type)
+    if (!p.type) {
       event.append(L"NONE");
-    else {
+    } else {
       event.append(L"(");
       if (p.type & ContextNode::PAGE)
         event.append(L"PAGE|");
