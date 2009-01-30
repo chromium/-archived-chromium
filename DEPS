@@ -1,10 +1,3 @@
-vars = {
-  "webkit_trunk":
-    "http://svn.webkit.org/repository/webkit/trunk",
-  "webkit_revision": "40364",
-}
-
-
 deps = {
   "src/breakpad/src":
     "http://google-breakpad.googlecode.com/svn/trunk/src@285",
@@ -28,13 +21,13 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@1181",
 
   "src/webkit/data/layout_tests/LayoutTests":
-    Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
+    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@40364",
 
   "src/third_party/WebKit/WebKit":
-    Var("webkit_trunk") + "/WebKit@" + Var("webkit_revision"),
+    "http://svn.webkit.org/repository/webkit/trunk/WebKit@40364",
 
   "src/third_party/WebKit/WebKitLibraries":
-    Var("webkit_trunk") + "/WebKitLibraries@" + Var("webkit_revision"),
+    "http://svn.webkit.org/repository/webkit/trunk/WebKitLibraries@40364",
 }
 
 
