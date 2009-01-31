@@ -335,7 +335,6 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-LINUX MAC : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
@@ -1797,4 +1796,4 @@ LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
 // Likely will be fixed with subsequent merge. 
-WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+SKIP : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = CRASH
