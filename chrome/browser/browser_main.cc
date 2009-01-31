@@ -20,9 +20,6 @@
 #include "base/values.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_main_win.h"
-#include "chrome/browser/browser_init.h"
-#include "chrome/browser/browser_list.h"
-#include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
@@ -59,6 +56,9 @@
 #include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_init.h"
+#include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_trial.h"
@@ -547,7 +547,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (parameters.ui_task) {
     MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);
     RunUIMessageLoop(browser_process.get());
-  } else if (BrowserInit::ProcessCommandLine(std::wstring(), local_state, true,
+  } else if (BrowserInit::ProcessCommandLine(parsed_command_line,
+                                             std::wstring(), local_state, true,
                                              profile, &result_code)) {
     RunUIMessageLoop(browser_process.get());
   }

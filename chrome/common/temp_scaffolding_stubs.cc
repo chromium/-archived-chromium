@@ -20,9 +20,6 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
 
-// static
-size_t SessionRestore::num_tabs_to_load_ = 0;
-
 BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
     : main_notification_service_(new NotificationService),
       memory_model_(HIGH_MEMORY_MODEL),
@@ -78,6 +75,63 @@ PrefService* BrowserProcessImpl::local_state() {
 
 //--------------------------------------------------------------------------
 
+static bool s_in_startup = false;
+
+bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
+                                     const std::wstring& cur_dir,
+                                     PrefService* prefs, bool process_startup,
+                                     Profile* profile, int* return_code) {
+  return LaunchBrowser(parsed_command_line, profile, cur_dir,
+                       process_startup, return_code);
+}
+
+bool BrowserInit::LaunchBrowser(const CommandLine& parsed_command_line,
+                                Profile* profile, const std::wstring& cur_dir,
+                                bool process_startup, int* return_code) {
+  s_in_startup = process_startup;
+  bool result = LaunchBrowserImpl(parsed_command_line, profile, cur_dir,
+                                  process_startup, return_code);
+  s_in_startup = false;
+  return result;
+}
+
+bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
+                                    Profile* profile,
+                                    const std::wstring& cur_dir,
+                                    bool process_startup,
+                                    int* return_code) {
+  DCHECK(profile);
+
+  // this code is a simplification of BrowserInit::LaunchWithProfile::Launch()
+  std::vector<GURL> urls_to_open;
+  urls_to_open.push_back(GURL("http://dev.chromium.org"));
+  urls_to_open.push_back(GURL("http://crbug.com"));
+  urls_to_open.push_back(GURL("http://icanhascheezeburger.com"));
+  Browser* browser = NULL;
+  browser = OpenURLsInBrowser(browser, profile, urls_to_open);
+
+  return true;
+}
+
+// a simplification of BrowserInit::LaunchWithProfile::OpenURLsInBrowser
+Browser* BrowserInit::OpenURLsInBrowser(
+    Browser* browser,
+    Profile* profile,
+    const std::vector<GURL>& urls) {
+  DCHECK(!urls.empty());
+  if (!browser || browser->type() != Browser::TYPE_NORMAL)
+    browser = Browser::Create(profile);
+
+  for (size_t i = 0; i < urls.size(); ++i) {
+    browser->AddTabWithURL(
+        urls[i], GURL(), PageTransition::START_PAGE, (i == 0), NULL);
+  }
+  browser->window()->Show();
+  return browser;
+}
+
+//--------------------------------------------------------------------------
+
 UserDataManager* UserDataManager::instance_ = NULL;
 
 UserDataManager* UserDataManager::Create() {
@@ -102,6 +156,10 @@ bool ShellIntegration::IsDefaultBrowser() {
 }
 
 //--------------------------------------------------------------------------
+
+namespace browser {
+void RegisterAllPrefs(PrefService*, PrefService*) { }
+}  // namespace browser
 
 namespace browser_shutdown {
 void ReadLastShutdownInfo()  { }
@@ -195,13 +253,3 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   return NULL;
 }
 #endif
-
-//--------------------------------------------------------------------------
-
-namespace chrome_browser_net {
-
-void EnableDnsDetailedLog(bool) {}
-  
-void EnableDnsPrefetch(bool) {}
-  
-}  // namespace chrome_browser_net

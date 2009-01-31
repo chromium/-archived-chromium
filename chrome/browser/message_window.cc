@@ -209,7 +209,8 @@ LRESULT MessageWindow::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
       NOTREACHED();
       return TRUE;
     }
-    BrowserInit::ProcessCommandLine(cur_dir, prefs, false, profile, NULL);
+    BrowserInit::ProcessCommandLine(parsed_command_line, cur_dir, prefs, false,
+                                    profile, NULL);
     return TRUE;
   }
   return TRUE;
