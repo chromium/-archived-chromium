@@ -858,45 +858,6 @@ void DefaultNonClientView::InitClass() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// NonClientViewLayout
-
-class NonClientViewLayout : public LayoutManager {
- public:
-  // The size of the default window border and padding used by Windows Vista
-  // with DWM disabled when clipping the window for maximized display.
-  // TODO(beng): figure out how to get this programmatically, since it varies
-  //             with adjustments to the Windows Border/Padding setting.
-  static const int kBorderAndPadding = 8;
-
-  NonClientViewLayout(View* child, Window* window)
-      : child_(child),
-        window_(window) {
-  }
-  virtual ~NonClientViewLayout() {}
-
-  // Overridden from LayoutManager:
-  virtual void Layout(View* host) {
-    int horizontal_border_width =
-        window_->IsMaximized() ? kBorderAndPadding : 0;
-    int vertical_border_height =
-        window_->IsMaximized() ? kBorderAndPadding : 0;
-
-    child_->SetBounds(horizontal_border_width, vertical_border_height,
-                      host->width() - (2 * horizontal_border_width),
-                      host->height() - (2 * vertical_border_height));
-  }
-  virtual gfx::Size GetPreferredSize(View* host) {
-    return child_->GetPreferredSize();
-  }
-
- private:
-  View* child_;
-  Window* window_;
-
-  DISALLOW_COPY_AND_ASSIGN(NonClientViewLayout);
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, public:
 
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
@@ -928,13 +889,6 @@ void CustomFrameWindow::Init(HWND parent, const gfx::Rect& bounds) {
   if (!non_client_view_)
     non_client_view_ = new DefaultNonClientView(this);
   Window::Init(parent, bounds);
-
-  // Windows Vista non-Aero-glass does wacky things with maximized windows that
-  // require a special layout manager to compensate for.
-  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
-    GetRootView()->SetLayoutManager(
-        new NonClientViewLayout(non_client_view_, this));
-  }
 
   ResetWindowRegion();
 }
