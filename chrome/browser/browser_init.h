@@ -11,7 +11,6 @@
 #include "base/basictypes.h"
 
 class Browser;
-class CommandLine;
 class GURL;
 class PrefService;
 class Profile;
@@ -31,8 +30,7 @@ class BrowserInit {
 
   class LaunchWithProfile {
    public:
-    LaunchWithProfile(const std::wstring& cur_dir,
-                      const std::wstring& cmd_line);
+    explicit LaunchWithProfile(const std::wstring& cur_dir);
     ~LaunchWithProfile() { }
 
     // Creates the necessary windows for startup. Returns true on success,
@@ -51,7 +49,6 @@ class BrowserInit {
     //
     // Otherwise false is returned.
     bool OpenStartupURLs(bool is_process_startup,
-                         const CommandLine& command_line,
                          const std::vector<GURL>& urls_to_open);
 
     // Opens the list of urls. If browser is non-null and a tabbed browser, the
@@ -68,11 +65,9 @@ class BrowserInit {
 
     // Returns the list of URLs to open from the command line. The returned
     // vector is empty if the user didn't specify any URLs on the command line.
-    std::vector<GURL> GetURLsFromCommandLine(const CommandLine& command_line,
-                                             Profile* profile);
+    std::vector<GURL> GetURLsFromCommandLine(Profile* profile);
 
     std::wstring cur_dir_;
-    std::wstring command_line_;
     Profile* profile_;
 
     DISALLOW_COPY_AND_ASSIGN(LaunchWithProfile);
@@ -83,26 +78,25 @@ class BrowserInit {
   // process (via the WM_COPYDATA message). The process_startup flag
   // indicates if this is being called from the process startup code or
   // the WM_COPYDATA handler.
-  static bool ProcessCommandLine(const CommandLine& parsed_command_line,
-                                 const std::wstring& cur_dir,
+  static bool ProcessCommandLine(const std::wstring& cur_dir,
                                  PrefService* prefs, bool process_startup,
                                  Profile* profile, int* return_code);
 
   // Helper function to launch a new browser based on command-line arguments
   // This function takes in a specific profile to use.
-  static bool LaunchBrowser(const CommandLine& parsed_command_line,
-                            Profile* profile, const std::wstring& cur_dir,
+  static bool LaunchBrowser(Profile* profile, const std::wstring& cur_dir,
                             bool process_startup, int* return_code);
 
+#if defined(OS_WIN)
   template <class AutomationProviderClass>
   static void CreateAutomationProvider(const std::wstring& channel_id,
                                        Profile* profile,
                                        size_t expected_tabs);
+#endif
 
  private:
   // Does the work of LaunchBrowser returning the result.
-  static bool LaunchBrowserImpl(const CommandLine& parsed_command_line,
-                                Profile* profile, const std::wstring& cur_dir,
+  static bool LaunchBrowserImpl(Profile* profile, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code);
 
   // This class is for scoping purposes.
