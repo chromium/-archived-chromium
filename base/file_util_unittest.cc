@@ -984,7 +984,9 @@ TEST_F(FileUtilTest, Contains) {
   data_dir = data_dir.Append(FILE_PATH_LITERAL("FilePathTest"));
 
   // Create a fresh, empty copy of this directory.
-  ASSERT_TRUE(file_util::Delete(data_dir, true));
+  if (file_util::PathExists(data_dir)) {
+    ASSERT_TRUE(file_util::Delete(data_dir, true));
+  }
   ASSERT_TRUE(file_util::CreateDirectory(data_dir));
 
   FilePath foo(data_dir.Append(FILE_PATH_LITERAL("foo")));

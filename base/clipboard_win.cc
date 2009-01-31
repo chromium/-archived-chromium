@@ -12,6 +12,7 @@
 
 #include "base/clipboard_util.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 
 namespace {
@@ -82,7 +83,7 @@ LRESULT CALLBACK ClipboardOwnerWndProc(HWND hwnd,
                                        LPARAM lparam) {
   LRESULT lresult = 0;
 
-  switch(message) {
+  switch (message) {
   case WM_RENDERFORMAT:
     // This message comes when SetClipboardData was sent a null data handle
     // and now it's come time to put the data on the clipboard.
@@ -122,14 +123,17 @@ HGLOBAL CreateGlobalData(const std::basic_string<charT>& str) {
 
 } // namespace
 
-Clipboard::Clipboard() {
-  // make a dummy HWND to be the clipboard's owner
-  WNDCLASSEX wcex = {0};
-  wcex.cbSize = sizeof(WNDCLASSEX);
-  wcex.lpfnWndProc = ClipboardOwnerWndProc;
-  wcex.hInstance = GetModuleHandle(NULL);
-  wcex.lpszClassName = L"ClipboardOwnerWindowClass";
-  ::RegisterClassEx(&wcex);
+Clipboard::Clipboard() : create_window_(false) {
+  if (MessageLoop::current()->type() == MessageLoop::TYPE_UI) {
+    // Make a dummy HWND to be the clipboard's owner.
+    WNDCLASSEX wcex = {0};
+    wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.lpfnWndProc = ClipboardOwnerWndProc;
+    wcex.hInstance = GetModuleHandle(NULL);
+    wcex.lpszClassName = L"ClipboardOwnerWindowClass";
+    ::RegisterClassEx(&wcex);
+    create_window_ = true;
+  }
 
   clipboard_owner_ = NULL;
 }
@@ -158,7 +162,7 @@ void Clipboard::WriteObjects(const ObjectMap& objects,
       WriteBitmapFromSharedMemory(&(iter->second[0].front()),
                                   &(iter->second[1].front()),
                                   process);
-    else 
+    else
       DispatchObject(static_cast<ObjectType>(iter->first), iter->second);
   }
 }
@@ -223,6 +227,7 @@ void Clipboard::WriteHyperlink(const char* title_data,
 }
 
 void Clipboard::WriteWebSmartPaste() {
+  DCHECK(clipboard_owner_);
   ::SetClipboardData(GetWebKitSmartPasteFormatType(), NULL);
 }
 
@@ -265,13 +270,15 @@ void Clipboard::WriteBitmap(const char* pixel_data, const char* size_data) {
 void Clipboard::WriteBitmapFromSharedMemory(const char* bitmap_data,
                                             const char* size_data,
                                             base::ProcessHandle process) {
-  const base::SharedMemoryHandle* remote_bitmap_handle =
-      reinterpret_cast<const base::SharedMemoryHandle*>(bitmap_data);
   const gfx::Size* size = reinterpret_cast<const gfx::Size*>(size_data);
 
-  base::SharedMemory bitmap(*remote_bitmap_handle, false, process);
+  // bitmap_data has an encoded shared memory object. See
+  // DuplicateRemoteHandles().
+  char* ptr = const_cast<char*>(bitmap_data);
+  scoped_ptr<const base::SharedMemory> bitmap(*
+      reinterpret_cast<const base::SharedMemory**>(ptr));
 
-  // TODO(darin): share data in gfx/bitmap_header.cc somehow
+  // TODO(darin): share data in gfx/bitmap_header.cc somehow.
   BITMAPINFO bm_info = {0};
   bm_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
   bm_info.bmiHeader.biWidth = size->width();
@@ -286,7 +293,7 @@ void Clipboard::WriteBitmapFromSharedMemory(const char* bitmap_data,
   // a memcpy.
   HBITMAP source_hbitmap =
       ::CreateDIBSection(dc, &bm_info, DIB_RGB_COLORS, NULL,
-                         bitmap.handle(), 0);
+                         bitmap->handle(), 0);
 
   if (source_hbitmap) {
     // Now we can write the HBITMAP to the clipboard
@@ -364,8 +371,11 @@ void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
 }
 
 void Clipboard::WriteToClipboard(FormatType format, HANDLE handle) {
-  if (handle && !::SetClipboardData(format, handle))
+  DCHECK(clipboard_owner_);
+  if (handle && !::SetClipboardData(format, handle)) {
+    DCHECK(ERROR_CLIPBOARD_NOT_OPEN != GetLastError());
     FreeData(format, handle);
+  }
 }
 
 bool Clipboard::IsFormatAvailable(unsigned int format) const {
@@ -591,6 +601,30 @@ Clipboard::FormatType Clipboard::GetFileContentFormatZeroType() {
 }
 
 // static
+void Clipboard::DuplicateRemoteHandles(base::ProcessHandle process,
+                                       ObjectMap* objects) {
+  for (ObjectMap::iterator iter = objects->begin(); iter != objects->end();
+       ++iter) {
+    if (iter->first == CBF_SMBITMAP) {
+      // There is a shared memory handle encoded on the first ObjectMapParam.
+      // Use it to open a local handle to the memory.
+      char* bitmap_data = &(iter->second[0].front());
+      base::SharedMemoryHandle* remote_bitmap_handle =
+          reinterpret_cast<base::SharedMemoryHandle*>(bitmap_data);
+
+      base::SharedMemory* bitmap = new base::SharedMemory(*remote_bitmap_handle,
+                                                          false, process);
+
+      // We store the object where the remote handle was located so it can
+      // be retrieved by the UI thread (see WriteBitmapFromSharedMemory()).
+      iter->second[0].clear();
+      for (size_t i = 0; i < sizeof(bitmap); i++)
+        iter->second[0].push_back(reinterpret_cast<char*>(&bitmap)[i]);
+    }
+  }
+}
+
+// static
 Clipboard::FormatType Clipboard::GetWebKitSmartPasteFormatType() {
   return ClipboardUtil::GetWebKitSmartPasteFormat()->cfFormat;
 }
@@ -604,7 +638,7 @@ void Clipboard::FreeData(FormatType format, HANDLE data) {
 }
 
 HWND Clipboard::GetClipboardWindow() const {
-  if (!clipboard_owner_) {
+  if (!clipboard_owner_ && create_window_) {
     clipboard_owner_ = ::CreateWindow(L"ClipboardOwnerWindowClass",
                                       L"ClipboardOwnerWindow",
                                       0, 0, 0, 0, 0,

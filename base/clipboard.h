@@ -130,6 +130,11 @@ class Clipboard {
   static FormatType GetCFHDropFormatType();
   static FormatType GetFileDescriptorFormatType();
   static FormatType GetFileContentFormatZeroType();
+
+  // Duplicates any remote shared memory handle embedded inside |objects| that
+  // was created by |process| so that it can be used by this process.
+  static void DuplicateRemoteHandles(base::ProcessHandle process,
+                                     ObjectMap* objects);
 #endif
 
  private:
@@ -181,6 +186,9 @@ class Clipboard {
 
   // Mark this as mutable so const methods can still do lazy initialization.
   mutable HWND clipboard_owner_;
+
+  // True if we can create a window.
+  bool create_window_;
 #elif defined(OS_LINUX)
   // Data is stored in the |clipboard_data_| map until it is saved to the system
   // clipboard. The Store* functions save data to the |clipboard_data_| map. The

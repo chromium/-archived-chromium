@@ -62,6 +62,25 @@ class ContextMenuMessageDispatcher : public Task {
   DISALLOW_COPY_AND_ASSIGN(ContextMenuMessageDispatcher);
 };
 
+// Completes a clipboard write initiated by the renderer. The write must be
+// performed on the UI thread because the clipboard service from the IO thread
+// cannot create windows so it cannot be the "owner" of the clipboard's
+// contents.
+class WriteClipboardTask : public Task {
+ public:
+  explicit WriteClipboardTask(Clipboard::ObjectMap* objects)
+      : objects_(objects) {}
+  ~WriteClipboardTask() {}
+
+  void Run() {
+    g_browser_process->clipboard_service()->WriteObjects(*objects_.get());
+  }
+
+ private:
+  scoped_ptr<Clipboard::ObjectMap> objects_;
+};
+
+
 }  // namespace
 
 ResourceMessageFilter::ResourceMessageFilter(
@@ -445,10 +464,19 @@ void ResourceMessageFilter::OnDownloadUrl(const IPC::Message& message,
 
 void ResourceMessageFilter::OnClipboardWriteObjects(
     const Clipboard::ObjectMap& objects) {
+  // We cannot write directly from the IO thread, and cannot service the IPC
+  // on the UI thread. We'll copy the relevant data and get a handle to any
+  // shared memory so it doesn't go away when we resume the renderer, and post
+  // a task to perform the write on the UI thread.
+  Clipboard::ObjectMap* long_living_objects = new Clipboard::ObjectMap(objects); 
+
   // We pass the render_handle_ to assist the clipboard with using shared
   // memory objects. render_handle_ is a handle to the process that would
   // own any shared memory that might be in the object list.
-  GetClipboardService()->WriteObjects(objects, render_handle_);
+  Clipboard::DuplicateRemoteHandles(render_handle_, long_living_objects);
+
+  render_widget_helper_->ui_loop()->PostTask(FROM_HERE,
+      new WriteClipboardTask(long_living_objects));
 }
 
 void ResourceMessageFilter::OnClipboardIsFormatAvailable(unsigned int format,

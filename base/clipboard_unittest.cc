@@ -6,12 +6,27 @@
 
 #include "base/basictypes.h"
 #include "base/clipboard.h"
+#include "base/message_loop.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
+#if defined(OS_WIN)
+class ClipboardTest : public PlatformTest {
+ protected:  
+  virtual void SetUp() {
+    message_loop_.reset(new MessageLoopForUI());
+  }
+  virtual void TearDown() {
+  }
+
+ private:
+  scoped_ptr<MessageLoop> message_loop_;
+};
+#elif defined(OS_POSIX)
 typedef PlatformTest ClipboardTest;
+#endif  // defined(OS_WIN)
 
 TEST_F(ClipboardTest, ClearTest) {
   Clipboard clipboard;
