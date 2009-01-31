@@ -23,6 +23,7 @@
 #include "chrome/renderer/visitedlink_slave.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
+#include "net/base/net_errors.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
@@ -292,6 +293,15 @@ uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
 
 bool IsLinkVisited(uint64 link_hash) {
   return g_render_thread->visited_link_slave()->IsVisited(link_hash);
+}
+
+int ResolveProxyFromRenderThread(const GURL& url, std::string* proxy_result) {
+  // Send a synchronous IPC from renderer process to the browser process to
+  // resolve the proxy. (includes --single-process case).
+  int net_error;
+  bool ipc_ok = g_render_thread->Send(
+      new ViewHostMsg_ResolveProxy(url, &net_error, proxy_result));
+  return ipc_ok ? net_error : net::ERR_UNEXPECTED;
 }
 
 #ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE

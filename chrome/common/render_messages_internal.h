@@ -1102,4 +1102,12 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                       int64 /* id of the text input field */,
                       int /* id of this message */)
 
+  // Get the list of proxies to use for |url|, as a semicolon delimited list
+  // of "<TYPE> <HOST>:<PORT>" | "DIRECT". See also
+  // PluginProcessHostMsg_ResolveProxy which does the same thing.
+  IPC_SYNC_MESSAGE_CONTROL1_2(ViewHostMsg_ResolveProxy,
+                              GURL /* url */,
+                              int /* network error */,
+                              std::string /* proxy list */)
+
 IPC_END_MESSAGES(ViewHost)

@@ -100,7 +100,8 @@ ResourceMessageFilter::ResourceMessageFilter(
       request_context_(profile->GetRequestContext()),
       profile_(profile),
       render_widget_helper_(render_widget_helper),
-      spellchecker_(spellchecker) {
+      spellchecker_(spellchecker),
+      ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
 
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
@@ -207,6 +208,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                         OnGetCPBrowsingContext)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DuplicateSection, OnDuplicateSection)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ResourceTypeStats, OnResourceTypeStats)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ResolveProxy, OnResolveProxy)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetDefaultPrintSettings,
                                     OnGetDefaultPrintSettings)
 #if defined(OS_WIN)
@@ -570,6 +572,19 @@ void ResourceMessageFilter::OnResourceTypeStats(
                    static_cast<int>(stats.xsl_stylesheets.size / 1024));
   HISTOGRAM_COUNTS(L"WebCoreCache.FontsSizeKB",
                    static_cast<int>(stats.fonts.size / 1024));
+}
+
+void ResourceMessageFilter::OnResolveProxy(const GURL& url,
+                                    IPC::Message* reply_msg) { 
+  resolve_proxy_msg_helper_.Start(url, reply_msg);
+}
+
+void ResourceMessageFilter::OnResolveProxyCompleted(
+    IPC::Message* reply_msg,
+    int result,
+    const std::string& proxy_list) {
+  ViewHostMsg_ResolveProxy::WriteReplyParams(reply_msg, result, proxy_list);
+  Send(reply_msg);
 }
 
 void ResourceMessageFilter::OnGetDefaultPrintSettings(IPC::Message* reply_msg) {

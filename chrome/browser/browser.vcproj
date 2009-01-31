@@ -1650,6 +1650,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\net\resolve_proxy_msg_helper.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\net\resolve_proxy_msg_helper.h"
+				>
+			</File>
+			<File
 				RelativePath=".\net\sdch_dictionary_fetcher.cc"
 				>
 			</File>

@@ -13,6 +13,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/time.h"
+#include "base/waitable_event.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
 
@@ -310,6 +311,31 @@ class ProxyResolver {
   virtual int GetProxyForURL(const GURL& query_url,
                              const GURL& pac_url,
                              ProxyInfo* results) = 0;
+};
+
+// Wrapper for invoking methods on a ProxyService synchronously.
+class SyncProxyServiceHelper
+    : public base::RefCountedThreadSafe<SyncProxyServiceHelper> {
+ public:
+  SyncProxyServiceHelper(MessageLoop* io_message_loop,
+                         ProxyService* proxy_service);
+
+  int ResolveProxy(const GURL& url, ProxyInfo* proxy_info);
+  int ReconsiderProxyAfterError(const GURL& url, ProxyInfo* proxy_info);
+
+ private:
+  void StartAsyncResolve(const GURL& url);
+  void StartAsyncReconsider(const GURL& url);
+
+  void OnCompletion(int result);
+
+  MessageLoop* io_message_loop_;
+  ProxyService* proxy_service_;
+
+  base::WaitableEvent event_;
+  CompletionCallbackImpl<SyncProxyServiceHelper> callback_;
+  ProxyInfo proxy_info_;
+  int result_;
 };
 
 }  // namespace net

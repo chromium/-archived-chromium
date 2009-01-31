@@ -15,6 +15,7 @@
 #include "base/task.h"
 #include "chrome/browser/resource_message_filter.h"
 #include "chrome/common/ipc_channel_proxy.h"
+#include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/resource_message_filter.h"
 
 class PluginService;
@@ -34,7 +35,8 @@ class GURL;
 // the renderer and plugin processes.
 class PluginProcessHost : public IPC::Channel::Listener,
                           public IPC::Message::Sender,
-                          public base::ObjectWatcher::Delegate {
+                          public base::ObjectWatcher::Delegate,
+                          public ResolveProxyMsgHelper::Delegate {
  public:
   PluginProcessHost(PluginService* plugin_service);
   ~PluginProcessHost();
@@ -57,6 +59,11 @@ class PluginProcessHost : public IPC::Channel::Listener,
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual void OnChannelConnected(int32 peer_pid);
   virtual void OnChannelError();
+
+  // ResolveProxyMsgHelper::Delegate implementation:
+  virtual void OnResolveProxyCompleted(IPC::Message* reply_msg,
+                                       int result,
+                                       const std::string& proxy_list);
 
   // Getter to the process, may return NULL if there is no connection.
   HANDLE process() { return process_.handle(); }
@@ -157,10 +164,9 @@ class PluginProcessHost : public IPC::Channel::Listener,
 
   ResourceDispatcherHost* resource_dispatcher_host_;
 
-  // This RevocableStore prevents ResolveProxy completion callbacks from
-  // accessing a deleted PluginProcessHost (since we do not cancel the
-  // in-progress resolve requests during destruction).
-  RevocableStore revocable_store_;
+  // Helper class for handling PluginProcessHost_ResolveProxy messages (manages
+  // the requests to the proxy service).
+  ResolveProxyMsgHelper resolve_proxy_msg_helper_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginProcessHost);
 };

@@ -70,7 +70,8 @@ IPC_BEGIN_MESSAGES(PluginProcessHost, 4)
                               std::string /* cookies */)
 
   // Get the list of proxies to use for |url|, as a semicolon delimited list
-  // of "<TYPE> <HOST>:<PORT>" | "DIRECT".
+  // of "<TYPE> <HOST>:<PORT>" | "DIRECT". See also ViewHostMsg_ResolveProxy
+  // which does the same thing.
   IPC_SYNC_MESSAGE_CONTROL1_2(PluginProcessHostMsg_ResolveProxy,
                               GURL /* url */,
                               int /* network error */,

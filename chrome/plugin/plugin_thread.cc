@@ -14,6 +14,7 @@
 #include "chrome/plugin/chrome_plugin_host.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/plugin/plugin_process.h"
+#include "net/base/net_errors.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -187,6 +188,37 @@ bool GetPluginFinderURL(std::string* plugin_finder_url) {
 
 bool IsDefaultPluginEnabled() {
   return true;
+}
+
+static int ResolveProxyFromPluginThread(const GURL& url,
+                                        std::string* proxy_result) {
+  int net_error;
+  bool ipc_ok = PluginThread::GetPluginThread()->Send(
+      new PluginProcessHostMsg_ResolveProxy(url, &net_error, proxy_result));
+  return ipc_ok ? net_error : net::ERR_UNEXPECTED;
+}
+
+extern int ResolveProxyFromRenderThread(const GURL&, std::string*);
+// Dispatch the resolve proxy resquest to the right code, depending on which
+// process the plugin is running in {renderer, browser, plugin}.
+//
+// TODO(eroman): Find a better place to put this; plugin_thread.cc isn't really
+// correct since this depends on the renderer thread. One solution is to save
+// the function pointers into a table during initialization.
+bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
+  int net_error;
+  std::string proxy_result;
+
+  if (PluginThread::GetPluginThread())
+    net_error = ResolveProxyFromPluginThread(url, &proxy_result);
+  else   
+    net_error = ResolveProxyFromRenderThread(url, &proxy_result);
+
+  if (net_error == net::OK) {
+    *proxy_list = proxy_result;
+    return true;  // Success.
+  }
+  return false;  // Fail.
 }
 
 } // namespace webkit_glue

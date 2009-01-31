@@ -258,6 +258,9 @@ bool DownloadUrl(const std::string& url, HWND caller_window);
 // Returns the plugin finder URL.
 bool GetPluginFinderURL(std::string* plugin_finder_url);
 
+// Resolves the proxies for the url, returns true on success.
+bool FindProxyForUrl(const GURL& url, std::string* proxy_list);
+
 // Returns the locale that this instance of webkit is running as.  This is of
 // the form language-country (e.g., en-US or pt-BR).
 std::wstring GetWebKitLocale();

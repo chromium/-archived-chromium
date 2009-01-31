@@ -37,7 +37,6 @@
 #include "chrome/common/win_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
-#include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "sandbox/src/sandbox.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
@@ -300,57 +299,6 @@ void PluginDownloadUrlHelper::DownloadCompletedHelper(bool success) {
   delete this;
 }
 
-// The following class is a helper to handle ProxyResolve IPC requests.
-// It is responsible for initiating an asynchronous proxy resolve request,
-// and will send out the IPC response on completion then delete itself.
-// Should the PluginProcessHost be destroyed while a proxy resolve request
-// is in progress, the request will not be canceled. However once it completes
-// it will see that it has been revoked and delete itself.
-// TODO(eroman): This could leak if ProxyService is deleted while request is
-// outstanding.
-class PluginResolveProxyHelper : RevocableStore::Revocable {
- public:
-  // Create a helper that writes its response through |plugin_host|.
-  PluginResolveProxyHelper(PluginProcessHost* plugin_host)
-      : RevocableStore::Revocable(&plugin_host->revocable_store_),
-        plugin_host_(plugin_host),
-        reply_msg_(NULL),
-        ALLOW_THIS_IN_INITIALIZER_LIST(callback_(
-            this, &PluginResolveProxyHelper::OnProxyResolveCompleted)) {
-  }
-  
-  // Completion callback for ProxyService.
-  void OnProxyResolveCompleted(int result) {
-    if (!revoked()) {
-      PluginProcessHostMsg_ResolveProxy::WriteReplyParams(
-          reply_msg_, result, proxy_info_.GetAnnotatedProxyList());
-      plugin_host_->Send(reply_msg_);
-    }
-
-    delete this;
-  };
-
-  // Resolve the proxy for |url| using |proxy_service|. Write the response
-  // to |reply_msg|.
-  void Start(net::ProxyService* proxy_service,
-             const GURL& url,
-             IPC::Message* reply_msg) {
-    reply_msg_ = reply_msg;
-    int rv = proxy_service->ResolveProxy(
-        url, &proxy_info_, &callback_, NULL);
-    if (rv != net::ERR_IO_PENDING)
-      OnProxyResolveCompleted(rv);
-  }
-
- private:
-  // |plugin_host_| is only valid if !this->revoked().
-  PluginProcessHost* plugin_host_;
-  IPC::Message* reply_msg_;
-  net::CompletionCallbackImpl<PluginResolveProxyHelper> callback_;
-  net::ProxyInfo proxy_info_;
-};
-
-
 // Sends the reply to the create window message on the IO thread.
 class SendReplyTask : public Task {
  public:
@@ -435,6 +383,7 @@ PluginProcessHost::PluginProcessHost(PluginService* plugin_service)
     : process_(NULL),
       opening_channel_(false),
       resource_dispatcher_host_(plugin_service->resource_dispatcher_host()),
+      ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
       plugin_service_(plugin_service) {
   DCHECK(resource_dispatcher_host_);
 }
@@ -814,13 +763,15 @@ void PluginProcessHost::OnGetCookies(uint32 request_context,
 
 void PluginProcessHost::OnResolveProxy(const GURL& url,
                                        IPC::Message* reply_msg) {
-  // Use the default profile's proxy service.
-  net::ProxyService* proxy_service =
-      Profile::GetDefaultRequestContext()->proxy_service();
+  resolve_proxy_msg_helper_.Start(url, reply_msg);
+}
 
-  // Kick off a proxy resolve request; writes the response to |reply_msg|
-  // on completion. The helper's storage will be deleted on completion.
-  (new PluginResolveProxyHelper(this))->Start(proxy_service, url, reply_msg);
+void PluginProcessHost::OnResolveProxyCompleted(IPC::Message* reply_msg,
+                                                int result,
+                                                const std::string& proxy_list) {
+  PluginProcessHostMsg_ResolveProxy::WriteReplyParams(
+      reply_msg, result, proxy_list);
+  Send(reply_msg);
 }
 
 void PluginProcessHost::ReplyToRenderer(

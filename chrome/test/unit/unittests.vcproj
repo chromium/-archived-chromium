@@ -703,6 +703,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\extensions\user_script_master_unittest.cc"
 				>
 			</File>

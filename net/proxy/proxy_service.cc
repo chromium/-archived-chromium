@@ -11,6 +11,7 @@
 
 #include <algorithm>
 
+#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_tokenizer.h"
@@ -522,7 +523,7 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
     if (url.host().find('.') == std::string::npos)
       return true;
   }
-  
+
   for(std::vector<std::string>::const_iterator i = config_.proxy_bypass.begin();
       i != config_.proxy_bypass.end(); ++i) {
     std::string bypass_url_domain = *i;
@@ -543,7 +544,7 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
 
     if (MatchPattern(url_domain, bypass_url_domain))
       return true;
-      
+
     // Some systems (the Mac, for example) allow CIDR-style specification of
     // proxy bypass for IP-specified hosts (e.g.  "10.0.0.0/8"; see
     // http://www.tcd.ie/iss/internet/osx_proxy.php for a real-world example).
@@ -552,6 +553,66 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
   }
 
   return false;
+}
+
+SyncProxyServiceHelper::SyncProxyServiceHelper(MessageLoop* io_message_loop,
+                                               ProxyService* proxy_service)
+    : io_message_loop_(io_message_loop),
+      proxy_service_(proxy_service),
+      event_(false, false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(callback_(
+          this, &SyncProxyServiceHelper::OnCompletion)) {
+  DCHECK(io_message_loop_ != MessageLoop::current());
+}
+
+int SyncProxyServiceHelper::ResolveProxy(const GURL& url,
+                                         ProxyInfo* proxy_info) {
+  DCHECK(io_message_loop_ != MessageLoop::current());
+
+  io_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SyncProxyServiceHelper::StartAsyncResolve, url));
+
+  event_.Wait();
+
+  if (result_ == net::OK) {
+    *proxy_info = proxy_info_;
+  }
+  return result_;
+}
+
+int SyncProxyServiceHelper::ReconsiderProxyAfterError(const GURL& url,
+                                                      ProxyInfo* proxy_info) {
+  DCHECK(io_message_loop_ != MessageLoop::current());
+
+  io_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SyncProxyServiceHelper::StartAsyncReconsider, url));
+
+  event_.Wait();
+
+  if (result_ == net::OK) {
+    *proxy_info = proxy_info_;
+  }
+  return result_;
+}
+
+void SyncProxyServiceHelper::StartAsyncResolve(const GURL& url) {
+  result_ = proxy_service_->ResolveProxy(url, &proxy_info_, &callback_, NULL);
+  if (result_ != net::ERR_IO_PENDING) {
+    OnCompletion(result_);
+  }
+}
+
+void SyncProxyServiceHelper::StartAsyncReconsider(const GURL& url) {
+  result_ = proxy_service_->ReconsiderProxyAfterError(
+      url, &proxy_info_, &callback_, NULL);
+  if (result_ != net::ERR_IO_PENDING) {
+    OnCompletion(result_);
+  }
+}
+
+void SyncProxyServiceHelper::OnCompletion(int rv) {
+  result_ = rv;
+  event_.Signal();
 }
 
 }  // namespace net

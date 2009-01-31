@@ -11,6 +11,7 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "build/build_config.h"
+#include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/notification_service.h"
@@ -43,7 +44,8 @@ struct ScreenInfo;
 
 class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                               public ResourceDispatcherHost::Receiver,
-                              public NotificationObserver {
+                              public NotificationObserver,
+                              public ResolveProxyMsgHelper::Delegate {
  public:
   // Create the filter.
   // Note:  because the lifecycle of the ResourceMessageFilter is not
@@ -157,6 +159,13 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                           base::SharedMemoryHandle* browser_handle);
   void OnResourceTypeStats(const CacheManager::ResourceTypeStats& stats);
 
+  void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
+  
+  // ResolveProxyMsgHelper::Delegate implementation:
+  virtual void OnResolveProxyCompleted(IPC::Message* reply_msg,
+                                       int result,
+                                       const std::string& proxy_list);
+
   // A javascript code requested to print the current page. This is done in two
   // steps and this is the first step. Get the print setting right here
   // synchronously. It will hang the I/O completely.
@@ -203,6 +212,10 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // Our spellchecker object.
   scoped_refptr<SpellChecker> spellchecker_;
+
+  // Helper class for handling PluginProcessHost_ResolveProxy messages (manages
+  // the requests to the proxy service).
+  ResolveProxyMsgHelper resolve_proxy_msg_helper_;
 
   // Process handle of the renderer process.
   base::ProcessHandle render_handle_;
