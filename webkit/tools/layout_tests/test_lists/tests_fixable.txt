@@ -1797,6 +1797,4 @@ LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
 // Likely will be fixed with subsequent merge. 
-WIN LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
-
-
+WIN : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
