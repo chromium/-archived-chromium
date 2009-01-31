@@ -1786,3 +1786,17 @@ LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 
 // Started failng at build 1379 (r8741).  passes locally
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL PASS
+
+// Merge 40364:40409 -- new test
+LayoutTests/svg/custom/pattern-with-transformation.svg = FAIL
+
+// Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
+// Perhaps needs some change on Skia side.
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+
+// Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
+// ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
+// Likely will be fixed with subsequent merge. 
+LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = FAIL
+
+

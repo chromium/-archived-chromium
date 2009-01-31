@@ -441,6 +441,7 @@ input_files = [
     '$WEBCORE_DIR/platform/ScrollView.cpp',
     '$WEBCORE_DIR/platform/SharedBuffer.cpp',
     '$WEBCORE_DIR/platform/ThreadGlobalData.cpp',
+    '$WEBCORE_DIR/platform/ThreadTimers.cpp',
     '$WEBCORE_DIR/platform/Timer.cpp',
     '$WEBCORE_DIR/platform/Widget.cpp',
 
@@ -621,7 +622,6 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderFieldset.cpp',
     '$WEBCORE_DIR/rendering/RenderFileUploadControl.cpp',
     '$WEBCORE_DIR/rendering/RenderFlexibleBox.cpp',
-    '$WEBCORE_DIR/rendering/RenderFlow.cpp',
     '$WEBCORE_DIR/rendering/RenderForeignObject.cpp',
     '$WEBCORE_DIR/rendering/RenderFrame.cpp',
     '$WEBCORE_DIR/rendering/RenderFrameSet.cpp',
