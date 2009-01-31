@@ -166,26 +166,6 @@ void ProxyInfo::UseNamedProxy(const std::string& proxy_server) {
   proxy_list_.Set(proxy_server);
 }
 
-#if defined(OS_WIN)
-void ProxyInfo::Apply(HINTERNET request_handle) {
-  WINHTTP_PROXY_INFO pi;
-  std::wstring proxy;  // We need to declare this variable here because
-                       // lpszProxy needs to be valid in WinHttpSetOption.
-  if (is_direct()) {
-    pi.dwAccessType = WINHTTP_ACCESS_TYPE_NO_PROXY;
-    pi.lpszProxy = WINHTTP_NO_PROXY_NAME;
-    pi.lpszProxyBypass = WINHTTP_NO_PROXY_BYPASS;
-  } else {
-    proxy = ASCIIToWide(proxy_list_.Get());
-    pi.dwAccessType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
-    pi.lpszProxy = const_cast<LPWSTR>(proxy.c_str());
-    // NOTE: Specifying a bypass list here would serve no purpose.
-    pi.lpszProxyBypass = WINHTTP_NO_PROXY_BYPASS;
-  }
-  WinHttpSetOption(request_handle, WINHTTP_OPTION_PROXY, &pi, sizeof(pi));
-}
-#endif
-
 std::string ProxyInfo::GetAnnotatedProxyList() {
   return is_direct() ? "DIRECT" : proxy_list_.GetAnnotatedList();
 }
@@ -206,23 +186,17 @@ class ProxyService::PacRequest :
         results_(NULL),
         config_id_(service->config_id()),
         pac_url_(pac_url),
-        origin_loop_(NULL) {
-    // We need to remember original loop if only in case of asynchronous call
-    if (callback_)
-      origin_loop_ = MessageLoop::current();
+        origin_loop_(MessageLoop::current()) {
+    DCHECK(callback);
   }
 
   void Query(const GURL& url, ProxyInfo* results) {
     results_ = results;
-    // If we have a valid callback then execute Query asynchronously
-    if (callback_) {
-      AddRef();  // balanced in QueryComplete
-      service_->pac_thread()->message_loop()->PostTask(FROM_HERE,
-          NewRunnableMethod(this, &ProxyService::PacRequest::DoQuery,
-                            service_->resolver(), url, pac_url_));
-    } else {
-      DoQuery(service_->resolver(), url, pac_url_);
-    }
+    // Execute Query asynchronously
+    AddRef();  // balanced in QueryComplete
+    service_->pac_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &ProxyService::PacRequest::DoQuery,
+                          service_->resolver(), url, pac_url_));
   }
 
   void Cancel() {
@@ -234,37 +208,33 @@ class ProxyService::PacRequest :
   }
 
  private:
-  // Runs on the PAC thread if a valid callback is provided.
+  // Runs on the PAC thread.
   void DoQuery(ProxyResolver* resolver,
                const GURL& query_url,
                const GURL& pac_url) {
     int rv = resolver->GetProxyForURL(query_url, pac_url, &results_buf_);
-    if (origin_loop_) {
-      origin_loop_->PostTask(FROM_HERE,
-          NewRunnableMethod(this, &PacRequest::QueryComplete, rv));
-    } else {
-      QueryComplete(rv);
-    }
+    origin_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &PacRequest::QueryComplete, rv));
   }
 
-  // If a valid callback is provided, this runs on the origin thread to
-  // indicate that the completion callback should be run.
+  // Runs the completion callback on the origin thread.
   void QueryComplete(int result_code) {
-    if (service_)
+    // The PacRequest may have been cancelled after it was started. If it was
+    // cancelled then |callback_|, |service_|, and |results_| will be NULL.
+    bool was_cancelled = callback_ == NULL;
+
+    if (!was_cancelled) {
       service_->DidCompletePacRequest(config_id_, result_code);
 
-    if (result_code == OK && results_) {
-      results_->Use(results_buf_);
-      results_->RemoveBadProxies(service_->proxy_retry_info_);
-    }
-
-    if (callback_)
+      if (result_code == OK) {
+        results_->Use(results_buf_);
+        results_->RemoveBadProxies(service_->proxy_retry_info_);
+      }
       callback_->Run(result_code);
-
-    if (origin_loop_) {
-      Release();  // balances the AddRef in Query.  we may get deleted after
-                  // we return.
     }
+
+    Release();  // balances the AddRef in Query.  we may get deleted after
+                // we return.
   }
 
   // Must only be used on the "origin" thread.
@@ -322,6 +292,7 @@ ProxyService* ProxyService::CreateNull() {
 int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
                                CompletionCallback* callback,
                                PacRequest** pac_request) {
+  DCHECK(callback);
   // The overhead of calling ProxyConfigService::GetProxyConfig is very low.
   const TimeDelta kProxyConfigMaxAge = TimeDelta::FromSeconds(5);
 
@@ -382,18 +353,11 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
     }
 
     if (config_.pac_url.is_valid() || config_.auto_detect) {
-      if (callback) {
-        // Create PAC thread for asynchronous mode.
-        if (!pac_thread_.get()) {
-          pac_thread_.reset(new base::Thread("pac-thread"));
-          pac_thread_->Start();
-        }
-      } else {
-        // If this request is synchronous, then there's no point
-        // in returning PacRequest instance
-        DCHECK(!pac_request);
+      if (!pac_thread_.get()) {
+        pac_thread_.reset(new base::Thread("pac-thread"));
+        pac_thread_->Start();
       }
-
+   
       scoped_refptr<PacRequest> req =
           new PacRequest(this, config_.pac_url, callback);
 
@@ -411,12 +375,10 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
 
       req->Query(sanitized_url, result);
 
-      if (callback) {
-        if (pac_request)
-          *pac_request = req;
-        return ERR_IO_PENDING;  // Wait for callback.
-      }
-      return OK;
+      if (pac_request)
+        *pac_request = req;
+
+      return ERR_IO_PENDING;  // Wait for callback.
     }
   }
 

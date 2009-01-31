@@ -17,10 +17,6 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
 
-#if defined(OS_WIN)
-typedef LPVOID HINTERNET;  // From winhttp.h
-#endif
-
 class GURL;
 
 namespace net {
@@ -94,9 +90,9 @@ class ProxyService {
   // Used internally to handle PAC queries.
   class PacRequest;
 
-  // Returns OK if proxy information could be provided synchronously.  Else,
-  // ERR_IO_PENDING is returned to indicate that the result will be available
-  // when the callback is run.  The callback is run on the thread that calls
+  // Returns ERR_IO_PENDING if the proxy information could not be provided
+  // synchronously, to indicate that the result will be available when the
+  // callback is run.  The callback is run on the thread that calls
   // ResolveProxy.
   //
   // The caller is responsible for ensuring that |results| and |callback|
@@ -245,11 +241,6 @@ class ProxyInfo {
   // Use a specific proxy server, of the form:  <hostname> [":" <port>]
   // This may optionally be a semi-colon delimited list of proxy servers.
   void UseNamedProxy(const std::string& proxy_server);
-
-#if defined(OS_WIN)
-  // Apply this proxy information to the given WinHTTP request handle.
-  void Apply(HINTERNET request_handle);
-#endif
 
   // Returns true if this proxy info specifies a direct connection.
   bool is_direct() const { return proxy_list_.Get().empty(); }
