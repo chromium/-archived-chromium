@@ -57,13 +57,8 @@ TEST(DnsHostInfoTest, StateChangeTest) {
 
   info.set_cache_expiration(TimeDelta::FromMilliseconds(300));
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
-  // Note that we'll actually get an expiration (effectively) of
-  // 150ms, since there was no detected network activity time during lookup.
-  PlatformThread::Sleep(80);  // Not enough time to pass our 150ms mark.
+  PlatformThread::Sleep(80);  // Not enough time to pass our 300ms mark.
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
-  // Be sure we sleep (80+100) enough to pass that 150ms mark.
-  PlatformThread::Sleep(100);
-  EXPECT_TRUE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
 
   // That was a nice life when the object was found.... but next time it won't
   // be found.  We'll sleep for a while, and then come back with not-found.

@@ -55,11 +55,22 @@ bool DnsHostInfo::NeedsDnsUpdate(const std::string& hostname) {
 
 const TimeDelta DnsHostInfo::kNullDuration(TimeDelta::FromMilliseconds(-1));
 
-TimeDelta DnsHostInfo::kCacheExpirationDuration(TimeDelta::FromMinutes(5));
+// Common low end TTL for sites is 5 minutes.  However, DNS servers give us
+// the remaining time, not the original 5 minutes.  Hence it doesn't much matter
+// whether we found something in the local cache, or an ISP cache, it will
+// on average be 2.5 minutes before it expires.  We could try to model this with
+// 180 seconds, but simpler is just to do the lookups all the time (wasting
+// OS calls(?)), and let that OS cache decide what to do (with TTL in hand).
+// We use a small time to help get some duplicate suppression, in case a page
+// has a TON of copies of the same domain name, so that we don't thrash the OS
+// to death.  Hopefully it is small enough that we're not hurting our cache hit
+// rate (i.e., we could always ask the OS).
+TimeDelta DnsHostInfo::kCacheExpirationDuration(TimeDelta::FromSeconds(5));
 
 const TimeDelta DnsHostInfo::kMaxNonNetworkDnsLookupDuration(
     TimeDelta::FromMilliseconds(15));
 
+// Used by test ONLY.  The value is otherwise constant.
 void DnsHostInfo::set_cache_expiration(TimeDelta time) {
   kCacheExpirationDuration = time;
 }
@@ -151,13 +162,6 @@ bool DnsHostInfo::IsStillCached() const {
     return false;
 
   TimeDelta time_since_resolution = TimeTicks::Now() - time_;
-
-  if (FOUND == state_ && resolve_duration_ < kMaxNonNetworkDnsLookupDuration) {
-    // Since cache was warm (no apparent network activity during resolution),
-    // we assume it was "really" found (via network activity) twice as long
-    // ago as when we got our FOUND result.
-    time_since_resolution *= 2;
-  }
 
   return time_since_resolution < kCacheExpirationDuration;
 }
