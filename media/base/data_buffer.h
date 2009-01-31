@@ -17,13 +17,13 @@ namespace media {
 class DataBuffer : public WritableBuffer {
  public:
   DataBuffer(char* data, size_t buffer_size, size_t data_size,
-             int64 timestamp, int64 duration);
+             const base::TimeDelta& timestamp, const base::TimeDelta& duration);
 
   // StreamSample implementation.
-  virtual int64 GetTimestamp() const;
-  virtual void SetTimestamp(int64 timestamp);
-  virtual int64 GetDuration() const;
-  virtual void SetDuration(int64 duration);
+  virtual base::TimeDelta GetTimestamp() const;
+  virtual void SetTimestamp(const base::TimeDelta& timestamp);
+  virtual base::TimeDelta GetDuration() const;
+  virtual void SetDuration(const base::TimeDelta& duration);
 
   // Buffer implementation.
   virtual const char* GetData() const;
@@ -41,8 +41,8 @@ class DataBuffer : public WritableBuffer {
   char* data_;
   size_t buffer_size_;
   size_t data_size_;
-  int64 timestamp_;
-  int64 duration_;
+  base::TimeDelta timestamp_;
+  base::TimeDelta duration_;
 };
 
 }  // namespace media

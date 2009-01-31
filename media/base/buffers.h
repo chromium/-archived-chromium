@@ -27,23 +27,25 @@
 #ifndef MEDIA_BASE_BUFFERS_H_
 #define MEDIA_BASE_BUFFERS_H_
 
+#include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "base/time.h"
 
 namespace media {
 
 class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
  public:
   // Returns the timestamp of this buffer in microseconds.
-  virtual int64 GetTimestamp() const = 0;
+  virtual base::TimeDelta GetTimestamp() const = 0;
 
   // Returns the duration of this buffer in microseconds.
-  virtual int64 GetDuration() const = 0;
+  virtual base::TimeDelta GetDuration() const = 0;
 
   // Sets the timestamp of this buffer in microseconds.
-  virtual void SetTimestamp(int64 timestamp) = 0;
+  virtual void SetTimestamp(const base::TimeDelta& timestamp) = 0;
 
   // Sets the duration of this buffer in microseconds.
-  virtual void SetDuration(int64 duration) = 0;
+  virtual void SetDuration(const base::TimeDelta& duration) = 0;
 
  protected:
   friend class base::RefCountedThreadSafe<StreamSample>;

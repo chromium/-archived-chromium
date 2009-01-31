@@ -8,7 +8,8 @@
 namespace media {
 
 DataBuffer::DataBuffer(char* data, size_t buffer_size, size_t data_size,
-                       int64 timestamp, int64 duration)
+                       const base::TimeDelta& timestamp,
+                       const base::TimeDelta& duration)
     : data_(data),
       buffer_size_(buffer_size),
       data_size_(data_size),
@@ -23,19 +24,19 @@ DataBuffer::~DataBuffer() {
   delete [] data_;
 }
 
-int64 DataBuffer::GetTimestamp() const {
+base::TimeDelta DataBuffer::GetTimestamp() const {
   return timestamp_;
 }
 
-void DataBuffer::SetTimestamp(int64 timestamp) {
+void DataBuffer::SetTimestamp(const base::TimeDelta& timestamp) {
   timestamp_ = timestamp;
 }
 
-int64 DataBuffer::GetDuration() const {
+base::TimeDelta DataBuffer::GetDuration() const {
   return duration_;
 }
 
-void DataBuffer::SetDuration(int64 duration) {
+void DataBuffer::SetDuration(const base::TimeDelta& duration) {
   duration_ = duration;
 }
 

@@ -33,12 +33,10 @@ void Synchronizer::CalculateDelay(base::TimeDelta time,
   base::TimeDelta render_delta = rendering_stop_ - rendering_start_;
 
   // The duration to display the sample |now|.
-  base::TimeDelta duration =
-      base::TimeDelta::FromMicroseconds(now->GetDuration());
+  base::TimeDelta duration = now->GetDuration();
 
   // The presentation timestamp (pts) of the sample |now|.
-  base::TimeDelta now_pts =
-      base::TimeDelta::FromMicroseconds(now->GetTimestamp());
+  base::TimeDelta now_pts = now->GetTimestamp();
 
   // The presentation timestamp (pts) of the next sample.
   base::TimeDelta next_pts;
@@ -50,7 +48,7 @@ void Synchronizer::CalculateDelay(base::TimeDelta time,
   // We also use |next| to get the exact next timestamp as opposed to assuming
   // it will be |now| + |now|'s duration, which may not always be true.
   if (next) {
-    next_pts = base::TimeDelta::FromMicroseconds(next->GetTimestamp());
+    next_pts = next->GetTimestamp();
     duration = next_pts - now_pts;
 
     // Timestamps appear out of order, so skip this frame.
