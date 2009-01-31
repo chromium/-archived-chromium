@@ -142,6 +142,10 @@ class ExtensionsServiceBackend
   DictionaryValue* ReadManifest(const FilePath& extension_path,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
+  // Reads the Current Version file from |extension_path|.
+  bool ReadCurrentVersion(const FilePath& extension_path,
+                          std::string* version_string);
+
   // Check that the version to be installed is > the current installed
   // extension.
   bool CheckCurrentVersion(const FilePath& extension_path,

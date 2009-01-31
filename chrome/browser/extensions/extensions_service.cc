@@ -149,6 +149,15 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
                                        file_util::FileEnumerator::DIRECTORIES);
   for (FilePath child_path = enumerator.Next(); !child_path.value().empty();
        child_path = enumerator.Next()) {
+    std::string version_str;
+    if (ReadCurrentVersion(child_path, &version_str)) {
+      child_path = child_path.AppendASCII(version_str);
+    } else {
+      // For now, continue to allow fallback to a non-versioned directory
+      // structure.  This is so that we can use this same method to load
+      // from local directories that developers are just hacking in place.
+      // TODO(erikkay): perhaps we should use a different code path for this.
+    }
     FilePath manifest_path =
         child_path.AppendASCII(Extension::kManifestFilename);
     if (!file_util::PathExists(manifest_path)) {
@@ -319,30 +328,45 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest(
   return manifest;
 }
 
+bool ExtensionsServiceBackend::ReadCurrentVersion(
+    const FilePath& extension_path,
+    std::string* version_string) {
+  FilePath current_version =
+      extension_path.AppendASCII(ExtensionsService::kCurrentVersionFileName);
+  if (file_util::PathExists(current_version)) {
+    if (file_util::ReadFileToString(current_version, version_string)) {
+      TrimWhitespace(*version_string, TRIM_ALL, version_string);
+      return true;
+    }
+  }
+  return false;
+}
+
 bool ExtensionsServiceBackend::CheckCurrentVersion(
     const FilePath& extension_path,
     const std::string& version,
     const FilePath& dest_dir,
     scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
-  FilePath current_version =
-      dest_dir.AppendASCII(ExtensionsService::kCurrentVersionFileName);
-  if (file_util::PathExists(current_version)) {
-    std::string version_str;
-    if (file_util::ReadFileToString(current_version, &version_str)) {
-      if (version_str == version) {
+  std::string version_str;
+  if (ReadCurrentVersion(dest_dir, &version_str)) {
+    if (version_str == version) {
+      FilePath version_dir = dest_dir.AppendASCII(version_str);
+      if (file_util::PathExists(version_dir)) {
         ReportExtensionInstallError(frontend, extension_path,
             "Extension version already installed");
         return false;
-      } else {
-        scoped_ptr<Version> cur_version(
-            Version::GetVersionFromString(version_str));
-        scoped_ptr<Version> new_version(
-            Version::GetVersionFromString(version));
-        if (cur_version->CompareTo(*new_version) >= 0) {
-          ReportExtensionInstallError(frontend, extension_path,
-              "More recent version of extension already installed");
-          return false;
-        }
+      }
+      // If the existing version_dir doesn't exist, then we'll return true
+      // so that we attempt to repair the broken installation.
+    } else {
+      scoped_ptr<Version> cur_version(
+          Version::GetVersionFromString(version_str));
+      scoped_ptr<Version> new_version(
+          Version::GetVersionFromString(version));
+      if (cur_version->CompareTo(*new_version) >= 0) {
+        ReportExtensionInstallError(frontend, extension_path,
+            "More recent version of extension already installed");
+        return false;
       }
     }
   }

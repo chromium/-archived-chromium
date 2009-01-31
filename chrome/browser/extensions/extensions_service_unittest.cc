@@ -139,7 +139,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   // Note: There can be more errors if there are extra directories, like .svn
   // directories.
   EXPECT_TRUE(frontend->errors()->size() >= 2u);
-  ASSERT_EQ(2u, frontend->extensions()->size());
+  ASSERT_EQ(3u, frontend->extensions()->size());
 
   EXPECT_EQ(std::string("com.google.myextension1"),
             frontend->extensions()->at(0)->id());
@@ -168,6 +168,14 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(1)->description());
   ASSERT_EQ(0u, frontend->extensions()->at(1)->user_scripts().size());
+
+  EXPECT_EQ(std::string("com.google.myextension3"),
+            frontend->extensions()->at(2)->id());
+  EXPECT_EQ(std::string("My extension 3"),
+            frontend->extensions()->at(2)->name());
+  EXPECT_EQ(std::string(""),
+            frontend->extensions()->at(2)->description());
+  ASSERT_EQ(0u, frontend->extensions()->at(2)->user_scripts().size());
 };
 
 // Test installing extensions.
