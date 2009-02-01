@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/l10n_util.h"

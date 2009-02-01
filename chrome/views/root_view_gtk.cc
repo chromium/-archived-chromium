@@ -4,6 +4,8 @@
 
 #include "chrome/views/root_view.h"
 
+#include "base/logging.h"
+
 namespace views {
 
 // TODO(port): Port GetScheduledPaintRectConstrainedToSize() to not use RECT.
