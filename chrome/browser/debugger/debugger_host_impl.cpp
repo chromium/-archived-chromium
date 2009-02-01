@@ -6,6 +6,7 @@
 
 #include "base/json_reader.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "chrome/browser/debugger/debugger_io.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/renderer_host/render_view_host.h"

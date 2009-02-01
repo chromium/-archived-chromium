@@ -25,6 +25,7 @@
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class GURL;
+class MessageLoop;
 class Profile;
 
 namespace base {
