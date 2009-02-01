@@ -23,6 +23,7 @@
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/pref_member.h"
 #include "base/gfx/rect.h"
+#include "base/task.h"
 #include "skia/include/SkBitmap.h"
 
 #if defined(OS_WIN)
