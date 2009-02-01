@@ -8,8 +8,9 @@
 #include "base/task.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 
-class Value;
+class DictionaryValue;
 class DOMMessageHandler;
+class Value;
 
 // A DOMUI sets up the datasources and message handlers for a given HTML-based
 // UI. It is contained by a DOMUIContents.

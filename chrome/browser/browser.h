@@ -7,6 +7,7 @@
 
 #include "base/basictypes.h"
 
+#include <set>
 #include <vector>
 
 #if defined(OS_MACOSX) || defined(OS_LINUX)

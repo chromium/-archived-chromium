@@ -38,6 +38,7 @@ class SessionID;
 class SiteInstance;
 class SpellChecker;
 class TabContents;
+class Task;
 class TemplateURL;
 class TemplateURLRef;
 class URLRequestContext;

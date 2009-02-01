@@ -8,6 +8,7 @@
 #include "base/thread.h"
 #include "base/path_service.h"
 #include "base/singleton.h"
+#include "base/task.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
