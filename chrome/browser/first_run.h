@@ -7,6 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/gfx/native_widget_types.h"
 #include "chrome/browser/browser_process_impl.h"
 
 class FilePath;
@@ -39,7 +40,8 @@ class FirstRun {
   // Imports settings in a separate process. It spawns a second dedicated
   // browser process that just does the import with the import progress UI.
   static bool ImportSettings(Profile* profile, int browser,
-                             int items_to_import, HWND parent_window);
+                             int items_to_import,
+                             gfx::NativeView parent_window);
   // Import browser items in this process. The browser and the items to
   // import are encoded int the command line. This function is paired with
   // FirstRun::ImportSettings(). This function might or might not show

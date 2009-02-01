@@ -13,12 +13,14 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
+#include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
+#include "chrome/common/ipc_message.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"
@@ -49,15 +51,6 @@ class WebContents;
 //---------------------------------------------------------------------------
 // These stubs are for Browser_main()
 
-class Upgrade {
- public:
-  static bool IsBrowserAlreadyRunning() { return false; }
-  static bool RelaunchChromeBrowser(const CommandLine& command_line) {
-    return true;
-  }
-  static bool SwapNewChromeExeIfPresent() { return true; }
-};
-
 // TODO(port): MessageWindow is very windows-specific, but provides the concept
 //             of singleton browser process per user-data-dir. Investigate how
 //             to achieve this on other platforms and see if this API works.
@@ -70,19 +63,6 @@ class MessageWindow {
   void Create() { }
   void Lock() { }
   void Unlock() { }
-};
-
-class FirstRun {
- public:
-  static bool IsChromeFirstRun() { return false; }
-  static bool ProcessMasterPreferences(const FilePath& user_data_dir,
-                                       const FilePath& master_prefs_path,
-                                       int* preference_details) {
-    return false;
-  }
-  static int ImportNow(Profile* profile, const CommandLine& cmdline) {
-    return 0;
-  }
 };
 
 class GoogleUpdateSettings {
@@ -98,60 +78,9 @@ class GoogleUpdateSettings {
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
 
-class BrowserProcessImpl : public BrowserProcess {
+class AutomationProviderList {
  public:
-  BrowserProcessImpl(const CommandLine& command_line);
-  virtual ~BrowserProcessImpl();
-
-  virtual void EndSession() { }
-  virtual ResourceDispatcherHost* resource_dispatcher_host() { return NULL; }
-  virtual MetricsService* metrics_service();
-  virtual ProfileManager* profile_manager();
-  virtual PrefService* local_state();
-  virtual DebuggerWrapper* debugger_wrapper() { return NULL; }
-  virtual ClipboardService* clipboard_service() { return NULL; }
-  virtual base::Thread* io_thread() { return NULL; }
-  virtual base::Thread* file_thread() { return NULL; }
-  virtual base::Thread* db_thread() { return NULL; }
-  virtual sandbox::BrokerServices* broker_services() { return NULL; }
-  virtual IconManager* icon_manager() { return NULL; }
-  virtual void InitBrokerServices(sandbox::BrokerServices*) { }
-  virtual AutomationProviderList* InitAutomationProviderList() { return NULL; }
-  virtual void InitDebuggerWrapper(int port) { }
-  virtual unsigned int AddRefModule() { return NULL; }
-  virtual unsigned int ReleaseModule() { return NULL; }
-  virtual bool IsShuttingDown() { return NULL; }
-  virtual views::AcceleratorHandler* accelerator_handler() { return NULL; }
-  virtual printing::PrintJobManager* print_job_manager() { return NULL; }
-  virtual GoogleURLTracker* google_url_tracker() { return NULL; }
-  virtual const std::wstring& GetApplicationLocale() { return locale_; }
-  virtual MemoryModel memory_model() { return MEDIUM_MEMORY_MODEL; }
-  virtual base::WaitableEvent* shutdown_event() { return NULL; }
- private:
-  void CreateLocalState();
-  void CreateProfileManager();
-  void CreateMetricsService();
-
-  scoped_ptr<NotificationService> main_notification_service_;
-  MemoryModel memory_model_;
-  bool created_local_state_;
-  scoped_ptr<PrefService> local_state_;
-  bool created_metrics_service_;
-  scoped_ptr<MetricsService> metrics_service_;
-  bool created_profile_manager_;
-  scoped_ptr<ProfileManager> profile_manager_;
-  std::wstring locale_;
-};
-
-class FirstRunBrowserProcess : public BrowserProcessImpl {
- public:
-  FirstRunBrowserProcess(const CommandLine& command_line)
-      : BrowserProcessImpl(command_line) {
-  }
-  virtual ~FirstRunBrowserProcess() { }
-  virtual GoogleURLTracker* google_url_tracker() { return NULL; }
- private:
-  DISALLOW_COPY_AND_ASSIGN(FirstRunBrowserProcess);
+  static AutomationProviderList* GetInstance() { return NULL; }
 };
 
 class UserDataManager {
@@ -236,6 +165,8 @@ class MetricsService {
   void StartRecordingOnly() { }
   void Stop() { }
   void SetUserPermitsUpload(bool enabled) { }
+  void RecordCleanShutdown() {}
+  void RecordStartOfSessionEnd() {}
 };
 
 namespace browser_shutdown {
@@ -252,6 +183,94 @@ void OpenFirstRunDialog(Profile* profile);
 void InstallJankometer(const CommandLine&);
 
 GURL NewTabUIURL();
+
+//---------------------------------------------------------------------------
+// These stubs are for BrowserProcessImpl
+
+class ClipboardService {
+};
+
+namespace printing {
+
+class PrintJobManager {
+ public:
+  void OnQuit() {}
+};
+
+}  // namespace printing
+
+class SafeBrowsingService
+    : public base::RefCountedThreadSafe<SafeBrowsingService> {
+ public:
+  void ShutDown() {}
+};
+
+class DownloadFileManager
+    : public base::RefCountedThreadSafe<DownloadFileManager> {
+ public:
+  void Shutdown() {}
+};
+
+class SaveFileManager : public base::RefCountedThreadSafe<SaveFileManager> {
+ public:
+  void Shutdown() {}
+};
+
+namespace sandbox {
+
+class BrokerServices {
+ public:
+  void Init() {}
+};
+  
+}  // namespace sandbox
+
+class IconManager {
+};
+
+struct ViewHostMsg_Resource_Request;
+
+class ResourceDispatcherHost {
+ public:
+  explicit ResourceDispatcherHost(MessageLoop* loop) {}
+  
+  class Receiver {
+   public:
+    virtual bool Send(IPC::Message* message) = 0;
+  };
+  
+  void Initialize() {}
+  void Shutdown() {}
+  
+  SafeBrowsingService* safe_browsing_service() {
+    return const_cast<SafeBrowsingService*>(&safe_browsing_service_);
+  }
+  
+  DownloadFileManager* download_file_manager() {
+    return const_cast<DownloadFileManager*>(&download_file_manager_);
+  }
+  
+  SaveFileManager* save_file_manager() {
+    return const_cast<SaveFileManager*>(&save_file_manager_);
+  }
+  
+ private:
+  SafeBrowsingService safe_browsing_service_;
+  DownloadFileManager download_file_manager_;
+  SaveFileManager save_file_manager_;
+};
+
+class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
+ public:
+  explicit DebuggerWrapper(int port) {}
+};
+
+namespace views {
+  
+class AcceleratorHandler {
+};
+  
+}  // namespace views
 
 //---------------------------------------------------------------------------
 // These stubs are for Browser

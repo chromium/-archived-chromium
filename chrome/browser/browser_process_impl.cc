@@ -8,30 +8,33 @@
 #include "base/path_service.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
-#include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/download/download_file.h"
-#include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/google_url_tracker.h"
-#include "chrome/browser/icon_manager.h"
-#include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/plugin_service.h"
-#include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
-#include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/clipboard_service.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/automation/automation_provider_list.h"
+#include "chrome/browser/download/download_file.h"
+#include "chrome/browser/download/save_file_manager.h"
+#include "chrome/browser/icon_manager.h"
+#include "chrome/browser/metrics/metrics_service.h"
+#include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/safe_browsing/safe_browsing_service.h"
+#include "chrome/browser/debugger/debugger_wrapper.h"
+#include "chrome/common/clipboard_service.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/views/accelerator_handler.h"
 #include "chrome/views/view_storage.h"
+#endif
 
 namespace {
 
@@ -58,8 +61,10 @@ class BrowserProcessSubThread : public ChromeThread {
 
  protected:
   virtual void Init() {
+#if defined(OS_WIN)
     // Initializes the COM library on the current thread.
     CoInitialize(NULL);
+#endif
 
     notification_service_ = new NotificationService;
   }
@@ -68,9 +73,11 @@ class BrowserProcessSubThread : public ChromeThread {
     delete notification_service_;
     notification_service_ = NULL;
 
+#if defined(OS_WIN)
     // Closes the COM library on the current thread. CoInitialize must
     // be balanced by a corresponding call to CoUninitialize.
     CoUninitialize();
+#endif
   }
 
  private:
@@ -90,10 +97,10 @@ BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
       created_db_thread_(false),
       created_profile_manager_(false),
       created_local_state_(false),
-      created_icon_manager_(false),
       initialized_broker_services_(false),
-      created_debugger_wrapper_(false),
       broker_services_(NULL),
+      created_icon_manager_(false),
+      created_debugger_wrapper_(false),
       module_ref_count_(0),
       memory_model_(MEDIUM_MEMORY_MODEL),
       checked_for_new_frames_(false),
@@ -191,8 +198,12 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   print_job_manager_->OnQuit();
   print_job_manager_.reset();
 
+  // TODO(port): remove this completely from BrowserProcessImpl, it has no
+  // business being here.
+#if defined(OS_WIN)
   // The ViewStorage needs to go before the NotificationService.
   views::ViewStorage::DeleteSharedInstance();
+#endif
 
   // Now OK to destroy NotificationService.
   main_notification_service_.reset();
@@ -206,8 +217,10 @@ static void PostQuit(MessageLoop* message_loop) {
 }
 
 void BrowserProcessImpl::EndSession() {
+#if defined(OS_WIN)
   // Notify we are going away.
   ::SetEvent(shutdown_event_->handle());
+#endif
 
   // Mark all the profiles as clean.
   ProfileManager* pm = profile_manager();
@@ -244,10 +257,15 @@ printing::PrintJobManager* BrowserProcessImpl::print_job_manager() {
 
 const std::wstring& BrowserProcessImpl::GetApplicationLocale() {
   DCHECK(CalledOnValidThread());
+#if defined(OS_WIN)
   if (locale_.empty()) {
     locale_ = l10n_util::GetApplicationLocale(local_state()->GetString(
         prefs::kApplicationLocale));
   }
+#else
+  NOTIMPLEMENTED();
+  // TODO(port): port l10n_util
+#endif
   return locale_;
 }
 
@@ -349,10 +367,14 @@ void BrowserProcessImpl::CreateDebuggerWrapper(int port) {
 }
 
 void BrowserProcessImpl::CreateAcceleratorHandler() {
+#if defined(OS_WIN)
   DCHECK(accelerator_handler_.get() == NULL);
   scoped_ptr<views::AcceleratorHandler> accelerator_handler(
       new views::AcceleratorHandler);
   accelerator_handler_.swap(accelerator_handler);
+#else
+  // TODO(port): remove this completely, it has no business being here.
+#endif
 }
 
 void BrowserProcessImpl::CreateGoogleURLTracker() {

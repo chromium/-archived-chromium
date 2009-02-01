@@ -12,13 +12,16 @@
 #include "base/ref_counted.h"
 #include "build/build_config.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/notification_observer.h"
 #include "webkit/glue/cache_manager.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#else
+// TODO(port): port ResourceDispatcherHost.
+#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 class ClipboardService;
