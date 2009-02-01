@@ -6,6 +6,7 @@
 
 #include "base/json_reader.h"
 #include "base/json_writer.h"
+#include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

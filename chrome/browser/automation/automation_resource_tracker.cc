@@ -4,6 +4,7 @@
 
 #include "chrome/browser/automation/automation_resource_tracker.h"
 
+#include "chrome/common/notification_service.h"
 #include "chrome/test/automation/automation_messages.h"
 
 int AutomationResourceTrackerImpl::AddImpl(void* resource) {
