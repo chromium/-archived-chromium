@@ -6,3 +6,13 @@
 
 BrowserProcess* g_browser_process = NULL;
 
+#if defined(OS_WIN)
+
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+
+DownloadRequestManager* BrowserProcess::download_request_manager() {
+  ResourceDispatcherHost* rdh = resource_dispatcher_host();
+  return rdh ? rdh->download_request_manager() : NULL;
+}
+
+#endif

@@ -43,6 +43,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_notification_source.h"

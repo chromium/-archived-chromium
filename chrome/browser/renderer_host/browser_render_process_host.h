@@ -20,16 +20,22 @@
 #include "base/rand_util.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/shared_memory.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_observer.h"
-#include "chrome/common/render_messages.h"
+#include "webkit/glue/cache_manager.h"
 
+class GURL;
 class PrefService;
 class RenderWidgetHelper;
 class WebContents;
 
 namespace base {
 class Thread;
+}
+
+namespace gfx {
+class Size;
 }
 
 // Implements a concrete RenderProcessHost for the browser process for talking

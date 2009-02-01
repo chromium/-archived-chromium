@@ -14,10 +14,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/message_loop.h"
-#if defined(OS_WIN)
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
-#endif  // defined(OS_WIN)
 
 class AutomationProviderList;
 class ClipboardService;
@@ -123,10 +119,7 @@ class BrowserProcess {
   virtual MemoryModel memory_model() = 0;
 
 #if defined(OS_WIN)
-  DownloadRequestManager* download_request_manager() {
-    ResourceDispatcherHost* rdh = resource_dispatcher_host();
-    return rdh ? rdh->download_request_manager() : NULL;
-  }
+  DownloadRequestManager* download_request_manager();
 #endif
 
   // Returns an event that is signaled when the browser shutdown.

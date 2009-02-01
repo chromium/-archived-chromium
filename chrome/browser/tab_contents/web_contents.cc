@@ -17,7 +17,6 @@
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/js_before_unload_handler.h"
 #include "chrome/browser/jsmessage_box_handler.h"
@@ -41,9 +40,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "net/base/mime_util.h"
 #include "net/base/registry_controlled_domain.h"
-#include "webkit/glue/webkit_glue.h"
 
 #include "generated_resources.h"
 

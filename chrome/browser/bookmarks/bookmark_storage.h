@@ -7,12 +7,16 @@
 
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "chrome/browser/browser_process.h"
 
 class BookmarkModel;
 class BookmarkStorageBackend;
 class Profile;
+class MessageLoop;
 class Value;
+
+namespace base {
+class Thread;
+}
 
 // BookmarkStorage handles reading/write the bookmark bar model. The
 // BookmarkModel uses the BookmarkStorage to load bookmarks from disk, as well

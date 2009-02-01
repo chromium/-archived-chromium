@@ -23,6 +23,7 @@
 #include "chrome/app/result_codes.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/importer/importer.h"

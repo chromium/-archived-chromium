@@ -7,6 +7,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/pref_names.h"
 
 AutofillManager::AutofillManager(WebContents* web_contents) :
     web_contents_(web_contents),

@@ -17,7 +17,6 @@
 #include "base/task.h"
 #include "base/time.h"
 #include "chrome/browser/cancelable_request.h"
-#include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/search_engines/template_url.h"
@@ -26,6 +25,7 @@
 #include "chrome/common/ref_counted_util.h"
 
 class BookmarkService;
+class ChromeThread;
 struct DownloadCreateInfo;
 class FilePath;
 class GURL;

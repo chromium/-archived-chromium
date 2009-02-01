@@ -7,6 +7,8 @@
 #include <winspool.h>
 
 #include "base/file_util.h"
+#include "base/message_loop.h"
+#include "base/time.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"

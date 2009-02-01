@@ -18,6 +18,7 @@
 #include "net/url_request/url_request_error_job.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
+#include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/net/dns_master.h"
 #include "chrome/browser/plugin_process_host.h"

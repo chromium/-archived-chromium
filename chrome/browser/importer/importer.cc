@@ -10,6 +10,7 @@
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"

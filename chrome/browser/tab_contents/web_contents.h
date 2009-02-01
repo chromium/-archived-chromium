@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 
-#include "base/hash_tables.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/printing/print_view_manager.h"

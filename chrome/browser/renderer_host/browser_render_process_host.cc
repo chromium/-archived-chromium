@@ -42,6 +42,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_process.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"

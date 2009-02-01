@@ -13,6 +13,7 @@
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "base/lock.h"
+#include "base/ref_counted.h"
 #include "chrome/browser/browser_process.h"
 #include "webkit/glue/webplugin.h"
 
@@ -20,6 +21,7 @@ namespace IPC {
 class Message;
 }
 
+class MessageLoop;
 class PluginProcessHost;
 class URLRequestContext;
 class ResourceDispatcherHost;

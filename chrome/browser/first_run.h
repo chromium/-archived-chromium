@@ -9,6 +9,7 @@
 #include "base/command_line.h"
 #include "chrome/browser/browser_process_impl.h"
 
+class FilePath;
 class Profile;
 
 // This class contains the chrome first-run installation actions needed to

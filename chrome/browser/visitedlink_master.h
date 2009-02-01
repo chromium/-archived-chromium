@@ -27,6 +27,10 @@
 class GURL;
 class Profile;
 
+namespace base {
+class Thread;
+}  // namespace base
+
 // Controls the link coloring database. The master controls all writing to the
 // database as well as disk I/O. There should be only one master.
 //

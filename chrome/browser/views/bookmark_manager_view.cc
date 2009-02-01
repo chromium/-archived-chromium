@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "base/thread.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"

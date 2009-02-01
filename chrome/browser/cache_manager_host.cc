@@ -14,6 +14,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 
 using base::Time;
 using base::TimeDelta;

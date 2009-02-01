@@ -4,25 +4,20 @@
 
 #include "chrome/browser/tab_contents/navigation_controller.h"
 
-#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
-#include "chrome/browser/profile.h"
 #include "chrome/browser/repost_form_warning_dialog.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/scoped_vector.h"
-#include "net/base/net_util.h"
 #include "webkit/glue/webkit_glue.h"
 
 namespace {

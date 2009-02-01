@@ -13,6 +13,7 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_trial.h"
+#include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/render_process_host.h"

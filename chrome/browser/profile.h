@@ -12,16 +12,12 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "base/task.h"
 #include "base/timer.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
 #include "chrome/common/notification_observer.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 
 class BookmarkModel;
 class ChromeURLRequestContext;
@@ -42,7 +38,6 @@ class WebDataService;
 
 class Profile {
  public:
-
   // Profile services are accessed with the following parameter. This parameter
   // defines what the caller plans to do with the service.
   // The caller is responsible for not performing any operation that would
