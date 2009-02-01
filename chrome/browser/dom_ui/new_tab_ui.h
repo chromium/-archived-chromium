@@ -12,6 +12,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
 
+class DictionaryValue;
 class GURL;
 class Profile;
 class Value;

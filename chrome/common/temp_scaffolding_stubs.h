@@ -31,6 +31,7 @@ class HistoryService;
 class MetricsService;
 class NavigationController;
 class NavigationEntry;
+class NotificationService;
 class ProfileManager;
 class Profile;
 class SessionID;

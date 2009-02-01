@@ -18,6 +18,7 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
 
 // static

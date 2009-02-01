@@ -18,6 +18,7 @@
 class DOMMessageDispatcher;
 class RenderProcessHost;
 class RenderViewHost;
+class Value;
 
 // Messages sent from the DOM are forwarded via the DOMUIHost to handler
 // classes.  These objects are owned by DOMUIHost and destroyed when the
