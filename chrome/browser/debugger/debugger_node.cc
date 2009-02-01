@@ -13,6 +13,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
+#include "chrome/common/notification_service.h"
 
 DebuggerNode::DebuggerNode() : valid_(true), observing_(false), data_(NULL) {
 }
@@ -159,13 +160,15 @@ BrowserNode::BrowserNode(Browser *b) {
 
   NotificationService* service = NotificationService::current();
   DCHECK(service);
-  service->AddObserver(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(b));
+  service->AddObserver(
+      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
   observing_ = true;
 }
 
 void BrowserNode::StopObserving(NotificationService *service) {
   Browser *b = static_cast<Browser*>(data_);
-  service->RemoveObserver(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(b));
+  service->RemoveObserver(
+      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
 }
 
 BrowserNode* BrowserNode::BrowserAtIndex(int index) {
@@ -242,7 +245,8 @@ TabListNode::TabListNode(Browser* b) {
 
   NotificationService* service = NotificationService::current();
   DCHECK(service);
-  service->AddObserver(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(b));
+  service->AddObserver(
+      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
   observing_ = true;
 }
 
@@ -263,7 +267,8 @@ Browser* TabListNode::GetBrowser() {
 
 void TabListNode::StopObserving(NotificationService *service) {
   Browser *b = static_cast<Browser*>(data_);
-  service->RemoveObserver(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(b));
+  service->RemoveObserver(
+      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
 }
 
 v8::Handle<v8::Value> TabListNode::IndexGetter(uint32_t index,
@@ -286,7 +291,7 @@ TabNode::TabNode(TabContents *c) {
 
   NotificationService* service = NotificationService::current();
   DCHECK(service);
-  service->AddObserver(this, NOTIFY_TAB_CLOSING,
+  service->AddObserver(this, NotificationType::TAB_CLOSING,
                        Source<NavigationController>(c->controller()));
   observing_ = true;
 }
@@ -296,7 +301,7 @@ TabNode::~TabNode() {
 
 void TabNode::StopObserving(NotificationService *service) {
   NavigationController *c = static_cast<NavigationController*>(data_);
-  service->RemoveObserver(this, NOTIFY_TAB_CLOSING,
+  service->RemoveObserver(this, NotificationType::TAB_CLOSING,
                           Source<NavigationController>(c));
 }
 

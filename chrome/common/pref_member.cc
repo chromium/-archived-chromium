@@ -5,6 +5,7 @@
 #include "chrome/common/pref_member.h"
 
 #include "base/logging.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/pref_service.h"
 
 namespace subtle {
@@ -23,7 +24,7 @@ PrefMemberBase::~PrefMemberBase() {
 
 
 void PrefMemberBase::Init(const wchar_t* pref_name, PrefService* prefs,
-          NotificationObserver* observer) {
+                          NotificationObserver* observer) {
   DCHECK(pref_name);
   DCHECK(prefs);
   DCHECK(pref_name_.empty());  // Check that Init is only called once.
@@ -40,7 +41,7 @@ void PrefMemberBase::Observe(NotificationType type,
                              const NotificationSource& source,
                              const NotificationDetails& details) {
   DCHECK(!pref_name_.empty());
-  DCHECK(NOTIFY_PREF_CHANGED == type);
+  DCHECK(NotificationType::PREF_CHANGED == type);
   UpdateValueFromPref();
   is_synced_ = true;
   if (!setting_value_ && observer_)

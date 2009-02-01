@@ -10,14 +10,14 @@
 // operations can be completed synchronously. It listenes for notifications
 // from the "regular" history backend and keeps itself in sync.
 
-#ifndef CHROME_BROWSER_HISTORY_IN_MEMORY_HISTORY_BACKEND_H__
-#define CHROME_BROWSER_HISTORY_IN_MEMORY_HISTORY_BACKEND_H__
+#ifndef CHROME_BROWSER_HISTORY_IN_MEMORY_HISTORY_BACKEND_H_
+#define CHROME_BROWSER_HISTORY_IN_MEMORY_HISTORY_BACKEND_H_
 
 #include <string>
 
 #include "base/basictypes.h"
 #include "chrome/browser/history/history_notifications.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class HistoryDatabase;
 class Profile;
@@ -71,10 +71,9 @@ class InMemoryHistoryBackend : public NotificationObserver {
   // may be destroyed before attaching to the main thread.
   bool registered_for_notifications_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(InMemoryHistoryBackend);
+  DISALLOW_COPY_AND_ASSIGN(InMemoryHistoryBackend);
 };
 
 }  // namespace history
 
-#endif  // CHROME_BROWSER_IN_MEMORY_HISTORY_BACKEND_H__
-
+#endif  // CHROME_BROWSER_IN_MEMORY_HISTORY_BACKEND_H_

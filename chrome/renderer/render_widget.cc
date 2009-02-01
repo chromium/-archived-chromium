@@ -4,8 +4,6 @@
 
 #include "chrome/renderer/render_widget.h"
 
-#include <windows.h>
-
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"

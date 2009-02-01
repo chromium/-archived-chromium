@@ -17,7 +17,7 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/tree_node_model.h"
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"

@@ -303,14 +303,15 @@ void ExpireHistoryTest::EnsureURLInfoGone(const URLRow& row) {
   bool found_delete_notification = false;
   bool found_typed_changed_notification = false;
   for (size_t i = 0; i < notifications_.size(); i++) {
-    if (notifications_[i].first == NOTIFY_HISTORY_URLS_DELETED) {
+    if (notifications_[i].first == NotificationType::HISTORY_URLS_DELETED) {
       const URLsDeletedDetails* deleted_details =
           reinterpret_cast<URLsDeletedDetails*>(notifications_[i].second);
       if (deleted_details->urls.find(row.url()) !=
           deleted_details->urls.end()) {
         found_delete_notification = true;
       }
-    } else if (notifications_[i].first == NOTIFY_HISTORY_TYPED_URLS_MODIFIED) {
+    } else if (notifications_[i].first ==
+               NotificationType::HISTORY_TYPED_URLS_MODIFIED) {
       // See if we got a typed URL changed notification.
       const URLsModifiedDetails* modified_details =
           reinterpret_cast<URLsModifiedDetails*>(notifications_[i].second);
@@ -319,7 +320,8 @@ void ExpireHistoryTest::EnsureURLInfoGone(const URLRow& row) {
         if (modified_details->changed_urls[cur_url].url() == row.url())
           found_typed_changed_notification = true;
       }
-    } else if (notifications_[i].first == NOTIFY_HISTORY_URL_VISITED) {
+    } else if (notifications_[i].first ==
+               NotificationType::HISTORY_URL_VISITED) {
       // See if we got a visited URL notification.
       const URLVisitedDetails* visited_details =
           reinterpret_cast<URLVisitedDetails*>(notifications_[i].second);

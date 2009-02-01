@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 // This class can only be used on the UI thread.
 class ModalHtmlDialogDelegate

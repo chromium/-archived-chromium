@@ -8,14 +8,13 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/infobars/infobars.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_service.h"
 
 // InfoBarContainer, public: ---------------------------------------------------
 
 InfoBarContainer::InfoBarContainer(BrowserView* browser_view)
     : browser_view_(browser_view),
       tab_contents_(NULL) {
-
 }
 
 InfoBarContainer::~InfoBarContainer() {
@@ -29,10 +28,10 @@ InfoBarContainer::~InfoBarContainer() {
 void InfoBarContainer::ChangeTabContents(TabContents* contents) {
   if (tab_contents_) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_TAB_CONTENTS_INFOBAR_ADDED,
+        this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
         Source<TabContents>(tab_contents_));
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED,
+        this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
         Source<TabContents>(tab_contents_));
   }
   // No need to delete the child views here, their removal from the view
@@ -42,10 +41,10 @@ void InfoBarContainer::ChangeTabContents(TabContents* contents) {
   if (tab_contents_) {
     UpdateInfoBars();
     NotificationService::current()->AddObserver(
-        this, NOTIFY_TAB_CONTENTS_INFOBAR_ADDED,
+        this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
         Source<TabContents>(tab_contents_));
     NotificationService::current()->AddObserver(
-        this, NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED,
+        this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
         Source<TabContents>(tab_contents_));
   }
 }
@@ -96,9 +95,9 @@ void InfoBarContainer::ViewHierarchyChanged(bool is_add,
 void InfoBarContainer::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  if (type == NOTIFY_TAB_CONTENTS_INFOBAR_ADDED) {
+  if (type == NotificationType::TAB_CONTENTS_INFOBAR_ADDED) {
     AddInfoBar(Details<InfoBarDelegate>(details).ptr());
-  } else if (type == NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED) {
+  } else if (type == NotificationType::TAB_CONTENTS_INFOBAR_REMOVED) {
     RemoveInfoBar(Details<InfoBarDelegate>(details).ptr());
   } else {
     NOTREACHED();

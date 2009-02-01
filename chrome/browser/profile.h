@@ -4,8 +4,8 @@
 
 // This class gathers state related to a single user profile.
 
-#ifndef CHROME_BROWSER_PROFILE_H__
-#define CHROME_BROWSER_PROFILE_H__
+#ifndef CHROME_BROWSER_PROFILE_H_
+#define CHROME_BROWSER_PROFILE_H_
 
 #include <set>
 #include <string>
@@ -19,7 +19,7 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 
@@ -366,7 +366,7 @@ class ProfileImpl : public Profile,
   // GetSessionService won't recreate the SessionService.
   bool shutdown_session_service_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ProfileImpl);
+  DISALLOW_COPY_AND_ASSIGN(ProfileImpl);
 };
 
 // This struct is used to pass the spellchecker object through the notification
@@ -376,5 +376,4 @@ struct SpellcheckerReinitializedDetails {
   scoped_refptr<SpellChecker> spellchecker;
 };
 
-#endif  // CHROME_BROWSER_PROFILE_H__
-
+#endif  // CHROME_BROWSER_PROFILE_H_

@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/load_flags.h"
@@ -24,7 +25,7 @@ GoogleURLTracker::GoogleURLTracker()
       need_to_fetch_(false),
       request_context_available_(!!Profile::GetDefaultRequestContext()) {
   NotificationService::current()->AddObserver(this,
-      NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+      NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE,
       NotificationService::AllSources());
 
   // Because this function can be called during startup, when kicking off a URL
@@ -41,7 +42,7 @@ GoogleURLTracker::GoogleURLTracker()
 
 GoogleURLTracker::~GoogleURLTracker() {
   NotificationService::current()->RemoveObserver(this,
-      NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+      NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE,
       NotificationService::AllSources());
 }
 
@@ -155,7 +156,7 @@ void GoogleURLTracker::OnURLFetchComplete(const URLFetcher* source,
     g_browser_process->local_state()->SetString(prefs::kLastKnownGoogleURL,
                                                 base_url_str);
     google_url_ = base_url;
-    NotificationService::current()->Notify(NOTIFY_GOOGLE_URL_UPDATED,
+    NotificationService::current()->Notify(NotificationType::GOOGLE_URL_UPDATED,
                                            NotificationService::AllSources(),
                                            NotificationService::NoDetails());
   }
@@ -164,7 +165,7 @@ void GoogleURLTracker::OnURLFetchComplete(const URLFetcher* source,
 void GoogleURLTracker::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  DCHECK_EQ(NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE, type);
+  DCHECK_EQ(NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE, type.value);
   request_context_available_ = true;
   StartFetchIfDesirable();
 }

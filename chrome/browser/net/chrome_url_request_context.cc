@@ -13,6 +13,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_util.h"
@@ -121,14 +122,15 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   prefs_->AddPrefObserver(prefs::kCookieBehavior, this);  
 
   NotificationService::current()->AddObserver(
-      this, NOTIFY_EXTENSIONS_LOADED, NotificationService::AllSources());
+      this, NotificationType::EXTENSIONS_LOADED,
+      NotificationService::AllSources());
 }
 
 // NotificationObserver implementation.
 void ChromeURLRequestContext::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
-  if (NOTIFY_PREF_CHANGED == type) {
+  if (NotificationType::PREF_CHANGED == type) {
     std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
     PrefService* prefs = Source<PrefService>(source).ptr();
     DCHECK(pref_name_in && prefs);
@@ -147,7 +149,7 @@ void ChromeURLRequestContext::Observe(NotificationType type,
                             &ChromeURLRequestContext::OnCookiePolicyChange,
                             type));
     }
-  } else if (NOTIFY_EXTENSIONS_LOADED == type) {
+  } else if (NotificationType::EXTENSIONS_LOADED == type) {
     ExtensionPaths* new_paths = new ExtensionPaths;
     ExtensionList* extensions = Details<ExtensionList>(details).ptr();
     DCHECK(extensions);
@@ -171,7 +173,8 @@ void ChromeURLRequestContext::CleanupOnUIThread() {
   prefs_ = NULL;
 
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_EXTENSIONS_LOADED, NotificationService::AllSources());
+      this, NotificationType::EXTENSIONS_LOADED,
+      NotificationService::AllSources());
 }
 
 FilePath ChromeURLRequestContext::GetPathForExtension(const std::string& id) {
@@ -211,9 +214,10 @@ void ChromeURLRequestContext::OnNewExtensions(ExtensionPaths* new_paths) {
 ChromeURLRequestContext::~ChromeURLRequestContext() {
   DCHECK(NULL == prefs_);
 
-  NotificationService::current()->Notify(NOTIFY_URL_REQUEST_CONTEXT_RELEASED,
-                                         Source<URLRequestContext>(this),
-                                         NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::URL_REQUEST_CONTEXT_RELEASED,
+      Source<URLRequestContext>(this),
+      NotificationService::NoDetails());
 
   delete cookie_store_;
   delete http_transaction_factory_;

@@ -17,6 +17,7 @@
 
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +31,8 @@ TabStripModel::TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
       order_controller_(NULL) {
   DCHECK(delegate_);
   NotificationService::current()->AddObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED, NotificationService::AllSources());
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      NotificationService::AllSources());
   SetOrderController(new TabStripModelOrderController(this));
 }
 
@@ -38,7 +40,8 @@ TabStripModel::~TabStripModel() {
   STLDeleteContainerPointers(contents_data_.begin(), contents_data_.end());
   delete order_controller_;
   NotificationService::current()->RemoveObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED, NotificationService::AllSources());
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      NotificationService::AllSources());
 }
 
 void TabStripModel::AddObserver(TabStripModelObserver* observer) {
@@ -482,7 +485,7 @@ std::vector<int> TabStripModel::GetIndexesOpenedBy(int index) const {
 void TabStripModel::Observe(NotificationType type,
                             const NotificationSource& source,
                             const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_TAB_CONTENTS_DESTROYED);
+  DCHECK(type == NotificationType::TAB_CONTENTS_DESTROYED);
   // Sometimes, on qemu, it seems like a TabContents object can be destroyed
   // while we still have a reference to it. We need to break this reference
   // here so we don't crash later.

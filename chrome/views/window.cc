@@ -9,6 +9,7 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
@@ -231,7 +232,7 @@ void Window::Observe(NotificationType type,
                      const NotificationSource& source,
                      const NotificationDetails& details) {
   // This window is closed when the last app window is closed.
-  DCHECK(type == NOTIFY_ALL_APPWINDOWS_CLOSED);
+  DCHECK(type == NotificationType::ALL_APPWINDOWS_CLOSED);
   // Only registered as an observer when we're not an app window.
   // XXX DCHECK(!IsAppWindow());
   Close();
@@ -294,7 +295,9 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
 
   if (!IsAppWindow()) {
     notification_registrar_.Add(
-        this, NOTIFY_ALL_APPWINDOWS_CLOSED, NotificationService::AllSources());
+        this,
+        NotificationType::ALL_APPWINDOWS_CLOSED,
+        NotificationService::AllSources());
   }
 }
 

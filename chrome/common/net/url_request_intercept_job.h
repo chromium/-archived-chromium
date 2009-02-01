@@ -11,7 +11,7 @@
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/common/chrome_plugin_api.h"
 #include "chrome/common/chrome_plugin_util.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class ChromePluginLib;
 

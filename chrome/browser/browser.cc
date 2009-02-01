@@ -14,6 +14,7 @@
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -179,7 +180,9 @@ Browser::Browser(Type type, Profile* profile)
   tabstrip_model_.AddObserver(this);
 
   NotificationService::current()->AddObserver(
-      this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
+      this,
+      NotificationType::SSL_STATE_CHANGED,
+      NotificationService::AllSources());
 
   InitCommandState();
   BrowserList::AddBrowser(this);
@@ -222,7 +225,9 @@ Browser::~Browser() {
     tab_restore_service->BrowserClosed(this);
 
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
+      this,
+      NotificationType::SSL_STATE_CHANGED,
+      NotificationService::AllSources());
 
   if (profile_->IsOffTheRecord() &&
       !BrowserList::IsOffTheRecordSessionActive()) {
@@ -1433,18 +1438,19 @@ void Browser::TabInsertedAt(TabContents* contents,
 
   // If the tab crashes in the beforeunload or unload handler, it won't be
   // able to ack. But we know we can close it.
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
-                  Source<TabContents>(contents));
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(contents));
 }
 
 void Browser::TabClosingAt(TabContents* contents, int index) {
   NavigationController* controller = contents->controller();
   DCHECK(controller);
-  NotificationService::current()->
-      Notify(NOTIFY_TAB_CLOSING,
-              Source<NavigationController>(controller),
-              NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CLOSING,
+      Source<NavigationController>(controller),
+      NotificationService::NoDetails());
 
   // Sever the TabContents' connection back to us.
   contents->set_delegate(NULL);
@@ -1457,9 +1463,10 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
 
   RemoveScheduledUpdatesFor(contents);
 
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
-                     Source<TabContents>(contents));
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(contents));
 }
 
 void Browser::TabSelectedAt(TabContents* old_contents,
@@ -1681,12 +1688,14 @@ void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
   // Need to remove ourselves as an observer for disconnection on the replaced
   // TabContents, since we only care to fire onbeforeunload handlers on active
   // Tabs. Make sure an observer is added for the replacement TabContents.
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
-                     Source<TabContents>(source));
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
-                  Source<TabContents>(new_contents));
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(source));
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(new_contents));
 }
 
 void Browser::AddNewContents(TabContents* source,
@@ -1910,8 +1919,8 @@ void Browser::FileSelected(const std::wstring& path, void* params) {
 void Browser::Observe(NotificationType type,
                       const NotificationSource& source,
                       const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_WEB_CONTENTS_DISCONNECTED:
+  switch (type.value) {
+    case NotificationType::WEB_CONTENTS_DISCONNECTED:
       if (is_attempting_to_close_browser_) {
         // Need to do this asynchronously as it will close the tab, which is
         // currently on the call stack above us.
@@ -1921,7 +1930,7 @@ void Browser::Observe(NotificationType type,
       }
       break;
 
-    case NOTIFY_SSL_STATE_CHANGED:
+    case NotificationType::SSL_STATE_CHANGED:
       // When the current tab's SSL state changes, we need to update the URL
       // bar to reflect the new state. Note that it's possible for the selected
       // tab contents to be NULL. This is because we listen for all sources

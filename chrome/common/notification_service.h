@@ -6,16 +6,16 @@
 // happen in various parts of the application, and allows users to register
 // observers for various classes of events that they're interested in.
 
-#ifndef CHROME_COMMON_NOTIFICATION_SERVICE_H__
-#define CHROME_COMMON_NOTIFICATION_SERVICE_H__
+#ifndef CHROME_COMMON_NOTIFICATION_SERVICE_H_
+#define CHROME_COMMON_NOTIFICATION_SERVICE_H_
 
 #include <map>
 
 #include "base/observer_list.h"
-#include "base/values.h"
 #include "chrome/common/notification_details.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_source.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_type.h"
 
 class NotificationObserver;
 
@@ -86,27 +86,16 @@ class NotificationService {
   // Keeps track of the observers for each type of notification.
   // Until we get a prohibitively large number of notification types,
   // a simple array is probably the fastest way to dispatch.
-  NotificationSourceMap observers_[NOTIFICATION_TYPE_COUNT];
+  NotificationSourceMap observers_[NotificationType::NOTIFICATION_TYPE_COUNT];
 
 #ifndef NDEBUG
   // Used to check to see that AddObserver and RemoveObserver calls are
   // balanced.
-  int observer_counts_[NOTIFICATION_TYPE_COUNT];
+  int observer_counts_[NotificationType::NOTIFICATION_TYPE_COUNT];
 #endif
 
-  DISALLOW_EVIL_CONSTRUCTORS(NotificationService);
+  DISALLOW_COPY_AND_ASSIGN(NotificationService);
 };
 
-// This is the base class for notification observers.  When a matching
-// notification is posted to the notification service, Observe is called.
-class NotificationObserver {
- public:
-  virtual ~NotificationObserver();
-
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) = 0;
-};
-
-#endif  // CHROME_COMMON_NOTIFICATION_SERVICE_H__
+#endif  // CHROME_COMMON_NOTIFICATION_SERVICE_H_
 

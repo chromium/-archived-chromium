@@ -100,7 +100,8 @@ HistoryService::HistoryService()
       backend_loaded_(false) {
   if (NotificationService::current()) {  // Is NULL when running generate_profile.
     NotificationService::current()->AddObserver(
-        this, NOTIFY_HISTORY_URLS_DELETED, Source<Profile>(profile_));
+        this, NotificationType::HISTORY_URLS_DELETED,
+        Source<Profile>(profile_));
   }
 }
 
@@ -109,7 +110,7 @@ HistoryService::HistoryService(Profile* profile)
       profile_(profile),
       backend_loaded_(false) {
   NotificationService::current()->AddObserver(
-      this, NOTIFY_HISTORY_URLS_DELETED, Source<Profile>(profile_));
+      this, NotificationType::HISTORY_URLS_DELETED, Source<Profile>(profile_));
 }
 
 HistoryService::~HistoryService() {
@@ -119,7 +120,8 @@ HistoryService::~HistoryService() {
   // Unregister for notifications.
   if (NotificationService::current()) {  // Is NULL when running generate_profile.
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_HISTORY_URLS_DELETED, Source<Profile>(profile_));
+        this, NotificationType::HISTORY_URLS_DELETED,
+        Source<Profile>(profile_));
   }
 }
 
@@ -527,7 +529,7 @@ HistoryService::Handle HistoryService::GetVisitCountToHost(
 void HistoryService::Observe(NotificationType type,
                              const NotificationSource& source,
                              const NotificationDetails& details) {
-  if (type != NOTIFY_HISTORY_URLS_DELETED) {
+  if (type != NotificationType::HISTORY_URLS_DELETED) {
     NOTREACHED();
     return;
   }
@@ -653,7 +655,7 @@ void HistoryService::BroadcastNotifications(
 void HistoryService::OnDBLoaded() {
   LOG(INFO) << "History backend finished loading";
   backend_loaded_ = true;
-  NotificationService::current()->Notify(NOTIFY_HISTORY_LOADED,
+  NotificationService::current()->Notify(NotificationType::HISTORY_LOADED,
                                          Source<Profile>(profile_),
                                          Details<HistoryService>(this));
 }

@@ -9,7 +9,7 @@
 #include <hash_map>
 
 #include "base/singleton.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/render_messages.h"
 
 class BrowserAccessibility;

@@ -290,7 +290,7 @@ bool ChromePluginLib::Load() {
 
 void ChromePluginLib::Unload() {
   NotificationService::current()->Notify(
-      NOTIFY_CHROME_PLUGIN_UNLOADED,
+      NotificationType::CHROME_PLUGIN_UNLOADED,
       Source<ChromePluginLib>(this),
       NotificationService::NoDetails());
 

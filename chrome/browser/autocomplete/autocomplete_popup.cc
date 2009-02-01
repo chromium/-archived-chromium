@@ -18,6 +18,7 @@
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 
@@ -662,11 +663,14 @@ AutocompletePopupModel::AutocompletePopupModel(
       hovered_line_(kNoMatch),
       selected_line_(kNoMatch),
       inside_synchronous_query_(false) {
-  registrar_.Add(this, NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
-                 Source<AutocompleteController>(controller_.get()));
-  registrar_.Add(this,
-                 NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
-                 Source<AutocompleteController>(controller_.get()));
+  registrar_.Add(
+      this,
+      NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
+      Source<AutocompleteController>(controller_.get()));
+  registrar_.Add(
+      this,
+      NotificationType::AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
+      Source<AutocompleteController>(controller_.get()));
 }
 
 AutocompletePopupModel::~AutocompletePopupModel() {
@@ -880,7 +884,7 @@ void AutocompletePopupModel::Move(int count) {
   // aren't out of sync.  The better fix here is to roll the controller back to
   // be in sync with what the popup is showing.
   if (is_open() && !controller_->done()) {
-    Observe(NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
+    Observe(NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
             Source<AutocompleteController>(controller_.get()),
             NotificationService::NoDetails());
   }
@@ -929,8 +933,8 @@ void AutocompletePopupModel::Observe(NotificationType type,
     return;
 
   const AutocompleteResult& result = controller_->result();
-  switch (type) {
-    case NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED: {
+  switch (type.value) {
+    case NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED: {
       selected_line_ = (result.default_match() == result.end()) ?
           kNoMatch : (result.default_match() - result.begin());
       // If we're going to trim the window size to no longer include the hovered
@@ -943,7 +947,7 @@ void AutocompletePopupModel::Observe(NotificationType type,
     }
     // FALL THROUGH
 
-    case NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE: {
+    case NotificationType::AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE: {
       // Update the edit with the possibly new data for this match.
       // NOTE: This must be done after the code above, so that our internal
       // state will be consistent when the edit calls back to

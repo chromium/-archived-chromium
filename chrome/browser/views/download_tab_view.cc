@@ -22,6 +22,7 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/time_format.h"
@@ -1241,9 +1242,9 @@ DownloadTabUI::DownloadTabUI(NativeUIContents* contents)
   download_tab_view_->Initialize();
 
   NotificationService* ns = NotificationService::current();
-  ns->AddObserver(this, NOTIFY_DOWNLOAD_START,
+  ns->AddObserver(this, NotificationType::DOWNLOAD_START,
                   NotificationService::AllSources());
-  ns->AddObserver(this, NOTIFY_DOWNLOAD_STOP,
+  ns->AddObserver(this, NotificationType::DOWNLOAD_STOP,
                   NotificationService::AllSources());
 
   // Spin the throbber if there are active downloads, since we may have been
@@ -1259,9 +1260,9 @@ DownloadTabUI::DownloadTabUI(NativeUIContents* contents)
 
 DownloadTabUI::~DownloadTabUI() {
   NotificationService* ns = NotificationService::current();
-  ns->RemoveObserver(this, NOTIFY_DOWNLOAD_START,
+  ns->RemoveObserver(this, NotificationType::DOWNLOAD_START,
                      NotificationService::AllSources());
-  ns->RemoveObserver(this, NOTIFY_DOWNLOAD_STOP,
+  ns->RemoveObserver(this, NotificationType::DOWNLOAD_STOP,
                      NotificationService::AllSources());
 }
 
@@ -1326,9 +1327,9 @@ void DownloadTabUI::DoSearch(const std::wstring& new_text) {
 void DownloadTabUI::Observe(NotificationType type,
                             const NotificationSource& source,
                             const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_DOWNLOAD_START:
-    case NOTIFY_DOWNLOAD_STOP:
+  switch (type.value) {
+    case NotificationType::DOWNLOAD_START:
+    case NotificationType::DOWNLOAD_STOP:
       DCHECK(profile()->HasCreatedDownloadManager());
       contents_->SetIsLoading(
           profile()->GetDownloadManager()->in_progress_count() > 0,

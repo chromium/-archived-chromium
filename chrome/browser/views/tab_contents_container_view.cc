@@ -13,6 +13,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/view_ids.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/widget.h"
 
@@ -186,12 +187,12 @@ bool TabContentsContainerView::ShouldLookupAccelerators(
 void TabContentsContainerView::Observe(NotificationType type,
                                        const NotificationSource& source,
                                        const NotificationDetails& details) {
-  if (type == NOTIFY_RENDER_VIEW_HOST_CHANGED) {
+  if (type == NotificationType::RENDER_VIEW_HOST_CHANGED) {
     RenderViewHostSwitchedDetails* switched_details =
         Details<RenderViewHostSwitchedDetails>(details).ptr();
     RenderViewHostChanged(switched_details->old_host,
                           switched_details->new_host);
-  } else if (type == NOTIFY_TAB_CONTENTS_DESTROYED) {
+  } else if (type == NotificationType::TAB_CONTENTS_DESTROYED) {
     TabContentsDestroyed(Source<TabContents>(source).ptr());
   } else {
     NOTREACHED();
@@ -205,11 +206,12 @@ void TabContentsContainerView::AddObservers() {
     // shown and getting focused.  We need to keep track of that so we install
     // the focus subclass on the shown HWND so we intercept focus change events.
     NotificationService::current()->AddObserver(
-        this, NOTIFY_RENDER_VIEW_HOST_CHANGED,
+        this, NotificationType::RENDER_VIEW_HOST_CHANGED,
         Source<NavigationController>(tab_contents_->controller()));
   }
   NotificationService::current()->AddObserver(
-      this, NOTIFY_TAB_CONTENTS_DESTROYED,
+      this,
+      NotificationType::TAB_CONTENTS_DESTROYED,
       Source<TabContents>(tab_contents_));
 }
 
@@ -217,11 +219,13 @@ void TabContentsContainerView::RemoveObservers() {
   DCHECK(tab_contents_);
   if (tab_contents_->AsWebContents()) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_RENDER_VIEW_HOST_CHANGED,
+        this,
+        NotificationType::RENDER_VIEW_HOST_CHANGED,
         Source<NavigationController>(tab_contents_->controller()));
   }
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_TAB_CONTENTS_DESTROYED,
+      this,
+      NotificationType::TAB_CONTENTS_DESTROYED,
       Source<TabContents>(tab_contents_));
 }
 

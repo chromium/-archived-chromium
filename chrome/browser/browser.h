@@ -19,7 +19,7 @@
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/pref_member.h"
 #include "base/gfx/rect.h"
 #include "skia/include/SkBitmap.h"

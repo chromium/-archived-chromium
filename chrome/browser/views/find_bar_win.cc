@@ -13,6 +13,7 @@
 #include "chrome/browser/views/find_bar_view.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
@@ -439,7 +440,7 @@ void FindBarWin::OnFindReply(int request_id,
                                  active_match_ordinal,
                                  final_update);
   NotificationService::current()->Notify(
-      NOTIFY_FIND_RESULT_AVAILABLE,
+      NotificationType::FIND_RESULT_AVAILABLE,
       Source<TabContents>(parent_tab_->GetWebContents()),
       Details<FindNotificationDetails>(&detail));
 }

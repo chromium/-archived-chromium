@@ -15,7 +15,7 @@
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/text_database_manager.h"
 #include "chrome/browser/history/thumbnail_database.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_type.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -202,7 +202,7 @@ void ExpireHistoryBackend::BroadcastDeleteNotifications(
       if (dependencies->deleted_urls[i].typed_count() > 0)
         typed_urls_changed.push_back(dependencies->deleted_urls[i]);
     }
-    delegate_->BroadcastNotifications(NOTIFY_HISTORY_URLS_DELETED,
+    delegate_->BroadcastNotifications(NotificationType::HISTORY_URLS_DELETED,
                                       deleted_details);
 
     // Broadcast the typed URL changed modification (this updates the inline
@@ -215,8 +215,9 @@ void ExpireHistoryBackend::BroadcastDeleteNotifications(
     if (!typed_urls_changed.empty()) {
       URLsModifiedDetails* modified_details = new URLsModifiedDetails;
       modified_details->changed_urls.swap(typed_urls_changed);
-      delegate_->BroadcastNotifications(NOTIFY_HISTORY_TYPED_URLS_MODIFIED,
-                                        modified_details);
+      delegate_->BroadcastNotifications(
+          NotificationType::HISTORY_TYPED_URLS_MODIFIED,
+          modified_details);
     }
   }
 }

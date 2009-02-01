@@ -8,6 +8,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 
 #include "generated_resources.h"
@@ -20,24 +21,24 @@ AlternateNavURLFetcher::AlternateNavURLFetcher(
       state_(NOT_STARTED),
       navigated_to_entry_(false),
       infobar_contents_(NULL) {
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_PENDING,
+  registrar_.Add(this, NotificationType::NAV_ENTRY_PENDING,
                  NotificationService::AllSources());
 }
 
 void AlternateNavURLFetcher::Observe(NotificationType type,
                                      const NotificationSource& source,
                                      const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_NAV_ENTRY_PENDING:
+  switch (type.value) {
+    case NotificationType::NAV_ENTRY_PENDING:
       controller_ = Source<NavigationController>(source).ptr();
       DCHECK(controller_->GetPendingEntry());
 
       // Unregister for this notification now that we're pending, and start
       // listening for the corresponding commit. We also need to listen for the
       // tab close command since that means the load will never commit!
-      registrar_.Remove(this, NOTIFY_NAV_ENTRY_PENDING,
+      registrar_.Remove(this, NotificationType::NAV_ENTRY_PENDING,
                         NotificationService::AllSources());
-      registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+      registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                      Source<NavigationController>(controller_));
 
       DCHECK_EQ(NOT_STARTED, state_);
@@ -48,9 +49,9 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
       fetcher_->Start();
       break;
 
-    case NOTIFY_NAV_ENTRY_COMMITTED:
+    case NotificationType::NAV_ENTRY_COMMITTED:
       // The page was navigated, we can show the infobar now if necessary.
-      registrar_.Remove(this, NOTIFY_NAV_ENTRY_COMMITTED,
+      registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
                         Source<NavigationController>(controller_));
       navigated_to_entry_ = true;
       ShowInfobarIfPossible();

@@ -7,6 +7,7 @@
 #include "chrome/browser/browser_accessibility.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/common/notification_service.h"
 
 // The time in ms after which we give up and return an error when processing an
 // accessibility message and no response has been received from the renderer.
@@ -20,7 +21,8 @@ BrowserAccessibilityManager* BrowserAccessibilityManager::GetInstance() {
 BrowserAccessibilityManager::BrowserAccessibilityManager()
     : instance_id_(0) {
   NotificationService::current()->AddObserver(this,
-      NOTIFY_RENDERER_PROCESS_TERMINATED, NotificationService::AllSources());
+      NotificationType::RENDERER_PROCESS_TERMINATED,
+      NotificationService::AllSources());
 }
 
 BrowserAccessibilityManager::~BrowserAccessibilityManager() {
@@ -148,7 +150,7 @@ int BrowserAccessibilityManager::SetMembers(BrowserAccessibility* browser_acc,
 void BrowserAccessibilityManager::Observe(NotificationType type,
                                           const NotificationSource& source,
                                           const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_RENDERER_PROCESS_TERMINATED);
+  DCHECK(type ==NotificationType::RENDERER_PROCESS_TERMINATED);
   RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
   DCHECK(rph);
   RenderProcessHostMap::iterator it = render_process_host_map_.find(rph);

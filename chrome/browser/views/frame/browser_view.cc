@@ -663,7 +663,7 @@ LocationBarView* BrowserView::GetLocationBarView() const {
 void BrowserView::Observe(NotificationType type,
                           const NotificationSource& source,
                           const NotificationDetails& details) {
-  if (type == NOTIFY_PREF_CHANGED &&
+  if (type == NotificationType::PREF_CHANGED &&
       *Details<std::wstring>(details).ptr() == prefs::kShowBookmarkBar) {
     if (MaybeShowBookmarkBar(browser_->GetSelectedTabContents()))
       Layout();
@@ -874,7 +874,8 @@ bool BrowserView::CanClose() const {
 
   // Empty TabStripModel, it's now safe to allow the Window to be closed.
   NotificationService::current()->Notify(
-      NOTIFY_WINDOW_CLOSED, Source<HWND>(frame_->GetWindow()->GetHWND()),
+      NotificationType::WINDOW_CLOSED,
+      Source<HWND>(frame_->GetWindow()->GetHWND()),
       NotificationService::NoDetails());
   return true;
 }

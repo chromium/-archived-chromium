@@ -24,7 +24,7 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/event.h"
 
 class LoginHandler;
@@ -443,4 +443,5 @@ class TestingAutomationProvider : public AutomationProvider,
 
   void OnRemoveProvider();  // Called via PostTask
 };
+
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_

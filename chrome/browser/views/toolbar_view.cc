@@ -787,7 +787,7 @@ void BrowserToolbarView::ButtonPressed(views::BaseButton* sender) {
 void BrowserToolbarView::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {
-  if (type == NOTIFY_PREF_CHANGED) {
+  if (type == NotificationType::PREF_CHANGED) {
     std::wstring* pref_name = Details<std::wstring>(details).ptr();
     if (*pref_name == prefs::kShowHomeButton) {
       Layout();

@@ -16,7 +16,7 @@
 #include "chrome/browser/net/referrer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/session_startup_pref.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -293,16 +293,16 @@ class OffTheRecordObserver : public NotificationObserver {
   void Register() {
     NotificationService* service = NotificationService::current();
     // TODO(tc): These notification observers are never removed.
-    service->AddObserver(this, NOTIFY_BROWSER_CLOSED,
+    service->AddObserver(this, NotificationType::BROWSER_CLOSED,
                          NotificationService::AllSources());
-    service->AddObserver(this, NOTIFY_BROWSER_OPENED,
+    service->AddObserver(this, NotificationType::BROWSER_OPENED,
                          NotificationService::AllSources());
   }
 
   void Observe(NotificationType type, const NotificationSource& source,
                const NotificationDetails& details) {
-    switch (type) {
-      case NOTIFY_BROWSER_OPENED:
+    switch (type.value) {
+      case NotificationType::BROWSER_OPENED:
         if (!Source<Browser>(source)->profile()->IsOffTheRecord())
           break;
         {
@@ -312,7 +312,7 @@ class OffTheRecordObserver : public NotificationObserver {
         OnTheRecord(false);
         break;
 
-      case NOTIFY_BROWSER_CLOSED:
+      case NotificationType::BROWSER_CLOSED:
         if (!Source<Browser>(source)->profile()->IsOffTheRecord())
           break;  // Ignore ordinary windows.
         {

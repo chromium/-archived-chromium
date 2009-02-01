@@ -21,11 +21,11 @@ class NavigationNotificationObserver : public NotificationObserver {
  public:
   explicit NavigationNotificationObserver(NavigationController* controller)
       : navigation_started_(false) {
-    registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+    registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                    Source<NavigationController>(controller));
-    registrar_.Add(this, NOTIFY_LOAD_START,
+    registrar_.Add(this, NotificationType::LOAD_START,
                    Source<NavigationController>(controller));
-    registrar_.Add(this, NOTIFY_LOAD_STOP,
+    registrar_.Add(this, NotificationType::LOAD_STOP,
                    Source<NavigationController>(controller));
     RunMessageLoop();
   }
@@ -33,9 +33,10 @@ class NavigationNotificationObserver : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type == NOTIFY_NAV_ENTRY_COMMITTED || type == NOTIFY_LOAD_START) {
+    if (type == NotificationType::NAV_ENTRY_COMMITTED ||
+        type == NotificationType::LOAD_START) {
       navigation_started_ = true;
-    } else if (type == NOTIFY_LOAD_STOP) {
+    } else if (type == NotificationType::LOAD_STOP) {
       if (navigation_started_) {
         navigation_started_ = false;
         MessageLoopForUI::current()->Quit();

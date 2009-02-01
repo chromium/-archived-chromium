@@ -107,7 +107,7 @@ void InProcessBrowserTest::TearDown() {
 void InProcessBrowserTest::Observe(NotificationType type,
                                    const NotificationSource& source,
                                    const NotificationDetails& details) {
-  if (type == NOTIFY_BROWSER_CLOSED) {
+  if (type == NotificationType::BROWSER_CLOSED) {
     DCHECK(Source<Browser>(source).ptr() == browser_);
     browser_ = NULL;
   } else {
@@ -161,7 +161,9 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 
   browser_ = CreateBrowser(profile);
 
-  registrar_.Add(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(browser_));
+  registrar_.Add(this,
+                 NotificationType::BROWSER_CLOSED,
+                 Source<Browser>(browser_));
 
   RunTestOnMainThread();
 

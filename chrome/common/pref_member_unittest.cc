@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -29,7 +30,7 @@ class PrefMemberTestClass : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK(NOTIFY_PREF_CHANGED == type);
+    DCHECK(NotificationType::PREF_CHANGED == type);
     PrefService* prefs_in = Source<PrefService>(source).ptr();
     EXPECT_EQ(prefs_in, prefs_);
     std::wstring* pref_name_in = Details<std::wstring>(details).ptr();

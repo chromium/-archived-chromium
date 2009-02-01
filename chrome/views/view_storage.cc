@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
 
 namespace views {
@@ -52,14 +52,13 @@ void ViewStorage::DeleteSharedInstance() {
 }
 
 ViewStorage::ViewStorage() : view_storage_next_id_(0) {
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::VIEW_REMOVED, NotificationService::AllSources());
 }
 
 ViewStorage::~ViewStorage() {
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_VIEW_REMOVED,
-                     NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+    this, NotificationType::VIEW_REMOVED, NotificationService::AllSources());
 
   STLDeleteContainerPairSecondPointers(id_to_view_location_.begin(),
                                        id_to_view_location_.end());
@@ -187,7 +186,7 @@ void ViewStorage::EraseView(int storage_id, bool remove_all_ids) {
 void ViewStorage::Observe(NotificationType type,
                           const NotificationSource& source,
                           const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_VIEW_REMOVED);
+  DCHECK(type == NotificationType::VIEW_REMOVED);
 
   // Let's first retrieve the ids for that view.
   std::map<View*, std::vector<int>*>::iterator ids_iter =

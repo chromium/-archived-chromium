@@ -37,6 +37,7 @@
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
@@ -206,14 +207,14 @@ WebContents::WebContents(Profile* profile,
   }
 
   // Register for notifications about URL starredness changing on any profile.
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_URLS_STARRED, NotificationService::AllSources());
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_BOOKMARK_MODEL_LOADED,
-                  NotificationService::AllSources());
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
-                  NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::URLS_STARRED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::BOOKMARK_MODEL_LOADED,
+      NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
+      NotificationService::AllSources());
 }
 
 WebContents::~WebContents() {
@@ -221,9 +222,9 @@ WebContents::~WebContents() {
     web_app_->RemoveObserver(this);
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
-                     NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
+      NotificationService::AllSources());
 }
 
 // static
@@ -300,12 +301,11 @@ PluginInstaller* WebContents::GetPluginInstaller() {
 
 void WebContents::Destroy() {
   // Tell the notification service we no longer want notifications.
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_URLS_STARRED,
-                     NotificationService::AllSources());
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_BOOKMARK_MODEL_LOADED,
-                     NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::URLS_STARRED, NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::BOOKMARK_MODEL_LOADED,
+      NotificationService::AllSources());
 
   // Destroy the print manager right now since a Print command may be pending.
   printing_.Destroy();
@@ -829,10 +829,10 @@ void WebContents::DidStartProvisionalLoadForFrame(
   ProvisionalLoadDetails details(is_main_frame,
                                  controller()->IsURLInPageNavigation(url),
                                  url, std::string(), false);
-  NotificationService::current()->
-      Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_START,
-             Source<NavigationController>(controller()),
-             Details<ProvisionalLoadDetails>(&details));
+  NotificationService::current()->Notify(
+      NotificationType::FRAME_PROVISIONAL_LOAD_START,
+      Source<NavigationController>(controller()),
+      Details<ProvisionalLoadDetails>(&details));
 }
 
 void WebContents::DidRedirectProvisionalLoad(int32 page_id,
@@ -863,10 +863,10 @@ void WebContents::DidLoadResourceFromMemoryCache(
                                       &security_bits);
   LoadFromMemoryCacheDetails details(url, cert_id, cert_status);
 
-  NotificationService::current()->
-      Notify(NOTIFY_LOAD_FROM_MEMORY_CACHE,
-             Source<NavigationController>(controller()),
-             Details<LoadFromMemoryCacheDetails>(&details));
+  NotificationService::current()->Notify(
+      NotificationType::LOAD_FROM_MEMORY_CACHE,
+      Source<NavigationController>(controller()),
+      Details<LoadFromMemoryCacheDetails>(&details));
 }
 
 void WebContents::DidFailProvisionalLoadWithError(
@@ -918,10 +918,10 @@ void WebContents::DidFailProvisionalLoadWithError(
                                  url, std::string(), false);
   details.set_error_code(error_code);
 
-  NotificationService::current()->
-      Notify(NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
-             Source<NavigationController>(controller()),
-             Details<ProvisionalLoadDetails>(&details));
+  NotificationService::current()->Notify(
+      NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
+      Source<NavigationController>(controller()),
+      Details<ProvisionalLoadDetails>(&details));
 }
 
 void WebContents::UpdateFavIconURL(RenderViewHost* render_view_host,
@@ -957,7 +957,7 @@ void WebContents::DomOperationResponse(const std::string& json_string,
                                        int automation_id) {
   DomOperationNotificationDetails details(json_string, automation_id);
   NotificationService::current()->Notify(
-      NOTIFY_DOM_OPERATION_RESPONSE, Source<WebContents>(this),
+      NotificationType::DOM_OPERATION_RESPONSE, Source<WebContents>(this),
       Details<DomOperationNotificationDetails>(&details));
 }
 
@@ -1138,9 +1138,9 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
 void WebContents::InspectElementReply(int num_resources) {
   // We have received reply from inspect element request. Notify the
   // automation provider in case we need to notify automation client.
-  NotificationService::current()->
-      Notify(NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE, Source<WebContents>(this),
-             Details<int>(&num_resources));
+  NotificationService::current()->Notify(
+      NotificationType::DOM_INSPECT_ELEMENT_RESPONSE, Source<WebContents>(this),
+      Details<int>(&num_resources));
 }
 
 void WebContents::DidGetPrintedPagesCount(int cookie, int number_pages) {
@@ -1385,10 +1385,11 @@ bool WebContents::CreateRenderViewForRenderManager(
 void WebContents::Observe(NotificationType type,
                           const NotificationSource& source,
                           const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_BOOKMARK_MODEL_LOADED:  // BookmarkModel finished loading, fall
-                                        // through to update starred state.
-    case NOTIFY_URLS_STARRED: {  // Somewhere, a URL has been starred.
+  switch (type.value) {
+    case NotificationType::BOOKMARK_MODEL_LOADED:
+      // BookmarkModel finished loading, fall through to update starred state.
+    case NotificationType::URLS_STARRED: {
+      // Somewhere, a URL has been starred.
       // Ignore notifications for profiles other than our current one.
       Profile* source_profile = Source<Profile>(source).ptr();
       if (!source_profile->IsSameProfile(profile()))
@@ -1397,7 +1398,7 @@ void WebContents::Observe(NotificationType type,
       UpdateStarredStateForCurrentURL();
       break;
     }
-    case NOTIFY_PREF_CHANGED: {
+    case NotificationType::PREF_CHANGED: {
       std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
       DCHECK(Source<PrefService>(source).ptr() == profile()->GetPrefs());
       if (*pref_name_in == prefs::kAlternateErrorPagesEnabled) {
@@ -1411,7 +1412,7 @@ void WebContents::Observe(NotificationType type,
       }
       break;
     }
-    case NOTIFY_RENDER_WIDGET_HOST_DESTROYED:
+    case NotificationType::RENDER_WIDGET_HOST_DESTROYED:
       view_->RenderWidgetHostDestroyed(Source<RenderWidgetHost>(source).ptr());
       break;
     default: {
@@ -1679,18 +1680,18 @@ void WebContents::NotifySwapped() {
   // notification so that clients that pick up a pointer to |this| can NULL the
   // pointer.  See Bug 1230284.
   notify_disconnection_ = true;
-  NotificationService::current()->
-      Notify(NOTIFY_WEB_CONTENTS_SWAPPED,
-             Source<WebContents>(this),
-             NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::WEB_CONTENTS_SWAPPED,
+      Source<WebContents>(this),
+      NotificationService::NoDetails());
 }
 
 void WebContents::NotifyConnected() {
   notify_disconnection_ = true;
-  NotificationService::current()->
-      Notify(NOTIFY_WEB_CONTENTS_CONNECTED,
-             Source<WebContents>(this),
-             NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::WEB_CONTENTS_CONNECTED,
+      Source<WebContents>(this),
+      NotificationService::NoDetails());
 }
 
 void WebContents::NotifyDisconnected() {
@@ -1698,10 +1699,10 @@ void WebContents::NotifyDisconnected() {
     return;
 
   notify_disconnection_ = false;
-  NotificationService::current()->
-      Notify(NOTIFY_WEB_CONTENTS_DISCONNECTED,
-             Source<WebContents>(this),
-             NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      Source<WebContents>(this),
+      NotificationService::NoDetails());
 }
 
 void WebContents::GenerateKeywordIfNecessary(

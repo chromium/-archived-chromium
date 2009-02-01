@@ -17,6 +17,7 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
@@ -92,10 +93,10 @@ TemplateURLModel::~TemplateURLModel() {
 
   NotificationService* ns = NotificationService::current();
   if (profile_) {
-    ns->RemoveObserver(this, NOTIFY_HISTORY_URL_VISITED,
+    ns->RemoveObserver(this, NotificationType::HISTORY_URL_VISITED,
                        Source<Profile>(profile_->GetOriginalProfile()));
   }
-  ns->RemoveObserver(this, NOTIFY_GOOGLE_URL_UPDATED,
+  ns->RemoveObserver(this, NotificationType::GOOGLE_URL_UPDATED,
                      NotificationService::AllSources());
 }
 
@@ -108,10 +109,10 @@ void TemplateURLModel::Init(const Initializer* initializers,
     // db, which will mean we no longer need this notification and the history
     // backend can handle automatically adding the search terms as the user
     // navigates.
-    ns->AddObserver(this, NOTIFY_HISTORY_URL_VISITED,
+    ns->AddObserver(this, NotificationType::HISTORY_URL_VISITED,
                     Source<Profile>(profile_->GetOriginalProfile()));
   }
-  ns->AddObserver(this, NOTIFY_GOOGLE_URL_UPDATED,
+  ns->AddObserver(this, NotificationType::GOOGLE_URL_UPDATED,
                   NotificationService::AllSources());
 
   // Add specific initializers, if any.
@@ -686,14 +687,14 @@ void TemplateURLModel::RemoveDuplicatePrepopulateIDs(
 void TemplateURLModel::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  if (type == NOTIFY_HISTORY_URL_VISITED) {
+  if (type == NotificationType::HISTORY_URL_VISITED) {
     Details<history::URLVisitedDetails> visit_details(details);
 
     if (!loaded())
       visits_to_add_.push_back(visit_details->row);
     else
       UpdateKeywordSearchTermsForURL(visit_details->row);
-  } else if (type == NOTIFY_GOOGLE_URL_UPDATED) {
+  } else if (type == NotificationType::GOOGLE_URL_UPDATED) {
     if (loaded_)
       GoogleBaseURLChanged();
   } else {
@@ -716,9 +717,10 @@ void TemplateURLModel::DeleteGeneratedKeywordsMatchingHost(
 }
 
 void TemplateURLModel::NotifyLoaded() {
-  NotificationService::current()->
-      Notify(TEMPLATE_URL_MODEL_LOADED, Source<TemplateURLModel>(this),
-             NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::TEMPLATE_URL_MODEL_LOADED,
+      Source<TemplateURLModel>(this),
+      NotificationService::NoDetails());
 }
 
 void TemplateURLModel::MergeEnginesFromPrepopulateData() {

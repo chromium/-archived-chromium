@@ -13,6 +13,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/native_scroll_bar.h"
@@ -98,9 +99,10 @@ void TabContents::Destroy() {
   infobar_delegates_.clear();
 
   // Notify any observer that have a reference on this tab contents.
-  NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_DESTROYED,
-                                         Source<TabContents>(this),
-                                         NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
 
   // If we still have a window handle, destroy it. GetContainerHWND can return
   // NULL if this contents was part of a window that closed.
@@ -246,9 +248,10 @@ void TabContents::DidBecomeSelected() {
 }
 
 void TabContents::WasHidden() {
-  NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_HIDDEN,
-                                         Source<TabContents>(this),
-                                         NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_HIDDEN,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
 }
 
 void TabContents::Activate() {
@@ -413,16 +416,17 @@ void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
   }
 
   infobar_delegates_.push_back(delegate);
-  NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_INFOBAR_ADDED,
-                                         Source<TabContents>(this),
-                                         Details<InfoBarDelegate>(delegate));
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
+      Source<TabContents>(this),
+      Details<InfoBarDelegate>(delegate));
 
   // Add ourselves as an observer for navigations the first time a delegate is
   // added. We use this notification to expire InfoBars that need to expire on
   // page transitions.
   if (infobar_delegates_.size() == 1) {
     DCHECK(controller());
-    registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+    registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                    Source<NavigationController>(controller()));
   }
 }
@@ -432,14 +436,15 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
       find(infobar_delegates_.begin(), infobar_delegates_.end(), delegate);
   if (it != infobar_delegates_.end()) {
     InfoBarDelegate* delegate = *it;
-    NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED,
-                                           Source<TabContents>(this),
-                                           Details<InfoBarDelegate>(delegate));
+    NotificationService::current()->Notify(
+        NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
+        Source<TabContents>(this),
+        Details<InfoBarDelegate>(delegate));
     infobar_delegates_.erase(it);
 
     // Remove ourselves as an observer if we are tracking no more InfoBars.
     if (infobar_delegates_.empty()) {
-      registrar_.Remove(this, NOTIFY_NAV_ENTRY_COMMITTED,
+      registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
                         Source<NavigationController>(controller()));
     }
   }
@@ -529,7 +534,7 @@ void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
 void TabContents::Observe(NotificationType type,
                           const NotificationSource& source,
                           const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_NAV_ENTRY_COMMITTED);
+  DCHECK(type == NotificationType::NAV_ENTRY_COMMITTED);
   DCHECK(controller() == Source<NavigationController>(source).ptr());
 
   NavigationController::LoadCommittedDetails& committed_details =
@@ -560,11 +565,14 @@ void TabContents::SetIsLoading(bool is_loading,
   if (delegate_)
     delegate_->LoadingStateChanged(this);
 
-  NotificationService::current()->
-      Notify((is_loading ? NOTIFY_LOAD_START : NOTIFY_LOAD_STOP),
-              Source<NavigationController>(this->controller()),
-              details ? Details<LoadNotificationDetails>(details) :
-                        NotificationService::NoDetails());
+  NotificationType type = is_loading ? NotificationType::LOAD_START :
+      NotificationType::LOAD_STOP;
+  NotificationDetails det = details ?
+      Details<LoadNotificationDetails>(details) :
+      NotificationService::NoDetails();
+  NotificationService::current()->Notify(type, 
+      Source<NavigationController>(this->controller()),
+      det);
 }
 
 // TODO(brettw) This should be on the WebContentsView.

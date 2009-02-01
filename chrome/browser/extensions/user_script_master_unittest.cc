@@ -32,14 +32,16 @@ class UserScriptMasterTest : public testing::Test,
     file_util::CreateDirectory(script_dir_);
 
     // Register for all user script notifications.
-    NotificationService::current()->AddObserver(this,
-        NOTIFY_USER_SCRIPTS_LOADED,
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::USER_SCRIPTS_LOADED,
         NotificationService::AllSources());
   }
 
   virtual void TearDown() {
-    NotificationService::current()->RemoveObserver(this,
-        NOTIFY_USER_SCRIPTS_LOADED,
+    NotificationService::current()->RemoveObserver(
+        this,
+        NotificationType::USER_SCRIPTS_LOADED,
         NotificationService::AllSources());
 
     // Clean up test directory.
@@ -50,7 +52,7 @@ class UserScriptMasterTest : public testing::Test,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK(type == NOTIFY_USER_SCRIPTS_LOADED);
+    DCHECK(type == NotificationType::USER_SCRIPTS_LOADED);
 
     shared_memory_ = Details<base::SharedMemory>(details).ptr();
     if (MessageLoop::current() == &message_loop_)

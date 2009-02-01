@@ -25,7 +25,8 @@
 
 #include <string>
 
-#include "chrome/common/notification_service.h"
+#include "base/basictypes.h"
+#include "chrome/common/notification_observer.h"
 
 class PrefService;
 

@@ -11,6 +11,8 @@
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/views/decision.h"
 
+class DictionaryValue;
+
 // This class is responsible for showing/hiding the interstitial page that is
 // shown when a certificate error happens.
 // It deletes itself when the interstitial page is closed.

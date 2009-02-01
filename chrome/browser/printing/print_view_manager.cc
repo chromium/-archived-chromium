@@ -14,6 +14,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 
 #include "generated_resources.h"
 
@@ -183,8 +184,8 @@ GURL PrintViewManager::RenderSourceUrl() {
 void PrintViewManager::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_PRINT_JOB_EVENT: {
+  switch (type.value) {
+    case NotificationType::PRINT_JOB_EVENT: {
       OnNotifyPrintJobEvent(*Details<JobEventDetails>(details).ptr());
       break;
     }
@@ -398,10 +399,10 @@ bool PrintViewManager::CreateNewPrintJob(PrintJobWorkerOwner* job) {
   } else {
     print_job_ = new PrintJob(this);
   }
-  NotificationService::current()->
-      AddObserver(this,
-                  NOTIFY_PRINT_JOB_EVENT,
-                  Source<PrintJob>(print_job_.get()));
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::PRINT_JOB_EVENT,
+      Source<PrintJob>(print_job_.get()));
   return true;
 }
 
@@ -453,7 +454,7 @@ void PrintViewManager::ReleasePrintJob() {
     return;
   NotificationService::current()->RemoveObserver(
       this,
-      NOTIFY_PRINT_JOB_EVENT,
+      NotificationType::PRINT_JOB_EVENT,
       Source<PrintJob>(print_job_.get()));
 
   print_job_->DisconnectSource();

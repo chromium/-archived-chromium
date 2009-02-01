@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/json_writer.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"

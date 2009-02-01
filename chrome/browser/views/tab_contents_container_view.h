@@ -12,7 +12,7 @@ class View;
 class RenderViewHost;
 class TabContents;
 
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
 

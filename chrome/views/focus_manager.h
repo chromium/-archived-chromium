@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_FOCUS_MANAGER_H__
-#define CHROME_VIEWS_FOCUS_MANAGER_H__
+#ifndef CHROME_VIEWS_FOCUS_MANAGER_H_
+#define CHROME_VIEWS_FOCUS_MANAGER_H_
 
 #include "base/basictypes.h"
 
@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/accelerator.h"
 
 // The FocusManager class is used to handle focus traversal, store/restore
@@ -340,10 +340,9 @@ class FocusManager : public NotificationObserver {
   typedef std::vector<FocusChangeListener*> FocusChangeListenerList;
   FocusChangeListenerList focus_change_listeners_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FocusManager);
+  DISALLOW_COPY_AND_ASSIGN(FocusManager);
 };
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_FOCUS_MANAGER_H__
-
+#endif  // CHROME_VIEWS_FOCUS_MANAGER_H_

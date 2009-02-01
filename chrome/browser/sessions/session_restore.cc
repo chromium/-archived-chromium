@@ -134,7 +134,8 @@ void TabLoader::LoadTabs() {
 void TabLoader::Observe(NotificationType type,
                         const NotificationSource& source,
                         const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_TAB_CLOSED || type == NOTIFY_LOAD_STOP);
+  DCHECK(type == NotificationType::TAB_CLOSED ||
+         type == NotificationType::LOAD_STOP);
   NavigationController* tab = Source<NavigationController>(source).ptr();
   RemoveTab(tab);
   if (loading_) {
@@ -158,19 +159,19 @@ void TabLoader::RemoveTab(NavigationController* tab) {
 
 void TabLoader::AddListeners(NavigationController* controller) {
   NotificationService::current()->AddObserver(
-      this, NOTIFY_TAB_CLOSED,
+      this, NotificationType::TAB_CLOSED,
       Source<NavigationController>(controller));
   NotificationService::current()->AddObserver(
-      this, NOTIFY_LOAD_STOP,
+      this, NotificationType::LOAD_STOP,
       Source<NavigationController>(controller));
 }
 
 void TabLoader::RemoveListeners(NavigationController* controller) {
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_TAB_CLOSED,
+      this, NotificationType::TAB_CLOSED,
       Source<NavigationController>(controller));
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_LOAD_STOP,
+      this, NotificationType::LOAD_STOP,
       Source<NavigationController>(controller));
 }
 
@@ -208,8 +209,10 @@ class SessionRestoreImpl : public NotificationObserver {
       return;
     }
 
-    if (browser_)
-      registrar_.Add(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(browser_));
+    if (browser_) {
+      registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                     Source<Browser>(browser_));
+    }
   }
 
   ~SessionRestoreImpl() {
@@ -218,7 +221,7 @@ class SessionRestoreImpl : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type != NOTIFY_BROWSER_CLOSED) {
+    if (type != NotificationType::BROWSER_CLOSED) {
       NOTREACHED();
       return;
     }

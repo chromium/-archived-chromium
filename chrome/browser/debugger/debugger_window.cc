@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/debugger/debugger_window.h"
+
 #include "base/string_util.h"
+#include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/debugger_host_impl.h"
 #include "chrome/browser/debugger/debugger_view.h"
-#include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

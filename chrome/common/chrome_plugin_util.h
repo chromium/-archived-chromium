@@ -9,7 +9,7 @@
 #include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "chrome/common/chrome_plugin_api.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class ChromePluginLib;
 class MessageLoop;

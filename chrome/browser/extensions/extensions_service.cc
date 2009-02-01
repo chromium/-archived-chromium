@@ -93,7 +93,8 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
   user_script_master_->AddWatchedPath(install_directory_);
   user_script_master_->StartScan();
 
-  NotificationService::current()->Notify(NOTIFY_EXTENSIONS_LOADED,
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSIONS_LOADED,
       NotificationService::AllSources(),
       Details<ExtensionList>(new_extensions));
 
@@ -124,7 +125,8 @@ void ExtensionsService::OnExtensionInstallError(const std::string& error) {
 }
 
 void ExtensionsService::OnExtensionInstalled(FilePath path) {
-  NotificationService::current()->Notify(NOTIFY_EXTENSION_INSTALLED,
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSION_INSTALLED,
       NotificationService::AllSources(),
       Details<FilePath>(&path));
 

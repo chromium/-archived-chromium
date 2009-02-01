@@ -13,6 +13,7 @@
 #include "base/message_loop.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/notification_service.h"
 #if defined(OS_WIN)
 #include "chrome/views/root_view_drop_target.h"
 #endif
@@ -252,9 +253,10 @@ void RootView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
     if (default_keyboard_hander_ == child) {
       default_keyboard_hander_ = NULL;
     }
-    NotificationService::current()->
-        Notify(NOTIFY_VIEW_REMOVED,
-               Source<View>(child), Details<View>(parent));
+    NotificationService::current()->Notify(
+        NotificationType::VIEW_REMOVED,
+        Source<View>(child),
+        Details<View>(parent));
   }
 }
 

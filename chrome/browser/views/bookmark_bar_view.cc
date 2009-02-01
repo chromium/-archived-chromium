@@ -30,7 +30,6 @@
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/notification_types.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
@@ -667,7 +666,8 @@ void BookmarkBarView::ToggleWhenVisible(Profile* profile) {
   // And notify the notification service.
   Source<Profile> source(profile);
   NotificationService::current()->Notify(
-      NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED, source,
+      NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+      source,
       NotificationService::NoDetails());
 }
 
@@ -736,9 +736,9 @@ void BookmarkBarView::SetProfile(Profile* profile) {
 
   NotificationService* ns = NotificationService::current();
   Source<Profile> ns_source(profile_->GetOriginalProfile());
-  ns->AddObserver(this, NOTIFY_BOOKMARK_BUBBLE_SHOWN, ns_source);
-  ns->AddObserver(this, NOTIFY_BOOKMARK_BUBBLE_HIDDEN, ns_source);
-  ns->AddObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+  ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_SHOWN, ns_source);
+  ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
+  ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                   NotificationService::AllSources());
 
   model_ = profile_->GetBookmarkModel();
@@ -1525,8 +1525,8 @@ void BookmarkBarView::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
   DCHECK(profile_);
-  switch (type) {
-    case NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED:
+  switch (type.value) {
+    case NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED:
       if (IsAlwaysShown()) {
         size_animation_->Show();
       } else {
@@ -1534,13 +1534,13 @@ void BookmarkBarView::Observe(NotificationType type,
       }
       break;
 
-    case NOTIFY_BOOKMARK_BUBBLE_SHOWN:
+    case NotificationType::BOOKMARK_BUBBLE_SHOWN:
       StopThrobbing(true);
       bubble_url_ = *(Details<GURL>(details).ptr());
       StartThrobbing();
       break;
 
-    case NOTIFY_BOOKMARK_BUBBLE_HIDDEN:
+    case NotificationType::BOOKMARK_BUBBLE_HIDDEN:
       StopThrobbing(false);
       bubble_url_ = GURL();
       break;
@@ -1550,9 +1550,10 @@ void BookmarkBarView::Observe(NotificationType type,
 void BookmarkBarView::RemoveNotificationObservers() {
   NotificationService* ns = NotificationService::current();
   Source<Profile> ns_source(profile_->GetOriginalProfile());
-  ns->RemoveObserver(this, NOTIFY_BOOKMARK_BUBBLE_SHOWN, ns_source);
-  ns->RemoveObserver(this, NOTIFY_BOOKMARK_BUBBLE_HIDDEN, ns_source);
-  ns->RemoveObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+  ns->RemoveObserver(this, NotificationType::BOOKMARK_BUBBLE_SHOWN, ns_source);
+  ns->RemoveObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
+  ns->RemoveObserver(this,
+                     NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                      NotificationService::AllSources());
 }
 

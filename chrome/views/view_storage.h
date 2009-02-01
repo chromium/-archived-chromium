@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_VIEW_STORAGE_H__
-#define CHROME_VIEWS_VIEW_STORAGE_H__
+#ifndef CHROME_VIEWS_VIEW_STORAGE_H_
+#define CHROME_VIEWS_VIEW_STORAGE_H_
 
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/view.h"
 
 // This class is a simple storage place for storing/retrieving views.  It is
@@ -72,10 +72,9 @@ class ViewStorage : public NotificationObserver {
   // The singleton instance.
   static ViewStorage* shared_instance_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ViewStorage);
+  DISALLOW_COPY_AND_ASSIGN(ViewStorage);
 };
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_VIEW_STORAGE_H__
-
+#endif  // #ifndef CHROME_VIEWS_VIEW_STORAGE_H_

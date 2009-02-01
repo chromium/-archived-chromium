@@ -6,6 +6,7 @@
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/widget.h"
 
@@ -33,7 +34,7 @@ void OptionsPageView::UserMetricsRecordAction(const wchar_t* action,
 void OptionsPageView::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
-  if (type == NOTIFY_PREF_CHANGED)
+  if (type == NotificationType::PREF_CHANGED)
     NotifyPrefChanged(Details<std::wstring>(details).ptr());
 }
 

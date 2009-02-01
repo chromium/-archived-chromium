@@ -21,7 +21,7 @@
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/ref_counted_util.h"
 
@@ -33,7 +33,6 @@ class HistoryURLProvider;
 struct HistoryURLProviderParams;
 class InMemoryURLDatabase;
 class MainPagesRequest;
-enum NotificationType;
 class PageUsageData;
 class PageUsageRequest;
 class Profile;

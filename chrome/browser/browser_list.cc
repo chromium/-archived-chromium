@@ -31,8 +31,9 @@ void BrowserList::AddBrowser(Browser* browser) {
   g_browser_process->AddRefModule();
 
   NotificationService::current()->Notify(
-    NOTIFY_BROWSER_OPENED,
-    Source<Browser>(browser), NotificationService::NoDetails());
+      NotificationType::BROWSER_OPENED,
+      Source<Browser>(browser),
+      NotificationService::NoDetails());
 
   // Send out notifications after add has occurred. Do some basic checking to
   // try to catch evil observers that change the list from under us.
@@ -49,7 +50,7 @@ void BrowserList::RemoveBrowser(Browser* browser) {
 
   bool close_app = (browsers_.size() == 1);
   NotificationService::current()->Notify(
-      NOTIFY_BROWSER_CLOSED,
+      NotificationType::BROWSER_CLOSED,
       Source<Browser>(browser), Details<bool>(&close_app));
 
   // Send out notifications before anything changes. Do some basic checking to
@@ -65,9 +66,10 @@ void BrowserList::RemoveBrowser(Browser* browser) {
   // If the last Browser object was destroyed, make sure we try to close any
   // remaining dependent windows too.
   if (browsers_.empty()) {
-    NotificationService::current()->Notify(NOTIFY_ALL_APPWINDOWS_CLOSED,
-                                           NotificationService::AllSources(),
-                                           NotificationService::NoDetails());
+    NotificationService::current()->Notify(
+        NotificationType::ALL_APPWINDOWS_CLOSED,
+        NotificationService::AllSources(),
+        NotificationService::NoDetails());
   }
 
   g_browser_process->ReleaseModule();
@@ -142,9 +144,10 @@ void BrowserList::WindowsSessionEnding() {
 
   // Send out notification. This is used during testing so that the test harness
   // can properly shutdown before we exit.
-  NotificationService::current()->Notify(NOTIFY_SESSION_END,
-    NotificationService::AllSources(),
-    NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::SESSION_END,
+      NotificationService::AllSources(),
+      NotificationService::NoDetails());
 
   // And shutdown.
   browser_shutdown::Shutdown();

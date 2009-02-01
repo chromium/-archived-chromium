@@ -7,7 +7,7 @@
 
 #include "chrome/browser/jsmessage_box_handler.h"
 #include "chrome/common/ipc_message.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/views/app_modal_dialog_delegate.h"
 

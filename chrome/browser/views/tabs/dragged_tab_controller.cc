@@ -17,6 +17,7 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/animation.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
 #include "skia/include/SkBitmap.h"
@@ -488,7 +489,7 @@ void DraggedTabController::UpdateTargetURL(TabContents* source,
 void DraggedTabController::Observe(NotificationType type,
                                    const NotificationSource& source,
                                    const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_TAB_CONTENTS_DESTROYED);
+  DCHECK(type == NotificationType::TAB_CONTENTS_DESTROYED);
   DCHECK(Source<TabContents>(source).ptr() == dragged_contents_);
   EndDragImpl(TAB_DESTROYED);
 }
@@ -561,18 +562,20 @@ void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
 
 void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
-    NotificationService::current()->RemoveObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(dragged_contents_));
+    NotificationService::current()->RemoveObserver(
+        this,
+        NotificationType::TAB_CONTENTS_DESTROYED,
+        Source<TabContents>(dragged_contents_));
     if (original_delegate_)
       dragged_contents_->set_delegate(original_delegate_);
   }
   original_delegate_ = NULL;
   dragged_contents_ = new_contents;
   if (dragged_contents_) {
-    NotificationService::current()->AddObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(dragged_contents_));
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::TAB_CONTENTS_DESTROYED,
+        Source<TabContents>(dragged_contents_));
 
     // We need to be the delegate so we receive messages about stuff,
     // otherwise our dragged_contents() may be replaced and subsequently

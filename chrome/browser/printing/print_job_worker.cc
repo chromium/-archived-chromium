@@ -9,6 +9,7 @@
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"
 #include "chrome/common/gfx/emf.h"
+#include "chrome/common/notification_service.h"
 
 namespace printing {
 
@@ -34,7 +35,7 @@ class PrintJobWorker::NotificationTask : public Task {
   virtual void Run() {
     // Send the notification in the right thread.
     NotificationService::current()->Notify(
-        NOTIFY_PRINT_JOB_EVENT,
+        NotificationType::PRINT_JOB_EVENT,
         // We know that is is a PrintJob object in this circumstance.
         Source<PrintJob>(static_cast<PrintJob*>(print_job_.get())),
         Details<JobEventDetails>(details_));
@@ -43,7 +44,6 @@ class PrintJobWorker::NotificationTask : public Task {
   // The job which originates this notification.
   scoped_refptr<PrintJobWorkerOwner> print_job_;
   scoped_refptr<JobEventDetails> details_;
-  NotificationType type_;
 };
 
 

@@ -5,6 +5,7 @@
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 
 #include "base/string_piece.h"
+#include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_resources.h"
 #include "chrome/browser/cert_store.h"
@@ -15,6 +16,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
@@ -80,7 +82,7 @@ void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
   entry->ssl().set_cert_status(ssl_info.cert_status);
   entry->ssl().set_security_bits(ssl_info.security_bits);
   NotificationService::current()->Notify(
-      NOTIFY_SSL_STATE_CHANGED,
+      NotificationType::SSL_STATE_CHANGED,
       Source<NavigationController>(web->controller()),
       NotificationService::NoDetails());
 }

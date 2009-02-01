@@ -178,6 +178,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/libxml_utils.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/installer/util/google_update_settings.h"
@@ -426,58 +427,58 @@ void MetricsService::Observe(NotificationType type,
   if (!CanLogNotification(type, source, details))
     return;
 
-  switch (type) {
-    case NOTIFY_USER_ACTION:
+  switch (type.value) {
+    case NotificationType::USER_ACTION:
         current_log_->RecordUserAction(*Details<const wchar_t*>(details).ptr());
       break;
 
-    case NOTIFY_BROWSER_OPENED:
-    case NOTIFY_BROWSER_CLOSED:
+    case NotificationType::BROWSER_OPENED:
+    case NotificationType::BROWSER_CLOSED:
       LogWindowChange(type, source, details);
       break;
 
-    case NOTIFY_TAB_PARENTED:
-    case NOTIFY_TAB_CLOSING:
+    case NotificationType::TAB_PARENTED:
+    case NotificationType::TAB_CLOSING:
       LogWindowChange(type, source, details);
       break;
 
-    case NOTIFY_LOAD_STOP:
+    case NotificationType::LOAD_STOP:
       LogLoadComplete(type, source, details);
       break;
 
-    case NOTIFY_LOAD_START:
+    case NotificationType::LOAD_START:
       LogLoadStarted();
       break;
 
-    case NOTIFY_RENDERER_PROCESS_TERMINATED:
+    case NotificationType::RENDERER_PROCESS_TERMINATED:
       if (!*Details<bool>(details).ptr())
         LogRendererCrash();
       break;
 
-    case NOTIFY_RENDERER_PROCESS_HANG:
+    case NotificationType::RENDERER_PROCESS_HANG:
       LogRendererHang();
       break;
 
-    case NOTIFY_RENDERER_PROCESS_IN_SBOX:
+    case NotificationType::RENDERER_PROCESS_IN_SBOX:
       LogRendererInSandbox(*Details<bool>(details).ptr());
       break;
 
-    case NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED:
-    case NOTIFY_PLUGIN_PROCESS_CRASHED:
-    case NOTIFY_PLUGIN_INSTANCE_CREATED:
+    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
+    case NotificationType::PLUGIN_PROCESS_CRASHED:
+    case NotificationType::PLUGIN_INSTANCE_CREATED:
       LogPluginChange(type, source, details);
       break;
 
-    case TEMPLATE_URL_MODEL_LOADED:
+    case NotificationType::TEMPLATE_URL_MODEL_LOADED:
       LogKeywords(Source<TemplateURLModel>(source).ptr());
       break;
 
-    case NOTIFY_OMNIBOX_OPENED_URL:
+    case NotificationType::OMNIBOX_OPENED_URL:
       current_log_->RecordOmniboxOpenedURL(
           *Details<AutocompleteLog>(details).ptr());
       break;
 
-    case NOTIFY_BOOKMARK_MODEL_LOADED:
+    case NotificationType::BOOKMARK_MODEL_LOADED:
       LogBookmarks(Source<Profile>(source)->GetBookmarkModel());
       break;
 
@@ -706,24 +707,31 @@ void MetricsService::StopRecording(MetricsLog** log) {
 }
 
 void MetricsService::ListenerRegistration(bool start_listening) {
-  AddOrRemoveObserver(this, NOTIFY_BROWSER_OPENED, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_BROWSER_CLOSED, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_USER_ACTION, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_TAB_PARENTED, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_TAB_CLOSING, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_LOAD_START, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_LOAD_STOP, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_RENDERER_PROCESS_IN_SBOX, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_RENDERER_PROCESS_TERMINATED,
+  AddOrRemoveObserver(this, NotificationType::BROWSER_OPENED, start_listening);
+  AddOrRemoveObserver(this, NotificationType::BROWSER_CLOSED, start_listening);
+  AddOrRemoveObserver(this, NotificationType::USER_ACTION, start_listening);
+  AddOrRemoveObserver(this, NotificationType::TAB_PARENTED, start_listening);
+  AddOrRemoveObserver(this, NotificationType::TAB_CLOSING, start_listening);
+  AddOrRemoveObserver(this, NotificationType::LOAD_START, start_listening);
+  AddOrRemoveObserver(this, NotificationType::LOAD_STOP, start_listening);
+  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_IN_SBOX,
                       start_listening);
-  AddOrRemoveObserver(this, NOTIFY_RENDERER_PROCESS_HANG, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED,
+  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_TERMINATED,
                       start_listening);
-  AddOrRemoveObserver(this, NOTIFY_PLUGIN_INSTANCE_CREATED, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_PLUGIN_PROCESS_CRASHED, start_listening);
-  AddOrRemoveObserver(this, TEMPLATE_URL_MODEL_LOADED, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_OMNIBOX_OPENED_URL, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_BOOKMARK_MODEL_LOADED, start_listening);
+  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_HANG,
+                      start_listening);
+  AddOrRemoveObserver(this, NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
+                      start_listening);
+  AddOrRemoveObserver(this, NotificationType::PLUGIN_INSTANCE_CREATED,
+                      start_listening);
+  AddOrRemoveObserver(this, NotificationType::PLUGIN_PROCESS_CRASHED,
+                      start_listening);
+  AddOrRemoveObserver(this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
+                      start_listening);
+  AddOrRemoveObserver(this, NotificationType::OMNIBOX_OPENED_URL,
+                      start_listening);
+  AddOrRemoveObserver(this, NotificationType::BOOKMARK_MODEL_LOADED,
+                      start_listening);
 }
 
 // static
@@ -1451,14 +1459,14 @@ void MetricsService::LogWindowChange(NotificationType type,
   }
   DCHECK(controller_id != -1);
 
-  switch (type) {
-    case NOTIFY_TAB_PARENTED:
-    case NOTIFY_BROWSER_OPENED:
+  switch (type.value) {
+    case NotificationType::TAB_PARENTED:
+    case NotificationType::BROWSER_OPENED:
       window_type = MetricsLog::WINDOW_CREATE;
       break;
 
-    case NOTIFY_TAB_CLOSING:
-    case NOTIFY_BROWSER_CLOSED:
+    case NotificationType::TAB_CLOSING:
+    case NotificationType::BROWSER_CLOSED:
       window_map_.erase(window_map_.find(window_or_tab));
       window_type = MetricsLog::WINDOW_DESTROY;
       break;
@@ -1532,21 +1540,21 @@ void MetricsService::LogPluginChange(NotificationType type,
   }
 
   PluginStats& stats = plugin_stats_buffer_[plugin];
-  switch (type) {
-    case NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED:
+  switch (type.value) {
+    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
       stats.process_launches++;
       break;
 
-    case NOTIFY_PLUGIN_INSTANCE_CREATED:
+    case NotificationType::PLUGIN_INSTANCE_CREATED:
       stats.instances++;
       break;
 
-    case NOTIFY_PLUGIN_PROCESS_CRASHED:
+    case NotificationType::PLUGIN_PROCESS_CRASHED:
       stats.process_crashes++;
       break;
 
     default:
-      NOTREACHED() << "Unexpected notification type " << type;
+      NOTREACHED() << "Unexpected notification type " << type.value;
       return;
   }
 }

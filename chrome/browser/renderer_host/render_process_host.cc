@@ -77,7 +77,7 @@ void RenderProcessHost::Release(int listener_id) {
     if (!notified_termination_) {
       bool close_expected = true;
       NotificationService::current()->Notify(
-          NOTIFY_RENDERER_PROCESS_TERMINATED,
+          NotificationType::RENDERER_PROCESS_TERMINATED,
           Source<RenderProcessHost>(this),
           Details<bool>(&close_expected));
       notified_termination_ = true;

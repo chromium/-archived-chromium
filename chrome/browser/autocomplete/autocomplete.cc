@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
-
 #include "chrome/browser/autocomplete/autocomplete.h"
+
+#include <algorithm>
 
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
@@ -18,6 +18,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
@@ -691,7 +692,7 @@ void AutocompleteController::UpdateLatestResult(bool is_synchronous_pass) {
 
     result_.CopyFrom(latest_result_);
     NotificationService::current()->Notify(
-        NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
+        NotificationType::AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
         Source<AutocompleteController>(this), NotificationService::NoDetails());
   }
 
@@ -719,7 +720,7 @@ void AutocompleteController::CommitResult() {
 
   result_.CopyFrom(latest_result_);
   NotificationService::current()->Notify(
-      NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
+      NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
       Source<AutocompleteController>(this), NotificationService::NoDetails());
 }
 

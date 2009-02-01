@@ -7,6 +7,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
 
@@ -24,9 +25,9 @@ void RepostFormWarningDialog::RunRepostFormWarningDialog(
 
 RepostFormWarningDialog::~RepostFormWarningDialog() {
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_LOAD_START, NotificationService::AllSources());
+      this, NotificationType::LOAD_START, NotificationService::AllSources());
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_TAB_CLOSING, NotificationService::AllSources());
+      this, NotificationType::TAB_CLOSING, NotificationService::AllSources());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,10 +86,10 @@ RepostFormWarningDialog::RepostFormWarningDialog(
         window()->GetNativeHandle());
   }
   views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_LOAD_START, NotificationService::AllSources());
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_TAB_CLOSING, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::LOAD_START, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::TAB_CLOSING, NotificationService::AllSources());
 }
 
 void RepostFormWarningDialog::Observe(NotificationType type,
@@ -98,10 +99,11 @@ void RepostFormWarningDialog::Observe(NotificationType type,
   // the same page anymore) or if the tab is closed, because then we won't have
   // a navigation controller anymore.
   if (window() && navigation_controller_ &&
-      (type == NOTIFY_LOAD_START || type == NOTIFY_TAB_CLOSING) &&
+      (type == NotificationType::LOAD_START ||
+       type == NotificationType::TAB_CLOSING) &&
       Source<NavigationController>(source).ptr() == navigation_controller_) {
-      navigation_controller_ = NULL;
-      window()->Close();
-    }
+    navigation_controller_ = NULL;
+    window()->Close();
+  }
 }
 

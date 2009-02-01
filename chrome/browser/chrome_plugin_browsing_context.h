@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_CHROME_PLUGIN_BROWSING_CONTEXT_H__
-#define CHROME_BROWSER_CHROME_PLUGIN_BROWSING_CONTEXT_H__
+#ifndef CHROME_BROWSER_CHROME_PLUGIN_BROWSING_CONTEXT_H_
+#define CHROME_BROWSER_CHROME_PLUGIN_BROWSING_CONTEXT_H_
 
 #include <map>
 
 #include "base/id_map.h"
 #include "chrome/common/chrome_plugin_api.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class URLRequestContext;
 
@@ -55,5 +55,4 @@ class CPBrowsingContextManager : public NotificationObserver {
   ReverseMap reverse_map_;  // map of URLRequestContext -> CPBrowsingContext
 };
 
-#endif  // CHROME_BROWSER_CHROME_PLUGIN_BROWSING_CONTEXT_H__
-
+#endif  // CHROME_BROWSER_CHROME_PLUGIN_BROWSING_CONTEXT_H_

@@ -7,7 +7,7 @@
 
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
 

@@ -230,7 +230,8 @@ void UserScriptMaster::NewScriptsAvailable(base::SharedMemory* handle) {
     // We've got scripts ready to go.
     shared_memory_.swap(handle_deleter);
 
-    NotificationService::current()->Notify(NOTIFY_USER_SCRIPTS_LOADED,
+    NotificationService::current()->Notify(
+        NotificationType::USER_SCRIPTS_LOADED,
         NotificationService::AllSources(),
         Details<base::SharedMemory>(handle));
   }

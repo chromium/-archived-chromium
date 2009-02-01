@@ -13,7 +13,7 @@
 class AutomationBrowserTracker : public AutomationResourceTracker<Browser*> {
 public:
   AutomationBrowserTracker(IPC::Message::Sender* automation)
-    : AutomationResourceTracker(automation) { }
+      : AutomationResourceTracker(automation) { }
 
   virtual ~AutomationBrowserTracker() {
     ClearAllMappings();
@@ -21,12 +21,12 @@ public:
 
   virtual void AddObserver(Browser* resource) {
     NotificationService::current()->AddObserver(
-      this, NOTIFY_BROWSER_CLOSED, Source<Browser>(resource));
+        this, NotificationType::BROWSER_CLOSED, Source<Browser>(resource));
   }
 
   virtual void RemoveObserver(Browser* resource) {
     NotificationService::current()->RemoveObserver(
-      this, NOTIFY_BROWSER_CLOSED, Source<Browser>(resource));
+        this, NotificationType::BROWSER_CLOSED, Source<Browser>(resource));
   }
 };
 

@@ -16,7 +16,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/test/test_notification_tracker.h"
 #include "chrome/test/test_tab_contents.h"
@@ -230,11 +230,11 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
 
 void RegisterForAllNavNotifications(TestNotificationTracker* tracker,
                                     NavigationController* controller) {
-  tracker->ListenFor(NOTIFY_NAV_ENTRY_COMMITTED,
+  tracker->ListenFor(NotificationType::NAV_ENTRY_COMMITTED,
                      Source<NavigationController>(controller));
-  tracker->ListenFor(NOTIFY_NAV_LIST_PRUNED,
+  tracker->ListenFor(NotificationType::NAV_LIST_PRUNED,
                      Source<NavigationController>(controller));
-  tracker->ListenFor(NOTIFY_NAV_ENTRY_CHANGED,
+  tracker->ListenFor(NotificationType::NAV_ENTRY_CHANGED,
                      Source<NavigationController>(controller));
 }
 
@@ -280,7 +280,8 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_EQ(0, notifications.size());
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // The load should now be committed.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -307,7 +308,8 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_EQ(contents->GetMaxPageID(), 0);
 
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+    NotificationType::NAV_ENTRY_COMMITTED));
 
   // The load should now be committed.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -333,12 +335,14 @@ TEST_F(NavigationControllerTest, LoadURL_SamePage) {
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // We should not have produced a new session history entry.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -361,7 +365,8 @@ TEST_F(NavigationControllerTest, LoadURL_Discarded) {
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   contents->controller()->DiscardNonCommittedEntries();
@@ -388,7 +393,8 @@ TEST_F(NavigationControllerTest, LoadURL_NoPending) {
   contents->controller()->LoadURL(kExistingURL1, GURL(),
                                   PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 	
   // Do a new navigation without making a pending one.
   const GURL kNewURL(scheme1() + ":see");
@@ -396,7 +402,8 @@ TEST_F(NavigationControllerTest, LoadURL_NoPending) {
 
   // There should no longer be any pending entry, and the third navigation we
   // just made should be committed.
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(-1, contents->controller()->GetPendingEntryIndex());
   EXPECT_EQ(1, contents->controller()->GetLastCommittedEntryIndex());
   EXPECT_EQ(kNewURL, contents->controller()->GetActiveEntry()->url());
@@ -415,7 +422,8 @@ TEST_F(NavigationControllerTest, LoadURL_NewPending) {
   contents->controller()->LoadURL(kExistingURL1, GURL(),
                                   PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // Make a pending entry to somewhere new.
   const GURL kExistingURL2(scheme1() + ":bee");
@@ -429,7 +437,8 @@ TEST_F(NavigationControllerTest, LoadURL_NewPending) {
 
   // There should no longer be any pending entry, and the third navigation we
   // just made should be committed.
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(-1, contents->controller()->GetPendingEntryIndex());
   EXPECT_EQ(1, contents->controller()->GetLastCommittedEntryIndex());
   EXPECT_EQ(kNewURL, contents->controller()->GetActiveEntry()->url());
@@ -447,13 +456,15 @@ TEST_F(NavigationControllerTest, LoadURL_ExistingPending) {
   contents->controller()->LoadURL(kExistingURL1, GURL(),
                                   PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   const GURL kExistingURL2(scheme1() + ":bee");
   contents->controller()->LoadURL(kExistingURL2, GURL(),
                                   PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(1, kExistingURL2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // Now make a pending back/forward navigation. The zeroth entry should be
   // pending.
@@ -469,7 +480,8 @@ TEST_F(NavigationControllerTest, LoadURL_ExistingPending) {
 
   // There should no longer be any pending entry, and the third navigation we
   // just made should be committed.
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(-1, contents->controller()->GetPendingEntryIndex());
   EXPECT_EQ(2, contents->controller()->GetLastCommittedEntryIndex());
   EXPECT_EQ(kNewURL, contents->controller()->GetActiveEntry()->url());
@@ -484,7 +496,8 @@ TEST_F(NavigationControllerTest, Reload) {
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->Reload(true);
   EXPECT_EQ(0, notifications.size());
@@ -499,7 +512,8 @@ TEST_F(NavigationControllerTest, Reload) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // Now the reload is committed.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -521,13 +535,15 @@ TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->Reload(true);
   EXPECT_EQ(0, notifications.size());
 
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // Now the reload is committed.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -546,11 +562,13 @@ TEST_F(NavigationControllerTest, Back) {
 
   const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   const GURL url2(scheme1() + ":foo2");
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoBack();
   EXPECT_EQ(0, notifications.size());
@@ -565,7 +583,8 @@ TEST_F(NavigationControllerTest, Back) {
   EXPECT_TRUE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigationAsRenderer(0, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // The back navigation completed successfully.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -588,11 +607,13 @@ TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoBack();
   EXPECT_EQ(0, notifications.size());
@@ -607,7 +628,8 @@ TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
   EXPECT_TRUE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigationAsRenderer(2, url3);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // The back navigation resulted in a completely new navigation.
   // TODO(darin): perhaps this behavior will be confusing to users?
@@ -631,11 +653,13 @@ TEST_F(NavigationControllerTest, Back_NewPending) {
 
   // First navigate two places so we have some back history.
   contents->CompleteNavigationAsRenderer(0, kUrl1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   //contents->controller()->LoadURL(kUrl2, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(1, kUrl2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // Now start a new pending navigation and go back before it commits.
   contents->controller()->LoadURL(kUrl3, GURL(), PageTransition::TYPED);
@@ -701,14 +725,17 @@ TEST_F(NavigationControllerTest, Forward) {
   const GURL url2(scheme1() + ":foo2");
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoBack();
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoForward();
 
@@ -722,7 +749,8 @@ TEST_F(NavigationControllerTest, Forward) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // The forward navigation completed successfully.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -744,13 +772,16 @@ TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
   const GURL url3(scheme1() + ":foo3");
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoBack();
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoForward();
   EXPECT_EQ(0, notifications.size());
@@ -765,8 +796,9 @@ TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigationAsRenderer(2, url3);
-  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_LIST_PRUNED,
-                                           NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check2AndReset(
+      NotificationType::NAV_LIST_PRUNED,
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 1);
@@ -785,7 +817,8 @@ TEST_F(NavigationControllerTest, NewSubframe) {
 
   const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   const GURL url2(scheme1() + ":foo2");
   ViewHostMsg_FrameNavigate_Params params;
@@ -798,7 +831,8 @@ TEST_F(NavigationControllerTest, NewSubframe) {
 
   NavigationController::LoadCommittedDetails details;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(url1, details.previous_url);
   EXPECT_FALSE(details.is_auto);
   EXPECT_FALSE(details.is_in_page);
@@ -843,7 +877,8 @@ TEST_F(NavigationControllerTest, AutoSubframe) {
 
   const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   const GURL url2(scheme1() + ":foo2");
   ViewHostMsg_FrameNavigate_Params params;
@@ -871,7 +906,8 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   // Main page.
   const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // First manual subframe navigation.
   const GURL url2(scheme1() + ":foo2");
@@ -886,7 +922,8 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   // This should generate a new entry.
   NavigationController::LoadCommittedDetails details;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(2, contents->controller()->GetEntryCount());
 
   // Second manual subframe navigation should also make a new entry.
@@ -894,7 +931,8 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   params.page_id = 2;
   params.url = url3;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(3, contents->controller()->GetEntryCount());
   EXPECT_EQ(2, contents->controller()->GetCurrentEntryIndex());
 
@@ -903,7 +941,8 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   params.url = url2;
   params.page_id = 1;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(3, contents->controller()->GetEntryCount());
   EXPECT_EQ(1, contents->controller()->GetCurrentEntryIndex());
 
@@ -912,7 +951,8 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   params.url = url1;
   params.page_id = 0;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(3, contents->controller()->GetEntryCount());
   EXPECT_EQ(0, contents->controller()->GetCurrentEntryIndex());
 }
@@ -925,10 +965,12 @@ TEST_F(NavigationControllerTest, LinkClick) {
   const GURL url2(scheme1() + ":foo2");
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // Should not have produced a new session history entry.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -948,7 +990,8 @@ TEST_F(NavigationControllerTest, InPage) {
   // which are the only ones that can have a ref.
   const GURL url1(scheme1() + "://foo");
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // First navigation.
   const GURL url2(scheme1() + "://foo#a");
@@ -963,7 +1006,8 @@ TEST_F(NavigationControllerTest, InPage) {
   // This should generate a new entry.
   NavigationController::LoadCommittedDetails details;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(2, contents->controller()->GetEntryCount());
 
   // Go back one.
@@ -973,7 +1017,8 @@ TEST_F(NavigationControllerTest, InPage) {
   back_params.page_id = 0;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(back_params,
                                                           &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(2, contents->controller()->GetEntryCount());
   EXPECT_EQ(0, contents->controller()->GetCurrentEntryIndex());
   EXPECT_EQ(back_params.url, contents->controller()->GetActiveEntry()->url());
@@ -985,7 +1030,8 @@ TEST_F(NavigationControllerTest, InPage) {
   forward_params.page_id = 1;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(forward_params,
                                                           &details));
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
   EXPECT_EQ(2, contents->controller()->GetEntryCount());
   EXPECT_EQ(1, contents->controller()->GetCurrentEntryIndex());
   EXPECT_EQ(forward_params.url,
@@ -1013,7 +1059,8 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   const GURL url2(scheme2() + ":foo");
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   TestTabContents* initial_contents = contents;
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
@@ -1022,7 +1069,8 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   ASSERT_TRUE(initial_contents != contents);
 
   contents->CompleteNavigationAsRenderer(1, url2);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   // A second navigation entry should have been committed even though the
   // PageIDs are the same.  PageIDs are scoped to the tab contents type.
@@ -1038,7 +1086,8 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   contents->controller()->GoBack();
   ASSERT_TRUE(initial_contents == contents);  // switched again!
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
@@ -1062,7 +1111,8 @@ TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
   const GURL url2(scheme2() + ":foo");
 
   contents->CompleteNavigationAsRenderer(0, url1);
-  EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::NAV_ENTRY_COMMITTED));
 
   TestTabContents* initial_contents = contents;
 
@@ -1128,28 +1178,28 @@ TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
 namespace {
 
 // NotificationObserver implementation used in verifying we've received the
-// NOTIFY_NAV_LIST_PRUNED method.
+// NotificationType::NAV_LIST_PRUNED method.
 class PrunedListener : public NotificationObserver {
  public:
   explicit PrunedListener(NavigationController* controller)
       : notification_count_(0) {
-    registrar_.Add(this, NOTIFY_NAV_LIST_PRUNED,
+    registrar_.Add(this, NotificationType::NAV_LIST_PRUNED,
                    Source<NavigationController>(controller));
   }
 
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type == NOTIFY_NAV_LIST_PRUNED) {
+    if (type == NotificationType::NAV_LIST_PRUNED) {
       notification_count_++;
       details_ = *(Details<NavigationController::PrunedDetails>(details).ptr());
     }
   }
 
-  // Number of times NOTIFY_NAV_LIST_PRUNED has been observed.
+  // Number of times NAV_LIST_PRUNED has been observed.
   int notification_count_;
 
-  // Details from the last NOTIFY_NAV_LIST_PRUNED.
+  // Details from the last NAV_LIST_PRUNED.
   NavigationController::PrunedDetails details_;
 
  private:

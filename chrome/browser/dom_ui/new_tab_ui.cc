@@ -24,6 +24,7 @@
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
@@ -88,7 +89,7 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
       base::TimeDelta load_time = last_paint_ - start_;
       int load_time_ms = static_cast<int>(load_time.InMilliseconds());
       NotificationService::current()->Notify(
-          NOTIFY_INITIAL_NEW_TAB_UI_LOAD,
+          NotificationType::INITIAL_NEW_TAB_UI_LOAD,
           NotificationService::AllSources(),
           Details<int>(&load_time_ms));
       UMA_HISTOGRAM_TIMES(L"NewTabUI load", load_time);
@@ -284,13 +285,13 @@ MostVisitedHandler::MostVisitedHandler(DOMUIHost* dom_ui_host)
 
   // Get notifications when history is cleared.
   NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NOTIFY_HISTORY_URLS_DELETED,
+  service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED,
                        Source<Profile>(dom_ui_host_->profile()));
 }
 
 MostVisitedHandler::~MostVisitedHandler() {
   NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NOTIFY_HISTORY_URLS_DELETED,
+  service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
                           Source<Profile>(dom_ui_host_->profile()));
 }
 
@@ -323,7 +324,7 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
 void MostVisitedHandler::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {
-  if (type != NOTIFY_HISTORY_URLS_DELETED) {
+  if (type != NotificationType::HISTORY_URLS_DELETED) {
     NOTREACHED();
     return;
   }

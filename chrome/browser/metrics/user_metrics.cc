@@ -7,10 +7,10 @@
 #include "chrome/common/notification_service.h"
 
 void UserMetrics::RecordAction(const wchar_t* action, Profile* profile) {
-  NotificationService::current()->
-      Notify(NOTIFY_USER_ACTION,
-             Source<Profile>(profile),
-             Details<const wchar_t*>(&action));
+  NotificationService::current()->Notify(
+      NotificationType::USER_ACTION,
+      Source<Profile>(profile),
+      Details<const wchar_t*>(&action));
 }
 
 void UserMetrics::RecordComputedAction(const std::wstring& action,

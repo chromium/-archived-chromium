@@ -19,6 +19,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/navigation_types.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/scoped_vector.h"
 #include "net/base/net_util.h"
@@ -36,7 +37,7 @@ void NotifyPrunedEntries(NavigationController* nav_controller,
   details.from_front = from_front;
   details.count = count;
   NotificationService::current()->Notify(
-      NOTIFY_NAV_LIST_PRUNED,
+      NotificationType::NAV_LIST_PRUNED,
       Source<NavigationController>(nav_controller),
       Details<NavigationController::PrunedDetails>(&details));
 }
@@ -194,9 +195,10 @@ NavigationController::~NavigationController() {
 
   DiscardNonCommittedEntriesInternal();
 
-  NotificationService::current()->Notify(NOTIFY_TAB_CLOSED,
-                                         Source<NavigationController>(this),
-                                         NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CLOSED,
+      Source<NavigationController>(this),
+      NotificationService::NoDetails());
 }
 
 TabContents* NavigationController::GetTabContents(TabContentsType t) {
@@ -249,7 +251,7 @@ void NavigationController::LoadEntry(NavigationEntry* entry) {
   DiscardNonCommittedEntriesInternal();
   pending_entry_ = entry;
   NotificationService::current()->Notify(
-      NOTIFY_NAV_ENTRY_PENDING,
+      NotificationType::NAV_ENTRY_PENDING,
       Source<NavigationController>(this),
       NotificationService::NoDetails());
   NavigateToPendingEntry(false);
@@ -984,7 +986,7 @@ void NavigationController::InsertEntry(NavigationEntry* entry) {
 
 void NavigationController::SetWindowID(const SessionID& id) {
   window_id_ = id;
-  NotificationService::current()->Notify(NOTIFY_TAB_PARENTED,
+  NotificationService::current()->Notify(NotificationType::TAB_PARENTED,
                                          Source<NavigationController>(this),
                                          NotificationService::NoDetails());
 }
@@ -1029,7 +1031,7 @@ void NavigationController::NotifyNavigationEntryCommitted(
 
   details->entry = GetActiveEntry();
   NotificationService::current()->Notify(
-      NOTIFY_NAV_ENTRY_COMMITTED,
+      NotificationType::NAV_ENTRY_COMMITTED,
       Source<NavigationController>(this),
       Details<LoadCommittedDetails>(details));
 }
@@ -1113,7 +1115,7 @@ void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
   EntryChangedDetails det;
   det.changed_entry = entry;
   det.index = index;
-  NotificationService::current()->Notify(NOTIFY_NAV_ENTRY_CHANGED,
+  NotificationService::current()->Notify(NotificationType::NAV_ENTRY_CHANGED,
                                          Source<NavigationController>(this),
                                          Details<EntryChangedDetails>(&det));
 }

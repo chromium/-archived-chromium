@@ -270,11 +270,11 @@ class LoginHandlerImpl : public LoginHandler,
 
     if (!WasAuthHandled(false)) {
       LoginNotificationDetails details(this);
-      service->Notify(NOTIFY_AUTH_NEEDED,
+      service->Notify(NotificationType::AUTH_NEEDED,
                       Source<NavigationController>(controller),
                       Details<LoginNotificationDetails>(&details));
     } else {
-      service->Notify(NOTIFY_AUTH_SUPPLIED,
+      service->Notify(NotificationType::AUTH_SUPPLIED,
                       Source<NavigationController>(controller),
                       NotificationService::NoDetails());
     }

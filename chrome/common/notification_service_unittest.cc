@@ -50,25 +50,29 @@ TEST(NotificationServiceTest, Basic) {
   NotificationService* service = NotificationService::current();
 
   // Make sure it doesn't freak out when there are no observers.
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   Source<TestSource>(&test_source),
                   NotificationService::NoDetails());
 
-  service->AddObserver(
-    &all_types_all_sources, NOTIFY_ALL, NotificationService::AllSources());
-  service->AddObserver(
-    &idle_all_sources, NOTIFY_IDLE, NotificationService::AllSources());
-  service->AddObserver(
-    &all_types_test_source, NOTIFY_ALL, Source<TestSource>(&test_source));
-  service->AddObserver(
-    &idle_test_source, NOTIFY_IDLE, Source<TestSource>(&test_source));
+  service->AddObserver(&all_types_all_sources,
+                       NotificationType::ALL,
+                       NotificationService::AllSources());
+  service->AddObserver(&idle_all_sources,
+                       NotificationType::IDLE,
+                       NotificationService::AllSources());
+  service->AddObserver(&all_types_test_source,
+                       NotificationType::ALL,
+                       Source<TestSource>(&test_source));
+  service->AddObserver(&idle_test_source,
+                       NotificationType::IDLE,
+                       Source<TestSource>(&test_source));
 
   EXPECT_EQ(0, all_types_all_sources.notification_count());
   EXPECT_EQ(0, idle_all_sources.notification_count());
   EXPECT_EQ(0, all_types_test_source.notification_count());
   EXPECT_EQ(0, idle_test_source.notification_count());
 
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   Source<TestSource>(&test_source),
                   NotificationService::NoDetails());
 
@@ -77,7 +81,7 @@ TEST(NotificationServiceTest, Basic) {
   EXPECT_EQ(1, all_types_test_source.notification_count());
   EXPECT_EQ(1, idle_test_source.notification_count());
 
-  service->Notify(NOTIFY_BUSY,
+  service->Notify(NotificationType::BUSY,
                   Source<TestSource>(&test_source),
                   NotificationService::NoDetails());
 
@@ -86,7 +90,7 @@ TEST(NotificationServiceTest, Basic) {
   EXPECT_EQ(2, all_types_test_source.notification_count());
   EXPECT_EQ(1, idle_test_source.notification_count());
 
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   Source<TestSource>(&other_source),
                   NotificationService::NoDetails());
 
@@ -95,7 +99,7 @@ TEST(NotificationServiceTest, Basic) {
   EXPECT_EQ(2, all_types_test_source.notification_count());
   EXPECT_EQ(1, idle_test_source.notification_count());
 
-  service->Notify(NOTIFY_BUSY,
+  service->Notify(NotificationType::BUSY,
                   Source<TestSource>(&other_source),
                   NotificationService::NoDetails());
 
@@ -105,7 +109,7 @@ TEST(NotificationServiceTest, Basic) {
   EXPECT_EQ(1, idle_test_source.notification_count());
 
   // Try send with NULL source.
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   NotificationService::AllSources(),
                   NotificationService::NoDetails());
 
@@ -114,16 +118,20 @@ TEST(NotificationServiceTest, Basic) {
   EXPECT_EQ(2, all_types_test_source.notification_count());
   EXPECT_EQ(1, idle_test_source.notification_count());
 
-  service->RemoveObserver(
-    &all_types_all_sources, NOTIFY_ALL, NotificationService::AllSources());
-  service->RemoveObserver(
-    &idle_all_sources, NOTIFY_IDLE, NotificationService::AllSources());
-  service->RemoveObserver(
-    &all_types_test_source, NOTIFY_ALL, Source<TestSource>(&test_source));
-  service->RemoveObserver(
-    &idle_test_source, NOTIFY_IDLE, Source<TestSource>(&test_source));
+  service->RemoveObserver(&all_types_all_sources,
+                          NotificationType::ALL,
+                          NotificationService::AllSources());
+  service->RemoveObserver(&idle_all_sources,
+                          NotificationType::IDLE,
+                          NotificationService::AllSources());
+  service->RemoveObserver(&all_types_test_source,
+                          NotificationType::ALL,
+                          Source<TestSource>(&test_source));
+  service->RemoveObserver(&idle_test_source,
+                          NotificationType::IDLE,
+                          Source<TestSource>(&test_source));
 
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   Source<TestSource>(&test_source),
                   NotificationService::NoDetails());
 
@@ -134,7 +142,7 @@ TEST(NotificationServiceTest, Basic) {
 
   // Removing an observer that isn't there is a no-op, this should be fine.
   service->RemoveObserver(
-    &all_types_all_sources, NOTIFY_ALL, NotificationService::AllSources());
+    &all_types_all_sources, NotificationType::ALL, NotificationService::AllSources());
 }
 
 TEST(NotificationServiceTest, MultipleRegistration) {
@@ -145,27 +153,27 @@ TEST(NotificationServiceTest, MultipleRegistration) {
   NotificationService* service = NotificationService::current();
 
   service->AddObserver(
-    &idle_test_source, NOTIFY_IDLE, Source<TestSource>(&test_source));
+    &idle_test_source, NotificationType::IDLE, Source<TestSource>(&test_source));
   service->AddObserver(
-    &idle_test_source, NOTIFY_ALL, Source<TestSource>(&test_source));
+    &idle_test_source, NotificationType::ALL, Source<TestSource>(&test_source));
 
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   Source<TestSource>(&test_source),
                   NotificationService::NoDetails());
   EXPECT_EQ(2, idle_test_source.notification_count());
 
   service->RemoveObserver(
-    &idle_test_source, NOTIFY_IDLE, Source<TestSource>(&test_source));
+    &idle_test_source, NotificationType::IDLE, Source<TestSource>(&test_source));
 
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                  Source<TestSource>(&test_source),
                  NotificationService::NoDetails());
   EXPECT_EQ(3, idle_test_source.notification_count());
 
   service->RemoveObserver(
-    &idle_test_source, NOTIFY_ALL, Source<TestSource>(&test_source));
+    &idle_test_source, NotificationType::ALL, Source<TestSource>(&test_source));
 
-  service->Notify(NOTIFY_IDLE,
+  service->Notify(NotificationType::IDLE,
                   Source<TestSource>(&test_source),
                   NotificationService::NoDetails());
   EXPECT_EQ(3, idle_test_source.notification_count());

@@ -10,6 +10,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_service.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_response_headers.h"
 
@@ -40,7 +41,7 @@ ScopableCPRequest::~ScopableCPRequest() {
 // static
 void PluginHelper::DestroyAllHelpersForPlugin(ChromePluginLib* plugin) {
   NotificationService::current()->Notify(
-      NOTIFY_CHROME_PLUGIN_UNLOADED,
+      NotificationType::CHROME_PLUGIN_UNLOADED,
       Source<ChromePluginLib>(plugin),
       NotificationService::NoDetails());
 }
@@ -48,14 +49,14 @@ void PluginHelper::DestroyAllHelpersForPlugin(ChromePluginLib* plugin) {
 PluginHelper::PluginHelper(ChromePluginLib* plugin) : plugin_(plugin) {
   DCHECK(CalledOnValidThread());
   NotificationService::current()->AddObserver(
-      this, NOTIFY_CHROME_PLUGIN_UNLOADED,
+      this, NotificationType::CHROME_PLUGIN_UNLOADED,
       Source<ChromePluginLib>(plugin_));
 }
 
 PluginHelper::~PluginHelper() {
   DCHECK(CalledOnValidThread());
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_CHROME_PLUGIN_UNLOADED,
+      this, NotificationType::CHROME_PLUGIN_UNLOADED,
       Source<ChromePluginLib>(plugin_));
 }
 
@@ -63,7 +64,7 @@ void PluginHelper::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
   DCHECK(CalledOnValidThread());
-  DCHECK(type == NOTIFY_CHROME_PLUGIN_UNLOADED);
+  DCHECK(type == NotificationType::CHROME_PLUGIN_UNLOADED);
   DCHECK(plugin_ == Source<ChromePluginLib>(source).ptr());
 
   delete this;

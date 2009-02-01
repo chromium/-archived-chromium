@@ -21,6 +21,7 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/clipboard_service.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/ipc_message_macros.h"
@@ -115,7 +116,8 @@ ResourceMessageFilter::~ResourceMessageFilter() {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_SPELLCHECKER_REINITIALIZED,
+      this,
+      NotificationType::SPELLCHECKER_REINITIALIZED,
       Source<Profile>(static_cast<Profile*>(profile_)));
 }
 
@@ -125,14 +127,15 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
 
   // Add the observers to intercept 
   NotificationService::current()->AddObserver(
-      this, NOTIFY_SPELLCHECKER_REINITIALIZED,
+      this,
+      NotificationType::SPELLCHECKER_REINITIALIZED,
       Source<Profile>(static_cast<Profile*>(profile_)));
 }
 
 // Called on the IPC thread:
 void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   DCHECK(!render_handle_);
-  render_handle_ = OpenProcess(PROCESS_DUP_HANDLE|PROCESS_TERMINATE,
+  render_handle_ = OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE,
                                FALSE, peer_pid);
   DCHECK(render_handle_);
 }
@@ -726,7 +729,7 @@ void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
 void ResourceMessageFilter::Observe(NotificationType type, 
                                     const NotificationSource &source,
                                     const NotificationDetails &details) {
-  if (type == NOTIFY_SPELLCHECKER_REINITIALIZED) {
+  if (type == NotificationType::SPELLCHECKER_REINITIALIZED) {
     spellchecker_ = Details<SpellcheckerReinitializedDetails>
         (details).ptr()->spellchecker;
   }

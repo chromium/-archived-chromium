@@ -38,6 +38,7 @@
 #include "chrome/common/debug_flags.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
@@ -140,7 +141,8 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
       profile->GetPrefs()->GetBoolean(prefs::kBlockPopups));
 
   NotificationService::current()->AddObserver(this,
-      NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
+      NotificationType::USER_SCRIPTS_LOADED,
+      NotificationService::AllSources());
 
   // Note: When we create the BrowserRenderProcessHost, it's technically backgrounded,
   //       because it has no visible listeners.  But the process doesn't
@@ -162,7 +164,7 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   profile()->GetPrefs()->RemovePrefObserver(prefs::kBlockPopups, this);
 
   NotificationService::current()->RemoveObserver(this,
-      NOTIFY_USER_SCRIPTS_LOADED, NotificationService::AllSources());
+      NotificationType::USER_SCRIPTS_LOADED, NotificationService::AllSources());
 }
 
 // When we're started with the --start-renderers-manually flag, we pop up a
@@ -382,7 +384,8 @@ bool BrowserRenderProcessHost::Init() {
 
         bool on_sandbox_desktop = (desktop != NULL);
         NotificationService::current()->Notify(
-            NOTIFY_RENDERER_PROCESS_IN_SBOX, Source<BrowserRenderProcessHost>(this),
+            NotificationType::RENDERER_PROCESS_IN_SBOX,
+            Source<BrowserRenderProcessHost>(this),
             Details<bool>(&on_sandbox_desktop));
 
         ResumeThread(target.hThread);
@@ -392,7 +395,7 @@ bool BrowserRenderProcessHost::Init() {
         // Help the process a little. It can't start the debugger by itself if
         // the process is in a sandbox.
         if (child_needs_help)
-            DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
+          DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
       } else
 #endif  // OS_WIN and sandbox
       {
@@ -665,9 +668,10 @@ void BrowserRenderProcessHost::OnChannelError() {
   if (!notified_termination_) {
     // If |close_expected| is false, it means the renderer process went away
     // before the web views expected it; count it as a crash.
-    NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_TERMINATED,
-                                           Source<RenderProcessHost>(this),
-                                           Details<bool>(&clean_shutdown));
+    NotificationService::current()->Notify(
+        NotificationType::RENDERER_PROCESS_TERMINATED,
+        Source<RenderProcessHost>(this),
+        Details<bool>(&clean_shutdown));
     notified_termination_ = true;
   }
 
@@ -744,8 +748,8 @@ void BrowserRenderProcessHost::SetBackgrounded(bool backgrounded) {
 void BrowserRenderProcessHost::Observe(NotificationType type,
                                        const NotificationSource& source,
                                        const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_PREF_CHANGED: {
+  switch (type.value) {
+    case NotificationType::PREF_CHANGED: {
       std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
       DCHECK(Source<PrefService>(source).ptr() == profile()->GetPrefs());
       if (*pref_name_in == prefs::kBlockPopups) {
@@ -756,7 +760,7 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
       }
       break;
     }
-    case NOTIFY_USER_SCRIPTS_LOADED: {
+    case NotificationType::USER_SCRIPTS_LOADED: {
       base::SharedMemory* shared_memory =
           Details<base::SharedMemory>(details).ptr();
       if (shared_memory) {

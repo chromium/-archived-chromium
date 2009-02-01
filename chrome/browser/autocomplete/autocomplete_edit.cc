@@ -31,6 +31,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/utils.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/url_util.h"
@@ -284,7 +285,7 @@ void AutocompleteEditModel::SendOpenNotification(size_t selected_line,
     else if (!has_temporary_text_)
       log->inline_autocompleted_length = inline_autocomplete_text_.length();
     NotificationService::current()->Notify(
-        NOTIFY_OMNIBOX_OPENED_URL, Source<Profile>(profile_),
+        NotificationType::OMNIBOX_OPENED_URL, Source<Profile>(profile_),
         Details<AutocompleteLog>(log.get()));
   }
 
@@ -782,8 +783,10 @@ AutocompleteEditView::AutocompleteEditView(
 }
 
 AutocompleteEditView::~AutocompleteEditView() {
-  NotificationService::current()->Notify(NOTIFY_AUTOCOMPLETE_EDIT_DESTROYED,
-      Source<AutocompleteEditView>(this), NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
+      Source<AutocompleteEditView>(this),
+      NotificationService::NoDetails());
 }
 
 void AutocompleteEditView::SaveStateToTab(TabContents* tab) {

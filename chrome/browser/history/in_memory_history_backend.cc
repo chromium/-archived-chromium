@@ -8,6 +8,7 @@
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/in_memory_database.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/notification_service.h"
 
 namespace history {
 
@@ -25,9 +26,12 @@ InMemoryHistoryBackend::~InMemoryHistoryBackend() {
     NotificationService* service = NotificationService::current();
 
     Source<Profile> source(profile_);
-    service->RemoveObserver(this, NOTIFY_HISTORY_URL_VISITED, source);
-    service->RemoveObserver(this, NOTIFY_HISTORY_TYPED_URLS_MODIFIED, source);
-    service->RemoveObserver(this, NOTIFY_HISTORY_URLS_DELETED, source);
+    service->RemoveObserver(this, NotificationType::HISTORY_URL_VISITED,
+                            source);
+    service->RemoveObserver(this, NotificationType::HISTORY_TYPED_URLS_MODIFIED,
+                            source);
+    service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
+                            source);
   }
 }
 
@@ -57,16 +61,16 @@ void InMemoryHistoryBackend::AttachToHistoryService(Profile* profile) {
   // to remove these manually.
   registered_for_notifications_ = true;
   NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NOTIFY_HISTORY_URL_VISITED, source);
-  service->AddObserver(this, NOTIFY_HISTORY_TYPED_URLS_MODIFIED, source);
-  service->AddObserver(this, NOTIFY_HISTORY_URLS_DELETED, source);
+  service->AddObserver(this, NotificationType::HISTORY_URL_VISITED, source);
+  service->AddObserver(this, NotificationType::HISTORY_TYPED_URLS_MODIFIED, source);
+  service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED, source);
 }
 
 void InMemoryHistoryBackend::Observe(NotificationType type,
                                      const NotificationSource& source,
                                      const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_HISTORY_URL_VISITED: {
+  switch (type.value) {
+    case NotificationType::HISTORY_URL_VISITED: {
       Details<history::URLVisitedDetails> visited_details(details);
       if (visited_details->row.typed_count() > 0) {
         URLsModifiedDetails modified_details;
@@ -75,11 +79,11 @@ void InMemoryHistoryBackend::Observe(NotificationType type,
       }
       break;
     }
-    case NOTIFY_HISTORY_TYPED_URLS_MODIFIED:
+    case NotificationType::HISTORY_TYPED_URLS_MODIFIED:
       OnTypedURLsModified(
           *Details<history::URLsModifiedDetails>(details).ptr());
       break;
-    case NOTIFY_HISTORY_URLS_DELETED:
+    case NotificationType::HISTORY_URLS_DELETED:
       OnURLsDeleted(*Details<history::URLsDeletedDetails>(details).ptr());
       break;
     default:

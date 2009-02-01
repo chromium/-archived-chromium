@@ -7,8 +7,8 @@
 // keep the profile clean. Clients of this class must handle the NULL return
 // value, however.
 
-#ifndef CHROME_TEST_TESTING_BROWSER_PROCESS_H__
-#define CHROME_TEST_TESTING_BROWSER_PROCESS_H__
+#ifndef CHROME_TEST_TESTING_BROWSER_PROCESS_H_
+#define CHROME_TEST_TESTING_BROWSER_PROCESS_H_
 
 #include "build/build_config.h"
 
@@ -130,5 +130,4 @@ class TestingBrowserProcess : public BrowserProcess {
   DISALLOW_COPY_AND_ASSIGN(TestingBrowserProcess);
 };
 
-#endif  // CHROME_TEST_TESTING_BROWSER_PROCESS_H__
-
+#endif  // CHROME_TEST_TESTING_BROWSER_PROCESS_H_

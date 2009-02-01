@@ -6,11 +6,11 @@
 // view; that is, a list of visited pages.  This object knows how to
 // talk to the HistoryService to update its state.
 
-#ifndef CHROME_BROWSER_HISTORY_MODEL_H__
-#define CHROME_BROWSER_HISTORY_MODEL_H__
+#ifndef CHROME_BROWSER_HISTORY_MODEL_H_
+#define CHROME_BROWSER_HISTORY_MODEL_H_
 
 #include "chrome/browser/base_history_model.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 typedef BaseHistoryModelObserver HistoryModelObserver;
 
@@ -85,8 +85,7 @@ class HistoryModel : public BaseHistoryModel,
   // The time that the current query was started.
   base::Time search_start_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HistoryModel);
+  DISALLOW_COPY_AND_ASSIGN(HistoryModel);
 };
 
-#endif  // CHROME_BROWSER_HISTORY_MODEL_H__
-
+#endif  // CHROME_BROWSER_HISTORY_MODEL_H_

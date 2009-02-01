@@ -9,6 +9,7 @@
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/scoped_vector.h"
 
 #include "generated_resources.h"
@@ -87,12 +88,12 @@ BookmarkModel::BookmarkModel(Profile* profile)
 BookmarkModel::~BookmarkModel() {
   if (profile_ && store_.get()) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+        this, NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
   }
 
   if (waiting_for_history_load_) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
+        this, NotificationType::HISTORY_LOADED, Source<Profile>(profile_));
   }
 
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
@@ -118,7 +119,7 @@ void BookmarkModel::Load() {
   // Listen for changes to favicons so that we can update the favicon of the
   // node appropriately.
   NotificationService::current()->AddObserver(
-      this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+      this,NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
 
   // Load the bookmarks. BookmarkStorage notifies us when done.
   store_ = new BookmarkStorage(profile_, this);
@@ -324,7 +325,7 @@ void BookmarkModel::ResetDateGroupModified(BookmarkNode* node) {
 void BookmarkModel::ClearStore() {
   if (profile_ && store_.get()) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+        this, NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
   }
   store_ = NULL;
 }
@@ -408,7 +409,7 @@ void BookmarkModel::OnBookmarkStorageLoadedBookmarks(
 
     waiting_for_history_load_ = true;
     NotificationService::current()->AddObserver(
-        this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
+        this, NotificationType::HISTORY_LOADED, Source<Profile>(profile_));
   } else {
     OnHistoryDone();
   }
@@ -445,7 +446,7 @@ void BookmarkModel::DoneLoading() {
 
   // And generic notification.
   NotificationService::current()->Notify(
-      NOTIFY_BOOKMARK_MODEL_LOADED,
+      NotificationType::BOOKMARK_MODEL_LOADED,
       Source<Profile>(profile_),
       NotificationService::NoDetails());
 }
@@ -491,7 +492,8 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
       history->URLsNoLongerBookmarked(details.changed_urls);
   }
 
-  NotificationService::current()->Notify(NOTIFY_URLS_STARRED,
+  NotificationService::current()->Notify(
+      NotificationType::URLS_STARRED,
       Source<Profile>(profile_),
       Details<history::URLsStarredDetails>(&details));
 }
@@ -511,7 +513,8 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
   if (node->GetType() == history::StarredEntry::URL && !was_bookmarked) {
     history::URLsStarredDetails details(true);
     details.changed_urls.insert(node->GetURL());
-    NotificationService::current()->Notify(NOTIFY_URLS_STARRED,
+    NotificationService::current()->Notify(
+        NotificationType::URLS_STARRED,
         Source<Profile>(profile_),
         Details<history::URLsStarredDetails>(&details));
   }
@@ -626,8 +629,8 @@ void BookmarkModel::CancelPendingFavIconLoadRequests(BookmarkNode* node) {
 void BookmarkModel::Observe(NotificationType type,
                             const NotificationSource& source,
                             const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_FAVICON_CHANGED: {
+  switch (type.value) {
+    case NotificationType::FAVICON_CHANGED: {
       // Prevent the observers from getting confused for multiple favicon loads.
       Details<history::FavIconChangeDetails> favicon_details(details);
       for (std::set<GURL>::const_iterator i = favicon_details->urls.begin();
@@ -646,11 +649,11 @@ void BookmarkModel::Observe(NotificationType type,
       break;
     }
 
-    case NOTIFY_HISTORY_LOADED: {
+    case NotificationType::HISTORY_LOADED: {
       if (waiting_for_history_load_) {
         waiting_for_history_load_ = false;
         NotificationService::current()->RemoveObserver(
-            this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
+            this,NotificationType::HISTORY_LOADED, Source<Profile>(profile_));
         OnHistoryDone();
       } else {
         NOTREACHED();

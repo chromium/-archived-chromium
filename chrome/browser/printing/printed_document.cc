@@ -60,7 +60,7 @@ void PrintedDocument::SetPage(int page_number, gfx::Emf* emf, double shrink) {
     }
   }
   NotificationService::current()->Notify(
-      NOTIFY_PRINTED_DOCUMENT_UPDATED,
+      NotificationType::PRINTED_DOCUMENT_UPDATED,
       Source<PrintedDocument>(this),
       Details<PrintedPage>(page));
 }
@@ -245,7 +245,7 @@ void PrintedDocument::set_page_count(int max_page) {
     }
   }
   NotificationService::current()->Notify(
-      NOTIFY_PRINTED_DOCUMENT_UPDATED,
+      NotificationType::PRINTED_DOCUMENT_UPDATED,
       Source<PrintedDocument>(this),
       NotificationService::NoDetails());
 }

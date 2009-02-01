@@ -113,7 +113,9 @@ class OffTheRecordProfileImpl : public Profile,
     // off-the-record window is closed, in which case we can clean our states
     // (cookies, downloads...).
     NotificationService::current()->AddObserver(
-        this, NOTIFY_BROWSER_CLOSED, NotificationService::AllSources());
+        this,
+        NotificationType::BROWSER_CLOSED,
+        NotificationService::AllSources());
   }
 
   virtual ~OffTheRecordProfileImpl() {
@@ -127,7 +129,9 @@ class OffTheRecordProfileImpl : public Profile,
       request_context_ = NULL;
     }
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_BROWSER_CLOSED, NotificationService::AllSources());
+        this,
+        NotificationType::BROWSER_CLOSED,
+        NotificationService::AllSources());
   }
 
   virtual FilePath GetPath() { return profile_->GetPath(); }
@@ -288,7 +292,7 @@ class OffTheRecordProfileImpl : public Profile,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK_EQ(NOTIFY_BROWSER_CLOSED, type);
+    DCHECK_EQ(NotificationType::BROWSER_CLOSED, type.value);
     // We are only interested in OTR browser closing.
     if (Source<Browser>(source)->profile() != this)
       return;
@@ -547,7 +551,7 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
     if (!default_request_context_) {
       default_request_context_ = request_context_;
       NotificationService::current()->Notify(
-          NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+          NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE,
           NotificationService::AllSources(), NotificationService::NoDetails());
     }
 
@@ -567,7 +571,7 @@ HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {
 
     // Send out the notification that the history service was created.
     NotificationService::current()->
-        Notify(NOTIFY_HISTORY_CREATED, Source<Profile>(this),
+        Notify(NotificationType::HISTORY_CREATED, Source<Profile>(this),
                Details<HistoryService>(history_service_.get()));
   }
   return history_service_.get();
@@ -702,7 +706,7 @@ class NotifySpellcheckerChangeTask : public Task {
  private:
   void Run(void) {
     NotificationService::current()->Notify(
-        NOTIFY_SPELLCHECKER_REINITIALIZED,
+        NotificationType::SPELLCHECKER_REINITIALIZED,
         Source<Profile>(profile_),
         Details<SpellcheckerReinitializedDetails>(&spellchecker_));
   }
@@ -785,7 +789,7 @@ void ProfileImpl::MarkAsCleanShutdown() {
 void ProfileImpl::Observe(NotificationType type,
                           const NotificationSource& source,
                           const NotificationDetails& details) {
-  if (NOTIFY_PREF_CHANGED == type) {
+  if (NotificationType::PREF_CHANGED == type) {
     std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
     PrefService* prefs = Source<PrefService>(source).ptr();
     DCHECK(pref_name_in && prefs);

@@ -10,6 +10,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
 
 template <typename T>
@@ -38,7 +39,8 @@ CertStore::CertStore() : next_cert_id_(1) {
   // TODO(tc): This notification observer never gets removed because the
   // CertStore is never deleted.
   NotificationService::current()->AddObserver(this,
-      NOTIFY_RENDERER_PROCESS_TERMINATED, NotificationService::AllSources());
+      NotificationType::RENDERER_PROCESS_TERMINATED,
+      NotificationService::AllSources());
 }
 
 CertStore::~CertStore() {
@@ -133,7 +135,7 @@ void CertStore::RemoveCertsForRenderProcesHost(int process_id) {
 void CertStore::Observe(NotificationType type,
                         const NotificationSource& source,
                         const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_RENDERER_PROCESS_TERMINATED);
+  DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED);
   RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
   DCHECK(rph);
   RemoveCertsForRenderProcesHost(rph->host_id());

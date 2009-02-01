@@ -6,6 +6,7 @@
 
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/widget_win.h"
 
@@ -36,10 +37,14 @@ DownloadStartedAnimation::DownloadStartedAnimation(TabContents* tab_contents)
   if (tab_contents_bounds_.height() < kDownloadImage->height())
     return;
 
-  NotificationService::current()->AddObserver(this, NOTIFY_TAB_CONTENTS_HIDDEN,
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::TAB_CONTENTS_HIDDEN,
       Source<TabContents>(tab_contents_));
-  NotificationService::current()->AddObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED, Source<TabContents>(tab_contents_));
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(tab_contents_));
 
   SetImage(kDownloadImage);
 
@@ -76,10 +81,14 @@ void DownloadStartedAnimation::Close() {
   if (!tab_contents_)
     return;
 
-  NotificationService::current()->RemoveObserver(this,
-      NOTIFY_TAB_CONTENTS_HIDDEN, Source<TabContents>(tab_contents_));
-  NotificationService::current()->RemoveObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED, Source<TabContents>(tab_contents_));
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::TAB_CONTENTS_HIDDEN,
+      Source<TabContents>(tab_contents_));
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(tab_contents_));
   tab_contents_ = NULL;
   popup_->Close();
 }

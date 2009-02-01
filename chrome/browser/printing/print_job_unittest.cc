@@ -5,6 +5,7 @@
 #include "base/message_loop.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/printing/printed_pages_source.h"
+#include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -43,7 +44,7 @@ class TestPrintNotifObserv : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    ASSERT_EQ(NOTIFY_PRINT_JOB_EVENT, type);
+    ASSERT_EQ(NotificationType::PRINT_JOB_EVENT, type.value);
     printing::JobEventDetails::Type event_type =
         Details<printing::JobEventDetails>(details)->type();
     EXPECT_NE(printing::JobEventDetails::NEW_DOC, event_type);
@@ -70,7 +71,7 @@ TEST(PrintJobTest, SimplePrint) {
   TestPrintNotifObserv observ;
   MessageLoop current;
   NotificationService::current()->AddObserver(
-      &observ, NOTIFY_ALL,
+      &observ, NotificationType::ALL,
       NotificationService::AllSources());
   TestSource source;
   volatile bool check = false;
@@ -82,7 +83,7 @@ TEST(PrintJobTest, SimplePrint) {
   job = NULL;
   EXPECT_TRUE(check);
   NotificationService::current()->RemoveObserver(
-      &observ, NOTIFY_ALL,
+      &observ, NotificationType::ALL,
       NotificationService::AllSources());
 }
 

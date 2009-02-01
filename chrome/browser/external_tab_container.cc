@@ -83,12 +83,12 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
 
   NavigationController* controller = tab_contents_->controller();
   DCHECK(controller);
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  Source<NavigationController>(controller));
-  NotificationService::current()->
-      Notify(NOTIFY_EXTERNAL_TAB_CREATED,
-              Source<NavigationController>(controller),
-              NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::EXTERNAL_TAB_CREATED,
+      Source<NavigationController>(controller),
+      NotificationService::NoDetails());
 
   // Now apply the parenting and style
   if (parent)
@@ -110,10 +110,10 @@ void ExternalTabContainer::OnDestroy() {
     NavigationController* controller = tab_contents_->controller();
     DCHECK(controller);
 
-    NotificationService::current()->
-        Notify(NOTIFY_EXTERNAL_TAB_CLOSED,
-                Source<NavigationController>(controller),
-                Details<ExternalTabContainer>(this));
+    NotificationService::current()->Notify(
+        NotificationType::EXTERNAL_TAB_CLOSED,
+        Source<NavigationController>(controller),
+        Details<ExternalTabContainer>(this));
     tab_contents_->set_delegate(NULL);
     tab_contents_->CloseContents();
     // WARNING: tab_contents_ has likely been deleted.
@@ -223,8 +223,8 @@ void ExternalTabContainer::ForwardMessageToExternalHost(
 void ExternalTabContainer::Observe(NotificationType type,
                                    const NotificationSource& source,
                                    const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_NAV_ENTRY_COMMITTED:
+  switch (type.value) {
+    case NotificationType::NAV_ENTRY_COMMITTED:
       if (automation_) {
         const NavigationController::LoadCommittedDetails* commit =
             Details<NavigationController::LoadCommittedDetails>(details).ptr();

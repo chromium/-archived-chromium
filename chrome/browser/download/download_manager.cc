@@ -1036,15 +1036,17 @@ void DownloadManager::DownloadUrl(const GURL& url,
 }
 
 void DownloadManager::NotifyAboutDownloadStart() {
-  NotificationService::current()->
-      Notify(NOTIFY_DOWNLOAD_START, NotificationService::AllSources(),
-             NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::DOWNLOAD_START,
+      NotificationService::AllSources(),
+      NotificationService::NoDetails());
 }
 
 void DownloadManager::NotifyAboutDownloadStop() {
-  NotificationService::current()->
-      Notify(NOTIFY_DOWNLOAD_STOP, NotificationService::AllSources(),
-             NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::DOWNLOAD_STOP,
+      NotificationService::AllSources(),
+      NotificationService::NoDetails());
 }
 
 void DownloadManager::GenerateExtension(

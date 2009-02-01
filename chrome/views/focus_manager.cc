@@ -8,7 +8,7 @@
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/root_view.h"
@@ -212,7 +212,9 @@ FocusManager* FocusManager::CreateFocusManager(HWND window,
   // We register for view removed notifications so we can make sure we don't
   // keep references to invalidated views.
   NotificationService::current()->AddObserver(
-      focus_manager, NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
+      focus_manager,
+      NotificationType::VIEW_REMOVED,
+      NotificationService::AllSources());
 
   return focus_manager;
 }
@@ -313,7 +315,9 @@ bool FocusManager::OnNCDestroy(HWND window) {
     DCHECK(GetProp(window, kFocusManagerKey));
     // Unregister notifications.
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
+        this,
+        NotificationType::VIEW_REMOVED,
+        NotificationService::AllSources());
 
     // Make sure this is called on the window that was set with the
     // FocusManager.
@@ -792,7 +796,7 @@ AcceleratorTarget* FocusManager::GetTargetForAccelerator(
 void FocusManager::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_VIEW_REMOVED);
+  DCHECK(type == NotificationType::VIEW_REMOVED);
   if (focused_view_ && Source<View>(focused_view_) == source)
     focused_view_ = NULL;
 }

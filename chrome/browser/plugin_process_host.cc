@@ -72,11 +72,11 @@ PluginNotificationTask::PluginNotificationTask(
 
 void PluginNotificationTask::Run() {
   // Verify that the notification type is one that makes sense.
-  switch (notification_type_) {
-    case NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED:
-    case NOTIFY_PLUGIN_PROCESS_HOST_DISCONNECTED:
-    case NOTIFY_PLUGIN_PROCESS_CRASHED:
-    case NOTIFY_PLUGIN_INSTANCE_CREATED:
+  switch (notification_type_.value) {
+    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
+    case NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED:
+    case NotificationType::PLUGIN_PROCESS_CRASHED:
+    case NotificationType::PLUGIN_INSTANCE_CREATED:
       break;
 
     default:
@@ -568,13 +568,14 @@ void PluginProcessHost::OnObjectSignaled(HANDLE object) {
   if (did_crash) {
     // Report that this plugin crashed.
     plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-        new PluginNotificationTask(NOTIFY_PLUGIN_PROCESS_CRASHED,
+        new PluginNotificationTask(NotificationType::PLUGIN_PROCESS_CRASHED,
                                    plugin_path(), object));
   }
   // Notify in the main loop of the disconnection.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(NOTIFY_PLUGIN_PROCESS_HOST_DISCONNECTED,
-                                 plugin_path(), object));
+      new PluginNotificationTask(
+          NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED,
+          plugin_path(), object));
 
   // Cancel all requests for plugin processes.
   // TODO(mpcomplete): use a real process ID when http://b/issue?id=1210062 is
@@ -642,8 +643,9 @@ void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
 
   // Notify in the main loop of the connection.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED,
-                                 plugin_path(), process()));
+      new PluginNotificationTask(
+          NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
+          plugin_path(), process()));
 }
 
 void PluginProcessHost::OnChannelError() {
@@ -664,7 +666,7 @@ void PluginProcessHost::OpenChannelToPlugin(
     IPC::Message* reply_msg) {
   // Notify in the main loop of the instantiation.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(NOTIFY_PLUGIN_INSTANCE_CREATED,
+      new PluginNotificationTask(NotificationType::PLUGIN_INSTANCE_CREATED,
                                  plugin_path(), process()));
 
   if (opening_channel_) {

@@ -11,17 +11,18 @@
 // For example, objects aren't being cached properly (browser.foo = 1 wouldn't
 // be remembered), and setters aren't implemented to begin with.
 
-#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H__
-#define CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H__
+#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H_
+#define CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H_
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "v8/include/v8.h"
 
 class Browser;
 class TabContents;
 class DebuggerShell;
+class NotificationService;
 class WebContents;
 
 class DebuggerNode : public NotificationObserver {
@@ -232,6 +233,4 @@ private:
   T* data_;
 };
 
-
-#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H__
-
+#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H_

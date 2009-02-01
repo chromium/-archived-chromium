@@ -7,6 +7,7 @@
 #include "base/message_loop.h"
 #include "base/singleton.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/common/notification_service.h"
 
 CPBrowsingContextManager* CPBrowsingContextManager::Instance() {
 #ifndef NDEBUG
@@ -21,7 +22,7 @@ CPBrowsingContextManager* CPBrowsingContextManager::Instance() {
 
 CPBrowsingContextManager::CPBrowsingContextManager() {
   NotificationService::current()->AddObserver(
-      this, NOTIFY_URL_REQUEST_CONTEXT_RELEASED,
+      this, NotificationType::URL_REQUEST_CONTEXT_RELEASED,
       NotificationService::AllSources());
 }
 
@@ -55,7 +56,7 @@ CPBrowsingContext CPBrowsingContextManager::Lookup(URLRequestContext* context) {
 void CPBrowsingContextManager::Observe(NotificationType type,
                                        const NotificationSource& source,
                                        const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_URL_REQUEST_CONTEXT_RELEASED);
+  DCHECK(type == NotificationType::URL_REQUEST_CONTEXT_RELEASED);
 
   URLRequestContext* context = Source<URLRequestContext>(source).ptr();
 

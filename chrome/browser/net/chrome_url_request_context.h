@@ -4,7 +4,7 @@
 
 #include "base/file_path.h"
 #include "chrome/common/net/cookie_monster_sqlite.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/pref_service.h"
 #include "net/url_request/url_request_context.h"
 

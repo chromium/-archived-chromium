@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_REPOST_FORM_WARNING_H__
-#define CHROME_BROWSER_REPOST_FORM_WARNING_H__
+#ifndef CHROME_BROWSER_REPOST_FORM_WARNING_H_
+#define CHROME_BROWSER_REPOST_FORM_WARNING_H_
 
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/dialog_delegate.h"
 
 class MessageBoxView;
@@ -50,8 +50,7 @@ class RepostFormWarningDialog : public views::DialogDelegate,
   // Navigation controller, used to continue the reload.
   NavigationController* navigation_controller_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RepostFormWarningDialog);
+  DISALLOW_COPY_AND_ASSIGN(RepostFormWarningDialog);
 };
 
-#endif // CHROME_BROWSER_REPOST_FORM_WARNING_H__
-
+#endif // CHROME_BROWSER_REPOST_FORM_WARNING_H_

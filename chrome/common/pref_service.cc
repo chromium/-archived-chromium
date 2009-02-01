@@ -623,7 +623,7 @@ void PrefService::FireObservers(const wchar_t* path) {
   NotificationObserverList::Iterator it(*(observer_iterator->second));
   NotificationObserver* observer;
   while ((observer = it.GetNext()) != NULL) {
-    observer->Observe(NOTIFY_PREF_CHANGED,
+    observer->Observe(NotificationType::PREF_CHANGED,
                       Source<PrefService>(this),
                       Details<std::wstring>(&path_str));
   }

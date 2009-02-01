@@ -2,12 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_MANAGER_H__
-#define CHROME_BROWSER_PRINTING_PRINT_JOB_MANAGER_H__
+#ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_MANAGER_H_
+#define CHROME_BROWSER_PRINTING_PRINT_JOB_MANAGER_H_
+
+#include <string>
+#include <vector>
 
 #include "base/lock.h"
 #include "base/ref_counted.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 namespace printing {
 
@@ -83,5 +86,4 @@ class PrintJobManager : public NotificationObserver {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINT_JOB_MANAGER_H__
-
+#endif  // CHROME_BROWSER_PRINTING_PRINT_JOB_MANAGER_H_

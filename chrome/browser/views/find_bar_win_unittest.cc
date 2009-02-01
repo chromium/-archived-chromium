@@ -10,6 +10,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/views/find_bar_win.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 
@@ -25,7 +26,7 @@ class FindInPageNotificationObserver : public NotificationObserver {
       : parent_tab_(parent_tab),
         active_match_ordinal_(-1),
         number_of_matches_(0) {
-    registrar_.Add(this, NOTIFY_FIND_RESULT_AVAILABLE,
+    registrar_.Add(this, NotificationType::FIND_RESULT_AVAILABLE,
         Source<TabContents>(parent_tab_));
     ui_test_utils::RunMessageLoop();
   }
@@ -36,7 +37,7 @@ class FindInPageNotificationObserver : public NotificationObserver {
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type == NOTIFY_FIND_RESULT_AVAILABLE) {
+    if (type == NotificationType::FIND_RESULT_AVAILABLE) {
       Details<FindNotificationDetails> find_details(details);
       if (find_details->request_id() == kFindInPageRequestId) {
         // We get multiple responses and one of those will contain the ordinal.

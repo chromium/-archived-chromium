@@ -7,7 +7,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/data/resource.h"
@@ -56,7 +56,7 @@ class TestPrefObserver : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    EXPECT_EQ(type, NOTIFY_PREF_CHANGED);
+    EXPECT_EQ(type.value, NotificationType::PREF_CHANGED);
     PrefService* prefs_in = Source<PrefService>(source).ptr();
     EXPECT_EQ(prefs_in, prefs_);
     std::wstring* pref_name_in = Details<std::wstring>(details).ptr();

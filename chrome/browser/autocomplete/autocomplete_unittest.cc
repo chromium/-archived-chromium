@@ -7,6 +7,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // identifiers for known autocomplete providers
@@ -118,11 +119,13 @@ class AutocompleteProviderTest : public testing::Test,
 };
 
 void AutocompleteProviderTest::SetUp() {
-  registrar_.Add(this, NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
-                 NotificationService::AllSources());
   registrar_.Add(this,
-                 NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
+                 NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
                  NotificationService::AllSources());
+  registrar_.Add(
+      this,
+      NotificationType::AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
+      NotificationService::AllSources());
   ResetController(false);
 }
 

@@ -18,6 +18,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
@@ -318,7 +319,7 @@ void BlockedPopupContainer::CloseConstrainedWindow() {
   // Broadcast to all observers of NOTIFY_CWINDOW_CLOSED.
   // One example of such an observer is AutomationCWindowTracker in the
   // automation component.
-  NotificationService::current()->Notify(NOTIFY_CWINDOW_CLOSED,
+  NotificationService::current()->Notify(NotificationType::CWINDOW_CLOSED,
                                          Source<ConstrainedWindow>(this),
                                          NotificationService::NoDetails());
 

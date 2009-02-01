@@ -33,33 +33,34 @@ NotificationService::NotificationService() {
 void NotificationService::AddObserver(NotificationObserver* observer,
                                       NotificationType type,
                                       const NotificationSource& source) {
-  DCHECK(type < NOTIFICATION_TYPE_COUNT);
+  DCHECK(type.value < NotificationType::NOTIFICATION_TYPE_COUNT);
 
   NotificationObserverList* observer_list;
-  if (HasKey(observers_[type], source)) {
-    observer_list = observers_[type][source.map_key()];
+  if (HasKey(observers_[type.value], source)) {
+    observer_list = observers_[type.value][source.map_key()];
   } else {
     observer_list = new NotificationObserverList;
-    observers_[type][source.map_key()] = observer_list;
+    observers_[type.value][source.map_key()] = observer_list;
   }
 
   observer_list->AddObserver(observer);
 #ifndef NDEBUG
-  ++observer_counts_[type];
+  ++observer_counts_[type.value];
 #endif
 }
 
 void NotificationService::RemoveObserver(NotificationObserver* observer,
                                          NotificationType type,
                                          const NotificationSource& source) {
-  DCHECK(type < NOTIFICATION_TYPE_COUNT);
-  DCHECK(HasKey(observers_[type], source));
+  DCHECK(type.value < NotificationType::NOTIFICATION_TYPE_COUNT);
+  DCHECK(HasKey(observers_[type.value], source));
 
-  NotificationObserverList* observer_list = observers_[type][source.map_key()];
+  NotificationObserverList* observer_list =
+      observers_[type.value][source.map_key()];
   if (observer_list) {
     observer_list->RemoveObserver(observer);
 #ifndef NDEBUG
-    --observer_counts_[type];
+    --observer_counts_[type.value];
 #endif
   }
 
@@ -69,34 +70,42 @@ void NotificationService::RemoveObserver(NotificationObserver* observer,
 void NotificationService::Notify(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {
-  DCHECK(type > NOTIFY_ALL);  // Allowed for subscription, but not posting.
-  DCHECK(type < NOTIFICATION_TYPE_COUNT);
+  DCHECK(type.value > NotificationType::ALL) <<
+      "Allowed for observing, but not posting.";
+  DCHECK(type.value < NotificationType::NOTIFICATION_TYPE_COUNT);
 
   // There's no particular reason for the order in which the different
   // classes of observers get notified here.
 
   // Notify observers of all types and all sources
-  if (HasKey(observers_[NOTIFY_ALL], AllSources()) &&
-      source != AllSources())
+  if (HasKey(observers_[NotificationType::ALL], AllSources()) &&
+      source != AllSources()) {
     FOR_EACH_OBSERVER(NotificationObserver,
-                      *observers_[NOTIFY_ALL][AllSources().map_key()],
-                      Observe(type, source, details));
+       *observers_[NotificationType::ALL][AllSources().map_key()],
+       Observe(type, source, details));
+  }
+
   // Notify observers of all types and the given source
-  if (HasKey(observers_[NOTIFY_ALL], source))
+  if (HasKey(observers_[NotificationType::ALL], source)) {
     FOR_EACH_OBSERVER(NotificationObserver,
-                      *observers_[NOTIFY_ALL][source.map_key()],
-                      Observe(type, source, details));
+        *observers_[NotificationType::ALL][source.map_key()],
+        Observe(type, source, details));
+  }
+
   // Notify observers of the given type and all sources
-  if (HasKey(observers_[type], AllSources()) &&
-      source != AllSources())
+  if (HasKey(observers_[type.value], AllSources()) &&
+      source != AllSources()) {
     FOR_EACH_OBSERVER(NotificationObserver,
-                      *observers_[type][AllSources().map_key()],
+                      *observers_[type.value][AllSources().map_key()],
                       Observe(type, source, details));
+  }
+
   // Notify observers of the given type and the given source
-  if (HasKey(observers_[type], source))
+  if (HasKey(observers_[type.value], source)) {
     FOR_EACH_OBSERVER(NotificationObserver,
-                      *observers_[type][source.map_key()],
+                      *observers_[type.value][source.map_key()],
                       Observe(type, source, details));
+  }
 }
 
 
@@ -104,7 +113,7 @@ NotificationService::~NotificationService() {
   lazy_tls_ptr.Pointer()->Set(NULL);
 
 #ifndef NDEBUG
-  for (int i = 0; i < NOTIFICATION_TYPE_COUNT; i++) {
+  for (int i = 0; i < NotificationType::NOTIFICATION_TYPE_COUNT; i++) {
     if (observer_counts_[i] > 0) {
       LOG(WARNING) << observer_counts_[i] << " notification observer(s) leaked"
           << " of notification type " << i;
@@ -112,7 +121,7 @@ NotificationService::~NotificationService() {
   }
 #endif
 
-  for (int i = 0; i < NOTIFICATION_TYPE_COUNT; i++) {
+  for (int i = 0; i < NotificationType::NOTIFICATION_TYPE_COUNT; i++) {
     NotificationSourceMap omap = observers_[i];
     for (NotificationSourceMap::iterator it = omap.begin();
          it != omap.end(); ++it) {

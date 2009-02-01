@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BROWSING_DATA_REMOVER_H__
-#define CHROME_BROWSER_BROWSING_DATA_REMOVER_H__
+#ifndef CHROME_BROWSER_BROWSING_DATA_REMOVER_H_
+#define CHROME_BROWSER_BROWSING_DATA_REMOVER_H_
 
 #include "base/observer_list.h"
 #include "base/time.h"
 #include "chrome/browser/cancelable_request.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class MessageLoop;
 class Profile;
@@ -102,7 +102,7 @@ class BrowsingDataRemover : public NotificationObserver {
   // Used if we need to clear history.
   CancelableRequestConsumer request_consumer_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BrowsingDataRemover);
+  DISALLOW_COPY_AND_ASSIGN(BrowsingDataRemover);
 };
 
-#endif  // CHROME_BROWSER_BROWSING_DATA_REMOVER_H__
+#endif  // CHROME_BROWSER_BROWSING_DATA_REMOVER_H_

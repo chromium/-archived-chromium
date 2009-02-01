@@ -11,7 +11,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/sessions/base_session_service.h"
 #include "chrome/browser/sessions/session_id.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
 
 class Browser;

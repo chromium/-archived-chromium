@@ -47,9 +47,9 @@ class InitialLoadObserver : public NotificationObserver {
         automation_(automation) {
     if (outstanding_tab_count_ > 0) {
       NotificationService* service = NotificationService::current();
-      registrar_.Add(this, NOTIFY_LOAD_START,
+      registrar_.Add(this, NotificationType::LOAD_START,
                      NotificationService::AllSources());
-      registrar_.Add(this, NOTIFY_LOAD_STOP,
+      registrar_.Add(this, NotificationType::LOAD_STOP,
                      NotificationService::AllSources());
     }
   }
@@ -65,10 +65,10 @@ class InitialLoadObserver : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type == NOTIFY_LOAD_START) {
+    if (type == NotificationType::LOAD_START) {
       if (outstanding_tab_count_ > loading_tabs_.size())
         loading_tabs_.insert(source.map_key());
-    } else if (type == NOTIFY_LOAD_STOP) {
+    } else if (type == NotificationType::LOAD_STOP) {
       if (outstanding_tab_count_ > finished_tabs_.size()) {
         if (loading_tabs_.find(source.map_key()) != loading_tabs_.end())
           finished_tabs_.insert(source.map_key());
@@ -96,9 +96,9 @@ class NewTabUILoadObserver : public NotificationObserver {
  public:
   explicit NewTabUILoadObserver(AutomationProvider* automation)
       : automation_(automation) {
-    NotificationService::current()->
-        AddObserver(this, NOTIFY_INITIAL_NEW_TAB_UI_LOAD,
-                    NotificationService::AllSources());
+    NotificationService::current()->AddObserver(
+        this, NotificationType::INITIAL_NEW_TAB_UI_LOAD,
+        NotificationService::AllSources());
   }
 
   ~NewTabUILoadObserver() {
@@ -106,15 +106,15 @@ class NewTabUILoadObserver : public NotificationObserver {
   }
 
   void Unregister() {
-    NotificationService::current()->
-        RemoveObserver(this, NOTIFY_INITIAL_NEW_TAB_UI_LOAD,
-                       NotificationService::AllSources());
+    NotificationService::current()->RemoveObserver(
+        this, NotificationType::INITIAL_NEW_TAB_UI_LOAD,
+        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type == NOTIFY_INITIAL_NEW_TAB_UI_LOAD) {
+    if (type == NotificationType::INITIAL_NEW_TAB_UI_LOAD) {
       Details<int> load_time(details);
       automation_->Send(
           new AutomationMsg_InitialNewTabUILoadComplete(0, *load_time.ptr()));
@@ -141,7 +141,7 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
     } else {
       registered_ = true;
       NotificationService* service = NotificationService::current();
-      service->AddObserver(this, NOTIFY_LOAD_STOP,
+      service->AddObserver(this, NotificationType::LOAD_STOP,
                            NotificationService::AllSources());
     }
   }
@@ -163,7 +163,7 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
  private:
   void Unregister() {
     NotificationService* service = NotificationService::current();
-    service->RemoveObserver(this, NOTIFY_LOAD_STOP,
+    service->RemoveObserver(this, NotificationType::LOAD_STOP,
                             NotificationService::AllSources());
     registered_ = false;
   }
@@ -197,15 +197,15 @@ class NavigationNotificationObserver : public NotificationObserver {
       controller_(controller),
       navigation_started_(false) {
     NotificationService* service = NotificationService::current();
-    service->AddObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
+    service->AddObserver(this, NotificationType::NAV_ENTRY_COMMITTED,
                          Source<NavigationController>(controller_));
-    service->AddObserver(this, NOTIFY_LOAD_START,
+    service->AddObserver(this, NotificationType::LOAD_START,
                          Source<NavigationController>(controller_));
-    service->AddObserver(this, NOTIFY_LOAD_STOP,
+    service->AddObserver(this, NotificationType::LOAD_STOP,
                          Source<NavigationController>(controller_));
-    service->AddObserver(this, NOTIFY_AUTH_NEEDED,
+    service->AddObserver(this, NotificationType::AUTH_NEEDED,
                          Source<NavigationController>(controller_));
-    service->AddObserver(this, NOTIFY_AUTH_SUPPLIED,
+    service->AddObserver(this, NotificationType::AUTH_SUPPLIED,
                          Source<NavigationController>(controller_));
   }
 
@@ -226,15 +226,15 @@ class NavigationNotificationObserver : public NotificationObserver {
 
   void Unregister() {
     NotificationService* service = NotificationService::current();
-    service->RemoveObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
+    service->RemoveObserver(this, NotificationType::NAV_ENTRY_COMMITTED,
                             Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NOTIFY_LOAD_START,
+    service->RemoveObserver(this, NotificationType::LOAD_START,
                             Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NOTIFY_LOAD_STOP,
+    service->RemoveObserver(this, NotificationType::LOAD_STOP,
                             Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NOTIFY_AUTH_NEEDED,
+    service->RemoveObserver(this, NotificationType::AUTH_NEEDED,
                             Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NOTIFY_AUTH_SUPPLIED,
+    service->RemoveObserver(this, NotificationType::AUTH_SUPPLIED,
                             Source<NavigationController>(controller_));
   }
 
@@ -246,23 +246,24 @@ class NavigationNotificationObserver : public NotificationObserver {
     // afer the load has started (but not after the entry was committed, as
     // WaitForNavigation compares times of the last navigation).
     // - when this is used with a page requiring authentication, we will not get
-    // a NOTIFY_NAV_ENTRY_COMMITTED until after we authenticate, so we need the
-    // NOTIFY_LOAD_START.
-    if (type == NOTIFY_NAV_ENTRY_COMMITTED || type == NOTIFY_LOAD_START) {
+    // a NotificationType::NAV_ENTRY_COMMITTED until after we authenticate, so we need the
+    // NotificationType::LOAD_START.
+    if (type == NotificationType::NAV_ENTRY_COMMITTED ||
+        type == NotificationType::LOAD_START) {
       navigation_started_ = true;
-    } else if (type == NOTIFY_LOAD_STOP) {
+    } else if (type == NotificationType::LOAD_STOP) {
       if (navigation_started_) {
         navigation_started_ = false;
         ConditionMet(&completed_response_);
       }
-    } else if (type == NOTIFY_AUTH_SUPPLIED) {
+    } else if (type == NotificationType::AUTH_SUPPLIED) {
       // The LoginHandler for this tab is no longer valid.
       automation_->RemoveLoginHandler(controller_);
 
       // Treat this as if navigation started again, since load start/stop don't
       // occur while authentication is ongoing.
       navigation_started_ = true;
-    } else if (type == NOTIFY_AUTH_NEEDED) {
+    } else if (type == NotificationType::AUTH_NEEDED) {
       if (navigation_started_) {
         // Remember the login handler that wants authentication.
         LoginHandler* handler =
@@ -336,8 +337,8 @@ class TabAppendedNotificationObserver : public TabStripNotificationObserver {
  public:
   TabAppendedNotificationObserver(Browser* parent,
       AutomationProvider* automation, int32 routing_id)
-      : TabStripNotificationObserver(parent, NOTIFY_TAB_PARENTED, automation,
-                                     routing_id) {
+      : TabStripNotificationObserver(parent, NotificationType::TAB_PARENTED,
+                                     automation, routing_id) {
   }
 
   virtual void ObserveTab(NavigationController* controller) {
@@ -362,10 +363,10 @@ class TabClosedNotificationObserver : public TabStripNotificationObserver {
                                 int32 routing_id,
                                 bool wait_until_closed)
       : TabStripNotificationObserver(parent,
-                                     wait_until_closed ? NOTIFY_TAB_CLOSED :
-                                                         NOTIFY_TAB_CLOSING,
-                                     automation,
-                                     routing_id) {
+            wait_until_closed ? NotificationType::TAB_CLOSED :
+                NotificationType::TAB_CLOSING,
+            automation,
+            routing_id) {
   }
 
   virtual void ObserveTab(NavigationController* controller) {
@@ -380,14 +381,14 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
                                     int32 routing_id)
       : automation_(automation),
         routing_id_(routing_id) {
-    NotificationService::current()->
-        AddObserver(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(browser));
+    NotificationService::current()->AddObserver(this,
+        NotificationType::BROWSER_CLOSED, Source<Browser>(browser));
   }
 
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK(type == NOTIFY_BROWSER_CLOSED);
+    DCHECK(type == NotificationType::BROWSER_CLOSED);
     Details<bool> close_app(details);
     automation_->Send(
         new AutomationMsg_CloseBrowserResponse(routing_id_,
@@ -410,9 +411,10 @@ class FindInPageNotificationObserver : public NotificationObserver {
         parent_tab_(parent_tab),
         routing_id_(routing_id),
         active_match_ordinal_(-1) {
-    NotificationService::current()->
-        AddObserver(this, NOTIFY_FIND_RESULT_AVAILABLE,
-                    Source<TabContents>(parent_tab_));
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::FIND_RESULT_AVAILABLE,
+        Source<TabContents>(parent_tab_));
   }
 
   ~FindInPageNotificationObserver() {
@@ -421,13 +423,13 @@ class FindInPageNotificationObserver : public NotificationObserver {
 
   void Unregister() {
     NotificationService::current()->
-        RemoveObserver(this, NOTIFY_FIND_RESULT_AVAILABLE,
+        RemoveObserver(this, NotificationType::FIND_RESULT_AVAILABLE,
                        Source<TabContents>(parent_tab_));
   }
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
       const NotificationDetails& details) {
-    if (type == NOTIFY_FIND_RESULT_AVAILABLE) {
+    if (type == NotificationType::FIND_RESULT_AVAILABLE) {
       Details<FindNotificationDetails> find_details(details);
       if (find_details->request_id() == kFindInPageRequestId) {
         // We get multiple responses and one of those will contain the ordinal.
@@ -471,19 +473,19 @@ class DomOperationNotificationObserver : public NotificationObserver {
   explicit DomOperationNotificationObserver(AutomationProvider* automation)
       : automation_(automation) {
     NotificationService::current()->
-        AddObserver(this, NOTIFY_DOM_OPERATION_RESPONSE,
+        AddObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
                     NotificationService::AllSources());
   }
 
   ~DomOperationNotificationObserver() {
     NotificationService::current()->
-        RemoveObserver(this, NOTIFY_DOM_OPERATION_RESPONSE,
+        RemoveObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
                        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
       const NotificationDetails& details) {
-    if (NOTIFY_DOM_OPERATION_RESPONSE == type) {
+    if (NotificationType::DOM_OPERATION_RESPONSE == type) {
       Details<DomOperationNotificationDetails> dom_op_details(details);
       automation_->Send(new AutomationMsg_DomOperationResponse(
           dom_op_details->automation_id(),
@@ -498,20 +500,22 @@ class DomInspectorNotificationObserver : public NotificationObserver {
  public:
   explicit DomInspectorNotificationObserver(AutomationProvider* automation)
       : automation_(automation) {
-    NotificationService::current()->
-        AddObserver(this, NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE,
-                    NotificationService::AllSources());
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::DOM_INSPECT_ELEMENT_RESPONSE,
+        NotificationService::AllSources());
   }
 
   ~DomInspectorNotificationObserver() {
-    NotificationService::current()->
-        RemoveObserver(this, NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE,
-                       NotificationService::AllSources());
+    NotificationService::current()->RemoveObserver(
+        this,
+        NotificationType::DOM_INSPECT_ELEMENT_RESPONSE,
+        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
       const NotificationDetails& details) {
-    if (NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE == type) {
+    if (NotificationType::DOM_INSPECT_ELEMENT_RESPONSE == type) {
       Details<int> dom_inspect_details(details);
       automation_->ReceivedInspectElementResponse(*(dom_inspect_details.ptr()));
     }
@@ -528,24 +532,26 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
       : automation_(automation),
         routing_id_(routing_id),
         success_(false) {
-    NotificationService::current()->
-        AddObserver(this, NOTIFY_PRINT_JOB_EVENT,
-                    NotificationService::AllSources());
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::PRINT_JOB_EVENT,
+        NotificationService::AllSources());
   }
 
   ~DocumentPrintedNotificationObserver() {
     automation_->Send(
         new AutomationMsg_PrintNowResponse(routing_id_, success_));
     automation_->RemoveNavigationStatusListener(this);
-    NotificationService::current()->
-        RemoveObserver(this, NOTIFY_PRINT_JOB_EVENT,
-                       NotificationService::AllSources());
+    NotificationService::current()->RemoveObserver(
+        this,
+        NotificationType::PRINT_JOB_EVENT,
+        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
                        const NotificationDetails& details) {
     using namespace printing;
-    DCHECK(type == NOTIFY_PRINT_JOB_EVENT);
+    DCHECK(type == NotificationType::PRINT_JOB_EVENT);
     switch (Details<JobEventDetails>(details)->type()) {
       case JobEventDetails::JOB_DONE: {
         // Succeeded.
@@ -2381,12 +2387,16 @@ WebContents* AutomationProvider::GetWebContentsForHandle(
 TestingAutomationProvider::TestingAutomationProvider(Profile* profile)
     : AutomationProvider(profile) {
   BrowserList::AddObserver(this);
-  NotificationService::current()->AddObserver(this, NOTIFY_SESSION_END,
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::SESSION_END,
       NotificationService::AllSources());
 }
 
 TestingAutomationProvider::~TestingAutomationProvider() {
-  NotificationService::current()->RemoveObserver(this, NOTIFY_SESSION_END,
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::SESSION_END,
       NotificationService::AllSources());
   BrowserList::RemoveObserver(this);
 }
@@ -2401,7 +2411,7 @@ void TestingAutomationProvider::OnBrowserRemoving(const Browser* browser) {
   // want the automation provider (and hence the process) to go away when the
   // last browser goes away.
   if (BrowserList::size() == 1) {
-    // If you change this, update Observer for NOTIFY_SESSION_END below.
+    // If you change this, update Observer for NotificationType::SESSION_END below.
     MessageLoop::current()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &TestingAutomationProvider::OnRemoveProvider));
   }
@@ -2410,7 +2420,7 @@ void TestingAutomationProvider::OnBrowserRemoving(const Browser* browser) {
 void TestingAutomationProvider::Observe(NotificationType type,
                                         const NotificationSource& source,
                                         const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_SESSION_END);
+  DCHECK(type == NotificationType::SESSION_END);
   // OnBrowserRemoving does a ReleaseLater. When session end is received we exit
   // before the task runs resulting in this object not being deleted. This
   // Release balance out the Release scheduled by OnBrowserRemoving.

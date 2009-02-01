@@ -321,7 +321,7 @@ void RenderWidgetHost::RendererExited() {
 
 void RenderWidgetHost::Destroy() {
   NotificationService::current()->Notify(
-      NOTIFY_RENDER_WIDGET_HOST_DESTROYED,
+      NotificationType::RENDER_WIDGET_HOST_DESTROYED,
       Source<RenderWidgetHost>(this),
       NotificationService::NoDetails());
 
@@ -348,9 +348,10 @@ void RenderWidgetHost::CheckRendererIsUnresponsive() {
   }
 
   // OK, looks like we have a hung renderer!
-  NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_HANG,
-                                         Source<RenderWidgetHost>(this),
-                                         NotificationService::NoDetails());
+  NotificationService::current()->Notify(
+      NotificationType::RENDERER_PROCESS_HANG,
+      Source<RenderWidgetHost>(this),
+      NotificationService::NoDetails());
   is_unresponsive_ = true;
   NotifyRendererUnresponsive();
 }

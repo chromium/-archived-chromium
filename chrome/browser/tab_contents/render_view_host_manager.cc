@@ -92,7 +92,7 @@ RenderViewHost* RenderViewHostManager::Navigate(const NavigationEntry& entry) {
       details.new_host = render_view_host_;
       details.old_host = NULL;
       NotificationService::current()->Notify(
-          NOTIFY_RENDER_VIEW_HOST_CHANGED,
+          NotificationType::RENDER_VIEW_HOST_CHANGED,
           Source<NavigationController>(
               delegate_->GetControllerForRenderManager()),
           Details<RenderViewHostSwitchedDetails>(&details));
@@ -415,7 +415,7 @@ void RenderViewHostManager::SwapToRenderView(
   details.new_host = render_view_host_;
   details.old_host = old_render_view_host;
   NotificationService::current()->Notify(
-      NOTIFY_RENDER_VIEW_HOST_CHANGED,
+      NotificationType::RENDER_VIEW_HOST_CHANGED,
       Source<NavigationController>(delegate_->GetControllerForRenderManager()),
       Details<RenderViewHostSwitchedDetails>(&details));
 

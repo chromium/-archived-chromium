@@ -24,7 +24,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/notification_types.h"
 #include "chrome/common/scoped_vector.h"
 #include "chrome/common/win_util.h"
 
@@ -366,17 +365,17 @@ SessionService::Handle SessionService::GetLastSession(
 
 void SessionService::Init() {
   // Register for the notifications we're interested in.
-  registrar_.Add(this, NOTIFY_TAB_PARENTED,
+  registrar_.Add(this, NotificationType::TAB_PARENTED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_TAB_CLOSED,
+  registrar_.Add(this, NotificationType::TAB_CLOSED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_NAV_LIST_PRUNED,
+  registrar_.Add(this, NotificationType::NAV_LIST_PRUNED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_CHANGED,
+  registrar_.Add(this, NotificationType::NAV_ENTRY_CHANGED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_BROWSER_OPENED,
+  registrar_.Add(this, NotificationType::BROWSER_OPENED,
                  NotificationService::AllSources());
 }
 
@@ -384,8 +383,8 @@ void SessionService::Observe(NotificationType type,
                              const NotificationSource& source,
                              const NotificationDetails& details) {
   // All of our messages have the NavigationController as the source.
-  switch (type) {
-    case NOTIFY_BROWSER_OPENED: {
+  switch (type.value) {
+    case NotificationType::BROWSER_OPENED: {
       Browser* browser = Source<Browser>(source).ptr();
       if (browser->profile() != profile() ||
           !should_track_changes_for_browser_type(browser->type())) {
@@ -410,21 +409,21 @@ void SessionService::Observe(NotificationType type,
       break;
     }
 
-    case NOTIFY_TAB_PARENTED: {
+    case NotificationType::TAB_PARENTED: {
       NavigationController* controller =
           Source<NavigationController>(source).ptr();
       SetTabWindow(controller->window_id(), controller->session_id());
       break;
     }
 
-    case NOTIFY_TAB_CLOSED: {
+    case NotificationType::TAB_CLOSED: {
       NavigationController* controller =
           Source<NavigationController>(source).ptr();
       TabClosed(controller->window_id(), controller->session_id());
       break;
     }
 
-    case NOTIFY_NAV_LIST_PRUNED: {
+    case NotificationType::NAV_LIST_PRUNED: {
       NavigationController* controller =
           Source<NavigationController>(source).ptr();
       Details<NavigationController::PrunedDetails> pruned_details(details);
@@ -440,7 +439,7 @@ void SessionService::Observe(NotificationType type,
       break;
     }
 
-    case NOTIFY_NAV_ENTRY_CHANGED: {
+    case NotificationType::NAV_ENTRY_CHANGED: {
       NavigationController* controller =
           Source<NavigationController>(source).ptr();
       Details<NavigationController::EntryChangedDetails> changed(details);
@@ -449,7 +448,7 @@ void SessionService::Observe(NotificationType type,
       break;
     }
 
-    case NOTIFY_NAV_ENTRY_COMMITTED: {
+    case NotificationType::NAV_ENTRY_COMMITTED: {
       NavigationController* controller =
           Source<NavigationController>(source).ptr();
       int current_entry_index = controller->GetCurrentEntryIndex();

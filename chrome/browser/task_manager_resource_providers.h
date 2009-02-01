@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H__
-#define CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H__
+#ifndef CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H_
+#define CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H_
 
 #include "base/basictypes.h"
 #include "chrome/browser/plugin_process_info.h"
 #include "chrome/browser/task_manager.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class PluginProcessHost;
 class WebContents;
@@ -35,7 +35,7 @@ class TaskManagerWebContentsResource : public TaskManager::Resource {
   HANDLE process_;
   int pid_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerWebContentsResource);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerWebContentsResource);
 };
 
 class TaskManagerWebContentsResourceProvider
@@ -72,7 +72,7 @@ class TaskManagerWebContentsResourceProvider
   // resources.
   std::map<WebContents*, TaskManagerWebContentsResource*> resources_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerWebContentsResourceProvider);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerWebContentsResourceProvider);
 };
 
 class TaskManagerPluginProcessResource : public TaskManager::Resource {
@@ -107,7 +107,7 @@ class TaskManagerPluginProcessResource : public TaskManager::Resource {
   // plugins.
   static SkBitmap* default_icon_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerPluginProcessResource);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerPluginProcessResource);
 };
 
 class TaskManagerPluginProcessResourceProvider
@@ -159,7 +159,7 @@ class TaskManagerPluginProcessResourceProvider
   // byte read notifications).
   std::map<int, TaskManagerPluginProcessResource*> pid_to_resources_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerPluginProcessResourceProvider);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerPluginProcessResourceProvider);
 };
 
 class TaskManagerBrowserProcessResource : public TaskManager::Resource {
@@ -191,7 +191,7 @@ class TaskManagerBrowserProcessResource : public TaskManager::Resource {
 
   static SkBitmap* default_icon_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerBrowserProcessResource);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerBrowserProcessResource);
 };
 
 class TaskManagerBrowserProcessResourceProvider
@@ -217,8 +217,7 @@ class TaskManagerBrowserProcessResourceProvider
   TaskManager* task_manager_;
   TaskManagerBrowserProcessResource resource_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerBrowserProcessResourceProvider);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerBrowserProcessResourceProvider);
 };
 
-#endif  // CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H__
-
+#endif  // CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H_

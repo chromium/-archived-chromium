@@ -2,9 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/common/notification_registrar.h"
+
 #include <algorithm>
 
-#include "chrome/common/notification_registrar.h"
+#include "base/logging.h"
+#include "chrome/common/notification_service.h"
+
+struct NotificationRegistrar::Record {
+  bool operator==(const Record& other) const;
+
+  NotificationObserver* observer;
+  NotificationType type;
+  NotificationSource source;
+};
+
+bool NotificationRegistrar::Record::operator==(const Record& other) const {
+  return observer == other.observer &&
+         type == other.type &&
+         source == other.source;
+}
 
 NotificationRegistrar::NotificationRegistrar() {
 }

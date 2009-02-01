@@ -4,6 +4,7 @@
 
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/dialog_delegate.h"
@@ -427,7 +428,7 @@ public:
 
   void Observe(NotificationType type, const NotificationSource& source,
     const NotificationDetails& details) {
-      ASSERT_TRUE(type == NOTIFY_VIEW_REMOVED);
+      ASSERT_TRUE(type == NotificationType::VIEW_REMOVED);
       removed_views_.push_back(Source<views::View>(source).ptr());
   }
 
@@ -444,7 +445,9 @@ TEST_F(ViewTest, RemoveNotification) {
   scoped_ptr<RemoveViewObserver> observer(new RemoveViewObserver);
 
   NotificationService::current()->AddObserver(
-      observer.get(), NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
+      observer.get(),
+      NotificationType::VIEW_REMOVED,
+      NotificationService::AllSources());
 
   views::WidgetWin* window = new views::WidgetWin;
   views::RootView* root_view = window->GetRootView();
@@ -506,7 +509,7 @@ TEST_F(ViewTest, RemoveNotification) {
               observer->WasRemoved(v111)  && observer->WasRemoved(v112));
 
   NotificationService::current()->RemoveObserver(observer.get(),
-      NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
+      NotificationType::VIEW_REMOVED, NotificationService::AllSources());
 }
 
 namespace {

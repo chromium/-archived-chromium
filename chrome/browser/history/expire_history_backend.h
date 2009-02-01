@@ -13,11 +13,11 @@
 #include "base/time.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/text_database_manager.h"
-#include "chrome/common/notification_types.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BookmarkService;
 class GURL;
+class NotificationType;
 
 namespace history {
 

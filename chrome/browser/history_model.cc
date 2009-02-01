@@ -6,6 +6,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/notification_service.h"
 
 using base::Time;
 
@@ -20,22 +21,26 @@ HistoryModel::HistoryModel(Profile* profile, const std::wstring& search_text)
       search_text_(search_text),
       search_depth_(0) {
   // Register for notifications about URL starredness changing on this profile.
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_URLS_STARRED,
-                  Source<Profile>(profile->GetOriginalProfile()));
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_HISTORY_URLS_DELETED,
-                  Source<Profile>(profile->GetOriginalProfile()));
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::URLS_STARRED,
+      Source<Profile>(profile->GetOriginalProfile()));
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::HISTORY_URLS_DELETED,
+      Source<Profile>(profile->GetOriginalProfile()));
 }
 
 HistoryModel::~HistoryModel() {
   // Unregister for notifications about URL starredness.
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_URLS_STARRED,
-                     Source<Profile>(profile_->GetOriginalProfile()));
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_HISTORY_URLS_DELETED,
-                     Source<Profile>(profile_->GetOriginalProfile()));
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::URLS_STARRED,
+      Source<Profile>(profile_->GetOriginalProfile()));
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::HISTORY_URLS_DELETED,
+      Source<Profile>(profile_->GetOriginalProfile()));
 }
 
 int HistoryModel::GetItemCount() {
@@ -202,40 +207,40 @@ void HistoryModel::Refresh() {
 void HistoryModel::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
-  switch (type) {
-  case NOTIFY_URLS_STARRED: {  // Somewhere, a URL has been starred.
-    Details<history::URLsStarredDetails> starred_state(details);
+  switch (type.value) {
+    case NotificationType::URLS_STARRED: {  // Somewhere a URL has been starred.
+      Details<history::URLsStarredDetails> starred_state(details);
 
-    // In the degenerate case when there are a lot of pages starred, this may
-    // be unacceptably slow.
-    std::set<GURL>::const_iterator i;
-    bool changed = false;
-    for (i = starred_state->changed_urls.begin();
-         i != starred_state->changed_urls.end(); ++i) {
-      changed |= UpdateStarredStateOfURL(*i, starred_state->starred);
+      // In the degenerate case when there are a lot of pages starred, this may
+      // be unacceptably slow.
+      std::set<GURL>::const_iterator i;
+      bool changed = false;
+      for (i = starred_state->changed_urls.begin();
+           i != starred_state->changed_urls.end(); ++i) {
+        changed |= UpdateStarredStateOfURL(*i, starred_state->starred);
+      }
+      if (changed && observer_)
+        observer_->ModelChanged(false);
+      break;
     }
-    if (changed && observer_)
-      observer_->ModelChanged(false);
-    break;
-  }
 
-  case NOTIFY_HISTORY_URLS_DELETED:
-    // TODO(brettw) bug 1140015: This should actually update the current query
-    // rather than re-querying. This should be much more efficient and
-    // user-friendly.
-    //
-    // Note that we can special case when the "all_history" flag is set to just
-    // clear the view.
-    Refresh();
-    break;
+    case NotificationType::HISTORY_URLS_DELETED:
+      // TODO(brettw) bug 1140015: This should actually update the current query
+      // rather than re-querying. This should be much more efficient and
+      // user-friendly.
+      //
+      // Note that we can special case when the "all_history" flag is set to just
+      // clear the view.
+      Refresh();
+      break;
 
-  // TODO(brettw) bug 1140015, 1140017, 1140020: Add a more observers to catch
-  // title changes, new additions, etc.. Also, URLS_ADDED when that
-  // notification exists.
+    // TODO(brettw) bug 1140015, 1140017, 1140020: Add a more observers to catch
+    // title changes, new additions, etc.. Also, URLS_ADDED when that
+    // notification exists.
 
-  default:
-    NOTREACHED();
-    break;
+    default:
+      NOTREACHED();
+      break;
   }
 }
 

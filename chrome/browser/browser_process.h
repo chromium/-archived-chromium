@@ -7,8 +7,8 @@
 // will return NULL if the service is not available, so callers must check for
 // this condition.
 
-#ifndef CHROME_BROWSER_BROWSER_PROCESS_H__
-#define CHROME_BROWSER_BROWSER_PROCESS_H__
+#ifndef CHROME_BROWSER_BROWSER_PROCESS_H_
+#define CHROME_BROWSER_BROWSER_PROCESS_H_
 
 #include <string>
 #include <vector>
@@ -25,7 +25,6 @@ class DownloadRequestManager;
 class GoogleURLTracker;
 class IconManager;
 class MetricsService;
-class NotificationService;
 class PrefService;
 class ProfileManager;
 class DebuggerWrapper;
@@ -142,10 +141,9 @@ class BrowserProcess {
   // User-data-dir based profiles.
   std::vector<std::wstring> user_data_dir_profiles_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserProcess);
+  DISALLOW_COPY_AND_ASSIGN(BrowserProcess);
 };
 
 extern BrowserProcess* g_browser_process;
 
-#endif  // CHROME_BROWSER_BROWSER_PROCESS_H__
-
+#endif  // CHROME_BROWSER_BROWSER_PROCESS_H_

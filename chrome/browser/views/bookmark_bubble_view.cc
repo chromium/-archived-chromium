@@ -122,7 +122,7 @@ void BookmarkBubbleView::Show(HWND parent,
   InfoBubble::Show(parent, bounds, view, view);
   GURL url_ptr(url);
   NotificationService::current()->Notify(
-      NOTIFY_BOOKMARK_BUBBLE_SHOWN,
+      NotificationType::BOOKMARK_BUBBLE_SHOWN,
       Source<Profile>(profile->GetOriginalProfile()),
       Details<GURL>(&url_ptr));
   view->BubbleShown();
@@ -320,7 +320,7 @@ void BookmarkBubbleView::InfoBubbleClosing(InfoBubble* info_bubble,
   if (delegate_)
     delegate_->InfoBubbleClosing(info_bubble, closed_by_escape);
   NotificationService::current()->Notify(
-      NOTIFY_BOOKMARK_BUBBLE_HIDDEN,
+      NotificationType::BOOKMARK_BUBBLE_HIDDEN,
       Source<Profile>(profile_->GetOriginalProfile()),
       NotificationService::NoDetails());
 }

@@ -11,20 +11,20 @@
 class AutomationWindowTracker
     : public AutomationResourceTracker<HWND> {
  public:
-  AutomationWindowTracker(IPC::Message::Sender* automation) :
-      AutomationResourceTracker(automation) { }
+  AutomationWindowTracker(IPC::Message::Sender* automation)
+      : AutomationResourceTracker(automation) { }
   virtual ~AutomationWindowTracker() {
     ClearAllMappings();
   }
 
   virtual void AddObserver(HWND resource) {
     NotificationService::current()->AddObserver(
-        this, NOTIFY_WINDOW_CLOSED, Source<HWND>(resource));
+        this, NotificationType::WINDOW_CLOSED, Source<HWND>(resource));
   }
 
   virtual void RemoveObserver(HWND resource) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_WINDOW_CLOSED, Source<HWND>(resource));
+        this, NotificationType::WINDOW_CLOSED, Source<HWND>(resource));
   }
 };
 

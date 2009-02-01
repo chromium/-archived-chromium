@@ -18,6 +18,7 @@
 #include "chrome/browser/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/gfx/icon_util.h"
@@ -139,11 +140,11 @@ void TaskManagerWebContentsResourceProvider::StartUpdating() {
   }
   // Then we register for notifications to get new tabs.
   NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NOTIFY_WEB_CONTENTS_CONNECTED,
+  service->AddObserver(this, NotificationType::WEB_CONTENTS_CONNECTED,
                        NotificationService::AllSources());
-  service->AddObserver(this, NOTIFY_WEB_CONTENTS_SWAPPED,
+  service->AddObserver(this, NotificationType::WEB_CONTENTS_SWAPPED,
                        NotificationService::AllSources());
-  service->AddObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+  service->AddObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
                        NotificationService::AllSources());
 }
 
@@ -153,11 +154,11 @@ void TaskManagerWebContentsResourceProvider::StopUpdating() {
 
   // Then we unregister for notifications to get new tabs.
   NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NOTIFY_WEB_CONTENTS_CONNECTED,
+  service->RemoveObserver(this, NotificationType::WEB_CONTENTS_CONNECTED,
                           NotificationService::AllSources());
-  service->RemoveObserver(this, NOTIFY_WEB_CONTENTS_SWAPPED,
+  service->RemoveObserver(this, NotificationType::WEB_CONTENTS_SWAPPED,
                           NotificationService::AllSources());
-  service->RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+  service->RemoveObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
                           NotificationService::AllSources());
 
   // Delete all the resources.
@@ -221,15 +222,15 @@ void TaskManagerWebContentsResourceProvider::Remove(WebContents* web_contents) {
 void TaskManagerWebContentsResourceProvider::Observe(NotificationType type,
     const NotificationSource& source,
     const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_WEB_CONTENTS_CONNECTED:
+  switch (type.value) {
+    case NotificationType::WEB_CONTENTS_CONNECTED:
       Add(Source<WebContents>(source).ptr());
       break;
-    case NOTIFY_WEB_CONTENTS_SWAPPED:
+    case NotificationType::WEB_CONTENTS_SWAPPED:
       Remove(Source<WebContents>(source).ptr());
       Add(Source<WebContents>(source).ptr());
       break;
-    case NOTIFY_WEB_CONTENTS_DISCONNECTED:
+    case NotificationType::WEB_CONTENTS_DISCONNECTED:
       Remove(Source<WebContents>(source).ptr());
       break;
     default:
@@ -320,9 +321,9 @@ void TaskManagerPluginProcessResourceProvider::StartUpdating() {
 
   // Register for notifications to get new plugin processes.
   NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED,
+  service->AddObserver(this, NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
                        NotificationService::AllSources());
-  service->AddObserver(this, NOTIFY_PLUGIN_PROCESS_HOST_DISCONNECTED,
+  service->AddObserver(this, NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED,
                        NotificationService::AllSources());
 
   // Get the existing plugins
@@ -337,9 +338,10 @@ void TaskManagerPluginProcessResourceProvider::StopUpdating() {
 
   // Unregister for notifications to get new plugin processes.
   NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED,
+  service->RemoveObserver(this, NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
                           NotificationService::AllSources());
-  service->RemoveObserver(this, NOTIFY_PLUGIN_PROCESS_HOST_DISCONNECTED,
+  service->RemoveObserver(this,
+                          NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED,
                           NotificationService::AllSources());
 
   // Delete all the resources.
@@ -354,11 +356,11 @@ void TaskManagerPluginProcessResourceProvider::Observe(
     NotificationType type,
     const NotificationSource& source,
     const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_PLUGIN_PROCESS_HOST_CONNECTED:
+  switch (type.value) {
+    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
       Add(*Details<PluginProcessInfo>(details).ptr());
       break;
-    case NOTIFY_PLUGIN_PROCESS_HOST_DISCONNECTED:
+    case NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED:
       Remove(*Details<PluginProcessInfo>(details).ptr());
       break;
     default:

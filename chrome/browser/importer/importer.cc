@@ -27,6 +27,7 @@
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
@@ -54,7 +55,7 @@ void ProfileWriter::AddTemplateURLModelObserver(
     NotificationObserver* observer) {
   TemplateURLModel* model = profile_->GetTemplateURLModel();
   NotificationService::current()->AddObserver(
-      observer, TEMPLATE_URL_MODEL_LOADED,
+      observer, NotificationType::TEMPLATE_URL_MODEL_LOADED,
       Source<TemplateURLModel>(model));
   model->Load();
 }
@@ -290,7 +291,7 @@ void ProfileWriter::ShowBookmarkBar() {
     prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
     Source<Profile> source(profile_);
     NotificationService::current()->Notify(
-        NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED, source,
+        NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED, source,
         NotificationService::NoDetails());
   }
 }
@@ -421,7 +422,8 @@ ImporterHost::ImporterHost(MessageLoop* file_loop)
 
 ImporterHost::~ImporterHost() {
   STLDeleteContainerPointers(source_profiles_.begin(), source_profiles_.end());
-  if (NULL != importer_)  importer_->Release();
+  if (NULL != importer_)
+    importer_->Release();
 }
 
 void ImporterHost::Loaded(BookmarkModel* model) {
@@ -433,21 +435,22 @@ void ImporterHost::Loaded(BookmarkModel* model) {
 void ImporterHost::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
-  DCHECK(type == TEMPLATE_URL_MODEL_LOADED);
+  DCHECK(type == NotificationType::TEMPLATE_URL_MODEL_LOADED);
   TemplateURLModel* model = Source<TemplateURLModel>(source).ptr();
   NotificationService::current()->RemoveObserver(
-      this, TEMPLATE_URL_MODEL_LOADED,
+      this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
       Source<TemplateURLModel>(model));
   waiting_for_template_url_model_ = false;
   InvokeTaskIfDone();
 }
 
 void ImporterHost::ShowWarningDialog() {
-  if (headless_)
+  if (headless_) {
     OnLockViewEnd(false);
-  else
+  } else {
     views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
                                       new ImporterLockView(this))->Show();
+  }
 }
 
 void ImporterHost::OnLockViewEnd(bool is_continue) {

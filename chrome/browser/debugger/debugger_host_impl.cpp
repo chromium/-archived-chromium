@@ -19,7 +19,8 @@ class TabContentsReference : public NotificationObserver {
 
     NotificationService* service = NotificationService::current();
     DCHECK(service);
-    service->AddObserver(this, NOTIFY_TAB_CLOSING,
+    service->AddObserver(this,
+                         NotificationType::TAB_CLOSING,
                          Source<NavigationController>(navigation_controller_));
     observing_ = true;
   }
@@ -50,7 +51,7 @@ class TabContentsReference : public NotificationObserver {
       DCHECK(service);
       service->RemoveObserver(
           this,
-          NOTIFY_TAB_CLOSING,
+          NotificationType::TAB_CLOSING,
           Source<NavigationController>(navigation_controller_));
       observing_ = false;
     }

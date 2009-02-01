@@ -124,7 +124,7 @@ class OmniBoxUsageObserver : public NotificationObserver {
  public:
   OmniBoxUsageObserver() {
     NotificationService::current()->AddObserver(this,
-        NOTIFY_OMNIBOX_OPENED_URL,
+        NotificationType::OMNIBOX_OPENED_URL,
         NotificationService::AllSources());
     omnibox_used_ = false;
     DCHECK(!instance_);
@@ -156,7 +156,7 @@ class OmniBoxUsageObserver : public NotificationObserver {
   // Dtor is private so the object cannot be created on the stack.
   ~OmniBoxUsageObserver() {
     NotificationService::current()->RemoveObserver(this,
-        NOTIFY_OMNIBOX_OPENED_URL, 
+        NotificationType::OMNIBOX_OPENED_URL, 
         NotificationService::AllSources());
     instance_ = NULL;
   }

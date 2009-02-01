@@ -20,7 +20,7 @@
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/registry_controlled_domain.h"
@@ -635,7 +635,7 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
   if (visit_id) {
     URLVisitedDetails* details = new URLVisitedDetails;
     details->row = url_info;
-    BroadcastNotifications(NOTIFY_HISTORY_URL_VISITED, details);
+    BroadcastNotifications(NotificationType::HISTORY_URL_VISITED, details);
   }
 
   return std::make_pair(url_id, visit_id);
@@ -715,7 +715,8 @@ void HistoryBackend::AddPagesWithDetails(const std::vector<URLRow>& urls) {
   //
   // TODO(brettw) bug 1140015: Add an "add page" notification so the history
   // views can keep in sync.
-  BroadcastNotifications(NOTIFY_HISTORY_TYPED_URLS_MODIFIED, modified);
+  BroadcastNotifications(NotificationType::HISTORY_TYPED_URLS_MODIFIED,
+                         modified);
 
   ScheduleCommit();
 }
@@ -770,7 +771,8 @@ void HistoryBackend::SetPageTitle(const GURL& url,
       if (changed_urls[i].typed_count() > 0)
         modified->changed_urls.push_back(changed_urls[i]);
     }
-    BroadcastNotifications(NOTIFY_HISTORY_TYPED_URLS_MODIFIED, modified);
+    BroadcastNotifications(NotificationType::HISTORY_TYPED_URLS_MODIFIED,
+                           modified);
   }
 
   // Update the full text index.
@@ -1329,7 +1331,7 @@ void HistoryBackend::SetImportedFavicons(
     // Send the notification about the changed favicon URLs.
     FavIconChangeDetails* changed_details = new FavIconChangeDetails;
     changed_details->urls.swap(favicons_changed);
-    BroadcastNotifications(NOTIFY_FAVICON_CHANGED, changed_details);
+    BroadcastNotifications(NotificationType::FAVICON_CHANGED, changed_details);
   }
 }
 
@@ -1473,7 +1475,7 @@ void HistoryBackend::SetFavIconMapping(const GURL& page_url,
   // Send the notification about the changed favicons.
   FavIconChangeDetails* changed_details = new FavIconChangeDetails;
   changed_details->urls.swap(favicons_changed);
-  BroadcastNotifications(NOTIFY_FAVICON_CHANGED, changed_details);
+  BroadcastNotifications(NotificationType::FAVICON_CHANGED, changed_details);
 
   ScheduleCommit();
 }
@@ -1730,7 +1732,7 @@ void HistoryBackend::DeleteAllHistory() {
   // will pick this up and clear itself.
   URLsDeletedDetails* details = new URLsDeletedDetails;
   details->all_history = true;
-  BroadcastNotifications(NOTIFY_HISTORY_URLS_DELETED, details);
+  BroadcastNotifications(NotificationType::HISTORY_URLS_DELETED, details);
 }
 
 bool HistoryBackend::ClearAllThumbnailHistory(

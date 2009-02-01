@@ -10,7 +10,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/print_job_worker_owner.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 
 class ChromeFont;
 class GURL;

@@ -6,15 +6,16 @@
 
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/common/notification_service.h"
 
 ModalHtmlDialogDelegate::ModalHtmlDialogDelegate(
     const GURL& url, int width, int height, const std::string& json_arguments,
     IPC::Message* sync_result, WebContents* contents)
-  : contents_(contents),
-    sync_response_(sync_result) {
+    : contents_(contents),
+      sync_response_(sync_result) {
   // Listen for when the WebContents or its renderer dies.
   NotificationService::current()->
-      AddObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+      AddObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
       Source<WebContents>(contents_));
 
   // This information is needed to show the dialog HTML content.
@@ -31,7 +32,7 @@ ModalHtmlDialogDelegate::~ModalHtmlDialogDelegate() {
 void ModalHtmlDialogDelegate::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
-  DCHECK(type == NOTIFY_WEB_CONTENTS_DISCONNECTED);
+  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
   DCHECK(Source<WebContents>(source).ptr() == contents_);
   RemoveObserver();
 }
@@ -68,8 +69,9 @@ void ModalHtmlDialogDelegate::RemoveObserver() {
   if (!contents_)
     return;
 
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::WEB_CONTENTS_DISCONNECTED,
       Source<WebContents>(contents_));
   contents_ = NULL;  // No longer safe to access.
 }

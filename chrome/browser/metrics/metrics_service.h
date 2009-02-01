@@ -5,8 +5,8 @@
 // This file defines a service that collects information about the user
 // experience in order to help improve future versions of the app.
 
-#ifndef CHROME_BROWSER_METRICS_SERVICE_H__
-#define CHROME_BROWSER_METRICS_SERVICE_H__
+#ifndef CHROME_BROWSER_METRICS_SERVICE_H_
+#define CHROME_BROWSER_METRICS_SERVICE_H_
 
 #include <list>
 #include <map>
@@ -21,7 +21,7 @@
 #include "base/values.h"
 #include "chrome/browser/metrics/metrics_log.h"
 #include "chrome/browser/net/url_fetcher.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "webkit/glue/webplugin.h"
 
 class BookmarkModel;
@@ -457,8 +457,7 @@ class MetricsService : public NotificationObserver,
   // Indicate that a timer for sending the next log has already been queued.
   bool timer_pending_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MetricsService);
+  DISALLOW_COPY_AND_ASSIGN(MetricsService);
 };
 
-#endif  // CHROME_BROWSER_METRICS_SERVICE_H__
-
+#endif  // CHROME_BROWSER_METRICS_SERVICE_H_

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H__
-#define CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H__
+#ifndef CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
+#define CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 
 #include "chrome/browser/printing/printed_pages_source.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/render_messages.h"
 
 class RenderViewHost;
@@ -160,10 +160,9 @@ class PrintViewManager : public NotificationObserver,
   // back reference is kept the the "parent object".
   WebContents& owner_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PrintViewManager);
+  DISALLOW_COPY_AND_ASSIGN(PrintViewManager);
 };
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H__
-
+#endif  // CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_

@@ -488,7 +488,7 @@ static void NotifyGearsShortcutsChanged() {
   // when gears provides the correct browser context, and when we
   // can relate that to an actual profile.
   NotificationService::current()->Notify(
-      NOTIFY_WEB_APP_INSTALL_CHANGED,
+      NotificationType::WEB_APP_INSTALL_CHANGED,
       Source<Profile>(NULL),
       NotificationService::NoDetails());
 }

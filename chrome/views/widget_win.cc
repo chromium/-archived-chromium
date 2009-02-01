@@ -9,6 +9,7 @@
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/aero_tooltip_manager.h"
 #include "chrome/views/accessibility/view_accessibility.h"
@@ -440,7 +441,7 @@ void WidgetWin::OnClose() {
   // WARNING: this method is NOT called for all WidgetWins. If you need to do
   // cleanup code before WidgetWin is destroyed, put it in OnDestroy.
   NotificationService::current()->Notify(
-      NOTIFY_WINDOW_CLOSED, Source<HWND>(hwnd_),
+      NotificationType::WINDOW_CLOSED, Source<HWND>(hwnd_),
       NotificationService::NoDetails());
 
   Close();

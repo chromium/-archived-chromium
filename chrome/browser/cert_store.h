@@ -10,7 +10,7 @@
 
 #include "base/lock.h"
 #include "base/singleton.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "net/base/x509_certificate.h"
 
 // The purpose of the cert store is to provide an easy way to store/retrieve

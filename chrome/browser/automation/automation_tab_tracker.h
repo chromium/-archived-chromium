@@ -10,12 +10,13 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_type.h"
 
 class AutomationTabTracker
   : public AutomationResourceTracker<NavigationController*> {
 public:
   AutomationTabTracker(IPC::Message::Sender* automation)
-    : AutomationResourceTracker(automation) {}
+      : AutomationResourceTracker(automation) {}
 
   virtual ~AutomationTabTracker() {
     ClearAllMappings();
@@ -24,35 +25,35 @@ public:
   virtual void AddObserver(NavigationController* resource) {
     // This tab could either be a regular tab or an external tab
     // Register for both notifications.
-    registrar_.Add(this, NOTIFY_TAB_CLOSING,
+    registrar_.Add(this, NotificationType::TAB_CLOSING,
                    Source<NavigationController>(resource));
-    registrar_.Add(this, NOTIFY_EXTERNAL_TAB_CLOSED,
+    registrar_.Add(this, NotificationType::EXTERNAL_TAB_CLOSED,
                    Source<NavigationController>(resource));
     // We also want to know about navigations so we can keep track of the last
     // navigation time.
-    registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+    registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                    Source<NavigationController>(resource));
   }
 
   virtual void RemoveObserver(NavigationController* resource) {
-    registrar_.Remove(this, NOTIFY_TAB_CLOSING,
+    registrar_.Remove(this, NotificationType::TAB_CLOSING,
                       Source<NavigationController>(resource));
-    registrar_.Remove(this, NOTIFY_EXTERNAL_TAB_CLOSED,
+    registrar_.Remove(this, NotificationType::EXTERNAL_TAB_CLOSED,
                       Source<NavigationController>(resource));
-    registrar_.Remove(this, NOTIFY_NAV_ENTRY_COMMITTED,
+    registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
                       Source<NavigationController>(resource));
   }
 
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    switch (type) {
-      case NOTIFY_NAV_ENTRY_COMMITTED:
+    switch (type.value) {
+      case NotificationType::NAV_ENTRY_COMMITTED:
         last_navigation_times_[Source<NavigationController>(source).ptr()] =
             base::Time::Now();
         return;
-      case NOTIFY_EXTERNAL_TAB_CLOSED:
-      case NOTIFY_TAB_CLOSING:
+      case NotificationType::EXTERNAL_TAB_CLOSED:
+      case NotificationType::TAB_CLOSING:
         std::map<NavigationController*, base::Time>::iterator iter =
             last_navigation_times_.find(
             Source<NavigationController>(source).ptr());

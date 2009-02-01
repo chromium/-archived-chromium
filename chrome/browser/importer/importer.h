@@ -20,7 +20,7 @@
 #endif
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/password_form.h"
 

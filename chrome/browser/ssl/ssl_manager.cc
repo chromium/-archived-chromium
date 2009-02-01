@@ -102,15 +102,15 @@ SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
     delegate_ = SSLPolicy::GetDefaultPolicy();
 
   // Subscribe to various notifications.
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  Source<NavigationController>(controller_));
-  registrar_.Add(this, NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
+  registrar_.Add(this, NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
                  Source<NavigationController>(controller_));
-  registrar_.Add(this, NOTIFY_RESOURCE_RESPONSE_STARTED,
+  registrar_.Add(this, NotificationType::RESOURCE_RESPONSE_STARTED,
                  Source<NavigationController>(controller_));
-  registrar_.Add(this, NOTIFY_RESOURCE_RECEIVED_REDIRECT,
+  registrar_.Add(this, NotificationType::RESOURCE_RECEIVED_REDIRECT,
                  Source<NavigationController>(controller_));
-  registrar_.Add(this, NOTIFY_LOAD_FROM_MEMORY_CACHE,
+  registrar_.Add(this, NotificationType::LOAD_FROM_MEMORY_CACHE,
                  Source<NavigationController>(controller_));
 }
 
@@ -496,27 +496,27 @@ void SSLManager::Observe(NotificationType type,
   DCHECK(source == Source<NavigationController>(controller_));
 
   // Dispatch by type.
-  switch (type) {
-    case NOTIFY_NAV_ENTRY_COMMITTED:
+  switch (type.value) {
+    case NotificationType::NAV_ENTRY_COMMITTED:
       DidCommitProvisionalLoad(details);
       break;
-    case NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR:
+    case NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR:
       DidFailProvisionalLoadWithError(
           Details<ProvisionalLoadDetails>(details).ptr());
       break;
-    case NOTIFY_RESOURCE_RESPONSE_STARTED:
+    case NotificationType::RESOURCE_RESPONSE_STARTED:
       DidStartResourceResponse(Details<ResourceRequestDetails>(details).ptr());
       break;
-    case NOTIFY_RESOURCE_RECEIVED_REDIRECT:
+    case NotificationType::RESOURCE_RECEIVED_REDIRECT:
       DidReceiveResourceRedirect(
           Details<ResourceRedirectDetails>(details).ptr());
       break;
-    case NOTIFY_LOAD_FROM_MEMORY_CACHE:
+    case NotificationType::LOAD_FROM_MEMORY_CACHE:
       DidLoadFromMemoryCache(
           Details<LoadFromMemoryCacheDetails>(details).ptr());
       break;
-   default:
-    NOTREACHED() << "The SSLManager received an unexpected notification.";
+    default:
+      NOTREACHED() << "The SSLManager received an unexpected notification.";
   }
 }
 
@@ -613,7 +613,7 @@ void SSLManager::DidCommitProvisionalLoad(
   if (changed) {
     // Only send the notification when something actually changed.
     NotificationService::current()->Notify(
-        NOTIFY_SSL_STATE_CHANGED,
+        NotificationType::SSL_STATE_CHANGED,
         Source<NavigationController>(controller_),
         NotificationService::NoDetails());
   }

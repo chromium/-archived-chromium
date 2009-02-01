@@ -10,7 +10,7 @@
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/message_box_view.h"
@@ -54,9 +54,9 @@ JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
 
   // Make sure we get navigation notifications so we know when our parent
   // contents will disappear or navigate to a different page.
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NOTIFY_TAB_CONTENTS_DESTROYED,
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
                  NotificationService::AllSources());
 }
 
@@ -189,11 +189,11 @@ void JavascriptMessageBoxHandler::Observe(NotificationType type,
   if (!web_contents_)
     return;
 
-  if (type == NOTIFY_NAV_ENTRY_COMMITTED &&
+  if (type == NotificationType::NAV_ENTRY_COMMITTED &&
       Source<NavigationController>(source).ptr() == web_contents_->controller())
     web_contents_gone = true;
 
-  if (type == NOTIFY_TAB_CONTENTS_DESTROYED &&
+  if (type == NotificationType::TAB_CONTENTS_DESTROYED &&
       Source<TabContents>(source).ptr() ==
       static_cast<TabContents*>(web_contents_))
     web_contents_gone = true;

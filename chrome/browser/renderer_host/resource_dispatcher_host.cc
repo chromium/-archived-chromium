@@ -34,8 +34,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/notification_source.h"
-#include "chrome/common/notification_types.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
 #include "net/base/auth.h"
@@ -1069,10 +1068,10 @@ class NotificationTask : public Task {
 
     if (tab_contents) {
       // Issue the notification.
-      NotificationService::current()->
-          Notify(type_,
-                 Source<NavigationController>(tab_contents->controller()),
-                 Details<ResourceRequestDetails>(details_.get()));
+      NotificationService::current()->Notify(
+          type_,
+          Source<NavigationController>(tab_contents->controller()),
+          Details<ResourceRequestDetails>(details_.get()));
     }
   }
 
@@ -1110,7 +1109,7 @@ void ResourceDispatcherHost::NotifyResponseStarted(URLRequest* request,
 
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE,
-      new NotificationTask(NOTIFY_RESOURCE_RESPONSE_STARTED, request,
+      new NotificationTask(NotificationType::RESOURCE_RESPONSE_STARTED, request,
                            new ResourceRequestDetails(request,
                                GetCertID(request, render_process_host_id))));
 }
@@ -1124,7 +1123,8 @@ void ResourceDispatcherHost::NotifyResponseCompleted(
 
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE,
-      new NotificationTask(NOTIFY_RESOURCE_RESPONSE_COMPLETED, request,
+      new NotificationTask(NotificationType::RESOURCE_RESPONSE_COMPLETED,
+                           request,
                            new ResourceRequestDetails(request,
                                GetCertID(request, render_process_host_id))));
 }
@@ -1140,7 +1140,8 @@ void ResourceDispatcherHost::NofityReceivedRedirect(URLRequest* request,
 
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE,
-      new NotificationTask(NOTIFY_RESOURCE_RECEIVED_REDIRECT, request,
+      new NotificationTask(NotificationType::RESOURCE_RECEIVED_REDIRECT,
+                           request,
                            new ResourceRedirectDetails(request,
                                                        cert_id,
                                                        new_url)));

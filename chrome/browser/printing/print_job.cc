@@ -8,6 +8,7 @@
 #include "chrome/browser/printing/print_job_worker.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"
+#include "chrome/common/notification_service.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4355)  // 'this' : used in base member initializer list
@@ -67,15 +68,15 @@ void PrintJob::Initialize(PrintJobWorkerOwner* job,
 
   // Don't forget to register to our own messages.
   NotificationService::current()->AddObserver(
-      this, NOTIFY_PRINT_JOB_EVENT, Source<PrintJob>(this));
+      this, NotificationType::PRINT_JOB_EVENT, Source<PrintJob>(this));
 }
 
 void PrintJob::Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
   DCHECK_EQ(ui_message_loop_, MessageLoop::current());
-  switch (type) {
-    case NOTIFY_PRINTED_DOCUMENT_UPDATED: {
+  switch (type.value) {
+    case NotificationType::PRINTED_DOCUMENT_UPDATED: {
       DCHECK(Source<PrintedDocument>(source).ptr() ==
              document_.get());
 
@@ -90,7 +91,7 @@ void PrintJob::Observe(NotificationType type,
       }
       break;
     }
-    case NOTIFY_PRINT_JOB_EVENT: {
+    case NotificationType::PRINT_JOB_EVENT: {
       OnNotifyPrintJobEvent(*Details<JobEventDetails>(details).ptr());
       break;
     }
@@ -120,8 +121,8 @@ void PrintJob::GetSettingsDone(const PrintSettings& new_settings,
   JobEventDetails::Type type;
   if (is_print_dialog_box_shown_) {
     type = (result == PrintingContext::OK) ?
-               JobEventDetails::USER_INIT_DONE :
-               JobEventDetails::USER_INIT_CANCELED;
+        JobEventDetails::USER_INIT_DONE :
+        JobEventDetails::USER_INIT_CANCELED;
     // Dialog box is not shown anymore.
     is_print_dialog_box_shown_ = false;
   } else {
@@ -131,7 +132,7 @@ void PrintJob::GetSettingsDone(const PrintSettings& new_settings,
   scoped_refptr<JobEventDetails> details(
       new JobEventDetails(type, document_.get(), NULL));
   NotificationService::current()->Notify(
-      NOTIFY_PRINT_JOB_EVENT,
+      NotificationType::PRINT_JOB_EVENT,
       Source<PrintJob>(this),
       Details<JobEventDetails>(details.get()));
 }
@@ -168,7 +169,7 @@ void PrintJob::GetSettings(GetSettingsAskParam ask_user_for_settings,
 
     // Don't re-register if we were already registered.
     NotificationService::current()->AddObserver(
-        this, NOTIFY_PRINT_JOB_EVENT, Source<PrintJob>(this));
+        this, NotificationType::PRINT_JOB_EVENT, Source<PrintJob>(this));
   }
 
   int page_count = 0;
@@ -201,7 +202,7 @@ void PrintJob::StartPrinting() {
   scoped_refptr<JobEventDetails> details(
       new JobEventDetails(JobEventDetails::NEW_DOC, document_.get(), NULL));
   NotificationService::current()->Notify(
-      NOTIFY_PRINT_JOB_EVENT,
+      NotificationType::PRINT_JOB_EVENT,
       Source<PrintJob>(this),
       Details<JobEventDetails>(details.get()));
 }
@@ -225,7 +226,7 @@ void PrintJob::Stop() {
 
     is_job_pending_ = false;
     NotificationService::current()->RemoveObserver(
-      this, NOTIFY_PRINT_JOB_EVENT, Source<PrintJob>(this));
+        this, NotificationType::PRINT_JOB_EVENT, Source<PrintJob>(this));
   }
   // Flush the cached document.
   UpdatePrintedDocument(NULL);
@@ -250,7 +251,7 @@ void PrintJob::Cancel() {
   scoped_refptr<JobEventDetails> details(
       new JobEventDetails(JobEventDetails::FAILED, NULL, NULL));
   NotificationService::current()->Notify(
-      NOTIFY_PRINT_JOB_EVENT,
+      NotificationType::PRINT_JOB_EVENT,
       Source<PrintJob>(this),
       Details<JobEventDetails>(details.get()));
   Stop();
@@ -320,19 +321,19 @@ void PrintJob::UpdatePrintedDocument(PrintedDocument* new_document) {
     return;
   // Unregisters.
   if (document_.get()) {
-    NotificationService::current()->
-        RemoveObserver(this,
-                       NOTIFY_PRINTED_DOCUMENT_UPDATED,
-                       Source<PrintedDocument>(document_.get()));
+    NotificationService::current()->RemoveObserver(
+        this,
+        NotificationType::PRINTED_DOCUMENT_UPDATED,
+        Source<PrintedDocument>(document_.get()));
   }
   document_ = new_document;
 
   // Registers.
   if (document_.get()) {
-    NotificationService::current()->
-        AddObserver(this,
-                    NOTIFY_PRINTED_DOCUMENT_UPDATED,
-                    Source<PrintedDocument>(document_.get()));
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::PRINTED_DOCUMENT_UPDATED,
+        Source<PrintedDocument>(document_.get()));
     settings_ = document_->settings();
   }
 
@@ -392,7 +393,7 @@ void PrintJob::OnDocumentDone() {
   scoped_refptr<JobEventDetails> details(
       new JobEventDetails(JobEventDetails::JOB_DONE, document_.get(), NULL));
   NotificationService::current()->Notify(
-      NOTIFY_PRINT_JOB_EVENT,
+      NotificationType::PRINT_JOB_EVENT,
       Source<PrintJob>(this),
       Details<JobEventDetails>(details.get()));
 }
