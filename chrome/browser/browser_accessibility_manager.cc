@@ -150,7 +150,7 @@ int BrowserAccessibilityManager::SetMembers(BrowserAccessibility* browser_acc,
 void BrowserAccessibilityManager::Observe(NotificationType type,
                                           const NotificationSource& source,
                                           const NotificationDetails& details) {
-  DCHECK(type ==NotificationType::RENDERER_PROCESS_TERMINATED);
+  DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED);
   RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
   DCHECK(rph);
   RenderProcessHostMap::iterator it = render_process_host_map_.find(rph);
