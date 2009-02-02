@@ -1357,7 +1357,7 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 // window.open crashes (some of these are flaky, in that they don't always
 // crash, and are noted as such)
 MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = PASS TIMEOUT
+MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
@@ -1788,11 +1788,11 @@ LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL PASS
 
 // Merge 40364:40409 -- new test
-LayoutTests/svg/custom/pattern-with-transformation.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pattern-with-transformation.svg = FAIL
 
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // Perhaps needs some change on Skia side.
-LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
