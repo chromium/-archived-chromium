@@ -17,6 +17,7 @@
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/logging_installer.h"
 #include "chrome/installer/util/shell_util.h"
+#include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
 
 namespace {
@@ -254,6 +255,9 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     DeleteRegistryValue(HKEY_LOCAL_MACHINE,
                         ShellUtil::kRegRegisteredApplications,
                         dist->GetApplicationName());
+
+    // Delete the App Paths key that lets explorer find Chrome.
+    DeleteRegistryKey(hklm_key, installer_util::kAppPathsRegistryKey);
 
     // Delete media player registry key that exists only in HKLM.
     std::wstring reg_path(installer::kMediaPlayerRegPath);

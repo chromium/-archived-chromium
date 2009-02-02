@@ -13,6 +13,7 @@
 
 #include "chrome/installer/util/shell_util.h"
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -312,6 +313,11 @@ bool SetAccessDefaultRegEntries(HKEY root_key,
     delete (*itr);
   }
 
+  // Append the App Paths registry entries. Do this only if we are an admin,
+  // since they are always written to HKLM.
+  if (IsUserAnAdmin())
+    ShellUtil::AddChromeAppPathWorkItems(chrome_exe, items.get());
+
   // Apply all the registry changes and if there is a problem, rollback.
   if (!items->Do()) {
     LOG(ERROR) << "Failed to add Chrome to Set Program Access and Defaults";
@@ -463,6 +469,29 @@ bool ShellUtil::GetQuickLaunchPath(bool system_level, std::wstring* path) {
   }
   file_util::AppendToPath(path, kQuickLaunchPath);
   return true;
+}
+
+void ShellUtil::AddChromeAppPathWorkItems(
+    const std::wstring& chrome_exe, WorkItemList* item_list) {
+  WorkItem* create_work_item = WorkItem::CreateCreateRegKeyWorkItem(
+      HKEY_LOCAL_MACHINE, installer_util::kAppPathsRegistryKey);
+
+  item_list->AddWorkItem(create_work_item);
+
+  WorkItem* set_default_value_work_item =
+      WorkItem::CreateSetRegValueWorkItem(HKEY_LOCAL_MACHINE,
+          installer_util::kAppPathsRegistryKey,
+          installer_util::kAppPathsRegistryDefaultName,
+          chrome_exe, true);
+  item_list->AddWorkItem(set_default_value_work_item);
+
+  FilePath chrome_path(chrome_exe);
+  WorkItem* set_path_value_work_item =
+      WorkItem::CreateSetRegValueWorkItem(HKEY_LOCAL_MACHINE,
+          installer_util::kAppPathsRegistryKey,
+          installer_util::kAppPathsRegistryPathName,
+          chrome_path.DirName().value(), true);
+  item_list->AddWorkItem(set_path_value_work_item);
 }
 
 bool ShellUtil::CreateChromeDesktopShortcut(const std::wstring& chrome_exe,

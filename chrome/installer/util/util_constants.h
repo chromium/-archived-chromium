@@ -90,6 +90,10 @@ extern const wchar_t kChromeDll[];
 extern const wchar_t kSetupExe[];
 extern const wchar_t kInstallerDir[];
 
+extern const wchar_t kAppPathsRegistryKey[];
+extern const wchar_t kAppPathsRegistryDefaultName[];
+extern const wchar_t kAppPathsRegistryPathName[];
+
 extern const wchar_t kUninstallStringField[];
 extern const wchar_t kUninstallDisplayNameField[];
 }  // namespace installer_util
