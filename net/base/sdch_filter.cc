@@ -24,8 +24,6 @@ SdchFilter::SdchFilter()
       dest_buffer_excess_index_(0),
       source_bytes_(0),
       output_bytes_(0),
-      time_of_last_read_(),
-      size_of_last_read_(0),
       possible_pass_through_(false) {
 }
 
@@ -37,29 +35,59 @@ SdchFilter::~SdchFilter() {
   }
 
   if (vcdiff_streaming_decoder_.get()) {
-    if (!vcdiff_streaming_decoder_->FinishDecoding())
+    if (!vcdiff_streaming_decoder_->FinishDecoding()) {
       decoding_status_ = DECODING_ERROR;
+      SdchManager::SdchErrorRecovery(SdchManager::INCOMPLETE_SDCH_CONTENT);
+      // Make it possible for the user to hit reload, and get non-sdch content.
+      // Note this will "wear off" quickly enough, and is just meant to assure
+      // in some rare case that the user is not stuck.
+      SdchManager::BlacklistDomain(url());
+    }
   }
 
   if (!was_cached()
       && base::Time() != connect_time()
-      && base::Time() != time_of_last_read_) {
-    base::TimeDelta duration = time_of_last_read_ - connect_time();
+      && read_times_.size() > 0
+      && base::Time() != read_times_.back()) {
+    base::TimeDelta duration = read_times_.back() - connect_time();
     // We clip our logging at 10 minutes to prevent anamolous data from being
     // considered (per suggestion from Jake Brutlag).
-    // The relatively precise histogram only properly covers the range 1ms to 3
-    // minutes, so the additional range is just gathered to calculate means and
-    // variance as is done in other settings.
     if (10 >= duration.InMinutes()) {
-      if (DECODING_IN_PROGRESS == decoding_status_)
-        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Network_Decode_Latency_M", duration);
-      if (PASS_THROUGH == decoding_status_)
-        UMA_HISTOGRAM_MEDIUM_TIMES(L"Sdch.Network_Pass-through_Latency_M",
-                                   duration);
+      if (DECODING_IN_PROGRESS == decoding_status_) {
+        UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Decode_Latency_F", duration,
+                                    base::TimeDelta::FromMilliseconds(20),
+                                    base::TimeDelta::FromMinutes(10), 100);
+        UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Decode_1st_To_Last",
+                                    read_times_.back() - read_times_[0],
+                                    base::TimeDelta::FromMilliseconds(20),
+                                    base::TimeDelta::FromMinutes(10), 100);
+        if (read_times_.size() > 3)
+          UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Decode_3rd_To_4th",
+                                      read_times_[3] - read_times_[2],
+                                      base::TimeDelta::FromMilliseconds(10),
+                                      base::TimeDelta::FromSeconds(3), 100);
+        UMA_HISTOGRAM_COUNTS_100(L"Sdch.Network_Decode_Reads",
+                                 read_times_.size());
+        UMA_HISTOGRAM_COUNTS(L"Sdch.Network_Decode_Bytes_Read", output_bytes_);
+      } else if (PASS_THROUGH == decoding_status_) {
+        UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Pass-through_Latency_F",
+                                    duration,
+                                    base::TimeDelta::FromMilliseconds(20),
+                                    base::TimeDelta::FromMinutes(10), 100);
+        UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Pass-through_1st_To_Last",
+                                    read_times_.back() - read_times_[0],
+                                    base::TimeDelta::FromMilliseconds(20),
+                                    base::TimeDelta::FromMinutes(10), 100);
+        if (read_times_.size() > 3)
+          UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Pass-through_3rd_To_4th",
+                                      read_times_[3] - read_times_[2],
+                                      base::TimeDelta::FromMilliseconds(10),
+                                      base::TimeDelta::FromSeconds(3), 100);
+        UMA_HISTOGRAM_COUNTS_100(L"Sdch.Network_Pass-through_Reads",
+                                 read_times_.size());
+      }
     }
   }
-
-  UMA_HISTOGRAM_COUNTS(L"Sdch.Bytes output", output_bytes_);
 
   if (dictionary_)
     dictionary_->Release();
@@ -97,10 +125,8 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
     return FILTER_ERROR;
 
   // Don't update when we're called to just flush out our internal buffers.
-  if (next_stream_data_ && stream_data_len_ > 0) {
-    time_of_last_read_ = base::Time::Now();
-    size_of_last_read_ = stream_data_len_;
-  }
+  if (next_stream_data_ && stream_data_len_ > 0)
+    read_times_.push_back(base::Time::Now());
 
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();
@@ -151,7 +177,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
           SdchManager::SdchErrorRecovery(
               SdchManager::META_REFRESH_CACHED_RECOVERY);
         } else {
-          // Since it wasn't in the cache, we definately need at lest some
+          // Since it wasn't in the cache, we definately need at least some
           // period of blacklisting to get the correct content.
           SdchManager::BlacklistDomain(url());
           SdchManager::SdchErrorRecovery(SdchManager::META_REFRESH_RECOVERY);
@@ -194,7 +220,6 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
     decoding_status_ = DECODING_ERROR;
     return FILTER_ERROR;
   }
-
 
   if (!next_stream_data_ || stream_data_len_ <= 0)
     return FILTER_NEED_MORE_DATA;

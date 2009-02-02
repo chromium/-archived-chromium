@@ -99,10 +99,9 @@ class SdchFilter : public Filter {
   size_t source_bytes_;
   size_t output_bytes_;
 
-  // When was the most recent non-zero size data chunk processed?
-  base::Time time_of_last_read_;
-  // How large was the most recent non-zero size data chunk?
-  int size_of_last_read_;
+  // Record of chunk processing times for this filter.  Used only for stats
+  // generations in histograms.
+  std::vector<base::Time> read_times_;
 
   // Error recovery in content type may add an sdch filter type, in which case
   // we should gracefully perform pass through if the format is incorrect, or

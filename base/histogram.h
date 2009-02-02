@@ -41,7 +41,7 @@
 
 //------------------------------------------------------------------------------
 // Provide easy general purpose histogram in a macro, just like stats counters.
-// These macros all use 50 buckets.
+// The first two macros use 50 buckets.
 
 #define HISTOGRAM_TIMES(name, sample) do { \
     static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
@@ -52,6 +52,13 @@
 #define HISTOGRAM_COUNTS(name, sample) do { \
     static Histogram counter((name), 1, 1000000, 50); \
     counter.Add(sample); \
+  } while (0)
+
+// For folks that need real specific times, use this, but you'll only get
+// samples that are in the range (overly large samples are discarded).
+#define HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) do { \
+    static Histogram counter((name), min, max, bucket_count); \
+    if ((sample) < (max)) counter.AddTime(sample); \
   } while (0)
 
 //------------------------------------------------------------------------------
@@ -85,12 +92,16 @@
 #define DHISTOGRAM_COUNTS(name, sample) HISTOGRAM_COUNTS(name, sample)
 #define DASSET_HISTOGRAM_COUNTS(name, sample) ASSET_HISTOGRAM_COUNTS(name, \
                                                                      sample)
+#define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
+    HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count)
 
 #else  // NDEBUG
 
 #define DHISTOGRAM_TIMES(name, sample) do {} while (0)
 #define DHISTOGRAM_COUNTS(name, sample) do {} while (0)
 #define DASSET_HISTOGRAM_COUNTS(name, sample) do {} while (0)
+#define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
+    do {} while (0)
 
 #endif  // NDEBUG
 
@@ -122,6 +133,12 @@ static const int kUmaTargetedHistogramFlag = 0x1;
                              base::TimeDelta::FromHours(1), 50); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.AddTime(sample); \
+  } while (0)
+
+#define UMA_HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) do { \
+    static Histogram counter((name), min, max, bucket_count); \
+    counter.SetFlags(kUmaTargetedHistogramFlag); \
+    if ((sample) < (max)) counter.AddTime(sample); \
   } while (0)
 
 #define UMA_HISTOGRAM_COUNTS(name, sample) do { \
@@ -176,7 +193,7 @@ class Histogram : public StatsRate {
 
     // Accessor methods.
     Count counts(size_t i) const { return counts_[i]; }
-    Count TotalCount() const ;
+    Count TotalCount() const;
     int64 sum() const { return sum_; }
     int64 square_sum() const { return square_sum_; }
 
@@ -276,7 +293,7 @@ class Histogram : public StatsRate {
 
   // Write a common header message describing this histogram.
   void WriteAsciiHeader(const SampleSet& snapshot,
-                        Count sample_count, std::string* output) const ;
+                        Count sample_count, std::string* output) const;
 
   // Write information about previous, current, and next buckets.
   // Information such as cumulative percentage, etc.
@@ -375,7 +392,9 @@ class LinearHistogram : public Histogram {
 // BooleanHistogram is a histogram for booleans.
 class BooleanHistogram : public LinearHistogram {
  public:
-  BooleanHistogram(const wchar_t* name) : LinearHistogram(name, 0, 2, 3) {}
+  explicit BooleanHistogram(const wchar_t* name)
+    : LinearHistogram(name, 0, 2, 3) {
+  }
 
   virtual void AddBoolean(bool value) { Add(value ? 1 : 0); }
 
