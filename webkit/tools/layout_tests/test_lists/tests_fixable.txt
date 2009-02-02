@@ -975,13 +975,14 @@ MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
 // We don't draw the spelling markers at all in test shell, and it's a low
 // priority, so I'm DEFERing.
 DEFER LINUX WIN : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
-LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
-LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
-LayoutTests/fast/dom/constructors-cached.html = FAIL
 LayoutTests/fast/js/arguments.html = FAIL
 LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
+// These two depend on which webkit features are enabled.  For instance, it checks
+// if the Audio constructor is available which is only the case if AUDIO is enabled.
+LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
+LayoutTests/fast/dom/constructors-cached.html = FAIL
 
 // This test was update in webkit revision 40293.  This new test
 // passes, but the old test seems to still be used on the buildbot.
