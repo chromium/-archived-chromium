@@ -61,11 +61,16 @@ SdchFilter::~SdchFilter() {
                                     read_times_.back() - read_times_[0],
                                     base::TimeDelta::FromMilliseconds(20),
                                     base::TimeDelta::FromMinutes(10), 100);
-        if (read_times_.size() > 3)
+        if (read_times_.size() > 3) {
           UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Decode_3rd_To_4th",
                                       read_times_[3] - read_times_[2],
                                       base::TimeDelta::FromMilliseconds(10),
                                       base::TimeDelta::FromSeconds(3), 100);
+          UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Decode_2nd_To_3rd",
+                                      read_times_[2] - read_times_[1],
+                                      base::TimeDelta::FromMilliseconds(10),
+                                      base::TimeDelta::FromSeconds(3), 100);
+        }
         UMA_HISTOGRAM_COUNTS_100(L"Sdch.Network_Decode_Reads",
                                  read_times_.size());
         UMA_HISTOGRAM_COUNTS(L"Sdch.Network_Decode_Bytes_Read", output_bytes_);
@@ -78,11 +83,16 @@ SdchFilter::~SdchFilter() {
                                     read_times_.back() - read_times_[0],
                                     base::TimeDelta::FromMilliseconds(20),
                                     base::TimeDelta::FromMinutes(10), 100);
-        if (read_times_.size() > 3)
+        if (read_times_.size() > 3) {
           UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Pass-through_3rd_To_4th",
                                       read_times_[3] - read_times_[2],
                                       base::TimeDelta::FromMilliseconds(10),
                                       base::TimeDelta::FromSeconds(3), 100);
+          UMA_HISTOGRAM_CLIPPED_TIMES(L"Sdch.Network_Pass-through_2nd_To_3rd",
+                                      read_times_[2] - read_times_[1],
+                                      base::TimeDelta::FromMilliseconds(10),
+                                      base::TimeDelta::FromSeconds(3), 100);
+        }
         UMA_HISTOGRAM_COUNTS_100(L"Sdch.Network_Pass-through_Reads",
                                  read_times_.size());
       }
