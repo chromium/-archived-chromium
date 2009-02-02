@@ -309,6 +309,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="extensions"
+			>
+			<File
+				RelativePath=".\extensions\url_pattern.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\url_pattern.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\animation.cc"
 			>

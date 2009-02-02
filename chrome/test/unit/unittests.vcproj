@@ -383,10 +383,6 @@
 			Name="browser"
 			>
 			<File
-				RelativePath="..\..\browser\views\find_bar_win_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\autocomplete\autocomplete_unittest.cc"
 				>
 			</File>
@@ -480,6 +476,10 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\extensions\extensions_service_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\views\find_bar_win_unittest.cc"
 				>
 			</File>
 			<File
@@ -703,6 +703,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\common\extensions\url_pattern_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.cc"
 				>
 			</File>
@@ -807,11 +811,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\renderer\render_thread_unittest.cc"
+				RelativePath="..\..\renderer\render_process_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\renderer\render_process_unittest.cc"
+				RelativePath="..\..\renderer\render_thread_unittest.cc"
 				>
 			</File>
 			<File

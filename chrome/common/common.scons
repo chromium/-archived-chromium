@@ -43,6 +43,10 @@ input_files = ChromeFileList([
   # TODO(sgk):  violate standard indentation so we don't have to
   # reindent too much when we remove the explicit MSVSFilter() calls
   # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('extensions', [
+    'extensions/url_pattern.cc',
+    'extensions/url_pattern.h',
+  ]),
   MSVSFilter('net', [
     'net/cookie_monster_sqlite.cc',
     'net/cookie_monster_sqlite.h',

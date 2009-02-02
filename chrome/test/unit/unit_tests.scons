@@ -202,6 +202,7 @@ input_files = ChromeFileList([
     '$CHROME_DIR/common/animation_unittest.cc',
     '$CHROME_DIR/common/bzip2_unittest.cc',
     '$CHROME_DIR/common/chrome_plugin_unittest.cc',
+    '$CHROME_DIR/common/extensions/url_pattern_unittest.cc',
     '$CHROME_DIR/common/gfx/emf_unittest.cc',
     '$CHROME_DIR/common/gfx/icon_util_unittest.cc',
     '$CHROME_DIR/common/ipc_message_unittest.cc',

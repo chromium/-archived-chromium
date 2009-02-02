@@ -1299,6 +1299,24 @@ TEST(StringUtilTest, SplitString) {
   r.clear();
 }
 
+// Test for JoinString
+TEST(StringUtilTest, JoinString) {
+  std::vector<std::string> in;
+  EXPECT_EQ("", JoinString(in, ','));
+
+  in.push_back("a");
+  EXPECT_EQ("a", JoinString(in, ','));
+
+  in.push_back("b");
+  in.push_back("c");
+  EXPECT_EQ("a,b,c", JoinString(in, ','));
+
+  in.push_back("");
+  EXPECT_EQ("a,b,c,", JoinString(in, ','));
+  in.push_back(" ");
+  EXPECT_EQ("a|b|c|| ", JoinString(in, '|'));
+}
+
 TEST(StringUtilTest, StartsWith) {
   EXPECT_TRUE(StartsWithASCII("javascript:url", "javascript", true));
   EXPECT_FALSE(StartsWithASCII("JavaScript:url", "javascript", true));

@@ -494,6 +494,10 @@ void SplitStringDontTrim(const std::string& str,
                          char s,
                          std::vector<std::string>* r);
 
+// Does the opposite of SplitString().
+std::wstring JoinString(const std::vector<std::wstring>& parts, wchar_t s);
+std::string JoinString(const std::vector<std::string>& parts, char s);
+
 // WARNING: this uses whitespace as defined by the HTML5 spec. If you need
 // a function similar to this but want to trim all types of whitespace, then
 // factor this out into a function that takes a string containing the characters

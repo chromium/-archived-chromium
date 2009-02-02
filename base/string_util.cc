@@ -1140,6 +1140,31 @@ void SplitStringDontTrim(const std::string& str,
   SplitStringT(str, s, false, r);
 }
 
+template<typename STR>
+static STR JoinStringT(const std::vector<STR>& parts,
+                       typename STR::value_type sep) {
+  if (parts.size() == 0) return STR();
+
+  STR result(parts[0]);
+  typename std::vector<STR>::const_iterator iter = parts.begin();
+  ++iter;
+
+  for (; iter != parts.end(); ++iter) {
+    result += sep;
+    result += *iter;
+  }
+
+  return result;
+}
+
+std::string JoinString(const std::vector<std::string>& parts, char sep) {
+  return JoinStringT(parts, sep);
+}
+
+std::wstring JoinString(const std::vector<std::wstring>& parts, wchar_t sep) {
+  return JoinStringT(parts, sep);
+}
+
 void SplitStringAlongWhitespace(const std::wstring& str,
                                 std::vector<std::wstring>* result) {
   const size_t length = str.length();
