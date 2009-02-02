@@ -18,16 +18,13 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;..\precompiled_webkit.vsprops;.\webcore.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;.\webcore.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="WebKitVersion"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -79,9 +76,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="WebKitVersion"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -675,15 +669,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\EmptyClients.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocumentThreadableLoader.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocumentThreadableLoader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\EmptyClients.h"
 				>
 			</File>
 			<File
@@ -3318,7 +3312,7 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLegend.h"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLineBoxList.cpp"
 				>
 			</File>
@@ -4483,19 +4477,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.h"
 				>
 			</File>
 			<File
@@ -4643,19 +4637,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionElement.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.h"
 				>
 			</File>
 			<File
@@ -7511,30 +7505,6 @@
 				</File>
 			</Filter>
 		</Filter>
-		<File
-			RelativePath="..\precompiled_webkit.cc"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="1"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\precompiled_webkit.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
